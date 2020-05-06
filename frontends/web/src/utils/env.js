@@ -15,3 +15,19 @@
  */
 
 export const debug = process.env.NODE_ENV === 'development';
+
+/**
+ * Returns whether the code is running in QtWebEngine.
+ */
+export function runningInQtWebEngine() {
+    // @ts-ignore
+    return typeof qt !== 'undefined';
+}
+
+/**
+ * Returns whether the code is running in Android.
+ */
+export function runningInAndroid() {
+    // @ts-ignore
+    return typeof android !== 'undefined';
+}

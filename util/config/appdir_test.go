@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package config_test
 
 import (
 	"fmt"
@@ -21,6 +21,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 )
 
@@ -39,7 +40,7 @@ func TestAppDir(t *testing.T) {
 	idx := os.Getenv("BITBOX_TEST_APP_DIR_IDX")
 	if idx != "" {
 		wantAppDir := os.Getenv("BITBOX_TEST_APP_DIR")
-		if dir := AppDir(); dir != wantAppDir {
+		if dir := config.AppDir(); dir != wantAppDir {
 			t.Errorf("%s: AppDir: %q; want %q", idx, dir, wantAppDir)
 		}
 		return

@@ -35,7 +35,7 @@ github.com/coreos/bbolt
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.7.1
 github.com/deckarep/golang-set
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20191216115012-99ad594c335a
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200325010318-741357feee4a
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
 github.com/digitalbitbox/bitbox02-api-go/api/firmware
@@ -135,7 +135,7 @@ github.com/huin/goupnp/soap
 github.com/huin/goupnp/ssdp
 # github.com/jackpal/go-nat-pmp v1.0.1
 github.com/jackpal/go-nat-pmp
-# github.com/karalabe/usb v0.0.0-20190919080040-51dc0efba356
+# github.com/karalabe/usb v0.0.0-20191104083709-911d15fe12a9
 github.com/karalabe/usb
 # github.com/kkdai/bstream v1.0.0
 github.com/kkdai/bstream

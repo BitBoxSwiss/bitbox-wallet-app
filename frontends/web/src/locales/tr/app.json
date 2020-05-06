@@ -126,7 +126,7 @@
     "error": {
       "e10000": "Geçerli cihaz şifresi yanlış.",
       "e10001": "Cihazın şifresini değiştirme başarısız",
-      "e102": "Şifre en az 8 karakterden oluşmalıdır.",
+      "e102": "Şifre en az 4 karakterden oluşmalıdır.",
       "e112": "Gizli cihaz şifresi, ana cihaz şifresi ile aynı olamaz."
     }
   },
@@ -543,15 +543,7 @@
   "generic": {
     "applying": "Yapılandırma uygulanıyor",
     "confirmToContinue": "Lütfen devam etmek için onaylayın.",
-    "description": "Açıklama",
-    "enable": {
-      "false": "etkinleştirme",
-      "true": "devre dışı"
-    },
-    "enabled": {
-      "false": "Devre dışı bırakıldı",
-      "true": "Etkin"
-    }
+    "description": "Açıklama"
   },
   "genericError": "Bir hata oluştu. Herhangi bir sorunla karşılaşırsanız, lütfen uygulamayı yeniden başlatın.",
   "goal": {
@@ -942,11 +934,6 @@
   },
   "receive": {
     "label": "Sizin adresiniz",
-    "ltcLegacy": {
-      "button": "Eski adres formatına dönüştür",
-      "info": "Litecoin adresleri 3 ile başlayan adreslerden 'M' ile başlayan adreslere geçiyor.",
-      "result": "Eski formatı {{address}}:\n{{legacyAddress}}"
-    },
     "onlyThisCoin": {
       "description": "Başka token'ları almak için, onları ayarlardan etkinleştirin. Diğer token'ları yatırırsanız, erişilebilir olmayabilir.",
       "warning": "Sadece bu adresle  {{accountName}} almak istediğinize emin olun"
@@ -996,7 +983,7 @@
     "creating": "Cüzdan oluşturma",
     "description": "Bunu kabul ediyorum:",
     "error": {
-      "e102": "Şifre en az 8 karakterden oluşmalıdır.",
+      "e102": "Şifre en az 4 karakterden oluşmalıdır.",
       "e200": "Cüzdan oluşturmak için BitBox'ınıza bir mikro SD kart takmanız gerekir, böylece yedekleme otomatik olarak oluşturulabilir."
     },
     "info": {
@@ -1099,7 +1086,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum BETA",
+      "ethereum": "Ethereum",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Aktif hesaplar"

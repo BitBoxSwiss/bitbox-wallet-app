@@ -51,7 +51,7 @@ export default class Transaction extends Component {
         index,
         explorerURL,
         type,
-        id,
+        txID,
         amount,
         fee,
         feeRatePerKb,
@@ -112,6 +112,7 @@ export default class Transaction extends Component {
             </svg>
         );
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
+        const typeClassName = (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
         const sDate = time ? this.parseTimeShort(time) : '---';
         const statusText = {
             complete: t('transaction.status.complete'),
@@ -194,12 +195,16 @@ export default class Transaction extends Component {
                             <span className={style.status}>{statusText}</span>
                         </div>
                         <div className={parentStyle.fiat}>
-                            <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
-                                <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
+                            <span className={`${style.fiat} ${typeClassName}`}>
+                                <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
                             </span>
                         </div>
                         <div className={parentStyle.currency}>
-                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
+                            <span className={`${style.currency} ${typeClassName}`}>
+                                {sign}{amount.amount}
+                                {' '}
+                                <span className={style.currencyUnit}>{amount.unit}</span>
+                            </span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.showDetails}>
@@ -279,22 +284,30 @@ export default class Transaction extends Component {
                             <div className={style.detail}>
                                 <label>{t('transaction.details.fiat')}</label>
                                 <p>
-                                    <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
-                                        <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
+                                    <span className={`${style.fiat} ${typeClassName}`}>
+                                        <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
                                     </span>
                                 </p>
                             </div>
                             <div className={style.detail}>
                                 <label>{t('transaction.details.amount')}</label>
                                 <p>
-                                    <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
+                                    <span className={`${style.currency} ${typeClassName}`}>
+                                        {sign}{amount.amount}
+                                        {' '}
+                                        <span className={style.currencyUnit}>{amount.unit}</span>
+                                    </span>
                                 </p>
                             </div>
                             <div className={style.detail}>
                                 <label>{t('transaction.fee')}</label>
                                 {
                                     fee && fee.amount ? (
-                                        <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>{fee.amount} {fee.unit}</p>
+                                        <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
+                                            {fee.amount}
+                                            {' '}
+                                            <span className={style.currencyUnit}>{fee.unit}</span>
+                                        </p>
                                     ) : (
                                         <p>---</p>
                                     )
@@ -322,7 +335,11 @@ export default class Transaction extends Component {
                                 weight ? (
                                     <div className={style.detail}>
                                         <label>{t('transaction.weight')}</label>
-                                        <p>{weight}</p>
+                                        <p>
+                                            {weight}
+                                            {' '}
+                                            <span className={style.currencyUnit}>WU</span>
+                                        </p>
                                     </div>
                                 ) : null
                             }
@@ -330,7 +347,11 @@ export default class Transaction extends Component {
                                 vsize ? (
                                     <div className={style.detail}>
                                         <label>{t('transaction.vsize')}</label>
-                                        <p>{vsize}</p>
+                                        <p>
+                                            {vsize}
+                                            {' '}
+                                            <span className={style.currencyUnit}>b</span>
+                                        </p>
                                     </div>
                                 ) : null
                             }
@@ -338,14 +359,18 @@ export default class Transaction extends Component {
                                 size ? (
                                     <div className={style.detail}>
                                         <label>{t('transaction.size')}</label>
-                                        <p>{size}</p>
+                                        <p>
+                                            {size}
+                                            {' '}
+                                            <span className={style.currencyUnit}>b</span>
+                                        </p>
                                     </div>
                                 ) : null
                             }
                             <div className={style.detail}>
                                 <label>{t('transaction.explorer')}</label>
                                 <p className="text-break">
-                                    <A className={style.externalLink} href={ explorerURL + id } title={t('transaction.explorerTitle')}>{id}</A>
+                                    <A className={style.externalLink} href={ explorerURL + txID } title={t('transaction.explorerTitle')}>{txID}</A>
                                 </p>
                             </div>
                         </Dialog>

@@ -1,6 +1,7 @@
 {
   "account": {
     "disconnect": "接続が切れました。再試行中です…",
+    "export": "エクスポート",
     "exportTransactions": "取引一覧をCSV形式でダウンロードフォルダにエクスポート",
     "fatalError": "予期せぬエラーが起こりました。",
     "incoming": "受信中",
@@ -19,18 +20,21 @@
   "accountInfo": {
     "address": "アドレス",
     "extendedPublicKey": "拡張パブリックキー",
+    "label": "アカウント情報",
     "title": "アカウント情報",
     "verify": "デバイスで確認"
   },
   "accountSummary": {
+    "availableBalance": "利用可能な残高",
     "balance": "残高",
-    "exportSummary": "アカウント概要をCSV形式でダウンロード",
+    "exportSummary": "ダウンロードフォルダにアカウント概要をCSV形式でエクスポート",
     "fiatBalance": "不換通過残高",
     "name": "アカウント名",
     "noAccount": "表示できるアカウントがありません。",
     "synchronizing": "アカウントとブロックチェーンを同期中",
     "title": "アカウント概要",
-    "total": "合計"
+    "total": "合計",
+    "transactionHistory": "取引履歴"
   },
   "addAccount": {
     "accountName": "アカウント名",
@@ -57,8 +61,8 @@
     "check": {
       "checking": "バックアップを確認中…",
       "confirmTitle": "バックアップを確認",
-      "notOK": "このバックアップは現在のウォレットと一致しません。",
-      "ok": "このバックアップは現在のウォレットと一致します。",
+      "notOK": "このバックアップはウォレットと一致しません。",
+      "ok": "このバックアップはウォレットと一致します。",
       "password": {
         "label": "リカバリーパスワード",
         "placeholder": "リカバリーパスワード",
@@ -85,12 +89,13 @@
     "description": "<strong>ウォレットのバックアップファイル</strong>を選択してください",
     "insert": "バックアップを管理するにはSDカードを挿入してください。",
     "insertButton": "SDカードを挿入しました",
-    "list": "下記のバックアップがmicroSDカード上で見つかりました：",
+    "list": "microSDカード上のバックアップ",
     "noBackups": "このmicroSDカードにはバックアップが存在しません。",
     "restore": {
       "confirmTitle": "バックアップの復元",
       "error": {
-        "e200": "SDカードが見つかりません"
+        "e200": "microSDカードが見つかりません",
+        "general": "バックアップの復元中にエラーが発生しました。"
       },
       "password": {
         "label": "リカバリーパスワードもしくは秘密リカバリーパスワード",
@@ -102,11 +107,19 @@
       "title": "復元",
       "understand": "間違ったリカバリーパスワードは別のウォレットを作成することを理解しました"
     },
+    "restoreFromMnemonic": {
+      "confirmTitle": "ニーモニック・シードから復元する"
+    },
+    "showMnemonic": {
+      "description": "これからあなたのウォレットを構成する単語が24個表示されます。紙に書き写してください。\n\n<strong>デジタルな形や写真を撮るなどの保存はしないでください。</strong>\n\n<strong>単語を声に出さないでください。</strong>\n\n<strong>このバックアップはパスワードによって保護されていません。\n</strong>\n\n後ほど各単語を確認していただくことになります。",
+      "title": "ニーモニック・シードを表示"
+    },
     "title": "バックアップの管理"
   },
   "bb02Bootloader": {
     "abort": "アップグレードしない – 前の画面に戻る",
     "advanced": {
+      "label": "アドバンスト設定",
       "toggleShowFirmwareHash": "スタートアップ時に毎回ファームウェアのハッシュを表示"
     },
     "flipscreen": "画面を反転",
@@ -117,19 +130,26 @@
     "error": {
       "e10000": "現在のデバイスのパスワードが間違っています。",
       "e10001": "デバイスパスワードの入れ替えに失敗。",
-      "e102": "パスワードは８文字以上（半角）必要です。",
+      "e102": "パスワードは4文字以上（半角）必要です。",
       "e112": "秘密デバイスのパスワードとメインデバイスのパスワードは同じであってはいけません。"
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "BitBox02本体の手順に従ってください。"
+    "confirmDate": "本日の日付をBitBox02で確認してください",
+    "confirmDateText": "この日付はバックアップ作成に使用されます。",
+    "confirmName": "名前をBitBox02で確認してください",
+    "followInstructions": "BitBox02の手順に従ってください。",
+    "followInstructionsMnemonic": "ニーモニック・シードから復元するにはBitBox02の手順に従ってください。"
   },
   "bitbox02Settings": {
     "deviceName": {
+      "current": "現在のデバイス名",
       "input": "BitBox02の名前",
+      "placeholder": "新しいデバイス名",
       "title": "BitBox02の名前を設定"
     },
     "mnemonicPassphrase": {
+      "description": "任意でBItBox02のアンロック後にパスフレーズを入力することができます。\n\n<strong>注意：</strong>パスフレーズの内容毎に新しいウォレットが派生します。ご自身で決めたパスフレーズは<strong>大切に保管してください</strong>。\n<strong>パスフレーズを紛失した場合、ウォレットは復元できません。</strong>",
       "disable": "ニーモニックパスフレーズを無効化",
       "enable": "ニーモニックパスフレーズを有効化",
       "successDisable": "ニーモニックパスフレーズの無効化に成功しました",
@@ -144,7 +164,11 @@
       "restoreText": "さあ、バックアップを復元しましょう！",
       "text1": "これでBitBox02のパスワードは設定され、ウォレットも作成されました。次はバックアップを作成しましょう、microSDカードがデバイスに挿入されていることを確認してから次に進んでください。",
       "text2": "バックアップを作るにはデバイスの画面上の手順に従って下さい。",
-      "text3": "バックアップ作成後にデバイスからmicroSDカードを取り外し、<strong>安全な場所</strong>に保管してください。microSDカードの内容はパスワード保護されていません。BitBox02以外のデバイスに挿入しないよう気をつけてください。"
+      "text3": "バックアップ作成後にデバイスからmicroSDカードを取り外し、<strong>安全な場所</strong>に保管してください。microSDカードの内容はパスワード保護されていません。BitBox02以外のデバイスに挿入しないよう気をつけてください。",
+      "userConfirmation1": "バックアップは安全な場所に保管するべきです。",
+      "userConfirmation2": "バックアップはパスワードによって保護されていません。バックアップにアクセスのある人はあなたのウォレットにもアクセスがあります。",
+      "userConfirmation3": "BitBox02が損傷または紛失した際には、バックアップからしか私の資金を復元できません。",
+      "userConfirmation4": "BitBox02ならびにバックアップ両方の損傷・紛失の場合、私の資金は失くなります。"
     },
     "create": {
       "button": "デバイス名を設定して次へ進む",
@@ -155,6 +179,7 @@
       "point3": "バックアップ作成",
       "text": "さあ、新しいウォレットを作りましょう！"
     },
+    "createBackupFailed": "バックアップの作成に失敗しました、再度試してください。",
     "initialize": {
       "passwordText": "次にデバイスのパスワードを設定しましょう。BitBoxを操作してパスワードの入力を行ってください。",
       "passwordTitle": "BitBoxのパスワードを設定",
@@ -162,12 +187,60 @@
       "tip": "安全な環境を確保した上で次のステップに進んでください。",
       "title": "BitBoxの初期化"
     },
+    "insertSDCard": "<strong>BitBox02にmicroSDカードが挿入されていることを確認してください。</strong?",
+    "noPasswordMatch": "パスワードが一致しませんでした、再度試してください。",
     "pairing": {
       "confirmButton": "確認して次へ進む",
       "failed": "ペアリングが確認できません。BitBox02を挿し直してください。",
       "paired": "あなたはコードが一致することをデバイス上で確認しました。間違いがない場合、下のボタンをクリックして次へ進んでください。",
       "title": "ペアリングコードの確認",
       "unpaired": "新しいBitBox02が認識されました。下記コードがデバイス上で表示されているものと一致することを確認してください。コードが一致する場合はデバイス画面のチェックマーク下部をタッチし、それから下記ボタンをクリックして次へ進んでください。"
+    },
+    "restoreFromMnemonic": {
+      "failed": "ニーモニック・シードからの復元に失敗しました、再度試してください。",
+      "point1": "単語を入力してください",
+      "point2": "$t(bitbox02Wizard.backup.point2)"
+    },
+    "stepBackup": {
+      "beforeProceed": "次へ進む前に、重要なセキュリティ事項を読んでください。",
+      "createBackup": "これからmicroSDカード上にバックアップを作成します。"
+    },
+    "stepBackupSuccess": {
+      "fundsSafe": "資金の安全を保つため、次のことを覚えていてください：",
+      "title": "バックアップを復元しました！"
+    },
+    "stepConnected": {
+      "unlock": "BitBox02のパスワードを入力してアンロックしてください。"
+    },
+    "stepCreate": {
+      "buttonBack": "戻る",
+      "buttonContinue": "次へ進む",
+      "nameLabel": "BitBox02の名前",
+      "namePlaceholder": "私のBitBox02",
+      "title": "BitBox02の名前を決めてください",
+      "toastMicroSD": "BitBox02にmicroSDカードが挿入されていることを確認してください。"
+    },
+    "stepCreateSuccess": {
+      "removeMicroSD": "BitBox02からmicroSDカードを抜いて安全が場所にしまってください。",
+      "success": "バックアップの作成に成功しました。"
+    },
+    "stepInsertSD": {
+      "insertSDCard": "次へ進むにはBitBox02にmicroSDカードを挿入してください。",
+      "insertSDcardTitle": "microSDカードを挿入してください。"
+    },
+    "stepPassword": {
+      "title": "BitBox02のパスワードを設定する",
+      "useControls": "BitBox02を操作してパスワードを設定してください。"
+    },
+    "stepUninitialized": {
+      "create": "新しいBitBox02をセットアップする。",
+      "restore": "バックアップからウォレットを復元する。",
+      "restoreMicroSD": "microSDカードから復元する",
+      "restoreMnemonic": "ニーモニックから復元する",
+      "title": "BitBox02をセットアップする"
+    },
+    "stepUnpaired": {
+      "verify": "ペアリングコードがBitBox02に表示されているものと一致することを確かめてください。"
     },
     "success": {
       "text": "おめでとうございます！BitBox02を使い始める準備が整いました。\n\nBitBox Appの使い方を確認するには、画面右上のアイコンからアプリ内のガイドを参照してください。",
@@ -176,8 +249,67 @@
   },
   "bitboxBase": {
     "connect": "Baseに接続",
+    "connectedBases": "接続されたデバイス",
     "detectedBases": "ネットワーク上に次のデバイスが認識されました：",
+    "detectedBasesEmpty": "デバイスがありません",
+    "manage": "管理",
     "manualInput": "BitBox Baseが表示されませんか？下記から手動で接続することができます：",
+    "manualInputInvalid": "IPアドレスが無効です。",
+    "manualInputLabel": "IPアドレス:ポート",
+    "new": "新しいBitBoxBase",
+    "settings": {
+      "advanced": {
+        "blocks": "ブロック数",
+        "confirmSystemPassword": "<strong>SSH認証とsudoアクセス</strong>のためBitBoxBaseのシステムパスワードを設定する。\n$t(generic.confirmToContinue)",
+        "connectElectrum": "Electrumに接続",
+        "headers": "ヘッダー",
+        "ipAddress": "IPアドレス",
+        "manual": "手動で更新",
+        "port": "ポート",
+        "reset": "初期設定にリセット",
+        "sshAccess": {
+          "button": "SSHパスワードでログイン",
+          "confirm": "この設定はパスワードを決めることでBitBoxBaseに<strong>SSHとsudoアクセス</strong>の権限を与えます。\n内容を理解している場合のみ次へお進みください。",
+          "inProgress": "SSHパスワード認証の切り替え",
+          "success": "SSHパスワード認証とsudoアクセス：{{enabled}}",
+          "title": "SSHアクセス"
+        },
+        "status": "ステータス",
+        "subheaders": {
+          "bitcoin": "Bitcoin Core",
+          "electrs": "Electrs",
+          "lightning": "ライトニング",
+          "networking": "ネットワーキング"
+        },
+        "syncOptions": "同期オプション",
+        "systemPassword": "システムパスワードの設定",
+        "systemPasswordSuccess": "BitBoxBaseのシステムパスワードの設定に成功しました。",
+        "title": "アドバンスト設定",
+        "torAddress": "Tor onionアドレス",
+        "version": "バージョン"
+      },
+      "backups": {
+        "confirmBackup": "BitBoxBaseの設定事項のバックアップを外部フラッシュドライブに新規作成します。\n\nBitBoxBaseに<strong>フラッシュドライブが接続されている</strong>ことを確認してください。",
+        "create": "バックアップの作成",
+        "created": "バックアップの作成に成功しました。",
+        "creating": "バックアップの作成中…",
+        "manage": "バックアップの管理",
+        "restore": "バックアップの復元",
+        "title": "バックアップ"
+      },
+      "dashboard": {
+        "lightningChannels": "ライトニング・チャンネルの有効化",
+        "notAvailable": "利用不可",
+        "peers": "Bitcoinピア数",
+        "syncStatus": "Bitcoin同期状況"
+      },
+      "node": {
+        "bitcoinRestarting": "Baseサービスの再起動中…",
+        "changeName": "名前の変更",
+        "changeNameTitle": "BitBoxBaseのホスト名を変更",
+        "confirmDisconnect": "アプリからBitBoxBaseを取り除きます、使用するには再度繋げ直す必要なあります。\n$t(generic.confirmToContinue)"
+      }
+    },
     "title": "BitBox Base"
   },
   "blink": {
@@ -668,11 +800,6 @@
   },
   "receive": {
     "label": "あなたのアドレス",
-    "ltcLegacy": {
-      "button": "Legacyアドレス形式に変換",
-      "info": "Litecoinは「3」で始まるアドレスから「M」で始まるアドレスに移行しています。",
-      "result": "{{address}}のLegacy形式：\n{{legacyAddress}}"
-    },
     "showFull": "フルアドレスをデバイス上で表示・確認",
     "title": "コインの受け取り",
     "verify": "安全にアドレスを検証",
@@ -715,7 +842,7 @@
     "creating": "ウォレットの作成中",
     "description": "次の項目を確認しました：",
     "error": {
-      "e102": "パスワードは最低8文字(半角)必要です。",
+      "e102": "パスワードは最低4文字(半角)必要です。",
       "e200": "自動的にバックアップが作成されるため、ウォレットを作成するにはBitBoxにmicroSDカードを挿入する必要があります。"
     },
     "info": {

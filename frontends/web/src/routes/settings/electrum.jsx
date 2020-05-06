@@ -34,6 +34,7 @@ class ElectrumServer extends Component {
             valid: false,
             electrumServer: '',
             electrumCert: '',
+            tls: false,
             loadingCheck: false,
             loadingCert: false,
         };
@@ -41,8 +42,17 @@ class ElectrumServer extends Component {
             this.setState({
                 electrumServer: props.server.server,
                 electrumCert: props.server.pemCert,
+                tls: props.server.tls,
             });
         }
+    }
+
+    isTLS = () => {
+        if (this.props.server === null) { // in add-mode
+            return this.state.electrumCert !== '';
+        }
+        // in list-mode
+        return this.props.server.tls;
     }
 
     handleFormChange = event => {
@@ -56,7 +66,7 @@ class ElectrumServer extends Component {
         return {
             server: this.state.electrumServer.trim(),
             pemCert: this.state.electrumCert,
-            tls: true,
+            tls: this.isTLS(),
         };
     }
 
@@ -81,7 +91,7 @@ class ElectrumServer extends Component {
 
     check = () => {
         this.setState({ loadingCheck: true });
-        apiPost('certs/check', this.getServer()).then(({ success, errorMessage }) => {
+        apiPost('electrum/check', this.getServer()).then(({ success, errorMessage }) => {
             if (success) {
                 alertUser(this.props.t('settings.electrum.checkSuccess', { host: this.state.electrumServer }));
             } else {
@@ -102,6 +112,7 @@ class ElectrumServer extends Component {
         valid,
         electrumServer,
         electrumCert,
+        tls,
         loadingCheck,
         loadingCert,
     }) {
@@ -109,9 +120,9 @@ class ElectrumServer extends Component {
             return (
                 <li>
                     <div class={style.server}>
-                        <div>{electrumServer}</div>
+                        <div>{electrumServer} {tls ? 'tls' : 'tcp' }</div>
                         <div>
-                            <button class={style.primary} disabled={electrumServer === '' || electrumCert === '' || loadingCheck} onClick={this.check}>
+                            <button class={style.primary} disabled={electrumServer === '' || (tls && electrumCert === '') || loadingCheck} onClick={this.check}>
                                 {
                                     loadingCheck && (
                                         <div class={style.miniSpinnerContainer}>
@@ -145,6 +156,7 @@ class ElectrumServer extends Component {
                     <p class={style.badge}>{t('settings.electrum.step2')}</p>
                     <div class="flex-1">
                         <p>{t('settings.electrum.step2-text')}</p>
+                        <p>{t('settings.electrum.step2-text-tcp')}</p>
                     </div>
                 </div>
                 <textarea
@@ -265,7 +277,7 @@ class ElectrumServers extends Component {
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
-                                    key={server.server}
+                                    key={server.server + server.tls.toString()}
                                     server={server}
                                     onRemove={onRemove(server, index)}
                                 />
@@ -347,6 +359,7 @@ export default class ElectrumSettings extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what')} />
+                    <Entry key="guide.settings-electrum.whenTCP" entry={t('guide.settings-electrum.whenTCP')} />
                 </Guide>
             </div>
         );

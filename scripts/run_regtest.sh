@@ -15,7 +15,7 @@
 
 
 BITCOIN_DATADIR="/tmp/regtest/btcdata"
-ELECTRUMX_DATADIR="/tmp/regtest/electrumxdata"
+ELECTRS_DATADIR="/tmp/regtest/electrsdata"
 
 trap 'killall' EXIT
 
@@ -26,16 +26,17 @@ killall() {
     kill -TERM 0
     wait
     rm -rf $BITCOIN_DATADIR
-    rm -rf $ELECTRUMX_DATADIR
+    rm -rf $ELECTRS_DATADIR
     docker rm bitcoind-regtest
-    docker rm electrumx-regtest
+    docker rm electrs-regtest
     echo DONE
 }
 
 mkdir -p $BITCOIN_DATADIR
-mkdir -p $ELECTRUMX_DATADIR
+mkdir -p $ELECTRS_DATADIR
+echo -n "dbb:dbb" > $ELECTRS_DATADIR/rpccreds
 echo "bitcoind datadir: ${BITCOIN_DATADIR}"
-echo "electrumx datadir: ${ELECTRUMX_DATADIR}"
+echo "electrs datadir: ${ELECTRS_DATADIR}"
 
 # Default docker bridge.
 DOCKER_IP="172.17.0.1"
@@ -50,26 +51,17 @@ docker run -v $BITCOIN_DATADIR:/bitcoin --name=bitcoind-regtest \
        -regtest \
        -port=12340 \
        -rpcport=10332 \
-       -txindex=1 \
        -rpcbind=0.0.0.0 \
        -rpcallowip=$DOCKER_IP/16 &
 
 docker run \
        -u $(id -u $USER) \
-       -v $ELECTRUMX_DATADIR:/data \
-       -e DAEMON_URL="dbb:dbb@${DOCKER_IP}:10332" \
-       -e COIN=BitcoinSegwit \
-       -e NET=regtest \
-       -e RPC_PORT=10002 \
-       -e PEER_DISCOVERY= \
-       -e HOST=0.0.0.0 \
-       -e RPC_HOST=0.0.0.0 \
-       -e TCP_PORT=52001 \
-       -e SSL_PORT=52002 \
-       -p 52001:52001 \
-       -p 10002:10002 \
-       --name=electrumx-regtest \
-       lukechilds/electrumx &
+       --net=host \
+       -v $BITCOIN_DATADIR/.bitcoin:/bitcoin \
+       -v $ELECTRS_DATADIR:/data \
+       --name=electrs-regtest \
+       benma2/electrs \
+       /electrs/electrs -vvvv --cookie-file=/data/rpccreds --timestamp --network=regtest --daemon-rpc-addr=${DOCKER_IP}:10332 --electrum-rpc-addr=127.0.0.1:52001 --daemon-dir=/bitcoin --db-dir=/data &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
 echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"

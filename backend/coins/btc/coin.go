@@ -46,9 +46,8 @@ type Coin struct {
 	unit                  string
 	net                   *chaincfg.Params
 	dbFolder              string
-	servers               []*config.ServerInfo
+	makeBlockchain        func() blockchain.Interface
 	blockExplorerTxPrefix string
-	socksProxy            socksproxy.SocksProxy
 
 	observable.Implementation
 
@@ -68,16 +67,21 @@ func NewCoin(
 	blockExplorerTxPrefix string,
 	socksProxy socksproxy.SocksProxy,
 ) *Coin {
+	log := logging.Get().WithGroup("coin").WithField("code", code)
 	coin := &Coin{
 		code:                  code,
 		unit:                  unit,
 		net:                   net,
 		dbFolder:              dbFolder,
-		servers:               servers,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
-		socksProxy:            socksProxy,
-
-		log: logging.Get().WithGroup("coin").WithField("code", code),
+		makeBlockchain: func() blockchain.Interface {
+			return electrum.NewElectrumConnection(
+				servers,
+				log,
+				socksProxy.GetTCPProxyDialer(),
+			)
+		},
+		log: log,
 	}
 	return coin
 }
@@ -86,11 +90,7 @@ func NewCoin(
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
-		coin.blockchain = electrum.NewElectrumConnection(
-			coin.servers,
-			coin.log,
-			coin.socksProxy.GetTCPProxyDialer(),
-		)
+		coin.blockchain = coin.makeBlockchain()
 
 		// Init Headers
 

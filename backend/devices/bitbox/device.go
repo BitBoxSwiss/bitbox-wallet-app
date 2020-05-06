@@ -39,6 +39,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
@@ -51,7 +52,7 @@ var (
 
 	pinPolicyProd              = NewPasswordPolicy("^[[:print:]]{4,}$")
 	pinPolicyTest              = NewPasswordPolicy("^[[:print:]]{4,}$")
-	recoveryPasswordPolicyProd = NewPasswordPolicy("^[[:print:]]{8,}$")
+	recoveryPasswordPolicyProd = NewPasswordPolicy("^[[:print:]]{4,}$")
 	recoveryPasswordPolicyTest = NewPasswordPolicy("^[[:print:]]{4,}$")
 )
 
@@ -154,6 +155,8 @@ type Device struct {
 	socksProxy socksproxy.SocksProxy
 
 	log *logrus.Entry
+
+	observable.Implementation
 }
 
 // NewDevice creates a new instance of Device.

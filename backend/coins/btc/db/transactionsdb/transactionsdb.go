@@ -48,7 +48,7 @@ type DB struct {
 func NewDB(filename string) (*DB, error) {
 	db, err := bbolt.Open(filename, 0600, nil)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	return &DB{db: db}, nil
 }
@@ -57,31 +57,31 @@ func NewDB(filename string) (*DB, error) {
 func (db *DB) Begin() (transactions.DBTxInterface, error) {
 	tx, err := db.db.Begin(true)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	bucketTransactions, err := tx.CreateBucketIfNotExists([]byte(bucketTransactions))
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	bucketUnverifiedTransactions, err := tx.CreateBucketIfNotExists([]byte(bucketUnverifiedTransactions))
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	bucketInputs, err := tx.CreateBucketIfNotExists([]byte(bucketInputs))
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	bucketOutputs, err := tx.CreateBucketIfNotExists([]byte(bucketOutputs))
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	bucketAddressHistories, err := tx.CreateBucketIfNotExists([]byte(bucketAddressHistories))
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	bucketConfig, err := tx.CreateBucketIfNotExists([]byte(bucketConfig))
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
 	return &Tx{
 		tx:                           tx,

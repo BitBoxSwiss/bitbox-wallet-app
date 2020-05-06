@@ -51,37 +51,6 @@ func (BTCCoin) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_a38f9ffa5c78f451, []int{0}
 }
 
-type BTCScriptType int32
-
-const (
-	BTCScriptType_SCRIPT_UNKNOWN     BTCScriptType = 0
-	BTCScriptType_SCRIPT_P2PKH       BTCScriptType = 1
-	BTCScriptType_SCRIPT_P2WPKH_P2SH BTCScriptType = 2
-	BTCScriptType_SCRIPT_P2WPKH      BTCScriptType = 3
-)
-
-var BTCScriptType_name = map[int32]string{
-	0: "SCRIPT_UNKNOWN",
-	1: "SCRIPT_P2PKH",
-	2: "SCRIPT_P2WPKH_P2SH",
-	3: "SCRIPT_P2WPKH",
-}
-
-var BTCScriptType_value = map[string]int32{
-	"SCRIPT_UNKNOWN":     0,
-	"SCRIPT_P2PKH":       1,
-	"SCRIPT_P2WPKH_P2SH": 2,
-	"SCRIPT_P2WPKH":      3,
-}
-
-func (x BTCScriptType) String() string {
-	return proto.EnumName(BTCScriptType_name, int32(x))
-}
-
-func (BTCScriptType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{1}
-}
-
 type BTCOutputType int32
 
 const (
@@ -113,41 +82,76 @@ func (x BTCOutputType) String() string {
 }
 
 func (BTCOutputType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{2}
+	return fileDescriptor_a38f9ffa5c78f451, []int{1}
 }
 
-type BTCPubRequest_OutputType int32
+// SimpleType is a "simple" script: one public key, no additional inputs.
+type BTCScriptConfig_SimpleType int32
 
 const (
-	BTCPubRequest_TPUB    BTCPubRequest_OutputType = 0
-	BTCPubRequest_XPUB    BTCPubRequest_OutputType = 1
-	BTCPubRequest_YPUB    BTCPubRequest_OutputType = 2
-	BTCPubRequest_ZPUB    BTCPubRequest_OutputType = 3
-	BTCPubRequest_ADDRESS BTCPubRequest_OutputType = 4
+	BTCScriptConfig_P2WPKH_P2SH BTCScriptConfig_SimpleType = 0
+	BTCScriptConfig_P2WPKH      BTCScriptConfig_SimpleType = 1
 )
 
-var BTCPubRequest_OutputType_name = map[int32]string{
+var BTCScriptConfig_SimpleType_name = map[int32]string{
+	0: "P2WPKH_P2SH",
+	1: "P2WPKH",
+}
+
+var BTCScriptConfig_SimpleType_value = map[string]int32{
+	"P2WPKH_P2SH": 0,
+	"P2WPKH":      1,
+}
+
+func (x BTCScriptConfig_SimpleType) String() string {
+	return proto.EnumName(BTCScriptConfig_SimpleType_name, int32(x))
+}
+
+func (BTCScriptConfig_SimpleType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{0, 0}
+}
+
+type BTCPubRequest_XPubType int32
+
+const (
+	BTCPubRequest_TPUB         BTCPubRequest_XPubType = 0
+	BTCPubRequest_XPUB         BTCPubRequest_XPubType = 1
+	BTCPubRequest_YPUB         BTCPubRequest_XPubType = 2
+	BTCPubRequest_ZPUB         BTCPubRequest_XPubType = 3
+	BTCPubRequest_VPUB         BTCPubRequest_XPubType = 4
+	BTCPubRequest_UPUB         BTCPubRequest_XPubType = 5
+	BTCPubRequest_CAPITAL_VPUB BTCPubRequest_XPubType = 6
+	BTCPubRequest_CAPITAL_ZPUB BTCPubRequest_XPubType = 7
+)
+
+var BTCPubRequest_XPubType_name = map[int32]string{
 	0: "TPUB",
 	1: "XPUB",
 	2: "YPUB",
 	3: "ZPUB",
-	4: "ADDRESS",
+	4: "VPUB",
+	5: "UPUB",
+	6: "CAPITAL_VPUB",
+	7: "CAPITAL_ZPUB",
 }
 
-var BTCPubRequest_OutputType_value = map[string]int32{
-	"TPUB":    0,
-	"XPUB":    1,
-	"YPUB":    2,
-	"ZPUB":    3,
-	"ADDRESS": 4,
+var BTCPubRequest_XPubType_value = map[string]int32{
+	"TPUB":         0,
+	"XPUB":         1,
+	"YPUB":         2,
+	"ZPUB":         3,
+	"VPUB":         4,
+	"UPUB":         5,
+	"CAPITAL_VPUB": 6,
+	"CAPITAL_ZPUB": 7,
 }
 
-func (x BTCPubRequest_OutputType) String() string {
-	return proto.EnumName(BTCPubRequest_OutputType_name, int32(x))
+func (x BTCPubRequest_XPubType) String() string {
+	return proto.EnumName(BTCPubRequest_XPubType_name, int32(x))
 }
 
-func (BTCPubRequest_OutputType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{0, 0}
+func (BTCPubRequest_XPubType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{1, 0}
 }
 
 type BTCSignNextResponse_Type int32
@@ -175,25 +179,166 @@ func (x BTCSignNextResponse_Type) String() string {
 }
 
 func (BTCSignNextResponse_Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{2, 0}
+	return fileDescriptor_a38f9ffa5c78f451, []int{3, 0}
 }
 
-type BTCPubRequest struct {
-	Keypath              []uint32                 `protobuf:"varint,1,rep,packed,name=keypath,proto3" json:"keypath,omitempty"`
-	ScriptType           BTCScriptType            `protobuf:"varint,2,opt,name=script_type,json=scriptType,proto3,enum=BTCScriptType" json:"script_type,omitempty"`
-	Coin                 BTCCoin                  `protobuf:"varint,3,opt,name=coin,proto3,enum=BTCCoin" json:"coin,omitempty"`
-	OutputType           BTCPubRequest_OutputType `protobuf:"varint,4,opt,name=output_type,json=outputType,proto3,enum=BTCPubRequest_OutputType" json:"output_type,omitempty"`
-	Display              bool                     `protobuf:"varint,5,opt,name=display,proto3" json:"display,omitempty"`
+type BTCScriptConfig struct {
+	// Types that are valid to be assigned to Config:
+	//	*BTCScriptConfig_SimpleType_
+	//	*BTCScriptConfig_Multisig_
+	Config               isBTCScriptConfig_Config `protobuf_oneof:"config"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
 	XXX_sizecache        int32                    `json:"-"`
+}
+
+func (m *BTCScriptConfig) Reset()         { *m = BTCScriptConfig{} }
+func (m *BTCScriptConfig) String() string { return proto.CompactTextString(m) }
+func (*BTCScriptConfig) ProtoMessage()    {}
+func (*BTCScriptConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{0}
+}
+
+func (m *BTCScriptConfig) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCScriptConfig.Unmarshal(m, b)
+}
+func (m *BTCScriptConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCScriptConfig.Marshal(b, m, deterministic)
+}
+func (m *BTCScriptConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCScriptConfig.Merge(m, src)
+}
+func (m *BTCScriptConfig) XXX_Size() int {
+	return xxx_messageInfo_BTCScriptConfig.Size(m)
+}
+func (m *BTCScriptConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCScriptConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCScriptConfig proto.InternalMessageInfo
+
+type isBTCScriptConfig_Config interface {
+	isBTCScriptConfig_Config()
+}
+
+type BTCScriptConfig_SimpleType_ struct {
+	SimpleType BTCScriptConfig_SimpleType `protobuf:"varint,1,opt,name=simple_type,json=simpleType,proto3,enum=BTCScriptConfig_SimpleType,oneof"`
+}
+
+type BTCScriptConfig_Multisig_ struct {
+	Multisig *BTCScriptConfig_Multisig `protobuf:"bytes,2,opt,name=multisig,proto3,oneof"`
+}
+
+func (*BTCScriptConfig_SimpleType_) isBTCScriptConfig_Config() {}
+
+func (*BTCScriptConfig_Multisig_) isBTCScriptConfig_Config() {}
+
+func (m *BTCScriptConfig) GetConfig() isBTCScriptConfig_Config {
+	if m != nil {
+		return m.Config
+	}
+	return nil
+}
+
+func (m *BTCScriptConfig) GetSimpleType() BTCScriptConfig_SimpleType {
+	if x, ok := m.GetConfig().(*BTCScriptConfig_SimpleType_); ok {
+		return x.SimpleType
+	}
+	return BTCScriptConfig_P2WPKH_P2SH
+}
+
+func (m *BTCScriptConfig) GetMultisig() *BTCScriptConfig_Multisig {
+	if x, ok := m.GetConfig().(*BTCScriptConfig_Multisig_); ok {
+		return x.Multisig
+	}
+	return nil
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*BTCScriptConfig) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*BTCScriptConfig_SimpleType_)(nil),
+		(*BTCScriptConfig_Multisig_)(nil),
+	}
+}
+
+type BTCScriptConfig_Multisig struct {
+	Threshold uint32 `protobuf:"varint,1,opt,name=threshold,proto3" json:"threshold,omitempty"`
+	// xpubs are acount-level xpubs. Addresses are going to be derived from it using: m/<change>/<receive>.
+	// The number of xpubs defines the number of cosigners.
+	Xpubs []*XPub `protobuf:"bytes,2,rep,name=xpubs,proto3" json:"xpubs,omitempty"`
+	// Index to the xpub of our keystore in xpubs. The keypath to it is provided via
+	// BTCPubRequest/BTCSignInit.
+	OurXpubIndex         uint32   `protobuf:"varint,3,opt,name=our_xpub_index,json=ourXpubIndex,proto3" json:"our_xpub_index,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *BTCScriptConfig_Multisig) Reset()         { *m = BTCScriptConfig_Multisig{} }
+func (m *BTCScriptConfig_Multisig) String() string { return proto.CompactTextString(m) }
+func (*BTCScriptConfig_Multisig) ProtoMessage()    {}
+func (*BTCScriptConfig_Multisig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{0, 0}
+}
+
+func (m *BTCScriptConfig_Multisig) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCScriptConfig_Multisig.Unmarshal(m, b)
+}
+func (m *BTCScriptConfig_Multisig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCScriptConfig_Multisig.Marshal(b, m, deterministic)
+}
+func (m *BTCScriptConfig_Multisig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCScriptConfig_Multisig.Merge(m, src)
+}
+func (m *BTCScriptConfig_Multisig) XXX_Size() int {
+	return xxx_messageInfo_BTCScriptConfig_Multisig.Size(m)
+}
+func (m *BTCScriptConfig_Multisig) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCScriptConfig_Multisig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCScriptConfig_Multisig proto.InternalMessageInfo
+
+func (m *BTCScriptConfig_Multisig) GetThreshold() uint32 {
+	if m != nil {
+		return m.Threshold
+	}
+	return 0
+}
+
+func (m *BTCScriptConfig_Multisig) GetXpubs() []*XPub {
+	if m != nil {
+		return m.Xpubs
+	}
+	return nil
+}
+
+func (m *BTCScriptConfig_Multisig) GetOurXpubIndex() uint32 {
+	if m != nil {
+		return m.OurXpubIndex
+	}
+	return 0
+}
+
+type BTCPubRequest struct {
+	Coin    BTCCoin  `protobuf:"varint,1,opt,name=coin,proto3,enum=BTCCoin" json:"coin,omitempty"`
+	Keypath []uint32 `protobuf:"varint,2,rep,packed,name=keypath,proto3" json:"keypath,omitempty"`
+	// Types that are valid to be assigned to Output:
+	//	*BTCPubRequest_XpubType
+	//	*BTCPubRequest_ScriptConfig
+	Output               isBTCPubRequest_Output `protobuf_oneof:"output"`
+	Display              bool                   `protobuf:"varint,5,opt,name=display,proto3" json:"display,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_unrecognized     []byte                 `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *BTCPubRequest) Reset()         { *m = BTCPubRequest{} }
 func (m *BTCPubRequest) String() string { return proto.CompactTextString(m) }
 func (*BTCPubRequest) ProtoMessage()    {}
 func (*BTCPubRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{0}
+	return fileDescriptor_a38f9ffa5c78f451, []int{1}
 }
 
 func (m *BTCPubRequest) XXX_Unmarshal(b []byte) error {
@@ -214,20 +359,6 @@ func (m *BTCPubRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BTCPubRequest proto.InternalMessageInfo
 
-func (m *BTCPubRequest) GetKeypath() []uint32 {
-	if m != nil {
-		return m.Keypath
-	}
-	return nil
-}
-
-func (m *BTCPubRequest) GetScriptType() BTCScriptType {
-	if m != nil {
-		return m.ScriptType
-	}
-	return BTCScriptType_SCRIPT_UNKNOWN
-}
-
 func (m *BTCPubRequest) GetCoin() BTCCoin {
 	if m != nil {
 		return m.Coin
@@ -235,11 +366,48 @@ func (m *BTCPubRequest) GetCoin() BTCCoin {
 	return BTCCoin_BTC
 }
 
-func (m *BTCPubRequest) GetOutputType() BTCPubRequest_OutputType {
+func (m *BTCPubRequest) GetKeypath() []uint32 {
 	if m != nil {
-		return m.OutputType
+		return m.Keypath
+	}
+	return nil
+}
+
+type isBTCPubRequest_Output interface {
+	isBTCPubRequest_Output()
+}
+
+type BTCPubRequest_XpubType struct {
+	XpubType BTCPubRequest_XPubType `protobuf:"varint,3,opt,name=xpub_type,json=xpubType,proto3,enum=BTCPubRequest_XPubType,oneof"`
+}
+
+type BTCPubRequest_ScriptConfig struct {
+	ScriptConfig *BTCScriptConfig `protobuf:"bytes,4,opt,name=script_config,json=scriptConfig,proto3,oneof"`
+}
+
+func (*BTCPubRequest_XpubType) isBTCPubRequest_Output() {}
+
+func (*BTCPubRequest_ScriptConfig) isBTCPubRequest_Output() {}
+
+func (m *BTCPubRequest) GetOutput() isBTCPubRequest_Output {
+	if m != nil {
+		return m.Output
+	}
+	return nil
+}
+
+func (m *BTCPubRequest) GetXpubType() BTCPubRequest_XPubType {
+	if x, ok := m.GetOutput().(*BTCPubRequest_XpubType); ok {
+		return x.XpubType
 	}
 	return BTCPubRequest_TPUB
+}
+
+func (m *BTCPubRequest) GetScriptConfig() *BTCScriptConfig {
+	if x, ok := m.GetOutput().(*BTCPubRequest_ScriptConfig); ok {
+		return x.ScriptConfig
+	}
+	return nil
 }
 
 func (m *BTCPubRequest) GetDisplay() bool {
@@ -249,24 +417,32 @@ func (m *BTCPubRequest) GetDisplay() bool {
 	return false
 }
 
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*BTCPubRequest) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*BTCPubRequest_XpubType)(nil),
+		(*BTCPubRequest_ScriptConfig)(nil),
+	}
+}
+
 type BTCSignInitRequest struct {
-	Coin                 BTCCoin       `protobuf:"varint,1,opt,name=coin,proto3,enum=BTCCoin" json:"coin,omitempty"`
-	ScriptType           BTCScriptType `protobuf:"varint,2,opt,name=script_type,json=scriptType,proto3,enum=BTCScriptType" json:"script_type,omitempty"`
-	Bip44Account         uint32        `protobuf:"varint,3,opt,name=bip44_account,json=bip44Account,proto3" json:"bip44_account,omitempty"`
-	Version              uint32        `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
-	NumInputs            uint32        `protobuf:"varint,5,opt,name=num_inputs,json=numInputs,proto3" json:"num_inputs,omitempty"`
-	NumOutputs           uint32        `protobuf:"varint,6,opt,name=num_outputs,json=numOutputs,proto3" json:"num_outputs,omitempty"`
-	Locktime             uint32        `protobuf:"varint,7,opt,name=locktime,proto3" json:"locktime,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
+	Coin                 BTCCoin          `protobuf:"varint,1,opt,name=coin,proto3,enum=BTCCoin" json:"coin,omitempty"`
+	ScriptConfig         *BTCScriptConfig `protobuf:"bytes,2,opt,name=script_config,json=scriptConfig,proto3" json:"script_config,omitempty"`
+	KeypathAccount       []uint32         `protobuf:"varint,3,rep,packed,name=keypath_account,json=keypathAccount,proto3" json:"keypath_account,omitempty"`
+	Version              uint32           `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
+	NumInputs            uint32           `protobuf:"varint,5,opt,name=num_inputs,json=numInputs,proto3" json:"num_inputs,omitempty"`
+	NumOutputs           uint32           `protobuf:"varint,6,opt,name=num_outputs,json=numOutputs,proto3" json:"num_outputs,omitempty"`
+	Locktime             uint32           `protobuf:"varint,7,opt,name=locktime,proto3" json:"locktime,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *BTCSignInitRequest) Reset()         { *m = BTCSignInitRequest{} }
 func (m *BTCSignInitRequest) String() string { return proto.CompactTextString(m) }
 func (*BTCSignInitRequest) ProtoMessage()    {}
 func (*BTCSignInitRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{1}
+	return fileDescriptor_a38f9ffa5c78f451, []int{2}
 }
 
 func (m *BTCSignInitRequest) XXX_Unmarshal(b []byte) error {
@@ -294,18 +470,18 @@ func (m *BTCSignInitRequest) GetCoin() BTCCoin {
 	return BTCCoin_BTC
 }
 
-func (m *BTCSignInitRequest) GetScriptType() BTCScriptType {
+func (m *BTCSignInitRequest) GetScriptConfig() *BTCScriptConfig {
 	if m != nil {
-		return m.ScriptType
+		return m.ScriptConfig
 	}
-	return BTCScriptType_SCRIPT_UNKNOWN
+	return nil
 }
 
-func (m *BTCSignInitRequest) GetBip44Account() uint32 {
+func (m *BTCSignInitRequest) GetKeypathAccount() []uint32 {
 	if m != nil {
-		return m.Bip44Account
+		return m.KeypathAccount
 	}
-	return 0
+	return nil
 }
 
 func (m *BTCSignInitRequest) GetVersion() uint32 {
@@ -351,7 +527,7 @@ func (m *BTCSignNextResponse) Reset()         { *m = BTCSignNextResponse{} }
 func (m *BTCSignNextResponse) String() string { return proto.CompactTextString(m) }
 func (*BTCSignNextResponse) ProtoMessage()    {}
 func (*BTCSignNextResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{2}
+	return fileDescriptor_a38f9ffa5c78f451, []int{3}
 }
 
 func (m *BTCSignNextResponse) XXX_Unmarshal(b []byte) error {
@@ -415,7 +591,7 @@ func (m *BTCSignInputRequest) Reset()         { *m = BTCSignInputRequest{} }
 func (m *BTCSignInputRequest) String() string { return proto.CompactTextString(m) }
 func (*BTCSignInputRequest) ProtoMessage()    {}
 func (*BTCSignInputRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{3}
+	return fileDescriptor_a38f9ffa5c78f451, []int{4}
 }
 
 func (m *BTCSignInputRequest) XXX_Unmarshal(b []byte) error {
@@ -487,7 +663,7 @@ func (m *BTCSignOutputRequest) Reset()         { *m = BTCSignOutputRequest{} }
 func (m *BTCSignOutputRequest) String() string { return proto.CompactTextString(m) }
 func (*BTCSignOutputRequest) ProtoMessage()    {}
 func (*BTCSignOutputRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a38f9ffa5c78f451, []int{4}
+	return fileDescriptor_a38f9ffa5c78f451, []int{5}
 }
 
 func (m *BTCSignOutputRequest) XXX_Unmarshal(b []byte) error {
@@ -543,63 +719,465 @@ func (m *BTCSignOutputRequest) GetKeypath() []uint32 {
 	return nil
 }
 
+type BTCScriptConfigRegistration struct {
+	Coin                 BTCCoin          `protobuf:"varint,1,opt,name=coin,proto3,enum=BTCCoin" json:"coin,omitempty"`
+	ScriptConfig         *BTCScriptConfig `protobuf:"bytes,2,opt,name=script_config,json=scriptConfig,proto3" json:"script_config,omitempty"`
+	Keypath              []uint32         `protobuf:"varint,3,rep,packed,name=keypath,proto3" json:"keypath,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *BTCScriptConfigRegistration) Reset()         { *m = BTCScriptConfigRegistration{} }
+func (m *BTCScriptConfigRegistration) String() string { return proto.CompactTextString(m) }
+func (*BTCScriptConfigRegistration) ProtoMessage()    {}
+func (*BTCScriptConfigRegistration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{6}
+}
+
+func (m *BTCScriptConfigRegistration) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCScriptConfigRegistration.Unmarshal(m, b)
+}
+func (m *BTCScriptConfigRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCScriptConfigRegistration.Marshal(b, m, deterministic)
+}
+func (m *BTCScriptConfigRegistration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCScriptConfigRegistration.Merge(m, src)
+}
+func (m *BTCScriptConfigRegistration) XXX_Size() int {
+	return xxx_messageInfo_BTCScriptConfigRegistration.Size(m)
+}
+func (m *BTCScriptConfigRegistration) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCScriptConfigRegistration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCScriptConfigRegistration proto.InternalMessageInfo
+
+func (m *BTCScriptConfigRegistration) GetCoin() BTCCoin {
+	if m != nil {
+		return m.Coin
+	}
+	return BTCCoin_BTC
+}
+
+func (m *BTCScriptConfigRegistration) GetScriptConfig() *BTCScriptConfig {
+	if m != nil {
+		return m.ScriptConfig
+	}
+	return nil
+}
+
+func (m *BTCScriptConfigRegistration) GetKeypath() []uint32 {
+	if m != nil {
+		return m.Keypath
+	}
+	return nil
+}
+
+type BTCSuccess struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *BTCSuccess) Reset()         { *m = BTCSuccess{} }
+func (m *BTCSuccess) String() string { return proto.CompactTextString(m) }
+func (*BTCSuccess) ProtoMessage()    {}
+func (*BTCSuccess) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{7}
+}
+
+func (m *BTCSuccess) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCSuccess.Unmarshal(m, b)
+}
+func (m *BTCSuccess) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCSuccess.Marshal(b, m, deterministic)
+}
+func (m *BTCSuccess) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCSuccess.Merge(m, src)
+}
+func (m *BTCSuccess) XXX_Size() int {
+	return xxx_messageInfo_BTCSuccess.Size(m)
+}
+func (m *BTCSuccess) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCSuccess.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCSuccess proto.InternalMessageInfo
+
+type BTCIsScriptConfigRegisteredRequest struct {
+	Registration         *BTCScriptConfigRegistration `protobuf:"bytes,1,opt,name=registration,proto3" json:"registration,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_unrecognized     []byte                       `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
+}
+
+func (m *BTCIsScriptConfigRegisteredRequest) Reset()         { *m = BTCIsScriptConfigRegisteredRequest{} }
+func (m *BTCIsScriptConfigRegisteredRequest) String() string { return proto.CompactTextString(m) }
+func (*BTCIsScriptConfigRegisteredRequest) ProtoMessage()    {}
+func (*BTCIsScriptConfigRegisteredRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{8}
+}
+
+func (m *BTCIsScriptConfigRegisteredRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCIsScriptConfigRegisteredRequest.Unmarshal(m, b)
+}
+func (m *BTCIsScriptConfigRegisteredRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCIsScriptConfigRegisteredRequest.Marshal(b, m, deterministic)
+}
+func (m *BTCIsScriptConfigRegisteredRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCIsScriptConfigRegisteredRequest.Merge(m, src)
+}
+func (m *BTCIsScriptConfigRegisteredRequest) XXX_Size() int {
+	return xxx_messageInfo_BTCIsScriptConfigRegisteredRequest.Size(m)
+}
+func (m *BTCIsScriptConfigRegisteredRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCIsScriptConfigRegisteredRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCIsScriptConfigRegisteredRequest proto.InternalMessageInfo
+
+func (m *BTCIsScriptConfigRegisteredRequest) GetRegistration() *BTCScriptConfigRegistration {
+	if m != nil {
+		return m.Registration
+	}
+	return nil
+}
+
+type BTCIsScriptConfigRegisteredResponse struct {
+	IsRegistered         bool     `protobuf:"varint,1,opt,name=is_registered,json=isRegistered,proto3" json:"is_registered,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *BTCIsScriptConfigRegisteredResponse) Reset()         { *m = BTCIsScriptConfigRegisteredResponse{} }
+func (m *BTCIsScriptConfigRegisteredResponse) String() string { return proto.CompactTextString(m) }
+func (*BTCIsScriptConfigRegisteredResponse) ProtoMessage()    {}
+func (*BTCIsScriptConfigRegisteredResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{9}
+}
+
+func (m *BTCIsScriptConfigRegisteredResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCIsScriptConfigRegisteredResponse.Unmarshal(m, b)
+}
+func (m *BTCIsScriptConfigRegisteredResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCIsScriptConfigRegisteredResponse.Marshal(b, m, deterministic)
+}
+func (m *BTCIsScriptConfigRegisteredResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCIsScriptConfigRegisteredResponse.Merge(m, src)
+}
+func (m *BTCIsScriptConfigRegisteredResponse) XXX_Size() int {
+	return xxx_messageInfo_BTCIsScriptConfigRegisteredResponse.Size(m)
+}
+func (m *BTCIsScriptConfigRegisteredResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCIsScriptConfigRegisteredResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCIsScriptConfigRegisteredResponse proto.InternalMessageInfo
+
+func (m *BTCIsScriptConfigRegisteredResponse) GetIsRegistered() bool {
+	if m != nil {
+		return m.IsRegistered
+	}
+	return false
+}
+
+type BTCRegisterScriptConfigRequest struct {
+	Registration         *BTCScriptConfigRegistration `protobuf:"bytes,1,opt,name=registration,proto3" json:"registration,omitempty"`
+	Name                 string                       `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_unrecognized     []byte                       `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
+}
+
+func (m *BTCRegisterScriptConfigRequest) Reset()         { *m = BTCRegisterScriptConfigRequest{} }
+func (m *BTCRegisterScriptConfigRequest) String() string { return proto.CompactTextString(m) }
+func (*BTCRegisterScriptConfigRequest) ProtoMessage()    {}
+func (*BTCRegisterScriptConfigRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{10}
+}
+
+func (m *BTCRegisterScriptConfigRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCRegisterScriptConfigRequest.Unmarshal(m, b)
+}
+func (m *BTCRegisterScriptConfigRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCRegisterScriptConfigRequest.Marshal(b, m, deterministic)
+}
+func (m *BTCRegisterScriptConfigRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCRegisterScriptConfigRequest.Merge(m, src)
+}
+func (m *BTCRegisterScriptConfigRequest) XXX_Size() int {
+	return xxx_messageInfo_BTCRegisterScriptConfigRequest.Size(m)
+}
+func (m *BTCRegisterScriptConfigRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCRegisterScriptConfigRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCRegisterScriptConfigRequest proto.InternalMessageInfo
+
+func (m *BTCRegisterScriptConfigRequest) GetRegistration() *BTCScriptConfigRegistration {
+	if m != nil {
+		return m.Registration
+	}
+	return nil
+}
+
+func (m *BTCRegisterScriptConfigRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type BTCRequest struct {
+	// Types that are valid to be assigned to Request:
+	//	*BTCRequest_IsScriptConfigRegistered
+	//	*BTCRequest_RegisterScriptConfig
+	Request              isBTCRequest_Request `protobuf_oneof:"request"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *BTCRequest) Reset()         { *m = BTCRequest{} }
+func (m *BTCRequest) String() string { return proto.CompactTextString(m) }
+func (*BTCRequest) ProtoMessage()    {}
+func (*BTCRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{11}
+}
+
+func (m *BTCRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCRequest.Unmarshal(m, b)
+}
+func (m *BTCRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCRequest.Marshal(b, m, deterministic)
+}
+func (m *BTCRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCRequest.Merge(m, src)
+}
+func (m *BTCRequest) XXX_Size() int {
+	return xxx_messageInfo_BTCRequest.Size(m)
+}
+func (m *BTCRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCRequest proto.InternalMessageInfo
+
+type isBTCRequest_Request interface {
+	isBTCRequest_Request()
+}
+
+type BTCRequest_IsScriptConfigRegistered struct {
+	IsScriptConfigRegistered *BTCIsScriptConfigRegisteredRequest `protobuf:"bytes,1,opt,name=is_script_config_registered,json=isScriptConfigRegistered,proto3,oneof"`
+}
+
+type BTCRequest_RegisterScriptConfig struct {
+	RegisterScriptConfig *BTCRegisterScriptConfigRequest `protobuf:"bytes,2,opt,name=register_script_config,json=registerScriptConfig,proto3,oneof"`
+}
+
+func (*BTCRequest_IsScriptConfigRegistered) isBTCRequest_Request() {}
+
+func (*BTCRequest_RegisterScriptConfig) isBTCRequest_Request() {}
+
+func (m *BTCRequest) GetRequest() isBTCRequest_Request {
+	if m != nil {
+		return m.Request
+	}
+	return nil
+}
+
+func (m *BTCRequest) GetIsScriptConfigRegistered() *BTCIsScriptConfigRegisteredRequest {
+	if x, ok := m.GetRequest().(*BTCRequest_IsScriptConfigRegistered); ok {
+		return x.IsScriptConfigRegistered
+	}
+	return nil
+}
+
+func (m *BTCRequest) GetRegisterScriptConfig() *BTCRegisterScriptConfigRequest {
+	if x, ok := m.GetRequest().(*BTCRequest_RegisterScriptConfig); ok {
+		return x.RegisterScriptConfig
+	}
+	return nil
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*BTCRequest) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*BTCRequest_IsScriptConfigRegistered)(nil),
+		(*BTCRequest_RegisterScriptConfig)(nil),
+	}
+}
+
+type BTCResponse struct {
+	// Types that are valid to be assigned to Response:
+	//	*BTCResponse_Success
+	//	*BTCResponse_IsScriptConfigRegistered
+	Response             isBTCResponse_Response `protobuf_oneof:"response"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_unrecognized     []byte                 `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
+}
+
+func (m *BTCResponse) Reset()         { *m = BTCResponse{} }
+func (m *BTCResponse) String() string { return proto.CompactTextString(m) }
+func (*BTCResponse) ProtoMessage()    {}
+func (*BTCResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a38f9ffa5c78f451, []int{12}
+}
+
+func (m *BTCResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BTCResponse.Unmarshal(m, b)
+}
+func (m *BTCResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BTCResponse.Marshal(b, m, deterministic)
+}
+func (m *BTCResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BTCResponse.Merge(m, src)
+}
+func (m *BTCResponse) XXX_Size() int {
+	return xxx_messageInfo_BTCResponse.Size(m)
+}
+func (m *BTCResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_BTCResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BTCResponse proto.InternalMessageInfo
+
+type isBTCResponse_Response interface {
+	isBTCResponse_Response()
+}
+
+type BTCResponse_Success struct {
+	Success *BTCSuccess `protobuf:"bytes,1,opt,name=success,proto3,oneof"`
+}
+
+type BTCResponse_IsScriptConfigRegistered struct {
+	IsScriptConfigRegistered *BTCIsScriptConfigRegisteredResponse `protobuf:"bytes,2,opt,name=is_script_config_registered,json=isScriptConfigRegistered,proto3,oneof"`
+}
+
+func (*BTCResponse_Success) isBTCResponse_Response() {}
+
+func (*BTCResponse_IsScriptConfigRegistered) isBTCResponse_Response() {}
+
+func (m *BTCResponse) GetResponse() isBTCResponse_Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (m *BTCResponse) GetSuccess() *BTCSuccess {
+	if x, ok := m.GetResponse().(*BTCResponse_Success); ok {
+		return x.Success
+	}
+	return nil
+}
+
+func (m *BTCResponse) GetIsScriptConfigRegistered() *BTCIsScriptConfigRegisteredResponse {
+	if x, ok := m.GetResponse().(*BTCResponse_IsScriptConfigRegistered); ok {
+		return x.IsScriptConfigRegistered
+	}
+	return nil
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*BTCResponse) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*BTCResponse_Success)(nil),
+		(*BTCResponse_IsScriptConfigRegistered)(nil),
+	}
+}
+
 func init() {
 	proto.RegisterEnum("BTCCoin", BTCCoin_name, BTCCoin_value)
-	proto.RegisterEnum("BTCScriptType", BTCScriptType_name, BTCScriptType_value)
 	proto.RegisterEnum("BTCOutputType", BTCOutputType_name, BTCOutputType_value)
-	proto.RegisterEnum("BTCPubRequest_OutputType", BTCPubRequest_OutputType_name, BTCPubRequest_OutputType_value)
+	proto.RegisterEnum("BTCScriptConfig_SimpleType", BTCScriptConfig_SimpleType_name, BTCScriptConfig_SimpleType_value)
+	proto.RegisterEnum("BTCPubRequest_XPubType", BTCPubRequest_XPubType_name, BTCPubRequest_XPubType_value)
 	proto.RegisterEnum("BTCSignNextResponse_Type", BTCSignNextResponse_Type_name, BTCSignNextResponse_Type_value)
+	proto.RegisterType((*BTCScriptConfig)(nil), "BTCScriptConfig")
+	proto.RegisterType((*BTCScriptConfig_Multisig)(nil), "BTCScriptConfig.Multisig")
 	proto.RegisterType((*BTCPubRequest)(nil), "BTCPubRequest")
 	proto.RegisterType((*BTCSignInitRequest)(nil), "BTCSignInitRequest")
 	proto.RegisterType((*BTCSignNextResponse)(nil), "BTCSignNextResponse")
 	proto.RegisterType((*BTCSignInputRequest)(nil), "BTCSignInputRequest")
 	proto.RegisterType((*BTCSignOutputRequest)(nil), "BTCSignOutputRequest")
+	proto.RegisterType((*BTCScriptConfigRegistration)(nil), "BTCScriptConfigRegistration")
+	proto.RegisterType((*BTCSuccess)(nil), "BTCSuccess")
+	proto.RegisterType((*BTCIsScriptConfigRegisteredRequest)(nil), "BTCIsScriptConfigRegisteredRequest")
+	proto.RegisterType((*BTCIsScriptConfigRegisteredResponse)(nil), "BTCIsScriptConfigRegisteredResponse")
+	proto.RegisterType((*BTCRegisterScriptConfigRequest)(nil), "BTCRegisterScriptConfigRequest")
+	proto.RegisterType((*BTCRequest)(nil), "BTCRequest")
+	proto.RegisterType((*BTCResponse)(nil), "BTCResponse")
 }
 
 func init() { proto.RegisterFile("btc.proto", fileDescriptor_a38f9ffa5c78f451) }
 
 var fileDescriptor_a38f9ffa5c78f451 = []byte{
-	// 666 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0xc1, 0x6e, 0xd3, 0x40,
-	0x10, 0xad, 0x13, 0x27, 0x71, 0x26, 0x71, 0x65, 0x96, 0x0a, 0x19, 0x54, 0x44, 0x64, 0x0e, 0x54,
-	0x95, 0x48, 0xa5, 0xd2, 0x13, 0xb7, 0x26, 0xad, 0x94, 0xa8, 0x28, 0xb1, 0xd6, 0x0e, 0x05, 0x2e,
-	0xc1, 0x71, 0x57, 0x8d, 0xd5, 0x76, 0x6d, 0xb2, 0xeb, 0xa8, 0xf9, 0x0c, 0xf8, 0x17, 0x7e, 0x81,
-	0xcf, 0x42, 0x68, 0xc7, 0x76, 0xec, 0x20, 0x2e, 0xdc, 0xde, 0xbc, 0x9d, 0x1d, 0xcf, 0x7b, 0xb3,
-	0x63, 0x68, 0x2f, 0x64, 0xd8, 0x4f, 0x56, 0xb1, 0x8c, 0x9d, 0xef, 0x35, 0x30, 0x07, 0xfe, 0xd0,
-	0x4d, 0x17, 0x94, 0x7d, 0x4b, 0x99, 0x90, 0xc4, 0x86, 0xd6, 0x1d, 0xdb, 0x24, 0x81, 0x5c, 0xda,
-	0x5a, 0xaf, 0x7e, 0x64, 0xd2, 0x22, 0x24, 0x27, 0xd0, 0x11, 0xe1, 0x2a, 0x4a, 0xe4, 0x5c, 0x6e,
-	0x12, 0x66, 0xd7, 0x7a, 0xda, 0xd1, 0xfe, 0xe9, 0x7e, 0x7f, 0xe0, 0x0f, 0x3d, 0xa4, 0xfd, 0x4d,
-	0xc2, 0x28, 0x88, 0x2d, 0x26, 0x87, 0xa0, 0x87, 0x71, 0xc4, 0xed, 0x3a, 0x66, 0x1a, 0x2a, 0x73,
-	0x18, 0x47, 0x9c, 0x22, 0x4b, 0xde, 0x43, 0x27, 0x4e, 0x65, 0x92, 0xe6, 0xe5, 0x74, 0x4c, 0x7a,
-	0xde, 0xdf, 0xe9, 0xa6, 0x3f, 0xc5, 0x8c, 0xac, 0x72, 0xbc, 0xc5, 0xaa, 0xc9, 0x9b, 0x48, 0x24,
-	0xf7, 0xc1, 0xc6, 0x6e, 0xf4, 0xb4, 0x23, 0x83, 0x16, 0xa1, 0x73, 0x0e, 0x50, 0xde, 0x21, 0x06,
-	0xe8, 0xbe, 0x3b, 0x1b, 0x58, 0x7b, 0x0a, 0x7d, 0x52, 0x48, 0x53, 0xe8, 0xb3, 0x42, 0x35, 0x85,
-	0xbe, 0x28, 0x54, 0x27, 0x1d, 0x68, 0x9d, 0x5f, 0x5c, 0xd0, 0x4b, 0xcf, 0xb3, 0x74, 0xe7, 0xb7,
-	0x06, 0x44, 0x89, 0x8a, 0x6e, 0xf9, 0x98, 0x47, 0xb2, 0x30, 0xa6, 0x50, 0xa3, 0xfd, 0x53, 0xcd,
-	0x7f, 0x9b, 0xf3, 0x1a, 0xcc, 0x45, 0x94, 0x9c, 0x9d, 0xcd, 0x83, 0x30, 0x8c, 0x53, 0x2e, 0xd1,
-	0x25, 0x93, 0x76, 0x91, 0x3c, 0xcf, 0x38, 0xa5, 0x73, 0xcd, 0x56, 0x22, 0x8a, 0x39, 0xfa, 0x63,
-	0xd2, 0x22, 0x24, 0x2f, 0x01, 0x78, 0xfa, 0x30, 0x8f, 0x78, 0x92, 0x4a, 0x81, 0x26, 0x98, 0xb4,
-	0xcd, 0xd3, 0x87, 0x31, 0x12, 0xe4, 0x15, 0x74, 0xd4, 0x71, 0x66, 0x99, 0xb0, 0x9b, 0x78, 0xae,
-	0x6e, 0x64, 0xe6, 0x08, 0xf2, 0x02, 0x8c, 0xfb, 0x38, 0xbc, 0x93, 0xd1, 0x03, 0xb3, 0x5b, 0x78,
-	0xba, 0x8d, 0x9d, 0x5f, 0x1a, 0x3c, 0xcd, 0x0d, 0x98, 0xb0, 0x47, 0x49, 0x99, 0x48, 0x62, 0x2e,
-	0x18, 0x79, 0x0b, 0x3a, 0x8a, 0xd3, 0xca, 0x51, 0xfd, 0x9d, 0xd3, 0x47, 0x9d, 0x98, 0x46, 0x0e,
-	0xa0, 0x11, 0xf1, 0x1b, 0xf6, 0x88, 0x66, 0x98, 0x34, 0x0b, 0x94, 0xee, 0x65, 0x20, 0xe6, 0x22,
-	0xba, 0xe5, 0x81, 0x4c, 0x57, 0x0c, 0x75, 0x1b, 0xb4, 0xbb, 0x0c, 0x84, 0x57, 0x70, 0xe4, 0x10,
-	0xda, 0x65, 0x82, 0x52, 0xde, 0xa5, 0x25, 0xe1, 0xbc, 0x01, 0x1d, 0x2d, 0x6c, 0x43, 0x63, 0x3c,
-	0x71, 0x67, 0xbe, 0xb5, 0x47, 0x00, 0x9a, 0xd3, 0x99, 0xaf, 0x30, 0x0e, 0xf8, 0x62, 0x3a, 0xb9,
-	0xb4, 0x6a, 0xce, 0xcf, 0x52, 0x08, 0xfa, 0x52, 0x8c, 0xb2, 0x07, 0x9d, 0x64, 0xc5, 0xd6, 0xd3,
-	0x54, 0x8e, 0x02, 0xb1, 0x44, 0x3d, 0x5d, 0x5a, 0xa5, 0x88, 0x03, 0xdd, 0x3c, 0x1c, 0x57, 0x24,
-	0xec, 0x70, 0x95, 0x9c, 0x8f, 0xc1, 0x7d, 0x9a, 0x09, 0xd1, 0xe9, 0x0e, 0xa7, 0x6c, 0x16, 0xea,
-	0xa3, 0x3c, 0x64, 0xf9, 0x04, 0xb7, 0x71, 0x75, 0xd3, 0x9a, 0x3b, 0x9b, 0xe6, 0xfc, 0xd0, 0xe0,
-	0x20, 0xef, 0x3b, 0x9b, 0x57, 0xd1, 0x38, 0x01, 0x3d, 0x4e, 0x57, 0x02, 0x3b, 0x36, 0x28, 0x62,
-	0xe2, 0xe4, 0x53, 0xa9, 0x3c, 0xb9, 0xca, 0xd6, 0x6c, 0x47, 0xb1, 0xae, 0xf4, 0x98, 0x05, 0xaa,
-	0xda, 0x52, 0xe9, 0xcf, 0x0c, 0x46, 0x5c, 0x6d, 0xaa, 0xb1, 0xd3, 0xd4, 0xf1, 0x09, 0xb4, 0xf2,
-	0x27, 0x4f, 0x5a, 0x50, 0x1f, 0xf8, 0xc3, 0x6c, 0xab, 0x7c, 0x85, 0x34, 0x45, 0x7d, 0xf0, 0x87,
-	0xd9, 0x52, 0xf9, 0x0a, 0xd5, 0x8f, 0xbf, 0xe2, 0xaf, 0xa5, 0x7c, 0xfe, 0x84, 0xc0, 0xbe, 0x37,
-	0xa4, 0x63, 0xd7, 0x9f, 0xcf, 0x26, 0x57, 0x93, 0xe9, 0xf5, 0xc4, 0xda, 0x23, 0x16, 0x74, 0x73,
-	0xce, 0x3d, 0x75, 0xaf, 0x46, 0x96, 0x46, 0x9e, 0x01, 0xd9, 0x32, 0xd7, 0xee, 0xd5, 0x68, 0xee,
-	0x9e, 0x7a, 0x23, 0xab, 0x46, 0x9e, 0x80, 0xb9, 0xc3, 0x5b, 0xf5, 0xe3, 0x11, 0x7e, 0xa1, 0xb2,
-	0xef, 0x1d, 0x68, 0x95, 0xa5, 0xdb, 0xd0, 0x28, 0x6a, 0x1a, 0xa0, 0xe7, 0x55, 0x00, 0x9a, 0xc5,
-	0xf5, 0x2c, 0xe1, 0xda, 0x1b, 0x59, 0xfa, 0xa2, 0x89, 0xbf, 0xc3, 0x77, 0x7f, 0x02, 0x00, 0x00,
-	0xff, 0xff, 0x30, 0xce, 0x1a, 0xda, 0x1b, 0x05, 0x00, 0x00,
+	// 1022 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x56, 0x5f, 0x6f, 0xe3, 0x44,
+	0x10, 0x8f, 0x9d, 0x7f, 0xce, 0xd8, 0x69, 0xa3, 0xa5, 0x02, 0xd3, 0x16, 0xae, 0x72, 0x4f, 0x6a,
+	0x39, 0x09, 0x23, 0x05, 0x01, 0x6f, 0x88, 0x26, 0x20, 0x39, 0xdc, 0x91, 0x46, 0x5b, 0xf7, 0x5a,
+	0x78, 0xb1, 0x5c, 0x67, 0x2f, 0x59, 0x9a, 0xd8, 0xc6, 0x6b, 0x57, 0xed, 0x37, 0xe0, 0x81, 0x27,
+	0xbe, 0x05, 0x12, 0xaf, 0x7c, 0x05, 0xc4, 0x27, 0xe0, 0xf3, 0xa0, 0xdd, 0xb5, 0x13, 0x3b, 0x57,
+	0xc2, 0x3d, 0x70, 0x6f, 0x33, 0xbf, 0x9d, 0xd9, 0xfd, 0xcd, 0x6f, 0x66, 0x12, 0x43, 0xe7, 0x26,
+	0x0d, 0xec, 0x38, 0x89, 0xd2, 0x68, 0xdf, 0x08, 0xa2, 0xe5, 0x32, 0x0a, 0xa5, 0x67, 0xfd, 0xae,
+	0xc2, 0xee, 0xc0, 0x1d, 0x5e, 0x04, 0x09, 0x8d, 0xd3, 0x61, 0x14, 0xbe, 0xa2, 0x33, 0xf4, 0x25,
+	0xe8, 0x8c, 0x2e, 0xe3, 0x05, 0xf1, 0xd2, 0x87, 0x98, 0x98, 0xca, 0x91, 0x72, 0xba, 0xd3, 0x3f,
+	0xb0, 0x37, 0xc2, 0xec, 0x0b, 0x11, 0xe3, 0x3e, 0xc4, 0xc4, 0xa9, 0x61, 0x60, 0x2b, 0x0f, 0x7d,
+	0x01, 0xda, 0x32, 0x5b, 0xa4, 0x94, 0xd1, 0x99, 0xa9, 0x1e, 0x29, 0xa7, 0x7a, 0xff, 0xfd, 0xd7,
+	0x92, 0xbf, 0xcb, 0x03, 0x9c, 0x1a, 0x5e, 0x05, 0xef, 0xdf, 0x82, 0x56, 0xe0, 0xe8, 0x10, 0x3a,
+	0xe9, 0x3c, 0x21, 0x6c, 0x1e, 0x2d, 0xa6, 0x82, 0x42, 0x17, 0xaf, 0x01, 0x74, 0x00, 0xcd, 0xfb,
+	0x38, 0xbb, 0x61, 0xa6, 0x7a, 0x54, 0x3f, 0xd5, 0xfb, 0x4d, 0xfb, 0x7a, 0x92, 0xdd, 0x60, 0x89,
+	0xa1, 0xa7, 0xb0, 0x13, 0x65, 0x89, 0xc7, 0x1d, 0x8f, 0x86, 0x53, 0x72, 0x6f, 0xd6, 0x45, 0xbe,
+	0x11, 0x65, 0xc9, 0x75, 0x9c, 0xdd, 0x8c, 0x38, 0x66, 0x7d, 0x04, 0xb0, 0xae, 0x00, 0xed, 0x82,
+	0x3e, 0xe9, 0x5f, 0x4d, 0x9e, 0x3b, 0xde, 0xa4, 0x7f, 0xe1, 0xf4, 0x6a, 0x08, 0xa0, 0x25, 0x81,
+	0x9e, 0x32, 0xd0, 0xa0, 0x15, 0x08, 0xda, 0xd6, 0x5f, 0x2a, 0x74, 0x07, 0xee, 0x90, 0x3f, 0x46,
+	0x7e, 0xca, 0x08, 0x4b, 0xd1, 0x21, 0x34, 0x82, 0x88, 0x86, 0xb9, 0x4a, 0x1a, 0x2f, 0x74, 0x18,
+	0xd1, 0x10, 0x0b, 0x14, 0x99, 0xd0, 0xbe, 0x25, 0x0f, 0xb1, 0x9f, 0xce, 0x05, 0xd3, 0x2e, 0x2e,
+	0x5c, 0xf4, 0x39, 0x74, 0x04, 0x41, 0x21, 0x71, 0x5d, 0x24, 0xbf, 0x67, 0x57, 0xae, 0x16, 0x35,
+	0xe5, 0xf2, 0x6a, 0x3c, 0x36, 0x17, 0xb7, 0xcb, 0x84, 0x90, 0x9e, 0xa4, 0x64, 0x36, 0x84, 0xc2,
+	0xbd, 0x4d, 0x85, 0x9d, 0x1a, 0x36, 0x58, 0xb9, 0xab, 0x26, 0xb4, 0xa7, 0x94, 0xc5, 0x0b, 0xff,
+	0xc1, 0x6c, 0x1e, 0x29, 0xa7, 0x1a, 0x2e, 0x5c, 0xeb, 0x47, 0xd0, 0x8a, 0xa7, 0x90, 0x06, 0x0d,
+	0x77, 0x72, 0x39, 0xe8, 0xd5, 0xb8, 0x75, 0xcd, 0x2d, 0x85, 0x5b, 0xdf, 0x73, 0x4b, 0xe5, 0xd6,
+	0x0f, 0xdc, 0xaa, 0x73, 0xeb, 0x25, 0xb7, 0x1a, 0xdc, 0xba, 0xe4, 0x56, 0x13, 0xf5, 0xc0, 0x18,
+	0x9e, 0x4d, 0x46, 0xee, 0xd9, 0x0b, 0x4f, 0x9c, 0xb5, 0xca, 0x88, 0xc8, 0x6b, 0x73, 0x29, 0xa3,
+	0x2c, 0x8d, 0xb3, 0xd4, 0xfa, 0x59, 0x05, 0xc4, 0x39, 0xd3, 0x59, 0x38, 0x0a, 0x69, 0xfa, 0x66,
+	0x7a, 0x7e, 0xb6, 0x59, 0xbd, 0xfa, 0x78, 0xf5, 0x1b, 0xb5, 0x9f, 0xc0, 0x6e, 0xae, 0xbb, 0xe7,
+	0x07, 0x41, 0x94, 0x85, 0xa9, 0x59, 0x17, 0xed, 0xd8, 0xc9, 0xe1, 0x33, 0x89, 0x72, 0x91, 0xee,
+	0x48, 0xc2, 0x68, 0x14, 0x0a, 0x5d, 0xbb, 0xb8, 0x70, 0xd1, 0x07, 0x00, 0x61, 0xb6, 0xf4, 0x68,
+	0x18, 0x67, 0x29, 0x13, 0x0a, 0x76, 0x71, 0x27, 0xcc, 0x96, 0x23, 0x01, 0xa0, 0x27, 0xa0, 0xf3,
+	0x63, 0x59, 0x1b, 0x33, 0x5b, 0xe2, 0x9c, 0x67, 0x9c, 0x4b, 0x04, 0xed, 0x83, 0xb6, 0x88, 0x82,
+	0xdb, 0x94, 0x2e, 0x89, 0xd9, 0x16, 0xa7, 0x2b, 0xdf, 0xfa, 0x53, 0x81, 0x77, 0x72, 0x29, 0xc6,
+	0xe4, 0x3e, 0xc5, 0x84, 0xc5, 0x51, 0xc8, 0x08, 0xfa, 0x18, 0x1a, 0xa5, 0x0d, 0x94, 0x4b, 0xb4,
+	0x11, 0x63, 0xf3, 0xae, 0x61, 0x11, 0x86, 0xf6, 0xa0, 0x29, 0xc7, 0x5d, 0x15, 0xf7, 0x4b, 0x07,
+	0x1d, 0x43, 0x77, 0xee, 0x33, 0x8f, 0xd1, 0x59, 0xe8, 0xa7, 0x59, 0x22, 0x87, 0x4d, 0xc3, 0xc6,
+	0xdc, 0x67, 0x17, 0x05, 0xc6, 0xb7, 0x6d, 0x1d, 0xc0, 0x2b, 0x37, 0xf0, 0x1a, 0xb0, 0x4e, 0xa0,
+	0x21, 0x86, 0xa3, 0x03, 0xcd, 0xd1, 0x78, 0x72, 0xe9, 0xca, 0xf5, 0x38, 0xbf, 0x74, 0xb9, 0x2d,
+	0xe6, 0xe3, 0xeb, 0xf3, 0xf1, 0x37, 0x3d, 0xd5, 0xfa, 0x63, 0x5d, 0x88, 0xd0, 0xa5, 0x68, 0xea,
+	0x11, 0xe8, 0x71, 0x42, 0xee, 0xce, 0xb3, 0xd4, 0xf1, 0xd9, 0x5c, 0xd4, 0x63, 0xe0, 0x32, 0x84,
+	0x2c, 0x30, 0x72, 0x77, 0x54, 0x2a, 0xa1, 0x82, 0x95, 0x62, 0x5e, 0xfa, 0x8b, 0x4c, 0x16, 0xd2,
+	0xc0, 0x15, 0x8c, 0xcb, 0xcc, 0xf8, 0xa3, 0x61, 0x40, 0xf2, 0x0e, 0xae, 0xfc, 0xf2, 0x32, 0xb6,
+	0x2a, 0xcb, 0x68, 0xfd, 0xaa, 0xc0, 0x5e, 0xce, 0x5b, 0xf6, 0xab, 0x20, 0x8e, 0xa0, 0x11, 0x65,
+	0x09, 0x13, 0x8c, 0x35, 0x2c, 0x6c, 0x64, 0xe5, 0x5d, 0x51, 0x45, 0x57, 0x76, 0x78, 0x57, 0x64,
+	0x52, 0xb5, 0x15, 0x77, 0x25, 0x8e, 0xd2, 0xe1, 0xb7, 0xcd, 0x79, 0xfd, 0x52, 0x60, 0x61, 0x97,
+	0x49, 0x35, 0xab, 0xa4, 0x7e, 0x51, 0xe0, 0x60, 0x73, 0xac, 0xc9, 0x8c, 0xb2, 0x34, 0xf1, 0x53,
+	0x3e, 0x91, 0x6f, 0x65, 0x53, 0x4a, 0x74, 0xea, 0x55, 0x3a, 0x06, 0x00, 0x4f, 0xcd, 0x82, 0x80,
+	0x30, 0x66, 0xbd, 0x02, 0x6b, 0xe0, 0x0e, 0x47, 0xec, 0x75, 0x76, 0x24, 0x21, 0xd3, 0x42, 0xbe,
+	0xaf, 0xc0, 0x48, 0x4a, 0x94, 0x05, 0x55, 0xbd, 0x7f, 0x68, 0x6f, 0x29, 0x0b, 0x57, 0x32, 0xac,
+	0x6f, 0xe1, 0x78, 0xeb, 0x3b, 0xf9, 0xa6, 0x1c, 0x43, 0x97, 0x32, 0x2f, 0x59, 0x1d, 0xe4, 0x0d,
+	0x33, 0x28, 0x5b, 0x07, 0x5b, 0x77, 0xf0, 0xe1, 0xc0, 0x1d, 0x16, 0x40, 0xf5, 0xc6, 0xff, 0x89,
+	0x2f, 0x6f, 0x71, 0xe8, 0x2f, 0xe5, 0x70, 0x74, 0xb0, 0xb0, 0xad, 0xbf, 0x15, 0x21, 0x5d, 0xf1,
+	0xc8, 0x14, 0x0e, 0x28, 0xf3, 0x2a, 0xcd, 0xd9, 0x64, 0xae, 0xf7, 0x8f, 0xed, 0xff, 0x96, 0xd7,
+	0xa9, 0x61, 0x93, 0xfe, 0x4b, 0x08, 0xba, 0x82, 0x77, 0x8b, 0x4b, 0xbd, 0xc7, 0x06, 0xe1, 0x89,
+	0xbd, 0x5d, 0x0b, 0xa7, 0x86, 0xf7, 0x92, 0x47, 0x8e, 0x07, 0x1d, 0x68, 0x27, 0x32, 0xc4, 0xfa,
+	0x4d, 0x01, 0x5d, 0xdc, 0x92, 0x77, 0xe1, 0x04, 0xda, 0x4c, 0xce, 0x47, 0x5e, 0x85, 0x6e, 0xaf,
+	0x47, 0xc6, 0xa9, 0xe1, 0xe2, 0x14, 0x91, 0xed, 0x12, 0x48, 0x86, 0x4f, 0xed, 0x37, 0xe8, 0xfc,
+	0x36, 0x0d, 0x06, 0x00, 0x5a, 0x92, 0xc7, 0x3d, 0xfb, 0x04, 0xda, 0xf9, 0x82, 0xa0, 0x36, 0xd4,
+	0x07, 0xee, 0x50, 0xfe, 0xc5, 0xb9, 0xdc, 0x52, 0x38, 0xf4, 0xc2, 0x1d, 0xca, 0x7f, 0x38, 0x97,
+	0x5b, 0xf5, 0x67, 0x8e, 0xf8, 0xa7, 0x5f, 0x6f, 0x36, 0xd2, 0xa1, 0x7d, 0x39, 0x7e, 0x3e, 0x3e,
+	0xbf, 0x1a, 0xf7, 0x6a, 0xfc, 0xa7, 0x70, 0xd2, 0x17, 0x5f, 0x07, 0x3c, 0x45, 0x7c, 0x33, 0xa8,
+	0xa5, 0x6f, 0x86, 0xba, 0x0c, 0xb8, 0xba, 0x70, 0x7a, 0x8d, 0x9b, 0x96, 0xf8, 0xd4, 0xfa, 0xf4,
+	0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x0a, 0x72, 0xc4, 0x8b, 0x85, 0x09, 0x00, 0x00,
 }

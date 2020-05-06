@@ -53,6 +53,7 @@ public:
         if (info.requestUrl().scheme() == "qrc" || info.requestUrl().scheme() == "blob") {
             return;
         }
+#if 0 // Safello suspended services, maybe temporarily, so we keep this around for a bit.
         auto currentUrl = mainPage->requestedUrl().toString();
         bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^/]+?/buy$"));
         // We treat the buy page specially, as we need to allow Safello to load in the iframe, as
@@ -66,7 +67,7 @@ public:
             }
             return;
         }
-
+#endif
         std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;
         info.block(true);
     };
@@ -108,13 +109,12 @@ public:
 
 int main(int argc, char *argv[])
 {
-    // note: doesn't work as expected. Users with hidpi enabled should set the environment flag themselves
-    // turn on the DPI support**
-// #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-//     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-// #else
-//     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
-// #endif // QT_VERSION
+// Enable auto HiDPI scaling on Windows only for now.
+// Historically, auto scaling did not work as expected on other platforms
+// before Qt v5.14 but we're at 5.11 due to older systems support.
+#if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
 // QT configuration parameters which change the attack surface for memory
 // corruption vulnerabilities

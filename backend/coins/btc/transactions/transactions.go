@@ -54,10 +54,9 @@ func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
 type Transactions struct {
 	locker.Locker
 
-	net          *chaincfg.Params
-	db           DBInterface
-	headers      headers.Interface
-	requestedTXs map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx)
+	net     *chaincfg.Params
+	db      DBInterface
+	headers headers.Interface
 
 	// headersTipHeight is the current chain tip height, so we can compute the number of
 	// confirmations of a transaction.
@@ -69,6 +68,9 @@ type Transactions struct {
 	blockchain   blockchain.Interface
 	notifier     accounts.Notifier
 	log          *logrus.Entry
+
+	closed     bool
+	closedLock locker.Locker
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -82,10 +84,9 @@ func NewTransactions(
 	log *logrus.Entry,
 ) *Transactions {
 	transactions := &Transactions{
-		net:          net,
-		db:           db,
-		headers:      headers,
-		requestedTXs: map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx){},
+		net:     net,
+		db:      db,
+		headers: headers,
 
 		headersTipHeight: headers.TipHeight(),
 
@@ -100,32 +101,22 @@ func NewTransactions(
 
 // Close cleans up when finished using.
 func (transactions *Transactions) Close() {
+	defer transactions.closedLock.Lock()()
+	if transactions.closed {
+		transactions.log.Debug("account aleady closed")
+		return
+	}
+	transactions.closed = true
 	transactions.unsubscribeHeadersEvent()
 }
 
-func (transactions *Transactions) txInHistory(
-	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) bool {
-	history, err := dbTx.AddressHistory(scriptHashHex)
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	for _, entry := range history {
-		if txHash == entry.TXHash.Hash() {
-			return true
-		}
-	}
-	return false
+func (transactions *Transactions) isClosed() bool {
+	defer transactions.closedLock.RLock()()
+	return transactions.closed
 }
 
 func (transactions *Transactions) processTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
-	// Don't process the tx if it is not found in the address history. It could have been removed
-	// from the history before this function was called.
-	if !transactions.txInHistory(dbTx, scriptHashHex, txHash) {
-		return
-	}
-
 	_, _, previousHeight, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
@@ -293,12 +284,16 @@ func (transactions *Transactions) removeTxForAddress(
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
 func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) {
+	if transactions.isClosed() {
+		transactions.log.Debug("UpdateAddressHistory after the instance was closed")
+		return
+	}
 	defer transactions.Lock()()
 	dbTx, err := transactions.db.Begin()
-	defer dbTx.Rollback()
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to begin transaction")
 	}
+	defer dbTx.Rollback()
 	txsSet := map[chainhash.Hash]struct{}{}
 	for _, txInfo := range txs {
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
@@ -323,13 +318,11 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
 		transactions.log.WithError(err).Panic("Failed to store address history")
 	}
-
 	for _, txInfo := range txs {
-		func(txHash chainhash.Hash, height int) {
-			transactions.doForTransaction(dbTx, txHash, func(innerDBTx DBTxInterface, tx *wire.MsgTx) {
-				transactions.processTxForAddress(innerDBTx, scriptHashHex, txHash, tx, height)
-			})
-		}(txInfo.TXHash.Hash(), txInfo.Height)
+		txHash := txInfo.TXHash.Hash()
+		height := txInfo.Height
+		tx := transactions.getTransactionCached(dbTx, txHash)
+		transactions.processTxForAddress(dbTx, scriptHashHex, txHash, tx, height)
 	}
 	if err := dbTx.Commit(); err != nil {
 		transactions.log.WithError(err).Panic("Failed to commit transaction")
@@ -337,51 +330,35 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 }
 
 // requires transactions lock
-func (transactions *Transactions) doForTransaction(
+func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
-	callback func(DBTxInterface, *wire.MsgTx),
-) {
+) *wire.MsgTx {
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
 	}
 	if tx != nil {
-		callback(dbTx, tx)
-		return
+		return tx
 	}
-	if transactions.requestedTXs[txHash] == nil {
-		transactions.requestedTXs[txHash] = []func(DBTxInterface, *wire.MsgTx){}
-	}
-	alreadyDownloading := len(transactions.requestedTXs[txHash]) != 0
-	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
-	if alreadyDownloading {
-		return
-	}
-	done := transactions.synchronizer.IncRequestsCounter()
+	txChan := make(chan *wire.MsgTx)
 	transactions.blockchain.TransactionGet(
 		txHash,
 		func(tx *wire.MsgTx) error {
-			defer transactions.Lock()()
-			dbTx, err := transactions.db.Begin()
-			if err != nil {
-				transactions.log.WithError(err).Panic("Failed to begin transaction")
+			if transactions.isClosed() {
+				transactions.log.Debug("TransactionGet result ignored after the instance was closed")
+				return nil
 			}
-			defer dbTx.Rollback()
-
-			for _, callback := range transactions.requestedTXs[txHash] {
-				callback(dbTx, tx)
-			}
-			delete(transactions.requestedTXs, txHash)
-			return dbTx.Commit()
+			txChan <- tx
+			return nil
 		},
 		func(err error) {
-			done()
 			if err != nil {
 				panic(err)
 			}
 		},
 	)
+	return <-txChan
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.
@@ -464,9 +441,14 @@ func (txInfo *TxInfo) Fee() *coin.Amount {
 	return &fee
 }
 
-// ID implements accounts.Transaction.
-func (txInfo *TxInfo) ID() string {
+// TxID implements accounts.Transaction.
+func (txInfo *TxInfo) TxID() string {
 	return txInfo.Tx.TxHash().String()
+}
+
+// InternalID implements accounts.Transaction.
+func (txInfo *TxInfo) InternalID() string {
+	return txInfo.TxID()
 }
 
 // Timestamp implements accounts.Transaction.

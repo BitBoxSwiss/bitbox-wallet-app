@@ -18,6 +18,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
 // Interface represents a hardware wallet device.
@@ -54,5 +55,5 @@ type Interface interface {
 	// Close tells the device to close all connections.
 	Close()
 
-	// observable.Interface
+	observable.Interface
 }

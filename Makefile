@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SHELL:=/bin/bash
-WEBROOT:=`pwd`/frontends/web
+SHELL    := /bin/bash
+REPOROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+WEBROOT  := $(REPOROOT)/frontends/web
+GOPATH   ?= $(HOME)/go
+PATH     := $(PATH):$(GOPATH)/bin
 
 catch:
 	@echo "Choose a make target."
@@ -26,17 +29,14 @@ envinit:
 	GO111MODULE=off go get -u github.com/jteeuwen/go-bindata/...
 	GO111MODULE=off go get -u golang.org/x/mobile/cmd/gomobile
 	gomobile init
-# This must be run in $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
+# Initializiation on MacOS
+#  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
+#  - additional dependencies: Qt 5.11 & Xcode command line tools
+#  - add to $PATH: /usr/local/opt/go@1.13/bin
 osx-init:
-	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 	brew install yarn
-	brew install go
-	brew install qt
-	export PATH="/usr/local/opt/qt/bin:$PATH"
-	export LDFLAGS="-L/usr/local/opt/qt/lib"
-	export CPPFLAGS="-I/usr/local/opt/qt/include"
-	export GOPATH=~/go/
-	export PATH=$PATH:~/go/bin
+	brew install go@1.13	
 	$(MAKE) envinit
 servewallet:
 	go install -mod=vendor ./cmd/servewallet/... && servewallet

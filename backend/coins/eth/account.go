@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -183,6 +184,15 @@ func (account *Account) Initialize() error {
 		if err != nil {
 			return false, err
 		}
+		// Derive m/0, first account.
+		relKeyPath, err := signing.NewRelativeKeypath("0")
+		if err != nil {
+			return false, err
+		}
+		signingConfiguration, err = signingConfiguration.Derive(relKeyPath)
+		if err != nil {
+			return false, err
+		}
 		account.signingConfiguration = signingConfiguration
 		account.notifier = account.getNotifier(signingConfiguration)
 		return false, nil
@@ -328,14 +338,14 @@ func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 
 	allTxHashes := map[string]struct{}{}
 	for _, tx := range allTxs {
-		allTxHashes[tx.ID()] = struct{}{}
+		allTxHashes[tx.TxID()] = struct{}{}
 	}
 
 	transactions := []accounts.Transaction{}
 	for _, tx := range outgoingTransactions {
 		tx := tx
 		// Skip txs already present from transactions source.
-		if _, ok := allTxHashes[tx.ID()]; ok {
+		if _, ok := allTxHashes[tx.TxID()]; ok {
 			continue
 		}
 		transactions = append(transactions,
@@ -362,10 +372,12 @@ func (account *Account) update() error {
 	if transactionsSource != nil {
 		var err error
 		confirmedTansactions, err = transactionsSource.Transactions(
+			account.blockNumber,
 			account.address.Address, account.blockNumber, account.coin.erc20Token)
 		if err != nil {
 			return err
 		}
+		sort.Sort(byHeight(confirmedTansactions))
 	}
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions
@@ -393,7 +405,7 @@ func (account *Account) update() error {
 	}
 	account.transactions = append(outgoingTransactions, confirmedTansactions...)
 	for _, transaction := range account.transactions {
-		if err := account.notifier.Put([]byte(transaction.ID())); err != nil {
+		if err := account.notifier.Put([]byte(transaction.TxID())); err != nil {
 			return err
 		}
 	}

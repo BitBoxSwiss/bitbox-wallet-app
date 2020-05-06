@@ -406,18 +406,17 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 		runlock()
 		var responseError error
 		if ok {
-			responseCallbacks := pendingRequest.responseCallbacks
-			if response.Error != nil {
-				responseError = &ResponseError{errp.New(parseError(*response.Error))}
-			} else if len(response.Result) == 0 {
-				responseError = &ResponseError{errp.New("unexpected reply from ElectrumX")}
-			} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
-				responseError = &ResponseError{errp.Cause(err)}
-			}
-			// if responseError != nil {
-			// 	panic(responseError)
-			// }
-			defer client.cleanupFinishedRequest(responseError, conn, *response.ID)
+			go func() {
+				responseCallbacks := pendingRequest.responseCallbacks
+				if response.Error != nil {
+					responseError = &ResponseError{errp.New(parseError(*response.Error))}
+				} else if len(response.Result) == 0 {
+					responseError = &ResponseError{errp.New("unexpected reply from ElectrumX")}
+				} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
+					responseError = &ResponseError{errp.Cause(err)}
+				}
+				client.cleanupFinishedRequest(responseError, conn, *response.ID)
+			}()
 		} else {
 			unlock := client.pingRequestsLock.Lock()
 			_, ok := client.pingRequests[*response.ID]
@@ -443,7 +442,7 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 			responseCallbacks := client.notificationsCallbacks[*response.Method]
 			unlock()
 			for _, responseCallback := range responseCallbacks {
-				responseCallback([]byte(response.Params))
+				go responseCallback([]byte(response.Params))
 			}
 		}()
 	} else if response.ID == nil && response.Error != nil {

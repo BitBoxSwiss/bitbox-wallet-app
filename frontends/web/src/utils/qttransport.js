@@ -15,20 +15,13 @@
  */
 
 import { QWebChannel } from './qwebchannel';
+import { runningInQtWebEngine } from './env';
 
 let cache = null;
 let webChannel = null;
 let queryID = 0;
 let queryPromises = {};
 let currentListeners = [];
-
-/**
- * Returns whether the code is running in QtWebEngine.
- */
-export function runningInQtWebEngine() {
-    // @ts-ignore
-    return typeof qt !== 'undefined';
-}
 
 function initTransport() {
     return new Promise((resolve, reject) => {

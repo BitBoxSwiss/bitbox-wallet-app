@@ -130,7 +130,7 @@
     "error": {
       "e10000": "Current device password incorrect.",
       "e10001": "Failed to replace device password",
-      "e102": "The password must consist of at least 8 characters.",
+      "e102": "The password must consist of at least 4 characters.",
       "e112": "Hidden device password cannot be the same as the main device password."
     }
   },
@@ -798,6 +798,10 @@
       "what": {
         "text": "It is possible to power your wallet with your own full nodes instead of using Shift servers.",
         "title": "What is this?"
+      },
+      "whenTCP": {
+        "text": "It is advisable to always use TLS, even if your node is running on the same machine as this app. When connecting to a tor hidden service, TLS may be skipped.",
+        "title": "Should I use TLS?"
       }
     },
     "settings": {
@@ -928,6 +932,9 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "loading": "loading…",
+  "mobile": {
+    "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
+  },
   "notification": {
     "newTxs": "New transaction in: {{accountName}}",
     "newTxs_plural": "{{count}} new transactions in: {{accountName}}"
@@ -1040,7 +1047,7 @@
     "creating": "Creating wallet",
     "description": "I understand that:",
     "error": {
-      "e102": "The password must consist of at least 8 characters.",
+      "e102": "The password must consist of at least 4 characters.",
       "e200": "You need to insert a microSD card into your BitBox in order to create a wallet, so a backup can be created automatically."
     },
     "info": {
@@ -1146,7 +1153,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum BETA",
+      "ethereum": "Ethereum",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Active accounts"
@@ -1168,6 +1175,7 @@
       "step1-text": "Enter the endpoint.",
       "step2": "2",
       "step2-text": "Enter a certificate of the server's certificate chain. Alternatively, download the remote certificate and compare it visually.",
+      "step2-text-tcp": "You can skip this step if you do not want to use TLS.",
       "step3": "3",
       "step3-text": "Check the connection and add the server.",
       "step4": "4",
@@ -1233,6 +1241,7 @@
       "amount": "Amount",
       "date": "Date",
       "fiat": "Fiat",
+      "fiatAmount": "Fiat amount",
       "status": "Status",
       "type": "Type"
     },

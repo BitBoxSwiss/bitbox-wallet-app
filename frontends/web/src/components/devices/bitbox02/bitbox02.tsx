@@ -195,7 +195,7 @@ class BitBox02 extends Component<Props, State> {
 
     public componentWillUnmount() {
         const { sidebarStatus } = panelStore.state;
-        if (this.state.status === 'initialized' && ['forceHidden', 'forceCollapsed'].includes(sidebarStatus)) {
+        if (['forceHidden', 'forceCollapsed'].includes(sidebarStatus)) {
             setSidebarStatus('');
         }
         this.unsubscribe();

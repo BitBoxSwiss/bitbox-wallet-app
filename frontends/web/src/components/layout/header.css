@@ -109,7 +109,7 @@
     opacity: 0.4;    
 }
 
-@media (min-width: 1322px) {
+@media (min-width: 1200px) {
     .container:not(.forceCollapsed) .sidebarToggler {
         display: none;
     }

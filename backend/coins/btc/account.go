@@ -88,6 +88,9 @@ type Account struct {
 	onEvent     func(accounts.Event)
 	log         *logrus.Entry
 	rateUpdater *rates.RateUpdater
+
+	closed     bool
+	closedLock locker.Locker
 }
 
 // Status indicates the connection and initialization status.
@@ -284,6 +287,9 @@ func (account *Account) gapLimits() (types.GapLimits, error) {
 
 // Initialize initializes the account.
 func (account *Account) Initialize() error {
+	if account.isClosed() {
+		return errp.New("Initialize: account was closed, init only works once.")
+	}
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
 		if account.signingConfiguration != nil {
@@ -442,6 +448,10 @@ func (account *Account) Info() *accounts.Info {
 }
 
 func (account *Account) onNewHeader(header *blockchain.Header) error {
+	if account.isClosed() {
+		account.log.Debug("Ignoring new header after the account was closed")
+		return nil
+	}
 	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
@@ -470,6 +480,11 @@ func (account *Account) FatalError() bool {
 
 // Close stops the account.
 func (account *Account) Close() {
+	defer account.closedLock.Lock()()
+	if account.closed {
+		account.log.Debug("account aleady closed")
+		return
+	}
 	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
@@ -484,6 +499,12 @@ func (account *Account) Close() {
 		account.transactions.Close()
 	}
 	account.onEvent(accounts.EventStatusChanged)
+	account.closed = true
+}
+
+func (account *Account) isClosed() bool {
+	defer account.closedLock.RLock()()
+	return account.closed
 }
 
 // Notifier implements accounts.Interface.
@@ -573,6 +594,10 @@ func (account *Account) addresses(change bool) AddressChain {
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
 func (account *Account) onAddressStatus(address *addresses.AccountAddress, status string) {
+	if account.isClosed() {
+		account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
+		return
+	}
 	if status == address.HistoryStatus {
 		// Address didn't change.
 		return
@@ -584,6 +609,11 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	account.blockchain.ScriptHashGetHistory(
 		address.PubkeyScriptHashHex(),
 		func(history blockchain.TxHistory) error {
+			if account.isClosed() {
+				account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
+				return nil
+			}
+
 			func() {
 				defer account.Lock()()
 				address.HistoryStatus = history.Status()
@@ -667,7 +697,9 @@ func (account *Account) subscribeAddress(
 			}
 		},
 		address.PubkeyScriptHashHex(),
-		func(status string) error { account.onAddressStatus(address, status); return nil },
+		func(status string) {
+			account.onAddressStatus(address, status)
+		},
 	)
 	return nil
 }

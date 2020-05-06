@@ -110,6 +110,13 @@ type Environment interface {
 	DeviceInfos() []usb.DeviceInfo
 	// SystemOpen opens a web url in the default browser, or a file url in the default application.
 	SystemOpen(string) error
+	// UsingMobileData returns true if the user is connected to the internet over a mobile data
+	// connection, which might be subject to data limits. Returns false if we are on WiFi/LAN.
+	// Special case: if there is no internet connection at all, this should also return false. This
+	// function can be extended to return an enum if we ever want to deal with lost internet
+	// connections at this level (currently handled at the account-level (see `Offline()` in the
+	// `Account` interface).
+	UsingMobileData() bool
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -618,11 +625,12 @@ func (backend *Backend) initDefaultAccounts() {
 				signing.ScriptTypeP2WPKH)
 
 			TETH, _ := backend.Coin(coinTETH)
-			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten BETA", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
 			RETH, _ := backend.Coin(coinRETH)
-			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby BETA", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
 			erc20TEST, _ := backend.Coin(coinERC20TEST)
-			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0",
+				signing.ScriptTypeP2WPKH)
 		}
 	} else {
 		if backend.arguments.Multisig() {
@@ -649,13 +657,12 @@ func (backend *Backend) initDefaultAccounts() {
 
 			ETH, _ := backend.Coin(coinETH)
 			const ethAccountCode = "eth"
-			// Once the BETA label is removed, also remove the 'BETA' string replace in receive.jsx
-			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum BETA", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 
 			if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
 				for _, erc20Token := range erc20Tokens {
 					token, _ := backend.Coin(erc20Token.code)
-					backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+					backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 				}
 			}
 		}
@@ -921,6 +928,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.onDeviceUninit(theDevice.Identifier())
 		return err
 	}
+	theDevice.Observe(backend.Notify)
 
 	// Old-school
 	select {
@@ -970,11 +978,11 @@ func (backend *Backend) DownloadCert(server string) (string, error) {
 	return electrum.DownloadCert(server, backend.socksProxy)
 }
 
-// CheckElectrumServer checks if a tls connection can be established with the electrum server, and
+// CheckElectrumServer checks if a connection can be established with the electrum server, and
 // whether the server is an electrum server.
-func (backend *Backend) CheckElectrumServer(server string, pemCert string) error {
+func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error {
 	return electrum.CheckElectrumServer(
-		server, pemCert, backend.log, backend.socksProxy.GetTCPProxyDialer())
+		serverInfo, backend.log, backend.socksProxy.GetTCPProxyDialer())
 }
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
@@ -1042,6 +1050,11 @@ func (backend *Backend) SystemOpen(url string) error {
 	}
 	return backend.environment.SystemOpen(url)
 
+}
+
+// Environment returns the app native environment.
+func (backend *Backend) Environment() Environment {
+	return backend.environment
 }
 
 // Close shuts down the backend. After this, no other method should be called.

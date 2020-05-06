@@ -26,6 +26,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	appConfig "github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -147,8 +148,7 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	}
 
 	if err := electrum.CheckElectrumServer(
-		electrumAddress,
-		electrumCert,
+		&config.ServerInfo{Server: electrumAddress, TLS: true, PEMCert: electrumCert},
 		base.log,
 		base.socksProxy.GetTCPProxyDialer()); err != nil {
 		base.log.WithField("ElectrumIP: ", electrumAddress).Error(err.Error())

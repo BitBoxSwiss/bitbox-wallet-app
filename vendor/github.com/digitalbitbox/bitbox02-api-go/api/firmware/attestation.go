@@ -67,7 +67,7 @@ func (device *Device) performAttestation() (bool, error) {
 		return true, nil
 	}
 	challenge := bytesOrPanic(32)
-	response, err := device.communication.Query(append([]byte(opAttestation), challenge...))
+	response, err := device.rawQuery(append([]byte(opAttestation), challenge...))
 	if err != nil {
 		return false, err
 	}

@@ -126,7 +126,7 @@
     "error": {
       "e10000": "Senha atual do dispositivo incorreta.",
       "e10001": "Falha ao substituir a senha do dispositivo",
-      "e102": "A senha deve conter pelo menos 8 caracteres.",
+      "e102": "A senha deve conter pelo menos 4 caracteres.",
       "e112": "A senha do dispositivo oculto não pode ser igual à senha do dispositivo principal."
     }
   },
@@ -362,15 +362,7 @@
   "generic": {
     "applying": "",
     "confirmToContinue": "Confirme para continuar.",
-    "description": "Descrição",
-    "enable": {
-      "false": "habilitar",
-      "true": "desabilitar"
-    },
-    "enabled": {
-      "false": "Desativado",
-      "true": "Ativado"
-    }
+    "description": "Descrição"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -762,11 +754,6 @@
   },
   "receive": {
     "label": "Seu endereço",
-    "ltcLegacy": {
-      "button": "Converter para o formato de endereço legacy",
-      "info": "O Litecoin está transacionando de endereços que começam com '3' para endereços que começam com um 'M'.",
-      "result": "Formato legacy de {{address}}:\n{{legacyAddress}}"
-    },
     "onlyThisCoin": {
       "description": "Para receber outros tokens, ative-os nas configurações. Se você depositar outros tokens, eles podem não ser acessíveis.",
       "warning": "Certifique-se de receber apenas {{accountName}} neste endereço."
@@ -816,7 +803,7 @@
     "creating": "Criando carteira",
     "description": "Eu entendo que:",
     "error": {
-      "e102": "A senha deve conter pelo menos 8 caracteres.",
+      "e102": "A senha deve conter pelo menos 4 caracteres.",
       "e200": "Você precisa inserir um cartão microSD na sua BitBox para criar uma carteira, para que um backup possa ser criado automaticamente."
     },
     "info": {
@@ -919,7 +906,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum BETA",
+      "ethereum": "Ethereum",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Contas ativas"

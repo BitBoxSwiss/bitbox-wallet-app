@@ -18,6 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import Transaction from './transaction';
 import A from '../../components/anchor/anchor';
+import { runningInAndroid } from '../../utils/env';
 import * as style from './transactions.css';
 
 @translate()
@@ -26,20 +27,23 @@ export default class Transactions extends Component {
         t,
         explorerURL,
         transactions,
-        unit,
         exported,
         handleExport,
     }) {
+        // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
+        // folder and permissions.
+        const csvExportDisabled = runningInAndroid();
         return (
             <div className={style.container}>
                 <div className="flex flex-row flex-between flex-items-center">
                     <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
-                    {
+                    { !csvExportDisabled && (
                         exported ? (
                             <A href={exported} className="labelXLarge labelLink">{t('account.openFile')}</A>
                         ) : (
                             <A href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
                         )
+                    )
                     }
                 </div>
                 <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
@@ -47,14 +51,14 @@ export default class Transactions extends Component {
                     <div className={style.date}>{t('transaction.details.date')}</div>
                     <div className={style.address}>{t('transaction.details.address')}</div>
                     <div className={style.status}>{t('transaction.details.status')}</div>
-                    <div className={style.fiat}>{t('transaction.details.fiat')}</div>
-                    <div className={style.currency}>{unit}</div>
+                    <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
+                    <div className={style.currency}>{t('transaction.details.amount')}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
                 {
                     transactions.length > 0 ? transactions.map((props, index) => (
                         <Transaction
-                            key={props.id}
+                            key={props.internalID}
                             explorerURL={explorerURL}
                             index={index}
                             {...props} />

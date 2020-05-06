@@ -49,6 +49,10 @@ func (e environment) SystemOpen(url string) error {
 	return nil
 }
 
+func (e environment) UsingMobileData() bool {
+	return false
+}
+
 // TestServeShutdownServe checks that you can call Serve twice in a row.
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(

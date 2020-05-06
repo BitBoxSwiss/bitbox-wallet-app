@@ -66,14 +66,14 @@
 }
 
 .fiat {
-  min-width: 168px;
-  width: 166px;
+  min-width: 134px;
+  width: 134px;
   justify-content: flex-end;
 }
 
 .currency {
-  min-width: 168px;
-  width: 168px;
+  min-width: 202px;
+  width: 202px;
   justify-content: flex-end;
 }
 
@@ -99,13 +99,13 @@
   color: var(--color-secondary);
 }
 
-@media (min-width: 1081px) {
+@media (min-width: 1081px) and (max-width: 1199px), (min-width: 1323px) {
   .hideOnMedium {
     display: none;
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1080px), (min-width: 1200px) and (max-width: 1322px) {
   .showOnMedium {
     display: none;
   }

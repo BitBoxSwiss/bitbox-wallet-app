@@ -101,13 +101,14 @@ type Backend interface {
 	RatesUpdater() *rates.RateUpdater
 	BitBoxBaseDeregister(bitboxBaseID string)
 	DownloadCert(string) (string, error)
-	CheckElectrumServer(string, string) error
+	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
 	NotifyUser(string)
 	SystemOpen(string) error
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
+	Environment() backend.Environment
 }
 
 // Handlers provides a web api to the backend.
@@ -180,6 +181,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
@@ -198,7 +200,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("ltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/certs/check", handlers.postCertsCheckHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
@@ -378,6 +380,10 @@ func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error)
 
 func (handlers *Handlers) getBannersHandler(r *http.Request) (interface{}, error) {
 	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"])), nil
+}
+
+func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) (interface{}, error) {
+	return handlers.backend.Environment().UsingMobileData(), nil
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
@@ -642,18 +648,13 @@ func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) (interface{}
 	}, nil
 }
 
-func (handlers *Handlers) postCertsCheckHandler(r *http.Request) (interface{}, error) {
-	var server struct {
-		Server  string `json:"server"`
-		PEMCert string `json:"pemCert"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
+func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) (interface{}, error) {
+	var serverInfo config.ServerInfo
+	if err := json.NewDecoder(r.Body).Decode(&serverInfo); err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	if err := handlers.backend.CheckElectrumServer(
-		server.Server,
-		server.PEMCert); err != nil {
+	if err := handlers.backend.CheckElectrumServer(&serverInfo); err != nil {
 		return map[string]interface{}{
 			"success":      false,
 			"errorMessage": err.Error(),

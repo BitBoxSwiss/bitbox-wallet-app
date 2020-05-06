@@ -281,7 +281,7 @@ class Receive extends Component<Props, State> {
                                     isEthereumBased(account.coinCode) &&
                                     <p>
                                         <strong>
-                                            {t('receive.onlyThisCoin.warning', { accountName: account.name.replace(' BETA', '') })}
+                                            {t('receive.onlyThisCoin.warning', { accountName: account.name })}
                                         </strong><br />
                                         {t('receive.onlyThisCoin.description')}
                                     </p>

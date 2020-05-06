@@ -45,17 +45,23 @@ The below instructions assume a unix environment.
 
 ### Requirements
 
-- [Go](https://golang.org/doc/install) version 1.13.
-- [Yarn](https://yarnpkg.com/en/) - for managing the web UI deps.
-- [Qt5](https://www.qt.io)
-  - Install via https://www.qt.io/download, also install WebEngine, and put `qmake` and `rcc` into
-    your PATH.
+The following dependencies need to be installed:
 
-Make sure `$GOPATH` is set and `$GOPATH/bin` and `$GOROOT/bin` is in your `$PATH`.
+- [Go](https://golang.org/doc/install) version 1.13
+- [Yarn](https://yarnpkg.com/en/) for managing the web UI deps
+- [Qt5](https://www.qt.io) version 5.11.3
+  - Installers for older versions can be found in [this Qt archive](https://download.qt.io/new_archive/qt/5.11/5.11.3)
+  - install Qt for your platform, including the WebEngine component
 
-Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
+Make sure the following environment variables are set:
+- `$GOPATH`
+- `$PATH`: should include `$GOPATH/bin`, `$GOROOT/bin` and the location of `qmake` and `rcc`
 
-Only the first time, call `make envinit` to install the required go utilities (linters, ...).
+Clone this repository to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
+
+To initialize the build environment and install the required go utilities (linters, ...), call
+* `make envinit`, or
+* on MacOS `make osx-init`
 
 ## Build the BitBoxApp
 
