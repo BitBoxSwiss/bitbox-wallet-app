@@ -25,7 +25,7 @@ interface Props {
 
 export default function A({ href, icon, children, ...props }: RenderableProps<Props>): JSX.Element {
     return (
-        <span className={style.link} onClick={() => apiPost('open', href)} title={href} {...props}>
+        <span className={style.link} onClick={() => apiPost('open', href)} title={props.title || href} {...props}>
             {icon ? icon : null}
             {children}
         </span>

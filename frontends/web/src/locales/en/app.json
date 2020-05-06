@@ -565,6 +565,26 @@
     "confirm": "Confirm",
     "confirmTitle": "Confirmation"
   },
+  "exchanges": {
+    "method": "Select your payment method",
+    "methods": {
+      "BT": "Bank transfer",
+      "CC": "Credit card",
+      "DCA": "Recurring",
+      "P2P": "Peer-to-peer",
+      "SW": "Crypto swap"
+    },
+    "nomatch": "no exchanges match your criteria",
+    "region": "Choose your region",
+    "regions": {
+      "AF": "Africa",
+      "APAC": "Asia Pacific (incl. AU/NZ)",
+      "EU": "Europe",
+      "LA": "Latin America",
+      "NA": "North America"
+    },
+    "title": "Buy & sell"
+  },
   "fiat": {
     "default": "default",
     "setDefault": "Set {{code}} as default",
@@ -1212,6 +1232,7 @@
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "Connect BitBoxBase",
     "device": "Manage device",
+    "exchanges": "Buy & sell",
     "leave": "Leave",
     "settings": "Settings"
   },
