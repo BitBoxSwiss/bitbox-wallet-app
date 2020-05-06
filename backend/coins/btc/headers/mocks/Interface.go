@@ -11,29 +11,6 @@ type Interface struct {
 	mock.Mock
 }
 
-// HeaderByHeight provides a mock function with given fields: _a0
-func (_m *Interface) HeaderByHeight(_a0 int) (*wire.BlockHeader, error) {
-	ret := _m.Called(_a0)
-
-	var r0 *wire.BlockHeader
-	if rf, ok := ret.Get(0).(func(int) *wire.BlockHeader); ok {
-		r0 = rf(_a0)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*wire.BlockHeader)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
-		r1 = rf(_a0)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // Initialize provides a mock function with given fields:
 func (_m *Interface) Initialize() {
 	_m.Called()
@@ -90,4 +67,27 @@ func (_m *Interface) TipHeight() int {
 	}
 
 	return r0
+}
+
+// VerifiedHeaderByHeight provides a mock function with given fields: _a0
+func (_m *Interface) VerifiedHeaderByHeight(_a0 int) (*wire.BlockHeader, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *wire.BlockHeader
+	if rf, ok := ret.Get(0).(func(int) *wire.BlockHeader); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*wire.BlockHeader)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

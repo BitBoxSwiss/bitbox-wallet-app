@@ -81,7 +81,7 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	if height <= 0 {
 		return
 	}
-	header, err := transactions.headers.HeaderByHeight(height)
+	header, err := transactions.headers.VerifiedHeaderByHeight(height)
 	if err != nil {
 		// TODO
 		panic(err)

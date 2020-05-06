@@ -53,7 +53,7 @@ const (
 type Interface interface {
 	Initialize()
 	SubscribeEvent(f func(Event)) func()
-	HeaderByHeight(int) (*wire.BlockHeader, error)
+	VerifiedHeaderByHeight(int) (*wire.BlockHeader, error)
 	TipHeight() int
 	Status() (*Status, error)
 }
@@ -381,9 +381,9 @@ func (headers *Headers) processBatch(
 	return nil
 }
 
-// HeaderByHeight returns the header at the given height. Returns nil if the headers are not synced
+// VerifiedHeaderByHeight returns the header at the given height. Returns nil if the headers are not synced
 // up to this height yet OR if the headers are not synced up to the latest checkpoint yet.
-func (headers *Headers) HeaderByHeight(height int) (*wire.BlockHeader, error) {
+func (headers *Headers) VerifiedHeaderByHeight(height int) (*wire.BlockHeader, error) {
 	defer headers.lock.RLock()()
 
 	if len(headers.net.Checkpoints) > 0 {
