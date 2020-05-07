@@ -164,7 +164,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
 	s.blockchainMock.RegisterTxs(tx1)
 	expectedHeight := 10
-	s.headersMock.On("HeaderByHeight", expectedHeight).Return(nil, nil).Once()
+	s.headersMock.On("VerifiedHeaderByHeight", expectedHeight).Return(nil, nil).Once()
 	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: expectedHeight},
 	})
@@ -204,12 +204,12 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	tx21 := newTx(chainhash.HashH(nil), 2, address2, 3000)
 	tx22 := newTx(chainhash.HashH(nil), 3, address2, 4000)
 	s.blockchainMock.RegisterTxs(tx11, tx12, tx21, tx22)
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx11.TxHash()), Height: 0},
 		{TXHash: blockchainpkg.TXHash(tx12.TxHash()), Height: 10},
 	})
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address2, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx21.TxHash()), Height: 0},
 		{TXHash: blockchainpkg.TXHash(tx22.TxHash()), Height: 10},
@@ -270,7 +270,7 @@ func (s *transactionsSuite) TestBalance() {
 		newBalance(0, expectedAmount),
 		s.transactions.Balance())
 	// Confirm it, plus another one incoming.
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
@@ -288,7 +288,7 @@ func (s *transactionsSuite) TestBalance() {
 		newBalance(0, expectedAmount2),
 		s.transactions.Balance())
 	// Confirm it.
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
@@ -320,12 +320,12 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	tx3 := newTx(tx1.TxHash(), 0, address1, 2)
 	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PubkeyScript()))
 	s.blockchainMock.RegisterTxs(tx1, tx2, tx3)
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Twice()
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Twice()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx3.TxHash()), Height: 10},
 	})
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
+	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	tx1Hash := tx1.TxHash()
 	s.notifierMock.On("Delete", tx1Hash[:]).Return(nil).Once()
 	s.updateAddressHistory(address2, []*blockchainpkg.TxInfo{
