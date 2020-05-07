@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "preact2",
+  "name": "BitBoxApp",
   "version": "0.0.0",
   "scripts": {
     "postinstall": "npx tcm src --camelCase dashes",
