@@ -40,7 +40,7 @@ func TestClose(t *testing.T) {
 	require.NoError(t, headers.Close())
 	select {
 	case <-didFinish:
-	case <-time.After(time.Second):
+	case <-time.After(5 * time.Second):
 		require.Fail(t, "did not shut down")
 	}
 
