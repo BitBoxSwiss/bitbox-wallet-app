@@ -116,9 +116,9 @@ func NewHeaders(
 	}
 }
 
-// Checkpoint returns the latest checkpoint for the current chain. It panics if the network is
+// checkpoint returns the latest checkpoint for the current chain. It panics if the network is
 // unknown.
-func (headers *Headers) Checkpoint() chaincfg.Checkpoint {
+func (headers *Headers) checkpoint() chaincfg.Checkpoint {
 	// We define our own checkpoints over using headers.net.Checkpoints, because they are defined in
 	// the vendored btcd dep, and we want to control it. Furthermore, the chaincfg.Params are evil
 	// globals registered in the lib's `init()`, so we can't replicate the instances ourselves.
@@ -318,7 +318,7 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 					header.PrevBlock, tip, prevBlock, tip-1))
 		}
 
-		lastCheckpoint := headers.Checkpoint()
+		lastCheckpoint := headers.checkpoint()
 		if tip == int(lastCheckpoint.Height) {
 			if *lastCheckpoint.Hash != header.BlockHash() {
 				return errp.Newf("checkpoint mismatch at %d. Expected %s, got %s",
@@ -425,7 +425,7 @@ func (headers *Headers) VerifiedHeaderByHeight(height int) (*wire.BlockHeader, e
 		return nil, err
 	}
 
-	if tip < int(headers.Checkpoint().Height) {
+	if tip < int(headers.checkpoint().Height) {
 		return nil, nil
 	}
 
