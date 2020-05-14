@@ -17,6 +17,8 @@
 import { Component, h, RenderableProps } from 'preact';
 import A from '../../components/anchor/anchor';
 import Button from '../../components/forms/button';
+import { Entry } from '../../components/guide/entry';
+import { Guide } from '../../components/guide/guide';
 import { SwissMadeOpenSource } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -152,6 +154,11 @@ class Exchanges extends Component<Props, State> {
                         </Footer>
                     </div>
                 </div>
+                <Guide>
+                    <Entry key="exchangeDescription" entry={t('guide.exchanges.description')} />
+                    <Entry key="exchangeWhichService" entry={t('guide.exchanges.whichService')} />
+                    <Entry key="accountTransactionConfirmation" entry={t('guide.exchanges.commission')} />
+                </Guide>
             </div>
         );
     }

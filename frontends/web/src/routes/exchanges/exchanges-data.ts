@@ -62,7 +62,7 @@ export const data: ExchangeData[] = [
     {
         key: 'shapeshift',
         link: 'https://shapeshift.io/',
-        description: '',
+        description: 'Founded in 2014, ShapeShift allows users to buy crypto with fiat, trade, track, and secure their crypto. Users stay in control of their keys.',
         regions: ['EU', 'NA', 'LA', 'APAC', 'AF'],
         payment: ['SW'],
     },
