@@ -535,10 +535,11 @@ func (account *Account) newTx(
 		}
 		contractAddress := account.coin.erc20Token.ContractAddress()
 		message = ethereum.CallMsg{
-			From:     account.address.Address,
-			To:       &contractAddress,
-			Gas:      0,
-			GasPrice: suggestedGasPrice,
+			From: account.address.Address,
+			To:   &contractAddress,
+			Gas:  0,
+			// Gas price has to be 0 for the the Etherscan EstimateGas call to succeed.
+			GasPrice: big.NewInt(0),
 			Value:    big.NewInt(0),
 			Data:     erc20ContractData,
 		}
@@ -548,7 +549,7 @@ func (account *Account) newTx(
 			From:     account.address.Address,
 			To:       &address,
 			Gas:      0,
-			GasPrice: suggestedGasPrice,
+			GasPrice: big.NewInt(0),
 			Value:    value,
 			Data:     data,
 		}
