@@ -39,6 +39,7 @@ import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseS
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
+import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
 import { apiGet, apiPost } from './utils/request';
@@ -198,6 +199,8 @@ class App extends Component<Props, State> {
                             path="/account/:code/buy"
                             devices={devices}
                             accounts={accounts} />
+                        <Exchanges
+                            path="/exchanges" />
                         <Info
                             path="/account/:code/info"
                             accounts={accounts} />
