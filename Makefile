@@ -13,7 +13,7 @@
 # limitations under the License.
 
 SHELL    := /bin/bash
-REPOROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+REPOROOT := `dirname $(realpath $(lastword $(MAKEFILE_LIST)))`
 WEBROOT  := $(REPOROOT)/frontends/web
 GOPATH   ?= $(HOME)/go
 PATH     := $(PATH):$(GOPATH)/bin
@@ -36,7 +36,7 @@ envinit:
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 	brew install yarn
-	brew install go@1.13	
+	brew install go@1.13
 	$(MAKE) envinit
 servewallet:
 	go install -mod=vendor ./cmd/servewallet/... && servewallet
