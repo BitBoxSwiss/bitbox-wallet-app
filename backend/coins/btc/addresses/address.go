@@ -33,10 +33,6 @@ import (
 type AccountAddress struct {
 	btcutil.Address
 
-	// AccountConfiguration contains the absolute keypath and xpubs of the
-	// account. AccountConfiguration + RelativeKeypath = Configuration.
-	AccountConfiguration *signing.Configuration
-	RelativeKeypath      signing.RelativeKeypath
 	// Configuration contains the absolute keypath and the extended public keys of the address.
 	Configuration *signing.Configuration
 
@@ -126,13 +122,11 @@ func NewAccountAddress(
 		}
 	}
 	return &AccountAddress{
-		Address:              address,
-		AccountConfiguration: accountConfiguration,
-		RelativeKeypath:      keyPath,
-		Configuration:        configuration,
-		HistoryStatus:        "",
-		redeemScript:         redeemScript,
-		log:                  log,
+		Address:       address,
+		Configuration: configuration,
+		HistoryStatus: "",
+		redeemScript:  redeemScript,
+		log:           log,
 	}
 }
 
