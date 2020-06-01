@@ -43,7 +43,8 @@
 }
 
 .modal.medium {
-    max-width: 450px;
+    /* long enough to fit a bc1... address in the receive screen on desktop */
+    max-width: 452px;
     width: 100%;
 }
 
