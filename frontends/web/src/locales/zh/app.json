@@ -778,7 +778,7 @@
         "title": "可以添加更多币种吗？"
       },
       "servers": {
-        "text": "该app与Shift Cryptosecurity服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CryptoCompare检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
+        "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CryptoCompare检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
       },
       "whyMultipleAccounts": {
@@ -831,7 +831,7 @@
         "title": "我可以在没有设备的情况下使用该app吗？"
       },
       "welcome": {
-        "text": "感谢您使用由瑞士Shift Cryptosecurity公司开发的此应用程序。感谢您分享的任何意见。请使用底部的链接提供反馈。",
+        "text": "感谢您使用由瑞士Shift Crypto公司开发的此应用程序。感谢您分享的任何意见。请使用底部的链接提供反馈。",
         "title": "欢迎使用BitBoxApp！"
       }
     }

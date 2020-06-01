@@ -300,6 +300,7 @@
       "dashboard": {
         "lightningChannels": "Aktivni Lightning kanali",
         "notAvailable": "Ni na voljo",
+        "peers": "Povezani Bitcoin viri (peers)",
         "syncStatus": "Status sinhronizacije omrežja Bitcoin"
       },
       "node": {
@@ -825,7 +826,7 @@
         "title": "Lahko dodate več kovancev?"
       },
       "servers": {
-        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Cryptosecurity AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CryptoCompare. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
+        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CryptoCompare. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
         "title": "S katerimi strežniki govori ta aplikacija?"
       },
       "whyMultipleAccounts": {
@@ -878,7 +879,7 @@
         "title": "Ali lahko aplikacijo uporabljam brez BitBoxa?"
       },
       "welcome": {
-        "text": "V imenu podjetja Shift Cryptosecurity iz Švice se vam zahvaljujemo, ker uporabljate našo aplikacijo. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
+        "text": "V imenu podjetja Shift Crypto iz Švice se vam zahvaljujemo, ker uporabljate našo aplikacijo. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
         "title": "Pozdravljeni v aplikaciji BitBox!"
       }
     }
