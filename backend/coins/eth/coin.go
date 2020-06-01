@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,7 +58,7 @@ type Coin struct {
 	observable.Implementation
 	initOnce              sync.Once
 	client                rpcclient.Interface
-	code                  string
+	code                  coin.Code
 	unit                  string
 	feeUnit               string
 	net                   *params.ChainConfig
@@ -76,7 +77,7 @@ type Coin struct {
 // makeTransactionsSource: provide `TransactionsSourceNone` or `TransactionsSourceEtherScan()`.
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
-	code string,
+	code coin.Code,
 	unit string,
 	feeUnit string,
 	net *params.ChainConfig,
@@ -130,7 +131,7 @@ func (coin *Coin) Initialize() {
 }
 
 // Code implements coin.Coin.
-func (coin *Coin) Code() string {
+func (coin *Coin) Code() coin.Code {
 	return coin.code
 }
 
@@ -184,7 +185,7 @@ func (coin *Coin) TransactionsSource() TransactionsSource {
 }
 
 func (coin *Coin) String() string {
-	return coin.code
+	return string(coin.code)
 }
 
 // SmallestUnit implements coin.Coin.

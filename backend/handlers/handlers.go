@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +39,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
@@ -70,12 +72,12 @@ type Backend interface {
 
 	Config() *config.Config
 	DefaultAppConfig() config.AppConfig
-	Coin(string) (coin.Coin, error)
+	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() []accounts.Interface
 	Keystores() *keystore.Keystores
 	CreateAndAddAccount(
-		coin coin.Coin,
+		coin coinpkg.Coin,
 		code string,
 		name string,
 		getSigningConfiguration func() (*signing.Configuration, error),
@@ -195,10 +197,10 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertToFiat", handlers.getConvertToFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("ltc")).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
@@ -400,7 +402,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return nil, errp.WithStack(err)
 	}
 	// The following parameters only work for watch-only singlesig accounts at the moment.
-	jsonCoinCode := jsonBody["coinCode"]
+	jsonCoinCode := coinpkg.Code(jsonBody["coinCode"])
 	jsonScriptType := jsonBody["scriptType"]
 	jsonAccountName := jsonBody["accountName"]
 	jsonExtendedPublicKey := jsonBody["extendedPublicKey"]
@@ -422,7 +424,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 
 	if jsonAddress != "" {
 		switch jsonCoinCode {
-		case "btc", "ltc", "tbtc", "tltc":
+		case coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeTBTC, coinpkg.CodeTLTC:
 			btcCoin, ok := coin.(*btc.Coin)
 			if !ok {
 				panic("unexpected type, expected: *btc.Coin")
@@ -432,7 +434,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
 			}
 			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
-		case "eth", "teth":
+		case coinpkg.CodeETH, coinpkg.CodeTETH:
 			if !common.IsHexAddress(jsonAddress) {
 				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
 			}
@@ -496,11 +498,11 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, err
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
 	type accountJSON struct {
-		CoinCode              string `json:"coinCode"`
-		CoinUnit              string `json:"coinUnit"`
-		Code                  string `json:"code"`
-		Name                  string `json:"name"`
-		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
+		CoinCode              coinpkg.Code `json:"coinCode"`
+		CoinUnit              string       `json:"coinUnit"`
+		Code                  string       `json:"code"`
+		Name                  string       `json:"name"`
+		BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
 	}
 	accounts := []*accountJSON{}
 	for _, account := range handlers.backend.Accounts() {
@@ -588,7 +590,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
-	coin, err := handlers.backend.Coin(to)
+	coin, err := handlers.backend.Coin(coinpkg.Code(to))
 	if err != nil {
 		return map[string]interface{}{
 			"success": false,
@@ -620,7 +622,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	}, nil
 }
 
-func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {
+func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Request) (interface{}, error) {
 	return func(_ *http.Request) (interface{}, error) {
 		coin, err := handlers.backend.Coin(coinCode)
 		if err != nil {
@@ -767,7 +769,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance coin.Coin, isFee bool) accountHandlers.FormattedAmount {
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance coinpkg.Coin, isFee bool) accountHandlers.FormattedAmount {
 	return accountHandlers.FormattedAmount{
 		Amount:      coinInstance.FormatAmount(amount, isFee),
 		Unit:        coinInstance.Unit(isFee),
@@ -777,14 +779,14 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance co
 
 func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
 	type accountJSON struct {
-		CoinCode    string                 `json:"coinCode"`
+		CoinCode    coinpkg.Code           `json:"coinCode"`
 		AccountCode string                 `json:"accountCode"`
 		Name        string                 `json:"name"`
 		Balance     map[string]interface{} `json:"balance"`
 	}
 
 	jsonAccounts := []*accountJSON{}
-	totals := make(map[coin.Coin]*big.Int)
+	totals := make(map[coinpkg.Coin]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
@@ -817,7 +819,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
 	}
 
-	jsonTotals := make(map[string]accountHandlers.FormattedAmount)
+	jsonTotals := make(map[coinpkg.Code]accountHandlers.FormattedAmount)
 	for c, total := range totals {
 		jsonTotals[c.Code()] = handlers.formatAmountAsJSON(coin.NewAmount(total), c, false)
 	}
@@ -906,7 +908,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		}
 
 		err = writer.Write([]string{
-			coin,
+			string(coin),
 			accountName,
 			balance.Available().BigInt().String(),
 			unit,

@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +25,7 @@ type Coin interface {
 
 	// Code returns the code used to identify the coin (should be the acronym of the coin in
 	// lowercase).
-	Code() string
+	Code() Code
 
 	// // Type returns the coin type according to BIP44:
 	// // https://github.com/satoshilabs/slips/blob/master/slip-0044.md

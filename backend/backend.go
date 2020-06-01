@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +33,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
@@ -55,27 +57,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 )
-
-const (
-	coinBTC       = "btc"
-	coinTBTC      = "tbtc"
-	coinRBTC      = "rbtc"
-	coinLTC       = "ltc"
-	coinTLTC      = "tltc"
-	coinETH       = "eth"
-	coinTETH      = "teth"
-	coinRETH      = "reth"
-	coinERC20TEST = "erc20Test"
-	// If you add coins, don't forget to update `testnetCoins` below.
-)
-
-var testnetCoins = map[string]struct{}{
-	coinTBTC:      {},
-	coinTLTC:      {},
-	coinTETH:      {},
-	coinRETH:      {},
-	coinERC20TEST: {},
-}
 
 type backendEvent struct {
 	Type string      `json:"type"`
@@ -142,7 +123,7 @@ type Backend struct {
 	onBitBoxBaseInit   func(*bitboxbase.BitBoxBase)
 	onBitBoxBaseUninit func(string)
 
-	coins     map[string]coin.Coin
+	coins     map[coinpkg.Code]coin.Coin
 	coinsLock locker.Locker
 
 	accounts     []accounts.Interface
@@ -173,7 +154,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		devices:     map[string]device.Interface{},
 		bitboxBases: map[string]*bitboxbase.BitBoxBase{},
 		keystores:   keystore.NewKeystores(),
-		coins:       map[string]coin.Coin{},
+		coins:       map[coinpkg.Code]coin.Coin{},
 		accounts:    []accounts.Interface{},
 		log:         log,
 	}
@@ -372,24 +353,24 @@ func (backend *Backend) DefaultAppConfig() config.AppConfig {
 	return config.NewDefaultAppConfig()
 }
 
-func (backend *Backend) defaultProdServers(code string) []*config.ServerInfo {
+func (backend *Backend) defaultProdServers(code coinpkg.Code) []*config.ServerInfo {
 	switch code {
-	case coinBTC:
+	case coinpkg.CodeBTC:
 		return backend.config.AppConfig().Backend.BTC.ElectrumServers
-	case coinTBTC:
+	case coinpkg.CodeTBTC:
 		return backend.config.AppConfig().Backend.TBTC.ElectrumServers
-	case coinRBTC:
+	case coinpkg.CodeRBTC:
 		return backend.config.AppConfig().Backend.RBTC.ElectrumServers
-	case coinLTC:
+	case coinpkg.CodeLTC:
 		return backend.config.AppConfig().Backend.LTC.ElectrumServers
-	case coinTLTC:
+	case coinpkg.CodeTLTC:
 		return backend.config.AppConfig().Backend.TLTC.ElectrumServers
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
 }
 
-func defaultDevServers(code string) []*config.ServerInfo {
+func defaultDevServers(code coinpkg.Code) []*config.ServerInfo {
 	const devShiftCA = `-----BEGIN CERTIFICATE-----
 MIIGGjCCBAKgAwIBAgIJAO1AEqR+xvjRMA0GCSqGSIb3DQEBDQUAMIGZMQswCQYD
 VQQGEwJDSDEPMA0GA1UECAwGWnVyaWNoMR0wGwYDVQQKDBRTaGlmdCBDcnlwdG9z
@@ -427,25 +408,25 @@ O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
 -----END CERTIFICATE-----`
 
 	switch code {
-	case coinBTC:
+	case coinpkg.CodeBTC:
 		return []*config.ServerInfo{{Server: "dev.shiftcrypto.ch:50002", TLS: true, PEMCert: devShiftCA}}
-	case coinTBTC:
+	case coinpkg.CodeTBTC:
 		return []*config.ServerInfo{
 			{Server: "s1.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 			{Server: "s2.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 		}
-	case coinRBTC:
+	case coinpkg.CodeRBTC:
 		return []*config.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
-	case coinLTC:
+	case coinpkg.CodeLTC:
 		return []*config.ServerInfo{{Server: "dev.shiftcrypto.ch:50004", TLS: true, PEMCert: devShiftCA}}
-	case coinTLTC:
+	case coinpkg.CodeTLTC:
 		return []*config.ServerInfo{{Server: "dev.shiftcrypto.ch:51004", TLS: true, PEMCert: devShiftCA}}
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
 }
 
-func (backend *Backend) defaultElectrumXServers(code string) []*config.ServerInfo {
+func (backend *Backend) defaultElectrumXServers(code coinpkg.Code) []*config.ServerInfo {
 	if backend.arguments.DevServers() {
 		return defaultDevServers(code)
 	}
@@ -454,7 +435,7 @@ func (backend *Backend) defaultElectrumXServers(code string) []*config.ServerInf
 }
 
 // Coin returns the coin with the given code or an error if no such coin exists.
-func (backend *Backend) Coin(code string) (coin.Coin, error) {
+func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 	defer backend.coinsLock.Lock()()
 	coin, ok := backend.coins[code]
 	if ok {
@@ -478,26 +459,26 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	}
 	erc20Token := erc20TokenByCode(code)
 	switch {
-	case code == coinRBTC:
+	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
-	case code == coinTBTC:
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
 			"https://blockstream.info/testnet/tx/", backend.socksProxy)
-	case code == coinBTC:
+	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
 			"https://blockstream.info/tx/", backend.socksProxy)
-	case code == coinTLTC:
+	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
 			"http://explorer.litecointools.com/tx/", backend.socksProxy)
-	case code == coinLTC:
+	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.socksProxy)
-	case code == coinETH:
+	case code == coinpkg.CodeETH:
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
@@ -508,7 +489,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			transactionsSource,
 			coinConfig.NodeURL,
 			nil, backend.socksProxy)
-	case code == coinRETH:
+	case code == coinpkg.CodeRETH:
 		coinConfig := backend.config.AppConfig().Backend.RETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
@@ -519,7 +500,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			transactionsSource,
 			coinConfig.NodeURL,
 			nil, backend.socksProxy)
-	case code == coinTETH:
+	case code == coinpkg.CodeTETH:
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
@@ -530,7 +511,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			transactionsSource,
 			coinConfig.NodeURL,
 			nil, backend.socksProxy)
-	case code == coinERC20TEST:
+	case code == coinpkg.CodeERC20TEST:
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
@@ -567,7 +548,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 func (backend *Backend) initPersistedAccounts() {
 	for _, account := range backend.config.AccountsConfig().Accounts {
 		account := account
-		if _, isTestnet := testnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
+		if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
 			// Don't load testnet accounts when running normally, nor mainnet accounts when running
 			// in testing mode
 			continue
@@ -597,20 +578,20 @@ func (backend *Backend) initDefaultAccounts() {
 	if backend.arguments.Testing() {
 		switch {
 		case backend.arguments.Multisig():
-			TBTC, _ := backend.Coin(coinTBTC)
+			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-multisig", "Bitcoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
-			TLTC, _ := backend.Coin(coinTLTC)
+			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
 			backend.createAndAddAccount(TLTC, "tltc-multisig", "Litecoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
 		case backend.arguments.Regtest():
-			RBTC, _ := backend.Coin(coinRBTC)
+			RBTC, _ := backend.Coin(coinpkg.CodeRBTC)
 			backend.createAndAddAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			backend.createAndAddAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
 		default:
-			TBTC, _ := backend.Coin(coinTBTC)
+			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
 			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet: bech32", "m/84'/1'/0'",
@@ -618,30 +599,30 @@ func (backend *Backend) initDefaultAccounts() {
 			backend.createAndAddAccount(TBTC, "tbtc-p2pkh", "Bitcoin Testnet Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
 
-			TLTC, _ := backend.Coin(coinTLTC)
+			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
 			backend.createAndAddAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
 			backend.createAndAddAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'",
 				signing.ScriptTypeP2WPKH)
 
-			TETH, _ := backend.Coin(coinTETH)
+			TETH, _ := backend.Coin(coinpkg.CodeTETH)
 			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
-			RETH, _ := backend.Coin(coinRETH)
+			RETH, _ := backend.Coin(coinpkg.CodeRETH)
 			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
-			erc20TEST, _ := backend.Coin(coinERC20TEST)
+			erc20TEST, _ := backend.Coin(coinpkg.CodeERC20TEST)
 			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0",
 				signing.ScriptTypeP2WPKH)
 		}
 	} else {
 		if backend.arguments.Multisig() {
-			BTC, _ := backend.Coin(coinBTC)
+			BTC, _ := backend.Coin(coinpkg.CodeBTC)
 			backend.createAndAddAccount(BTC, "btc-multisig", "Bitcoin", "m/48'/0'/0'",
 				signing.ScriptTypeP2PKH)
-			LTC, _ := backend.Coin(coinLTC)
+			LTC, _ := backend.Coin(coinpkg.CodeLTC)
 			backend.createAndAddAccount(LTC, "ltc-multisig", "Litecoin", "m/48'/2'/0'",
 				signing.ScriptTypeP2PKH)
 		} else {
-			BTC, _ := backend.Coin(coinBTC)
+			BTC, _ := backend.Coin(coinpkg.CodeBTC)
 			backend.createAndAddAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
 			backend.createAndAddAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
@@ -649,20 +630,20 @@ func (backend *Backend) initDefaultAccounts() {
 			backend.createAndAddAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
 				signing.ScriptTypeP2PKH)
 
-			LTC, _ := backend.Coin(coinLTC)
+			LTC, _ := backend.Coin(coinpkg.CodeLTC)
 			backend.createAndAddAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
 			backend.createAndAddAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
 				signing.ScriptTypeP2WPKH)
 
-			ETH, _ := backend.Coin(coinETH)
+			ETH, _ := backend.Coin(coinpkg.CodeETH)
 			const ethAccountCode = "eth"
 			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 
 			if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
 				for _, erc20Token := range erc20Tokens {
 					token, _ := backend.Coin(erc20Token.code)
-					backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+					backend.createAndAddAccount(token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 				}
 			}
 		}

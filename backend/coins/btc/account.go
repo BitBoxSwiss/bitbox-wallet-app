@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -528,7 +529,7 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.blocks,
 				func(feeRatePerKb *btcutil.Amount) error {
 					if feeRatePerKb == nil {
-						if account.code != "tltc" {
+						if account.coin.Code() != coin.CodeTLTC {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}

@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +17,18 @@ package bitbox02
 
 import (
 	"github.com/btcsuite/btcd/txscript"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 )
 
 // conversions from types used by the wallet to types defined in the protobuf messages.
 
-var btcMsgCoinMap = map[string]messages.BTCCoin{
-	"btc":  messages.BTCCoin_BTC,
-	"tbtc": messages.BTCCoin_TBTC,
-	"ltc":  messages.BTCCoin_LTC,
-	"tltc": messages.BTCCoin_TLTC,
+var btcMsgCoinMap = map[coin.Code]messages.BTCCoin{
+	coin.CodeBTC:  messages.BTCCoin_BTC,
+	coin.CodeTBTC: messages.BTCCoin_TBTC,
+	coin.CodeLTC:  messages.BTCCoin_LTC,
+	coin.CodeTLTC: messages.BTCCoin_TLTC,
 }
 
 var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_SimpleType{
@@ -41,8 +43,8 @@ var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
 	txscript.WitnessV0ScriptHashTy: messages.BTCOutputType_P2WSH,
 }
 
-var ethMsgCoinMap = map[string]messages.ETHCoin{
-	"eth":                 messages.ETHCoin_ETH,
+var ethMsgCoinMap = map[coin.Code]messages.ETHCoin{
+	coin.CodeETH:          messages.ETHCoin_ETH,
 	"eth-erc20-usdt":      messages.ETHCoin_ETH,
 	"eth-erc20-usdc":      messages.ETHCoin_ETH,
 	"eth-erc20-link":      messages.ETHCoin_ETH,
@@ -51,7 +53,7 @@ var ethMsgCoinMap = map[string]messages.ETHCoin{
 	"eth-erc20-zrx":       messages.ETHCoin_ETH,
 	"eth-erc20-sai0x89d2": messages.ETHCoin_ETH,
 	"eth-erc20-dai0x6b17": messages.ETHCoin_ETH,
-	"teth":                messages.ETHCoin_RopstenETH,
-	"reth":                messages.ETHCoin_RinkebyETH,
-	"erc20Test":           messages.ETHCoin_RopstenETH,
+	coin.CodeTETH:         messages.ETHCoin_RopstenETH,
+	coin.CodeRETH:         messages.ETHCoin_RinkebyETH,
+	coin.CodeERC20TEST:    messages.ETHCoin_RopstenETH,
 }

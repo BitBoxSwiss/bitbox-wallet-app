@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +15,13 @@
 
 package backend
 
-import "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+import (
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+)
 
 type erc20Token struct {
-	code  string
+	code  coin.Code
 	name  string
 	unit  string
 	token *erc20.Token
@@ -76,7 +80,7 @@ var erc20Tokens = []erc20Token{
 	},
 }
 
-func erc20TokenByCode(code string) *erc20Token {
+func erc20TokenByCode(code coin.Code) *erc20Token {
 	for _, token := range erc20Tokens {
 		if code == token.code {
 			token := token
