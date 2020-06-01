@@ -777,7 +777,7 @@
         "title": "Daha fazla para ekleyebilir misin?"
       },
       "servers": {
-        "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Cryptosecurity sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CryptoCompare'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
+        "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CryptoCompare'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
         "title": "Bu uygulama hangi sunucularla konuşuyor?"
       },
       "whyMultipleAccounts": {
@@ -830,7 +830,7 @@
         "title": "Bir cihaz olmadan uygulamayı kullanabilir miyim?"
       },
       "welcome": {
-        "text": "Shift Cryptosecurity tarafından İsviçre'de üretilen bu uygulamayı kullandığınız için teşekkür ederiz. Paylaşmanız gereken herhangi bir geri bildirimi takdir ediyoruz. Lütfen alttaki bağlantıyı kullanarak geri bildirimde bulunun.",
+        "text": "Shift Crypto tarafından İsviçre'de üretilen bu uygulamayı kullandığınız için teşekkür ederiz. Paylaşmanız gereken herhangi bir geri bildirimi takdir ediyoruz. Lütfen alttaki bağlantıyı kullanarak geri bildirimde bulunun.",
         "title": "BitBoxApp'a Hoşgeldiniz!"
       }
     }

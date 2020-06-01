@@ -9,7 +9,7 @@
 	<string>BitBox</string>
 
 	<key>CFBundleGetInfoString</key>
-	<string>BitBoxApp by Shift Cryptosecurity</string>
+	<string>BitBoxApp by Shift Crypto</string>
 
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>

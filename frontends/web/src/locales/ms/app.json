@@ -516,7 +516,7 @@
         "title": "Dapatkah anda menambah lebih banyak syiling?"
       },
       "servers": {
-        "text": "Aplikasi ini berkomunikasi dengan server Shift Cryptosecurity untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CryptoCompare. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
+        "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CryptoCompare. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
         "title": "Server mana yang digunakan aplikasi ini?"
       },
       "whyMultipleAccounts": {
@@ -565,7 +565,7 @@
         "title": "Bolehkah saya menggunakan aplikasi tanpa peranti?"
       },
       "welcome": {
-        "text": "Terima kasih kerana menggunakan aplikasi ini yang dibina oleh Shift Cryptosecurity dari Switzerland. Ia masih dalam versi beta dan kami menghargai apa-apa input yang anda perlu bagikan. Sila berikan maklum balas menggunakan pautan di bahagian bawah.",
+        "text": "Terima kasih kerana menggunakan aplikasi ini yang dibina oleh Shift Crypto dari Switzerland. Ia masih dalam versi beta dan kami menghargai apa-apa input yang anda perlu bagikan. Sila berikan maklum balas menggunakan pautan di bahagian bawah.",
         "title": "Selamat datang ke aplikasi BitBox!"
       }
     }
