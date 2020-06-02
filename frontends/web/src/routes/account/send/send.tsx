@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -208,7 +209,7 @@ class Send extends Component<Props, State> {
             return;
         }
         this.setState({ signProgress: undefined, isConfirming: true });
-        apiPost('account/' + this.getAccount()!.code + '/sendtx', this.txInput()).then(result => {
+        apiPost('account/' + this.getAccount()!.code + '/sendtx').then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,

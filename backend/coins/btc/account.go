@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
@@ -78,6 +79,10 @@ type Account struct {
 	changeAddresses  AddressChain
 
 	transactions *transactions.Transactions
+
+	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
+	activeTxProposal     *maketx.TxProposal
+	activeTxProposalLock locker.Locker
 
 	synchronizer *synchronizer.Synchronizer
 
