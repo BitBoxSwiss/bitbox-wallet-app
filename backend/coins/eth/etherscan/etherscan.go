@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -375,7 +376,7 @@ func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error
 		Result  *json.RawMessage `json:"result"`
 	}
 	if err := etherScan.call(params, &wrapped); err != nil {
-		return nil
+		return err
 	}
 	if wrapped.Error != nil {
 		return errp.WithMessage(errp.New("unexpected error"), string(*wrapped.Error))
