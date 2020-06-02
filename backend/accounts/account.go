@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,9 +47,8 @@ type Interface interface {
 	Notifier() Notifier
 	Transactions() ([]Transaction, error)
 	Balance() (*Balance, error)
-	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
-	// abort.
-	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
+	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none available.
+	SendTx() error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
 		coin.Amount, coin.Amount, coin.Amount, error)

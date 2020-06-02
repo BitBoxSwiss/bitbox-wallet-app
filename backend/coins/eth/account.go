@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,6 +78,10 @@ type Account struct {
 	address     Address
 	balance     coin.Amount
 	blockNumber *big.Int
+
+	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
+	activeTxProposal     *TxProposal
+	activeTxProposalLock locker.Locker
 
 	nextNonce    uint64
 	transactions []accounts.Transaction
@@ -636,17 +641,15 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 }
 
 // SendTx implements accounts.Interface.
-func (account *Account) SendTx(
-	recipientAddress string,
-	amount coin.SendAmount,
-	_ accounts.FeeTargetCode,
-	_ map[wire.OutPoint]struct{},
-	data []byte) error {
-	account.log.Info("Signing and sending transaction")
-	txProposal, err := account.newTx(recipientAddress, amount, data)
-	if err != nil {
-		return err
+func (account *Account) SendTx() error {
+	unlock := account.activeTxProposalLock.RLock()
+	txProposal := account.activeTxProposal
+	unlock()
+	if txProposal == nil {
+		return errp.New("No active tx proposal")
 	}
+
+	account.log.Info("Signing and sending transaction")
 	if err := account.keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
@@ -672,11 +675,13 @@ func (account *Account) TxProposal(
 	_ accounts.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
 	data []byte) (coin.Amount, coin.Amount, coin.Amount, error) {
+	defer account.activeTxProposalLock.Lock()()
 
 	txProposal, err := account.newTx(recipientAddress, amount, data)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
+	account.activeTxProposal = txProposal
 
 	var total *big.Int
 	if account.coin.erc20Token != nil {

@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +64,7 @@ func NewHandlers(
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
-	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
+	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
@@ -357,17 +358,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
-	var input sendTxInput
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	err := handlers.account.SendTx(
-		input.address,
-		input.sendAmount,
-		input.feeTargetCode,
-		input.selectedUTXOs,
-		input.data,
-	)
+	err := handlers.account.SendTx()
 	if errp.Cause(err) == keystore.ErrSigningAborted {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
@@ -387,7 +378,7 @@ func txProposalError(err error) (interface{}, error) {
 	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
 }
 
-func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, error) {
 	var input sendTxInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return txProposalError(errp.WithStack(err))

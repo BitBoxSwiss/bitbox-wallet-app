@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -120,24 +121,16 @@ func (account *Account) newTx(
 	return utxo, txProposal, nil
 }
 
-// SendTx creates, signs and sends tx which sends `amount` to the recipient.
-func (account *Account) SendTx(
-	recipientAddress string,
-	amount coin.SendAmount,
-	feeTargetCode accounts.FeeTargetCode,
-	selectedUTXOs map[wire.OutPoint]struct{},
-	_ []byte,
-) error {
-	account.log.Info("Signing and sending transaction")
-	utxo, txProposal, err := account.newTx(
-		recipientAddress,
-		amount,
-		feeTargetCode,
-		selectedUTXOs,
-	)
-	if err != nil {
-		return errp.WithMessage(err, "Failed to create transaction")
+// SendTx implements accounts.Interface.
+func (account *Account) SendTx() error {
+	unlock := account.activeTxProposalLock.RLock()
+	txProposal := account.activeTxProposal
+	unlock()
+	if txProposal == nil {
+		return errp.New("No active tx proposal")
 	}
+
+	account.log.Info("Signing and sending transaction")
 	getAddress := func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
 		if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address
@@ -147,15 +140,20 @@ func (account *Account) SendTx(
 		}
 		panic("address must be present")
 	}
-	if err := SignTransaction(account.keystores, txProposal, utxo, getAddress, account.log); err != nil {
+	utxos := account.transactions.SpendableOutputs()
+	if err := SignTransaction(account.keystores, txProposal, utxos, getAddress, account.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	account.log.Info("Signed transaction is broadcasted")
-	return account.blockchain.TransactionBroadcast(txProposal.Transaction)
+	if err := account.blockchain.TransactionBroadcast(txProposal.Transaction); err != nil {
+		return err
+	}
+	return nil
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in
-// the UI (the output amount and the fee). At the same time, it validates the input.
+// the UI (the output amount and the fee). At the same time, it validates the input. The proposal is
+// stored internally and can be signed and sent with SendTx().
 func (account *Account) TxProposal(
 	recipientAddress string,
 	amount coin.SendAmount,
@@ -164,6 +162,7 @@ func (account *Account) TxProposal(
 	_ []byte,
 ) (
 	coin.Amount, coin.Amount, coin.Amount, error) {
+	defer account.activeTxProposalLock.Lock()()
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(
@@ -175,6 +174,8 @@ func (account *Account) TxProposal(
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
+
+	account.activeTxProposal = txProposal
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
 	return coin.NewAmountFromInt64(int64(txProposal.Amount)),
