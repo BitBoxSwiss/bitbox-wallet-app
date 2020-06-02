@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +43,7 @@ import (
 // Coin models a Bitcoin-related coin.
 type Coin struct {
 	initOnce              sync.Once
-	code                  string
+	code                  coin.Code
 	unit                  string
 	net                   *chaincfg.Params
 	dbFolder              string
@@ -59,7 +60,7 @@ type Coin struct {
 
 // NewCoin creates a new coin with the given parameters.
 func NewCoin(
-	code string,
+	code coin.Code,
 	unit string,
 	net *chaincfg.Params,
 	dbFolder string,
@@ -128,7 +129,7 @@ func (coin *Coin) Initialize() {
 }
 
 // Code implements coin.Coin.
-func (coin *Coin) Code() string {
+func (coin *Coin) Code() coin.Code {
 	return coin.code
 }
 
@@ -171,7 +172,7 @@ func (coin *Coin) Headers() *headers.Headers {
 }
 
 func (coin *Coin) String() string {
-	return coin.code
+	return string(coin.code)
 }
 
 // BlockExplorerTransactionURLPrefix implements coin.Coin.

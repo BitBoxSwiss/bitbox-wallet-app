@@ -1,4 +1,5 @@
 // Copyright 2020 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,8 +45,9 @@ func TestMain(m *testing.M) {
 type testSuite struct {
 	suite.Suite
 
-	code, unit string
-	net        *chaincfg.Params
+	code coin.Code
+	unit string
+	net  *chaincfg.Params
 
 	dbFolder string
 	coin     *btc.Coin
@@ -71,10 +73,10 @@ func (s *testSuite) TearDownTest() {
 }
 
 func TestSuite(t *testing.T) {
-	suite.Run(t, &testSuite{code: "tbtc", unit: "TBTC", net: &chaincfg.TestNet3Params})
-	suite.Run(t, &testSuite{code: "btc", unit: "BTC", net: &chaincfg.MainNetParams})
-	suite.Run(t, &testSuite{code: "tltc", unit: "TLTC", net: &ltc.TestNet4Params})
-	suite.Run(t, &testSuite{code: "ltc", unit: "LTC", net: &ltc.MainNetParams})
+	suite.Run(t, &testSuite{code: coin.CodeTBTC, unit: "TBTC", net: &chaincfg.TestNet3Params})
+	suite.Run(t, &testSuite{code: coin.CodeBTC, unit: "BTC", net: &chaincfg.MainNetParams})
+	suite.Run(t, &testSuite{code: coin.CodeTLTC, unit: "TLTC", net: &ltc.TestNet4Params})
+	suite.Run(t, &testSuite{code: coin.CodeLTC, unit: "LTC", net: &ltc.MainNetParams})
 }
 
 func (s *testSuite) TestCoin() {
@@ -134,22 +136,22 @@ func (s *testSuite) TestDecodeAddress() {
 	var validAddresses []string
 	var invalidAddresses []string
 	switch s.code {
-	case "tbtc":
+	case coin.CodeTBTC:
 		validAddresses = tbtcValidAddresses
 		invalidAddresses = append([]string{}, btcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tltcValidAddresses[2])
-	case "btc":
+	case coin.CodeBTC:
 		validAddresses = btcValidAddresses
 		invalidAddresses = append([]string{}, tbtcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, ltcValidAddresses...)
-	case "tltc":
+	case coin.CodeTLTC:
 		validAddresses = tltcValidAddresses
 		invalidAddresses = append([]string{}, ltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, btcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses[2])
-	case "ltc":
+	case coin.CodeLTC:
 		validAddresses = ltcValidAddresses
 		invalidAddresses = append([]string{}, tltcValidAddresses...)
 		invalidAddresses = append(invalidAddresses, tbtcValidAddresses...)

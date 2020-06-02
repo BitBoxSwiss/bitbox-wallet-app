@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -267,13 +269,13 @@ func (channel *Channel) SendXpubEcho(xpubEcho string, typ string) error {
 // SendSigningEcho sends the encrypted signing echo from the BitBox to the paired mobile.
 func (channel *Channel) SendSigningEcho(
 	signingEcho string,
-	coin string,
+	coin coin.Code,
 	scriptType string,
 	transaction string,
 ) error {
 	return PushMessage(relayServer(), channel, map[string]string{
 		"echo":               signingEcho,
-		"coin":               coin,
+		"coin":               string(coin),
 		"inputAndChangeType": scriptType,
 		"tx":                 transaction,
 	})

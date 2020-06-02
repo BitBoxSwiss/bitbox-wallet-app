@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,7 +58,7 @@ func (keystore *keystore) SupportsAccount(
 	coin coin.Coin, multisig bool, meta interface{}) bool {
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		if (coin.Code() == "ltc" || coin.Code() == "tltc") && !keystore.device.SupportsLTC() {
+		if (coin.Code() == coinpkg.CodeLTC || coin.Code() == coinpkg.CodeTLTC) && !keystore.device.SupportsLTC() {
 			return false
 		}
 		scriptType := meta.(signing.ScriptType)

@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +15,14 @@
 
 package config
 
-import "github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+import (
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+)
 
 // Account holds information related to an account.
 type Account struct {
-	CoinCode      string                 `json:"coinCode"`
+	CoinCode      coin.Code              `json:"coinCode"`
 	Name          string                 `json:"name"`
 	Code          string                 `json:"code"`
 	Configuration *signing.Configuration `json:"configuration"`
