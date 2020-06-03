@@ -783,7 +783,7 @@
         "title": "Kann man mehr Coins hinzufügen?"
       },
       "servers": {
-        "text": "Diese App kommuniziert mit Servern von Shift Cryptosecurity, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CryptoCompare abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
+        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CryptoCompare abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
         "title": "Mit welchen Servern kommuniziert die Applikation?"
       },
       "whyMultipleAccounts": {
@@ -836,7 +836,7 @@
         "title": "Kann ich die App auch ohne Gerät benutzen?"
       },
       "welcome": {
-        "text": "Vielen Dank, dass Sie diese App benutzen. Sie wird von Shift Cryptosecurity in der Schweiz entwickelt. Wir freuen uns über Anregungen und Fragen. Zögern Sie nicht, uns zu kontaktieren.",
+        "text": "Vielen Dank, dass Sie diese App benutzen. Sie wird von Shift Crypto in der Schweiz entwickelt. Wir freuen uns über Anregungen und Fragen. Zögern Sie nicht, uns zu kontaktieren.",
         "title": "Willkommen in der BitBoxApp!"
       }
     }

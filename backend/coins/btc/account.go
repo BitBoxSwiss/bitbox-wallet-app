@@ -532,17 +532,16 @@ func (account *Account) updateFeeTargets() {
 
 			account.blockchain.EstimateFee(
 				feeTarget.blocks,
-				func(feeRatePerKb *btcutil.Amount) error {
+				func(feeRatePerKb *btcutil.Amount) {
 					if feeRatePerKb == nil {
 						if account.coin.Code() != coin.CodeTLTC {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
 						account.blockchain.RelayFee(setFee, func(error) {})
-						return nil
+					} else {
+						setFee(*feeRatePerKb)
 					}
-					setFee(*feeRatePerKb)
-					return nil
 				},
 				func(error) {},
 			)
@@ -614,10 +613,10 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	done := account.synchronizer.IncRequestsCounter()
 	account.blockchain.ScriptHashGetHistory(
 		address.PubkeyScriptHashHex(),
-		func(history blockchain.TxHistory) error {
+		func(history blockchain.TxHistory) {
 			if account.isClosed() {
 				account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
-				return nil
+				return
 			}
 
 			func() {
@@ -629,7 +628,6 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 			}()
 			account.ensureAddresses()
-			return nil
 		},
 		func(err error) {
 			done()

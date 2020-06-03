@@ -214,7 +214,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex blockchain.ScriptHashHex,
-	success func(blockchain.TxHistory) error,
+	success func(blockchain.TxHistory),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -224,7 +224,8 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 				client.log.WithError(err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
-			return success(txs)
+			success(txs)
+			return nil
 		},
 		func() func(error) {
 			return cleanup
@@ -284,7 +285,7 @@ func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 // See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionget
 func (client *ElectrumClient) TransactionGet(
 	txHash chainhash.Hash,
-	success func(*wire.MsgTx) error,
+	success func(*wire.MsgTx),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -297,7 +298,8 @@ func (client *ElectrumClient) TransactionGet(
 			if err != nil {
 				return err
 			}
-			return success(tx)
+			success(tx)
+			return nil
 		},
 		func() func(error) {
 			return cleanup
@@ -448,7 +450,7 @@ func (client *ElectrumClient) RelayFee(
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainestimatefee
 func (client *ElectrumClient) EstimateFee(
 	number int,
-	success func(*btcutil.Amount) error,
+	success func(*btcutil.Amount),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -458,13 +460,15 @@ func (client *ElectrumClient) EstimateFee(
 				return errp.Wrap(err, "Failed to unmarshal JSON")
 			}
 			if fee == -1 {
-				return success(nil)
+				success(nil)
+				return nil
 			}
 			amount, err := btcutil.NewAmount(fee)
 			if err != nil {
 				return errp.Wrap(err, "Failed to construct BTC amount")
 			}
-			return success(&amount)
+			success(&amount)
+			return nil
 		},
 		func() func(error) {
 			return cleanup
@@ -529,7 +533,7 @@ func (client *ElectrumClient) Headers(
 // https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchaintransactionget_merkle
 func (client *ElectrumClient) GetMerkle(
 	txHash chainhash.Hash, height int,
-	success func(merkle []blockchain.TXHash, pos int) error,
+	success func(merkle []blockchain.TXHash, pos int),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -545,7 +549,8 @@ func (client *ElectrumClient) GetMerkle(
 			if response.BlockHeight != height {
 				return errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
 			}
-			return success(response.Merkle, response.Pos)
+			success(response.Merkle, response.Pos)
+			return nil
 		},
 		func() func(error) {
 			return cleanup

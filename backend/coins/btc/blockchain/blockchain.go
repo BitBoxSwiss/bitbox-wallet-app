@@ -99,15 +99,15 @@ const (
 // other backends can implement the same interface.
 //go:generate mockery -name Interface
 type Interface interface {
-	ScriptHashGetHistory(ScriptHashHex, func(TxHistory) error, func(error))
-	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error))
+	ScriptHashGetHistory(ScriptHashHex, func(TxHistory), func(error))
+	TransactionGet(chainhash.Hash, func(*wire.MsgTx), func(error))
 	ScriptHashSubscribe(func() func(error), ScriptHashHex, func(string))
 	HeadersSubscribe(func() func(error), func(*Header) error)
 	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee(func(btcutil.Amount), func(error))
-	EstimateFee(int, func(*btcutil.Amount) error, func(error))
+	EstimateFee(int, func(*btcutil.Amount), func(error))
 	Headers(int, int, func([]*wire.BlockHeader, int))
-	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int) error, func(error))
+	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
 	Close()
 	ConnectionStatus() Status
 	RegisterOnConnectionStatusChangedEvent(func(Status))

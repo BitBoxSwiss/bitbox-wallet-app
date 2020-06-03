@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setApplicationName(APPNAME);
     a.setOrganizationDomain("shiftcrypto.ch");
-    a.setOrganizationName("Shift Cryptosecurity");
+    a.setOrganizationName("Shift Crypto");
     a.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/bitbox.png"));
     view = new WebEngineView();
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());

@@ -597,7 +597,7 @@
         "title": "Vocês podem adicionar mais moedas?"
       },
       "servers": {
-        "text": "Este aplicativo se comunica com os servidores Shift Cryptosecurity para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CryptoCompare. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
+        "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CryptoCompare. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
         "title": "Com quais servidores este aplicativo se comunica?"
       },
       "whyMultipleAccounts": {
@@ -650,7 +650,7 @@
         "title": "Posso usar o aplicativo sem um dispositivo?"
       },
       "welcome": {
-        "text": "Obrigado por usar este aplicativo criado pela Shift Cryptosecurity na Suíça. Agradecemos qualquer contribuição que você tenha para compartilhar. Por favor, dê feedback usando o link na parte inferior.",
+        "text": "Obrigado por usar este aplicativo criado pela Shift Crypto na Suíça. Agradecemos qualquer contribuição que você tenha para compartilhar. Por favor, dê feedback usando o link na parte inferior.",
         "title": "Bem-vindo ao BitBoxApp!"
       }
     }

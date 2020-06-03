@@ -23,15 +23,15 @@ import (
 
 // BlockchainMock implements blockchain.Interface for use in tests.
 type BlockchainMock struct {
-	MockScriptHashGetHistory func(blockchain.ScriptHashHex, func(blockchain.TxHistory) error, func(error))
-	MockTransactionGet       func(chainhash.Hash, func(*wire.MsgTx) error, func(error))
+	MockScriptHashGetHistory func(blockchain.ScriptHashHex, func(blockchain.TxHistory), func(error))
+	MockTransactionGet       func(chainhash.Hash, func(*wire.MsgTx), func(error))
 	MockScriptHashSubscribe  func(func() func(error), blockchain.ScriptHashHex, func(string))
 	MockHeadersSubscribe     func(func() func(error), func(*blockchain.Header) error)
 	MockTransactionBroadcast func(*wire.MsgTx) error
 	MockRelayFee             func(func(btcutil.Amount), func(error))
-	MockEstimateFee          func(int, func(*btcutil.Amount) error, func(error))
+	MockEstimateFee          func(int, func(*btcutil.Amount), func(error))
 	MockHeaders              func(int, int, func([]*wire.BlockHeader, int))
-	MockGetMerkle            func(chainhash.Hash, int, func(merkle []blockchain.TXHash, pos int) error, func(error))
+	MockGetMerkle            func(chainhash.Hash, int, func(merkle []blockchain.TXHash, pos int), func(error))
 	MockClose                func()
 	MockConnectionStatus     func() blockchain.Status
 
@@ -39,14 +39,14 @@ type BlockchainMock struct {
 }
 
 // ScriptHashGetHistory implements Interface.
-func (b *BlockchainMock) ScriptHashGetHistory(s blockchain.ScriptHashHex, success func(blockchain.TxHistory) error, cleanup func(error)) {
+func (b *BlockchainMock) ScriptHashGetHistory(s blockchain.ScriptHashHex, success func(blockchain.TxHistory), cleanup func(error)) {
 	if b.MockScriptHashGetHistory != nil {
 		b.MockScriptHashGetHistory(s, success, cleanup)
 	}
 }
 
 // TransactionGet implements Interface.
-func (b *BlockchainMock) TransactionGet(h chainhash.Hash, success func(*wire.MsgTx) error, cleanup func(error)) {
+func (b *BlockchainMock) TransactionGet(h chainhash.Hash, success func(*wire.MsgTx), cleanup func(error)) {
 	if b.MockTransactionGet != nil {
 		b.MockTransactionGet(h, success, cleanup)
 	}
@@ -82,7 +82,7 @@ func (b *BlockchainMock) RelayFee(success func(btcutil.Amount), cleanup func(err
 }
 
 // EstimateFee implements Interface.
-func (b *BlockchainMock) EstimateFee(i int, success func(*btcutil.Amount) error, cleanup func(error)) {
+func (b *BlockchainMock) EstimateFee(i int, success func(*btcutil.Amount), cleanup func(error)) {
 	if b.MockEstimateFee != nil {
 		b.MockEstimateFee(i, success, cleanup)
 	}
@@ -98,7 +98,7 @@ func (b *BlockchainMock) Headers(i1 int, i2 int, success func([]*wire.BlockHeade
 }
 
 // GetMerkle implements Interface.
-func (b *BlockchainMock) GetMerkle(h chainhash.Hash, i int, success func(merkle []blockchain.TXHash, pos int) error, cleanup func(error)) {
+func (b *BlockchainMock) GetMerkle(h chainhash.Hash, i int, success func(merkle []blockchain.TXHash, pos int), cleanup func(error)) {
 	if b.MockGetMerkle != nil {
 		b.MockGetMerkle(h, i, success, cleanup)
 	}
