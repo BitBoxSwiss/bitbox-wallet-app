@@ -570,14 +570,10 @@ func (account *Account) newTx(
 			}
 		}
 	}
-	gasLimit := uint64(21000) // gas limit for standard ethereum transactions
-	if account.coin.erc20Token != nil {
-		n, err := account.coin.client.EstimateGas(context.TODO(), message)
-		if err != nil {
-			account.log.WithError(err).Error("Could not estimate the gas limit.")
-			return nil, errp.WithStack(errors.ErrInvalidData)
-		}
-		gasLimit = n
+	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
+	if err != nil {
+		account.log.WithError(err).Error("Could not estimate the gas limit.")
+		return nil, errp.WithStack(errors.ErrInvalidData)
 	}
 
 	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
