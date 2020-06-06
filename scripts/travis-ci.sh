@@ -16,8 +16,12 @@ fi
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export HOMEBREW_NO_AUTO_UPDATE=1
     brew outdated go || brew upgrade go
-    brew install yarn
+    go version
     brew install qt
+    # Install yarn only if it isn't already.
+    # GitHub runners already have node and yarn installed which makes homebrew
+    # fail due to conflicting files.
+    type yarn > /dev/null || brew install yarn
     brew install nvm
     source /usr/local/opt/nvm/nvm.sh
     nvm install 10.16.3 # install this node version
@@ -27,8 +31,12 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export GOPATH=~/go/
     export PATH=$PATH:~/go/bin
     mkdir -p $GOPATH/src/github.com/digitalbitbox/
-    cd ../ && mv bitbox-wallet-app $GOPATH/src/github.com/digitalbitbox/
+    # GitHub checkout action (git clone) seem to require current work dir
+    # to be the root of the repo during its clean up phase. So, we push it
+    # here and pop in the end.
+    pushd ../ && cp -a bitbox-wallet-app $GOPATH/src/github.com/digitalbitbox/
     cd $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app/
     make envinit
     make qt-osx
+    popd
 fi
