@@ -1,6 +1,6 @@
 module github.com/digitalbitbox/bitbox-wallet-app
 
-go 1.13
+go 1.14
 
 require (
 	github.com/allegro/bigcache v1.2.1 // indirect

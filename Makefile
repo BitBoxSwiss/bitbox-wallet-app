@@ -32,11 +32,11 @@ envinit:
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 #  - additional dependencies: Qt 5.11 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.13/bin
+#  - add to $PATH: /usr/local/opt/go@1.14/bin
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 	brew install yarn
-	brew install go@1.13
+	brew install go@1.14
 	$(MAKE) envinit
 servewallet:
 	go install -mod=vendor ./cmd/servewallet/... && servewallet

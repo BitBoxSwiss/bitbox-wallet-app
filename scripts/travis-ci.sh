@@ -1,15 +1,15 @@
 #!/bin/bash -e
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     docker run -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
-           -i shiftcrypto/bitbox-wallet-app:4 \
+           -i shiftcrypto/bitbox-wallet-app:5 \
            bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app ci"
     docker run --privileged \
            -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
-           -i shiftcrypto/bitbox-wallet-app:4 \
+           -i shiftcrypto/bitbox-wallet-app:5 \
            bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app qt-linux"
     docker run --privileged \
            -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
-           -i shiftcrypto/bitbox-wallet-app:4 \
+           -i shiftcrypto/bitbox-wallet-app:5 \
            bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app android"
 fi
 
