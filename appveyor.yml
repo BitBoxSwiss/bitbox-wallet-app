@@ -9,7 +9,7 @@ environment:
       COMPILER: msvc
 
 # https://www.appveyor.com/docs/windows-images-software/#golang
-stack: go 1.12
+stack: go 1.14
 
 matrix:
   fast_finish: true
