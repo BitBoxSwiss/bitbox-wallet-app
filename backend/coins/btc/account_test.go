@@ -72,9 +72,9 @@ func TestAccount(t *testing.T) {
 		logging.Get().WithGroup("account_test"),
 		nil,
 	)
-	require.False(t, account.Initialized())
+	require.False(t, account.Synced())
 	require.NoError(t, account.Initialize())
-	require.True(t, account.Initialized())
+	require.True(t, account.Synced())
 
 	balance, err := account.Balance()
 	require.NoError(t, err)

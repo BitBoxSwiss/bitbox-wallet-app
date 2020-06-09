@@ -38,9 +38,10 @@ type Interface interface {
 	Coin() coin.Coin
 	// Name returns a human readable long name.
 	Name() string
-	// Initialize only starts the initialization, the account is not initialized right afterwards.
+	// Initialize only starts the synchronization, the account is not synced right afterwards.
 	Initialize() error
-	Initialized() bool
+	// Synced indicates whether the account has loaded and finished the initial sync.
+	Synced() bool
 	Offline() bool
 	FatalError() bool
 	Close()

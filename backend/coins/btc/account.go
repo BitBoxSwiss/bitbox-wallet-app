@@ -88,7 +88,9 @@ type Account struct {
 
 	feeTargets []*FeeTarget
 
-	initialized bool
+	// synced indicates whether the account has loaded and finished the initial sync of the
+	// addresses.
+	synced      bool
 	offline     bool
 	fatalError  bool
 	onEvent     func(accounts.Event)
@@ -157,7 +159,7 @@ func NewAccount(
 		},
 		// initializing to false, to prevent flashing of offline notification in the frontend
 		offline:     false,
-		initialized: false,
+		synced:      false,
 		onEvent:     onEvent,
 		log:         log,
 		rateUpdater: rateUpdater,
@@ -165,8 +167,8 @@ func NewAccount(
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(accounts.EventSyncStarted) },
 		func() {
-			if !account.initialized {
-				account.initialized = true
+			if !account.synced {
+				account.synced = true
 				onEvent(accounts.EventStatusChanged)
 			}
 			onEvent(accounts.EventSyncDone)
@@ -339,7 +341,7 @@ func (account *Account) Initialize() error {
 		case blockchain.CONNECTED:
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
-			account.initialized = false
+			account.synced = false
 			account.offline = false
 			account.onEvent(accounts.EventStatusChanged)
 			account.log.Debug("Connection to blockchain backend established")
@@ -466,10 +468,9 @@ func (account *Account) Offline() bool {
 	return account.offline
 }
 
-// Initialized indicates whether the account has loaded and finished the initial sync of the
-// addresses.
-func (account *Account) Initialized() bool {
-	return account.initialized
+// Synced implements accounts.Interface.
+func (account *Account) Synced() bool {
+	return account.synced
 }
 
 // FatalError returns true if the account had a fatal error.
@@ -497,7 +498,7 @@ func (account *Account) Close() {
 	}
 	// TODO: deregister from json RPC client. The client can be closed when no account uses
 	// the client any longer.
-	account.initialized = false
+	account.synced = false
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
