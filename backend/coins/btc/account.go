@@ -88,6 +88,8 @@ type Account struct {
 
 	feeTargets []*FeeTarget
 
+	// true when initialized (Initialize() was called).
+	initialized bool
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
 	synced      bool
@@ -295,27 +297,19 @@ func (account *Account) Initialize() error {
 	if account.isClosed() {
 		return errp.New("Initialize: account was closed, init only works once.")
 	}
-	alreadyInitialized, err := func() (bool, error) {
-		defer account.Lock()()
-		if account.signingConfiguration != nil {
-			// Already initialized.
-			return true, nil
-		}
-		signingConfiguration, err := account.getSigningConfiguration()
-		if err != nil {
-			return false, err
-		}
-		account.signingConfiguration = signingConfiguration
-		account.notifier = account.getNotifier(signingConfiguration)
-		return false, nil
-	}()
-	if err != nil {
-		return err
-	}
-	if alreadyInitialized {
+	defer account.Lock()()
+	if account.initialized {
 		account.log.Debug("Account has already been initialized")
 		return nil
 	}
+	account.initialized = true
+
+	signingConfiguration, err := account.getSigningConfiguration()
+	if err != nil {
+		return err
+	}
+	account.signingConfiguration = signingConfiguration
+	account.notifier = account.getNotifier(signingConfiguration)
 
 	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
@@ -617,14 +611,12 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				return
 			}
 
-			func() {
-				defer account.Lock()()
-				address.HistoryStatus = history.Status()
-				if address.HistoryStatus != status {
-					account.log.Warning("client status should match after sync")
-				}
-				account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
-			}()
+			defer account.Lock()()
+			address.HistoryStatus = history.Status()
+			if address.HistoryStatus != status {
+				account.log.Warning("client status should match after sync")
+			}
+			account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 			account.ensureAddresses()
 		},
 		func(err error) {
@@ -644,7 +636,6 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
 func (account *Account) ensureAddresses() {
-	defer account.Lock()()
 	defer account.synchronizer.IncRequestsCounter()()
 
 	dbTx, err := account.db.Begin()
@@ -742,7 +733,7 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
-	if account.signingConfiguration == nil {
+	if !account.initialized {
 		return false, errp.New("account must be initialized")
 	}
 	account.synchronizer.WaitSynchronized()
@@ -764,7 +755,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 
 // CanVerifyAddresses wraps Keystores().CanVerifyAddresses(), see that function for documentation.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
-	if account.signingConfiguration == nil {
+	if !account.initialized {
 		return false, false, errp.New("account must be initialized")
 	}
 	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
