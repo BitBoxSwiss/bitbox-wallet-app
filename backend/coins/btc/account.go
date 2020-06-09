@@ -106,9 +106,6 @@ const (
 	// AccountSynced indicates that the account is synced.
 	AccountSynced Status = "accountSynced"
 
-	// AccountNotSynced indicates that the account is initialized, but not yet fully synced.
-	AccountNotSynced Status = "accountNotSynced"
-
 	// AccountDisabled indicates that the account has not yet been initialized.
 	AccountDisabled Status = "accountDisabled"
 
