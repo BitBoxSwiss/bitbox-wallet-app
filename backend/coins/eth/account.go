@@ -70,7 +70,7 @@ type Account struct {
 	offline                 bool
 	onEvent                 func(accounts.Event)
 
-	initialized bool
+	synced bool
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
 	enqueueUpdateCh chan struct{}
@@ -122,7 +122,7 @@ func NewAccount(
 		onEvent:                 onEvent,
 		balance:                 coin.NewAmountFromInt64(0),
 
-		initialized:     false,
+		synced:          false,
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
 		log:             log,
@@ -131,8 +131,8 @@ func NewAccount(
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(accounts.EventSyncStarted) },
 		func() {
-			if !account.initialized {
-				account.initialized = true
+			if !account.synced {
+				account.synced = true
 				onEvent(accounts.EventStatusChanged)
 			}
 			onEvent(accounts.EventSyncDone)
@@ -437,9 +437,9 @@ func (account *Account) update() error {
 	return nil
 }
 
-// Initialized implements accounts.Interface.
-func (account *Account) Initialized() bool {
-	return account.initialized
+// Synced implements accounts.Interface.
+func (account *Account) Synced() bool {
+	return account.synced
 }
 
 // Offline implements accounts.Interface.
@@ -463,7 +463,7 @@ func (account *Account) Close() {
 		}
 		account.log.Info("Closed DB")
 	}
-	account.initialized = false
+	account.synced = false
 	close(account.quitChan)
 	account.onEvent(accounts.EventStatusChanged)
 }
