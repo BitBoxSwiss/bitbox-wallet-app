@@ -59,19 +59,19 @@ func (keystore *keystore) SupportsAccount(
 
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(
-	configuration *signing.Configuration, coin coin.Coin) (bool, bool, error) {
+	multisig bool, coin coin.Coin) (bool, bool, error) {
 	deviceInfo, err := keystore.dbb.DeviceInfo()
 	if err != nil {
 		return false, false, err
 	}
 	optional := true
-	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && configuration.Singlesig(), optional, nil
+	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && !multisig, optional, nil
 }
 
 // VerifyAddress implements keystore.Keystore.
 func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coin.Coin) error {
-	canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration, coin)
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration.Multisig(), coin)
 	if err != nil {
 		return err
 	}

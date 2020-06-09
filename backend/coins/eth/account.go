@@ -701,7 +701,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(
-		account.signingConfiguration, account.Coin())
+		account.signingConfiguration.Multisig(), account.Coin())
 	if err != nil {
 		return false, err
 	}
@@ -716,7 +716,8 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if account.signingConfiguration == nil {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
+	return account.Keystores().CanVerifyAddresses(
+		account.signingConfiguration.Multisig(), account.Coin())
 }
 
 // Keystores implements accounts.Interface.
