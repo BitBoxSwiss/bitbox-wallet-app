@@ -70,7 +70,9 @@ type Account struct {
 	offline                 bool
 	onEvent                 func(accounts.Event)
 
-	synced bool
+	// true when initialized (Initialize() was called).
+	initialized bool
+	synced      bool
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
 	enqueueUpdateCh chan struct{}
@@ -179,36 +181,28 @@ func (account *Account) RateUpdater() *rates.RateUpdater {
 
 // Initialize implements accounts.Interface.
 func (account *Account) Initialize() error {
-	alreadyInitialized, err := func() (bool, error) {
-		defer account.Lock()()
-		if account.signingConfiguration != nil {
-			// Already initialized.
-			return true, nil
-		}
-		signingConfiguration, err := account.getSigningConfiguration()
-		if err != nil {
-			return false, err
-		}
-		// Derive m/0, first account.
-		relKeyPath, err := signing.NewRelativeKeypath("0")
-		if err != nil {
-			return false, err
-		}
-		signingConfiguration, err = signingConfiguration.Derive(relKeyPath)
-		if err != nil {
-			return false, err
-		}
-		account.signingConfiguration = signingConfiguration
-		account.notifier = account.getNotifier(signingConfiguration)
-		return false, nil
-	}()
-	if err != nil {
-		return err
-	}
-	if alreadyInitialized {
+	defer account.Lock()()
+	if account.initialized {
 		account.log.Debug("Account has already been initialized")
 		return nil
 	}
+	account.initialized = true
+
+	signingConfiguration, err := account.getSigningConfiguration()
+	if err != nil {
+		return err
+	}
+	// Derive m/0, first account.
+	relKeyPath, err := signing.NewRelativeKeypath("0")
+	if err != nil {
+		return err
+	}
+	signingConfiguration, err = signingConfiguration.Derive(relKeyPath)
+	if err != nil {
+		return err
+	}
+	account.signingConfiguration = signingConfiguration
+	account.notifier = account.getNotifier(signingConfiguration)
 
 	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
