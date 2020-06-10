@@ -64,7 +64,7 @@ func (keystore *keystore) CanVerifyAddress(
 	if err != nil {
 		return false, false, err
 	}
-	optional := true
+	const optional = true
 	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && !multisig, optional, nil
 }
 
