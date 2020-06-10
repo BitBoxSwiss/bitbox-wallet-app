@@ -53,8 +53,7 @@ type Keystore interface {
 	// This is typically done through a screen on the device or through a paired mobile phone.
 	// optional is true if the user can skip verification, and false if they should be forced to
 	// verify.
-	// multisig is true when verifying multisig addresses.
-	CanVerifyAddress(multisig bool, c coin.Coin) (secureOutput bool, optional bool, err error)
+	CanVerifyAddress(coin.Coin) (secureOutput bool, optional bool, err error)
 
 	// VerifyAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.

@@ -51,27 +51,26 @@ func (keystore *keystore) SupportsAccount(
 	coin coin.Coin, multisig bool, meta interface{}) bool {
 	switch coin.(type) {
 	case *btc.Coin:
-		return true
+		return !multisig
 	default:
 		return false
 	}
 }
 
 // CanVerifyAddress implements keystore.Keystore.
-func (keystore *keystore) CanVerifyAddress(
-	multisig bool, coin coin.Coin) (bool, bool, error) {
+func (keystore *keystore) CanVerifyAddress(coin coin.Coin) (bool, bool, error) {
 	deviceInfo, err := keystore.dbb.DeviceInfo()
 	if err != nil {
 		return false, false, err
 	}
 	const optional = true
-	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && !multisig, optional, nil
+	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel(), optional, nil
 }
 
 // VerifyAddress implements keystore.Keystore.
 func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coin.Coin) error {
-	canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration.Multisig(), coin)
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
 	if err != nil {
 		return err
 	}

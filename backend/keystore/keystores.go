@@ -66,9 +66,9 @@ func (keystores *Keystores) Remove(keystore Keystore) error {
 }
 
 // CanVerifyAddresses returns whether any of the keystores can verify an address.
-func (keystores *Keystores) CanVerifyAddresses(multisig bool, coin coin.Coin) (bool, bool, error) {
+func (keystores *Keystores) CanVerifyAddresses(coin coin.Coin) (bool, bool, error) {
 	for _, keystore := range keystores.keystores {
-		canVerifyAddress, optional, err := keystore.CanVerifyAddress(multisig, coin)
+		canVerifyAddress, optional, err := keystore.CanVerifyAddress(coin)
 		if err != nil {
 			return false, false, err
 		}
@@ -87,7 +87,7 @@ func (keystores *Keystores) VerifyAddress(
 ) error {
 	found := false
 	for _, keystore := range keystores.keystores {
-		canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration.Multisig(), coin)
+		canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
 		if err != nil {
 			return err
 		}
