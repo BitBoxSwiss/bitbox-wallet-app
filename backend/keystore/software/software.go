@@ -98,7 +98,7 @@ func (keystore *Keystore) Identifier() (string, error) {
 }
 
 // CanVerifyAddress implements keystore.Keystore.
-func (keystore *Keystore) CanVerifyAddress(*signing.Configuration, coin.Coin) (bool, bool, error) {
+func (keystore *Keystore) CanVerifyAddress(coin.Coin) (bool, bool, error) {
 	return false, false, nil
 }
 

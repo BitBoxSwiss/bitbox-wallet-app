@@ -743,7 +743,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
+	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
 	if err != nil {
 		return false, err
 	}
@@ -758,7 +758,7 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if !account.initialized {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
+	return account.Keystores().CanVerifyAddresses(account.Coin())
 }
 
 // Keystores returns the keystores of the account.

@@ -74,8 +74,8 @@ func (keystore *keystore) SupportsAccount(
 }
 
 // CanVerifyAddress implements keystore.Keystore.
-func (keystore *keystore) CanVerifyAddress(configuration *signing.Configuration, coin coinpkg.Coin) (bool, bool, error) {
-	optional := false
+func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error) {
+	const optional = false
 	switch coin.(type) {
 	case *btc.Coin:
 		_, ok := btcMsgCoinMap[coin.Code()]
@@ -90,7 +90,7 @@ func (keystore *keystore) CanVerifyAddress(configuration *signing.Configuration,
 // VerifyAddress implements keystore.Keystore.
 func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coinpkg.Coin) error {
-	canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration, coin)
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(coin)
 	if err != nil {
 		return err
 	}
