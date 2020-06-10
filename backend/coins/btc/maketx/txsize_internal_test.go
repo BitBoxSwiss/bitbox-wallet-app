@@ -42,30 +42,17 @@ func TestEstimateTxSize(t *testing.T) {
 	scriptTypeP2WPKH := signing.ScriptTypeP2WPKH
 	scriptTypes := []signing.ScriptType{scriptTypeP2PKH, scriptTypeP2WPKHP2SH, scriptTypeP2WPKH}
 
-	test := func(inputScriptType, outputScriptType signing.ScriptType, changeScriptType *signing.ScriptType) {
+	test := func(outputScriptType signing.ScriptType, changeScriptType *signing.ScriptType) {
 		changeStr := "noChange"
 		if changeScriptType != nil {
 			changeStr = string(*changeScriptType)
 		}
-		t.Run(fmt.Sprintf("%s/%s/%s", inputScriptType, outputScriptType, changeStr),
+		t.Run(fmt.Sprintf("%s/%s", outputScriptType, changeStr),
 			func(t *testing.T) {
-				inputAddress := addressesTest.GetAddress(inputScriptType)
-				sigScript, witness := inputAddress.SignatureScript([]*btcec.Signature{sig})
+
 				outputPkScript := addressesTest.GetAddress(outputScriptType).PubkeyScript()
 				tx := &wire.MsgTx{
 					Version: wire.TxVersion,
-					TxIn: []*wire.TxIn{
-						{
-							SignatureScript: sigScript,
-							Witness:         witness,
-							Sequence:        0,
-						},
-						{
-							SignatureScript: sigScript,
-							Witness:         witness,
-							Sequence:        0,
-						},
-					},
 					// One output and one change.
 					TxOut: []*wire.TxOut{
 						{
@@ -74,6 +61,22 @@ func TestEstimateTxSize(t *testing.T) {
 						},
 					},
 					LockTime: 0,
+				}
+
+				var inputConfigurations []*signing.Configuration
+				// Add each type of input, multiple times.  Only once might not catch errors that
+				// are smoothed over by the rounding (ceiling) of the tx weight.
+				for counter := 0; counter < 10; counter++ {
+					for _, inputScriptType := range scriptTypes {
+						inputAddress := addressesTest.GetAddress(inputScriptType)
+						sigScript, witness := inputAddress.SignatureScript([]*btcec.Signature{sig})
+						tx.TxIn = append(tx.TxIn, &wire.TxIn{
+							SignatureScript: sigScript,
+							Witness:         witness,
+							Sequence:        0,
+						})
+						inputConfigurations = append(inputConfigurations, inputAddress.Configuration)
+					}
 				}
 				changePkScriptSize := 0
 				if changeScriptType != nil {
@@ -87,20 +90,17 @@ func TestEstimateTxSize(t *testing.T) {
 				}
 
 				estimatedSize := estimateTxSize(
-					len(tx.TxIn),
-					inputAddress.Configuration,
+					inputConfigurations,
 					len(outputPkScript), changePkScriptSize)
 				require.Equal(t, mempool.GetTxVirtualSize(btcutil.NewTx(tx)), int64(estimatedSize))
 			})
 	}
 
-	for _, inputScriptType := range scriptTypes {
-		for _, outputScriptType := range scriptTypes {
-			test(inputScriptType, outputScriptType, nil)
-			for _, changeScriptType := range scriptTypes {
-				changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
-				test(inputScriptType, outputScriptType, &changeScriptType)
-			}
+	for _, outputScriptType := range scriptTypes {
+		test(outputScriptType, nil)
+		for _, changeScriptType := range scriptTypes {
+			changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
+			test(outputScriptType, &changeScriptType)
 		}
 	}
 }
