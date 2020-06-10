@@ -42,13 +42,17 @@ func TestEstimateTxSize(t *testing.T) {
 	scriptTypeP2WPKH := signing.ScriptTypeP2WPKH
 	scriptTypes := []signing.ScriptType{scriptTypeP2PKH, scriptTypeP2WPKHP2SH, scriptTypeP2WPKH}
 
-	test := func(outputScriptType signing.ScriptType, changeScriptType *signing.ScriptType) {
+	test := func(useSegwit bool, outputScriptType signing.ScriptType, changeScriptType *signing.ScriptType) {
 		changeStr := "noChange"
 		if changeScriptType != nil {
 			changeStr = string(*changeScriptType)
 		}
-		t.Run(fmt.Sprintf("%s/%s", outputScriptType, changeStr),
+		t.Run(fmt.Sprintf("%s/%s/%v", outputScriptType, changeStr, useSegwit),
 			func(t *testing.T) {
+				inputScriptTypes := []signing.ScriptType{scriptTypeP2PKH, scriptTypeP2WPKHP2SH, scriptTypeP2WPKH}
+				if !useSegwit {
+					inputScriptTypes = []signing.ScriptType{scriptTypeP2PKH}
+				}
 
 				outputPkScript := addressesTest.GetAddress(outputScriptType).PubkeyScript()
 				tx := &wire.MsgTx{
@@ -67,7 +71,7 @@ func TestEstimateTxSize(t *testing.T) {
 				// Add each type of input, multiple times.  Only once might not catch errors that
 				// are smoothed over by the rounding (ceiling) of the tx weight.
 				for counter := 0; counter < 10; counter++ {
-					for _, inputScriptType := range scriptTypes {
+					for _, inputScriptType := range inputScriptTypes {
 						inputAddress := addressesTest.GetAddress(inputScriptType)
 						sigScript, witness := inputAddress.SignatureScript([]*btcec.Signature{sig})
 						tx.TxIn = append(tx.TxIn, &wire.TxIn{
@@ -96,11 +100,13 @@ func TestEstimateTxSize(t *testing.T) {
 			})
 	}
 
-	for _, outputScriptType := range scriptTypes {
-		test(outputScriptType, nil)
-		for _, changeScriptType := range scriptTypes {
-			changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
-			test(outputScriptType, &changeScriptType)
+	for _, useSegwit := range []bool{false, true} {
+		for _, outputScriptType := range scriptTypes {
+			test(useSegwit, outputScriptType, nil)
+			for _, changeScriptType := range scriptTypes {
+				changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
+				test(useSegwit, outputScriptType, &changeScriptType)
+			}
 		}
 	}
 }
