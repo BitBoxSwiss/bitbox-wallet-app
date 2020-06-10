@@ -580,13 +580,6 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	return account.transactions.Balance(), nil
 }
 
-func (account *Account) addresses(change bool) AddressChain {
-	if change {
-		return account.changeAddresses
-	}
-	return account.receiveAddresses
-}
-
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
@@ -645,9 +638,9 @@ func (account *Account) ensureAddresses() {
 	}
 	defer dbTx.Rollback()
 
-	syncSequence := func(change bool) error {
+	syncSequence := func(addressChain AddressChain) error {
 		for {
-			newAddresses := account.addresses(change).EnsureAddresses()
+			newAddresses := addressChain.EnsureAddresses()
 			if len(newAddresses) == 0 {
 				break
 			}
@@ -659,12 +652,12 @@ func (account *Account) ensureAddresses() {
 		}
 		return nil
 	}
-	if err := syncSequence(false); err != nil {
+	if err := syncSequence(account.receiveAddresses); err != nil {
 		account.log.WithError(err).Panic(err)
 		// TODO
 		panic(err)
 	}
-	if err := syncSequence(true); err != nil {
+	if err := syncSequence(account.changeAddresses); err != nil {
 		account.log.WithError(err).Panic(err)
 		// TODO
 		panic(err)
