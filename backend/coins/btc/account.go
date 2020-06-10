@@ -718,13 +718,14 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
-	addresses := []accounts.Address{}
-	if account.signingConfiguration.IsAddressBased() {
-		addresses = append(addresses, account.receiveAddresses.GetUnused()[0])
-		return addresses
-	}
-	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
-	for _, address := range account.receiveAddresses.GetUnused()[:receiveAddressesLimit] {
+	var addresses []accounts.Address
+	for idx, address := range account.receiveAddresses.GetUnused() {
+		if idx >= receiveAddressesLimit {
+			// Limit to gap limit for receive addresses, even if the actual limit is higher when
+			// scanning.
+			break
+		}
+
 		addresses = append(addresses, address)
 	}
 	return addresses
