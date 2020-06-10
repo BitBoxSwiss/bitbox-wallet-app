@@ -55,6 +55,12 @@ const (
 	maxGapLimit = 2000
 )
 
+type subaccount struct {
+	signingConfiguration *signing.Configuration
+	receiveAddresses     AddressChain
+	changeAddresses      AddressChain
+}
+
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	locker.Locker
@@ -69,14 +75,12 @@ type Account struct {
 	db                      transactions.DBInterface
 	forceGapLimits          *types.GapLimits
 	getSigningConfiguration func() (*signing.Configuration, error)
-	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
 	getNotifier             func(*signing.Configuration) accounts.Notifier
 	notifier                accounts.Notifier
 	blockchain              blockchain.Interface
 
-	receiveAddresses AddressChain
-	changeAddresses  AddressChain
+	subaccounts []subaccount
 
 	transactions *transactions.Transactions
 
@@ -148,7 +152,6 @@ func NewAccount(
 		name:                    name,
 		forceGapLimits:          forceGapLimits,
 		getSigningConfiguration: getSigningConfiguration,
-		signingConfiguration:    nil,
 		keystores:               keystores,
 		getNotifier:             getNotifier,
 
@@ -209,14 +212,14 @@ func (account *Account) Coin() coin.Coin {
 }
 
 // defaultGapLimits returns the default gap limits for this account.
-func (account *Account) defaultGapLimits() types.GapLimits {
+func (account *Account) defaultGapLimits(signingConfiguration *signing.Configuration) types.GapLimits {
 	limits := types.GapLimits{
 		Receive: 20,
 		Change:  6,
 	}
 
-	if account.signingConfiguration.Singlesig() &&
-		account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
+	if signingConfiguration.Singlesig() &&
+		signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
 		// Usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
 		// We increase it a bit more as some users still had change buried a bit deeper.
 		limits.Change = 25
@@ -233,7 +236,8 @@ func (account *Account) defaultGapLimits() types.GapLimits {
 // gapLimits gets the gap limits as stored in the account configuration, and defaults to
 // `defaultGapLimits()` if there is no configuration or the configuration limits are smaller than
 // the default limits.
-func (account *Account) gapLimits() (types.GapLimits, error) {
+func (account *Account) gapLimits(
+	signingConfiguration *signing.Configuration) (types.GapLimits, error) {
 	dbTx, err := account.db.Begin()
 	if err != nil {
 		return types.GapLimits{}, err
@@ -256,7 +260,7 @@ func (account *Account) gapLimits() (types.GapLimits, error) {
 		}()
 	}
 
-	defaultLimits := account.defaultGapLimits()
+	defaultLimits := account.defaultGapLimits(signingConfiguration)
 
 	limits, err := dbTx.GapLimits()
 	if err != nil {
@@ -308,10 +312,9 @@ func (account *Account) Initialize() error {
 	if err != nil {
 		return err
 	}
-	account.signingConfiguration = signingConfiguration
 	account.notifier = account.getNotifier(signingConfiguration)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfiguration.Hash(), account.code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -361,25 +364,30 @@ func (account *Account) Initialize() error {
 		account.coin.Net(), account.db, theHeaders, account.synchronizer,
 		account.blockchain, account.notifier, account.log)
 
-	gapLimits, err := account.gapLimits()
+	gapLimits, err := account.gapLimits(signingConfiguration)
 	if err != nil {
 		return err
 	}
 
 	account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
-	if account.signingConfiguration.IsAddressBased() {
-		account.receiveAddresses = addresses.NewSingleAddress(
-			account.signingConfiguration, account.coin.Net(), account.log)
+	var subacc subaccount
+	subacc.signingConfiguration = signingConfiguration
+	if signingConfiguration.IsAddressBased() {
+		subacc.receiveAddresses = addresses.NewSingleAddress(
+			signingConfiguration, account.coin.Net(), account.log)
 		account.log.Debug("creating single change address for address based account")
-		account.changeAddresses = addresses.NewSingleAddress(
-			account.signingConfiguration, account.coin.Net(), account.log)
+		subacc.changeAddresses = addresses.NewSingleAddress(
+			signingConfiguration, account.coin.Net(), account.log)
 	} else {
-		account.receiveAddresses = addresses.NewAddressChain(
-			account.signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
-		account.changeAddresses = addresses.NewAddressChain(
-			account.signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
+		subacc.receiveAddresses = addresses.NewAddressChain(
+			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
+		subacc.changeAddresses = addresses.NewAddressChain(
+			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
 	}
+	// TODO: unified-accounts
+	account.subaccounts = []subaccount{subacc}
+
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 	return nil
@@ -418,7 +426,8 @@ func (account *Account) Info() *accounts.Info {
 	// The internal extended key representation always uses he same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
 	xpubs := []*hdkeychain.ExtendedKey{}
-	for _, xpub := range account.signingConfiguration.ExtendedPublicKeys() {
+	// TODO unified-accounts
+	for _, xpub := range account.subaccounts[0].signingConfiguration.ExtendedPublicKeys() {
 		if xpub.IsPrivate() {
 			panic("xpub can't be private")
 		}
@@ -430,18 +439,18 @@ func (account *Account) Info() *accounts.Info {
 		xpubCopy.SetNet(
 			&chaincfg.Params{
 				HDPublicKeyID: XPubVersionForScriptType(account.
-					coin, account.signingConfiguration.ScriptType()),
+					coin, account.subaccounts[0].signingConfiguration.ScriptType()),
 			},
 		)
 		xpubs = append(xpubs, xpubCopy)
 	}
 	return &accounts.Info{
 		SigningConfiguration: signing.NewConfiguration(
-			account.signingConfiguration.ScriptType(),
-			account.signingConfiguration.AbsoluteKeypath(),
+			account.subaccounts[0].signingConfiguration.ScriptType(),
+			account.subaccounts[0].signingConfiguration.AbsoluteKeypath(),
 			xpubs,
-			account.signingConfiguration.Address(),
-			account.signingConfiguration.SigningThreshold(),
+			account.subaccounts[0].signingConfiguration.Address(),
+			account.subaccounts[0].signingConfiguration.SigningThreshold(),
 		),
 	}
 }
@@ -652,12 +661,13 @@ func (account *Account) ensureAddresses() {
 		}
 		return nil
 	}
-	if err := syncSequence(account.receiveAddresses); err != nil {
+	// TODO unified-accounts
+	if err := syncSequence(account.subaccounts[0].receiveAddresses); err != nil {
 		account.log.WithError(err).Panic(err)
 		// TODO
 		panic(err)
 	}
-	if err := syncSequence(account.changeAddresses); err != nil {
+	if err := syncSequence(account.subaccounts[0].changeAddresses); err != nil {
 		account.log.WithError(err).Panic(err)
 		// TODO
 		panic(err)
@@ -697,7 +707,8 @@ func (account *Account) Transactions() ([]accounts.Transaction, error) {
 	}
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
-			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
+			// TODO unified-accounts
+			return account.subaccounts[0].changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
 	cast := make([]accounts.Transaction, len(transactions))
 	for index, transaction := range transactions {
@@ -712,7 +723,8 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
 	var addresses []accounts.Address
-	for idx, address := range account.receiveAddresses.GetUnused() {
+	// TODO unified-accounts
+	for idx, address := range account.subaccounts[0].receiveAddresses.GetUnused() {
 		if idx >= receiveAddressesLimit {
 			// Limit to gap limit for receive addresses, even if the actual limit is higher when
 			// scanning.
@@ -733,7 +745,8 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)
+	// TODO unified-accounts
+	address := account.subaccounts[0].receiveAddresses.LookupByScriptHashHex(scriptHashHex)
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
@@ -802,7 +815,8 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {
 	keystore := account.Keystores().Keystores()[index]
 	if keystore.CanVerifyExtendedPublicKey() {
-		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.signingConfiguration.AbsoluteKeypath(), account.signingConfiguration)
+		// TODO unified-accounts
+		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.subaccounts[0].signingConfiguration.AbsoluteKeypath(), account.subaccounts[0].signingConfiguration)
 	}
 	return false, nil
 }
