@@ -147,14 +147,16 @@ func NewTxSpendAll(
 }
 
 // NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
-// the unspent outputs is selected to cover the needed amount. A change output is added if needed.
+// the unspent outputs is selected to cover the needed amount.
+//
+// changeAddress: a change output to this address is added if needed.
 func NewTx(
 	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
-	getChangeAddress func() *addresses.AccountAddress,
+	changeAddress *addresses.AccountAddress,
 	log *logrus.Entry,
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
@@ -162,7 +164,6 @@ func NewTx(
 		panic("amount must be positive")
 	}
 	outputs := []*wire.TxOut{output}
-	changeAddress := getChangeAddress()
 	changePKScript := changeAddress.PubkeyScript()
 
 	estimatedSize := estimateTxSize(

@@ -67,7 +67,6 @@ type newTxSuite struct {
 	someAddresses      []*addresses.AccountAddress
 	inputConfiguration *signing.Configuration
 	changeAddress      *addresses.AccountAddress
-	getChangeAddress   func() *addresses.AccountAddress
 	outputPkScript     []byte
 
 	log *logrus.Entry
@@ -79,9 +78,6 @@ func (s *newTxSuite) SetupTest() {
 	someAddresses := s.addressChain.EnsureAddresses()
 	s.outputPkScript = someAddresses[1].PubkeyScript()
 	s.changeAddress = someAddresses[0]
-	s.getChangeAddress = func() *addresses.AccountAddress {
-		return s.changeAddress
-	}
 	s.someAddresses = someAddresses[2:]
 }
 
@@ -103,7 +99,7 @@ func (s *newTxSuite) newTx(
 		utxo,
 		s.output(amount),
 		feePerKb,
-		s.getChangeAddress,
+		s.changeAddress,
 		s.log,
 	)
 }
