@@ -565,6 +565,26 @@
     "confirm": "Potrdi",
     "confirmTitle": "Potrditev"
   },
+  "exchanges": {
+    "method": "Izberite željen način plačila",
+    "methods": {
+      "BT": "Bančno nakazilo",
+      "CC": "Kreditna kartica",
+      "DCA": "Ponavljajoče",
+      "P2P": "Medsebojno",
+      "SW": "Kripto za kripto"
+    },
+    "nomatch": "Nobena storitev ne ustreza vašim kriterijem",
+    "region": "Izberite vašo regijo",
+    "regions": {
+      "AF": "Afrika",
+      "APAC": "Azija (z AUS / NZ)",
+      "EU": "Evropa",
+      "LA": "Latinska Amerika",
+      "NA": "Severna Amerika"
+    },
+    "title": "Kupi & Prodaj"
+  },
   "fiat": {
     "default": "Privzeto",
     "setDefault": "Nastavite {{code}} kot privzeto",
@@ -750,6 +770,20 @@
         "title": "Pri uporabi Safella sem doživel težavo"
       }
     },
+    "exchanges": {
+      "commission": {
+        "text": "Na seznamu so tudi \"affiliate\" povezave, kjer so nam pač na voljo. Ali nam menjalnice oz. posredniki omogočajo provizijo za posredovanje ali ne, ni bilo merilo za uvrstitev na ta seznam.",
+        "title": "Ali vi prejmete provizijo za moj nakup na eni izmed ponujenih storitev?"
+      },
+      "description": {
+        "text": "Stran prikazuje naš izbor lokacij za nakup Bitcoin in drugih kripto valut. ",
+        "title": "Kaj prikazuje ta stran?"
+      },
+      "whichService": {
+        "text": "To je odvisno od vaše lokacije in vaših potreb.\nNajprej izberite svojo regijo in nato izberite želeni način plačila.\nBančno nakazilo: za večja naročila.\nKreditna kartica: za manjša in hitrejša naročila. Bodite pozorni na morebitne višje provizije, kot pri drugih metodah.\nPonavljajoče (kot npr. trajnik): samodejno kupujte kovance vsak teden / mesec.\nKripto za kripto: zamenjajte eno kripto valuto za drugo.\nMedsebojno: kupite kovance bolj zasebno neposredno od druge osebe (peer-to-peer).",
+        "title": "Katero storitev naj uporabim?"
+      }
+    },
     "receive": {
       "address": {
         "text": "Pošljite ali predajte ga drugim, da vam lahko nanj pošiljajo kovance.\n(Če je možno, pri prejemniku preverite ali je prejel enak naslov, kot ste mu ga poslali)",
@@ -798,6 +832,10 @@
       "what": {
         "text": "Denarnico lahko povežete s svojim polnim vozliščem, namesto da uporabljate strežnike podjetja Shift.",
         "title": "Kaj je to?"
+      },
+      "whenTCP": {
+        "text": "Priporočljivo je, da vedno uporabljate TLS, tudi če vaše vozlišče deluje na istem računalniku, kot ta aplikacija. Pri povezovanju s storitvijo tor, lahko TLS preskočite.",
+        "title": "Naj uporabim TLS?"
       }
     },
     "settings": {
@@ -928,6 +966,9 @@
     "successEnable": "Skrita denarnica starejšega formata je uspešno omogočena. Znova priključite svoj BitBox in skrbno vnesite geslo naprave za dostop do starejše skrite denarnice."
   },
   "loading": "nalaganje…",
+  "mobile": {
+    "usingMobileDataWarning": "Uporaba podatkov na mobilni napravi: ta aplikacija lahko po odklepanju računa naloži do nekaj sto megabajtov podatkov. Če želite preprečiti uporabo mobilnih podatkov, se povežite z Wi-Fi omrežjem. \nTo sporočilo ne bo več prikazano, če ga ugasnete."
+  },
   "notification": {
     "newTxs_0": "{{count}} novih transakcij na: {{accountName}}",
     "newTxs_1": "{{count}} novih transakcij na: {{accountName}}",
@@ -1017,7 +1058,7 @@
   "securityInformation": {
     "create": {
       "button": "Nadaljujte",
-      "description1": "Priporočamo, da prvo nastavitev naprave izvedete v varnem okolju.",
+      "description1": "Priporočamo, da prvo nastavitev naprave izvedete v varnem okolju, kjer vas nihče ne opazuje in ne more beležiti vnašanja gesla.",
       "description2": "Od vas se bo zahtevalo, da ustvarite dve gesli.",
       "description3": "Prvo je <strong> geslo naprave</strong>, ki odklene vaš BitBox (napravo). Pozneje ga lahko spremenite.",
       "description4": "Drugo je <strong>geslo za obnovitev</strong>, ki odklene vašo denarnico. Tega gesla kasneje ni mogoče spremeniti!",
@@ -1169,6 +1210,7 @@
       "step1-text": "Vnesite končno točko.",
       "step2": "2",
       "step2-text": "Vnesite certifikat strežniške verige potrdil. Lahko pa prenesete oddaljeno potrdilo in ga vizualno primerjate.",
+      "step2-text-tcp": "Ta korak lahko preskočite, če ne želite uporabljati TLS.",
       "step3": "3",
       "step3-text": "Preverite povezavo in dodajte strežnik.",
       "step4": "4",
@@ -1205,6 +1247,7 @@
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "Povežite BitBoxBase",
     "device": "Upravljanje naprave",
+    "exchanges": "Kupi & Prodaj",
     "leave": "Zapusti",
     "settings": "Nastavitve"
   },
@@ -1234,6 +1277,7 @@
       "amount": "Znesek",
       "date": "Datum",
       "fiat": "Fiat",
+      "fiatAmount": "znesek v fiat valuti",
       "status": "Stanje",
       "type": "Tip"
     },
