@@ -964,7 +964,7 @@
   "securityInformation": {
     "create": {
       "button": "Weiter",
-      "description1": "Sie sollten Ihr Gerät in einer sicheren Umgebung einrichten.",
+      "description1": "Bitte richten Sie Ihr Gerät in einer sicheren Umgebung ein, sodass niemand sehen kann, welches Passwort Sie wählen.",
       "description2": "Während der Einrichtung werden Sie aufgefordert, zwei verschiendene Passworter zu erstellen. ",
       "description3": "Das erste Passwort ist das <strong> Gerätepasswort </strong>, welches Ihre BitBox entsperrt und später geändert werden kann.",
       "description4": "Das zweite ist das <strong> Wiederherstellungspasswort </strong>, mit dem Ihr Wallet gesichert wird. Dieses Passwort kann später nicht geändert werden!",

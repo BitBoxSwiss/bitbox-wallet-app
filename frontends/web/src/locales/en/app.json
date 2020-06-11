@@ -184,7 +184,7 @@
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
       "passwordTitle": "Set a password for your BitBox",
       "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox02</strong>",
-      "tip": "We recommend that you proceed in a secure environment.",
+      "tip": "We recommend that you proceed in a secure location.",
       "title": "Initialize your BitBox"
     },
     "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
@@ -578,7 +578,7 @@
     "region": "Choose your region",
     "regions": {
       "AF": "Africa",
-      "APAC": "Asia Pacific (incl. AU/NZ)",
+      "APAC": "Asia Pacific",
       "EU": "Europe",
       "LA": "Latin America",
       "NA": "North America"
@@ -1056,7 +1056,7 @@
   "securityInformation": {
     "create": {
       "button": "Continue",
-      "description1": "Before setting up your device it is recommended that you do so in a secure environment.",
+      "description1": "We recommend you set up your device in a safe environment, meaning you are away from other people that could see what password you choose.",
       "description2": "You will be asked to create two passwords.",
       "description3": "The first is the <strong>device password</strong> which unlocks your BitBox device and can be changed later.",
       "description4": "The second is the <strong>recovery password</strong> which unlocks your wallet. This password cannot be changed later.",

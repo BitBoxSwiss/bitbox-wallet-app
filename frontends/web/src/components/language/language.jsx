@@ -30,6 +30,7 @@ export default class LanguageSwitcher extends Component {
             { code: 'bg', display: 'България' },
             { code: 'de', display: 'Deutsch' },
             { code: 'en', display: 'English' },
+            { code: 'fr', display: 'Français' },
             { code: 'hi', display: 'हिन्दी ' },
             { code: 'ja', display: '日本語' },
             { code: 'ms', display: 'Bahasa Melayu' },
