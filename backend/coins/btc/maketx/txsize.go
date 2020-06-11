@@ -45,8 +45,12 @@ func estimateTxSize(
 	inputConfigurations []*signing.Configuration,
 	outputPkScriptSize int,
 	changePkScriptSize int) int {
+	outputCount := 2 // 1 output + 1 change output
+	if changePkScriptSize == 0 {
+		outputCount = 1
+	}
+
 	const (
-		outputCount  = 2 // 1 output + 1 change output
 		versionSize  = 4
 		lockTimeSize = 4
 		nonWitness   = 4 // factor for non-witness fields
