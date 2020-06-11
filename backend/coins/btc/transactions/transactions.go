@@ -46,7 +46,7 @@ func (txOut *SpendableOutput) ScriptHashHex() blockchain.ScriptHashHex {
 }
 
 func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
-	return blockchain.ScriptHashHex(chainhash.HashH(txOut.PkScript).String())
+	return blockchain.NewScriptHashHex(txOut.PkScript)
 }
 
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)

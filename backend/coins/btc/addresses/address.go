@@ -19,7 +19,6 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -156,7 +155,7 @@ func (address *AccountAddress) PubkeyScript() []byte {
 // PubkeyScriptHashHex returns the hash of the pubkey script in hex format.
 // It is used to subscribe to notifications at the ElectrumX server.
 func (address *AccountAddress) PubkeyScriptHashHex() blockchain.ScriptHashHex {
-	return blockchain.ScriptHashHex(chainhash.HashH(address.PubkeyScript()).String())
+	return blockchain.NewScriptHashHex(address.PubkeyScript())
 }
 
 // ScriptForHashToSign returns whether this address is a segwit output and the script used when
