@@ -92,7 +92,7 @@ func (s *newTxSuite) output(amount btcutil.Amount) *wire.TxOut {
 func (s *newTxSuite) newTx(
 	amount btcutil.Amount,
 	feePerKb btcutil.Amount,
-	utxo map[wire.OutPoint]*wire.TxOut) (*maketx.TxProposal, error) {
+	utxo map[wire.OutPoint]maketx.UTXO) (*maketx.TxProposal, error) {
 	return maketx.NewTx(
 		tbtc,
 		s.inputConfiguration,
@@ -109,10 +109,13 @@ func (s *newTxSuite) coin(i int) wire.OutPoint {
 }
 
 // buildUTXO builds an utxo set from the input. All utxo outpoints are unique.
-func (s *newTxSuite) buildUTXO(satoshis ...int64) map[wire.OutPoint]*wire.TxOut {
-	utxo := map[wire.OutPoint]*wire.TxOut{}
+func (s *newTxSuite) buildUTXO(satoshis ...int64) map[wire.OutPoint]maketx.UTXO {
+	utxo := map[wire.OutPoint]maketx.UTXO{}
 	for i, satoshi := range satoshis {
-		utxo[s.coin(i)] = wire.NewTxOut(satoshi, s.someAddresses[0].PubkeyScript())
+		utxo[s.coin(i)] = maketx.UTXO{
+			TxOut:         wire.NewTxOut(satoshi, s.someAddresses[0].PubkeyScript()),
+			Configuration: s.inputConfiguration,
+		}
 	}
 	return utxo
 }
@@ -126,7 +129,7 @@ func (s *newTxSuite) TestNewTxNoCoins() {
 func (s *newTxSuite) check(
 	expectedAmount btcutil.Amount,
 	feePerKb btcutil.Amount,
-	utxo map[wire.OutPoint]*wire.TxOut,
+	utxo map[wire.OutPoint]maketx.UTXO,
 	expectedChange btcutil.Amount,
 	expectedDustDonation btcutil.Amount,
 	selectedCoins map[int]struct{},
@@ -172,7 +175,7 @@ func (s *newTxSuite) check(
 	for _, txIn := range tx.TxIn {
 		prevOut, ok := utxo[txIn.PreviousOutPoint]
 		require.True(s.T(), ok)
-		inputSum += prevOut.Value
+		inputSum += prevOut.TxOut.Value
 	}
 	txFee := btcutil.Amount(inputSum-output.Value) - expectedChange
 	// At the moment, the fee is based on the assumption of the tx having two outputs always, even

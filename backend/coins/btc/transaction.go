@@ -69,7 +69,7 @@ func (account *Account) newTx(
 		return nil, nil, errp.WithStack(err)
 	}
 	utxo := account.transactions.SpendableOutputs()
-	wireUTXO := make(map[wire.OutPoint]*wire.TxOut, len(utxo))
+	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
 		// Apply coin control.
 		if len(selectedUTXOs) != 0 {
@@ -77,7 +77,11 @@ func (account *Account) newTx(
 				continue
 			}
 		}
-		wireUTXO[outPoint] = txOut.TxOut
+		wireUTXO[outPoint] = maketx.UTXO{
+			TxOut: txOut.TxOut,
+			Configuration: account.getAddress(
+				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)).Configuration,
+		}
 	}
 	var txProposal *maketx.TxProposal
 	if amount.SendAll() {
@@ -120,6 +124,16 @@ func (account *Account) newTx(
 	return utxo, txProposal, nil
 }
 
+func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
+	if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+		return address
+	}
+	if address := account.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+		return address
+	}
+	panic("address must be present")
+}
+
 // SendTx implements accounts.Interface.
 func (account *Account) SendTx() error {
 	unlock := account.activeTxProposalLock.RLock()
@@ -130,15 +144,6 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	getAddress := func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
-		if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-			return address
-		}
-		if address := account.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-			return address
-		}
-		panic("address must be present")
-	}
 	utxos := account.transactions.SpendableOutputs()
 	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
 		txChan := make(chan *wire.MsgTx)
@@ -155,7 +160,7 @@ func (account *Account) SendTx() error {
 		return <-txChan
 	}
 	if err := SignTransaction(
-		account.keystores, txProposal, utxos, getAddress, getPrevTx, account.log); err != nil {
+		account.keystores, txProposal, utxos, account.getAddress, getPrevTx, account.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	account.log.Info("Signed transaction is broadcasted")
