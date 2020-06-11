@@ -45,6 +45,7 @@ tags
 # Except the following:
 !/frontends/web/src/locales/en/
 !/frontends/web/src/locales/de/
+!/frontends/web/src/locales/fr/
 !/frontends/web/src/locales/ja/
 !/frontends/web/src/locales/ru/
 !/frontends/web/src/locales/ms/

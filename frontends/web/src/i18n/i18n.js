@@ -17,6 +17,7 @@
 import i18n from 'i18next';
 import appTranslationsDE from '../locales/de/app.json';
 import appTranslationsEN from '../locales/en/app.json';
+import appTranslationsFR from '../locales/fr/app.json';
 import appTranslationsJA from '../locales/ja/app.json';
 import appTranslationsRU from '../locales/ru/app.json';
 import appTranslationsMS from '../locales/ms/app.json';
@@ -87,6 +88,7 @@ i18Init.init({
 if (!i18nEditorActive) {
     i18n.addResourceBundle('de', 'app', appTranslationsDE);
     i18n.addResourceBundle('en', 'app', appTranslationsEN);
+    i18n.addResourceBundle('fr', 'app', appTranslationsFR);
     i18n.addResourceBundle('ja', 'app', appTranslationsJA);
     i18n.addResourceBundle('ms', 'app', appTranslationsMS);
     i18n.addResourceBundle('ru', 'app', appTranslationsRU);
