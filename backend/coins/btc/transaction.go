@@ -108,9 +108,7 @@ func (account *Account) newTx(
 			wireUTXO,
 			wire.NewTxOut(parsedAmountInt64, pkScript),
 			*feeTarget.feeRatePerKb,
-			func() *addresses.AccountAddress {
-				return account.changeAddresses.GetUnused()[0]
-			},
+			account.changeAddresses.GetUnused()[0],
 			account.log,
 		)
 		if err != nil {
