@@ -88,6 +88,20 @@ func coinSelection(
 	return outputsSum, selectedOutPoints, nil
 }
 
+// toInputConfigurations converts selected inputs to input configurations.
+// Currently, it just repeats one inputConfiguration, as all inputs are of the same type.
+// When mixing input types in a transaction, this function needs to be extended.
+func toInputConfigurations(
+	selectedOutPoints []wire.OutPoint,
+	inputConfiguration *signing.Configuration,
+) []*signing.Configuration {
+	inputConfigurations := make([]*signing.Configuration, len(selectedOutPoints))
+	for i := range selectedOutPoints {
+		inputConfigurations[i] = inputConfiguration
+	}
+	return inputConfigurations
+}
+
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
 	coin coin.Coin,
@@ -106,7 +120,10 @@ func NewTxSpendAll(
 		outputsSum += btcutil.Amount(output.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
 	}
-	txSize := estimateTxSize(len(selectedOutPoints), inputConfiguration, len(outputPkScript), 0)
+	txSize := estimateTxSize(
+		toInputConfigurations(selectedOutPoints, inputConfiguration),
+		len(outputPkScript),
+		0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
 		return nil, errp.WithStack(errors.ErrInsufficientFunds)
@@ -147,7 +164,11 @@ func NewTx(
 	outputs := []*wire.TxOut{output}
 	changeAddress := getChangeAddress()
 	changePKScript := changeAddress.PubkeyScript()
-	estimatedSize := estimateTxSize(1, inputConfiguration, len(output.PkScript), len(changePKScript))
+
+	estimatedSize := estimateTxSize(
+		[]*signing.Configuration{inputConfiguration},
+		len(output.PkScript),
+		len(changePKScript))
 	targetFee := feeForSerializeSize(feePerKb, estimatedSize, log)
 	for {
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
@@ -158,7 +179,10 @@ func NewTx(
 			return nil, err
 		}
 
-		txSize := estimateTxSize(len(selectedOutPoints), inputConfiguration, len(output.PkScript), len(changePKScript))
+		txSize := estimateTxSize(
+			toInputConfigurations(selectedOutPoints, inputConfiguration),
+			len(output.PkScript),
+			len(changePKScript))
 		maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 		if selectedOutputsSum-targetAmount < maxRequiredFee {
 			targetFee = maxRequiredFee

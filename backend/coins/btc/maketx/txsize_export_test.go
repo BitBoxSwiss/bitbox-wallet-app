@@ -16,12 +16,12 @@ package maketx
 
 import "github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 
-func TstEstimateTxSize(inputCount int,
-	inputConfiguration *signing.Configuration,
+func TstEstimateTxSize(
+	inputConfigurations []*signing.Configuration,
 	outputPkScriptSize int,
 	changePkScriptSize int) int {
-	return estimateTxSize(inputCount,
-		inputConfiguration,
+	return estimateTxSize(
+		inputConfigurations,
 		outputPkScriptSize,
 		changePkScriptSize)
 }

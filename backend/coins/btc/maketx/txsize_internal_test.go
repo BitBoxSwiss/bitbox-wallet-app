@@ -28,7 +28,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEstimateTxSize(t *testing.T) {
+func testEstimateTxSize(
+	t *testing.T, useSegwit bool, outputScriptType, changeScriptType signing.ScriptType) {
 	// A signature can be 70 or 71 bytes (excluding sighash op).
 	// We take one that has 71 bytes, as the size function returns the maximum possible size.
 	sigBytes, err := hex.DecodeString(
@@ -37,69 +38,80 @@ func TestEstimateTxSize(t *testing.T) {
 	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
 	require.NoError(t, err)
 
-	scriptTypeP2PKH := signing.ScriptTypeP2PKH
-	scriptTypeP2WPKHP2SH := signing.ScriptTypeP2WPKHP2SH
-	scriptTypeP2WPKH := signing.ScriptTypeP2WPKH
-	scriptTypes := []signing.ScriptType{scriptTypeP2PKH, scriptTypeP2WPKHP2SH, scriptTypeP2WPKH}
-
-	test := func(inputScriptType, outputScriptType signing.ScriptType, changeScriptType *signing.ScriptType) {
-		changeStr := "noChange"
-		if changeScriptType != nil {
-			changeStr = string(*changeScriptType)
-		}
-		t.Run(fmt.Sprintf("%s/%s/%s", inputScriptType, outputScriptType, changeStr),
-			func(t *testing.T) {
-				inputAddress := addressesTest.GetAddress(inputScriptType)
-				sigScript, witness := inputAddress.SignatureScript([]*btcec.Signature{sig})
-				outputPkScript := addressesTest.GetAddress(outputScriptType).PubkeyScript()
-				tx := &wire.MsgTx{
-					Version: wire.TxVersion,
-					TxIn: []*wire.TxIn{
-						{
-							SignatureScript: sigScript,
-							Witness:         witness,
-							Sequence:        0,
-						},
-						{
-							SignatureScript: sigScript,
-							Witness:         witness,
-							Sequence:        0,
-						},
-					},
-					// One output and one change.
-					TxOut: []*wire.TxOut{
-						{
-							Value:    1,
-							PkScript: outputPkScript,
-						},
-					},
-					LockTime: 0,
-				}
-				changePkScriptSize := 0
-				if changeScriptType != nil {
-					// add change
-					changePkScript := addressesTest.GetAddress(*changeScriptType).PubkeyScript()
-					tx.TxOut = append(tx.TxOut, &wire.TxOut{
-						Value:    1,
-						PkScript: changePkScript,
-					})
-					changePkScriptSize = len(changePkScript)
-				}
-
-				estimatedSize := estimateTxSize(
-					len(tx.TxIn),
-					inputAddress.Configuration,
-					len(outputPkScript), changePkScriptSize)
-				require.Equal(t, mempool.GetTxVirtualSize(btcutil.NewTx(tx)), int64(estimatedSize))
-			})
+	inputScriptTypes := []signing.ScriptType{
+		signing.ScriptTypeP2PKH,
+		signing.ScriptTypeP2WPKHP2SH,
+		signing.ScriptTypeP2WPKH,
+	}
+	if !useSegwit {
+		inputScriptTypes = []signing.ScriptType{signing.ScriptTypeP2PKH}
 	}
 
-	for _, inputScriptType := range scriptTypes {
+	outputPkScript := addressesTest.GetAddress(outputScriptType).PubkeyScript()
+	tx := &wire.MsgTx{
+		Version: wire.TxVersion,
+		// One output and one change.
+		TxOut: []*wire.TxOut{
+			{
+				Value:    1,
+				PkScript: outputPkScript,
+			},
+		},
+		LockTime: 0,
+	}
+
+	var inputConfigurations []*signing.Configuration
+	// Add each type of input, multiple times.  Only once might not catch errors that
+	// are smoothed over by the rounding (ceiling) of the tx weight.
+	for counter := 0; counter < 10; counter++ {
+		for _, inputScriptType := range inputScriptTypes {
+			inputAddress := addressesTest.GetAddress(inputScriptType)
+			sigScript, witness := inputAddress.SignatureScript([]*btcec.Signature{sig})
+			tx.TxIn = append(tx.TxIn, &wire.TxIn{
+				SignatureScript: sigScript,
+				Witness:         witness,
+				Sequence:        0,
+			})
+			inputConfigurations = append(inputConfigurations, inputAddress.Configuration)
+		}
+	}
+	changePkScriptSize := 0
+	if changeScriptType != "" {
+		// add change
+		changePkScript := addressesTest.GetAddress(changeScriptType).PubkeyScript()
+		tx.TxOut = append(tx.TxOut, &wire.TxOut{
+			Value:    1,
+			PkScript: changePkScript,
+		})
+		changePkScriptSize = len(changePkScript)
+	}
+
+	estimatedSize := estimateTxSize(
+		inputConfigurations,
+		len(outputPkScript), changePkScriptSize)
+	require.Equal(t, mempool.GetTxVirtualSize(btcutil.NewTx(tx)), int64(estimatedSize))
+
+}
+
+func TestEstimateTxSize(t *testing.T) {
+	scriptTypes := []signing.ScriptType{
+		signing.ScriptTypeP2PKH,
+		signing.ScriptTypeP2WPKHP2SH,
+		signing.ScriptTypeP2WPKH,
+	}
+
+	for _, useSegwit := range []bool{false, true} {
+		useSegwit := useSegwit
 		for _, outputScriptType := range scriptTypes {
-			test(inputScriptType, outputScriptType, nil)
+			outputScriptType := outputScriptType
+			t.Run(fmt.Sprintf("output=%s,noChange,segwit=%v", outputScriptType, useSegwit), func(t *testing.T) {
+				testEstimateTxSize(t, useSegwit, outputScriptType, "")
+			})
 			for _, changeScriptType := range scriptTypes {
-				changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
-				test(inputScriptType, outputScriptType, &changeScriptType)
+				changeScriptType := changeScriptType
+				t.Run(fmt.Sprintf("output=%s,change=%s,segwit=%v", outputScriptType, changeScriptType, useSegwit), func(t *testing.T) {
+					testEstimateTxSize(t, useSegwit, outputScriptType, changeScriptType)
+				})
 			}
 		}
 	}

@@ -181,9 +181,15 @@ func (s *newTxSuite) check(
 	txFee := btcutil.Amount(inputSum-output.Value) - expectedChange
 	// At the moment, the fee is based on the assumption of the tx having two outputs always, even
 	// if the change output is not there.
+
+	inputConfigurations := make([]*signing.Configuration, len(tx.TxIn))
+	for i := range inputConfigurations {
+		inputConfigurations[i] = s.inputConfiguration
+	}
+
 	expectedFee := maketx.TstFeeForSerializeSize(
 		feePerKb,
-		maketx.TstEstimateTxSize(len(tx.TxIn), s.inputConfiguration, len(output.PkScript), len(s.changeAddress.PubkeyScript())),
+		maketx.TstEstimateTxSize(inputConfigurations, len(output.PkScript), len(s.changeAddress.PubkeyScript())),
 		s.log) + expectedDustDonation
 	require.Equal(s.T(), expectedFee, txFee)
 	require.Equal(s.T(), expectedFee, txProposal.Fee)

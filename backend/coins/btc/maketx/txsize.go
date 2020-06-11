@@ -32,43 +32,71 @@ func outputSize(pkScriptSize int) int {
 	return 8 + wire.VarIntSerializeSize(uint64(pkScriptSize)) + pkScriptSize
 }
 
-// estimateTxSize gives the worst case tx size estimate. All inputs are assumed to be of the same
-// structure.
-// inputCount is the number of inputs in the tx.
-// inputConfiguration defines the structure of every input.
+// estimateTxSize gives the worst case tx size estimate. The unit of the result is vbyte (virtual
+// bytes), for the purpose of fee calculation.
+// https://en.bitcoin.it/wiki/Weight_units
+//
+// Witnesses, if present, are assumed to have the following format:
+// <serialized sig> <serialized compressed pubkey>
+//
+// inputConfigurations defines the number of inputs and the input configurations in the tx.
 // outputPkScriptSize is the size of the output pkScript. One output is assumed (apart from change).
 // changePkScriptSize  is the size of the change pkScript. A value of 0 means that there is no change output.
 // This function computes the virtual size of a transaction, taking segwit discount into account.
 func estimateTxSize(
-	inputCount int,
-	inputConfiguration *signing.Configuration,
+	inputConfigurations []*signing.Configuration,
 	outputPkScriptSize int,
 	changePkScriptSize int) int {
+	outputCount := 2 // 1 output + 1 change output
+	if changePkScriptSize == 0 {
+		outputCount = 1
+	}
+
 	const (
-		outputCount  = 2 // 1 output + 1 change output
 		versionSize  = 4
 		lockTimeSize = 4
-		nonWitness   = 4 // factor for non-witness fields
+		// factor for non-witness fields, https://en.bitcoin.it/wiki/Weight_units#Weight_for_legacy_transactions
+		nonWitness = 4
 	)
-	sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(inputConfiguration)
-	inputSize := calcInputSize(sigScriptSize)
 
-	txWeight := nonWitness * (versionSize + lockTimeSize + wire.VarIntSerializeSize(uint64(inputCount)) +
+	txWeight := nonWitness * (versionSize + lockTimeSize + wire.VarIntSerializeSize(uint64(len(inputConfigurations))) +
 		wire.VarIntSerializeSize(uint64(outputCount)) +
-		inputCount*inputSize +
 		outputSize(outputPkScriptSize) +
 		outputSize(changePkScriptSize))
-	if hasWitness {
-		// For now, every input has a witness serialization of this format:
-		// <serialized sig> <serialized compressed pubkey>
-		const (
-			signatureSize = 73 // including SIGHASH op
-			pubkeySize    = 33
-		)
-		witnessSize := wire.VarIntSerializeSize(2) +
-			wire.VarIntSerializeSize(signatureSize) + signatureSize +
-			wire.VarIntSerializeSize(pubkeySize) + pubkeySize
-		txWeight += inputCount * witnessSize
+
+	isSegwitTx := false
+	for _, inputConfiguration := range inputConfigurations {
+		_, hasWitness := addresses.SigScriptWitnessSize(inputConfiguration)
+		if hasWitness {
+			isSegwitTx = true
+			break
+		}
+	}
+
+	for _, inputConfiguration := range inputConfigurations {
+		sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(inputConfiguration)
+		txWeight += nonWitness * calcInputSize(sigScriptSize)
+		if isSegwitTx {
+			const (
+				// Including SIGHASH op. Assumes signatures follow the low-S requirement.
+				// See https://en.bitcoin.it/wiki/BIP_0062#DER_encoding
+				signatureSize = 72
+				pubkeySize    = 33
+			)
+			if hasWitness {
+				// For now, every input has a witness serialization of this format:
+				// <serialized sig> <serialized compressed pubkey>
+				txWeight += wire.VarIntSerializeSize(2) +
+					wire.VarIntSerializeSize(signatureSize) + signatureSize +
+					wire.VarIntSerializeSize(pubkeySize) + pubkeySize
+			} else {
+				// "Empty script witnesses are encoded as a zero byte"
+				// https://github.com/bitcoin/bips/blob/d8a56c9f2b521bf4af5d588f217e7618cc44952c/bip-0144.mediawiki
+				txWeight += wire.VarIntSerializeSize(0)
+			}
+		}
+	}
+	if isSegwitTx {
 		txWeight += 2 // segwit marker + segwit flag
 	}
 	// return txWeight/4 rounded up.
