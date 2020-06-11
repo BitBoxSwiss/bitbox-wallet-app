@@ -32,7 +32,9 @@ func outputSize(pkScriptSize int) int {
 	return 8 + wire.VarIntSerializeSize(uint64(pkScriptSize)) + pkScriptSize
 }
 
-// estimateTxSize gives the worst case tx size estimate.
+// estimateTxSize gives the worst case tx size estimate. The unit of the result is vbyte (virtual
+// bytes), for the purpose of fee calculation.
+// https://en.bitcoin.it/wiki/Weight_units
 //
 // Witnesses, if present, are assumed to have the following format:
 // <serialized sig> <serialized compressed pubkey>
@@ -53,7 +55,8 @@ func estimateTxSize(
 	const (
 		versionSize  = 4
 		lockTimeSize = 4
-		nonWitness   = 4 // factor for non-witness fields
+		// factor for non-witness fields, https://en.bitcoin.it/wiki/Weight_units#Weight_for_legacy_transactions
+		nonWitness = 4
 	)
 
 	txWeight := nonWitness * (versionSize + lockTimeSize + wire.VarIntSerializeSize(uint64(len(inputConfigurations))) +
