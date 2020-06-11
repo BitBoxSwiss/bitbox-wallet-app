@@ -29,8 +29,7 @@ import (
 )
 
 func testEstimateTxSize(
-	t *testing.T, useSegwit bool, outputScriptType signing.ScriptType, changeScriptType *signing.ScriptType) {
-
+	t *testing.T, useSegwit bool, outputScriptType, changeScriptType signing.ScriptType) {
 	// A signature can be 70 or 71 bytes (excluding sighash op).
 	// We take one that has 71 bytes, as the size function returns the maximum possible size.
 	sigBytes, err := hex.DecodeString(
@@ -77,9 +76,9 @@ func testEstimateTxSize(
 		}
 	}
 	changePkScriptSize := 0
-	if changeScriptType != nil {
+	if changeScriptType != "" {
 		// add change
-		changePkScript := addressesTest.GetAddress(*changeScriptType).PubkeyScript()
+		changePkScript := addressesTest.GetAddress(changeScriptType).PubkeyScript()
 		tx.TxOut = append(tx.TxOut, &wire.TxOut{
 			Value:    1,
 			PkScript: changePkScript,
@@ -102,14 +101,16 @@ func TestEstimateTxSize(t *testing.T) {
 	}
 
 	for _, useSegwit := range []bool{false, true} {
+		useSegwit := useSegwit
 		for _, outputScriptType := range scriptTypes {
+			outputScriptType := outputScriptType
 			t.Run(fmt.Sprintf("output=%s,noChange,segwit=%v", outputScriptType, useSegwit), func(t *testing.T) {
-				testEstimateTxSize(t, useSegwit, outputScriptType, nil)
+				testEstimateTxSize(t, useSegwit, outputScriptType, "")
 			})
 			for _, changeScriptType := range scriptTypes {
-				changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
+				changeScriptType := changeScriptType
 				t.Run(fmt.Sprintf("output=%s,change=%s,segwit=%v", outputScriptType, changeScriptType, useSegwit), func(t *testing.T) {
-					testEstimateTxSize(t, useSegwit, outputScriptType, &changeScriptType)
+					testEstimateTxSize(t, useSegwit, outputScriptType, changeScriptType)
 				})
 			}
 		}
