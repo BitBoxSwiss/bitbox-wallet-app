@@ -1036,13 +1036,11 @@ func (dbb *Device) signBatch(
 
 		if txProposal.ChangeAddress != nil {
 			configuration := txProposal.ChangeAddress.Configuration
-			if configuration.Singlesig() {
-				publicKey := configuration.PublicKeys()[0]
-				command["sign"]["checkpub"] = []map[string]interface{}{{
-					"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
-					"keypath": configuration.AbsoluteKeypath().Encode(),
-				}}
-			}
+			publicKey := configuration.PublicKeys()[0]
+			command["sign"]["checkpub"] = []map[string]interface{}{{
+				"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
+				"keypath": configuration.AbsoluteKeypath().Encode(),
+			}}
 		}
 	}
 
@@ -1053,7 +1051,7 @@ func (dbb *Device) signBatch(
 	}
 
 	mobchan := dbb.mobileChannel()
-	if txProposal != nil && paired && txProposal.AccountConfiguration.Singlesig() && mobchan != nil {
+	if txProposal != nil && paired && mobchan != nil {
 		signingEcho, ok := echo["echo"].(string)
 		if !ok {
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
