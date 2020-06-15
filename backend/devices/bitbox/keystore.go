@@ -136,7 +136,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		txIn.SignatureScript = subScript
 	}
 
-	signatures, err := keystore.dbb.Sign(btcProposedTx.TXProposal, signatureHashes, keyPaths)
+	signatures, err := keystore.dbb.Sign(btcProposedTx, signatureHashes, keyPaths)
 	if isErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
