@@ -95,6 +95,13 @@ export const data: ExchangeData[] = [
         payment: ['P2P'],
     },
     {
+        key: 'paybtc',
+        link: 'https://paybtc.com.au',
+        description: 'Based in Australia, paybtc is a Bitcoin only exchange that provides instant selling to any bank account along with the ability to easily pay your bills with Bitcoin.',
+        regions: ['APAC'],
+        payment: ['BT'],
+    },
+    {
         key: 'localcryptos',
         link: 'https://localcryptos.com/',
         description: 'LocalCryptos is a peer-to-peer marketplace where people exchange crypto with each other.',
