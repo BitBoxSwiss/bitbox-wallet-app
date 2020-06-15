@@ -166,11 +166,7 @@ func NewTx(
 	outputs := []*wire.TxOut{output}
 	changePKScript := changeAddress.PubkeyScript()
 
-	estimatedSize := estimateTxSize(
-		[]*signing.Configuration{inputConfiguration},
-		len(output.PkScript),
-		len(changePKScript))
-	targetFee := feeForSerializeSize(feePerKb, estimatedSize, log)
+	targetFee := btcutil.Amount(0)
 	for {
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
 			targetAmount+targetFee,
