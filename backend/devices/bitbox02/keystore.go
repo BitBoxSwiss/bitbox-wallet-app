@@ -309,8 +309,12 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 
 	signatures, err := keystore.device.BTCSign(
 		msgCoin,
-		firmware.NewBTCScriptConfigSimple(msgScriptType),
-		btcProposedTx.TXProposal.AccountConfiguration.AbsoluteKeypath().ToUInt32(),
+		[]*messages.BTCScriptConfigWithKeypath{
+			{
+				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
+				Keypath:      btcProposedTx.TXProposal.AccountConfiguration.AbsoluteKeypath().ToUInt32(),
+			},
+		},
 		&firmware.BTCTx{
 			Version:  uint32(tx.Version),
 			Inputs:   inputs,
