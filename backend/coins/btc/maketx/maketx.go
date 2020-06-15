@@ -98,12 +98,12 @@ func coinSelection(
 // Currently, it just repeats one inputConfiguration, as all inputs are of the same type.
 // When mixing input types in a transaction, this function needs to be extended.
 func toInputConfigurations(
+	spendableOutputs map[wire.OutPoint]UTXO,
 	selectedOutPoints []wire.OutPoint,
-	inputConfiguration *signing.Configuration,
 ) []*signing.Configuration {
 	inputConfigurations := make([]*signing.Configuration, len(selectedOutPoints))
-	for i := range selectedOutPoints {
-		inputConfigurations[i] = inputConfiguration
+	for i, outPoint := range selectedOutPoints {
+		inputConfigurations[i] = spendableOutputs[outPoint].Configuration
 	}
 	return inputConfigurations
 }
@@ -127,7 +127,7 @@ func NewTxSpendAll(
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
 	}
 	txSize := estimateTxSize(
-		toInputConfigurations(selectedOutPoints, inputConfiguration),
+		toInputConfigurations(spendableOutputs, selectedOutPoints),
 		len(outputPkScript),
 		0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
@@ -183,7 +183,7 @@ func NewTx(
 		}
 
 		txSize := estimateTxSize(
-			toInputConfigurations(selectedOutPoints, inputConfiguration),
+			toInputConfigurations(spendableOutputs, selectedOutPoints),
 			len(output.PkScript),
 			len(changePKScript))
 		maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
