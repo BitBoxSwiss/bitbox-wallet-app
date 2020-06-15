@@ -222,21 +222,19 @@ type BTCTx struct {
 // BTCSign signs a bitcoin or bitcoin-like transaction. Returns one 64 byte signature per input.
 func (device *Device) BTCSign(
 	coin messages.BTCCoin,
-	scriptConfig *messages.BTCScriptConfig,
-	keypathAccount []uint32,
+	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
 	tx *BTCTx,
 ) ([][]byte, error) {
 	signatures := make([][]byte, len(tx.Inputs))
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
 			BtcSignInit: &messages.BTCSignInitRequest{
-				Coin:           coin,
-				ScriptConfig:   scriptConfig,
-				KeypathAccount: keypathAccount,
-				Version:        tx.Version,
-				NumInputs:      uint32(len(tx.Inputs)),
-				NumOutputs:     uint32(len(tx.Outputs)),
-				Locktime:       tx.Locktime,
+				Coin:          coin,
+				ScriptConfigs: scriptConfigs,
+				Version:       tx.Version,
+				NumInputs:     uint32(len(tx.Inputs)),
+				NumOutputs:    uint32(len(tx.Outputs)),
+				Locktime:      tx.Locktime,
 			}}})
 	if err != nil {
 		return nil, err
