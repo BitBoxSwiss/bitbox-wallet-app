@@ -141,7 +141,6 @@ func (s *newTxSuite) check(
 
 	// Check invariants independent of the particular coin selection algorithm.
 	require.Equal(s.T(), tbtc, txProposal.Coin)
-	require.Equal(s.T(), s.inputConfiguration, txProposal.AccountConfiguration)
 	var output *wire.TxOut
 	if expectedChange == 0 {
 		require.Nil(s.T(), txProposal.ChangeAddress)

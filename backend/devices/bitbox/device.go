@@ -1056,7 +1056,11 @@ func (dbb *Device) signBatch(
 		if !ok {
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
 		}
-		typ := string(btcProposedTx.TXProposal.AccountConfiguration.ScriptType())
+
+		if len(btcProposedTx.AccountSigningConfigurations) != 1 {
+			return nil, errp.New("BitBox01 does not support mixed input/change script types")
+		}
+		typ := string(btcProposedTx.AccountSigningConfigurations[0].ScriptType())
 		if err := mobchan.SendSigningEcho(signingEcho, btcProposedTx.TXProposal.Coin.Code(), typ, transaction); err != nil {
 			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
 		}

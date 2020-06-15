@@ -24,47 +24,46 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/sirupsen/logrus"
 )
 
 // ProposedTransaction contains all the info needed to sign a btc transaction.
 type ProposedTransaction struct {
-	TXProposal      *maketx.TxProposal
-	PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
-	GetAddress      func(blockchain.ScriptHashHex) *addresses.AccountAddress
-	GetPrevTx       func(chainhash.Hash) *wire.MsgTx
+	TXProposal *maketx.TxProposal
+	// List of signing configurations that might be used in the tx inputs.
+	AccountSigningConfigurations []*signing.Configuration
+	PreviousOutputs              map[wire.OutPoint]*transactions.SpendableOutput
+	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
+	GetPrevTx                    func(chainhash.Hash) *wire.MsgTx
 	// Signatures collects the signatures (signatures[transactionInput][cosignerIndex]).
 	Signatures [][]*btcec.Signature
 	SigHashes  *txscript.TxSigHashes
 }
 
-// SignTransaction signs all inputs. It assumes all outputs spent belong to this
+// signTransaction signs all inputs. It assumes all outputs spent belong to this
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
-func SignTransaction(
-	keystores *keystore.Keystores,
+func (account *Account) signTransaction(
 	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
-	getAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress,
 	getPrevTx func(chainhash.Hash) *wire.MsgTx,
-	log *logrus.Entry,
 ) error {
 	proposedTransaction := &ProposedTransaction{
-		TXProposal:      txProposal,
-		PreviousOutputs: previousOutputs,
-		GetAddress:      getAddress,
-		GetPrevTx:       getPrevTx,
-		Signatures:      make([][]*btcec.Signature, len(txProposal.Transaction.TxIn)),
-		SigHashes:       txscript.NewTxSigHashes(txProposal.Transaction),
+		TXProposal:                   txProposal,
+		AccountSigningConfigurations: []*signing.Configuration{account.signingConfiguration},
+		PreviousOutputs:              previousOutputs,
+		GetAddress:                   account.getAddress,
+		GetPrevTx:                    getPrevTx,
+		Signatures:                   make([][]*btcec.Signature, len(txProposal.Transaction.TxIn)),
+		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction),
 	}
 
 	for i := range proposedTransaction.Signatures {
 		// TODO: Replace count with configuration.NumberOfSigners()
-		proposedTransaction.Signatures[i] = make([]*btcec.Signature, keystores.Count())
+		proposedTransaction.Signatures[i] = make([]*btcec.Signature, account.keystores.Count())
 	}
 
-	if err := keystores.SignTransaction(proposedTransaction); err != nil {
+	if err := account.keystores.SignTransaction(proposedTransaction); err != nil {
 		return err
 	}
 
@@ -78,7 +77,7 @@ func SignTransaction(
 	// Sanity check: see if the created transaction is valid.
 	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
 		proposedTransaction.SigHashes); err != nil {
-		log.WithError(err).Panic("Failed to pass transaction validity check.")
+		account.log.WithError(err).Panic("Failed to pass transaction validity check.")
 	}
 
 	return nil

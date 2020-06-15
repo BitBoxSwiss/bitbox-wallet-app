@@ -32,8 +32,7 @@ import (
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
 	// Coin is the coin this tx was made for.
-	Coin                 coin.Coin
-	AccountConfiguration *signing.Configuration
+	Coin coin.Coin
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
 	// Fee is the mining fee used.
@@ -144,11 +143,10 @@ func NewTxSpendAll(
 	txsort.InPlaceSort(unsignedTransaction)
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 	return &TxProposal{
-		Coin:                 coin,
-		AccountConfiguration: inputConfiguration,
-		Amount:               btcutil.Amount(output.Value),
-		Fee:                  maxRequiredFee,
-		Transaction:          unsignedTransaction,
+		Coin:        coin,
+		Amount:      btcutil.Amount(output.Value),
+		Fee:         maxRequiredFee,
+		Transaction: unsignedTransaction,
 	}, nil
 }
 
@@ -220,12 +218,11 @@ func NewTx(
 		txsort.InPlaceSort(unsignedTransaction)
 		log.WithField("fee", finalFee).Debug("Preparing transaction")
 		return &TxProposal{
-			Coin:                 coin,
-			AccountConfiguration: inputConfiguration,
-			Amount:               targetAmount,
-			Fee:                  finalFee,
-			Transaction:          unsignedTransaction,
-			ChangeAddress:        changeAddress,
+			Coin:          coin,
+			Amount:        targetAmount,
+			Fee:           finalFee,
+			Transaction:   unsignedTransaction,
+			ChangeAddress: changeAddress,
 		}, nil
 	}
 }
