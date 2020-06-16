@@ -48,24 +48,30 @@ func (txProposal *TxProposal) Total() btcutil.Amount {
 	return txProposal.Amount + txProposal.Fee
 }
 
+// UTXO contains the data needed of a spendable UTXO in a new tx.
+type UTXO struct {
+	TxOut         *wire.TxOut
+	Configuration *signing.Configuration
+}
+
 type byValue struct {
 	outPoints []wire.OutPoint
-	outputs   map[wire.OutPoint]*wire.TxOut
+	outputs   map[wire.OutPoint]UTXO
 }
 
 func (p *byValue) Len() int { return len(p.outPoints) }
 func (p *byValue) Less(i, j int) bool {
-	if p.outputs[p.outPoints[i]].Value == p.outputs[p.outPoints[j]].Value {
+	if p.outputs[p.outPoints[i]].TxOut.Value == p.outputs[p.outPoints[j]].TxOut.Value {
 		// Secondary sort to make coin selection deterministic.
-		return chainhash.HashH(p.outputs[p.outPoints[i]].PkScript).String() < chainhash.HashH(p.outputs[p.outPoints[j]].PkScript).String()
+		return chainhash.HashH(p.outputs[p.outPoints[i]].TxOut.PkScript).String() < chainhash.HashH(p.outputs[p.outPoints[j]].TxOut.PkScript).String()
 	}
-	return p.outputs[p.outPoints[i]].Value < p.outputs[p.outPoints[j]].Value
+	return p.outputs[p.outPoints[i]].TxOut.Value < p.outputs[p.outPoints[j]].TxOut.Value
 }
 func (p *byValue) Swap(i, j int) { p.outPoints[i], p.outPoints[j] = p.outPoints[j], p.outPoints[i] }
 
 func coinSelection(
 	minAmount btcutil.Amount,
-	outputs map[wire.OutPoint]*wire.TxOut,
+	outputs map[wire.OutPoint]UTXO,
 ) (btcutil.Amount, []wire.OutPoint, error) {
 	outPoints := []wire.OutPoint{}
 	for outPoint := range outputs {
@@ -80,7 +86,7 @@ func coinSelection(
 			break
 		}
 		selectedOutPoints = append(selectedOutPoints, outPoint)
-		outputsSum += btcutil.Amount(outputs[outPoint].Value)
+		outputsSum += btcutil.Amount(outputs[outPoint].TxOut.Value)
 	}
 	if outputsSum < minAmount {
 		return 0, nil, errp.WithStack(errors.ErrInsufficientFunds)
@@ -92,12 +98,12 @@ func coinSelection(
 // Currently, it just repeats one inputConfiguration, as all inputs are of the same type.
 // When mixing input types in a transaction, this function needs to be extended.
 func toInputConfigurations(
+	spendableOutputs map[wire.OutPoint]UTXO,
 	selectedOutPoints []wire.OutPoint,
-	inputConfiguration *signing.Configuration,
 ) []*signing.Configuration {
 	inputConfigurations := make([]*signing.Configuration, len(selectedOutPoints))
-	for i := range selectedOutPoints {
-		inputConfigurations[i] = inputConfiguration
+	for i, outPoint := range selectedOutPoints {
+		inputConfigurations[i] = spendableOutputs[outPoint].Configuration
 	}
 	return inputConfigurations
 }
@@ -106,7 +112,7 @@ func toInputConfigurations(
 func NewTxSpendAll(
 	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
-	spendableOutputs map[wire.OutPoint]*wire.TxOut,
+	spendableOutputs map[wire.OutPoint]UTXO,
 	outputPkScript []byte,
 	feePerKb btcutil.Amount,
 	log *logrus.Entry,
@@ -117,11 +123,11 @@ func NewTxSpendAll(
 	for outPoint, output := range spendableOutputs {
 		outPoint := outPoint // avoid reference reuse due to range loop
 		selectedOutPoints = append(selectedOutPoints, outPoint)
-		outputsSum += btcutil.Amount(output.Value)
+		outputsSum += btcutil.Amount(output.TxOut.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
 	}
 	txSize := estimateTxSize(
-		toInputConfigurations(selectedOutPoints, inputConfiguration),
+		toInputConfigurations(spendableOutputs, selectedOutPoints),
 		len(outputPkScript),
 		0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
@@ -153,7 +159,7 @@ func NewTxSpendAll(
 func NewTx(
 	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
-	spendableOutputs map[wire.OutPoint]*wire.TxOut,
+	spendableOutputs map[wire.OutPoint]UTXO,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
 	changeAddress *addresses.AccountAddress,
@@ -166,11 +172,7 @@ func NewTx(
 	outputs := []*wire.TxOut{output}
 	changePKScript := changeAddress.PubkeyScript()
 
-	estimatedSize := estimateTxSize(
-		[]*signing.Configuration{inputConfiguration},
-		len(output.PkScript),
-		len(changePKScript))
-	targetFee := feeForSerializeSize(feePerKb, estimatedSize, log)
+	targetFee := btcutil.Amount(0)
 	for {
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
 			targetAmount+targetFee,
@@ -181,7 +183,7 @@ func NewTx(
 		}
 
 		txSize := estimateTxSize(
-			toInputConfigurations(selectedOutPoints, inputConfiguration),
+			toInputConfigurations(spendableOutputs, selectedOutPoints),
 			len(output.PkScript),
 			len(changePKScript))
 		maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
