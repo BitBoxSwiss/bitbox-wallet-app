@@ -1,0 +1,22 @@
+.type {
+    width: 18px;
+    height: 18px;
+}
+
+.typeIn {
+    stroke: var(--color-success) !important;
+}
+
+.typeOut {
+    stroke: var(--color-danger) !important;
+}
+
+.typeSelf {
+    stroke: var(--color-secondary) !important;
+}
+
+.expandIcon {
+    stroke: var(--color-gray);
+    width: 18px;
+    height: 18px;
+}
