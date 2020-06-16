@@ -36,7 +36,6 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     # here and pop in the end.
     pushd ../ && cp -a bitbox-wallet-app $GOPATH/src/github.com/digitalbitbox/
     cd $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app/
-    make envinit
     make qt-osx
     popd
 fi
