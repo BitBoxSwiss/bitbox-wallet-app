@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
@@ -92,12 +93,9 @@ type Backend struct {
 	Proxy    proxyConfig    `json:"proxy"`
 	Services servicesConfig `json:"services"`
 
-	BitcoinP2PKHActive       bool `json:"bitcoinP2PKHActive"`
-	BitcoinP2WPKHP2SHActive  bool `json:"bitcoinP2WPKHP2SHActive"`
-	BitcoinP2WPKHActive      bool `json:"bitcoinP2WPKHActive"`
-	LitecoinP2WPKHP2SHActive bool `json:"litecoinP2WPKHP2SHActive"`
-	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
-	EthereumActive           bool `json:"ethereumActive"`
+	BitcoinActive  bool `json:"bitcoinActive"`
+	LitecoinActive bool `json:"litecoinActive"`
+	EthereumActive bool `json:"ethereumActive"`
 
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
@@ -109,20 +107,14 @@ type Backend struct {
 	RETH ethCoinConfig `json:"reth"`
 }
 
-// AccountActive returns the Active setting for a coin by code.
-func (backend Backend) AccountActive(code string) bool {
+// CoinActive returns the Active setting for a coin by code.
+func (backend Backend) CoinActive(code coin.Code) bool {
 	switch code {
-	case "tbtc-p2pkh", "btc-p2pkh", "rbtc-p2pkh":
-		return backend.BitcoinP2PKHActive
-	case "tbtc-p2wpkh-p2sh", "btc-p2wpkh-p2sh", "rbtc-p2wpkh-p2sh":
-		return backend.BitcoinP2WPKHP2SHActive
-	case "tbtc-p2wpkh", "btc-p2wpkh", "rbtc-p2wpkh":
-		return backend.BitcoinP2WPKHActive
-	case "tltc-p2wpkh-p2sh", "ltc-p2wpkh-p2sh":
-		return backend.LitecoinP2WPKHP2SHActive
-	case "tltc-p2wpkh", "ltc-p2wpkh":
-		return backend.LitecoinP2WPKHActive
-	case "eth", "teth", "reth", "erc20Test":
+	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
+		return backend.BitcoinActive
+	case coin.CodeLTC, coin.CodeTLTC:
+		return backend.LitecoinActive
+	case coin.CodeETH, coin.CodeTETH, coin.CodeRETH, coin.CodeERC20TEST:
 		return backend.EthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
@@ -184,12 +176,9 @@ func NewDefaultAppConfig() AppConfig {
 			Services: servicesConfig{
 				Safello: true,
 			},
-			BitcoinP2PKHActive:       true,
-			BitcoinP2WPKHP2SHActive:  true,
-			BitcoinP2WPKHActive:      true,
-			LitecoinP2WPKHP2SHActive: true,
-			LitecoinP2WPKHActive:     true,
-			EthereumActive:           true,
+			BitcoinActive:  true,
+			LitecoinActive: true,
+			EthereumActive: true,
 
 			BTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
@@ -306,8 +295,7 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 
 // SetBtcOnly sets non-bitcoin accounts in the config to false
 func (config *Config) SetBtcOnly() {
-	config.appConfig.Backend.LitecoinP2WPKHP2SHActive = false
-	config.appConfig.Backend.LitecoinP2WPKHActive = false
+	config.appConfig.Backend.LitecoinActive = false
 	config.appConfig.Backend.EthereumActive = false
 }
 
