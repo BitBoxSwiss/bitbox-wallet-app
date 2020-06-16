@@ -31,7 +31,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -994,7 +994,7 @@ func (dbb *Device) LockBootloader() error {
 // Signs a batch of at most 15 signatures. The method returns signatures for the provided hashes.
 // The private keys used to sign them are derived using the provided keyPaths.
 func (dbb *Device) signBatch(
-	txProposal *maketx.TxProposal,
+	btcProposedTx *btc.ProposedTransaction,
 	signatureHashes [][]byte,
 	keyPaths []string,
 	paired bool,
@@ -1026,16 +1026,16 @@ func (dbb *Device) signBatch(
 	}
 
 	var transaction string
-	if txProposal != nil {
+	if btcProposedTx != nil {
 		buffer := new(bytes.Buffer)
-		if err := txProposal.Transaction.Serialize(buffer); err != nil {
+		if err := btcProposedTx.TXProposal.Transaction.Serialize(buffer); err != nil {
 			return nil, errp.Wrap(err, "Could not serialize the transaction.")
 		}
 		transaction = hex.EncodeToString(buffer.Bytes())
 		command["sign"]["meta"] = hex.EncodeToString(chainhash.DoubleHashB([]byte(transaction)))
 
-		if txProposal.ChangeAddress != nil {
-			configuration := txProposal.ChangeAddress.Configuration
+		if btcProposedTx.TXProposal.ChangeAddress != nil {
+			configuration := btcProposedTx.TXProposal.ChangeAddress.Configuration
 			publicKey := configuration.PublicKeys()[0]
 			command["sign"]["checkpub"] = []map[string]interface{}{{
 				"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
@@ -1051,20 +1051,24 @@ func (dbb *Device) signBatch(
 	}
 
 	mobchan := dbb.mobileChannel()
-	if txProposal != nil && paired && mobchan != nil {
+	if btcProposedTx != nil && paired && mobchan != nil {
 		signingEcho, ok := echo["echo"].(string)
 		if !ok {
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
 		}
-		typ := string(txProposal.AccountConfiguration.ScriptType())
-		if err := mobchan.SendSigningEcho(signingEcho, txProposal.Coin.Code(), typ, transaction); err != nil {
+
+		if len(btcProposedTx.AccountSigningConfigurations) != 1 {
+			return nil, errp.New("BitBox01 does not support mixed input/change script types")
+		}
+		typ := string(btcProposedTx.AccountSigningConfigurations[0].ScriptType())
+		if err := mobchan.SendSigningEcho(signingEcho, btcProposedTx.TXProposal.Coin.Code(), typ, transaction); err != nil {
 			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
 		}
 	}
 
 	// If the device paired, wait for up to two minutes for the signing "PIN"/nonce.
 	var nonce string
-	if paired && txProposal != nil {
+	if paired && btcProposedTx != nil {
 		if dbb.channel == nil {
 			return nil, errp.New("Signing failed because the device is paired but has no channel.")
 		}
@@ -1110,7 +1114,7 @@ type SignatureWithRecID struct {
 // Sign returns signatures for the provided hashes. The private keys used to sign them are derived
 // using the provided keyPaths.
 func (dbb *Device) Sign(
-	txProposal *maketx.TxProposal,
+	btcProposedTx *btc.ProposedTransaction,
 	signatureHashes [][]byte,
 	keyPaths []string,
 ) ([]SignatureWithRecID, error) {
@@ -1151,7 +1155,7 @@ func (dbb *Device) Sign(
 			Steps: steps,
 		})
 		reply, err := dbb.signBatch(
-			txProposal,
+			btcProposedTx,
 			signatureHashes[i:upper],
 			keyPaths[i:upper],
 			deviceInfo.Pairing,

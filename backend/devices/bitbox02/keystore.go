@@ -225,10 +225,16 @@ func (keystore *keystore) ExtendedPublicKey(
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	tx := btcProposedTx.TXProposal.Transaction
 
-	scriptType := btcProposedTx.TXProposal.AccountConfiguration.ScriptType()
-	msgScriptType, ok := btcMsgScriptTypeMap[scriptType]
-	if !ok {
-		return errp.Newf("Unsupported script type %s", scriptType)
+	scriptConfigs := make([]*messages.BTCScriptConfigWithKeypath, len(btcProposedTx.AccountSigningConfigurations))
+	for i, cfg := range btcProposedTx.AccountSigningConfigurations {
+		msgScriptType, ok := btcMsgScriptTypeMap[cfg.ScriptType()]
+		if !ok {
+			return errp.Newf("Unsupported script type %s", cfg.ScriptType())
+		}
+		scriptConfigs[i] = &messages.BTCScriptConfigWithKeypath{
+			ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
+			Keypath:      cfg.AbsoluteKeypath().ToUInt32(),
+		}
 	}
 	coin := btcProposedTx.TXProposal.Coin.(*btc.Coin)
 	msgCoin, ok := btcMsgCoinMap[coin.Code()]
@@ -309,8 +315,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 
 	signatures, err := keystore.device.BTCSign(
 		msgCoin,
-		firmware.NewBTCScriptConfigSimple(msgScriptType),
-		btcProposedTx.TXProposal.AccountConfiguration.AbsoluteKeypath().ToUInt32(),
+		scriptConfigs,
 		&firmware.BTCTx{
 			Version:  uint32(tx.Version),
 			Inputs:   inputs,

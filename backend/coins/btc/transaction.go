@@ -159,8 +159,7 @@ func (account *Account) SendTx() error {
 		)
 		return <-txChan
 	}
-	if err := SignTransaction(
-		account.keystores, txProposal, utxos, account.getAddress, getPrevTx, account.log); err != nil {
+	if err := account.signTransaction(txProposal, utxos, getPrevTx); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	account.log.Info("Signed transaction is broadcasted")

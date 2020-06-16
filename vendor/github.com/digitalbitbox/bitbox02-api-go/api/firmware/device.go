@@ -1,4 +1,5 @@
 // Copyright 2018-2019 Shift Cryptosecurity AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,10 +30,10 @@ import (
 //go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
 
 var (
-	lowestSupportedFirmwareVersion                   = semver.NewSemVer(8, 0, 0)
-	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(8, 0, 0)
+	lowestSupportedFirmwareVersion                   = semver.NewSemVer(9, 0, 0)
+	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(9, 0, 0)
 	lowestSupportedFirmwareVersionBitBoxBaseStandard = semver.NewSemVer(4, 3, 0)
-	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(9, 0, 0)
+	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(10, 0, 0)
 )
 
 // Communication contains functions needed to communicate with the device.
