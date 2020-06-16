@@ -44,8 +44,6 @@ servewallet-mainnet:
 	go install -mod=vendor ./cmd/servewallet/... && servewallet -mainnet
 servewallet-regtest:
 	go install -mod=vendor ./cmd/servewallet/... && servewallet -regtest
-servewallet-multisig:
-	go install -mod=vendor ./cmd/servewallet/... && servewallet -multisig
 servewallet-prodservers:
 	go install -mod=vendor ./cmd/servewallet/... && servewallet -devservers=false
 buildweb:

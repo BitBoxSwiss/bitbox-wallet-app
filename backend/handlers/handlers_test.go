@@ -39,7 +39,6 @@ func TestListRoutes(t *testing.T) {
 		false,
 		false,
 		false,
-		false,
 		nil),
 		nil,
 	)

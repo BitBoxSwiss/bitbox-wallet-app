@@ -191,7 +191,6 @@ func Serve(
 			false,
 			false,
 			false,
-			false,
 			gapLimits,
 		),
 		backendEnvironment)

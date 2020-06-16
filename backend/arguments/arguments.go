@@ -48,9 +48,6 @@ type Arguments struct {
 	// Testing stores whether the application is for regtest.
 	regtest bool
 
-	// Multisig stores whether the application is in multisig mode.
-	multisig bool
-
 	// devmode stores whether the application is in dev mode
 	devmode bool
 
@@ -69,7 +66,6 @@ func NewArguments(
 	mainDirectoryPath string,
 	testing bool,
 	regtest bool,
-	multisig bool,
 	devmode bool,
 	devservers bool,
 	gapLimits *btctypes.GapLimits,
@@ -104,7 +100,6 @@ func NewArguments(
 		accountsConfigFilename: path.Join(mainDirectoryPath, "accounts.json"),
 		testing:                testing,
 		regtest:                regtest,
-		multisig:               multisig,
 		devmode:                devmode,
 		devservers:             devservers,
 		gapLimits:              gapLimits,
@@ -171,7 +166,7 @@ func (arguments *Arguments) Regtest() bool {
 
 // Multisig returns whether the backend is in multisig mode.
 func (arguments *Arguments) Multisig() bool {
-	return arguments.multisig
+	return false
 }
 
 // GapLimits returns the gap limits to be used in btc/ltc (all account types).

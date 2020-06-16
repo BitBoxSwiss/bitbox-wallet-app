@@ -575,22 +575,19 @@ func (backend *Backend) initDefaultAccounts() {
 	if backend.keystores.Count() == 0 {
 		return
 	}
+	if backend.keystores.Count() > 1 {
+		// If needed, insert multisig account initialization here based on multiple connected
+		// keystores.
+		return
+	}
 	if backend.arguments.Testing() {
-		switch {
-		case backend.arguments.Multisig():
-			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
-			backend.createAndAddAccount(TBTC, "tbtc-multisig", "Bitcoin Testnet", "m/48'/1'/0'",
-				signing.ScriptTypeP2PKH)
-			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
-			backend.createAndAddAccount(TLTC, "tltc-multisig", "Litecoin Testnet", "m/48'/1'/0'",
-				signing.ScriptTypeP2PKH)
-		case backend.arguments.Regtest():
+		if backend.arguments.Regtest() {
 			RBTC, _ := backend.Coin(coinpkg.CodeRBTC)
 			backend.createAndAddAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			backend.createAndAddAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
-		default:
+		} else {
 			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
@@ -614,37 +611,28 @@ func (backend *Backend) initDefaultAccounts() {
 				signing.ScriptTypeP2WPKH)
 		}
 	} else {
-		if backend.arguments.Multisig() {
-			BTC, _ := backend.Coin(coinpkg.CodeBTC)
-			backend.createAndAddAccount(BTC, "btc-multisig", "Bitcoin", "m/48'/0'/0'",
-				signing.ScriptTypeP2PKH)
-			LTC, _ := backend.Coin(coinpkg.CodeLTC)
-			backend.createAndAddAccount(LTC, "ltc-multisig", "Litecoin", "m/48'/2'/0'",
-				signing.ScriptTypeP2PKH)
-		} else {
-			BTC, _ := backend.Coin(coinpkg.CodeBTC)
-			backend.createAndAddAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
-				signing.ScriptTypeP2WPKHP2SH)
-			backend.createAndAddAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
-				signing.ScriptTypeP2WPKH)
-			backend.createAndAddAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
-				signing.ScriptTypeP2PKH)
+		BTC, _ := backend.Coin(coinpkg.CodeBTC)
+		backend.createAndAddAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
+			signing.ScriptTypeP2WPKHP2SH)
+		backend.createAndAddAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
+			signing.ScriptTypeP2WPKH)
+		backend.createAndAddAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
+			signing.ScriptTypeP2PKH)
 
-			LTC, _ := backend.Coin(coinpkg.CodeLTC)
-			backend.createAndAddAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
-				signing.ScriptTypeP2WPKHP2SH)
-			backend.createAndAddAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
-				signing.ScriptTypeP2WPKH)
+		LTC, _ := backend.Coin(coinpkg.CodeLTC)
+		backend.createAndAddAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
+			signing.ScriptTypeP2WPKHP2SH)
+		backend.createAndAddAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
+			signing.ScriptTypeP2WPKH)
 
-			ETH, _ := backend.Coin(coinpkg.CodeETH)
-			const ethAccountCode = "eth"
-			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+		ETH, _ := backend.Coin(coinpkg.CodeETH)
+		const ethAccountCode = "eth"
+		backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 
-			if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
-				for _, erc20Token := range erc20Tokens {
-					token, _ := backend.Coin(erc20Token.code)
-					backend.createAndAddAccount(token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
-				}
+		if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
+			for _, erc20Token := range erc20Tokens {
+				token, _ := backend.Coin(erc20Token.code)
+				backend.createAndAddAccount(token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 			}
 		}
 	}

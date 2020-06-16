@@ -83,7 +83,6 @@ func main() {
 
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
-	multisig := flag.Bool("multisig", false, "use the app in multisig mode")
 	devmode := flag.Bool("devmode", true, "switch to dev mode")
 	devservers := flag.Bool("devservers", true, "switch to dev servers")
 	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses")
@@ -116,7 +115,6 @@ func main() {
 			config.AppDir(),
 			!*mainnet,
 			*regtest,
-			*multisig,
 			*devmode,
 			*devservers,
 			gapLimits,
