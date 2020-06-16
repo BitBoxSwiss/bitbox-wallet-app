@@ -51,7 +51,7 @@ interface SendProps {
     deviceIDs: string[];
 }
 
-interface ProposedAmount {
+export interface Fee {
     amount: string;
     unit: string;
     conversions: Conversions;
@@ -71,10 +71,10 @@ type Props = SendProps & TranslateProps;
 interface State {
     account?: Account;
     balance?: BalanceInterface;
-    proposedFee?: ProposedAmount;
-    proposedTotal?: ProposedAmount;
+    proposedFee?: Fee;
+    proposedTotal?: Fee;
     recipientAddress?: string;
-    proposedAmount?: ProposedAmount;
+    proposedAmount?: Fee;
     valid: boolean;
     amount?: string;
     data?: string;

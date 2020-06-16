@@ -16,7 +16,7 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import Transaction from './transaction';
+import { Transaction } from './transaction';
 import A from '../../components/anchor/anchor';
 import { runningInAndroid } from '../../utils/env';
 import * as style from './transactions.css';
