@@ -65,7 +65,7 @@ type Account struct {
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
-	getNotifier             func(*signing.Configuration) accounts.Notifier
+	getNotifier             func(signing.Configurations) accounts.Notifier
 	notifier                accounts.Notifier
 	offline                 bool
 	onEvent                 func(accounts.Event)
@@ -102,7 +102,7 @@ func NewAccount(
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
-	getNotifier func(*signing.Configuration) accounts.Notifier,
+	getNotifier func(signing.Configurations) accounts.Notifier,
 	onEvent func(accounts.Event),
 	log *logrus.Entry,
 	rateUpdater *rates.RateUpdater,
@@ -202,7 +202,7 @@ func (account *Account) Initialize() error {
 		return err
 	}
 	account.signingConfiguration = signingConfiguration
-	account.notifier = account.getNotifier(signingConfiguration)
+	account.notifier = account.getNotifier(signing.Configurations{signingConfiguration})
 
 	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
