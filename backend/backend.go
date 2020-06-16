@@ -308,7 +308,7 @@ func (backend *Backend) createAndAddAccount(
 			log.WithField("name", name).Info("skipping inactive erc20 token")
 			return
 		}
-	} else if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.AccountActive(code) {
+	} else if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
 		log.WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -626,10 +626,9 @@ func (backend *Backend) initDefaultAccounts() {
 			signing.ScriptTypeP2WPKH)
 
 		ETH, _ := backend.Coin(coinpkg.CodeETH)
-		const ethAccountCode = "eth"
-		backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+		backend.createAndAddAccount(ETH, "eth", "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 
-		if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
+		if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
 			for _, erc20Token := range erc20Tokens {
 				token, _ := backend.Coin(erc20Token.code)
 				backend.createAndAddAccount(token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
