@@ -110,7 +110,7 @@ func (account *Account) newTx(
 			wireUTXO,
 			wire.NewTxOut(parsedAmountInt64, pkScript),
 			*feeTarget.feeRatePerKb,
-			// TODO unified-accounts
+			// Change address is of the first subaccount, always.
 			account.subaccounts[0].changeAddresses.GetUnused()[0],
 			account.log,
 		)

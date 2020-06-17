@@ -126,7 +126,11 @@ const (
 )
 
 // NewAccount creates a new account.
+//
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
+//
+// getSigningConfigurations: defines the script types used in this account. The first one is used as
+// a default for receive addresses, and always used for change.
 func NewAccount(
 	coin *Coin,
 	dbFolder string,
