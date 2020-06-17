@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +48,12 @@ type Keystore interface {
 
 	// SupportsAccount returns true if they keystore supports the given coin/account.
 	// meta is a coin-specific metadata related to the account type.
+	// If false, the backend will add one account per supported script type.
 	SupportsAccount(coin coin.Coin, multisig bool, meta interface{}) bool
+
+	// SupportsUnifiedAccounts returns true if the keystore supports signing transactions with mixed
+	// input script types in BTC/LTC, for single-sig accounts.
+	SupportsUnifiedAccounts() bool
 
 	// CanVerifyAddress returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
