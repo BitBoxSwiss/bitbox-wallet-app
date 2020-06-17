@@ -99,6 +99,10 @@ type Backend struct {
 	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
 	EthereumActive           bool `json:"ethereumActive"`
 
+	// Whether Bitcoin, Litecoin should be shown in multiple accounts - one per script type -
+	// instead of a combined account.
+	SplitAccounts bool `json:"splitAccounts"`
+
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
 	RBTC btcCoinConfig `json:"rbtc"`
@@ -190,6 +194,8 @@ func NewDefaultAppConfig() AppConfig {
 			LitecoinP2WPKHP2SHActive: true,
 			LitecoinP2WPKHActive:     true,
 			EthereumActive:           true,
+
+			SplitAccounts: false,
 
 			BTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
