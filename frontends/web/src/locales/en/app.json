@@ -1265,11 +1265,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "In",
-      "send": "Out",
-      "send_to_self": "Self"
-    },
     "confirmation": "Confirmations",
     "details": {
       "address": "Address",
