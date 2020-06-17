@@ -1,17 +1,17 @@
-.type {
+.txArrowType {
     width: 18px;
     height: 18px;
 }
 
-.typeIn {
+.txArrowTypeIn {
     stroke: var(--color-success) !important;
 }
 
-.typeOut {
+.txArrowTypeOut {
     stroke: var(--color-danger) !important;
 }
 
-.typeSelf {
+.txArrowTypeSelf {
     stroke: var(--color-secondary) !important;
 }
 

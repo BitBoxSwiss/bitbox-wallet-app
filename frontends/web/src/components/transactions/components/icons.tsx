@@ -3,7 +3,7 @@ import * as style from './icons.css';
 
 export const ArrowIn = (): JSX.Element => (
     <svg
-        className={`${style.type} ${style.typeIn}`}
+        className={`${style.txArrowType} ${style.txArrowTypeIn}`}
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -19,7 +19,7 @@ export const ArrowIn = (): JSX.Element => (
 
 export const ArrowOut = (): JSX.Element => (
     <svg
-        className={`${style.type} ${style.typeOut}`}
+        className={`${style.txArrowType} ${style.txArrowTypeOut}`}
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -35,7 +35,7 @@ export const ArrowOut = (): JSX.Element => (
 
 export const ArrowSelf = (): JSX.Element => (
     <svg
-        className={`${style.type} ${style.typeSelf}`}
+        className={`${style.txArrowType} ${style.txArrowTypeSelf}`}
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
