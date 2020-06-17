@@ -847,7 +847,6 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex in
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(
 			account.Coin(),
-			account.subaccounts[signingConfigIndex].signingConfiguration.AbsoluteKeypath(),
 			account.subaccounts[signingConfigIndex].signingConfiguration,
 		)
 	}

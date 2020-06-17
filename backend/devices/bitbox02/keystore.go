@@ -154,7 +154,7 @@ func (keystore *keystore) CanVerifyExtendedPublicKey() bool {
 }
 
 func (keystore *keystore) VerifyExtendedPublicKey(
-	coin coinpkg.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+	coin coinpkg.Coin, configuration *signing.Configuration) error {
 	if !keystore.CanVerifyExtendedPublicKey() {
 		panic("CanVerifyExtendedPublicKey must be true")
 	}
@@ -181,7 +181,7 @@ func (keystore *keystore) VerifyExtendedPublicKey(
 			msgXPubType = messages.BTCPubRequest_XPUB
 		}
 		_, err := keystore.device.BTCXPub(
-			msgCoin, keyPath.ToUInt32(), msgXPubType, true)
+			msgCoin, configuration.AbsoluteKeypath().ToUInt32(), msgXPubType, true)
 		if firmware.IsErrorAbort(err) {
 			// No special action taken on user abort.
 			return nil

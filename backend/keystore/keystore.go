@@ -69,7 +69,7 @@ type Keystore interface {
 	CanVerifyExtendedPublicKey() bool
 
 	// VerifyExtendedPublicKey displays the public key on the device for verification
-	VerifyExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath, *signing.Configuration) error
+	VerifyExtendedPublicKey(coin.Coin, *signing.Configuration) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
