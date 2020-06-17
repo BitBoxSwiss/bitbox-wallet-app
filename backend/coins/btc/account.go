@@ -758,8 +758,13 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	// TODO unified-accounts
-	address := account.subaccounts[0].receiveAddresses.LookupByScriptHashHex(scriptHashHex)
+	var address *addresses.AccountAddress
+	for _, subacc := range account.subaccounts {
+		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
+			address = addr
+			break
+		}
+	}
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
