@@ -67,8 +67,7 @@ export default class Transaction extends Component {
     }, {
         transactionDialog,
     }) {
-        const badge = t(`transaction.badge.${type}`);
-        const arrow =  badge === 'In' ? (
+        const arrow = type === 'receive' ? (
             <svg
                 className={[style.type, style.typeIn].join(' ')}
                 xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +81,7 @@ export default class Transaction extends Component {
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <polyline points="19 12 12 19 5 12"></polyline>
             </svg>
-        ) : badge === 'Out' ? (
+        ) : type === 'send' ? (
             <svg
                 className={[style.type, style.typeOut].join(' ')}
                 xmlns="http://www.w3.org/2000/svg"
