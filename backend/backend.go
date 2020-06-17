@@ -414,12 +414,12 @@ func (backend *Backend) createAndAddBTCAccount(
 	}
 }
 
-func (backend *Backend) createAndAddAccount(
+func (backend *Backend) createAndAddETHAccount(
+	keystore keystore.Keystore,
 	coin coin.Coin,
 	code string,
 	name string,
 	keypath string,
-	scriptType signing.ScriptType,
 ) {
 	log := backend.log.WithField("code", code).WithField("name", name)
 	prefix := "eth-erc20-"
@@ -428,22 +428,14 @@ func (backend *Backend) createAndAddAccount(
 			log.Info("skipping inactive erc20 token")
 			return
 		}
-	} else if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
+	} else if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
 		log.Info("skipping inactive account")
 		return
 	}
 
-	var meta interface{}
-	switch coin.(type) {
-	case *btc.Coin:
-		meta = scriptType
-	default:
-	}
-	for _, keystore := range backend.keystores.Keystores() {
-		if !keystore.SupportsAccount(coin, backend.arguments.Multisig(), meta) {
-			log.Info("skipping unsupported account")
-			return
-		}
+	if !keystore.SupportsAccount(coin, false, nil) {
+		log.Info("skipping unsupported account")
+		return
 	}
 
 	log.Info("init account")
@@ -452,16 +444,18 @@ func (backend *Backend) createAndAddAccount(
 		panic(err)
 	}
 	getSigningConfigurations := func() (signing.Configurations, error) {
-		// TODO: unified-accounts, allow multiple
-		signingConfiguration, err := backend.keystores.Configuration(
-			coin, scriptType, absoluteKeypath, backend.keystores.Count())
+		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
 		if err != nil {
 			return nil, err
 		}
-		return signing.Configurations{signingConfiguration}, nil
-	}
-	if backend.arguments.Multisig() {
-		name += " Multisig"
+
+		return signing.Configurations{
+			signing.NewSinglesigConfiguration(
+				signing.ScriptTypeP2PKH, // TODO: meaningless in Ethereum
+				absoluteKeypath,
+				extendedPublicKey,
+			),
+		}, nil
 	}
 	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
 	if err != nil {
@@ -738,12 +732,11 @@ func (backend *Backend) initDefaultAccounts() {
 			)
 
 			TETH, _ := backend.Coin(coinpkg.CodeTETH)
-			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddETHAccount(keystore, TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0")
 			RETH, _ := backend.Coin(coinpkg.CodeRETH)
-			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddETHAccount(keystore, RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0")
 			erc20TEST, _ := backend.Coin(coinpkg.CodeERC20TEST)
-			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0",
-				signing.ScriptTypeP2WPKH)
+			backend.createAndAddETHAccount(keystore, erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0")
 		}
 	} else {
 		BTC, _ := backend.Coin(coinpkg.CodeBTC)
@@ -766,12 +759,12 @@ func (backend *Backend) initDefaultAccounts() {
 		)
 
 		ETH, _ := backend.Coin(coinpkg.CodeETH)
-		backend.createAndAddAccount(ETH, "eth", "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+		backend.createAndAddETHAccount(keystore, ETH, "eth", "Ethereum", "m/44'/60'/0'/0")
 
 		if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
 			for _, erc20Token := range erc20Tokens {
 				token, _ := backend.Coin(erc20Token.code)
-				backend.createAndAddAccount(token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+				backend.createAndAddETHAccount(keystore, token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0")
 			}
 		}
 	}
