@@ -93,7 +93,7 @@ func (keystore *keystore) CanVerifyExtendedPublicKey() bool {
 }
 
 // VerifyExtendedPublicKey implements keystore.Keystore.
-func (keystore *keystore) VerifyExtendedPublicKey(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+func (keystore *keystore) VerifyExtendedPublicKey(coin coin.Coin, configuration *signing.Configuration) error {
 	keystore.log.Panic("BitBox v1 does not have a screen to verify the xpub")
 	return nil
 }
