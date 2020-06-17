@@ -31,9 +31,7 @@ interface State {
     transactionDialog: boolean;
 }
 
-interface TransactionProps {
-    index: number;
-    explorerURL: string;
+export interface TransactionInterface {
     type: 'send' | 'receive' | 'self';
     txID: string;
     amount: Amount;
@@ -48,6 +46,12 @@ interface TransactionProps {
     time: string;
     addresses: string[];
     status: 'complete' | 'pending' | 'failed';
+    internalID: string;
+}
+
+interface TransactionProps extends TransactionInterface {
+    index: number;
+    explorerURL: string;
 }
 
 type Props = TransactionProps & TranslateProps;
