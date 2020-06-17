@@ -720,8 +720,12 @@ func (account *Account) Transactions() ([]accounts.Transaction, error) {
 	}
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
-			// TODO unified-accounts
-			return account.subaccounts[0].changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
+			for _, subacc := range account.subaccounts {
+				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
+					return true
+				}
+			}
+			return false
 		})
 	cast := make([]accounts.Transaction, len(transactions))
 	for index, transaction := range transactions {
@@ -758,8 +762,13 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	// TODO unified-accounts
-	address := account.subaccounts[0].receiveAddresses.LookupByScriptHashHex(scriptHashHex)
+	var address *addresses.AccountAddress
+	for _, subacc := range account.subaccounts {
+		if addr := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); addr != nil {
+			address = addr
+			break
+		}
+	}
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
