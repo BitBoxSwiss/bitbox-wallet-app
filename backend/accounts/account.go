@@ -24,6 +24,9 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
+// AddressList is a list of addresses.
+type AddressList []Address
+
 // Interface is the API of a Account.
 type Interface interface {
 	Info() *Info
@@ -53,7 +56,10 @@ type Interface interface {
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
 		coin.Amount, coin.Amount, coin.Amount, error)
-	GetUnusedReceiveAddresses() []Address
+	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
+	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
+	// list of lists.
+	GetUnusedReceiveAddresses() []AddressList
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
 	Keystores() *keystore.Keystores

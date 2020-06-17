@@ -47,7 +47,8 @@ interface State {
 }
 
 interface LoadedReceiveProps {
-    receiveAddresses: Array<{ addressID: string, address: string }>;
+    // first array index: address types. second array index: unused addresses of that address type.
+    receiveAddresses: Array<Array<{ addressID: string, address: string }>>;
     secureOutput: {
         hasSecureOutput: boolean;
         optional: boolean;
@@ -98,7 +99,7 @@ class Receive extends Component<Props, State> {
         }
     }
 
-    private verifyAddress = () => {
+    private verifyAddress = (addressesIndex: number) => {
         const { receiveAddresses, secureOutput } = this.props;
         const { activeIndex } = this.state;
         if (!secureOutput.hasSecureOutput) {
@@ -107,7 +108,7 @@ class Receive extends Component<Props, State> {
             return;
         }
         this.setState({ verifying: true });
-        apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(() => {
+        apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[addressesIndex][activeIndex].addressID).then(() => {
             this.setState({ verifying: false });
         });
     }
@@ -122,11 +123,10 @@ class Receive extends Component<Props, State> {
         }
     }
 
-    private next = (e: Event) => {
+    private next = (e: Event, numAddresses: number) => {
         e.preventDefault();
-        const { receiveAddresses } = this.props;
         const { verifying, activeIndex } = this.state;
-        if (!verifying && activeIndex < receiveAddresses.length - 1) {
+        if (!verifying && activeIndex < numAddresses - 1) {
             this.setState({
                 activeIndex: activeIndex + 1,
             });
@@ -167,7 +167,10 @@ class Receive extends Component<Props, State> {
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
         const enableCopy = !forceVerification;
 
-        let address = receiveAddresses[activeIndex].address;
+        // TODO: unified-accounts, let user cycle through address types
+        const currentAddresses = receiveAddresses[0];
+
+        let address = currentAddresses[activeIndex].address;
         if (!enableCopy && !verifying) {
             address = address.substring(0, 8) + '...';
         }
@@ -186,7 +189,7 @@ class Receive extends Component<Props, State> {
                 </div>
                 <div class={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
                     {
-                        receiveAddresses.length > 1 && (
+                        currentAddresses.length > 1 && (
                             <a
                                 href="#"
                                 className={['flex flex-row flex-items-center', verifying || activeIndex === 0 ? style.disabled : '', style.previous].join(' ')}
@@ -210,13 +213,13 @@ class Receive extends Component<Props, State> {
                             </a>
                         )
                     }
-                    <p class={style.label}>{t('receive.label')} {receiveAddresses.length > 1 ? `(${activeIndex + 1}/${receiveAddresses.length})` : ''}</p>
+                    <p class={style.label}>{t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}</p>
                     {
-                        receiveAddresses.length > 1 && (
+                        currentAddresses.length > 1 && (
                             <a
                                 href="#"
-                                className={['flex flex-row flex-items-center', verifying || activeIndex >= receiveAddresses.length - 1 ? style.disabled : '', style.next].join(' ')}
-                                onClick={this.next}>
+                                className={['flex flex-row flex-items-center', verifying || activeIndex >= currentAddresses.length - 1 ? style.disabled : '', style.next].join(' ')}
+                                onClick={e => this.next(e, currentAddresses.length)}>
                                 {/* {t('button.next')} */}
                                 <svg
                                     className={[style.arrow, verifying ? style.disabled : ''].join(' ')}
@@ -244,7 +247,7 @@ class Receive extends Component<Props, State> {
                             <Button
                                 primary
                                 disabled={verifying || secureOutput === undefined}
-                                onClick={this.verifyAddress}>
+                                onClick={() => this.verifyAddress(0)}>
                                 {t('receive.showFull')}
                             </Button>
                         )
@@ -254,7 +257,7 @@ class Receive extends Component<Props, State> {
                             <Button
                                 primary
                                 disabled={verifying || secureOutput === undefined}
-                                onClick={this.verifyAddress}>
+                                onClick={() => this.verifyAddress(0)}>
                                 {verifyLabel}
                             </Button>
                         )
@@ -317,9 +320,9 @@ class Receive extends Component<Props, State> {
                     <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
                     <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
                     <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
-                    {receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
-                    {receiveAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
-                    {receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}
+                    {currentAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
+                    {currentAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
+                    {currentAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}
                 </Guide>
             </div>
         );
