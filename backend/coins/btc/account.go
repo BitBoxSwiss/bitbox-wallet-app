@@ -720,8 +720,12 @@ func (account *Account) Transactions() ([]accounts.Transaction, error) {
 	}
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
-			// TODO unified-accounts
-			return account.subaccounts[0].changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
+			for _, subacc := range account.subaccounts {
+				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
+					return true
+				}
+			}
+			return false
 		})
 	cast := make([]accounts.Transaction, len(transactions))
 	for index, transaction := range transactions {
