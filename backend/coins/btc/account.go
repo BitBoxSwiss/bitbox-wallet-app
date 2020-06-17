@@ -669,16 +669,17 @@ func (account *Account) ensureAddresses() {
 		}
 		return nil
 	}
-	// TODO unified-accounts
-	if err := syncSequence(account.subaccounts[0].receiveAddresses); err != nil {
-		account.log.WithError(err).Panic(err)
-		// TODO
-		panic(err)
-	}
-	if err := syncSequence(account.subaccounts[0].changeAddresses); err != nil {
-		account.log.WithError(err).Panic(err)
-		// TODO
-		panic(err)
+	for _, subacc := range account.subaccounts {
+		if err := syncSequence(subacc.receiveAddresses); err != nil {
+			account.log.WithError(err).Panic(err)
+			// TODO
+			panic(err)
+		}
+		if err := syncSequence(subacc.changeAddresses); err != nil {
+			account.log.WithError(err).Panic(err)
+			// TODO
+			panic(err)
+		}
 	}
 }
 
