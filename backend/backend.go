@@ -309,36 +309,133 @@ func (backend *Backend) CreateAndAddAccount(
 	return nil
 }
 
-func (backend *Backend) createAndAddAccount(
+type scriptTypeWithKeypath struct {
+	scriptType signing.ScriptType
+	keypath    signing.AbsoluteKeypath
+}
+
+func newScriptTypeWithKeypath(scriptType signing.ScriptType, keypath string) scriptTypeWithKeypath {
+	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
+	if err != nil {
+		panic(err)
+	}
+	return scriptTypeWithKeypath{
+		scriptType: scriptType,
+		keypath:    absoluteKeypath,
+	}
+}
+
+// adds a combined BTC account with the given script types. If the keystore requires split accounts
+// (bitbox01) or the user configure split accounts in the settings, one account per script type is
+// added instead of a combined account.
+func (backend *Backend) createAndAddBTCAccount(
+	keystore keystore.Keystore,
+	coin coin.Coin,
+	code string,
+	name string,
+	configs []scriptTypeWithKeypath,
+) {
+	log := backend.log.WithField("code", code).WithField("name", name)
+	if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
+		log.Info("skipping inactive account")
+		return
+	}
+	var supportedConfigs []scriptTypeWithKeypath
+	for _, cfg := range configs {
+		if keystore.SupportsAccount(coin, false, cfg.scriptType) {
+			supportedConfigs = append(supportedConfigs, cfg)
+		}
+	}
+	if len(supportedConfigs) == 0 {
+		log.Info("skipping unsupported account")
+		return
+	}
+	log.Info("init account")
+
+	getSigningConfiguration := func(cfg scriptTypeWithKeypath) (*signing.Configuration, error) {
+		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
+		if err != nil {
+			return nil, err
+		}
+
+		return signing.NewSinglesigConfiguration(
+			cfg.scriptType,
+			cfg.keypath,
+			extendedPublicKey,
+		), nil
+	}
+
+	splitAccounts := backend.config.AppConfig().Backend.SplitAccounts ||
+		!keystore.SupportsUnifiedAccounts()
+	if splitAccounts {
+		for _, cfg := range supportedConfigs {
+			cfg := cfg
+			getSigningConfigurations := func() (signing.Configurations, error) {
+				signingConfiguration, err := getSigningConfiguration(cfg)
+				if err != nil {
+					return nil, err
+				}
+				return signing.Configurations{signingConfiguration}, nil
+			}
+			suffixedName := name
+			switch cfg.scriptType {
+			case signing.ScriptTypeP2PKH:
+				suffixedName += ": legacy"
+			case signing.ScriptTypeP2WPKH:
+				suffixedName += ": bech32"
+			}
+			err := backend.CreateAndAddAccount(
+				coin,
+				fmt.Sprintf("%s-%s", code, cfg.scriptType),
+				suffixedName,
+				getSigningConfigurations,
+				false, false,
+			)
+			if err != nil {
+				panic(err)
+			}
+		}
+	} else {
+		getSigningConfigurations := func() (signing.Configurations, error) {
+			var result signing.Configurations
+			for _, cfg := range supportedConfigs {
+				signingConfiguration, err := getSigningConfiguration(cfg)
+				if err != nil {
+					return nil, err
+				}
+				result = append(result, signingConfiguration)
+			}
+			return result, nil
+		}
+		err := backend.CreateAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (backend *Backend) createAndAddETHAccount(
+	keystore keystore.Keystore,
 	coin coin.Coin,
 	code string,
 	name string,
 	keypath string,
-	scriptType signing.ScriptType,
 ) {
 	log := backend.log.WithField("code", code).WithField("name", name)
 	prefix := "eth-erc20-"
 	if strings.HasPrefix(code, prefix) {
 		if !backend.config.AppConfig().Backend.ETH.ERC20TokenActive(code[len(prefix):]) {
-			log.WithField("name", name).Info("skipping inactive erc20 token")
+			log.Info("skipping inactive erc20 token")
 			return
 		}
-	} else if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
-		log.WithField("name", name).Info("skipping inactive account")
+	} else if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
+		log.Info("skipping inactive account")
 		return
 	}
 
-	var meta interface{}
-	switch coin.(type) {
-	case *btc.Coin:
-		meta = scriptType
-	default:
-	}
-	for _, keystore := range backend.keystores.Keystores() {
-		if !keystore.SupportsAccount(coin, backend.arguments.Multisig(), meta) {
-			log.Info("skipping unsupported account")
-			return
-		}
+	if !keystore.SupportsAccount(coin, false, nil) {
+		log.Info("skipping unsupported account")
+		return
 	}
 
 	log.Info("init account")
@@ -347,16 +444,18 @@ func (backend *Backend) createAndAddAccount(
 		panic(err)
 	}
 	getSigningConfigurations := func() (signing.Configurations, error) {
-		// TODO: unified-accounts, allow multiple
-		signingConfiguration, err := backend.keystores.Configuration(
-			coin, scriptType, absoluteKeypath, backend.keystores.Count())
+		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
 		if err != nil {
 			return nil, err
 		}
-		return signing.Configurations{signingConfiguration}, nil
-	}
-	if backend.arguments.Multisig() {
-		name += " Multisig"
+
+		return signing.Configurations{
+			signing.NewSinglesigConfiguration(
+				signing.ScriptTypeP2PKH, // TODO: meaningless in Ethereum
+				absoluteKeypath,
+				extendedPublicKey,
+			),
+		}, nil
 	}
 	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
 	if err != nil {
@@ -601,58 +700,71 @@ func (backend *Backend) initDefaultAccounts() {
 		// keystores.
 		return
 	}
+	keystore := backend.keystores.Keystores()[0]
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			RBTC, _ := backend.Coin(coinpkg.CodeRBTC)
-			backend.createAndAddAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
-				signing.ScriptTypeP2PKH)
-			backend.createAndAddAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",
-				signing.ScriptTypeP2WPKHP2SH)
+			backend.createAndAddBTCAccount(keystore, RBTC,
+				"rbtc", "Bitcoin Regtest",
+				[]scriptTypeWithKeypath{
+					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
+					newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/1'/0'"),
+				},
+			)
 		} else {
 			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
-			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'",
-				signing.ScriptTypeP2WPKHP2SH)
-			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet: bech32", "m/84'/1'/0'",
-				signing.ScriptTypeP2WPKH)
-			backend.createAndAddAccount(TBTC, "tbtc-p2pkh", "Bitcoin Testnet Legacy", "m/44'/1'/0'",
-				signing.ScriptTypeP2PKH)
+			backend.createAndAddBTCAccount(keystore, TBTC,
+				"tbtc", "Bitcoin Testnet",
+				[]scriptTypeWithKeypath{
+					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
+					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
+					newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/1'/0'"),
+				},
+			)
 
 			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
-			backend.createAndAddAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'",
-				signing.ScriptTypeP2WPKHP2SH)
-			backend.createAndAddAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'",
-				signing.ScriptTypeP2WPKH)
+			backend.createAndAddBTCAccount(keystore, TLTC,
+				"tltc", "Litecoin Testnet",
+				[]scriptTypeWithKeypath{
+					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
+					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
+				},
+			)
 
 			TETH, _ := backend.Coin(coinpkg.CodeTETH)
-			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddETHAccount(keystore, TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0")
 			RETH, _ := backend.Coin(coinpkg.CodeRETH)
-			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddETHAccount(keystore, RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0")
 			erc20TEST, _ := backend.Coin(coinpkg.CodeERC20TEST)
-			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0",
-				signing.ScriptTypeP2WPKH)
+			backend.createAndAddETHAccount(keystore, erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0")
 		}
 	} else {
 		BTC, _ := backend.Coin(coinpkg.CodeBTC)
-		backend.createAndAddAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
-			signing.ScriptTypeP2WPKHP2SH)
-		backend.createAndAddAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
-			signing.ScriptTypeP2WPKH)
-		backend.createAndAddAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
-			signing.ScriptTypeP2PKH)
+		backend.createAndAddBTCAccount(keystore, BTC,
+			"btc", "Bitcoin",
+			[]scriptTypeWithKeypath{
+				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/0'/0'"),
+				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/0'/0'"),
+				newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/0'/0'"),
+			},
+		)
 
 		LTC, _ := backend.Coin(coinpkg.CodeLTC)
-		backend.createAndAddAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
-			signing.ScriptTypeP2WPKHP2SH)
-		backend.createAndAddAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
-			signing.ScriptTypeP2WPKH)
+		backend.createAndAddBTCAccount(keystore, LTC,
+			"ltc", "Litecoin",
+			[]scriptTypeWithKeypath{
+				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/2'/0'"),
+				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/2'/0'"),
+			},
+		)
 
 		ETH, _ := backend.Coin(coinpkg.CodeETH)
-		backend.createAndAddAccount(ETH, "eth", "Ethereum", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+		backend.createAndAddETHAccount(keystore, ETH, "eth", "Ethereum", "m/44'/60'/0'/0")
 
 		if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
 			for _, erc20Token := range erc20Tokens {
 				token, _ := backend.Coin(erc20Token.code)
-				backend.createAndAddAccount(token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
+				backend.createAndAddETHAccount(keystore, token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0")
 			}
 		}
 	}

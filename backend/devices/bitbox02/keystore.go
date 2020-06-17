@@ -73,6 +73,11 @@ func (keystore *keystore) SupportsAccount(
 	}
 }
 
+// SupportsUnifiedAccounts implements keystore.Keystore.
+func (keystore *keystore) SupportsUnifiedAccounts() bool {
+	return true
+}
+
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error) {
 	const optional = false
