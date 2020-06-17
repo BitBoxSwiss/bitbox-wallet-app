@@ -349,6 +349,21 @@ class Settings extends Component<Props, State> {
                                                     <div className="box slim divide">
                                                         <div className={style.currency}>
                                                             <div>
+                                                                <p className="m-none">{t('settings.expert.splitAccounts')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="primary">BB02</Badge>
+                                                                    <Badge type="secondary" className="m-left-quarter">BB02-BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                id="splitAccounts"
+                                                                checked={config.backend.splitAccounts}
+                                                                onChange={this.handleToggleAccount} />
+                                                        </div>
+                                                        <div className={style.currency}>
+                                                            <div>
                                                                 <p className="m-none">{t('settings.expert.coinControl')}</p>
                                                                 <p className="m-none">
                                                                     <Badge type="generic">BTC</Badge>
