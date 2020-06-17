@@ -225,15 +225,20 @@ func (backend *Backend) CreateAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
-	getSigningConfiguration func() (*signing.Configuration, error),
+	getSigningConfigurations func() (signing.Configurations, error),
 	persist bool,
 	emitEvent bool,
 ) error {
 	if persist {
-		configuration, err := getSigningConfiguration()
+		configurations, err := getSigningConfigurations()
 		if err != nil {
 			return err
 		}
+		if len(configurations) != 1 {
+			// TODO: unified-accounts
+			return errp.New("Watch-only accounts don't support mixed inputs yet")
+		}
+		configuration := configurations[0]
 		accountsConfig := backend.config.AccountsConfig()
 		for _, account := range accountsConfig.Accounts {
 			if account.Configuration.Hash() == configuration.Hash() && account.CoinCode == coin.Code() {
@@ -259,8 +264,8 @@ func (backend *Backend) CreateAndAddAccount(
 		}
 	}
 
-	getNotifier := func(configuration *signing.Configuration) accounts.Notifier {
-		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code()))
+	getNotifier := func(configurations signing.Configurations) accounts.Notifier {
+		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), coin.Code()))
 	}
 
 	accountAdded := false
@@ -271,7 +276,7 @@ func (backend *Backend) CreateAndAddAccount(
 			backend.arguments.CacheDirectoryPath(),
 			code, name,
 			backend.arguments.GapLimits(),
-			getSigningConfiguration,
+			getSigningConfigurations,
 			backend.keystores,
 			getNotifier,
 			onEvent,
@@ -282,7 +287,17 @@ func (backend *Backend) CreateAndAddAccount(
 		accountAdded = true
 	case *eth.Coin:
 		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
+			func() (*signing.Configuration, error) {
+				signingConfigurations, err := getSigningConfigurations()
+				if err != nil {
+					return nil, err
+				}
+				if len(signingConfigurations) != 1 {
+					return nil, errp.New("Ethereum only supports one signing config")
+				}
+				return signingConfigurations[0], nil
+			},
+			backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
 		backend.addAccount(account)
 		accountAdded = true
 	default:
@@ -331,13 +346,19 @@ func (backend *Backend) createAndAddAccount(
 	if err != nil {
 		panic(err)
 	}
-	getSigningConfiguration := func() (*signing.Configuration, error) {
-		return backend.keystores.Configuration(coin, scriptType, absoluteKeypath, backend.keystores.Count())
+	getSigningConfigurations := func() (signing.Configurations, error) {
+		// TODO: unified-accounts, allow multiple
+		signingConfiguration, err := backend.keystores.Configuration(
+			coin, scriptType, absoluteKeypath, backend.keystores.Count())
+		if err != nil {
+			return nil, err
+		}
+		return signing.Configurations{signingConfiguration}, nil
 	}
 	if backend.arguments.Multisig() {
 		name += " Multisig"
 	}
-	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration, false, false)
+	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
 	if err != nil {
 		panic(err)
 	}
@@ -559,10 +580,10 @@ func (backend *Backend) initPersistedAccounts() {
 				account.CoinCode, account.Code)
 			continue
 		}
-		getSigningConfiguration := func() (*signing.Configuration, error) {
-			return account.Configuration, nil
+		getSigningConfigurations := func() (signing.Configurations, error) {
+			return signing.Configurations{account.Configuration}, nil
 		}
-		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfiguration, false, false)
+		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations, false, false)
 		if err != nil {
 			panic(err)
 		}

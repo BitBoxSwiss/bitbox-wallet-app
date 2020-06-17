@@ -69,16 +69,16 @@ type Account struct {
 	// folder for all accounts. Full path.
 	dbFolder string
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder             string
-	code                    string
-	name                    string
-	db                      transactions.DBInterface
-	forceGapLimits          *types.GapLimits
-	getSigningConfiguration func() (*signing.Configuration, error)
-	keystores               *keystore.Keystores
-	getNotifier             func(*signing.Configuration) accounts.Notifier
-	notifier                accounts.Notifier
-	blockchain              blockchain.Interface
+	dbSubfolder              string
+	code                     string
+	name                     string
+	db                       transactions.DBInterface
+	forceGapLimits           *types.GapLimits
+	getSigningConfigurations func() (signing.Configurations, error)
+	keystores                *keystore.Keystores
+	getNotifier              func(signing.Configurations) accounts.Notifier
+	notifier                 accounts.Notifier
+	blockchain               blockchain.Interface
 
 	subaccounts []subaccount
 
@@ -133,9 +133,9 @@ func NewAccount(
 	code string,
 	name string,
 	forceGapLimits *types.GapLimits,
-	getSigningConfiguration func() (*signing.Configuration, error),
+	getSigningConfigurations func() (signing.Configurations, error),
 	keystores *keystore.Keystores,
-	getNotifier func(*signing.Configuration) accounts.Notifier,
+	getNotifier func(signing.Configurations) accounts.Notifier,
 	onEvent func(accounts.Event),
 	log *logrus.Entry,
 	rateUpdater *rates.RateUpdater,
@@ -145,15 +145,15 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		coin:                    coin,
-		dbFolder:                dbFolder,
-		dbSubfolder:             "", // set in Initialize()
-		code:                    code,
-		name:                    name,
-		forceGapLimits:          forceGapLimits,
-		getSigningConfiguration: getSigningConfiguration,
-		keystores:               keystores,
-		getNotifier:             getNotifier,
+		coin:                     coin,
+		dbFolder:                 dbFolder,
+		dbSubfolder:              "", // set in Initialize()
+		code:                     code,
+		name:                     name,
+		forceGapLimits:           forceGapLimits,
+		getSigningConfigurations: getSigningConfigurations,
+		keystores:                keystores,
+		getNotifier:              getNotifier,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -308,13 +308,16 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfiguration, err := account.getSigningConfiguration()
+	signingConfigurations, err := account.getSigningConfigurations()
 	if err != nil {
 		return err
 	}
-	account.notifier = account.getNotifier(signingConfiguration)
+	if len(signingConfigurations) == 0 {
+		return errp.New("There must be a least one signing configuration")
+	}
+	account.notifier = account.getNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfiguration.Hash(), account.code)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -364,30 +367,33 @@ func (account *Account) Initialize() error {
 		account.coin.Net(), account.db, theHeaders, account.synchronizer,
 		account.blockchain, account.notifier, account.log)
 
-	gapLimits, err := account.gapLimits(signingConfiguration)
+	// TODO: unified-accounts
+	gapLimits, err := account.gapLimits(signingConfigurations[0])
 	if err != nil {
 		return err
 	}
 
 	account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
-	var subacc subaccount
-	subacc.signingConfiguration = signingConfiguration
-	if signingConfiguration.IsAddressBased() {
-		subacc.receiveAddresses = addresses.NewSingleAddress(
-			signingConfiguration, account.coin.Net(), account.log)
-		account.log.Debug("creating single change address for address based account")
-		subacc.changeAddresses = addresses.NewSingleAddress(
-			signingConfiguration, account.coin.Net(), account.log)
-	} else {
-		subacc.receiveAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
-		subacc.changeAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
-	}
-	// TODO: unified-accounts
-	account.subaccounts = []subaccount{subacc}
+	for _, signingConfiguration := range signingConfigurations {
+		signingConfiguration := signingConfiguration
 
+		var subacc subaccount
+		subacc.signingConfiguration = signingConfiguration
+		if signingConfiguration.IsAddressBased() {
+			subacc.receiveAddresses = addresses.NewSingleAddress(
+				signingConfiguration, account.coin.Net(), account.log)
+			account.log.Debug("creating single change address for address based account")
+			subacc.changeAddresses = addresses.NewSingleAddress(
+				signingConfiguration, account.coin.Net(), account.log)
+		} else {
+			subacc.receiveAddresses = addresses.NewAddressChain(
+				signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
+			subacc.changeAddresses = addresses.NewAddressChain(
+				signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
+		}
+		account.subaccounts = append(account.subaccounts, subacc)
+	}
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 	return nil
