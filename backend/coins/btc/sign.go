@@ -49,8 +49,9 @@ func (account *Account) signTransaction(
 	getPrevTx func(chainhash.Hash) *wire.MsgTx,
 ) error {
 	proposedTransaction := &ProposedTransaction{
-		TXProposal:                   txProposal,
-		AccountSigningConfigurations: []*signing.Configuration{account.signingConfiguration},
+		TXProposal: txProposal,
+		// TODO unified-accounts
+		AccountSigningConfigurations: []*signing.Configuration{account.subaccounts[0].signingConfiguration},
 		PreviousOutputs:              previousOutputs,
 		GetAddress:                   account.getAddress,
 		GetPrevTx:                    getPrevTx,

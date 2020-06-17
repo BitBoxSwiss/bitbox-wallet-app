@@ -87,7 +87,6 @@ func (account *Account) newTx(
 	if amount.SendAll() {
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
-			account.signingConfiguration,
 			wireUTXO,
 			pkScript,
 			*feeTarget.feeRatePerKb,
@@ -108,11 +107,11 @@ func (account *Account) newTx(
 		}
 		txProposal, err = maketx.NewTx(
 			account.coin,
-			account.signingConfiguration,
 			wireUTXO,
 			wire.NewTxOut(parsedAmountInt64, pkScript),
 			*feeTarget.feeRatePerKb,
-			account.changeAddresses.GetUnused()[0],
+			// TODO unified-accounts
+			account.subaccounts[0].changeAddresses.GetUnused()[0],
 			account.log,
 		)
 		if err != nil {
@@ -125,10 +124,11 @@ func (account *Account) newTx(
 }
 
 func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
-	if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+	// TODO: unified-accounts
+	if address := account.subaccounts[0].receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 		return address
 	}
-	if address := account.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+	if address := account.subaccounts[0].changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 		return address
 	}
 	panic("address must be present")
