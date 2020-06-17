@@ -101,13 +101,13 @@ function formatAsCurrency(amount: number): string {
     return formatted;
 }
 
-export interface Amount {
+export interface AmountInterface {
     amount: string;
     unit: Coin;
 }
 
 interface ProvidedProps {
-    amount: Amount;
+    amount: AmountInterface;
     tableRow?: boolean;
     unstyled?: boolean;
     skipUnit?: boolean;

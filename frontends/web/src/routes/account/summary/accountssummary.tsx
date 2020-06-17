@@ -20,7 +20,7 @@ import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
-import { Amount } from '../../../components/rates/rates';
+import { AmountInterface } from '../../../components/rates/rates';
 import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -40,7 +40,7 @@ interface State {
 }
 
 interface Totals {
-    [code: string]: Amount;
+    [code: string]: AmountInterface;
 }
 
 interface Response {

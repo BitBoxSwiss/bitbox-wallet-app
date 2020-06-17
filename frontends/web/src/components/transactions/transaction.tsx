@@ -17,12 +17,12 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Fee } from '../../routes/account/send/send';
+import { AmountWithConversions } from '../../routes/account/send/send';
 import A from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
-import { Amount } from '../rates/rates';
+import { AmountInterface } from '../rates/rates';
 import { ArrowIn, ArrowOut, ArrowSelf, ExpandIcon } from './components/icons';
 import * as style from './transaction.css';
 import * as parentStyle from './transactions.css';
@@ -34,16 +34,16 @@ interface State {
 export interface TransactionInterface {
     type: 'send' | 'receive' | 'self';
     txID: string;
-    amount: Amount;
-    fee: Fee;
-    feeRatePerKb: Fee;
+    amount: AmountInterface;
+    fee: AmountWithConversions;
+    feeRatePerKb: AmountWithConversions;
     gas: number;
     vsize: number;
     size: number;
     weight: number;
     numConfirmations: number;
     numConfirmationsComplete: number;
-    time: string;
+    time: string | null;
     addresses: string[];
     status: 'complete' | 'pending' | 'failed';
     internalID: string;
