@@ -834,13 +834,21 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 	return account.Keystores().CanVerifyExtendedPublicKeys()
 }
 
-// VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
-// index is the position of an xpub in the []*hdkeychain which corresponds to the particular keystore in []Keystore
-func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {
-	keystore := account.Keystores().Keystores()[index]
+// VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
+// exists.
+//
+// signingConfigIndex refers to the subaccount / signing config.
+//
+// xpubIndex is the position of an xpub in the []*hdkeychain which corresponds to the particular
+// keystore in []Keystore.
+func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex int) (bool, error) {
+	keystore := account.Keystores().Keystores()[xpubIndex]
 	if keystore.CanVerifyExtendedPublicKey() {
-		// TODO unified-accounts
-		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.subaccounts[0].signingConfiguration.AbsoluteKeypath(), account.subaccounts[0].signingConfiguration)
+		return true, keystore.VerifyExtendedPublicKey(
+			account.Coin(),
+			account.subaccounts[signingConfigIndex].signingConfiguration.AbsoluteKeypath(),
+			account.subaccounts[signingConfigIndex].signingConfiguration,
+		)
 	}
 	return false, nil
 }

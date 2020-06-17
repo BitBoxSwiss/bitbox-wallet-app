@@ -26,6 +26,7 @@ import * as style from './info.css';
 interface ProvidedProps {
     info: SigningConfigurationInterface;
     code: string;
+    signingConfigIndex: number;
 }
 
 export interface SigningConfigurationInterface {
@@ -55,8 +56,10 @@ class SigningConfiguration extends Component<Props, State> {
         });
     }
 
-    private verifyExtendedPublicKey = (index: number) => {
-        apiPost(`account/${this.props.code}/verify-extended-public-key`, index);
+    private verifyExtendedPublicKey = (signingConfigIndex: number, xpubIndex: number) => {
+        apiPost(`account/${this.props.code}/verify-extended-public-key`, {
+            signingConfigIndex, xpubIndex,
+        });
     }
 
     private scriptTypeTitle = (scriptType: string) => {
@@ -66,13 +69,19 @@ class SigningConfiguration extends Component<Props, State> {
             case 'p2wpkh-p2sh':
                 return 'Segwit';
             case 'p2wpkh':
-                return 'Native segwit';
+                return 'Native segwit (bech32)';
             default:
                 return scriptType;
         }
     }
 
-    public render({ t, info, code }: RenderableProps<Props>, { canVerifyExtendedPublicKey }: State) {
+    public render(
+        { t,
+          info,
+          code,
+          signingConfigIndex,
+        }: RenderableProps<Props>,
+        { canVerifyExtendedPublicKey }: State) {
         return (
         // TODO: add info if single or multisig, and threshold.
         <div>
@@ -92,20 +101,20 @@ class SigningConfiguration extends Component<Props, State> {
                     </div>
                 </div>
                     :
-                info.xpubs.map((xpub, index) => {
+                info.xpubs.map((xpub, xpubIndex) => {
                     return (
                         <div key={xpub}>
-                            <h2>{ this.scriptTypeTitle(info.scriptType) }</h2>
+                            <h2>{this.scriptTypeTitle(info.scriptType)}</h2>
                             <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
-                            {info.xpubs.length > 1 && (' #' + (index + 1))}
+                            {info.xpubs.length > 1 && (' #' + (xpubIndex + 1))}
                             <QRCode data={xpub} />
                             <div className={style.textareaContainer}>
                                 <CopyableInput value={xpub} flexibleHeight />
                             </div>
                             <div className="buttons">
                                 {
-                                    canVerifyExtendedPublicKey.includes(index) && (
-                                        <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
+                                    canVerifyExtendedPublicKey.includes(xpubIndex) && (
+                                        <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex, xpubIndex)}>
                                             {t('accountInfo.verify')}
                                         </Button>
                                     )
