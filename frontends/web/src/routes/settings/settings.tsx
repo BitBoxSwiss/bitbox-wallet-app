@@ -49,19 +49,12 @@ interface State {
 
 class Settings extends Component<Props, State> {
     private accountsList = [
-        { name: 'bitcoinP2PKHActive',
-          badges: ['BB01'],
-        },
-        { name: 'bitcoinP2WPKHActive',
+        { name: 'bitcoinActive',
+          label: 'Bitcoin',
           badges: ['BB01', 'BB02', 'BB02-BTC'],
         },
-        { name: 'bitcoinP2WPKHP2SHActive',
-          badges: ['BB01', 'BB02', 'BB02-BTC'],
-        },
-        { name: 'litecoinP2WPKHActive',
-          badges: ['BB01', 'BB02'],
-        },
-        { name: 'litecoinP2WPKHP2SHActive',
+        { name: 'litecoinActive',
+          label: 'Litecoin',
           badges: ['BB01', 'BB02'],
         },
     ];
@@ -294,7 +287,7 @@ class Settings extends Component<Props, State> {
                                                             this.accountsList.map((account, index) => (
                                                                 <div className={style.currency} key={`available-fiat-${index}`}>
                                                                     <div>
-                                                                        <p className="m-none">{t(`settings.accounts.${account.name.replace('Active', '')}`)}</p>
+                                                                        <p className="m-none">{account.label}</p>
                                                                         <p className="m-none">
                                                                             {
                                                                                 account.badges.map((badge, i) => (
