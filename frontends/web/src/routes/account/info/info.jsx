@@ -76,7 +76,7 @@ export default class Info extends Component {
                             {
                                 info.signingConfigurations.map((config, index) => (
                                     <div key={index} class={[style.infoContent, 'box large'].join(' ')}>
-                                        <SigningConfiguration info={config} code={code} />
+                                        <SigningConfiguration info={config} code={code} signingConfigIndex={index} />
                                     </div>
                                 ))
                             }
