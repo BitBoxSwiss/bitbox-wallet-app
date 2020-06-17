@@ -71,11 +71,15 @@ export default class Info extends Component {
             <div class="contentWithGuide">
                 <div class="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
-                    <div class="innerContainer">
+                    <div class="innerContainer scrollableContainer">
                         <div class="content padded flex flex-column flex-center">
-                            <div class={[style.infoContent, 'box large'].join(' ')}>
-                                <SigningConfiguration info={info.signingConfiguration} code={code} />
-                            </div>
+                            {
+                                info.signingConfigurations.map((config, index) => (
+                                    <div key={index} class={[style.infoContent, 'box large'].join(' ')}>
+                                        <SigningConfiguration info={config} code={code} />
+                                    </div>
+                                ))
+                            }
                         </div>
                     </div>
                 </div>
