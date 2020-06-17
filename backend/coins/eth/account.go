@@ -147,7 +147,7 @@ func NewAccount(
 // Info implements accounts.Interface.
 func (account *Account) Info() *accounts.Info {
 	return &accounts.Info{
-		SigningConfiguration: account.signingConfiguration,
+		SigningConfigurations: []*signing.Configuration{account.signingConfiguration},
 	}
 }
 

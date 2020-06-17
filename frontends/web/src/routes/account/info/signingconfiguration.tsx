@@ -59,6 +59,19 @@ class SigningConfiguration extends Component<Props, State> {
         apiPost(`account/${this.props.code}/verify-extended-public-key`, index);
     }
 
+    private scriptTypeTitle = (scriptType: string) => {
+        switch (scriptType) {
+            case 'p2pkh':
+                return 'Legacy';
+            case 'p2wpkh-p2sh':
+                return 'Segwit';
+            case 'p2wpkh':
+                return 'Native segwit';
+            default:
+                return scriptType;
+        }
+    }
+
     public render({ t, info, code }: RenderableProps<Props>, { canVerifyExtendedPublicKey }: State) {
         return (
         // TODO: add info if single or multisig, and threshold.
@@ -82,6 +95,7 @@ class SigningConfiguration extends Component<Props, State> {
                 info.xpubs.map((xpub, index) => {
                     return (
                         <div key={xpub}>
+                            <h2>{ this.scriptTypeTitle(info.scriptType) }</h2>
                             <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
                             {info.xpubs.length > 1 && (' #' + (index + 1))}
                             <QRCode data={xpub} />
