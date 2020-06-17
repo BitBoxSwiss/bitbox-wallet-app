@@ -124,12 +124,13 @@ func (account *Account) newTx(
 }
 
 func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
-	// TODO: unified-accounts
-	if address := account.subaccounts[0].receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-		return address
-	}
-	if address := account.subaccounts[0].changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
-		return address
+	for _, subacc := range account.subaccounts {
+		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+			return address
+		}
+		if address := subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+			return address
+		}
 	}
 	panic("address must be present")
 }
