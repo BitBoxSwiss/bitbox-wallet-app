@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -226,7 +227,7 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 	return nil
 }
 
-// Hash returns a hash of the configuration.
+// Hash returns a hash of the configuration in hex format.
 func (configuration *Configuration) Hash() string {
 	hash := sha256.Sum256(jsonp.MustMarshal(configuration))
 	return hex.EncodeToString(hash[:])
@@ -239,4 +240,29 @@ func (configuration *Configuration) String() string {
 			configuration.SigningThreshold(), configuration.NumberOfSigners())
 	}
 	return fmt.Sprintf("single sig, scriptType: %s", configuration.scriptType)
+}
+
+// Configurations is an unordered collection of configurations.
+type Configurations []*Configuration
+
+// Hash returns a hash of all configurations in hex format. It is defined as
+// `sha256(<32 bytes hash 1>|<32 bytes hash 2>|...)`, where the hashes are first sorted, so
+// changing the order does *not* change the hash.
+func (configs Configurations) Hash() string {
+	hashes := make([][]byte, len(configs))
+	for i, cfg := range configs {
+		hash, err := hex.DecodeString(cfg.Hash())
+		if err != nil {
+			panic(errp.WithStack(err))
+		}
+		hashes[i] = hash
+	}
+	sort.Slice(hashes, func(i, j int) bool { return bytes.Compare(hashes[i], hashes[j]) < 0 })
+	h := sha256.New()
+	for _, hash := range hashes {
+		if _, err := h.Write(hash); err != nil {
+			panic(errp.WithStack(err))
+		}
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
