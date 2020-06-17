@@ -191,6 +191,10 @@
     background-image: url(../../assets/exchanges/logos/paxful.png);
 }
 
+.logo-paybtc {
+    background-image: url(../../assets/exchanges/logos/paybtc.svg);
+}
+
 .logo-river_financial {
     background-image: url(../../assets/exchanges/logos/river_financial.png);
 }
