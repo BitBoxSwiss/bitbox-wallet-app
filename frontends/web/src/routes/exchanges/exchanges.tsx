@@ -34,7 +34,7 @@ type Props = ExchangesProps & TranslateProps;
 
 interface State {
     region: Region | null;
-    methods: Method[];
+    method: Method | null;
 }
 
 interface Exchange extends ExchangeData {
@@ -52,7 +52,7 @@ class Exchanges extends Component<Props, State> {
         }));
         this.state = {
             region: null,
-            methods: [],
+            method: null,
         };
     }
 
@@ -62,23 +62,19 @@ class Exchanges extends Component<Props, State> {
         this.setState(({ region }) => ({ region: region !== code ? code : null }));
     }
 
-    private toggleMethods = method => {
-        this.setState(({ methods }) => ({
-            methods: methods.includes(method)
-                ? methods.filter(m => m !== method)
-                : [method, ...methods],
-        }));
+    private toggleMethod = code => {
+        this.setState(({ method }) => ({ method: method !== code ? code : null }));
     }
 
     public render(
         { t }: RenderableProps<Props>,
         {
-        methods,
+        method,
         region,
     }) {
         const results = this.data
             .filter(({ regions }) => !region || regions.includes(region))
-            .filter(({ payment }) => !methods.length || methods.some(m => payment.includes(m)))
+            .filter(({ payment }) => !method || payment.includes(method))
             .map(Row);
         return (
             <div className="contentWithGuide">
@@ -119,28 +115,28 @@ class Exchanges extends Component<Props, State> {
                                 <div className={styles.methods}>
                                     <h4>{t('exchanges.method')}</h4>
                                     <FilterButton
-                                        active={methods.includes('BT')}
-                                        onClick={() => this.toggleMethods('BT')} >
+                                        active={method === 'BT'}
+                                        onClick={() => this.toggleMethod('BT')} >
                                         {t('exchanges.methods.BT')}
                                     </FilterButton>
                                     <FilterButton
-                                        active={methods.includes('CC')}
-                                        onClick={() => this.toggleMethods('CC')} >
+                                        active={method === 'CC'}
+                                        onClick={() => this.toggleMethod('CC')} >
                                         {t('exchanges.methods.CC')}
                                     </FilterButton>
                                     <FilterButton
-                                        active={methods.includes('DCA')}
-                                        onClick={() => this.toggleMethods('DCA')} >
+                                        active={method === 'DCA'}
+                                        onClick={() => this.toggleMethod('DCA')} >
                                         {t('exchanges.methods.DCA')}
                                     </FilterButton>
                                     <FilterButton
-                                        active={methods.includes('SW')}
-                                        onClick={() => this.toggleMethods('SW')} >
+                                        active={method === 'SW'}
+                                        onClick={() => this.toggleMethod('SW')} >
                                         {t('exchanges.methods.SW')}
                                     </FilterButton>
                                     <FilterButton
-                                        active={methods.includes('P2P')}
-                                        onClick={() => this.toggleMethods('P2P')} >
+                                        active={method === 'P2P'}
+                                        onClick={() => this.toggleMethod('P2P')} >
                                         {t('exchanges.methods.P2P')}
                                     </FilterButton>
                                 </div>

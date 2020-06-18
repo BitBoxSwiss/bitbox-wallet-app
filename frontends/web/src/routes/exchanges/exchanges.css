@@ -11,6 +11,7 @@
 .filters button {
     cursor: pointer !important;
     margin-bottom: var(--space-half);
+    margin-right: var(--space-half);
 }
 
 .filters button:focus {
@@ -21,20 +22,7 @@
     margin-bottom: var(--space-half);
 }
 
-.regions button {
-    margin-right: 0;
-}
-
-.regions button + button {
-    /* removes space between region button to visually indicate that only one is selectable */
-    margin-left: -1px;
-}
-
 .methods {
-}
-
-.methods button {
-    margin-right: var(--space-half);
 }
 
 .results {
