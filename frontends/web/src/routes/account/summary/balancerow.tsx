@@ -15,11 +15,11 @@
  */
 
 import { h, RenderableProps} from 'preact';
-import { Amount, FiatConversion } from '../../../components/rates/rates';
+import { AmountInterface, FiatConversion } from '../../../components/rates/rates';
 
 interface Props {
     name: string;
-    balance: Amount;
+    balance: AmountInterface;
     code: string;
 }
 

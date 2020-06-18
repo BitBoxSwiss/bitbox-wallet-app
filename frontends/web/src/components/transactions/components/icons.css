@@ -1,0 +1,22 @@
+.txArrowType {
+    width: 18px;
+    height: 18px;
+}
+
+.txArrowTypeIn {
+    stroke: var(--color-success) !important;
+}
+
+.txArrowTypeOut {
+    stroke: var(--color-danger) !important;
+}
+
+.txArrowTypeSelf {
+    stroke: var(--color-secondary) !important;
+}
+
+.expandIcon {
+    stroke: var(--color-gray);
+    width: 18px;
+    height: 18px;
+}

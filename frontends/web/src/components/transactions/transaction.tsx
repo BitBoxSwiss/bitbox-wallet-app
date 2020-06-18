@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +15,57 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import { FiatConversion } from '../rates/rates';
+import { Component, h, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../decorators/translate';
+import { AmountWithConversions } from '../../routes/account/send/send';
 import A from '../anchor/anchor';
-import * as style from './transaction.css';
-import * as parentStyle from './transactions.css';
 import { Dialog } from '../dialog/dialog';
 import { ProgressRing } from '../progressRing/progressRing';
+import { FiatConversion } from '../rates/rates';
+import { AmountInterface } from '../rates/rates';
+import { ArrowIn, ArrowOut, ArrowSelf, ExpandIcon } from './components/icons';
+import * as style from './transaction.css';
+import * as parentStyle from './transactions.css';
 
-@translate()
-export default class Transaction extends Component {
-    state = {
-        transactionDialog: false,
+interface State {
+    transactionDialog: boolean;
+}
+
+export interface TransactionInterface {
+    type: 'send' | 'receive' | 'self';
+    txID: string;
+    amount: AmountInterface;
+    fee: AmountWithConversions;
+    feeRatePerKb: AmountWithConversions;
+    gas: number;
+    vsize: number;
+    size: number;
+    weight: number;
+    numConfirmations: number;
+    numConfirmationsComplete: number;
+    time: string | null;
+    addresses: string[];
+    status: 'complete' | 'pending' | 'failed';
+    internalID: string;
+}
+
+interface TransactionProps extends TransactionInterface {
+    index: number;
+    explorerURL: string;
+}
+
+type Props = TransactionProps & TranslateProps;
+
+class Transaction extends Component<Props, State> {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            transactionDialog: false,
+        };
     }
 
-    parseTimeShort = time => {
+    private parseTimeShort = time => {
         const options = {
             year: 'numeric',
             month: 'numeric',
@@ -38,15 +74,15 @@ export default class Transaction extends Component {
         return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
     }
 
-    showDetails = () => {
+    private showDetails = () => {
         this.setState({ transactionDialog: true });
     }
 
-    hideDetails = () => {
+    private hideDetails = () => {
         this.setState({ transactionDialog: false });
     }
 
-    render({
+    public render({
         t,
         index,
         explorerURL,
@@ -64,51 +100,15 @@ export default class Transaction extends Component {
         time,
         addresses,
         status,
-    }, {
-        transactionDialog,
-    }) {
+    }: RenderableProps<Props>,
+                  { transactionDialog }: State,
+    ) {
         const arrow = type === 'receive' ? (
-            <svg
-                className={[style.type, style.typeIn].join(' ')}
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <polyline points="19 12 12 19 5 12"></polyline>
-            </svg>
+            <ArrowIn />
         ) : type === 'send' ? (
-            <svg
-                className={[style.type, style.typeOut].join(' ')}
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="12" y1="19" x2="12" y2="5"></line>
-                <polyline points="5 12 12 5 19 12"></polyline>
-            </svg>
+            <ArrowOut />
         ) : (
-            <svg
-                className={[style.type, style.typeSelf].join(' ')}
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+            <ArrowSelf />
         );
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const typeClassName = (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
@@ -125,11 +125,15 @@ export default class Transaction extends Component {
                     <div className={parentStyle.columnGroup}>
                         <div className={parentStyle.type}>{arrow}</div>
                         <div className={parentStyle.date}>
-                            <span className={style.columnLabel}>Date:</span>
+                            <span className={style.columnLabel}>
+                                Date:
+                            </span>
                             <span className={style.date}>{sDate}</span>
                         </div>
                         <div className={parentStyle.address}>
-                            <span className={style.columnLabel}>Address:</span>
+                            <span className={style.columnLabel}>
+                                Address:
+                            </span>
                             <span className={style.address}>
                                 {addresses[0]}
                                 {
@@ -143,48 +147,15 @@ export default class Transaction extends Component {
                         </div>
                         <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.showDetails}>
-                                {
-                                    !transactionDialog ? (
-                                        <svg
-                                            className={style.expandIcon}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"></circle>
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                            <line x1="11" y1="8" x2="11" y2="14"></line>
-                                            <line x1="8" y1="11" x2="14" y2="11"></line>
-                                        </svg>
-                                    ) : (
-                                        <svg
-                                            className={style.expandIcon}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"></circle>
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                            <line x1="8" y1="11" x2="14" y2="11"></line>
-                                        </svg>
-                                    )
-                                }
+                                <ExpandIcon expand={!transactionDialog} />
                             </a>
                         </div>
                     </div>
-                    <div className={[parentStyle.columnGroup].join(' ')}>
+                    <div className={parentStyle.columnGroup}>
                         <div className={parentStyle.status}>
-                            <span className={style.columnLabel}>Status:</span>
+                            <span className={style.columnLabel}>
+                                Status:
+                            </span>
                             <ProgressRing
                                 className="m-right-quarter"
                                 width={14}
@@ -207,42 +178,7 @@ export default class Transaction extends Component {
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.showDetails}>
-                                {
-                                    !transactionDialog ? (
-                                        <svg
-                                            className={style.expandIcon}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"></circle>
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                            <line x1="11" y1="8" x2="11" y2="14"></line>
-                                            <line x1="8" y1="11" x2="14" y2="11"></line>
-                                        </svg>
-                                    ) : (
-                                        <svg
-                                            className={style.expandIcon}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"></circle>
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                            <line x1="8" y1="11" x2="14" y2="11"></line>
-                                        </svg>
-                                    )
-                                }
+                                <ExpandIcon expand={!transactionDialog} />
                             </a>
                         </div>
                     </div>
@@ -379,3 +315,7 @@ export default class Transaction extends Component {
         );
     }
 }
+
+const HOC = translate<TransactionProps>()(Transaction);
+
+export { HOC as Transaction };

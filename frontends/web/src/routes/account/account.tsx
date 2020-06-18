@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +23,8 @@ import HeadersSync from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
-import Transactions from '../../components/transactions/transactions';
+import { TransactionInterface } from '../../components/transactions/transaction';
+import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
@@ -58,7 +60,7 @@ export interface AccountInfo {
 interface State {
     initialized: boolean;
     connected: boolean;
-    transactions?: any[]; // define once transaction.jsx is converted
+    transactions?: TransactionInterface[];
     balance?: BalanceInterface;
     hasCard: boolean;
     exported: string;
@@ -269,7 +271,6 @@ class Account extends Component<Props, State> {
         if (!account) {
             return null;
         }
-        const noTransactions = (initialized && transactions !== undefined && transactions.length <= 0);
         const canSend = balance && balance.available.amount !== '0';
         return (
             <div class="contentWithGuide">
@@ -342,8 +343,6 @@ class Account extends Component<Props, State> {
                                         handleExport={this.export}
                                         explorerURL={account.blockExplorerTxPrefix}
                                         transactions={transactions}
-                                        unit={balance!.available.unit}
-                                        className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
                                     />
                                 )
                             }

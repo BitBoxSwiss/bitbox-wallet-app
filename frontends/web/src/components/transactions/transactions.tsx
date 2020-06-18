@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +15,30 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import Transaction from './transaction';
+import { Component, h, RenderableProps } from 'preact';
 import A from '../../components/anchor/anchor';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { runningInAndroid } from '../../utils/env';
+import { Transaction, TransactionInterface } from './transaction';
 import * as style from './transactions.css';
 
-@translate()
-export default class Transactions extends Component {
-    render({
+interface TransactionsProps {
+    explorerURL: string;
+    transactions?: TransactionInterface[];
+    exported: string;
+    handleExport: () => void;
+}
+
+type Props = TransactionsProps & TranslateProps;
+
+class Transactions extends Component<Props> {
+    public render({
         t,
         explorerURL,
         transactions,
         exported,
         handleExport,
-    }) {
+    }: RenderableProps<Props>) {
         // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
         // folder and permissions.
         const csvExportDisabled = runningInAndroid();
@@ -56,7 +65,7 @@ export default class Transactions extends Component {
                     <div className={style.action}>&nbsp;</div>
                 </div>
                 {
-                    transactions.length > 0 ? transactions.map((props, index) => (
+                    (transactions && transactions.length > 0) ? transactions.map((props, index) => (
                         <Transaction
                             key={props.internalID}
                             explorerURL={explorerURL}
@@ -72,3 +81,7 @@ export default class Transactions extends Component {
         );
     }
 }
+
+const HOC = translate<TransactionsProps>()(Transactions);
+
+export { HOC as Transactions };

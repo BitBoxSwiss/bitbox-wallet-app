@@ -16,7 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import Logo from '../../../components/icon/logo';
-import { Amount, FiatConversion } from '../../../components/rates/rates';
+import { AmountInterface, FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { AccountAndBalanceInterface } from './accountssummary';
 import { BalanceRow } from './balancerow';
@@ -25,7 +25,7 @@ import * as style from './summary.css';
 interface ProvidedProps {
     coinCode: string;
     accounts: AccountAndBalanceInterface[];
-    total: Amount;
+    total: AmountInterface;
     index: number;
 }
 

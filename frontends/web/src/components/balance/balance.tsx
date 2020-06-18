@@ -15,13 +15,13 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { Amount, FiatConversion } from '../../components/rates/rates';
+import { AmountInterface, FiatConversion } from '../../components/rates/rates';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './balance.css';
 
 export interface BalanceInterface {
-    available: Amount;
-    incoming: Amount;
+    available: AmountInterface;
+    incoming: AmountInterface;
     hasIncoming: boolean;
 }
 
