@@ -288,18 +288,6 @@ class Settings extends Component<Props, State> {
                                                                 <div className={style.currency} key={`available-fiat-${index}`}>
                                                                     <div>
                                                                         <p className="m-none">{account.label}</p>
-                                                                        <p className="m-none">
-                                                                            {
-                                                                                account.badges.map((badge, i) => (
-                                                                                    <Badge
-                                                                                        key={`badge-${i}`}
-                                                                                        type={badge.includes('BTC') ? 'secondary' : 'primary'}
-                                                                                        className={i > 0 ? 'm-left-quarter' : ''}>
-                                                                                        {badge}
-                                                                                    </Badge>
-                                                                                ))
-                                                                            }
-                                                                        </p>
                                                                     </div>
                                                                     <Toggle
                                                                         id={account.name}
@@ -340,7 +328,7 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                     <p className="text-gray text-small">powered by Etherscan.io APIs</p>
                                                 </div>
-                                                <div className="column column-1-3">
+                                                <div className="column column-1-2">
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.expert.title')}</h3>
