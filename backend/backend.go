@@ -265,7 +265,7 @@ func (backend *Backend) CreateAndAddAccount(
 	}
 
 	getNotifier := func(configurations signing.Configurations) accounts.Notifier {
-		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), coin.Code()))
+		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
 	}
 
 	accountAdded := false
