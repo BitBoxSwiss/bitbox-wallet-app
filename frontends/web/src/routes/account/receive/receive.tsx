@@ -44,6 +44,7 @@ interface State {
     verifying: boolean;
     activeIndex: number;
     paired: boolean | null;
+    addressType: number;
 }
 
 interface LoadedReceiveProps {
@@ -64,6 +65,7 @@ class Receive extends Component<Props, State> {
             verifying: false,
             activeIndex: 0,
             paired: null,
+            addressType: 0,
         };
     }
 
@@ -144,6 +146,12 @@ class Receive extends Component<Props, State> {
         return this.props.devices[this.props.deviceIDs[0]];
     }
 
+    private toggleAddressType = () => {
+        this.setState(({ addressType }) => ({
+            addressType: addressType ? 0 : 1,
+        }));
+    }
+
     public render(
         { t,
           code,
@@ -151,7 +159,8 @@ class Receive extends Component<Props, State> {
           secureOutput }: RenderableProps<Props>,
         { verifying,
           activeIndex,
-          paired }: State,
+          paired,
+          addressType }: State,
     ) {
         const account = this.getAccount();
         if (account === undefined) {
@@ -167,8 +176,7 @@ class Receive extends Component<Props, State> {
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
         const enableCopy = !forceVerification;
 
-        // TODO: unified-accounts, let user cycle through address types
-        const currentAddresses = receiveAddresses[0];
+        const currentAddresses = receiveAddresses[addressType];
 
         let address = currentAddresses[activeIndex].address;
         if (!enableCopy && !verifying) {
@@ -241,13 +249,18 @@ class Receive extends Component<Props, State> {
                     }
                 </div>
                 <CopyableInput disabled={!enableCopy} value={address} flexibleHeight />
+                { receiveAddresses.length > 1 && (
+                    <p className={style.changeType} onClick={this.toggleAddressType}>
+                        {t(`receive.addressType.${this.state.addressType}`)}
+                    </p>
+                )}
                 <div className="buttons">
                     {
                         forceVerification && (
                             <Button
                                 primary
                                 disabled={verifying || secureOutput === undefined}
-                                onClick={() => this.verifyAddress(0)}>
+                                onClick={() => this.verifyAddress(addressType)}>
                                 {t('receive.showFull')}
                             </Button>
                         )
@@ -257,7 +270,7 @@ class Receive extends Component<Props, State> {
                             <Button
                                 primary
                                 disabled={verifying || secureOutput === undefined}
-                                onClick={() => this.verifyAddress(0)}>
+                                onClick={() => this.verifyAddress(addressType)}>
                                 {verifyLabel}
                             </Button>
                         )

@@ -1031,6 +1031,10 @@
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
+    "addressType": [
+      "change to compatible address (Segwit)",
+      "change back to modern address (recommended)"
+    ],
     "label": "Your address",
     "onlyThisCoin": {
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
