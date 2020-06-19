@@ -269,15 +269,26 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				PubkeyScript: prevTxOut.PkScript,
 			}
 		}
+		inputAddress := btcProposedTx.GetAddress(prevOut.ScriptHashHex())
+
+		// Find the script config index. Assumption: there is only one entry per script type, so we
+		// don't have to check that the keypath prefix matches.
+		var scriptConfigIndex uint32
+		for i, cfg := range btcProposedTx.AccountSigningConfigurations {
+			if cfg.ScriptType() == inputAddress.Configuration.ScriptType() {
+				scriptConfigIndex = uint32(i)
+				break
+			}
+		}
 
 		inputs[inputIndex] = &firmware.BTCTxInput{
 			Input: &messages.BTCSignInputRequest{
-				PrevOutHash:  txIn.PreviousOutPoint.Hash[:],
-				PrevOutIndex: txIn.PreviousOutPoint.Index,
-				PrevOutValue: uint64(prevOut.Value),
-				Sequence:     txIn.Sequence,
-				Keypath: btcProposedTx.GetAddress(prevOut.ScriptHashHex()).
-					Configuration.AbsoluteKeypath().ToUInt32(),
+				PrevOutHash:       txIn.PreviousOutPoint.Hash[:],
+				PrevOutIndex:      txIn.PreviousOutPoint.Index,
+				PrevOutValue:      uint64(prevOut.Value),
+				Sequence:          txIn.Sequence,
+				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
+				ScriptConfigIndex: scriptConfigIndex,
 			},
 			PrevTx: &firmware.BTCPrevTx{
 				Version:  uint32(prevTx.Version),
