@@ -17,6 +17,7 @@
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
+import { ButtonLink } from '../../../components/forms';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
@@ -73,13 +74,20 @@ export default class Info extends Component {
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded flex flex-column flex-center">
-                            {
-                                info.signingConfigurations.map((config, index) => (
-                                    <div key={index} class={[style.infoContent, 'box large'].join(' ')}>
-                                        <SigningConfiguration info={config} code={code} signingConfigIndex={index} />
-                                    </div>
-                                ))
-                            }
+                            <div class={[style.infoContent, 'box large'].join(' ')}>
+                                {
+                                    info.signingConfigurations.map((config, index) => (
+                                        <SigningConfiguration key={index} info={config} code={code} signingConfigIndex={index} />
+                                    ))
+                                }
+                                <div className="buttons">
+                                    <ButtonLink
+                                        transparent
+                                        href={`/account/${code}`}>
+                                        {t('button.back')}
+                                    </ButtonLink>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

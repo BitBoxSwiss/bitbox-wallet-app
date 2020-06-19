@@ -8,6 +8,10 @@
     margin-top: var(--space-half);
 }
 
+.address {
+    margin-bottom: var(--space-default);
+}
+
 @media (max-width: 640px) {
     .infoContent {
         width: 100%;
