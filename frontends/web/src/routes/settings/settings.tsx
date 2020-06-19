@@ -313,7 +313,7 @@ class Settings extends Component<Props, State> {
                                                 <div className="column column-1-3">
                                                     <div class="subHeaderContainer withToggler">
                                                         <div class="subHeader">
-                                                            <h3>{t('settings.accounts.ethereum')}</h3>
+                                                            <h3>Ethereum</h3>
                                                             <Badge type="primary" className="m-left-quarter">BB02</Badge>
                                                         </div>
                                                         <div className="subHeaderToggler">
