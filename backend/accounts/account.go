@@ -68,5 +68,5 @@ type Interface interface {
 
 // Info holds account information.
 type Info struct {
-	SigningConfiguration *signing.Configuration `json:"signingConfiguration"`
+	SigningConfigurations []*signing.Configuration `json:"signingConfigurations"`
 }

@@ -52,7 +52,7 @@ interface LoadedAccountProps {
 }
 
 export interface AccountInfo {
-    signingConfiguration: SigningConfigurationInterface;
+    signingConfigurations: SigningConfigurationInterface[];
 }
 
 interface State {
@@ -228,11 +228,11 @@ class Account extends Component<Props, State> {
     }
 
     private isLegacy = (account: AccountInterface, accountInfo?: AccountInfo): boolean => {
-        if (!accountInfo) {
+        if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
             return false;
         }
         return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
-            accountInfo.signingConfiguration.scriptType === 'p2pkh';
+            accountInfo.signingConfigurations[0].scriptType === 'p2pkh';
     }
 
     private deviceIDs = (devices: Devices) => {

@@ -435,35 +435,37 @@ func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte
 
 // Info returns account info, such as the signing configuration (xpubs).
 func (account *Account) Info() *accounts.Info {
-	// The internal extended key representation always uses he same version bytes (prefix xpub). We
+	// The internal extended key representation always uses the same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
-	xpubs := []*hdkeychain.ExtendedKey{}
-	// TODO unified-accounts
-	for _, xpub := range account.subaccounts[0].signingConfiguration.ExtendedPublicKeys() {
-		if xpub.IsPrivate() {
-			panic("xpub can't be private")
+	signingConfigurations := make([]*signing.Configuration, len(account.subaccounts))
+	for idx, subacc := range account.subaccounts {
+		var xpubs []*hdkeychain.ExtendedKey
+		for _, xpub := range subacc.signingConfiguration.ExtendedPublicKeys() {
+			if xpub.IsPrivate() {
+				panic("xpub can't be private")
+			}
+			xpubCopy, err := hdkeychain.NewKeyFromString(xpub.String())
+			if err != nil {
+				panic(err)
+			}
+			xpubCopy.SetNet(
+				&chaincfg.Params{
+					HDPublicKeyID: XPubVersionForScriptType(
+						account.coin, subacc.signingConfiguration.ScriptType()),
+				},
+			)
+			xpubs = append(xpubs, xpubCopy)
 		}
-		xpubStr := xpub.String()
-		xpubCopy, err := hdkeychain.NewKeyFromString(xpubStr)
-		if err != nil {
-			panic(err)
-		}
-		xpubCopy.SetNet(
-			&chaincfg.Params{
-				HDPublicKeyID: XPubVersionForScriptType(account.
-					coin, account.subaccounts[0].signingConfiguration.ScriptType()),
-			},
+		signingConfigurations[idx] = signing.NewConfiguration(
+			subacc.signingConfiguration.ScriptType(),
+			subacc.signingConfiguration.AbsoluteKeypath(),
+			xpubs,
+			subacc.signingConfiguration.Address(),
+			subacc.signingConfiguration.SigningThreshold(),
 		)
-		xpubs = append(xpubs, xpubCopy)
 	}
 	return &accounts.Info{
-		SigningConfiguration: signing.NewConfiguration(
-			account.subaccounts[0].signingConfiguration.ScriptType(),
-			account.subaccounts[0].signingConfiguration.AbsoluteKeypath(),
-			xpubs,
-			account.subaccounts[0].signingConfiguration.Address(),
-			account.subaccounts[0].signingConfiguration.SigningThreshold(),
-		),
+		SigningConfigurations: signingConfigurations,
 	}
 }
 
@@ -832,13 +834,21 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 	return account.Keystores().CanVerifyExtendedPublicKeys()
 }
 
-// VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
-// index is the position of an xpub in the []*hdkeychain which corresponds to the particular keystore in []Keystore
-func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {
-	keystore := account.Keystores().Keystores()[index]
+// VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
+// exists.
+//
+// signingConfigIndex refers to the subaccount / signing config.
+//
+// xpubIndex is the position of an xpub in the []*hdkeychain which corresponds to the particular
+// keystore in []Keystore.
+func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex int) (bool, error) {
+	keystore := account.Keystores().Keystores()[xpubIndex]
 	if keystore.CanVerifyExtendedPublicKey() {
-		// TODO unified-accounts
-		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.subaccounts[0].signingConfiguration.AbsoluteKeypath(), account.subaccounts[0].signingConfiguration)
+		return true, keystore.VerifyExtendedPublicKey(
+			account.Coin(),
+			account.subaccounts[signingConfigIndex].signingConfiguration.AbsoluteKeypath(),
+			account.subaccounts[signingConfigIndex].signingConfiguration,
+		)
 	}
 	return false, nil
 }
