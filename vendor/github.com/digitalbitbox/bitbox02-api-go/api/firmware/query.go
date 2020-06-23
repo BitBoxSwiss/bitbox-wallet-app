@@ -99,6 +99,8 @@ func (device *Device) rawQuery(msg []byte) ([]byte, error) {
 }
 
 func (device *Device) query(request proto.Message) (*messages.Response, error) {
+	device.queryLock.Lock()
+	defer device.queryLock.Unlock()
 	if device.sendCipher == nil || !device.channelHashDeviceVerified || !device.channelHashAppVerified {
 		return nil, errp.New("handshake must come first")
 	}
@@ -106,6 +108,7 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
+
 	requestBytesEncrypted := device.sendCipher.Encrypt(nil, nil, requestBytes)
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
 		requestBytesEncrypted = append([]byte(opNoiseMsg), requestBytesEncrypted...)
