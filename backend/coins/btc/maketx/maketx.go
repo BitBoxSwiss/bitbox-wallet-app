@@ -23,7 +23,7 @@ import (
 	"github.com/btcsuite/btcutil/txsort"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
@@ -32,7 +32,7 @@ import (
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
 	// Coin is the coin this tx was made for.
-	Coin coin.Coin
+	Coin coinpkg.Coin
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
 	// Fee is the mining fee used.
@@ -107,9 +107,24 @@ func toInputConfigurations(
 	return inputConfigurations
 }
 
+// Enable RBF (Replace-by-fee) for Bitcoin. Litecoin does not have RBF.
+func setRBF(coin coinpkg.Coin, tx *wire.MsgTx) {
+	for _, txIn := range tx.TxIn {
+		if coin.Code() == coinpkg.CodeBTC ||
+			coin.Code() == coinpkg.CodeTBTC ||
+			coin.Code() == coinpkg.CodeRBTC {
+			// Enable RBF
+			// https://github.com/bitcoin/bips/blob/master/bip-0125.mediawiki#summary
+			// Locktime is also enabled by this (https://en.bitcoin.it/wiki/NLockTime), but we keep
+			// the locktime at 0, which has no effect.
+			txIn.Sequence = wire.MaxTxInSequenceNum - 2
+		}
+	}
+}
+
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	spendableOutputs map[wire.OutPoint]UTXO,
 	outputPkScript []byte,
 	feePerKb btcutil.Amount,
@@ -141,6 +156,8 @@ func NewTxSpendAll(
 	}
 	txsort.InPlaceSort(unsignedTransaction)
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
+
+	setRBF(coin, unsignedTransaction)
 	return &TxProposal{
 		Coin:        coin,
 		Amount:      btcutil.Amount(output.Value),
@@ -154,7 +171,7 @@ func NewTxSpendAll(
 //
 // changeAddress: a change output to this address is added if needed.
 func NewTx(
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	spendableOutputs map[wire.OutPoint]UTXO,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
@@ -215,6 +232,8 @@ func NewTx(
 		}
 		txsort.InPlaceSort(unsignedTransaction)
 		log.WithField("fee", finalFee).Debug("Preparing transaction")
+
+		setRBF(coin, unsignedTransaction)
 		return &TxProposal{
 			Coin:          coin,
 			Amount:        targetAmount,
