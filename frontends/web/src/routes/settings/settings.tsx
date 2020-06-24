@@ -49,19 +49,12 @@ interface State {
 
 class Settings extends Component<Props, State> {
     private accountsList = [
-        { name: 'bitcoinP2PKHActive',
-          badges: ['BB01'],
-        },
-        { name: 'bitcoinP2WPKHActive',
+        { name: 'bitcoinActive',
+          label: 'Bitcoin',
           badges: ['BB01', 'BB02', 'BB02-BTC'],
         },
-        { name: 'bitcoinP2WPKHP2SHActive',
-          badges: ['BB01', 'BB02', 'BB02-BTC'],
-        },
-        { name: 'litecoinP2WPKHActive',
-          badges: ['BB01', 'BB02'],
-        },
-        { name: 'litecoinP2WPKHP2SHActive',
+        { name: 'litecoinActive',
+          label: 'Litecoin',
           badges: ['BB01', 'BB02'],
         },
     ];
@@ -294,7 +287,7 @@ class Settings extends Component<Props, State> {
                                                             this.accountsList.map((account, index) => (
                                                                 <div className={style.currency} key={`available-fiat-${index}`}>
                                                                     <div>
-                                                                        <p className="m-none">{t(`settings.accounts.${account.name.replace('Active', '')}`)}</p>
+                                                                        <p className="m-none">{account.label}</p>
                                                                         <p className="m-none">
                                                                             {
                                                                                 account.badges.map((badge, i) => (
@@ -320,7 +313,7 @@ class Settings extends Component<Props, State> {
                                                 <div className="column column-1-3">
                                                     <div class="subHeaderContainer withToggler">
                                                         <div class="subHeader">
-                                                            <h3>{t('settings.accounts.ethereum')}</h3>
+                                                            <h3>Ethereum</h3>
                                                             <Badge type="primary" className="m-left-quarter">BB02</Badge>
                                                         </div>
                                                         <div className="subHeaderToggler">
@@ -354,6 +347,21 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                     </div>
                                                     <div className="box slim divide">
+                                                        <div className={style.currency}>
+                                                            <div>
+                                                                <p className="m-none">{t('settings.expert.splitAccounts')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="primary">BB02</Badge>
+                                                                    <Badge type="secondary" className="m-left-quarter">BB02-BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                id="splitAccounts"
+                                                                checked={config.backend.splitAccounts}
+                                                                onChange={this.handleToggleAccount} />
+                                                        </div>
                                                         <div className={style.currency}>
                                                             <div>
                                                                 <p className="m-none">{t('settings.expert.coinControl')}</p>

@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -80,7 +81,7 @@ type Backend interface {
 		coin coinpkg.Coin,
 		code string,
 		name string,
-		getSigningConfiguration func() (*signing.Configuration, error),
+		getSigningConfigurations func() (signing.Configurations, error),
 		persist bool,
 		emitEvent bool,
 	) error
@@ -460,12 +461,12 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
 	}
 
-	getSigningConfiguration := func() (*signing.Configuration, error) {
-		return configuration, nil
+	getSigningConfigurations := func() (signing.Configurations, error) {
+		return signing.Configurations{configuration}, nil
 	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
 	err = handlers.backend.CreateAndAddAccount(
-		coin, accountCode, jsonAccountName, getSigningConfiguration, true, true)
+		coin, accountCode, jsonAccountName, getSigningConfigurations, true, true)
 	if errp.Cause(err) == backend.ErrAccountAlreadyExists {
 		return map[string]interface{}{"success": false, "errorCode": "alreadyExists"}, nil
 	}
@@ -859,9 +860,8 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		"Balance",
 		"Unit",
 		"Type",
-		"Xpub",
+		"Xpubs",
 		"Address",
-		"Script Type",
 	})
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -883,27 +883,23 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		}
 		unit := account.Coin().SmallestUnit()
 		var accountType string
-		var xpubs string
+		var xpubs []string
 		var address string
-		var scriptType string
-		if signingConfiguration := account.Info().SigningConfiguration; signingConfiguration.IsAddressBased() {
+		signingConfigurations := account.Info().SigningConfigurations
+		if len(signingConfigurations) == 1 && signingConfigurations[0].IsAddressBased() {
 			accountType = "address"
-			address = signingConfiguration.Address()
+			address = signingConfigurations[0].Address()
 		} else {
-			accountType = "xpub"
-			for index, xpub := range account.Info().SigningConfiguration.ExtendedPublicKeys() {
-				if index > 0 {
-					xpubs += "; "
+			accountType = "xpubs"
+			for _, signingConfiguration := range signingConfigurations {
+				if len(signingConfiguration.ExtendedPublicKeys()) != 1 {
+					return nil, errp.New("multisig not supported in the export yet")
 				}
-				xpubs += xpub.String()
+				xpubs = append(xpubs, signingConfiguration.ExtendedPublicKeys()[0].String())
 			}
-			switch specificAccount := account.(type) {
-			case *btc.Account:
-				scriptType = string(specificAccount.Info().SigningConfiguration.ScriptType())
-			case *eth.Account:
-				address = signingConfiguration.Address()
-			default:
-				return nil, nil
+
+			if _, ok := account.(*eth.Account); ok {
+				address = signingConfigurations[0].Address()
 			}
 		}
 
@@ -913,9 +909,8 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			balance.Available().BigInt().String(),
 			unit,
 			accountType,
-			xpubs,
+			strings.Join(xpubs, "; "),
 			address,
-			scriptType,
 		})
 		if err != nil {
 			return nil, errp.WithStack(err)

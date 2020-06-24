@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +58,11 @@ func (keystore *keystore) SupportsAccount(
 	}
 }
 
+// SupportsUnifiedAccounts implements keystore.Keystore.
+func (keystore *keystore) SupportsUnifiedAccounts() bool {
+	return false
+}
+
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(coin coin.Coin) (bool, bool, error) {
 	deviceInfo, err := keystore.dbb.DeviceInfo()
@@ -87,7 +93,7 @@ func (keystore *keystore) CanVerifyExtendedPublicKey() bool {
 }
 
 // VerifyExtendedPublicKey implements keystore.Keystore.
-func (keystore *keystore) VerifyExtendedPublicKey(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+func (keystore *keystore) VerifyExtendedPublicKey(coin coin.Coin, configuration *signing.Configuration) error {
 	keystore.log.Panic("BitBox v1 does not have a screen to verify the xpub")
 	return nil
 }

@@ -1184,12 +1184,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Active accounts"
     },
     "electrum": {
@@ -1226,6 +1220,7 @@
         "title": "Connect your own full node"
       },
       "setProxyAddress": "Set proxy address",
+      "splitAccounts": "One account per address type",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy"
     },

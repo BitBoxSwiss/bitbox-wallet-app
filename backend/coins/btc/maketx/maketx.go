@@ -110,7 +110,6 @@ func toInputConfigurations(
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
 	coin coin.Coin,
-	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]UTXO,
 	outputPkScript []byte,
 	feePerKb btcutil.Amount,
@@ -156,7 +155,6 @@ func NewTxSpendAll(
 // changeAddress: a change output to this address is added if needed.
 func NewTx(
 	coin coin.Coin,
-	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]UTXO,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,

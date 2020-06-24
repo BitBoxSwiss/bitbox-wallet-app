@@ -48,9 +48,13 @@ func (account *Account) signTransaction(
 	previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
 	getPrevTx func(chainhash.Hash) *wire.MsgTx,
 ) error {
+	signingConfigs := make([]*signing.Configuration, len(account.subaccounts))
+	for i, subacc := range account.subaccounts {
+		signingConfigs[i] = subacc.signingConfiguration
+	}
 	proposedTransaction := &ProposedTransaction{
 		TXProposal:                   txProposal,
-		AccountSigningConfigurations: []*signing.Configuration{account.signingConfiguration},
+		AccountSigningConfigurations: signingConfigs,
 		PreviousOutputs:              previousOutputs,
 		GetAddress:                   account.getAddress,
 		GetPrevTx:                    getPrevTx,

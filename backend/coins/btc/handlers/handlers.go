@@ -443,18 +443,24 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 	return status, nil
 }
 
+type jsonAddress struct {
+	Address   string `json:"address"`
+	AddressID string `json:"addressID"`
+}
+
 func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, error) {
-	addresses := []interface{}{}
-	for _, address := range handlers.account.GetUnusedReceiveAddresses() {
-		addresses = append(addresses, struct {
-			Address   string `json:"address"`
-			AddressID string `json:"addressID"`
-		}{
-			Address:   address.EncodeForHumans(),
-			AddressID: address.ID(),
-		})
+	var addressesList [][]jsonAddress
+	for _, addresses := range handlers.account.GetUnusedReceiveAddresses() {
+		addrs := []jsonAddress{}
+		for _, address := range addresses {
+			addrs = append(addrs, jsonAddress{
+				Address:   address.EncodeForHumans(),
+				AddressID: address.ID(),
+			})
+		}
+		addressesList = append(addressesList, addrs)
 	}
-	return addresses, nil
+	return addressesList, nil
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
@@ -478,15 +484,18 @@ func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interf
 }
 
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
-	var index int
-	if err := json.NewDecoder(r.Body).Decode(&index); err != nil {
+	var input struct {
+		XPubIndex          int `json:"xpubIndex"`
+		SigningConfigIndex int `json:"signingConfigIndex"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
 		return nil, errp.New("An account must be BTC based to support xpub verification")
 	}
-	return btcAccount.VerifyExtendedPublicKey(index)
+	return btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex, input.XPubIndex)
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {

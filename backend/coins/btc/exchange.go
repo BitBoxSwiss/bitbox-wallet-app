@@ -32,10 +32,10 @@ func (account *Account) SafelloBuySupported() bool {
 func (account *Account) SafelloBuy() *safello.Buy {
 	switch account.coin.Net().Net {
 	case chaincfg.MainNetParams.Net:
-		address := account.GetUnusedReceiveAddresses()[0]
+		address := account.GetUnusedReceiveAddresses()[0][0]
 		return safello.NewBuy(false, address.ID(), address.EncodeForHumans())
 	case chaincfg.TestNet3Params.Net:
-		address := account.GetUnusedReceiveAddresses()[0]
+		address := account.GetUnusedReceiveAddresses()[0][0]
 		return safello.NewBuy(true, address.ID(), address.EncodeForHumans())
 	default:
 		panic("SafelloBuy is not supported by this account")

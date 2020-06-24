@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2020 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,6 +93,11 @@ func (keystore *Keystore) SupportsAccount(
 	}
 }
 
+// SupportsUnifiedAccounts implements keystore.Keystore.
+func (keystore *Keystore) SupportsUnifiedAccounts() bool {
+	return true
+}
+
 // Identifier implements keystore.Keystore.
 func (keystore *Keystore) Identifier() (string, error) {
 	return keystore.identifier, nil
@@ -113,7 +119,7 @@ func (keystore *Keystore) CanVerifyExtendedPublicKey() bool {
 }
 
 // VerifyExtendedPublicKey implements keystore.Keystore.
-func (keystore *Keystore) VerifyExtendedPublicKey(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+func (keystore *Keystore) VerifyExtendedPublicKey(coin coin.Coin, configuration *signing.Configuration) error {
 	return errp.New("The software-based keystore has no secure output to display the public key.")
 }
 

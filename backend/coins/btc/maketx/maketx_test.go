@@ -95,7 +95,6 @@ func (s *newTxSuite) newTx(
 	utxo map[wire.OutPoint]maketx.UTXO) (*maketx.TxProposal, error) {
 	return maketx.NewTx(
 		tbtc,
-		s.inputConfiguration,
 		utxo,
 		s.output(amount),
 		feePerKb,
