@@ -104,6 +104,13 @@ pre.verifyAddress {
     background-color: var(--color-white);
 }
 
+.changeType {
+    color: var(--color-secondary);
+    cursor: pointer;
+    text-align: center;
+    text-decoration: underline;
+}
+
 @media (max-width: 640px) {
     .addressField {
         min-width: 0 !important;

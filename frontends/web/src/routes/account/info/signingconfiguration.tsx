@@ -84,7 +84,7 @@ class SigningConfiguration extends Component<Props, State> {
         { canVerifyExtendedPublicKey }: State) {
         return (
         // TODO: add info if single or multisig, and threshold.
-        <div>
+        <div className={style.address}>
             { info.address ?
                 <div>
                     <label className="labelLarge">{t('accountInfo.address')}</label>
@@ -119,11 +119,6 @@ class SigningConfiguration extends Component<Props, State> {
                                         </Button>
                                     )
                                 }
-                                <ButtonLink
-                                    transparent
-                                    href={`/account/${code}`}>
-                                    {t('button.back')}
-                                </ButtonLink>
                             </div>
                         </div>
                     );
