@@ -376,7 +376,7 @@ class Send extends Component<Props, State> {
 
     private sendToSelf = (event: Event) => {
         apiGet('account/' + this.getAccount()!.code + '/receive-addresses').then(receiveAddresses => {
-            this.setState({ recipientAddress: receiveAddresses[0].address });
+            this.setState({ recipientAddress: receiveAddresses[0][0].address });
             this.handleFormChange(event);
         });
     }
