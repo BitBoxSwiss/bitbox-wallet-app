@@ -41,6 +41,7 @@ import (
 
 var noDust = btcutil.Amount(0)
 
+var tltc = btc.NewCoin(coin.CodeTLTC, "TLTC", &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
 var tbtc = btc.NewCoin(coin.CodeTBTC, "TBTC", &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
@@ -63,6 +64,8 @@ const (
 type newTxSuite struct {
 	suite.Suite
 
+	coin coin.Coin
+
 	addressChain       *addresses.AddressChain
 	someAddresses      []*addresses.AccountAddress
 	inputConfiguration *signing.Configuration
@@ -82,7 +85,8 @@ func (s *newTxSuite) SetupTest() {
 }
 
 func TestNewTxSuite(t *testing.T) {
-	suite.Run(t, &newTxSuite{})
+	suite.Run(t, &newTxSuite{coin: tbtc})
+	suite.Run(t, &newTxSuite{coin: tltc})
 }
 
 func (s *newTxSuite) output(amount btcutil.Amount) *wire.TxOut {
@@ -94,7 +98,7 @@ func (s *newTxSuite) newTx(
 	feePerKb btcutil.Amount,
 	utxo map[wire.OutPoint]maketx.UTXO) (*maketx.TxProposal, error) {
 	return maketx.NewTx(
-		tbtc,
+		s.coin,
 		utxo,
 		s.output(amount),
 		feePerKb,
@@ -103,7 +107,7 @@ func (s *newTxSuite) newTx(
 	)
 }
 
-func (s *newTxSuite) coin(i int) wire.OutPoint {
+func (s *newTxSuite) outpoint(i int) wire.OutPoint {
 	return wire.OutPoint{Hash: chainhash.HashH([]byte(`some-tx`)), Index: uint32(i)}
 }
 
@@ -111,7 +115,7 @@ func (s *newTxSuite) coin(i int) wire.OutPoint {
 func (s *newTxSuite) buildUTXO(satoshis ...int64) map[wire.OutPoint]maketx.UTXO {
 	utxo := map[wire.OutPoint]maketx.UTXO{}
 	for i, satoshi := range satoshis {
-		utxo[s.coin(i)] = maketx.UTXO{
+		utxo[s.outpoint(i)] = maketx.UTXO{
 			TxOut:         wire.NewTxOut(satoshi, s.someAddresses[0].PubkeyScript()),
 			Configuration: s.inputConfiguration,
 		}
@@ -139,7 +143,7 @@ func (s *newTxSuite) check(
 	tx := txProposal.Transaction
 
 	// Check invariants independent of the particular coin selection algorithm.
-	require.Equal(s.T(), tbtc, txProposal.Coin)
+	require.Equal(s.T(), s.coin, txProposal.Coin)
 	var output *wire.TxOut
 	if expectedChange == 0 {
 		require.Nil(s.T(), txProposal.ChangeAddress)
@@ -166,7 +170,13 @@ func (s *newTxSuite) check(
 	for _, txIn := range tx.TxIn {
 		require.Nil(s.T(), txIn.SignatureScript)
 		require.Nil(s.T(), txIn.Witness)
-		require.Equal(s.T(), wire.MaxTxInSequenceNum, txIn.Sequence)
+		if s.coin == tbtc {
+			// RBF for btc
+			require.Equal(s.T(), wire.MaxTxInSequenceNum-2, txIn.Sequence)
+		} else {
+			// No RBF for other coins.
+			require.Equal(s.T(), wire.MaxTxInSequenceNum, txIn.Sequence)
+		}
 	}
 
 	inputSum := int64(0)
@@ -197,7 +207,7 @@ func (s *newTxSuite) check(
 	// Check the selected coins match the expected selected coins.
 	require.Equal(s.T(), len(tx.TxIn), len(selectedCoins))
 	for i := range selectedCoins {
-		coin := s.coin(i)
+		coin := s.outpoint(i)
 		found := false
 		for _, txIn := range tx.TxIn {
 			if txIn.PreviousOutPoint.String() == coin.String() {
