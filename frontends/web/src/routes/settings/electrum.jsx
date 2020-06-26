@@ -120,7 +120,11 @@ class ElectrumServer extends Component {
             return (
                 <li>
                     <div class={style.server}>
-                        <div>{electrumServer} {tls ? 'tls' : 'tcp' }</div>
+                        <div class={style.serverLabel}>
+                            {electrumServer}
+                            {' '}
+                            <strong>{tls ? 'TLS' : 'TCP' }</strong>
+                        </div>
                         <div>
                             <button class={style.primary} disabled={electrumServer === '' || (tls && electrumCert === '') || loadingCheck} onClick={this.check}>
                                 {
