@@ -236,3 +236,16 @@
         padding: var(--space-half);
     }
 }
+
+/**
+ * Turn off animations when requested.
+ * On an Android phone, this is typically a "Remove animations" switch
+ * in Accessibility section.
+ */
+@media (prefers-reduced-motion) {
+    .overlay,
+    .modal {
+        animation: none;
+        opacity: 1;
+    }
+}

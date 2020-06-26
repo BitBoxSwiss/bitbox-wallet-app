@@ -406,3 +406,15 @@
         margin-bottom: var(--space-default) !important;
     }
 }
+
+/**
+ * Turn off animations when requested.
+ * On an Android phone, this is typically a "Remove animations" switch
+ * in Accessibility section.
+ */
+@media (prefers-reduced-motion) {
+    .step {
+        animation: none;
+        transition: none;
+    }
+}
