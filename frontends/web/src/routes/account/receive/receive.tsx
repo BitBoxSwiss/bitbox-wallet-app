@@ -47,9 +47,16 @@ interface State {
     addressType: number;
 }
 
+interface ReceiveAddress {
+    addressID: string;
+    address: string;
+}
+
+export type ReceiveAddresses = ReceiveAddress[][];
+
 interface LoadedReceiveProps {
     // first array index: address types. second array index: unused addresses of that address type.
-    receiveAddresses: Array<Array<{ addressID: string, address: string }>>;
+    receiveAddresses: ReceiveAddresses;
     secureOutput: {
         hasSecureOutput: boolean;
         optional: boolean;
