@@ -111,6 +111,10 @@
     
 }
 
+.content p {
+    word-break: break-word;
+}
+
 .actions button,
 .actions a,
 .small .actions button,
