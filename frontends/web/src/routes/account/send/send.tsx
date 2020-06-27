@@ -39,6 +39,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Devices } from '../../device/deviceswitch';
 import { AccountInterface } from '../account';
+import { ReceiveAddresses } from '../receive/receive';
 import { isBitcoinBased } from '../utils';
 import FeeTargets from './feetargets';
 import * as style from './send.css';
@@ -375,10 +376,11 @@ class Send extends Component<Props, State> {
     }
 
     private sendToSelf = (event: Event) => {
-        apiGet('account/' + this.getAccount()!.code + '/receive-addresses').then(receiveAddresses => {
-            this.setState({ recipientAddress: receiveAddresses[0][0].address });
-            this.handleFormChange(event);
-        });
+        apiGet('account/' + this.getAccount()!.code + '/receive-addresses')
+            .then((receiveAddresses: ReceiveAddresses) => {
+                this.setState({ recipientAddress: receiveAddresses[0][0].address });
+                this.handleFormChange(event);
+            });
     }
 
     private feeTargetChange = (feeTarget: string) => {
