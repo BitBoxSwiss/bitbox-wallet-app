@@ -29,8 +29,10 @@ interface ProvidedProps {
     signingConfigIndex: number;
 }
 
+export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
+
 export interface SigningConfigurationInterface {
-    scriptType: 'p2pkh' | 'p2wpkh-p2sh' | 'p2pkh';
+    scriptType: ScriptType;
     keypath: string;
     threshold: number;
     xpubs: string[];

@@ -31,7 +31,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Devices } from '../device/deviceswitch';
 import * as style from './account.css';
-import { SigningConfigurationInterface } from './info/signingconfiguration';
+import { ScriptType, SigningConfigurationInterface } from './info/signingconfiguration';
 import { isBitcoinBased } from './utils';
 
 export interface AccountInterface {
@@ -229,12 +229,12 @@ class Account extends Component<Props, State> {
         });
     }
 
-    private isLegacy = (account: AccountInterface, accountInfo?: AccountInfo): boolean => {
+    private isBTCScriptType = (scriptType: ScriptType, account: AccountInterface, accountInfo?: AccountInfo): boolean => {
         if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
             return false;
         }
         return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
-            accountInfo.signingConfigurations[0].scriptType === 'p2pkh';
+            accountInfo.signingConfigurations[0].scriptType === scriptType;
     }
 
     private deviceIDs = (devices: Devices) => {
@@ -351,6 +351,15 @@ class Account extends Component<Props, State> {
                 </div>
                 <Guide>
                     <Entry key="accountDescription" entry={t('guide.accountDescription')} />
+                    {this.isBTCScriptType('p2pkh', account, accountInfo) && (
+                        <Entry key="guide.settings.btc-p2pkh" entry={t('guide.settings.btc-p2pkh')} />
+                    )}
+                    {this.isBTCScriptType('p2wpkh-p2sh', account, accountInfo) && (
+                        <Entry key="guide.settings.btc-p2sh" entry={t('guide.settings.btc-p2sh')} />
+                    )}
+                    {this.isBTCScriptType('p2wpkh', account, accountInfo) && (
+                    <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
+                    )}
                     {balance && balance.available.amount === '0' && (
                         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', { unit: balance.available.unit })} />
                     )}
@@ -361,7 +370,7 @@ class Account extends Component<Props, State> {
                     {transactions !== undefined && transactions.length > 0 && (
                         <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
                     )}
-                    {this.isLegacy(account, accountInfo) && (
+                    {this.isBTCScriptType('p2pkh', account, accountInfo) && (
                         <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
                     )}
                     {transactions !== undefined &&  transactions.length > 0 && (

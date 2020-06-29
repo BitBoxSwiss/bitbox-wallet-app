@@ -454,9 +454,6 @@ class Settings extends Component<Props, State> {
                 </div>
                 <Guide>
                     <Entry key="guide.settings.whyMultipleAccounts" entry={t('guide.settings.whyMultipleAccounts')} />
-                    <Entry key="guide.settings.btc-p2pkh" entry={t('guide.settings.btc-p2pkh')} />
-                    <Entry key="guide.settings.btc-p2sh" entry={t('guide.settings.btc-p2sh')} />
-                    <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
                     <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
                     <Entry key="guide.settings.moreCoins" entry={t('guide.settings.moreCoins')} />
                     <Entry key="guide.accountRates" entry={t('guide.accountRates')} />
