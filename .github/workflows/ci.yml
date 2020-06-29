@@ -14,6 +14,26 @@ jobs:
         env:
           TRAVIS_OS_NAME: linux
           TRAVIS_BUILD_DIR: ${{github.workspace}}
+      - name: Upload Android
+        uses: actions/upload-artifact@v2
+        with:
+          path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
+          name: BitBoxApp-android-${{github.sha}}.apk
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v2
+        with:
+          path: frontends/qt/build/linux/BitBoxApp-*.AppImage
+          name: BitBoxApp-linux-${{github.sha}}.AppImage
+      - name: Upload deb
+        uses: actions/upload-artifact@v2
+        with:
+          path: frontends/qt/build/linux/bitbox_*.deb
+          name: BitBoxApp-linux-${{github.sha}}.deb
+      - name: Upload rpm
+        uses: actions/upload-artifact@v2
+        with:
+          path: frontends/qt/build/linux/bitbox-*.rpm
+          name: BitBoxApp-linux-${{github.sha}}.rpm
   macos:
     runs-on: macos-10.15
     steps:
@@ -24,3 +44,13 @@ jobs:
         env:
           TRAVIS_OS_NAME: osx
           TRAVIS_BUILD_DIR: ${{github.workspace}}
+      - name: Archive app
+        run: >
+          pushd ~/go/src/github.com/digitalbitbox/bitbox-wallet-app/frontends/qt/build/osx;
+          zip -r ${{github.workspace}}/BitBoxApp-macos.zip BitBox.app;
+          popd;
+      - name: Upload app
+        uses: actions/upload-artifact@v2
+        with:
+          path: BitBoxApp-macos.zip
+          name: BitBoxApp-macos-${{github.sha}}.zip
