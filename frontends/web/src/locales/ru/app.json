@@ -518,7 +518,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Некоторые криптовалюты имеют несколько форматов адресов и транзакций. Эти адреса разделяются на дополнительные учетные записи.",
-        "title": "Почему существует несколько учетных записей для одной и той же монеты?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Руководство",
@@ -807,11 +807,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Активные аккаунты"
     },
     "electrum": {
@@ -873,11 +868,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Входящее",
-      "send": "Изходящее",
-      "send_to_self": "Само"
-    },
     "confirmation": "Подтверждения",
     "explorer": "Номер транзакции",
     "explorerTitle": "Открыть во внешнем блок Explorer",

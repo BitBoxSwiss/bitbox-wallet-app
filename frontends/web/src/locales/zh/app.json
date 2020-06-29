@@ -783,7 +783,7 @@
       },
       "whyMultipleAccounts": {
         "text": "一些加密货币具有多种类型的地址和交易格式。这些地址被划分成多个帐户。",
-        "title": "为什么同一种数字货币有多个帐户？"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "指南",
@@ -1083,12 +1083,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "活跃帐户"
     },
     "electrum": {
@@ -1158,11 +1152,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "",
-      "send": "",
-      "send_to_self": "Self自己"
-    },
     "confirmation": "确认",
     "explorer": "交易ID",
     "explorerTitle": "在外部区块浏览器中打开",

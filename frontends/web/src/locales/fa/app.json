@@ -783,7 +783,7 @@
       },
       "whyMultipleAccounts": {
         "text": "بعضی از رمز ارز ها دارای آدرس ها و فرمت های معاملات متعدد هستند. این آدرس ها در حساب های اضافی پخش شده اند.",
-        "title": "چرا حساب های چندگانه برای همین سکه وجود دارد؟"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "راهنما",
@@ -1083,12 +1083,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum BETA",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "حساب های فعال"
     },
     "electrum": {
@@ -1158,11 +1152,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "که در",
-      "send": "بیرون",
-      "send_to_self": "خود"
-    },
     "confirmation": "تاییدیه ها",
     "explorer": "شماره تراکنش",
     "explorerTitle": "باز کردن در جستجوگر بلوک خارجی",

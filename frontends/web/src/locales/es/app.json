@@ -831,7 +831,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Algunas criptomonedas tienen múltiples direcciones y formatos de transacción. Estas direcciones están separadas en cuentas adicionales.",
-        "title": "¿Por qué hay cuentas múltiples para la misma moneda?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guía",
@@ -1143,12 +1143,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Cuentas activas"
     },
     "electrum": {
@@ -1222,11 +1216,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Dentro",
-      "send": "Fuera",
-      "send_to_self": "Propio"
-    },
     "confirmation": "Confirmaciones",
     "details": {
       "address": "Dirección",

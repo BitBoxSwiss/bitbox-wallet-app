@@ -521,7 +521,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Beberapa mata wang kriptografi mempunyai pelbagai alamat dan format transaksi. Alamat ini telah dipisahkan ke dalam akaun tambahan.",
-        "title": "Mengapa terdapat lebih dari satu akaun untuk duit syiling yang sama?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Panduan",
@@ -809,11 +809,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Akaun aktif"
     },
     "electrum": {
@@ -875,11 +870,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Masuk",
-      "send": "Keluar",
-      "send_to_self": "Diri sendiri"
-    },
     "confirmation": "Pengesahan",
     "explorer": "ID Transaksi",
     "explorerTitle": "Buka dalam blok Explorer luaran",

@@ -869,7 +869,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Nekatere kripto valute imajo več oblik naslovov in transakcij. Ti naslovi so ločeni v dodatne račune.",
-        "title": "Zakaj obstaja več računov za isti kovanec?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Vodič vam v pomoč",
@@ -1185,12 +1185,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Aktivni računi"
     },
     "electrum": {
@@ -1266,11 +1260,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Not",
-      "send": "Ven",
-      "send_to_self": "Sebi"
-    },
     "confirmation": "Št. potrditev",
     "details": {
       "address": "Naslov",
