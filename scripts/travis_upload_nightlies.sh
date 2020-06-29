@@ -2,6 +2,15 @@
 
 set -e
 
+# Don't upload anything unless it's a push commit to the master branch.
+if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" != "master"]; then
+    exit 0
+fi
+
+openssl aes-256-cbc -K $encrypted_59febc5c238f_key -iv $encrypted_59febc5c238f_iv -in travis_rsa.enc -out travis_rsa -d
+chmod 600 travis_rsa
+mv travis_rsa ~/.ssh/id_rsa
+
 LINUX_BUILD=$TRAVIS_BUILD_DIR/frontends/qt/build/linux
 ANDROID_BUILD=$TRAVIS_BUILD_DIR/frontends/android/BitBoxApp/app/build/outputs/apk/debug
 UPLOADS=$TRAVIS_BUILD_DIR/uploads

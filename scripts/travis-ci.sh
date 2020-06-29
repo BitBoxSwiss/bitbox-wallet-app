@@ -1,18 +1,27 @@
-#!/bin/bash -e
+#!/bin/bash -eux
+
+# Which make target to run.
+WHAT="$1"
+# Because we need to compile some Go code without modules,
+# the source must be placed in a specific directory as expected by Go.
+# The path is relative to GOPATH.
+GO_SRC_DIR=src/github.com/digitalbitbox/bitbox-wallet-app
+
+# The following is executed only on linux machines.
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    docker run -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
-           -i shiftcrypto/bitbox-wallet-app:5 \
-           bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app ci"
+    # Which docker image to use to run the CI. Defaults to Docker Hub.
+    # Overwrite with CI_IMAGE=docker/image/path environment variable.
+    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:5}"
+    # Time image pull to compare in the future.
+    time docker pull "$CI_IMAGE"
+
     docker run --privileged \
-           -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
-           -i shiftcrypto/bitbox-wallet-app:5 \
-           bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app qt-linux"
-    docker run --privileged \
-           -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
-           -i shiftcrypto/bitbox-wallet-app:5 \
-           bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app android"
+           -v ${TRAVIS_BUILD_DIR}:/opt/go/${GO_SRC_DIR}/ \
+           -i "${CI_IMAGE}" \
+           bash -c "make -C \$GOPATH/${GO_SRC_DIR} ${WHAT}"
 fi
 
+# The following is executed only on macOS machines.
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export HOMEBREW_NO_AUTO_UPDATE=1
     brew outdated go || brew upgrade go
@@ -30,12 +39,12 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export CPPFLAGS="-I/usr/local/opt/qt/include"
     export GOPATH=~/go/
     export PATH=$PATH:~/go/bin
-    mkdir -p $GOPATH/src/github.com/digitalbitbox/
+    mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
     # GitHub checkout action (git clone) seem to require current work dir
     # to be the root of the repo during its clean up phase. So, we push it
     # here and pop in the end.
-    pushd ../ && cp -a bitbox-wallet-app $GOPATH/src/github.com/digitalbitbox/
-    cd $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app/
-    make qt-osx
+    pushd ../ && cp -a bitbox-wallet-app $GOPATH/$(dirname $GO_SRC_DIR)
+    cd $GOPATH/$GO_SRC_DIR
+    make "$WHAT"
     popd
 fi

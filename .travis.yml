@@ -1,13 +1,9 @@
-dist: trusty
-
-sudo: true
+# See reference docs for details:
+# https://config.travis-ci.com.
+dist: bionic
 
 services:
   - docker
-
-os:
-  - linux
-  - osx
 
 language: go
 go: 1.14.x
@@ -17,13 +13,17 @@ addons:
     packages:
       - make
 
-before_install:
-  - bash ./scripts/travis_ssh.sh
-
-script:
-  - ./scripts/travis-ci.sh
-
-after_success:
-  # Run uploads only on non-PRs since PRs sent from forked repositories do not have access to encrypted variables
-  # Also run uploads only on staging and master branches
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ "$TRAVIS_BRANCH" = "master" ] || [ "$TRAVIS_BRANCH" = "staging" ]); then bash ./scripts/upload_nightlies.sh $TRAVIS_BRANCH; fi
+jobs:
+  include:
+    - stage: Linux
+      os: linux
+      script:
+        - ./scripts/travis-ci.sh ci
+        - ./scripts/travis-ci.sh android
+        - ./scripts/travis-ci.sh qt-linux
+        - ./scripts/travis_upload_nightlies.sh
+    - stage: macOS
+      os: osx
+      script:
+        - ./scripts/travis-ci.sh qt-osx
+        - ./scripts/travis_upload_nightlies.sh
