@@ -23,8 +23,9 @@
 .servers {
     background-color: var(--color-white);
     list-style: none;
-    padding: 0 var(--space-half);
+    padding: var(--space-quarter) var(--space-half);
     margin: 0;
+    word-break: break-word;
 }
 
 .servers li .server {
@@ -33,7 +34,12 @@
     align-items: center;
     font-weight: 400;
     font-size: var(--size-default);
-    height: 52px;
+    min-height: 52px;
+}
+
+.serverLabel {
+    padding: var(--space-quarter) 0;
+    word-break: break-word;
 }
 
 .servers li .server > div:last-child {
@@ -45,6 +51,7 @@
     border-radius: 2px;
     font-size: var(--size-small);
     padding: var(--space-quarter) var(--space-half);
+    word-break: normal;
 }
 
 .servers .server > div button[disabled] {
@@ -65,8 +72,18 @@
         padding: 0 var(--space-quarter);
     }
 
+    .serverLabel {
+        padding-right: var(--space-quarter);
+    }
+
+    .servers .server > div button {
+        margin: var(--space-quarter) 0;
+    }
+
     .servers li .server > div:last-child button {
+        display: block;
         padding: var(--space-quarter);
+        width: 100%;
     }
 }
 
