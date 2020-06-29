@@ -653,7 +653,7 @@
       },
       "whyMultipleAccounts": {
         "text": "いくつかの仮想通貨は複数のアドレス形式と取引形式をとっていて、これらのアドレスは別のアカウントへと分けられます。",
-        "title": "なぜ同じコインに対して複数のアカウントがあるのですか？"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "ガイド",
@@ -941,11 +941,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "アクティブなアカウント"
     },
     "electrum": {
@@ -1007,11 +1002,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "In",
-      "send": "Out",
-      "send_to_self": "Self"
-    },
     "confirmation": "認証済み",
     "explorer": "取引ID",
     "explorerTitle": "外部ブロックエキスプローラで開く",

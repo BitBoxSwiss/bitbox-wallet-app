@@ -782,7 +782,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Bazı kripto para birimlerinin çoklu adres ve işlem biçimleri vardır. Bu adresler ekstra hesaplara ayrılmıştır.",
-        "title": "Neden aynı kripto para için birden fazla hesap var?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Kılavuz",
@@ -1083,12 +1083,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Aktif hesaplar"
     },
     "electrum": {
@@ -1158,11 +1152,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Gelen",
-      "send": "Giden",
-      "send_to_self": "Kendine"
-    },
     "confirmation": "Onaylar",
     "explorer": "İşlem Kimliği",
     "explorerTitle": "Harici explorer'da aç",

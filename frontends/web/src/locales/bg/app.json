@@ -719,7 +719,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Някои криптовалути поддържат различни формати на адресите и транзакциите. Тези адреси са отделени в самостоятелни портфейли.",
-        "title": "Защо се предлагат различни портфейли за една и съща валута?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Ръководство",
@@ -1020,12 +1020,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Активни портфейли"
     },
     "electrum": {
@@ -1095,11 +1089,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Получаване",
-      "send": "Изпращане",
-      "send_to_self": "Към себе си"
-    },
     "confirmation": "Потвърждения",
     "explorer": "ID на транзакция",
     "explorerTitle": "Отваряне във външен блок експлорер",

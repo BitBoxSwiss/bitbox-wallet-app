@@ -869,7 +869,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Some cryptocurrencies have multiple address and transaction formats. These addresses are separated into extra accounts.",
-        "title": "Why are there multiple accounts for the same coin?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guide",

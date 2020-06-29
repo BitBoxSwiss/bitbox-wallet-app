@@ -783,7 +783,7 @@
       },
       "whyMultipleAccounts": {
         "text": "कुछ क्रिप्टोकरेंसी में कई कई एड्रेस और ट्रांसेक्शन के प्रकार होते है। इन एड्रेसिस को अतिरिक्त खातों में अलग किया जाता है।",
-        "title": "एक ही कॉइन के कई खाते क्यों हैं?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "मार्गदर्शक",
@@ -1084,12 +1084,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin लिगेसी",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "सक्रिय एकाउंट्स"
     },
     "electrum": {
@@ -1159,11 +1153,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "In",
-      "send": "Out",
-      "send_to_self": "Self"
-    },
     "confirmation": "Confirmations",
     "explorer": "ट्रांजेक्शन आईडी",
     "explorerTitle": "बाहरी ब्लॉक एक्सप्लोरर में खोलें",

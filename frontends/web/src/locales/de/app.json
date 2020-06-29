@@ -788,7 +788,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Einige Kryptowährungen verfügen über mehrere Adress- und Transaktionsformate. Diese sind in separate Konten unterteilt.",
-        "title": "Warum gibt es mehrere Konten für denselben Coin?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guide",
@@ -1089,12 +1089,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Aktive Konten"
     },
     "electrum": {
@@ -1164,11 +1158,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "Rein",
-      "send": "Raus",
-      "send_to_self": "Selbst"
-    },
     "confirmation": "Bestätigungen",
     "explorer": "Transaktions ID",
     "explorerTitle": "In externem Block Explorer öffnen.",
@@ -1211,7 +1200,7 @@
   "warning": {
     "receivePairing": "Bitte aktivieren sie 2FA  um Adressen sicher zu verifizieren. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
     "sdcard": "Bewahren Sie ihre microSD Karte separat von Ihrer BitBox auf. Die microSD Karte wird nur benötigt, wenn Sie ihre Backups verwalten wollen. Für den normalen Betrieb ist sie nicht erforderlich.",
-    "sendPairing": "Bitte aktivieren koppeln Sie Ihre BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
+    "sendPairing": "Bitte koppeln Sie Ihre BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
   },
   "welcome": {
     "insertBitBox02": "Tippen Sie dann auf die BitBox02 zum weiter machen. ",

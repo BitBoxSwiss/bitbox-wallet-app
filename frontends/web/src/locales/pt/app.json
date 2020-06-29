@@ -602,7 +602,7 @@
       },
       "whyMultipleAccounts": {
         "text": "Algumas criptomoedas têm vários formatos de endereço e transação. Esses endereços são separados em contas extras.",
-        "title": "Por que existem várias contas para a mesma moeda?"
+        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guia",
@@ -903,12 +903,6 @@
   },
   "settings": {
     "accounts": {
-      "bitcoinP2PKH": "Bitcoin Legacy",
-      "bitcoinP2WPKH": "Bitcoin: bech32",
-      "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
-      "litecoinP2WPKH": "Litecoin: bech32",
-      "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Contas ativas"
     },
     "electrum": {
@@ -976,11 +970,6 @@
     }
   },
   "transaction": {
-    "badge": {
-      "receive": "In",
-      "send": "Out",
-      "send_to_self": "Self"
-    },
     "confirmation": "Confirmações",
     "explorer": "ID da transação",
     "explorerTitle": "Abrir no explorador de blocos externo",
