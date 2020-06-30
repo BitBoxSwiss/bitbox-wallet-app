@@ -370,16 +370,18 @@ func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error
 	params.Set("module", "proxy")
 
 	var wrapped struct {
-		JSONRPC string           `json:"jsonrpc"`
-		ID      int              `json:"id"`
-		Error   *json.RawMessage `json:"error"`
-		Result  *json.RawMessage `json:"result"`
+		JSONRPC string `json:"jsonrpc"`
+		ID      int    `json:"id"`
+		Error   *struct {
+			Message string `json:"message"`
+		} `json:"error"`
+		Result *json.RawMessage `json:"result"`
 	}
 	if err := etherScan.call(params, &wrapped); err != nil {
 		return err
 	}
 	if wrapped.Error != nil {
-		return errp.WithMessage(errp.New("unexpected error"), string(*wrapped.Error))
+		return errp.New(wrapped.Error.Message)
 	}
 	if result == nil {
 		return nil
