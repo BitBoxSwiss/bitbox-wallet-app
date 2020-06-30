@@ -3,7 +3,7 @@
 set -e
 
 # Don't upload anything unless it's a push commit to the master branch.
-if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" != "master"]; then
+if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" != "master" ]; then
     exit 0
 fi
 
