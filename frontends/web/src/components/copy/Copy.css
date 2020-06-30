@@ -45,7 +45,7 @@
     font-weight: 400;
     min-width: 200px !important;
     width: 100%;
-    padding: var(--space-half) calc(var(--space-half) * 3) var(--space-half) var(--space-half);
+    padding: var(--space-half) calc(var(--space-default) * 1.2) var(--space-half) calc(var(--space-half) * .5);
     height: 52px;
     border-radius: 2px;
     border: solid 1px var(--color-lightgray);

@@ -313,7 +313,7 @@ class Receive extends Component<Props, State> {
                                 <p>{t('receive.verifyInstruction')}</p>
                             </div>
                             <div className="m-bottom-half">
-                                <CopyableInput value={address} />
+                                <CopyableInput value={address} flexibleHeight />
                             </div>
                         </Dialog>
                     )
