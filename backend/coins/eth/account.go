@@ -567,7 +567,7 @@ func (account *Account) newTx(
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
-		return nil, errp.WithStack(errors.ErrInvalidData)
+		return nil, errp.WithStack(errors.TxValidationError(err.Error()))
 	}
 
 	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
