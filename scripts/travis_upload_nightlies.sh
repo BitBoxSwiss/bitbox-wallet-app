@@ -11,10 +11,11 @@ openssl aes-256-cbc -K $encrypted_59febc5c238f_key -iv $encrypted_59febc5c238f_i
 chmod 600 travis_rsa
 mv travis_rsa ~/.ssh/id_rsa
 
+# See travis-ci.sh script for why macOS build is in a different directory.
+MACOS_BUILD=~/go/src/github.com/digitalbitbox/bitbox-wallet-app/frontends/qt/build/osx
 LINUX_BUILD=$TRAVIS_BUILD_DIR/frontends/qt/build/linux
 ANDROID_BUILD=$TRAVIS_BUILD_DIR/frontends/android/BitBoxApp/app/build/outputs/apk/debug
 UPLOADS=$TRAVIS_BUILD_DIR/uploads
-MACOS_BUILD=frontends/qt/build/osx
 UPLOAD_DIR=$1
 
 sudo mkdir $TRAVIS_BUILD_DIR/uploads

@@ -5,6 +5,8 @@ WHAT="$1"
 # Because we need to compile some Go code without modules,
 # the source must be placed in a specific directory as expected by Go.
 # The path is relative to GOPATH.
+# If you change this, remember to update MACOS_BUILD in
+# travis_upload_nightlies.sh.
 GO_SRC_DIR=src/github.com/digitalbitbox/bitbox-wallet-app
 
 # The following is executed only on linux machines.
