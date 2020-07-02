@@ -39,13 +39,13 @@ osx-init:
 	brew install go@1.14
 	$(MAKE) envinit
 servewallet:
-	go install -mod=vendor ./cmd/servewallet/... && servewallet
+	go run -mod=vendor ./cmd/servewallet
 servewallet-mainnet:
-	go install -mod=vendor ./cmd/servewallet/... && servewallet -mainnet
+	go run -mod=vendor ./cmd/servewallet
 servewallet-regtest:
-	go install -mod=vendor ./cmd/servewallet/... && servewallet -regtest
+	go run -mod=vendor ./cmd/servewallet
 servewallet-prodservers:
-	go install -mod=vendor ./cmd/servewallet/... && servewallet -devservers=false
+	go run -mod=vendor ./cmd/servewallet
 buildweb:
 	node --version
 	rm -rf ${WEBROOT}/build
