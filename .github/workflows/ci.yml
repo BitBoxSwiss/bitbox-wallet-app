@@ -88,7 +88,7 @@ jobs:
       - name: Archive app
         run: >
           pushd ~/go/src/github.com/digitalbitbox/bitbox-wallet-app/frontends/qt/build/osx;
-          zip -r ${{github.workspace}}/BitBoxApp-macos.zip BitBox.app;
+          ditto -c -k --keepParent BitBox.app ${{github.workspace}}/BitBoxApp-macos.zip;
           popd;
       - name: Upload app
         uses: actions/upload-artifact@v2
