@@ -41,7 +41,7 @@ fi
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     cd $MACOS_BUILD
-    NEW_ARCHIVE=$(date -I)-BitBox-macOS-$(git rev-parse --short HEAD).zip
+    NEW_ARCHIVE=$(date '+%Y-%m-%d')-BitBox-macOS-$(git rev-parse --short HEAD).zip
     zip -r $NEW_ARCHIVE BitBox.app
     scp $OPTIONS $NEW_ARCHIVE travis@$DEVSERVER_IP:/var/www/nightlies/$UPLOAD_DIR
 fi
