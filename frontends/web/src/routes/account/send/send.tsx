@@ -430,9 +430,11 @@ class Send extends Component<Props, State> {
         this.setState({
             recipientAddress: address,
             sendAll: false,
-            amount,
             fiatAmount: undefined,
         });
+        if (amount) {
+            this.setState({ amount });
+        }
         // TODO: similar to handleFormChange(). Refactor.
         if (amount !== undefined) {
             this.convertToFiat(amount);
