@@ -72,7 +72,7 @@ class App extends Component<Props, State> {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
-        this.maybeRoute();
+        setTimeout(this.maybeRoute);
     }
 
     public componentDidMount() {
