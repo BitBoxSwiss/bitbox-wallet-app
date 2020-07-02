@@ -39,6 +39,21 @@ Build the QT frontend for MacOS:
 Build artifacts:
 * `frontends/qt/build/osx/BitBox.app`
 
+### Signing & Notarization
+
+Requires Xcode 10+ and macOS 10.13.6+.
+
+```
+$ cd frontends/qt/build/osx/
+$ # Sign with hardened runtime:
+$ codesign -f --deep --strict --timestamp -o runtime --entitlements ../../resources/MacOS/entitlements.plist -s CODESIGN_IDENTITY BitBox.app
+$ /usr/bin/ditto -c -k --keepParent BitBox.app BitBox.zip
+$ # Notarize
+$ xcrun altool --notarize-app --primary-bundle-id "ch.shiftcrypto.bitboxapp" --username "APPLE_ID" --password "PASSWORD" --file BitBox.zip
+$ # Check notarization status
+$  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --password "PASSWORD"
+```
+
 ## Windows
 
 The build requires `mingw-w64`, `bash`, `make`, `Microsoft Visual Studio 2017`, `go 1.10`, `yarn`,
