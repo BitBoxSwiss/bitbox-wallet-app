@@ -328,7 +328,7 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                     <p className="text-gray text-small">powered by Etherscan.io APIs</p>
                                                 </div>
-                                                <div className="column column-1-2">
+                                                <div className="column column-2-3">
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.expert.title')}</h3>
