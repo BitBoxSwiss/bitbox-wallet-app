@@ -19,8 +19,6 @@ import { Link, route } from 'preact-router';
 import { Badge } from '../../components/badge/badge';
 import { Dialog } from '../../components/dialog/dialog';
 import * as dialogStyle from '../../components/dialog/dialog.css';
-import { FiatSelection } from '../../components/fiat/fiat';
-import * as style from '../../components/fiat/fiat.css';
 import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
@@ -33,6 +31,8 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { debug } from '../../utils/env';
 import { apiGet, apiPost } from '../../utils/request';
+import { FiatSelection } from './components/fiat/fiat';
+import * as style from './components/fiat/fiat.css';
 
 interface SettingsProps {
     deviceIDs: string[];
