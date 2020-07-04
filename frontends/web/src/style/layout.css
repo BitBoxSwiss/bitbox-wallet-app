@@ -181,10 +181,6 @@
         padding: 0 var(--space-half);
     }
 
-    .bottom {
-        padding: var(--spacing-default) 0 0 0 !important;
-    }
-
     .subHeaderContainer {
         margin: var(--space-half) 0;
     }
@@ -243,11 +239,6 @@
 
 .row:not(:first-child).extra {
     margin-top: var(--space-half);
-}
-
-.bottom {
-    padding: var(--spacing-default) 0;
-    margin-bottom: 0 !important;
 }
 
 .isVerticallyCentered {
