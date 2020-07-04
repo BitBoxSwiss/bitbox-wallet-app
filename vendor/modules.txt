@@ -46,7 +46,6 @@ github.com/cloudfoundry-attic/jibber_jabber
 ## explicit
 github.com/coreos/bbolt
 # github.com/davecgh/go-spew v1.1.1
-## explicit
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.7.1
 ## explicit
