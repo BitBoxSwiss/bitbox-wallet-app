@@ -267,7 +267,7 @@ class Settings extends Component<Props, State> {
                         }
                     </Header>
                     <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                        <div class="content padded-lgscreen">
                             {
                                 config && (
                                     <div class="flex-1">
