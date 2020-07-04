@@ -336,7 +336,7 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                     <div className="box slim divide">
                                                         <div className={style.currency}>
-                                                            <div>
+                                                            <div className="m-top-quarter m-bottom-quarter">
                                                                 <p className="m-none">{t('settings.expert.splitAccounts')}</p>
                                                                 <p className="m-none">
                                                                     <Badge type="primary">BB02</Badge>
