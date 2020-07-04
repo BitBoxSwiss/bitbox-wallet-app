@@ -128,11 +128,10 @@ func serve(
 			NotifyUserFunc: func(text string) {
 				C.notifyUser(notifyUserCallback, C.CString(text))
 			},
-			DeviceInfosFunc: usb.DeviceInfos,
-			SystemOpenFunc:  system.Open,
-			UsingMobileDataFunc: func() bool {
-				return false
-			},
+			DeviceInfosFunc:     usb.DeviceInfos,
+			SystemOpenFunc:      system.Open,
+			UsingMobileDataFunc: func() bool { return false },
+			NativeLocaleFunc:    func() string { return "" },
 		},
 	)
 }

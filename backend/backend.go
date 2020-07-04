@@ -98,6 +98,12 @@ type Environment interface {
 	// connections at this level (currently handled at the account-level (see `Offline()` in the
 	// `Account` interface).
 	UsingMobileData() bool
+	// NativeLocale reports user preferred UI language from the top native app
+	// layer like Android. The returned value can be any BCP 47 tag.
+	// It is always validated by the backend and it's ok for the native implementation
+	// to return empty string or unsupported value, in which case the app will use
+	// English by default.
+	NativeLocale() string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.

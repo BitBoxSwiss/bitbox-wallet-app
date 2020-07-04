@@ -159,6 +159,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 			},
 			SystemOpenFunc:      environment.SystemOpen,
 			UsingMobileDataFunc: environment.UsingMobileData,
+			NativeLocaleFunc:    func() string { return "" },
 		},
 	)
 }

@@ -129,6 +129,9 @@ type BackendEnvironment struct {
 	DeviceInfosFunc     func() []usb.DeviceInfo
 	SystemOpenFunc      func(string) error
 	UsingMobileDataFunc func() bool
+	// NativeLocaleFunc is used by the backend to query native app layer for user
+	// preferred UI language.
+	NativeLocaleFunc func() string
 }
 
 // NotifyUser implements backend.Environment.
@@ -160,6 +163,14 @@ func (env *BackendEnvironment) UsingMobileData() bool {
 		return env.UsingMobileDataFunc()
 	}
 	return false
+}
+
+// NativeLocale implements backend.Environment.
+func (env *BackendEnvironment) NativeLocale() string {
+	if env.NativeLocaleFunc != nil {
+		return env.NativeLocaleFunc()
+	}
+	return ""
 }
 
 // Serve serves the BitBox API for use in a native client.
