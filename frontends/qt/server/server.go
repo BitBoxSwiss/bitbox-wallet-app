@@ -79,6 +79,7 @@ func serve(
 	pushNotificationsCallback C.pushNotificationsCallback,
 	responseCallback C.responseCallback,
 	notifyUserCallback C.notifyUserCallback,
+	preferredLocale *C.char,
 ) {
 	log := logging.Get().WithGroup("server")
 	log.WithField("args", os.Args).Info("Started Qt application")
@@ -111,6 +112,10 @@ func serve(
 		}
 	}
 
+	// Capture C string early to avoid potential use when it's already popped
+	// from the stack.
+	nativeLocale := C.GoString(preferredLocale)
+
 	bridgecommon.Serve(
 		*testnet,
 		gapLimits,
@@ -131,7 +136,7 @@ func serve(
 			DeviceInfosFunc:     usb.DeviceInfos,
 			SystemOpenFunc:      system.Open,
 			UsingMobileDataFunc: func() bool { return false },
-			NativeLocaleFunc:    func() string { return "" },
+			NativeLocaleFunc:    func() string { return nativeLocale },
 		},
 	)
 }

@@ -155,13 +155,21 @@ int main(int argc, char *argv[])
 
     QResource::registerResource(QCoreApplication::applicationDirPath() + "/assets.rcc");
 
+    QString preferredLocale = "";
+    QStringList uiLangs = QLocale::system().uiLanguages();
+    if (!uiLangs.isEmpty()) {
+        preferredLocale = uiLangs.first();
+    }
+
     QThread workerThread;
     webClass = new WebClass();
     // Run client queries in a separate thread to not block the UI.
     webClass->moveToThread(&workerThread);
     workerThread.start();
 
-    serve([](const char* msg) {
+    serve(
+        // pushNotificationsCallback
+        [](const char* msg) {
             if (!pageLoaded) return;
             webClassMutex.lock();
             if (webClass != nullptr) {
@@ -169,6 +177,7 @@ int main(int argc, char *argv[])
             }
             webClassMutex.unlock();
         },
+        // responseCallback
         [](int queryID, const char* msg) {
             if (!pageLoaded) return;
             webClassMutex.lock();
@@ -177,13 +186,16 @@ int main(int argc, char *argv[])
             }
             webClassMutex.unlock();
         },
+        // notifyUserCallback
         [](const char* msg) {
             if (trayIcon == nullptr) return;
             QMetaObject::invokeMethod(trayIcon, "showMessage",
                                       Qt::QueuedConnection,
                                       Q_ARG(QString, APPNAME),
                                       Q_ARG(QString, msg));
-        }
+        },
+        // user preferred UI language
+        preferredLocale.toStdString().c_str()
         );
 
     RequestInterceptor interceptor;
