@@ -64,7 +64,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	qrcode "github.com/skip2/go-qrcode"
-	"golang.org/x/text/language"
 )
 
 // Backend models the API of the backend.
@@ -85,7 +84,6 @@ type Backend interface {
 		persist bool,
 		emitEvent bool,
 	) error
-	UserLanguage() language.Tag
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))

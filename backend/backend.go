@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
@@ -55,7 +54,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/text/language"
 )
 
 type backendEvent struct {
@@ -805,21 +803,6 @@ func (backend *Backend) Testing() bool {
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() []accounts.Interface {
 	return backend.accounts
-}
-
-// UserLanguage returns the language the UI should be presented in to the user.
-func (backend *Backend) UserLanguage() language.Tag {
-	userLocale, err := jibber_jabber.DetectIETF()
-	if err != nil {
-		return language.English
-	}
-	languages := []language.Tag{
-		language.English,
-		language.German,
-	}
-	tag, _, _ := language.NewMatcher(languages).Match(language.Make(userLocale))
-	backend.log.WithField("user-language", tag).Debug("Detected user language")
-	return tag
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
