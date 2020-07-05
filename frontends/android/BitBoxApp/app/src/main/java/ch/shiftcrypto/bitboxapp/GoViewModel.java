@@ -6,6 +6,7 @@ import goserver.GoReadWriteCloserInterface;
 import goserver.GoAPIInterface;
 import goserver.Goserver;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -27,6 +28,7 @@ import androidx.lifecycle.AndroidViewModel;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 
 public class GoViewModel extends AndroidViewModel {
 
@@ -144,6 +146,19 @@ public class GoViewModel extends AndroidViewModel {
 
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
+        }
+
+        public String nativeLocale() {
+            Context ctx = getApplication().getApplicationContext();
+            Locale locale;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                locale = ctx.getResources().getConfiguration().getLocales().get(0);
+            } else {
+                // Deprecated since API level 24.
+                // https://developer.android.com/reference/android/content/res/Configuration#locale.
+                locale = ctx.getResources().getConfiguration().locale;
+            }
+            return locale.toString();
         }
     }
 
