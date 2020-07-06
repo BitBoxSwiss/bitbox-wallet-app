@@ -145,6 +145,8 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
+	log.Infof("backend config: %+v", config.AppConfig().Backend)
+	log.Infof("frontend config: %+v", config.AppConfig().Frontend)
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
