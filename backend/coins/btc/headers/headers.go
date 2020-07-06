@@ -155,7 +155,7 @@ func (headers *Headers) checkpoint() chaincfg.Checkpoint {
 
 // SubscribeEvent subscribes to header events. The provided callback will be notified of events. The
 // returned function unsubscribes.
-// FIXME: not thread-safe
+// FIXME: Unsafe for concurrent use.
 func (headers *Headers) SubscribeEvent(f func(event Event)) func() {
 	headers.eventCallbacks = append(headers.eventCallbacks, f)
 	index := len(headers.eventCallbacks) - 1

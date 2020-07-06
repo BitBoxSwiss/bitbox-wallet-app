@@ -176,7 +176,7 @@ func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
-// RateUpdater implement accounts.Interface, currently just returning a dummy value
+// RateUpdater implement accounts.Interface, currently just returning a dummy value.
 func (account *Account) RateUpdater() *rates.RateUpdater {
 	return account.rateUpdater
 }

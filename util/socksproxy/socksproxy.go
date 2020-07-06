@@ -24,7 +24,7 @@ import (
 	"golang.org/x/net/proxy"
 )
 
-// SocksProxy holds the proxy address and wether to use it
+// SocksProxy holds the proxy address and wether to use it.
 type SocksProxy struct {
 	useProxy         bool
 	proxyAddress     string
@@ -32,7 +32,7 @@ type SocksProxy struct {
 	log              *logrus.Entry
 }
 
-// NewSocksProxy returns a new socks proxy instance
+// NewSocksProxy returns a new socks proxy instance.
 func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 	proxy := SocksProxy{
 		useProxy:     useProxy,

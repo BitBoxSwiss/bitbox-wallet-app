@@ -75,5 +75,5 @@ func StoreCallbackJSONMessage(filename string, message map[string]json.RawMessag
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return ioutil.WriteFile(filename, writeJSONBytes, 0700)
+	return ioutil.WriteFile(filename, writeJSONBytes, 0600)
 }

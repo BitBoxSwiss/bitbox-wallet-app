@@ -16,8 +16,8 @@ package bitbox
 
 import "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 
-// TODO: improve error handling and change event data into a JSON object, and split BitBox events
-// from generic device events
+// TODO: Improve error handling and change event data into a JSON object, and split BitBox events
+// from generic device events.
 const (
 	// EventPairingStarted is fired when the pairing started.
 	EventPairingStarted event.Event = "pairingStarted"

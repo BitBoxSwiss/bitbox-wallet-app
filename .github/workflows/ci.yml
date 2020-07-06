@@ -19,10 +19,22 @@ env:
   # Lastly, update the next line to use the newly pushed image version.
   # See docs for more details:
   # https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages
-  CI_IMAGE: docker.pkg.github.com/digitalbitbox/bitbox-wallet-app/ci-builder:5
+  #
+  # Keep this in sync with default in scripts/travis-ci.sh.
+  CI_IMAGE: docker.pkg.github.com/digitalbitbox/bitbox-wallet-app/ci-builder:6
   TRAVIS_BUILD_DIR: ${{github.workspace}}
 
 jobs:
+  golangci:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v2
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          # Keep this in sync with the version in envinit make target.
+          version: v1.27
   test-lint:
     runs-on: ubuntu-18.04
     steps:
@@ -31,6 +43,8 @@ jobs:
       - name: Docker login
         run: docker login -u ${{github.actor}} -p ${{github.token}} https://docker.pkg.github.com
       - name: Run CI script
+        # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
+        # to keep its linter errors in this log, too.
         run: ./scripts/travis-ci.sh ci
         env:
           TRAVIS_OS_NAME: linux

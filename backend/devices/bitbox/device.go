@@ -1264,7 +1264,7 @@ func (dbb *Device) ecdhPK(mobileECDHPK string) (interface{}, error) {
 	return reply["ecdh"], nil
 }
 
-// ecdhChallenge forwards a ecdh challenge command to the Bitbox
+// ecdhChallenge forwards a ecdh challenge command to the Bitbox.
 func (dbb *Device) ecdhChallenge() error {
 	if dbb.bootloaderStatus != nil {
 		return errp.WithStack(errNoBootloader)

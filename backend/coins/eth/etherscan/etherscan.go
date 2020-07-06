@@ -392,7 +392,7 @@ func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error
 	return json.Unmarshal(*wrapped.Result, result)
 }
 
-// TransactionReceiptWithBlockNumber implements rpc.Interface
+// TransactionReceiptWithBlockNumber implements rpc.Interface.
 func (etherScan *EtherScan) TransactionReceiptWithBlockNumber(
 	ctx context.Context, hash common.Hash) (*rpcclient.RPCTransactionReceipt, error) {
 	params := url.Values{}
@@ -405,7 +405,7 @@ func (etherScan *EtherScan) TransactionReceiptWithBlockNumber(
 	return result, nil
 }
 
-// HeaderByNumber implements rpc.Interface
+// HeaderByNumber implements rpc.Interface.
 func (etherScan *EtherScan) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getBlockByNumber")
@@ -422,7 +422,7 @@ func (etherScan *EtherScan) HeaderByNumber(ctx context.Context, number *big.Int)
 	return result, nil
 }
 
-// BalanceAt implements rpc.Interface
+// BalanceAt implements rpc.Interface.
 func (etherScan *EtherScan) BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
 	var result struct {
 		Status  string
@@ -452,7 +452,7 @@ func (etherScan *EtherScan) BalanceAt(ctx context.Context, account common.Addres
 	return balance, nil
 }
 
-// CallContract implements rpc.Interface
+// CallContract implements rpc.Interface.
 func (etherScan *EtherScan) CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
 	params := url.Values{}
 	params.Set("action", "eth_call")
@@ -469,7 +469,7 @@ func (etherScan *EtherScan) CallContract(ctx context.Context, msg ethereum.CallM
 	return result, nil
 }
 
-// CodeAt implements rpc.Interface
+// CodeAt implements rpc.Interface.
 func (etherScan *EtherScan) CodeAt(ctx context.Context, account common.Address, blockNumber *big.Int) ([]byte, error) {
 	panic("not implemented")
 }
@@ -491,7 +491,7 @@ func callMsgParams(params *url.Values, msg ethereum.CallMsg) {
 	}
 }
 
-// EstimateGas implements rpc.Interface
+// EstimateGas implements rpc.Interface.
 func (etherScan *EtherScan) EstimateGas(ctx context.Context, msg ethereum.CallMsg) (uint64, error) {
 	params := url.Values{}
 	params.Set("action", "eth_estimateGas")
@@ -504,17 +504,17 @@ func (etherScan *EtherScan) EstimateGas(ctx context.Context, msg ethereum.CallMs
 	return uint64(result), nil
 }
 
-// FilterLogs implements rpc.Interface
+// FilterLogs implements rpc.Interface.
 func (etherScan *EtherScan) FilterLogs(ctx context.Context, q ethereum.FilterQuery) ([]types.Log, error) {
 	panic("not implemented")
 }
 
-// PendingCodeAt implements rpc.Interface
+// PendingCodeAt implements rpc.Interface.
 func (etherScan *EtherScan) PendingCodeAt(ctx context.Context, account common.Address) ([]byte, error) {
 	panic("not implemented")
 }
 
-// PendingNonceAt implements rpc.Interface
+// PendingNonceAt implements rpc.Interface.
 func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.Address) (uint64, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getTransactionCount")
@@ -527,7 +527,7 @@ func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.A
 	return uint64(result), nil
 }
 
-// SendTransaction implements rpc.Interface
+// SendTransaction implements rpc.Interface.
 func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Transaction) error {
 	encodedTx, err := rlp.EncodeToBytes(tx)
 	if err != nil {
@@ -540,12 +540,12 @@ func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Trans
 	return etherScan.rpcCall(params, nil)
 }
 
-// SubscribeFilterLogs implements rpc.Interface
+// SubscribeFilterLogs implements rpc.Interface.
 func (etherScan *EtherScan) SubscribeFilterLogs(ctx context.Context, q ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error) {
 	panic("not implemented")
 }
 
-// SuggestGasPrice implements rpc.Interface
+// SuggestGasPrice implements rpc.Interface.
 func (etherScan *EtherScan) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
 	params := url.Values{}
 	params.Set("action", "eth_gasPrice")

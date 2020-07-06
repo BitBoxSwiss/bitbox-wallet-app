@@ -78,7 +78,7 @@ func (conn *rpcConn) Close() error {
 	return nil
 }
 
-// RPCClient handles communication with the BitBox Base's rpc server
+// RPCClient handles communication with the BitBox Base's rpc server.
 type RPCClient struct {
 	log       *logrus.Entry
 	address   string
@@ -121,7 +121,7 @@ func NewRPCClient(address string,
 	return rpcClient, nil
 }
 
-// ChannelHash returns the noise channel and a boolean to indicate if it is verified
+// ChannelHash returns the noise channel and a boolean to indicate if it is verified.
 func (rpcClient *RPCClient) ChannelHash() (string, bool) {
 	return rpcClient.channelHash, rpcClient.channelHashBitBoxBaseVerified
 }
@@ -142,7 +142,7 @@ func (rpcClient *RPCClient) EstablishConnection() error {
 }
 
 // Connect initializes the noise pairing after a successful websocket connection had already been established,
-// it then sets the appropriate authentication status based on SetupStatus
+// it then sets the appropriate authentication status based on SetupStatus.
 func (rpcClient *RPCClient) Connect() error {
 	rpcClient.log.Printf("initializing noise pairing")
 	if err := rpcClient.initializeNoise(rpcClient.webSocketConnection); err != nil {
@@ -192,7 +192,7 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 	}
 }
 
-// Stop shuts down the websocket connection with the base
+// Stop shuts down the websocket connection with the base.
 func (rpcClient *RPCClient) Stop() {
 	err := rpcClient.client.Close()
 	if err != nil {
@@ -212,7 +212,7 @@ func (rpcClient *RPCClient) GetSetupStatus() (rpcmessages.SetupStatusResponse, e
 	return reply, nil
 }
 
-// GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
+// GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port.
 func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	var reply rpcmessages.GetEnvResponse
 	err := rpcClient.client.Call("RPCServer.GetSystemEnv", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
@@ -325,7 +325,7 @@ func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error
 	return reply, nil
 }
 
-// EnableTor makes an rpc call to the Base that enables/disables the tor.service based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTor makes an rpc call to the Base that enables/disables the tor.service based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorTor: %v' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
@@ -337,7 +337,7 @@ func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSettingArgs
 	return reply, nil
 }
 
-// EnableTorMiddleware makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for the middleware based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTorMiddleware makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for the middleware based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorMiddleware: %v' rpc call\n", toggleAction)
 	toggleAction.Token = rpcClient.jwtToken
@@ -349,7 +349,7 @@ func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleS
 	return reply, nil
 }
 
-// EnableTorElectrs makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for electrs based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTorElectrs makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for electrs based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorElectrs: %v' rpc call\n", toggleAction)
 	toggleAction.Token = rpcClient.jwtToken
@@ -361,7 +361,7 @@ func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSett
 	return reply, nil
 }
 
-// EnableTorSSH makes an rpc call to BitBoxBase that enables/disables the tor hidden service for SSH based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTorSSH makes an rpc call to BitBoxBase that enables/disables the tor hidden service for SSH based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorSSH: %v' rpc call\n", toggleAction)
 	toggleAction.Token = rpcClient.jwtToken
@@ -373,7 +373,7 @@ func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSettingA
 	return reply, nil
 }
 
-// EnableClearnetIBD makes an rpc call to BitBoxBase that configures bitcoind to run over clearnet while in IBD mode based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableClearnetIBD makes an rpc call to BitBoxBase that configures bitcoind to run over clearnet while in IBD mode based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableClearnetIBD: %v' rpc call\n", toggleAction)
 	toggleAction.Token = rpcClient.jwtToken
@@ -385,7 +385,7 @@ func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSet
 	return reply, nil
 }
 
-// EnableRootLogin makes an rpc call to BitBoxBase that enables/disables login via the root user/password based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableRootLogin makes an rpc call to BitBoxBase that enables/disables login via the root user/password based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableRootLogin: %v' rpc call\n", toggleAction)
 	toggleAction.Token = rpcClient.jwtToken
@@ -397,7 +397,7 @@ func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSetti
 	return reply, nil
 }
 
-// EnableSSHPasswordLogin makes an rpc call to BitBoxBase that enables/disables the ssh login with a password based on rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableSSHPasswordLogin makes an rpc call to BitBoxBase that enables/disables the ssh login with a password based on rpcmessages.ToggleSettingArgs Enable/Disable.
 func (rpcClient *RPCClient) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableSSHPasswordLogin: %v' rpc call\n", toggleAction)
 	toggleAction.Token = rpcClient.jwtToken
@@ -409,7 +409,7 @@ func (rpcClient *RPCClient) EnableSSHPasswordLogin(toggleAction rpcmessages.Togg
 	return reply, nil
 }
 
-// SetLoginPassword makes an rpc call to BitBoxBase that sets the system main ssh/login password
+// SetLoginPassword makes an rpc call to BitBoxBase that sets the system main ssh/login password.
 func (rpcClient *RPCClient) SetLoginPassword(args rpcmessages.SetLoginPasswordArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing SetLoginPassword rpc call")
 	args.Token = rpcClient.jwtToken
@@ -421,7 +421,7 @@ func (rpcClient *RPCClient) SetLoginPassword(args rpcmessages.SetLoginPasswordAr
 	return reply, nil
 }
 
-// ShutdownBase makes an rpc call to BitBoxBase that calls the bbb-cmd.sh script which initiates a `shutdown now`
+// ShutdownBase makes an rpc call to BitBoxBase that calls the bbb-cmd.sh script which initiates a `shutdown now`.
 func (rpcClient *RPCClient) ShutdownBase() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing ShutdownBase rpc call")
 	var reply rpcmessages.ErrorResponse
@@ -432,7 +432,7 @@ func (rpcClient *RPCClient) ShutdownBase() (rpcmessages.ErrorResponse, error) {
 	return reply, nil
 }
 
-// RebootBase makes an rpc call to BitBoxBase that calls the bbb-cmd.sh script which initiates a `reboot`
+// RebootBase makes an rpc call to BitBoxBase that calls the bbb-cmd.sh script which initiates a `reboot`.
 func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing RebootBase rpc call")
 	var reply rpcmessages.ErrorResponse
@@ -468,7 +468,7 @@ func (rpcClient *RPCClient) GetBaseUpdateProgress() (rpcmessages.GetBaseUpdatePr
 	return reply, nil
 }
 
-// GetBaseInfo makes a synchronous rpc call to the base and returns the GetBaseInfoResponse struct
+// GetBaseInfo makes a synchronous rpc call to the base and returns the GetBaseInfoResponse struct.
 func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	var reply rpcmessages.GetBaseInfoResponse
 	err := rpcClient.client.Call("RPCServer.GetBaseInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
@@ -479,7 +479,7 @@ func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, erro
 	return reply, nil
 }
 
-// GetServiceInfo makes a synchronous RPC call to the Base and returns the GetServiceInfoResponse struct
+// GetServiceInfo makes a synchronous RPC call to the Base and returns the GetServiceInfoResponse struct.
 func (rpcClient *RPCClient) GetServiceInfo() (rpcmessages.GetServiceInfoResponse, error) {
 	var reply rpcmessages.GetServiceInfoResponse
 	err := rpcClient.client.Call("RPCServer.GetServiceInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
@@ -491,7 +491,7 @@ func (rpcClient *RPCClient) GetServiceInfo() (rpcmessages.GetServiceInfoResponse
 }
 
 // GetBaseUpdateInfo makes a synchronous RPC call to the Base and returns the IsBaseUpdateAvailable struct
-// with corresponding UpdateInfo
+// with corresponding UpdateInfo.
 func (rpcClient *RPCClient) GetBaseUpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error) {
 	var reply rpcmessages.IsBaseUpdateAvailableResponse
 	err := rpcClient.client.Call("RPCServer.IsBaseUpdateAvailable", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
@@ -503,7 +503,7 @@ func (rpcClient *RPCClient) GetBaseUpdateInfo() (rpcmessages.IsBaseUpdateAvailab
 }
 
 // FinalizeSetupWizard makes an rpc that calls the bbb-config.sh script to enable bitcoin services and the
-// bbb-systemctl.sh to start the services
+// bbb-systemctl.sh to start the services.
 func (rpcClient *RPCClient) FinalizeSetupWizard() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing FinalizeSetupWizard RPC")
 	var reply rpcmessages.ErrorResponse

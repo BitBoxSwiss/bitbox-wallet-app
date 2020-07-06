@@ -37,11 +37,11 @@ const (
 	address = "0.0.0.0"
 )
 
-// webdevEnvironment implements backend.Environment
+// webdevEnvironment implements backend.Environment.
 type webdevEnvironment struct {
 }
 
-// NotifyUser implements backend.Environment
+// NotifyUser implements backend.Environment.
 func (webdevEnvironment) NotifyUser(text string) {
 	log := logging.Get().WithGroup("servewallet")
 	log.Infof("NotifyUser: %s", text)
@@ -63,17 +63,17 @@ func (webdevEnvironment) NotifyUser(text string) {
 	}
 }
 
-// DeviceInfos implements backend.Environment
+// DeviceInfos implements backend.Environment.
 func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
 	return usb.DeviceInfos()
 }
 
-// SystemOpen implements backend.Environment
+// SystemOpen implements backend.Environment.
 func (webdevEnvironment) SystemOpen(url string) error {
 	return system.Open(url)
 }
 
-// UsingMobileData implements backend.Environment
+// UsingMobileData implements backend.Environment.
 func (webdevEnvironment) UsingMobileData() bool {
 	return false
 }

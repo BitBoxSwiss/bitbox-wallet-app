@@ -21,7 +21,8 @@ PATH     := $(PATH):$(GOPATH)/bin
 catch:
 	@echo "Choose a make target."
 envinit:
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.19.1
+	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.27.0
 	GO111MODULE=off go get -u github.com/stretchr/testify # needed for mockery
 	GO111MODULE=off go get -u github.com/vektra/mockery/...
 	GO111MODULE=off go get -u github.com/goware/modvendor

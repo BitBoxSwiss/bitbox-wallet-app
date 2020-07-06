@@ -90,7 +90,7 @@ type Header struct {
 	BlockHeight int
 }
 
-// Status is the connection status to the blockchain node
+// Status is the connection status to the blockchain node.
 type Status int
 
 const (

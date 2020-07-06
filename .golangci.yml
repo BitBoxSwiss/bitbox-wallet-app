@@ -1,5 +1,5 @@
-# This file contains all available configuration options
-# with their default values.
+# See reference docs for details:
+# https://golangci-lint.run/usage/configuration/
 
 # options for analysis running
 run:
@@ -36,8 +36,9 @@ linters-settings:
     enabled-checks:
       - assignOp
       - builtinShadow
-      - caseOrder
       - captLocal
+      - caseOrder
+      - defaultCaseOrder
       - dupArg
       - dupBranchBody
       - dupCase
@@ -55,7 +56,6 @@ linters-settings:
       - underef
       - unlambda
       - unslice
-      - defaultCaseOrder
   gocyclo:
     min-complexity: 25
   maligned:
@@ -80,25 +80,27 @@ linters-settings:
     line-length: 120
     # allow long comments.
     exclude: '//'
-    # tab width in spaces. Default to 1.
-    tab-width: 4
-
 
 linters:
   enable-all: true
   disable:
-    - maligned
-    - prealloc
-    - lll
-    - gochecknoinits
-    - gochecknoglobals
-    - godox
-    - funlen
-    - dogsled
-    - whitespace
     - bodyclose
-    - stylecheck
+    - dogsled
     - dupl
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - godox
+    - goerr113 # can't switch to errors.Is due to GopherJS still on go1.12
+    - gomnd
+    - lll
+    - maligned
+    - nestif
+    - prealloc
+    - stylecheck
+    - whitespace
+    - wsl
   disable-all: false
 
 issues:
@@ -107,12 +109,17 @@ issues:
   # it can be disabled by `exclude-use-default: false`. To list all
   # excluded by default patterns execute `golangci-lint run --help`
   exclude:
-    # TLS `InsecureSkipVerify` set true. (gas)
-    - G402
-    # Potential hardcoded credentials (gas)
-    - G101
-    # gas: Duplicated errcheck checks
-    - G104
   # Use linters in their original configuration. golangci-linter changes the default config, for
   # example skipping the docstring comment checks of golint.
   exclude-use-default: false
+
+  # Excluding configuration per-path, per-linter, per-text and per-source.
+  exclude-rules:
+    # In addition to always disalbed linters above, exclude some more in tests.
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gocyclo
+        - godot
+        - gosec
+        - testpackage

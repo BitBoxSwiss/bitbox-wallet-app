@@ -54,7 +54,7 @@ const (
 	StatusReconnecting Status = "reconnecting"
 )
 
-// Event represents state change events
+// Event represents state change events.
 type Event string
 
 const (

@@ -42,7 +42,7 @@ const (
 	discoveryDuration = time.Second * 10
 )
 
-// BaseDeviceInfo contains the IPv4s and Hostname of a discovered BitBox Base
+// BaseDeviceInfo contains the IPv4s and Hostname of a discovered BitBox Base.
 type BaseDeviceInfo struct {
 	Hostname string
 	IPv4     string
@@ -154,7 +154,7 @@ func (manager *Manager) RemoveBase(bitboxBaseID string) {
 	delete(manager.baseDeviceBitBoxBase, bitboxBaseID)
 }
 
-// GetDetectedBases returns bases detected by the manager with the mDNS scan
+// GetDetectedBases returns bases detected by the manager with the mDNS scan.
 func (manager *Manager) GetDetectedBases() map[string]string {
 	return manager.detectedBases
 }

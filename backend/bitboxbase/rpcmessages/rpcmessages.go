@@ -20,18 +20,18 @@ const (
 Put Incoming Args below this line. They should have the format of 'RPC Method Name' + 'Args'.
 */
 
-// UserAuthenticateArgs is a struct that holds the arguments for the UserAuthenticate RPC call
+// UserAuthenticateArgs is a struct that holds the arguments for the UserAuthenticate RPC call.
 type UserAuthenticateArgs struct {
 	Username string
 	Password string
 }
 
-// AuthGenericRequest is a struct that acts as a generic request struct
+// AuthGenericRequest is a struct that acts as a generic request struct.
 type AuthGenericRequest struct {
 	Token string
 }
 
-// UserChangePasswordArgs is an struct that holds the arguments for the UserChangePassword RPC call
+// UserChangePasswordArgs is an struct that holds the arguments for the UserChangePassword RPC call.
 type UserChangePasswordArgs struct {
 	Username    string
 	Password    string
@@ -39,25 +39,25 @@ type UserChangePasswordArgs struct {
 	Token       string
 }
 
-// SetHostnameArgs is a struct that holds the to be set hostname
+// SetHostnameArgs is a struct that holds the to be set hostname.
 type SetHostnameArgs struct {
 	Hostname string
 	Token    string
 }
 
-// SetLoginPasswordArgs is a struct that holds the to be set login password
+// SetLoginPasswordArgs is a struct that holds the to be set login password.
 type SetLoginPasswordArgs struct {
 	LoginPassword string
 	Token         string
 }
 
-// ToggleSettingArgs is a generic message for settings that can be enabled or disabled
+// ToggleSettingArgs is a generic message for settings that can be enabled or disabled.
 type ToggleSettingArgs struct {
 	ToggleSetting bool
 	Token         string
 }
 
-// UpdateBaseArgs is a struct that holds the Base version that should be updated to
+// UpdateBaseArgs is a struct that holds the Base version that should be updated to.
 type UpdateBaseArgs struct {
 	Version string
 	Token   string
@@ -80,13 +80,13 @@ type UserAuthenticateResponse struct {
 	Token         string
 }
 
-// GetEnvResponse is the struct that gets sent by the rpc server during a GetSystemEnv call
+// GetEnvResponse is the struct that gets sent by the rpc server during a GetSystemEnv call.
 type GetEnvResponse struct {
 	Network        string
 	ElectrsRPCPort string
 }
 
-// UpdateInfo holds information about a available Base image update
+// UpdateInfo holds information about a available Base image update.
 type UpdateInfo struct {
 	Description string `json:"description"`
 	Version     string `json:"version"`
@@ -123,7 +123,7 @@ type GetBaseUpdateProgressResponse struct {
 	ProgressDownloadedKiB int             `json:"updateKBDownloaded"`
 }
 
-// GetBaseInfoResponse is the struct that gets sent by the RPC server during a GetBaseInfo RPC call
+// GetBaseInfoResponse is the struct that gets sent by the RPC server during a GetBaseInfo RPC call.
 type GetBaseInfoResponse struct {
 	ErrorResponse             *ErrorResponse
 	Status                    string `json:"status"`
@@ -142,7 +142,7 @@ type GetBaseInfoResponse struct {
 	ElectrsVersion            string `json:"electrsVersion"`
 }
 
-// GetServiceInfoResponse is the struct that gets sent by the RPC server during a GetServiceInfo RPC call
+// GetServiceInfoResponse is the struct that gets sent by the RPC server during a GetServiceInfo RPC call.
 type GetServiceInfoResponse struct {
 	ErrorResponse                *ErrorResponse `json:"errorResponse"`
 	BitcoindBlocks               int64          `json:"bitcoindBlocks"`

@@ -152,7 +152,7 @@ func (coin *Coin) Decimals(isFee bool) uint {
 	return 18
 }
 
-// unitFactor returns 10^coin.Decimals()
+// unitFactor returns 10^coin.Decimals().
 func (coin *Coin) unitFactor(isFee bool) *big.Int {
 	return new(big.Int).Exp(
 		big.NewInt(10),

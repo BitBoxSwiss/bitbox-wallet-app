@@ -450,13 +450,13 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 	}
 }
 
-// OnConnect executed the given callback whenever a new connection is established
+// OnConnect executed the given callback whenever a new connection is established.
 func (client *RPCClient) OnConnect(callback func() error) {
 	client.onConnectCallback = callback
 }
 
 // RegisterHeartbeat registers the heartbeat method and parameters that are sent to the backend
-// to keep the connection alive
+// to keep the connection alive.
 func (client *RPCClient) RegisterHeartbeat(
 	method string,
 	params ...interface{},

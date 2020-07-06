@@ -416,7 +416,7 @@ func (account *Account) Initialize() error {
 	return nil
 }
 
-// RateUpdater implements interface
+// RateUpdater implements interface.
 func (account *Account) RateUpdater() *rates.RateUpdater {
 	return account.rateUpdater
 }
@@ -739,7 +739,7 @@ func (account *Account) subscribeAddress(
 	return nil
 }
 
-// Transactions wraps transaction.Transactions.Transactions()
+// Transactions wraps transaction.Transactions.Transactions().
 func (account *Account) Transactions() ([]accounts.Transaction, error) {
 	if account.fatalError {
 		return nil, errp.New("can't call Transactions() after a fatal error")
@@ -854,7 +854,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	return result
 }
 
-// CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification
+// CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification.
 func (account *Account) CanVerifyExtendedPublicKey() []int {
 	return account.Keystores().CanVerifyExtendedPublicKeys()
 }

@@ -131,14 +131,14 @@ type BackendEnvironment struct {
 	UsingMobileDataFunc func() bool
 }
 
-// NotifyUser implements backend.Environment
+// NotifyUser implements backend.Environment.
 func (env *BackendEnvironment) NotifyUser(text string) {
 	if env.NotifyUserFunc != nil {
 		env.NotifyUserFunc(text)
 	}
 }
 
-// DeviceInfos implements backend.Environment
+// DeviceInfos implements backend.Environment.
 func (env *BackendEnvironment) DeviceInfos() []usb.DeviceInfo {
 	if env.DeviceInfosFunc != nil {
 		return env.DeviceInfosFunc()
@@ -146,7 +146,7 @@ func (env *BackendEnvironment) DeviceInfos() []usb.DeviceInfo {
 	return nil
 }
 
-// SystemOpen implements backend.Environment
+// SystemOpen implements backend.Environment.
 func (env *BackendEnvironment) SystemOpen(url string) error {
 	if env.SystemOpenFunc != nil {
 		return env.SystemOpenFunc(url)
@@ -154,7 +154,7 @@ func (env *BackendEnvironment) SystemOpen(url string) error {
 	return nil
 }
 
-// UsingMobileData implements backend.Environment
+// UsingMobileData implements backend.Environment.
 func (env *BackendEnvironment) UsingMobileData() bool {
 	if env.UsingMobileDataFunc != nil {
 		return env.UsingMobileDataFunc()

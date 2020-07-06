@@ -32,7 +32,7 @@ type FeeTarget struct {
 	feeRatePerKb *btcutil.Amount
 }
 
-// Code returns the btc fee target
+// Code returns the btc fee target.
 func (feeTarget *FeeTarget) Code() accounts.FeeTargetCode {
 	return feeTarget.code
 }

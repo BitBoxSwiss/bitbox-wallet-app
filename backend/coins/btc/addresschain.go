@@ -19,7 +19,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 )
 
-// AddressChain is the interface for AddressChains
+// AddressChain is the interface for AddressChains.
 type AddressChain interface {
 	GetUnused() []*addresses.AccountAddress
 	EnsureAddresses() []*addresses.AccountAddress

@@ -38,25 +38,25 @@ import (
 )
 
 // DisconnectType indicates the type of disconnect that should be passed to Disconnect() to determine if we set the Base
-// status to 'offline' or 'reconnecting' which determines subsequent behavior of the backend
+// status to 'offline' or 'reconnecting' which determines subsequent behavior of the backend.
 type DisconnectType int
 
-// DisconnectType currently has three possibilities, reboot, shutdown and disconnect
-// DisconnectTypeReboot changes status to StatusReconnecting to tell the backend to attempt to reconnect
-// DisconnectTypeShutdown changes status StatusOffline
+// DisconnectType currently has three possibilities: reboot, shutdown and disconnect.
+// DisconnectTypeReboot changes status to StatusReconnecting to tell the backend to attempt to reconnect.
+// DisconnectTypeShutdown changes status StatusOffline.
 // DisconnectTypeDisconnect changes status StatusDisconnected to indicate that the Base is online, but not connected to
-// the App backend
+// the App backend.
 const (
 	DisconnectTypeReboot     DisconnectType = 0
 	DisconnectTypeShutdown   DisconnectType = 1
 	DisconnectTypeDisconnect DisconnectType = 2
 )
 
-// BitBoxBase provides the dictated bitboxbase api to communicate with the base
+// BitBoxBase provides the dictated bitboxbase api to communicate with the base.
 type BitBoxBase struct {
 	observable.Implementation
 
-	bitboxBaseID   string //This is just the ip currently
+	bitboxBaseID   string // this is just the ip currently
 	registerTime   time.Time
 	address        string
 	port           string
@@ -68,7 +68,7 @@ type BitBoxBase struct {
 	appConfig      *appConfig.Config
 	bbbConfig      *bbbconfig.BBBConfig
 	status         bitboxbasestatus.Status
-	active         bool //this indicates if the bitboxbase is in use, or being disconnected
+	active         bool // this indicates if the bitboxbase is in use, or being disconnected
 
 	onUnregister  func(string)
 	onRemove      func(string)
@@ -76,7 +76,7 @@ type BitBoxBase struct {
 	socksProxy    socksproxy.SocksProxy
 }
 
-//NewBitBoxBase creates a new bitboxBase instance
+// NewBitBoxBase creates a new bitboxBase instance.
 func NewBitBoxBase(address string,
 	id string,
 	hostname string,
@@ -109,7 +109,7 @@ func NewBitBoxBase(address string,
 	return bitboxBase, err
 }
 
-// EstablishConnection establishes initial websocket connection with the middleware
+// EstablishConnection establishes initial websocket connection with the middleware.
 func (base *BitBoxBase) EstablishConnection() error {
 	if err := base.rpcClient.EstablishConnection(); err != nil {
 		return err
@@ -117,7 +117,7 @@ func (base *BitBoxBase) EstablishConnection() error {
 	return nil
 }
 
-// ConnectRPCClient starts the connection with the remote bitbox base middleware
+// ConnectRPCClient starts the connection with the remote bitbox base middleware.
 func (base *BitBoxBase) ConnectRPCClient() error {
 	if err := base.rpcClient.Connect(); err != nil {
 		fmt.Println("Removing")
@@ -134,7 +134,7 @@ func (base *BitBoxBase) ConnectRPCClient() error {
 	return nil
 }
 
-// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
+// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly.
 func (base *BitBoxBase) ConnectElectrum() error {
 	if !base.active {
 		return errp.New("Attempted call to non-active base")
@@ -188,9 +188,9 @@ func (base *BitBoxBase) Deregister() error {
 	return nil
 }
 
-// Remove calls the backend's BitBoxBaseRemove callback and sends a notification to the frontend
-// Remove should only be used in the case the Base has not been fully connected
-// i.e., if the noise pairing wasn't completed and so the RPC connection not established
+// Remove calls the backend's BitBoxBaseRemove callback and sends a notification to the frontend.
+// Remove should only be used in the case the Base has not been fully connected,
+// i.e. if the noise pairing wasn't completed and so the RPC connection not established.
 func (base *BitBoxBase) Remove() {
 	base.fireEvent("disconnect")
 	base.onRemove(base.bitboxBaseID)
@@ -200,7 +200,7 @@ func (base *BitBoxBase) Remove() {
 	base.active = false
 }
 
-// Disconnect changes the Base status and takes appropriate action based on DisconnectType
+// Disconnect changes the Base status and takes appropriate action based on DisconnectType.
 func (base *BitBoxBase) Disconnect(disconnectType DisconnectType) error {
 	if !base.active {
 		return errp.New("Attempted call to non-active base")
@@ -223,7 +223,7 @@ func (base *BitBoxBase) Disconnect(disconnectType DisconnectType) error {
 	return nil
 }
 
-// ChannelHash returns the bitboxbase's rpcClient noise channel hash
+// ChannelHash returns the bitboxbase's rpcClient noise channel hash.
 func (base *BitBoxBase) ChannelHash() (string, bool) {
 	return base.rpcClient.ChannelHash()
 }
@@ -233,7 +233,7 @@ func (base *BitBoxBase) Status() bitboxbasestatus.Status {
 	return base.status
 }
 
-// fireEvent notifies the frontend of an event in the bitboxbase
+// fireEvent notifies the frontend of an event in the bitboxbase.
 func (base *BitBoxBase) fireEvent(event bitboxbasestatus.Event) {
 	base.Notify(observable.Event{
 		Subject: fmt.Sprintf("/bitboxbases/%s/event", base.bitboxBaseID),
@@ -247,12 +247,12 @@ func (base *BitBoxBase) changeStatus(status bitboxbasestatus.Status) {
 	base.fireEvent(bitboxbasestatus.EventStatusChange)
 }
 
-// RPCClient returns ths current instance of the rpcClient
+// RPCClient returns ths current instance of the rpcClient.
 func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 	return base.rpcClient
 }
 
-// ReindexBitcoin returns true if the chosen sync option was executed successfully
+// ReindexBitcoin returns true if the chosen sync option was executed successfully.
 func (base *BitBoxBase) ReindexBitcoin() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -268,7 +268,7 @@ func (base *BitBoxBase) ReindexBitcoin() error {
 	return nil
 }
 
-// ResyncBitcoin returns true if the chosen sync option was executed successfully
+// ResyncBitcoin returns true if the chosen sync option was executed successfully.
 func (base *BitBoxBase) ResyncBitcoin() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -284,7 +284,7 @@ func (base *BitBoxBase) ResyncBitcoin() error {
 	return nil
 }
 
-// SetHostname sets the hostname of the physical BitBoxBase device
+// SetHostname sets the hostname of the physical BitBoxBase device.
 func (base *BitBoxBase) SetHostname(hostname string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -301,20 +301,20 @@ func (base *BitBoxBase) SetHostname(hostname string) error {
 	return nil
 }
 
-// SetLocalHostname sets hostname field in the BitBoxBase struct
+// SetLocalHostname sets hostname field in the BitBoxBase struct.
 // This is necessary for example when restoring Bases from persisted config file
-// when we don't yet have access to authenticated BaseInfo() RPC
+// when we don't yet have access to authenticated BaseInfo() RPC.
 func (base *BitBoxBase) SetLocalHostname(hostname string) {
 	base.hostname = hostname
 }
 
-// GetLocalHostname gets the hostname from the hostname field in the BitBoxBase struct
-// Necessary for the same reasons as setLocalHostname
+// GetLocalHostname gets the hostname from the hostname field in the BitBoxBase struct.
+// Necessary for the same reasons as setLocalHostname.
 func (base *BitBoxBase) GetLocalHostname() string {
 	return base.hostname
 }
 
-// UserAuthenticate returns if a given Username and Password are valid
+// UserAuthenticate returns if a given Username and Password are valid.
 func (base *BitBoxBase) UserAuthenticate(username string, password string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -341,7 +341,7 @@ func (base *BitBoxBase) UserAuthenticate(username string, password string) error
 	return nil
 }
 
-// UserChangePassword returns if the password change for a username was successful
+// UserChangePassword returns if the password change for a username was successful.
 func (base *BitBoxBase) UserChangePassword(username string, password, newPassword string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -368,7 +368,7 @@ func (base *BitBoxBase) UserChangePassword(username string, password, newPasswor
 	return nil
 }
 
-// BackupSysconfig backs up the system config to the flashdrive
+// BackupSysconfig backs up the system config to the flashdrive.
 func (base *BitBoxBase) BackupSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -384,7 +384,7 @@ func (base *BitBoxBase) BackupSysconfig() error {
 	return nil
 }
 
-// BackupHSMSecret backs up the lightning hsm_secret
+// BackupHSMSecret backs up the lightning hsm_secret.
 func (base *BitBoxBase) BackupHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -400,7 +400,7 @@ func (base *BitBoxBase) BackupHSMSecret() error {
 	return nil
 }
 
-// RestoreHSMSecret restores the lightning hsm_secret
+// RestoreHSMSecret restores the lightning hsm_secret.
 func (base *BitBoxBase) RestoreHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -416,7 +416,7 @@ func (base *BitBoxBase) RestoreHSMSecret() error {
 	return nil
 }
 
-// RestoreSysconfig restores the system config from the flashdrive
+// RestoreSysconfig restores the system config from the flashdrive.
 func (base *BitBoxBase) RestoreSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -432,7 +432,7 @@ func (base *BitBoxBase) RestoreSysconfig() error {
 	return nil
 }
 
-// EnableTor enables/disables Tor with rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTor enables/disables Tor with rpcmessages.ToggleSettingArgs Enable/Disable.
 func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -449,7 +449,7 @@ func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) er
 	return nil
 }
 
-// EnableTorMiddleware enables/disables Tor for the middleware with rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTorMiddleware enables/disables Tor for the middleware with rpcmessages.ToggleSettingArgs Enable/Disable.
 func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -466,7 +466,7 @@ func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetti
 	return nil
 }
 
-// EnableTorElectrs enables/disables Tor for electrs with rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTorElectrs enables/disables Tor for electrs with rpcmessages.ToggleSettingArgs Enable/Disable.
 func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -483,7 +483,7 @@ func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingA
 	return nil
 }
 
-// EnableTorSSH enables/disables Tor for SSH with rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableTorSSH enables/disables Tor for SSH with rpcmessages.ToggleSettingArgs Enable/Disable.
 func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -500,7 +500,7 @@ func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs)
 	return nil
 }
 
-// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD with rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD with rpcmessages.ToggleSettingArgs Enable/Disable.
 func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -517,7 +517,7 @@ func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting
 	return nil
 }
 
-// EnableRootLogin enables/disables login via the root user/password with rpcmessages.ToggleSettingArgs Enable/Disable
+// EnableRootLogin enables/disables login via the root user/password with rpcmessages.ToggleSettingArgs Enable/Disable.
 func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -534,7 +534,7 @@ func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSettingAr
 	return nil
 }
 
-// EnableSSHPasswordLogin enables/disables the ssh login with a password
+// EnableSSHPasswordLogin enables/disables the ssh login with a password.
 func (base *BitBoxBase) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -551,7 +551,7 @@ func (base *BitBoxBase) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSe
 	return nil
 }
 
-// SetLoginPassword sets the systems root password
+// SetLoginPassword sets the systems root password.
 func (base *BitBoxBase) SetLoginPassword(password string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -567,7 +567,7 @@ func (base *BitBoxBase) SetLoginPassword(password string) error {
 	return nil
 }
 
-// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script
+// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script.
 func (base *BitBoxBase) ShutdownBase() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -587,7 +587,7 @@ func (base *BitBoxBase) ShutdownBase() error {
 	return nil
 }
 
-// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
+// RebootBase initiates a `reboot` call via the bbb-cmd.sh script.
 func (base *BitBoxBase) RebootBase() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -627,7 +627,7 @@ func (base *BitBoxBase) UpdateBase(args rpcmessages.UpdateBaseArgs) error {
 	return nil
 }
 
-// BaseInfo returns info about the Base contained in rpcmessages.GetBaseInfoResponse
+// BaseInfo returns info about the Base contained in rpcmessages.GetBaseInfoResponse.
 func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	if !base.active {
 		return rpcmessages.GetBaseInfoResponse{}, errp.New("Attempted a call to non-active base")
@@ -648,7 +648,7 @@ func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	return reply, nil
 }
 
-// ServiceInfo returns info about the Base contained in rpcmessages.GetServiceInfoResponse
+// ServiceInfo returns info about the Base contained in rpcmessages.GetServiceInfoResponse.
 func (base *BitBoxBase) ServiceInfo() (rpcmessages.GetServiceInfoResponse, error) {
 	if !base.active {
 		return rpcmessages.GetServiceInfoResponse{}, errp.New("Attempted a call to non-active base")
@@ -677,7 +677,7 @@ func (base *BitBoxBase) BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressR
 	return reply, nil
 }
 
-// UpdateInfo returns whether an update is available, and if so, version, description and severity information
+// UpdateInfo returns whether an update is available, and if so, version, description and severity information.
 func (base *BitBoxBase) UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error) {
 	if !base.active {
 		return rpcmessages.IsBaseUpdateAvailableResponse{}, errp.New("Attempted a call to non-active base")
@@ -693,7 +693,7 @@ func (base *BitBoxBase) UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse,
 	return reply, nil
 }
 
-// FinalizeSetupWizard calls the FinalizeSetupWizard RPC to enable bitcoin and start bitcoin services
+// FinalizeSetupWizard calls the FinalizeSetupWizard RPC to enable bitcoin and start bitcoin services.
 func (base *BitBoxBase) FinalizeSetupWizard() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -710,32 +710,32 @@ func (base *BitBoxBase) FinalizeSetupWizard() error {
 	return nil
 }
 
-// Identifier implements a getter for the bitboxBase ID
+// Identifier implements a getter for the bitboxBase ID.
 func (base *BitBoxBase) Identifier() string {
 	return base.bitboxBaseID
 }
 
-// Config returns the Base's configuration
+// Config returns the Base's configuration.
 func (base *BitBoxBase) Config() *bbbconfig.BBBConfig {
 	return base.bbbConfig
 }
 
-// GetRegisterTime implements a getter for the timestamp of when the bitbox base was registered
+// GetRegisterTime implements a getter for the timestamp of when the bitbox base was registered.
 func (base *BitBoxBase) GetRegisterTime() time.Time {
 	return base.registerTime
 }
 
-// isTestnet returns a boolean that is true when connected to a base serving testnet and false otherwise
+// isTestnet returns a boolean that is true when connected to a base serving testnet and false otherwise.
 func (base *BitBoxBase) isTestnet() bool {
 	return base.network == "testnet"
 }
 
-// Close implements a method to unset the bitboxBase
+// Close implements a method to unset the bitboxBase.
 func (base *BitBoxBase) Close() {
 	base.rpcClient.Stop()
 }
 
-// Ping sends a get request to the BitBoxBase middleware root handler and returns true if successful
+// Ping sends a get request to the BitBoxBase middleware root handler and returns true if successful.
 func (base *BitBoxBase) Ping() (bool, error) {
 	response, err := http.Get("http://" + base.address + ":" + base.port + "/")
 	if err != nil {
@@ -750,9 +750,9 @@ func (base *BitBoxBase) Ping() (bool, error) {
 	return true, nil
 }
 
-// attemptReconnectLoop attempts to reconnect to a rebooting base
+// attemptReconnectLoop attempts to reconnect to a rebooting base.
 func (base *BitBoxBase) attemptReconnectLoop() {
-	time.Sleep(15 * time.Second) // Wait for Base to shut down before attempting to reconnect
+	time.Sleep(15 * time.Second) // wait for Base to shut down before attempting to reconnect
 	for {
 		reply, err := base.Ping()
 		if err != nil {

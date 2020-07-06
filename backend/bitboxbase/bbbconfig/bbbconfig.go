@@ -24,7 +24,7 @@ import (
 
 const configFilename = "bitboxbase.json"
 
-// RegisteredBase has information about BitBoxBases registered with the backend
+// RegisteredBase has information about BitBoxBases registered with the backend.
 type RegisteredBase struct {
 	BaseID   string `json:"baseID"`
 	Hostname string `json:"hostname"`
@@ -36,7 +36,7 @@ type BBBConfig struct {
 	configDir string
 }
 
-//TODO(TheCharlatan) refactor this into a shared interface with the bitbox02 implmentation, for example in util/noiseconfig
+// TODO: refactor this into a shared interface with the bitbox02 implmentation, for example in util/noiseconfig.
 type noiseKeypair struct {
 	Private []byte `json:"private"`
 	Public  []byte `json:"public"`
@@ -71,7 +71,7 @@ func (bbbconfig *BBBConfig) storeConfig(conf *ConfigData) error {
 	return configFile.WriteJSON(conf)
 }
 
-// ContainsBaseStaticPubkey implements BBBConfigurationInterface
+// ContainsBaseStaticPubkey implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) ContainsBaseStaticPubkey(pubkey []byte) bool {
 	bbbconfig.mu.RLock()
 	defer bbbconfig.mu.RUnlock()
@@ -84,7 +84,7 @@ func (bbbconfig *BBBConfig) ContainsBaseStaticPubkey(pubkey []byte) bool {
 	return false
 }
 
-// AddBaseStaticPubkey implements BBBConfigurationInterface
+// AddBaseStaticPubkey implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) AddBaseStaticPubkey(pubkey []byte) error {
 	if bbbconfig.ContainsBaseStaticPubkey(pubkey) {
 		// Don't add again if already present.
@@ -99,7 +99,7 @@ func (bbbconfig *BBBConfig) AddBaseStaticPubkey(pubkey []byte) error {
 	return bbbconfig.storeConfig(configData)
 }
 
-// GetAppNoiseStaticKeypair implements BBBConfigurationInterface
+// GetAppNoiseStaticKeypair implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) GetAppNoiseStaticKeypair() *noise.DHKey {
 	bbbconfig.mu.RLock()
 	defer bbbconfig.mu.RUnlock()
@@ -114,7 +114,7 @@ func (bbbconfig *BBBConfig) GetAppNoiseStaticKeypair() *noise.DHKey {
 	}
 }
 
-// SetAppNoiseStaticKeypair implements BBBConfigurationInterface
+// SetAppNoiseStaticKeypair implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) SetAppNoiseStaticKeypair(key *noise.DHKey) error {
 	bbbconfig.mu.Lock()
 	defer bbbconfig.mu.Unlock()
@@ -127,7 +127,7 @@ func (bbbconfig *BBBConfig) SetAppNoiseStaticKeypair(key *noise.DHKey) error {
 	return bbbconfig.storeConfig(configData)
 }
 
-// ContainsRegisteredBase implements BBBConfigurationInterface
+// ContainsRegisteredBase implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) ContainsRegisteredBase(baseID string) bool {
 	bbbconfig.mu.RLock()
 	defer bbbconfig.mu.RUnlock()
@@ -140,7 +140,7 @@ func (bbbconfig *BBBConfig) ContainsRegisteredBase(baseID string) bool {
 	return false
 }
 
-// AddRegisteredBase implements BBBConfigurationInterface
+// AddRegisteredBase implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) AddRegisteredBase(baseID string, hostname string) error {
 	if bbbconfig.ContainsRegisteredBase(baseID) {
 		return nil
@@ -158,7 +158,7 @@ func (bbbconfig *BBBConfig) AddRegisteredBase(baseID string, hostname string) er
 	return bbbconfig.storeConfig(configData)
 }
 
-// RegisteredBases implements BBBConfigurationInterface
+// RegisteredBases implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) RegisteredBases() []RegisteredBase {
 	bbbconfig.mu.RLock()
 	defer bbbconfig.mu.RUnlock()
@@ -166,7 +166,7 @@ func (bbbconfig *BBBConfig) RegisteredBases() []RegisteredBase {
 	return bbbconfig.readConfig().RegisteredBases
 }
 
-// RemoveRegisteredBase implements BBBConfigurationInterface
+// RemoveRegisteredBase implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) RemoveRegisteredBase(baseID string) error {
 	if !bbbconfig.ContainsRegisteredBase(baseID) {
 		return nil
@@ -185,7 +185,7 @@ func (bbbconfig *BBBConfig) RemoveRegisteredBase(baseID string) error {
 	return bbbconfig.storeConfig(configData)
 }
 
-// UpdateRegisteredBaseHostname implements BBBConfigurationInterface
+// UpdateRegisteredBaseHostname implements BBBConfigurationInterface.
 func (bbbconfig *BBBConfig) UpdateRegisteredBaseHostname(baseID string, hostname string) error {
 	if !bbbconfig.ContainsRegisteredBase(baseID) {
 		return nil

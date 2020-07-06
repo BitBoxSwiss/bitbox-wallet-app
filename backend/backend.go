@@ -471,7 +471,7 @@ func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
-// DefaultAppConfig returns the default app config.y
+// DefaultAppConfig returns the default app config.
 func (backend *Backend) DefaultAppConfig() config.AppConfig {
 	return config.NewDefaultAppConfig()
 }
@@ -874,7 +874,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	return backend.events
 }
 
-// TryMakeNewBase calls TryMakeNewBase() in the manager with the given ip
+// TryMakeNewBase calls TryMakeNewBase() in the manager with the given ip.
 func (backend *Backend) TryMakeNewBase(ip string) (bool, error) {
 	return backend.baseManager.TryMakeNewBase(ip)
 }
@@ -894,12 +894,12 @@ func (backend *Backend) BitBoxBasesDetected() map[string]string {
 	return backend.baseManager.GetDetectedBases()
 }
 
-// EmitBitBoxBaseDetected notifies the frontend that the manager.detectedBases has changed
+// EmitBitBoxBaseDetected notifies the frontend that the manager.detectedBases has changed.
 func (backend *Backend) EmitBitBoxBaseDetected() {
 	backend.events <- backendEvent{Type: "bitboxbases", Data: "detectedChanged"}
 }
 
-// EmitBitBoxBaseReconnected notifies the frontend that a previously registered Base has successfully reconnected
+// EmitBitBoxBaseReconnected notifies the frontend that a previously registered Base has successfully reconnected.
 func (backend *Backend) EmitBitBoxBaseReconnected(bitboxBaseID string) {
 	backend.events <- backendEvent{Type: "bitboxbases", Data: "reconnected", Meta: map[string]interface{}{
 		"ID": bitboxBaseID,
@@ -926,7 +926,7 @@ func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase, hostn
 }
 
 // BitBoxBaseRemove removes a Base from the backend in the case it has not been fully connected
-// i.e., if the noise pairing wasn't completed and so the RPC connection not established
+// i.e., if the noise pairing wasn't completed and so the RPC connection not established.
 func (backend *Backend) BitBoxBaseRemove(bitboxBaseID string) {
 	backend.baseManager.RemoveBase(bitboxBaseID)
 	delete(backend.bitboxBases, bitboxBaseID)
@@ -1072,7 +1072,7 @@ func (backend *Backend) Deregister(deviceID string) {
 	}
 }
 
-// RatesUpdater returns the backend's ratesUpdater instance
+// RatesUpdater returns the backend's ratesUpdater instance.
 func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 	return backend.ratesUpdater
 }

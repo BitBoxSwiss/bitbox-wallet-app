@@ -26,47 +26,47 @@ type hidDeviceInfo struct {
 	hid.DeviceInfo
 }
 
-// VendorID implements DeviceInfo
+// VendorID implements DeviceInfo.
 func (info hidDeviceInfo) VendorID() int {
 	return int(info.DeviceInfo.VendorID)
 }
 
-// ProductID implements DeviceInfo
+// ProductID implements DeviceInfo.
 func (info hidDeviceInfo) ProductID() int {
 	return int(info.DeviceInfo.ProductID)
 }
 
-// UsagePage implements DeviceInfo
+// UsagePage implements DeviceInfo.
 func (info hidDeviceInfo) UsagePage() int {
 	return int(info.DeviceInfo.UsagePage)
 }
 
-// Interface implements DeviceInfo
+// Interface implements DeviceInfo.
 func (info hidDeviceInfo) Interface() int {
 	return info.DeviceInfo.Interface
 }
 
-// Serial implements DeviceInfo
+// Serial implements DeviceInfo.
 func (info hidDeviceInfo) Serial() string {
 	return info.DeviceInfo.Serial
 }
 
-// Manufacturer implements DeviceInfo
+// Manufacturer implements DeviceInfo.
 func (info hidDeviceInfo) Manufacturer() string {
 	return info.DeviceInfo.Manufacturer
 }
 
-// Product implements DeviceInfo
+// Product implements DeviceInfo.
 func (info hidDeviceInfo) Product() string {
 	return info.DeviceInfo.Product
 }
 
-// Identifier implements DeviceInfo
+// Identifier implements DeviceInfo.
 func (info hidDeviceInfo) Identifier() string {
 	return hex.EncodeToString([]byte(info.DeviceInfo.Path))
 }
 
-// Open implements DeviceInfo
+// Open implements DeviceInfo.
 func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
 	device, err := info.DeviceInfo.Open()
 	if err != nil {

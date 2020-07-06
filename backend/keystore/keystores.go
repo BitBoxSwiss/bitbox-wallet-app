@@ -104,7 +104,7 @@ func (keystores *Keystores) VerifyAddress(
 	return nil
 }
 
-// CanVerifyExtendedPublicKeys returns the indices of the keystores that support secure verification
+// CanVerifyExtendedPublicKeys returns the indices of the keystores that support secure verification.
 func (keystores *Keystores) CanVerifyExtendedPublicKeys() []int {
 	canVerifyExtendedPublicKey := []int{}
 	for index, keystore := range keystores.keystores {

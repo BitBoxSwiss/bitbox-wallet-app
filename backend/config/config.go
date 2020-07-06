@@ -299,13 +299,13 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	return config, nil
 }
 
-// SetBtcOnly sets non-bitcoin accounts in the config to false
+// SetBtcOnly sets non-bitcoin accounts in the config to false.
 func (config *Config) SetBtcOnly() {
 	config.appConfig.Backend.LitecoinActive = false
 	config.appConfig.Backend.EthereumActive = false
 }
 
-// SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert
+// SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert.
 func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string) {
 	config.appConfig.Backend.BTC = btcCoinConfig{
 		ElectrumServers: []*ServerInfo{
@@ -318,7 +318,7 @@ func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string
 	}
 }
 
-// SetTBTCElectrumServers sets the TBTC configuration to the provided electrumIP and electrumCert
+// SetTBTCElectrumServers sets the TBTC configuration to the provided electrumIP and electrumCert.
 func (config *Config) SetTBTCElectrumServers(electrumAddress, electrumCert string) {
 	config.appConfig.Backend.TBTC = btcCoinConfig{
 		ElectrumServers: []*ServerInfo{
@@ -379,7 +379,7 @@ func (config *Config) save(filename string, conf interface{}) error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644))
+	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
 }
 
 func (config *Config) migrateInfura(appConfig AppConfig) AppConfig {

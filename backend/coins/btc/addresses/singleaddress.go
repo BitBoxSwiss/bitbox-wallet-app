@@ -44,7 +44,7 @@ func NewSingleAddress(
 	}
 }
 
-// GetUnused returns the address
+// GetUnused returns the address.
 func (addresses *SingleAddress) GetUnused() []*AccountAddress {
 	if addresses.address == nil {
 		addresses.log.Panic("Concurrency error: Address not synced correctly")
@@ -61,7 +61,7 @@ func (addresses *SingleAddress) LookupByScriptHashHex(hashHex blockchain.ScriptH
 	return addresses.address
 }
 
-// EnsureAddresses returns the address
+// EnsureAddresses returns the address.
 func (addresses *SingleAddress) EnsureAddresses() []*AccountAddress {
 	if addresses.address == nil {
 		addresses.address = NewAccountAddress(

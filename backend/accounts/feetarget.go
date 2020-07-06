@@ -19,7 +19,7 @@ import (
 )
 
 // FeeTarget interface has priority codes.
-// Coin specific methods are implemented in corresponding coins
+// Coin specific methods are implemented in corresponding coins.
 type FeeTarget interface {
 	Code() FeeTargetCode
 }

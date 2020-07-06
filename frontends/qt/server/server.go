@@ -53,18 +53,18 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 )
 
-// nativeCommunication implements bridge.NativeCommunication
+// nativeCommunication implements bridge.NativeCommunication.
 type nativeCommunication struct {
 	respond    func(queryID int, response string)
 	pushNotify func(msg string)
 }
 
-// Respond implements bridge.NativeCommunication
+// Respond implements bridge.NativeCommunication.
 func (communication *nativeCommunication) Respond(queryID int, response string) {
 	communication.respond(queryID, response)
 }
 
-// PushNotify implements bridge.NativeCommunication
+// PushNotify implements bridge.NativeCommunication.
 func (communication *nativeCommunication) PushNotify(msg string) {
 	communication.pushNotify(msg)
 }

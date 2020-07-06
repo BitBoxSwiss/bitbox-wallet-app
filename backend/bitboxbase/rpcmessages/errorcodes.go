@@ -1,6 +1,6 @@
 package rpcmessages
 
-// ErrorCode is a unique and short string code represeting an Error
+// ErrorCode is a unique and short string code represeting an Error.
 type ErrorCode string
 
 const (

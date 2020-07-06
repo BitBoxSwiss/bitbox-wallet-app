@@ -99,7 +99,7 @@ func (notifier *notifierForAccount) read(
 	return nil
 }
 
-// Put implements accounts.Notifier,
+// Put implements accounts.Notifier.
 func (notifier *notifierForAccount) Put(id []byte) error {
 	return notifier.write(func(bucketUnnotified, bucketSeen *bbolt.Bucket) error {
 		if bucketSeen.Get(id) != nil {

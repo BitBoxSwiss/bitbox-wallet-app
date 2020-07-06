@@ -91,9 +91,11 @@ func (tx *Tx) PutOutgoingTransaction(transaction *types.TransactionWithMetadata)
 
 type byNonce []*types.TransactionWithMetadata
 
-func (txs byNonce) Len() int           { return len(txs) }
-func (txs byNonce) Less(i, j int) bool { return txs[i].Transaction.Nonce() < txs[j].Transaction.Nonce() }
-func (txs byNonce) Swap(i, j int)      { txs[i], txs[j] = txs[j], txs[i] }
+func (txs byNonce) Len() int      { return len(txs) }
+func (txs byNonce) Swap(i, j int) { txs[i], txs[j] = txs[j], txs[i] }
+func (txs byNonce) Less(i, j int) bool {
+	return txs[i].Transaction.Nonce() < txs[j].Transaction.Nonce()
+}
 
 // OutgoingTransactions implements DBTxInterface.
 func (tx *Tx) OutgoingTransactions() ([]*types.TransactionWithMetadata, error) {

@@ -75,7 +75,7 @@ func NewSinglesigConfiguration(
 		scriptType, absoluteKeypath, []*hdkeychain.ExtendedKey{extendedPublicKey}, "", 1)
 }
 
-// NewAddressConfiguration creates a new account address configuration
+// NewAddressConfiguration creates a new account address configuration.
 func NewAddressConfiguration(
 	scriptType ScriptType,
 	absoluteKeypath AbsoluteKeypath,
@@ -103,12 +103,12 @@ func (configuration *Configuration) ExtendedPublicKeys() []*hdkeychain.ExtendedK
 	return configuration.extendedPublicKeys
 }
 
-// Address returns the configuration's address
+// Address returns the configuration's address.
 func (configuration *Configuration) Address() string {
 	return configuration.address
 }
 
-// IsAddressBased returns whether configuration is address based or not
+// IsAddressBased returns whether configuration is address based or not.
 func (configuration *Configuration) IsAddressBased() bool {
 	return configuration.address != "" && len(configuration.ExtendedPublicKeys()) == 0
 }
