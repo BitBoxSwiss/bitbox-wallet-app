@@ -73,7 +73,7 @@ export default class Info extends Component {
                 <div class="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
-                        <div class="content padded flex flex-column flex-center">
+                        <div class="content padded">
                             <div class={[style.infoContent, 'box large'].join(' ')}>
                                 {
                                     info.signingConfigurations.map((config, index) => (
