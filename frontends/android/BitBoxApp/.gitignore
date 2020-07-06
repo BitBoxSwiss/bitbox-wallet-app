@@ -9,6 +9,7 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/goserver/build
 /captures
 .externalNativeBuild
 
