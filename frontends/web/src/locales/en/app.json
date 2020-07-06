@@ -1224,7 +1224,7 @@
         "title": "Connect your own full node"
       },
       "setProxyAddress": "Set proxy address",
-      "splitAccounts": "Separate accounts by address type",
+      "splitAccounts": "Separate accounts by address type (legacy behavior)",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy"
     },
