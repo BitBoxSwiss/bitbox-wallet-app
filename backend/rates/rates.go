@@ -24,7 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -106,7 +105,6 @@ func (updater *RateUpdater) update() {
 	}
 
 	updater.last = rates
-	updater.log.WithField("data", spew.Sprintf("%v", rates)).Debug("Exchange rates changed.")
 	updater.Notify(observable.Event{
 		Subject: "rates",
 		Action:  action.Replace,

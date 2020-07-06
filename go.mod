@@ -13,7 +13,6 @@ require (
 	github.com/cloudfoundry-attic/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 	github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21 // indirect
 	github.com/coreos/bbolt v1.3.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200623201452-8e5a24b5a32f
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
