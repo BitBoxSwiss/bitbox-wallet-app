@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if [ ! -d ../web/build ]; then
+    echo "Web assets have not been built." 1>&2
+    exit 1
+fi
+
 echo '<!DOCTYPE RCC><RCC version="1.0"><qresource>' > assets.qrc
 /usr/bin/find ../web/build/ -maxdepth 1 -type f | sed -e "s|../web/build/||" | awk '{ print "<file alias=\"" $1 "\">../web/build/" $1 "</file>" '} >> assets.qrc
 
