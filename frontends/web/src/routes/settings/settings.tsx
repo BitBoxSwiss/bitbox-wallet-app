@@ -19,8 +19,6 @@ import { Link, route } from 'preact-router';
 import { Badge } from '../../components/badge/badge';
 import { Dialog } from '../../components/dialog/dialog';
 import * as dialogStyle from '../../components/dialog/dialog.css';
-import { FiatSelection } from '../../components/fiat/fiat';
-import * as style from '../../components/fiat/fiat.css';
 import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
@@ -33,6 +31,8 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { debug } from '../../utils/env';
 import { apiGet, apiPost } from '../../utils/request';
+import { FiatSelection } from './components/fiat/fiat';
+import * as style from './components/fiat/fiat.css';
 
 interface SettingsProps {
     deviceIDs: string[];
@@ -267,7 +267,7 @@ class Settings extends Component<Props, State> {
                         }
                     </Header>
                     <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                        <div class="content padded-lgscreen">
                             {
                                 config && (
                                     <div class="flex-1">
@@ -328,7 +328,7 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                     <p className="text-gray text-small">powered by Etherscan.io APIs</p>
                                                 </div>
-                                                <div className="column column-1-2">
+                                                <div className="column column-2-3">
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.expert.title')}</h3>
@@ -336,7 +336,7 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                     <div className="box slim divide">
                                                         <div className={style.currency}>
-                                                            <div>
+                                                            <div className="m-top-quarter m-bottom-quarter">
                                                                 <p className="m-none">{t('settings.expert.splitAccounts')}</p>
                                                                 <p className="m-none">
                                                                     <Badge type="primary">BB02</Badge>

@@ -15,10 +15,18 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { share } from '../../decorators/share';
-import { translate, TranslateProps } from '../../decorators/translate';
-import { currencies, Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
-import { Toggle } from '../toggle/toggle';
+import {
+    currencies,
+    Fiat,
+    selectFiat,
+    setActiveFiat,
+    SharedProps,
+    store,
+    unselectFiat,
+} from '../../../../components/rates/rates';
+import { Toggle } from '../../../../components/toggle/toggle';
+import { share } from '../../../../decorators/share';
+import { translate, TranslateProps } from '../../../../decorators/translate';
 import * as style from './fiat.css';
 
 function changeSelected(event: Event): void {

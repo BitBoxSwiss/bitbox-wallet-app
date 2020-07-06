@@ -176,17 +176,41 @@
     padding-top: var(--space-default);
 }
 
+.content.padded-lgscreen {
+    padding-top: var(--space-default);
+}
+
 @media (max-width: 768px) {
     .content {
         padding: 0 var(--space-half);
     }
 
-    .bottom {
-        padding: var(--spacing-default) 0 0 0 !important;
+    .content.padded-lgscreen {
+        padding: 0;
     }
 
     .subHeaderContainer {
         margin: var(--space-half) 0;
+    }
+
+    .padded-lgscreen .columns .column {
+        /* can't overwrite width here, because the width 
+        defined in grid.css uses !important */
+        min-width: 100%;
+    }
+
+    .padded-lgscreen .columns,
+    .padded-lgscreen .columns > * {
+        margin-right: 0;
+    }
+
+    .padded-lgscreen .columns .subHeaderContainer {
+        margin: var(--space-half);
+        margin-top: var(--space-half) !important;
+    }
+
+    .padded-lgscreen .text-small {
+        margin: var(--space-quarter) var(--space-half);
     }
 }
 
@@ -243,11 +267,6 @@
 
 .row:not(:first-child).extra {
     margin-top: var(--space-half);
-}
-
-.bottom {
-    padding: var(--spacing-default) 0;
-    margin-bottom: 0 !important;
 }
 
 .isVerticallyCentered {

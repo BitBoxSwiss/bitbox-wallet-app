@@ -77,8 +77,12 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    height: var(--item-height);
+    min-height: var(--item-height);
     padding: 0 var(--space-half);
+}
+
+.currency > label {
+    flex-shrink: 0;
 }
 
 .currency.disabled > p {
