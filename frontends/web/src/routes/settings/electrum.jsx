@@ -363,7 +363,11 @@ export default class ElectrumSettings extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what')} />
-                    <Entry key="guide.settings-electrum.whenTCP" entry={t('guide.settings-electrum.whenTCP')} />
+                    <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
+                    <Entry key="guide.settings-electrum.options" entry={t('guide.settings-electrum.options')} />
+                    <Entry key="guide.settings-electrum.connection" entry={t('guide.settings-electrum.connection')} />
+                    <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
+                    <Entry key="guide.settings-electrum.instructions" entry={t('guide.settings-electrum.instructions')} />
                 </Guide>
             </div>
         );
