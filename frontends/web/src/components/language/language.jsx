@@ -41,6 +41,7 @@ export default class LanguageSwitcher extends Component {
             { code: 'tr', display: 'Türkçe' },
             { code: 'fa', display: 'فارسی' },
             { code: 'zh', display: '中文' },
+            { code: 'he', display: 'עברית' },
         ];
         if (extraLanguages) {
             extraLanguages.split(',').forEach(code => {
