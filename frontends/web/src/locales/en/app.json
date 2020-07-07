@@ -793,6 +793,10 @@
         "text": "As soon as you transact, a new address is automatically added to the list so there are always 20 addresses available which have never received any coins.",
         "title": "When do the addresses change?"
       },
+      "addressFormats": {
+        "text": "A compatible address is standard segwit whereas the modern address is native segwit (bech32). By default the BitBox02 uses the modern address. If you are having issues sending to this address, click \"change to compatible address\".",
+        "title": "What is the difference between compatible address and modern address?"
+      },
       "howVerify": {
         "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
         "title": "How can I verify an address securely?"
