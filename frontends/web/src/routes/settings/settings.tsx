@@ -51,11 +51,11 @@ class Settings extends Component<Props, State> {
     private accountsList = [
         { name: 'bitcoinActive',
           label: 'Bitcoin',
-          badges: ['BB01', 'BB02', 'BB02-BTC'],
+          badges: [],
         },
         { name: 'litecoinActive',
           label: 'Litecoin',
-          badges: ['BB01', 'BB02'],
+          badges: ['BitBox02-Multi', 'BitBox01'],
         },
     ];
 
@@ -288,6 +288,14 @@ class Settings extends Component<Props, State> {
                                                                 <div className={style.currency} key={`available-fiat-${index}`}>
                                                                     <div>
                                                                         <p className="m-none">{account.label}</p>
+                                                                        {account.badges.map((badge, i) => (
+                                                                            <Badge
+                                                                                key={`badge-${i}`}
+                                                                                type={badge === 'BitBox02-Multi' ? 'primary' : 'generic'}
+                                                                                className="m-right-quarter">
+                                                                                {badge}
+                                                                            </Badge>
+                                                                        ))}
                                                                     </div>
                                                                     <Toggle
                                                                         id={account.name}
@@ -302,7 +310,7 @@ class Settings extends Component<Props, State> {
                                                     <div class="subHeaderContainer withToggler">
                                                         <div class="subHeader">
                                                             <h3>Ethereum</h3>
-                                                            <Badge type="primary" className="m-left-quarter">BB02</Badge>
+                                                            <Badge type="primary" className="m-left-quarter">BitBox02-Multi</Badge>
                                                         </div>
                                                         <div className="subHeaderToggler">
                                                             <Toggle
@@ -339,8 +347,12 @@ class Settings extends Component<Props, State> {
                                                             <div className="m-top-quarter m-bottom-quarter">
                                                                 <p className="m-none">{t('settings.expert.splitAccounts')}</p>
                                                                 <p className="m-none">
-                                                                    <Badge type="primary">BB02</Badge>
-                                                                    <Badge type="secondary" className="m-left-quarter">BB02-BTC</Badge>
+                                                                    <Badge type="generic">BitBox02</Badge>
+                                                                    <span className="text-gray"> (</span>
+                                                                    <Badge type="primary">Multi</Badge>
+                                                                    <span className="text-gray">,</span>
+                                                                    <Badge type="secondary" className="m-left-quarter">Bitcoin-only</Badge>
+                                                                    <span className="text-gray">)</span>
                                                                     <Badge type="generic" className="m-left-quarter">BTC</Badge>
                                                                     <Badge type="generic" className="m-left-quarter">LTC</Badge>
                                                                 </p>
