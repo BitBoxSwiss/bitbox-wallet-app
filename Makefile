@@ -41,11 +41,11 @@ osx-init:
 servewallet:
 	go run -mod=vendor ./cmd/servewallet
 servewallet-mainnet:
-	go run -mod=vendor ./cmd/servewallet
+	go run -mod=vendor ./cmd/servewallet -mainnet
 servewallet-regtest:
-	go run -mod=vendor ./cmd/servewallet
+	go run -mod=vendor ./cmd/servewallet -regtest
 servewallet-prodservers:
-	go run -mod=vendor ./cmd/servewallet
+	go run -mod=vendor ./cmd/servewallet -devservers=false
 buildweb:
 	node --version
 	rm -rf ${WEBROOT}/build
