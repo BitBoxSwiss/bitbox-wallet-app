@@ -188,6 +188,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 func (backend *Backend) addAccount(account accounts.Interface) {
 	defer backend.accountsLock.Lock()()
 	backend.accounts = append(backend.accounts, account)
+	account.Observe(backend.Notify)
 	backend.onAccountInit(account)
 }
 

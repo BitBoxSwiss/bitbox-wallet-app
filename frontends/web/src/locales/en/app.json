@@ -15,7 +15,8 @@
     },
     "initializing": "Getting information from the blockchain…",
     "openFile": "Open file",
-    "reconnecting": "Lost connection, trying to reconnect…"
+    "reconnecting": "Lost connection, trying to reconnect…",
+    "syncedAddressesCount": "Scanned {{count}} addresses"
   },
   "accountInfo": {
     "address": "Address",

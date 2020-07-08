@@ -38,6 +38,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -52,6 +53,7 @@ var pollInterval = 30 * time.Second
 // Account is an Ethereum account, with one address.
 type Account struct {
 	locker.Locker
+	observable.Implementation
 
 	synchronizer *synchronizer.Synchronizer
 	coin         *Coin

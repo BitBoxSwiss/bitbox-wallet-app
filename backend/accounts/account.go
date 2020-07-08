@@ -22,6 +22,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
 // AddressList is a list of addresses.
@@ -29,6 +30,8 @@ type AddressList []Address
 
 // Interface is the API of a Account.
 type Interface interface {
+	observable.Interface
+
 	Info() *Info
 	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
 	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
