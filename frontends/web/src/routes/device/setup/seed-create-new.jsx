@@ -130,9 +130,9 @@ export default class SeedCreateNew extends Component {
     renderSpinner() {
         switch (this.state.status) {
         case STATUS.CHECKING:
-            return (<Spinner text={this.props.t('checkSDcard')} showLogo />);
+            return (<Spinner text={this.props.t('checkSDcard')} />);
         case STATUS.CREATING:
-            return (<Spinner text={this.props.t('seed.creating')} showLogo />);
+            return (<Spinner text={this.props.t('seed.creating')} />);
         default:
             return null;
         }

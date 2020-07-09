@@ -24,7 +24,6 @@ import * as style from './Spinner.css';
 
 interface SpinnerProps {
     text?: string;
-    showLogo?: boolean;
 }
 
 type Props = SpinnerProps & TranslateProps & SharedProps;

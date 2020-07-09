@@ -76,17 +76,6 @@
 }
 
 
-.logo {
-    visibility: visible;
-    width: 100%;
-}
-
-@media (min-width: 1000px) {
-    .logo {
-        visibility: hidden;
-    }
-}
-
 .overlay {
     position: absolute;
     top: 0;
