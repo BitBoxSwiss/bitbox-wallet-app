@@ -26,6 +26,7 @@ import Status from '../../components/status/status';
 import { TransactionInterface } from '../../components/transactions/transaction';
 import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
+import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
@@ -53,6 +54,10 @@ interface LoadedAccountProps {
     config: any;
 }
 
+interface SubscribedAccountProps {
+    syncedAddressesCount?: number;
+}
+
 export interface AccountInfo {
     signingConfigurations: SigningConfigurationInterface[];
 }
@@ -68,7 +73,7 @@ interface State {
     fatalError: boolean;
 }
 
-type Props = LoadedAccountProps & AccountProps & TranslateProps;
+type Props = SubscribedAccountProps & LoadedAccountProps & AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
     public readonly state: State = {
@@ -255,6 +260,7 @@ class Account extends Component<Props, State> {
             t,
             code,
             accounts,
+            syncedAddressesCount,
         }: RenderableProps<Props>,
         {
             transactions,
@@ -272,6 +278,15 @@ class Account extends Component<Props, State> {
             return null;
         }
         const canSend = balance && balance.available.amount !== '0';
+
+        let initializingSpinnerText = t('account.initializing');
+        if (syncedAddressesCount !== undefined && syncedAddressesCount > 1) {
+            initializingSpinnerText += '\n' + t('account.syncedAddressesCount', {
+                count: syncedAddressesCount,
+                defaultValue: 0,
+            });
+        }
+
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -334,7 +349,7 @@ class Account extends Component<Props, State> {
                                 !initialized || !connected || !this.dataLoaded() || fatalError ? (
                                     <Spinner text={
                                         !connected && t('account.reconnecting') ||
-                                        !initialized && t('account.initializing') ||
+                                        !initialized && initializingSpinnerText ||
                                         fatalError && t('account.fatalError') || ''
                                     } />
                                 ) : (
@@ -392,9 +407,14 @@ class Account extends Component<Props, State> {
     }
 }
 
-const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
+const loadHOC = load<LoadedAccountProps, SubscribedAccountProps & AccountProps & TranslateProps>(({ code }) => ({
     safelloBuySupported: `account/${code}/exchange/safello/buy-supported`,
     config: 'config',
 }))(Account);
-const HOC = translate<AccountProps>()(loadHOC);
+
+const subscribeHOC = subscribe<SubscribedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
+    syncedAddressesCount: `account/${code}/synced-addresses-count`,
+}), false, true)(loadHOC);
+
+const HOC = translate<AccountProps>()(subscribeHOC);
 export { HOC as Account };

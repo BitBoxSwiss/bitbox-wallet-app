@@ -27,13 +27,13 @@ import { load } from './load';
  * Loads API endpoints into the props of the component that uses this decorator and updates them on events.
  *
  * @param endpointsObjectOrFunction - The endpoints that should be loaded to their respective property name.
- * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
- * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first.
+ * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded. Only applies if `subscribeWithoutloading` is false. Use false only if all loaded props are optional!
+ * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first. Use true only if all loaded props are optional!
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
 export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
-    renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
+    renderOnlyOnceLoaded: boolean = true,
     subscribeWithoutLoading: boolean = false,
 ) {
     return function decorator(
@@ -56,6 +56,10 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
                 if (subscription !== undefined) {
                     subscription();
                     delete this.subscriptions[key];
+                    if (subscribeWithoutLoading || !renderOnlyOnceLoaded) {
+                        // There is no loading on component update, so we reset it to the default value.
+                        this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
+                    }
                 }
             }
 

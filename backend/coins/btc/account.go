@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"sort"
+	"sync/atomic"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -42,6 +43,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/sirupsen/logrus"
 )
 
@@ -64,6 +67,7 @@ type subaccount struct {
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	locker.Locker
+	observable.Implementation
 
 	coin *Coin
 	// folder for all accounts. Full path.
@@ -81,6 +85,13 @@ type Account struct {
 	blockchain               blockchain.Interface
 
 	subaccounts []subaccount
+	// How many addresses were synced already during the initial sync. This value is emitted as an
+	// event when it changes. This counter can overshoot if an address is updated more than once
+	// during initial sync (e.g. if there is a tx touching it). This should be rare and have no bad
+	// consequence, as the counter is only used to display absolute progress in the frontend. If you
+	// need an accurate count of addresses synced, this should probably be turned into a map (set)
+	// instead.
+	syncedAddressesCount uint32
 
 	transactions *transactions.Transactions
 
@@ -603,6 +614,17 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	return account.transactions.Balance(), nil
 }
 
+func (account *Account) incAndEmitSyncCounter() {
+	if !account.synced {
+		synced := atomic.AddUint32(&account.syncedAddressesCount, 1)
+		account.Notify(observable.Event{
+			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.code),
+			Action:  action.Replace,
+			Object:  synced,
+		})
+	}
+}
+
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
@@ -612,6 +634,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		return
 	}
 	if status == address.HistoryStatus {
+		account.incAndEmitSyncCounter()
 		// Address didn't change.
 		return
 	}
@@ -633,6 +656,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				account.log.Warning("client status should match after sync")
 			}
 			account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
+			account.incAndEmitSyncCounter()
 			account.ensureAddresses()
 		},
 		func(err error) {
