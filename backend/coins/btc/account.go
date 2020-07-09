@@ -86,7 +86,11 @@ type Account struct {
 
 	subaccounts []subaccount
 	// How many addresses were synced already during the initial sync. This value is emitted as an
-	// event when it changes.
+	// event when it changes. This counter can overshoot if an address is updated more than once
+	// during initial sync (e.g. if there is a tx touching it). This should be rare and have no bad
+	// consequence, as the counter is only used to display absolute progress in the frontend. If you
+	// need an accurate count of addresses synced, this should probably be turned into a map (set)
+	// instead.
 	syncedAddressesCount uint32
 
 	transactions *transactions.Transactions
