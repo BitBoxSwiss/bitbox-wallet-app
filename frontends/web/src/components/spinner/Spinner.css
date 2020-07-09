@@ -14,10 +14,6 @@
     -webkit-backface-visibility: hidden;
 }
 
-.shifted {
-    padding-left: var(--sidebar-width);
-}
-
 .spinner {
     display: inline-block;
     position: relative;
