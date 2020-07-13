@@ -20,10 +20,11 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { AmountWithConversions } from '../../routes/account/send/send';
 import A from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
+import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { AmountInterface } from '../rates/rates';
-import { ArrowIn, ArrowOut, ArrowSelf, ExpandIcon } from './components/icons';
+import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
 import * as style from './transaction.css';
 import * as parentStyle from './transactions.css';
 

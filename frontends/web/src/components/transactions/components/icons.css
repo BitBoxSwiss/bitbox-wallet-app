@@ -14,9 +14,3 @@
 .txArrowTypeSelf {
     stroke: var(--color-secondary) !important;
 }
-
-.expandIcon {
-    stroke: var(--color-gray);
-    width: 18px;
-    height: 18px;
-}

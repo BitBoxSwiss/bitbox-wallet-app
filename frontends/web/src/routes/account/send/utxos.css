@@ -2,126 +2,83 @@
     font-weight: 300 !important;
 }
 
-.tableContainer {
-    position: relative;
-    transition: all 0.2s ease;
-    border-radius: 2px;
+.utxosList {
+    list-style: none;
+    padding: 0 0 var(--space-half) 0;
 }
 
-.container.collapsed .tableContainer {
-    height: 0;
+.utxosList label {
+    user-select: text;
     width: 100%;
-    overflow: hidden;
-    border: solid 1px transparent;
 }
 
-.container.expanded .tableContainer {
-    max-height: 320px;
-    overflow-y: scroll;
-    border: solid 1px var(--color-lightgray);
-}
-
-.table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: -1px;
-    text-align: left;
-    background-color: var(--color-white);
-}
-
-.table > tr > td {
-    line-height: 1.3;
-    font-size: var(--size-default);
-    font-weight: 400;
-    padding: var(--space-half) 0;
+.utxo {
+    margin-top: var(--space-half);
+    padding: 0 0 var(--space-eight) 0;
     border-bottom: solid 1px var(--color-lightgray);
 }
 
-.table > tr > td > span {
-    display: block;
-    min-width: 1rem;
-    white-space: nowrap;
+.utxoContent {
+    color: var(--color-default);
+    display: flex;
+    flex-wrap: nowrap;
+    font-size: var(--size-subheader);
 }
 
-.table > tr > td > span:last-child {
-    padding-top: var(--space-quarter);
+.utxoData {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
 }
 
-.table > tr > td label {
-    display: inline-block;
-    font-size: var(--size-default);
-    margin: 0;
+.utxoExplorer {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: calc(var(--space-quarter) * -1);
+    padding: var(--space-quarter);
 }
 
-.table > tr > td:first-child {
-    padding-left: var(--spacing-default);
-    padding-right: var(--spacing-half);
-    vertical-align: top;
-    width: calc(var(--spacing-large) + 1em);
+.utxoExplorer svg {
+    stroke: var(--color-blue);
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
-.table > tr > td:first-child > span {
-    position: relative;
-}
-
-.table > tr > td:first-child > span label {
-    position: absolute;
-    top: 2px;
-}
-
-.table > tr > td:last-child {
-    padding-right: var(--spacing-default);
-}
-
-.right {
-    text-align: right;
-}
-
-.amountTable {
-    border-collapse: collapse;
-}
-
-.amountTable tr td {
-    padding: 0;
-}
-
-.amountTable tr:first-child td {
+.amounts {
+    line-height: 1;
     padding-bottom: var(--space-quarter);
 }
 
-.amountTable tr td:first-child {
-    padding-right: 3px;
+.amount {
+    margin-right: var(--space-quarter);
 }
 
-.amountTable tr td:last-child {
-    text-align: left;
+.label,
+.unit {
     color: var(--color-secondary);
 }
 
-@media (max-width: 885px) {
-    .table > tr > td:last-child {
-        vertical-align: bottom;
-    }
+.label {
+    display: inline-block;
+    padding-right: 4px;
 }
 
-@media (max-width: 768px) {
-    .table > tr > td,
-    .table > tr > td label {
-        font-size: var(--size-small);
-    }
+.unit {
+    font-size: var(--size-default);
+}
 
-    .table > tr > td:first-child {
-        padding-left: var(--space-half);
-    }
+.address,
+.transaction {
+    display: flex;
+    font-size: var(--size-default);
+    line-height: 1.4;
+    white-space: nowrap;
+}
 
-    .table > tr > td:nth-child(2) {
-        padding-left: var(--space-quarter);
-        text-overflow: ellipsis;
-        max-width: calc(100% - (180px));
-    }
-
-    .table > tr > td:last-child {
-        padding-right: var(--space-half);
-        padding-left: var(--space-quarter);
-    }
+.shrink {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
