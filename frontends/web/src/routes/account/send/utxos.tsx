@@ -65,16 +65,18 @@ class UTXOs extends Component<Props, State> {
         selectedUTXOs: {},
     };
 
+    private splitOutPoint(utxo: UTXO): UTXOwithTX {
+        const [txId, txOutput] = utxo.outPoint.split(':');
+        return Object.assign({
+            txId,
+            txOutput,
+        }, utxo);
+    }
+
     public componentDidMount() {
         apiGet(`account/${this.props.accountCode}/utxos`).then((utxos: UTXO[]) => {
             this.setState({
-                utxos: utxos.map(utxo => {
-                    const [txId, txOutput] = utxo.outPoint.split(':');
-                    return Object.assign({
-                        txId,
-                        txOutput,
-                    }, utxo);
-                })
+                utxos: utxos.map(this.splitOutPoint),
             });
         });
     }
