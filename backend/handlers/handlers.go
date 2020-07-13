@@ -64,7 +64,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	qrcode "github.com/skip2/go-qrcode"
-	"golang.org/x/text/language"
 )
 
 // Backend models the API of the backend.
@@ -85,7 +84,6 @@ type Backend interface {
 		persist bool,
 		emitEvent bool,
 	) error
-	UserLanguage() language.Tag
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
@@ -180,6 +178,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/native-locale", handlers.getNativeLocaleHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/notify-user", handlers.postNotifyHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
@@ -356,6 +355,13 @@ func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, er
 		return nil, errp.WithStack(err)
 	}
 	return nil, handlers.backend.Config().SetAppConfig(appConfig)
+}
+
+// getNativeLocaleHandler returns user preferred UI language as reported
+// by the native app layer.
+// The response value may be invalid or unsupported by the app.
+func (handlers *Handlers) getNativeLocaleHandler(*http.Request) (interface{}, error) {
+	return handlers.backend.Environment().NativeLocale(), nil
 }
 
 func (handlers *Handlers) postNotifyHandler(r *http.Request) (interface{}, error) {

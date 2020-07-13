@@ -63,6 +63,7 @@ type GoEnvironmentInterface interface {
 	DeviceInfo() GoDeviceInfoInterface
 	SystemOpen(string) error
 	UsingMobileData() bool
+	NativeLocale() string
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -159,6 +160,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 			},
 			SystemOpenFunc:      environment.SystemOpen,
 			UsingMobileDataFunc: environment.UsingMobileData,
+			NativeLocaleFunc:    environment.NativeLocale,
 		},
 	)
 }

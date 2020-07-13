@@ -16,15 +16,77 @@ package handlers_test
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/gorilla/mux"
 )
+
+// backendEnv is a backend environment implementation for testing.
+//
+// TODO: Move this to the test pkg. Unfortunately, there's imports cycle:
+//   $ go vet ./backend/...
+//   import cycle not allowed in test
+//   package github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb (test)
+//           imports github.com/digitalbitbox/bitbox-wallet-app/util/test
+//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
+//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
+//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc
+//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb
+//   import cycle not allowed in test
+//   package github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox (test)
+//           imports github.com/digitalbitbox/bitbox-wallet-app/util/test
+//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
+//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
+type backendEnv struct {
+	Locale string // returned by NativeLocale
+}
+
+func (e *backendEnv) NotifyUser(string)             {}
+func (e *backendEnv) SystemOpen(string) error       { return nil }
+func (e *backendEnv) DeviceInfos() []usb.DeviceInfo { return nil }
+func (e *backendEnv) UsingMobileData() bool         { return false }
+func (e *backendEnv) NativeLocale() string          { return e.Locale }
+
+func TestGetNativeLocale(t *testing.T) {
+	const ptLocale = "pt"
+
+	args := arguments.NewArguments(
+		test.TstTempDir("getnativelocale"),
+		true,  // testing
+		false, // regtest
+		false, // devmode
+		true,  // devservers
+		nil,   // gap limits
+	)
+	env := &backendEnv{Locale: ptLocale}
+	back, err := backend.NewBackend(args, env)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer back.Close()
+
+	h := handlers.NewHandlers(back, handlers.NewConnectionData(0, ""))
+	r := httptest.NewRequest("GET", "/api/native-locale", nil)
+	w := httptest.NewRecorder()
+	h.Router.ServeHTTP(w, r)
+	res := w.Result()
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("res.StatusCode = %d; want %d", res.StatusCode, http.StatusOK)
+	}
+	var locale string
+	test.DecodeHandlerResponse(t, &locale, res.Body)
+	if locale != ptLocale {
+		t.Errorf("locale = %q; want %q", locale, ptLocale)
+	}
+}
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {

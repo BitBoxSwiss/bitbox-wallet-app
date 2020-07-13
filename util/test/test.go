@@ -15,8 +15,11 @@
 package test
 
 import (
+	"encoding/json"
+	"io"
 	"io/ioutil"
 	"os"
+	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
@@ -50,4 +53,13 @@ func TstTempDir(name string) string {
 // Should be run inside of `TestMain(m *testing.M) {}`.
 func TstSetupLogging() {
 	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
+}
+
+// DecodeHandlerResponse parses a handler response into v.
+// It fails the test with t.Fatal if the response is in invalid format.
+func DecodeHandlerResponse(t *testing.T, v interface{}, r io.Reader) {
+	t.Helper()
+	if err := json.NewDecoder(r).Decode(v); err != nil {
+		t.Fatalf("DecodeHandlerResponse: %v", err)
+	}
 }

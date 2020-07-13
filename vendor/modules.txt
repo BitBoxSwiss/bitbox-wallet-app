@@ -37,11 +37,6 @@ github.com/btcsuite/btcutil/txsort
 ## explicit
 # github.com/cespare/cp v1.1.1
 ## explicit
-# github.com/cloudfoundry-attic/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
-## explicit
-github.com/cloudfoundry-attic/jibber_jabber
-# github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
-## explicit
 # github.com/coreos/bbolt v1.3.0
 ## explicit
 github.com/coreos/bbolt

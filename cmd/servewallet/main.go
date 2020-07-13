@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 
@@ -76,6 +77,15 @@ func (webdevEnvironment) SystemOpen(url string) error {
 // UsingMobileData implements backend.Environment.
 func (webdevEnvironment) UsingMobileData() bool {
 	return false
+}
+
+// NativeLocale naively implements backend.Environment.
+// This version is unlikely to work on Windows.
+func (webdevEnvironment) NativeLocale() string {
+	if v := os.Getenv("LC_ALL"); v != "" {
+		return v
+	}
+	return os.Getenv("LANG")
 }
 
 func main() {
