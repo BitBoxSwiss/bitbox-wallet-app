@@ -104,9 +104,10 @@ module.exports = {
     // with a single module.
     moduleNameMapper: {
         // Pass-through CSS to allow for styles.name look ups in tests.
-        '\\.css$': 'identity-obj-proxy'
-        // Uncomment the following if any of the project's components use react.
-        //'^react$': 'preact-compat',
+        '\\.css$': 'identity-obj-proxy',
+        // Alias react to preact in tests.
+        // Uncomment the others if required by a test dependencies.
+        '^react$': 'preact-compat',
         //'^react-dom$': 'preact-compat',
         //'^create-react-class$': 'preact-compat/lib/create-react-class'
     },

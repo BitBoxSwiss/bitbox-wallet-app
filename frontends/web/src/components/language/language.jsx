@@ -26,7 +26,7 @@ import * as style from './language.css';
 export default class LanguageSwitcher extends Component {
     constructor(props) {
         super(props);
-        const languages = [
+        const languages = props.languages || [
             { code: 'bg', display: 'България' },
             { code: 'de', display: 'Deutsch' },
             { code: 'en', display: 'English' },
@@ -63,7 +63,20 @@ export default class LanguageSwitcher extends Component {
     }
 
     getSelectedIndex = (languages) => {
-        const index = languages.findIndex(({ code }) => code === this.props.i18n.language);
+        const lang = this.props.i18n.language;
+        // Check for exact match first.
+        let index = languages.findIndex(({ code }) => code === lang);
+        // A locale may contain region and other sub tags.
+        // Try with a relaxed match, only the first component.
+        if (index === -1 && lang.indexOf('-') > 0) {
+            const tag = lang.slice(0, lang.indexOf('-'));
+            index = languages.findIndex(({ code }) => code === tag);
+        }
+        if (index === -1 && lang.indexOf('_') > 0) {
+            const tag = lang.slice(0, lang.indexOf('_'));
+            index = languages.findIndex(({ code }) => code === tag);
+        }
+        // Give up. We tried.
         if (index === -1) {
             return 0;
         }

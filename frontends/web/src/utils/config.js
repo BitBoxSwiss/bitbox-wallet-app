@@ -29,8 +29,6 @@ export function extConfig(key, defaultValue) {
     return key;
 }
 
-export const userLanguage = extConfig('{{ LANG }}', 'en');
-
 // expects an object with a backend or frontend key
 // i.e. { frontend: { language }}
 // returns a promise and passes the new config

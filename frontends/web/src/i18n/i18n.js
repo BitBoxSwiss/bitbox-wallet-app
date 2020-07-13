@@ -30,10 +30,11 @@ import appTranslationsFA from '../locales/fa/app.json';
 import appTranslationsES from '../locales/es/app.json';
 import appTranslationsSL from '../locales/sl/app.json';
 import appTranslationsHE from '../locales/he/app.json';
-import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';
 import Backend from 'i18next-locize-backend';
 import locizeEditor from 'locize-editor';
+import { apiGet } from '../utils/request';
+import { setConfig } from '../utils/config';
 
 // if a language is not officially added yet, add it through this env var to make it available
 // (e.g. "es,fr,sl").
@@ -105,16 +106,21 @@ if (!i18nEditorActive) {
 }
 
 i18n.on('languageChanged', (lng) => {
-    apiGet('config').then((config = {}) => {
-        if (config.frontend && config.frontend.userLanguage === lng) {
-            return;
+    // Set userLanguage in config back to null if system locale matches
+    // the newly selected language lng to make the app use native-locale again.
+    // This also covers partial matches. For example, if native locale is pt_BR
+    // and the app has only pt translation, assume they match.
+    return apiGet('native-locale').then((nativeLocale) => {
+        let match = lng === nativeLocale;
+        if (!match) {
+            // There are too many combinations. So, we compare only the main
+            // language tag.
+            const lngLang = lng.replace('_', '-').split('-')[0];
+            const localeLang = nativeLocale.replace('_', '-').split('-')[0];
+            match = lngLang === localeLang;
         }
-        const newConf = Object.assign(config, {
-            frontend: Object.assign({}, config.frontend, {
-                userLanguage: lng
-            })
-        });
-        apiPost('config', newConf);
+        const uiLang = match ? null : lng;
+        return setConfig({ frontend: { userLanguage: uiLang } });
     });
 });
 
