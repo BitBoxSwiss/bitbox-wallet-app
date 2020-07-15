@@ -87,8 +87,9 @@ func (webdevEnvironment) NativeLocale() string {
 	if v == "" {
 		v = os.Getenv("LANG")
 	}
-	// Strip charset from the LANG. It is unsupported by the i18next package
-	// used in the frontend.
+	// Strip charset from the LANG. It is unsupported by JS Date formatting
+	// used in the frontend and breaks UI in unexpected ways.
+	// We are always UTF-8 anyway.
 	return strings.Split(v, ".")[0]
 }
 
