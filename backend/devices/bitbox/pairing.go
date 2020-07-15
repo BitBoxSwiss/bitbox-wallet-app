@@ -60,7 +60,7 @@ func (device *Device) handlePairingError(err error, message string) {
 
 // processPairing processes the pairing after the channel has been displayed as a QR code.
 func (device *Device) processPairing(channel *relay.Channel) {
-	status, err := channel.WaitForScanningSuccess(10 * time.Second)
+	status, err := channel.WaitForScanningSuccess(2 * time.Minute)
 	if err != nil {
 		device.handlePairingError(err, "scanning success message")
 		return
