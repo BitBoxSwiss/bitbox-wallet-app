@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
@@ -82,10 +83,13 @@ func (webdevEnvironment) UsingMobileData() bool {
 // NativeLocale naively implements backend.Environment.
 // This version is unlikely to work on Windows.
 func (webdevEnvironment) NativeLocale() string {
-	if v := os.Getenv("LC_ALL"); v != "" {
-		return v
+	v := os.Getenv("LC_ALL")
+	if v == "" {
+		v = os.Getenv("LANG")
 	}
-	return os.Getenv("LANG")
+	// Strip charset from the LANG. It is unsupported by the i18next package
+	// used in the frontend.
+	return strings.Split(v, ".")[0]
 }
 
 func main() {
