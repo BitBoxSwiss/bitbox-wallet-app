@@ -7,8 +7,9 @@
 
 .unit,
 .unitAction {
-	color: var(--color-secondary);
-	position: relative;
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+    position: relative;
 }
 
 .fiatRow {
@@ -16,39 +17,39 @@
 }
 
 .availableFiatAmount {
-	padding-right: var(--space-quarter) !important;
-	text-align: right;
+    padding-right: var(--space-quarter) !important;
+    text-align: right;
 }
 
 .availableFiatUnit {
-	color: var(--color-secondary);
-	cursor: default;
-	position: relative;
+    color: var(--color-secondary);
+    cursor: default;
+    position: relative;
 }
 
 .unitAction::after,
 .availableFiatUnit::after {
-	border-bottom: dotted 1px var(--color-softblack);
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 2px;
-	right: 2px;
+    border-bottom: dotted 1px var(--color-softblack);
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 2px;
+    right: 2px;
 }
 
 @media (max-width: 880px) {
-	.fiatRow {
-		bottom: 0;
-	}
+    .fiatRow {
+        bottom: 0;
+    }
 
-	.availableFiatAmount,
-	.availableFiatUnit {
-		line-height: 24px;
-	}
+    .availableFiatAmount,
+    .availableFiatUnit {
+        line-height: 24px;
+    }
 }
 
 @media (max-width: 640px) {
-	.availableFiatUnit::after {
-		border-bottom: none;
-	}
+    .availableFiatUnit::after {
+        border-bottom: none;
+    }
 }

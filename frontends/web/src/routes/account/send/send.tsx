@@ -531,13 +531,8 @@ class Send extends Component<Props, State> {
                     <Header title={<h2>{t('send.title', { accountName: account.name })}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div className="flex flex-row flex-between">
+                            <div>
                                 <label className="labelXLarge">{t('send.availableBalance')}</label>
-                                {
-                                    coinControl && (
-                                        <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
-                                    )
-                                }
                             </div>
                             <div className="box large">
                                 <Balance balance={balance} />
@@ -547,14 +542,18 @@ class Send extends Component<Props, State> {
                                     <UTXOs
                                         accountCode={account.code}
                                         active={activeCoinControl}
+                                        explorerURL={account.blockExplorerTxPrefix}
                                         onClose={this.deactivateCoinControl}
                                         onChange={this.onSelectedUTXOsChange}
                                         ref={this.setUTXOsRef}
                                     />
                                 )
                             }
-                            <div className={style.container}>
+                            <div className={`flex flex-row flex-between ${style.container}`}>
                                 <label className="labelXLarge">{t('send.transactionDetails')}</label>
+                                { coinControl && (
+                                    <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
+                                )}
                             </div>
                             <div className="box large m-bottom-default">
                                 <div className="columnsContainer">
