@@ -154,5 +154,11 @@ export const data: ExchangeData[] = [
         description: 'DeFi Saver is a one-stop management solution for decentralized finance protocols.',
         regions: ['EU', 'NA', 'LA', 'APAC', 'AF'],
         payment: ['SW'],
+    }, {
+        key: 'swan_bitcoin',
+        link: 'https://www.swanbitcoin.com/BitBox',
+        description: 'Swan is the easiest and most affordable way to accumulate Bitcoin with automatic recurring purchases. Start your plan today and get $10 of free Bitcoin dropped into your account.',
+        regions: ['NA'],
+        payment: ['DCA'],
     },
 ];
