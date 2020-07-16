@@ -864,10 +864,6 @@
         "text": "Use the new Bitcoin bech32 address format to reap the full benefits of segwit's cheaper network fees. Remember that this format is not accepted everywhere yet.",
         "title": "What is Bitcoin bech32?"
       },
-      "moreCoins": {
-        "text": "We will be integrating more altcoins besides Litecoin in the next few releases. If you are looking for a specific coin, leave us a suggestion at the contact below.",
-        "title": "Can you add more coins?"
-      },
       "servers": {
         "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CryptoCompare. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"
