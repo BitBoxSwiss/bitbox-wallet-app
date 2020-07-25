@@ -192,7 +192,7 @@ a.sidebar-active .single img,
 }
 
 .sidebar_label {
-    color: var(--color-secondary);
+    color: var(--color-mediumgray);
     line-height: 1;
     flex: 1;
     padding-top: 0;
