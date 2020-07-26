@@ -16,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { AmountWithConversions } from '../../routes/account/send/send';
 import A from '../anchor/anchor';
@@ -24,12 +25,14 @@ import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { AmountInterface } from '../rates/rates';
-import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
+import { ArrowIn, ArrowOut, ArrowSelf, Edit, Save } from './components/icons';
 import * as style from './transaction.css';
 import * as parentStyle from './transactions.css';
 
 interface State {
     transactionDialog: boolean;
+    newNote: string;
+    editMode: boolean;
 }
 
 export interface TransactionInterface {
@@ -48,6 +51,7 @@ export interface TransactionInterface {
     addresses: string[];
     status: 'complete' | 'pending' | 'failed';
     internalID: string;
+    note: string;
 }
 
 interface TransactionProps extends TransactionInterface {
@@ -58,13 +62,14 @@ interface TransactionProps extends TransactionInterface {
 type Props = TransactionProps & TranslateProps;
 
 class Transaction extends Component<Props, State> {
+    private input!: HTMLInputElement;
+    private editButton!: HTMLButtonElement;
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            transactionDialog: false,
-        };
-    }
+    public readonly state: State = {
+        transactionDialog: false,
+        newNote: this.props.note,
+        editMode: !this.props.note,
+    };
 
     private parseTimeShort = time => {
         const options = {
@@ -81,6 +86,39 @@ class Transaction extends Component<Props, State> {
 
     private hideDetails = () => {
         this.setState({ transactionDialog: false });
+    }
+
+    private handleNoteInput = (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        this.setState({ newNote: target.value });
+    }
+
+    private handleEdit = () => {
+        if (this.state.editMode && this.props.note !== this.state.newNote) {
+            // TODO: send to backend
+            console.log('save', this.props.txID, this.state.newNote); // tslint:disable-line:no-console
+        }
+        this.setState(
+            ({ editMode }) => ({ editMode: !editMode }),
+            this.focusEdit,
+        );
+    }
+
+    private focusEdit = () => {
+        if (this.editButton) {
+            this.editButton.blur();
+        }
+        if (this.state.editMode && this.input) {
+            this.input.focus();
+        }
+    }
+
+    private setInputRef = input => {
+        this.input = input;
+    }
+
+    private setEditButtonRef = button => {
+        this.editButton = button;
     }
 
     public render({
@@ -101,9 +139,13 @@ class Transaction extends Component<Props, State> {
         time,
         addresses,
         status,
+        note = '',
     }: RenderableProps<Props>,
-                  { transactionDialog }: State,
-    ) {
+                  {
+        transactionDialog,
+        newNote,
+        editMode,
+    }: State) {
         const arrow = type === 'receive' ? (
             <ArrowIn />
         ) : type === 'send' ? (
@@ -127,35 +169,41 @@ class Transaction extends Component<Props, State> {
                         <div className={parentStyle.type}>{arrow}</div>
                         <div className={parentStyle.date}>
                             <span className={style.columnLabel}>
-                                Date:
+                                {t('transaction.details.date')}:
                             </span>
                             <span className={style.date}>{sDate}</span>
                         </div>
-                        <div className={parentStyle.address}>
-                            <span className={style.columnLabel}>
-                                Address:
-                            </span>
-                            <span className={style.address}>
-                                {addresses[0]}
-                                {
-                                    addresses.length > 1 && (
+                        { note ? (
+                            <div className={parentStyle.activity}>
+                                <span className={style.address}>
+                                    {note}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className={parentStyle.activity}>
+                                <span className={style.label}>
+                                    {t(`transaction.tx.${type === 'receive' ? 'received' : 'sent'}`)}
+                                </span>
+                                <span className={style.address}>
+                                    {addresses[0]}
+                                    {addresses.length > 1 && (
                                         <span className={style.badge}>
                                             (+{addresses.length - 1})
                                         </span>
-                                    )
-                                }
-                            </span>
-                        </div>
+                                    )}
+                                </span>
+                            </div>
+                        )}
                         <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
-                            <a href="#" className={style.action} onClick={this.showDetails}>
+                            <button type="button" className={style.action} onClick={this.showDetails}>
                                 <ExpandIcon expand={!transactionDialog} />
-                            </a>
+                            </button>
                         </div>
                     </div>
                     <div className={parentStyle.columnGroup}>
                         <div className={parentStyle.status}>
                             <span className={style.columnLabel}>
-                                Status:
+                                {t('transaction.details.status')}:
                             </span>
                             <ProgressRing
                                 className="m-right-quarter"
@@ -178,15 +226,37 @@ class Transaction extends Component<Props, State> {
                             </span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
-                            <a href="#" className={style.action} onClick={this.showDetails}>
+                            <button type="button" className={style.action} onClick={this.showDetails}>
                                 <ExpandIcon expand={!transactionDialog} />
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
                 {
                     transactionDialog && (
                         <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
+                            <div className={style.detailInput}>
+                                <label>{t('note.title')}</label>
+                                <Input
+                                    align="right"
+                                    autoFocus={note ? 'false' : 'true'}
+                                    className={style.textOnlyInput}
+                                    readOnly={!editMode && !!note}
+                                    type="text"
+                                    transparent
+                                    placeholder={t('note.input.placeholder')}
+                                    value={newNote || note}
+                                    onInput={this.handleNoteInput}
+                                    getRef={this.setInputRef}/>
+                                <button
+                                    className={style.editButton}
+                                    onClick={this.handleEdit}
+                                    title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
+                                    type="button"
+                                    ref={this.setEditButtonRef}>
+                                        {editMode ? <Save /> : <Edit />}
+                                </button>
+                            </div>
                             <div className={style.detail}>
                                 <label>{t('transaction.details.type')}</label>
                                 <p>{arrow}</p>

@@ -14,6 +14,7 @@
     background-color: var(--color-white);
     border: solid 1px var(--color-mediumgray);
     border-radius: 2px;
+    color: var(--color-default);
     font-family: var(--font-family);
     font-size: var(--size-default);
     font-weight: 400;

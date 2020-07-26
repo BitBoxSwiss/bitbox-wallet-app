@@ -1,29 +1,42 @@
-.feeTargets {
-  width: 49%;
-  height: 52px;
-  background-color: white;
-  border: solid 1px var(--color-mediumgray);
-  border-radius: 2px;
+.row {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.feeTargets select {
-  width: 100%;
-  height: 100%;
-  padding: var(--spacing-default);
-  appearance: none;
-  border: 0;
-  background-color: white;
-  font-size: var(--size-default);
+.column {
+    flex-basis: 50%;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+.column:first-child {
+    flex-basis: 10%;
 }
 
-.feeTargets select:focus {
-  outline: none;
+select.priority {
+    border-right: none;
+    padding-right: 0;
+    text-transform: capitalize;
 }
 
-.feeTargets select option {
-  width: 100%;
-  padding: var(--space-half);
-  border-radius: 2px;
-  border: solid 1px var(--color-lightgray);
-  background-color: white;
+.fee input {
+    border-left: none;
+    padding-left: 0;
+}
+
+select:disabled.priority,
+.fee input:disabled {
+    border-color: var(--color-lightgray) !important;
+}
+
+select.priority,
+.fee input {
+    border-color: var(--color-mediumgray) !important;
+}
+
+.feeDescription {
+    color: var(--color-secondary);
+    flex: 0 0 50%;
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin-top: 0;
 }

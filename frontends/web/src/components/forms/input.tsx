@@ -18,12 +18,13 @@ import { h, RenderableProps } from 'preact';
 import * as styles from './input.css';
 
 export interface Props {
+    align?: 'left' | 'right';
     autoComplete?: boolean | 'on' | 'off';
-    autoFocus?: boolean;
+    autoFocus?: boolean | 'false' | 'true';
     className?: string;
     disabled?: boolean;
     error?: string | object;
-    getRef?: (node: JSX.Element) => void;
+    getRef?: (node: HTMLInputElement) => void;
     id?: string;
     label?: string;
     name?: string;
@@ -31,6 +32,7 @@ export interface Props {
     onPaste?: (e: any) => void;
     pattern?: string;
     placeholder?: string;
+    readOnly?: boolean;
     style?: string;
     title?: string;
     transparent?: boolean;
@@ -44,6 +46,7 @@ export default function Input({
     id,
     label = '',
     error,
+    align = 'left',
     className = '',
     style = '',
     children,
@@ -54,7 +57,12 @@ export default function Input({
     ...props
 }: RenderableProps<Props>): JSX.Element {
     return (
-        <div className={[styles.input, className, transparent ? styles.isTransparent : ''].join(' ')} style={style}>
+        <div className={[
+            styles.input,
+            styles[`align-${align}`],
+            className,
+            transparent ? styles.isTransparent : '',
+        ].join(' ')} style={style}>
             {
                 label && (
                     <div className="flex flex-row flex-between">

@@ -64,13 +64,6 @@
     user-select: none;
 }
 
-.feeDescription {
-    margin-top: 0;
-    font-size: var(--size-small);
-    font-weight: 400;
-    color: var(--color-secondary);
-}
-
 .inputWithIcon {
     position: relative;
 }
@@ -109,4 +102,11 @@
 .total p {
     font-size: var(--size-subheader) !important;
     margin-bottom: var(--space-quarter);
+}
+
+.labelDescription {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin-top: 0;
 }

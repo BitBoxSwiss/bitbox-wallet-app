@@ -88,7 +88,7 @@ class Dialog extends Component<Props, State> {
 
     private focusFirst = () => {
         const focusables = this.focusableChildren;
-        if (focusables.length) {
+        if (focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
             focusables[0].focus();
         }
     }

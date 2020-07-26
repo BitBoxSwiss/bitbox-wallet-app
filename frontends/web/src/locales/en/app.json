@@ -990,6 +990,13 @@
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
   },
+  "note": {
+    "input": {
+      "description": "(optional)",
+      "placeholder": "Add note…"
+    },
+    "title": "Note"
+  },
   "notification": {
     "newTxs": "New transaction in: {{accountName}}",
     "newTxs_plural": "{{count}} new transactions in: {{accountName}}"
@@ -1287,6 +1294,7 @@
   "transaction": {
     "confirmation": "Confirmations",
     "details": {
+      "activity": "Activity",
       "address": "Address",
       "amount": "Amount",
       "date": "Date",
@@ -1300,12 +1308,20 @@
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "gas": "Gas",
+    "note": {
+      "edit": "Edit note",
+      "save": "Save note"
+    },
     "pending": "Pending transaction",
     "size": "Size",
     "status": {
       "complete": "Complete",
       "failed": "Failed",
       "pending": "Pending"
+    },
+    "tx": {
+      "received": "Received to",
+      "sent": "Sent to"
     },
     "vsize": "Virtual size",
     "weight": "Weight"
