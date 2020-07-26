@@ -14,57 +14,81 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, h, RenderableProps } from 'preact';
+import { Input, Select } from '../../../components/forms';
+import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
-import { Select, Input } from '../../../components/forms';
+import { CoinCode } from '../account';
 
-@translate()
-export default class FeeTargets extends Component {
-    state = {
+export type Code = 'low' | 'economy' | 'normal' | 'high';
+
+interface FeeTargetsProps {
+    accountCode: CoinCode;
+    disabled: boolean;
+    label: string;
+    placeholder: string;
+    onFeeTargetChange: (code: Code) => void;
+}
+
+type Props = FeeTargetsProps & TranslateProps;
+
+interface FeeTarget {
+    code: Code;
+}
+interface State {
+    feeTargets: FeeTarget[] | null;
+    feeTarget?: string | null;
+}
+
+class FeeTargets extends Component<Props, State> {
+    public readonly state: State = {
         feeTargets: null,
         feeTarget: null,
-    }
+    };
 
-    componentDidMount() {
+    public componentDidMount() {
         this.updateFeeTargets(this.props.accountCode);
     }
 
-    componentWillReceiveProps({ accountCode }) {
+    public componentWillReceiveProps({ accountCode }) {
         if (this.props.accountCode !== accountCode) {
             this.updateFeeTargets(accountCode);
         }
     }
 
-    updateFeeTargets = (accountCode) => {
-        apiGet('account/' + accountCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
+    private updateFeeTargets = (accountCode: CoinCode) => {
+        apiGet('account/' + accountCode + '/fee-targets')
+        .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
             // feeTargets.push({code: 'custom'});
             this.setState({ feeTargets });
             this.setFeeTarget(defaultFeeTarget);
         });
     }
 
-    handleFeeTargetChange = event => {
+    private handleFeeTargetChange = (event: Event) => {
+        const target = event.target as HTMLSelectElement;
         const feeTargets = this.state.feeTargets;
         if (feeTargets) {
-            this.setFeeTarget(feeTargets[event.target.selectedIndex].code);
+            this.setFeeTarget(feeTargets[target.selectedIndex].code);
         }
     }
 
-    setFeeTarget = feeTarget => {
+    private setFeeTarget = (feeTarget: Code) => {
         this.setState({ feeTarget });
         this.props.onFeeTargetChange(feeTarget);
     }
 
-    render({
+    public render(
+    {
         t,
         disabled,
         label,
         placeholder,
-    }, {
+    }: RenderableProps<Props>,
+    {
         feeTargets,
         feeTarget,
-    }) {
+    }: State) {
         if (feeTargets === null) {
             return (
                 <Input
@@ -95,3 +119,6 @@ export default class FeeTargets extends Component {
         );
     }
 }
+
+const TranslatedFeeTargets = translate<FeeTargetsProps>()(FeeTargets);
+export { TranslatedFeeTargets as FeeTargets };
