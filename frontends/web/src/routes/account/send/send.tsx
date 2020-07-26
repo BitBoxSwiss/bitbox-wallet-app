@@ -41,7 +41,7 @@ import { Devices } from '../../device/deviceswitch';
 import { AccountInterface } from '../account';
 import { ReceiveAddresses } from '../receive/receive';
 import { isBitcoinBased } from '../utils';
-import FeeTargets from './feetargets';
+import { Code as FeeCode, FeeTargets } from './feetargets';
 import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
@@ -108,24 +108,21 @@ class Send extends Component<Props, State> {
     private unsubscribe!: () => void;
     private qrCodeReader: BrowserQRCodeReader = new BrowserQRCodeReader();
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            valid: false,
-            sendAll: false,
-            isConfirming: false,
-            signConfirm: null,
-            isSent: false,
-            isAborted: false,
-            noMobileChannelError: false,
-            fiatUnit: fiat.state.active,
-            coinControl: false,
-            activeCoinControl: false,
-            hasCamera: false,
-            activeScanQR: false,
-            videoLoading: false,
-        };
-    }
+    public readonly state: State = {
+        valid: false,
+        sendAll: false,
+        isConfirming: false,
+        signConfirm: null,
+        isSent: false,
+        isAborted: false,
+        noMobileChannelError: false,
+        fiatUnit: fiat.state.active,
+        coinControl: false,
+        activeCoinControl: false,
+        hasCamera: false,
+        activeScanQR: false,
+        videoLoading: false,
+    };
 
     private coinSupportsCoinControl = () => {
         const account = this.getAccount();
@@ -383,7 +380,7 @@ class Send extends Component<Props, State> {
             });
     }
 
-    private feeTargetChange = (feeTarget: string) => {
+    private feeTargetChange = (feeTarget: FeeCode) => {
         this.setState({ feeTarget });
         this.validateAndDisplayFee(this.state.sendAll);
     }
