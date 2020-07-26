@@ -5,8 +5,22 @@
 }
 
 .input label {
-    display: block !important;
+    display: block;
     margin: 0 0 var(--space-quarter) 0;
+}
+
+.align-left label {
+    justify-self: flex-start;
+}
+
+.align-right label {
+    flex-grow: 1;
+    justify-self: flex-end;
+    text-align: right;
+}
+
+.align-right input {
+    text-align: right;
 }
 
 .input input {

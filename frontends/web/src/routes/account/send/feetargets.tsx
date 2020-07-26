@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +17,24 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { Input, Select } from '../../../components/forms';
+import { Fiat } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { CoinCode } from '../account';
+import * as style from './feetargets.css';
+import { AmountWithConversions } from './send';
 
-export type Code = 'low' | 'economy' | 'normal' | 'high';
+export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
 
 interface FeeTargetsProps {
     accountCode: CoinCode;
     disabled: boolean;
-    label: string;
-    placeholder: string;
+    fiatUnit: Fiat;
+    proposedFee?: AmountWithConversions;
     onFeeTargetChange: (code: Code) => void;
 }
 
-type Props = FeeTargetsProps & TranslateProps;
+export type Props = FeeTargetsProps & TranslateProps;
 
 interface FeeTarget {
     code: Code;
@@ -82,8 +86,8 @@ class FeeTargets extends Component<Props, State> {
     {
         t,
         disabled,
-        label,
-        placeholder,
+        fiatUnit,
+        proposedFee,
     }: RenderableProps<Props>,
     {
         feeTargets,
@@ -92,9 +96,9 @@ class FeeTargets extends Component<Props, State> {
         if (feeTargets === null) {
             return (
                 <Input
-                    label={label}
+                    label={t('send.priority')}
                     id="feetarget"
-                    placeholder={placeholder}
+                    placeholder={t('send.feeTarget.placeholder')}
                     disabled
                     transparent />
             );
@@ -104,18 +108,41 @@ class FeeTargets extends Component<Props, State> {
         }
 
         return (
-            <Select
-                label={label}
-                id="feeTarget"
-                disabled={disabled}
-                onChange={this.handleFeeTargetChange}
-                selected={feeTarget}
-                options={feeTargets.map(({ code }) => {
-                    return {
-                        value: code,
-                        text: t(`send.feeTarget.label.${code}`),
-                    };
-                })} />
+            <div className={style.row}>
+                <div className={style.column}>
+                    <Select
+                        className={style.priority}
+                        label={t('send.priority')}
+                        id="feeTarget"
+                        disabled={disabled}
+                        onChange={this.handleFeeTargetChange}
+                        selected={feeTarget}
+                        options={feeTargets.map(({ code }) => {
+                            return {
+                                value: code,
+                                text: t(`send.feeTarget.label.${code}`),
+                            };
+                        })} />
+                </div>
+                <div className={style.column}>
+                    <Input
+                        align="right"
+                        className={style.fee}
+                        disabled={feeTarget !== 'custom'}
+                        label={t('send.fee.label')}
+                        id="proposedFee"
+                        placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
+                        transparent
+                        value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
+                        />
+                </div>
+                { feeTarget && (
+                    <div>
+                        <label>{t('send.feeTarget.estimate')}</label>
+                        <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                    </div>
+                )}
+            </div>
         );
     }
 }

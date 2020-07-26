@@ -74,6 +74,7 @@
 }
 
 .closeButton {
+    background: none;
     border: none;
     padding: 0;
     width: auto !important;

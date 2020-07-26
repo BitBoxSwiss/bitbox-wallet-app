@@ -80,9 +80,9 @@ interface State {
     amount?: string;
     data?: string;
     fiatAmount?: string;
-    fiatUnit: string;
+    fiatUnit: Fiat;
     sendAll: boolean;
-    feeTarget?: string;
+    feeTarget?: FeeCode;
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
@@ -100,6 +100,7 @@ interface State {
     hasCamera: boolean;
     activeScanQR: boolean;
     videoLoading: boolean;
+    note: string;
 }
 
 class Send extends Component<Props, State> {
@@ -122,6 +123,7 @@ class Send extends Component<Props, State> {
         hasCamera: false,
         activeScanQR: false,
         videoLoading: false,
+        note: '',
     };
 
     private coinSupportsCoinControl = () => {
@@ -220,6 +222,7 @@ class Send extends Component<Props, State> {
                     fiatAmount: undefined,
                     amount: undefined,
                     data: undefined,
+                    note: '',
                 });
                 if (this.utxos) {
                     (this.utxos as any).getWrappedInstance().clear();
@@ -248,6 +251,7 @@ class Send extends Component<Props, State> {
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,
+        note: this.state.note,
     })
 
     private sendDisabled = () => {
@@ -473,6 +477,11 @@ class Send extends Component<Props, State> {
         this.setState({ videoLoading: false });
     }
 
+    private handleNoteInput = (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        this.setState({ note: target.value });
+    }
+
     public render(
         { t, code }: RenderableProps<Props>,
         {
@@ -502,6 +511,7 @@ class Send extends Component<Props, State> {
             hasCamera,
             activeScanQR,
             videoLoading,
+            note,
         }: State,
     ) {
         const account = this.getAccount();
@@ -612,32 +622,27 @@ class Send extends Component<Props, State> {
                                     </div>
                                     <div className="columns">
                                         <div className="column column-1-2">
-                                            <FeeTargets
-                                                // label={t('send.feeTarget.label')}
-                                                label={t('send.priority')}
-                                                placeholder={t('send.feeTarget.placeholder')}
-                                                accountCode={account.code}
-                                                disabled={!amount && !sendAll}
-                                                onFeeTargetChange={this.feeTargetChange} />
+                                            <Input
+                                                label={t('note.title')}
+                                                labelSection={
+                                                    <span className={style.labelDescription}>
+                                                        {t('note.input.description')}
+                                                    </span>
+                                                }
+                                                id="note"
+                                                onInput={this.handleNoteInput}
+                                                value={note}
+                                                placeholder={t('note.input.placeholder')} />
                                         </div>
                                         <div className="column column-1-2">
-                                            <Input
-                                                label={t('send.fee.label')}
-                                                id="proposedFee"
-                                                value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
-                                                placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
-                                                disabled={feeTarget !== 'custom'}
-                                                transparent />
+                                            <FeeTargets
+                                                accountCode={account.code}
+                                                disabled={!amount && !sendAll}
+                                                fiatUnit={fiatUnit}
+                                                proposedFee={proposedFee}
+                                                onFeeTargetChange={this.feeTargetChange} />
                                         </div>
                                     </div>
-                                    {
-                                        feeTarget && (
-                                            <div>
-                                                <label>{t('send.feeTarget.estimate')}</label>
-                                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
-                                            </div>
-                                        )
-                                    }
                                 </div>
                                 {
                                     /*
@@ -690,6 +695,12 @@ class Send extends Component<Props, State> {
                                         }
                                     </p>
                                 </div>
+                                {note ? (
+                                    <div className={style.confirmItem}>
+                                        <label>{t('note.title')}</label>
+                                        <p>{note}</p>
+                                    </div>
+                                ) : null}
                                 <div className={style.confirmItem}>
                                     <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
                                     <p>
