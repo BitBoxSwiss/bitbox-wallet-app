@@ -58,14 +58,18 @@ class Transactions extends Component<Props> {
                 <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
                     <div className={style.type}>{t('transaction.details.type')}</div>
                     <div className={style.date}>{t('transaction.details.date')}</div>
-                    <div className={style.address}>{t('transaction.details.address')}</div>
+                    <div className={style.activity}>{t('transaction.details.activity')}</div>
                     <div className={style.status}>{t('transaction.details.status')}</div>
                     <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
                     <div className={style.currency}>{t('transaction.details.amount')}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
                 {
-                    (transactions && transactions.length > 0) ? transactions.map((props, index) => (
+                    (transactions && transactions.length > 0) ? transactions
+                    .map(props => (Object.assign({
+                        note: props.note || (props.internalID.charCodeAt(0) > 49 ? '' : 'Payed Jad'),
+                    }, props)))
+                    .map((props, index) => (
                         <Transaction
                             key={props.internalID}
                             explorerURL={explorerURL}

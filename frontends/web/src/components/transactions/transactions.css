@@ -54,7 +54,7 @@
   width: 98px;
 }
 
-.address {
+.activity {
   min-width: 362px;
   width: 362px;
   text-align: left;
@@ -130,7 +130,7 @@
     width: 126px;
   }
 
-  .address {
+  .activity {
     flex: 1;
   }
 
@@ -173,7 +173,7 @@
     width: 26px;
   }
 
-  .address {
+  .activity {
     min-width: 0;
     width: auto;
   }
