@@ -834,13 +834,33 @@
       }
     },
     "settings-electrum": {
+      "connection": {
+        "text": "If you intend to only connect to your node when you are on the same network (e.g. your home wifi), then using regular network communication is sufficient.\nIn this case it is advisable that your Electrum server provides a TLS certificate to encrypt the communication.\nIf you intend to connect to your node from anywhere, using Tor is the better option. No TLS certificate is necessary in that case.",
+        "title": "Should I use clearnet TCP, TLS or Tor?"
+      },
+      "instructions": {
+        "link": {
+          "text": "Guide to connect your node",
+          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+        },
+        "text": "For a full tutorial, please visit our guide:",
+        "title": "How do I connect my BitBoxApp to my own full node?"
+      },
+      "options": {
+        "text": "There are multiple options to run your own node such as buying a finished device, building your own or running Bitcoin Core.\nIf you want to connect your BitBoxApp to your node, make sure that it runs an Electrum server. This is a dedicated program that allows a wallet app to communicate with your full node.\nSupported options include Electrs, Electrum Personal Server (EPS) or Bitcoin Wallet Tracker (BTW).",
+        "title": "What options are there to run a node?"
+      },
+      "tor": {
+        "text": "Tor stands for 'The Onion Router', which is a free and open source software that offers a lot of privacy benefits and is especially useful when using Bitcoin.\nIf you intend to connect to your node via Tor, make sure that Tor is installed on your computer and then enable the Tor Proxy in the BitBoxApp settings.\nOn most operating systems there are two ways to run Tor:\n1. Tor Browser: download and open the Tor Browser. This will allow the BitBoxApp to connect to the Tor network by setting port 9150 in the Tor proxy settings.\n2. Tor background service: install the Tor daemon, which always runs in the background. The BitBoxApp can then connect by setting port 9050 in the Tor proxy settings.",
+        "title": "What is Tor, Tor proxy and which port should I use?"
+      },
       "what": {
         "text": "It is possible to power your wallet with your own full nodes instead of using Shift servers.",
         "title": "What is this?"
       },
-      "whenTCP": {
-        "text": "It is advisable to always use TLS, even if your node is running on the same machine as this app. When connecting to a tor hidden service, TLS may be skipped.",
-        "title": "Should I use TLS?"
+      "why": {
+        "text": "Running your own node is not necessary but improves privacy and reduces the need to trust others.\nFirstly, it means that you are using Bitcoin more privately as the BitBoxApp won't connect to our servers to fetch your transaction history; instead it will fetch that information from your own node.\nSecondly, running your own node means that your node verifies all transactions itself, making sure that the consensus rules are enforced.",
+        "title": "Why should I run my own node?"
       }
     },
     "settings": {
