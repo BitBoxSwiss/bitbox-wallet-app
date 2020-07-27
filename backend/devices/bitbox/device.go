@@ -885,6 +885,9 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 		return []map[string]string{}, nil
 	}
 	if err != nil {
+		if !dbb.version.AtLeast(semver.NewSemVer(7, 1, 0)) {
+			return nil, errp.New("Please upgrade the firmware to access backups.")
+		}
 		return nil, errp.WithMessage(err, "Failed to retrieve list of backups")
 	}
 	filenames, ok := reply["backup"].([]interface{})
