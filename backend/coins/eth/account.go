@@ -28,7 +28,6 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
@@ -38,11 +37,10 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/sirupsen/logrus"
@@ -52,29 +50,23 @@ var pollInterval = 30 * time.Second
 
 // Account is an Ethereum account, with one address.
 type Account struct {
-	locker.Locker
-	observable.Implementation
+	*accounts.BaseAccount
 
-	synchronizer *synchronizer.Synchronizer
-	coin         *Coin
+	locker.Locker
+	coin *Coin
 	// folder for all accounts. Full path.
 	dbFolder string
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
 	dbSubfolder             string
 	db                      db.Interface
-	code                    string
-	name                    string
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
-	keystores               *keystore.Keystores
 	getNotifier             func(signing.Configurations) accounts.Notifier
 	notifier                accounts.Notifier
-	offline                 bool
-	onEvent                 func(accounts.Event)
 
 	// true when initialized (Initialize() was called).
 	initialized bool
-	synced      bool
+
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
 	enqueueUpdateCh chan struct{}
@@ -92,8 +84,7 @@ type Account struct {
 
 	quitChan chan struct{}
 
-	log         *logrus.Entry
-	rateUpdater *rates.RateUpdater
+	log *logrus.Entry
 }
 
 // NewAccount creates a new account.
@@ -114,35 +105,27 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
+		BaseAccount: accounts.NewBaseAccount(
+			code,
+			name,
+			keystores,
+			onEvent,
+			rateUpdater,
+			log,
+		),
 		coin:                    accountCoin,
 		dbFolder:                dbFolder,
 		dbSubfolder:             "", // set in Initialize()
-		code:                    code,
-		name:                    name,
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
-		keystores:               keystores,
 		getNotifier:             getNotifier,
-		onEvent:                 onEvent,
 		balance:                 coin.NewAmountFromInt64(0),
 
-		synced:          false,
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
 		log:             log,
-		rateUpdater:     rateUpdater,
 	}
-	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(accounts.EventSyncStarted) },
-		func() {
-			if !account.synced {
-				account.synced = true
-				onEvent(accounts.EventStatusChanged)
-			}
-			onEvent(accounts.EventSyncDone)
-		},
-		log,
-	)
+
 	return account
 }
 
@@ -153,11 +136,6 @@ func (account *Account) Info() *accounts.Info {
 	}
 }
 
-// Code implements accounts.Interface.
-func (account *Account) Code() string {
-	return account.code
-}
-
 // FilesFolder implements accounts.Interface.
 func (account *Account) FilesFolder() string {
 	if account.dbSubfolder == "" {
@@ -166,19 +144,9 @@ func (account *Account) FilesFolder() string {
 	return account.dbSubfolder
 }
 
-// Name implements accounts.Interface.
-func (account *Account) Name() string {
-	return account.name
-}
-
 // Coin implements accounts.Interface.
 func (account *Account) Coin() coin.Coin {
 	return account.coin
-}
-
-// RateUpdater implement accounts.Interface, currently just returning a dummy value.
-func (account *Account) RateUpdater() *rates.RateUpdater {
-	return account.rateUpdater
 }
 
 // Initialize implements accounts.Interface.
@@ -206,7 +174,7 @@ func (account *Account) Initialize() error {
 	account.signingConfiguration = signingConfiguration
 	account.notifier = account.getNotifier(signing.Configurations{signingConfiguration})
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Code())
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -222,11 +190,11 @@ func (account *Account) Initialize() error {
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	if account.signingConfiguration.IsAddressBased() {
-		if !common.IsHexAddress(account.signingConfiguration.Address()) {
+		if !ethcommon.IsHexAddress(account.signingConfiguration.Address()) {
 			return errp.WithStack(errors.ErrInvalidAddress)
 		}
 		account.address = Address{
-			Address: common.HexToAddress(account.signingConfiguration.Address()),
+			Address: ethcommon.HexToAddress(account.signingConfiguration.Address()),
 		}
 	} else {
 		account.address = Address{
@@ -263,13 +231,9 @@ func (account *Account) poll() {
 			}
 			if err := account.update(); err != nil {
 				account.log.WithError(err).Error("error updating account")
-				if !account.offline {
-					account.offline = true
-					account.onEvent(accounts.EventStatusChanged)
-				}
-			} else if account.offline {
-				account.offline = false
-				account.onEvent(accounts.EventStatusChanged)
+				account.SetOffline(true)
+			} else {
+				account.SetOffline(false)
 			}
 			timer = time.After(pollInterval)
 		}
@@ -280,7 +244,7 @@ func (account *Account) poll() {
 // We update heights for tx with up to 12 confirmations, so re-orgs are taken into account.
 // tipHeight is the current blockchain height.
 func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
-	defer account.synchronizer.IncRequestsCounter()()
+	defer account.Synchronizer.IncRequestsCounter()()
 
 	dbTx, err := account.db.Begin()
 	if err != nil {
@@ -356,7 +320,7 @@ func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 }
 
 func (account *Account) update() error {
-	defer account.synchronizer.IncRequestsCounter()()
+	defer account.Synchronizer.IncRequestsCounter()()
 
 	header, err := account.coin.client.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
@@ -433,16 +397,6 @@ func (account *Account) update() error {
 	return nil
 }
 
-// Synced implements accounts.Interface.
-func (account *Account) Synced() bool {
-	return account.synced
-}
-
-// Offline implements accounts.Interface.
-func (account *Account) Offline() bool {
-	return account.offline
-}
-
 // FatalError implements accounts.Interface.
 func (account *Account) FatalError() bool {
 	return false
@@ -450,8 +404,9 @@ func (account *Account) FatalError() bool {
 
 // Close implements accounts.Interface.
 func (account *Account) Close() {
+	account.BaseAccount.Close()
 	account.log.Info("Waiting to close account")
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
@@ -459,9 +414,8 @@ func (account *Account) Close() {
 		}
 		account.log.Info("Closed DB")
 	}
-	account.synced = false
 	close(account.quitChan)
-	account.onEvent(accounts.EventStatusChanged)
+	account.OnEvent(accounts.EventStatusChanged)
 }
 
 // Notifier implements accounts.Interface.
@@ -471,13 +425,13 @@ func (account *Account) Notifier() accounts.Notifier {
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() ([]accounts.Transaction, error) {
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	return account.transactions, nil
 }
 
 // Balance implements accounts.Interface.
 func (account *Account) Balance() (*accounts.Balance, error) {
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
 }
 
@@ -500,7 +454,7 @@ func (account *Account) newTx(
 	amount coin.SendAmount,
 	data []byte,
 ) (*TxProposal, error) {
-	if !common.IsHexAddress(recipientAddress) {
+	if !ethcommon.IsHexAddress(recipientAddress) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 
@@ -522,7 +476,7 @@ func (account *Account) newTx(
 		value = parsedAmount.BigInt()
 	}
 
-	address := common.HexToAddress(recipientAddress)
+	address := ethcommon.HexToAddress(recipientAddress)
 	var message ethereum.CallMsg
 
 	if account.coin.erc20Token != nil {
@@ -642,7 +596,7 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.keystores.SignTransaction(txProposal); err != nil {
+	if err := account.Keystores().SignTransaction(txProposal); err != nil {
 		return err
 	}
 	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
@@ -696,7 +650,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if account.signingConfiguration == nil {
 		return false, errp.New("account must be initialized")
 	}
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
 	if err != nil {
@@ -714,9 +668,4 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 		return false, false, errp.New("account must be initialized")
 	}
 	return account.Keystores().CanVerifyAddresses(account.Coin())
-}
-
-// Keystores implements accounts.Interface.
-func (account *Account) Keystores() *keystore.Keystores {
-	return account.keystores
 }
