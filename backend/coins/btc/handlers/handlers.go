@@ -423,21 +423,39 @@ func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
 	return nil, handlers.account.Initialize()
 }
 
+// status indicates the connection and initialization status.
+type status string
+
+const (
+	// accountSynced indicates that the account is synced.
+	accountSynced status = "accountSynced"
+
+	// accountDisabled indicates that the account has not yet been initialized.
+	accountDisabled status = "accountDisabled"
+
+	// offlineMode indicates that the connection to the blockchain network could not be established.
+	offlineMode status = "offlineMode"
+
+	// fatalError indicates that there was a fatal error in handling the account. When this happens,
+	// an error is shown to the user and the account is made unusable.
+	fatalError status = "fatalError"
+)
+
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {
-	status := []btc.Status{}
+	status := []status{}
 	if handlers.account == nil {
-		status = append(status, btc.AccountDisabled)
+		status = append(status, accountDisabled)
 	} else {
 		if handlers.account.Synced() {
-			status = append(status, btc.AccountSynced)
+			status = append(status, accountSynced)
 		}
 
 		if handlers.account.Offline() {
-			status = append(status, btc.OfflineMode)
+			status = append(status, offlineMode)
 		}
 
 		if handlers.account.FatalError() {
-			status = append(status, btc.FatalError)
+			status = append(status, fatalError)
 		}
 	}
 	return status, nil
