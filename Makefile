@@ -58,6 +58,8 @@ weblint:
 	cd frontends/web && $(MAKE) lint
 webtest:
 	cd frontends/web && $(MAKE) jstest
+webtestwatch:
+	cd frontends/web && $(MAKE) jstest-watch
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
