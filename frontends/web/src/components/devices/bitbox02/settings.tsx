@@ -15,6 +15,8 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { Entry } from '../../guide/entry';
+import { Guide } from '../../guide/guide';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
@@ -161,6 +163,13 @@ class Settings extends Component<Props, State> {
                         </Footer>
                     </div>
                 </div>
+                <Guide>
+                    <Entry key="guide.manageBB02.backups" entry={t('guide.manageBB02.backups')} />
+                    <Entry key="guide.manageBB02.mnemonic" entry={t('guide.manageBB02.mnemonic')} />
+                    <Entry key="guide.manageBB02.whyMnemonic" entry={t('guide.manageBB02.whyMnemonic')} />
+                    <Entry key="guide.manageBB02.whatPassphrase" entry={t('guide.manageBB02.whatPassphrase')} />
+                    <Entry key="guide.manageBB02.whyPassphrase" entry={t('guide.manageBB02.whyPassphrase')} />
+                </Guide>
             </div>
         );
     }

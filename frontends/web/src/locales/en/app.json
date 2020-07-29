@@ -781,6 +781,48 @@
         "title": "Which service should I use?"
       }
     },
+    "manageBB02": {
+      "backups": {
+        "link": {
+          "text": "Learn more about managing backups",
+          "url": "https://guides.shiftcrypto.ch/bitbox02/basics/managing-backups/"
+        },
+        "text": "On the 'Manage backups' page you can verify that your microSD card backup is valid and optionally create additional backups.",
+        "title": "What can I do on the 'Manage backups' page?"
+      },
+      "mnemonic": {
+        "link": {
+          "text": "Learn more about displaying your mnemonic seed",
+          "url": "https://guides.shiftcrypto.ch/bitbox02/advanced/view-seed/"
+        },
+        "text": "After clicking, you will first have to confirm on your BitBox02 that you want to display your mnemonic seed by entering your device password.\nOnce confirmed, your BitBox02 will display your mnemonic seed so that you can write it down.\nWhen done, you then have to confirm each seed word to ensure that you have properly written them down.",
+        "title": "What hapens when I click '$t(backup.showMnemonic.title)'?"
+      },
+      "whatPassphrase": {
+        "link": {
+          "text": "Learn more about the optional passphrase feature",
+          "url": "https://guides.shiftcrypto.ch/bitbox02/advanced/passphrase/"
+        },
+        "text": "A passphrase is an optional password that you can use to protect your wallet. If you use a passphrase you will have to enter it after having entered the device password each time you unlock your BitBox02. You will also need your passphrase when restoring your wallet from your microSD card.\n <strong>Attention:</strong> If you use a passphrase for your wallet, just the microSD card backup is NOT sufficient to restore your wallet, you also need the passphrase.",
+        "title": "What is an optional passphrase?"
+      },
+      "whyPassphrase": {
+        "link": {
+          "text": "Learn more about the optional passphrase feature",
+          "url": "https://guides.shiftcrypto.ch/bitbox02/advanced/passphrase/"
+        },
+        "text": "We only recommend advanced users to use this feature as it has certain risks.\nWhen using a passphrase, you need to make sure that you will not forget/lose the passphrase. Otherwise you will not be able to access your wallet or restore your wallet from your microSD card backup.\nTo repeat, if you use a passphrase you will need both, the microSD card backup and your passphrase to restore your wallet.",
+        "title": "Should I use an optional passphrase?"
+      },
+      "whyMnemonic": {
+        "link": {
+          "text": "Learn more about displaying your recovery words",
+          "url": "https://guides.shiftcrypto.ch/bitbox02/advanced/view-seed/"
+        },
+        "text": "No, writing down your recovery words is optional.\nThe recovery words contains the same information as your microSD backup which has been automatically created when you set up your BitBox02 wallet.\nThe recovery words option is for people who want to export their wallet into a non-BitBox02 wallet or want to write down their recovery words on metal sheets for example.",
+        "title": "Do I have to write down my recovery words?"
+      }
+    },
     "receive": {
       "address": {
         "text": "You can give the address to others to send you some coins. Just make sure you are sending to the correct address.",
