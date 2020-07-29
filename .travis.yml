@@ -13,6 +13,14 @@ addons:
     packages:
       - make
 
+cache:
+  yarn: true
+  directories:
+    - ./frontends/web/node_modules
+    - $HOME/.gradle/caches
+    - $HOME/.gradle/wrapper
+    - $HOME/Library/Caches/Homebrew
+
 jobs:
   include:
     - stage: Linux

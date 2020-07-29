@@ -18,7 +18,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     # Time image pull to compare in the future.
     time docker pull "$CI_IMAGE"
 
+    # .gradle dir is mapped to preserve cache.
     docker run --privileged \
+           -v $HOME/.gradle:/root/.gradle \
            -v ${TRAVIS_BUILD_DIR}:/opt/go/${GO_SRC_DIR}/ \
            -i "${CI_IMAGE}" \
            bash -c "make -C \$GOPATH/${GO_SRC_DIR} ${WHAT}"
@@ -40,7 +42,7 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export PATH="/usr/local/opt/qt/bin:$PATH"
     export LDFLAGS="-L/usr/local/opt/qt/lib"
     export CPPFLAGS="-I/usr/local/opt/qt/include"
-    export GOPATH=~/go/
+    export GOPATH=~/go
     export PATH=$PATH:~/go/bin
     mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)
     # GitHub checkout action (git clone) seem to require current work dir
@@ -50,4 +52,8 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     cd $GOPATH/$GO_SRC_DIR
     make "$WHAT"
     popd
+    # Bring cacheable artifacts back to the original directory.
+    # Some CIs are picky and don't allow caching outside.
+    rsync -a --delete $GOPATH/$GO_SRC_DIR/frontends/web/node_modules/ \
+      frontends/web/node_modules/
 fi
