@@ -148,7 +148,7 @@ func (account *Account) SendTx() error {
 	utxos := account.transactions.SpendableOutputs()
 	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
 		txChan := make(chan *wire.MsgTx)
-		account.blockchain.TransactionGet(txHash,
+		account.coin.Blockchain().TransactionGet(txHash,
 			func(tx *wire.MsgTx) {
 				txChan <- tx
 			},
@@ -164,7 +164,7 @@ func (account *Account) SendTx() error {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	account.log.Info("Signed transaction is broadcasted")
-	if err := account.blockchain.TransactionBroadcast(txProposal.Transaction); err != nil {
+	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.Transaction); err != nil {
 		return err
 	}
 	return nil
