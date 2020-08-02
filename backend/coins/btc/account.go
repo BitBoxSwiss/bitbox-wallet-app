@@ -37,8 +37,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -100,10 +98,11 @@ type Account struct {
 	initialized bool
 
 	fatalError bool
-	log        *logrus.Entry
 
 	closed     bool
 	closedLock locker.Locker
+
+	log *logrus.Entry
 }
 
 // NewAccount creates a new account.
@@ -113,31 +112,20 @@ type Account struct {
 // getSigningConfigurations: defines the script types used in this account. The first one is used as
 // a default for receive addresses, and always used for change.
 func NewAccount(
+	config *accounts.AccountConfig,
 	coin *Coin,
 	dbFolder string,
-	code string,
-	name string,
 	forceGapLimits *types.GapLimits,
 	getSigningConfigurations func() (signing.Configurations, error),
-	keystores *keystore.Keystores,
 	getNotifier func(signing.Configurations) accounts.Notifier,
-	onEvent func(accounts.Event),
 	log *logrus.Entry,
-	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "btc").
-		WithFields(logrus.Fields{"coin": coin.String(), "code": code, "name": name})
+		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Code, "name": config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount: accounts.NewBaseAccount(
-			code,
-			name,
-			keystores,
-			onEvent,
-			rateUpdater,
-			log,
-		),
+		BaseAccount:              accounts.NewBaseAccount(config, log),
 		coin:                     coin,
 		dbFolder:                 dbFolder,
 		dbSubfolder:              "", // set in Initialize()
@@ -322,7 +310,7 @@ func (account *Account) Initialize() error {
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.OnEvent(accounts.EventHeadersSynced)
+			account.Config.OnEvent(accounts.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
@@ -459,7 +447,7 @@ func (account *Account) Close() {
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
-	account.OnEvent(accounts.EventStatusChanged)
+	account.Config.OnEvent(accounts.EventStatusChanged)
 	account.closed = true
 }
 
@@ -482,7 +470,7 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.OnEvent(accounts.EventFeeTargetsChanged)
+				account.Config.OnEvent(accounts.EventFeeTargetsChanged)
 			}
 
 			account.coin.Blockchain().EstimateFee(
@@ -594,7 +582,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				// We are not closing client.blockchain here, as it is reused per coin with
 				// different accounts.
 				account.fatalError = true
-				account.OnEvent(accounts.EventStatusChanged)
+				account.Config.OnEvent(accounts.EventStatusChanged)
 			}
 		},
 	)

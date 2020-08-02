@@ -22,49 +22,41 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// AccountConfig holds account configuration.
+type AccountConfig struct {
+	Code        string
+	Name        string
+	Keystores   *keystore.Keystores
+	OnEvent     func(Event)
+	RateUpdater *rates.RateUpdater
+}
+
 // BaseAccount is an account struct with common functionality to all coin accounts.
 type BaseAccount struct {
 	observable.Implementation
 	Synchronizer *synchronizer.Synchronizer
-	OnEvent      func(Event)
 
-	code string
-	name string
+	Config *AccountConfig
 
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
-	synced      bool
-	keystores   *keystore.Keystores
-	rateUpdater *rates.RateUpdater
-
+	synced  bool
 	offline bool
 }
 
 // NewBaseAccount creates a new Account instance.
-func NewBaseAccount(
-	code string,
-	name string,
-	keystores *keystore.Keystores,
-	onEvent func(Event),
-	rateUpdater *rates.RateUpdater,
-	log *logrus.Entry,
-) *BaseAccount {
+func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
 	account := &BaseAccount{
-		code:        code,
-		name:        name,
-		keystores:   keystores,
-		OnEvent:     onEvent,
-		synced:      false,
-		rateUpdater: rateUpdater,
+		Config: config,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(EventSyncStarted) },
+		func() { config.OnEvent(EventSyncStarted) },
 		func() {
 			if !account.synced {
 				account.synced = true
-				onEvent(EventStatusChanged)
+				config.OnEvent(EventStatusChanged)
 			}
-			onEvent(EventSyncDone)
+			config.OnEvent(EventSyncDone)
 		},
 		log,
 	)
@@ -73,12 +65,12 @@ func NewBaseAccount(
 
 // Code implements Interface.
 func (account *BaseAccount) Code() string {
-	return account.code
+	return account.Config.Code
 }
 
 // Name implements Interface.
 func (account *BaseAccount) Name() string {
-	return account.name
+	return account.Config.Name
 }
 
 // Synced implements Interface.
@@ -93,7 +85,7 @@ func (account *BaseAccount) Close() {
 
 // Keystores implements Interface.
 func (account *BaseAccount) Keystores() *keystore.Keystores {
-	return account.keystores
+	return account.Config.Keystores
 }
 
 // ResetSynced sets synced to false.
@@ -103,7 +95,7 @@ func (account *BaseAccount) ResetSynced() {
 
 // RateUpdater implement Interface, currently just returning a dummy value.
 func (account *BaseAccount) RateUpdater() *rates.RateUpdater {
-	return account.rateUpdater
+	return account.Config.RateUpdater
 }
 
 // Offline implements Interface.
@@ -117,6 +109,6 @@ func (account *BaseAccount) SetOffline(offline bool) {
 	wasOffline := account.offline
 	account.offline = offline
 	if wasOffline != offline {
-		account.OnEvent(EventStatusChanged)
+		account.Config.OnEvent(EventStatusChanged)
 	}
 }
