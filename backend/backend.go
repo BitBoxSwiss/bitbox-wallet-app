@@ -279,21 +279,33 @@ func (backend *Backend) CreateAndAddAccount(
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(
+			&accounts.AccountConfig{
+				Code:        code,
+				Name:        name,
+				Keystores:   backend.keystores,
+				OnEvent:     onEvent,
+				RateUpdater: backend.ratesUpdater,
+			},
 			specificCoin,
 			backend.arguments.CacheDirectoryPath(),
-			code, name,
 			backend.arguments.GapLimits(),
 			getSigningConfigurations,
-			backend.keystores,
 			getNotifier,
-			onEvent,
 			backend.log,
-			backend.ratesUpdater,
 		)
 		backend.addAccount(account)
 		accountAdded = true
 	case *eth.Coin:
-		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
+		account = eth.NewAccount(
+			&accounts.AccountConfig{
+				Code:        code,
+				Name:        name,
+				Keystores:   backend.keystores,
+				OnEvent:     onEvent,
+				RateUpdater: backend.ratesUpdater,
+			},
+			specificCoin,
+			backend.arguments.CacheDirectoryPath(),
 			func() (*signing.Configuration, error) {
 				signingConfigurations, err := getSigningConfigurations()
 				if err != nil {
@@ -304,7 +316,7 @@ func (backend *Backend) CreateAndAddAccount(
 				}
 				return signingConfigurations[0], nil
 			},
-			backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
+			getNotifier, backend.log)
 		backend.addAccount(account)
 		accountAdded = true
 	default:

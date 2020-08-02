@@ -32,8 +32,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -89,30 +87,19 @@ type Account struct {
 
 // NewAccount creates a new account.
 func NewAccount(
+	config *accounts.AccountConfig,
 	accountCoin *Coin,
 	dbFolder string,
-	code string,
-	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
-	keystores *keystore.Keystores,
 	getNotifier func(signing.Configurations) accounts.Notifier,
-	onEvent func(accounts.Event),
 	log *logrus.Entry,
-	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "eth").
-		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": code, "name": name})
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Code, "name": config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount: accounts.NewBaseAccount(
-			code,
-			name,
-			keystores,
-			onEvent,
-			rateUpdater,
-			log,
-		),
+		BaseAccount:             accounts.NewBaseAccount(config, log),
 		coin:                    accountCoin,
 		dbFolder:                dbFolder,
 		dbSubfolder:             "", // set in Initialize()
@@ -123,7 +110,8 @@ func NewAccount(
 
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
-		log:             log,
+
+		log: log,
 	}
 
 	return account
@@ -415,7 +403,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	close(account.quitChan)
-	account.OnEvent(accounts.EventStatusChanged)
+	account.Config.OnEvent(accounts.EventStatusChanged)
 }
 
 // Notifier implements accounts.Interface.

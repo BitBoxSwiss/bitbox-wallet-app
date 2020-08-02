@@ -69,10 +69,12 @@ func (updater *RateUpdater) update() {
 		return
 	}
 
-	response, err := client.Get(fmt.Sprintf(cryptoCompareURL,
+	url := fmt.Sprintf(cryptoCompareURL,
 		strings.Join(coins, ","),
 		strings.Join(fiats, ","),
-	))
+	)
+	updater.log.Infof("Rates url: %v", url)
+	response, err := client.Get(url)
 	if err != nil {
 		updater.log.Printf("Error getting rates: %v\n", err)
 		updater.last = nil
