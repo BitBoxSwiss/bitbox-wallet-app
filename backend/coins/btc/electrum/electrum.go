@@ -67,7 +67,7 @@ func newTLSConnection(address string, rootCert string, dialer proxy.Dialer) (*tl
 		RootCAs: caCertPool,
 		// Expecting a self-signed cert.
 		// See custom verification against a rootCert in VerifyPeerCertificate.
-		InsecureSkipVerify: true, //nolint:gosec
+		InsecureSkipVerify: true,
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			// Code copy/pasted and adapted from
 			// https://github.com/golang/go/blob/81555cb4f3521b53f9de4ce15f64b77cc9df61b9/src/crypto/tls/handshake_client.go#L327-L344, but adapted to skip the hostname verification.
@@ -151,7 +151,7 @@ func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, erro
 	tlsConn := tls.Client(conn, &tls.Config{
 		// Just fetching the cert. No need to verify.
 		// newTLSConnection is where the actual connection happens and the cert is verified.
-		InsecureSkipVerify: true, //nolint:gosec
+		InsecureSkipVerify: true,
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			if len(rawCerts) == 0 {
 				return errp.New("no remote certs")
