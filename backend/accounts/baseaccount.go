@@ -36,6 +36,7 @@ type AccountConfig struct {
 	OnEvent                  func(Event)
 	RateUpdater              *rates.RateUpdater
 	GetSigningConfigurations func() (signing.Configurations, error)
+	GetNotifier              func(signing.Configurations) Notifier
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.

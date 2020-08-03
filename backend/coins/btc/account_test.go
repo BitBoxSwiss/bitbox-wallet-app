@@ -74,9 +74,9 @@ func TestAccount(t *testing.T) {
 			OnEvent:                  func(accounts.Event) {},
 			RateUpdater:              nil,
 			GetSigningConfigurations: getSigningConfigurations,
+			GetNotifier:              func(signing.Configurations) accounts.Notifier { return nil },
 		},
 		coin, nil,
-		func(signing.Configurations) accounts.Notifier { return nil },
 		logging.Get().WithGroup("account_test"),
 	)
 	require.False(t, account.Synced())

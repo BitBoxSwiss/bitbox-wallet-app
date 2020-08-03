@@ -56,7 +56,6 @@ type Account struct {
 	dbSubfolder          string
 	db                   db.Interface
 	signingConfiguration *signing.Configuration
-	getNotifier          func(signing.Configurations) accounts.Notifier
 	notifier             accounts.Notifier
 
 	// true when initialized (Initialize() was called).
@@ -86,7 +85,6 @@ type Account struct {
 func NewAccount(
 	config *accounts.AccountConfig,
 	accountCoin *Coin,
-	getNotifier func(signing.Configurations) accounts.Notifier,
 	log *logrus.Entry,
 ) *Account {
 	log = log.WithField("group", "eth").
@@ -98,7 +96,6 @@ func NewAccount(
 		coin:                 accountCoin,
 		dbSubfolder:          "", // set in Initialize()
 		signingConfiguration: nil,
-		getNotifier:          getNotifier,
 		balance:              coin.NewAmountFromInt64(0),
 
 		enqueueUpdateCh: make(chan struct{}),
@@ -159,7 +156,7 @@ func (account *Account) Initialize() error {
 		return err
 	}
 	account.signingConfiguration = signingConfiguration
-	account.notifier = account.getNotifier(signing.Configurations{signingConfiguration})
+	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
 	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Config().Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
