@@ -17,6 +17,7 @@ package notes
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
@@ -57,4 +58,13 @@ func TestNotesPersisted(t *testing.T) {
 	notes, err = LoadNotes(filename)
 	require.NoError(t, err)
 	require.Equal(t, "", notes.TxNote("some-tx-id"))
+}
+
+// TestMaxLen checks that notes that are too long are rejected.
+func TestMaxLen(t *testing.T) {
+	filename := test.TstTempFile("account-notes")
+	notes, err := LoadNotes(filename)
+	require.NoError(t, err)
+	require.NoError(t, notes.SetTxNote("tx-id", strings.Repeat("x", 1024)))
+	require.Error(t, notes.SetTxNote("tx-id", strings.Repeat("x", 1025)))
 }
