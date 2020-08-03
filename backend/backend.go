@@ -282,12 +282,12 @@ func (backend *Backend) CreateAndAddAccount(
 			&accounts.AccountConfig{
 				Code:        code,
 				Name:        name,
+				DBFolder:    backend.arguments.CacheDirectoryPath(),
 				Keystores:   backend.keystores,
 				OnEvent:     onEvent,
 				RateUpdater: backend.ratesUpdater,
 			},
 			specificCoin,
-			backend.arguments.CacheDirectoryPath(),
 			backend.arguments.GapLimits(),
 			getSigningConfigurations,
 			getNotifier,
@@ -300,12 +300,12 @@ func (backend *Backend) CreateAndAddAccount(
 			&accounts.AccountConfig{
 				Code:        code,
 				Name:        name,
+				DBFolder:    backend.arguments.CacheDirectoryPath(),
 				Keystores:   backend.keystores,
 				OnEvent:     onEvent,
 				RateUpdater: backend.ratesUpdater,
 			},
 			specificCoin,
-			backend.arguments.CacheDirectoryPath(),
 			func() (*signing.Configuration, error) {
 				signingConfigurations, err := getSigningConfigurations()
 				if err != nil {

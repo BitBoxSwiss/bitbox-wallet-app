@@ -28,7 +28,9 @@ type AccountConfig struct {
 	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
 	Code string
 	// Name returns a human readable long name.
-	Name        string
+	Name string
+	// DBFolder is the folder for all accounts. Full path.
+	DBFolder    string
 	Keystores   *keystore.Keystores
 	OnEvent     func(Event)
 	RateUpdater *rates.RateUpdater
