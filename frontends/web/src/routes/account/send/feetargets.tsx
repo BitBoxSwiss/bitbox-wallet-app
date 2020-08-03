@@ -20,14 +20,13 @@ import { Input, Select } from '../../../components/forms';
 import { Fiat } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
-import { CoinCode } from '../account';
 import * as style from './feetargets.css';
 import { AmountWithConversions } from './send';
 
 export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
 
 interface FeeTargetsProps {
-    accountCode: CoinCode;
+    accountCode: string;
     disabled: boolean;
     fiatUnit: Fiat;
     proposedFee?: AmountWithConversions;
@@ -60,7 +59,7 @@ class FeeTargets extends Component<Props, State> {
         }
     }
 
-    private updateFeeTargets = (accountCode: CoinCode) => {
+    private updateFeeTargets = (accountCode: string) => {
         apiGet('account/' + accountCode + '/fee-targets')
         .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
             // feeTargets.push({code: 'custom'});
