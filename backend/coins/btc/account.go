@@ -331,7 +331,8 @@ func (account *Account) Initialize() error {
 	}
 	account.ensureAddresses()
 	account.coin.Blockchain().HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
-	return nil
+
+	return account.BaseAccount.Initialize(accountIdentifier)
 }
 
 // XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.

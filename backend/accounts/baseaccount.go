@@ -15,6 +15,10 @@
 package accounts
 
 import (
+	"fmt"
+	"path"
+
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
@@ -31,7 +35,9 @@ type AccountConfig struct {
 	// Name returns a human readable long name.
 	Name string
 	// DBFolder is the folder for all accounts. Full path.
-	DBFolder                 string
+	DBFolder string
+	// NotesFolder is the folder where the transaction notes are stored. Full path.
+	NotesFolder              string
 	Keystores                *keystore.Keystores
 	OnEvent                  func(Event)
 	RateUpdater              *rates.RateUpdater
@@ -50,6 +56,8 @@ type BaseAccount struct {
 	// addresses.
 	synced  bool
 	offline bool
+
+	notes *notes.Notes
 }
 
 // NewBaseAccount creates a new Account instance.
@@ -104,4 +112,18 @@ func (account *BaseAccount) SetOffline(offline bool) {
 	if wasOffline != offline {
 		account.config.OnEvent(EventStatusChanged)
 	}
+}
+
+// Initialize initializes the account. `accountIdentifier` is used as part of the filename of
+// account databases.
+func (account *BaseAccount) Initialize(accountIdentifier string) error {
+	notes, err := notes.LoadNotes(path.Join(
+		account.config.NotesFolder,
+		fmt.Sprintf("%s.json", accountIdentifier),
+	))
+	if err != nil {
+		return err
+	}
+	account.notes = notes
+	return nil
 }

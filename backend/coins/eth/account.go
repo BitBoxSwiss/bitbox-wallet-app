@@ -196,7 +196,8 @@ func (account *Account) Initialize() error {
 
 	account.coin.Initialize()
 	go account.poll()
-	return nil
+
+	return account.BaseAccount.Initialize(accountIdentifier)
 }
 
 func (account *Account) poll() {
