@@ -18,67 +18,62 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/sirupsen/logrus"
 )
+
+// AccountConfig holds account configuration.
+type AccountConfig struct {
+	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
+	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
+	Code string
+	// Name returns a human readable long name.
+	Name string
+	// DBFolder is the folder for all accounts. Full path.
+	DBFolder                 string
+	Keystores                *keystore.Keystores
+	OnEvent                  func(Event)
+	RateUpdater              *rates.RateUpdater
+	GetSigningConfigurations func() (signing.Configurations, error)
+	GetNotifier              func(signing.Configurations) Notifier
+}
 
 // BaseAccount is an account struct with common functionality to all coin accounts.
 type BaseAccount struct {
 	observable.Implementation
 	Synchronizer *synchronizer.Synchronizer
-	OnEvent      func(Event)
 
-	code string
-	name string
+	config *AccountConfig
 
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
-	synced      bool
-	keystores   *keystore.Keystores
-	rateUpdater *rates.RateUpdater
-
+	synced  bool
 	offline bool
 }
 
 // NewBaseAccount creates a new Account instance.
-func NewBaseAccount(
-	code string,
-	name string,
-	keystores *keystore.Keystores,
-	onEvent func(Event),
-	rateUpdater *rates.RateUpdater,
-	log *logrus.Entry,
-) *BaseAccount {
+func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
 	account := &BaseAccount{
-		code:        code,
-		name:        name,
-		keystores:   keystores,
-		OnEvent:     onEvent,
-		synced:      false,
-		rateUpdater: rateUpdater,
+		config: config,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(EventSyncStarted) },
+		func() { config.OnEvent(EventSyncStarted) },
 		func() {
 			if !account.synced {
 				account.synced = true
-				onEvent(EventStatusChanged)
+				config.OnEvent(EventStatusChanged)
 			}
-			onEvent(EventSyncDone)
+			config.OnEvent(EventSyncDone)
 		},
 		log,
 	)
 	return account
 }
 
-// Code implements Interface.
-func (account *BaseAccount) Code() string {
-	return account.code
-}
-
-// Name implements Interface.
-func (account *BaseAccount) Name() string {
-	return account.name
+// Config implements Interface.
+func (account *BaseAccount) Config() *AccountConfig {
+	return account.config
 }
 
 // Synced implements Interface.
@@ -91,19 +86,9 @@ func (account *BaseAccount) Close() {
 	account.synced = false
 }
 
-// Keystores implements Interface.
-func (account *BaseAccount) Keystores() *keystore.Keystores {
-	return account.keystores
-}
-
 // ResetSynced sets synced to false.
 func (account *BaseAccount) ResetSynced() {
 	account.synced = false
-}
-
-// RateUpdater implement Interface, currently just returning a dummy value.
-func (account *BaseAccount) RateUpdater() *rates.RateUpdater {
-	return account.rateUpdater
 }
 
 // Offline implements Interface.
@@ -117,6 +102,6 @@ func (account *BaseAccount) SetOffline(offline bool) {
 	wasOffline := account.offline
 	account.offline = offline
 	if wasOffline != offline {
-		account.OnEvent(EventStatusChanged)
+		account.config.OnEvent(EventStatusChanged)
 	}
 }

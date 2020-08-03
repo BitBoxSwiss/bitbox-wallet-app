@@ -210,7 +210,7 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 	if unnotifiedCount != 0 {
 		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
 			"count":       unnotifiedCount,
-			"accountName": account.Name(),
+			"accountName": account.Config().Name,
 		}}
 
 		if err := notifier.MarkAllNotified(); err != nil {
@@ -264,47 +264,37 @@ func (backend *Backend) CreateAndAddAccount(
 	}
 
 	var account accounts.Interface
-	onEvent := func(event accounts.Event) {
-		backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
-		if account != nil && event == accounts.EventSyncDone {
-			backend.notifyNewTxs(account)
-		}
-	}
-
-	getNotifier := func(configurations signing.Configurations) accounts.Notifier {
-		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
+	accountConfig := &accounts.AccountConfig{
+		Code:      code,
+		Name:      name,
+		DBFolder:  backend.arguments.CacheDirectoryPath(),
+		Keystores: backend.keystores,
+		OnEvent: func(event accounts.Event) {
+			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+			if account != nil && event == accounts.EventSyncDone {
+				backend.notifyNewTxs(account)
+			}
+		},
+		RateUpdater:              backend.ratesUpdater,
+		GetSigningConfigurations: getSigningConfigurations,
+		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
+			return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
+		},
 	}
 
 	accountAdded := false
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(
+			accountConfig,
 			specificCoin,
-			backend.arguments.CacheDirectoryPath(),
-			code, name,
 			backend.arguments.GapLimits(),
-			getSigningConfigurations,
-			backend.keystores,
-			getNotifier,
-			onEvent,
 			backend.log,
-			backend.ratesUpdater,
 		)
 		backend.addAccount(account)
 		accountAdded = true
 	case *eth.Coin:
-		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			func() (*signing.Configuration, error) {
-				signingConfigurations, err := getSigningConfigurations()
-				if err != nil {
-					return nil, err
-				}
-				if len(signingConfigurations) != 1 {
-					return nil, errp.New("Ethereum only supports one signing config")
-				}
-				return signingConfigurations[0], nil
-			},
-			backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
+		account = eth.NewAccount(accountConfig, specificCoin, backend.log)
 		backend.addAccount(account)
 		accountAdded = true
 	default:

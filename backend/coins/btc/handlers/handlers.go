@@ -96,9 +96,14 @@ type FormattedAmount struct {
 
 func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) FormattedAmount {
 	return FormattedAmount{
-		Amount:      handlers.account.Coin().FormatAmount(amount, isFee),
-		Unit:        handlers.account.Coin().Unit(isFee),
-		Conversions: coin.Conversions(amount, handlers.account.Coin(), isFee, handlers.account.RateUpdater()),
+		Amount: handlers.account.Coin().FormatAmount(amount, isFee),
+		Unit:   handlers.account.Coin().Unit(isFee),
+		Conversions: coin.Conversions(
+			amount,
+			handlers.account.Coin(),
+			isFee,
+			handlers.account.Config().RateUpdater,
+		),
 	}
 }
 
@@ -194,7 +199,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
-	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Code() + "-export.csv"
+	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Config().Code + "-export.csv"
 	downloadsDir, err := config.DownloadsDir()
 	if err != nil {
 		return nil, err

@@ -32,8 +32,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -54,15 +52,11 @@ type Account struct {
 
 	locker.Locker
 	coin *Coin
-	// folder for all accounts. Full path.
-	dbFolder string
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder             string
-	db                      db.Interface
-	getSigningConfiguration func() (*signing.Configuration, error)
-	signingConfiguration    *signing.Configuration
-	getNotifier             func(signing.Configurations) accounts.Notifier
-	notifier                accounts.Notifier
+	dbSubfolder          string
+	db                   db.Interface
+	signingConfiguration *signing.Configuration
+	notifier             accounts.Notifier
 
 	// true when initialized (Initialize() was called).
 	initialized bool
@@ -89,41 +83,25 @@ type Account struct {
 
 // NewAccount creates a new account.
 func NewAccount(
+	config *accounts.AccountConfig,
 	accountCoin *Coin,
-	dbFolder string,
-	code string,
-	name string,
-	getSigningConfiguration func() (*signing.Configuration, error),
-	keystores *keystore.Keystores,
-	getNotifier func(signing.Configurations) accounts.Notifier,
-	onEvent func(accounts.Event),
 	log *logrus.Entry,
-	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "eth").
-		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": code, "name": name})
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Code, "name": config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount: accounts.NewBaseAccount(
-			code,
-			name,
-			keystores,
-			onEvent,
-			rateUpdater,
-			log,
-		),
-		coin:                    accountCoin,
-		dbFolder:                dbFolder,
-		dbSubfolder:             "", // set in Initialize()
-		getSigningConfiguration: getSigningConfiguration,
-		signingConfiguration:    nil,
-		getNotifier:             getNotifier,
-		balance:                 coin.NewAmountFromInt64(0),
+		BaseAccount:          accounts.NewBaseAccount(config, log),
+		coin:                 accountCoin,
+		dbSubfolder:          "", // set in Initialize()
+		signingConfiguration: nil,
+		balance:              coin.NewAmountFromInt64(0),
 
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
-		log:             log,
+
+		log: log,
 	}
 
 	return account
@@ -158,10 +136,16 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfiguration, err := account.getSigningConfiguration()
+	signingConfigurations, err := account.Config().GetSigningConfigurations()
 	if err != nil {
 		return err
 	}
+
+	if len(signingConfigurations) != 1 {
+		return errp.New("Ethereum only supports one signing config")
+	}
+	signingConfiguration := signingConfigurations[0]
+
 	// Derive m/0, first account.
 	relKeyPath, err := signing.NewRelativeKeypath("0")
 	if err != nil {
@@ -172,17 +156,17 @@ func (account *Account) Initialize() error {
 		return err
 	}
 	account.signingConfiguration = signingConfiguration
-	account.notifier = account.getNotifier(signing.Configurations{signingConfiguration})
+	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Code())
-	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Config().Code)
+	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
 	}
 
 	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := db.NewDB(path.Join(account.dbFolder, dbName))
+	db, err := db.NewDB(path.Join(account.Config().DBFolder, dbName))
 	if err != nil {
 		return err
 	}
@@ -415,7 +399,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	close(account.quitChan)
-	account.OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accounts.EventStatusChanged)
 }
 
 // Notifier implements accounts.Interface.
@@ -596,7 +580,7 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.Keystores().SignTransaction(txProposal); err != nil {
+	if err := account.Config().Keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
 	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
@@ -652,12 +636,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	}
 	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
-	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Keystores().VerifyAddress(account.signingConfiguration, account.Coin())
+		return true, account.Config().Keystores.VerifyAddress(account.signingConfiguration, account.Coin())
 	}
 	return false, nil
 }
@@ -667,5 +651,5 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if account.signingConfiguration == nil {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.Coin())
+	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
 }

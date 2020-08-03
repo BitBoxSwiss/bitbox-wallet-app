@@ -37,8 +37,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -69,15 +67,11 @@ type Account struct {
 	locker.Locker
 
 	coin *Coin
-	// folder for all accounts. Full path.
-	dbFolder string
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder              string
-	db                       transactions.DBInterface
-	forceGapLimits           *types.GapLimits
-	getSigningConfigurations func() (signing.Configurations, error)
-	getNotifier              func(signing.Configurations) accounts.Notifier
-	notifier                 accounts.Notifier
+	dbSubfolder    string
+	db             transactions.DBInterface
+	forceGapLimits *types.GapLimits
+	notifier       accounts.Notifier
 
 	subaccounts []subaccount
 	// How many addresses were synced already during the initial sync. This value is emitted as an
@@ -100,50 +94,31 @@ type Account struct {
 	initialized bool
 
 	fatalError bool
-	log        *logrus.Entry
 
 	closed     bool
 	closedLock locker.Locker
+
+	log *logrus.Entry
 }
 
 // NewAccount creates a new account.
 //
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
-//
-// getSigningConfigurations: defines the script types used in this account. The first one is used as
-// a default for receive addresses, and always used for change.
 func NewAccount(
+	config *accounts.AccountConfig,
 	coin *Coin,
-	dbFolder string,
-	code string,
-	name string,
 	forceGapLimits *types.GapLimits,
-	getSigningConfigurations func() (signing.Configurations, error),
-	keystores *keystore.Keystores,
-	getNotifier func(signing.Configurations) accounts.Notifier,
-	onEvent func(accounts.Event),
 	log *logrus.Entry,
-	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "btc").
-		WithFields(logrus.Fields{"coin": coin.String(), "code": code, "name": name})
+		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Code, "name": config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount: accounts.NewBaseAccount(
-			code,
-			name,
-			keystores,
-			onEvent,
-			rateUpdater,
-			log,
-		),
-		coin:                     coin,
-		dbFolder:                 dbFolder,
-		dbSubfolder:              "", // set in Initialize()
-		forceGapLimits:           forceGapLimits,
-		getSigningConfigurations: getSigningConfigurations,
-		getNotifier:              getNotifier,
+		BaseAccount:    accounts.NewBaseAccount(config, log),
+		coin:           coin,
+		dbSubfolder:    "", // set in Initialize()
+		forceGapLimits: forceGapLimits,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -159,7 +134,7 @@ func NewAccount(
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Code())
+	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Code)
 }
 
 // FilesFolder implements accounts.Interface.
@@ -276,24 +251,24 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations, err := account.getSigningConfigurations()
+	signingConfigurations, err := account.Config().GetSigningConfigurations()
 	if err != nil {
 		return err
 	}
 	if len(signingConfigurations) == 0 {
 		return errp.New("There must be a least one signing configuration")
 	}
-	account.notifier = account.getNotifier(signingConfigurations)
+	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Code())
-	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Config().Code)
+	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
 	}
 
 	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
+	db, err := transactionsdb.NewDB(path.Join(account.Config().DBFolder, dbName))
 	if err != nil {
 		return err
 	}
@@ -322,7 +297,7 @@ func (account *Account) Initialize() error {
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.OnEvent(accounts.EventHeadersSynced)
+			account.Config().OnEvent(accounts.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
@@ -459,7 +434,7 @@ func (account *Account) Close() {
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
-	account.OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accounts.EventStatusChanged)
 	account.closed = true
 }
 
@@ -482,7 +457,7 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.OnEvent(accounts.EventFeeTargetsChanged)
+				account.Config().OnEvent(accounts.EventFeeTargetsChanged)
 			}
 
 			account.coin.Blockchain().EstimateFee(
@@ -547,7 +522,7 @@ func (account *Account) incAndEmitSyncCounter() {
 	if !account.Synced() {
 		synced := atomic.AddUint32(&account.syncedAddressesCount, 1)
 		account.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Code()),
+			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Config().Code),
 			Action:  action.Replace,
 			Object:  synced,
 		})
@@ -594,7 +569,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				// We are not closing client.blockchain here, as it is reused per coin with
 				// different accounts.
 				account.fatalError = true
-				account.OnEvent(accounts.EventStatusChanged)
+				account.Config().OnEvent(accounts.EventStatusChanged)
 			}
 		},
 	)
@@ -728,12 +703,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
+		return true, account.Config().Keystores.VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
@@ -743,7 +718,7 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if !account.initialized {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.Coin())
+	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
 }
 
 type byValue struct {
@@ -780,7 +755,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 
 // CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification.
 func (account *Account) CanVerifyExtendedPublicKey() []int {
-	return account.Keystores().CanVerifyExtendedPublicKeys()
+	return account.Config().Keystores.CanVerifyExtendedPublicKeys()
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
@@ -791,7 +766,7 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 // xpubIndex is the position of an xpub in the []*hdkeychain which corresponds to the particular
 // keystore in []Keystore.
 func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex int) (bool, error) {
-	keystore := account.Keystores().Keystores()[xpubIndex]
+	keystore := account.Config().Keystores.Keystores()[xpubIndex]
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(
 			account.Coin(),
