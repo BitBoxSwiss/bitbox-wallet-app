@@ -67,14 +67,15 @@ func TestAccount(t *testing.T) {
 	}
 	account := btc.NewAccount(
 		&accounts.AccountConfig{
-			Code:        "accountcode",
-			Name:        "accountname",
-			DBFolder:    dbFolder,
-			Keystores:   nil,
-			OnEvent:     func(accounts.Event) {},
-			RateUpdater: nil,
+			Code:                     "accountcode",
+			Name:                     "accountname",
+			DBFolder:                 dbFolder,
+			Keystores:                nil,
+			OnEvent:                  func(accounts.Event) {},
+			RateUpdater:              nil,
+			GetSigningConfigurations: getSigningConfigurations,
 		},
-		coin, nil, getSigningConfigurations,
+		coin, nil,
 		func(signing.Configurations) accounts.Notifier { return nil },
 		logging.Get().WithGroup("account_test"),
 	)

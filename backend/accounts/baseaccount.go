@@ -18,6 +18,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/sirupsen/logrus"
 )
@@ -30,10 +31,11 @@ type AccountConfig struct {
 	// Name returns a human readable long name.
 	Name string
 	// DBFolder is the folder for all accounts. Full path.
-	DBFolder    string
-	Keystores   *keystore.Keystores
-	OnEvent     func(Event)
-	RateUpdater *rates.RateUpdater
+	DBFolder                 string
+	Keystores                *keystore.Keystores
+	OnEvent                  func(Event)
+	RateUpdater              *rates.RateUpdater
+	GetSigningConfigurations func() (signing.Configurations, error)
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.

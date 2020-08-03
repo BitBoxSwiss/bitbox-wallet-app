@@ -68,12 +68,11 @@ type Account struct {
 
 	coin *Coin
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder              string
-	db                       transactions.DBInterface
-	forceGapLimits           *types.GapLimits
-	getSigningConfigurations func() (signing.Configurations, error)
-	getNotifier              func(signing.Configurations) accounts.Notifier
-	notifier                 accounts.Notifier
+	dbSubfolder    string
+	db             transactions.DBInterface
+	forceGapLimits *types.GapLimits
+	getNotifier    func(signing.Configurations) accounts.Notifier
+	notifier       accounts.Notifier
 
 	subaccounts []subaccount
 	// How many addresses were synced already during the initial sync. This value is emitted as an
@@ -106,14 +105,10 @@ type Account struct {
 // NewAccount creates a new account.
 //
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
-//
-// getSigningConfigurations: defines the script types used in this account. The first one is used as
-// a default for receive addresses, and always used for change.
 func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
-	getSigningConfigurations func() (signing.Configurations, error),
 	getNotifier func(signing.Configurations) accounts.Notifier,
 	log *logrus.Entry,
 ) *Account {
@@ -122,12 +117,11 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount:              accounts.NewBaseAccount(config, log),
-		coin:                     coin,
-		dbSubfolder:              "", // set in Initialize()
-		forceGapLimits:           forceGapLimits,
-		getSigningConfigurations: getSigningConfigurations,
-		getNotifier:              getNotifier,
+		BaseAccount:    accounts.NewBaseAccount(config, log),
+		coin:           coin,
+		dbSubfolder:    "", // set in Initialize()
+		forceGapLimits: forceGapLimits,
+		getNotifier:    getNotifier,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -260,7 +254,7 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations, err := account.getSigningConfigurations()
+	signingConfigurations, err := account.Config().GetSigningConfigurations()
 	if err != nil {
 		return err
 	}

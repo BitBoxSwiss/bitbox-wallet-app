@@ -280,16 +280,16 @@ func (backend *Backend) CreateAndAddAccount(
 	case *btc.Coin:
 		account = btc.NewAccount(
 			&accounts.AccountConfig{
-				Code:        code,
-				Name:        name,
-				DBFolder:    backend.arguments.CacheDirectoryPath(),
-				Keystores:   backend.keystores,
-				OnEvent:     onEvent,
-				RateUpdater: backend.ratesUpdater,
+				Code:                     code,
+				Name:                     name,
+				DBFolder:                 backend.arguments.CacheDirectoryPath(),
+				Keystores:                backend.keystores,
+				OnEvent:                  onEvent,
+				RateUpdater:              backend.ratesUpdater,
+				GetSigningConfigurations: getSigningConfigurations,
 			},
 			specificCoin,
 			backend.arguments.GapLimits(),
-			getSigningConfigurations,
 			getNotifier,
 			backend.log,
 		)
@@ -298,24 +298,15 @@ func (backend *Backend) CreateAndAddAccount(
 	case *eth.Coin:
 		account = eth.NewAccount(
 			&accounts.AccountConfig{
-				Code:        code,
-				Name:        name,
-				DBFolder:    backend.arguments.CacheDirectoryPath(),
-				Keystores:   backend.keystores,
-				OnEvent:     onEvent,
-				RateUpdater: backend.ratesUpdater,
+				Code:                     code,
+				Name:                     name,
+				DBFolder:                 backend.arguments.CacheDirectoryPath(),
+				Keystores:                backend.keystores,
+				OnEvent:                  onEvent,
+				RateUpdater:              backend.ratesUpdater,
+				GetSigningConfigurations: getSigningConfigurations,
 			},
 			specificCoin,
-			func() (*signing.Configuration, error) {
-				signingConfigurations, err := getSigningConfigurations()
-				if err != nil {
-					return nil, err
-				}
-				if len(signingConfigurations) != 1 {
-					return nil, errp.New("Ethereum only supports one signing config")
-				}
-				return signingConfigurations[0], nil
-			},
 			getNotifier, backend.log)
 		backend.addAccount(account)
 		accountAdded = true
