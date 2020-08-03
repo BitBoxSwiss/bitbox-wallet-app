@@ -67,8 +67,6 @@ type Account struct {
 	locker.Locker
 
 	coin *Coin
-	// folder for all accounts. Full path.
-	dbFolder string
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
 	dbSubfolder              string
 	db                       transactions.DBInterface
@@ -114,7 +112,6 @@ type Account struct {
 func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
-	dbFolder string,
 	forceGapLimits *types.GapLimits,
 	getSigningConfigurations func() (signing.Configurations, error),
 	getNotifier func(signing.Configurations) accounts.Notifier,
@@ -127,7 +124,6 @@ func NewAccount(
 	account := &Account{
 		BaseAccount:              accounts.NewBaseAccount(config, log),
 		coin:                     coin,
-		dbFolder:                 dbFolder,
 		dbSubfolder:              "", // set in Initialize()
 		forceGapLimits:           forceGapLimits,
 		getSigningConfigurations: getSigningConfigurations,
@@ -274,14 +270,14 @@ func (account *Account) Initialize() error {
 	account.notifier = account.getNotifier(signingConfigurations)
 
 	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Config().Code)
-	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
+	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
 	}
 
 	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
+	db, err := transactionsdb.NewDB(path.Join(account.Config().DBFolder, dbName))
 	if err != nil {
 		return err
 	}

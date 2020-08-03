@@ -69,11 +69,12 @@ func TestAccount(t *testing.T) {
 		&accounts.AccountConfig{
 			Code:        "accountcode",
 			Name:        "accountname",
+			DBFolder:    dbFolder,
 			Keystores:   nil,
 			OnEvent:     func(accounts.Event) {},
 			RateUpdater: nil,
 		},
-		coin, dbFolder, nil, getSigningConfigurations,
+		coin, nil, getSigningConfigurations,
 		func(signing.Configurations) accounts.Notifier { return nil },
 		logging.Get().WithGroup("account_test"),
 	)
