@@ -127,3 +127,18 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 	account.notes = notes
 	return nil
 }
+
+// Notes implements Interface.
+func (account *BaseAccount) Notes() *notes.Notes {
+	return account.notes
+}
+
+// SetTxNote implements accounts.Account.
+func (account *BaseAccount) SetTxNote(txID string, note string) error {
+	if err := account.notes.SetTxNote(txID, note); err != nil {
+		return err
+	}
+	// Prompt refresh.
+	account.config.OnEvent(EventStatusChanged)
+	return nil
+}

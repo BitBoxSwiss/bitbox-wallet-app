@@ -17,6 +17,7 @@ package accounts
 
 import (
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -65,6 +66,10 @@ type Interface interface {
 	// Safello returns the infos needed to load the Safello Buy widget. panics() if Safello is not
 	// supported for this coin. Check support with `SafelloBuySupported()` before calling this.
 	SafelloBuy() *safello.Buy
+
+	Notes() *notes.Notes
+	// SetTxNote sets a tx note and refreshes the account.
+	SetTxNote(txID string, note string) error
 }
 
 // Info holds account information.
