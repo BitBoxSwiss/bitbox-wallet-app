@@ -53,12 +53,11 @@ type Account struct {
 	locker.Locker
 	coin *Coin
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder             string
-	db                      db.Interface
-	getSigningConfiguration func() (*signing.Configuration, error)
-	signingConfiguration    *signing.Configuration
-	getNotifier             func(signing.Configurations) accounts.Notifier
-	notifier                accounts.Notifier
+	dbSubfolder          string
+	db                   db.Interface
+	signingConfiguration *signing.Configuration
+	getNotifier          func(signing.Configurations) accounts.Notifier
+	notifier             accounts.Notifier
 
 	// true when initialized (Initialize() was called).
 	initialized bool
@@ -87,7 +86,6 @@ type Account struct {
 func NewAccount(
 	config *accounts.AccountConfig,
 	accountCoin *Coin,
-	getSigningConfiguration func() (*signing.Configuration, error),
 	getNotifier func(signing.Configurations) accounts.Notifier,
 	log *logrus.Entry,
 ) *Account {
@@ -96,13 +94,12 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount:             accounts.NewBaseAccount(config, log),
-		coin:                    accountCoin,
-		dbSubfolder:             "", // set in Initialize()
-		getSigningConfiguration: getSigningConfiguration,
-		signingConfiguration:    nil,
-		getNotifier:             getNotifier,
-		balance:                 coin.NewAmountFromInt64(0),
+		BaseAccount:          accounts.NewBaseAccount(config, log),
+		coin:                 accountCoin,
+		dbSubfolder:          "", // set in Initialize()
+		signingConfiguration: nil,
+		getNotifier:          getNotifier,
+		balance:              coin.NewAmountFromInt64(0),
 
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
@@ -142,10 +139,16 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfiguration, err := account.getSigningConfiguration()
+	signingConfigurations, err := account.Config().GetSigningConfigurations()
 	if err != nil {
 		return err
 	}
+
+	if len(signingConfigurations) != 1 {
+		return errp.New("Ethereum only supports one signing config")
+	}
+	signingConfiguration := signingConfigurations[0]
+
 	// Derive m/0, first account.
 	relKeyPath, err := signing.NewRelativeKeypath("0")
 	if err != nil {
