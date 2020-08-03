@@ -287,10 +287,10 @@ func (backend *Backend) CreateAndAddAccount(
 				OnEvent:                  onEvent,
 				RateUpdater:              backend.ratesUpdater,
 				GetSigningConfigurations: getSigningConfigurations,
+				GetNotifier:              getNotifier,
 			},
 			specificCoin,
 			backend.arguments.GapLimits(),
-			getNotifier,
 			backend.log,
 		)
 		backend.addAccount(account)
@@ -305,9 +305,10 @@ func (backend *Backend) CreateAndAddAccount(
 				OnEvent:                  onEvent,
 				RateUpdater:              backend.ratesUpdater,
 				GetSigningConfigurations: getSigningConfigurations,
+				GetNotifier:              getNotifier,
 			},
 			specificCoin,
-			getNotifier, backend.log)
+			backend.log)
 		backend.addAccount(account)
 		accountAdded = true
 	default:

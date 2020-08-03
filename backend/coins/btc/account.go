@@ -71,7 +71,6 @@ type Account struct {
 	dbSubfolder    string
 	db             transactions.DBInterface
 	forceGapLimits *types.GapLimits
-	getNotifier    func(signing.Configurations) accounts.Notifier
 	notifier       accounts.Notifier
 
 	subaccounts []subaccount
@@ -109,7 +108,6 @@ func NewAccount(
 	config *accounts.AccountConfig,
 	coin *Coin,
 	forceGapLimits *types.GapLimits,
-	getNotifier func(signing.Configurations) accounts.Notifier,
 	log *logrus.Entry,
 ) *Account {
 	log = log.WithField("group", "btc").
@@ -121,7 +119,6 @@ func NewAccount(
 		coin:           coin,
 		dbSubfolder:    "", // set in Initialize()
 		forceGapLimits: forceGapLimits,
-		getNotifier:    getNotifier,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -261,7 +258,7 @@ func (account *Account) Initialize() error {
 	if len(signingConfigurations) == 0 {
 		return errp.New("There must be a least one signing configuration")
 	}
-	account.notifier = account.getNotifier(signingConfigurations)
+	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
 	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Config().Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
