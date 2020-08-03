@@ -147,7 +147,7 @@ func NewAccount(
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Code())
+	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Code)
 }
 
 // FilesFolder implements accounts.Interface.
@@ -273,7 +273,7 @@ func (account *Account) Initialize() error {
 	}
 	account.notifier = account.getNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Code())
+	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Config().Code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -310,7 +310,7 @@ func (account *Account) Initialize() error {
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.Config.OnEvent(accounts.EventHeadersSynced)
+			account.Config().OnEvent(accounts.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
@@ -447,7 +447,7 @@ func (account *Account) Close() {
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
-	account.Config.OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accounts.EventStatusChanged)
 	account.closed = true
 }
 
@@ -470,7 +470,7 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.Config.OnEvent(accounts.EventFeeTargetsChanged)
+				account.Config().OnEvent(accounts.EventFeeTargetsChanged)
 			}
 
 			account.coin.Blockchain().EstimateFee(
@@ -535,7 +535,7 @@ func (account *Account) incAndEmitSyncCounter() {
 	if !account.Synced() {
 		synced := atomic.AddUint32(&account.syncedAddressesCount, 1)
 		account.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Code()),
+			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Config().Code),
 			Action:  action.Replace,
 			Object:  synced,
 		})
@@ -582,7 +582,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				// We are not closing client.blockchain here, as it is reused per coin with
 				// different accounts.
 				account.fatalError = true
-				account.Config.OnEvent(accounts.EventStatusChanged)
+				account.Config().OnEvent(accounts.EventStatusChanged)
 			}
 		},
 	)
@@ -716,12 +716,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
+		return true, account.Config().Keystores.VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
@@ -731,7 +731,7 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if !account.initialized {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.Coin())
+	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
 }
 
 type byValue struct {
@@ -768,7 +768,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 
 // CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification.
 func (account *Account) CanVerifyExtendedPublicKey() []int {
-	return account.Keystores().CanVerifyExtendedPublicKeys()
+	return account.Config().Keystores.CanVerifyExtendedPublicKeys()
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
@@ -779,7 +779,7 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 // xpubIndex is the position of an xpub in the []*hdkeychain which corresponds to the particular
 // keystore in []Keystore.
 func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex int) (bool, error) {
-	keystore := account.Keystores().Keystores()[xpubIndex]
+	keystore := account.Config().Keystores.Keystores()[xpubIndex]
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(
 			account.Coin(),

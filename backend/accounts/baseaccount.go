@@ -24,7 +24,10 @@ import (
 
 // AccountConfig holds account configuration.
 type AccountConfig struct {
-	Code        string
+	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
+	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
+	Code string
+	// Name returns a human readable long name.
 	Name        string
 	Keystores   *keystore.Keystores
 	OnEvent     func(Event)
@@ -36,7 +39,7 @@ type BaseAccount struct {
 	observable.Implementation
 	Synchronizer *synchronizer.Synchronizer
 
-	Config *AccountConfig
+	config *AccountConfig
 
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
@@ -47,7 +50,7 @@ type BaseAccount struct {
 // NewBaseAccount creates a new Account instance.
 func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
 	account := &BaseAccount{
-		Config: config,
+		config: config,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
 		func() { config.OnEvent(EventSyncStarted) },
@@ -63,14 +66,9 @@ func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
 	return account
 }
 
-// Code implements Interface.
-func (account *BaseAccount) Code() string {
-	return account.Config.Code
-}
-
-// Name implements Interface.
-func (account *BaseAccount) Name() string {
-	return account.Config.Name
+// Config implements Interface.
+func (account *BaseAccount) Config() *AccountConfig {
+	return account.config
 }
 
 // Synced implements Interface.
@@ -83,19 +81,9 @@ func (account *BaseAccount) Close() {
 	account.synced = false
 }
 
-// Keystores implements Interface.
-func (account *BaseAccount) Keystores() *keystore.Keystores {
-	return account.Config.Keystores
-}
-
 // ResetSynced sets synced to false.
 func (account *BaseAccount) ResetSynced() {
 	account.synced = false
-}
-
-// RateUpdater implement Interface, currently just returning a dummy value.
-func (account *BaseAccount) RateUpdater() *rates.RateUpdater {
-	return account.Config.RateUpdater
 }
 
 // Offline implements Interface.
@@ -109,6 +97,6 @@ func (account *BaseAccount) SetOffline(offline bool) {
 	wasOffline := account.offline
 	account.offline = offline
 	if wasOffline != offline {
-		account.Config.OnEvent(EventStatusChanged)
+		account.config.OnEvent(EventStatusChanged)
 	}
 }
