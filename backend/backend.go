@@ -264,31 +264,29 @@ func (backend *Backend) CreateAndAddAccount(
 	}
 
 	var account accounts.Interface
-	onEvent := func(event accounts.Event) {
-		backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
-		if account != nil && event == accounts.EventSyncDone {
-			backend.notifyNewTxs(account)
-		}
-	}
-
-	getNotifier := func(configurations signing.Configurations) accounts.Notifier {
-		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
+	accountConfig := &accounts.AccountConfig{
+		Code:      code,
+		Name:      name,
+		DBFolder:  backend.arguments.CacheDirectoryPath(),
+		Keystores: backend.keystores,
+		OnEvent: func(event accounts.Event) {
+			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+			if account != nil && event == accounts.EventSyncDone {
+				backend.notifyNewTxs(account)
+			}
+		},
+		RateUpdater:              backend.ratesUpdater,
+		GetSigningConfigurations: getSigningConfigurations,
+		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
+			return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
+		},
 	}
 
 	accountAdded := false
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(
-			&accounts.AccountConfig{
-				Code:                     code,
-				Name:                     name,
-				DBFolder:                 backend.arguments.CacheDirectoryPath(),
-				Keystores:                backend.keystores,
-				OnEvent:                  onEvent,
-				RateUpdater:              backend.ratesUpdater,
-				GetSigningConfigurations: getSigningConfigurations,
-				GetNotifier:              getNotifier,
-			},
+			accountConfig,
 			specificCoin,
 			backend.arguments.GapLimits(),
 			backend.log,
@@ -296,19 +294,7 @@ func (backend *Backend) CreateAndAddAccount(
 		backend.addAccount(account)
 		accountAdded = true
 	case *eth.Coin:
-		account = eth.NewAccount(
-			&accounts.AccountConfig{
-				Code:                     code,
-				Name:                     name,
-				DBFolder:                 backend.arguments.CacheDirectoryPath(),
-				Keystores:                backend.keystores,
-				OnEvent:                  onEvent,
-				RateUpdater:              backend.ratesUpdater,
-				GetSigningConfigurations: getSigningConfigurations,
-				GetNotifier:              getNotifier,
-			},
-			specificCoin,
-			backend.log)
+		account = eth.NewAccount(accountConfig, specificCoin, backend.log)
 		backend.addAccount(account)
 		accountAdded = true
 	default:
