@@ -40,7 +40,7 @@ export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth'
 export interface AccountInterface {
     coinCode: CoinCode;
     coinUnit: string;
-    code: CoinCode;
+    code: string;
     name: string;
     blockExplorerTxPrefix: string;
 }
