@@ -265,10 +265,11 @@ func (backend *Backend) CreateAndAddAccount(
 
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
-		Code:      code,
-		Name:      name,
-		DBFolder:  backend.arguments.CacheDirectoryPath(),
-		Keystores: backend.keystores,
+		Code:        code,
+		Name:        name,
+		DBFolder:    backend.arguments.CacheDirectoryPath(),
+		NotesFolder: backend.arguments.NotesDirectoryPath(),
+		Keystores:   backend.keystores,
 		OnEvent: func(event accounts.Event) {
 			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
 			if account != nil && event == accounts.EventSyncDone {
