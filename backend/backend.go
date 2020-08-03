@@ -210,7 +210,7 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 	if unnotifiedCount != 0 {
 		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
 			"count":       unnotifiedCount,
-			"accountName": account.Name(),
+			"accountName": account.Config().Name,
 		}}
 
 		if err := notifier.MarkAllNotified(); err != nil {

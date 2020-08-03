@@ -19,8 +19,6 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
@@ -33,17 +31,13 @@ type Interface interface {
 	observable.Interface
 
 	Info() *Info
-	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
-	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
-	Code() string
+	Config() *AccountConfig
 	// FilesFolder is path to a directory for account files, like databases, etc. Only available
 	// after Initialize(). It must be unique not only up to the type, but also the exact
 	// keystores/signing configuration (e.g. a btc-p2wpkh account for one xpub/xprv should have a
 	// different ID).
 	FilesFolder() string
 	Coin() coin.Coin
-	// Name returns a human readable long name.
-	Name() string
 	// Initialize only starts the synchronization, the account is not synced right afterwards.
 	Initialize() error
 	// Synced indicates whether the account has loaded and finished the initial sync.
@@ -65,8 +59,6 @@ type Interface interface {
 	GetUnusedReceiveAddresses() []AddressList
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
-	Keystores() *keystore.Keystores
-	RateUpdater() *rates.RateUpdater
 
 	// SafelloBuySupported returns true if the Safello Buy widget can be used with this account.
 	SafelloBuySupported() bool

@@ -162,7 +162,7 @@ func (account *Account) Initialize() error {
 	account.signingConfiguration = signingConfiguration
 	account.notifier = account.getNotifier(signing.Configurations{signingConfiguration})
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Code())
+	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Config().Code)
 	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -403,7 +403,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	close(account.quitChan)
-	account.Config.OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accounts.EventStatusChanged)
 }
 
 // Notifier implements accounts.Interface.
@@ -584,7 +584,7 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.Keystores().SignTransaction(txProposal); err != nil {
+	if err := account.Config().Keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
 	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
@@ -640,12 +640,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	}
 	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
-	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Keystores().VerifyAddress(account.signingConfiguration, account.Coin())
+		return true, account.Config().Keystores.VerifyAddress(account.signingConfiguration, account.Coin())
 	}
 	return false, nil
 }
@@ -655,5 +655,5 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if account.signingConfiguration == nil {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.Coin())
+	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
 }
