@@ -73,6 +73,7 @@ func NewHandlers(
 	handleFunc("/exchange/safello/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuySupported)).Methods("GET")
 	handleFunc("/exchange/safello/buy", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuy)).Methods("GET")
 	handleFunc("/exchange/safello/process-message", handlers.ensureAccountInitialized(handlers.postExchangeSafelloProcessMessage)).Methods("POST")
+	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	return handlers
 }
 
@@ -123,6 +124,7 @@ type Transaction struct {
 	Fee                      FormattedAmount   `json:"fee"`
 	Time                     *string           `json:"time"`
 	Addresses                []string          `json:"addresses"`
+	Note                     string            `json:"note"`
 
 	// BTC specific fields.
 	VSize        int64           `json:"vsize"`
@@ -180,6 +182,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			Fee:       feeString,
 			Time:      formattedTime,
 			Addresses: addresses,
+			Note:      handlers.account.Notes().TxNote(txInfo.InternalID()),
 		}
 		switch specificInfo := txInfo.(type) {
 		case *transactions.TxInfo:
@@ -550,4 +553,16 @@ func (handlers *Handlers) postExchangeSafelloProcessMessage(r *http.Request) (in
 		path.Join(handlers.account.FilesFolder(), "safello-buy.json"),
 		message,
 	)
+}
+
+func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
+	var args struct {
+		TxID string `json:"txID"`
+		Note string `json:"note"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	return nil, handlers.account.SetTxNote(args.TxID, args.Note)
 }
