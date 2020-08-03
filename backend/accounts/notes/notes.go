@@ -23,6 +23,9 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
+// maxNoteLen is the maximum length per note.
+const maxNoteLen = 1024
+
 // NotesData is the notes JSON data serialized to disk.
 type notesData struct {
 	// More fields to be added when we can label more stuff, e.g. receive addresses, utxos, etc.
@@ -86,6 +89,10 @@ func LoadNotes(filename string) (*Notes, error) {
 func (notes *Notes) SetTxNote(txID string, note string) error {
 	notes.dataMu.Lock()
 	defer notes.dataMu.Unlock()
+
+	if len(note) > maxNoteLen {
+		return errp.Newf("Length of note must be smaller than %d. Got %d", maxNoteLen, len(note))
+	}
 
 	if notes.data.TransactionNotes == nil {
 		notes.data.TransactionNotes = map[string]string{}
