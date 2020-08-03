@@ -356,6 +356,7 @@ class Account extends Component<Props, State> {
                                     } />
                                 ) : (
                                     <Transactions
+                                        accountCode={code}
                                         exported={exported}
                                         handleExport={this.export}
                                         explorerURL={account.blockExplorerTxPrefix}

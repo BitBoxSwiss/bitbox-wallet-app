@@ -23,6 +23,7 @@ import { Transaction, TransactionInterface } from './transaction';
 import * as style from './transactions.css';
 
 interface TransactionsProps {
+    accountCode: string;
     explorerURL: string;
     transactions?: TransactionInterface[];
     exported: string;
@@ -34,6 +35,7 @@ type Props = TransactionsProps & TranslateProps;
 class Transactions extends Component<Props> {
     public render({
         t,
+        accountCode,
         explorerURL,
         transactions,
         exported,
@@ -71,6 +73,7 @@ class Transactions extends Component<Props> {
                     }, props)))
                     .map((props, index) => (
                         <Transaction
+                            accountCode={accountCode}
                             key={props.internalID}
                             explorerURL={explorerURL}
                             index={index}

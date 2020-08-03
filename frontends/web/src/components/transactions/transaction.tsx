@@ -19,6 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { AmountWithConversions } from '../../routes/account/send/send';
+import { apiPost } from '../../utils/request';
 import A from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { ExpandIcon } from '../icon/icon';
@@ -55,6 +56,7 @@ export interface TransactionInterface {
 }
 
 interface TransactionProps extends TransactionInterface {
+    accountCode: string;
     index: number;
     explorerURL: string;
 }
@@ -96,6 +98,10 @@ class Transaction extends Component<Props, State> {
     private handleEdit = () => {
         if (this.state.editMode && this.props.note !== this.state.newNote) {
             // TODO: send to backend
+            apiPost(`account/${this.props.accountCode}/notes/tx`, {
+                txID: this.props.internalID,
+                note: this.state.newNote,
+            });
             console.log('save', this.props.txID, this.state.newNote); // tslint:disable-line:no-console
         }
         this.setState(
