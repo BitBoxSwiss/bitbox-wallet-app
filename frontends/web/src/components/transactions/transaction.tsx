@@ -83,7 +83,11 @@ class Transaction extends Component<Props, State> {
     }
 
     private showDetails = () => {
-        this.setState({ transactionDialog: true });
+        this.setState({
+            transactionDialog: true,
+            newNote: this.props.note,
+            editMode: !this.props.note,
+        });
     }
 
     private hideDetails = () => {
