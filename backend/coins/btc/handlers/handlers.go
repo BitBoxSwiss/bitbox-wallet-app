@@ -557,12 +557,12 @@ func (handlers *Handlers) postExchangeSafelloProcessMessage(r *http.Request) (in
 
 func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	var args struct {
-		TxID string `json:"txID"`
-		Note string `json:"note"`
+		InternalTxID string `json:"internalTxID"`
+		Note         string `json:"note"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	return nil, handlers.account.SetTxNote(args.TxID, args.Note)
+	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
 }

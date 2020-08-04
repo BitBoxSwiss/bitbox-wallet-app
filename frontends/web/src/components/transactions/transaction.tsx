@@ -97,12 +97,10 @@ class Transaction extends Component<Props, State> {
 
     private handleEdit = () => {
         if (this.state.editMode && this.props.note !== this.state.newNote) {
-            // TODO: send to backend
             apiPost(`account/${this.props.accountCode}/notes/tx`, {
-                txID: this.props.internalID,
+                internalTxID: this.props.internalID,
                 note: this.state.newNote,
             });
-            console.log('save', this.props.txID, this.state.newNote); // tslint:disable-line:no-console
         }
         this.setState(
             ({ editMode }) => ({ editMode: !editMode }),
