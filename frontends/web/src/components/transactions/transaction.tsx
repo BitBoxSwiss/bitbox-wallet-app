@@ -99,7 +99,8 @@ class Transaction extends Component<Props, State> {
         this.setState({ newNote: target.value });
     }
 
-    private handleEdit = () => {
+    private handleEdit = (e: Event) => {
+        e.preventDefault();
         if (this.state.editMode && this.props.note !== this.state.newNote) {
             apiPost(`account/${this.props.accountCode}/notes/tx`, {
                 internalTxID: this.props.internalID,
@@ -243,14 +244,15 @@ class Transaction extends Component<Props, State> {
                 {
                     transactionDialog && (
                         <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
-                            <div className={style.detailInput}>
-                                <label>{t('note.title')}</label>
+                            <form onSubmit={this.handleEdit} className={style.detailInput}>
+                                <label for="note">{t('note.title')}</label>
                                 <Input
                                     align="right"
                                     autoFocus={note ? 'false' : 'true'}
                                     className={style.textOnlyInput}
                                     readOnly={!editMode && !!note}
                                     type="text"
+                                    id="note"
                                     transparent
                                     placeholder={t('note.input.placeholder')}
                                     value={newNote}
@@ -264,7 +266,7 @@ class Transaction extends Component<Props, State> {
                                     ref={this.setEditButtonRef}>
                                         {editMode ? <Save /> : <Edit />}
                                 </button>
-                            </div>
+                            </form>
                             <div className={style.detail}>
                                 <label>{t('transaction.details.type')}</label>
                                 <p>{arrow}</p>
