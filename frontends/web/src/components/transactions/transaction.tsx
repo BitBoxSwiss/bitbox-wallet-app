@@ -253,7 +253,7 @@ class Transaction extends Component<Props, State> {
                                     type="text"
                                     transparent
                                     placeholder={t('note.input.placeholder')}
-                                    value={newNote || note}
+                                    value={newNote}
                                     onInput={this.handleNoteInput}
                                     getRef={this.setInputRef}/>
                                 <button
