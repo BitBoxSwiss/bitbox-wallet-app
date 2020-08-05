@@ -30,6 +30,7 @@ interface FeeTargetsProps {
     disabled: boolean;
     fiatUnit: Fiat;
     proposedFee?: AmountWithConversions;
+    showCalculatingFeeLabel?: boolean;
     onFeeTargetChange: (code: Code) => void;
 }
 
@@ -87,6 +88,7 @@ class FeeTargets extends Component<Props, State> {
         disabled,
         fiatUnit,
         proposedFee,
+        showCalculatingFeeLabel = false,
     }: RenderableProps<Props>,
     {
         feeTargets,
@@ -124,16 +126,27 @@ class FeeTargets extends Component<Props, State> {
                         })} />
                 </div>
                 <div className={style.column}>
-                    <Input
-                        align="right"
-                        className={style.fee}
-                        disabled={feeTarget !== 'custom'}
-                        label={t('send.fee.label')}
-                        id="proposedFee"
-                        placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
-                        transparent
-                        value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
+                    {showCalculatingFeeLabel ? (
+                        <Input
+                            align="right"
+                            className={style.fee}
+                            disabled
+                            label={t('send.fee.label')}
+                            placeholder={t('send.feeTarget.placeholder')}
+                            transparent
                         />
+                    ) : (
+                        <Input
+                            align="right"
+                            className={style.fee}
+                            disabled={feeTarget !== 'custom'}
+                            label={t('send.fee.label')}
+                            id="proposedFee"
+                            placeholder={t(feeTarget === 'custom' ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
+                            transparent
+                            value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
+                        />
+                    )}
                 </div>
                 { feeTarget && (
                     <div>
