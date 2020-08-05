@@ -61,6 +61,11 @@ type subaccount struct {
 	changeAddresses      AddressChain
 }
 
+type activeTxProposal struct {
+	proposal *maketx.TxProposal
+	note     string
+}
+
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	*accounts.BaseAccount
@@ -85,7 +90,7 @@ type Account struct {
 	transactions *transactions.Transactions
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal     *maketx.TxProposal
+	activeTxProposal     *activeTxProposal
 	activeTxProposalLock locker.Locker
 
 	feeTargets []*FeeTarget

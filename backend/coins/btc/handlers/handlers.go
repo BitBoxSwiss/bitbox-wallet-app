@@ -325,6 +325,7 @@ type sendTxInput struct {
 	feeTargetCode accounts.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
 	data          []byte
+	note          string
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -335,6 +336,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
 		Data          string   `json:"data"`
+		Note          string   `json:"note"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -362,6 +364,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	if err != nil {
 		return errp.WithStack(errors.ErrInvalidData)
 	}
+	input.note = jsonBody.Note
 	return nil
 }
 
@@ -397,6 +400,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 		input.feeTargetCode,
 		input.selectedUTXOs,
 		input.data,
+		input.note,
 	)
 	if err != nil {
 		return txProposalError(err)

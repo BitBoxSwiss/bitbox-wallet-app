@@ -477,11 +477,6 @@ class Send extends Component<Props, State> {
         this.setState({ videoLoading: false });
     }
 
-    private handleNoteInput = (e: Event) => {
-        const target = e.target as HTMLInputElement;
-        this.setState({ note: target.value });
-    }
-
     public render(
         { t, code }: RenderableProps<Props>,
         {
@@ -630,7 +625,7 @@ class Send extends Component<Props, State> {
                                                     </span>
                                                 }
                                                 id="note"
-                                                onInput={this.handleNoteInput}
+                                                onInput={this.handleFormChange}
                                                 value={note}
                                                 placeholder={t('note.input.placeholder')} />
                                         </div>

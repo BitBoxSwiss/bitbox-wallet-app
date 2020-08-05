@@ -85,7 +85,9 @@ func LoadNotes(filename string) (*Notes, error) {
 	}, nil
 }
 
-// SetTxNote stores a note for a transaction.
+// SetTxNote stores a note for a transaction. An empty note will result in the entry being deleted
+// (or not written if it didn't exist), since `TxNote()` returns an empty string anyway if there is
+// no note.
 func (notes *Notes) SetTxNote(txID string, note string) error {
 	notes.dataMu.Lock()
 	defer notes.dataMu.Unlock()
@@ -97,7 +99,13 @@ func (notes *Notes) SetTxNote(txID string, note string) error {
 	if notes.data.TransactionNotes == nil {
 		notes.data.TransactionNotes = map[string]string{}
 	}
-	notes.data.TransactionNotes[txID] = note
+	if note == "" {
+		// Since not existing entries are returned as `""` anyway, there no need to actually store
+		// them in the JSON file.
+		delete(notes.data.TransactionNotes, txID)
+	} else {
+		notes.data.TransactionNotes[txID] = note
+	}
 	return write(notes.data, notes.filename)
 }
 
