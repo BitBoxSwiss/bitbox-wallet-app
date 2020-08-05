@@ -180,22 +180,17 @@ func (account *Account) SendTx() error {
 // the UI (the output amount and the fee). At the same time, it validates the input. The proposal is
 // stored internally and can be signed and sent with SendTx().
 func (account *Account) TxProposal(
-	recipientAddress string,
-	amount coin.SendAmount,
-	feeTargetCode accounts.FeeTargetCode,
-	selectedUTXOs map[wire.OutPoint]struct{},
-	_ []byte,
-	note string,
+	args *accounts.TxProposalArgs,
 ) (
 	coin.Amount, coin.Amount, coin.Amount, error) {
 	defer account.activeTxProposalLock.Lock()()
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(
-		recipientAddress,
-		amount,
-		feeTargetCode,
-		selectedUTXOs,
+		args.RecipientAddress,
+		args.Amount,
+		args.FeeTargetCode,
+		args.SelectedUTXOs,
 	)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
@@ -203,7 +198,7 @@ func (account *Account) TxProposal(
 
 	account.activeTxProposal = &activeTxProposal{
 		proposal: txProposal,
-		note:     note,
+		note:     args.Note,
 	}
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")

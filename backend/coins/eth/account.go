@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -611,21 +610,16 @@ func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCo
 
 // TxProposal implements accounts.Interface.
 func (account *Account) TxProposal(
-	recipientAddress string,
-	amount coin.SendAmount,
-	_ accounts.FeeTargetCode,
-	_ map[wire.OutPoint]struct{},
-	data []byte,
-	note string,
+	args *accounts.TxProposalArgs,
 ) (coin.Amount, coin.Amount, coin.Amount, error) {
 	defer account.activeTxProposalLock.Lock()()
-	txProposal, err := account.newTx(recipientAddress, amount, data)
+	txProposal, err := account.newTx(args.RecipientAddress, args.Amount, args.Data)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 	account.activeTxProposal = &activeTxProposal{
 		proposal: txProposal,
-		note:     note,
+		note:     args.Note,
 	}
 
 	var total *big.Int
