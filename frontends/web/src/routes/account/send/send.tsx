@@ -86,6 +86,7 @@ interface State {
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
+    isUpdatingProposal: boolean;
     addressError?: string;
     amountError?: string;
     dataError?: string;
@@ -122,6 +123,7 @@ class Send extends Component<Props, State> {
         signConfirm: null,
         isSent: false,
         isAborted: false,
+        isUpdatingProposal: false,
         noMobileChannelError: false,
         fiatUnit: fiat.state.active,
         coinControl: false,
@@ -308,6 +310,7 @@ class Send extends Component<Props, State> {
                 proposedFee: result.fee,
                 proposedAmount: result.amount,
                 proposedTotal: result.total,
+                isUpdatingProposal: false,
             });
             if (updateFiat) {
                 this.convertToFiat(result.amount.amount);
@@ -320,10 +323,16 @@ class Send extends Component<Props, State> {
                     break;
                 case 'invalidAmount':
                 case 'insufficientFunds':
-                    this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
+                    this.setState({
+                        amountError: this.props.t(`send.error.${errorCode}`),
+                        proposedFee: undefined,
+                    });
                     break;
                 case 'invalidData':
-                    this.setState({ dataError: this.props.t(`send.error.invalidData`) });
+                    this.setState({
+                        dataError: this.props.t('send.error.invalidData'),
+                        proposedFee: undefined,
+                    });
                     break;
                 default:
                     this.setState({ proposedFee: undefined });
@@ -332,6 +341,7 @@ class Send extends Component<Props, State> {
                         alertUser(errorCode, this.registerEvents);
                     }
             }
+            this.setState({ isUpdatingProposal: false });
         }
     }
 
@@ -516,6 +526,7 @@ class Send extends Component<Props, State> {
             isConfirming,
             isSent,
             isAborted,
+            isUpdatingProposal,
             addressError,
             amountError,
             /* dataError, */
@@ -656,6 +667,7 @@ class Send extends Component<Props, State> {
                                                 disabled={!amount && !sendAll}
                                                 fiatUnit={fiatUnit}
                                                 proposedFee={proposedFee}
+                                                showCalculatingFeeLabel={isUpdatingProposal}
                                                 onFeeTargetChange={this.feeTargetChange} />
                                         </div>
                                     </div>
@@ -676,7 +688,10 @@ class Send extends Component<Props, State> {
                                     */
                                 }
                                 <div class="buttons ignore reverse">
-                                    <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
+                                    <Button
+                                        primary
+                                        onClick={this.send}
+                                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
                                         {t('send.button')}
                                     </Button>
                                     <ButtonLink
