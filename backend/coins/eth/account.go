@@ -44,6 +44,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type activeTxProposal struct {
+	proposal *TxProposal
+	note     string
+}
+
 var pollInterval = 30 * time.Second
 
 // Account is an Ethereum account, with one address.
@@ -70,7 +75,7 @@ type Account struct {
 	blockNumber *big.Int
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal     *TxProposal
+	activeTxProposal     *activeTxProposal
 	activeTxProposalLock locker.Locker
 
 	nextNonce    uint64
@@ -581,14 +586,19 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.Config().Keystores.SignTransaction(txProposal); err != nil {
+	if err := account.Config().Keystores.SignTransaction(txProposal.proposal); err != nil {
 		return err
 	}
-	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
+	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.proposal.Tx); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := account.storePendingOutgoingTransaction(txProposal.Tx); err != nil {
+	if err := account.storePendingOutgoingTransaction(txProposal.proposal.Tx); err != nil {
 		return err
+	}
+	err := account.SetTxNote(txProposal.proposal.Tx.Hash().Hex(), txProposal.note)
+	if err != nil {
+		// Not critical.
+		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
 	account.enqueueUpdateCh <- struct{}{}
 	return nil
@@ -605,14 +615,18 @@ func (account *Account) TxProposal(
 	amount coin.SendAmount,
 	_ accounts.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
-	data []byte) (coin.Amount, coin.Amount, coin.Amount, error) {
+	data []byte,
+	note string,
+) (coin.Amount, coin.Amount, coin.Amount, error) {
 	defer account.activeTxProposalLock.Lock()()
-
 	txProposal, err := account.newTx(recipientAddress, amount, data)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
-	account.activeTxProposal = txProposal
+	account.activeTxProposal = &activeTxProposal{
+		proposal: txProposal,
+		note:     note,
+	}
 
 	var total *big.Int
 	if account.coin.erc20Token != nil {

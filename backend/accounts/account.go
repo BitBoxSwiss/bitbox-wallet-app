@@ -52,7 +52,7 @@ type Interface interface {
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none available.
 	SendTx() error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
-	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
+	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte, string) (
 		coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
 	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
