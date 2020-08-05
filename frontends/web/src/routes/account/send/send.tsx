@@ -372,10 +372,6 @@ class Send extends Component<Props, State> {
         }
     }
 
-    private sendAll = (event: Event) => {
-        this.handleFormChange(event);
-    }
-
     private sendToSelf = (event: Event) => {
         apiGet('account/' + this.getAccount()!.code + '/receive-addresses')
             .then((receiveAddresses: ReceiveAddresses) => {
@@ -599,7 +595,7 @@ class Send extends Component<Props, State> {
                                                     <Checkbox
                                                         label={t('send.maximum')}
                                                         id="sendAll"
-                                                        onChange={this.sendAll}
+                                                        onChange={this.handleFormChange}
                                                         checked={sendAll}
                                                         className={style.maxAmount} />
                                                 } />
