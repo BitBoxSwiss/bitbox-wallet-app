@@ -27,6 +27,16 @@ import (
 // AddressList is a list of addresses.
 type AddressList []Address
 
+// TxProposalArgs are the arguments needed when creating a tx proposal.
+type TxProposalArgs struct {
+	RecipientAddress string
+	Amount           coin.SendAmount
+	FeeTargetCode    FeeTargetCode
+	SelectedUTXOs    map[wire.OutPoint]struct{}
+	Data             []byte
+	Note             string
+}
+
 // Interface is the API of a Account.
 type Interface interface {
 	observable.Interface
@@ -52,8 +62,7 @@ type Interface interface {
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none available.
 	SendTx() error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
-	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte, string) (
-		coin.Amount, coin.Amount, coin.Amount, error)
+	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
 	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
 	// list of lists.

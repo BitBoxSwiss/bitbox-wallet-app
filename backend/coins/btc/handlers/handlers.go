@@ -320,12 +320,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 }
 
 type sendTxInput struct {
-	address       string
-	sendAmount    coin.SendAmount
-	feeTargetCode accounts.FeeTargetCode
-	selectedUTXOs map[wire.OutPoint]struct{}
-	data          []byte
-	note          string
+	accounts.TxProposalArgs
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -337,34 +332,35 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SelectedUTXOS []string `json:"selectedUTXOS"`
 		Data          string   `json:"data"`
 		Note          string   `json:"note"`
+		Counter       int      `json:"counter"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
 	}
-	input.address = jsonBody.Address
+	input.RecipientAddress = jsonBody.Address
 	var err error
-	input.feeTargetCode, err = accounts.NewFeeTargetCode(jsonBody.FeeTarget)
+	input.FeeTargetCode, err = accounts.NewFeeTargetCode(jsonBody.FeeTarget)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody.SendAll == "yes" {
-		input.sendAmount = coin.NewSendAmountAll()
+		input.Amount = coin.NewSendAmountAll()
 	} else {
-		input.sendAmount = coin.NewSendAmount(jsonBody.Amount)
+		input.Amount = coin.NewSendAmount(jsonBody.Amount)
 	}
-	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
+	input.SelectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {
 		outPoint, err := util.ParseOutPoint([]byte(outPointString))
 		if err != nil {
 			return err
 		}
-		input.selectedUTXOs[*outPoint] = struct{}{}
+		input.SelectedUTXOs[*outPoint] = struct{}{}
 	}
-	input.data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
+	input.Data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
 	if err != nil {
 		return errp.WithStack(errors.ErrInvalidData)
 	}
-	input.note = jsonBody.Note
+	input.Note = jsonBody.Note
 	return nil
 }
 
@@ -394,14 +390,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return txProposalError(errp.WithStack(err))
 	}
-	outputAmount, fee, total, err := handlers.account.TxProposal(
-		input.address,
-		input.sendAmount,
-		input.feeTargetCode,
-		input.selectedUTXOs,
-		input.data,
-		input.note,
-	)
+	outputAmount, fee, total, err := handlers.account.TxProposal(&input.TxProposalArgs)
 	if err != nil {
 		return txProposalError(err)
 	}
