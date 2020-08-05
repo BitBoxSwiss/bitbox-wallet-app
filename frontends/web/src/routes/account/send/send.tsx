@@ -109,6 +109,12 @@ class Send extends Component<Props, State> {
     private unsubscribe!: () => void;
     private qrCodeReader: BrowserQRCodeReader = new BrowserQRCodeReader();
 
+    // pendingProposals keeps all requests that have been made
+    // to /tx-proposal in case there are multiple parallel requests
+    // we can ignore all other but the last one
+    private pendingProposals: any = [];
+    private proposeTimeout: any = null;
+
     public readonly state: State = {
         valid: false,
         sendAll: false,
@@ -270,44 +276,63 @@ class Send extends Component<Props, State> {
             return;
         }
         const txInput = this.txInput();
-        apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput).then(result => {
-            this.setState({ valid: result.success });
-            if (result.success) {
-                this.setState({
-                    addressError: undefined,
-                    amountError: undefined,
-                    dataError: undefined,
-                    proposedFee: result.fee,
-                    proposedAmount: result.amount,
-                    proposedTotal: result.total,
-                });
-                if (updateFiat) {
-                    this.convertToFiat(result.amount.amount);
+        if (this.proposeTimeout) {
+            clearTimeout(this.proposeTimeout);
+            this.proposeTimeout = null;
+        }
+        this.setState({ isUpdatingProposal: true });
+        this.proposeTimeout = setTimeout(() => {
+            const propose = apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput)
+            .then(result => {
+                const pos = this.pendingProposals.indexOf(propose);
+                if (this.pendingProposals.length - 1 === pos) {
+                    this.txProposal(updateFiat, result);
                 }
-            } else {
-                const errorCode = result.errorCode;
-                switch (errorCode) {
-                    case 'invalidAddress':
-                        this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-                        break;
-                    case 'invalidAmount':
-                    case 'insufficientFunds':
-                        this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
-                        break;
-                    case 'invalidData':
-                        this.setState({ dataError: this.props.t(`send.error.invalidData`) });
-                        break;
-                    default:
-                        this.setState({ proposedFee: undefined });
-                        if (errorCode) {
-                            this.unregisterEvents();
-                            alertUser(errorCode, this.registerEvents);
-                        }
-                }
+                this.pendingProposals.splice(pos, 1);
+            })
+            .catch(() => {
+                this.setState({ valid: false });
+                this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
+            });
+            this.pendingProposals.push(propose);
+        }, 400);
+    }
+
+    private txProposal = (updateFiat, result) => {
+        this.setState({ valid: result.success });
+        if (result.success) {
+            this.setState({
+                addressError: undefined,
+                amountError: undefined,
+                dataError: undefined,
+                proposedFee: result.fee,
+                proposedAmount: result.amount,
+                proposedTotal: result.total,
+            });
+            if (updateFiat) {
+                this.convertToFiat(result.amount.amount);
             }
-        }).catch(() => {
-            this.setState({ valid: false });
-        });
+        } else {
+            const errorCode = result.errorCode;
+            switch (errorCode) {
+                case 'invalidAddress':
+                    this.setState({ addressError: this.props.t('send.error.invalidAddress') });
+                    break;
+                case 'invalidAmount':
+                case 'insufficientFunds':
+                    this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
+                    break;
+                case 'invalidData':
+                    this.setState({ dataError: this.props.t(`send.error.invalidData`) });
+                    break;
+                default:
+                    this.setState({ proposedFee: undefined });
+                    if (errorCode) {
+                        this.unregisterEvents();
+                        alertUser(errorCode, this.registerEvents);
+                    }
+            }
+        }
     }
 
     private handleFormChange = (event: Event) => {
