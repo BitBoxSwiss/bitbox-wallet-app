@@ -169,7 +169,8 @@
       "userConfirmation1": "I should store my backup in a secure location.",
       "userConfirmation2": "My backup is not password protected. Anyone with access to it can access my wallet.",
       "userConfirmation3": "If I lose or damage my BitBox02, the only way to recover my funds is to restore from my backup.",
-      "userConfirmation4": "If I lose or damage both my backup and my BitBox02 then my funds will be lost."
+      "userConfirmation4": "If I lose or damage both my backup and my BitBox02 then my funds will be lost.",
+      "userConfirmation5": "I should not insert my microSD card backup into a computer, phone, printer or any device other than a BitBox02."
     },
     "create": {
       "button": "Name device & continue",
