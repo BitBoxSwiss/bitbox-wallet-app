@@ -117,7 +117,7 @@ func (transactions *Transactions) isClosed() bool {
 
 func (transactions *Transactions) processTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
-	_, _, previousHeight, _, _, err := dbTx.TxInfo(txHash)
+	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
@@ -131,7 +131,7 @@ func (transactions *Transactions) processTxForAddress(
 	}
 
 	// Newly confirmed tx. Try to verify it.
-	if previousHeight <= 0 && height > 0 {
+	if txInfo.Height <= 0 && height > 0 {
 		transactions.log.Debug("Try to verify newly confirmed tx")
 		go transactions.verifyTransaction(txHash, height)
 	}
@@ -214,14 +214,14 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*Spendabl
 	}
 	result := map[wire.OutPoint]*SpendableOutput{}
 	for outPoint, txOut := range outputs {
-		tx, _, height, _, _, err := dbTx.TxInfo(outPoint.Hash)
+		txInfo, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
 			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 		}
-		confirmed := height > 0
+		confirmed := txInfo.Height > 0
 
 		spent := transactions.isInputSpent(dbTx, outPoint)
-		if !spent && (confirmed || transactions.allInputsOurs(dbTx, tx)) {
+		if !spent && (confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx)) {
 			result[outPoint] = &SpendableOutput{
 				TxOut:   txOut,
 				Address: transactions.outputToAddress(txOut.PkScript),
@@ -242,11 +242,11 @@ func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire
 func (transactions *Transactions) removeTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
-	tx, _, _, _, _, err := dbTx.TxInfo(txHash)
+	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
-	if tx == nil {
+	if txInfo == nil {
 		// Not yet indexed.
 		transactions.log.Debug("Transaction hash not listed")
 		return
@@ -260,13 +260,13 @@ func (transactions *Transactions) removeTxForAddress(
 	if empty {
 		// Tx is not touching any of our outputs anymore. Remove.
 
-		for _, txIn := range tx.TxIn {
+		for _, txIn := range txInfo.Tx.TxIn {
 			transactions.log.Debug("Deleting transaction iput")
 			dbTx.DeleteInput(txIn.PreviousOutPoint)
 		}
 
 		// Remove the outputs added by this tx.
-		for index := range tx.TxOut {
+		for index := range txInfo.Tx.TxOut {
 			dbTx.DeleteOutput(wire.OutPoint{
 				Hash:  txHash,
 				Index: uint32(index),
@@ -334,12 +334,12 @@ func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
 ) *wire.MsgTx {
-	tx, _, _, _, _, err := dbTx.TxInfo(txHash)
+	txInfo, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
 	}
-	if tx != nil {
-		return tx
+	if txInfo.Tx != nil {
+		return txInfo.Tx
 	}
 	txChan := make(chan *wire.MsgTx)
 	transactions.blockchain.TransactionGet(
@@ -379,12 +379,12 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 		if spent := transactions.isInputSpent(dbTx, outPoint); spent {
 			continue
 		}
-		tx, _, height, _, _, err := dbTx.TxInfo(outPoint.Hash)
+		txInfo, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
 			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 		}
-		confirmed := height > 0
-		if confirmed || transactions.allInputsOurs(dbTx, tx) {
+		confirmed := txInfo.Height > 0
+		if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
 			available += txOut.Value
 		} else {
 			incoming += txOut.Value
@@ -516,15 +516,13 @@ func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
 func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
-	tx *wire.MsgTx,
-	height int,
-	headerTimestamp, createdTimestamp *time.Time,
+	txInfo *DBTxInfo,
 	isChange func(blockchain.ScriptHashHex) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
-	for _, txIn := range tx.TxIn {
+	for _, txIn := range txInfo.Tx.TxIn {
 		spentOut, err := dbTx.Output(txIn.PreviousOutPoint)
 		if err != nil {
 			// TODO
@@ -540,10 +538,10 @@ func (transactions *Transactions) txInfo(
 	receiveAddresses := []accounts.AddressAndAmount{}
 	sendAddresses := []accounts.AddressAndAmount{}
 	allOutputsOurs := true
-	for index, txOut := range tx.TxOut {
+	for index, txOut := range txInfo.Tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
 		output, err := dbTx.Output(wire.OutPoint{
-			Hash:  tx.TxHash(),
+			Hash:  txInfo.Tx.TxHash(),
 			Index: uint32(index),
 		})
 		if err != nil {
@@ -600,22 +598,22 @@ func (transactions *Transactions) txInfo(
 
 	}
 	numConfirmations := 0
-	if height > 0 && transactions.headersTipHeight > 0 {
-		numConfirmations = transactions.headersTipHeight - height + 1
+	if txInfo.Height > 0 && transactions.headersTipHeight > 0 {
+		numConfirmations = transactions.headersTipHeight - txInfo.Height + 1
 	}
-	btcutilTx := btcutil.NewTx(tx)
+	btcutilTx := btcutil.NewTx(txInfo.Tx)
 	return &TxInfo{
-		Tx:               tx,
+		Tx:               txInfo.Tx,
 		VSize:            mempool.GetTxVirtualSize(btcutilTx),
-		Size:             int64(tx.SerializeSize()),
+		Size:             int64(txInfo.Tx.SerializeSize()),
 		Weight:           btcdBlockchain.GetTransactionWeight(btcutilTx),
 		numConfirmations: numConfirmations,
-		Height:           height,
+		Height:           txInfo.Height,
 		txType:           txType,
 		amount:           result,
 		fee:              feeP,
-		headerTimestamp:  headerTimestamp,
-		createdTimestamp: createdTimestamp,
+		headerTimestamp:  txInfo.HeaderTimestamp,
+		createdTimestamp: txInfo.CreatedTimestamp,
 		addresses:        addresses,
 	}
 }
@@ -638,13 +636,12 @@ func (transactions *Transactions) Transactions(
 		panic(err)
 	}
 	for _, txHash := range txHashes {
-		tx, _, height, headerTimestamp, createdTimestamp, err := dbTx.TxInfo(txHash)
+		txInfo, err := dbTx.TxInfo(txHash)
 		if err != nil {
 			// TODO
 			panic(err)
 		}
-		txs = append(txs,
-			transactions.txInfo(dbTx, tx, height, headerTimestamp, createdTimestamp, isChange))
+		txs = append(txs, transactions.txInfo(dbTx, txInfo, isChange))
 	}
 	sort.Sort(sort.Reverse(byHeight(txs)))
 	return txs

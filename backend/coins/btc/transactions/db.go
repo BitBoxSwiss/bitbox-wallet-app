@@ -23,6 +23,16 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 )
 
+// DBTxInfo contains data stored for a wallet transaction.
+type DBTxInfo struct {
+	Tx               *wire.MsgTx     `json:"Tx"`
+	Height           int             `json:"Height"`
+	Addresses        map[string]bool `json:"addresses"`
+	Verified         *bool           `json:"Verified"`
+	HeaderTimestamp  *time.Time      `json:"ts"`
+	CreatedTimestamp *time.Time      `json:"created"`
+}
+
 // DBTxInterface needs to be implemented to persist all wallet/transaction related data.
 type DBTxInterface interface {
 	// Commit closes the transaction, writing the changes.
@@ -43,15 +53,8 @@ type DBTxInterface interface {
 	AddAddressToTx(chainhash.Hash, blockchain.ScriptHashHex) error
 	RemoveAddressFromTx(chainhash.Hash, blockchain.ScriptHashHex) (bool, error)
 
-	// TxInfo retrieves all data stored with for a transaction. Default values (nil, nil, 0, nil,
-	// nil) are returned for the values not found.
-	TxInfo(chainhash.Hash) (
-		tx *wire.MsgTx,
-		addresses []string,
-		height int,
-		headerTimestamp *time.Time,
-		createdTimestamp *time.Time,
-		err error)
+	// TxInfo retrieves all data stored with for a transaction. nil is returned if not found.
+	TxInfo(chainhash.Hash) (*DBTxInfo, error)
 
 	// Transactions retrieves all stored transaction hashes.
 	Transactions() ([]chainhash.Hash, error)

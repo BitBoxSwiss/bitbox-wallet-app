@@ -117,23 +117,23 @@ func TestTxQuick(t *testing.T) {
 			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight); err != nil {
 				return false
 			}
-			msgTx, addresses, height, headerTimestamp, createdTimestamp, err := tx.TxInfo(expectedTxHash)
+			txInfo, err := tx.TxInfo(expectedTxHash)
 			if err != nil {
 				return false
 			}
-			if !reflect.DeepEqual(expectedTx, msgTx) {
+			if !reflect.DeepEqual(expectedTx, txInfo.Tx) {
 				return false
 			}
-			if !reflect.DeepEqual([]string{}, addresses) {
+			if len(txInfo.Addresses) != 0 {
 				return false
 			}
-			if height != expectedHeight {
+			if txInfo.Height != expectedHeight {
 				return false
 			}
-			if headerTimestamp != nil {
+			if txInfo.HeaderTimestamp != nil {
 				return false
 			}
-			if createdTimestamp == nil {
+			if txInfo.CreatedTimestamp == nil {
 				return false
 			}
 			allTxHashes[expectedTxHash] = struct{}{}
@@ -149,12 +149,13 @@ func TestTxQuick(t *testing.T) {
 				require.NoError(t, tx.MarkTxVerified(txHash, expectedHeaderTimestamp))
 				delete(allUnverifiedTxHashes, txHash)
 				require.True(t, checkTxHashes())
-				_, _, _, headerTimestamp, createdTimestamp, err := tx.TxInfo(txHash)
+				txInfo, err := tx.TxInfo(txHash)
 				require.NoError(t, err)
-				require.Equal(t, expectedHeaderTimestamp.String(), headerTimestamp.String())
+				require.Equal(t, expectedHeaderTimestamp.String(), txInfo.HeaderTimestamp.String())
 				now := time.Now()
-				require.NotNil(t, createdTimestamp)
-				require.True(t, !createdTimestamp.After(now) || *createdTimestamp == now)
+				require.NotNil(t, txInfo.CreatedTimestamp)
+				require.True(t,
+					!txInfo.CreatedTimestamp.After(now) || *txInfo.CreatedTimestamp == now)
 
 				tx.DeleteTx(txHash)
 				delete(allTxHashes, txHash)

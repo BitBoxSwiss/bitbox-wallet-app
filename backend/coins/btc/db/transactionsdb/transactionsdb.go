@@ -122,17 +122,8 @@ func (tx *Tx) Commit() error {
 	return tx.tx.Commit()
 }
 
-type walletTransaction struct {
-	Tx               *wire.MsgTx
-	Height           int
-	Addresses        map[string]bool `json:"addresses"`
-	Verified         *bool
-	HeaderTimestamp  *time.Time `json:"ts"`
-	CreatedTimestamp *time.Time `json:"created"`
-}
-
-func newWalletTransaction() *walletTransaction {
-	return &walletTransaction{
+func newWalletTransaction() *transactions.DBTxInfo {
+	return &transactions.DBTxInfo{
 		Tx:        nil,
 		Height:    0,
 		Addresses: map[string]bool{},
@@ -154,7 +145,7 @@ func writeJSON(bucket *bbolt.Bucket, key []byte, value interface{}) error {
 	return bucket.Put(key, jsonBytes)
 }
 
-func (tx *Tx) modifyTx(key []byte, f func(value *walletTransaction)) error {
+func (tx *Tx) modifyTx(key []byte, f func(value *transactions.DBTxInfo)) error {
 	walletTx := newWalletTransaction()
 	found, err := readJSON(tx.bucketTransactions, key, walletTx)
 	if err != nil {
@@ -170,22 +161,18 @@ func (tx *Tx) modifyTx(key []byte, f func(value *walletTransaction)) error {
 
 // TxInfo implements transactions.DBTxInterface.
 func (tx *Tx) TxInfo(txHash chainhash.Hash) (
-	*wire.MsgTx, []string, int, *time.Time, *time.Time, error) {
+	*transactions.DBTxInfo, error) {
 	walletTx := newWalletTransaction()
 	if _, err := readJSON(tx.bucketTransactions, txHash[:], walletTx); err != nil {
-		return nil, nil, 0, nil, nil, err
+		return nil, err
 	}
-	addresses := []string{}
-	for address := range walletTx.Addresses {
-		addresses = append(addresses, address)
-	}
-	return walletTx.Tx, addresses, walletTx.Height, walletTx.HeaderTimestamp, walletTx.CreatedTimestamp, nil
+	return walletTx, nil
 }
 
 // PutTx implements transactions.DBTxInterface.
 func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error {
 	var verified *bool
-	err := tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+	err := tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		verified = walletTx.Verified
 		walletTx.Tx = msgTx
 		walletTx.Height = height
@@ -209,7 +196,7 @@ func (tx *Tx) DeleteTx(txHash chainhash.Hash) {
 
 // AddAddressToTx implements transactions.DBTxInterface.
 func (tx *Tx) AddAddressToTx(txHash chainhash.Hash, scriptHashHex blockchain.ScriptHashHex) error {
-	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+	return tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		walletTx.Addresses[string(scriptHashHex)] = true
 	})
 }
@@ -217,7 +204,7 @@ func (tx *Tx) AddAddressToTx(txHash chainhash.Hash, scriptHashHex blockchain.Scr
 // RemoveAddressFromTx implements transactions.DBTxInterface.
 func (tx *Tx) RemoveAddressFromTx(txHash chainhash.Hash, scriptHashHex blockchain.ScriptHashHex) (bool, error) {
 	var empty bool
-	err := tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+	err := tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		delete(walletTx.Addresses, string(scriptHashHex))
 		empty = len(walletTx.Addresses) == 0
 	})
@@ -252,7 +239,7 @@ func (tx *Tx) MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) e
 	if err := tx.bucketUnverifiedTransactions.Delete(txHash[:]); err != nil {
 		panic(errp.WithStack(err))
 	}
-	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+	return tx.modifyTx(txHash[:], func(walletTx *transactions.DBTxInfo) {
 		truth := true
 		walletTx.Verified = &truth
 		walletTx.HeaderTimestamp = &headerTimestamp

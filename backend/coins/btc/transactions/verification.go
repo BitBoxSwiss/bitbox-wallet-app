@@ -48,12 +48,12 @@ func (transactions *Transactions) unverifiedTransactions() map[chainhash.Hash]in
 	}
 	result := map[chainhash.Hash]int{}
 	for _, txHash := range unverifiedTransactions {
-		_, _, height, _, _, err := dbTx.TxInfo(txHash)
+		txInfo, err := dbTx.TxInfo(txHash)
 		if err != nil {
 			// TODO
 			panic(err)
 		}
-		result[txHash] = height
+		result[txHash] = txInfo.Height
 	}
 	return result
 }
