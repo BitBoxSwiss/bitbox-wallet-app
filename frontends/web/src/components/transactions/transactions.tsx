@@ -68,9 +68,6 @@ class Transactions extends Component<Props> {
                 </div>
                 {
                     (transactions && transactions.length > 0) ? transactions
-                    .map(props => (Object.assign({
-                        note: props.note || (props.internalID.charCodeAt(0) > 49 ? '' : 'Payed Jad'),
-                    }, props)))
                     .map((props, index) => (
                         <Transaction
                             accountCode={accountCode}
