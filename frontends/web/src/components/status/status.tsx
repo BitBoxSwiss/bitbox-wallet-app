@@ -14,28 +14,44 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, ComponentChild, h, RenderableProps } from 'preact';
 import { apiGet, apiPost } from '../../utils/request';
 import * as style from './status.css';
 
-export default class Status extends Component {
-    state = {
-        show: null,
-    }
+interface State {
+    show: boolean;
+}
 
-    componentDidMount() {
+interface StatusProps {
+    type?: 'success' | 'warning' | 'info';
+    dismissable?: boolean;
+    className?: string;
+    keyName?: string;
+}
+
+type Props = StatusProps;
+
+export default class Status extends Component<Props, State> {
+    public readonly state: State = {
+        show: true,
+    };
+
+    public componentDidMount() {
         this.checkConfig();
     }
 
-    componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps) {
         if (this.props.keyName !== prevProps.keyName) {
             this.checkConfig();
         }
     }
 
-    checkConfig() {
+    private checkConfig() {
         if (this.props.dismissable && this.props.keyName) {
             apiGet('config').then(({ frontend }) => {
+                if (!this.props.keyName) {
+                    return;
+                }
                 this.setState({
                     show: !frontend ? true : !frontend[this.props.keyName],
                 });
@@ -43,31 +59,37 @@ export default class Status extends Component {
         }
     }
 
-    dismiss = () => {
+    private dismiss = () => {
         apiGet('config').then(config => {
+            if (!this.props.keyName) {
+                return;
+            }
             const newConf = {
                 ...config,
                 frontend: {
                     ...config.frontend,
-                    [this.props.keyName]: true
-                }
+                    [this.props.keyName]: true,
+                },
             };
             apiPost('config', newConf);
         });
         this.setState({
-            show: false
+            show: false,
         });
     }
 
-    render({
-        type = 'warning',
-        dismissable,
-        className,
-        children,
-    }, {
-        show,
-    }) {
-        if ((dismissable && !show) || (children.length === 1 && !children[0])) {
+    public render(
+        {
+            children,
+            type = 'warning',
+            dismissable,
+            className,
+        }: RenderableProps<Props>,
+        {
+            show,
+        }: State) {
+        const childrenList = children as ComponentChild[];
+        if ((dismissable && !show) || (childrenList && childrenList.length === 1 && !childrenList[0])) {
             return null;
         }
         return (
