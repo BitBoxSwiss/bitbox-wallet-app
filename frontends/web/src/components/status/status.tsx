@@ -24,9 +24,11 @@ interface State {
 
 interface StatusProps {
     type?: 'success' | 'warning' | 'info';
-    dismissable?: boolean;
+    // used as keyName in the config if dismissing the status should be persisted, so it is not
+    // shown again. Use an empty string if it should be dismissable without storing it in the
+    // config, so the status will be shown again the next time.
+    dismissable?: string;
     className?: string;
-    keyName?: string;
 }
 
 type Props = StatusProps;
@@ -41,19 +43,19 @@ export default class Status extends Component<Props, State> {
     }
 
     public componentDidUpdate(prevProps) {
-        if (this.props.keyName !== prevProps.keyName) {
+        if (this.props.dismissable !== prevProps.dismissable) {
             this.checkConfig();
         }
     }
 
     private checkConfig() {
-        if (this.props.dismissable && this.props.keyName) {
+        if (this.props.dismissable) {
             apiGet('config').then(({ frontend }) => {
-                if (!this.props.keyName) {
+                if (!this.props.dismissable) {
                     return;
                 }
                 this.setState({
-                    show: !frontend ? true : !frontend[this.props.keyName],
+                    show: !frontend ? true : !frontend[this.props.dismissable],
                 });
             });
         }
@@ -61,14 +63,14 @@ export default class Status extends Component<Props, State> {
 
     private dismiss = () => {
         apiGet('config').then(config => {
-            if (!this.props.keyName) {
+            if (!this.props.dismissable) {
                 return;
             }
             const newConf = {
                 ...config,
                 frontend: {
                     ...config.frontend,
-                    [this.props.keyName]: true,
+                    [this.props.dismissable]: true
                 },
             };
             apiPost('config', newConf);
@@ -89,7 +91,7 @@ export default class Status extends Component<Props, State> {
             show,
         }: State) {
         const childrenList = children as ComponentChild[];
-        if ((dismissable && !show) || (childrenList && childrenList.length === 1 && !childrenList[0])) {
+        if (!show || (childrenList && childrenList.length === 1 && !childrenList[0])) {
             return null;
         }
         return (
@@ -97,7 +99,7 @@ export default class Status extends Component<Props, State> {
                 <div className={style.status}>
                     {children}
                     {
-                        dismissable && (
+                        dismissable !== undefined && (
                             <a
                                 href="#"
                                 className={`${style.close} ${style[`close-${type}`]}`}

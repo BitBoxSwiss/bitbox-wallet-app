@@ -39,12 +39,12 @@ interface BannerProps {
 
 type Props = LoadedProps & BannerProps & TranslateProps;
 
-function Banner({ msgKey, banner, i18n, t }: RenderableProps<Props>): JSX.Element | null {
+function Banner({ banner, i18n, t }: RenderableProps<Props>): JSX.Element | null {
     if (!i18n.options.fallbackLng) {
         return null;
     }
     return banner && (
-        <Status dismissable keyName={`banner-${msgKey}-${banner.id}`} type="info">
+        <Status dismissable={`banner-${msgKey}-${banner.id}`} type="info">
             { banner.message[i18n.language] || banner.message[i18n.options.fallbackLng[0]] }&nbsp;
             { banner.link && (
                 <A href={banner.link.href}>
