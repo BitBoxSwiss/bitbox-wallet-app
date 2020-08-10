@@ -48,7 +48,7 @@ func (transactions *Transactions) unverifiedTransactions() map[chainhash.Hash]in
 	}
 	result := map[chainhash.Hash]int{}
 	for _, txHash := range unverifiedTransactions {
-		_, _, height, _, err := dbTx.TxInfo(txHash)
+		_, _, height, _, _, err := dbTx.TxInfo(txHash)
 		if err != nil {
 			// TODO
 			panic(err)

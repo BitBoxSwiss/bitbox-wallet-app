@@ -123,11 +123,12 @@ func (tx *Tx) Commit() error {
 }
 
 type walletTransaction struct {
-	Tx              *wire.MsgTx
-	Height          int
-	Addresses       map[string]bool `json:"addresses"`
-	Verified        *bool
-	HeaderTimestamp *time.Time `json:"ts"`
+	Tx               *wire.MsgTx
+	Height           int
+	Addresses        map[string]bool `json:"addresses"`
+	Verified         *bool
+	HeaderTimestamp  *time.Time `json:"ts"`
+	CreatedTimestamp *time.Time `json:"created"`
 }
 
 func newWalletTransaction() *walletTransaction {
@@ -155,24 +156,30 @@ func writeJSON(bucket *bbolt.Bucket, key []byte, value interface{}) error {
 
 func (tx *Tx) modifyTx(key []byte, f func(value *walletTransaction)) error {
 	walletTx := newWalletTransaction()
-	if _, err := readJSON(tx.bucketTransactions, key, walletTx); err != nil {
+	found, err := readJSON(tx.bucketTransactions, key, walletTx)
+	if err != nil {
 		return err
+	}
+	if !found {
+		now := time.Now()
+		walletTx.CreatedTimestamp = &now
 	}
 	f(walletTx)
 	return writeJSON(tx.bucketTransactions, key, walletTx)
 }
 
 // TxInfo implements transactions.DBTxInterface.
-func (tx *Tx) TxInfo(txHash chainhash.Hash) (*wire.MsgTx, []string, int, *time.Time, error) {
+func (tx *Tx) TxInfo(txHash chainhash.Hash) (
+	*wire.MsgTx, []string, int, *time.Time, *time.Time, error) {
 	walletTx := newWalletTransaction()
 	if _, err := readJSON(tx.bucketTransactions, txHash[:], walletTx); err != nil {
-		return nil, nil, 0, nil, err
+		return nil, nil, 0, nil, nil, err
 	}
 	addresses := []string{}
 	for address := range walletTx.Addresses {
 		addresses = append(addresses, address)
 	}
-	return walletTx.Tx, addresses, walletTx.Height, walletTx.HeaderTimestamp, nil
+	return walletTx.Tx, addresses, walletTx.Height, walletTx.HeaderTimestamp, walletTx.CreatedTimestamp, nil
 }
 
 // PutTx implements transactions.DBTxInterface.

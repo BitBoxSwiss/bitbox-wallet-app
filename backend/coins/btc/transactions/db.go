@@ -43,10 +43,15 @@ type DBTxInterface interface {
 	AddAddressToTx(chainhash.Hash, blockchain.ScriptHashHex) error
 	RemoveAddressFromTx(chainhash.Hash, blockchain.ScriptHashHex) (bool, error)
 
-	// TxInfo retrieves all data stored with for a transaction. Default values (nil, nil, 0, nil)
-	// are returned for the values not found.
+	// TxInfo retrieves all data stored with for a transaction. Default values (nil, nil, 0, nil,
+	// nil) are returned for the values not found.
 	TxInfo(chainhash.Hash) (
-		tx *wire.MsgTx, addresses []string, height int, headerTimestamp *time.Time, err error)
+		tx *wire.MsgTx,
+		addresses []string,
+		height int,
+		headerTimestamp *time.Time,
+		createdTimestamp *time.Time,
+		err error)
 
 	// Transactions retrieves all stored transaction hashes.
 	Transactions() ([]chainhash.Hash, error)

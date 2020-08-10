@@ -117,7 +117,7 @@ func (transactions *Transactions) isClosed() bool {
 
 func (transactions *Transactions) processTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
-	_, _, previousHeight, _, err := dbTx.TxInfo(txHash)
+	_, _, previousHeight, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
@@ -214,7 +214,7 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*Spendabl
 	}
 	result := map[wire.OutPoint]*SpendableOutput{}
 	for outPoint, txOut := range outputs {
-		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
+		tx, _, height, _, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
 			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 		}
@@ -242,7 +242,7 @@ func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire
 func (transactions *Transactions) removeTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
-	tx, _, _, _, err := dbTx.TxInfo(txHash)
+	tx, _, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
@@ -334,7 +334,7 @@ func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
 ) *wire.MsgTx {
-	tx, _, _, _, err := dbTx.TxInfo(txHash)
+	tx, _, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
 	}
@@ -379,7 +379,7 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 		if spent := transactions.isInputSpent(dbTx, outPoint); spent {
 			continue
 		}
-		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
+		tx, _, height, _, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
 			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 		}
@@ -394,11 +394,16 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 }
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
-// height. Special case for unconfirmed transactions (height <=0), which come last.
+// height. Special case for unconfirmed transactions (height <=0), which come last. If the height
+// is the same for two txs, they are sorted by the created (first seen) time instead.
 type byHeight []*TxInfo
 
 func (s byHeight) Len() int { return len(s) }
 func (s byHeight) Less(i, j int) bool {
+	// Secondary sort by the time we've first seen the tx in the app.
+	if s[i].Height == s[j].Height && s[i].createdTimestamp != nil && s[j].createdTimestamp != nil {
+		return s[i].createdTimestamp.Before(*s[j].createdTimestamp)
+	}
 	if s[j].Height <= 0 {
 		return true
 	}
@@ -426,7 +431,9 @@ type TxInfo struct {
 	amount           btcutil.Amount
 	fee              *btcutil.Amount
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
-	timestamp *time.Time
+	headerTimestamp *time.Time
+	// Time when the tx was first seen (first stored in the database). Can be nil.
+	createdTimestamp *time.Time
 	// addresses money was sent to / received on (without change addresses).
 	addresses []accounts.AddressAndAmount
 }
@@ -452,7 +459,7 @@ func (txInfo *TxInfo) InternalID() string {
 
 // Timestamp implements accounts.Transaction.
 func (txInfo *TxInfo) Timestamp() *time.Time {
-	return txInfo.timestamp
+	return txInfo.headerTimestamp
 }
 
 // FeeRatePerKb returns the fee rate of the tx (fee / tx size).
@@ -511,7 +518,7 @@ func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	tx *wire.MsgTx,
 	height int,
-	timestamp *time.Time,
+	headerTimestamp, createdTimestamp *time.Time,
 	isChange func(blockchain.ScriptHashHex) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
@@ -607,7 +614,8 @@ func (transactions *Transactions) txInfo(
 		txType:           txType,
 		amount:           result,
 		fee:              feeP,
-		timestamp:        timestamp,
+		headerTimestamp:  headerTimestamp,
+		createdTimestamp: createdTimestamp,
 		addresses:        addresses,
 	}
 }
@@ -630,12 +638,13 @@ func (transactions *Transactions) Transactions(
 		panic(err)
 	}
 	for _, txHash := range txHashes {
-		tx, _, height, timestamp, err := dbTx.TxInfo(txHash)
+		tx, _, height, headerTimestamp, createdTimestamp, err := dbTx.TxInfo(txHash)
 		if err != nil {
 			// TODO
 			panic(err)
 		}
-		txs = append(txs, transactions.txInfo(dbTx, tx, height, timestamp, isChange))
+		txs = append(txs,
+			transactions.txInfo(dbTx, tx, height, headerTimestamp, createdTimestamp, isChange))
 	}
 	sort.Sort(sort.Reverse(byHeight(txs)))
 	return txs

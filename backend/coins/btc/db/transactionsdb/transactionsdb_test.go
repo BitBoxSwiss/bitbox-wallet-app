@@ -117,7 +117,7 @@ func TestTxQuick(t *testing.T) {
 			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight); err != nil {
 				return false
 			}
-			msgTx, addresses, height, headerTimestamp, err := tx.TxInfo(expectedTxHash)
+			msgTx, addresses, height, headerTimestamp, createdTimestamp, err := tx.TxInfo(expectedTxHash)
 			if err != nil {
 				return false
 			}
@@ -133,6 +133,9 @@ func TestTxQuick(t *testing.T) {
 			if headerTimestamp != nil {
 				return false
 			}
+			if createdTimestamp == nil {
+				return false
+			}
 			allTxHashes[expectedTxHash] = struct{}{}
 			allUnverifiedTxHashes[expectedTxHash] = struct{}{}
 			return checkTxHashes()
@@ -146,9 +149,12 @@ func TestTxQuick(t *testing.T) {
 				require.NoError(t, tx.MarkTxVerified(txHash, expectedHeaderTimestamp))
 				delete(allUnverifiedTxHashes, txHash)
 				require.True(t, checkTxHashes())
-				_, _, _, headerTimestamp, err := tx.TxInfo(txHash)
+				_, _, _, headerTimestamp, createdTimestamp, err := tx.TxInfo(txHash)
 				require.NoError(t, err)
 				require.Equal(t, expectedHeaderTimestamp.String(), headerTimestamp.String())
+				now := time.Now()
+				require.NotNil(t, createdTimestamp)
+				require.True(t, !createdTimestamp.After(now) || *createdTimestamp == now)
 
 				tx.DeleteTx(txHash)
 				delete(allTxHashes, txHash)
