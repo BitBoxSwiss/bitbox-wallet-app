@@ -23,7 +23,7 @@ import { apiGet } from '../../../utils/request';
 import * as style from './feetargets.css';
 import { AmountWithConversions } from './send';
 
-export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
+export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
 
 interface FeeTargetsProps {
     accountCode: string;
@@ -40,8 +40,8 @@ interface FeeTarget {
     code: Code;
 }
 interface State {
-    feeTargets: FeeTarget[] | null;
-    feeTarget?: string | null;
+    feeTargets: FeeTarget[] | null;
+    feeTarget?: string | null;
 }
 
 class FeeTargets extends Component<Props, State> {
