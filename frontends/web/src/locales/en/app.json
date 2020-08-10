@@ -1200,7 +1200,7 @@
         "low": "low",
         "normal": "normal"
       },
-      "placeholder": "Calculating fee estimation…"
+      "placeholder": "Calculating fee…"
     },
     "maximum": "Send all",
     "priority": "Priority",

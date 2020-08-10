@@ -578,7 +578,7 @@
     "region": "Izberite vašo regijo",
     "regions": {
       "AF": "Afrika",
-      "APAC": "Azija (z AUS / NZ)",
+      "APAC": "Azija Pacifik",
       "EU": "Evropa",
       "LA": "Latinska Amerika",
       "NA": "Severna Amerika"
@@ -1033,6 +1033,10 @@
     "description": "BitBox je ustvaril {{bits}}-bitno naključno število:"
   },
   "receive": {
+    "addressType": [
+      "Spremeni v format naslova ki se začne s 3 (Segwit)",
+      "Spremeni nazaj v novejši bech32 format (priporočamo)"
+    ],
     "label": "Vaš naslov",
     "onlyThisCoin": {
       "description": "Če želite prejemati druge podprte žetone, jih omogočite v nastavitvah. Če na naslove, ki so na voljonakažete/pošljete nepodprte žetone, zelo verjetno ne bodo vidni/ dostopni.",
@@ -1221,6 +1225,7 @@
         "title": "Povežite svoje polno vozlišče"
       },
       "setProxyAddress": "Nastavite naslov proxy strežnika",
+      "splitAccounts": "Ločite račune po formatu naslova",
       "title": "Napredne nastavitve",
       "useProxy": "Omogoči tor proxy"
     },
