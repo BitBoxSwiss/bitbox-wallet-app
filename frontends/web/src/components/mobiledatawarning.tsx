@@ -30,7 +30,7 @@ function MobileDataWarning({ usingMobileData, t }: RenderableProps<Props>): JSX.
         return null;
     }
     return (
-        <Status dismissable keyName="mobile-data-warning" type="warning">
+        <Status dismissable="mobile-data-warning" type="warning">
             {t('mobile.usingMobileDataWarning')}
         </Status>
     );

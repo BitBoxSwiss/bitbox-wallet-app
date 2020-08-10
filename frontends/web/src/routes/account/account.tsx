@@ -324,7 +324,7 @@ class Account extends Component<Props, State> {
                     {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Status dismissable keyName={`info-${code}`} type="info" className="m-bottom-default">
+                            <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
                                 {t(`account.info.${code}`, { defaultValue: '' })}
                             </Status>
                             <div class="flex flex-row flex-between flex-items-center">

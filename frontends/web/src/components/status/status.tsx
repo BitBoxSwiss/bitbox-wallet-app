@@ -14,60 +14,84 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, ComponentChild, h, RenderableProps } from 'preact';
 import { apiGet, apiPost } from '../../utils/request';
 import * as style from './status.css';
 
-export default class Status extends Component {
-    state = {
-        show: null,
-    }
+interface State {
+    show: boolean;
+}
 
-    componentDidMount() {
+interface StatusProps {
+    type?: 'success' | 'warning' | 'info';
+    // used as keyName in the config if dismissing the status should be persisted, so it is not
+    // shown again. Use an empty string if it should be dismissable without storing it in the
+    // config, so the status will be shown again the next time.
+    dismissable?: string;
+    className?: string;
+}
+
+type Props = StatusProps;
+
+export default class Status extends Component<Props, State> {
+    public readonly state: State = {
+        show: true,
+    };
+
+    public componentDidMount() {
         this.checkConfig();
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props.keyName !== prevProps.keyName) {
+    public componentDidUpdate(prevProps) {
+        if (this.props.dismissable !== prevProps.dismissable) {
             this.checkConfig();
         }
     }
 
-    checkConfig() {
-        if (this.props.dismissable && this.props.keyName) {
+    private checkConfig() {
+        if (this.props.dismissable) {
             apiGet('config').then(({ frontend }) => {
+                if (!this.props.dismissable) {
+                    return;
+                }
                 this.setState({
-                    show: !frontend ? true : !frontend[this.props.keyName],
+                    show: !frontend ? true : !frontend[this.props.dismissable],
                 });
             });
         }
     }
 
-    dismiss = () => {
+    private dismiss = () => {
         apiGet('config').then(config => {
+            if (!this.props.dismissable) {
+                return;
+            }
             const newConf = {
                 ...config,
                 frontend: {
                     ...config.frontend,
-                    [this.props.keyName]: true
-                }
+                    [this.props.dismissable]: true,
+                },
             };
             apiPost('config', newConf);
         });
         this.setState({
-            show: false
+            show: false,
         });
     }
 
-    render({
-        type = 'warning',
-        dismissable,
-        className,
-        children,
-    }, {
-        show,
-    }) {
-        if ((dismissable && !show) || (children.length === 1 && !children[0])) {
+    public render(
+        {
+            children,
+            type = 'warning',
+            dismissable,
+            className,
+        }: RenderableProps<Props>,
+        {
+            show,
+        }: State) {
+        const childrenList = children as ComponentChild[];
+        if (!show || (childrenList && childrenList.length === 1 && !childrenList[0])) {
             return null;
         }
         return (
@@ -75,7 +99,7 @@ export default class Status extends Component {
                 <div className={style.status}>
                     {children}
                     {
-                        dismissable && (
+                        dismissable !== undefined && (
                             <a
                                 href="#"
                                 className={`${style.close} ${style[`close-${type}`]}`}

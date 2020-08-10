@@ -37,7 +37,7 @@ type Props = LoadedProps & TranslateProps;
 
 function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
     return file && (
-        <Status dismissable keyName={`update-${file.version}`} type="info">
+        <Status dismissable={`update-${file.version}`} type="info">
             {t('app.upgrade', {
                 current: file.current,
                 version: file.version,
