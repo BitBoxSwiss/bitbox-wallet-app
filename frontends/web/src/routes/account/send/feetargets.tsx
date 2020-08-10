@@ -104,26 +104,25 @@ class FeeTargets extends Component<Props, State> {
                     transparent />
             );
         }
-        if (feeTargets.length === 0) {
-            return null;
-        }
 
         return (
             <div className={style.row}>
                 <div className={style.column}>
-                    <Select
-                        className={style.priority}
-                        label={t('send.priority')}
-                        id="feeTarget"
-                        disabled={disabled}
-                        onChange={this.handleFeeTargetChange}
-                        selected={feeTarget}
-                        options={feeTargets.map(({ code }) => {
-                            return {
-                                value: code,
-                                text: t(`send.feeTarget.label.${code}`),
-                            };
-                        })} />
+                    { feeTargets.length > 0 && (
+                          <Select
+                              className={style.priority}
+                              label={t('send.priority')}
+                              id="feeTarget"
+                              disabled={disabled}
+                              onChange={this.handleFeeTargetChange}
+                              selected={feeTarget}
+                              options={feeTargets.map(({ code }) => {
+                                  return {
+                                      value: code,
+                                      text: t(`send.feeTarget.label.${code}`),
+                                  };
+                              })} />
+                      )}
                 </div>
                 <div className={style.column}>
                     {showCalculatingFeeLabel ? (
@@ -138,7 +137,7 @@ class FeeTargets extends Component<Props, State> {
                     ) : (
                         <Input
                             align="right"
-                            className={style.fee}
+                            className={feeTargets.length > 0 ? style.fee : ''}
                             disabled={feeTarget !== 'custom'}
                             label={t('send.fee.label')}
                             id="proposedFee"
