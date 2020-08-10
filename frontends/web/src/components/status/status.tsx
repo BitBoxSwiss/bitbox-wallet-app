@@ -70,7 +70,7 @@ export default class Status extends Component<Props, State> {
                 ...config,
                 frontend: {
                     ...config.frontend,
-                    [this.props.dismissable]: true
+                    [this.props.dismissable]: true,
                 },
             };
             apiPost('config', newConf);

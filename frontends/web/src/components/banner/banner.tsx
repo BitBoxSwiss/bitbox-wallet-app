@@ -44,7 +44,7 @@ function Banner({ banner, i18n, t }: RenderableProps<Props>): JSX.Element | null
         return null;
     }
     return banner && (
-        <Status dismissable={`banner-${msgKey}-${banner.id}`} type="info">
+        <Status dismissable="" type="info">
             { banner.message[i18n.language] || banner.message[i18n.options.fallbackLng[0]] }&nbsp;
             { banner.link && (
                 <A href={banner.link.href}>
