@@ -625,6 +625,9 @@ class BitBox02 extends Component<Props, State> {
                                                 <div className="m-top-quarter">
                                                     <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label={t('bitbox02Wizard.backup.userConfirmation4')}/>
                                                 </div>
+                                                <div className="m-top-quarter">
+                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement5" label={t('bitbox02Wizard.backup.userConfirmation5')}/>
+                                                </div>
                                             </form>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button
@@ -723,6 +726,7 @@ class BitBox02 extends Component<Props, State> {
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
+                                                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
                                             </ul>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button primary onClick={this.handleGetStarted}>
@@ -749,6 +753,7 @@ class BitBox02 extends Component<Props, State> {
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
+                                                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
                                             </ul>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button primary onClick={this.handleGetStarted}>
