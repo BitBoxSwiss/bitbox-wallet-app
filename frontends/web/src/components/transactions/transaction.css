@@ -71,26 +71,34 @@
 }
 
 .action {
+    align-items: center;
+    background: none;
+    border: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    padding: 0;
+    -webkit-appearance: none;
 }
 
+.label {
+    white-space: nowrap;
+}
+
+.label,
 .columnLabel,
 .inlineLabel {
-    font-size: var(--size-default);
     color: var(--color-gray);
+    font-size: var(--size-default);
+}
+
+.label,
+.columnLabel {
+    margin-right: var(--space-quarter);
 }
 
 .columnLabel {
-    margin-right: var(--space-quarter);
     display: none;
-}
-
-.columnLabel.reverse {
-    margin-right: 0;
-    margin-left: var(--space-quarter);
 }
 
 .inlineValue {
@@ -131,13 +139,54 @@
     cursor: pointer;
 }
 
-.detail {
+.detail,
+.detailInput {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     min-height: var(--item-height);
     padding: var(--space-half);
+}
+
+.detailInput {
+    padding: 0 0 0 var(--space-half);
+}
+
+.detailInput label {
+    margin-bottom: 0;
+}
+
+.textOnlyInput {
+    margin: 0;
+}
+
+.textOnlyInput input {
+    border: none;
+}
+
+.editButton {
+    background: none;
+    border: none;
+    margin-right: var(--space-half);
+    padding: 0;
+    -webkit-appearance: none;
+}
+
+.editButton svg {
+    vertical-align: text-bottom;
+}
+
+.editButton path,
+.editButton polyline {
+    stroke: var(--color-gray-alt);
+}
+
+.editButton:focus path,
+.editButton:hover path,
+.editButton:focus polyline,
+.editButton:hover polyline {
+    stroke: var(--color-secondary);
 }
 
 .detail:not(:first-child) {
@@ -208,7 +257,7 @@
 }
 
 @media (max-width: 666px) {
-    .columnLabel:not(.keepVisible) {
+    .columnLabel {
         display: none;
     }
 

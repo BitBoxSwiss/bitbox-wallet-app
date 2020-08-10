@@ -41,7 +41,7 @@ import { Devices } from '../../device/deviceswitch';
 import { AccountInterface } from '../account';
 import { ReceiveAddresses } from '../receive/receive';
 import { isBitcoinBased } from '../utils';
-import FeeTargets from './feetargets';
+import { Code as FeeCode, FeeTargets } from './feetargets';
 import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
@@ -80,12 +80,13 @@ interface State {
     amount?: string;
     data?: string;
     fiatAmount?: string;
-    fiatUnit: string;
+    fiatUnit: Fiat;
     sendAll: boolean;
-    feeTarget?: string;
+    feeTarget?: FeeCode;
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
+    isUpdatingProposal: boolean;
     addressError?: string;
     amountError?: string;
     dataError?: string;
@@ -100,6 +101,7 @@ interface State {
     hasCamera: boolean;
     activeScanQR: boolean;
     videoLoading: boolean;
+    note: string;
 }
 
 class Send extends Component<Props, State> {
@@ -108,24 +110,29 @@ class Send extends Component<Props, State> {
     private unsubscribe!: () => void;
     private qrCodeReader: BrowserQRCodeReader = new BrowserQRCodeReader();
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            valid: false,
-            sendAll: false,
-            isConfirming: false,
-            signConfirm: null,
-            isSent: false,
-            isAborted: false,
-            noMobileChannelError: false,
-            fiatUnit: fiat.state.active,
-            coinControl: false,
-            activeCoinControl: false,
-            hasCamera: false,
-            activeScanQR: false,
-            videoLoading: false,
-        };
-    }
+    // pendingProposals keeps all requests that have been made
+    // to /tx-proposal in case there are multiple parallel requests
+    // we can ignore all other but the last one
+    private pendingProposals: any = [];
+    private proposeTimeout: any = null;
+
+    public readonly state: State = {
+        valid: false,
+        sendAll: false,
+        isConfirming: false,
+        signConfirm: null,
+        isSent: false,
+        isAborted: false,
+        isUpdatingProposal: false,
+        noMobileChannelError: false,
+        fiatUnit: fiat.state.active,
+        coinControl: false,
+        activeCoinControl: false,
+        hasCamera: false,
+        activeScanQR: false,
+        videoLoading: false,
+        note: '',
+    };
 
     private coinSupportsCoinControl = () => {
         const account = this.getAccount();
@@ -223,6 +230,7 @@ class Send extends Component<Props, State> {
                     fiatAmount: undefined,
                     amount: undefined,
                     data: undefined,
+                    note: '',
                 });
                 if (this.utxos) {
                     (this.utxos as any).getWrappedInstance().clear();
@@ -251,6 +259,7 @@ class Send extends Component<Props, State> {
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,
+        note: this.state.note,
     })
 
     private sendDisabled = () => {
@@ -269,44 +278,71 @@ class Send extends Component<Props, State> {
             return;
         }
         const txInput = this.txInput();
-        apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput).then(result => {
-            this.setState({ valid: result.success });
-            if (result.success) {
-                this.setState({
-                    addressError: undefined,
-                    amountError: undefined,
-                    dataError: undefined,
-                    proposedFee: result.fee,
-                    proposedAmount: result.amount,
-                    proposedTotal: result.total,
-                });
-                if (updateFiat) {
-                    this.convertToFiat(result.amount.amount);
+        if (this.proposeTimeout) {
+            clearTimeout(this.proposeTimeout);
+            this.proposeTimeout = null;
+        }
+        this.setState({ isUpdatingProposal: true });
+        this.proposeTimeout = setTimeout(() => {
+            const propose = apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput)
+            .then(result => {
+                const pos = this.pendingProposals.indexOf(propose);
+                if (this.pendingProposals.length - 1 === pos) {
+                    this.txProposal(updateFiat, result);
                 }
-            } else {
-                const errorCode = result.errorCode;
-                switch (errorCode) {
-                    case 'invalidAddress':
-                        this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-                        break;
-                    case 'invalidAmount':
-                    case 'insufficientFunds':
-                        this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
-                        break;
-                    case 'invalidData':
-                        this.setState({ dataError: this.props.t(`send.error.invalidData`) });
-                        break;
-                    default:
-                        this.setState({ proposedFee: undefined });
-                        if (errorCode) {
-                            this.unregisterEvents();
-                            alertUser(errorCode, this.registerEvents);
-                        }
-                }
+                this.pendingProposals.splice(pos, 1);
+            })
+            .catch(() => {
+                this.setState({ valid: false });
+                this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
+            });
+            this.pendingProposals.push(propose);
+        }, 400);
+    }
+
+    private txProposal = (updateFiat, result) => {
+        this.setState({ valid: result.success });
+        if (result.success) {
+            this.setState({
+                addressError: undefined,
+                amountError: undefined,
+                dataError: undefined,
+                proposedFee: result.fee,
+                proposedAmount: result.amount,
+                proposedTotal: result.total,
+                isUpdatingProposal: false,
+            });
+            if (updateFiat) {
+                this.convertToFiat(result.amount.amount);
             }
-        }).catch(() => {
-            this.setState({ valid: false });
-        });
+        } else {
+            const errorCode = result.errorCode;
+            switch (errorCode) {
+                case 'invalidAddress':
+                    this.setState({ addressError: this.props.t('send.error.invalidAddress') });
+                    break;
+                case 'invalidAmount':
+                case 'insufficientFunds':
+                    this.setState({
+                        amountError: this.props.t(`send.error.${errorCode}`),
+                        proposedFee: undefined,
+                    });
+                    break;
+                case 'invalidData':
+                    this.setState({
+                        dataError: this.props.t('send.error.invalidData'),
+                        proposedFee: undefined,
+                    });
+                    break;
+                default:
+                    this.setState({ proposedFee: undefined });
+                    if (errorCode) {
+                        this.unregisterEvents();
+                        alertUser(errorCode, this.registerEvents);
+                    }
+            }
+            this.setState({ isUpdatingProposal: false });
+        }
     }
 
     private handleFormChange = (event: Event) => {
@@ -371,10 +407,6 @@ class Send extends Component<Props, State> {
         }
     }
 
-    private sendAll = (event: Event) => {
-        this.handleFormChange(event);
-    }
-
     private sendToSelf = (event: Event) => {
         apiGet('account/' + this.getAccount()!.code + '/receive-addresses')
             .then((receiveAddresses: ReceiveAddresses) => {
@@ -383,7 +415,7 @@ class Send extends Component<Props, State> {
             });
     }
 
-    private feeTargetChange = (feeTarget: string) => {
+    private feeTargetChange = (feeTarget: FeeCode) => {
         this.setState({ feeTarget });
         this.validateAndDisplayFee(this.state.sendAll);
     }
@@ -494,6 +526,7 @@ class Send extends Component<Props, State> {
             isConfirming,
             isSent,
             isAborted,
+            isUpdatingProposal,
             addressError,
             amountError,
             /* dataError, */
@@ -505,6 +538,7 @@ class Send extends Component<Props, State> {
             hasCamera,
             activeScanQR,
             videoLoading,
+            note,
         }: State,
     ) {
         const account = this.getAccount();
@@ -597,7 +631,7 @@ class Send extends Component<Props, State> {
                                                     <Checkbox
                                                         label={t('send.maximum')}
                                                         id="sendAll"
-                                                        onChange={this.sendAll}
+                                                        onChange={this.handleFormChange}
                                                         checked={sendAll}
                                                         className={style.maxAmount} />
                                                 } />
@@ -615,32 +649,28 @@ class Send extends Component<Props, State> {
                                     </div>
                                     <div className="columns">
                                         <div className="column column-1-2">
-                                            <FeeTargets
-                                                // label={t('send.feeTarget.label')}
-                                                label={t('send.priority')}
-                                                placeholder={t('send.feeTarget.placeholder')}
-                                                accountCode={account.code}
-                                                disabled={!amount && !sendAll}
-                                                onFeeTargetChange={this.feeTargetChange} />
+                                            <Input
+                                                label={t('note.title')}
+                                                labelSection={
+                                                    <span className={style.labelDescription}>
+                                                        {t('note.input.description')}
+                                                    </span>
+                                                }
+                                                id="note"
+                                                onInput={this.handleFormChange}
+                                                value={note}
+                                                placeholder={t('note.input.placeholder')} />
                                         </div>
                                         <div className="column column-1-2">
-                                            <Input
-                                                label={t('send.fee.label')}
-                                                id="proposedFee"
-                                                value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
-                                                placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
-                                                disabled={feeTarget !== 'custom'}
-                                                transparent />
+                                            <FeeTargets
+                                                accountCode={account.code}
+                                                disabled={!amount && !sendAll}
+                                                fiatUnit={fiatUnit}
+                                                proposedFee={proposedFee}
+                                                showCalculatingFeeLabel={isUpdatingProposal}
+                                                onFeeTargetChange={this.feeTargetChange} />
                                         </div>
                                     </div>
-                                    {
-                                        feeTarget && (
-                                            <div>
-                                                <label>{t('send.feeTarget.estimate')}</label>
-                                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
-                                            </div>
-                                        )
-                                    }
                                 </div>
                                 {
                                     /*
@@ -658,7 +688,10 @@ class Send extends Component<Props, State> {
                                     */
                                 }
                                 <div class="buttons ignore reverse">
-                                    <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
+                                    <Button
+                                        primary
+                                        onClick={this.send}
+                                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
                                         {t('send.button')}
                                     </Button>
                                     <ButtonLink
@@ -693,6 +726,12 @@ class Send extends Component<Props, State> {
                                         }
                                     </p>
                                 </div>
+                                {note ? (
+                                    <div className={style.confirmItem}>
+                                        <label>{t('note.title')}</label>
+                                        <p>{note}</p>
+                                    </div>
+                                ) : null}
                                 <div className={style.confirmItem}>
                                     <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
                                     <p>

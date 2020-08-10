@@ -33,13 +33,10 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -64,25 +61,22 @@ type subaccount struct {
 	changeAddresses      AddressChain
 }
 
+type activeTxProposal struct {
+	proposal *maketx.TxProposal
+	note     string
+}
+
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
+	*accounts.BaseAccount
 	locker.Locker
-	observable.Implementation
 
 	coin *Coin
-	// folder for all accounts. Full path.
-	dbFolder string
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
-	dbSubfolder              string
-	code                     string
-	name                     string
-	db                       transactions.DBInterface
-	forceGapLimits           *types.GapLimits
-	getSigningConfigurations func() (signing.Configurations, error)
-	keystores                *keystore.Keystores
-	getNotifier              func(signing.Configurations) accounts.Notifier
-	notifier                 accounts.Notifier
-	blockchain               blockchain.Interface
+	dbSubfolder    string
+	db             transactions.DBInterface
+	forceGapLimits *types.GapLimits
+	notifier       accounts.Notifier
 
 	subaccounts []subaccount
 	// How many addresses were synced already during the initial sync. This value is emitted as an
@@ -96,79 +90,40 @@ type Account struct {
 	transactions *transactions.Transactions
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal     *maketx.TxProposal
+	activeTxProposal     *activeTxProposal
 	activeTxProposalLock locker.Locker
-
-	synchronizer *synchronizer.Synchronizer
 
 	feeTargets []*FeeTarget
 
 	// true when initialized (Initialize() was called).
 	initialized bool
-	// synced indicates whether the account has loaded and finished the initial sync of the
-	// addresses.
-	synced      bool
-	offline     bool
-	fatalError  bool
-	onEvent     func(accounts.Event)
-	log         *logrus.Entry
-	rateUpdater *rates.RateUpdater
+
+	fatalError bool
 
 	closed     bool
 	closedLock locker.Locker
+
+	log *logrus.Entry
 }
-
-// Status indicates the connection and initialization status.
-type Status string
-
-const (
-	// AccountSynced indicates that the account is synced.
-	AccountSynced Status = "accountSynced"
-
-	// AccountDisabled indicates that the account has not yet been initialized.
-	AccountDisabled Status = "accountDisabled"
-
-	// OfflineMode indicates that the connection to the blockchain network could not be established.
-	OfflineMode Status = "offlineMode"
-
-	// FatalError indicates that there was a fatal error in handling the account. When this happens,
-	// an error is shown to the user and the account is made unusable.
-	FatalError Status = "fatalError"
-)
 
 // NewAccount creates a new account.
 //
 // forceGaplimits: if not nil, these limits will be used and persisted for future use.
-//
-// getSigningConfigurations: defines the script types used in this account. The first one is used as
-// a default for receive addresses, and always used for change.
 func NewAccount(
+	config *accounts.AccountConfig,
 	coin *Coin,
-	dbFolder string,
-	code string,
-	name string,
 	forceGapLimits *types.GapLimits,
-	getSigningConfigurations func() (signing.Configurations, error),
-	keystores *keystore.Keystores,
-	getNotifier func(signing.Configurations) accounts.Notifier,
-	onEvent func(accounts.Event),
 	log *logrus.Entry,
-	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "btc").
-		WithFields(logrus.Fields{"coin": coin.String(), "code": code, "name": name})
+		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Code, "name": config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
-		coin:                     coin,
-		dbFolder:                 dbFolder,
-		dbSubfolder:              "", // set in Initialize()
-		code:                     code,
-		name:                     name,
-		forceGapLimits:           forceGapLimits,
-		getSigningConfigurations: getSigningConfigurations,
-		keystores:                keystores,
-		getNotifier:              getNotifier,
+		BaseAccount:    accounts.NewBaseAccount(config, log),
+		coin:           coin,
+		dbSubfolder:    "", // set in Initialize()
+		forceGapLimits: forceGapLimits,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -177,35 +132,14 @@ func NewAccount(
 			{blocks: 6, code: accounts.FeeTargetCodeNormal},
 			{blocks: 2, code: accounts.FeeTargetCodeHigh},
 		},
-		// initializing to false, to prevent flashing of offline notification in the frontend
-		offline:     false,
-		synced:      false,
-		onEvent:     onEvent,
-		log:         log,
-		rateUpdater: rateUpdater,
+		log: log,
 	}
-	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(accounts.EventSyncStarted) },
-		func() {
-			if !account.synced {
-				account.synced = true
-				onEvent(accounts.EventStatusChanged)
-			}
-			onEvent(accounts.EventSyncDone)
-		},
-		log,
-	)
 	return account
 }
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.code)
-}
-
-// Code implements accounts.Interface.
-func (account *Account) Code() string {
-	return account.code
+	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Code)
 }
 
 // FilesFolder implements accounts.Interface.
@@ -214,11 +148,6 @@ func (account *Account) FilesFolder() string {
 		panic("Initialize() must be run first")
 	}
 	return account.dbSubfolder
-}
-
-// Name implements accounts.Interface.
-func (account *Account) Name() string {
-	return account.name
 }
 
 // Coin implements accounts.Interface.
@@ -327,24 +256,24 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations, err := account.getSigningConfigurations()
+	signingConfigurations, err := account.Config().GetSigningConfigurations()
 	if err != nil {
 		return err
 	}
 	if len(signingConfigurations) == 0 {
 		return errp.New("There must be a least one signing configuration")
 	}
-	account.notifier = account.getNotifier(signingConfigurations)
+	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.code)
-	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Config().Code)
+	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
 	}
 
 	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
+	db, err := transactionsdb.NewDB(path.Join(account.Config().DBFolder, dbName))
 	if err != nil {
 		return err
 	}
@@ -355,36 +284,30 @@ func (account *Account) Initialize() error {
 		switch status {
 		case blockchain.DISCONNECTED:
 			account.log.Warn("Connection to blockchain backend lost")
-			account.offline = true
-			account.onEvent(accounts.EventStatusChanged)
+			account.SetOffline(true)
 		case blockchain.CONNECTED:
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
-			account.synced = false
-			account.offline = false
-			account.onEvent(accounts.EventStatusChanged)
+			account.ResetSynced()
+			account.SetOffline(false)
 			account.log.Debug("Connection to blockchain backend established")
 		default:
 			account.log.Panicf("Status %d is unknown.", status)
 		}
 	}
 	account.coin.Initialize()
-	account.blockchain = account.coin.Blockchain()
-	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
-	if account.offline {
-		account.onEvent(accounts.EventStatusChanged)
-	}
-	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
+	account.SetOffline(account.coin.Blockchain().ConnectionStatus() == blockchain.DISCONNECTED)
+	account.coin.Blockchain().RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.onEvent(accounts.EventHeadersSynced)
+			account.Config().OnEvent(accounts.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
-		account.coin.Net(), account.db, theHeaders, account.synchronizer,
-		account.blockchain, account.notifier, account.log)
+		account.coin.Net(), account.db, theHeaders, account.Synchronizer,
+		account.coin.Blockchain(), account.notifier, account.log)
 
 	for _, signingConfiguration := range signingConfigurations {
 		signingConfiguration := signingConfiguration
@@ -412,13 +335,9 @@ func (account *Account) Initialize() error {
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
 	account.ensureAddresses()
-	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
-	return nil
-}
+	account.coin.Blockchain().HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 
-// RateUpdater implements interface.
-func (account *Account) RateUpdater() *rates.RateUpdater {
-	return account.rateUpdater
+	return account.BaseAccount.Initialize(accountIdentifier)
 }
 
 // XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.
@@ -491,21 +410,11 @@ func (account *Account) onNewHeader(header *blockchain.Header) error {
 	return nil
 }
 
-// Offline returns true if the account is disconnected from the blockchain.
-func (account *Account) Offline() bool {
-	return account.offline
-}
-
-// Synced implements accounts.Interface.
-func (account *Account) Synced() bool {
-	return account.synced
-}
-
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
 	// Wait until synchronized, to include server errors without manually dealing with sync status.
-	if !account.offline {
-		account.synchronizer.WaitSynchronized()
+	if !account.Offline() {
+		account.Synchronizer.WaitSynchronized()
 	}
 	return account.fatalError
 }
@@ -517,6 +426,7 @@ func (account *Account) Close() {
 		account.log.Debug("account aleady closed")
 		return
 	}
+	account.BaseAccount.Close()
 	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
@@ -526,11 +436,11 @@ func (account *Account) Close() {
 	}
 	// TODO: deregister from json RPC client. The client can be closed when no account uses
 	// the client any longer.
-	account.synced = false
+	account.ResetSynced()
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
-	account.onEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accounts.EventStatusChanged)
 	account.closed = true
 }
 
@@ -553,10 +463,10 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.onEvent(accounts.EventFeeTargetsChanged)
+				account.Config().OnEvent(accounts.EventFeeTargetsChanged)
 			}
 
-			account.blockchain.EstimateFee(
+			account.coin.Blockchain().EstimateFee(
 				feeTarget.blocks,
 				func(feeRatePerKb *btcutil.Amount) {
 					if feeRatePerKb == nil {
@@ -564,7 +474,7 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						account.blockchain.RelayFee(setFee, func(error) {})
+						account.coin.Blockchain().RelayFee(setFee, func(error) {})
 					} else {
 						setFee(*feeRatePerKb)
 					}
@@ -615,10 +525,10 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 }
 
 func (account *Account) incAndEmitSyncCounter() {
-	if !account.synced {
+	if !account.Synced() {
 		synced := atomic.AddUint32(&account.syncedAddressesCount, 1)
 		account.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.code),
+			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Config().Code),
 			Action:  action.Replace,
 			Object:  synced,
 		})
@@ -641,8 +551,8 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 
 	account.log.Debug("Address status changed, fetching history.")
 
-	done := account.synchronizer.IncRequestsCounter()
-	account.blockchain.ScriptHashGetHistory(
+	done := account.Synchronizer.IncRequestsCounter()
+	account.coin.Blockchain().ScriptHashGetHistory(
 		address.PubkeyScriptHashHex(),
 		func(history blockchain.TxHistory) {
 			if account.isClosed() {
@@ -665,7 +575,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				// We are not closing client.blockchain here, as it is reused per coin with
 				// different accounts.
 				account.fatalError = true
-				account.onEvent(accounts.EventStatusChanged)
+				account.Config().OnEvent(accounts.EventStatusChanged)
 			}
 		},
 	)
@@ -676,7 +586,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
 func (account *Account) ensureAddresses() {
-	defer account.synchronizer.IncRequestsCounter()()
+	defer account.Synchronizer.IncRequestsCounter()()
 
 	dbTx, err := account.db.Begin()
 	if err != nil {
@@ -721,9 +631,9 @@ func (account *Account) subscribeAddress(
 	}
 	address.HistoryStatus = addressHistory.Status()
 
-	account.blockchain.ScriptHashSubscribe(
+	account.coin.Blockchain().ScriptHashSubscribe(
 		func() func(error) {
-			done := account.synchronizer.IncRequestsCounter()
+			done := account.Synchronizer.IncRequestsCounter()
 			return func(err error) {
 				done()
 				if err != nil {
@@ -762,7 +672,7 @@ func (account *Account) Transactions() ([]accounts.Transaction, error) {
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
 func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
 	addresses := make([]accounts.AddressList, len(account.subaccounts))
@@ -786,7 +696,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.initialized {
 		return false, errp.New("account must be initialized")
 	}
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
 	var address *addresses.AccountAddress
@@ -799,12 +709,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
+		return true, account.Config().Keystores.VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
@@ -814,12 +724,7 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if !account.initialized {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Keystores().CanVerifyAddresses(account.Coin())
-}
-
-// Keystores returns the keystores of the account.
-func (account *Account) Keystores() *keystore.Keystores {
-	return account.keystores
+	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
 }
 
 type byValue struct {
@@ -844,7 +749,7 @@ type SpendableOutput struct {
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
 func (account *Account) SpendableOutputs() []*SpendableOutput {
-	account.synchronizer.WaitSynchronized()
+	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	result := []*SpendableOutput{}
 	for outPoint, txOut := range account.transactions.SpendableOutputs() {
@@ -856,7 +761,7 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 
 // CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification.
 func (account *Account) CanVerifyExtendedPublicKey() []int {
-	return account.Keystores().CanVerifyExtendedPublicKeys()
+	return account.Config().Keystores.CanVerifyExtendedPublicKeys()
 }
 
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
@@ -867,7 +772,7 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 // xpubIndex is the position of an xpub in the []*hdkeychain which corresponds to the particular
 // keystore in []Keystore.
 func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex int) (bool, error) {
-	keystore := account.Keystores().Keystores()[xpubIndex]
+	keystore := account.Config().Keystores.Keystores()[xpubIndex]
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(
 			account.Coin(),

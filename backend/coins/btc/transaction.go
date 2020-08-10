@@ -148,7 +148,7 @@ func (account *Account) SendTx() error {
 	utxos := account.transactions.SpendableOutputs()
 	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
 		txChan := make(chan *wire.MsgTx)
-		account.blockchain.TransactionGet(txHash,
+		account.coin.Blockchain().TransactionGet(txHash,
 			func(tx *wire.MsgTx) {
 				txChan <- tx
 			},
@@ -160,12 +160,18 @@ func (account *Account) SendTx() error {
 		)
 		return <-txChan
 	}
-	if err := account.signTransaction(txProposal, utxos, getPrevTx); err != nil {
+	if err := account.signTransaction(txProposal.proposal, utxos, getPrevTx); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
+
 	account.log.Info("Signed transaction is broadcasted")
-	if err := account.blockchain.TransactionBroadcast(txProposal.Transaction); err != nil {
+	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.proposal.Transaction); err != nil {
 		return err
+	}
+	err := account.SetTxNote(txProposal.proposal.Transaction.TxHash().String(), txProposal.note)
+	if err != nil {
+		// Not critical.
+		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
 	return nil
 }
@@ -174,27 +180,26 @@ func (account *Account) SendTx() error {
 // the UI (the output amount and the fee). At the same time, it validates the input. The proposal is
 // stored internally and can be signed and sent with SendTx().
 func (account *Account) TxProposal(
-	recipientAddress string,
-	amount coin.SendAmount,
-	feeTargetCode accounts.FeeTargetCode,
-	selectedUTXOs map[wire.OutPoint]struct{},
-	_ []byte,
+	args *accounts.TxProposalArgs,
 ) (
 	coin.Amount, coin.Amount, coin.Amount, error) {
 	defer account.activeTxProposalLock.Lock()()
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(
-		recipientAddress,
-		amount,
-		feeTargetCode,
-		selectedUTXOs,
+		args.RecipientAddress,
+		args.Amount,
+		args.FeeTargetCode,
+		args.SelectedUTXOs,
 	)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
-	account.activeTxProposal = txProposal
+	account.activeTxProposal = &activeTxProposal{
+		proposal: txProposal,
+		note:     args.Note,
+	}
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
 	return coin.NewAmountFromInt64(int64(txProposal.Amount)),

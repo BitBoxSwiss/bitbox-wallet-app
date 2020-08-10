@@ -17,10 +17,9 @@ package accounts
 
 import (
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
@@ -28,22 +27,28 @@ import (
 // AddressList is a list of addresses.
 type AddressList []Address
 
+// TxProposalArgs are the arguments needed when creating a tx proposal.
+type TxProposalArgs struct {
+	RecipientAddress string
+	Amount           coin.SendAmount
+	FeeTargetCode    FeeTargetCode
+	SelectedUTXOs    map[wire.OutPoint]struct{}
+	Data             []byte
+	Note             string
+}
+
 // Interface is the API of a Account.
 type Interface interface {
 	observable.Interface
 
 	Info() *Info
-	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
-	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
-	Code() string
+	Config() *AccountConfig
 	// FilesFolder is path to a directory for account files, like databases, etc. Only available
 	// after Initialize(). It must be unique not only up to the type, but also the exact
 	// keystores/signing configuration (e.g. a btc-p2wpkh account for one xpub/xprv should have a
 	// different ID).
 	FilesFolder() string
 	Coin() coin.Coin
-	// Name returns a human readable long name.
-	Name() string
 	// Initialize only starts the synchronization, the account is not synced right afterwards.
 	Initialize() error
 	// Synced indicates whether the account has loaded and finished the initial sync.
@@ -57,22 +62,23 @@ type Interface interface {
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none available.
 	SendTx() error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
-	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
-		coin.Amount, coin.Amount, coin.Amount, error)
+	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
 	// GetUnusedReceiveAddresses gets a list of list of receive addresses. The result can be one
 	// list of addresses, or if there are multiple types of addresses (e.g. `bc1...` vs `3...`), a
 	// list of lists.
 	GetUnusedReceiveAddresses() []AddressList
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
-	Keystores() *keystore.Keystores
-	RateUpdater() *rates.RateUpdater
 
 	// SafelloBuySupported returns true if the Safello Buy widget can be used with this account.
 	SafelloBuySupported() bool
 	// Safello returns the infos needed to load the Safello Buy widget. panics() if Safello is not
 	// supported for this coin. Check support with `SafelloBuySupported()` before calling this.
 	SafelloBuy() *safello.Buy
+
+	Notes() *notes.Notes
+	// SetTxNote sets a tx note and refreshes the account.
+	SetTxNote(txID string, note string) error
 }
 
 // Info holds account information.

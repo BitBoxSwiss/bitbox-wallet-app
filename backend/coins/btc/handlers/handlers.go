@@ -73,6 +73,7 @@ func NewHandlers(
 	handleFunc("/exchange/safello/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuySupported)).Methods("GET")
 	handleFunc("/exchange/safello/buy", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuy)).Methods("GET")
 	handleFunc("/exchange/safello/process-message", handlers.ensureAccountInitialized(handlers.postExchangeSafelloProcessMessage)).Methods("POST")
+	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	return handlers
 }
 
@@ -96,9 +97,14 @@ type FormattedAmount struct {
 
 func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) FormattedAmount {
 	return FormattedAmount{
-		Amount:      handlers.account.Coin().FormatAmount(amount, isFee),
-		Unit:        handlers.account.Coin().Unit(isFee),
-		Conversions: coin.Conversions(amount, handlers.account.Coin(), isFee, handlers.account.RateUpdater()),
+		Amount: handlers.account.Coin().FormatAmount(amount, isFee),
+		Unit:   handlers.account.Coin().Unit(isFee),
+		Conversions: coin.Conversions(
+			amount,
+			handlers.account.Coin(),
+			isFee,
+			handlers.account.Config().RateUpdater,
+		),
 	}
 }
 
@@ -118,6 +124,7 @@ type Transaction struct {
 	Fee                      FormattedAmount   `json:"fee"`
 	Time                     *string           `json:"time"`
 	Addresses                []string          `json:"addresses"`
+	Note                     string            `json:"note"`
 
 	// BTC specific fields.
 	VSize        int64           `json:"vsize"`
@@ -175,6 +182,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			Fee:       feeString,
 			Time:      formattedTime,
 			Addresses: addresses,
+			Note:      handlers.account.Notes().TxNote(txInfo.InternalID()),
 		}
 		switch specificInfo := txInfo.(type) {
 		case *transactions.TxInfo:
@@ -194,7 +202,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
-	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Code() + "-export.csv"
+	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Config().Code + "-export.csv"
 	downloadsDir, err := config.DownloadsDir()
 	if err != nil {
 		return nil, err
@@ -312,11 +320,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 }
 
 type sendTxInput struct {
-	address       string
-	sendAmount    coin.SendAmount
-	feeTargetCode accounts.FeeTargetCode
-	selectedUTXOs map[wire.OutPoint]struct{}
-	data          []byte
+	accounts.TxProposalArgs
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -327,33 +331,36 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
 		Data          string   `json:"data"`
+		Note          string   `json:"note"`
+		Counter       int      `json:"counter"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
 	}
-	input.address = jsonBody.Address
+	input.RecipientAddress = jsonBody.Address
 	var err error
-	input.feeTargetCode, err = accounts.NewFeeTargetCode(jsonBody.FeeTarget)
+	input.FeeTargetCode, err = accounts.NewFeeTargetCode(jsonBody.FeeTarget)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody.SendAll == "yes" {
-		input.sendAmount = coin.NewSendAmountAll()
+		input.Amount = coin.NewSendAmountAll()
 	} else {
-		input.sendAmount = coin.NewSendAmount(jsonBody.Amount)
+		input.Amount = coin.NewSendAmount(jsonBody.Amount)
 	}
-	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
+	input.SelectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {
 		outPoint, err := util.ParseOutPoint([]byte(outPointString))
 		if err != nil {
 			return err
 		}
-		input.selectedUTXOs[*outPoint] = struct{}{}
+		input.SelectedUTXOs[*outPoint] = struct{}{}
 	}
-	input.data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
+	input.Data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
 	if err != nil {
 		return errp.WithStack(errors.ErrInvalidData)
 	}
+	input.Note = jsonBody.Note
 	return nil
 }
 
@@ -383,13 +390,7 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return txProposalError(errp.WithStack(err))
 	}
-	outputAmount, fee, total, err := handlers.account.TxProposal(
-		input.address,
-		input.sendAmount,
-		input.feeTargetCode,
-		input.selectedUTXOs,
-		input.data,
-	)
+	outputAmount, fee, total, err := handlers.account.TxProposal(&input.TxProposalArgs)
 	if err != nil {
 		return txProposalError(err)
 	}
@@ -423,21 +424,39 @@ func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
 	return nil, handlers.account.Initialize()
 }
 
+// status indicates the connection and initialization status.
+type status string
+
+const (
+	// accountSynced indicates that the account is synced.
+	accountSynced status = "accountSynced"
+
+	// accountDisabled indicates that the account has not yet been initialized.
+	accountDisabled status = "accountDisabled"
+
+	// offlineMode indicates that the connection to the blockchain network could not be established.
+	offlineMode status = "offlineMode"
+
+	// fatalError indicates that there was a fatal error in handling the account. When this happens,
+	// an error is shown to the user and the account is made unusable.
+	fatalError status = "fatalError"
+)
+
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {
-	status := []btc.Status{}
+	status := []status{}
 	if handlers.account == nil {
-		status = append(status, btc.AccountDisabled)
+		status = append(status, accountDisabled)
 	} else {
 		if handlers.account.Synced() {
-			status = append(status, btc.AccountSynced)
+			status = append(status, accountSynced)
 		}
 
 		if handlers.account.Offline() {
-			status = append(status, btc.OfflineMode)
+			status = append(status, offlineMode)
 		}
 
 		if handlers.account.FatalError() {
-			status = append(status, btc.FatalError)
+			status = append(status, fatalError)
 		}
 	}
 	return status, nil
@@ -527,4 +546,16 @@ func (handlers *Handlers) postExchangeSafelloProcessMessage(r *http.Request) (in
 		path.Join(handlers.account.FilesFolder(), "safello-buy.json"),
 		message,
 	)
+}
+
+func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
+	var args struct {
+		InternalTxID string `json:"internalTxID"`
+		Note         string `json:"note"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
 }

@@ -35,8 +35,10 @@ import * as style from './account.css';
 import { ScriptType, SigningConfigurationInterface } from './info/signingconfiguration';
 import { isBitcoinBased } from './utils';
 
+export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
+
 export interface AccountInterface {
-    coinCode: 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
+    coinCode: CoinCode;
     coinUnit: string;
     code: string;
     name: string;
@@ -354,6 +356,7 @@ class Account extends Component<Props, State> {
                                     } />
                                 ) : (
                                     <Transactions
+                                        accountCode={code}
                                         exported={exported}
                                         handleExport={this.export}
                                         explorerURL={account.blockExplorerTxPrefix}

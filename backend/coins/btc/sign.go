@@ -64,10 +64,10 @@ func (account *Account) signTransaction(
 
 	for i := range proposedTransaction.Signatures {
 		// TODO: Replace count with configuration.NumberOfSigners()
-		proposedTransaction.Signatures[i] = make([]*btcec.Signature, account.keystores.Count())
+		proposedTransaction.Signatures[i] = make([]*btcec.Signature, account.Config().Keystores.Count())
 	}
 
-	if err := account.keystores.SignTransaction(proposedTransaction); err != nil {
+	if err := account.Config().Keystores.SignTransaction(proposedTransaction); err != nil {
 		return err
 	}
 

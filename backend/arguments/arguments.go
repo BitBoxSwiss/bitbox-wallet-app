@@ -36,6 +36,9 @@ type Arguments struct {
 	// cacheDirectoryPath stores the location where application data is stored.
 	cacheDirectoryPath string
 
+	// notesDirectoryPath is the location where transaction notes (labels) are stored.
+	notesDirectoryPath string
+
 	// appConfigFilename stores the filename of the application configuration.
 	appConfigFilename string
 
@@ -89,6 +92,11 @@ func NewArguments(
 		panic("Cannot create the cache directory.")
 	}
 
+	notesDirectoryPath := path.Join(mainDirectoryPath, "notes")
+	if err := os.MkdirAll(notesDirectoryPath, 0700); err != nil {
+		panic("Cannot create the notes directory.")
+	}
+
 	log := logging.Get().WithGroup("arguments")
 	arguments := &Arguments{
 		mainDirectoryPath:       mainDirectoryPath,
@@ -96,6 +104,7 @@ func NewArguments(
 		bitboxBaseDirectoryPath: bitboxBaseDirectoryPath,
 
 		cacheDirectoryPath:     cacheDirectoryPath,
+		notesDirectoryPath:     notesDirectoryPath,
 		appConfigFilename:      path.Join(mainDirectoryPath, "config.json"),
 		accountsConfigFilename: path.Join(mainDirectoryPath, "accounts.json"),
 		testing:                testing,
@@ -142,6 +151,12 @@ func (arguments *Arguments) BitBoxBaseDirectoryPath() string {
 // The above constructor ensures that the directory with the returned path exists.
 func (arguments *Arguments) CacheDirectoryPath() string {
 	return arguments.cacheDirectoryPath
+}
+
+// NotesDirectoryPath returns the path to the notes directory of the backend.
+// The above constructor ensures that the directory with the returned path exists.
+func (arguments *Arguments) NotesDirectoryPath() string {
+	return arguments.notesDirectoryPath
 }
 
 // Testing returns whether the backend is for testing only.

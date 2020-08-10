@@ -228,11 +228,11 @@ func NewHandlers(
 	}
 
 	backend.OnAccountInit(func(account accounts.Interface) {
-		log.WithField("code", account.Code()).Debug("Initializing account")
-		getAccountHandlers(account.Code()).Init(account)
+		log.WithField("code", account.Config().Code).Debug("Initializing account")
+		getAccountHandlers(account.Config().Code).Init(account)
 	})
 	backend.OnAccountUninit(func(account accounts.Interface) {
-		getAccountHandlers(account.Code()).Uninit()
+		getAccountHandlers(account.Config().Code).Uninit()
 	})
 
 	deviceHandlersMap := map[string]*bitboxHandlers.Handlers{}
@@ -516,8 +516,8 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 		accounts = append(accounts, &accountJSON{
 			CoinCode:              account.Coin().Code(),
 			CoinUnit:              account.Coin().Unit(false),
-			Code:                  account.Code(),
-			Name:                  account.Name(),
+			Code:                  account.Config().Code,
+			Name:                  account.Config().Name,
 			BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
 		})
 	}
@@ -809,8 +809,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 		jsonAccounts = append(jsonAccounts, &accountJSON{
 			CoinCode:    account.Coin().Code(),
-			AccountCode: account.Code(),
-			Name:        account.Name(),
+			AccountCode: account.Config().Code,
+			Name:        account.Config().Name,
 			Balance: map[string]interface{}{
 				"available":   handlers.formatAmountAsJSON(balance.Available(), account.Coin(), false),
 				"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
@@ -882,7 +882,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			return nil, err
 		}
 		coin := account.Coin().Code()
-		accountName := account.Name()
+		accountName := account.Config().Name
 		balance, err := account.Balance()
 		if err != nil {
 			return nil, err
