@@ -73,6 +73,7 @@ func NewHandlers(
 	handleFunc("/exchange/safello/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuySupported)).Methods("GET")
 	handleFunc("/exchange/safello/buy", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuy)).Methods("GET")
 	handleFunc("/exchange/safello/process-message", handlers.ensureAccountInitialized(handlers.postExchangeSafelloProcessMessage)).Methods("POST")
+	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	return handlers
 }
@@ -546,6 +547,15 @@ func (handlers *Handlers) postExchangeSafelloProcessMessage(r *http.Request) (in
 		path.Join(handlers.account.FilesFolder(), "safello-buy.json"),
 		message,
 	)
+}
+
+func (handlers *Handlers) postProposeTxNote(r *http.Request) (interface{}, error) {
+	var note string
+	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	handlers.account.ProposeTxNote(note)
+	return nil, nil
 }
 
 func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {

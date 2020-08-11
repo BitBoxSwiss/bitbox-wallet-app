@@ -59,7 +59,8 @@ type Interface interface {
 	Notifier() Notifier
 	Transactions() ([]Transaction, error)
 	Balance() (*Balance, error)
-	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none available.
+	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
+	// available. The note, if set by ProposeTxNote(), is persisted for the transaction.
 	SendTx() error
 	FeeTargets() ([]FeeTarget, FeeTargetCode)
 	TxProposal(*TxProposalArgs) (coin.Amount, coin.Amount, coin.Amount, error)
@@ -77,6 +78,9 @@ type Interface interface {
 	SafelloBuy() *safello.Buy
 
 	Notes() *notes.Notes
+	// ProposeTxnote stores a note. The note is is persisted in the notes database upon calling
+	// SendTx(). This function must be called before `SendTx()`.
+	ProposeTxNote(string)
 	// SetTxNote sets a tx note and refreshes the account.
 	SetTxNote(txID string, note string) error
 }
