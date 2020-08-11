@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- Keep usb-device list in sync with updateDeviceList in GoViewModel.java -->
 <resources>
-    <!-- BitBox02 -->
+    <!-- BitBox02 Vendor ID: 0x03eb, Product ID: 0x2403 -->
     <usb-device vendor-id="1003" product-id="9219" />
 </resources>
