@@ -107,6 +107,7 @@ class Transaction extends Component<Props, State> {
                 note: this.state.newNote,
             });
         }
+        this.focusEdit();
         this.setState(
             ({ editMode }) => ({ editMode: !editMode }),
             this.focusEdit,
@@ -118,6 +119,7 @@ class Transaction extends Component<Props, State> {
             this.editButton.blur();
         }
         if (this.state.editMode && this.input) {
+            this.input.scrollLeft = this.input.scrollWidth;
             this.input.focus();
         }
     }
