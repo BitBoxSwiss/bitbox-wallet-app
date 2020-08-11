@@ -119,8 +119,17 @@ public class GoViewModel extends AndroidViewModel {
             Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
             while (deviceIterator.hasNext()){
                 UsbDevice device = deviceIterator.next();
-                this.device = new GoDeviceInfo(device);
-                break; // only one device supported for now
+                // One other instance where we filter vendor/product IDs is in
+                // @xml/device_filter resource, which is used for USB_DEVICE_ATTACHED
+                // intent to launch the app when a device is plugged and the app is still
+                // closed. This filter, on the other hand, makes sure we feed only valid
+                // devices to the Go backend once the app is launched or opened.
+                //
+                // BitBox02 Vendor ID: 0x03eb, Product ID: 0x2403.
+                if (device.getVendorId() == 1003 && device.getProductId() == 9219) {
+                    this.device = new GoDeviceInfo(device);
+                    break; // only one device supported for now
+                }
             }
         }
 
