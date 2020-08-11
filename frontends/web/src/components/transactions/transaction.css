@@ -4,7 +4,7 @@
 
 .row {
     background-color: var(--color-white) !important;
-    height: 52px;
+    min-height: 52px;
 }
 
 .row * {

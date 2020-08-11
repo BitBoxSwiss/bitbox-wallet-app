@@ -103,6 +103,10 @@
   .hideOnMedium {
     display: none;
   }
+
+  .activity {
+    padding: var(--space-quarter) 0;
+  }
 }
 
 @media (max-width: 1080px), (min-width: 1200px) and (max-width: 1322px) {

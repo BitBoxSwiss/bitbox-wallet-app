@@ -38,6 +38,7 @@ export interface Props {
     transparent?: boolean;
     type?: 'text' | 'password';
     value?: string | number;
+    maxLength?: number;
     labelSection?: JSX.Element | undefined;
     // [property: string]: any;
 }
