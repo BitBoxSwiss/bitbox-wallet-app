@@ -691,7 +691,7 @@ class Send extends Component<Props, State> {
                                     <Button
                                         primary
                                         onClick={this.send}
-                                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
+                                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
                                         {t('send.button')}
                                     </Button>
                                     <ButtonLink
