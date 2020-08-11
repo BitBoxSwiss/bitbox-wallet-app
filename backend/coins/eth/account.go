@@ -43,11 +43,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type activeTxProposal struct {
-	proposal *TxProposal
-	note     string
-}
-
 var pollInterval = 30 * time.Second
 
 // Account is an Ethereum account, with one address.
@@ -74,7 +69,7 @@ type Account struct {
 	blockNumber *big.Int
 
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal     *activeTxProposal
+	activeTxProposal     *TxProposal
 	activeTxProposalLock locker.Locker
 
 	nextNonce    uint64
@@ -584,18 +579,19 @@ func (account *Account) SendTx() error {
 		return errp.New("No active tx proposal")
 	}
 
+	note := account.BaseAccount.GetAndClearProposedTxNote()
+
 	account.log.Info("Signing and sending transaction")
-	if err := account.Config().Keystores.SignTransaction(txProposal.proposal); err != nil {
+	if err := account.Config().Keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
-	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.proposal.Tx); err != nil {
+	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := account.storePendingOutgoingTransaction(txProposal.proposal.Tx); err != nil {
+	if err := account.storePendingOutgoingTransaction(txProposal.Tx); err != nil {
 		return err
 	}
-	err := account.SetTxNote(txProposal.proposal.Tx.Hash().Hex(), txProposal.note)
-	if err != nil {
+	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), note); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
@@ -617,10 +613,7 @@ func (account *Account) TxProposal(
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
-	account.activeTxProposal = &activeTxProposal{
-		proposal: txProposal,
-		note:     args.Note,
-	}
+	account.activeTxProposal = txProposal
 
 	var total *big.Int
 	if account.coin.erc20Token != nil {

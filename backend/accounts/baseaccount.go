@@ -17,6 +17,7 @@ package accounts
 import (
 	"fmt"
 	"path"
+	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
@@ -58,6 +59,9 @@ type BaseAccount struct {
 	offline bool
 
 	notes *notes.Notes
+
+	proposedTxNote   string
+	proposedTxNoteMu sync.Mutex
 }
 
 // NewBaseAccount creates a new Account instance.
@@ -131,6 +135,25 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 // Notes implements Interface.
 func (account *BaseAccount) Notes() *notes.Notes {
 	return account.notes
+}
+
+// ProposeTxNote implements accounts.Account.
+func (account *BaseAccount) ProposeTxNote(note string) {
+	account.proposedTxNoteMu.Lock()
+	defer account.proposedTxNoteMu.Unlock()
+
+	account.proposedTxNote = note
+}
+
+// GetAndClearProposedTxNote returns the note previously set using ProposeTxNote(). If none was set,
+// the empty string is returned. The proposed note is cleared by calling this function.
+func (account *BaseAccount) GetAndClearProposedTxNote() string {
+	account.proposedTxNoteMu.Lock()
+	defer func() {
+		account.proposedTxNote = ""
+		account.proposedTxNoteMu.Unlock()
+	}()
+	return account.proposedTxNote
 }
 
 // SetTxNote implements accounts.Account.

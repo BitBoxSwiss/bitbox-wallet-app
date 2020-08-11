@@ -259,7 +259,6 @@ class Send extends Component<Props, State> {
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,
-        note: this.state.note,
     })
 
     private sendDisabled = () => {
@@ -298,6 +297,15 @@ class Send extends Component<Props, State> {
             });
             this.pendingProposals.push(propose);
         }, 400);
+    }
+
+    private handleNoteInput = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
+        this.setState(prevState => ({
+            ...prevState,
+            [target.id]: target.value,
+        }));
+        apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
     }
 
     private txProposal = (updateFiat, result) => {
@@ -657,7 +665,7 @@ class Send extends Component<Props, State> {
                                                     </span>
                                                 }
                                                 id="note"
-                                                onInput={this.handleFormChange}
+                                                onInput={this.handleNoteInput}
                                                 value={note}
                                                 placeholder={t('note.input.placeholder')} />
                                         </div>

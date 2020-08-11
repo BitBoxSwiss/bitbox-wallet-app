@@ -144,6 +144,8 @@ func (account *Account) SendTx() error {
 		return errp.New("No active tx proposal")
 	}
 
+	note := account.BaseAccount.GetAndClearProposedTxNote()
+
 	account.log.Info("Signing and sending transaction")
 	utxos := account.transactions.SpendableOutputs()
 	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
@@ -160,16 +162,15 @@ func (account *Account) SendTx() error {
 		)
 		return <-txChan
 	}
-	if err := account.signTransaction(txProposal.proposal, utxos, getPrevTx); err != nil {
+	if err := account.signTransaction(txProposal, utxos, getPrevTx); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 
 	account.log.Info("Signed transaction is broadcasted")
-	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.proposal.Transaction); err != nil {
+	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.Transaction); err != nil {
 		return err
 	}
-	err := account.SetTxNote(txProposal.proposal.Transaction.TxHash().String(), txProposal.note)
-	if err != nil {
+	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), note); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
 	}
@@ -196,10 +197,7 @@ func (account *Account) TxProposal(
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
-	account.activeTxProposal = &activeTxProposal{
-		proposal: txProposal,
-		note:     args.Note,
-	}
+	account.activeTxProposal = txProposal
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
 	return coin.NewAmountFromInt64(int64(txProposal.Amount)),
