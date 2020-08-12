@@ -38,8 +38,8 @@
     width: 0.35em;
     height: 0.55em;
     position: absolute;
-    top: 0.22em;
-    left: 0.45em;
+    top: 3px;
+    left: 6px;
     margin-left: -1px;
     margin-top: -2px;
     opacity: 0;
@@ -57,6 +57,19 @@
 .checkbox input:checked + label::after {
     opacity: 1;
     transform: scale(1) rotate(37deg);
+}
+
+/* focus */
+
+.checkbox input[type="checkbox"]:focus + label::before {
+    border-color: var(--color-blue);
+    outline: none;
+    outline-offset: 0;
+}
+
+.checkbox input[type="checkbox"]:checked:focus + label::before {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
 }
 
 /* disabled */
