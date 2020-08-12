@@ -42,6 +42,7 @@ interface State {
     backupList: Backup[];
     selectedBackup?: string;
     sdCardInserted: boolean | null;
+    lock?: boolean;
 }
 
 class Backups extends Component<Props, State> {
@@ -60,6 +61,11 @@ class Backups extends Component<Props, State> {
     }
 
     private refresh = () => {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({
+            lock,
+        }) => {
+            this.setState({ lock });
+        });
         apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
             if (success) {
                 this.setState({
@@ -100,8 +106,11 @@ class Backups extends Component<Props, State> {
             requireConfirmation = true,
             onRestore,
         }: RenderableProps<Props>,
-        { backupList, selectedBackup, sdCardInserted }: State,
+        { backupList, selectedBackup, sdCardInserted, lock }: State,
     ) {
+        if (lock === undefined) {
+            return null;
+        }
         if (sdCardInserted === false) {
             return (
                 <div className="box m-top-default">
@@ -144,7 +153,7 @@ class Backups extends Component<Props, State> {
                 </div>
                 <div class="buttons">
                     {
-                        showCreate && (
+                        showCreate && !lock && (
                             <Create
                                 onCreate={this.refresh}
                                 deviceID={deviceID} />
