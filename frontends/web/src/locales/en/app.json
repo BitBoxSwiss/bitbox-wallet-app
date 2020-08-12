@@ -112,8 +112,8 @@
       "confirmTitle": "Restore from mnemonic seed"
     },
     "showMnemonic": {
-      "description": "You will be presented with up to 24 words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
-      "title": "Show mnemonic seed"
+      "description": "You will be presented with up to 24 recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "title": "Show recovery words"
     },
     "title": "Manage backups"
   },
@@ -140,7 +140,7 @@
     "confirmDateText": "This date will be used to create your backup.",
     "confirmName": "Confirm name on BitBox02",
     "followInstructions": "Please follow the instructions on your BitBox02.",
-    "followInstructionsMnemonic": "Please follow the instructions on your BitBox02 to restore from a mnemonic seed."
+    "followInstructionsMnemonic": "Please follow the instructions on your BitBox02 to restore from recovery words."
   },
   "bitbox02Settings": {
     "deviceName": {
@@ -199,7 +199,7 @@
       "unpaired": "A new BitBox02 has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch underneath the check mark on your BitBox02 and then click the button below to continue."
     },
     "restoreFromMnemonic": {
-      "failed": "Restoring from mnemonic seed failed, please try again.",
+      "failed": "Restoring from recovery words failed, please try again.",
       "point1": "Enter words",
       "point2": "$t(bitbox02Wizard.backup.point2)"
     },
@@ -238,7 +238,7 @@
       "create": "I want to setup a new BitBox02.",
       "restore": "I want to restore my wallet from a backup.",
       "restoreMicroSD": "Restore from microSD card",
-      "restoreMnemonic": "Restore from mnemonic",
+      "restoreMnemonic": "Restore from recovery words",
       "title": "Setup your BitBox02"
     },
     "stepUnpaired": {
