@@ -233,6 +233,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		"Fee",
 		"Address",
 		"Transaction ID",
+		"Note",
 	})
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -270,6 +271,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 				feeString,
 				addressAndAmount.Address,
 				transaction.TxID(),
+				handlers.account.Notes().TxNote(transaction.InternalID()),
 			})
 			if err != nil {
 				return nil, errp.WithStack(err)
