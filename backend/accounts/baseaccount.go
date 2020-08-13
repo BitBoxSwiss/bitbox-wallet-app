@@ -53,6 +53,8 @@ type BaseAccount struct {
 
 	config *AccountConfig
 
+	coin coin.Coin
+
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
 	synced  bool
@@ -65,9 +67,10 @@ type BaseAccount struct {
 }
 
 // NewBaseAccount creates a new Account instance.
-func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
+func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *BaseAccount {
 	account := &BaseAccount{
 		config: config,
+		coin:   coin,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
 		func() { config.OnEvent(EventSyncStarted) },
@@ -86,6 +89,11 @@ func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
 // Config implements Interface.
 func (account *BaseAccount) Config() *AccountConfig {
 	return account.config
+}
+
+// Coin implements accounts.Interface.
+func (account *BaseAccount) Coin() coin.Coin {
+	return account.coin
 }
 
 // Synced implements Interface.

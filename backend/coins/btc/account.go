@@ -115,7 +115,7 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount:    accounts.NewBaseAccount(config, log),
+		BaseAccount:    accounts.NewBaseAccount(config, coin, log),
 		coin:           coin,
 		dbSubfolder:    "", // set in Initialize()
 		forceGapLimits: forceGapLimits,
@@ -143,11 +143,6 @@ func (account *Account) FilesFolder() string {
 		panic("Initialize() must be run first")
 	}
 	return account.dbSubfolder
-}
-
-// Coin implements accounts.Interface.
-func (account *Account) Coin() coin.Coin {
-	return account.coin
 }
 
 // defaultGapLimits returns the default gap limits for this account.

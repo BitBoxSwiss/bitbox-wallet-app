@@ -91,7 +91,7 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		BaseAccount:          accounts.NewBaseAccount(config, log),
+		BaseAccount:          accounts.NewBaseAccount(config, accountCoin, log),
 		coin:                 accountCoin,
 		dbSubfolder:          "", // set in Initialize()
 		signingConfiguration: nil,
@@ -119,11 +119,6 @@ func (account *Account) FilesFolder() string {
 		panic("Initialize() must be run first")
 	}
 	return account.dbSubfolder
-}
-
-// Coin implements accounts.Interface.
-func (account *Account) Coin() coin.Coin {
-	return account.coin
 }
 
 // Initialize implements accounts.Interface.

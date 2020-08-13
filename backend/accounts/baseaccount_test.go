@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
@@ -46,7 +47,9 @@ func TestBaseAccount(t *testing.T) {
 		GetSigningConfigurations: nil,
 		GetNotifier:              nil,
 	}
-	account := NewBaseAccount(cfg, logging.Get().WithGroup("baseaccount_test"))
+
+	coin := &mocks.CoinMock{}
+	account := NewBaseAccount(cfg, coin, logging.Get().WithGroup("baseaccount_test"))
 	require.NoError(t, account.Initialize(accountIdentifier))
 
 	t.Run("config", func(t *testing.T) {
