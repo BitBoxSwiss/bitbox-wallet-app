@@ -31,11 +31,9 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -153,48 +151,46 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	}
 	for _, txInfo := range txs {
 		var feeString FormattedAmount
-		fee := txInfo.Fee()
-		if fee != nil {
-			feeString = handlers.formatAmountAsJSON(*fee, true)
+		if txInfo.Fee != nil {
+			feeString = handlers.formatAmountAsJSON(*txInfo.Fee, true)
 		}
 		var formattedTime *string
-		timestamp := txInfo.Timestamp()
-		if timestamp != nil {
-			t := timestamp.Format(time.RFC3339)
+		if txInfo.Timestamp != nil {
+			t := txInfo.Timestamp.Format(time.RFC3339)
 			formattedTime = &t
 		}
 		addresses := []string{}
-		for _, addressAndAmount := range txInfo.Addresses() {
+		for _, addressAndAmount := range txInfo.Addresses {
 			addresses = append(addresses, addressAndAmount.Address)
 		}
 		txInfoJSON := Transaction{
-			TxID:                     txInfo.TxID(),
-			InternalID:               txInfo.InternalID(),
-			NumConfirmations:         txInfo.NumConfirmations(),
-			NumConfirmationsComplete: txInfo.NumConfirmationsComplete(),
+			TxID:                     txInfo.TxID,
+			InternalID:               txInfo.InternalID,
+			NumConfirmations:         txInfo.NumConfirmations,
+			NumConfirmationsComplete: txInfo.NumConfirmationsComplete,
 			Type: map[accounts.TxType]string{
 				accounts.TxTypeReceive:  "receive",
 				accounts.TxTypeSend:     "send",
 				accounts.TxTypeSendSelf: "send_to_self",
-			}[txInfo.Type()],
-			Status:    txInfo.Status(),
-			Amount:    handlers.formatAmountAsJSON(txInfo.Amount(), false),
+			}[txInfo.Type],
+			Status:    txInfo.Status,
+			Amount:    handlers.formatAmountAsJSON(txInfo.Amount, false),
 			Fee:       feeString,
 			Time:      formattedTime,
 			Addresses: addresses,
-			Note:      handlers.account.Notes().TxNote(txInfo.InternalID()),
+			Note:      handlers.account.Notes().TxNote(txInfo.InternalID),
 		}
-		switch specificInfo := txInfo.(type) {
-		case *transactions.TxInfo:
-			txInfoJSON.VSize = specificInfo.VSize
-			txInfoJSON.Size = specificInfo.Size
-			txInfoJSON.Weight = specificInfo.Weight
-			feeRatePerKb := specificInfo.FeeRatePerKb()
+		switch handlers.account.Coin().(type) {
+		case *btc.Coin:
+			txInfoJSON.VSize = txInfo.VSize
+			txInfoJSON.Size = txInfo.Size
+			txInfoJSON.Weight = txInfo.Weight
+			feeRatePerKb := txInfo.FeeRatePerKb
 			if feeRatePerKb != nil {
 				txInfoJSON.FeeRatePerKb = handlers.formatBTCAmountAsJSON(*feeRatePerKb, true)
 			}
-		case types.EthereumTransaction:
-			txInfoJSON.Gas = specificInfo.Gas()
+		case *eth.Coin:
+			txInfoJSON.Gas = txInfo.Gas
 		}
 		result = append(result, txInfoJSON)
 	}

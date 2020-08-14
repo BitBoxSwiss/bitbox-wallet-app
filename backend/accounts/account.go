@@ -59,7 +59,7 @@ type Interface interface {
 	FatalError() bool
 	Close()
 	Notifier() Notifier
-	Transactions() ([]Transaction, error)
+	Transactions() ([]*TransactionData, error)
 	Balance() (*Balance, error)
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
 	// available. The note, if set by ProposeTxNote(), is persisted for the transaction.
@@ -87,7 +87,7 @@ type Interface interface {
 	SetTxNote(txID string, note string) error
 
 	// ExportCSV exports the given transaction in CSV format (comma-separated).
-	ExportCSV(w io.Writer, transactions []Transaction) error
+	ExportCSV(w io.Writer, transactions []*TransactionData) error
 }
 
 // Info holds account information.

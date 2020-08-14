@@ -152,8 +152,24 @@ type Transaction struct {
 	isInternal bool
 }
 
-// assertion because not implementing the interface fails silently.
-var _ ethtypes.EthereumTransaction = &Transaction{}
+// TransactionData returns the tx data to be shown to the user.
+func (tx *Transaction) TransactionData() *accounts.TransactionData {
+	timestamp := time.Time(tx.jsonTransaction.Timestamp)
+	return &accounts.TransactionData{
+		Fee:                      tx.fee(),
+		Timestamp:                &timestamp,
+		TxID:                     tx.TxID(),
+		InternalID:               tx.internalID(),
+		Height:                   int(tx.jsonTransaction.BlockNumber.BigInt().Uint64()),
+		NumConfirmations:         tx.numConfirmations(),
+		NumConfirmationsComplete: ethtypes.NumConfirmationsComplete,
+		Status:                   tx.status(),
+		Type:                     tx.txType,
+		Amount:                   tx.amount(),
+		Addresses:                tx.addresses(),
+		Gas:                      tx.gas(),
+	}
+}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
@@ -179,8 +195,7 @@ func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
 	return nil
 }
 
-// Fee implements accounts.Transaction.
-func (tx *Transaction) Fee() *coin.Amount {
+func (tx *Transaction) fee() *coin.Amount {
 	if tx.isInternal {
 		// EtherScan always returns 0 for gasUsed and contains no gasPrice for internal txs.
 		return nil
@@ -190,19 +205,12 @@ func (tx *Transaction) Fee() *coin.Amount {
 	return &amount
 }
 
-// Timestamp implements accounts.Transaction.
-func (tx *Transaction) Timestamp() *time.Time {
-	t := time.Time(tx.jsonTransaction.Timestamp)
-	return &t
-}
-
-// TxID implements accounts.Transaction.
+// TxID returns the transaction ID.
 func (tx *Transaction) TxID() string {
 	return tx.jsonTransaction.Hash.Hex()
 }
 
-// InternalID implements accounts.Transaction.
-func (tx *Transaction) InternalID() string {
+func (tx *Transaction) internalID() string {
 	id := tx.TxID()
 	if tx.isInternal {
 		id += "-internal"
@@ -210,8 +218,7 @@ func (tx *Transaction) InternalID() string {
 	return id
 }
 
-// NumConfirmations implements accounts.Transaction.
-func (tx *Transaction) NumConfirmations() int {
+func (tx *Transaction) numConfirmations() int {
 	confs := 0
 	txHeight := tx.jsonTransaction.BlockNumber.BigInt().Uint64()
 	tipHeight := tx.blockTipHeight.Uint64()
@@ -221,34 +228,21 @@ func (tx *Transaction) NumConfirmations() int {
 	return confs
 }
 
-// NumConfirmationsComplete implements accounts.Transaction.
-func (tx *Transaction) NumConfirmationsComplete() int {
-	return ethtypes.NumConfirmationsComplete
-}
-
-// Type implements accounts.Transaction.
-func (tx *Transaction) Type() accounts.TxType {
-	return tx.txType
-}
-
-// Status implements accounts.Transaction.
-func (tx *Transaction) Status() accounts.TxStatus {
+func (tx *Transaction) status() accounts.TxStatus {
 	if tx.jsonTransaction.Failed == "1" {
 		return accounts.TxStatusFailed
 	}
-	if tx.NumConfirmations() >= tx.NumConfirmationsComplete() {
+	if tx.numConfirmations() >= ethtypes.NumConfirmationsComplete {
 		return accounts.TxStatusComplete
 	}
 	return accounts.TxStatusPending
 }
 
-// Amount implements accounts.Transaction.
-func (tx *Transaction) Amount() coin.Amount {
+func (tx *Transaction) amount() coin.Amount {
 	return coin.NewAmount(tx.jsonTransaction.Value.BigInt())
 }
 
-// Addresses implements accounts.Transaction.
-func (tx *Transaction) Addresses() []accounts.AddressAndAmount {
+func (tx *Transaction) addresses() []accounts.AddressAndAmount {
 	address := ""
 	if tx.jsonTransaction.to != nil {
 		address = tx.jsonTransaction.to.Hex()
@@ -257,12 +251,11 @@ func (tx *Transaction) Addresses() []accounts.AddressAndAmount {
 	}
 	return []accounts.AddressAndAmount{{
 		Address: address,
-		Amount:  tx.Amount(),
+		Amount:  tx.amount(),
 	}}
 }
 
-// Gas implements ethtypes.EthereumTransaction.
-func (tx *Transaction) Gas() uint64 {
+func (tx *Transaction) gas() uint64 {
 	if !tx.jsonTransaction.GasUsed.BigInt().IsInt64() {
 		panic("gas must be int64")
 	}
@@ -275,9 +268,9 @@ func (tx *Transaction) Gas() uint64 {
 func prepareTransactions(
 	blockTipHeight *big.Int,
 	isInternal bool,
-	transactions []*Transaction, address common.Address) ([]accounts.Transaction, error) {
+	transactions []*Transaction, address common.Address) ([]*accounts.TransactionData, error) {
 	seen := map[string]struct{}{}
-	castTransactions := []accounts.Transaction{}
+	castTransactions := []*accounts.TransactionData{}
 	ours := address.Hex()
 	for _, transaction := range transactions {
 		if _, ok := seen[transaction.TxID()]; ok {
@@ -308,7 +301,7 @@ func prepareTransactions(
 		}
 		transaction.blockTipHeight = blockTipHeight
 		transaction.isInternal = isInternal
-		castTransactions = append(castTransactions, transaction)
+		castTransactions = append(castTransactions, transaction.TransactionData())
 	}
 	return castTransactions, nil
 }
@@ -318,7 +311,7 @@ func prepareTransactions(
 func (etherScan *EtherScan) Transactions(
 	blockTipHeight *big.Int,
 	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
-	[]accounts.Transaction, error) {
+	[]*accounts.TransactionData, error) {
 	params := url.Values{}
 	params.Set("module", "account")
 	if erc20Token != nil {
@@ -344,7 +337,7 @@ func (etherScan *EtherScan) Transactions(
 	if err != nil {
 		return nil, err
 	}
-	var transactionsInternal []accounts.Transaction
+	var transactionsInternal []*accounts.TransactionData
 	if erc20Token == nil {
 		// Alo show internal transactions.
 		params.Set("action", "txlistinternal")

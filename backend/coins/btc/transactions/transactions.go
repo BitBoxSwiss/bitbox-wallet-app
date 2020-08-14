@@ -16,7 +16,6 @@ package transactions
 
 import (
 	"sort"
-	"time"
 
 	btcdBlockchain "github.com/btcsuite/btcd/blockchain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -396,13 +395,13 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
 // height. Special case for unconfirmed transactions (height <=0), which come last. If the height
 // is the same for two txs, they are sorted by the created (first seen) time instead.
-type byHeight []*TxInfo
+type byHeight []*accounts.TransactionData
 
 func (s byHeight) Len() int { return len(s) }
 func (s byHeight) Less(i, j int) bool {
 	// Secondary sort by the time we've first seen the tx in the app.
-	if s[i].Height == s[j].Height && s[i].createdTimestamp != nil && s[j].createdTimestamp != nil {
-		return s[i].createdTimestamp.Before(*s[j].createdTimestamp)
+	if s[i].Height == s[j].Height && s[i].CreatedTimestamp != nil && s[j].CreatedTimestamp != nil {
+		return s[i].CreatedTimestamp.Before(*s[j].CreatedTimestamp)
 	}
 	if s[j].Height <= 0 {
 		return true
@@ -413,96 +412,6 @@ func (s byHeight) Less(i, j int) bool {
 	return s[i].Height < s[j].Height
 }
 func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-
-// TxInfo contains additional tx information to display to the user.
-type TxInfo struct {
-	Tx *wire.MsgTx
-	// VSize is the tx virtual size in
-	// "vbytes". https://bitcoincore.org/en/segwit_wallet_dev/#transaction-fee-estimation
-	VSize int64
-	// Size is the serialized tx size in bytes.
-	Size int64
-	// Weight is the tx weight.
-	Weight int64
-	// Height is the height this tx was confirmed at. 0 (or -1) for unconfirmed.
-	Height           int
-	numConfirmations int
-	txType           accounts.TxType
-	amount           btcutil.Amount
-	fee              *btcutil.Amount
-	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
-	headerTimestamp *time.Time
-	// Time when the tx was first seen (first stored in the database). Can be nil.
-	createdTimestamp *time.Time
-	// addresses money was sent to / received on (without change addresses).
-	addresses []accounts.AddressAndAmount
-}
-
-// Fee implements accounts.Transaction.
-func (txInfo *TxInfo) Fee() *coin.Amount {
-	if txInfo.fee == nil {
-		return nil
-	}
-	fee := coin.NewAmountFromInt64(int64(*txInfo.fee))
-	return &fee
-}
-
-// TxID implements accounts.Transaction.
-func (txInfo *TxInfo) TxID() string {
-	return txInfo.Tx.TxHash().String()
-}
-
-// InternalID implements accounts.Transaction.
-func (txInfo *TxInfo) InternalID() string {
-	return txInfo.TxID()
-}
-
-// Timestamp implements accounts.Transaction.
-func (txInfo *TxInfo) Timestamp() *time.Time {
-	return txInfo.headerTimestamp
-}
-
-// FeeRatePerKb returns the fee rate of the tx (fee / tx size).
-func (txInfo *TxInfo) FeeRatePerKb() *btcutil.Amount {
-	if txInfo.fee == nil {
-		return nil
-	}
-	feeRatePerKb := *txInfo.fee * 1000 / btcutil.Amount(txInfo.VSize)
-	return &feeRatePerKb
-}
-
-// NumConfirmations implements accounts.Transaction.
-func (txInfo *TxInfo) NumConfirmations() int {
-	return txInfo.numConfirmations
-}
-
-// NumConfirmationsComplete implements accounts.Transaction.
-func (txInfo *TxInfo) NumConfirmationsComplete() int {
-	return 6
-}
-
-// Type implements accounts.Transaction.
-func (txInfo *TxInfo) Type() accounts.TxType {
-	return txInfo.txType
-}
-
-// Status implements accounts.Transaction.
-func (txInfo *TxInfo) Status() accounts.TxStatus {
-	if txInfo.NumConfirmations() >= txInfo.NumConfirmationsComplete() {
-		return accounts.TxStatusComplete
-	}
-	return accounts.TxStatusPending
-}
-
-// Amount implements accounts.Transaction.
-func (txInfo *TxInfo) Amount() coin.Amount {
-	return coin.NewAmountFromInt64(int64(txInfo.amount))
-}
-
-// Addresses implements accounts.Transaction.
-func (txInfo *TxInfo) Addresses() []accounts.AddressAndAmount {
-	return txInfo.addresses
-}
 
 func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 	_, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, transactions.net)
@@ -517,7 +426,7 @@ func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	txInfo *DBTxInfo,
-	isChange func(blockchain.ScriptHashHex) bool) *TxInfo {
+	isChange func(blockchain.ScriptHashHex) bool) *accounts.TransactionData {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
@@ -566,12 +475,20 @@ func (transactions *Transactions) txInfo(
 			sendAddresses = append(sendAddresses, addressAndAmount)
 		}
 	}
+
+	btcutilTx := btcutil.NewTx(txInfo.Tx)
+	vsize := mempool.GetTxVirtualSize(btcutilTx)
+
 	var addresses []accounts.AddressAndAmount
 	var txType accounts.TxType
-	var feeP *btcutil.Amount
+	var feeP *coin.Amount
+	var feeRatePerKbP *btcutil.Amount
 	if allInputsOurs {
-		fee := sumOurInputs - sumAllOutputs
+		feeValue := sumOurInputs - sumAllOutputs
+		fee := coin.NewAmountFromInt64(int64(feeValue))
 		feeP = &fee
+		feeRatePerKb := feeValue * 1000 / btcutil.Amount(vsize)
+		feeRatePerKbP = &feeRatePerKb
 		addresses = sendAddresses
 		if allOutputsOurs {
 			txType = accounts.TxTypeSendSelf
@@ -601,26 +518,36 @@ func (transactions *Transactions) txInfo(
 	if txInfo.Height > 0 && transactions.headersTipHeight > 0 {
 		numConfirmations = transactions.headersTipHeight - txInfo.Height + 1
 	}
-	btcutilTx := btcutil.NewTx(txInfo.Tx)
-	return &TxInfo{
-		Tx:               txInfo.Tx,
-		VSize:            mempool.GetTxVirtualSize(btcutilTx),
+
+	const numConfirmationsComplete = 6
+	status := accounts.TxStatusPending
+	if numConfirmations >= numConfirmationsComplete {
+		status = accounts.TxStatusComplete
+	}
+	return &accounts.TransactionData{
+		Fee:                      feeP,
+		Timestamp:                txInfo.HeaderTimestamp,
+		TxID:                     txInfo.Tx.TxHash().String(),
+		InternalID:               txInfo.Tx.TxHash().String(),
+		NumConfirmations:         numConfirmations,
+		NumConfirmationsComplete: numConfirmationsComplete,
+		Height:                   txInfo.Height,
+		Status:                   status,
+		Type:                     txType,
+		Amount:                   coin.NewAmountFromInt64(int64(result)),
+		Addresses:                addresses,
+
+		FeeRatePerKb:     feeRatePerKbP,
+		VSize:            vsize,
 		Size:             int64(txInfo.Tx.SerializeSize()),
 		Weight:           btcdBlockchain.GetTransactionWeight(btcutilTx),
-		numConfirmations: numConfirmations,
-		Height:           txInfo.Height,
-		txType:           txType,
-		amount:           result,
-		fee:              feeP,
-		headerTimestamp:  txInfo.HeaderTimestamp,
-		createdTimestamp: txInfo.CreatedTimestamp,
-		addresses:        addresses,
+		CreatedTimestamp: txInfo.CreatedTimestamp,
 	}
 }
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
-	isChange func(blockchain.ScriptHashHex) bool) []*TxInfo {
+	isChange func(blockchain.ScriptHashHex) bool) []*accounts.TransactionData {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
@@ -629,7 +556,7 @@ func (transactions *Transactions) Transactions(
 		panic(err)
 	}
 	defer dbTx.Rollback()
-	txs := []*TxInfo{}
+	txs := []*accounts.TransactionData{}
 	txHashes, err := dbTx.Transactions()
 	if err != nil {
 		// TODO

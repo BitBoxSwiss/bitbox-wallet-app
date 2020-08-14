@@ -73,7 +73,7 @@ type Account struct {
 	activeTxProposalLock locker.Locker
 
 	nextNonce    uint64
-	transactions []accounts.Transaction
+	transactions []*accounts.TransactionData
 
 	quitChan chan struct{}
 
@@ -268,8 +268,8 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 
 // outgoingTransactions gets all locally stored outgoing transactions. It filters out the ones also
 // present from the transactions source.
-func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
-	[]accounts.Transaction, error) {
+func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData) (
+	[]*ethtypes.TransactionWithMetadata, error) {
 	dbTx, err := account.db.Begin()
 	if err != nil {
 		return nil, err
@@ -282,18 +282,17 @@ func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 
 	allTxHashes := map[string]struct{}{}
 	for _, tx := range allTxs {
-		allTxHashes[tx.TxID()] = struct{}{}
+		allTxHashes[tx.TxID] = struct{}{}
 	}
 
-	transactions := []accounts.Transaction{}
+	transactions := []*ethtypes.TransactionWithMetadata{}
 	for _, tx := range outgoingTransactions {
 		tx := tx
 		// Skip txs already present from transactions source.
 		if _, ok := allTxHashes[tx.TxID()]; ok {
 			continue
 		}
-		transactions = append(transactions,
-			ethtypes.NewTransactionWithConfirmations(tx, account.blockNumber.Uint64(), account.coin.erc20Token))
+		transactions = append(transactions, tx)
 	}
 	return transactions, nil
 }
@@ -312,7 +311,7 @@ func (account *Account) update() error {
 	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
 
 	// Get confirmed transactions.
-	var confirmedTansactions []accounts.Transaction
+	var confirmedTansactions []*accounts.TransactionData
 	if transactionsSource != nil {
 		var err error
 		confirmedTansactions, err = transactionsSource.Transactions(
@@ -342,14 +341,21 @@ func (account *Account) update() error {
 	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
 	// next nonce.
 	if len(outgoingTransactions) > 0 {
-		localNonce := outgoingTransactions[len(outgoingTransactions)-1].(*ethtypes.TransactionWithConfirmations).Transaction.Nonce() + 1
+		localNonce := outgoingTransactions[len(outgoingTransactions)-1].Transaction.Nonce() + 1
 		if localNonce > account.nextNonce {
 			account.nextNonce = localNonce
 		}
 	}
-	account.transactions = append(outgoingTransactions, confirmedTansactions...)
+	outgoingTransactionsData := make([]*accounts.TransactionData, len(outgoingTransactions))
+	for i, tx := range outgoingTransactions {
+		outgoingTransactionsData[i] = tx.TransactionData(
+			account.blockNumber.Uint64(),
+			account.coin.erc20Token,
+		)
+	}
+	account.transactions = append(outgoingTransactionsData, confirmedTansactions...)
 	for _, transaction := range account.transactions {
-		if err := account.notifier.Put([]byte(transaction.TxID())); err != nil {
+		if err := account.notifier.Put([]byte(transaction.TxID)); err != nil {
 			return err
 		}
 	}
@@ -403,7 +409,7 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 // Transactions implements accounts.Interface.
-func (account *Account) Transactions() ([]accounts.Transaction, error) {
+func (account *Account) Transactions() ([]*accounts.TransactionData, error) {
 	account.Synchronizer.WaitSynchronized()
 	return account.transactions, nil
 }

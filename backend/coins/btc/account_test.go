@@ -90,7 +90,7 @@ func TestAccount(t *testing.T) {
 
 	transactions, err := account.Transactions()
 	require.NoError(t, err)
-	require.Equal(t, []accounts.Transaction{}, transactions)
+	require.Equal(t, []*accounts.TransactionData{}, transactions)
 
 	require.Equal(t, []*btc.SpendableOutput{}, account.SpendableOutputs())
 }

@@ -18,10 +18,10 @@ import "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
 // confirmations.
-type byHeight []accounts.Transaction
+type byHeight []*accounts.TransactionData
 
 func (s byHeight) Len() int { return len(s) }
 func (s byHeight) Less(i, j int) bool {
-	return s[i].NumConfirmations() < s[j].NumConfirmations()
+	return s[i].NumConfirmations < s[j].NumConfirmations
 }
 func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }

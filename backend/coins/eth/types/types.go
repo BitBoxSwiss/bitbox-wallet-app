@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"math/big"
-	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -31,12 +30,6 @@ import (
 
 // NumConfirmationsComplete indicates after how many confs the tx is considered complete.
 const NumConfirmationsComplete = 12
-
-// EthereumTransaction holds information specific to Ethereum.
-type EthereumTransaction interface {
-	// Gas returns the gas limit for pending tx, and the gas used for confirmed tx.
-	Gas() uint64
-}
 
 // TransactionWithMetadata wraps an outgoing transaction and implements accounts.Transaction.
 type TransactionWithMetadata struct {
@@ -85,138 +78,87 @@ func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 	return nil
 }
 
-// Fee implements accounts.Transaction.
-func (txh *TransactionWithMetadata) Fee() *coin.Amount {
+// TransactionData returns the tx data to be shown to the user.
+func (txh *TransactionWithMetadata) TransactionData(
+	tipHeight uint64, erc20Token *erc20.Token) *accounts.TransactionData {
+	data := txh.Transaction.Data()
+	if erc20Token == nil && len(data) > 0 {
+		panic("invalid config")
+	}
+	if erc20Token != nil {
+		if *txh.Transaction.To() != erc20Token.ContractAddress() ||
+			len(data) != 68 ||
+			!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
+			txh.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
+			panic("invalid erc20 tx")
+		}
+	}
+
+	amount := coin.NewAmount(txh.Transaction.Value())
+	address := txh.Transaction.To().Hex()
+
+	if erc20Token != nil {
+		// ERC20 transfer.
+		data := txh.Transaction.Data()
+		amount = coin.NewAmount(new(big.Int).SetBytes(data[len(data)-32:]))
+		address = common.BytesToAddress(data[4+32-common.AddressLength : 4+32]).Hex()
+	}
+
+	numConfirmations := txh.numConfirmations(tipHeight)
+	return &accounts.TransactionData{
+		Fee:                      txh.fee(),
+		Timestamp:                nil,
+		TxID:                     txh.TxID(),
+		InternalID:               txh.TxID(),
+		Height:                   int(txh.Height),
+		NumConfirmations:         numConfirmations,
+		NumConfirmationsComplete: NumConfirmationsComplete,
+		Status:                   txh.status(numConfirmations),
+		Type:                     accounts.TxTypeSend,
+		Amount:                   amount,
+		Addresses: []accounts.AddressAndAmount{{
+			Address: address,
+			Amount:  amount,
+		}},
+		Gas: txh.gas(),
+	}
+}
+
+func (txh *TransactionWithMetadata) fee() *coin.Amount {
 	fee := new(big.Int).Mul(big.NewInt(int64(txh.Transaction.Gas())), txh.Transaction.GasPrice())
 	amount := coin.NewAmount(fee)
 	return &amount
 }
 
-// Timestamp implements accounts.Transaction.
-func (txh *TransactionWithMetadata) Timestamp() *time.Time {
-	return nil
-}
-
-// TxID implements accounts.Transaction.
+// TxID returns the transaction ID.
 func (txh *TransactionWithMetadata) TxID() string {
 	return txh.Transaction.Hash().Hex()
 }
 
-// InternalID implements accounts.Transaction.
-func (txh *TransactionWithMetadata) InternalID() string {
-	return txh.TxID()
-}
-
-// Type implements accounts.Transaction.
-func (txh *TransactionWithMetadata) Type() accounts.TxType {
-	return accounts.TxTypeSend
-}
-
-// Amount implements accounts.Transaction.
-func (txh *TransactionWithMetadata) Amount() coin.Amount {
-	return coin.NewAmount(txh.Transaction.Value())
-}
-
-// Addresses implements accounts.Transaction.
-func (txh *TransactionWithMetadata) Addresses() []accounts.AddressAndAmount {
-	return []accounts.AddressAndAmount{{
-		Address: txh.Transaction.To().Hex(),
-		Amount:  txh.Amount(),
-	}}
-}
-
-// Gas implements ethtypes.EthereumTransaction.
-func (txh *TransactionWithMetadata) Gas() uint64 {
+func (txh *TransactionWithMetadata) gas() uint64 {
 	if txh.Height == 0 {
 		return txh.Transaction.Gas()
 	}
 	return txh.GasUsed
 }
 
-// NewTransactionWithConfirmations creates a tx with additional data needed to be able to display it
-// in the frontend.
-func NewTransactionWithConfirmations(
-	tx *TransactionWithMetadata,
-	tipHeight uint64,
-	erc20Token *erc20.Token) *TransactionWithConfirmations {
-	data := tx.Transaction.Data()
-	if erc20Token == nil && len(data) > 0 {
-		panic("invalid config")
-	}
-	if erc20Token != nil {
-		if *tx.Transaction.To() != erc20Token.ContractAddress() ||
-			len(data) != 68 ||
-			!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
-			tx.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
-			panic("invalid erc20 tx")
-		}
-	}
-	return &TransactionWithConfirmations{
-		TransactionWithMetadata: *tx,
-		tipHeight:               tipHeight,
-		erc20Token:              erc20Token,
-	}
-}
-
-// TransactionWithConfirmations also stores the current tip height so NumConfirmations() can be
-// computed.
-type TransactionWithConfirmations struct {
-	TransactionWithMetadata
-	tipHeight  uint64
-	erc20Token *erc20.Token
-}
-
-// NumConfirmations implements accounts.Transaction.
-func (txh *TransactionWithConfirmations) NumConfirmations() int {
+func (txh *TransactionWithMetadata) numConfirmations(tipHeight uint64) int {
 	confs := 0
 	if txh.Height > 0 {
-		confs = int(txh.tipHeight - txh.Height + 1)
+		confs = int(tipHeight - txh.Height + 1)
 	}
 	return confs
 }
 
-// NumConfirmationsComplete implements accounts.Transaction.
-func (txh *TransactionWithConfirmations) NumConfirmationsComplete() int {
-	return NumConfirmationsComplete
-}
-
-// Status implements accounts.Transaction.
-func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
-	if txh.NumConfirmations() == 0 {
+func (txh *TransactionWithMetadata) status(numConfirmations int) accounts.TxStatus {
+	if numConfirmations == 0 {
 		return accounts.TxStatusPending
 	}
 	if !txh.Success {
 		return accounts.TxStatusFailed
 	}
-	if txh.NumConfirmations() >= txh.NumConfirmationsComplete() {
+	if numConfirmations >= NumConfirmationsComplete {
 		return accounts.TxStatusComplete
 	}
 	return accounts.TxStatusPending
 }
-
-// Amount implements accounts.Transaction.
-func (txh *TransactionWithConfirmations) Amount() coin.Amount {
-	if txh.erc20Token != nil {
-		data := txh.Transaction.Data()
-		return coin.NewAmount(new(big.Int).SetBytes(data[len(data)-32:]))
-	}
-	return txh.TransactionWithMetadata.Amount()
-}
-
-// Addresses implements accounts.Transaction.
-func (txh *TransactionWithConfirmations) Addresses() []accounts.AddressAndAmount {
-	if txh.erc20Token != nil {
-		data := txh.Transaction.Data()
-		// ERC20 transfer.
-		return []accounts.AddressAndAmount{{
-			Address: common.BytesToAddress(data[4+32-common.AddressLength : 4+32]).Hex(),
-			Amount:  txh.Amount(),
-		}}
-	}
-
-	return txh.TransactionWithMetadata.Addresses()
-}
-
-// assertion because not implementing the interface fails silently.
-var _ EthereumTransaction = &TransactionWithMetadata{}
-var _ EthereumTransaction = &TransactionWithConfirmations{}

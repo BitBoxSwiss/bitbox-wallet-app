@@ -184,7 +184,6 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	)
 	transactions := s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
 	require.Len(s.T(), transactions, 1)
-	require.Equal(s.T(), tx1, transactions[0].Tx)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)
 }
 
