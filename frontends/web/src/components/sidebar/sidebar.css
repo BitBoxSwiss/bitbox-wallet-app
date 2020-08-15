@@ -30,7 +30,6 @@
     width: var(--sidebar-width-large);
     z-index: 4002;
     overflow-y: auto;
-    transition: all 0.2s ease;
 }
 
 .sidebar > *.end {
@@ -215,6 +214,12 @@ a.sidebar-active .single img,
 .sidebarArrow {
     width: 12px;
     height: 12px;
+}
+
+@media (max-width: 1199px) {
+    .sidebar {
+        transition: margin-left 0.2s ease;
+    }
 }
 
 @media (min-width: 1200px) {
