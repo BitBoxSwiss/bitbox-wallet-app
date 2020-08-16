@@ -15,15 +15,20 @@
 package accounts
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io"
 	"path"
 	"sync"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/sirupsen/logrus"
 )
@@ -53,6 +58,8 @@ type BaseAccount struct {
 
 	config *AccountConfig
 
+	coin coin.Coin
+
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
 	synced  bool
@@ -65,9 +72,10 @@ type BaseAccount struct {
 }
 
 // NewBaseAccount creates a new Account instance.
-func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
+func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *BaseAccount {
 	account := &BaseAccount{
 		config: config,
+		coin:   coin,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
 		func() { config.OnEvent(EventSyncStarted) },
@@ -86,6 +94,11 @@ func NewBaseAccount(config *AccountConfig, log *logrus.Entry) *BaseAccount {
 // Config implements Interface.
 func (account *BaseAccount) Config() *AccountConfig {
 	return account.config
+}
+
+// Coin implements accounts.Interface.
+func (account *BaseAccount) Coin() coin.Coin {
+	return account.coin
 }
 
 // Synced implements Interface.
@@ -164,4 +177,63 @@ func (account *BaseAccount) SetTxNote(txID string, note string) error {
 	// Prompt refresh.
 	account.config.OnEvent(EventStatusChanged)
 	return nil
+}
+
+// ExportCSV implements accounts.Account.
+func (account *BaseAccount) ExportCSV(w io.Writer, transactions []Transaction) error {
+	writer := csv.NewWriter(w)
+	err := writer.Write([]string{
+		"Time",
+		"Type",
+		"Amount",
+		"Unit",
+		"Fee",
+		"Address",
+		"Transaction ID",
+		"Note",
+	})
+	if err != nil {
+		return errp.WithStack(err)
+	}
+
+	for _, transaction := range transactions {
+		transactionType := map[TxType]string{
+			TxTypeReceive:  "received",
+			TxTypeSend:     "sent",
+			TxTypeSendSelf: "sent_to_yourself",
+		}[transaction.Type()]
+		feeString := ""
+		fee := transaction.Fee()
+		if fee != nil {
+			feeString = fee.BigInt().String()
+		}
+		unit := account.Coin().SmallestUnit()
+		timeString := ""
+		if transaction.Timestamp() != nil {
+			timeString = transaction.Timestamp().Format(time.RFC3339)
+		}
+		for _, addressAndAmount := range transaction.Addresses() {
+			if transactionType == "sent" && addressAndAmount.Ours {
+				transactionType = "sent_to_yourself"
+			}
+			err := writer.Write([]string{
+				timeString,
+				transactionType,
+				addressAndAmount.Amount.BigInt().String(),
+				unit,
+				feeString,
+				addressAndAmount.Address,
+				transaction.TxID(),
+				account.Notes().TxNote(transaction.InternalID()),
+			})
+			if err != nil {
+				return errp.WithStack(err)
+			}
+			// a multitx is output in one row per receive address. Show the tx fee only in the
+			// first row.
+			feeString = ""
+		}
+	}
+	writer.Flush()
+	return writer.Error()
 }

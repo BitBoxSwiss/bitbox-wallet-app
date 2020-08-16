@@ -20,6 +20,7 @@ import (
 )
 
 // Coin models the currency of a blockchain.
+//go:generate moq -pkg mocks -out mocks/coin.go . Coin
 type Coin interface {
 	observable.Interface
 

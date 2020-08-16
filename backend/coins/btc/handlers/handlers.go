@@ -16,7 +16,6 @@
 package handlers
 
 import (
-	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
@@ -211,76 +210,21 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 	path := filepath.Join(downloadsDir, name)
 	handlers.log.Infof("Export transactions to %s.", path)
 
-	file, err := os.Create(path)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	defer func() {
-		err := file.Close()
-		if err != nil {
-			handlers.log.WithError(err).Error("Could not close the exported transactions file.")
-		}
-	}()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write([]string{
-		"Time",
-		"Type",
-		"Amount",
-		"Unit",
-		"Fee",
-		"Address",
-		"Transaction ID",
-		"Note",
-	})
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-
 	transactions, err := handlers.account.Transactions()
 	if err != nil {
 		return nil, err
 	}
-	for _, transaction := range transactions {
-		transactionType := map[accounts.TxType]string{
-			accounts.TxTypeReceive:  "received",
-			accounts.TxTypeSend:     "sent",
-			accounts.TxTypeSendSelf: "sent_to_yourself",
-		}[transaction.Type()]
-		feeString := ""
-		fee := transaction.Fee()
-		if fee != nil {
-			feeString = fee.BigInt().String()
-		}
-		unit := handlers.account.Coin().SmallestUnit()
-		timeString := ""
-		if transaction.Timestamp() != nil {
-			timeString = transaction.Timestamp().Format(time.RFC3339)
-		}
-		for _, addressAndAmount := range transaction.Addresses() {
-			if transactionType == "sent" && addressAndAmount.Ours {
-				transactionType = "sent_to_yourself"
-			}
-			err := writer.Write([]string{
-				timeString,
-				transactionType,
-				addressAndAmount.Amount.BigInt().String(),
-				unit,
-				feeString,
-				addressAndAmount.Address,
-				transaction.TxID(),
-				handlers.account.Notes().TxNote(transaction.InternalID()),
-			})
-			if err != nil {
-				return nil, errp.WithStack(err)
-			}
-			// a multitx is output in one row per receive address. Show the tx fee only in the
-			// first row.
-			feeString = ""
-		}
 
+	file, err := os.Create(path)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.account.ExportCSV(file, transactions); err != nil {
+		_ = file.Close()
+		return nil, err
+	}
+	if err := file.Close(); err != nil {
+		return nil, err
 	}
 	return path, nil
 }

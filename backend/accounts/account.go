@@ -16,6 +16,8 @@
 package accounts
 
 import (
+	"io"
+
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
@@ -83,6 +85,9 @@ type Interface interface {
 	ProposeTxNote(string)
 	// SetTxNote sets a tx note and refreshes the account.
 	SetTxNote(txID string, note string) error
+
+	// ExportCSV exports the given transaction in CSV format (comma-separated).
+	ExportCSV(w io.Writer, transactions []Transaction) error
 }
 
 // Info holds account information.
