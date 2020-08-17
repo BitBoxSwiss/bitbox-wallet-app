@@ -304,22 +304,23 @@ class Account extends Component<Props, State> {
                     }
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
-                        <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                className={style.accountIcon}>
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12" y2="8"></line>
-                            </svg>
-                            <span>{t('accountInfo.label')}</span>
-                        </a>
+                        { isBitcoinBased(account.coinCode) && (
+                            <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    className={style.accountIcon}>
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12" y2="8"></line>
+                                </svg>
+                                <span>{t('accountInfo.label')}</span>
+                            </a> ) }
                     </Header>
                     {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
