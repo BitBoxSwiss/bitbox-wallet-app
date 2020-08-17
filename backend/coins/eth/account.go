@@ -287,7 +287,6 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 
 	transactions := []*ethtypes.TransactionWithMetadata{}
 	for _, tx := range outgoingTransactions {
-		tx := tx
 		// Skip txs already present from transactions source.
 		if _, ok := allTxHashes[tx.TxID()]; ok {
 			continue
