@@ -163,7 +163,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	expectedAmount := btcutil.Amount(123)
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
 	s.blockchainMock.RegisterTxs(tx1)
-	expectedHeight := 10
+	const expectedHeight = 10
 	s.headersMock.On("VerifiedHeaderByHeight", expectedHeight).Return(nil, nil).Once()
 	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: expectedHeight},
