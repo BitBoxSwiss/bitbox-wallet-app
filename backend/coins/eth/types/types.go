@@ -85,20 +85,22 @@ func (txh *TransactionWithMetadata) TransactionData(
 	if erc20Token == nil && len(data) > 0 {
 		panic("invalid config")
 	}
-	if erc20Token != nil {
-		if *txh.Transaction.To() != erc20Token.ContractAddress() ||
-			len(data) != 68 ||
-			!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
-			txh.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
-			panic("invalid erc20 tx")
-		}
-	}
 
 	amount := coin.NewAmount(txh.Transaction.Value())
 	address := txh.Transaction.To().Hex()
 
 	if erc20Token != nil {
 		// ERC20 transfer.
+
+		// An ERC20-Token transfer looks like this:
+		// - Data is <0xa9059cbb><32 bytes address><32 bytes big endian amount>
+		// - Tx value is 0 (contract invocation).
+		if *txh.Transaction.To() != erc20Token.ContractAddress() ||
+			len(data) != 68 ||
+			!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
+			txh.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
+			panic("invalid erc20 tx")
+		}
 		data := txh.Transaction.Data()
 		amount = coin.NewAmount(new(big.Int).SetBytes(data[len(data)-32:]))
 		address = common.BytesToAddress(data[4+32-common.AddressLength : 4+32]).Hex()
