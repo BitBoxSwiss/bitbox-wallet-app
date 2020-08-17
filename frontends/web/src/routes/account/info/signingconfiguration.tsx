@@ -17,7 +17,6 @@
 import { Component, h, RenderableProps } from 'preact';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
-import { ButtonLink } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -80,7 +79,6 @@ class SigningConfiguration extends Component<Props, State> {
     public render(
         { t,
           info,
-          code,
           signingConfigIndex,
         }: RenderableProps<Props>,
         { canVerifyExtendedPublicKey }: State) {
@@ -93,13 +91,6 @@ class SigningConfiguration extends Component<Props, State> {
                     <QRCode data={info.address} />
                     <div className={style.textareaContainer}>
                         <CopyableInput flexibleHeight value={info.address} />
-                    </div>
-                    <div className="buttons">
-                        <ButtonLink
-                            transparent
-                            href={`/account/${code}`}>
-                            {t('button.back')}
-                        </ButtonLink>
                     </div>
                 </div>
                     :
