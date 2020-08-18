@@ -39,7 +39,7 @@ type TransactionsSource interface {
 	Transactions(
 		blockTipHeight *big.Int,
 		address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
-		[]accounts.Transaction, error)
+		[]*accounts.TransactionData, error)
 }
 
 // TransactionsSourceMaker creates a transaction source.

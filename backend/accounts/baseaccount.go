@@ -180,7 +180,7 @@ func (account *BaseAccount) SetTxNote(txID string, note string) error {
 }
 
 // ExportCSV implements accounts.Account.
-func (account *BaseAccount) ExportCSV(w io.Writer, transactions []Transaction) error {
+func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionData) error {
 	writer := csv.NewWriter(w)
 	err := writer.Write([]string{
 		"Time",
@@ -201,18 +201,18 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []Transaction) e
 			TxTypeReceive:  "received",
 			TxTypeSend:     "sent",
 			TxTypeSendSelf: "sent_to_yourself",
-		}[transaction.Type()]
+		}[transaction.Type]
 		feeString := ""
-		fee := transaction.Fee()
+		fee := transaction.Fee
 		if fee != nil {
 			feeString = fee.BigInt().String()
 		}
 		unit := account.Coin().SmallestUnit()
 		timeString := ""
-		if transaction.Timestamp() != nil {
-			timeString = transaction.Timestamp().Format(time.RFC3339)
+		if transaction.Timestamp != nil {
+			timeString = transaction.Timestamp.Format(time.RFC3339)
 		}
-		for _, addressAndAmount := range transaction.Addresses() {
+		for _, addressAndAmount := range transaction.Addresses {
 			if transactionType == "sent" && addressAndAmount.Ours {
 				transactionType = "sent_to_yourself"
 			}
@@ -223,8 +223,8 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []Transaction) e
 				unit,
 				feeString,
 				addressAndAmount.Address,
-				transaction.TxID(),
-				account.Notes().TxNote(transaction.InternalID()),
+				transaction.TxID,
+				account.Notes().TxNote(transaction.InternalID),
 			})
 			if err != nil {
 				return errp.WithStack(err)

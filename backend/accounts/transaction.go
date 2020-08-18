@@ -17,6 +17,7 @@ package accounts
 import (
 	"time"
 
+	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 )
 
@@ -54,40 +55,51 @@ type AddressAndAmount struct {
 	Ours bool
 }
 
-// Transaction models a transaction with common transaction info.
-type Transaction interface {
+// TransactionData holds transaction data to be shown to the user. It is as coin-agnostic as
+// possible, but contains some fields that are only used by certain coins.
+type TransactionData struct {
 	// Fee is nil for a receiving tx. The fee is only displayed (and relevant) when sending funds
 	// from the wallet.
-	Fee() *coin.Amount
-
+	Fee *coin.Amount
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
-	Timestamp() *time.Time
-
+	Timestamp *time.Time
 	// TxID is the tx ID.
-	TxID() string
-
+	TxID string
 	// InternalID is an ID for identifying this transaction. Usually it is the same as TxID(), but
 	// e.g. in Ethereum, there can be multiple transaction entries for the same transaction ID
 	// (e.g. an internal/smart contract tx shown semantically, as well as the raw zero value
 	// contract execution tx).
-	InternalID() string
-
+	InternalID string
+	// Height is the block number at which this tx confirmed, or 0 if unconfirmed.
+	Height int
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
-	NumConfirmations() int
-
+	NumConfirmations int
 	// NumConfirmationsComplete is the number of confirmations needed for a tx to be considered
 	// complete.
-	NumConfirmationsComplete() int
-
+	NumConfirmationsComplete int
 	// Status is the tx status. See TxStatus docs for details.
-	Status() TxStatus
-
+	Status TxStatus
 	// Type returns the type of the transaction.
-	Type() TxType
-
+	Type TxType
 	// Amount is always >0 and is the amount received or sent (not including the fee).
-	Amount() coin.Amount
-
+	Amount coin.Amount
 	// Addresses money was sent to / received on.
-	Addresses() []AddressAndAmount
+	Addresses []AddressAndAmount
+
+	// --- Fields only used by BTC follow:
+
+	// FeeRatePerKb is the fee rate of the tx (fee / tx size).
+	FeeRatePerKb *btcutil.Amount
+	// VSize is the tx virtual size in
+	// "vbytes". https://bitcoincore.org/en/segwit_wallet_dev/#transaction-fee-estimation
+	VSize int64
+	// Size is the serialized tx size in bytes.
+	Size int64
+	// Weight is the tx weight.
+	Weight           int64
+	CreatedTimestamp *time.Time
+
+	// --- Fields only used for ETH follow
+
+	Gas uint64
 }

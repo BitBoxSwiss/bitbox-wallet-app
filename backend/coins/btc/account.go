@@ -640,11 +640,11 @@ func (account *Account) subscribeAddress(
 }
 
 // Transactions wraps transaction.Transactions.Transactions().
-func (account *Account) Transactions() ([]accounts.Transaction, error) {
+func (account *Account) Transactions() ([]*accounts.TransactionData, error) {
 	if account.fatalError {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
-	transactions := account.transactions.Transactions(
+	return account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			for _, subacc := range account.subaccounts {
 				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
@@ -652,12 +652,7 @@ func (account *Account) Transactions() ([]accounts.Transaction, error) {
 				}
 			}
 			return false
-		})
-	cast := make([]accounts.Transaction, len(transactions))
-	for index, transaction := range transactions {
-		cast[index] = transaction
-	}
-	return cast, nil
+		}), nil
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
