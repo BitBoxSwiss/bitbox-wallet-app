@@ -15,7 +15,8 @@
     },
     "initializing": "Pridobivam podatke iz verige blokov...",
     "openFile": "Odpri datoteko",
-    "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo..."
+    "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo...",
+    "syncedAddressesCount": "Prešteto št. naslovov: {{count}}"
   },
   "accountInfo": {
     "address": "Naslov",
@@ -107,9 +108,6 @@
       "title": "Obnovi",
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
-    "restoreFromMnemonic": {
-      "confirmTitle": "Obvnovite iz seznama besed"
-    },
     "showMnemonic": {
       "description": "Prikazano vam bo do 24 besed, ki tvorijo arhivsko kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in ne fotografirajte jih.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta arhivska kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi.",
       "title": "Prikaži mnemonično seme"
@@ -168,7 +166,8 @@
       "userConfirmation1": "Arhivsko kopijo je potrebno hraniti na varnem mestu",
       "userConfirmation2": "Moja arhivska kopija ni zaščitena z geslom. Vsak, ki ima dostop do njega, lahko dostopa do moje denarnice.",
       "userConfirmation3": "Če izgubim ali poškodujem svoj BitBox02, je edini način, da povrnem svoja sredstva, obnovitev iz arhivske kopije.",
-      "userConfirmation4": "Če izgubim ali poškodujem tako arhivsko kopijo kot svoj BitBox02, potem bodo moja sredstva izgubljena."
+      "userConfirmation4": "Če izgubim ali poškodujem tako arhivsko kopijo kot svoj BitBox02, potem bodo moja sredstva izgubljena.",
+      "userConfirmation5": "Ustvarjeno arhivsko kopijo na microSD kartici ne smem vtakniti v PC, telefon, tiskalnik ali katero koli drugo napravo razen v BitBox02."
     },
     "create": {
       "button": "Poimenuj napravo in nadaljuj",
@@ -197,9 +196,7 @@
       "unpaired": "Zaznana je bila nova BitBox02 naprava. Preverite, ali se prikazana koda ujema s prikazom na zaslonu naprave. Če se koda ujema, se na BitBox02 dotaknite pod kljukico in za nadaljevanje kliknite spodnji gumb."
     },
     "restoreFromMnemonic": {
-      "failed": "Obnova iz seznama besed ni uspela. Poskusite znova.",
-      "point1": "Vnesite besede",
-      "point2": "$t(bitbox02Wizard.backup.point2)"
+      "failed": "Obnova iz seznama besed ni uspela. Poskusite znova."
     },
     "stepBackup": {
       "beforeProceed": "Pred nadaljevanjem preberite naslednje pomembne varnostne vidike:",
@@ -793,6 +790,10 @@
         "text": "Takoj, ko opravite transakcijo, se na seznam samodejno doda nov naslov. Tako je vedno na voljo 20 naslovov, ki še nikoli niso prejeli nobenega kovanca.",
         "title": "Kdaj se naslovi spremenijo?"
       },
+      "addressFormats": {
+        "text": "Združljiv naslov je tipa \"standardni segwit\" medtem ko je moderni tipa bech32 ali \"native segwit\". BitBox02 privzeto uporablja moderni tip.\nČe imate težave s pošiljanjem na nekompatibilno denarnico, kliknite na \"Spremeni v format naslova ki se začne s 3\".",
+        "title": "Kakšna je razlika med združljivim naslovom in sodobnim naslovom?"
+      },
       "howVerify": {
         "text": "Če imate BitBox01 kliknite ikono BitBox na stranskem stolpcu na levi strani in glejte poglavje seznanitve. Vodnik se bo posodobil in lahko nadaljujete po navodilih od tam.\nZ BitBox02 lahko med postopkom pošiljanja/prejemanja preverite naslove neposredno na napravi.",
         "title": "Kako lahko varno preverim naslov?"
@@ -829,13 +830,29 @@
       }
     },
     "settings-electrum": {
+      "instructions": {
+        "link": {
+          "text": "Vodnik za povezavo lastnega vozlišča",
+          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+        },
+        "text": "Za obširnejša navodila obiščite naš vodič (v angleščini):",
+        "title": "Kako povežem BitBoxApp s svojim polnim vozliščem?"
+      },
+      "options": {
+        "text": "Obstaja več možnosti za postavitev lastnega vozlišča, na primer nakup končanega izdelka, ki je namenjen le temu, izdelava lastnega ali zagon programja Bitcoin Core na računalniku.\nČe želite BitBoxApp povezati s svojim vozliščem, se prepričajte, da na njem teče tudi strežnik Electrum. To je namenski program, ki aplikaciji denarnice (kot je BitBoxApp) omogoča komunikacijo s polnim vozliščem.\nPodprte možnosti vključujejo programje Electrs, Electrum Personal Server (EPS) ali Bitcoin Wallet Tracker (BTW).",
+        "title": "Kakšne možnosti obstajajo za zagon/nakup vozlišča?"
+      },
+      "tor": {
+        "text": "Tor pomeni 'The Onion Router', ki je brezplačna in odprtokodna programska oprema, ki ponuja višjo stopnjo zasebnosti in je še posebej uporabna pri uporabi Bitcoina.\nČe se nameravate povezati s vozliščem prek omrežja Tor, se prepričajte, da je Tor nameščen na računalniku in nato v nastavitvah BitBoxApp omogočite Tor Proxy.\nV večini operacijskih sistemov obstaja dva načina dostopa do Tor-a:\n1. Brskalnik Tor: prenesite in odprite brskalnik Tor. To bo omogočilo BitBoxApp, da se poveže z omrežjem Tor. V nastavitvah vpišite vrata (port) 9150 v nastavitvah za proxy strežnik.\n2. To v ozadju: Namestite demon Tor, ki vedno deluje v ozadju operacijskega sistema. Nato se lahko BitBoxApp poveže preko Tor-a z nastavitvijo vrat 9050 v nastavitvah za proxy strežnik.",
+        "title": "Kaj je Tor, Tor proxy in kater \"port\" naj uporabim?"
+      },
       "what": {
         "text": "Denarnico lahko povežete s svojim polnim vozliščem, namesto da uporabljate strežnike podjetja Shift.",
         "title": "Kaj je to?"
       },
-      "whenTCP": {
-        "text": "Priporočljivo je, da vedno uporabljate TLS, tudi če vaše vozlišče deluje na istem računalniku, kot ta aplikacija. Pri povezovanju s storitvijo tor, lahko TLS preskočite.",
-        "title": "Naj uporabim TLS?"
+      "why": {
+        "text": "Vzdrževanje lastnega vozlišča ni potrebno, izboljša pa zasebnost in zniža potrebo po zaupanju drugim.\nPrvič, to pomeni, da bolj zasebno uporabljate Bitcoin (omrežje), saj se BitBoxApp ne bo povezal z našimi strežniki, da bi prejel vašo zgodovino transakcij; namesto tega bo podatke prejel od vašega vozlišča.\nDrugič, imeti lastno vozlišče pomeni, da vozlišče samo preverja vse transakcije in poskrbi, da so pravila omrežja Bitcoin za vas uveljavljena.",
+        "title": "Zakaj naj poganjam svoje vozlišče?"
       }
     },
     "settings": {
@@ -858,10 +875,6 @@
         },
         "text": "Uporabite novo obliko naslova Bitcoin, bech32, da izkoristite vse prednosti cenejših omrežnin.\nNe pozabite, da ta oblika še ni povsod podprta.",
         "title": "Kaj je Bitcoin bech32?"
-      },
-      "moreCoins": {
-        "text": "Morda bomo nekoč poleg Litecoina, Ethereuma in ERC-20 žetonov podprli še kak \"altcoin\". Če želite podporo za točno določen kovanec, nam na spodnjem kontaktu pustite predlog.",
-        "title": "Lahko dodate več kovancev?"
       },
       "servers": {
         "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CryptoCompare. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
@@ -968,6 +981,13 @@
   "loading": "nalaganje…",
   "mobile": {
     "usingMobileDataWarning": "Uporaba podatkov na mobilni napravi: ta aplikacija lahko po odklepanju računa naloži do nekaj sto megabajtov podatkov. Če želite preprečiti uporabo mobilnih podatkov, se povežite z Wi-Fi omrežjem. \nTo sporočilo ne bo več prikazano, če ga ugasnete."
+  },
+  "note": {
+    "input": {
+      "description": "(opcijsko)",
+      "placeholder": "Dodaj opombo"
+    },
+    "title": "Opomba"
   },
   "notification": {
     "newTxs_0": "{{count}} novih transakcij na: {{accountName}}",
@@ -1267,6 +1287,7 @@
   "transaction": {
     "confirmation": "Št. potrditev",
     "details": {
+      "activity": "Dejavnost",
       "address": "Naslov",
       "amount": "Znesek",
       "date": "Datum",
@@ -1280,12 +1301,20 @@
     "fee": "Omrežnina",
     "fiatHistorical": "Zgodovinsko",
     "gas": "Gas",
+    "note": {
+      "edit": "Uredi opombo",
+      "save": "Shrani opombo"
+    },
     "pending": "Nedokončana transakcija",
     "size": "Velikost",
     "status": {
       "complete": "Zaključeno",
       "failed": "Ni uspelo",
       "pending": "V teku"
+    },
+    "tx": {
+      "received": "Prejeto na",
+      "sent": "Poslano na"
     },
     "vsize": "Virtualna velikost",
     "weight": "Utež"
