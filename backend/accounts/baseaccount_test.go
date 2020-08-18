@@ -15,9 +15,11 @@
 package accounts
 
 import (
+	"bytes"
 	"testing"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
@@ -48,8 +50,12 @@ func TestBaseAccount(t *testing.T) {
 		GetNotifier:              nil,
 	}
 
-	coin := &mocks.CoinMock{}
-	account := NewBaseAccount(cfg, coin, logging.Get().WithGroup("baseaccount_test"))
+	mockCoin := &mocks.CoinMock{
+		SmallestUnitFunc: func() string {
+			return "satoshi"
+		},
+	}
+	account := NewBaseAccount(cfg, mockCoin, logging.Get().WithGroup("baseaccount_test"))
 	require.NoError(t, account.Initialize(accountIdentifier))
 
 	t.Run("config", func(t *testing.T) {
@@ -102,5 +108,48 @@ func TestBaseAccount(t *testing.T) {
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
 		require.Equal(t, EventStatusChanged, checkEvent())
 		require.Equal(t, "another test note", notes.TxNote("test-tx-id"))
+	})
+
+	t.Run("exportCSV", func(t *testing.T) {
+		export := func(transactions []*TransactionData) string {
+			var result bytes.Buffer
+			require.NoError(t, account.ExportCSV(&result, transactions))
+			return result.String()
+		}
+
+		const header = "Time,Type,Amount,Unit,Fee,Address,Transaction ID,Note\n"
+
+		require.Equal(t, header, export(nil))
+
+		require.NoError(t, account.notes.SetTxNote("some-internal-tx-id", "some note, with a comma"))
+		fee := coin.NewAmountFromInt64(101)
+		timestamp := time.Date(2020, 2, 30, 16, 44, 20, 0, time.UTC)
+		require.Equal(t,
+			header+
+				`2020-03-01T16:44:20Z,sent,123,satoshi,101,some-address,some-tx-id,"some note, with a comma"
+2020-03-01T16:44:20Z,sent_to_yourself,456,satoshi,,another-address,some-tx-id,"some note, with a comma"
+`,
+			export([]*TransactionData{
+				{
+					Type:       TxTypeSend,
+					TxID:       "some-tx-id",
+					InternalID: "some-internal-tx-id",
+					Fee:        &fee,
+					Timestamp:  &timestamp,
+					Addresses: []AddressAndAmount{
+						{
+							Address: "some-address",
+							Amount:  coin.NewAmountFromInt64(123),
+							Ours:    false,
+						},
+						{
+							Address: "another-address",
+							Amount:  coin.NewAmountFromInt64(456),
+							Ours:    true,
+						},
+					},
+				},
+			}))
+
 	})
 }
