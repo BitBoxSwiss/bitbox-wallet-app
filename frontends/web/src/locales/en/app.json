@@ -1191,6 +1191,7 @@
       },
       "estimate": "Estimated wait time:",
       "label": {
+        "custom": "Custom",
         "economy": "economy",
         "high": "high",
         "low": "low",

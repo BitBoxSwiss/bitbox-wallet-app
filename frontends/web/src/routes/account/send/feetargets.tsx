@@ -38,10 +38,12 @@ export type Props = FeeTargetsProps & TranslateProps;
 
 interface FeeTarget {
     code: Code;
+    feeRateInfo: string;
 }
 interface State {
     feeTargets: FeeTarget[] | null;
     feeTarget?: string | null;
+    expert?: boolean;
 }
 
 class FeeTargets extends Component<Props, State> {
@@ -62,11 +64,10 @@ class FeeTargets extends Component<Props, State> {
 
     private updateFeeTargets = (accountCode: string) => {
         apiGet('account/' + accountCode + '/fee-targets')
-        .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
-            // feeTargets.push({code: 'custom'});
-            this.setState({ feeTargets });
-            this.setFeeTarget(defaultFeeTarget);
-        });
+            .then(({ feeTargets, expert, defaultFeeTarget }: {feeTargets: FeeTarget[], expert: boolean; defaultFeeTarget: Code}) => {
+                this.setState({ feeTargets, expert });
+                this.setFeeTarget(defaultFeeTarget);
+            });
     }
 
     private handleFeeTargetChange = (event: Event) => {
@@ -93,8 +94,9 @@ class FeeTargets extends Component<Props, State> {
     {
         feeTargets,
         feeTarget,
+        expert,
     }: State) {
-        if (feeTargets === null) {
+        if (feeTargets === null || expert === undefined) {
             return (
                 <Input
                     label={t('send.priority')}
@@ -116,10 +118,10 @@ class FeeTargets extends Component<Props, State> {
                               disabled={disabled}
                               onChange={this.handleFeeTargetChange}
                               selected={feeTarget}
-                              options={feeTargets.map(({ code }) => {
+                              options={feeTargets.map(({ code, feeRateInfo }) => {
                                   return {
                                       value: code,
-                                      text: t(`send.feeTarget.label.${code}`),
+                                      text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ' (' + feeRateInfo + ')' : ''),
                                   };
                               })} />
                       )}
