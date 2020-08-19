@@ -38,24 +38,19 @@ const unitSatoshi = 1e8
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
 // transaction. selectedUTXOs restricts the available coins; if empty, no restriction is applied and
 // all unspent coins can be used.
-func (account *Account) newTx(
-	recipientAddress string,
-	amount coin.SendAmount,
-	feeTargetCode accounts.FeeTargetCode,
-	selectedUTXOs map[wire.OutPoint]struct{},
-) (
+func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	map[wire.OutPoint]*transactions.SpendableOutput, *maketx.TxProposal, error) {
 
 	account.log.Debug("Prepare new transaction")
 
-	address, err := account.coin.DecodeAddress(recipientAddress)
+	address, err := account.coin.DecodeAddress(args.RecipientAddress)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var feeTarget *FeeTarget
 	for _, target := range account.feeTargets {
-		if target.code == feeTargetCode {
+		if target.code == args.FeeTargetCode {
 			feeTarget = target
 			break
 		}
@@ -72,8 +67,8 @@ func (account *Account) newTx(
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
 		// Apply coin control.
-		if len(selectedUTXOs) != 0 {
-			if _, ok := selectedUTXOs[outPoint]; !ok {
+		if len(args.SelectedUTXOs) != 0 {
+			if _, ok := args.SelectedUTXOs[outPoint]; !ok {
 				continue
 			}
 		}
@@ -84,7 +79,7 @@ func (account *Account) newTx(
 		}
 	}
 	var txProposal *maketx.TxProposal
-	if amount.SendAll() {
+	if args.Amount.SendAll() {
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			wireUTXO,
@@ -97,7 +92,7 @@ func (account *Account) newTx(
 		}
 	} else {
 		allowZero := false
-		parsedAmount, err := amount.Amount(big.NewInt(unitSatoshi), allowZero)
+		parsedAmount, err := args.Amount.Amount(big.NewInt(unitSatoshi), allowZero)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -187,12 +182,7 @@ func (account *Account) TxProposal(
 	defer account.activeTxProposalLock.Lock()()
 
 	account.log.Debug("Proposing transaction")
-	_, txProposal, err := account.newTx(
-		args.RecipientAddress,
-		args.Amount,
-		args.FeeTargetCode,
-		args.SelectedUTXOs,
-	)
+	_, txProposal, err := account.newTx(args)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
