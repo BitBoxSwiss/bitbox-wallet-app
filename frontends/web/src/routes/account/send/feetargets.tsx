@@ -72,10 +72,7 @@ class FeeTargets extends Component<Props, State> {
 
     private handleFeeTargetChange = (event: Event) => {
         const target = event.target as HTMLSelectElement;
-        const feeTargets = this.state.feeTargets;
-        if (feeTargets) {
-            this.setFeeTarget(feeTargets[target.selectedIndex].code);
-        }
+        this.setFeeTarget(target.options[target.selectedIndex].value as Code);
     }
 
     private setFeeTarget = (feeTarget: Code) => {
