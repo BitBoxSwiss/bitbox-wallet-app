@@ -73,10 +73,9 @@ func (updater *RateUpdater) update() {
 		strings.Join(coins, ","),
 		strings.Join(fiats, ","),
 	)
-	updater.log.Infof("Rates url: %v", url)
 	response, err := client.Get(url)
 	if err != nil {
-		updater.log.Printf("Error getting rates: %v\n", err)
+		updater.log.WithError(err).WithField("url", url).Error("Error getting rates")
 		updater.last = nil
 		return
 	}
