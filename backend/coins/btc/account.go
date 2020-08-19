@@ -418,18 +418,20 @@ func (account *Account) Close() {
 	}
 	account.BaseAccount.Close()
 	account.log.Info("Closed account")
-	if account.db != nil {
-		if err := account.db.Close(); err != nil {
-			account.log.WithError(err).Error("couldn't close db")
-		}
-		account.log.Info("Closed DB")
-	}
 	// TODO: deregister from json RPC client. The client can be closed when no account uses
 	// the client any longer.
 	account.ResetSynced()
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
+
+	if account.db != nil {
+		if err := account.db.Close(); err != nil {
+			account.log.WithError(err).Error("couldn't close db")
+		}
+		account.log.Info("Closed DB")
+	}
+
 	account.Config().OnEvent(accounts.EventStatusChanged)
 	account.closed = true
 }
