@@ -1247,6 +1247,7 @@
       "electrum": {
         "title": "Connect your own full node"
       },
+      "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
       "splitAccounts": "Separate accounts by address type (legacy behavior)",
       "title": "Expert settings",

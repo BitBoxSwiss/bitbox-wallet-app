@@ -105,6 +105,15 @@ class Settings extends Component<Props, State> {
             });
     }
 
+    private handleToggleExpertFee = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
+        setConfig({
+            backend: {
+                [target.id]: target.checked,
+            },
+        }).then(config => this.setState({ config }));
+    }
+
     private handleToggleCoinControl = (event: Event) => {
         const target = (event.target as HTMLInputElement);
         setConfig({
@@ -361,6 +370,19 @@ class Settings extends Component<Props, State> {
                                                                 id="splitAccounts"
                                                                 checked={config.backend.splitAccounts}
                                                                 onChange={this.handleToggleAccount} />
+                                                        </div>
+                                                        <div className={style.currency}>
+                                                            <div>
+                                                                <p className="m-none">{t('settings.expert.fee')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="generic">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                checked={config.backend.expertFee}
+                                                                id="expertFee"
+                                                                onChange={this.handleToggleExpertFee} />
                                                         </div>
                                                         <div className={style.currency}>
                                                             <div>
