@@ -21,6 +21,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
@@ -33,6 +34,26 @@ import (
 
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
+
+// getFeePerKb returns the fee rate to be used in a new transaction. It is deduced from the supplied
+// fee target (priority) if one is given, or the provided args.FeePerKb if the fee taret is
+// `FeeTargetCodeCustom`.
+func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
+		return args.FeePerKb, nil
+	}
+	var feeTarget *FeeTarget
+	for _, target := range account.feeTargets {
+		if target.code == args.FeeTargetCode {
+			feeTarget = target
+			break
+		}
+	}
+	if feeTarget == nil || feeTarget.feeRatePerKb == nil {
+		return 0, errp.New("Fee could not be estimated")
+	}
+	return *feeTarget.feeRatePerKb, nil
+}
 
 // newTx creates a new tx to the given recipient address. It also returns a set of used account
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
@@ -47,18 +68,6 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var feeTarget *FeeTarget
-	for _, target := range account.feeTargets {
-		if target.code == args.FeeTargetCode {
-			feeTarget = target
-			break
-		}
-	}
-	if feeTarget == nil || feeTarget.feeRatePerKb == nil {
-		return nil, nil, errp.New("Fee could not be estimated")
-	}
-
 	pkScript, err := txscript.PayToAddrScript(address)
 	if err != nil {
 		return nil, nil, errp.WithStack(err)
@@ -78,13 +87,18 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 				blockchain.NewScriptHashHex(txOut.TxOut.PkScript)).Configuration,
 		}
 	}
+	feeRatePerKb, err := account.getFeePerKb(args)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var txProposal *maketx.TxProposal
 	if args.Amount.SendAll() {
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			wireUTXO,
 			pkScript,
-			*feeTarget.feeRatePerKb,
+			feeRatePerKb,
 			account.log,
 		)
 		if err != nil {
@@ -104,7 +118,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 			account.coin,
 			wireUTXO,
 			wire.NewTxOut(parsedAmountInt64, pkScript),
-			*feeTarget.feeRatePerKb,
+			feeRatePerKb,
 			// Change address is of the first subaccount, always.
 			account.subaccounts[0].changeAddresses.GetUnused()[0],
 			account.log,

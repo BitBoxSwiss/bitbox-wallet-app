@@ -268,9 +268,11 @@ type sendTxInput struct {
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	jsonBody := struct {
-		Address       string   `json:"address"`
-		SendAll       string   `json:"sendAll"`
-		FeeTarget     string   `json:"feeTarget"`
+		Address   string `json:"address"`
+		SendAll   string `json:"sendAll"`
+		FeeTarget string `json:"feeTarget"`
+		// Provided in Sat/vByte, will be converted to Sat/vKb.
+		FeePerByte    float64  `json:"feePerByte"`
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
 		Data          string   `json:"data"`
@@ -286,6 +288,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
+	input.FeePerKb = btcutil.Amount(jsonBody.FeePerByte * 1000)
 	if jsonBody.SendAll == "yes" {
 		input.Amount = coin.NewSendAmountAll()
 	} else {
