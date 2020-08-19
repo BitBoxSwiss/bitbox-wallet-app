@@ -348,18 +348,31 @@ func (handlers *Handlers) postAccountTxProposal(r *http.Request) (interface{}, e
 	}, nil
 }
 
+type jsonFeeTarget struct {
+	Code        accounts.FeeTargetCode `json:"code"`
+	FeeRateInfo string                 `json:"feeRateInfo"`
+}
+
 func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, error) {
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
-	result := []map[string]interface{}{}
+	result := []jsonFeeTarget{}
 	for _, feeTarget := range feeTargets {
-		result = append(result,
-			map[string]interface{}{
-				"code": feeTarget.Code(),
-			})
+		result = append(result, jsonFeeTarget{
+			Code:        feeTarget.Code(),
+			FeeRateInfo: feeTarget.FeeRateInfo(),
+		})
+	}
+	expert := handlers.account.Config().ExpertFee
+	if expert {
+		result = append(result, jsonFeeTarget{
+			Code:        accounts.FeeTargetCodeCustom,
+			FeeRateInfo: "",
+		})
 	}
 	return map[string]interface{}{
 		"feeTargets":       result,
 		"defaultFeeTarget": defaultFeeTarget,
+		"expert":           expert,
 	}, nil
 }
 

@@ -16,6 +16,9 @@
 package btc
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 )
@@ -35,4 +38,15 @@ type FeeTarget struct {
 // Code returns the btc fee target.
 func (feeTarget *FeeTarget) Code() accounts.FeeTargetCode {
 	return feeTarget.code
+}
+
+// FeeRateInfo returns a string showing the fee rate.
+func (feeTarget *FeeTarget) FeeRateInfo() string {
+	if feeTarget.feeRatePerKb == nil {
+		return ""
+	}
+	feePerByte := fmt.Sprintf("%.03f", float64(*feeTarget.feeRatePerKb)/1000.0)
+	// Truncate trailing zeroes, and final '.' if the number has no decimal places.
+	feePerByte = strings.TrimRight(strings.TrimRight(feePerByte, "0"), ".")
+	return feePerByte + " sat/vB"
 }

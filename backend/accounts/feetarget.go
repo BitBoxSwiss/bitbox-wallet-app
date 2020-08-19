@@ -22,6 +22,7 @@ import (
 // Coin specific methods are implemented in corresponding coins.
 type FeeTarget interface {
 	Code() FeeTargetCode
+	FeeRateInfo() string
 }
 
 // FeeTargetCode models the code of a fee target. See the constants below.
@@ -36,6 +37,7 @@ func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	case string(FeeTargetCodeEconomy):
 	case string(FeeTargetCodeNormal):
 	case string(FeeTargetCodeHigh):
+	case string(FeeTargetCodeCustom):
 	default:
 		return "", errp.WithStack(errp.Newf("Unrecognized fee target code %s", code))
 	}
@@ -54,6 +56,10 @@ const (
 
 	// FeeTargetCodeHigh is the high priority fee target.
 	FeeTargetCodeHigh FeeTargetCode = "high"
+
+	// FeeTargetCodeCustom means that the actual feerate is supplied separately instead of being
+	// estimated automatically.
+	FeeTargetCodeCustom FeeTargetCode = "custom"
 
 	// DefaultFeeTarget is the default fee target
 	DefaultFeeTarget = FeeTargetCodeNormal
