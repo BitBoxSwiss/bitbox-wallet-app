@@ -281,6 +281,7 @@ func (backend *Backend) CreateAndAddAccount(
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
 		},
+		ExpertFee: backend.config.AppConfig().Backend.ExpertFee,
 	}
 
 	accountAdded := false
