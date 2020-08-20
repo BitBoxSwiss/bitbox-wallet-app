@@ -353,25 +353,6 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                     <div className="box slim divide">
                                                         <div className={style.setting}>
-                                                            <div className="m-top-quarter m-bottom-quarter">
-                                                                <p className="m-none">{t('settings.expert.splitAccounts')}</p>
-                                                                <p className="m-none">
-                                                                    <Badge type="generic">BitBox02</Badge>
-                                                                    <span className="text-gray"> (</span>
-                                                                    <Badge type="primary">Multi</Badge>
-                                                                    <span className="text-gray">,</span>
-                                                                    <Badge type="secondary" className="m-left-quarter">Bitcoin-only</Badge>
-                                                                    <span className="text-gray">)</span>
-                                                                    <Badge type="generic" className="m-left-quarter">BTC</Badge>
-                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
-                                                                </p>
-                                                            </div>
-                                                            <Toggle
-                                                                id="splitAccounts"
-                                                                checked={config.backend.splitAccounts}
-                                                                onChange={this.handleToggleAccount} />
-                                                        </div>
-                                                        <div className={style.setting}>
                                                             <div>
                                                                 <p className="m-none">{t('settings.expert.fee')}</p>
                                                                 <p className="m-none">
@@ -396,6 +377,25 @@ class Settings extends Component<Props, State> {
                                                                 checked={config.frontend.coinControl}
                                                                 id="coinControl"
                                                                 onChange={this.handleToggleCoinControl} />
+                                                        </div>
+                                                        <div className={style.setting}>
+                                                            <div className="m-top-quarter m-bottom-quarter">
+                                                                <p className="m-none">{t('settings.expert.splitAccounts')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="generic">BitBox02</Badge>
+                                                                    <span className="text-gray"> (</span>
+                                                                    <Badge type="primary">Multi</Badge>
+                                                                    <span className="text-gray">,</span>
+                                                                    <Badge type="secondary" className="m-left-quarter">Bitcoin-only</Badge>
+                                                                    <span className="text-gray">)</span>
+                                                                    <Badge type="generic" className="m-left-quarter">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                id="splitAccounts"
+                                                                checked={config.backend.splitAccounts}
+                                                                onChange={this.handleToggleAccount} />
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
