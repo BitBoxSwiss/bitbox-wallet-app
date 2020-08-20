@@ -18,12 +18,17 @@
 import { Component, h, RenderableProps } from 'preact';
 import { Input, Select } from '../../../components/forms';
 import { Fiat } from '../../../components/rates/rates';
+import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import * as style from './feetargets.css';
 import { AmountWithConversions } from './send';
 
 export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
+
+interface LoadedProps {
+    config: any;
+}
 
 interface FeeTargetsProps {
     accountCode: string;
@@ -34,10 +39,11 @@ interface FeeTargetsProps {
     onFeeTargetChange: (code: Code) => void;
 }
 
-export type Props = FeeTargetsProps & TranslateProps;
+export type Props = LoadedProps & FeeTargetsProps & TranslateProps;
 
 interface FeeTarget {
     code: Code;
+    feeRateInfo: string;
 }
 interface State {
     feeTargets: FeeTarget[] | null;
@@ -62,19 +68,15 @@ class FeeTargets extends Component<Props, State> {
 
     private updateFeeTargets = (accountCode: string) => {
         apiGet('account/' + accountCode + '/fee-targets')
-        .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
-            // feeTargets.push({code: 'custom'});
-            this.setState({ feeTargets });
-            this.setFeeTarget(defaultFeeTarget);
-        });
+            .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
+                this.setState({ feeTargets });
+                this.setFeeTarget(defaultFeeTarget);
+            });
     }
 
     private handleFeeTargetChange = (event: Event) => {
         const target = event.target as HTMLSelectElement;
-        const feeTargets = this.state.feeTargets;
-        if (feeTargets) {
-            this.setFeeTarget(feeTargets[target.selectedIndex].code);
-        }
+        this.setFeeTarget(target.options[target.selectedIndex].value as Code);
     }
 
     private setFeeTarget = (feeTarget: Code) => {
@@ -88,6 +90,7 @@ class FeeTargets extends Component<Props, State> {
         disabled,
         fiatUnit,
         proposedFee,
+        config,
         showCalculatingFeeLabel = false,
     }: RenderableProps<Props>,
     {
@@ -104,7 +107,19 @@ class FeeTargets extends Component<Props, State> {
                     transparent />
             );
         }
-
+        const expert = config.frontend.expertFee;
+        const options = feeTargets.map(({ code, feeRateInfo }) => {
+            return {
+                value: code,
+                text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ' (' + feeRateInfo + ')' : ''),
+            };
+        });
+        if (expert) {
+            options.push({
+                value: 'custom',
+                text: t(`send.feeTarget.label.custom`),
+            });
+        }
         return (
             <div className={style.row}>
                 <div className={style.column}>
@@ -116,12 +131,7 @@ class FeeTargets extends Component<Props, State> {
                               disabled={disabled}
                               onChange={this.handleFeeTargetChange}
                               selected={feeTarget}
-                              options={feeTargets.map(({ code }) => {
-                                  return {
-                                      value: code,
-                                      text: t(`send.feeTarget.label.${code}`),
-                                  };
-                              })} />
+                              options={options} />
                       )}
                 </div>
                 <div className={style.column}>
@@ -158,5 +168,8 @@ class FeeTargets extends Component<Props, State> {
     }
 }
 
-const TranslatedFeeTargets = translate<FeeTargetsProps>()(FeeTargets);
+const loadedHOC = load<LoadedProps, FeeTargetsProps & TranslateProps>(
+    { config: 'config' },
+)(FeeTargets);
+const TranslatedFeeTargets = translate<FeeTargetsProps>()(loadedHOC);
 export { TranslatedFeeTargets as FeeTargets };

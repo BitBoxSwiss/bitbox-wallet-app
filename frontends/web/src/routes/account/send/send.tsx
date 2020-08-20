@@ -256,6 +256,7 @@ class Send extends Component<Props, State> {
         address: this.state.recipientAddress,
         amount: this.state.amount,
         feeTarget: this.state.feeTarget || '',
+        feePerByte: 5, // TODO: use input from user
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,

@@ -33,6 +33,13 @@ jest.mock('../../../../src/decorators/translate', () => ({
     },
 }));
 
+jest.mock('../../../../src/decorators/load', () => ({
+    load: () => Component => {
+        Component.defaultProps = { ...Component.defaultProps, config: { frontend: { } } };
+        return Component;
+    },
+}));
+
 import { FeeTargets, Props } from '../../../../src/routes/account/send/feetargets';
 
 describe('routes/account/send/feetargets', () => {

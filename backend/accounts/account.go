@@ -19,6 +19,7 @@ import (
 	"io"
 
 	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -33,10 +34,16 @@ type AddressList []Address
 type TxProposalArgs struct {
 	RecipientAddress string
 	Amount           coin.SendAmount
-	FeeTargetCode    FeeTargetCode
-	SelectedUTXOs    map[wire.OutPoint]struct{}
-	Data             []byte
-	Note             string
+	// Only applies to BTC/LTC.
+	FeeTargetCode FeeTargetCode
+	// Only applies to BTC/LTC and if FeeTargetCode == Custom. Technically it is vKb (virtual Kb)
+	// since fees are computed from a transaction's weight (measured in weight units or virtual
+	// bytes), but we keep the `Kb` unit to be consistent with the rest of the codebase and Bitcoin
+	// Core.
+	FeePerKb      btcutil.Amount
+	SelectedUTXOs map[wire.OutPoint]struct{}
+	Data          []byte
+	Note          string
 }
 
 // Interface is the API of a Account.
