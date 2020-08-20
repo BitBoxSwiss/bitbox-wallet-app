@@ -37,6 +37,7 @@ interface FeeTargetsProps {
     proposedFee?: AmountWithConversions;
     showCalculatingFeeLabel?: boolean;
     onFeeTargetChange: (code: Code) => void;
+    error?: string;
 }
 
 export type Props = LoadedProps & FeeTargetsProps & TranslateProps;
@@ -91,6 +92,7 @@ class FeeTargets extends Component<Props, State> {
         fiatUnit,
         proposedFee,
         config,
+        error,
         showCalculatingFeeLabel = false,
     }: RenderableProps<Props>,
     {
@@ -152,6 +154,7 @@ class FeeTargets extends Component<Props, State> {
                             label={t('send.fee.label')}
                             id="proposedFee"
                             placeholder={t(feeTarget === 'custom' ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
+                            error={error}
                             transparent
                             value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
                         />

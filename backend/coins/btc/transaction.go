@@ -40,6 +40,9 @@ const unitSatoshi = 1e8
 // `FeeTargetCodeCustom`.
 func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amount, error) {
 	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
+		if args.FeePerKb < account.getMinRelayFeeRate() {
+			return 0, errors.ErrFeeTooLow
+		}
 		return args.FeePerKb, nil
 	}
 	var feeTarget *FeeTarget

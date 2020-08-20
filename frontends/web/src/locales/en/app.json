@@ -1172,6 +1172,7 @@
       "placeholder": "Enter hexadecimal data"
     },
     "error": {
+      "feeTooLow": "fee too low",
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
