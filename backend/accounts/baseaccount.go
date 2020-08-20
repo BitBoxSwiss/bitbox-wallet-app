@@ -49,8 +49,6 @@ type AccountConfig struct {
 	RateUpdater              *rates.RateUpdater
 	GetSigningConfigurations func() (signing.Configurations, error)
 	GetNotifier              func(signing.Configurations) Notifier
-	// ExpertFee enables setting custom fees.
-	ExpertFee bool
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.

@@ -97,10 +97,6 @@ type Backend struct {
 	LitecoinActive bool `json:"litecoinActive"`
 	EthereumActive bool `json:"ethereumActive"`
 
-	// If enabled, the user will see sat/B fees in the fee target priorities, and be able to set a
-	// custom fee in sat/B.
-	ExpertFee bool `json:"expertFee"`
-
 	// Whether Bitcoin, Litecoin should be shown in multiple accounts - one per script type -
 	// instead of a combined account.
 	SplitAccounts bool `json:"splitAccounts"`
@@ -187,8 +183,6 @@ func NewDefaultAppConfig() AppConfig {
 			BitcoinActive:  true,
 			LitecoinActive: true,
 			EthereumActive: true,
-
-			ExpertFee: false,
 
 			SplitAccounts: false,
 

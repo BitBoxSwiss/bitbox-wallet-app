@@ -362,17 +362,9 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 			FeeRateInfo: feeTarget.FormattedFeeRate(),
 		})
 	}
-	expert := handlers.account.Config().ExpertFee
-	if expert {
-		result = append(result, jsonFeeTarget{
-			Code:        accounts.FeeTargetCodeCustom,
-			FeeRateInfo: "",
-		})
-	}
 	return map[string]interface{}{
 		"feeTargets":       result,
 		"defaultFeeTarget": defaultFeeTarget,
-		"expert":           expert,
 	}, nil
 }
 

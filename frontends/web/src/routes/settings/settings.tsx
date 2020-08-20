@@ -105,20 +105,11 @@ class Settings extends Component<Props, State> {
             });
     }
 
-    private handleToggleExpertFee = (event: Event) => {
-        const target = (event.target as HTMLInputElement);
-        setConfig({
-            backend: {
-                [target.id]: target.checked,
-            },
-        }).then(config => this.setState({ config }));
-    }
-
-    private handleToggleCoinControl = (event: Event) => {
+    private handleToggleFrontendSetting = (event: Event) => {
         const target = (event.target as HTMLInputElement);
         setConfig({
             frontend: {
-                coinControl: target.checked,
+                [target.id]: target.checked,
             },
         })
             .then(config => this.setState({ config }));
@@ -380,9 +371,9 @@ class Settings extends Component<Props, State> {
                                                                 </p>
                                                             </div>
                                                             <Toggle
-                                                                checked={config.backend.expertFee}
+                                                                checked={config.frontend.expertFee}
                                                                 id="expertFee"
-                                                                onChange={this.handleToggleExpertFee} />
+                                                                onChange={this.handleToggleFrontendSetting} />
                                                         </div>
                                                         <div className={style.currency}>
                                                             <div>
@@ -395,7 +386,7 @@ class Settings extends Component<Props, State> {
                                                             <Toggle
                                                                 checked={config.frontend.coinControl}
                                                                 id="coinControl"
-                                                                onChange={this.handleToggleCoinControl} />
+                                                                onChange={this.handleToggleFrontendSetting} />
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
