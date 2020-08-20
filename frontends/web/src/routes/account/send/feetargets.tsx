@@ -18,12 +18,17 @@
 import { Component, h, RenderableProps } from 'preact';
 import { Input, Select } from '../../../components/forms';
 import { Fiat } from '../../../components/rates/rates';
+import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import * as style from './feetargets.css';
 import { AmountWithConversions } from './send';
 
 export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
+
+interface LoadedProps {
+    config: any;
+}
 
 interface FeeTargetsProps {
     accountCode: string;
@@ -34,7 +39,7 @@ interface FeeTargetsProps {
     onFeeTargetChange: (code: Code) => void;
 }
 
-export type Props = FeeTargetsProps & TranslateProps;
+export type Props = LoadedProps & FeeTargetsProps & TranslateProps;
 
 interface FeeTarget {
     code: Code;
@@ -43,7 +48,6 @@ interface FeeTarget {
 interface State {
     feeTargets: FeeTarget[] | null;
     feeTarget?: string | null;
-    expert?: boolean;
 }
 
 class FeeTargets extends Component<Props, State> {
@@ -64,8 +68,8 @@ class FeeTargets extends Component<Props, State> {
 
     private updateFeeTargets = (accountCode: string) => {
         apiGet('account/' + accountCode + '/fee-targets')
-            .then(({ feeTargets, expert, defaultFeeTarget }: {feeTargets: FeeTarget[], expert: boolean; defaultFeeTarget: Code}) => {
-                this.setState({ feeTargets, expert });
+            .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
+                this.setState({ feeTargets });
                 this.setFeeTarget(defaultFeeTarget);
             });
     }
@@ -86,14 +90,14 @@ class FeeTargets extends Component<Props, State> {
         disabled,
         fiatUnit,
         proposedFee,
+        config,
         showCalculatingFeeLabel = false,
     }: RenderableProps<Props>,
     {
         feeTargets,
         feeTarget,
-        expert,
     }: State) {
-        if (feeTargets === null || expert === undefined) {
+        if (feeTargets === null) {
             return (
                 <Input
                     label={t('send.priority')}
@@ -103,7 +107,19 @@ class FeeTargets extends Component<Props, State> {
                     transparent />
             );
         }
-
+        const expert = config.frontend.expertFee;
+        const options = feeTargets.map(({ code, feeRateInfo }) => {
+            return {
+                value: code,
+                text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ' (' + feeRateInfo + ')' : ''),
+            };
+        });
+        if (expert) {
+            options.push({
+                value: 'custom',
+                text: t(`send.feeTarget.label.custom`),
+            });
+        }
         return (
             <div className={style.row}>
                 <div className={style.column}>
@@ -115,12 +131,7 @@ class FeeTargets extends Component<Props, State> {
                               disabled={disabled}
                               onChange={this.handleFeeTargetChange}
                               selected={feeTarget}
-                              options={feeTargets.map(({ code, feeRateInfo }) => {
-                                  return {
-                                      value: code,
-                                      text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ' (' + feeRateInfo + ')' : ''),
-                                  };
-                              })} />
+                              options={options} />
                       )}
                 </div>
                 <div className={style.column}>
@@ -157,5 +168,8 @@ class FeeTargets extends Component<Props, State> {
     }
 }
 
-const TranslatedFeeTargets = translate<FeeTargetsProps>()(FeeTargets);
+const loadedHOC = load<LoadedProps, FeeTargetsProps & TranslateProps>(
+    { config: 'config' },
+)(FeeTargets);
+const TranslatedFeeTargets = translate<FeeTargetsProps>()(loadedHOC);
 export { TranslatedFeeTargets as FeeTargets };
