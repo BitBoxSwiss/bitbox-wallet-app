@@ -25,16 +25,6 @@ env:
   TRAVIS_BUILD_DIR: ${{github.workspace}}
 
 jobs:
-  golangci:
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Clone the repo
-        uses: actions/checkout@v2
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v1
-        with:
-          # Keep this in sync with the version in envinit make target.
-          version: v1.27
   test-lint:
     runs-on: ubuntu-18.04
     steps:
