@@ -1,0 +1,16 @@
+.setting {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--item-height);
+    padding: 0 var(--space-half);
+}
+
+.setting > label {
+    flex-shrink: 0;
+}
+
+.setting.disabled > p {
+    color: var(--color-gray-alt);
+}

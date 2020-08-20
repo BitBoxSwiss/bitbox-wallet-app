@@ -72,23 +72,6 @@
     margin-top: var(--space-quarter);
 }
 
-.currency {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    min-height: var(--item-height);
-    padding: 0 var(--space-half);
-}
-
-.currency > label {
-    flex-shrink: 0;
-}
-
-.currency.disabled > p {
-    color: var(--color-gray-alt);
-}
-
 .star {
     margin-left: auto;
     margin-right: var(--space-half);
