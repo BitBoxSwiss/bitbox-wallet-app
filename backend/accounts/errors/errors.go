@@ -32,4 +32,7 @@ var (
 	// ErrInsufficientFunds is returned when there are not enough funds to cover the target amount
 	// and fee.
 	ErrInsufficientFunds = TxValidationError("insufficientFunds")
+	// ErrFeeTooLow is returned when the custom fee the user entered is too low to be able to
+	// broadcast the transaction.
+	ErrFeeTooLow = TxValidationError("feeTooLow")
 )

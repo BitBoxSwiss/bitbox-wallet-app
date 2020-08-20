@@ -90,6 +90,7 @@ interface State {
     addressError?: string;
     amountError?: string;
     dataError?: string;
+    feeError?: string;
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: SignProgress;
@@ -256,7 +257,7 @@ class Send extends Component<Props, State> {
         address: this.state.recipientAddress,
         amount: this.state.amount,
         feeTarget: this.state.feeTarget || '',
-        feePerByte: 5, // TODO: use input from user
+        feePerByte: 6, // TODO: use input from user
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,
@@ -273,6 +274,7 @@ class Send extends Component<Props, State> {
             addressError: undefined,
             amountError: undefined,
             dataError: undefined,
+            feeError: undefined,
         });
         if (this.sendDisabled()) {
             return;
@@ -316,6 +318,7 @@ class Send extends Component<Props, State> {
                 addressError: undefined,
                 amountError: undefined,
                 dataError: undefined,
+                feeError: undefined,
                 proposedFee: result.fee,
                 proposedAmount: result.amount,
                 proposedTotal: result.total,
@@ -342,6 +345,9 @@ class Send extends Component<Props, State> {
                         dataError: this.props.t('send.error.invalidData'),
                         proposedFee: undefined,
                     });
+                    break;
+                case 'feeTooLow':
+                    this.setState({ feeError: this.props.t('send.error.feeTooLow') });
                     break;
                 default:
                     this.setState({ proposedFee: undefined });
@@ -538,6 +544,7 @@ class Send extends Component<Props, State> {
             isUpdatingProposal,
             addressError,
             amountError,
+            feeError,
             /* dataError, */
             paired,
             signProgress,
@@ -677,7 +684,8 @@ class Send extends Component<Props, State> {
                                                 fiatUnit={fiatUnit}
                                                 proposedFee={proposedFee}
                                                 showCalculatingFeeLabel={isUpdatingProposal}
-                                                onFeeTargetChange={this.feeTargetChange} />
+                                                onFeeTargetChange={this.feeTargetChange}
+                                                error={feeError}/>
                                         </div>
                                     </div>
                                 </div>
