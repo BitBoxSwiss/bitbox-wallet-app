@@ -27,6 +27,7 @@ import {
 import { Toggle } from '../../../../components/toggle/toggle';
 import { share } from '../../../../decorators/share';
 import { translate, TranslateProps } from '../../../../decorators/translate';
+import * as parentStyle from '../../settings.css';
 import * as style from './fiat.css';
 
 function changeSelected(event: Event): void {
@@ -64,7 +65,7 @@ function Selection({
                         const main = currency === active;
                         const toggled = selected.includes(currency);
                         return (
-                            <div className={style.currency}>
+                            <div className={parentStyle.setting}>
                                 <p className="m-none">{currency}</p>
                                 {
                                     toggled && (
