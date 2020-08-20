@@ -282,10 +282,10 @@ class Settings extends Component<Props, State> {
                                     <div class="flex-1">
                                         <div className="columnsContainer">
                                             <div className="columns">
-                                                <div className="column column-1-3">
+                                                <div className="column column-1-2">
                                                     <FiatSelection />
                                                 </div>
-                                                <div className="column column-1-3">
+                                                <div className="column column-1-2">
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.accounts.title')}</h3>
@@ -314,21 +314,17 @@ class Settings extends Component<Props, State> {
                                                             ))
                                                         }
                                                     </div>
-                                                </div>
-                                                <div className="column column-1-3">
-                                                    <div class="subHeaderContainer withToggler">
-                                                        <div class="subHeader">
-                                                            <h3>Ethereum</h3>
-                                                            <Badge type="primary" className="m-left-quarter">BitBox02-Multi</Badge>
-                                                        </div>
-                                                        <div className="subHeaderToggler">
+                                                    <div className="box slim group">
+                                                        <div key="eth" className={style.setting}>
+                                                            <div>
+                                                                <p className="m-none">Ethereum</p>
+                                                                <Badge type="primary" className="m-right-quarter">BitBox02-Multi</Badge>
+                                                            </div>
                                                             <Toggle
                                                                 checked={config.backend.ethereumActive}
                                                                 id="ethereumActive"
                                                                 onChange={this.handleToggleEthereum} />
                                                         </div>
-                                                    </div>
-                                                    <div className="box slim">
                                                         {
                                                             Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => (
                                                                 <div className={[style.setting, !config.backend.ethereumActive ? style.disabled : ''].join(' ')} key={tokenCode}>

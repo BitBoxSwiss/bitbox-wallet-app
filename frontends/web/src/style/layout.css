@@ -128,10 +128,6 @@
     align-items: flex-start;
 }
 
-.subHeaderContainer.withToggler {
-    position: relative;
-}
-
 .subHeaderContainer.first {
     margin-top: 0;
 }
@@ -147,13 +143,6 @@
 
 .subHeaderContainer .subHeader h3.inline {
     display: inline-block;
-}
-
-.subHeaderContainer .subHeaderToggler {
-    display: inherit;
-    position: absolute;
-    right: 0;
-    top: -3px;
 }
 
 .content {
@@ -292,7 +281,8 @@
     padding: 0;
 }
 
-.box.slim.divide > *:not(:first-child) {
+.box.slim.divide > *:not(:first-child),
+.box.slim.group {
     border-top: solid 1px var(--color-lightgray);
 }
 
