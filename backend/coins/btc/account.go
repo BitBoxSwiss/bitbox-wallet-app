@@ -89,6 +89,8 @@ type Account struct {
 	activeTxProposalLock locker.Locker
 
 	feeTargets []*FeeTarget
+	// Can be nil until it is available. sat/kB.
+	minRelayFeeRate *btcutil.Amount
 
 	// true when initialized (Initialize() was called).
 	initialized bool
@@ -234,6 +236,31 @@ func (account *Account) gapLimits(
 	return limits, nil
 }
 
+// getMinRelayFeeRate fetches the min relay fee from the server and returns it. The value is cached
+// so that subsequent calls are instant. This is important as this function can be called many times
+// in succession when validating tx proposals.
+func (account *Account) getMinRelayFeeRate() btcutil.Amount {
+	unlock := account.RLock()
+	cached := account.minRelayFeeRate
+	unlock()
+	if cached != nil {
+		return *cached
+	}
+
+	doneCh := make(chan struct{})
+	account.coin.Blockchain().RelayFee(func(feeRatePerKb btcutil.Amount) {
+		defer account.Lock()()
+		account.minRelayFeeRate = &feeRatePerKb
+		close(doneCh)
+	}, func(error) {})
+	<-doneCh
+
+	unlock = account.RLock()
+	defer unlock()
+	account.log.Infof("min relay fee rate: %s", *account.minRelayFeeRate)
+	return *account.minRelayFeeRate
+}
+
 // Initialize initializes the account.
 func (account *Account) Initialize() error {
 	if account.isClosed() {
@@ -280,6 +307,7 @@ func (account *Account) Initialize() error {
 			// as we need to synchronize with the new backend.
 			account.ResetSynced()
 			account.SetOffline(false)
+			account.minRelayFeeRate = nil
 			account.log.Debug("Connection to blockchain backend established")
 		default:
 			account.log.Panicf("Status %d is unknown.", status)

@@ -1175,7 +1175,8 @@
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
-      "invalidData": "invalid data"
+      "invalidData": "invalid data",
+      "feeTooLow": "fee too low"
     },
     "fee": {
       "customPlaceholder": "Enter amount",
