@@ -46,15 +46,21 @@ interface FeeTarget {
     code: Code;
     feeRateInfo: string;
 }
+
+interface Options {
+    value: Code;
+    text: string;
+}
+
 interface State {
-    feeTargets: FeeTarget[] | null;
     feeTarget?: string | null;
+    options: Options[] | null;
 }
 
 class FeeTargets extends Component<Props, State> {
     public readonly state: State = {
-        feeTargets: null,
         feeTarget: null,
+        options: null,
     };
 
     public componentDidMount() {
@@ -70,7 +76,18 @@ class FeeTargets extends Component<Props, State> {
     private updateFeeTargets = (accountCode: string) => {
         apiGet('account/' + accountCode + '/fee-targets')
             .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
-                this.setState({ feeTargets });
+                const expert = this.props.config.frontend.expertFee;
+                const options = feeTargets.map(({ code, feeRateInfo }) => ({
+                    value: code,
+                    text: this.props.t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
+                }));
+                if (expert) {
+                    options.push({
+                        value: 'custom',
+                        text: this.props.t('send.feeTarget.label.custom'),
+                    });
+                }
+                this.setState({ options });
                 this.setFeeTarget(defaultFeeTarget);
             });
     }
@@ -85,21 +102,27 @@ class FeeTargets extends Component<Props, State> {
         this.props.onFeeTargetChange(feeTarget);
     }
 
+    private getProposeFeeText = (): string => {
+        if (!this.props.proposedFee) {
+            return '';
+        }
+        const { amount, unit, conversions } = this.props.proposedFee;
+        const fiatUnit = this.props.fiatUnit;
+        return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
+    }
+
     public render(
     {
         t,
         disabled,
-        fiatUnit,
-        proposedFee,
-        config,
         error,
         showCalculatingFeeLabel = false,
     }: RenderableProps<Props>,
     {
-        feeTargets,
         feeTarget,
+        options,
     }: State) {
-        if (feeTargets === null) {
+        if (options === null) {
             return (
                 <Input
                     label={t('send.priority')}
@@ -109,23 +132,10 @@ class FeeTargets extends Component<Props, State> {
                     transparent />
             );
         }
-        const expert = config.frontend.expertFee;
-        const options = feeTargets.map(({ code, feeRateInfo }) => {
-            return {
-                value: code,
-                text: t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ' (' + feeRateInfo + ')' : ''),
-            };
-        });
-        if (expert) {
-            options.push({
-                value: 'custom',
-                text: t(`send.feeTarget.label.custom`),
-            });
-        }
         return (
             <div className={style.row}>
                 <div className={style.column}>
-                    { feeTargets.length > 0 && (
+                    { options.length > 0 && (
                           <Select
                               className={style.priority}
                               label={t('send.priority')}
@@ -149,14 +159,14 @@ class FeeTargets extends Component<Props, State> {
                     ) : (
                         <Input
                             align="right"
-                            className={feeTargets.length > 0 ? style.fee : ''}
+                            className={options.length > 0 ? style.fee : ''}
                             disabled={feeTarget !== 'custom'}
                             label={t('send.fee.label')}
                             id="proposedFee"
                             placeholder={t(feeTarget === 'custom' ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
                             error={error}
                             transparent
-                            value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
+                            value={this.getProposeFeeText()}
                         />
                     )}
                 </div>
