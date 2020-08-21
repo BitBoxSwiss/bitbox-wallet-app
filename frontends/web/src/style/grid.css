@@ -113,3 +113,11 @@
         width: calc((100% - (var(--space-half) * 3)) / 3);
     }
 }
+
+@media (max-width: 1348px) {
+
+    .columns.columns-onlylarge .column {
+        width: calc(100% - (var(--space-half) * 2)) !important;
+    }
+
+}
