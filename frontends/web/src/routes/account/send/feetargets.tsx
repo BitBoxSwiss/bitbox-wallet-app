@@ -35,8 +35,10 @@ interface FeeTargetsProps {
     disabled: boolean;
     fiatUnit: Fiat;
     proposedFee?: AmountWithConversions;
+    feePerByte: number;
     showCalculatingFeeLabel?: boolean;
     onFeeTargetChange: (code: Code) => void;
+    onFeePerByte: (feePerByte: number) => void;
     error?: string;
 }
 
@@ -97,6 +99,11 @@ class FeeTargets extends Component<Props, State> {
         this.setFeeTarget(target.options[target.selectedIndex].value as Code);
     }
 
+    private handleFeePerByte = (event: Event) => {
+        const target = event.target as HTMLInputElement;
+        this.props.onFeePerByte(Number(target.value));
+    }
+
     private setFeeTarget = (feeTarget: Code) => {
         this.setState({ feeTarget });
         this.props.onFeeTargetChange(feeTarget);
@@ -117,6 +124,7 @@ class FeeTargets extends Component<Props, State> {
         disabled,
         error,
         showCalculatingFeeLabel = false,
+        feePerByte,
     }: RenderableProps<Props>,
     {
         feeTarget,
@@ -132,6 +140,7 @@ class FeeTargets extends Component<Props, State> {
                     transparent />
             );
         }
+        const isCustom = feeTarget === 'custom';
         return (
             <div className={style.row}>
                 <div className={style.column}>
@@ -147,7 +156,7 @@ class FeeTargets extends Component<Props, State> {
                       )}
                 </div>
                 <div className={style.column}>
-                    {showCalculatingFeeLabel ? (
+                    {showCalculatingFeeLabel && !isCustom ? (
                         <Input
                             align="right"
                             className={style.fee}
@@ -158,23 +167,32 @@ class FeeTargets extends Component<Props, State> {
                         />
                     ) : (
                         <Input
+                            autoFocus={isCustom}
                             align="right"
-                            className={options.length > 0 ? style.fee : ''}
-                            disabled={feeTarget !== 'custom'}
+                            className={`${style.fee} ${isCustom ? style.feeCustom : ''}`}
+                            disabled={disabled && !isCustom}
                             label={t('send.fee.label')}
                             id="proposedFee"
-                            placeholder={t(feeTarget === 'custom' ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
+                            placeholder={t(isCustom ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
                             error={error}
                             transparent
-                            value={this.getProposeFeeText()}
-                        />
+                            onInput={this.handleFeePerByte}
+                            getRef={input => input && input.autofocus && input.focus()}
+                            value={isCustom ? feePerByte : this.getProposeFeeText()}
+                        >
+                            {isCustom && (<span className={style.customFeeUnit}>Sat/VB</span>)}
+                        </Input>
                     )}
                 </div>
                 { feeTarget && (
-                    <div>
-                        <label>{t('send.feeTarget.estimate')}</label>
-                        <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
-                    </div>
+                    isCustom ? (
+                        <p class={style.feeProposed}>{this.getProposeFeeText()}</p>
+                    ) : (
+                        <div>
+                            <label>{t('send.feeTarget.estimate')}</label>
+                            <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                        </div>
+                    )
                 )}
             </div>
         );
