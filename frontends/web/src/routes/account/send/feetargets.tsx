@@ -21,6 +21,8 @@ import { Fiat } from '../../../components/rates/rates';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
+import { CoinCode } from '../account';
+import { isBitcoinBased } from '../utils';
 import * as style from './feetargets.css';
 import { AmountWithConversions } from './send';
 
@@ -32,6 +34,7 @@ interface LoadedProps {
 
 interface FeeTargetsProps {
     accountCode: string;
+    coinCode: CoinCode;
     disabled: boolean;
     fiatUnit: Fiat;
     proposedFee?: AmountWithConversions;
@@ -83,7 +86,7 @@ class FeeTargets extends Component<Props, State> {
                     value: code,
                     text: this.props.t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
                 }));
-                if (expert) {
+                if (expert && isBitcoinBased(this.props.coinCode)) {
                     options.push({
                         value: 'custom',
                         text: this.props.t('send.feeTarget.label.custom'),
@@ -141,60 +144,73 @@ class FeeTargets extends Component<Props, State> {
             );
         }
         const isCustom = feeTarget === 'custom';
+        const hasOptions = options.length > 0;
+        const preventFocus = document.activeElement && document.activeElement.nodeName === 'INPUT';
         return (
-            <div className={style.row}>
-                <div className={style.column}>
-                    { options.length > 0 && (
-                          <Select
-                              className={style.priority}
-                              label={t('send.priority')}
-                              id="feeTarget"
-                              disabled={disabled}
-                              onChange={this.handleFeeTargetChange}
-                              selected={feeTarget}
-                              options={options} />
-                      )}
-                </div>
-                <div className={style.column}>
-                    {showCalculatingFeeLabel && !isCustom ? (
-                        <Input
-                            align="right"
-                            className={style.fee}
-                            disabled
-                            label={t('send.fee.label')}
-                            placeholder={t('send.feeTarget.placeholder')}
-                            transparent
-                        />
-                    ) : (
-                        <Input
-                            autoFocus={isCustom}
-                            align="right"
-                            className={`${style.fee} ${isCustom ? style.feeCustom : ''}`}
-                            disabled={disabled && !isCustom}
-                            label={t('send.fee.label')}
-                            id="proposedFee"
-                            placeholder={t(isCustom ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
-                            error={error}
-                            transparent
-                            onInput={this.handleFeePerByte}
-                            getRef={input => input && input.autofocus && input.focus()}
-                            value={isCustom ? feePerByte : this.getProposeFeeText()}
-                        >
-                            {isCustom && (<span className={style.customFeeUnit}>Sat/VB</span>)}
-                        </Input>
+            hasOptions ? (
+                <div className={style.row}>
+                    <div className={style.column}>
+                        <Select
+                            className={style.priority}
+                            label={t('send.priority')}
+                            id="feeTarget"
+                            disabled={disabled}
+                            onChange={this.handleFeeTargetChange}
+                            selected={feeTarget}
+                            options={options} />
+                    </div>
+                    <div className={style.column}>
+                        {showCalculatingFeeLabel && !isCustom ? (
+                            <Input
+                                align="right"
+                                className={style.fee}
+                                disabled
+                                label={t('send.fee.label')}
+                                placeholder={t('send.feeTarget.placeholder')}
+                                transparent
+                            />
+                        ) : (
+                            <Input
+                                autoFocus={isCustom && !preventFocus}
+                                align="right"
+                                className={`${style.fee} ${isCustom ? style.feeCustom : ''}`}
+                                disabled={disabled || !isCustom}
+                                pattern="[0-9]*"
+                                label={t('send.fee.label')}
+                                id="proposedFee"
+                                placeholder={t(isCustom ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
+                                error={error}
+                                transparent
+                                onInput={this.handleFeePerByte}
+                                getRef={input => !disabled && input && input.autofocus && input.focus()}
+                                value={isCustom ? feePerByte : this.getProposeFeeText()}
+                            >
+                                {isCustom && (<span className={style.customFeeUnit}>Sat/VB</span>)}
+                            </Input>
+                        )}
+                    </div>
+                    { feeTarget && (
+                        isCustom ? (
+                            <p class={style.feeProposed}>{this.getProposeFeeText()}</p>
+                        ) : (
+                            <div>
+                                <label>{t('send.feeTarget.estimate')}</label>
+                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                            </div>
+                        )
                     )}
                 </div>
-                { feeTarget && (
-                    isCustom ? (
-                        <p class={style.feeProposed}>{this.getProposeFeeText()}</p>
-                    ) : (
-                        <div>
-                            <label>{t('send.feeTarget.estimate')}</label>
-                            <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
-                        </div>
-                    )
-                )}
-            </div>
+            ) : (
+                <Input
+                    disabled
+                    label={t('send.fee.label')}
+                    id="proposedFee"
+                    placeholder={t('send.fee.placeholder')}
+                    error={error}
+                    transparent
+                    value={this.getProposeFeeText()}
+                />
+            )
         );
     }
 }
