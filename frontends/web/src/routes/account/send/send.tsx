@@ -58,9 +58,9 @@ export interface AmountWithConversions {
     conversions: Conversions;
 }
 
-interface Conversions {
-    [key: string]: Fiat;
-}
+type Conversions = {
+    [key in Fiat]: string;
+};
 
 interface SignProgress {
     steps: number;
@@ -684,6 +684,7 @@ class Send extends Component<Props, State> {
                                         <div className="column column-1-2">
                                             <FeeTargets
                                                 accountCode={account.code}
+                                                coinCode={account.coinCode}
                                                 disabled={!amount && !sendAll}
                                                 fiatUnit={fiatUnit}
                                                 proposedFee={proposedFee}
