@@ -640,6 +640,9 @@ class Send extends Component<Props, State> {
                                     <div className="columns">
                                         <div className="column column-1-2">
                                             <Input
+                                                type="number"
+                                                step="any"
+                                                min="0"
                                                 label={balance ? balance.available.unit : t('send.amount.label')}
                                                 id="amount"
                                                 onInput={this.handleFormChange}
@@ -658,6 +661,9 @@ class Send extends Component<Props, State> {
                                         </div>
                                         <div className="column column-1-2">
                                             <Input
+                                                type="number"
+                                                step=".01"
+                                                min="0"
                                                 label={fiatUnit}
                                                 id="fiatAmount"
                                                 onInput={this.handleFiatInput}

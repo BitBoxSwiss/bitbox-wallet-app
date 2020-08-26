@@ -36,7 +36,7 @@ select.priority,
 }
 
 .feeCustom input {
-    padding-right: 4rem;
+    padding-right: 58px;
 }
 
 .feeDescription,
@@ -53,11 +53,12 @@ select.priority,
 }
 
 .customFeeUnit {
+    bottom: 0;
     color: var(--color-secondary);
     font-size: var(--size-default);
     line-height: 50px;
     padding-right: var(--space-half);
     position: absolute;
     right: 0;
-    bottom: 0;
+    width: 56px;
 }
