@@ -171,11 +171,13 @@ class FeeTargets extends Component<Props, State> {
                             />
                         ) : (
                             <Input
+                                type={(disabled || !isCustom) ? 'text' : 'number'}
+                                min="0"
+                                step="any"
                                 autoFocus={isCustom && !preventFocus}
                                 align="right"
                                 className={`${style.fee} ${isCustom ? style.feeCustom : ''}`}
                                 disabled={disabled || !isCustom}
-                                pattern="[0-9]*"
                                 label={t('send.fee.label')}
                                 id="proposedFee"
                                 placeholder={t(isCustom ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
@@ -185,7 +187,7 @@ class FeeTargets extends Component<Props, State> {
                                 getRef={input => !disabled && input && input.autofocus && input.focus()}
                                 value={isCustom ? feePerByte : this.getProposeFeeText()}
                             >
-                                {isCustom && (<span className={style.customFeeUnit}>Sat/VB</span>)}
+                                {isCustom && (<span className={style.customFeeUnit}>sat/vB</span>)}
                             </Input>
                         )}
                     </div>
