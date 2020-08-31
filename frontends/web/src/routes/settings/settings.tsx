@@ -32,7 +32,7 @@ import { setConfig } from '../../utils/config';
 import { debug } from '../../utils/env';
 import { apiGet, apiPost } from '../../utils/request';
 import { FiatSelection } from './components/fiat/fiat';
-import * as style from './components/fiat/fiat.css';
+import * as style from './settings.css';
 
 interface SettingsProps {
     deviceIDs: string[];
@@ -105,11 +105,11 @@ class Settings extends Component<Props, State> {
             });
     }
 
-    private handleToggleCoinControl = (event: Event) => {
+    private handleToggleFrontendSetting = (event: Event) => {
         const target = (event.target as HTMLInputElement);
         setConfig({
             frontend: {
-                coinControl: target.checked,
+                [target.id]: target.checked,
             },
         })
             .then(config => this.setState({ config }));
@@ -285,7 +285,7 @@ class Settings extends Component<Props, State> {
                                                     <div className="box slim">
                                                         {
                                                             this.accountsList.map((account, index) => (
-                                                                <div className={style.currency} key={`available-fiat-${index}`}>
+                                                                <div className={style.setting} key={`available-fiat-${index}`}>
                                                                     <div>
                                                                         <p className="m-none">{account.label}</p>
                                                                         {account.badges.map((badge, i) => (
@@ -322,7 +322,7 @@ class Settings extends Component<Props, State> {
                                                     <div className="box slim">
                                                         {
                                                             Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => (
-                                                                <div className={[style.currency, !config.backend.ethereumActive ? style.disabled : ''].join(' ')} key={tokenCode}>
+                                                                <div className={[style.setting, !config.backend.ethereumActive ? style.disabled : ''].join(' ')} key={tokenCode}>
                                                                     <p className="m-none">{tokenName}</p>
                                                                     <Toggle
                                                                         checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
@@ -343,7 +343,33 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                     </div>
                                                     <div className="box slim divide">
-                                                        <div className={style.currency}>
+                                                        <div className={style.setting}>
+                                                            <div>
+                                                                <p className="m-none">{t('settings.expert.fee')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="generic">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                checked={config.frontend.expertFee}
+                                                                id="expertFee"
+                                                                onChange={this.handleToggleFrontendSetting} />
+                                                        </div>
+                                                        <div className={style.setting}>
+                                                            <div>
+                                                                <p className="m-none">{t('settings.expert.coinControl')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="generic">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                checked={config.frontend.coinControl}
+                                                                id="coinControl"
+                                                                onChange={this.handleToggleFrontendSetting} />
+                                                        </div>
+                                                        <div className={style.setting}>
                                                             <div className="m-top-quarter m-bottom-quarter">
                                                                 <p className="m-none">{t('settings.expert.splitAccounts')}</p>
                                                                 <p className="m-none">
@@ -361,19 +387,6 @@ class Settings extends Component<Props, State> {
                                                                 id="splitAccounts"
                                                                 checked={config.backend.splitAccounts}
                                                                 onChange={this.handleToggleAccount} />
-                                                        </div>
-                                                        <div className={style.currency}>
-                                                            <div>
-                                                                <p className="m-none">{t('settings.expert.coinControl')}</p>
-                                                                <p className="m-none">
-                                                                    <Badge type="generic">BTC</Badge>
-                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
-                                                                </p>
-                                                            </div>
-                                                            <Toggle
-                                                                checked={config.frontend.coinControl}
-                                                                id="coinControl"
-                                                                onChange={this.handleToggleCoinControl} />
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
@@ -426,7 +439,7 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                     </div>
                                                     <div className="box slim divide">
-                                                        <div className={style.currency}>
+                                                        <div className={style.setting}>
                                                             <div>
                                                                 <p className="m-none">Safello</p>
                                                                 <p className="m-none">

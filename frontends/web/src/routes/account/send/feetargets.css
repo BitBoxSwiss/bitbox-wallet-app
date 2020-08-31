@@ -9,7 +9,7 @@
     flex-shrink: 1;
 }
 .column:first-child {
-    flex-basis: 10%;
+    flex-basis: 40%;
 }
 
 select.priority {
@@ -19,7 +19,9 @@ select.priority {
 }
 
 .fee input {
+    border-bottom-left-radius: 0;
     border-left: none;
+    border-top-left-radius: 0;
     padding-left: 0;
 }
 
@@ -33,10 +35,30 @@ select.priority,
     border-color: var(--color-mediumgray) !important;
 }
 
-.feeDescription {
+.feeCustom input {
+    padding-right: 58px;
+}
+
+.feeDescription,
+.feeProposed {
     color: var(--color-secondary);
-    flex: 0 0 50%;
+    flex: 0 0 100%;
     font-size: var(--size-small);
     font-weight: 400;
     margin-top: 0;
+}
+
+.feeProposed {
+    text-align: right;
+}
+
+.customFeeUnit {
+    bottom: 0;
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+    line-height: 50px;
+    padding-right: var(--space-half);
+    position: absolute;
+    right: 0;
+    width: 56px;
 }

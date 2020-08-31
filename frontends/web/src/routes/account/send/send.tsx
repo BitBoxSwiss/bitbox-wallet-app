@@ -58,9 +58,9 @@ export interface AmountWithConversions {
     conversions: Conversions;
 }
 
-interface Conversions {
-    [key: string]: Fiat;
-}
+type Conversions = {
+    [key in Fiat]: string;
+};
 
 interface SignProgress {
     steps: number;
@@ -83,6 +83,7 @@ interface State {
     fiatUnit: Fiat;
     sendAll: boolean;
     feeTarget?: FeeCode;
+    feePerByte: number;
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
@@ -90,6 +91,7 @@ interface State {
     addressError?: string;
     amountError?: string;
     dataError?: string;
+    feeError?: string;
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: SignProgress;
@@ -132,6 +134,7 @@ class Send extends Component<Props, State> {
         activeScanQR: false,
         videoLoading: false,
         note: '',
+        feePerByte: 1,
     };
 
     private coinSupportsCoinControl = () => {
@@ -231,6 +234,7 @@ class Send extends Component<Props, State> {
                     amount: undefined,
                     data: undefined,
                     note: '',
+                    feePerByte: 1,
                 });
                 if (this.utxos) {
                     (this.utxos as any).getWrappedInstance().clear();
@@ -256,6 +260,7 @@ class Send extends Component<Props, State> {
         address: this.state.recipientAddress,
         amount: this.state.amount,
         feeTarget: this.state.feeTarget || '',
+        feePerByte: this.state.feePerByte,
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,
@@ -266,12 +271,13 @@ class Send extends Component<Props, State> {
         return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount);
     }
 
-    private validateAndDisplayFee = (updateFiat: boolean) => {
+    private validateAndDisplayFee = (updateFiat: boolean = true) => {
         this.setState({
             proposedTotal: undefined,
             addressError: undefined,
             amountError: undefined,
             dataError: undefined,
+            feeError: undefined,
         });
         if (this.sendDisabled()) {
             return;
@@ -315,6 +321,7 @@ class Send extends Component<Props, State> {
                 addressError: undefined,
                 amountError: undefined,
                 dataError: undefined,
+                feeError: undefined,
                 proposedFee: result.fee,
                 proposedAmount: result.amount,
                 proposedTotal: result.total,
@@ -341,6 +348,9 @@ class Send extends Component<Props, State> {
                         dataError: this.props.t('send.error.invalidData'),
                         proposedFee: undefined,
                     });
+                    break;
+                case 'feeTooLow':
+                    this.setState({ feeError: this.props.t('send.error.feeTooLow') });
                     break;
                 default:
                     this.setState({ proposedFee: undefined });
@@ -531,12 +541,14 @@ class Send extends Component<Props, State> {
             fiatUnit,
             sendAll,
             feeTarget,
+            feePerByte,
             isConfirming,
             isSent,
             isAborted,
             isUpdatingProposal,
             addressError,
             amountError,
+            feeError,
             /* dataError, */
             paired,
             signProgress,
@@ -628,6 +640,9 @@ class Send extends Component<Props, State> {
                                     <div className="columns">
                                         <div className="column column-1-2">
                                             <Input
+                                                type="number"
+                                                step="any"
+                                                min="0"
                                                 label={balance ? balance.available.unit : t('send.amount.label')}
                                                 id="amount"
                                                 onInput={this.handleFormChange}
@@ -646,6 +661,9 @@ class Send extends Component<Props, State> {
                                         </div>
                                         <div className="column column-1-2">
                                             <Input
+                                                type="number"
+                                                step=".01"
+                                                min="0"
                                                 label={fiatUnit}
                                                 id="fiatAmount"
                                                 onInput={this.handleFiatInput}
@@ -655,7 +673,7 @@ class Send extends Component<Props, State> {
                                                 placeholder={t('send.amount.placeholder')} />
                                         </div>
                                     </div>
-                                    <div className="columns">
+                                    <div className="columns columns-onlylarge">
                                         <div className="column column-1-2">
                                             <Input
                                                 label={t('note.title')}
@@ -672,11 +690,15 @@ class Send extends Component<Props, State> {
                                         <div className="column column-1-2">
                                             <FeeTargets
                                                 accountCode={account.code}
+                                                coinCode={account.coinCode}
                                                 disabled={!amount && !sendAll}
                                                 fiatUnit={fiatUnit}
                                                 proposedFee={proposedFee}
+                                                feePerByte={feePerByte}
                                                 showCalculatingFeeLabel={isUpdatingProposal}
-                                                onFeeTargetChange={this.feeTargetChange} />
+                                                onFeeTargetChange={this.feeTargetChange}
+                                                onFeePerByte={fee => this.setState({ feePerByte: fee }, this.validateAndDisplayFee)}
+                                                error={feeError}/>
                                         </div>
                                     </div>
                                 </div>

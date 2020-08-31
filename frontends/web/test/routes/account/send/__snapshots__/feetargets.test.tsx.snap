@@ -7,13 +7,49 @@ preact-render-spy (1 nodes)
   class="input align-left  isTransparent"
   style=""
 >
+  <div class="flex flex-row flex-between">
+    <label
+      for="feetarget"
+      class=""
+    >
+      send.priority
+    </label>
+  </div>
   <input
     autocomplete="off"
     autocorrect="off"
     spellcheck={false}
     type="text"
     id="feetarget"
-    placeholder=""
+    placeholder="send.feeTarget.placeholder"
+    disabled={true}
+   />
+</div>
+
+`;
+
+exports[`routes/account/send/feetargets should match the snapshot with empty feetargets 1`] = `
+preact-render-spy (1 nodes)
+-------
+<div
+  class="input align-left  isTransparent"
+  style=""
+>
+  <div class="flex flex-row flex-between">
+    <label
+      for="feetarget"
+      class=""
+    >
+      send.priority
+    </label>
+  </div>
+  <input
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck={false}
+    type="text"
+    id="feetarget"
+    placeholder="send.feeTarget.placeholder"
     disabled={true}
    />
 </div>

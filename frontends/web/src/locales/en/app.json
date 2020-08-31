@@ -1172,6 +1172,7 @@
       "placeholder": "Enter hexadecimal data"
     },
     "error": {
+      "feeTooLow": "fee too low",
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
@@ -1191,6 +1192,7 @@
       },
       "estimate": "Estimated wait time:",
       "label": {
+        "custom": "Custom",
         "economy": "economy",
         "high": "high",
         "low": "low",
@@ -1247,6 +1249,7 @@
       "electrum": {
         "title": "Connect your own full node"
       },
+      "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
       "splitAccounts": "Separate accounts by address type (legacy behavior)",
       "title": "Expert settings",
