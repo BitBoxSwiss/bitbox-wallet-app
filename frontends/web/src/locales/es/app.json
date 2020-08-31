@@ -107,9 +107,6 @@
       "title": "Restaurar",
       "understand": "Entiendo que una contraseña de recuperación incorrecta creará una cartera diferente"
     },
-    "restoreFromMnemonic": {
-      "confirmTitle": "Recuperar de una semilla mnemotécnica"
-    },
     "showMnemonic": {
       "description": "Se te presentarán hasta 24 palabras que forman una copia de seguridad de tu wallet. Escríbelas en papel.\n\n<strong>No las almacenes digitalmente ni les hagas fotos.</strong>\n\n<strong>No digas las palabras en voz alta.</strong>\n\n<strong>Esta copia de seguridad no está protegida con contraseña.</strong>\n\nA continuación, se te pedirá confirmar cada palabra.",
       "title": "Mostrar la semilla mnemotécnica"
@@ -197,9 +194,7 @@
       "unpaired": "Se ha detectado una nueva BitBox02.Por favor confirma que el siguiente código coincide con el que se muestra en tu dispositivo. Si es así, da un golpecito en el tick inferior en tu BitBox02 y entoces haz clic en el siguiente botón."
     },
     "restoreFromMnemonic": {
-      "failed": "El restablecimiento desde tu semilla mnemotécnica ha fallado, por favor vuelve a intentarlo.",
-      "point1": "Introduce las palabras",
-      "point2": "$t(bitbox02Wizard.backup.point2)"
+      "failed": "El restablecimiento desde tu semilla mnemotécnica ha fallado, por favor vuelve a intentarlo."
     },
     "stepBackup": {
       "beforeProceed": "Antes de continuar, por favor lee estas importantes consideraciones de seguridad:",
@@ -821,10 +816,6 @@
         "text": "Utiliza las nuevas direcciones Bitcoin bech32 para obtener todos los beneficios y tarifas de red más económicas de segwit. Recuerda que este formato no se acepta en todos sitios. ",
         "title": "¿Qué es Bitcoin bech32?"
       },
-      "moreCoins": {
-        "text": "Integraremos más altcoins además de Litecoin en próximos lanzamientos. Si estás buscando una moneda específica, déjanos una sugerencia en el contacto de más abajo.",
-        "title": "¿Puedo agregar más monedas?"
-      },
       "servers": {
         "text": "Esta aplicación se comunica con los servidores de Shift Crypto para buscar actualizaciones, cargar transacciones y enviar información a aplicaciones móviles sincronizadas.\nAdemás, recupera los últimos tipos de cambio de CryptoCompare. Todas las conversiones se calculan de forma local lo que significa que no se envían las cantidades que uno tiene a ningún servidor. \nNota: Para Ethereum y tokens ERC20, utilizamos la API de Etherscan.io",
         "title": "¿Con qué servidores se comunica esta aplicación?"
@@ -1122,10 +1113,10 @@
       },
       "estimate": "Tiempo de espera estimado:",
       "label": {
-        "economy": "económico",
-        "high": "alto",
-        "low": "bajo",
-        "normal": "normal"
+        "economy": "Económico",
+        "high": "Alto",
+        "low": "Bajo",
+        "normal": "Normal"
       },
       "placeholder": "Calculando la tarifa estimada ..."
     },
