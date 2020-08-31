@@ -107,9 +107,6 @@
       "title": "Restaurer",
       "understand": "Je comprends qu'un mot de passe de récupération incorrect créera un portefeuille différent."
     },
-    "restoreFromMnemonic": {
-      "confirmTitle": "Restaurer depuis une liste de mots BIP39"
-    },
     "showMnemonic": {
       "description": "Jusqu'à 24 mots vous seront présentés, ils formeront une copie de sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par mot de passe.</strong>.\n\nVous devrez ensuite confirmer chacun des mots.",
       "title": "Montrer la liste de mots BIP39"
@@ -197,9 +194,7 @@
       "unpaired": "Un nouveau BitBox02 a été détecté. Veuillez vérifier que le code suivant correspond à celui affiché sur votre appareil. Si le code correspond, touchez le dessous de votre BitBox02 puis cliquez sur le bouton ci-dessous pour continuer."
     },
     "restoreFromMnemonic": {
-      "failed": "La restauration depuis une liste de mots BIP39 a échoué, veuillez réessayer.",
-      "point1": "Entrez les mots",
-      "point2": "$t(bitbox02Wizard.backup.point2)"
+      "failed": "La restauration depuis une liste de mots BIP39 a échoué, veuillez réessayer."
     },
     "stepBackup": {
       "beforeProceed": "Avant de continuer, veuillez lire ces importantes mesures de sécurité :",
@@ -821,10 +816,6 @@
         "text": "Pour tirer pleinement parti de l'optimisation des frais de réseau dû à segwit, Bitcoin bech32 doit être utilisé. Il utilise un nouveau format d'adresse appelé bech32, mais ce format n'est cependant pas encore accepté partout.",
         "title": "Qu'est-ce que Bitcoin bech32 ?"
       },
-      "moreCoins": {
-        "text": "Nous intégrerons plus d’altcoins dans les prochaines versions. Si vous souhaitez une cryptomonnaie en particulier, suggérez-là nous à l'aide du lien ci-dessous.",
-        "title": "Pouvez-vous ajouter plus de cryptomonnaies ?"
-      },
       "servers": {
         "text": "Cette application communique avec les serveurs de Shift Crypto pour rechercher des mises à jour, charger des transactions et envoyer des informations aux applications mobiles appairées.\nDe plus, elle récupère les derniers taux de change de CryptoCompare.\nLes conversions sont calculées localement, aucun de vos montants n'est transmis.\nNote : Pour Ethereum et les jetons ERC20, nous utilisons Etherscan.io APIs.",
         "title": "Avec quels serveurs cette application communique-t-elle ?"
@@ -1122,10 +1113,10 @@
       },
       "estimate": "Temps d'attente estimé :",
       "label": {
-        "economy": "économique",
-        "high": "élevé",
-        "low": "faible",
-        "normal": "normal"
+        "economy": "Économique",
+        "high": "Élevé",
+        "low": "Faible",
+        "normal": "Normal"
       },
       "placeholder": "Estimation des frais…"
     },

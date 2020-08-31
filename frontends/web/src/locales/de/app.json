@@ -281,7 +281,7 @@
         "title": "Erweiterte Einstellungen"
       },
       "backups": {
-        "confirmBackup": "Erstelle ein Backup der BitBoxBase Konfigurationen auf einer externen USB-Stick.\nBitte stelle sicher, dass ein USB-Stick in Ihre BitBoxBase <strong>eingesteckt</stronb> ist.  ",
+        "confirmBackup": "Erstelle ein Backup der BitBoxBase Konfigurationen auf einem externen USB-Stick.\nBitte stelle sicher, dass ein USB-Stick in Ihre BitBoxBase <strong>eingesteckt</stronb> ist.  ",
         "create": "Ein Backup erstellen",
         "created": "Backup erfolgreich erstellt.",
         "creating": "Backup wird erstellt ...",
@@ -1068,9 +1068,9 @@
       },
       "estimate": "Geschätzte Wartezeit:",
       "label": {
-        "economy": "sehr niedrig",
-        "high": "hoch",
-        "low": "niedrig",
+        "economy": "Sehr niedrig",
+        "high": "Hoch",
+        "low": "Niedrig",
         "normal": "Normal"
       },
       "placeholder": "Gebühr wird berechnet...."
