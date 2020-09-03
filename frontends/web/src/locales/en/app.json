@@ -1193,10 +1193,10 @@
       "estimate": "Estimated wait time:",
       "label": {
         "custom": "Custom",
-        "economy": "economy",
-        "high": "high",
-        "low": "low",
-        "normal": "normal"
+        "economy": "Economy",
+        "high": "High",
+        "low": "Low",
+        "normal": "Normal"
       },
       "placeholder": "Calculating fee…"
     },
