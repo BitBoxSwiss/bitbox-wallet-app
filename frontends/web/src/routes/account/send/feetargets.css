@@ -1,38 +1,95 @@
 .row {
     display: flex;
+    flex-direction: column;
+}
+
+.rowCustomFee {
+    display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
 }
 
 .column {
     flex-basis: 50%;
     flex-grow: 1;
-    flex-shrink: 1;
+    flex-shrink: 0;
 }
-.column:first-child {
+.rowCustomFee .column:first-child {
     flex-basis: 40%;
 }
-
-select.priority {
-    border-right: none;
-    padding-right: 0;
-    text-transform: capitalize;
+.rowCustomFee .column:nth-child(2) {
+    flex-basis: 60%;
 }
 
-.fee input {
+@media (min-width: 640px) {
+    .row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .column:first-child {
+        flex-basis: 40%;
+    }
+    .column:nth-child(2) {
+        flex-basis: 60%;
+    }
+}
+
+.rowCustomFee select.priority {
+    border-right: none;
+    padding-right: 0;
+}
+.rowCustomFee .fee input {
     border-bottom-left-radius: 0;
     border-left: none;
     border-top-left-radius: 0;
     padding-left: 0;
+    border-color: var(--color-mediumgray) !important;
+}
+@media (min-width: 640px) {
+    select.priority {
+        border-right: none;
+        padding-right: 0;
+    }
+    .fee input {
+        border-bottom-left-radius: 0;
+        border-left: none;
+        border-top-left-radius: 0;
+        padding-left: 0;
+    }
 }
 
-select:disabled.priority,
-.fee input:disabled {
+select:disabled.priority {
     border-color: var(--color-lightgray) !important;
 }
 
-select.priority,
-.fee input {
+select.priority {
     border-color: var(--color-mediumgray) !important;
+}
+
+@media (min-width: 640px) {
+    .fee input:disabled {
+        border-color: var(--color-lightgray) !important;
+    }
+    .fee input {
+        border-color: var(--color-mediumgray) !important;
+    }
+}
+
+@media (max-width: 639px) {
+    .row .fee * {
+        display: block !important;
+        text-align: left !important;
+    }
+    .row .fee input {
+        border: none;
+        color: var(--color-secondary) !important;
+        font-size: var(--size-small);
+        font-weight: 400;
+        height: auto;
+        margin-top: 0;
+        padding: 0;
+    }
 }
 
 .feeCustom input {
