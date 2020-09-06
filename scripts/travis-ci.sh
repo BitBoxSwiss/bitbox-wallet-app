@@ -28,8 +28,8 @@ fi
 
 # The following is executed only on macOS machines.
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    export HOMEBREW_NO_AUTO_UPDATE=1
-    brew outdated go || brew upgrade go
+    brew install go@1.14
+    export PATH=/usr/local/opt/go@1.14/bin:$PATH
     go version
     brew install qt
     # Install yarn only if it isn't already.
