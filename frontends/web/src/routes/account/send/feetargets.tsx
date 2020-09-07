@@ -145,10 +145,11 @@ class FeeTargets extends Component<Props, State> {
         }
         const isCustom = feeTarget === 'custom';
         const hasOptions = options.length > 0;
+        const proposeFeeText = this.getProposeFeeText();
         const preventFocus = document.activeElement && document.activeElement.nodeName === 'INPUT';
         return (
             hasOptions ? (
-                <div className={style.row}>
+                <div className={isCustom ? style.rowCustomFee : style.row}>
                     <div className={style.column}>
                         <Select
                             className={style.priority}
@@ -180,12 +181,12 @@ class FeeTargets extends Component<Props, State> {
                                 disabled={disabled || !isCustom}
                                 label={t('send.fee.label')}
                                 id="proposedFee"
-                                placeholder={t(isCustom ? 'send.fee.customPlaceholder' : 'send.fee.placeholder')}
+                                placeholder={isCustom ? t('send.fee.customPlaceholder') : ''}
                                 error={error}
                                 transparent
                                 onInput={this.handleFeePerByte}
                                 getRef={input => !disabled && input && input.autofocus && input.focus()}
-                                value={isCustom ? feePerByte : this.getProposeFeeText()}
+                                value={isCustom ? feePerByte : proposeFeeText}
                             >
                                 {isCustom && (<span className={style.customFeeUnit}>sat/vB</span>)}
                             </Input>
@@ -193,7 +194,9 @@ class FeeTargets extends Component<Props, State> {
                     </div>
                     { feeTarget && (
                         isCustom ? (
-                            <p class={style.feeProposed}>{this.getProposeFeeText()}</p>
+                            <p class={style.feeProposed}>
+                                {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
+                            </p>
                         ) : (
                             <div>
                                 <label>{t('send.feeTarget.estimate')}</label>
@@ -210,7 +213,7 @@ class FeeTargets extends Component<Props, State> {
                     placeholder={t('send.fee.placeholder')}
                     error={error}
                     transparent
-                    value={this.getProposeFeeText()}
+                    value={proposeFeeText}
                 />
             )
         );
