@@ -673,7 +673,20 @@ class Send extends Component<Props, State> {
                                                 placeholder={t('send.amount.placeholder')} />
                                         </div>
                                     </div>
-                                    <div className="columns columns-onlylarge">
+                                    <div className="columns">
+                                        <div className="column column-1-2 m-bottom-half">
+                                            <FeeTargets
+                                                accountCode={account.code}
+                                                coinCode={account.coinCode}
+                                                disabled={!amount && !sendAll}
+                                                fiatUnit={fiatUnit}
+                                                proposedFee={proposedFee}
+                                                feePerByte={feePerByte}
+                                                showCalculatingFeeLabel={isUpdatingProposal}
+                                                onFeeTargetChange={this.feeTargetChange}
+                                                onFeePerByte={fee => this.setState({ feePerByte: fee }, this.validateAndDisplayFee)}
+                                                error={feeError}/>
+                                        </div>
                                         <div className="column column-1-2">
                                             <Input
                                                 label={t('note.title')}
@@ -686,19 +699,6 @@ class Send extends Component<Props, State> {
                                                 onInput={this.handleNoteInput}
                                                 value={note}
                                                 placeholder={t('note.input.placeholder')} />
-                                        </div>
-                                        <div className="column column-1-2">
-                                            <FeeTargets
-                                                accountCode={account.code}
-                                                coinCode={account.coinCode}
-                                                disabled={!amount && !sendAll}
-                                                fiatUnit={fiatUnit}
-                                                proposedFee={proposedFee}
-                                                feePerByte={feePerByte}
-                                                showCalculatingFeeLabel={isUpdatingProposal}
-                                                onFeeTargetChange={this.feeTargetChange}
-                                                onFeePerByte={fee => this.setState({ feePerByte: fee }, this.validateAndDisplayFee)}
-                                                error={feeError}/>
                                         </div>
                                     </div>
                                 </div>
@@ -717,7 +717,7 @@ class Send extends Component<Props, State> {
                                     )
                                     */
                                 }
-                                <div class="buttons ignore reverse">
+                                <div class="buttons ignore reverse m-top-none">
                                     <Button
                                         primary
                                         onClick={this.send}

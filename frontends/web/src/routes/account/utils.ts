@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,9 @@
  * limitations under the License.
  */
 
-export function isBitcoinBased(coinCode: string): boolean {
+import { CoinCode } from './account';
+
+export function isBitcoinBased(coinCode: CoinCode): boolean {
     switch (coinCode) {
     case 'btc':
     case 'tbtc':
@@ -26,6 +29,21 @@ export function isBitcoinBased(coinCode: string): boolean {
     }
 }
 
-export function isEthereumBased(coinCode: string): boolean {
+export function isEthereumBased(coinCode: CoinCode): boolean {
     return coinCode === 'eth' || coinCode.startsWith('eth-erc20-');
+}
+
+export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
+    switch (coinCode) {
+        case 'btc':
+        case 'tbtc':
+            return 'btc';
+        case 'ltc':
+        case 'tltc':
+            return 'ltc';
+        case 'eth':
+        case 'teth':
+        case 'reth':
+            return 'eth';
+    }
 }

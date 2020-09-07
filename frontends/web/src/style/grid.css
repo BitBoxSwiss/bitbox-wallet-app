@@ -79,14 +79,6 @@
     margin-bottom: 0;
 }
 
-@media (max-width: 1348px) {
-
-    .columns.columns-onlylarge .column {
-        width: calc(100% - (var(--space-half) * 2)) !important;
-    }
-
-}
-
 @media (max-width: 768px) {
     .columnsContainer {
         margin-right: calc(var(--space-half) * -1);
@@ -119,9 +111,5 @@
 
     .columns .column.column-1-3 {
         width: calc((100% - (var(--space-half) * 3)) / 3);
-    }
-
-    .columns.columns-onlylarge .column {
-        width: calc(100% - var(--space-half)) !important;
     }
 }

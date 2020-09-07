@@ -1185,12 +1185,20 @@
     },
     "feeTarget": {
       "description": {
-        "economy": "24 blocks (around 4 hours for Bitcoin, 1 hour for Litecoin)",
-        "high": "2 blocks (around 20 minutes for Bitcoin, 5 minutes for Litecoin)",
-        "low": "12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
-        "normal": "6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)"
+        "btc": {
+          "economy": "4 hours (24 blocks)",
+          "high": "20 minutes (2 blocks)",
+          "low": "2 hours (12 blocks)",
+          "normal": "1 hour (6 blocks)"
+        },
+        "ltc": {
+          "economy": "1 hour (24 blocks)",
+          "high": "5 minutes (2 blocks)",
+          "low": "30 minutes (12 blocks)",
+          "normal": "15 minutes (6 blocks)"
+        }
       },
-      "estimate": "Estimated wait time:",
+      "estimate": "Estimated confirmation time:",
       "label": {
         "custom": "Custom",
         "economy": "Economy",

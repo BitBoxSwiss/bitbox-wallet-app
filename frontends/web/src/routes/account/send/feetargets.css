@@ -15,10 +15,10 @@
     flex-shrink: 0;
 }
 .rowCustomFee .column:first-child {
-    flex-basis: 40%;
+    flex-basis: 50%;
 }
 .rowCustomFee .column:nth-child(2) {
-    flex-basis: 60%;
+    flex-basis: 50%;
 }
 
 @media (min-width: 640px) {
@@ -28,10 +28,10 @@
         flex-wrap: wrap;
     }
     .column:first-child {
-        flex-basis: 40%;
+        flex-basis: 50%;
     }
     .column:nth-child(2) {
-        flex-basis: 60%;
+        flex-basis: 50%;
     }
 }
 
@@ -47,10 +47,6 @@
     border-color: var(--color-mediumgray) !important;
 }
 @media (min-width: 640px) {
-    select.priority {
-        border-right: none;
-        padding-right: 0;
-    }
     .fee input {
         border-bottom-left-radius: 0;
         border-left: none;
@@ -105,8 +101,12 @@ select.priority {
     margin-top: 0;
 }
 
-.feeProposed {
-    text-align: right;
+.feeDescription {
+    margin: 0;
+}
+
+.feeDescription + .feeProposed {
+    margin: var(--space-quarter) 0 0 0;
 }
 
 .customFeeUnit {
