@@ -75,7 +75,7 @@ describe('routes/account/send/feetargets', () => {
                         USD: '0.02',
                     },
                 }}
-                feePerByte={1}
+                feePerByte=""
                 onFeePerByte={jest.fn()}
                 onFeeTargetChange={jest.fn()} />,
         );
@@ -94,7 +94,7 @@ describe('routes/account/send/feetargets', () => {
                 coinCode="eth"
                 disabled={false}
                 fiatUnit="EUR"
-                feePerByte={1}
+                feePerByte=""
                 onFeePerByte={jest.fn()}
                 onFeeTargetChange={jest.fn()} />,
         );
@@ -121,7 +121,7 @@ describe('routes/account/send/feetargets', () => {
                 coinCode="btc"
                 disabled={false}
                 fiatUnit="USD"
-                feePerByte={1}
+                feePerByte=""
                 onFeePerByte={jest.fn()}
                 onFeeTargetChange={onFeeTargetChangeCB} />,
         );
