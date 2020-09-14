@@ -211,7 +211,9 @@ class FeeTargets extends Component<Props, State> {
                                 <p class={style.feeDescription}>
                                     {t('send.feeTarget.estimate')}
                                     {' '}
-                                    {t(`send.feeTarget.description.${getCoinCode(coinCode)}.${feeTarget}`)}
+                                    {t(`send.feeTarget.description.${feeTarget}`, {
+                                        context: getCoinCode(coinCode) || '',
+                                    })}
                                 </p>
                             ) : null }
                             {(showCalculatingFeeLabel || proposeFeeText ? (

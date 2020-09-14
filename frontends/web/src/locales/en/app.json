@@ -1185,18 +1185,14 @@
     },
     "feeTarget": {
       "description": {
-        "btc": {
-          "economy": "4 hours (24 blocks)",
-          "high": "20 minutes (2 blocks)",
-          "low": "2 hours (12 blocks)",
-          "normal": "1 hour (6 blocks)"
-        },
-        "ltc": {
-          "economy": "1 hour (24 blocks)",
-          "high": "5 minutes (2 blocks)",
-          "low": "30 minutes (12 blocks)",
-          "normal": "15 minutes (6 blocks)"
-        }
+        "economy": "4 hours (24 blocks)",
+        "economy_ltc": "1 hour (24 blocks)",
+        "high": "20 minutes (2 blocks)",
+        "high_ltc": "5 minutes (2 blocks)",
+        "low": "2 hours (12 blocks)",
+        "low_ltc": "30 minutes (12 blocks)",
+        "normal": "1 hour (6 blocks)",
+        "normal_ltc": "15 minutes (6 blocks)"
       },
       "estimate": "Estimated confirmation time:",
       "label": {
