@@ -38,10 +38,10 @@ interface FeeTargetsProps {
     disabled: boolean;
     fiatUnit: Fiat;
     proposedFee?: AmountWithConversions;
-    feePerByte: number;
+    feePerByte: string;
     showCalculatingFeeLabel?: boolean;
     onFeeTargetChange: (code: Code) => void;
-    onFeePerByte: (feePerByte: number) => void;
+    onFeePerByte: (feePerByte: string) => void;
     error?: string;
 }
 
@@ -104,7 +104,7 @@ class FeeTargets extends Component<Props, State> {
 
     private handleFeePerByte = (event: Event) => {
         const target = event.target as HTMLInputElement;
-        this.props.onFeePerByte(Number(target.value));
+        this.props.onFeePerByte(target.value);
     }
 
     private setFeeTarget = (feeTarget: Code) => {

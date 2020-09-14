@@ -83,7 +83,7 @@ interface State {
     fiatUnit: Fiat;
     sendAll: boolean;
     feeTarget?: FeeCode;
-    feePerByte: number;
+    feePerByte: string;
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
@@ -134,7 +134,7 @@ class Send extends Component<Props, State> {
         activeScanQR: false,
         videoLoading: false,
         note: '',
-        feePerByte: 1,
+        feePerByte: '',
     };
 
     private coinSupportsCoinControl = () => {
@@ -234,7 +234,7 @@ class Send extends Component<Props, State> {
                     amount: undefined,
                     data: undefined,
                     note: '',
-                    feePerByte: 1,
+                    feePerByte: '',
                 });
                 if (this.utxos) {
                     (this.utxos as any).getWrappedInstance().clear();
@@ -268,7 +268,7 @@ class Send extends Component<Props, State> {
 
     private sendDisabled = () => {
         const txInput = this.txInput();
-        return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount);
+        return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount) || (this.state.feeTarget === 'custom' && !this.state.feePerByte);
     }
 
     private validateAndDisplayFee = (updateFiat: boolean = true) => {
