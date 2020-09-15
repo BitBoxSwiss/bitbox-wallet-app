@@ -197,7 +197,13 @@ class FeeTargets extends Component<Props, State> {
                                     error={error}
                                     transparent
                                     onInput={this.handleFeePerByte}
-                                    getRef={input => !disabled && input && input.autofocus && input.focus()}
+                                    getRef={input => {
+                                        setTimeout(() => {
+                                            if (!disabled && input && input.autofocus) {
+                                                input.focus();
+                                            }
+                                        });
+                                    }}
                                     value={feePerByte}
                                 >
                                     <span className={style.customFeeUnit}>sat/vB</span>
@@ -207,6 +213,13 @@ class FeeTargets extends Component<Props, State> {
                     )}
                     { feeTarget && (
                         <div>
+                            {(showCalculatingFeeLabel || proposeFeeText ? (
+                                <p class={style.feeProposed}>
+                                    {t('send.fee.label')}:
+                                    {' '}
+                                    {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
+                                </p>
+                            ) : null)}
                             { !isCustom ? (
                                 <p class={style.feeDescription}>
                                     {t('send.feeTarget.estimate')}
@@ -216,13 +229,6 @@ class FeeTargets extends Component<Props, State> {
                                     })}
                                 </p>
                             ) : null }
-                            {(showCalculatingFeeLabel || proposeFeeText ? (
-                                <p class={style.feeProposed}>
-                                    {t('send.fee.label')}:
-                                    {' '}
-                                    {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
-                                </p>
-                            ) : null)}
                         </div>
                     )}
                 </div>
