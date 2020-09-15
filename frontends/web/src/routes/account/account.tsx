@@ -284,7 +284,7 @@ class Account extends Component<Props, State> {
         let initializingSpinnerText = t('account.initializing');
         if (syncedAddressesCount !== undefined && syncedAddressesCount > 1) {
             initializingSpinnerText += '\n' + t('account.syncedAddressesCount', {
-                count: syncedAddressesCount,
+                count: syncedAddressesCount.toString(),
                 defaultValue: 0,
             });
         }
