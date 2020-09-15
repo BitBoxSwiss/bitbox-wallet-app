@@ -748,10 +748,10 @@ class Send extends Component<Props, State> {
                                 <div className={style.confirmItem}>
                                     <label>{t('send.amount.label')}</label>
                                     <p>
-                                        <span>{proposedAmount && proposedAmount.amount || 'N/A'} {proposedAmount && proposedAmount.unit || 'N/A'}</span>
+                                        <span>{proposedAmount && proposedAmount.amount || 'N/A'} <small>{proposedAmount && proposedAmount.unit || 'N/A'}</small></span>
                                         {
                                             proposedAmount && proposedAmount.conversions && (
-                                                <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} {fiatUnit}</span>
+                                                <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} <small>{fiatUnit}</small></span>
                                             )
                                         }
                                     </p>
@@ -765,12 +765,16 @@ class Send extends Component<Props, State> {
                                 <div className={style.confirmItem}>
                                     <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
                                     <p>
-                                        <span>{proposedFee && proposedFee.amount || 'N/A'} {proposedFee && proposedFee.unit || 'N/A'}</span>
-                                        {
-                                            proposedFee && proposedFee.conversions && (
-                                                <span> <span className="text-gray">/</span> {proposedFee.conversions[fiatUnit]} {fiatUnit}</span>
-                                            )
-                                        }
+                                        <span key="amount">{proposedFee && proposedFee.amount || 'N/A'} <small>{proposedFee && proposedFee.unit || 'N/A'}</small></span>
+                                        {proposedFee && proposedFee.conversions && (
+                                            <span key="conversation">
+                                                <span className="text-gray"> / </span>
+                                                {proposedFee.conversions[fiatUnit]} <small>{fiatUnit}</small>
+                                            </span>
+                                        )}
+                                        {feePerByte ? (
+                                            <span key="feeperbyte"><br/><small>({feePerByte} sat/vB)</small></span>
+                                        ) : null}
                                     </p>
                                 </div>
                                 {
@@ -788,12 +792,10 @@ class Send extends Component<Props, State> {
                                 <div className={[style.confirmItem, style.total].join(' ')}>
                                     <label>{t('send.confirm.total')}</label>
                                     <p>
-                                        <span>{proposedTotal && proposedTotal.amount || 'N/A'} {proposedTotal && proposedTotal.unit || 'N/A'}</span>
-                                        {
-                                            (proposedTotal && proposedTotal.conversions) && (
-                                                <span> <span className="text-gray">/</span> {proposedTotal.conversions[fiatUnit]} {fiatUnit}</span>
-                                            )
-                                        }
+                                        <span><strong>{proposedTotal && proposedTotal.amount || 'N/A'}</strong> <small>{proposedTotal && proposedTotal.unit || 'N/A'}</small></span>
+                                        {(proposedTotal && proposedTotal.conversions) && (
+                                            <span> <span className="text-gray">/</span> <strong>{proposedTotal.conversions[fiatUnit]}</strong> <small>{fiatUnit}</small></span>
+                                        )}
                                     </p>
                                 </div>
                             </WaitDialog>
