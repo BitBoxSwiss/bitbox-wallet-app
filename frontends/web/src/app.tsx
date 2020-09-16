@@ -229,17 +229,17 @@ class App extends Component<Props, State> {
                         {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                         <ManageBackups
                             path="/manage-backups/:deviceID/:sdCardInserted?"
-                            key={devices}
+                            key={['manage-backups', devices]}
                             devices={devices}
                         />
                         <DeviceSwitch
                             path="/device/:deviceID"
-                            key={devices}
+                            key={['device-switch', devices]}
                             deviceID={null /* dummy to satisfy TS */}
                             devices={devices} />
                         <DeviceSwitch
                             default
-                            key={devices}
+                            key={['device-switch-default', devices]}
                             deviceID={null}
                             devices={devices} />
                     </Container>
