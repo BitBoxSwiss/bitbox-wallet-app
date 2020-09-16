@@ -26,6 +26,7 @@ import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { AccountInterface } from '../account';
 import { BalancesTable } from './balancestable';
+import { Chart } from './chart';
 
 export interface AccountAndBalanceInterface extends AccountInterface {
     balance: BalanceInterface;
@@ -103,6 +104,7 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
+                            <Chart />
                             {
                                 coins.length > 0 ?
                                                coins.map((coin, index) => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]} total={data.totals[coin]} index={index} />) :

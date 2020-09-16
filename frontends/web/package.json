@@ -41,7 +41,8 @@
     "preact-compat": "3.18.0",
     "preact-router": "2.6.1",
     "react-i18next": "7.9.0",
-    "sortablejs": "^1.10.1"
+    "sortablejs": "^1.10.1",
+    "lightweight-charts": "3.1.5"
   },
   "browserslist": [
     "last 2 Chrome versions"
