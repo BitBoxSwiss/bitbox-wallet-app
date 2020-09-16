@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import preactCliTypeScript from 'preact-cli-plugin-typescript';
 import envVars from 'preact-cli-plugin-env-vars';
-
 
 /**
  * Function that mutates original webpack config.
@@ -49,7 +47,4 @@ export default function (config, env, helpers) {
             config.plugins.splice(UglifyJsPlugin.index, 1);
         }
     }
-
-    // Support for TypeScript (https://github.com/wub/preact-cli-plugin-typescript):
-    preactCliTypeScript(config);
 }
