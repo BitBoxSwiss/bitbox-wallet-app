@@ -434,8 +434,10 @@ class Send extends Component<Props, State> {
     }
 
     private feeTargetChange = (feeTarget: FeeCode) => {
-        this.setState({ feeTarget });
-        this.validateAndDisplayFee(this.state.sendAll);
+        this.setState(
+            { feeTarget, feePerByte: '' },
+            () => this.validateAndDisplayFee(this.state.sendAll),
+        );
     }
 
     private onSelectedUTXOsChange = (selectedUTXOs: SelectedUTXO) => {
