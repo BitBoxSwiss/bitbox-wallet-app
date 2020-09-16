@@ -3,13 +3,13 @@
   "name": "BitBoxApp",
   "version": "0.0.0",
   "scripts": {
-    "gen-ts-css": "npx tcm src --camelCase dashes",
+    "gen-ts-css": "tcm src --camelCase dashes",
     "build": "yarn run gen-ts-css && preact build --no-prerender --service-worker=false",
     "dev": "yarn run gen-ts-css && preact watch",
     "lint": "yarn run gen-ts-css && eslint --max-warnings 0 --cache --ignore-path ../../.gitignore '**/*.{js,jsx}'",
     "postlint": "yarn run gen-ts-css && tslint -e 'src/**/*.css.d.ts' 'src/**/*.ts?(x)'",
     "test": "yarn run gen-ts-css && jest",
-    "browserlist": "npx browserslist"
+    "browserlist": "browserslist"
   },
   "eslintConfig": {
     "extends": "eslint-config-synacor"
