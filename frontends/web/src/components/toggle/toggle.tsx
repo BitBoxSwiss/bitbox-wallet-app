@@ -12,27 +12,12 @@ interface ToggleProps {
 }
 
 class Toggle extends Component<ToggleProps> {
-    public render(
-        {
-            id,
-            name,
-            checked,
-            disabled,
-            onChange,
-            value,
-        }: RenderableProps<ToggleProps>,
-    ) {
+    public render(props: RenderableProps<ToggleProps>) {
         return (
             <label className={style.container}>
                 <input
-                    id={id}
-                    name={name}
                     type="checkbox"
-                    checked={checked}
-                    disabled={disabled}
-                    value={value}
-                    onChange={onChange}
-                    {...this.props} />
+                    {...props} />
                 <span className={style.slider}></span>
             </label>
         );

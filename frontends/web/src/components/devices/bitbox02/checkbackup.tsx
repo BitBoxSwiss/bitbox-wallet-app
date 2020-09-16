@@ -76,16 +76,15 @@ class Check extends Component<Props, State> {
     }
 
     public render({ t, backups }: RenderableProps<Props>, { activeDialog, message, foundBackup, userVerified }: State) {
-        let silent: boolean;
         return (
             <div>
                 <Button
                     secondary
                     disabled={this.props.disabled}
                     onClick={() => {
-                        this.checkBackup(silent = true, backups = backups);
+                        this.checkBackup(true, backups);
                         this.setState({ activeDialog: true, userVerified: false });
-                        this.checkBackup(silent = false, backups = backups);
+                        this.checkBackup(false, backups);
                     }}
                 >
                     {t('button.check')}
