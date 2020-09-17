@@ -66,7 +66,7 @@ type Interface interface {
 	FatalError() bool
 	Close()
 	Notifier() Notifier
-	Transactions() ([]*TransactionData, error)
+	Transactions() (OrderedTransactions, error)
 	Balance() (*Balance, error)
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
 	// available. The note, if set by ProposeTxNote(), is persisted for the transaction.

@@ -15,6 +15,7 @@
 package accounts
 
 import (
+	"sort"
 	"time"
 
 	"github.com/btcsuite/btcutil"
@@ -102,4 +103,35 @@ type TransactionData struct {
 	// --- Fields only used for ETH follow
 
 	Gas uint64
+}
+
+// byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
+// height. Special case for unconfirmed transactions (height <=0), which come last. If the height
+// is the same for two txs, they are sorted by the created (first seen) time instead.
+type byHeight []*TransactionData
+
+func (s byHeight) Len() int { return len(s) }
+func (s byHeight) Less(i, j int) bool {
+	// Secondary sort by the time we've first seen the tx in the app.
+	if s[i].Height == s[j].Height && s[i].CreatedTimestamp != nil && s[j].CreatedTimestamp != nil {
+		return s[i].CreatedTimestamp.Before(*s[j].CreatedTimestamp)
+	}
+	if s[j].Height <= 0 {
+		return true
+	}
+	if s[i].Height <= 0 {
+		return false
+	}
+	return s[i].Height < s[j].Height
+}
+func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
+// OrderedTransactions is a list of transactions sorted from newest to oldest.
+type OrderedTransactions []*TransactionData
+
+// NewOrderedTransactions sorts the transactions from newest to oldest.
+// The input list is modified in place and must not be used anymore after calling this function.
+func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
+	sort.Sort(sort.Reverse(byHeight(txs)))
+	return txs
 }

@@ -21,7 +21,6 @@ import (
 	"math/big"
 	"os"
 	"path"
-	"sort"
 	"strings"
 	"time"
 
@@ -319,7 +318,6 @@ func (account *Account) update() error {
 		if err != nil {
 			return err
 		}
-		sort.Sort(byHeight(confirmedTansactions))
 	}
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions
@@ -408,9 +406,9 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 // Transactions implements accounts.Interface.
-func (account *Account) Transactions() ([]*accounts.TransactionData, error) {
+func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	account.Synchronizer.WaitSynchronized()
-	return account.transactions, nil
+	return accounts.NewOrderedTransactions(account.transactions), nil
 }
 
 // Balance implements accounts.Interface.
