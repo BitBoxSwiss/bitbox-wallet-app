@@ -107,7 +107,13 @@ class AccountsSummary extends Component<Props, State> {
                             <Chart />
                             {
                                 coins.length > 0 ?
-                                               coins.map((coin, index) => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]} total={data.totals[coin]} index={index} />) :
+                                               coins.map((coin, index) =>
+                                                   <BalancesTable
+                                                       key={coin}
+                                                       coinCode={coin}
+                                                       accounts={groupedAccounts[coin]}
+                                                       total={data.totals[coin]}
+                                                       index={index} />) :
                                                <p>{t('accountSummary.noAccount')}</p>
                             }
                         </div>
