@@ -15,8 +15,6 @@
 package transactions
 
 import (
-	"sort"
-
 	btcdBlockchain "github.com/btcsuite/btcd/blockchain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -392,27 +390,6 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 	return accounts.NewBalance(coin.NewAmountFromInt64(available), coin.NewAmountFromInt64(incoming))
 }
 
-// byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
-// height. Special case for unconfirmed transactions (height <=0), which come last. If the height
-// is the same for two txs, they are sorted by the created (first seen) time instead.
-type byHeight []*accounts.TransactionData
-
-func (s byHeight) Len() int { return len(s) }
-func (s byHeight) Less(i, j int) bool {
-	// Secondary sort by the time we've first seen the tx in the app.
-	if s[i].Height == s[j].Height && s[i].CreatedTimestamp != nil && s[j].CreatedTimestamp != nil {
-		return s[i].CreatedTimestamp.Before(*s[j].CreatedTimestamp)
-	}
-	if s[j].Height <= 0 {
-		return true
-	}
-	if s[i].Height <= 0 {
-		return false
-	}
-	return s[i].Height < s[j].Height
-}
-func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-
 func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 	_, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, transactions.net)
 	// unknown addresses and multisig scripts ignored.
@@ -547,7 +524,7 @@ func (transactions *Transactions) txInfo(
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
-	isChange func(blockchain.ScriptHashHex) bool) []*accounts.TransactionData {
+	isChange func(blockchain.ScriptHashHex) bool) accounts.OrderedTransactions {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
@@ -570,6 +547,5 @@ func (transactions *Transactions) Transactions(
 		}
 		txs = append(txs, transactions.txInfo(dbTx, txInfo, isChange))
 	}
-	sort.Sort(sort.Reverse(byHeight(txs)))
-	return txs
+	return accounts.NewOrderedTransactions(txs)
 }
