@@ -26,6 +26,7 @@ import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { AccountInterface } from '../account';
 import { BalancesTable } from './balancestable';
+import { Chart } from './chart';
 
 export interface AccountAndBalanceInterface extends AccountInterface {
     balance: BalanceInterface;
@@ -76,43 +77,50 @@ class AccountsSummary extends Component<Props, State> {
     public render(
         { t, data }: RenderableProps<Props>, { exported }: State,
     ) {
-            const groupedAccounts = this.groupByCoin(data.accounts);
-            const coins = Object.keys(groupedAccounts);
-            return (
-                <div className="contentWithGuide">
-                    <div className="container">
-                        <Header title={<h2>{t('accountSummary.title')}</h2>}>
+        const groupedAccounts = this.groupByCoin(data.accounts);
+        const coins = Object.keys(groupedAccounts);
+        return (
+            <div className="contentWithGuide">
+                <div className="container">
+                    <Header title={<h2>{t('accountSummary.title')}</h2>}>
+                        {
+                            exported ? (
+                                <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
+                                    <span>
+                                        <img src={checkIcon} style="margin-right: 5px !important;" />
+                                        <span>{t('account.openFile')}</span>
+                                    </span>
+                                </A>
+                            ) : (
+                                <a onClick={this.export} title={t('accountSummary.exportSummary')}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#699ec6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </a>
+                            )
+                        }
+                    </Header>
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
+                            <Chart />
                             {
-                                exported ? (
-                                    <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
-                                        <span>
-                                            <img src={checkIcon} style="margin-right: 5px !important;" />
-                                            <span>{t('account.openFile')}</span>
-                                        </span>
-                                    </A>
-                                ) : (
-                                        <a onClick={this.export} title={t('accountSummary.exportSummary')}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#699ec6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="7 10 12 15 17 10"></polyline>
-                                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                                            </svg>
-                                        </a>
-                                    )
+                                coins.length > 0 ?
+                                               coins.map((coin, index) =>
+                                                   <BalancesTable
+                                                       key={coin}
+                                                       coinCode={coin}
+                                                       accounts={groupedAccounts[coin]}
+                                                       total={data.totals[coin]}
+                                                       index={index} />) :
+                                               <p>{t('accountSummary.noAccount')}</p>
                             }
-                        </Header>
-                        <div className="innerContainer scrollableContainer">
-                            <div className="content padded">
-                                {
-                                    coins.length > 0 ?
-                                    coins.map((coin, index) => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]} total={data.totals[coin]} index={index} />) :
-                                    <p>{t('accountSummary.noAccount')}</p>
-                                }
-                            </div>
                         </div>
                     </div>
                 </div>
-            );
+            </div>
+        );
     }
 }
 
