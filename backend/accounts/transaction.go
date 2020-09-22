@@ -15,11 +15,15 @@
 package accounts
 
 import (
+	"encoding/json"
+	"math/big"
 	"sort"
 	"time"
 
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // TxType is a type of transaction. See the TxType* constants.
@@ -84,6 +88,11 @@ type TransactionData struct {
 	Type TxType
 	// Amount is always >0 and is the amount received or sent (not including the fee).
 	Amount coin.Amount
+	// Balance is balance of the account at the time of this transaction. It is the sum of all
+	// transactions up to this point.
+	// This value is only valid as part of `OrderedTransactions`.
+	Balance coin.Amount
+
 	// Addresses money was sent to / received on.
 	Addresses []AddressAndAmount
 
@@ -133,5 +142,94 @@ type OrderedTransactions []*TransactionData
 // The input list is modified in place and must not be used anymore after calling this function.
 func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 	sort.Sort(sort.Reverse(byHeight(txs)))
+
+	balance := big.NewInt(0)
+	for i := len(txs) - 1; i >= 0; i-- {
+		tx := txs[i]
+		switch tx.Type {
+		case TxTypeReceive:
+			balance.Add(balance, tx.Amount.BigInt())
+		case TxTypeSend:
+			balance.Sub(balance, tx.Amount.BigInt())
+			// Subtract fee as well.
+			if tx.Fee != nil {
+				balance.Sub(balance, tx.Fee.BigInt())
+			}
+		case TxTypeSendSelf:
+			// Subtract only fee.
+			if tx.Fee != nil {
+				balance.Sub(balance, tx.Fee.BigInt())
+			}
+		}
+		tx.Balance = coin.NewAmount(balance)
+	}
 	return txs
+}
+
+// TimeseriesEntry contains the balance of the account at the given time.
+type TimeseriesEntry struct {
+	Time  time.Time
+	Value coin.Amount
+}
+
+// MarshalJSON serializes the entry as JSON.
+func (c *TimeseriesEntry) MarshalJSON() ([]byte, error) {
+	value, err := c.Value.Int64()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(struct {
+		Time  int64 `json:"time"`
+		Value int64 `json:"value"`
+	}{
+		Time:  c.Time.Unix(),
+		Value: value,
+	})
+}
+
+// Timeseries chunks the time between `start` and `end` into steps of `interval` duration, and
+// provides the balance of the account at each step.
+func (txs OrderedTransactions) Timeseries(
+	start, end time.Time, interval time.Duration) ([]TimeseriesEntry, error) {
+	if len(txs) == 0 {
+		return nil, nil
+	}
+	for _, tx := range txs {
+		if tx.Height != 0 && tx.Timestamp == nil {
+			return nil, errp.WithStack(errors.ErrNotAvailable)
+		}
+	}
+	currentTime := start
+	if currentTime.IsZero() {
+		return nil, nil
+	}
+
+	result := []TimeseriesEntry{}
+	for {
+		// Find the latest tx before `currentTime`.
+		nextIndex := sort.Search(len(txs), func(idx int) bool {
+			tx := txs[idx]
+			if tx.Height == 0 {
+				return false
+			}
+			return tx.Timestamp.Before(currentTime) || tx.Timestamp.Equal(currentTime)
+		})
+		var value coin.Amount
+		if nextIndex == len(txs) {
+			value = coin.NewAmountFromInt64(0)
+		} else {
+			value = txs[nextIndex].Balance
+		}
+
+		result = append(result, TimeseriesEntry{
+			Time:  currentTime,
+			Value: value,
+		})
+
+		currentTime = currentTime.Add(interval)
+		if currentTime.After(end) {
+			break
+		}
+	}
+	return result, nil
 }

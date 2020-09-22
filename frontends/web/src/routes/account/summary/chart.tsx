@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi } from 'lightweight-charts';
+import { createChart, IChartApi, LineData } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
 
+export type ChartData = LineData[];
+
 interface ChartProps {
+    data: ChartData;
 }
 
 interface State {
@@ -50,19 +53,8 @@ class Chart extends Component<Props, State> {
                 height: this.height,
             });
             const lineSeries = this.chart.addLineSeries();
-            lineSeries.setData([
-                { time: '2019-04-11', value: 80.01 },
-                { time: '2019-04-12', value: 96.63 },
-                { time: '2019-04-13', value: 76.64 },
-                { time: '2019-04-14', value: 81.89 },
-                { time: '2019-04-15', value: 74.43 },
-                { time: '2019-04-16', value: 80.01 },
-                { time: '2019-04-17', value: 96.63 },
-                { time: '2019-04-18', value: 76.64 },
-                { time: '2019-04-19', value: 81.89 },
-                { time: '2019-04-20', value: 74.43 },
-            ]);
-
+            lineSeries.setData(this.props.data);
+            this.chart.timeScale().fitContent();
             window.addEventListener('resize', this.onResize);
         }
     }

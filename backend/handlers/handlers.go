@@ -786,10 +786,11 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance co
 
 func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
 	type accountJSON struct {
-		CoinCode    coinpkg.Code           `json:"coinCode"`
-		AccountCode string                 `json:"accountCode"`
-		Name        string                 `json:"name"`
-		Balance     map[string]interface{} `json:"balance"`
+		CoinCode    coinpkg.Code               `json:"coinCode"`
+		AccountCode string                     `json:"accountCode"`
+		Name        string                     `json:"name"`
+		Balance     map[string]interface{}     `json:"balance"`
+		ChartData   []accounts.TimeseriesEntry `json:"chartData"`
 	}
 
 	jsonAccounts := []*accountJSON{}
@@ -807,6 +808,19 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		if err != nil {
 			return nil, err
 		}
+		txs, err := account.Transactions()
+		if err != nil {
+			return nil, err
+		}
+		timeseries, err := txs.Timeseries(
+			// Last year:
+			time.Now().AddDate(-4, 0, 0).Truncate(24*time.Hour),
+			time.Now(),
+			24*time.Hour,
+		)
+		if err != nil {
+			return nil, err
+		}
 		jsonAccounts = append(jsonAccounts, &accountJSON{
 			CoinCode:    account.Coin().Code(),
 			AccountCode: account.Config().Code,
@@ -816,6 +830,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 				"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
 				"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 			},
+			ChartData: timeseries,
 		})
 
 		_, ok := totals[account.Coin()]
