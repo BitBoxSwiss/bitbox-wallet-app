@@ -14,6 +14,10 @@
 
 package errors
 
+import (
+	errpkg "errors"
+)
+
 // TxValidationError represents errors in the tx proposal input data.
 type TxValidationError string
 
@@ -35,4 +39,8 @@ var (
 	// ErrFeeTooLow is returned when the custom fee the user entered is too low to be able to
 	// broadcast the transaction.
 	ErrFeeTooLow = TxValidationError("feeTooLow")
+
+	// ErrNotAvailable is returned if data required is not available yet. Example: the headers are
+	// not synced yet, which is a prerequisite to making a timeseries of the portfolio.
+	ErrNotAvailable = errpkg.New("notAvailable")
 )

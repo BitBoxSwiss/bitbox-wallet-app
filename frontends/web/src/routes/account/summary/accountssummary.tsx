@@ -26,10 +26,11 @@ import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { AccountInterface } from '../account';
 import { BalancesTable } from './balancestable';
-import { Chart } from './chart';
+import { Chart, ChartData } from './chart';
 
 export interface AccountAndBalanceInterface extends AccountInterface {
     balance: BalanceInterface;
+    chartData: ChartData;
 }
 
 interface AccountSummaryProps {
@@ -104,7 +105,7 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Chart />
+                            <Chart data={data.accounts[0].chartData}/>
                             {
                                 coins.length > 0 ?
                                                coins.map((coin, index) =>
