@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -27,7 +28,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,43 +37,37 @@ var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CA
 const interval = time.Minute
 const cryptoCompareURL = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
 
-// RateUpdater implements coin.RateUpdater.
+// RateUpdater provides cryptocurrency-to-fiat conversion rates.
 type RateUpdater struct {
 	observable.Implementation
-	last       map[string]map[string]float64
-	log        *logrus.Entry
-	socksProxy socksproxy.SocksProxy
+	httpClient *http.Client
+	// last contains most recent conversion to fiat, keyed by a coin.
+	last map[string]map[string]float64
+	log  *logrus.Entry
 }
 
 // NewRateUpdater returns a new rates updater.
-func NewRateUpdater(socksProxy socksproxy.SocksProxy) *RateUpdater {
-	ratesUpdater := &RateUpdater{
+func NewRateUpdater(client *http.Client) *RateUpdater {
+	return &RateUpdater{
 		last:       map[string]map[string]float64{},
 		log:        logging.Get().WithGroup("rates"),
-		socksProxy: socksProxy,
+		httpClient: client,
 	}
-	go ratesUpdater.start()
-	return ratesUpdater
 }
 
-// Last returns the last rates for a given coin and fiat or nil if not available.
+// Last returns the most recent conversion rates.
+// The returned map is keyed by a crypto coin with values mapped by fiat rates.
+// RateUpdater assumes the returned value is never modified by the callers.
 func (updater *RateUpdater) Last() map[string]map[string]float64 {
 	return updater.last
 }
 
-func (updater *RateUpdater) update() {
-	client, err := updater.socksProxy.GetHTTPClient()
-	if err != nil {
-		updater.log.Printf("Error getting http client %v\n", err)
-		updater.last = nil
-		return
-	}
-
+func (updater *RateUpdater) updateLast() {
 	url := fmt.Sprintf(cryptoCompareURL,
 		strings.Join(coins, ","),
 		strings.Join(fiats, ","),
 	)
-	response, err := client.Get(url)
+	response, err := updater.httpClient.Get(url)
 	if err != nil {
 		updater.log.WithError(err).WithField("url", url).Error("Error getting rates")
 		updater.last = nil
@@ -113,9 +107,13 @@ func (updater *RateUpdater) update() {
 	})
 }
 
-func (updater *RateUpdater) start() {
-	for {
-		updater.update()
-		time.Sleep(interval)
-	}
+// Starts spins up the updater's goroutine to periodically fetch exchange rates.
+// It returns immediately.
+func (updater *RateUpdater) Start() {
+	go func() {
+		for {
+			updater.updateLast()
+			time.Sleep(interval)
+		}
+	}()
 }

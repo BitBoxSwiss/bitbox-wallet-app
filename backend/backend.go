@@ -179,8 +179,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.EmitBitBoxBaseReconnected, backend.config,
 		backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
-	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
+	hclient, err := backend.socksProxy.GetHTTPClient()
+	if err != nil {
+		return nil, err
+	}
+	backend.ratesUpdater = rates.NewRateUpdater(hclient)
 	backend.ratesUpdater.Observe(backend.Notify)
+	backend.ratesUpdater.Start()
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
