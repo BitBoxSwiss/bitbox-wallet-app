@@ -106,12 +106,21 @@ jobs:
       - name: Enable caching
         uses: actions/cache@v2
         with:
-          key: ${{runner.os}}-qt-osx
+          # The key version is just an incremental number.
+          # Bump it every time there are changes in CI scripts.
+          key: ${{runner.os}}-qt-osx-v2
           path: |
             frontends/web/node_modules
             ~/Library/Caches/Homebrew
       - name: Build macOS app
-        run: ./scripts/travis-ci.sh qt-osx
+        # Unlike Travis where Go is pre-installed, GitHub has none so we use homebrew
+        # but prevent the very long update process because go1.14 already present
+        # in their database.
+        run: >
+          export HOMEBREW_NO_AUTO_UPDATE=1;
+          brew install go@1.14;
+          export PATH=/usr/local/opt/go@1.14/bin:$PATH;
+          ./scripts/travis-ci.sh qt-osx;
         env:
           TRAVIS_OS_NAME: osx
       - name: Archive app
