@@ -30,13 +30,12 @@ build_script:
   - cd frontends/qt
   - makensis setup.nsi
 
-# Copy build artifacts back to C:\projects\bitbox-wallet-app, as artifacts can only be relative to that folder.
+# Upload build artifacts but only for commits pushes, no pull requests.
 after_build:
-  # %APPVEYOR_BUILD_FOLDER% is the path to the git clone.
+- if defined APPVEYOR_PULL_REQUEST_NUMBER appveyor exit
+# %APPVEYOR_BUILD_FOLDER% is the path to the git clone.
 - mkdir %APPVEYOR_BUILD_FOLDER%
+# Copy build artifacts back to the git clone dir because they can only be
+# relative to that folder.
 - cp %GOPATH%\src\github.com\digitalbitbox\bitbox-wallet-app\frontends\qt\BitBox-installer.exe %APPVEYOR_BUILD_FOLDER%\BitBox-installer.exe
-
-artifacts:
-  - path: BitBox-installer.exe
-    name: BitBoxApp-win64-installer
-    type: File
+- appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\BitBox-installer.exe
