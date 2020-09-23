@@ -28,8 +28,9 @@ fi
 
 # The following is executed only on macOS machines.
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    brew install go@1.14
-    export PATH=/usr/local/opt/go@1.14/bin:$PATH
+    # Go is pre-installed according to the settings in .travis.yml.
+    # GitHub CI installs it directly in the macos action, before executing
+    # this script.
     go version
     brew install qt
     # Install yarn only if it isn't already.
