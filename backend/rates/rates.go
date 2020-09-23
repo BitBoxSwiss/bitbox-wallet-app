@@ -22,7 +22,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -31,27 +33,49 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// If modified, also update geckoCoin map.
 var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "DAI", "BAT", "USDC"}
+
+// If modified, also update geckoFiat map.
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD", "AUD"}
 
 const interval = time.Minute
 const cryptoCompareURL = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
 
+type exchangeRate struct {
+	value     float64
+	timestamp time.Time
+}
+
 // RateUpdater provides cryptocurrency-to-fiat conversion rates.
 type RateUpdater struct {
 	observable.Implementation
+
 	httpClient *http.Client
+	log        *logrus.Entry
+
 	// last contains most recent conversion to fiat, keyed by a coin.
 	last map[string]map[string]float64
-	log  *logrus.Entry
+
+	historyMu sync.RWMutex
+	// history contains historical conversion rates in asc order, keyed by a coin.
+	// TODO: store in bolt DB
+	// TODO: support different fiat currencies? it's in USD at the moment
+	history map[string][]exchangeRate
+
+	// CoinGecko is where updater gets the historical conversion rates.
+	// See https://www.coingecko.com/en/api for details.
+	coingeckoURL string
 }
 
 // NewRateUpdater returns a new rates updater.
 func NewRateUpdater(client *http.Client) *RateUpdater {
 	return &RateUpdater{
-		last:       map[string]map[string]float64{},
-		log:        logging.Get().WithGroup("rates"),
-		httpClient: client,
+		last:         make(map[string]map[string]float64),
+		history:      make(map[string][]exchangeRate),
+		log:          logging.Get().WithGroup("rates"),
+		httpClient:   client,
+		coingeckoURL: coingeckoAPIV3,
 	}
 }
 
@@ -60,6 +84,55 @@ func NewRateUpdater(client *http.Client) *RateUpdater {
 // RateUpdater assumes the returned value is never modified by the callers.
 func (updater *RateUpdater) Last() map[string]map[string]float64 {
 	return updater.last
+}
+
+// PriceAt returns a historical exchange rate for the given coin.
+// The returned value may be imprecise if at arg matches no timestamp exactly.
+// In this case, linear interpolation is used as an approximation.
+// If no data is available with the given args, PriceAt returns 0.
+func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
+	if fiat != "USD" {
+		// TODO: This currently supports only BTC/USD pair;
+		//       see backfillHistory and historyUpdateLoop.
+		return 0
+	}
+	updater.historyMu.RLock()
+	defer updater.historyMu.RUnlock()
+	data := updater.history[coin]
+	// Find an index of the first entry older or equal the at timestamp.
+	idx := sort.Search(len(data), func(i int) bool {
+		return !data[i].timestamp.Before(at)
+	})
+	if idx == len(data) || (idx == 0 && !data[idx].timestamp.Equal(at)) {
+		return 0 // no data
+	}
+	if data[idx].timestamp.Equal(at) {
+		return data[idx].value // don't need to interpolate
+	}
+
+	// Approximate value, somewhere between a and b.
+	// https://en.wikipedia.org/wiki/Linear_interpolation#Linear_interpolation_as_approximation
+	a := data[idx-1]
+	b := data[idx]
+	x := float64((at.Unix() - a.timestamp.Unix())) / float64((b.timestamp.Unix() - a.timestamp.Unix()))
+	return a.value + x*(b.value-a.value)
+}
+
+// Start spins up the updater's goroutines to periodically update exchange rates.
+// It returns immediately.
+func (updater *RateUpdater) Start() {
+	go updater.lastUpdateLoop()
+	go updater.historyUpdateLoop()
+	go updater.backfillHistory()
+}
+
+// lastUpdateLoop periodically updates most recent exchange rates.
+// It never returns.
+func (updater *RateUpdater) lastUpdateLoop() {
+	for {
+		updater.updateLast()
+		time.Sleep(interval)
+	}
 }
 
 func (updater *RateUpdater) updateLast() {
@@ -105,15 +178,4 @@ func (updater *RateUpdater) updateLast() {
 		Action:  action.Replace,
 		Object:  rates,
 	})
-}
-
-// Starts spins up the updater's goroutine to periodically fetch exchange rates.
-// It returns immediately.
-func (updater *RateUpdater) Start() {
-	go func() {
-		for {
-			updater.updateLast()
-			time.Sleep(interval)
-		}
-	}()
 }
