@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Radio } from '../forms';
 import * as style from './backups.css';
@@ -36,46 +36,51 @@ export interface Backup {
 
 type Props = BackupsListItemProps & TranslateProps;
 
-class BackupsListItem extends Component<Props> {
-    public render(
-        { disabled, backup, selectedBackup, handleChange, onFocus, radio }: RenderableProps<Props>,
-    ) {
-        let date = '';
-        if (backup.date && backup.date !== '') {
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            };
-            date = new Date(backup.date).toLocaleString(this.context.i18n.language, options);
-        } else {
-            date = 'unknown';
-        }
-        return (
-            radio ?
-                <Radio
-                    disabled={!!disabled}
-                    checked={selectedBackup === backup.id}
-                    onChange={event => handleChange(event.target.value)}
-                    id={backup.id}
-                    label={backup.name && backup.name !== '' ? backup.name : backup.id}
-                    value={backup.id}
-                    onFocus={onFocus}
-                    className={style.backupItem}
-                    sizeMedium>
-                    <span className="text-small text-gray">{date}</span>
-                </Radio> :
-                <tr>
-                    <div className="text-medium m-bottom-quarter">{backup.name}</div>
-                    <div className={style.backupID}>ID: {backup.id}</div>
-                    <div className="text-small text-gray">{date}</div>
-                </tr>
-        );
+function BackupsListItem({
+    disabled,
+    backup,
+    selectedBackup,
+    handleChange,
+    onFocus,
+    radio
+}: RenderableProps<Props>): JSX.Element {
+
+    let date = '';
+    if (backup.date && backup.date !== '') {
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+        date = new Date(backup.date).toLocaleString(this.context.i18n.language, options);
+    } else {
+        date = 'unknown';
     }
-}
+    return (
+        radio ?
+            <Radio
+                disabled={!!disabled}
+                checked={selectedBackup === backup.id}
+                onChange={event => handleChange(event.target.value)}
+                id={backup.id}
+                label={backup.name && backup.name !== '' ? backup.name : backup.id}
+                value={backup.id}
+                onFocus={onFocus}
+                className={style.backupItem}
+                sizeMedium>
+                <span className="text-small text-gray">{date}</span>
+            </Radio> :
+            <tr>
+                <div className="text-medium m-bottom-quarter">{backup.name}</div>
+                <div className={style.backupID}>ID: {backup.id}</div>
+                <div className="text-small text-gray">{date}</div>
+            </tr>
+    );
+
+};
 
 const TranslatedBackupsListItem = translate<BackupsListItemProps>()(BackupsListItem);
 export { TranslatedBackupsListItem as BackupsListItem };

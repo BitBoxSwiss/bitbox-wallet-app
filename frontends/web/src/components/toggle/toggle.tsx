@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { h, RenderableProps } from 'preact';
 import * as style from './toggle.css';
 
 interface ToggleProps {
@@ -11,17 +11,15 @@ interface ToggleProps {
     [key: string]: any;
 }
 
-class Toggle extends Component<ToggleProps> {
-    public render(props: RenderableProps<ToggleProps>) {
-        return (
-            <label className={style.container}>
-                <input
-                    type="checkbox"
-                    {...props} />
-                <span className={style.slider}></span>
-            </label>
-        );
-    }
+function Toggle(props: RenderableProps<ToggleProps>): JSX.Element {
+    return (
+        <label className={style.container}>
+            <input
+                type="checkbox"
+                {...props} />
+            <span className={style.slider}></span>
+        </label>
+    );
 }
 
 export { Toggle };

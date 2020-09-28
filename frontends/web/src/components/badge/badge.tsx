@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { h, RenderableProps } from 'preact';
 import * as style from './badge.css';
 
 interface BadgeProps {
@@ -6,16 +6,16 @@ interface BadgeProps {
     className?: string;
 }
 
-class Badge extends Component<BadgeProps> {
-    public render(
-        { type, className, children }: RenderableProps<BadgeProps>,
-    ) {
-        return (
-            <span className={[style.container, style[type], className].join(' ')}>
-                {children}
-            </span>
-        );
-    }
+function Badge({
+    type,
+    className,
+    children
+}: RenderableProps<BadgeProps>): JSX.Element {
+    return (
+        <span className={[style.container, style[type], className].join(' ')}>
+            {children}
+        </span>
+    );
 }
 
 export { Badge };
