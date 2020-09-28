@@ -29,7 +29,7 @@ export default class Goal extends Component {
         onRestore,
     }) {
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />

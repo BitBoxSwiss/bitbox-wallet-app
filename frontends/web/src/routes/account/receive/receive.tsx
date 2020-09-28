@@ -199,10 +199,10 @@ class Receive extends Component<Props, State> {
         }
         const content = (
             <div style="position: relative;">
-                <div class={style.qrCodeContainer}>
+                <div className={style.qrCodeContainer}>
                     <QRCode data={enableCopy ? uriPrefix + address : undefined} />
                 </div>
-                <div class={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
+                <div className={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
                     {
                         currentAddresses.length > 1 && (
                             <a
@@ -217,9 +217,9 @@ class Receive extends Component<Props, State> {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 8 8 12 12 16"></polyline>
                                     <line x1="16" y1="12" x2="8" y2="12"></line>
@@ -228,7 +228,7 @@ class Receive extends Component<Props, State> {
                             </a>
                         )
                     }
-                    <p class={style.label}>{t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}</p>
+                    <p className={style.label}>{t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}</p>
                     {
                         currentAddresses.length > 1 && (
                             <a
@@ -244,9 +244,9 @@ class Receive extends Component<Props, State> {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 16 16 12 12 8"></polyline>
                                     <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -322,15 +322,15 @@ class Receive extends Component<Props, State> {
         );
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Status type="warning">
                         {paired === false && t('warning.receivePairing')}
                     </Status>
                     <Header title={<h2>{t('receive.title', { accountName: account.name })}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content narrow isVerticallyCentered">
-                            <div class="box large text-center">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content narrow isVerticallyCentered">
+                            <div className="box large text-center">
                                 {content}
                             </div>
                         </div>

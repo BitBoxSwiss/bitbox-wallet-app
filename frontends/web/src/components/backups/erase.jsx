@@ -59,7 +59,7 @@ export default class Erase extends Component {
                             title={`Erase ${selectedBackup}`}
                             onClose={this.abort}>
                             <p>Do you really want to erase {selectedBackup}?</p>
-                            <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                            <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                 <Button secondary onClick={this.abort}>Abort</Button>
                                 <Button danger onClick={this.erase}>Erase</Button>
                             </div>

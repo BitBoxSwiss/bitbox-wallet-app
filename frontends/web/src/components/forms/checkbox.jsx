@@ -33,7 +33,7 @@ export default function Checkbox({
                 disabled={disabled}
                 {...props}
             />
-            <label for={id}>{label} {children}</label>
+            <label htmlFor={id}>{label} {children}</label>
         </span>
     );
 }

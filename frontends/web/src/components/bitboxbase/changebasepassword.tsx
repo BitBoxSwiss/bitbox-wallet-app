@@ -131,7 +131,7 @@ class ChangeBasePassword extends Component<Props, State> {
                 {
                     active && !authenticated &&
                     <Dialog onClose={this.abort} title={t('bitboxBase.settings.node.password')} medium>
-                        <div class="box medium">
+                        <div className="box medium">
                             <form onSubmit={this.submitOldPassword}>
                                 <div>
                                     <PasswordSingleInput
@@ -156,7 +156,7 @@ class ChangeBasePassword extends Component<Props, State> {
                 {
                     active && authenticated &&
                     <Dialog onClose={this.abort} title={t('bitboxBase.settings.node.password')} medium>
-                        <div class="box medium">
+                        <div className="box medium">
                             <form onSubmit={this.submitChangePassword}>
                                 <PasswordRepeatInput
                                     label={t('changePin.newTitle')}

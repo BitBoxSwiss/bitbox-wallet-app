@@ -435,7 +435,7 @@ class BitBox02 extends Component<Props, State> {
                                 <div className={style.stepContext}>
                                     <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
                                     <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordGif} />
+                                        <img className={style.passwordGesturesGif} src={passwordGif} />
                                     </div>
                                 </div>
                                 <div className="text-center m-top-large">
@@ -479,7 +479,7 @@ class BitBox02 extends Component<Props, State> {
                                         title={t('bitbox02Wizard.stepUninitialized.title')}
                                         large>
                                         <Toast theme="info">
-                                            <div class="flex flex-items-center">
+                                            <div className="flex flex-items-center">
                                                 <img src={warning} style="width: 18px; margin-right: 10px" />
                                                 {t('bitbox02Wizard.initialize.tip')}
                                             </div>
@@ -586,7 +586,7 @@ class BitBox02 extends Component<Props, State> {
                                             }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif} />
+                                                <img className={style.passwordGesturesGif} src={passwordGif} />
                                             </div>
                                         </div>
                                         <div className="text-center m-top-large">
@@ -684,7 +684,7 @@ class BitBox02 extends Component<Props, State> {
                                             }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif} />
+                                                <img className={style.passwordGesturesGif} src={passwordGif} />
                                             </div>
                                         </div>
                                     </Step>

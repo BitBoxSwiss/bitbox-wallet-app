@@ -69,7 +69,7 @@ export default function Input({
             {
                 label && (
                     <div className="flex flex-row flex-between">
-                        <label for={id} className={error ? styles.errorText : ''}>
+                        <label htmlFor={id} className={error ? styles.errorText : ''}>
                             {label}
                             {
                                 error && (
@@ -82,9 +82,9 @@ export default function Input({
                 )
             }
             <input
-                autocomplete="off"
-                autocorrect="off"
-                spellcheck={false}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
                 type={type}
                 id={id}
                 ref={getRef}

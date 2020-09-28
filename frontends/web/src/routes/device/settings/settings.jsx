@@ -122,16 +122,16 @@ export default class Settings extends Component {
         const canUpgrade = firmwareVersion && newVersion !== firmwareVersion;
         const paired = pairing && mobileChannel;
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             <div className="columnsContainer">
                                 <div className="columns">
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer first">
-                                            <div class="subHeader">
+                                        <div className="subHeaderContainer first">
+                                            <div className="subHeader">
                                                 <h3>{t('deviceSettings.secrets.title')}</h3>
                                             </div>
                                         </div>
@@ -156,8 +156,8 @@ export default class Settings extends Component {
                                         </div>
                                     </div>
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
+                                        <div className="subHeaderContainer">
+                                            <div className="subHeader">
                                                 <h3>{t('deviceSettings.pairing.title')}</h3>
                                             </div>
                                         </div>
@@ -182,8 +182,8 @@ export default class Settings extends Component {
                                 </div>
                                 <div className="columns">
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
+                                        <div className="subHeaderContainer">
+                                            <div className="subHeader">
                                                 <h3>{t('deviceSettings.firmware.title')}</h3>
                                             </div>
                                         </div>
@@ -200,8 +200,8 @@ export default class Settings extends Component {
                                         </div>
                                     </div>
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
+                                        <div className="subHeaderContainer">
+                                            <div className="subHeader">
                                                 <h3>{t('deviceSettings.hardware.title')}</h3>
                                             </div>
                                         </div>

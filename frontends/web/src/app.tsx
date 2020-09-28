@@ -180,7 +180,7 @@ class App extends Component<Props, State> {
                     accounts={accounts}
                     deviceIDs={deviceIDs}
                     bitboxBaseIDs={bitboxBaseIDs} />
-                <div class="appContent flex flex-column flex-1" style="min-width: 0;">
+                <div className="appContent flex flex-column flex-1" style="min-width: 0;">
                     <Update />
                     <Banner msgKey="bitbox01" />
                     <MobileDataWarning />

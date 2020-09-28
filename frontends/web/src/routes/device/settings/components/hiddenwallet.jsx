@@ -118,7 +118,7 @@ export default class HiddenWallet extends Component {
                                     repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
                                     onValidPassword={this.setValidPassword}
                                 />
-                                <div class={dialogStyle.actions}>
+                                <div className={dialogStyle.actions}>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                         {t('button.hiddenwallet')}
                                     </Button>

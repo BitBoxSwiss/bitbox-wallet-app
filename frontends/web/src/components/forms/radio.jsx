@@ -34,7 +34,7 @@ export default function Radio({
                 disabled={disabled}
                 {...props}
             />
-            <label for={id}>
+            <label htmlFor={id}>
                 {label}
                 {children}
             </label>

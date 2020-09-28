@@ -395,8 +395,8 @@ class BaseSettings extends Component<Props, State> {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round">
                                     {
                                         expandedDashboard ? (
                                             <polyline points="18 15 12 9 6 15"></polyline>
@@ -440,8 +440,8 @@ class BaseSettings extends Component<Props, State> {
                                 <div className="columnsContainer m-top-half">
                                     <div className="columns">
                                         <div className="column column-1-3">
-                                            <div class="subHeaderContainer">
-                                                <div class="subHeader">
+                                            <div className="subHeaderContainer">
+                                                <div className="subHeader">
                                                     <h3>{t('bitboxBase.settings.node.title')}</h3>
                                                 </div>
                                             </div>
@@ -468,8 +468,8 @@ class BaseSettings extends Component<Props, State> {
                                         </div>
                                         </div>
                                         <div className="column column-1-3">
-                                            <div class="subHeaderContainer">
-                                                <div class="subHeader">
+                                            <div className="subHeaderContainer">
+                                                <div className="subHeader">
                                                     <h3>{t('bitboxBase.settings.system.title')}</h3>
                                                 </div>
                                             </div>
@@ -504,8 +504,8 @@ class BaseSettings extends Component<Props, State> {
                                             </div>
                                         </div>
                                         <div className="column column-1-3">
-                                            <div class="subHeaderContainer">
-                                                <div class="subHeader">
+                                            <div className="subHeaderContainer">
+                                                <div className="subHeader">
                                                     <h3>{t('bitboxBase.settings.backups.title')}</h3>
                                                 </div>
                                             </div>

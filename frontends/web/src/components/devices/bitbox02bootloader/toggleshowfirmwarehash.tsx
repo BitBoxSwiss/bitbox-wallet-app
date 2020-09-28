@@ -46,7 +46,7 @@ class ToggleFWHash extends Component<Props, {}> {
     ) {
         return (
             <div className="box slim divide">
-                <div class="flex flex-row flex-between flex-items-center">
+                <div className="flex flex-row flex-between flex-items-center">
                     <p className="m-none">{t('bb02Bootloader.advanced.toggleShowFirmwareHash')}</p>
                     <Toggle
                         checked={enabled}

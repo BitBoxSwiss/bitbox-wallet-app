@@ -83,7 +83,7 @@ class CopyableInput extends Component<Props, State> {
         { success }: State,
     ) {
         return (
-            <div class={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
+            <div className={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
                 <textarea
                     disabled={disabled}
                     readOnly

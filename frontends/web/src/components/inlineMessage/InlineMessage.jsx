@@ -28,9 +28,9 @@ export default class InlineMessage extends Component {
 	    align,
 	}, {}) {
 	    return (
-	        <div class={[style.inlineMessage, style[type], align ? style[align] : ''].join(' ')}>
+	        <div className={[style.inlineMessage, style[type], align ? style[align] : ''].join(' ')}>
 	            {message}
-	            <div class={style.close} onClick={this.deactivate}>✕</div>
+	            <div className={style.close} onClick={this.deactivate}>✕</div>
 	        </div>
 	    );
 	}

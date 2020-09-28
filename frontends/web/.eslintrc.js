@@ -152,9 +152,6 @@ module.exports = {
     "react/jsx-key": ["error"],
 
     "object-curly-spacing": "off",
-
-    // temp disable
-    "react/no-unknown-property": "off"
   },
   overrides: [
     {

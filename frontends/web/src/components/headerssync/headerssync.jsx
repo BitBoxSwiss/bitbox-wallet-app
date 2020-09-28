@@ -60,21 +60,21 @@ export default class HeadersSync extends Component {
         }
 
         return (
-            <div class={style.syncContainer}>
-                <div class={style.syncMessage}>
-                    <div class={style.syncText}>
+            <div className={style.syncContainer}>
+                <div className={style.syncMessage}>
+                    <div className={style.syncText}>
                         {t('headerssync.blocksSynced', { blocks: formatted })} { !loaded && `(${Math.ceil(value)}%)` }
                     </div>
                     {
                         !loaded && (
-                            <div class={style.spinnerContainer}>
-                                <div class={style.spinner}></div>
+                            <div className={style.spinnerContainer}>
+                                <div className={style.spinner}></div>
                             </div>
                         )
                     }
                 </div>
-                <div class={style.progressBar}>
-                    <div class={style.progressValue} style={{ width: `${value}%` }}></div>
+                <div className={style.progressBar}>
+                    <div className={style.progressValue} style={{ width: `${value}%` }}></div>
                 </div>
             </div>
         );

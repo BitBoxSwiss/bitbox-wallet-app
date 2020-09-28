@@ -152,7 +152,7 @@ class Restore extends Component<Props, State> {
                                         checked={understand}
                                         onChange={this.handleUnderstandChange} />
                                 </div>
-                                <div class={dialogStyle.actions}>
+                                <div className={dialogStyle.actions}>
                                     <Button
                                         type="submit"
                                         danger={requireConfirmation}

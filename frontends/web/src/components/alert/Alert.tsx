@@ -70,7 +70,7 @@ class Alert extends Component<TranslateProps, State> {
                         </p>
                     )) : null
                 }
-                <div class={style.actions}>
+                <div className={style.actions}>
                     <Button
                         primary
                         onClick={this.handleClose}>

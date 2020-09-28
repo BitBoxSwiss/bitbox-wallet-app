@@ -74,7 +74,7 @@ class Confirm extends Component<TranslateProps, State> {
                                 message ? message.split('\n').map((line, i) => (
                                     <p
                                         key={i}
-                                        class={ i === 0 ? 'first' : '' }>
+                                        className={ i === 0 ? 'first' : '' }>
                                         <SimpleMarkup tagName="span" markup={line} />
                                     </p>
                                 )) : null
@@ -82,7 +82,7 @@ class Confirm extends Component<TranslateProps, State> {
                         </div>
                     </div>
                 </div>
-                <div class={dialogStyle.actions}>
+                <div className={dialogStyle.actions}>
                     <Button primary onClick={this.accept}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
                     <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
                 </div>

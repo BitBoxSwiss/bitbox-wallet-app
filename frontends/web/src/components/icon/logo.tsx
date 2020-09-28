@@ -56,8 +56,8 @@ interface GenericProps {
     [property: string]: any;
 }
 
-export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" class={style.logo} />;
-export const BitBox02 = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" class={style.logo} />;
+export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
+export const BitBox02 = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" className={style.logo} />;
 export const AppLogo = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoImg} alt="BitBox" className={style.logo} />;
 export const AppLogoInverted = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
@@ -103,7 +103,7 @@ function Logo({ coinCode, active, ...rest }: Props) {
     return (
         <div>
             { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-              : <div class="stacked">
+              : <div className="stacked">
                   <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
                   <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
               </div>}

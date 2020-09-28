@@ -127,11 +127,11 @@ class Buy extends Component<Props, State> {
         const iframeLoadingImg = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100% 100%"><text fill="%231D1D1B" x="50%" y="10%" font-size="24" text-anchor="middle">' + t('loading') + '</text></svg>';
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('buy.title', { accountName: account.name })}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             <div className="flex flex-row flex-between">
                                 <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                             </div>
@@ -160,7 +160,7 @@ class Buy extends Component<Props, State> {
                                     src={safello.url}>
                                 </iframe>
 
-                                <div class="buttons ignore">
+                                <div className="buttons ignore">
                                     <ButtonLink
                                         transparent
                                         className="full-width-on-small"

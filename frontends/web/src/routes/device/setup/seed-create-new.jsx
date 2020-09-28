@@ -149,8 +149,8 @@ export default class SeedCreateNew extends Component {
         agreements,
     }) {
         const content = showInfo ? (
-            <div class="box large">
-                <ol class="first">
+            <div className="box large">
+                <ol className="first">
                     <li>{t('seed.info.description1')}</li>
                     <li>{t('seed.info.description2')}</li>
                 </ol>
@@ -189,10 +189,10 @@ export default class SeedCreateNew extends Component {
                         disabled={status === STATUS.CREATING}
                         onValidPassword={this.setValidBackupPassword} />
                 </div>
-                <div class={style.agreements}>
-                    <div class="flex flex-row flex-start flex-items-center">
+                <div className={style.agreements}>
+                    <div className="flex flex-row flex-start flex-items-center">
                         <img src={warning} style="width: 18px; margin-right: 10px; position: relative; bottom: 1px;" />
-                        <p class={style.agreementsLabel}>{t('seed.description')}</p>
+                        <p className={style.agreementsLabel}>{t('seed.description')}</p>
                     </div>
                     <Checkbox
                         id="password_change"
@@ -227,7 +227,7 @@ export default class SeedCreateNew extends Component {
         );
 
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />

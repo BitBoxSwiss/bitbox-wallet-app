@@ -74,7 +74,7 @@ export default class DeviveLock extends Component {
                             <p>{t('deviceLock.condition1')}</p>
                             <p>{t('deviceLock.condition2')}</p>
                             <p>{t('deviceLock.condition3')}</p>
-                            <div class={style.actions}>
+                            <div className={style.actions}>
                                 <Button danger onClick={this.resetDevice}>
                                     {t('deviceLock.confirm')}
                                 </Button>

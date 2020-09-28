@@ -106,7 +106,7 @@ class SetBaseSystemPassword extends Component<Props, State> {
                 {
                     active &&
                     <Dialog onClose={this.abort} title={t('bitboxBase.settings.advanced.systemPassword')} medium>
-                        <div class="box medium">
+                        <div className="box medium">
                             <form onSubmit={this.submitPassword}>
                                 <PasswordRepeatInput
                                     label={t('changePin.newTitle')}

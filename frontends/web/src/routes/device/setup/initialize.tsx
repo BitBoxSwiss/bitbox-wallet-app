@@ -126,8 +126,8 @@ class Initialize extends Component<Props, State> {
 
         const content = showInfo ? (
             <div className="box large">
-                <div class="subHeaderContainer first">
-                    <div class="subHeader">
+                <div className="subHeaderContainer first">
+                    <div className="subHeader">
                         <h3>{t('initialize.info.subtitle')}</h3>
                     </div>
                 </div>
@@ -148,7 +148,7 @@ class Initialize extends Component<Props, State> {
                 </div>
             </div>
         ) : (
-            <form onSubmit={this.handleSubmit} class="box large">
+            <form onSubmit={this.handleSubmit} className="box large">
                 <PasswordRepeatInput
                     pattern="^.{4,}$"
                     label={t('initialize.input.label')}
@@ -174,7 +174,7 @@ class Initialize extends Component<Props, State> {
         );
 
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />

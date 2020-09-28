@@ -69,12 +69,12 @@ export default class Info extends Component {
         const account = this.getAccount();
         if (!account || !info) return null;
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
-                            <div class={[style.infoContent, 'box large'].join(' ')}>
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
+                            <div className={[style.infoContent, 'box large'].join(' ')}>
                                 {
                                     info.signingConfigurations.map((config, index) => (
                                         <SigningConfiguration key={index} info={config} code={code} signingConfigIndex={index} />

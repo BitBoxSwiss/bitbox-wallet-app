@@ -290,8 +290,8 @@ class Account extends Component<Props, State> {
         }
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Status type="warning">
                         {hasCard && t('warning.sdcard')}
                     </Status>
@@ -311,9 +311,9 @@ class Account extends Component<Props, State> {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     className={style.accountIcon}>
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -329,7 +329,7 @@ class Account extends Component<Props, State> {
                             <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
                                 {t(`account.info.${code}`, { defaultValue: '' })}
                             </Status>
-                            <div class="flex flex-row flex-between flex-items-center">
+                            <div className="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     { this.supportsBuy() && (

@@ -247,7 +247,7 @@ class Transaction extends Component<Props, State> {
                     transactionDialog && (
                         <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
                             <form onSubmit={this.handleEdit} className={style.detailInput}>
-                                <label for="note">{t('note.title')}</label>
+                                <label htmlFor="note">{t('note.title')}</label>
                                 <Input
                                     align="right"
                                     autoFocus={!editMode ? 'false' : 'true'}

@@ -162,7 +162,7 @@ class MobilePairing extends Component<Props, State> {
         if (status === 'start') {
             content = (
                 <div>
-                    <div class="flex flex-row flex-start">
+                    <div className="flex flex-row flex-start">
                         <div>
                             <p className="m-top-none"><strong className="m-right-quarter">1.</strong> {t('pairing.start.step1')}</p>
                             <p>
@@ -178,14 +178,14 @@ class MobilePairing extends Component<Props, State> {
                                                 <label className="text-center">Apple App Store</label>
                                                 <div className="flex flex-column flex-center flex-items-center">
                                                     <QRCode data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={148} />
-                                                    <a target="_blank" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} class={style.badge} /></a>
+                                                    <a target="_blank" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} className={style.badge} /></a>
                                                 </div>
                                             </div>
                                             <div className="column column-1-2">
                                                 <label className="text-center">Google Play Store</label>
                                                 <div className="flex flex-column flex-center flex-items-center">
                                                     <QRCode data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={148} />
-                                                    <a target="_blank" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} class={style.badge} /></a>
+                                                    <a target="_blank" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} className={style.badge} /></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -194,7 +194,7 @@ class MobilePairing extends Component<Props, State> {
                             }
                         </div>
                     </div>
-                    <div class="flex flex-row flex-start m-top-default">
+                    <div className="flex flex-row flex-start m-top-default">
                         <div>
                             <p className="m-top-none"><strong className="m-right-quarter">2.</strong>{t('pairing.start.step2')}</p>
                             <div className="text-center">
@@ -226,7 +226,7 @@ class MobilePairing extends Component<Props, State> {
                             title={t('pairing.title')}
                             onClose={this.abort}
                             medium>
-                            <div class="flex flex-column flex-center flex-items-center">
+                            <div className="flex flex-column flex-center flex-items-center">
                                 {
                                     channel ? (
                                         content

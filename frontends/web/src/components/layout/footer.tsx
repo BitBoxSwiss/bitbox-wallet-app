@@ -21,7 +21,7 @@ import { Version } from './version';
 
 export function Footer({ children }: RenderableProps<{}>) {
     return (
-        <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
+        <footer className={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
             {children}
             <div className="m-right-half hide-on-small">
                 <Version />

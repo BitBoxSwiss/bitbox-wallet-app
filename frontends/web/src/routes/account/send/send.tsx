@@ -581,14 +581,14 @@ class Send extends Component<Props, State> {
             </span>
         );
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Status type="warning">
                         {paired === false && t('warning.sendPairing')}
                     </Status>
                     <Header title={<h2>{t('send.title', { accountName: account.name })}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             <div>
                                 <label className="labelXLarge">{t('send.availableBalance')}</label>
                             </div>
@@ -615,7 +615,7 @@ class Send extends Component<Props, State> {
                             </div>
                             <div className="box large m-bottom-default">
                                 <div className="columnsContainer">
-                                    <div class="columns">
+                                    <div className="columns">
                                         <div className="column">
                                             <Input
                                                 label={t('send.address.label')}
@@ -722,7 +722,7 @@ class Send extends Component<Props, State> {
                                     )
                                     */
                                 }
-                                <div class="buttons ignore reverse m-top-none">
+                                <div className="buttons ignore reverse m-top-none">
                                     <Button
                                         primary
                                         onClick={this.send}
@@ -788,7 +788,7 @@ class Send extends Component<Props, State> {
                                             <label>{t('send.confirm.selected-coins')}</label>
                                             {
                                                 Object.keys(this.selectedUTXOs).map((uxto, i) => (
-                                                    <p class={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
+                                                    <p className={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
                                                 ))
                                             }
                                         </div>
@@ -809,7 +809,7 @@ class Send extends Component<Props, State> {
                     {
                         isSent && (
                             <WaitDialog>
-                                <div class="flex flex-row flex-center flex-items-center">
+                                <div className="flex flex-row flex-center flex-items-center">
                                     <img src={approve} alt="Success" style="height: 18px; margin-right: 1rem;" />{t('send.success')}
                                 </div>
                             </WaitDialog>
@@ -818,7 +818,7 @@ class Send extends Component<Props, State> {
                     {
                         isAborted && (
                             <WaitDialog>
-                                <div class="flex flex-row flex-center flex-items-center">
+                                <div className="flex flex-row flex-center flex-items-center">
                                     <img src={reject} alt="Abort" style="height: 18px; margin-right: 1rem;" />{t('send.abort')}
                                 </div>
                             </WaitDialog>
@@ -836,7 +836,7 @@ class Send extends Component<Props, State> {
                                     height={300 /* fix height to avoid ugly resize effect after open */}
                                     className={style.qrVideo}
                                     onLoadedData={this.handleVideoLoad} />
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
+                                <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
                                     <Button
                                         secondary
                                         onClick={this.toggleScanQR}>

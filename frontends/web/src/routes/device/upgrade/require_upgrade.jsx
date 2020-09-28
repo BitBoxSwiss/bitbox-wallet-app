@@ -37,7 +37,7 @@ export default class RequireUpgrade extends Component {
 
     render({ t, deviceID }, { firmwareVersion }) {
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className={style.container}>
                     <BitBox />
                     <div className="box">

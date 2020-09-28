@@ -142,8 +142,8 @@ export default class ManageBackups extends Component {
             return null;
         }
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded narrow">

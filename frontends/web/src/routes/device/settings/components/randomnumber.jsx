@@ -66,7 +66,7 @@ export default class RandomNumber extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <div class={dialogStyle.actions}>
+                            <div className={dialogStyle.actions}>
                                 <Button primary onClick={this.abort}>{t('button.ok')}</Button>
                             </div>
                         </Dialog>

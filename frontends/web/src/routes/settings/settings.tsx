@@ -243,8 +243,8 @@ class Settings extends Component<Props, State> {
         }
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('settings.title')}</h2>}>
                         {
                             !deviceIDs.length && (
@@ -254,9 +254,9 @@ class Settings extends Component<Props, State> {
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
                                         className="m-right-tiny">
                                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -266,19 +266,19 @@ class Settings extends Component<Props, State> {
                             )
                         }
                     </Header>
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded-lgscreen">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded-lgscreen">
                             {
                                 config && (
-                                    <div class="flex-1">
+                                    <div className="flex-1">
                                         <div className="columnsContainer">
                                             <div className="columns">
                                                 <div className="column column-1-3">
                                                     <FiatSelection />
                                                 </div>
                                                 <div className="column column-1-3">
-                                                    <div class="subHeaderContainer">
-                                                        <div class="subHeader">
+                                                    <div className="subHeaderContainer">
+                                                        <div className="subHeader">
                                                             <h3>{t('settings.accounts.title')}</h3>
                                                         </div>
                                                     </div>
@@ -307,8 +307,8 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                 </div>
                                                 <div className="column column-1-3">
-                                                    <div class="subHeaderContainer withToggler">
-                                                        <div class="subHeader">
+                                                    <div className="subHeaderContainer withToggler">
+                                                        <div className="subHeader">
                                                             <h3>Ethereum</h3>
                                                             <Badge type="primary" className="m-left-quarter">BitBox02-Multi</Badge>
                                                         </div>
@@ -337,8 +337,8 @@ class Settings extends Component<Props, State> {
                                                     <p className="text-gray text-small">powered by Etherscan.io APIs</p>
                                                 </div>
                                                 <div className="column column-2-3">
-                                                    <div class="subHeaderContainer">
-                                                        <div class="subHeader">
+                                                    <div className="subHeaderContainer">
+                                                        <div className="subHeader">
                                                             <h3>{t('settings.expert.title')}</h3>
                                                         </div>
                                                     </div>
@@ -458,7 +458,7 @@ class Settings extends Component<Props, State> {
                                             </div>
                                             {
                                                 restart && (
-                                                    <div class="row">
+                                                    <div className="row">
                                                         <InlineMessage
                                                             type="success"
                                                             align="left"

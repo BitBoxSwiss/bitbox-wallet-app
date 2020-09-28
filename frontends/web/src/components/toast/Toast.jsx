@@ -51,7 +51,7 @@ export default class Toast extends Component {
         return (
             <div
                 ref={this.setRef}
-                class={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
+                className={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
                 <p>{children}</p>
             </div>
         );

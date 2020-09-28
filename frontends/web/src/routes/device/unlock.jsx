@@ -130,13 +130,13 @@ export default class Unlock extends Component {
         }
 
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className="innerContainer scrollableContainer">
                         <div className="content narrow padded isVerticallyCentered">
                             <AppLogo />
-                            <div class="box large">
+                            <div className="box large">
                                 {submissionState}
                                 {
                                     status !== stateEnum.WAITING && (

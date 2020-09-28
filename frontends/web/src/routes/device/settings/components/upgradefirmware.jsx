@@ -96,7 +96,7 @@ export default class UpgradeFirmware extends Component {
                             <p className="m-top-none">{t('upgradeFirmware.description', {
                                 currentVersion, newVersion
                             })}</p>
-                            <div class={dialogStyle.actions}>
+                            <div className={dialogStyle.actions}>
                                 <Button primary onClick={this.upgradeFirmware}>
                                     {t('button.upgrade')}
                                 </Button>
