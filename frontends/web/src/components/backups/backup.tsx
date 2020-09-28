@@ -56,23 +56,23 @@ class BackupsListItem extends Component<Props> {
         }
         return (
             radio ?
-            <Radio
-                disabled={!!disabled}
-                checked={selectedBackup === backup.id}
-                onChange={event => handleChange(event.target.value)}
-                id={backup.id}
-                label={backup.name && backup.name !== '' ? backup.name : backup.id}
-                value={backup.id}
-                onFocus={onFocus}
-                className={style.backupItem}
-                sizeMedium>
-                <span className="text-small text-gray">{date}</span>
-            </Radio> :
-            <tr>
-                <div className="text-medium m-bottom-quarter">{backup.name}</div>
-                <div className={style.backupID}>ID: {backup.id}</div>
-                <div className="text-small text-gray">{date}</div>
-            </tr>
+                <Radio
+                    disabled={!!disabled}
+                    checked={selectedBackup === backup.id}
+                    onChange={event => handleChange(event.target.value)}
+                    id={backup.id}
+                    label={backup.name && backup.name !== '' ? backup.name : backup.id}
+                    value={backup.id}
+                    onFocus={onFocus}
+                    className={style.backupItem}
+                    sizeMedium>
+                    <span className="text-small text-gray">{date}</span>
+                </Radio> :
+                <tr>
+                    <div className="text-medium m-bottom-quarter">{backup.name}</div>
+                    <div className={style.backupID}>ID: {backup.id}</div>
+                    <div className="text-small text-gray">{date}</div>
+                </tr>
         );
     }
 }

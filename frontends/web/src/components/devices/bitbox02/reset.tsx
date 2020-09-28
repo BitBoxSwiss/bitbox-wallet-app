@@ -71,8 +71,8 @@ class Reset extends Component<Props, State> {
     public render(
         { t }: RenderableProps<Props>,
         { understand,
-          isConfirming,
-          activeDialog,
+            isConfirming,
+            activeDialog,
         }: State) {
         return (
             <div>

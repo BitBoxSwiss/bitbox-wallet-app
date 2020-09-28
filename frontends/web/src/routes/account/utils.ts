@@ -35,15 +35,15 @@ export function isEthereumBased(coinCode: CoinCode): boolean {
 
 export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
     switch (coinCode) {
-        case 'btc':
-        case 'tbtc':
-            return 'btc';
-        case 'ltc':
-        case 'tltc':
-            return 'ltc';
-        case 'eth':
-        case 'teth':
-        case 'reth':
-            return 'eth';
+    case 'btc':
+    case 'tbtc':
+        return 'btc';
+    case 'ltc':
+    case 'tltc':
+        return 'ltc';
+    case 'eth':
+    case 'teth':
+    case 'reth':
+        return 'eth';
     }
 }

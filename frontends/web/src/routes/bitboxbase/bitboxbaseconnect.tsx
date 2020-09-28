@@ -109,47 +109,47 @@ class BitBoxBaseConnect extends Component<Props, State> {
         let ip: string;
         this.state.ipEntry.includes(':') ? ip = this.state.ipEntry : ip = this.state.ipEntry + ':8845';
         apiPost('bitboxbases/establish-connection', { ip })
-        .then(data => {
-            if (data.success) {
-                this.connectAndPairNoise(ip);
-                this.setStatusAndRedirect(ip);
-            } else {
-                alertUser(data.errorMessage);
-            }
-        });
+            .then(data => {
+                if (data.success) {
+                    this.connectAndPairNoise(ip);
+                    this.setStatusAndRedirect(ip);
+                } else {
+                    alertUser(data.errorMessage);
+                }
+            });
     }
 
     private establishConnection = (ip: string) => {
         apiPost('bitboxbases/establish-connection', { ip })
-        .then(data => {
-            if (data.success) {
-                this.connectAndPairNoise(ip);
-                this.setStatusAndRedirect(ip);
-            } else {
-                alertUser(data.errorMessage);
-            }
-        });
+            .then(data => {
+                if (data.success) {
+                    this.connectAndPairNoise(ip);
+                    this.setStatusAndRedirect(ip);
+                } else {
+                    alertUser(data.errorMessage);
+                }
+            });
     }
 
     private connectAndPairNoise = (ip: string) => {
         apiPost(`bitboxbases/${ip}/connect-base`)
-        .then(response => {
-            if (response.success) {
-                updateSharedBaseState('paired', true, ip);
-            } else if (response.message) {
+            .then(response => {
+                if (response.success) {
+                    updateSharedBaseState('paired', true, ip);
+                } else if (response.message) {
                     alertUser(response.message);
                 } else {
                     alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
                 }
-        });
+            });
     }
 
     private setStatusAndRedirect = (baseID: string) => {
         apiGet(`bitboxbases/${baseID}/status`)
-        .then(({status}) => {
-            setInternalBaseStatus(status, baseID);
-            route(`/bitboxbase/${baseID}`);
-        });
+            .then(({status}) => {
+                setInternalBaseStatus(status, baseID);
+                route(`/bitboxbase/${baseID}`);
+            });
     }
 
     private handleConnect = (baseID: string) => {
@@ -196,7 +196,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                         <div className="content padded">
                             <div className="columnsContainer">
                                 <div className="columns">
-                                <div className="column">
+                                    <div className="column">
                                         <div className="flex flex-row flex-between flex-items-center m-bottom-large">
                                             <label className="labelXLarge m-none">{t('bitboxBase.detectedBases')}</label>
                                             <label
@@ -221,10 +221,10 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                             {
                                                 bases.length ? bases.map(base => (
                                                     bitboxBaseIDs.includes(base[1]) ? null :
-                                                    (<DetectedBase
-                                                        hostname={base[0]}
-                                                        ip={base[1]}
-                                                        connect={this.establishConnection} />)
+                                                        (<DetectedBase
+                                                            hostname={base[0]}
+                                                            ip={base[1]}
+                                                            connect={this.establishConnection} />)
                                                 )) : (
                                                     <p className="text-center p-top-default p-bottom-default">
                                                         <span className={style.emptyBases}>{t('bitboxBase.detectedBasesEmpty')}</span>
@@ -247,7 +247,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                 className={[style.button, style.primary].join(' ')}
                                                                 disabled={ipEntry === ''}
                                                                 type="submit"
-                                                                >
+                                                            >
                                                                 {t('bitboxBase.connect')}
                                                             </button>
                                                         </div>
@@ -288,10 +288,10 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                             <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{baseID}</span>
                                                             <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
                                                                 <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>
-                                                                    <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
+                                                                <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
                                                             </div>
                                                             <a className={style.baseItemArrow} onClick={() =>
-                                                            this.handleConnect(baseID)
+                                                                this.handleConnect(baseID)
                                                             }>
                                                                 <span className="hide-on-small">{t('bitboxBase.manage')}</span>
                                                                 <div className="show-on-small">

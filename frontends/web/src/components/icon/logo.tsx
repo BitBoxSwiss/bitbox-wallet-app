@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
+/* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
 import { h } from 'preact';
 import AppLogoInvertedImg from './assets/app-logo-inverted.svg';
@@ -103,10 +103,10 @@ function Logo({ coinCode, active, ...rest }: Props) {
     return (
         <div>
             { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-              : <div className="stacked">
-                  <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
-                  <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-              </div>}
+                : <div className="stacked">
+                    <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
+                    <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+                </div>}
         </div>
     );
 }

@@ -74,4 +74,4 @@ class CreateBaseBackup extends Component<Props, State> {
 }
 
 const HOC = translate<CreateBaseBackupProps>()(CreateBaseBackup);
-export { HOC as CreateBaseBackup};
+export { HOC as CreateBaseBackup };

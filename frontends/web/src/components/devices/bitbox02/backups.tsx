@@ -72,29 +72,29 @@ class Backups extends Component<Props, State> {
         apiPost(
             'devices/bitbox02/' + this.props.deviceID + '/backups/restore',
             this.state.selectedBackup).then(({ success }) => {
-                this.setState({
-                    restoring: false,
-                    errorText: success ? '' : this.props.t('backup.restore.error.general'),
-                });
-                if (this.props.backupOnAfterRestore) {
-                    this.props.backupOnAfterRestore(success);
-                }
-            },
+            this.setState({
+                restoring: false,
+                errorText: success ? '' : this.props.t('backup.restore.error.general'),
+            });
+            if (this.props.backupOnAfterRestore) {
+                this.props.backupOnAfterRestore(success);
+            }
+        },
         );
     }
 
     public render(
         { t,
-          children,
-          backups,
-          showRestore,
-          showCreate,
-          showRadio,
-          deviceID,
+            children,
+            backups,
+            showRestore,
+            showCreate,
+            showRadio,
+            deviceID,
         }: RenderableProps<Props>,
         { selectedBackup,
-          restoring,
-          errorText,
+            restoring,
+            errorText,
         }: State) {
         if (!backups.success) {
             return <div>Error fetching backups</div>;

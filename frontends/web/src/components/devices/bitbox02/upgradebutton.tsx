@@ -56,11 +56,11 @@ class UpgradeButton extends Component<Props, State> {
 
     public render(
         { t,
-          versionInfo,
-          asButton,
+            versionInfo,
+            asButton,
         }: RenderableProps<Props>,
         { activeDialog,
-          confirming,
+            confirming,
         }: State,
     ) {
         if (!versionInfo || !versionInfo.canUpgrade) {
@@ -86,8 +86,8 @@ class UpgradeButton extends Component<Props, State> {
                             onClose={this.abort}>
                             {confirming ? t('confirmOnDevice') : (
                                 <p>{t('upgradeFirmware.description', {
-                                        currentVersion: versionInfo.currentVersion,
-                                        newVersion: versionInfo.newVersion,
+                                    currentVersion: versionInfo.currentVersion,
+                                    newVersion: versionInfo.newVersion,
                                 })}</p>
                             )}
                             { !confirming && (

@@ -152,7 +152,7 @@ class Transaction extends Component<Props, State> {
         status,
         note = '',
     }: RenderableProps<Props>,
-                  {
+    {
         transactionDialog,
         newNote,
         editMode,
@@ -267,7 +267,7 @@ class Transaction extends Component<Props, State> {
                                     title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
                                     type="button"
                                     ref={this.setEditButtonRef}>
-                                        {editMode ? <Save /> : <Edit />}
+                                    {editMode ? <Save /> : <Edit />}
                                 </button>
                             </form>
                             <div className={style.detail}>

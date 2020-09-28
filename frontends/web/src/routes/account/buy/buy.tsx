@@ -115,9 +115,9 @@ class Buy extends Component<Props, State> {
 
     public render(
         { balance,
-          code,
-          safello,
-          t }: RenderableProps<Props>,
+            code,
+            safello,
+            t }: RenderableProps<Props>,
         { verifying }: State,
     ) {
         const account = this.getAccount();

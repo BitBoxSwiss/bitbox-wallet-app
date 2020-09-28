@@ -161,13 +161,13 @@ class Receive extends Component<Props, State> {
 
     public render(
         { t,
-          code,
-          receiveAddresses,
-          secureOutput }: RenderableProps<Props>,
+            code,
+            receiveAddresses,
+            secureOutput }: RenderableProps<Props>,
         { verifying,
-          activeIndex,
-          paired,
-          addressType }: State,
+            activeIndex,
+            paired,
+            addressType }: State,
     ) {
         const account = this.getAccount();
         if (account === undefined) {

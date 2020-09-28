@@ -71,7 +71,7 @@ class Create extends Component<Props, State> {
     public render(
         { t }: RenderableProps<Props>,
         { creatingBackup,
-          disabled,
+            disabled,
         }: State) {
         return (
             <span>
@@ -82,11 +82,11 @@ class Create extends Component<Props, State> {
                     {t('backup.create.title')}
                 </Button>
                 { creatingBackup && (
-                      <WaitDialog
-                          title={t('backup.create.title')}
-                      >
-                          {t('bitbox02Interact.followInstructions')}
-                      </WaitDialog>
+                    <WaitDialog
+                        title={t('backup.create.title')}
+                    >
+                        {t('bitbox02Interact.followInstructions')}
+                    </WaitDialog>
                 )}
             </span>
         );

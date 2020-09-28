@@ -40,7 +40,7 @@ class ToggleFWHash extends Component<Props, {}> {
 
     public render(
         { t,
-          enabled,
+            enabled,
         }: RenderableProps<Props>,
         {}: {},
     ) {

@@ -51,15 +51,15 @@ class SetBaseSystemPassword extends Component<Props, State> {
         if (!this.validate()) {
             return;
         }
-        apiPost(this.props.apiPrefix + '/set-login-password', {password: this.state.password })
-        .then(response => {
-            if (response.success) {
-                alertUser(this.props.t('bitboxBase.settings.advanced.systemPasswordSuccess'));
-            } else {
-                alertUser(response.message);
-            }
-            this.setState({ inProgress: false, active: false, password: undefined });
-        });
+        apiPost(this.props.apiPrefix + '/set-login-password', { password: this.state.password })
+            .then(response => {
+                if (response.success) {
+                    alertUser(this.props.t('bitboxBase.settings.advanced.systemPasswordSuccess'));
+                } else {
+                    alertUser(response.message);
+                }
+                this.setState({ inProgress: false, active: false, password: undefined });
+            });
     }
 
     private validate = () => {
@@ -131,4 +131,4 @@ class SetBaseSystemPassword extends Component<Props, State> {
 }
 
 const HOC = translate<SetBaseSystemPasswordProps>()(SetBaseSystemPassword);
-export { HOC as SetBaseSystemPassword};
+export { HOC as SetBaseSystemPassword };

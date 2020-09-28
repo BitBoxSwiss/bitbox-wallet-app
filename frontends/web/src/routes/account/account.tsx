@@ -129,23 +129,23 @@ class Account extends Component<Props, State> {
     private checkSDCards() {
         Promise.all(this.deviceIDs(this.props.devices).map(deviceID => {
             switch (this.props.devices[deviceID]) {
-                case 'bitbox':
-                    return apiGet(`devices/${deviceID}/info`)
-                        .then(info => {
-                            if (!info) {
-                                return false;
-                            }
-                            return info.sdcard;
-                        });
-                case 'bitbox02':
-                    return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
-                        .then(sdcard => sdcard);
-                default:
-                    return;
+            case 'bitbox':
+                return apiGet(`devices/${deviceID}/info`)
+                    .then(info => {
+                        if (!info) {
+                            return false;
+                        }
+                        return info.sdcard;
+                    });
+            case 'bitbox02':
+                return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
+                    .then(sdcard => sdcard);
+            default:
+                return;
             }
         }))
-               .then(sdcards => sdcards.some(sdcard => sdcard))
-               .then(hasCard => this.setState({ hasCard }));
+            .then(sdcards => sdcards.some(sdcard => sdcard))
+            .then(hasCard => this.setState({ hasCard }));
     }
 
     private onEvent = data => {
@@ -156,12 +156,12 @@ class Account extends Component<Props, State> {
             return;
         }
         switch (data.data) {
-            case 'statusChanged':
-                this.onStatusChanged();
-                break;
-            case 'syncdone':
-                this.onAccountChanged();
-                break;
+        case 'statusChanged':
+            this.onStatusChanged();
+            break;
+        case 'syncdone':
+            this.onAccountChanged();
+            break;
         }
     }
 
@@ -333,7 +333,7 @@ class Account extends Component<Props, State> {
                                 <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     { this.supportsBuy() && (
-                                          <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>
+                                        <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>
                                     )
                                     }
                                     {
@@ -378,7 +378,7 @@ class Account extends Component<Props, State> {
                         <Entry key="guide.settings.btc-p2sh" entry={t('guide.settings.btc-p2sh')} />
                     )}
                     {this.isBTCScriptType('p2wpkh', account, accountInfo) && (
-                    <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
+                        <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
                     )}
                     {balance && balance.available.amount === '0' && (
                         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', { unit: balance.available.unit })} />

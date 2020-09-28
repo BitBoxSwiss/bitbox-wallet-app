@@ -57,15 +57,15 @@ class ChangeBasePassword extends Component<Props, State> {
         if (!this.validate('oldPassword')) {
             return;
         }
-        apiPost(this.props.apiPrefix + '/user-authenticate', {username: this.state.username, password: this.state.oldPassword })
-        .then(response => {
-            if (response.success) {
-                this.setState({ authenticated: true });
-            } else {
-                alertUser(response.message);
-            }
-            this.setState({ inProgress: false });
-        });
+        apiPost(this.props.apiPrefix + '/user-authenticate', { username: this.state.username, password: this.state.oldPassword })
+            .then(response => {
+                if (response.success) {
+                    this.setState({ authenticated: true });
+                } else {
+                    alertUser(response.message);
+                }
+                this.setState({ inProgress: false });
+            });
     }
 
     private submitChangePassword = (event: Event) => {
@@ -74,15 +74,15 @@ class ChangeBasePassword extends Component<Props, State> {
         if (!this.validate('newPassword')) {
             return;
         }
-        apiPost(this.props.apiPrefix + '/user-change-password', {username: 'admin', password: this.state.oldPassword, newPassword: this.state.newPassword})
-        .then(response => {
-            if (response.success) {
-                alertUser('Password changed successfully.');
-            } else {
-                alertUser(response.message);
-            }
-            this.setState({ authenticated: false, active: false, inProgress: false });
-        });
+        apiPost(this.props.apiPrefix + '/user-change-password', { username: 'admin', password: this.state.oldPassword, newPassword: this.state.newPassword })
+            .then(response => {
+                if (response.success) {
+                    alertUser('Password changed successfully.');
+                } else {
+                    alertUser(response.message);
+                }
+                this.setState({ authenticated: false, active: false, inProgress: false });
+            });
         this.setState({ oldPassword: '', newPassword: '' });
     }
 
@@ -181,4 +181,4 @@ class ChangeBasePassword extends Component<Props, State> {
 }
 
 const HOC = translate<ChangeBasePasswordProps>()(ChangeBasePassword);
-export { HOC as ChangeBasePassword};
+export { HOC as ChangeBasePassword };

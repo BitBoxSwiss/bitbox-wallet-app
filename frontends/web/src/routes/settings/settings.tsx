@@ -50,12 +50,12 @@ interface State {
 class Settings extends Component<Props, State> {
     private accountsList = [
         { name: 'bitcoinActive',
-          label: 'Bitcoin',
-          badges: [],
+            label: 'Bitcoin',
+            badges: [],
         },
         { name: 'litecoinActive',
-          label: 'Litecoin',
-          badges: ['BitBox02-Multi', 'BitBox01'],
+            label: 'Litecoin',
+            badges: ['BitBox02-Multi', 'BitBox01'],
         },
     ];
 
@@ -390,7 +390,7 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
-                                                            optionalText={t('generic.enabled', {context: config.backend.proxy.useProxy.toString()})}>
+                                                            optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
                                                             {t('settings.expert.useProxy')}
                                                         </SettingsButton>
                                                         {

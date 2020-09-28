@@ -122,18 +122,18 @@ class FeeTargets extends Component<Props, State> {
     }
 
     public render(
-    {
-        t,
-        coinCode,
-        disabled,
-        error,
-        showCalculatingFeeLabel = false,
-        feePerByte,
-    }: RenderableProps<Props>,
-    {
-        feeTarget,
-        options,
-    }: State) {
+        {
+            t,
+            coinCode,
+            disabled,
+            error,
+            showCalculatingFeeLabel = false,
+            feePerByte,
+        }: RenderableProps<Props>,
+        {
+            feeTarget,
+            options,
+        }: State) {
         if (options === null) {
             return (
                 <Input

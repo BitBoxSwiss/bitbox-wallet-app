@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps} from 'preact';
+import { h, RenderableProps } from 'preact';
 import { AmountInterface, FiatConversion } from '../../../components/rates/rates';
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
     code: string;
 }
 
-export const BalanceRow = ({ name, balance, code}: RenderableProps<Props>) => {
+export const BalanceRow = ({ name, balance, code }: RenderableProps<Props>) => {
     return (
         <tr>
             <td>{name}</td>

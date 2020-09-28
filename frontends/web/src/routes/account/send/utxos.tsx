@@ -112,53 +112,53 @@ class UTXOs extends Component<Props, State> {
             <Dialog title={t('send.coincontrol.title')} large onClose={onClose}>
                 <div>
                     <ul className={style.utxosList}>
-                    { utxos.map(utxo => (
-                        <li key={'utxo-' + utxo.outPoint} className={style.utxo}>
-                            <Checkbox
-                                checked={!!selectedUTXOs[utxo.outPoint]}
-                                id={'utxo-' + utxo.outPoint}
-                                data-outpoint={utxo.outPoint}
-                                onChange={this.handleUTXOChange}>
-                                <div className={style.utxoContent}>
-                                    <div className={style.utxoData}>
-                                        <div className={style.amounts}>
-                                            <span className={style.amount}>
-                                                {utxo.amount.amount}
-                                                {' '}
-                                                <span className={style.unit}>
-                                                    {utxo.amount.unit}
+                        { utxos.map(utxo => (
+                            <li key={'utxo-' + utxo.outPoint} className={style.utxo}>
+                                <Checkbox
+                                    checked={!!selectedUTXOs[utxo.outPoint]}
+                                    id={'utxo-' + utxo.outPoint}
+                                    data-outpoint={utxo.outPoint}
+                                    onChange={this.handleUTXOChange}>
+                                    <div className={style.utxoContent}>
+                                        <div className={style.utxoData}>
+                                            <div className={style.amounts}>
+                                                <span className={style.amount}>
+                                                    {utxo.amount.amount}
+                                                    {' '}
+                                                    <span className={style.unit}>
+                                                        {utxo.amount.unit}
+                                                    </span>
                                                 </span>
-                                            </span>
-                                            <FiatConversion amount={utxo.amount} unstyled />
-                                        </div>
-                                        <div className={style.address}>
-                                            <span className={style.label}>
-                                                {t('send.coincontrol.address')}:
-                                            </span>
-                                            <span className={style.shrink}>
-                                                {utxo.address}
-                                            </span>
-                                        </div>
-                                        <div className={style.transaction}>
-                                            <span className={style.label}>
-                                                {t('send.coincontrol.outpoint')}:
-                                            </span>
-                                            <span className={style.shrink}>
-                                                {utxo.txId}
-                                            </span>
+                                                <FiatConversion amount={utxo.amount} unstyled />
+                                            </div>
+                                            <div className={style.address}>
+                                                <span className={style.label}>
+                                                    {t('send.coincontrol.address')}:
+                                                </span>
+                                                <span className={style.shrink}>
+                                                    {utxo.address}
+                                                </span>
+                                            </div>
+                                            <div className={style.transaction}>
+                                                <span className={style.label}>
+                                                    {t('send.coincontrol.outpoint')}:
+                                                </span>
+                                                <span className={style.shrink}>
+                                                    {utxo.txId}
+                                                </span>
                                             :{utxo.txOutput}
+                                            </div>
                                         </div>
+                                        <A
+                                            className={style.utxoExplorer}
+                                            href={explorerURL + utxo.txId}
+                                            title={t('transaction.explorerTitle')}>
+                                            <ExpandOpen />
+                                        </A>
                                     </div>
-                                    <A
-                                        className={style.utxoExplorer}
-                                        href={explorerURL + utxo.txId}
-                                        title={t('transaction.explorerTitle')}>
-                                        <ExpandOpen />
-                                    </A>
-                                </div>
-                            </Checkbox>
-                        </li>
-                    ))}
+                                </Checkbox>
+                            </li>
+                        ))}
                     </ul>
                     <div className="buttons text-center m-top-none m-bottom-half">
                         <Button primary onClick={onClose}>

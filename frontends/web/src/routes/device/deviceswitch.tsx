@@ -48,9 +48,9 @@ class DeviceSwitch extends Component<Props, {}> {
         case 'bitbox':
             return <Device deviceID={deviceID} />;
         case 'bitbox02':
-             return <BitBox02 deviceID={deviceID} />;
+            return <BitBox02 deviceID={deviceID} />;
         case 'bitbox02-bootloader':
-             return <BitBox02Bootloader deviceID={deviceID} />;
+            return <BitBox02Bootloader deviceID={deviceID} />;
         default:
             return <Waiting />;
         }

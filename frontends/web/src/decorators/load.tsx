@@ -53,10 +53,14 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
             private loadEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
                 logCounter += 1;
                 const timerID = endpoint + ' ' + logCounter;
-                if (logPerformance) { console.time(timerID); } // tslint:disable-line:no-console
+                if (logPerformance) {
+                    console.time(timerID);
+                } // tslint:disable-line:no-console
                 apiGet(endpoint).then(object => {
                     this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>);
-                    if (logPerformance) { console.timeEnd(timerID); } // tslint:disable-line:no-console
+                    if (logPerformance) {
+                        console.timeEnd(timerID);
+                    } // tslint:disable-line:no-console
                 });
             }
 
@@ -98,7 +102,9 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
             }
 
             private allEndpointsLoaded(): boolean {
-                if (this.endpoints === undefined) { return false; }
+                if (this.endpoints === undefined) {
+                    return false;
+                }
                 for (const key of Object.keys(this.endpoints) as KeysOf<LoadedProps>) {
                     if (this.state[key] === undefined) {
                         return false;
@@ -108,7 +114,9 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
             }
 
             public render(props: RenderableProps<ProvidedProps & Partial<LoadedProps>>, state: LoadedProps): JSX.Element | null {
-                if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) { return null; }
+                if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) {
+                    return null;
+                }
                 return <WrappedComponent {...state} {...props as any} />; // This order allows the subscribe decorator (and others) to override the loaded endpoints with properties.
             }
         };

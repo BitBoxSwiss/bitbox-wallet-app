@@ -112,46 +112,46 @@ class BaseSettings extends Component<Props, State> {
 
     private onbaseUpdateProgressChanged = () => {
         apiGet(this.props.apiPrefix + '/base-update-progress')
-        .then(response => {
-            if (response.success) {
+            .then(response => {
+                if (response.success) {
                 // If we get a notification that the update has failed, don't reset state to updating
-                if (!this.state.updating && response.updateProgress.updateState !== UpdateState.updateFailed) {
-                    this.setState({updating: true});
+                    if (!this.state.updating && response.updateProgress.updateState !== UpdateState.updateFailed) {
+                        this.setState({updating: true});
+                    }
+                    this.setState({updateProgress: response.updateProgress});
+                } else {
+                    alertUser(response.message);
                 }
-                this.setState({updateProgress: response.updateProgress});
-            } else {
-                alertUser(response.message);
-            }
-        });
+            });
     }
 
     private restart = () => {
         apiPost(this.props.apiPrefix + '/reboot-base')
-                .then(response => {
-                    if (!response.success) {
-                        alertUser(response.message);
-                    }
-                });
-            }
+            .then(response => {
+                if (!response.success) {
+                    alertUser(response.message);
+                }
+            });
+    }
 
     private shutdown = () => {
         apiPost(this.props.apiPrefix + '/shutdown-base')
-                .then(response => {
-                    if (!response.success) {
-                        alertUser(response.message);
-                    }
-                });
-            }
+            .then(response => {
+                if (!response.success) {
+                    alertUser(response.message);
+                }
+            });
+    }
 
     private updateBase = (version: string) => {
         this.setState({ updating: true });
         apiPost(this.props.apiPrefix + '/update-base', {version})
-        .then(response => {
-            if (!response.success) {
-                this.setState({updating: false});
-                alertUser(response.message);
-            }
-        });
+            .then(response => {
+                if (!response.success) {
+                    this.setState({updating: false});
+                    alertUser(response.message);
+                }
+            });
     }
 
     private toggleTor = (enableTor: boolean) => {
@@ -163,14 +163,14 @@ class BaseSettings extends Component<Props, State> {
                     text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
                 }});
                 apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
-                .then(response => {
-                    if (response.success) {
-                        this.props.getBaseInfo();
-                        this.setState({waitDialog: undefined, expandedTorAddress: false});
-                    } else {
-                        alertUser(response.message);
-                    }
-                });
+                    .then(response => {
+                        if (response.success) {
+                            this.props.getBaseInfo();
+                            this.setState({waitDialog: undefined, expandedTorAddress: false});
+                        } else {
+                            alertUser(response.message);
+                        }
+                    });
             }
         });
     }
@@ -220,24 +220,24 @@ class BaseSettings extends Component<Props, State> {
                         <div className={style.dashboardContainer}>
                             <div className={[style.dashboard, expandedDashboard ? style.expanded : ''].join(' ')}>
                                 <div className={style.nameStatus}>
-                                        <div className="subHeader">
-                                            <h3>{baseInfo.hostname}</h3>
-                                        </div>
-                                        <div>
+                                    <div className="subHeader">
+                                        <h3>{baseInfo.hostname}</h3>
+                                    </div>
+                                    <div>
                                         <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style[statusBadgeColor(baseID)]].join(' ')}>
-                                            </span>{baseUserStatus ? baseUserStatus : t('bitboxBase.settings.dashboard.notAvailable')}</span>
-                                        </div>
+                                        </span>{baseUserStatus ? baseUserStatus : t('bitboxBase.settings.dashboard.notAvailable')}</span>
+                                    </div>
                                 </div>
                                 <div className={style.items}>
                                     <div className={style.item}>
                                         <div className={style.dashboardItem}>
                                             {
                                                 serviceInfo ?
-                                                <p>{verificationProgress(serviceInfo.bitcoindVerificationProgress)}%</p>
-                                                :
-                                                <div className={style.loadingIconContainer}>
-                                                    <img src={loadingStatic} style="width: 24px" />
-                                                </div>
+                                                    <p>{verificationProgress(serviceInfo.bitcoindVerificationProgress)}%</p>
+                                                    :
+                                                    <div className={style.loadingIconContainer}>
+                                                        <img src={loadingStatic} style="width: 24px" />
+                                                    </div>
                                             }
                                             <p>{t('bitboxBase.settings.dashboard.syncStatus')}</p>
                                         </div>
@@ -246,11 +246,11 @@ class BaseSettings extends Component<Props, State> {
                                         <div className={style.dashboardItem}>
                                             {
                                                 serviceInfo ?
-                                                <p>{serviceInfo.bitcoindPeers}</p>
-                                                :
-                                                <div className={style.loadingIconContainer}>
-                                                    <img src={loadingStatic} style="width: 24px" />
-                                                </div>
+                                                    <p>{serviceInfo.bitcoindPeers}</p>
+                                                    :
+                                                    <div className={style.loadingIconContainer}>
+                                                        <img src={loadingStatic} style="width: 24px" />
+                                                    </div>
                                             }
                                             <p>{t('bitboxBase.settings.dashboard.peers')}</p>
                                         </div>
@@ -259,11 +259,11 @@ class BaseSettings extends Component<Props, State> {
                                         <div className={style.dashboardItem}>
                                             {
                                                 serviceInfo ?
-                                                <p>{serviceInfo.lightningActiveChannels}</p>
-                                                :
-                                                <div className={style.loadingIconContainer}>
-                                                    <img src={loadingStatic} style="width: 24px" />
-                                                </div>
+                                                    <p>{serviceInfo.lightningActiveChannels}</p>
+                                                    :
+                                                    <div className={style.loadingIconContainer}>
+                                                        <img src={loadingStatic} style="width: 24px" />
+                                                    </div>
                                             }
                                             <p>{t('bitboxBase.settings.dashboard.lightningChannels')}</p>
                                         </div>
@@ -324,18 +324,18 @@ class BaseSettings extends Component<Props, State> {
                                                             <span className="label">{t('bitboxBase.settings.advanced.blocks')}</span>
                                                             {
                                                                 serviceInfo ?
-                                                                <p>{serviceInfo.bitcoindBlocks.toString()}</p>
-                                                                :
-                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                                    <p>{serviceInfo.bitcoindBlocks.toString()}</p>
+                                                                    :
+                                                                    <p className={style.loadingText}>{t('loading')}</p>
                                                             }
                                                         </div>
                                                         <div>
                                                             <span className="label">{t('bitboxBase.settings.advanced.headers')}</span>
                                                             {
                                                                 serviceInfo ?
-                                                                <p>{serviceInfo.bitcoindHeaders.toString()}</p>
-                                                                :
-                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                                    <p>{serviceInfo.bitcoindHeaders.toString()}</p>
+                                                                    :
+                                                                    <p className={style.loadingText}>{t('loading')}</p>
                                                             }
                                                         </div>
                                                     </div>
@@ -359,9 +359,9 @@ class BaseSettings extends Component<Props, State> {
                                                             </span>
                                                             {
                                                                 serviceInfo ?
-                                                                <p>{serviceInfo.lightningdBlocks.toString()}</p>
-                                                                :
-                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                                    <p>{serviceInfo.lightningdBlocks.toString()}</p>
+                                                                    :
+                                                                    <p className={style.loadingText}>{t('loading')}</p>
                                                             }
                                                         </div>
                                                     </div>
@@ -376,9 +376,9 @@ class BaseSettings extends Component<Props, State> {
                                                             </span>
                                                             {
                                                                 serviceInfo ?
-                                                                <p>{serviceInfo.electrsBlocks.toString()}</p>
-                                                                :
-                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                                    <p>{serviceInfo.electrsBlocks.toString()}</p>
+                                                                    :
+                                                                    <p className={style.loadingText}>{t('loading')}</p>
                                                             }
                                                         </div>
                                                     </div>
@@ -409,138 +409,138 @@ class BaseSettings extends Component<Props, State> {
                         </div>
                         {
                             updating ?
-                            <div className={updateStatus}>
-                                <CenteredContent>
-                                    <div className="flex flex-column flex-items-center">
-                                        <div className="subHeader">
-                                            <div className={style.spinnerContainer}>
-                                                <div className={[spinnerStyle.spinner, style.spinnerSize].join(' ')}>
-                                                    <div></div>
-                                                    <div></div>
-                                                    <div></div>
-                                                    <div></div>
-                                                </div>
-                                                <p className={spinnerStyle.spinnerText}>{t(`bitboxBase.settings.system.updateProgress.${UpdateState[updateProgress.updateState]}`)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-column flex-center">
-                                        <progress value={updateProgress.updatePercentage} max="100">
-                                            {updateProgress.updatePercentage}
-                                        </progress>
-                                        <div>
-                                            <p className="text-small text-gray m-top-quarter" style="max-width: 360px">{t('bitboxBase.settings.system.updateProgress.warning')}</p>
-                                        </div>
-                                    </div>
-                                </CenteredContent>
-                            </div>
-                            :
-                            <div className="content padded">
-                                <div className="columnsContainer m-top-half">
-                                    <div className="columns">
-                                        <div className="column column-1-3">
-                                            <div className="subHeaderContainer">
-                                                <div className="subHeader">
-                                                    <h3>{t('bitboxBase.settings.node.title')}</h3>
+                                <div className={updateStatus}>
+                                    <CenteredContent>
+                                        <div className="flex flex-column flex-items-center">
+                                            <div className="subHeader">
+                                                <div className={style.spinnerContainer}>
+                                                    <div className={[spinnerStyle.spinner, style.spinnerSize].join(' ')}>
+                                                        <div></div>
+                                                        <div></div>
+                                                        <div></div>
+                                                        <div></div>
+                                                    </div>
+                                                    <p className={spinnerStyle.spinnerText}>{t(`bitboxBase.settings.system.updateProgress.${UpdateState[updateProgress.updateState]}`)}
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <div className="box slim divide">
-                                            <ChangeBaseHostname
-                                                apiPrefix={apiPrefix}
-                                                currentHostname={baseInfo.hostname}
-                                                getBaseInfo={getBaseInfo} />
-                                            <ChangeBasePassword apiPrefix={apiPrefix} />
-                                            <SettingsButton
-                                                optionalText={t('generic.enabled', {context: baseInfo.isTorEnabled.toString()})}
-                                                onClick={baseInfo.isTorEnabled ?
-                                                    this.toggleExpandedTorAddress :
-                                                    () => this.toggleTor(true)}>
-                                                {t('bitboxBase.settings.node.tor')}
-                                            </SettingsButton>
-                                            <SettingsButton danger onClick={() => {
-                                                    confirmation(t('bitboxBase.settings.node.confirmDisconnect'), confirmed => {
-                                                        if (confirmed) {
-                                                            disconnect();
-                                                        }
-                                                    });
-                                                }}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
                                         </div>
-                                        </div>
-                                        <div className="column column-1-3">
-                                            <div className="subHeaderContainer">
-                                                <div className="subHeader">
-                                                    <h3>{t('bitboxBase.settings.system.title')}</h3>
-                                                </div>
-                                            </div>
-                                            <div className="box slim divide">
-                                                {
-                                                    updateAvailable && updateInfo ?
-                                                    (
-                                                        <UpdateBaseButton
-                                                            apiPrefix={apiPrefix}
-                                                            updateInfo={updateInfo}
-                                                            currentVersion={baseInfo.baseVersion}
-                                                            updateBase={this.updateBase} />
-                                                    ) :
-                                                    <SettingsItem optionalText={baseInfo.baseVersion}>
-                                                        {t('bitboxBase.settings.system.upToDate')}
-                                                    </SettingsItem>
-                                                }
-                                                <SettingsButton onClick={() => {
-                                                    confirmation(t('bitboxBase.settings.system.confirmRestart'), confirmed => {
-                                                        if (confirmed) {
-                                                            this.restart();
-                                                        }
-                                                    });
-                                                }}>{t('bitboxBase.settings.system.restart')}</SettingsButton>
-                                                <SettingsButton onClick={() => {
-                                                    confirmation(t('bitboxBase.settings.system.confirmShutdown'), confirmed => {
-                                                        if (confirmed) {
-                                                            this.shutdown();
-                                                        }
-                                                    });
-                                                }}>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
+                                        <div className="flex flex-column flex-center">
+                                            <progress value={updateProgress.updatePercentage} max="100">
+                                                {updateProgress.updatePercentage}
+                                            </progress>
+                                            <div>
+                                                <p className="text-small text-gray m-top-quarter" style="max-width: 360px">{t('bitboxBase.settings.system.updateProgress.warning')}</p>
                                             </div>
                                         </div>
-                                        <div className="column column-1-3">
-                                            <div className="subHeaderContainer">
-                                                <div className="subHeader">
-                                                    <h3>{t('bitboxBase.settings.backups.title')}</h3>
-                                                </div>
-                                            </div>
-                                            <div className="box slim divide">
-                                                <CreateBaseBackup apiPrefix={apiPrefix} />
-                                                <SettingsButton disabled={true}>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <hr />
-                                    <div className="content p-none">
+                                    </CenteredContent>
+                                </div>
+                                :
+                                <div className="content padded">
+                                    <div className="columnsContainer m-top-half">
                                         <div className="columns">
                                             <div className="column column-1-3">
-                                                <details>
-                                                    <summary className={style.summary}>
-                                                        {t('bitboxBase.settings.advanced.title')}
-                                                    </summary>
-                                                    <div className="box slim divide">
-                                                        <EnableSSHLogin
-                                                            apiPrefix={apiPrefix}
-                                                            enabled={baseInfo.isSSHPasswordLoginEnabled}
-                                                            onSuccess={getBaseInfo} />
-                                                        <SetBaseSystemPassword apiPrefix={apiPrefix} />
-                                                        <SettingsButton disabled={true} onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
-                                                        <SettingsButton disabled={true}>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
-                                                        <SettingsButton disabled={true}>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
-                                                        <SettingsButton disabled={true} danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                                <div className="subHeaderContainer">
+                                                    <div className="subHeader">
+                                                        <h3>{t('bitboxBase.settings.node.title')}</h3>
                                                     </div>
+                                                </div>
+                                                <div className="box slim divide">
+                                                    <ChangeBaseHostname
+                                                        apiPrefix={apiPrefix}
+                                                        currentHostname={baseInfo.hostname}
+                                                        getBaseInfo={getBaseInfo} />
+                                                    <ChangeBasePassword apiPrefix={apiPrefix} />
+                                                    <SettingsButton
+                                                        optionalText={t('generic.enabled', {context: baseInfo.isTorEnabled.toString()})}
+                                                        onClick={baseInfo.isTorEnabled ?
+                                                            this.toggleExpandedTorAddress :
+                                                            () => this.toggleTor(true)}>
+                                                        {t('bitboxBase.settings.node.tor')}
+                                                    </SettingsButton>
+                                                    <SettingsButton danger onClick={() => {
+                                                        confirmation(t('bitboxBase.settings.node.confirmDisconnect'), confirmed => {
+                                                            if (confirmed) {
+                                                                disconnect();
+                                                            }
+                                                        });
+                                                    }}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
+                                                </div>
+                                            </div>
+                                            <div className="column column-1-3">
+                                                <div className="subHeaderContainer">
+                                                    <div className="subHeader">
+                                                        <h3>{t('bitboxBase.settings.system.title')}</h3>
+                                                    </div>
+                                                </div>
+                                                <div className="box slim divide">
+                                                    {
+                                                        updateAvailable && updateInfo ?
+                                                            (
+                                                                <UpdateBaseButton
+                                                                    apiPrefix={apiPrefix}
+                                                                    updateInfo={updateInfo}
+                                                                    currentVersion={baseInfo.baseVersion}
+                                                                    updateBase={this.updateBase} />
+                                                            ) :
+                                                            <SettingsItem optionalText={baseInfo.baseVersion}>
+                                                                {t('bitboxBase.settings.system.upToDate')}
+                                                            </SettingsItem>
+                                                    }
+                                                    <SettingsButton onClick={() => {
+                                                        confirmation(t('bitboxBase.settings.system.confirmRestart'), confirmed => {
+                                                            if (confirmed) {
+                                                                this.restart();
+                                                            }
+                                                        });
+                                                    }}>{t('bitboxBase.settings.system.restart')}</SettingsButton>
+                                                    <SettingsButton onClick={() => {
+                                                        confirmation(t('bitboxBase.settings.system.confirmShutdown'), confirmed => {
+                                                            if (confirmed) {
+                                                                this.shutdown();
+                                                            }
+                                                        });
+                                                    }}>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
+                                                </div>
+                                            </div>
+                                            <div className="column column-1-3">
+                                                <div className="subHeaderContainer">
+                                                    <div className="subHeader">
+                                                        <h3>{t('bitboxBase.settings.backups.title')}</h3>
+                                                    </div>
+                                                </div>
+                                                <div className="box slim divide">
+                                                    <CreateBaseBackup apiPrefix={apiPrefix} />
+                                                    <SettingsButton disabled={true}>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div className="content p-none">
+                                            <div className="columns">
+                                                <div className="column column-1-3">
+                                                    <details>
+                                                        <summary className={style.summary}>
+                                                            {t('bitboxBase.settings.advanced.title')}
+                                                        </summary>
+                                                        <div className="box slim divide">
+                                                            <EnableSSHLogin
+                                                                apiPrefix={apiPrefix}
+                                                                enabled={baseInfo.isSSHPasswordLoginEnabled}
+                                                                onSuccess={getBaseInfo} />
+                                                            <SetBaseSystemPassword apiPrefix={apiPrefix} />
+                                                            <SettingsButton disabled={true} onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
+                                                            <SettingsButton disabled={true}>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
+                                                            <SettingsButton disabled={true}>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
+                                                            <SettingsButton disabled={true} danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                                        </div>
 
-                                                </details>
+                                                    </details>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                         }
                     </div>
                 </div>

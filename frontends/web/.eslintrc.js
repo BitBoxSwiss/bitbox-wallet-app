@@ -113,7 +113,6 @@ module.exports = {
     "prefer-rest-params": 2,
     "prefer-spread": 2,
     "prefer-template": 0,			// we can enable this when they add an option to allow concat for complex variables
-    // "quote-props": [2, "as-needed"],
     radix: 2,
     "rest-spread-spacing": 2,
     semi: 2,
@@ -126,15 +125,11 @@ module.exports = {
     // Shift
     "no-alert": "off",
     "arrow-body-style": [0, "as-needed"],
-    // temp disable
-    //"brace-style": [1, "1tbs"],
-    "brace-style": "off",
+    "brace-style": [1, "1tbs"],
     "comma-dangle": 0,
-    // temp disable
-    // "indent": ["warn", 4, {
-    //   "SwitchCase": 1
-    // }],
-    "indent": "off",
+    "indent": ["warn", 4, {
+      "SwitchCase": 0
+    }],
     "quotes": ["warn", "single", {
       "avoidEscape": true,
       "allowTemplateLiterals": true
@@ -151,7 +146,17 @@ module.exports = {
     "react/jsx-no-bind": "off",
     "react/jsx-key": ["error"],
 
-    "object-curly-spacing": "off",
+    "object-curly-spacing": ["error", "always"],
+    // "object-curly-newline": ["warn", {
+    //   "ExportDeclaration": { "multiline": true },
+    //   "ImportDeclaration": "never",
+    //   "ObjectExpression": {
+    //     "minProperties": 1
+    //   },
+    //   "ObjectPattern": {
+    //     "minProperties": 1
+    //   }
+    // }],
   },
   overrides: [
     {

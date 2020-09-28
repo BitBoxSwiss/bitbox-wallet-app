@@ -39,22 +39,22 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
         const enable = !this.props.mnemonicPassphraseEnabled;
         this.setState({ inProgress: true });
         apiPost(this.props.apiPrefix + '/set-mnemonic-passphrase-enabled',
-                enable).then(({ success }) => {
-                    this.setState({ inProgress: false });
-                    if (success) {
-                        if (enable) {
-                            alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successEnable'));
-                        } else {
-                            alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successDisable'));
-                        }
-                        this.props.getInfo();
-                    }
-                });
+            enable).then(({ success }) => {
+            this.setState({ inProgress: false });
+            if (success) {
+                if (enable) {
+                    alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successEnable'));
+                } else {
+                    alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successDisable'));
+                }
+                this.props.getInfo();
+            }
+        });
     }
 
     public render(
         { t,
-          mnemonicPassphraseEnabled,
+            mnemonicPassphraseEnabled,
         }: RenderableProps<Props>,
         { inProgress }: State,
     ) {

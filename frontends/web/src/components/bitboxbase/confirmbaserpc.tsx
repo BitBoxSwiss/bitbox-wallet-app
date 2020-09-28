@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- /**
+/**
   * This is a generic modal dialog for the BitBoxBase for RPC calls whose result the user should be informed about
   * e.g. create backup, or toggle ssh access.
   * It prompts the user to confirm the action, has a pending state while the RPC is being executed and displays
@@ -80,16 +80,16 @@ class ConfirmBaseRPC extends Component<Props, State> {
     private apiCall = () => {
         this.setState({ inProgress: true });
         apiPost(this.props.apiPrefix + this.props.apiEndpoint, this.props.args)
-        .then(response => {
-            if (response.success) {
+            .then(response => {
+                if (response.success) {
                 // tslint:disable-next-line: no-unused-expression
-                this.props.onSuccess && this.props.onSuccess();
-                this.setState({ success: true });
-            } else {
-                this.setState({ success: false, failureMessage: response.message });
-            }
-            this.setState({ inProgress: false });
-        });
+                    this.props.onSuccess && this.props.onSuccess();
+                    this.setState({ success: true });
+                } else {
+                    this.setState({ success: false, failureMessage: response.message });
+                }
+                this.setState({ inProgress: false });
+            });
     }
 
     private abort = () => {
@@ -147,4 +147,4 @@ class ConfirmBaseRPC extends Component<Props, State> {
 }
 
 const HOC = translate<ConfirmBaseRPCProps>()(ConfirmBaseRPC);
-export { HOC as ConfirmBaseRPC};
+export { HOC as ConfirmBaseRPC };

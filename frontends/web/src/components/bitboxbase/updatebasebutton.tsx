@@ -41,23 +41,23 @@ class UpdateBaseButton extends Component<Props, State> {
     }
 
     private onClick = (version: string) => {
-        this.setState({activeDialog: false});
+        this.setState({ activeDialog: false });
         this.props.updateBase(version);
     }
 
     public render(
         { t,
-          updateInfo,
-          currentVersion,
+            updateInfo,
+            currentVersion,
         }: RenderableProps<Props>,
         { activeDialog,
         }: State,
     ) {
         return (
             <div>
-                    <SettingsButton optionalText={`${updateInfo.version} available`} onClick={() => this.setState({ activeDialog: true })}>
-                        {t('button.update')}
-                    </SettingsButton>
+                <SettingsButton optionalText={`${updateInfo.version} available`} onClick={() => this.setState({ activeDialog: true })}>
+                    {t('button.update')}
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog
@@ -82,7 +82,7 @@ class UpdateBaseButton extends Component<Props, State> {
                             <div className={[dialogStyle.confirmationInstructions, dialogStyle.confirm].join(' ')}>
                                 {t('bitboxBase.settings.system.confirmUpdate', {
                                     current: currentVersion,
-                                    newVersion: updateInfo.version},
+                                    newVersion: updateInfo.version },
                                 )
                                 }
                             </div>

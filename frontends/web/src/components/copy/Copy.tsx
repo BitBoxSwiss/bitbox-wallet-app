@@ -97,7 +97,7 @@ class CopyableInput extends Component<Props, State> {
                     onClick={this.copy}
                     className={[style.button, success && style.success, 'ignore'].join(' ')}
                     title={t('button.copy')}>
-                        <img src={success ? CheckIcon : disabled ? CopyDisabledIcon : CopyIcon} />
+                    <img src={success ? CheckIcon : disabled ? CopyDisabledIcon : CopyIcon} />
                 </button>
             </div>
         );

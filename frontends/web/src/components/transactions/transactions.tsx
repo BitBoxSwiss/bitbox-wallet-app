@@ -68,14 +68,14 @@ class Transactions extends Component<Props> {
                 </div>
                 {
                     (transactions && transactions.length > 0) ? transactions
-                    .map((props, index) => (
-                        <Transaction
-                            accountCode={accountCode}
-                            key={props.internalID}
-                            explorerURL={explorerURL}
-                            index={index}
-                            {...props} />
-                    )) : (
+                        .map((props, index) => (
+                            <Transaction
+                                accountCode={accountCode}
+                                key={props.internalID}
+                                explorerURL={explorerURL}
+                                index={index}
+                                {...props} />
+                        )) : (
                         <div className={['flex flex-row flex-center', style.empty].join(' ')}>
                             <p>{t('transactions.placeholder')}</p>
                         </div>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- // internal function to validate number ranges
+// internal function to validate number ranges
 const validateNumberRange = (numberToValidate: number, min: number, max: number) => {
     return min <= numberToValidate && numberToValidate <= max;
 };

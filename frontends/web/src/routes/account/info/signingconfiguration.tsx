@@ -65,60 +65,61 @@ class SigningConfiguration extends Component<Props, State> {
 
     private scriptTypeTitle = (scriptType: string) => {
         switch (scriptType) {
-            case 'p2pkh':
-                return 'Legacy';
-            case 'p2wpkh-p2sh':
-                return 'Segwit';
-            case 'p2wpkh':
-                return 'Native segwit (bech32)';
-            default:
-                return scriptType;
+        case 'p2pkh':
+            return 'Legacy';
+        case 'p2wpkh-p2sh':
+            return 'Segwit';
+        case 'p2wpkh':
+            return 'Native segwit (bech32)';
+        default:
+            return scriptType;
         }
     }
 
     public render(
         { t,
-          info,
-          signingConfigIndex,
+            info,
+            signingConfigIndex,
         }: RenderableProps<Props>,
         { canVerifyExtendedPublicKey }: State) {
         return (
         // TODO: add info if single or multisig, and threshold.
-        <div className={style.address}>
-            { info.address ?
-                <div>
-                    <label className="labelLarge">{t('accountInfo.address')}</label>
-                    <QRCode data={info.address} />
-                    <div className={style.textareaContainer}>
-                        <CopyableInput flexibleHeight value={info.address} />
-                    </div>
-                </div>
-                    :
-                info.xpubs.map((xpub, xpubIndex) => {
-                    return (
-                        <div key={xpub}>
-                            <h2>{this.scriptTypeTitle(info.scriptType)}</h2>
-                            <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
-                            {info.xpubs.length > 1 && (' #' + (xpubIndex + 1))}
-                            <QRCode data={xpub} />
-                            <div className={style.textareaContainer}>
-                                <CopyableInput value={xpub} flexibleHeight />
-                            </div>
-                            <div className="buttons">
-                                {
-                                    canVerifyExtendedPublicKey.includes(xpubIndex) && (
-                                        <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex, xpubIndex)}>
-                                            {t('accountInfo.verify')}
-                                        </Button>
-                                    )
-                                }
-                            </div>
+            <div className={style.address}>
+                { info.address ?
+                    <div>
+                        <label className="labelLarge">{t('accountInfo.address')}</label>
+                        <QRCode data={info.address} />
+                        <div className={style.textareaContainer}>
+                            <CopyableInput flexibleHeight value={info.address} />
                         </div>
-                    );
-                })
-            }
-        </div>
-    ); }
+                    </div>
+                    :
+                    info.xpubs.map((xpub, xpubIndex) => {
+                        return (
+                            <div key={xpub}>
+                                <h2>{this.scriptTypeTitle(info.scriptType)}</h2>
+                                <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
+                                {info.xpubs.length > 1 && (' #' + (xpubIndex + 1))}
+                                <QRCode data={xpub} />
+                                <div className={style.textareaContainer}>
+                                    <CopyableInput value={xpub} flexibleHeight />
+                                </div>
+                                <div className="buttons">
+                                    {
+                                        canVerifyExtendedPublicKey.includes(xpubIndex) && (
+                                            <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex, xpubIndex)}>
+                                                {t('accountInfo.verify')}
+                                            </Button>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                        );
+                    })
+                }
+            </div>
+        );
+    }
 }
 
 const HOC = translate<ProvidedProps>()(SigningConfiguration);

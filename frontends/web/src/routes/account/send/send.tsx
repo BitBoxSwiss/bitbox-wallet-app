@@ -162,16 +162,16 @@ class Send extends Component<Props, State> {
         }
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
-                case 'device':
-                    switch (data) {
-                        case 'signProgress':
-                            this.setState({ signProgress: meta, signConfirm: null });
-                            break;
-                        case 'signConfirm':
-                            this.setState({ signConfirm: true });
-                            break;
-                    }
+            case 'device':
+                switch (data) {
+                case 'signProgress':
+                    this.setState({ signProgress: meta, signConfirm: null });
                     break;
+                case 'signConfirm':
+                    this.setState({ signConfirm: true });
+                    break;
+                }
+                break;
             }
         });
     }
@@ -290,17 +290,17 @@ class Send extends Component<Props, State> {
         this.setState({ isUpdatingProposal: true });
         this.proposeTimeout = setTimeout(() => {
             const propose = apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput)
-            .then(result => {
-                const pos = this.pendingProposals.indexOf(propose);
-                if (this.pendingProposals.length - 1 === pos) {
-                    this.txProposal(updateFiat, result);
-                }
-                this.pendingProposals.splice(pos, 1);
-            })
-            .catch(() => {
-                this.setState({ valid: false });
-                this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
-            });
+                .then(result => {
+                    const pos = this.pendingProposals.indexOf(propose);
+                    if (this.pendingProposals.length - 1 === pos) {
+                        this.txProposal(updateFiat, result);
+                    }
+                    this.pendingProposals.splice(pos, 1);
+                })
+                .catch(() => {
+                    this.setState({ valid: false });
+                    this.pendingProposals.splice(this.pendingProposals.indexOf(propose), 1);
+                });
             this.pendingProposals.push(propose);
         }, 400);
     }
@@ -333,31 +333,31 @@ class Send extends Component<Props, State> {
         } else {
             const errorCode = result.errorCode;
             switch (errorCode) {
-                case 'invalidAddress':
-                    this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-                    break;
-                case 'invalidAmount':
-                case 'insufficientFunds':
-                    this.setState({
-                        amountError: this.props.t(`send.error.${errorCode}`),
-                        proposedFee: undefined,
-                    });
-                    break;
-                case 'invalidData':
-                    this.setState({
-                        dataError: this.props.t('send.error.invalidData'),
-                        proposedFee: undefined,
-                    });
-                    break;
-                case 'feeTooLow':
-                    this.setState({ feeError: this.props.t('send.error.feeTooLow') });
-                    break;
-                default:
-                    this.setState({ proposedFee: undefined });
-                    if (errorCode) {
-                        this.unregisterEvents();
-                        alertUser(errorCode, this.registerEvents);
-                    }
+            case 'invalidAddress':
+                this.setState({ addressError: this.props.t('send.error.invalidAddress') });
+                break;
+            case 'invalidAmount':
+            case 'insufficientFunds':
+                this.setState({
+                    amountError: this.props.t(`send.error.${errorCode}`),
+                    proposedFee: undefined,
+                });
+                break;
+            case 'invalidData':
+                this.setState({
+                    dataError: this.props.t('send.error.invalidData'),
+                    proposedFee: undefined,
+                });
+                break;
+            case 'feeTooLow':
+                this.setState({ feeError: this.props.t('send.error.feeTooLow') });
+                break;
+            default:
+                this.setState({ proposedFee: undefined });
+                if (errorCode) {
+                    this.unregisterEvents();
+                    alertUser(errorCode, this.registerEvents);
+                }
             }
             this.setState({ isUpdatingProposal: false });
         }

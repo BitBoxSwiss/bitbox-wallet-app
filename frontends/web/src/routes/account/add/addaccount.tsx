@@ -136,7 +136,7 @@ class AddAccount extends Component<Props, State> {
     }
 
     private submit = () => {
-        const {coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
+        const { coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
 
         interface ResponseData {
             success: boolean;
@@ -147,25 +147,25 @@ class AddAccount extends Component<Props, State> {
         }
 
         apiPost('account-add', {
-                coinCode,
-                scriptType,
-                accountName: this.state.accountName,
-                extendedPublicKey: this.state.extendedPublicKey,
-                address: this.state.address,
+            coinCode,
+            scriptType,
+            accountName: this.state.accountName,
+            extendedPublicKey: this.state.extendedPublicKey,
+            address: this.state.address,
         })
 
-        .then((data: ResponseData) => {
-            if (data.success) {
-                if (data.warningCode) {
-                    alertUser(this.props.t(`addAccount.warning.${data.warningCode}`));
-                }
-                route('/account/' + data.accountCode);
-            } else if (data.errorCode === 'unknown' && data.errorMessage) {
+            .then((data: ResponseData) => {
+                if (data.success) {
+                    if (data.warningCode) {
+                        alertUser(this.props.t(`addAccount.warning.${data.warningCode}`));
+                    }
+                    route('/account/' + data.accountCode);
+                } else if (data.errorCode === 'unknown' && data.errorMessage) {
                     alertUser(this.props.t('unknownError', { errorMessage: data.errorMessage }));
                 } else {
                     alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
                 }
-        });
+            });
     }
 
     public render(
