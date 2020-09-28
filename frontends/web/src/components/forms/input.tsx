@@ -66,24 +66,21 @@ export default function Input({
             className,
             transparent ? styles.isTransparent : '',
         ].join(' ')} style={style}>
-            {
-                label && (
-                    <div className="flex flex-row flex-between">
-                        <label htmlFor={id} className={error ? styles.errorText : ''}>
-                            {label}
-                            {
-                                error && (
-                                    <span>:<span>{error}</span></span>
-                                )
-                            }
-                        </label>
-                        {labelSection && labelSection}
-                    </div>
-                )
-            }
-            <input
+            { label && (
+                <div className="flex flex-row flex-between">
+                    {/* @ts-ignore */}
+                    <label htmlFor={id} className={error ? styles.errorText : ''}>
+                        {label}
+                        { error ? (
+                            <span>:<span>{error}</span></span>
+                        ) : null }
+                    </label>
+                    {labelSection && labelSection}
+                </div>
+            ) }
+            {/* @ts-ignore */}
+            <input autoCorrect="off"
                 autoComplete="off"
-                autoCorrect="off"
                 spellCheck={false}
                 type={type}
                 id={id}

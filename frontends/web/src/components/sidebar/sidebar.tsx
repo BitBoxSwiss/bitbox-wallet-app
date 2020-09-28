@@ -61,10 +61,6 @@ export function setSidebarStatus(status: string) {
 class Sidebar extends Component<Props> {
     private swipe!: SwipeAttributes;
 
-    constructor(props: Props) {
-        super(props);
-    }
-
     public componentDidMount() {
         this.registerTouchEvents();
     }

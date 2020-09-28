@@ -53,6 +53,7 @@ import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
 import * as style from './logo.css';
 
 interface GenericProps {
+    large?: boolean;
     [property: string]: any;
 }
 

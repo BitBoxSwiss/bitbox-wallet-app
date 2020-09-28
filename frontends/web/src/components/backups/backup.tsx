@@ -55,6 +55,7 @@ function BackupsListItem({
             hour: '2-digit',
             minute: '2-digit',
         };
+        // @ts-ignore
         date = new Date(backup.date).toLocaleString(this.context.i18n.language, options);
     } else {
         date = 'unknown';

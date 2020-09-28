@@ -9,16 +9,16 @@ preact-render-spy (1 nodes)
 >
   <div class="flex flex-row flex-between">
     <label
-      for="feetarget"
+      htmlFor="feetarget"
       class=""
     >
       send.priority
     </label>
   </div>
   <input
-    autocomplete="off"
-    autocorrect="off"
-    spellcheck={false}
+    autoCorrect="off"
+    autoComplete="off"
+    spellCheck={false}
     type="text"
     id="feetarget"
     placeholder="send.feeTarget.placeholder"
@@ -37,16 +37,16 @@ preact-render-spy (1 nodes)
 >
   <div class="flex flex-row flex-between">
     <label
-      for="feetarget"
+      htmlFor="feetarget"
       class=""
     >
       send.priority
     </label>
   </div>
   <input
-    autocomplete="off"
-    autocorrect="off"
-    spellcheck={false}
+    autoCorrect="off"
+    autoComplete="off"
+    spellCheck={false}
     type="text"
     id="feetarget"
     placeholder="send.feeTarget.placeholder"

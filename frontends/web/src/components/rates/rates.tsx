@@ -33,7 +33,9 @@ export type Coin = MainnetCoin | TestnetCoin;
 export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD' | 'AUD';
 
 export type Rates = {
+    /* eslint no-unused-vars: "off" */
     [coin in MainnetCoin]: {
+        /* eslint no-unused-vars: "off" */
         [fiat in Fiat]: number;
     }
 };

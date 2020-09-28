@@ -27,9 +27,6 @@ interface DetectedBaseProps {
 type Props = DetectedBaseProps & TranslateProps;
 
 class DetectedBase extends Component<Props> {
-    constructor(props) {
-        super(props);
-    }
 
     private handleConnect = () => {
         const { connect, ip } = this.props;

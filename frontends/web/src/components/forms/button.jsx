@@ -45,9 +45,10 @@ export function ButtonLink({
                 secondary={secondary}
                 transparent={transparent}
                 danger={danger}
-                children={children}
                 disabled={disabled}
-                {...props} />
+                {...props}>
+                {children}
+            </Button>
         );
     }
     return (

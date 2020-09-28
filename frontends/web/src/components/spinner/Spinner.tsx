@@ -29,9 +29,6 @@ interface SpinnerProps {
 type Props = SpinnerProps & TranslateProps & SharedProps;
 
 class Spinner extends Component<Props> {
-    constructor(props) {
-        super(props);
-    }
 
     public componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);

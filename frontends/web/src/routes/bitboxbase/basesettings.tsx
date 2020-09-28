@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint-disable */
 
 import { Component, h, RenderableProps } from 'preact';
 import loadingStatic from '../../assets/icons/loading-static.png';
@@ -42,7 +43,6 @@ import SimpleMarkup from '../../utils/simplemarkup';
 import { verificationProgress } from '../../utils/verificationprogress';
 import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo, statusBadgeColor } from './bitboxbase';
 import * as style from './bitboxbase.css';
-import { updateStatus } from './bitboxbase.css';
 
 interface SettingsProps {
     baseID: string;
@@ -409,7 +409,7 @@ class BaseSettings extends Component<Props, State> {
                         </div>
                         {
                             updating ?
-                                <div className={updateStatus}>
+                                <div className={style.updateStatus}>
                                     <CenteredContent>
                                         <div className="flex flex-column flex-items-center">
                                             <div className="subHeader">

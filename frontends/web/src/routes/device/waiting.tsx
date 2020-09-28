@@ -16,8 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
-import { store as panelStore } from '../../components/guide/guide';
+import { Guide, store as panelStore } from '../../components/guide/guide';
 import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { setSidebarStatus } from '../../components/sidebar/sidebar';

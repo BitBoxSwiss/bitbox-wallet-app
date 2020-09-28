@@ -6,6 +6,7 @@
     "gen-ts-css": "tcm src --camelCase dashes",
     "build": "yarn run gen-ts-css && preact build --no-sw --no-esm --no-inline-css --no-prerender --verbose",
     "dev": "yarn run gen-ts-css && preact watch",
+    "prelint": "yarn run gen-ts-css",
     "lint": "eslint --max-warnings 0 --no-cache --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
     "fix": "eslint --fix --no-cache --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "yarn run gen-ts-css && jest",
