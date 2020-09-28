@@ -22,6 +22,9 @@
         "noUnusedParameters": true,
     },
     "include": [
-        "src/**/*",
-    ],
+        "src/**/*.js",
+        "src/**/*.jsx",
+        "src/**/*.ts",
+        "src/**/*.tsx"
+    ]
 }
