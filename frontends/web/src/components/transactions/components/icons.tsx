@@ -76,8 +76,8 @@ export const Save = (): JSX.Element => (
         stroke-linecap="round"
         stroke-linejoin="round"
         className={style.save}>
-        <defs/>
-        <path d="M17.293 3.293L21 7v13a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1h12.586a1 1 0 01.707.293z"/>
-        <path d="M7 13h10v8H7zM8 3h8v5H8z"/>
+        <defs />
+        <path d="M17.293 3.293L21 7v13a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1h12.586a1 1 0 01.707.293z" />
+        <path d="M7 13h10v8H7zM8 3h8v5H8z" />
     </svg>
 );

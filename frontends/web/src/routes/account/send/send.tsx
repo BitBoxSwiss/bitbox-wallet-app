@@ -538,6 +538,7 @@ class Send extends Component<Props, State> {
             proposedAmount,
             valid,
             amount,
+
             /* data, */
             fiatAmount,
             fiatUnit,
@@ -551,6 +552,7 @@ class Send extends Component<Props, State> {
             addressError,
             amountError,
             feeError,
+
             /* dataError, */
             paired,
             signProgress,
@@ -687,7 +689,7 @@ class Send extends Component<Props, State> {
                                                 showCalculatingFeeLabel={isUpdatingProposal}
                                                 onFeeTargetChange={this.feeTargetChange}
                                                 onFeePerByte={fee => this.setState({ feePerByte: fee }, this.validateAndDisplayFee)}
-                                                error={feeError}/>
+                                                error={feeError} />
                                         </div>
                                         <div className="column column-1-2">
                                             <Input
@@ -705,6 +707,7 @@ class Send extends Component<Props, State> {
                                     </div>
                                 </div>
                                 {
+
                                     /*
                                     (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && (
                                         <div class="row">
@@ -775,7 +778,7 @@ class Send extends Component<Props, State> {
                                             </span>
                                         )}
                                         {feePerByte ? (
-                                            <span key="feeperbyte"><br/><small>({feePerByte} sat/vB)</small></span>
+                                            <span key="feeperbyte"><br /><small>({feePerByte} sat/vB)</small></span>
                                         ) : null}
                                     </p>
                                 </div>

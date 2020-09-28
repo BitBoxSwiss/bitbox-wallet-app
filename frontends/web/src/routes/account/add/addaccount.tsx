@@ -62,7 +62,7 @@ const COIN_AND_ACCOUNT_CODES = {
         coinCode: 'ltc',
         scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
     },
-    'eth': {
+    eth: {
         name: 'Ethereum',
         coinCode: 'eth',
         scriptType: 'p2wpkh',
@@ -103,7 +103,7 @@ const COIN_AND_ACCOUNT_CODES = {
         coinCode: 'tltc',
         scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
     },
-    'teth': {
+    teth: {
         name: 'Ethereum Ropsten Testnet',
         coinCode: 'teth',
         scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
@@ -160,13 +160,11 @@ class AddAccount extends Component<Props, State> {
                     alertUser(this.props.t(`addAccount.warning.${data.warningCode}`));
                 }
                 route('/account/' + data.accountCode);
-            } else {
-                if (data.errorCode === 'unknown' && data.errorMessage) {
+            } else if (data.errorCode === 'unknown' && data.errorMessage) {
                     alertUser(this.props.t('unknownError', { errorMessage: data.errorMessage }));
                 } else {
                     alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
                 }
-            }
         });
     }
 

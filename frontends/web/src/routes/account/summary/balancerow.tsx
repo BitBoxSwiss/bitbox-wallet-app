@@ -28,7 +28,7 @@ export const BalanceRow = ({ name, balance, code}: RenderableProps<Props>) => {
         <tr>
             <td>{name}</td>
             <td>{balance.amount} {code.toUpperCase()}</td>
-            <td><FiatConversion amount={balance}/></td>
+            <td><FiatConversion amount={balance} /></td>
         </tr>
     );
 };

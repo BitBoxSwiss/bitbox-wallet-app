@@ -126,11 +126,15 @@ module.exports = {
     // Shift
     "no-alert": "off",
     "arrow-body-style": [0, "as-needed"],
-    "brace-style": [1, "1tbs"],
+    // temp disable
+    //"brace-style": [1, "1tbs"],
+    "brace-style": "off",
     "comma-dangle": 0,
-    "indent": ["warn", 4, {
-      "SwitchCase": 1
-    }],
+    // temp disable
+    // "indent": ["warn", 4, {
+    //   "SwitchCase": 1
+    // }],
+    "indent": "off",
     "quotes": ["warn", "single", {
       "avoidEscape": true,
       "allowTemplateLiterals": true
@@ -148,6 +152,9 @@ module.exports = {
     "react/jsx-key": ["error"],
 
     "object-curly-spacing": "off",
+
+    // temp disable
+    "react/no-unknown-property": "off"
   },
   overrides: [
     {

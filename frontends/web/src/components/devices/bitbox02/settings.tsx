@@ -131,7 +131,7 @@ class Settings extends Component<Props, State> {
                                                 versionInfo && versionInfo.canUpgrade ? (
                                                     <UpgradeButton
                                                         apiPrefix={this.apiPrefix()}
-                                                        versionInfo={versionInfo}/>
+                                                        versionInfo={versionInfo} />
                                                 ) : versionInfo && (
                                                     <SettingsItem optionalText={versionInfo.currentVersion}>
                                                         {t('deviceSettings.firmware.upToDate')}

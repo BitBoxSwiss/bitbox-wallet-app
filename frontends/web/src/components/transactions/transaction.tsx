@@ -260,7 +260,7 @@ class Transaction extends Component<Props, State> {
                                     value={newNote}
                                     maxLength={256}
                                     onInput={this.handleNoteInput}
-                                    getRef={this.setInputRef}/>
+                                    getRef={this.setInputRef} />
                                 <button
                                     className={style.editButton}
                                     onClick={this.handleEdit}

@@ -52,7 +52,7 @@ class BalancesTable extends Component<Props> {
                         </tr>
                     </thead>
                     <tbody>
-                        {accounts.map(account => <BalanceRow name={account.name} balance={account.balance.available} code={account.coinCode}/>)}
+                        {accounts.map(account => <BalanceRow name={account.name} balance={account.balance.available} code={account.coinCode} />)}
                     </tbody>
                     <tfoot>
                         <tr>

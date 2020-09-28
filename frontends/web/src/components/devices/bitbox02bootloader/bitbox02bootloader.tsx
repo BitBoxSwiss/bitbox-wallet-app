@@ -152,7 +152,7 @@ class BitBox02Bootloader extends Component<Props, State> {
                             {t('bb02Bootloader.flipscreen')}
                         </a>
                     </div>
-                    <hr/>
+                    <hr />
                     <details>
                         <summary>
                             {t('bb02Bootloader.advanced.label')}

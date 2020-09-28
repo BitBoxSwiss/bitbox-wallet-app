@@ -208,7 +208,7 @@ class BaseSettings extends Component<Props, State> {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<SimpleMarkup tagName="h2" markup={t('bitboxBase.settings.title')}/>}/>
+                    <Header title={<SimpleMarkup tagName="h2" markup={t('bitboxBase.settings.title')} />} />
                     {
                         waitDialog && (
                             <WaitDialog title={waitDialog.title}>
@@ -236,7 +236,7 @@ class BaseSettings extends Component<Props, State> {
                                                 <p>{verificationProgress(serviceInfo.bitcoindVerificationProgress)}%</p>
                                                 :
                                                 <div className={style.loadingIconContainer}>
-                                                    <img src={loadingStatic} style="width: 24px"/>
+                                                    <img src={loadingStatic} style="width: 24px" />
                                                 </div>
                                             }
                                             <p>{t('bitboxBase.settings.dashboard.syncStatus')}</p>
@@ -249,7 +249,7 @@ class BaseSettings extends Component<Props, State> {
                                                 <p>{serviceInfo.bitcoindPeers}</p>
                                                 :
                                                 <div className={style.loadingIconContainer}>
-                                                    <img src={loadingStatic} style="width: 24px"/>
+                                                    <img src={loadingStatic} style="width: 24px" />
                                                 </div>
                                             }
                                             <p>{t('bitboxBase.settings.dashboard.peers')}</p>
@@ -262,7 +262,7 @@ class BaseSettings extends Component<Props, State> {
                                                 <p>{serviceInfo.lightningActiveChannels}</p>
                                                 :
                                                 <div className={style.loadingIconContainer}>
-                                                    <img src={loadingStatic} style="width: 24px"/>
+                                                    <img src={loadingStatic} style="width: 24px" />
                                                 </div>
                                             }
                                             <p>{t('bitboxBase.settings.dashboard.lightningChannels')}</p>
@@ -388,7 +388,7 @@ class BaseSettings extends Component<Props, State> {
                                     </div>
                                 </div>
                             </div>
-                            <hr style="margin: 0px;"/>
+                            <hr style="margin: 0px;" />
                             <button className={style.expandButton} onClick={() => this.setState({ expandedDashboard: !expandedDashboard })}>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -515,7 +515,7 @@ class BaseSettings extends Component<Props, State> {
                                             </div>
                                         </div>
                                     </div>
-                                    <hr/>
+                                    <hr />
                                     <div className="content p-none">
                                         <div className="columns">
                                             <div className="column column-1-3">

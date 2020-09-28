@@ -96,7 +96,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     private handleFormChange = event => {
         this.setState({
             error: undefined,
-            ipEntry : event.target.value,
+            ipEntry: event.target.value,
         });
     }
 
@@ -136,13 +136,11 @@ class BitBoxBaseConnect extends Component<Props, State> {
         .then(response => {
             if (response.success) {
                 updateSharedBaseState('paired', true, ip);
-            } else {
-                if (response.message) {
+            } else if (response.message) {
                     alertUser(response.message);
                 } else {
                     alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
                 }
-            }
         });
     }
 
@@ -170,7 +168,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 
     public componentWillUpdate() {
-        this.setState({bitboxBaseIDs : this.props.bitboxBaseIDs});
+        this.setState({bitboxBaseIDs: this.props.bitboxBaseIDs});
     }
 
     private setSortableContainer = (el: HTMLElement) => {
@@ -226,7 +224,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                     (<DetectedBase
                                                         hostname={base[0]}
                                                         ip={base[1]}
-                                                        connect={this.establishConnection}/>)
+                                                        connect={this.establishConnection} />)
                                                 )) : (
                                                     <p className="text-center p-top-default p-bottom-default">
                                                         <span className={style.emptyBases}>{t('bitboxBase.detectedBasesEmpty')}</span>

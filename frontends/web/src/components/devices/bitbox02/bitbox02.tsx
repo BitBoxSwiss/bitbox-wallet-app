@@ -409,10 +409,10 @@ class BitBox02 extends Component<Props, State> {
             );
         }
         if (status === 'require_app_upgrade') {
-            return <AppUpgradeRequired/>;
+            return <AppUpgradeRequired />;
         }
         if (!showWizard) {
-            return <Settings deviceID={deviceID}/>;
+            return <Settings deviceID={deviceID} />;
         }
         const passwordGif = versionInfo.currentVersion === '1.0.0' || versionInfo.currentVersion === '2.0.0' ? passwordEntryOldGif : passwordEntryGif;
         // TODO: move to wizard.tsx
@@ -435,7 +435,7 @@ class BitBox02 extends Component<Props, State> {
                                 <div className={style.stepContext}>
                                     <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
                                     <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
+                                        <img class={style.passwordGesturesGif} src={passwordGif} />
                                     </div>
                                 </div>
                                 <div className="text-center m-top-large">
@@ -586,7 +586,7 @@ class BitBox02 extends Component<Props, State> {
                                             }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
+                                                <img class={style.passwordGesturesGif} src={passwordGif} />
                                             </div>
                                         </div>
                                         <div className="text-center m-top-large">
@@ -623,10 +623,10 @@ class BitBox02 extends Component<Props, State> {
                                                         label={t('bitbox02Wizard.backup.userConfirmation3')} />
                                                 </div>
                                                 <div className="m-top-quarter">
-                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label={t('bitbox02Wizard.backup.userConfirmation4')}/>
+                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label={t('bitbox02Wizard.backup.userConfirmation4')} />
                                                 </div>
                                                 <div className="m-top-quarter">
-                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement5" label={t('bitbox02Wizard.backup.userConfirmation5')}/>
+                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement5" label={t('bitbox02Wizard.backup.userConfirmation5')} />
                                                 </div>
                                             </form>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
@@ -684,7 +684,7 @@ class BitBox02 extends Component<Props, State> {
                                             }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
+                                                <img class={style.passwordGesturesGif} src={passwordGif} />
                                             </div>
                                         </div>
                                     </Step>

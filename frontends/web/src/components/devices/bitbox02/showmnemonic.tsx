@@ -70,7 +70,7 @@ class ShowMnemonic extends Component<Props, State> {
                                 {
                                     t('backup.showMnemonic.description').split('\n').map(line => (
                                         <span>
-                                            <SimpleMarkup tagName="span" markup={line} /><br/>
+                                            <SimpleMarkup tagName="span" markup={line} /><br />
                                         </span>
                                     ))
                                 }
