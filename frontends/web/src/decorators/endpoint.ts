@@ -28,6 +28,7 @@ export type Endpoint = string;
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
 export type EndpointsObject<LoadedProps extends ObjectButNotFunction> = {
+    /* eslint no-unused-vars: "off" */
     readonly [Key in keyof LoadedProps]: Endpoint;
 };
 

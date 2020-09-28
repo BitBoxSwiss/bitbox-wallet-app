@@ -84,11 +84,9 @@ class Spinner extends Component<Props> {
                         )
                     }
                 </div>
-                {
-                    text && text.split('\n').map(line => (
-                        <p className={style.spinnerText}>{line}</p>
-                    ))
-                }
+                { text && text.split('\n').map((line, i) => (
+                    <p key={line + i} className={style.spinnerText}>{line}</p>
+                ))}
                 <div className={style.spinner}>
                     <div></div>
                     <div></div>

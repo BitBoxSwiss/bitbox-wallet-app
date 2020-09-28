@@ -69,19 +69,15 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
                             <div className="columnsContainer half">
                                 <div className="columns">
                                     <div className="column">
-                                        {
-                                            !mnemonicPassphraseEnabled && message && (
-                                                <p>
-                                                    {
-                                                        message.split('\n').map(line => (
-                                                            <span>
-                                                                <SimpleMarkup tagName="span" markup={line} /><br />
-                                                            </span>
-                                                        ))
-                                                    }
-                                                </p>
-                                            )
-                                        }
+                                        { !mnemonicPassphraseEnabled && message && (
+                                            <p>
+                                                { message.split('\n').map((line, i) => (
+                                                    <span key={i}>
+                                                        <SimpleMarkup tagName="span" markup={line} /><br />
+                                                    </span>
+                                                )) }
+                                            </p>
+                                        )}
                                         <p>{t('bitbox02Interact.followInstructions')}</p>
                                     </div>
                                 </div>

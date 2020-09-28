@@ -55,7 +55,7 @@ function BalancesTable({
                     </tr>
                 </thead>
                 <tbody>
-                    {accounts.map(account => <BalanceRow name={account.name} balance={account.balance.available} code={account.coinCode} />)}
+                    {accounts.map(account => <BalanceRow key={account.coinCode} name={account.name} balance={account.balance.available} code={account.coinCode} />)}
                 </tbody>
                 <tfoot>
                     <tr>

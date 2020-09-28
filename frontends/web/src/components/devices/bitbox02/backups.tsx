@@ -115,9 +115,8 @@ class Backups extends Component<Props, State> {
                                 <div className={backupStyle.listContainer}>
                                     {
                                         backups.backups!.map(backup => (
-                                            <table className={backupStyle.table}>
+                                            <table key={backup.id} className={backupStyle.table}>
                                                 <BackupsListItem
-                                                    key={backup.id}
                                                     disabled={restoring}
                                                     backup={backup}
                                                     selectedBackup={selectedBackup}

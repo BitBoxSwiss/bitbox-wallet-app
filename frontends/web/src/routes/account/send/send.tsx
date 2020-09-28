@@ -59,6 +59,7 @@ export interface AmountWithConversions {
 }
 
 type Conversions = {
+    /* eslint no-unused-vars: "off" */
     [key in Fiat]: string;
 };
 

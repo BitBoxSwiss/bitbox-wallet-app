@@ -54,13 +54,15 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
                 logCounter += 1;
                 const timerID = endpoint + ' ' + logCounter;
                 if (logPerformance) {
+                    // eslint no-console: "off"
                     console.time(timerID);
-                } // tslint:disable-line:no-console
+                }
                 apiGet(endpoint).then(object => {
                     this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>);
                     if (logPerformance) {
+                        // eslint no-console: "off"
                         console.timeEnd(timerID);
-                    } // tslint:disable-line:no-console
+                    }
                 });
             }
 

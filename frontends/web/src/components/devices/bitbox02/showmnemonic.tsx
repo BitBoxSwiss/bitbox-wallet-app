@@ -63,22 +63,18 @@ class ShowMnemonic extends Component<Props, State> {
                     onClick={this.askShowMnemonic}>
                     {t('backup.showMnemonic.title')}
                 </SettingsButton>
-                {
-                    inProgress && (
-                        <WaitDialog title={t('backup.showMnemonic.title')}>
-                            <p>
-                                {
-                                    t('backup.showMnemonic.description').split('\n').map(line => (
-                                        <span>
-                                            <SimpleMarkup tagName="span" markup={line} /><br />
-                                        </span>
-                                    ))
-                                }
-                            </p>
-                            <p>{t('bitbox02Interact.followInstructions')}</p>
-                        </WaitDialog>
-                    )
-                }
+                { inProgress && (
+                    <WaitDialog title={t('backup.showMnemonic.title')}>
+                        <p>
+                            { t('backup.showMnemonic.description').split('\n').map((line, i) => (
+                                <span key={i}>
+                                    <SimpleMarkup tagName="span" markup={line} /><br />
+                                </span>
+                            )) }
+                        </p>
+                        <p>{t('bitbox02Interact.followInstructions')}</p>
+                    </WaitDialog>
+                )}
             </div>
         );
     }

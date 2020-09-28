@@ -49,6 +49,7 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
                 return endpointsObjectOrFunction;
             }
 
+            /* eslint no-unused-vars: "off" */
             private subscriptions: { [Key in keyof LoadedProps]?: () => void } = {};
 
             private unsubscribeEndpoint(key: keyof LoadedProps) {

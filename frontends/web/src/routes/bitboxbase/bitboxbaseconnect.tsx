@@ -264,7 +264,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                             {
                                                 bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => {
                                                     return (
-                                                        <div className={style.baseItem}>
+                                                        <div key={baseID} className={style.baseItem}>
                                                             <div className={style.baseItemSortable}>
                                                                 <svg
                                                                     xmlns="http://www.w3.org/2000/svg"
