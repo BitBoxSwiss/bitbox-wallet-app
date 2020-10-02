@@ -97,7 +97,7 @@ module.exports = {
     "no-iterator": 2,
     // "no-lonely-if": 2,
     "no-lonely-if": "off",
-    "no-mixed-spaces-and-tabs": [2, "smart-tabs"],
+    "no-mixed-spaces-and-tabs": "error",
     "no-multi-str": 2,
     "no-multiple-empty-lines": [2, { max: 2 }],
     "no-new-wrappers": 2,
