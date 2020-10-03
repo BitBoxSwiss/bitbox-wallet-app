@@ -166,9 +166,8 @@ module.exports = {
     "react/jsx-no-bind": "off",
     // "react/jsx-key": ["error"],
     "react/jsx-key": "off",
+    "object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-empty-interface": "off",
-
-    "object-curly-spacing": "off",
 
     // TODO: enable again
     "no-undef": "off",

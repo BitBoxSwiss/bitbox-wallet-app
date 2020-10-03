@@ -57,7 +57,7 @@ class Check extends Component<Props, State> {
                     this.setState({ foundBackup });
                     message = this.props.t('backup.check.success');
                 } else {
-                    message = this.props.t('unknownError', {errorMessage: 'Not found'});
+                    message = this.props.t('unknownError', { errorMessage: 'Not found' });
                 }
             // second non-silent call is blocking and waits for user to confirm backup on device screen
             } else if (!silent && response.success) {

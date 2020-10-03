@@ -206,7 +206,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private uninitializedStep = () => {
-        this.setState({ appStatus: ''});
+        this.setState({ appStatus: '' });
     }
 
     private createWalletStep = () => {
@@ -242,7 +242,7 @@ class BitBox02 extends Component<Props, State> {
             this.setState({ waitDialog: {
                 title: this.props.t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
                 text: this.props.t('bitbox02Wizard.stepInsertSD.insertSDCard'),
-            }});
+            } });
             return apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
                 this.setState({ sdCardInserted: success, waitDialog: undefined });
                 if (success) {
@@ -303,7 +303,7 @@ class BitBox02 extends Component<Props, State> {
             this.setState({ creatingBackup: true, waitDialog: {
                 title: this.props.t('bitbox02Interact.confirmDate'),
                 text: this.props.t('bitbox02Interact.confirmDateText'),
-            }});
+            } });
             apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
                 if (!success) {
                     alertUser(this.props.t('bitbox02Wizard.createBackupFailed'));
@@ -316,11 +316,11 @@ class BitBox02 extends Component<Props, State> {
     private handleDeviceNameInput = (event: Event) => {
         const target = (event.target as HTMLInputElement);
         const value: string = target.value;
-        this.setState({deviceName: value});
+        this.setState({ deviceName: value });
     }
 
     private setDeviceName = () => {
-        this.setState({ waitDialog: { title: this.props.t('bitbox02Interact.confirmName')} });
+        this.setState({ waitDialog: { title: this.props.t('bitbox02Interact.confirmName') } });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/set-device-name', { name: this.state.deviceName })
         .then(result => {
             this.setState({ waitDialog: undefined });
@@ -334,7 +334,7 @@ class BitBox02 extends Component<Props, State> {
         this.setState({ waitDialog: {
             title: this.props.t('bitbox02Interact.followInstructions'),
             text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
-        }});
+        } });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
             if (!success) {
                 alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'));
