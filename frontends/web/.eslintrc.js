@@ -30,8 +30,7 @@ module.exports = {
   ],
   "rules": {
     "react/display-name": [2, { ignoreTranspilerName: false }],
-    // "react/jsx-equals-spacing": 2,
-    "react/jsx-equals-spacing": "off",
+    "react/jsx-equals-spacing": 2,
     "react/jsx-no-comment-textnodes": 2,
     "react/jsx-no-duplicate-props": 2,
     // "react/jsx-no-target-blank": 2,

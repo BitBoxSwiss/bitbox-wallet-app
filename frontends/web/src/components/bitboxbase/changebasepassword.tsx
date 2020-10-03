@@ -138,7 +138,7 @@ class ChangeBasePassword extends Component<Props, State> {
                                         id="password"
                                         type="password"
                                         label={t('changePin.oldLabel')}
-                                        showLabel= " "
+                                        showLabel=" "
                                         onValidPassword={this.setValidOldPassword} />
                                 </div>
                                 <div className="buttons">
