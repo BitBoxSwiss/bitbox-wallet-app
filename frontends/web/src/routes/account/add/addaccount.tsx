@@ -15,7 +15,7 @@
  */
 
 import linkState from 'linkstate';
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h, JSX, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { alertUser } from '../../../components/alert/Alert';
 import { Button, ButtonLink, Input, Select } from '../../../components/forms';

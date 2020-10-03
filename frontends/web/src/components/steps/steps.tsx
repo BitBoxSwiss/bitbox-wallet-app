@@ -1,4 +1,4 @@
-import { cloneElement, Component, h, RenderableProps } from 'preact';
+import { cloneElement, Component, h, JSX, RenderableProps } from 'preact';
 import * as style from './steps.css';
 
 interface State {

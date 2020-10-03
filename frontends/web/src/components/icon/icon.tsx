@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, JSX } from 'preact';
 import alert from './assets/icons/alert-triangle.svg';
 import * as style from './icon.css';
 
