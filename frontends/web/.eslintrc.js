@@ -126,7 +126,7 @@ module.exports = {
     "space-in-parens": [0, "never"],
     strict: [2, "never"],
     "unicode-bom": 2,
-	  "valid-jsdoc": [0, { requireReturn: false }], // no way to turn this off for pure functional component
+    "valid-jsdoc": [0, { requireReturn: false }], // no way to turn this off for pure functional component
 
     // Shift
     "no-alert": "off",
@@ -155,8 +155,7 @@ module.exports = {
     // "react/jsx-tag-spacing": ["warn"],
     "react/jsx-tag-spacing": "off",
     "react/jsx-no-bind": "off",
-    // "react/jsx-key": ["error"],
-    "react/jsx-key": "off",
+    "react/jsx-key": ["error"],
     "object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-empty-interface": "off",
 
