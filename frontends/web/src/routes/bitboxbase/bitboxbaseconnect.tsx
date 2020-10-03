@@ -210,8 +210,8 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                     width="16" height="16"
                                                     fill="none"
                                                     stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round">
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round">
                                                     <circle cx="12" cy="12" r="10"></circle>
                                                     <line x1="12" y1="8" x2="12" y2="16"></line>
                                                     <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -273,9 +273,9 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                     viewBox="0 0 24 24"
                                                                     fill="none"
                                                                     stroke="currentColor"
-                                                                    stroke-width="2"
-                                                                    stroke-linecap="round"
-                                                                    stroke-linejoin="round">
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round">
                                                                     <path d="M6,16 L12,22 L18,16" />
                                                                     <path d="M18,8 L12,2 L6,8" />
                                                                     <path d="M12,2 L12,22" />
@@ -307,9 +307,9 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                     viewBox="0 0 24 24"
                                                                     fill="none"
                                                                     stroke="currentColor"
-                                                                    stroke-width="2"
-                                                                    stroke-linecap="round"
-                                                                    stroke-linejoin="round">
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round">
                                                                     <polyline points="9 18 15 12 9 6"></polyline>
                                                                 </svg>
                                                             </a>

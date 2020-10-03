@@ -169,10 +169,12 @@ module.exports = {
     "@typescript-eslint/no-empty-interface": "off",
 
     "object-curly-spacing": "off",
+    "react/no-unknown-property": ["error", {
+      "ignore": ["autocomplete", "autocorrect", "class", "for", "spellcheck"]
+    }],
 
     // TODO: enable again
     "no-undef": "off",
-    "react/no-unknown-property": "off",
     "react/no-children-prop": "off",
 
     // TODO: enable again
@@ -200,9 +202,10 @@ module.exports = {
       files: ["*.jsx"],
       rules: {
         // keep
-        "react/prop-types": "off"
+        "react/prop-types": "off",
       }
-    }, {
+    },
+    {
       files: ["*.ts", "*.tsx"],
       rules: {
         "quote-props": "off",
