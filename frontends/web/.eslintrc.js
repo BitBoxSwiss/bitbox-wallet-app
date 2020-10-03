@@ -1,3 +1,5 @@
+/* eslint quotes: "off", quote-props: "off" */
+
 module.exports = {
   "env": {
     "browser": true
@@ -17,7 +19,7 @@ module.exports = {
     "ecmaFeatures": {
       "jsx": true
     },
-    "project": require.resolve("./tsconfig.json"),
+    "project": require.resolve("./tsconfig.eslint.json"),
   },
   "settings": {
     "react": {
