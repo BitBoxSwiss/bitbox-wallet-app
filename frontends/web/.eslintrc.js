@@ -89,8 +89,7 @@ module.exports = {
     "no-dupe-keys": 2,
     // "no-duplicate-imports": 2,
     "no-duplicate-imports": "off",
-    // "no-else-return": 2,
-    "no-else-return": "off",
+    "no-else-return": 2,
     "no-empty-pattern": 0,
     "no-empty": 0,
     "no-extra-parens": 0, // we use extra parens in JSX ternaries, no way to disable that here.
