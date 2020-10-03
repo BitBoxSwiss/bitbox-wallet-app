@@ -53,10 +53,10 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
             private loadEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
                 logCounter += 1;
                 const timerID = endpoint + ' ' + logCounter;
-                if (logPerformance) { console.time(timerID); } // tslint:disable-line:no-console
+                if (logPerformance) { console.time(timerID); }
                 apiGet(endpoint).then(object => {
                     this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>);
-                    if (logPerformance) { console.timeEnd(timerID); } // tslint:disable-line:no-console
+                    if (logPerformance) { console.timeEnd(timerID); }
                 });
             }
 

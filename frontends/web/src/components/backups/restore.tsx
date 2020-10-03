@@ -92,7 +92,7 @@ class Restore extends Component<Props, State> {
                     if (this.props.onRestore) {
                         return this.props.onRestore();
                     }
-                    console.log('restore.jsx route to /'); // tslint:disable-line:no-console
+                    console.info('restore.jsx route to /');
                     route('/', true);
                 }
             } else {

@@ -96,7 +96,6 @@ interface Props {
 
 function Logo({ coinCode, active, ...rest }: Props) {
     if (!logoMap[coinCode]) {
-        // tslint:disable-next-line:no-console
         console.error('logo undefined for ', coinCode);
         return null;
     }
