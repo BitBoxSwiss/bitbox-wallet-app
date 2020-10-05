@@ -120,8 +120,6 @@ module.exports = {
     "prefer-rest-params": 2,
     "prefer-spread": 2,
     "prefer-template": 0, // we can enable this when they add an option to allow concat for complex variables
-    // "quote-props": [2, "as-needed"],
-    "quote-props": "off",
     radix: 2,
     "rest-spread-spacing": 2,
     semi: 2,
@@ -145,7 +143,7 @@ module.exports = {
       "avoidEscape": true,
       "allowTemplateLiterals": true
     }],
-    "quote-props": ["warn", "as-needed"],
+    "quote-props": ["warn", "consistent-as-needed"],
     "react/self-closing-comp": 0,
     "react/jsx-curly-spacing": 0,
     // "react/jsx-indent-props": ["warn", 4],
@@ -195,10 +193,10 @@ module.exports = {
         // keep
         "react/prop-types": "off"
       }
-    }, {
+    },
+    {
       files: ["*.ts", "*.tsx"],
       rules: {
-        "quote-props": "off",
         // TODO: remvoe
         "react/prop-types": "off"
       }
