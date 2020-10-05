@@ -76,7 +76,6 @@ module.exports = {
     // "key-spacing": 2,
     "key-spacing": "off",
     "keyword-spacing": 2,
-    // "lines-around-comment": 2,
     "lines-around-comment": "off",
     "new-cap": 1,
     "new-parens": 2,
