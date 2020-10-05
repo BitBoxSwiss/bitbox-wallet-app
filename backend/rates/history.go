@@ -45,6 +45,7 @@ var (
 		"RUB": "rub",
 		"CAD": "cad",
 		"AUD": "aud",
+		"ILS": "ils",
 	}
 )
 
