@@ -238,7 +238,11 @@ class BitBoxBase extends Component<Props, State> {
 
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID && this.props.bitboxBaseID) {
+<<<<<<< HEAD
             this.setState({ bitboxBaseID : this.props.bitboxBaseID });
+=======
+            this.setState({ bitboxBaseID: this.props.bitboxBaseID});
+>>>>>>> frontend-eslint-key-spacing
         }
     }
 
@@ -363,7 +367,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private connectElectrum = () => {
         apiPost(this.apiPrefix() + '/connect-electrum', {
-            bitboxBaseID : this.props.bitboxBaseID,
+            bitboxBaseID: this.props.bitboxBaseID,
         }).then(({ success }) => {
             if (!success) {
                 alertUser(success.errorMessage);
@@ -373,7 +377,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private removeBitBoxBase = () => {
         apiPost(this.apiPrefix() + '/disconnect', {
-            bitboxBaseID : this.props.bitboxBaseID,
+            bitboxBaseID: this.props.bitboxBaseID,
         }).then(({ success }) => {
             if (!success) {
                 alertUser('Did not work');

@@ -96,7 +96,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     private handleFormChange = event => {
         this.setState({
             error: undefined,
-            ipEntry : event.target.value,
+            ipEntry: event.target.value,
         });
     }
 
@@ -170,7 +170,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 
     public componentWillUpdate() {
-        this.setState({ bitboxBaseIDs : this.props.bitboxBaseIDs });
+        this.setState({ bitboxBaseIDs: this.props.bitboxBaseIDs });
     }
 
     private setSortableContainer = (el: HTMLElement) => {
