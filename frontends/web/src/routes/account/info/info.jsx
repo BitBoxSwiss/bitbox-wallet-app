@@ -50,7 +50,7 @@ export default class Info extends Component {
 
     handleKeyDown = e => {
         if (e.keyCode === 27) {
-            console.log('receive.jsx route to /'); // eslint-disable-line no-console
+            console.info('receive.jsx route to /');
             route(`/account/${this.props.code}`);
         }
     }

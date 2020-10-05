@@ -8,8 +8,7 @@ try {
     mq.addListener(e => reduceMotion = e.matches);
 } catch (e) {
     if (debug) {
-        // tslint:disable-next-line: no-console
-        console.log(e);
+        console.error(e);
     }
 }
 

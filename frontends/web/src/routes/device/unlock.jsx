@@ -78,7 +78,7 @@ export default class Unlock extends Component {
             if (data.success) {
                 apiGet('devices/' + this.props.deviceID + '/status').then(status => {
                     if (status === 'seeded') {
-                        console.log('unlock.jsx route to /account'); // eslint-disable-line no-console
+                        console.info('unlock.jsx route to /account');
                         route('/account', true);
                     }
                 });
