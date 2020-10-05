@@ -20,14 +20,14 @@ import { AmountInterface, FiatConversion } from '../../../components/rates/rates
 interface Props {
     name: string;
     balance: AmountInterface;
-    code: string;
+    unit: string;
 }
 
-export const BalanceRow = ({ name, balance, code }: RenderableProps<Props>) => {
+export const BalanceRow = ({ name, balance, unit }: RenderableProps<Props>) => {
     return (
         <tr>
             <td>{name}</td>
-            <td>{balance.amount} {code.toUpperCase()}</td>
+            <td>{balance.amount} {unit}</td>
             <td><FiatConversion amount={balance}/></td>
         </tr>
     );
