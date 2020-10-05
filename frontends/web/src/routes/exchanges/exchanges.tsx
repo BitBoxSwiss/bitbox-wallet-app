@@ -45,7 +45,7 @@ class Exchanges extends Component<Props, State> {
 
     constructor(props) {
         super(props);
-        this.data = data.map(({link, ...rest}) => ({
+        this.data = data.map(({ link, ...rest }) => ({
             ...rest,
             link,
             hostname: new URL(link).hostname,

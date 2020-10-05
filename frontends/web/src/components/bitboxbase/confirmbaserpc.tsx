@@ -147,4 +147,4 @@ class ConfirmBaseRPC extends Component<Props, State> {
 }
 
 const HOC = translate<ConfirmBaseRPCProps>()(ConfirmBaseRPC);
-export { HOC as ConfirmBaseRPC};
+export { HOC as ConfirmBaseRPC };

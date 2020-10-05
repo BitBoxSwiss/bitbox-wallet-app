@@ -148,7 +148,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
 
     private setStatusAndRedirect = (baseID: string) => {
         apiGet(`bitboxbases/${baseID}/status`)
-        .then(({status}) => {
+        .then(({ status }) => {
             setInternalBaseStatus(status, baseID);
             route(`/bitboxbase/${baseID}`);
         });
@@ -170,7 +170,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 
     public componentWillUpdate() {
-        this.setState({bitboxBaseIDs : this.props.bitboxBaseIDs});
+        this.setState({ bitboxBaseIDs : this.props.bitboxBaseIDs });
     }
 
     private setSortableContainer = (el: HTMLElement) => {

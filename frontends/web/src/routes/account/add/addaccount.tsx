@@ -136,7 +136,7 @@ class AddAccount extends Component<Props, State> {
     }
 
     private submit = () => {
-        const {coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
+        const { coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
 
         interface ResponseData {
             success: boolean;

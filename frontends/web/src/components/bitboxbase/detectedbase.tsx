@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps} from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './bitboxbase.css';
 
@@ -82,4 +82,4 @@ class DetectedBase extends Component<Props> {
 }
 
 const HOC = translate<DetectedBaseProps>()(DetectedBase);
-export { HOC as DetectedBase};
+export { HOC as DetectedBase };

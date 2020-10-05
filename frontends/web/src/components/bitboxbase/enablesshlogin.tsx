@@ -68,7 +68,7 @@ class EnableSSHLogin extends Component<Props, State> {
     ) {
         return (
             <div>
-                <SettingsButton onClick={this.toggleDialog} optionalText={t('generic.enabled', {context: enabled.toString()})}>
+                <SettingsButton onClick={this.toggleDialog} optionalText={t('generic.enabled', { context: enabled.toString() })}>
                     {t('bitboxBase.settings.advanced.sshAccess.button')}
                 </SettingsButton>
                 {
@@ -78,11 +78,11 @@ class EnableSSHLogin extends Component<Props, State> {
                         apiEndpoint="/enable-ssh-password-login"
                         confirmText={t('bitboxBase.settings.advanced.sshAccess.confirm')}
                         inProgressText={t('bitboxBase.settings.advanced.sshAccess.inProgress')}
-                        successText={t('bitboxBase.settings.advanced.sshAccess.success', { enabled: (t('generic.enabled', {context: (!this.state.enabled).toString()})).toLowerCase() })}
+                        successText={t('bitboxBase.settings.advanced.sshAccess.success', { enabled: (t('generic.enabled', { context: (!this.state.enabled).toString() })).toLowerCase() })}
                         dialogTitle={t('bitboxBase.settings.advanced.sshAccess.title')}
                         args={!enabled}
                         toggleDialog={this.toggleDialog}
-                        customButtonText={(t('generic.enable', {context: (!enabled).toString()}))}
+                        customButtonText={(t('generic.enable', { context: (!enabled).toString() }))}
                         onSuccess={onSuccess} />
                 }
             </div>
@@ -91,4 +91,4 @@ class EnableSSHLogin extends Component<Props, State> {
 }
 
 const HOC = translate<EnableSSHLoginProps>()(EnableSSHLogin);
-export { HOC as EnableSSHLogin};
+export { HOC as EnableSSHLogin };
