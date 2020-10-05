@@ -16,6 +16,8 @@ dev:
 	yarn run dev
 lint:
 	yarn run lint
+fix:
+	yarn run fix
 jstest:
 	yarn run test
 jstest-watch:
