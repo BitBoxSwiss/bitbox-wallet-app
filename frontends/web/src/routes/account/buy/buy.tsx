@@ -54,9 +54,6 @@ interface State {
 }
 
 class Buy extends Component<Props, State> {
-    constructor(props) {
-        super(props);
-    }
 
     private getAccount = () => {
         if (!this.props.accounts) {

@@ -22,9 +22,6 @@ interface TruncateMiddleType {
 }
 
 class TruncateMiddle extends Component<TruncateMiddleType> {
-    constructor(props) {
-        super(props);
-    }
 
     private truncate = (str: string) => {
         const count = this.props.letterCount || 37;
