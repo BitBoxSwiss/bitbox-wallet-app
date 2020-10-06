@@ -328,6 +328,24 @@ func writeJSON(w io.Writer, value interface{}) {
 	}
 }
 
+type accountJSON struct {
+	CoinCode              coinpkg.Code `json:"coinCode"`
+	CoinUnit              string       `json:"coinUnit"`
+	Code                  string       `json:"code"`
+	Name                  string       `json:"name"`
+	BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
+}
+
+func newAccountJSON(account accounts.Interface) *accountJSON {
+	return &accountJSON{
+		CoinCode:              account.Coin().Code(),
+		CoinUnit:              account.Coin().Unit(false),
+		Code:                  account.Config().Code,
+		Name:                  account.Config().Name,
+		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
+	}
+}
+
 func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error) {
 	data := r.URL.Query().Get("data")
 	qr, err := qrcode.New(data, qrcode.Medium)
@@ -504,22 +522,9 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, err
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
-	type accountJSON struct {
-		CoinCode              coinpkg.Code `json:"coinCode"`
-		CoinUnit              string       `json:"coinUnit"`
-		Code                  string       `json:"code"`
-		Name                  string       `json:"name"`
-		BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
-	}
 	accounts := []*accountJSON{}
 	for _, account := range handlers.backend.Accounts() {
-		accounts = append(accounts, &accountJSON{
-			CoinCode:              account.Coin().Code(),
-			CoinUnit:              account.Coin().Unit(false),
-			Code:                  account.Config().Code,
-			Name:                  account.Config().Name,
-			BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
-		})
+		accounts = append(accounts, newAccountJSON(account))
 	}
 	return accounts, nil
 }
@@ -785,15 +790,13 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance co
 }
 
 func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
-	type accountJSON struct {
-		CoinCode    coinpkg.Code               `json:"coinCode"`
-		AccountCode string                     `json:"accountCode"`
-		Name        string                     `json:"name"`
-		Balance     map[string]interface{}     `json:"balance"`
-		ChartData   []accounts.TimeseriesEntry `json:"chartData"`
+	type extendedAccountJSON struct {
+		*accountJSON
+		Balance   map[string]interface{}     `json:"balance"`
+		ChartData []accounts.TimeseriesEntry `json:"chartData"`
 	}
 
-	jsonAccounts := []*accountJSON{}
+	jsonAccounts := []*extendedAccountJSON{}
 	totals := make(map[coinpkg.Coin]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
@@ -821,10 +824,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		if err != nil {
 			return nil, err
 		}
-		jsonAccounts = append(jsonAccounts, &accountJSON{
-			CoinCode:    account.Coin().Code(),
-			AccountCode: account.Config().Code,
-			Name:        account.Config().Name,
+		jsonAccounts = append(jsonAccounts, &extendedAccountJSON{
+			accountJSON: newAccountJSON(account),
 			Balance: map[string]interface{}{
 				"available":   handlers.formatAmountAsJSON(balance.Available(), account.Coin(), false),
 				"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
