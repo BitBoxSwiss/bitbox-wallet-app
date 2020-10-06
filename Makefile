@@ -57,6 +57,8 @@ webdev:
 	cd frontends/web && $(MAKE) dev
 weblint:
 	cd frontends/web && $(MAKE) lint
+webfix:
+	cd frontends/web && $(MAKE) fix
 webtest:
 	cd frontends/web && $(MAKE) jstest
 webtestwatch:

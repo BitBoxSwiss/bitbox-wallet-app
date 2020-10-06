@@ -238,11 +238,7 @@ class BitBoxBase extends Component<Props, State> {
 
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID && this.props.bitboxBaseID) {
-<<<<<<< HEAD
-            this.setState({ bitboxBaseID : this.props.bitboxBaseID });
-=======
-            this.setState({ bitboxBaseID: this.props.bitboxBaseID});
->>>>>>> frontend-eslint-key-spacing
+            this.setState({ bitboxBaseID: this.props.bitboxBaseID });
         }
     }
 
