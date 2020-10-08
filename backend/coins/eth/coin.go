@@ -42,17 +42,6 @@ type TransactionsSource interface {
 		[]*accounts.TransactionData, error)
 }
 
-// TransactionsSourceMaker creates a transaction source.
-type TransactionsSourceMaker func() TransactionsSource
-
-// TransactionsSourceEtherScan creates a etherscan transactions source maker.
-func TransactionsSourceEtherScan(etherScanURL string, httpClient *http.Client) TransactionsSourceMaker {
-	return func() TransactionsSource { return etherscan.NewEtherScan(etherScanURL, httpClient) }
-}
-
-// TransactionsSourceNone is used if no transactions source should be used.
-var TransactionsSourceNone TransactionsSourceMaker = func() TransactionsSource { return nil }
-
 // Coin models an Ethereum coin.
 type Coin struct {
 	observable.Implementation
@@ -66,15 +55,14 @@ type Coin struct {
 	nodeURL               string
 	erc20Token            *erc20.Token
 
-	makeTransactionsSource TransactionsSourceMaker
-	transactionsSource     TransactionsSource
-	httpClient             *http.Client
+	transactionsSource TransactionsSource
+	httpClient         *http.Client
 
 	log *logrus.Entry
 }
 
 // NewCoin creates a new coin with the given parameters.
-// makeTransactionsSource: provide `TransactionsSourceNone` or `TransactionsSourceEtherScan()`.
+// transactionsSource: can be nil, in which case transactions will not be shown.
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
 	code coin.Code,
@@ -82,7 +70,7 @@ func NewCoin(
 	feeUnit string,
 	net *params.ChainConfig,
 	blockExplorerTxPrefix string,
-	makeTransactionsSource TransactionsSourceMaker,
+	transactionsSource TransactionsSource,
 	nodeURL string,
 	erc20Token *erc20.Token,
 	httpClient *http.Client,
@@ -95,8 +83,7 @@ func NewCoin(
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		nodeURL:               nodeURL,
 
-		makeTransactionsSource: makeTransactionsSource,
-		transactionsSource:     nil,
+		transactionsSource: transactionsSource,
 
 		erc20Token: erc20Token,
 		httpClient: httpClient,
@@ -125,8 +112,6 @@ func (coin *Coin) Initialize() {
 			}
 			coin.client = client
 		}
-
-		coin.transactionsSource = coin.makeTransactionsSource()
 	})
 }
 

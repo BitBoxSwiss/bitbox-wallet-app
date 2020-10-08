@@ -36,6 +36,7 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
@@ -574,10 +575,10 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 	// config. Currently we can only switch between None and EtherScan.
 	ethMakeTransactionsSource := func(
 		source config.ETHTransactionsSource,
-		etherScan eth.TransactionsSourceMaker) eth.TransactionsSourceMaker {
+		etherScan *etherscan.EtherScan) eth.TransactionsSource {
 		switch source {
 		case config.ETHTransactionsSourceNone:
-			return eth.TransactionsSourceNone
+			return nil
 		case config.ETHTransactionsSourceEtherScan:
 			return etherScan
 		default:
@@ -609,7 +610,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.httpClient),
+			etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
@@ -620,7 +621,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coinConfig := backend.config.AppConfig().Backend.RETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api", backend.httpClient),
+			etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
@@ -631,7 +632,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
+			etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
@@ -642,7 +643,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
+			etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
@@ -655,7 +656,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.httpClient),
+			etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
