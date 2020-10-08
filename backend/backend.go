@@ -18,6 +18,7 @@ package backend
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -137,7 +138,9 @@ type Backend struct {
 
 	log *logrus.Entry
 
-	socksProxy   socksproxy.SocksProxy
+	socksProxy socksproxy.SocksProxy
+	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
+	httpClient   *http.Client
 	ratesUpdater *rates.RateUpdater
 	banners      *banners.Banners
 }
@@ -183,6 +186,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	if err != nil {
 		return nil, err
 	}
+	backend.httpClient = hclient
 	backend.ratesUpdater = rates.NewRateUpdater(hclient)
 	backend.ratesUpdater.Observe(backend.Notify)
 	backend.ratesUpdater.Start()
@@ -605,60 +609,60 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.socksProxy),
+			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
-			nil, backend.socksProxy)
+			nil, backend.httpClient)
 	case code == coinpkg.CodeRETH:
 		coinConfig := backend.config.AppConfig().Backend.RETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api", backend.socksProxy),
+			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
-			nil, backend.socksProxy)
+			nil, backend.httpClient)
 	case code == coinpkg.CodeTETH:
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.socksProxy),
+			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
-			nil, backend.socksProxy)
+			nil, backend.httpClient)
 	case code == coinpkg.CodeERC20TEST:
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.socksProxy),
+			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
-			backend.socksProxy,
+			backend.httpClient,
 		)
 	case erc20Token != nil:
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.socksProxy),
+			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.httpClient),
 		)
 		coin = eth.NewCoin(erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
 			erc20Token.token,
-			backend.socksProxy,
+			backend.httpClient,
 		)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
