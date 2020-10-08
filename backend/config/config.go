@@ -105,6 +105,13 @@ type Backend struct {
 	ETH  ethCoinConfig `json:"eth"`
 	TETH ethCoinConfig `json:"teth"`
 	RETH ethCoinConfig `json:"reth"`
+
+	// FiatList contains all enabled fiat currencies.
+	// These are used in the UI as well as by RateUpdater to fetch historical exchange rates.
+	FiatList []string `json:"fiatList"`
+	// MainFiat is the fiat currency used as a default for computing account portfolio data
+	// and transaction amounts.
+	MainFiat string `json:"mainFiat"`
 }
 
 // CoinActive returns the Active setting for a coin by code.
@@ -256,6 +263,9 @@ func NewDefaultAppConfig() AppConfig {
 			RETH: ethCoinConfig{
 				ActiveERC20Tokens: []string{},
 			},
+			// Copied from frontend/web/src/components/rates/rates.tsx.
+			FiatList: []string{"USD", "EUR", "CHF"},
+			MainFiat: "CHF",
 		},
 	}
 }
@@ -282,6 +292,12 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
+	appconf := config.appConfig
+	migrateFiatList(&appconf)
+	migrateFiatCode(&appconf)
+	if err := config.SetAppConfig(appconf); err != nil {
+		return nil, errp.WithStack(err)
+	}
 	return config, nil
 }
 
@@ -366,4 +382,39 @@ func (config *Config) save(filename string, conf interface{}) error {
 		return errp.WithStack(err)
 	}
 	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
+}
+
+// migrateFiatList moves fiatList from appconf.Frontend to appconf.Backend.
+// This is because with the account portfolio feature, backend needs to know
+// which fiat currencies are enabled to fetch historical exchange rates.
+func migrateFiatList(appconf *AppConfig) {
+	frontconf, ok := appconf.Frontend.(map[string]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	fiats, ok := frontconf["fiatList"].([]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	appconf.Backend.FiatList = make([]string, len(fiats))
+	for i, f := range fiats {
+		if v, ok := f.(string); ok {
+			appconf.Backend.FiatList[i] = v
+		}
+	}
+	delete(frontconf, "fiatList")
+}
+
+// migrateFiatCode moves fiatCode from appconf.Frontend to appconf.Backend
+// to aid the backend in constructing data series with correct main fiat code
+// for portfolio feature.
+func migrateFiatCode(appconf *AppConfig) {
+	frontconf, ok := appconf.Frontend.(map[string]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	if code, ok := frontconf["fiatCode"].(string); ok {
+		appconf.Backend.MainFiat = code
+		delete(frontconf, "fiatCode")
+	}
 }

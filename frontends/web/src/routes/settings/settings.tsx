@@ -59,6 +59,8 @@ class Settings extends Component<Props, State> {
         },
     ];
 
+    // Note: these are stored in the app config as is, without the "eth-erc20-" prefix,
+    // while backend uses the prefix in backend/erc20.go.
     private erc20TokenCodes = {
         usdt: 'Tether USD',
         usdc: 'USD Coin',

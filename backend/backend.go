@@ -196,6 +196,38 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.ratesUpdater = rates.NewRateUpdater(hclient)
 	backend.ratesUpdater.Observe(backend.Notify)
 	backend.ratesUpdater.Start()
+	for _, fiat := range config.AppConfig().Backend.FiatList {
+		if config.AppConfig().Backend.CoinActive(coin.CodeBTC) {
+			backend.ratesUpdater.EnableHistoryPair("BTC", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeTBTC) {
+			backend.ratesUpdater.EnableHistoryPair("TBTC", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeRBTC) {
+			backend.ratesUpdater.EnableHistoryPair("RBTC", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeLTC) {
+			backend.ratesUpdater.EnableHistoryPair("LTC", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeTLTC) {
+			backend.ratesUpdater.EnableHistoryPair("TLTC", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeETH) {
+			backend.ratesUpdater.EnableHistoryPair("ETH", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeTETH) {
+			backend.ratesUpdater.EnableHistoryPair("TETH", fiat)
+		}
+		if config.AppConfig().Backend.CoinActive(coin.CodeRETH) {
+			backend.ratesUpdater.EnableHistoryPair("RETH", fiat)
+		}
+		for _, token := range config.AppConfig().Backend.ETH.ActiveERC20Tokens {
+			// The prefix is stripped on the frontend and in app config.
+			// TODO: Unify the prefix with frontend and erc20.go, and possibly
+			// move all this with coins/coin/code or eth/erc20.
+			backend.ratesUpdater.EnableHistoryPair("eth-erc20-"+token, fiat)
+		}
+	}
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)

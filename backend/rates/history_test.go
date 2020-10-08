@@ -16,7 +16,7 @@ import (
 func TestPriceAt(t *testing.T) {
 	updater := NewRateUpdater(nil) // don't need to make HTTP requests
 	updater.history = map[string][]exchangeRate{
-		"BTC": {
+		"BTCUSD": {
 			{value: 2, timestamp: time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC)},
 			{value: 3, timestamp: time.Date(2020, 9, 2, 0, 0, 0, 0, time.UTC)},
 			{value: 5, timestamp: time.Date(2020, 9, 3, 0, 0, 0, 0, time.UTC)},
@@ -75,17 +75,18 @@ func TestUpdateHistory(t *testing.T) {
 	updater := NewRateUpdater(http.DefaultClient)
 	updater.coingeckoURL = ts.URL
 	updater.history = map[string][]exchangeRate{
-		"BTC": {
+		"BTCUSD": {
 			{value: 1.0, timestamp: time.Unix(1598832062, 0)}, // 2020-08-31 00:01:02
 			{value: 2.0, timestamp: time.Unix(1599091262, 0)}, // 2020-09-03 00:01:02
 		},
 	}
 
-	n, err := updater.updateHistory("BTC", "USD", time.Unix(wantStartUnix, 0), time.Unix(wantEndUnix, 0))
+	start, end := time.Unix(wantStartUnix, 0), time.Unix(wantEndUnix, 0)
+	n, err := updater.updateHistory(context.Background(), "BTC", "USD", start, end)
 	require.NoError(t, err, "updater.updateHistory err")
 	assert.Equal(t, 2, n, "updater.updateHistory n")
 	wantHistory := map[string][]exchangeRate{
-		"BTC": {
+		"BTCUSD": {
 			{value: 1.0, timestamp: time.Unix(1598832062, 0)}, // preexisting point
 			{value: 10000.0, timestamp: time.Unix(1598918700, 0)},
 			{value: 10001.0, timestamp: time.Unix(1598922501, 0)},

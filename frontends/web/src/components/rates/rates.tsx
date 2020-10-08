@@ -52,12 +52,12 @@ export const store = new Store<SharedProps>({
     selected: ['USD', 'EUR', 'CHF'],
 });
 
-apiGet('config').then(({ frontend }) => {
-    if (frontend && frontend.fiatCode) {
-        store.setState({ active: frontend.fiatCode });
+apiGet('config').then((appconf) => {
+    if (appconf.frontend && appconf.backend.mainFiat) {
+        store.setState({ active: appconf.backend.mainFiat });
     }
-    if (frontend && frontend.fiatList) {
-        store.setState({ selected: frontend.fiatList });
+    if (appconf.backend && appconf.backend.fiatList) {
+        store.setState({ selected: appconf.backend.fiatList });
     }
 });
 
@@ -70,7 +70,7 @@ export function setActiveFiat(fiat: Fiat): void {
         selectFiat(fiat);
     }
     store.setState({ active: fiat });
-    setConfig({ frontend: { fiatCode: fiat } });
+    setConfig({ backend: { mainFiat: fiat } });
 }
 
 export function rotateFiat(): void {
@@ -81,13 +81,13 @@ export function rotateFiat(): void {
 
 export function selectFiat(fiat: Fiat): void {
     const selected = [...store.state.selected, fiat];
-    setConfig({ frontend: { fiatList: selected } });
+    setConfig({ backend: { fiatList: selected } });
     store.setState({ selected });
 }
 
 export function unselectFiat(fiat: Fiat): void {
     const selected = store.state.selected.filter(item => !equal(item, fiat));
-    setConfig({ frontend: { fiatList: selected } });
+    setConfig({ backend: { fiatList: selected } });
     store.setState({ selected });
 }
 

@@ -16,6 +16,7 @@
 package rates
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -57,11 +58,15 @@ type RateUpdater struct {
 	// last contains most recent conversion to fiat, keyed by a coin.
 	last map[string]map[string]float64
 
-	historyMu sync.RWMutex
-	// history contains historical conversion rates in asc order, keyed by a coin.
+	historyMu sync.RWMutex // guards both history and historyGo
+	// history contains historical conversion rates in asc order, keyed by coin+fiat pair.
+	// For example, BTC/CHF pair's key is "BTCCHF".
 	// TODO: store in bolt DB
-	// TODO: support different fiat currencies? it's in USD at the moment
 	history map[string][]exchangeRate
+	// historyGo contains context canceling funcs to stop periodic updates
+	// of historical data, keyed by coin+fiat pair.
+	// For example, BTC/EUR pair's key is "BTCEUR".
+	historyGo map[string]context.CancelFunc
 
 	// CoinGecko is where updater gets the historical conversion rates.
 	// See https://www.coingecko.com/en/api for details.
@@ -73,6 +78,7 @@ func NewRateUpdater(client *http.Client) *RateUpdater {
 	return &RateUpdater{
 		last:         make(map[string]map[string]float64),
 		history:      make(map[string][]exchangeRate),
+		historyGo:    make(map[string]context.CancelFunc),
 		log:          logging.Get().WithGroup("rates"),
 		httpClient:   client,
 		coingeckoURL: coingeckoAPIV3,
@@ -91,14 +97,12 @@ func (updater *RateUpdater) Last() map[string]map[string]float64 {
 // In this case, linear interpolation is used as an approximation.
 // If no data is available with the given args, PriceAt returns 0.
 func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
-	if fiat != "USD" {
-		// TODO: This currently supports only BTC/USD pair;
-		//       see backfillHistory and historyUpdateLoop.
-		return 0
-	}
 	updater.historyMu.RLock()
 	defer updater.historyMu.RUnlock()
-	data := updater.history[coin]
+	data := updater.history[coin+fiat]
+	if len(data) == 0 {
+		return 0 // no data at all
+	}
 	// Find an index of the first entry older or equal the at timestamp.
 	idx := sort.Search(len(data), func(i int) bool {
 		return !data[i].timestamp.Before(at)
@@ -118,12 +122,11 @@ func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
 	return a.value + x*(b.value-a.value)
 }
 
-// Start spins up the updater's goroutines to periodically update exchange rates.
+// Start spins up the updater's goroutines to periodically update current exchange rates.
 // It returns immediately.
+// To initiate historical exchange rates update, the callers can use EnableHistoryPair.
 func (updater *RateUpdater) Start() {
 	go updater.lastUpdateLoop()
-	go updater.historyUpdateLoop()
-	go updater.backfillHistory()
 }
 
 // lastUpdateLoop periodically updates most recent exchange rates.
