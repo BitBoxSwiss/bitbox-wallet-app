@@ -108,7 +108,9 @@ func (txh *TransactionWithMetadata) TransactionData(
 
 	numConfirmations := txh.numConfirmations(tipHeight)
 	return &accounts.TransactionData{
-		Fee:                      txh.fee(),
+		Fee: txh.fee(),
+		// ERC20 token transaction pay fees in Ether.
+		FeeIsDifferentUnit:       erc20Token != nil,
 		Timestamp:                nil,
 		TxID:                     txh.TxID(),
 		InternalID:               txh.TxID(),

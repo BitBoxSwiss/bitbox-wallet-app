@@ -63,14 +63,23 @@ func TestOrderedTransactions(t *testing.T) {
 			Amount:    coin.NewAmountFromInt64(50),
 			Fee:       &fee,
 		},
+		{
+			Timestamp:          tt(time.Date(2020, 9, 22, 12, 0, 0, 0, time.UTC)),
+			Height:             220,
+			Type:               TxTypeSend,
+			Amount:             coin.NewAmountFromInt64(5),
+			Fee:                &fee,
+			FeeIsDifferentUnit: true,
+		},
 	}
 	ordered := NewOrderedTransactions(txs)
-	require.Equal(t, coin.NewAmountFromInt64(569), ordered[0].Balance)
-	require.Equal(t, coin.NewAmountFromInt64(589), ordered[1].Balance)
-	require.Equal(t, coin.NewAmountFromInt64(590), ordered[2].Balance)
-	require.Equal(t, coin.NewAmountFromInt64(290), ordered[3].Balance)
-	require.Equal(t, coin.NewAmountFromInt64(190), ordered[4].Balance)
-	require.Equal(t, coin.NewAmountFromInt64(200), ordered[5].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(564), ordered[0].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(584), ordered[1].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(589), ordered[2].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(590), ordered[3].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(290), ordered[4].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(190), ordered[5].Balance)
+	require.Equal(t, coin.NewAmountFromInt64(200), ordered[6].Balance)
 
 	timeseries, err := ordered.Timeseries(
 		time.Date(2020, 9, 9, 13, 0, 0, 0, time.UTC),
