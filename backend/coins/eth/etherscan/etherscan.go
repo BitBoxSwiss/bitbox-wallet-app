@@ -31,7 +31,6 @@ import (
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -49,15 +48,15 @@ type EtherScan struct {
 	url         string
 	rateLimiter <-chan time.Time
 	lock        locker.Locker
-	socksProxy  socksproxy.SocksProxy
+	httpClient  *http.Client
 }
 
 // NewEtherScan creates a new instance of EtherScan.
-func NewEtherScan(url string, socksProxy socksproxy.SocksProxy) *EtherScan {
+func NewEtherScan(url string, httpClient *http.Client) *EtherScan {
 	return &EtherScan{
 		url:         url,
 		rateLimiter: time.After(0), // 0 so the first call does not wait.
-		socksProxy:  socksProxy,
+		httpClient:  httpClient,
 	}
 }
 
@@ -67,12 +66,8 @@ func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
 	defer func() {
 		etherScan.rateLimiter = time.After(callInterval)
 	}()
-	client, err := etherScan.socksProxy.GetHTTPClient()
-	if err != nil {
-		return errp.WithStack(err)
-	}
 	params.Set("apikey", apiKey)
-	response, err := client.Get(etherScan.url + "?" + params.Encode())
+	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
 		return errp.WithStack(err)
 	}
