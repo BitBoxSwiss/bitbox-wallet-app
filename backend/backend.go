@@ -571,20 +571,6 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 	}
 	dbFolder := backend.arguments.CacheDirectoryPath()
 
-	// ethMakeTransactionsSource selects between the provided transactions sources based on the coin
-	// config. Currently we can only switch between None and EtherScan.
-	ethMakeTransactionsSource := func(
-		source config.ETHTransactionsSource,
-		etherScan *etherscan.EtherScan) eth.TransactionsSource {
-		switch source {
-		case config.ETHTransactionsSourceNone:
-			return nil
-		case config.ETHTransactionsSourceEtherScan:
-			return etherScan
-		default:
-			panic(fmt.Sprintf("unknown eth transactions source: %s", source))
-		}
-	}
 	erc20Token := erc20TokenByCode(code)
 	switch {
 	case code == coinpkg.CodeRBTC:
@@ -607,63 +593,36 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		coinConfig := backend.config.AppConfig().Backend.ETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient),
-		)
-		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient)
+		coin = eth.NewCoin(etherScan, code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
-			nil, backend.httpClient)
+			etherScan,
+			nil)
 	case code == coinpkg.CodeRETH:
-		coinConfig := backend.config.AppConfig().Backend.RETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.httpClient),
-		)
-		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.httpClient)
+		coin = eth.NewCoin(etherScan, code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
-			nil, backend.httpClient)
+			etherScan,
+			nil)
 	case code == coinpkg.CodeTETH:
-		coinConfig := backend.config.AppConfig().Backend.TETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
-		)
-		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient)
+		coin = eth.NewCoin(etherScan, code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
-			nil, backend.httpClient)
+			etherScan,
+			nil)
 	case code == coinpkg.CodeERC20TEST:
-		coinConfig := backend.config.AppConfig().Backend.TETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient),
-		)
-		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient)
+		coin = eth.NewCoin(etherScan, code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
+			etherScan,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
-			backend.httpClient,
 		)
 	case erc20Token != nil:
-		coinConfig := backend.config.AppConfig().Backend.ETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient),
-		)
-		coin = eth.NewCoin(erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient)
+		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
+			etherScan,
 			erc20Token.token,
-			backend.httpClient,
 		)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)

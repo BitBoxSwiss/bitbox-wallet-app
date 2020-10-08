@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -53,10 +52,7 @@ const (
 
 // ethCoinConfig holds configurations for ethereum coins.
 type ethCoinConfig struct {
-	NodeURL string `json:"nodeURL"`
-
-	TransactionsSource ETHTransactionsSource `json:"transactionsSource"`
-	ActiveERC20Tokens  []string              `json:"activeERC20Tokens"`
+	ActiveERC20Tokens []string `json:"activeERC20Tokens"`
 }
 
 // ERC20TokenActive returns true if this token is configured to be active.
@@ -252,19 +248,13 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				NodeURL:            "etherscan+https://api.etherscan.io/api",
-				TransactionsSource: ETHTransactionsSourceEtherScan,
-				ActiveERC20Tokens:  []string{},
+				ActiveERC20Tokens: []string{},
 			},
 			TETH: ethCoinConfig{
-				NodeURL:            "etherscan+https://api-ropsten.etherscan.io/api",
-				TransactionsSource: ETHTransactionsSourceEtherScan,
-				ActiveERC20Tokens:  []string{},
+				ActiveERC20Tokens: []string{},
 			},
 			RETH: ethCoinConfig{
-				NodeURL:            "etherscan+https://api-rinkeby.etherscan.io/api",
-				TransactionsSource: ETHTransactionsSourceEtherScan,
-				ActiveERC20Tokens:  []string{},
+				ActiveERC20Tokens: []string{},
 			},
 		},
 	}
@@ -292,10 +282,6 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
-	appConfig := config.migrateInfura(config.appConfig)
-	if err := config.SetAppConfig(appConfig); err != nil {
-		return nil, errp.WithStack(err)
-	}
 	return config, nil
 }
 
@@ -380,17 +366,4 @@ func (config *Config) save(filename string, conf interface{}) error {
 		return errp.WithStack(err)
 	}
 	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
-}
-
-func (config *Config) migrateInfura(appConfig AppConfig) AppConfig {
-	migrate := func(ethConfig *ethCoinConfig, newURL string) {
-		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
-			ethConfig.NodeURL = newURL
-		}
-	}
-
-	migrate(&appConfig.Backend.ETH, "etherscan+https://api.etherscan.io/api")
-	migrate(&appConfig.Backend.TETH, "etherscan+https://api-ropsten.etherscan.io/api")
-	migrate(&appConfig.Backend.RETH, "etherscan+https://api-rinkeby.etherscan.io/api")
-	return appConfig
 }

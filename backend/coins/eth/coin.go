@@ -17,14 +17,11 @@ package eth
 
 import (
 	"math/big"
-	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -45,48 +42,45 @@ type TransactionsSource interface {
 // Coin models an Ethereum coin.
 type Coin struct {
 	observable.Implementation
-	initOnce              sync.Once
 	client                rpcclient.Interface
 	code                  coin.Code
 	unit                  string
 	feeUnit               string
 	net                   *params.ChainConfig
 	blockExplorerTxPrefix string
-	nodeURL               string
 	erc20Token            *erc20.Token
 
 	transactionsSource TransactionsSource
-	httpClient         *http.Client
 
 	log *logrus.Entry
 }
 
 // NewCoin creates a new coin with the given parameters.
-// transactionsSource: can be nil, in which case transactions will not be shown.
+// transactionsSource: can be nil, in which case transactions will not be be processed (in other
+// words, account.Transactions() will always be empty apart from the outgoing transactions which //
+// are stored in the local database).
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
+	client rpcclient.Interface,
 	code coin.Code,
 	unit string,
 	feeUnit string,
 	net *params.ChainConfig,
 	blockExplorerTxPrefix string,
 	transactionsSource TransactionsSource,
-	nodeURL string,
 	erc20Token *erc20.Token,
-	httpClient *http.Client,
 ) *Coin {
 	return &Coin{
+		client:                client,
 		code:                  code,
 		unit:                  unit,
 		feeUnit:               feeUnit,
 		net:                   net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
-		nodeURL:               nodeURL,
 
 		transactionsSource: transactionsSource,
 
 		erc20Token: erc20Token,
-		httpClient: httpClient,
 
 		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
@@ -96,24 +90,7 @@ func NewCoin(
 func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 
 // Initialize implements coin.Coin.
-func (coin *Coin) Initialize() {
-	coin.initOnce.Do(func() {
-		coin.log.Infof("connecting to %s", coin.nodeURL)
-		const etherScanPrefix = "etherscan+"
-		if strings.HasPrefix(coin.nodeURL, etherScanPrefix) {
-			nodeURL := coin.nodeURL[len(etherScanPrefix):]
-			coin.log.Infof("Using EtherScan proxy: %s", nodeURL)
-			coin.client = etherscan.NewEtherScan(nodeURL, coin.httpClient)
-		} else {
-			client, err := rpcclient.RPCDial(coin.nodeURL)
-			if err != nil {
-				// TODO: init conn lazily, feed error via EventStatusChanged
-				panic(err)
-			}
-			coin.client = client
-		}
-	})
-}
+func (coin *Coin) Initialize() {}
 
 // Code implements coin.Coin.
 func (coin *Coin) Code() coin.Code {
