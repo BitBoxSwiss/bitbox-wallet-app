@@ -16,17 +16,19 @@
 
 import { createChart, IChartApi, LineData } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../../decorators/translate';
 
 export type ChartData = LineData[];
 
 interface ChartProps {
-    data: ChartData;
+    // If undefined, data is missing.
+    data?: ChartData;
 }
 
 interface State {
 }
 
-type Props = ChartProps;
+type Props = ChartProps & TranslateProps;
 
 class Chart extends Component<Props, State> {
     private ref = createRef();
@@ -52,8 +54,10 @@ class Chart extends Component<Props, State> {
                 width: this.ref.current.offsetWidth,
                 height: this.height,
             });
-            const lineSeries = this.chart.addLineSeries();
-            lineSeries.setData(this.props.data);
+            if (this.props.data !== undefined) {
+                const lineSeries = this.chart.addLineSeries();
+                lineSeries.setData(this.props.data);
+            }
             this.chart.timeScale().fitContent();
             window.addEventListener('resize', this.onResize);
         }
@@ -64,13 +68,20 @@ class Chart extends Component<Props, State> {
     }
 
     public render(
-        { }: RenderableProps<Props>,
+        { t, data }: RenderableProps<Props>,
         { }: State,
     ) {
         return (
-            <div ref={this.ref}></div>
+            <div>
+                { data === undefined && (
+                      <div>{t('chart.dataMissing')}</div>
+                )}
+                <div ref={this.ref}></div>
+            </div>
         );
     }
 }
 
-export { Chart };
+const HOC = translate<ChartProps>()(Chart);
+
+export { HOC as Chart };

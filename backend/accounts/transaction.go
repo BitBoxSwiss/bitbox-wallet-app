@@ -193,6 +193,18 @@ func (c *TimeseriesEntry) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// EarliestTime returns the timestamp of the latest transaction. Zero is returned if there is no
+// transaction with a timestamp.
+func (txs OrderedTransactions) EarliestTime() time.Time {
+	if len(txs) > 0 {
+		tx := txs[len(txs)-1]
+		if tx.Timestamp != nil {
+			return *tx.Timestamp
+		}
+	}
+	return time.Time{}
+}
+
 // Timeseries chunks the time between `start` and `end` into steps of `interval` duration, and
 // provides the balance of the account at each step.
 func (txs OrderedTransactions) Timeseries(

@@ -30,7 +30,6 @@ import { Chart, ChartData } from './chart';
 
 export interface AccountAndBalanceInterface extends AccountInterface {
     balance: BalanceInterface;
-    chartData: ChartData;
 }
 
 interface AccountSummaryProps {
@@ -48,6 +47,8 @@ interface Totals {
 interface Response {
     accounts: AccountAndBalanceInterface[];
     totals: Totals;
+    chartDataMissing: boolean;
+    chartData: ChartData;
 }
 
 type Props = TranslateProps & AccountSummaryProps;
@@ -105,7 +106,7 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Chart data={data.accounts[0].chartData}/>
+                            <Chart data={data.chartDataMissing ? undefined : data.chartData}/>
                             {
                                 coins.length > 0 ?
                                                coins.map((coin, index) =>

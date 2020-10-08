@@ -34,6 +34,7 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	baseHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/handlers"
@@ -790,14 +791,23 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance co
 }
 
 func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
+	type chartEntry struct {
+		Time  int64   `json:"time"`
+		Value float64 `json:"value"`
+	}
+
 	type extendedAccountJSON struct {
 		*accountJSON
-		Balance   map[string]interface{}     `json:"balance"`
-		ChartData []accounts.TimeseriesEntry `json:"chartData"`
+		Balance map[string]interface{} `json:"balance"`
 	}
 
 	jsonAccounts := []*extendedAccountJSON{}
 	totals := make(map[coinpkg.Coin]*big.Int)
+
+	// If true, we are missing headers or historical conversion rates necessary to compute the chart
+	// data,
+	chartDataMissing := false
+	var chartEntries []chartEntry
 
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
@@ -815,15 +825,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		if err != nil {
 			return nil, err
 		}
-		timeseries, err := txs.Timeseries(
-			// Last year:
-			time.Now().AddDate(-4, 0, 0).Truncate(24*time.Hour),
-			time.Now(),
-			24*time.Hour,
-		)
-		if err != nil {
-			return nil, err
-		}
 		jsonAccounts = append(jsonAccounts, &extendedAccountJSON{
 			accountJSON: newAccountJSON(account),
 			Balance: map[string]interface{}{
@@ -831,7 +832,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 				"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
 				"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 			},
-			ChartData: timeseries,
 		})
 
 		_, ok := totals[account.Coin()]
@@ -840,6 +840,99 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 
 		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
+
+		// Below here, only chart data is being computed.
+		if chartDataMissing {
+			continue
+		}
+
+		// TODO: use active (starred) fiat currency.
+		fiat := "USD"
+
+		// Time from which the chart turns from daily points to hourly points.
+		hourlyFrom := time.Now().AddDate(0, -3, 0).Truncate(24 * time.Hour)
+		// Chart data until this point in time.
+		until := time.Now().Truncate(time.Hour)
+
+		earliestPriceAvailable := handlers.backend.RatesUpdater().HistoryEarliestTimestamp(
+			string(account.Coin().Code()),
+			fiat)
+		latestPriceAvailable := handlers.backend.RatesUpdater().HistoryLatestTimestamp(
+			string(account.Coin().Code()),
+			fiat)
+		earliestTxTime := txs.EarliestTime()
+		// TODO: show chart starting at `earliestPriceavailable`, so the last three months can be
+		// shown more quickly instead of waiting for all historical rates first.
+		// For now, we show the chartDataMissing error.
+		if earliestPriceAvailable.IsZero() ||
+			latestPriceAvailable.IsZero() ||
+			(!earliestTxTime.IsZero() && earliestTxTime.Before(earliestPriceAvailable)) ||
+			until.After(latestPriceAvailable) {
+			chartDataMissing = true
+			continue
+		}
+
+		timeseriesDaily, err := txs.Timeseries(
+			time.Now().AddDate(-4, 0, 0).Truncate(24*time.Hour).Add(time.Hour),
+			hourlyFrom,
+			24*time.Hour,
+		)
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		timeseriesHourly, err := txs.Timeseries(
+			hourlyFrom.Add(time.Hour),
+			until,
+			time.Hour,
+		)
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		timeseries := append(timeseriesDaily, timeseriesHourly...)
+
+		if chartEntries == nil {
+			chartEntries = make([]chartEntry, len(timeseries))
+		}
+
+		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
+		// unit to the standard unit (BTC, LTC; ETH, etc.).
+		coinDecimals := new(big.Int).Exp(
+			big.NewInt(10),
+			big.NewInt(int64(account.Coin().Decimals(false))),
+			nil,
+		)
+
+		for i, e := range timeseries {
+			price := handlers.backend.RatesUpdater().PriceAt(
+				string(account.Coin().Code()),
+				fiat,
+				e.Time)
+			timestamp := e.Time.Unix()
+			if chartEntries[i].Time != 0 && chartEntries[i].Time != timestamp {
+				panic("expected same timestamp for all data entries")
+			}
+			chartEntries[i].Time = timestamp
+			fiatValue, _ := new(big.Rat).Mul(
+				new(big.Rat).SetFrac(
+					e.Value.BigInt(),
+					coinDecimals,
+				),
+				new(big.Rat).SetFloat64(price),
+			).Float64()
+			chartEntries[i].Value += fiatValue
+			if i == len(timeseries)-1 {
+				fmt.Println("LOL", account.Coin().Code(), e.Time, e.Value.BigInt().Int64(), price)
+			}
+		}
 	}
 
 	jsonTotals := make(map[coinpkg.Code]accountHandlers.FormattedAmount)
@@ -847,9 +940,19 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		jsonTotals[c.Code()] = handlers.formatAmountAsJSON(coin.NewAmount(total), c, false)
 	}
 
+	// Truncate leading zero values.
+	for i, e := range chartEntries {
+		if e.Value != 0 {
+			chartEntries = chartEntries[i:]
+			break
+		}
+	}
+
 	return map[string]interface{}{
-		"accounts": jsonAccounts,
-		"totals":   jsonTotals,
+		"accounts":         jsonAccounts,
+		"totals":           jsonTotals,
+		"chartDataMissing": chartDataMissing,
+		"chartData":        chartEntries,
 	}, nil
 }
 
