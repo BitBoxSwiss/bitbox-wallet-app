@@ -66,6 +66,9 @@ type TransactionData struct {
 	// Fee is nil for a receiving tx. The fee is only displayed (and relevant) when sending funds
 	// from the wallet.
 	Fee *coin.Amount
+	// FeeIsDifferentUnit is true if the fee is paid in a different unit than the main transaction
+	// amount. Example: ERC20-tokens fees are paid in ETH.
+	FeeIsDifferentUnit bool
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	Timestamp *time.Time
 	// TxID is the tx ID.
@@ -152,12 +155,12 @@ func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
 		case TxTypeSend:
 			balance.Sub(balance, tx.Amount.BigInt())
 			// Subtract fee as well.
-			if tx.Fee != nil {
+			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
 				balance.Sub(balance, tx.Fee.BigInt())
 			}
 		case TxTypeSendSelf:
 			// Subtract only fee.
-			if tx.Fee != nil {
+			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
 				balance.Sub(balance, tx.Fee.BigInt())
 			}
 		}

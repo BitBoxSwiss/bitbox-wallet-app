@@ -148,10 +148,11 @@ type Transaction struct {
 }
 
 // TransactionData returns the tx data to be shown to the user.
-func (tx *Transaction) TransactionData() *accounts.TransactionData {
+func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 	timestamp := time.Time(tx.jsonTransaction.Timestamp)
 	return &accounts.TransactionData{
 		Fee:                      tx.fee(),
+		FeeIsDifferentUnit:       isERC20,
 		Timestamp:                &timestamp,
 		TxID:                     tx.TxID(),
 		InternalID:               tx.internalID(),
@@ -261,6 +262,7 @@ func (tx *Transaction) gas() uint64 {
 // entries appear in the etherscan result if the recipient and sender are the same. It also sets the
 // transaction type (send, receive, send to self) based on the account address.
 func prepareTransactions(
+	isERC20 bool,
 	blockTipHeight *big.Int,
 	isInternal bool,
 	transactions []*Transaction, address common.Address) ([]*accounts.TransactionData, error) {
@@ -296,7 +298,7 @@ func prepareTransactions(
 		}
 		transaction.blockTipHeight = blockTipHeight
 		transaction.isInternal = isInternal
-		castTransactions = append(castTransactions, transaction.TransactionData())
+		castTransactions = append(castTransactions, transaction.TransactionData(isERC20))
 	}
 	return castTransactions, nil
 }
@@ -328,13 +330,14 @@ func (etherScan *EtherScan) Transactions(
 	if err := etherScan.call(params, &result); err != nil {
 		return nil, err
 	}
-	transactionsNormal, err := prepareTransactions(blockTipHeight, false, result.Result, address)
+	isERC20 := erc20Token != nil
+	transactionsNormal, err := prepareTransactions(isERC20, blockTipHeight, false, result.Result, address)
 	if err != nil {
 		return nil, err
 	}
 	var transactionsInternal []*accounts.TransactionData
 	if erc20Token == nil {
-		// Alo show internal transactions.
+		// Also show internal transactions.
 		params.Set("action", "txlistinternal")
 		resultInternal := struct {
 			Result []*Transaction
@@ -344,7 +347,7 @@ func (etherScan *EtherScan) Transactions(
 		}
 		var err error
 		transactionsInternal, err = prepareTransactions(
-			blockTipHeight, true, resultInternal.Result, address)
+			isERC20, blockTipHeight, true, resultInternal.Result, address)
 		if err != nil {
 			return nil, err
 		}
