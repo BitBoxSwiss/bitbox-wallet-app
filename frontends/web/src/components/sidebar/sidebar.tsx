@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h, JSX, RenderableProps } from 'preact';
 import { Link, Match } from 'preact-router/match';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';

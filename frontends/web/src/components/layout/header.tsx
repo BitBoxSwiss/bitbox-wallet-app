@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h, JSX, RenderableProps } from 'preact';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';

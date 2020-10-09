@@ -38,7 +38,9 @@ import { setConfig } from '../utils/config';
 
 // if a language is not officially added yet, add it through this env var to make it available
 // (e.g. "es,fr,sl").
+ /* eslint no-undef: "off" */
 export const extraLanguages = process.env.PREACT_APP_I18N_ADDLANGUAGES;
+/* eslint no-undef: "off" */
 export const i18nEditorActive = process.env.PREACT_APP_I18NEDITOR === '1';
 
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h, JSX, RenderableProps } from 'preact';
 import A from '../../components/anchor/anchor';
 import Button from '../../components/forms/button';
 import { Entry } from '../../components/guide/entry';

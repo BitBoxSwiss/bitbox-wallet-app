@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { cloneElement, h, RenderableProps } from 'preact';
+import { cloneElement, h, JSX, RenderableProps } from 'preact';
 import { Router } from 'preact-router';
 
 interface Props {

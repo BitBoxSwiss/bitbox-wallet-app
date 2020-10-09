@@ -159,9 +159,9 @@ module.exports = {
     "react/jsx-key": "off",
     "object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-empty-interface": "off",
+    "no-undef": "error",
 
     // TODO: enable again
-    "no-undef": "off",
     "react/no-unknown-property": "off",
     "react/no-children-prop": "off",
 
