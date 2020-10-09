@@ -68,6 +68,9 @@ type TransactionData struct {
 	Fee *coin.Amount
 	// FeeIsDifferentUnit is true if the fee is paid in a different unit than the main transaction
 	// amount. Example: ERC20-tokens fees are paid in ETH.
+	// When true, the fee amount does not count towards the balance of the account associated with
+	// the transaction, but another account (e.g. counts towards the ETH account if the tx is an
+	// ERC20-token account).
 	FeeIsDifferentUnit bool
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	Timestamp *time.Time
