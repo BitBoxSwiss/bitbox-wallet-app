@@ -160,9 +160,11 @@ module.exports = {
     "object-curly-spacing": ["warn", "always"],
     "@typescript-eslint/no-empty-interface": "off",
     "no-undef": "error",
+    "object-curly-spacing": "off",
+    "react/no-unknown-property": ["error", {
+      "ignore": ["autocomplete", "autocorrect", "class", "for", "spellcheck"]
+    }],
 
-    // TODO: enable again
-    "react/no-unknown-property": "off",
     "react/no-children-prop": "off",
 
     // TODO: enable again
