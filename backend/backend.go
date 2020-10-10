@@ -53,6 +53,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -141,9 +142,10 @@ type Backend struct {
 
 	socksProxy socksproxy.SocksProxy
 	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
-	httpClient   *http.Client
-	ratesUpdater *rates.RateUpdater
-	banners      *banners.Banners
+	httpClient          *http.Client
+	etherScanHTTPClient *http.Client
+	ratesUpdater        *rates.RateUpdater
+	banners             *banners.Banners
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -188,6 +190,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 	backend.httpClient = hclient
+	backend.etherScanHTTPClient = &http.Client{
+		Transport: ratelimit.NewRateLimitedHTTPTransport(hclient.Transport, etherscan.CallInterval),
+	}
 	backend.ratesUpdater = rates.NewRateUpdater(hclient)
 	backend.ratesUpdater.Observe(backend.Notify)
 	backend.ratesUpdater.Start()
@@ -593,32 +598,32 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 		coin = btc.NewCoin(coinpkg.CodeLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient)
+		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeRETH:
-		etherScan := etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.httpClient)
+		etherScan := etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeTETH:
-		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient)
+		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeERC20TEST:
-		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.httpClient)
+		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
 		)
 	case erc20Token != nil:
-		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.httpClient)
+		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
