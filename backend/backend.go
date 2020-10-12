@@ -1151,6 +1151,7 @@ func (backend *Backend) Environment() Environment {
 func (backend *Backend) Close() error {
 	errors := []string{}
 
+	backend.ratesUpdater.Stop()
 	backend.uninitAccounts()
 
 	for _, coin := range backend.coins {

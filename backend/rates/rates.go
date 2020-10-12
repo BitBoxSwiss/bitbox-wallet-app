@@ -57,6 +57,8 @@ type RateUpdater struct {
 
 	// last contains most recent conversion to fiat, keyed by a coin.
 	last map[string]map[string]float64
+	// stopLastUpdateLoop is the cancel function of the lastUpdateLoop context.
+	stopLastUpdateLoop context.CancelFunc
 
 	historyMu sync.RWMutex // guards both history and historyGo
 	// history contains historical conversion rates in asc order, keyed by coin+fiat pair.
@@ -126,25 +128,49 @@ func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
 // It returns immediately.
 // To initiate historical exchange rates update, the callers can use ConfigureHistory.
 // The current and historical exchange rates are independent from each other.
+//
+// StartCurrentRates is unsafe for concurrent use.
 func (updater *RateUpdater) StartCurrentRates() {
-	go updater.lastUpdateLoop()
+	if updater.stopLastUpdateLoop != nil {
+		panic("RateUpdater: StartCurrentRates called twice")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	updater.stopLastUpdateLoop = cancel
+	go updater.lastUpdateLoop(ctx)
+}
+
+// Stop shuts down all running goroutines.
+// It may return before the goroutines have exited.
+func (updater *RateUpdater) Stop() {
+	updater.stopLastUpdateLoop()
+	updater.stopAllHistory()
 }
 
 // lastUpdateLoop periodically updates most recent exchange rates.
-// It never returns.
-func (updater *RateUpdater) lastUpdateLoop() {
+// It never returns until the context is done.
+func (updater *RateUpdater) lastUpdateLoop(ctx context.Context) {
 	for {
-		updater.updateLast()
-		time.Sleep(interval)
+		updater.updateLast(ctx)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(interval):
+			// continue
+		}
 	}
 }
 
-func (updater *RateUpdater) updateLast() {
+func (updater *RateUpdater) updateLast(ctx context.Context) {
 	url := fmt.Sprintf(cryptoCompareURL,
 		strings.Join(coins, ","),
 		strings.Join(fiats, ","),
 	)
-	response, err := updater.httpClient.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		updater.log.Errorf("updateLast: http.NewRequest: %v", err)
+		return
+	}
+	response, err := updater.httpClient.Do(req.WithContext(ctx))
 	if err != nil {
 		updater.log.WithError(err).WithField("url", url).Error("Error getting rates")
 		updater.last = nil

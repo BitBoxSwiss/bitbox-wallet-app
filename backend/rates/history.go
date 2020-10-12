@@ -101,6 +101,12 @@ func (updater *RateUpdater) ReconfigureHistory(coins, fiats []string) {
 	}
 }
 
+// stopAllHistory shuts down all historical exchange rates goroutines.
+// It may return before the goroutines have exited.
+func (updater *RateUpdater) stopAllHistory() {
+	updater.ReconfigureHistory(nil, nil)
+}
+
 // historyUpdateLoop periodically updates historical market exchange rates
 // forward in time starting with the last fetched timestamp in a loop.
 // It returns when the context is done.
