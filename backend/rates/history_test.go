@@ -111,3 +111,24 @@ func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 		cancel()
 	}
 }
+
+func TestHistoryEarliestLatest(t *testing.T) {
+	updater := NewRateUpdater(nil)
+	updater.history = map[string][]exchangeRate{
+		"btcUSD": {
+			{value: 1, timestamp: time.Unix(1598832062, 0)}, // 2020-08-31 00:01:02
+			{value: 2, timestamp: time.Unix(1598918700, 0)},
+			{value: 3, timestamp: time.Unix(1598922501, 0)},
+			{value: 4, timestamp: time.Unix(1599091262, 0)}, // 2020-09-03 00:01:02
+		},
+	}
+
+	earliest := updater.HistoryEarliestTimestamp("btc", "USD")
+	assert.Equal(t, updater.history["btcUSD"][0].timestamp, earliest, "earliest")
+
+	latest := updater.HistoryLatestTimestamp("btc", "USD")
+	assert.Equal(t, updater.history["btcUSD"][3].timestamp, latest, "latest")
+
+	assert.Zero(t, updater.HistoryEarliestTimestamp("foo", "bar"), "zero earliest")
+	assert.Zero(t, updater.HistoryLatestTimestamp("foo", "bar"), "zero latest")
+}

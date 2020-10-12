@@ -88,7 +88,7 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 		// When to update next, after this loop iteration is done.
 		untilNext := 10 * time.Minute // TODO: add jitter
 
-		start := updater.historyLatestTimestamp(coin, fiat)
+		start := updater.HistoryLatestTimestamp(coin, fiat)
 		// When zero, there's no point in fetching data here because the backfillHistory
 		// will kick in and fill it up for the past 90 days anyway.
 		if !start.IsZero() {
@@ -129,7 +129,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 		// When to update next, after this loop iteration is done.
 		untilNext := time.Second // TODO: add jitter
 
-		end := updater.historyEarliestTimestamp(coin, fiat)
+		end := updater.HistoryEarliestTimestamp(coin, fiat)
 		var start time.Time
 		if end.IsZero() {
 			// First time; don't have historical data yet.
@@ -194,7 +194,9 @@ func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string
 	return len(rates), nil
 }
 
-func (updater *RateUpdater) historyLatestTimestamp(coin, fiat string) time.Time {
+// HistoryLatestTimestamp reports the most recent timestamp at which an exchange rate
+// is available for the given coin/fiat pair.
+func (updater *RateUpdater) HistoryLatestTimestamp(coin, fiat string) time.Time {
 	key := coin + fiat
 	updater.historyMu.RLock()
 	defer updater.historyMu.RUnlock()
@@ -205,7 +207,9 @@ func (updater *RateUpdater) historyLatestTimestamp(coin, fiat string) time.Time 
 	return t
 }
 
-func (updater *RateUpdater) historyEarliestTimestamp(coin, fiat string) time.Time {
+// HistoryEarliestTimestamp reports the oldest timestamp at which an exchange rate
+// is available for the given coin/fiat pair.
+func (updater *RateUpdater) HistoryEarliestTimestamp(coin, fiat string) time.Time {
 	key := coin + fiat
 	updater.historyMu.RLock()
 	defer updater.historyMu.RUnlock()
