@@ -20,24 +20,25 @@ var (
 	// Values are copied from https://api.coingecko.com/api/v3/coins/list.
 	// TODO: Replace keys with coin.Code.
 	geckoCoin = map[string]string{
-		"BTC": "bitcoin",
-		"LTC": "litecoin",
-		"ETH": "ethereum",
+		"btc": "bitcoin",
+		"ltc": "litecoin",
+		"eth": "ethereum",
 		// Useful for testing with testnets.
-		"TBTC": "bitcoin",
-		"RBTC": "bitcoin",
-		"TLTC": "litecoin",
-		"TETH": "ethereum",
-		"RETH": "ethereum",
+		"tbtc": "bitcoin",
+		"rbtc": "bitcoin",
+		"tltc": "litecoin",
+		"teth": "ethereum",
+		"reth": "ethereum",
 		// ERC20 tokens as used in the backend.
 		// Frontend and app config use unprefixed name, without "eth-erc20-".
-		"eth-erc20-bat":  "basic-attention-token",
-		"eth-erc20-dai":  "dai",
-		"eth-erc20-link": "chainlink",
-		"eth-erc20-mkr":  "maker",
-		"eth-erc20-usdc": "usd-coin",
-		"eth-erc20-usdt": "tether",
-		"eth-erc20-zrx":  "0x",
+		"eth-erc20-bat":       "basic-attention-token",
+		"eth-erc20-dai0x6b17": "dai",
+		"eth-erc20-link":      "chainlink",
+		"eth-erc20-mkr":       "maker",
+		"eth-erc20-sai0x89d2": "sai",
+		"eth-erc20-usdc":      "usd-coin",
+		"eth-erc20-usdt":      "tether",
+		"eth-erc20-zrx":       "0x",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.

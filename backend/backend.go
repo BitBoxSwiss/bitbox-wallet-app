@@ -198,28 +198,28 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.ratesUpdater.Start()
 	for _, fiat := range config.AppConfig().Backend.FiatList {
 		if config.AppConfig().Backend.CoinActive(coin.CodeBTC) {
-			backend.ratesUpdater.EnableHistoryPair("BTC", fiat)
+			backend.ratesUpdater.EnableHistoryPair("btc", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeTBTC) {
-			backend.ratesUpdater.EnableHistoryPair("TBTC", fiat)
+			backend.ratesUpdater.EnableHistoryPair("tbtc", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeRBTC) {
-			backend.ratesUpdater.EnableHistoryPair("RBTC", fiat)
+			backend.ratesUpdater.EnableHistoryPair("rbtc", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeLTC) {
-			backend.ratesUpdater.EnableHistoryPair("LTC", fiat)
+			backend.ratesUpdater.EnableHistoryPair("ltc", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeTLTC) {
-			backend.ratesUpdater.EnableHistoryPair("TLTC", fiat)
+			backend.ratesUpdater.EnableHistoryPair("tltc", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeETH) {
-			backend.ratesUpdater.EnableHistoryPair("ETH", fiat)
+			backend.ratesUpdater.EnableHistoryPair("eth", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeTETH) {
-			backend.ratesUpdater.EnableHistoryPair("TETH", fiat)
+			backend.ratesUpdater.EnableHistoryPair("teth", fiat)
 		}
 		if config.AppConfig().Backend.CoinActive(coin.CodeRETH) {
-			backend.ratesUpdater.EnableHistoryPair("RETH", fiat)
+			backend.ratesUpdater.EnableHistoryPair("reth", fiat)
 		}
 		for _, token := range config.AppConfig().Backend.ETH.ActiveERC20Tokens {
 			// The prefix is stripped on the frontend and in app config.
