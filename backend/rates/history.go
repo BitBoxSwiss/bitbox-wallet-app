@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+// CoinGeckoRateLimit specifies the minimal interval between equally spaced
+// API calls. From https://www.coingecko.com/en/api:
+// > Generous rate limits with up to 100 requests/minute
+// We use slightly lower value.
+const CoinGeckoRateLimit = 2 * time.Second
+
 // See the following for docs and details: https://www.coingecko.com/en/api.
 // Rate limit: 6k QPS per IP address.
 const coingeckoAPIV3 = "https://api.coingecko.com/api/v3"
@@ -127,6 +133,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 	updater.log.Printf("started backfillHistory for %s/%s", coin, fiat)
 	for {
 		// When to update next, after this loop iteration is done.
+		// Assume we're rate-limited by the backend: can use any arbitrary small value.
 		untilNext := time.Second // TODO: add jitter
 
 		end := updater.historyEarliestTimestamp(coin, fiat)
@@ -159,7 +166,8 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 			if time.Since(end) > 365*24*time.Hour {
 				return
 			}
-			untilNext = time.Minute // TODO: exponential backoff
+			// Assume we're rate-limited by the backend: can use any arbitrary small value.
+			untilNext = time.Second // TODO: exponential backoff
 		}
 
 		select {
