@@ -197,9 +197,6 @@ func (c *TimeseriesEntry) MarshalJSON() ([]byte, error) {
 // provides the balance of the account at each step.
 func (txs OrderedTransactions) Timeseries(
 	start, end time.Time, interval time.Duration) ([]TimeseriesEntry, error) {
-	if len(txs) == 0 {
-		return nil, nil
-	}
 	for _, tx := range txs {
 		if tx.Height != 0 && tx.Timestamp == nil {
 			return nil, errp.WithStack(errors.ErrNotAvailable)
