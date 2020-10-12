@@ -197,44 +197,31 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		Transport: ratelimit.NewRateLimitedHTTPTransport(hclient.Transport, rates.CoinGeckoRateLimit),
 	})
 	backend.ratesUpdater.Observe(backend.Notify)
-	backend.ratesUpdater.Start()
-	for _, fiat := range config.AppConfig().Backend.FiatList {
-		if config.AppConfig().Backend.CoinActive(coin.CodeBTC) {
-			backend.ratesUpdater.EnableHistoryPair("btc", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeTBTC) {
-			backend.ratesUpdater.EnableHistoryPair("tbtc", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeRBTC) {
-			backend.ratesUpdater.EnableHistoryPair("rbtc", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeLTC) {
-			backend.ratesUpdater.EnableHistoryPair("ltc", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeTLTC) {
-			backend.ratesUpdater.EnableHistoryPair("tltc", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeETH) {
-			backend.ratesUpdater.EnableHistoryPair("eth", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeTETH) {
-			backend.ratesUpdater.EnableHistoryPair("teth", fiat)
-		}
-		if config.AppConfig().Backend.CoinActive(coin.CodeRETH) {
-			backend.ratesUpdater.EnableHistoryPair("reth", fiat)
-		}
-		for _, token := range config.AppConfig().Backend.ETH.ActiveERC20Tokens {
-			// The prefix is stripped on the frontend and in app config.
-			// TODO: Unify the prefix with frontend and erc20.go, and possibly
-			// move all this with coins/coin/code or eth/erc20.
-			backend.ratesUpdater.EnableHistoryPair("eth-erc20-"+token, fiat)
-		}
-	}
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
 
 	return backend, nil
+}
+
+// configureHistoryExchangeRates changes backend.ratesUpdater settings.
+// It requires both backend.config to be up-to-date and all accounts initialized.
+func (backend *Backend) configureHistoryExchangeRates() {
+	var coins []string
+	for _, acct := range backend.Accounts() {
+		coins = append(coins, string(acct.Coin().Code()))
+	}
+	// No reason continue with ERC20 tokens if Ethereum is inactive.
+	if backend.config.AppConfig().Backend.CoinActive(coin.CodeETH) {
+		for _, token := range backend.config.AppConfig().Backend.ETH.ActiveERC20Tokens {
+			// The prefix is stripped on the frontend and in app config.
+			// TODO: Unify the prefix with frontend and erc20.go, and possibly
+			// move all that to coins/coin/code or eth/erc20.
+			coins = append(coins, "eth-erc20-"+token)
+		}
+	}
+	fiats := backend.config.AppConfig().Backend.FiatList
+	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
 }
 
 // addAccount adds the given account to the backend.
@@ -784,6 +771,12 @@ func (backend *Backend) initAccounts() {
 	backend.initPersistedAccounts()
 
 	backend.emitAccountsStatusChanged()
+
+	// The updater fetches rates only for active accounts, so this seems the most
+	// appropriate place to update exchange rate configuration.
+	// Every time fiats or coins list is changed in the UI settings, ReinitializedAccounts
+	// is invoked which triggers this method.
+	backend.configureHistoryExchangeRates()
 }
 
 // ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
@@ -859,6 +852,10 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 	backend.initPersistedAccounts()
 	backend.emitAccountsStatusChanged()
+
+	backend.ratesUpdater.StartCurrentRates()
+	backend.configureHistoryExchangeRates()
+
 	return backend.events
 }
 

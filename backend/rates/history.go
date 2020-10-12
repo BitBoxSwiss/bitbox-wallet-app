@@ -64,26 +64,41 @@ var (
 	}
 )
 
-// EnableHistoryPair spins up a new goroutine to periodically update
-// and backfill historical exchange rates.
-// If a pair is unsupported or already enabled, EnableHistoryPair does nothing.
-// The fiat arg is expected to be uppercase. Supported fiats are currently hardcoded
-// in the unexported geckFiat map in this package.
-func (updater *RateUpdater) EnableHistoryPair(coin, fiat string) {
-	if geckoCoin[coin] == "" || geckoFiat[fiat] == "" {
-		updater.log.Errorf("EnableHistoryPair(%q, %q): unsupported coin or fiat", coin, fiat)
-		return
-	}
-	key := coin + fiat
+// ReconfigureHistory resets all currently running historical rates goroutines.
+// The end result is only coin/fiat pairs present in the arguments are active.
+// Duplicate or unsupported values in coins and fiats are ignored.
+// Supported fiats are currently hardcoded in the unexported geckoFiat map in this package.
+func (updater *RateUpdater) ReconfigureHistory(coins, fiats []string) {
+	updater.log.Printf("ReconfigureHistory: coins=%q; fiats=%q", coins, fiats)
 	updater.historyMu.Lock()
 	defer updater.historyMu.Unlock()
-	if _, exist := updater.historyGo[key]; exist {
-		return
+	// Stop all running history goroutines.
+	for key, stop := range updater.historyGo {
+		stop()
+		delete(updater.historyGo, key)
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	updater.historyGo[key] = cancel
-	go updater.historyUpdateLoop(ctx, coin, fiat)
-	go updater.backfillHistory(ctx, coin, fiat)
+	// Enable those requested.
+	for _, coin := range coins {
+		if geckoCoin[coin] == "" {
+			updater.log.Errorf("ReconfigureHistory: unsupported coin %q", coin)
+			continue
+		}
+		for _, fiat := range fiats {
+			if geckoFiat[fiat] == "" {
+				updater.log.Errorf("ReconfigureHistory: unsupported fiat %q", fiat)
+				continue
+			}
+			key := coin + fiat
+			// The coins+fiats args may have duplicates.
+			if _, exists := updater.historyGo[key]; exists {
+				continue // already running
+			}
+			ctx, cancel := context.WithCancel(context.Background())
+			updater.historyGo[key] = cancel
+			go updater.historyUpdateLoop(ctx, coin, fiat)
+			go updater.backfillHistory(ctx, coin, fiat)
+		}
+	}
 }
 
 // historyUpdateLoop periodically updates historical market exchange rates
@@ -106,12 +121,14 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 			// It's ok if start == now or now < start. CoinGecko simply returns no results.
 			// It's also ok if our "now" doesn't match CoinGecko: it always returns
 			// the latest available data without errors.
-			_, err := updater.updateHistory(ctx, coin, fiat, start, now)
-			// If ctx is done, this is ctx.Err() but we don't care because the <-ctx.Done()
-			// select below will take care of it and exit.
-			if err != nil {
-				updater.log.Errorf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, now, err)
-				untilNext = time.Minute // TODO: exponential backoff
+			if _, err := updater.updateHistory(ctx, coin, fiat, start, now); err != nil {
+				// Reduce logging by omitting context.Canceled error which simply indiates
+				// the context is done and we are exiting from the loop.
+				// All other errors indicate we should retry.
+				if err != context.Canceled {
+					updater.log.Errorf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, now, err)
+					untilNext = time.Minute // TODO: exponential backoff
+				}
 			}
 		}
 
@@ -153,22 +170,28 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 		}
 
 		n, err := updater.updateHistory(ctx, coin, fiat, start, end)
-		// If ctx is done, this is ctx.Err() but we don't care because the <-ctx.Done()
-		// select below will take care of it and exit.
-		if err != nil {
-			updater.log.Printf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, end, err)
-			untilNext = time.Minute // TODO: exponential backoff
-		}
-		// CoinGecko returns an empty list if we're too far back in history.
-		// Use it to detect when to stop.
-		// Unless the start/end range is suspiciously arbitrary close to current time.
-		// It may indicate an API failure and we'll want to retry.
-		if n == 0 {
-			if time.Since(end) > 365*24*time.Hour {
-				return
+		switch {
+		case err == nil:
+			// CoinGecko returns an empty list if we're too far back in history.
+			// Use it to detect when to stop.
+			// Unless the start/end range is suspiciously arbitrary close to current time.
+			// It may indicate an API failure and we'll want to retry.
+			if n == 0 {
+				if time.Since(end) > 365*24*time.Hour {
+					updater.log.Printf("backfillHistory for %s/%s: reached end of data at %s", coin, fiat, start)
+					return
+				}
+				// Assume we're rate-limited by the backend: can use any arbitrary small value.
+				untilNext = time.Second // TODO: exponential backoff
 			}
-			// Assume we're rate-limited by the backend: can use any arbitrary small value.
-			untilNext = time.Second // TODO: exponential backoff
+		case err != nil:
+			// Reduce logging by omitting context.Canceled error which simply indiates
+			// the context is done and we are exiting from the loop.
+			// All other errors indicate we should retry.
+			if err != context.Canceled {
+				updater.log.Printf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, end, err)
+				untilNext = time.Minute // TODO: exponential backoff
+			}
 		}
 
 		select {

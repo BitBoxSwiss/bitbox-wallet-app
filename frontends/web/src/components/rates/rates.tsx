@@ -21,7 +21,7 @@ import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
 import { equal } from '../../utils/equal';
 import { apiSubscribe } from '../../utils/event';
-import { apiGet } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import * as style from './rates.css';
 
 export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
@@ -81,14 +81,24 @@ export function rotateFiat(): void {
 
 export function selectFiat(fiat: Fiat): void {
     const selected = [...store.state.selected, fiat];
-    setConfig({ backend: { fiatList: selected } });
-    store.setState({ selected });
+    setConfig({ backend: { fiatList: selected } })
+    .then(() => {
+        store.setState({ selected });
+        // Need to reconfigure currency exchange rates updater
+        // which is done during accounts reset.
+        apiPost('accounts/reinitialize');
+    });
 }
 
 export function unselectFiat(fiat: Fiat): void {
     const selected = store.state.selected.filter(item => !equal(item, fiat));
-    setConfig({ backend: { fiatList: selected } });
-    store.setState({ selected });
+    setConfig({ backend: { fiatList: selected } })
+    .then(() => {
+        store.setState({ selected });
+        // Need to reconfigure currency exchange rates updater
+        // which is done during accounts reset.
+        apiPost('accounts/reinitialize');
+    });
 }
 
 function formatAsCurrency(amount: number): string {

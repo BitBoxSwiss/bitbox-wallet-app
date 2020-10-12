@@ -122,10 +122,11 @@ func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
 	return a.value + x*(b.value-a.value)
 }
 
-// Start spins up the updater's goroutines to periodically update current exchange rates.
+// StartCurrentRates spins up the updater's goroutines to periodically update current exchange rates.
 // It returns immediately.
-// To initiate historical exchange rates update, the callers can use EnableHistoryPair.
-func (updater *RateUpdater) Start() {
+// To initiate historical exchange rates update, the callers can use ConfigureHistory.
+// The current and historical exchange rates are independent from each other.
+func (updater *RateUpdater) StartCurrentRates() {
 	go updater.lastUpdateLoop()
 }
 
