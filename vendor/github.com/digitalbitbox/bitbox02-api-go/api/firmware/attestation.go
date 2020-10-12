@@ -37,6 +37,7 @@ type attestationPubkey struct {
 }
 
 // attestationPubkeys is a map of attestation pubkey identifier to attestation pubkey.
+// The identifier is sha256(pubkey).
 var attestationPubkeys = map[string]attestationPubkey{
 	"f36581299c784acfe26d735c1f937f7e397ee471a02983906a29660f3eee2004": {
 		pubkeyHex: "04074ff1273b36c24e80fe3d59e0e897a81732d3f8e9cd07e17e9fc06319cd16b25cf74255674477b3ac9cbac2d12f0dc27a662681fcbc12955b0bccdcbbdcfd01",
@@ -56,6 +57,12 @@ var attestationPubkeys = map[string]attestationPubkey{
 	"62a321078b3d0affb6b6b4dace9333b89263c85052c63dc6570294f9994bf105": {
 		pubkeyHex:                 "040526f5b8348a8d55e7b1cac043ce98c55bbdb3311b4d1bb2d654281edf8aeb21f018fb027a6b08e4ddc62c919e648690722d00c6f54c668c9bd8224a1d82423a",
 		acceptedBootloaderHashHex: "e8fa0bd5fc80b86b9f1ea983664df33b27f6f95855d79fb43248ee4c3d3e6be6",
+	},
+	"bc1b9b196839e029458b86456c222641a2a681570a52a5637f8d34ad6ab8b643": {
+		pubkeyHex: "0422491e19766bd96a56e3f2f3926a6c57b89209ff47bd10e523b223ff65ab9af11c0a5f62c187514f2117ce772de90f9901ee122af78e69bbc4d29eec811be8ec",
+	},
+	"fa077dc3d0caea63d8a2a7ba0392560b76041001e3ba3af9655423ff457b9d1e": {
+		pubkeyHex: "049f1b7180014b6de60d41f16a3c0a37b20146585e4884960249d30f3cd68c74d04420d0cedef5719d6b1529b085ecd534fa6c1690be5eb1b3331bc57b5db224dc",
 	},
 }
 
