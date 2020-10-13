@@ -34,10 +34,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// If modified, also update geckoCoin map.
+// TODO: Unify these with geckoCoin map.
 var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "SAI", "DAI", "BAT", "USDC"}
 
-// If modified, also update geckoFiat map.
+// TODO: Unify these with geckoFiat map.
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD", "AUD", "ILS"}
 
 const interval = time.Minute
@@ -60,12 +60,12 @@ type RateUpdater struct {
 
 	historyMu sync.RWMutex // guards both history and historyGo
 	// history contains historical conversion rates in asc order, keyed by coin+fiat pair.
-	// For example, BTC/CHF pair's key is "BTCCHF".
+	// For example, BTC/CHF pair's key is "btcCHF".
 	// TODO: store in bolt DB
 	history map[string][]exchangeRate
 	// historyGo contains context canceling funcs to stop periodic updates
 	// of historical data, keyed by coin+fiat pair.
-	// For example, BTC/EUR pair's key is "BTCEUR".
+	// For example, BTC/EUR pair's key is "btcEUR".
 	historyGo map[string]context.CancelFunc
 
 	// CoinGecko is where updater gets the historical conversion rates.
