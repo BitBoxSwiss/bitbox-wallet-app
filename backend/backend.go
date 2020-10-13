@@ -193,7 +193,9 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.etherScanHTTPClient = &http.Client{
 		Transport: ratelimit.NewRateLimitedHTTPTransport(hclient.Transport, etherscan.CallInterval),
 	}
-	backend.ratesUpdater = rates.NewRateUpdater(hclient)
+	backend.ratesUpdater = rates.NewRateUpdater(&http.Client{
+		Transport: ratelimit.NewRateLimitedHTTPTransport(hclient.Transport, rates.CoinGeckoRateLimit),
+	})
 	backend.ratesUpdater.Observe(backend.Notify)
 	backend.ratesUpdater.Start()
 	for _, fiat := range config.AppConfig().Backend.FiatList {
