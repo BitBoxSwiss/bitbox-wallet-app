@@ -15,23 +15,24 @@
     },
     "initializing": "Informationen werden von der Blockchain geladen…",
     "openFile": "Öffne Datei",
-    "reconnecting": "Verbindung abgebrochen, neue Verbindung wird aufgebaut…"
+    "reconnecting": "Verbindung abgebrochen, neue Verbindung wird aufgebaut…",
+    "syncedAddressesCount": "{{count}} Adressen gescannt"
   },
   "accountInfo": {
     "address": "Adresse",
     "extendedPublicKey": "Erweiterter Public Key",
     "label": "Konto Informationen",
     "title": "Konto Informationen",
-    "verify": "Auf dem Gerät bestätigen"
+    "verify": "Auf Gerät bestätigen"
   },
   "accountSummary": {
-    "availableBalance": "",
+    "availableBalance": "Kontostand",
     "balance": "Saldo",
     "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
     "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
     "noAccount": "Keine Konten verfügbar",
-    "synchronizing": "Konten werden mit der Blockchain syncro",
+    "synchronizing": "Konten werden mit den Blockchains synchronisiert:",
     "title": "Kontenübersicht",
     "total": "Gesamt",
     "transactionHistory": "Transaktionsübersicht"
@@ -94,7 +95,8 @@
     "restore": {
       "confirmTitle": "Von Backup wiederherstellen",
       "error": {
-        "e200": "microSD Karte nicht gefunden"
+        "e200": "microSD Karte nicht gefunden",
+        "general": "Fehler beim Wiederherstellen von Backup"
       },
       "password": {
         "label": "Wiederherstellungspasswort oder verstecktes Wiederherstellungspasswort. ",
@@ -444,6 +446,7 @@
   "button": {
     "abort": "Abbrechen",
     "back": "Zurück",
+    "buy": "Kaufen",
     "changepin": "Gerätepasswort ändern",
     "check": "Backup überprüfen",
     "continue": "Weiter",
@@ -461,6 +464,9 @@
     "unlock": "Entsperren",
     "update": "Update",
     "upgrade": "Aktualisieren"
+  },
+  "buy": {
+    "title": "{{accountName}} kaufen"
   },
   "changePin": {
     "newTitle": "Neues Gerätepasswort",
@@ -534,7 +540,28 @@
   "deviceTampered": "Falls ihre BitBox mit einem Wiederherstellungspasswort geliefert wurde, beenden Sie das Setup SOFORT und kontaktieren Sie den Support. \nSHIFT versendet niemals BitBoxen, die schon ein Passwort haben und wird nie Passwortempfehlungen aussprechen. \nBenutzen Sie diese BitBox auf keinen Fall !",
   "dialog": {
     "cancel": "Abbrechen",
-    "confirm": "Bestätigen"
+    "confirm": "Bestätigen",
+    "confirmTitle": "Bestätigung"
+  },
+  "exchanges": {
+    "method": "Zahlungsmethode wählen",
+    "methods": {
+      "BT": "Überweisung",
+      "CC": "Kreditkarte",
+      "DCA": "Wiederkehrend",
+      "P2P": "Peer-to-peer\n",
+      "SW": "Crypto swap"
+    },
+    "nomatch": "Keine Börse entspricht Ihren Kriterien",
+    "region": "Region wählen",
+    "regions": {
+      "AF": "Afrika",
+      "APAC": "Asien-Pazifik",
+      "EU": "Europa",
+      "LA": "Lateinamerika",
+      "NA": "Nordamerika"
+    },
+    "title": "Kaufen & Verkaufen"
   },
   "fiat": {
     "default": "Standard",
@@ -545,9 +572,14 @@
     "appVersion": "App Version:"
   },
   "generic": {
+    "and": "und",
     "applying": "Konfiguration wird angewendet",
     "confirmToContinue": "Bitte bestätige, um fortzufahren.",
-    "description": "Beschreibung"
+    "description": "Beschreibung",
+    "enable_false": "Deaktivieren",
+    "enable_true": "Aktivieren",
+    "enabled_false": "Deaktiviert",
+    "enabled_true": "Aktiviert"
   },
   "genericError": "Ein Fehler ist aufgetreten. Falls Sie Probleme bemerken, starten Sie die Applikation bitte neu.",
   "goal": {
@@ -582,7 +614,7 @@
   },
   "guide": {
     "accountDescription": {
-      "text": "Ihre Kontoübersicht zeigt Ihren Kontostand, die ein- und ausgehenden Transaktionen an. Stöbern Sie durch diesen Guide um mehr über die verschiedenen Kontoarten zu erfahren. ",
+      "text": "Ihre Kontoübersicht zeigt Ihren Kontostand und Ihre Transaktionen an. Stöbern Sie durch diesen Guide um mehr über die verschiedenen Kontoarten zu erfahren. ",
       "title": "Was wird mir auf dieser Seite angezeigt?"
     },
     "accountFiat": {
@@ -621,7 +653,7 @@
     },
     "accountTransactionAttributesBTC": {
       "text": "Virtuelle Größe: Wird zur Ermittlung der Netzwerkgebühr verwendet. Sie haben erfolgreich Gebühren gespart, wenn sie kleiner als die Transaktion sind.\nGröße: Aktuelle Transaktionsgröße in Bytes nach der Serialisierung gemäß der zugrunde liegenden Blockchain.\nGewicht: Mit Segwit eingeführt, ist dies eine neue Metrik zur Bewertung von Transaktions- und Blockgrößen. Jedes Segwit Byte zählt als eins, alles andere als vier \"Gewichtseinheiten\". Statt eines Megabytes, beträgt die Blockgrößenbegrenzung nun vier Millionen \"Gewichtseinheiten\".",
-      "title": "Wie sehe ich Bitcoin-bezogene Transaktionsdetails?"
+      "title": "Was hat es mit den Bitcoin-spezifischen Transaktionsdetails  auf sich?"
     },
     "accountTransactionAttributesGeneric": {
       "text": "Bestätigungen: Nachdem Sie ihre Transaktion gesendet haben ist diese zuerst unbestätigt.  Sie müssen warten, bis sie von einem Miner in eine Block aufgenommen wird. Dann hat Ihre Transaktion die erste  Bestätigung. Jeder nachfolgende Block fügt Ihrer Transaktion eine weitere Bestätigung hinzu. Meist sehen Händler und andere Netzwerkakteure Transaktionen erst mit 3 bis 6 Bestätigungen als erledigt.\nTransaktions-ID: Eine eindeutige Identifikationsnummer, die zum Nachschlagen einer Transaktion in einem Blockexplorer verwendet werden kann.\nGebühr: Miner erhalten eine Transaktionsgebühr als Anreiz, Transaktionen in die von ihnen erzeugten Blöcke aufzunehmen. Um mehr zu erfahren, klicken Sie auf  \"Senden\".",
@@ -706,38 +738,58 @@
         "title": "So, koppeln Sie Ihr Telefon sicher mit der BitBox"
       }
     },
+    "buy": {
+      "support": {
+        "title": ""
+      }
+    },
+    "exchanges": {
+      "commission": {
+        "text": "Diese Seite verwendet Affiliate-Links, sofern verfügbar. Allerdings haben nicht alle Börsen ein Partnerprogramm. Ob eine Börse dies anbietet, hat keinen Einfluss auf unsere Entscheidung sie hier aufzuführen.",
+        "title": "Erhaltet ihr eine Provision, wenn ich Bitcoin bei einem dieser Dienste kaufe?"
+      },
+      "description": {
+        "text": "Diese Seite zeigt Ihnen eine Auswahl unserer Lieblingsbörsen zum Kaufen von Bitcoin und anderen Kryptowährungen an.\nOben können Sie Ihre Region und die gewünschte Zahlungsmethode auswählen, um die Optionen zu filtern.",
+        "title": "Was kann ich auf dieser Seite sehen?"
+      },
+      "whichService": {
+        "text": "Das hängt von Ihrem Standort und Bedürfnissen ab.\nWählen Sie zuerst eine Region und dann Ihre bevorzugte Zahlungsmethode aus.\nÜberweisung: für größere Beträge.\nKreditkarte: schnell, aber nur für kleinere Beträgen geeignet, da die Gebühren höher sind.\nWiederkehrend: Kaufe automatisch jede Woche / jeden Monat Bitcoin.\nCrypto Swap: Tausche eine Kryptowährung gegen eine andere.\nPeer-to-Peer: Kaufe Bitcoin privat direkt von einer anderen Person.",
+        "title": "Welchen Dienst soll ich verwenden?"
+      }
+    },
     "receive": {
       "address": {
         "text": "Diese Adresse können Sie weitergeben damit Ihnen jemand Coins senden kann. ",
         "title": "Was mache ich mit einer Adresse?"
       },
       "addressChange": {
-        "text": "Sobald eine Adresse für eine Transaktion benutzt wurde, wird eine neue Adresse zu der Liste hinzugefügt um die Alte zu ersetzen. Es wird immer 20 ungenutzte Adressen in der Liste geben. ",
+        "text": "Sobald eine Adresse für eine Transaktion benutzt wurde, wird eine neue Adresse zu der Liste hinzugefügt um die Alte zu ersetzen. Es werden immer 20 ungenutzte Adressen angezeigt. ",
         "title": "Wann ändern sich die Adressen?"
       },
       "addressFormats": {
-        "text": ""
+        "text": "Eine kompatible Adresse verwendet das Standard-Segwit Format, während eine moderne Adresse das native Segwit (bech32) Format verwendet. Standardmäßig verwendet die BitBox02 das moderne Adressformat. Wenn Sie Probleme beim Senden an eine solce Adresse haben, klicken Sie auf \"Zu kompatibler Adresse ändern\".",
+        "title": "Was ist der Unterschied zwischen einer kompatiblen Adresse und einer modernen Adresse?"
       },
       "howVerify": {
-        "text": "Klicken Sie auf das BitBox-Symbol in der Seitenleiste links und sehen Sie den Abschnitt \"Zwei-Faktor Autorisierung\". Die Anleitung wird aktualisiert und Sie können von dort aus den Anweisungen folgen.\nBei der BitBox02 können Sie die Adressen direkt auf dem Gerät während des Send-/Empfangsprozesses verifizieren. ",
+        "text": "BitBox01: Klicken Sie auf das BitBox-Symbol in der Seitenleiste links und sehen Sie den Abschnitt \"Zwei-Faktor Autorisierung\". Die Anleitung wird aktualisiert und Sie können von dort aus den Anweisungen folgen.\n\nBitBox02: Dank des eingebauten Displays können Sie die Adresse direkt auf dem Gerät während des Send-/Empfangsprozesses verifizieren. ",
         "title": "Wie kann ich die Adresse sicher verifizieren?"
       },
       "why20": {
         "text": "Die BitBoxApp generiert automatisch eine gewisse Anzahl an Adressen, die von Ihrem Seed abgeleitet werden. Sie überprüft dann, ob diese Adressen schon Coins erhalten haben. Die App kann theoretisch eine nahezu unbegrenzte Anzahl von Adressen generieren, wodurch es Jahre dauern würde, bis Ihr Kontostand ermittelt ist. Um diese Suche einzuschränken stoppt die App diesen Prozess, nachdem sie 20 Adressen generiert hat, die noch nie Coins erhalten haben. Dies wird \"gap-limit\" genannt und 20 ist ein der de-facto-Standard. Deswegen sehen sie immer nur 20 Adressen, aus denen Sie auswählen können. ",
-        "title": "Warum nur 20 Adressen?"
+        "title": "Warum werden nur 20 Adressen angezeigt?"
       },
       "whyMany": {
         "text": "Aus Gründen des Datenschutzes und der Sicherheit sollten Sie niemals dieselbe Empfangsadresse zweimal verwenden. Klicken Sie auf 'Weiter', um eine neue Adresse zu erhalten. Sie können bis zu 20 Adressen gleichzeitig generieren. Alle Adressen werden von Ihrem Backup abgeleitet. (Stellen Sie sich Adressen wie Rechnungsnummern vor.)",
         "title": "Warum gibt es mehrere Adressen?"
       },
       "whyVerify": {
-        "text": "Einer der Gründe für den Kauf eines Hardwarewallets, ist dass Sie Ihrem Computer aufgrund der großen Angriffsfläche nicht vertrauen sollten. Daher sollten Sie nicht darauf vertrauen, dass Ihr Computer authentische Adressen generiert und anzeigt. Über den Knopf zur sicheren Überprüfung der Adresse sendet die BitBox die Adresse an ein gekoppeltes Mobiltelefon, von dem aus Sie auch den QR-Code scannen und überprüfen können. Die BitBox02 kann Adressen auf dem eingebauten Display sicher anzeigen.",
+        "text": "Einer der Gründe für den Kauf eines Hardwarewallets, ist dass Sie Ihrem Computer aufgrund der großen Angriffsfläche nicht vertrauen sollten. Daher sollten Sie nicht darauf vertrauen, dass Ihr Computer authentische Adressen generiert und anzeigt. \nBitbox01: Mit dem Knopf zur sicheren Überprüfung der Adresse sendet die BitBox01 die Adresse an ein gekoppeltes Mobiltelefon, auf welchem Sie die Adresse  überprüfen können. \nBitBox02: Die BitBox02 hat eingebautes Display, auf dem die Adresse sicher angezeigt werden kann. ",
         "title": "Warum sollte ich die Adresse verifizieren?"
       }
     },
     "send": {
       "fee": {
-        "text": "Die Gebühr basiert auf der Transaktionsdatengröße und nicht auf dem Transaktionsbetrag. Die Gebühren werden durch den Gebührenschätzungsalgorithmus von Bitcoin Core für jede von Ihnen gewählte Netzwerkpriorität berechnet. Sie werden explizit angezeigt, wenn sie einen anderen Wert als die unten stehenden Ziele haben.\nEconomy: 24 Blöcke (ca. 4 Stunden für Bitcoin, 1 Stunde für Litecoin)\nNiedrig: 12 Blöcke (etwa 2 Stunden für Bitcoin, 30 Minuten für Litecoin)\nNormal: 6 Blöcke (ca. 1 Stunde für Bitcoin, 15 Minuten für Litecoin)\nHoch: 2 Blöcke (ca. 20 Minuten für Bitcoin, 5 Minuten für Litecoin)\n(Ein Block benötigt durchschnittlich zehn Minuten für Bitcoin (2,5 Minuten in Litecoin)), und die Netzwerklast kann in den oben genannten Zeiträumen erheblich variieren.)",
+        "text": "Die Gebühr basiert auf der Transaktionsdatengröße und nicht auf dem Transaktionsbetrag. Die Gebühren werden durch den Gebührenschätzungsalgorithmus von Bitcoin Core für jede von Ihnen gewählte Netzwerkpriorität berechnet. Sie werden explizit angezeigt, wenn sie einen anderen Wert als die unten stehenden Ziele haben.\nEconomy: 24 Blöcke (ca. 4 Stunden für Bitcoin, 1 Stunde für Litecoin)\nNiedrig: 12 Blöcke (etwa 2 Stunden für Bitcoin, 30 Minuten für Litecoin)\nNormal: 6 Blöcke (ca. 1 Stunde für Bitcoin, 15 Minuten für Litecoin)\nHoch: 2 Blöcke (ca. 20 Minuten für Bitcoin, 5 Minuten für Litecoin)\n(Ein Block benötigt durchschnittlich zehn Minuten für Bitcoin (2,5 Minuten für Litecoin)), und die Netzwerklast kann in den oben genannten Zeiträumen erheblich variieren.)",
         "title": "Wie wird die Gebühr ermittelt?"
       },
       "priority": {
@@ -745,7 +797,7 @@
         "title": "Was ist Netzwerk Priorität?"
       },
       "revert": {
-        "text": "Sobald eine Transaktion signiert und gesendet (d. H. An das Netzwerk gesendet) wurde, kann sie nicht mehr rückgängig gemacht werden. Überprüfen Sie die Transaktionen (einschließlich der Gebühr) deswegen, bevor Sie die Transaktion bestätigen!\nWenn Sie den Empfänger kennen und dieser bereit ist, denselben Betrag (abzüglich der Transaktionsgebühren) an Sie zurückzuschicken, können Sie ihm eine neue Empfängeradresse senden.",
+        "text": "Sobald eine Transaktion signiert und gesendet (d.h. An das Netzwerk gesendet) wurde, kann sie nicht mehr rückgängig gemacht werden. Überprüfen Sie die Transaktionen (einschließlich der Gebühr) deswegen, bevor Sie die Transaktion bestätigen!\nWenn Sie den Empfänger kennen und dieser bereit ist, denselben Betrag (abzüglich der Transaktionsgebühren) an Sie zurückzuschicken, können Sie ihm eine neue Empfängeradresse senden.",
         "title": "Kann ich eine Transaktion rückgängig machen?"
       },
       "whyFee": {
@@ -754,9 +806,33 @@
       }
     },
     "settings-electrum": {
+      "connection": {
+        "text": "Wenn Sie nur dann eine Verbindung zu Ihrem Full Node herstellen möchten, wenn Sie sich im selben Netzwerk befinden (z. B. in Ihrem Heim-WLAN), ist die Verwendung einer regulären Netzwerkkommunikation ausreichend.\nIn diesem Fall ist es ratsam, dass Ihr Electrum-Server ein TLS-Zertifikat zum Verschlüsseln der Kommunikation bereitstellt.\nWenn Sie von überall aus eine Verbindung zu Ihrem Full Node herstellen möchten, ist die Verwendung von Tor die bessere Option. In diesem Fall ist kein TLS-Zertifikat erforderlich.",
+        "title": "Soll ich Clearnet TCP, TLS oder Tor verwenden?"
+      },
+      "instructions": {
+        "link": {
+          "text": "Anleitung zum Verbinden Ihres Full Nodes",
+          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+        },
+        "text": "Für eine vollständiges Anleitung, besuchen Sie bitte unseren Guide:",
+        "title": "Wie verbinde ich meine BitBoxApp mit meinem Full Node?"
+      },
+      "options": {
+        "text": "Es gibt mehrere Möglichkeiten, einen eigenen Full Node zu betreiben, z. B. ein fertiges Gerät zu kaufen, einen eigenen zu bauen oder Bitcoin Core auszuführen.\nWenn Sie Ihre BitBoxApp mit Ihrem Full Node verbinden möchten, stellen Sie sicher, dass dieser einen Electrum-Server bereitstellt. Dies ist ein spezielles Programm, mit dem eine Wallet-App mit Ihrem Full Node kommunizieren kann.\nUnterstützte Optionen sind Electrs, Electrum Personal Server (EPS) oder Bitcoin Wallet Tracker (BTW).",
+        "title": "Welche Optionen gibt es, um einen Full Node zu betreiben?"
+      },
+      "tor": {
+        "text": "Tor steht für \"The Onion Router\", eine kostenlose Open-Source-Software, die viele Datenschutzvorteile bietet und besonders bei der Verwendung von Bitcoin nützlich ist.\nWenn Sie über Tor eine Verbindung zu Ihrem Full Node herstellen möchten, stellen Sie sicher, dass Tor auf Ihrem Computer installiert ist, und aktivieren Sie dann den Tor-Proxy in den BitBoxApp-Einstellungen.\nAuf den meisten Betriebssystemen gibt es zwei Möglichkeiten, Tor auszuführen:\n1. Tor Browser: Laden Sie den Tor Browser herunter und öffnen Sie ihn. Dadurch kann die BitBoxApp eine Verbindung zum Tor-Netzwerk herstellen, indem Port 9150 in den Tor-Proxy-Einstellungen festgelegt wird.\n2. Tor-Hintergrunddienst: Installieren Sie den Tor-Daemon, der immer im Hintergrund ausgeführt wird. Die BitBoxApp kann dann eine Verbindung herstellen, indem Port 9050 in den Tor-Proxy-Einstellungen festgelegt wird.",
+        "title": "Was ist Tor, Tor-Proxy und welchen Port soll ich verwenden?"
+      },
       "what": {
         "text": "Es ist möglich, Ihr Wallet mit einem eigenen Fullnode zu betreiben, anstatt den Shift-Server zu verwenden.",
         "title": "Was ist das?"
+      },
+      "why": {
+        "text": "Einen eigenen Full Node zu betriben ist nicht erforderlich. Er verbessert jedoch Ihre Privatsphäre und verringert die Notwendigkeit, anderen Netzwerkteilnehmern zu vertrauen.\nZum einen erlaubt er Ihnen Bitcoin privater verwenden, da die BitBoxApp dann keine Verbindung zu unseren Servern herstellt, um Ihren Transaktionsverlauf abzurufen. Stattdessen werden diese Informationen von Ihrem eigenen Full Node abgerufen.\nDes Weiteren, verifiziert Ihr Full Node alle Transaktionen selbst, wodurch sichergestellt wird, dass die Konsensregeln eingehalten werden. ",
+        "title": "Warum sollte ich meinen eigenen Full Node betreiben?"
       }
     },
     "settings": {
@@ -883,6 +959,16 @@
     "successEnable": "Das versteckte legacy Wallet wurde erfolgreich aktiviert. Stecken Sie Ihre BitBox erneut ein und geben Sie das versteckte Gerätepasswort ein, um auf das versteckte Wallet zuzugreifen."
   },
   "loading": "laden...",
+  "mobile": {
+    "usingMobileDataWarning": "Mobile Datennutzung: Diese App downloaded ein paar hundert Megabytes an Blockchain Daten nachdem ein Konto geöffnet wurde. Bitte verbinden Sie ihr Handy für diesen einmaligen Download mit Ihrem Wifi. "
+  },
+  "note": {
+    "input": {
+      "description": "(optional)",
+      "placeholder": "Notiz hinzufügen..."
+    },
+    "title": "Notiz"
+  },
   "notification": {
     "newTxs": "Neue Transaktion in:  {{accountName}}",
     "newTxs_plural": "{{count}} neue Transaktionen in: {{accountName}}"
@@ -937,6 +1023,10 @@
     "description": "Ihre BitBox hat die folgende {{bits}}-Bit-Zufallszahl generiert:"
   },
   "receive": {
+    "addressType": [
+      "Zu kompatibler Adresse ändern (Segwit)",
+      "Zurück zum neuen Adressformat (empfohlen)"
+    ],
     "label": "Meine Adresse",
     "onlyThisCoin": {
       "description": "Um andere Token empfangen zu können, aktivieren Sie diese in den Einstellungen. Sollten Sie Token empfangen, welche die BitBoxApp nicht unterstützt, haben Sie möglicherweise keinen Zugang mehr zu diesen. ",
@@ -953,7 +1043,7 @@
     }
   },
   "reset": {
-    "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive Ihres private Keys!!!",
+    "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive Ihres Private-Keys!",
     "notReset": "Gerät NICHT zurück gesetzt.",
     "title": "Gerät auf Werkseinstellung zurücksetzen",
     "understand": "Ich habe ein Backup und kenne mein Wiederherstellungskennwort",
@@ -1032,7 +1122,7 @@
     "button": "Prüfen",
     "coincontrol": {
       "address": "Adresse",
-      "outpoint": "Ausgang",
+      "outpoint": "ID",
       "title": "Outputs wählen"
     },
     "confirm": {
@@ -1049,6 +1139,7 @@
       "placeholder": "Hexadezimale Daten eingeben"
     },
     "error": {
+      "feeTooLow": "Gebühr zu niedrig",
       "insufficientFunds": "Unzureichende Mittel",
       "invalidAddress": "ungültige Adresse",
       "invalidAmount": "ungültige Menge",
@@ -1061,13 +1152,18 @@
     },
     "feeTarget": {
       "description": {
-        "economy": "24 Blöcke (ca. 4 Stunden für Bitcoin, 1 Stunde für Litecoin)",
-        "high": "2 Blöcke (ca. 20 Minuten für Bitcoin, 5 Minuten für Litecoin)",
-        "low": "12 Blöcke (ca. 2 Stunden für Bitcoin, 30 Minuten für Litecoin)",
-        "normal": "6 Blöcke (ungefähr 1 Stunde für Bitcoin, 15 Minuten für Litecoin)"
+        "economy": "4 Stunden (24 Blöcke)",
+        "economy_ltc": "1 Stunde (24 Blöcke)",
+        "high": "20 Minuten (2 Blöcke)",
+        "high_ltc": "5 Minuten (2 Blöcke)",
+        "low": "2 Stunden (12 Blöcke)",
+        "low_ltc": "30 Minuten (12 Blöcke)",
+        "normal": "1 Stunde (6 Blöcke)",
+        "normal_ltc": "15 Minuten (6 Blöcke)"
       },
       "estimate": "Geschätzte Wartezeit:",
       "label": {
+        "custom": "Eigene Gebühr",
         "economy": "Sehr niedrig",
         "high": "Hoch",
         "low": "Niedrig",
@@ -1076,6 +1172,7 @@
       "placeholder": "Gebühr wird berechnet...."
     },
     "maximum": "Alles senden",
+    "priority": "Priorität",
     "scanQR": "QR Code scannen",
     "signprogress": {
       "description": "Dies ist eine Transaktion, die viele Daten enthält. Um die Transaktion vollständig zu signieren, werden Sie aufgefordert, {{steps}}  mal auf der BitBox zu bestätigen.",
@@ -1083,7 +1180,8 @@
     },
     "success": "Die Transaktion wurde signiert und versendet.",
     "title": "{{accountName}} senden",
-    "toggleCoinControl": "Coin Control umschalten"
+    "toggleCoinControl": "Coin Control",
+    "transactionDetails": "Transaktionsdetails"
   },
   "settings": {
     "accounts": {
@@ -1106,6 +1204,7 @@
       "step1-text": "Geben Sie den Endpunkt ein",
       "step2": "2",
       "step2-text": "Geben Sie ein Zertifikat der Zertifikatskette des Servers ein. Laden Sie alternativ das Remote-Zertifikat herunter und vergleichen Sie es visuell.",
+      "step2-text-tcp": "Überspringe diesen Schritt, wenn du kein TLS verwenden möchtest.",
       "step3": "3",
       "step3-text": "Überprüfen Sie die Verbindung und fügen Sie den Server hinzu.",
       "step4": "4",
@@ -1121,7 +1220,9 @@
       "electrum": {
         "title": "Eigenen Full Node verbinden"
       },
+      "fee": "Eigene Gebühr aktivieren",
       "setProxyAddress": "Proxy Adresse eingeben",
+      "splitAccounts": "Konten nach Adresstyp aufspalten (altes Verhalten)",
       "title": "Erweiterte Einstellungen",
       "useProxy": "Tor Proxy aktivieren"
     },
@@ -1129,15 +1230,20 @@
       "home": "Home"
     },
     "restart": "Bitte starten Sie die BitBoxApp neu, damit die Änderungen wirksam werden.",
+    "services": {
+      "title": "Dienste"
+    },
     "success": "Bitte trennen Sie die BitBox und stecken Sie sie wieder ein, damit die Änderungen wirksam werden.",
     "title": "Einstellungen"
   },
   "setup": "Gerätepasswort festlegen",
   "sidebar": {
+    "accounts": "Konten",
     "addAccount": "Konto hinzufügen",
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "BitBoxBase verbinden",
     "device": "Gerät verwalten",
+    "exchanges": "Kaufen & Verkaufen",
     "leave": "Verlassen",
     "settings": "Einstellungen"
   },
@@ -1157,13 +1263,36 @@
   },
   "transaction": {
     "confirmation": "Bestätigungen",
+    "details": {
+      "activity": "Aktivität",
+      "address": "Adresse",
+      "amount": "Betrag",
+      "date": "Datum",
+      "fiat": "Fiat",
+      "fiatAmount": "Fiatbetrag",
+      "status": "Status",
+      "type": "Typ"
+    },
     "explorer": "Transaktions ID",
     "explorerTitle": "In externem Block Explorer öffnen.",
     "fee": "Gebühr",
     "fiatHistorical": "Historisch",
     "gas": "Gas",
+    "note": {
+      "edit": "Notiz bearbeiten",
+      "save": "Notiz speichern"
+    },
     "pending": "Ausstehende Transaktion",
     "size": "Größe",
+    "status": {
+      "complete": "Bestätigt",
+      "failed": "Fehlgeschlagen",
+      "pending": "Ausstehend"
+    },
+    "tx": {
+      "received": "Empfangen an",
+      "sent": "Gesendet an"
+    },
     "vsize": "Virtuelle Größe",
     "weight": "Gewicht"
   },
