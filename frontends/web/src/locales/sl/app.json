@@ -110,7 +110,7 @@
     },
     "showMnemonic": {
       "description": "Prikazano vam bo do 24 besed, ki tvorijo arhivsko kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in ne fotografirajte jih.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta arhivska kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi.",
-      "title": "Prikaži mnemonično seme"
+      "title": "Prikaži seznam besed"
     },
     "title": "Upravljanje arhivskih kopij"
   },
@@ -137,7 +137,7 @@
     "confirmDateText": "Vnešen datum bo uporabljen za kreiranje arhivske kopije.",
     "confirmName": "Potrdite ime na zaslonu BitBox02",
     "followInstructions": "Prosimo upoštevajte navodila na zaslonu naprave.",
-    "followInstructionsMnemonic": "Upoštevajte navodila na BitBox02 za obnovitev iz mnemoničnega semena."
+    "followInstructionsMnemonic": "Upoštevajte navodila na BitBox02 za obnovitev iz seznama besed."
   },
   "bitbox02Settings": {
     "deviceName": {
@@ -147,7 +147,7 @@
       "title": "Nastavite ime vaši BitBox02"
     },
     "mnemonicPassphrase": {
-      "description": "To vam omogoča, da po odklepanju, na zaslon naprave vnesete še opcijsko kodo.\n\n<strong>OPOMBA:</strong> Vsaka koda povroči kreacijo nove, ločene denarnice, zato je pomembno, da vedno vnesete identično kodo.\nShranite kodo <strong>na varno mesto</strong>.\n<strong>Izgubljene kode NI MOŽNO povrniti .</strong>",
+      "description": "Opcijska koda (passphrase) vam omogoča, da po odklepanju na zaslon naprave vnesete še dodatno besedno zvezo ali skupke znakov.\n\n<strong>POMEMBNO:</strong> Vsaka različna koda povroči kreacijo nove, ločene denarnice, zato je pomembno, da vedno vnesete identično kodo, kot jo boste določili prvič.\nShranite to kodo <strong>na varno mesto</strong>.\n<strong>Izgubljene kode NI MOŽNO povrniti .</strong>",
       "disable": "Onemogoči opcijsko kodo",
       "enable": "Omogoči opcijsko kodo",
       "successDisable": "Opcijska koda je uspešno onemogočena",
@@ -830,6 +830,10 @@
       }
     },
     "settings-electrum": {
+      "connection": {
+        "text": "Če se želite s svojim vozliščem (full node) povezati le, ko ste v istem omrežju (npr. domači wifi), zadostuje uporaba običajne omrežne komunikacije.\nV tem primeru je priporočljivo, da strežnik Electrum zagotovi potrdilo TLS za šifriranje komunikacije.\nČe se nameravate s svojim vozliščem povezati od kjer koli drugje, je boljša možnost uporaba omrežja Tor. V tem primeru ni potrebno potrdilo TLS.",
+        "title": "Ali naj uporabim nešifrirano povezavo TCP, TLS ali Tor?"
+      },
       "instructions": {
         "link": {
           "text": "Vodnik za povezavo lastnega vozlišča",
@@ -1153,7 +1157,8 @@
     "button": "Podpiši in pošlji",
     "coincontrol": {
       "address": "Naslov",
-      "title": "Pošlji iz izhoda"
+      "outpoint": "",
+      "title": "Pošlji iz (output):"
     },
     "confirm": {
       "selected-coins": "Izbrani kovanci",
@@ -1169,6 +1174,7 @@
       "placeholder": "Vnesite heksadecimalne vrednosti"
     },
     "error": {
+      "feeTooLow": "Omrežnina je prenizka",
       "insufficientFunds": "nezadostna sredstva",
       "invalidAddress": "neveljaven naslov",
       "invalidAmount": "neveljaven znesek",
@@ -1182,21 +1188,26 @@
     "feeTarget": {
       "description": {
         "economy": "24 blokov (približno 4 ure za Bitcoin, 1 uro za Litecoin)",
+        "economy_ltc": "1 ura (24 blokov)",
         "high": "2 bloka (približno 20 minut za Bitcoin, 5 minut za Litecoin)",
+        "high_ltc": "5 minut (2 bloka)",
         "low": "12 blokov (približno 2 uri za Bitcoin, 30 minut za Litecoin)",
-        "normal": "6 blokov (približno 1 uro za Bitcoin, 15 minut za Litecoin)"
+        "low_ltc": "30 minut (12 blokov)",
+        "normal": "6 blokov (približno 1 uro za Bitcoin, 15 minut za Litecoin)",
+        "normal_ltc": "15 minut (6 blokov)"
       },
       "estimate": "Predviden čas čakanja:",
       "label": {
-        "economy": "ekonomična",
-        "high": "visoka",
-        "low": "nizka",
-        "normal": "normalna"
+        "custom": "Po meri",
+        "economy": "Ekonomična",
+        "high": "Visoka",
+        "low": "Nizka",
+        "normal": "Normalna"
       },
-      "placeholder": "Izračunavam predvideno omrežnino..."
+      "placeholder": "Preračunavam..."
     },
     "maximum": "Pošlji vse",
-    "priority": "Prednost",
+    "priority": "Omrežnina",
     "scanQR": "Skenirajte QR kodo",
     "signprogress": {
       "description": "Ta transakcija vsebuje veliko podatkov. Če želite v celoti podpisati transakcijo, boste morali potrditi {{steps}} krat.",
@@ -1204,7 +1215,7 @@
     },
     "success": "Transakcija je bila podpisana in poslana.",
     "title": "Pošlji {{accountName}}",
-    "toggleCoinControl": "Preklopite nadzor nad kovanci",
+    "toggleCoinControl": "Odpri nadzor nad kovanci",
     "transactionDetails": "Podrobnosti transakcije"
   },
   "settings": {
@@ -1240,10 +1251,11 @@
     },
     "expert": {
       "base": "Upravljanje BitBoxBase",
-      "coinControl": "Omogoči Coin control",
+      "coinControl": "Omogoči nadzor nad kovanci (Coin control)",
       "electrum": {
         "title": "Povežite svoje polno vozlišče"
       },
+      "fee": "Omogoči omrežnine po meri",
       "setProxyAddress": "Nastavite naslov proxy strežnika",
       "splitAccounts": "Ločite račune po formatu naslova",
       "title": "Napredne nastavitve",

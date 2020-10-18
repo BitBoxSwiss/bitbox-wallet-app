@@ -1,6 +1,7 @@
 {
   "account": {
     "disconnect": "Conexão perdida. Tentando novamente...",
+    "export": "Exportar",
     "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
     "fatalError": "Ocorreu um erro inesperado.",
     "incoming": "Lançamentos",
@@ -14,7 +15,8 @@
     },
     "initializing": "Obtendo informações da blockchain...",
     "openFile": "Abrir arquivo",
-    "reconnecting": "Conexão perdida, tentando reconectar..."
+    "reconnecting": "Conexão perdida, tentando reconectar...",
+    "syncedAddressesCount": ""
   },
   "accountInfo": {
     "address": "Endereço",
@@ -24,6 +26,7 @@
     "verify": "Verificar no dispositivo"
   },
   "accountSummary": {
+    "availableBalance": "Saldo disponível",
     "balance": "Saldo",
     "exportSummary": "Exportar resumo de contas para a pasta de Downloads como um arquivo CSV",
     "fiatBalance": "Saldo em moeda fiduciária",
@@ -31,7 +34,8 @@
     "noAccount": "Não há contas para mostrar.",
     "synchronizing": "Sincronizando contas com suas blockchains:",
     "title": "Resumo das contas",
-    "total": "Total"
+    "total": "Total",
+    "transactionHistory": "Histórico de transações"
   },
   "addAccount": {
     "accountName": "Nome da conta",
@@ -91,7 +95,8 @@
     "restore": {
       "confirmTitle": "Restaurar backup",
       "error": {
-        "e200": "Cartão microSD não encontrado"
+        "e200": "Cartão microSD não encontrado",
+        "general": "Erro ao restaurar o backup"
       },
       "password": {
         "label": "Senha de recuperação ou senha de recuperação oculta",
@@ -103,12 +108,9 @@
       "title": "Restaurar",
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
-    "restoreFromMnemonic": {
-      "confirmTitle": "Restaurar a partir da semente mnemônica"
-    },
     "showMnemonic": {
       "description": "Serão mostradas até 24 palavras, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
-      "title": "Mostrar semente mnemônica"
+      "title": "Mostrar frase de recuperação"
     },
     "title": "Gerenciar backups"
   },
@@ -131,12 +133,17 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "Por favor, siga as instruções na sua BitBox02."
+    "confirmDate": "Confirme a data de hoje em sua BitBox02",
+    "confirmDateText": "Esta data será usada para criar seu backup.",
+    "confirmName": "Confirme o nome na BitBox02",
+    "followInstructions": "Por favor, siga as instruções na sua BitBox02.",
+    "followInstructionsMnemonic": "Siga as instruções em sua BitBox02 para restaurar a partir da frase de recuperação."
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "Nome atual do dispositivo",
       "input": "Nome da BitBox02",
+      "placeholder": "Novo nome de dispositivo",
       "title": "Definir nome da BitBox02"
     },
     "mnemonicPassphrase": {
@@ -186,9 +193,7 @@
       "unpaired": "Uma nova BitBox02 foi detectada. Por favor, verifique se o seguinte código corresponde ao que é mostrado no seu dispositivo. Se o código coincidir, toque abaixo da marca de seleção na sua BitBox02 e, em seguida, clique no botão abaixo para continuar."
     },
     "restoreFromMnemonic": {
-      "failed": "A restauração a partir da semente mnemônica falhou, por favor, tente novamente.",
-      "point1": "Digite as palavras",
-      "point2": "$t(bitbox02Wizard.backup.point2)"
+      "failed": "A restauração a partir da frase de recuperação falhou, por favor, tente novamente."
     },
     "stepBackup": {
       "beforeProceed": "Antes de continuar, leia estas importantes considerações de segurança:",
@@ -221,7 +226,7 @@
       "create": "Quero configurar uma nova BitBox02.",
       "restore": "Quero restaurar minha carteira a partir de um backup.",
       "restoreMicroSD": "Restaurar a partir do cartão microSD",
-      "restoreMnemonic": "Restaurar a partir da semente mnemônica",
+      "restoreMnemonic": "Restaurar a partir da frase de recuperação",
       "title": "Configure sua BitBox02"
     },
     "stepUnpaired": {
@@ -288,7 +293,7 @@
     "abortInfoRedText": "abortar",
     "approveInfo": "Segure 4 segundos ou mais para ",
     "approveInfoGreenText": "confirmar",
-    "info": "Na sua BitBox",
+    "info": "Prossiga na sua BitBox.",
     "infoWhenPaired": "Primeiro no celular emparelhado e depois na sua BitBox"
   },
   "confirmOnDevice": "Por favor, confirme no seu dispositivo.",
@@ -350,6 +355,25 @@
   "dialog": {
     "cancel": "Cancelar",
     "confirm": "Confirmar"
+  },
+  "exchanges": {
+    "method": "Selecione sua forma de pagamento",
+    "methods": {
+      "BT": "Transferência bancária",
+      "CC": "Cartão de crédito",
+      "DCA": "Recorrente",
+      "P2P": "Peer-to-peer",
+      "SW": "Crypto swap"
+    },
+    "region": "Escolha sua região",
+    "regions": {
+      "AF": "África",
+      "APAC": "Ásia-Pacífico",
+      "EU": "Europa",
+      "LA": "América Latina",
+      "NA": "América do Norte"
+    },
+    "title": "Comprar & vender"
   },
   "fiat": {
     "default": "padrão",
@@ -521,6 +545,20 @@
         "title": "Como emparelhar de forma segura com o seu telefone"
       }
     },
+    "exchanges": {
+      "commission": {
+        "text": "Esta página usa links afiliados, quando disponíveis. No entanto, nem todas as exchanges listadas possuem um programa de afiliados. O fato de uma exchange oferecer não influencia nossa decisão de listá-la.",
+        "title": "Você recebe comissão quando compro Bitcoin em um desses serviços?"
+      },
+      "description": {
+        "text": "Esta página mostra uma seleção de nossos lugares favoritos para comprar Bitcoin e outras criptomoedas.\nNo topo da página você pode escolher sua região e a forma de pagamento desejada para filtrar as opções.",
+        "title": "O que posso ver nesta página?"
+      },
+      "whichService": {
+        "text": "Isso depende da sua localização e das suas necessidades.\nPrimeiro selecione sua região e, em seguida, escolha o método de pagamento adequado de sua preferência.\nTransferência bancária: para pedidos maiores.\nCartão de crédito: para pedidos menores e mais rápidos. No entanto, as taxas são mais altas do que outros métodos.\nRecorrente: compre moedas automaticamente a cada semana / mês.\nCrypto Swap: troca uma criptomoeda por outra.\nPeer to Peer: compre moedas de forma mais privada, diretamente de outra pessoa.",
+        "title": "Qual serviço devo usar?"
+      }
+    },
     "receive": {
       "address": {
         "text": "Você pode dar o endereço a outras pessoas para enviarem algumas moedas. Apenas certifique-se de enviar para o endereço correto.",
@@ -566,9 +604,17 @@
       }
     },
     "settings-electrum": {
+      "tor": {
+        "text": "Tor significa 'The Onion Router', que é um software de código aberto e gratuito que oferece muitos benefícios de privacidade e é especialmente útil ao usar Bitcoin.\nSe você pretende se conectar ao seu node através do Tor, certifique-se de que o Tor está instalado no seu computador e ative o Proxy Tor nas configurações do BitBoxApp.\nNa maioria dos sistemas operacionais, existem duas maneiras de executar o Tor:\n1. Navegador Tor: baixe e abra o navegador Tor. Isso permitirá que o BitBoxApp se conecte à rede Tor configurando a porta 9150 nas configurações de proxy do Tor.\n2. Serviço Tor em segundo plano: instale o daemon Tor, que sempre é executado em segundo plano. O BitBoxApp pode então se conectar definindo a porta 9050 nas configurações de proxy do Tor.",
+        "title": "O que é Tor, proxy Tor e qual porta devo usar?"
+      },
       "what": {
         "text": "É possível alimentar sua carteira com seus próprios full nodes em vez de usar os servidores Shift.",
         "title": "O que é isso?"
+      },
+      "why": {
+        "text": "Executar seu próprio node não é necessário, mas melhora a privacidade e reduz a necessidade de confiar nos outros.\nEm primeiro lugar, significa que você está usando o Bitcoin de forma mais privada, pois o BitBoxApp não se conecta aos nossos servidores para buscar seu histórico de transações; em vez disso, ele buscará essas informações em seu próprio node.\nEm segundo lugar, executar seu próprio node significa que ele verifica todas as transações por si mesmo, garantindo que as regras de consenso sejam aplicadas.",
+        "title": "Por que devo executar meu próprio node?"
       }
     },
     "settings": {
@@ -591,10 +637,6 @@
         },
         "text": "Use o novo formato de endereço Bitcoin bech32 para obter todos os benefícios das taxas de rede mais baratas do segwit. Lembre-se de que esse formato ainda não é aceito em todos os lugares.",
         "title": "O que é Bitcoin bech32?"
-      },
-      "moreCoins": {
-        "text": "Nós estaremos integrando mais altcoins além do Litecoin nos próximos lançamentos. Se você estiver procurando por uma moeda específica, deixe-nos uma sugestão no contato abaixo.",
-        "title": "Vocês podem adicionar mais moedas?"
       },
       "servers": {
         "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CryptoCompare. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
@@ -778,7 +820,7 @@
   "securityInformation": {
     "create": {
       "button": "Continuar",
-      "description1": "Antes de configurar seu dispositivo, é recomendável que você faça isso em um ambiente seguro.",
+      "description1": "Recomendamos que você configure seu dispositivo em um ambiente seguro, ou seja, você estará longe de outras pessoas que possam ver a senha que você escolher.",
       "description2": "Você será solicitado a criar duas senhas.",
       "description3": "A primeira é a <strong>senha do dispositivo</strong> que desbloqueia o seu dispositivo BitBox e pode ser alterada mais tarde.",
       "description4": "A segunda é a <strong>senha de recuperação</strong> que desbloqueia sua carteira. Esta senha não pode ser alterada mais tarde.",
@@ -845,7 +887,7 @@
       "label": "Montante",
       "placeholder": "Insira o valor"
     },
-    "button": "Assinar e enviar",
+    "button": "Revisar",
     "coincontrol": {
       "address": "Endereço",
       "outpoint": "Outpoint",
@@ -853,7 +895,7 @@
     },
     "confirm": {
       "selected-coins": "Moedas selecionadas",
-      "title": "Confirmar transação",
+      "title": "Confirmar e enviar transação",
       "total": "Total"
     },
     "customFee": {
@@ -884,12 +926,12 @@
       },
       "estimate": "Tempo de espera estimado:",
       "label": {
-        "economy": "econômica",
-        "high": "alta",
-        "low": "baixa",
-        "normal": "normal"
+        "economy": "Econômica",
+        "high": "Alta",
+        "low": "Baixa",
+        "normal": "Normal"
       },
-      "placeholder": "Calculando estimativa de taxas..."
+      "placeholder": "Calculando a taxa ..."
     },
     "maximum": "Enviar tudo",
     "scanQR": "Escanear QR code",
@@ -936,6 +978,7 @@
       "electrum": {
         "title": "Conectar seu próprio full node"
       },
+      "fee": "Habilitar taxas personalizadas",
       "setProxyAddress": "Configurar endereço de proxy",
       "title": "Configurações para especialistas",
       "useProxy": "Ativar proxy Tor"
@@ -949,9 +992,11 @@
   },
   "setup": "Configurar dispositivo",
   "sidebar": {
+    "accounts": "Contas",
     "addAccount": "Adicionar conta",
     "bitboxBase": "BitBoxBase",
     "device": "Gerenciar dispositivo",
+    "exchanges": "Comprar & vender",
     "leave": "Sair",
     "settings": "Configurações"
   },
@@ -971,6 +1016,14 @@
   },
   "transaction": {
     "confirmation": "Confirmações",
+    "details": {
+      "activity": "Movimentação",
+      "amount": "Valor",
+      "date": "Data",
+      "fiatAmount": "Valor Fiat",
+      "status": "Status",
+      "type": "Tipo"
+    },
     "explorer": "ID da transação",
     "explorerTitle": "Abrir no explorador de blocos externo",
     "fee": "Taxa",
@@ -978,6 +1031,10 @@
     "gas": "Gas",
     "pending": "Transação pendente",
     "size": "Tamanho",
+    "tx": {
+      "received": "Recebido para",
+      "sent": "Enviado para"
+    },
     "vsize": "Tamanho virtual",
     "weight": "Peso"
   },
