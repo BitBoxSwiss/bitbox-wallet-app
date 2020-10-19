@@ -118,6 +118,7 @@ jobs:
         # in their database.
         run: >
           export HOMEBREW_NO_AUTO_UPDATE=1;
+          export HOMEBREW_NO_INSTALL_CLEANUP=1;
           brew install go@1.14;
           export PATH=/usr/local/opt/go@1.14/bin:$PATH;
           ./scripts/travis-ci.sh qt-osx;
