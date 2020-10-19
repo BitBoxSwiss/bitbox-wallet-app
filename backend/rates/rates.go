@@ -28,6 +28,7 @@ import (
 	"sync"
 	"time"
 
+	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -60,10 +61,14 @@ type RateUpdater struct {
 	// stopLastUpdateLoop is the cancel function of the lastUpdateLoop context.
 	stopLastUpdateLoop context.CancelFunc
 
+	// historyDB is an internal cached copy of history, transparent to the users.
+	// While RateUpdater can function without a valid historyDB,
+	// it may be impacted by API rate limits.
+	historyDB *bbolt.DB
+
 	historyMu sync.RWMutex // guards both history and historyGo
 	// history contains historical conversion rates in asc order, keyed by coin+fiat pair.
 	// For example, BTC/CHF pair's key is "btcCHF".
-	// TODO: store in bolt DB
 	history map[string][]exchangeRate
 	// historyGo contains context canceling funcs to stop periodic updates
 	// of historical data, keyed by coin+fiat pair.
@@ -76,12 +81,33 @@ type RateUpdater struct {
 }
 
 // NewRateUpdater returns a new rates updater.
-func NewRateUpdater(client *http.Client) *RateUpdater {
+// The dbdir argument is the location of a historical rates database cache.
+// The returned updater can function without a valid database cache but may be
+// impacted by rate limits. The database cache is transparent to the updater users.
+//
+// Both Last and PriceAt of the newly created updater always return zero values
+// until data is fetched from the external APIs. To make the updater start fetching data
+// the caller can use StartCurrentRates and ReconfigureHistory, respectively.
+//
+// The caller is advised to always call Stop as soon as the updater is no longer needed
+// to free up all used resources.
+func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
+	log := logging.Get().WithGroup("rates")
+	db, err := openRatesDB(dbdir)
+	if err != nil {
+		log.Errorf("openRatesDB(%q): %v; database is unusable", dbdir, err)
+		// To avoid null pointer dereference in other methods where historyDB
+		// is used, use an unopened DB instance. This simplifies code, reducing
+		// the number of nil checks and an additional mutex.
+		// An unopened DB will simply return bbolt.ErrDatabaseNotOpen on all operations.
+		db = &bbolt.DB{}
+	}
 	return &RateUpdater{
 		last:         make(map[string]map[string]float64),
 		history:      make(map[string][]exchangeRate),
 		historyGo:    make(map[string]context.CancelFunc),
-		log:          logging.Get().WithGroup("rates"),
+		historyDB:    db,
+		log:          log,
 		httpClient:   client,
 		coingeckoURL: coingeckoAPIV3,
 	}
@@ -124,9 +150,11 @@ func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
 	return a.value + x*(b.value-a.value)
 }
 
-// StartCurrentRates spins up the updater's goroutines to periodically update current exchange rates.
-// It returns immediately.
-// To initiate historical exchange rates update, the callers can use ConfigureHistory.
+// StartCurrentRates spins up the updater's goroutines to periodically update
+// current exchange rates. It returns immediately.
+// StartCurrentRates panics if called twice, even after Stop'ed.
+//
+// To initiate historical exchange rates update, the caller can use ReconfigureHistory.
 // The current and historical exchange rates are independent from each other.
 //
 // StartCurrentRates is unsafe for concurrent use.
@@ -139,11 +167,19 @@ func (updater *RateUpdater) StartCurrentRates() {
 	go updater.lastUpdateLoop(ctx)
 }
 
-// Stop shuts down all running goroutines.
+// Stop shuts down all running goroutines and closes history database cache.
 // It may return before the goroutines have exited.
+// Once Stop'ed, the updater is no longer usable.
+//
+// Stop is unsafe for concurrent use.
 func (updater *RateUpdater) Stop() {
-	updater.stopLastUpdateLoop()
 	updater.stopAllHistory()
+	if updater.stopLastUpdateLoop != nil {
+		updater.stopLastUpdateLoop()
+	}
+	if err := updater.historyDB.Close(); err != nil {
+		updater.log.Errorf("historyDB.Close: %v", err)
+	}
 }
 
 // lastUpdateLoop periodically updates most recent exchange rates.

@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -192,7 +193,12 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.EmitBitBoxBaseReconnected, backend.config,
 		backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
-	backend.ratesUpdater = rates.NewRateUpdater(ratelimit.FromTransport(hclient.Transport, rates.CoinGeckoRateLimit))
+	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
+	if err := os.MkdirAll(ratesCache, 0700); err != nil {
+		log.Errorf("RateUpdater DB cache dir: %v", err)
+	}
+	client := ratelimit.FromTransport(hclient.Transport, rates.CoinGeckoRateLimit)
+	backend.ratesUpdater = rates.NewRateUpdater(client, ratesCache)
 	backend.ratesUpdater.Observe(backend.Notify)
 
 	backend.banners = banners.NewBanners()

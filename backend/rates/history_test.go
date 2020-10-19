@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPriceAt(t *testing.T) {
-	updater := NewRateUpdater(nil) // don't need to make HTTP requests
+	updater := NewRateUpdater(nil, "/dev/null") // don't need to make HTTP requests or load DB
+	defer updater.Stop()
 	updater.history = map[string][]exchangeRate{
 		"btcUSD": {
 			{value: 2, timestamp: time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC)},
@@ -72,7 +75,10 @@ func TestUpdateHistory(t *testing.T) {
 		}`)
 	}))
 	defer ts.Close()
-	updater := NewRateUpdater(http.DefaultClient)
+
+	dbdir := test.TstTempDir("TestUpdateHistory")
+	defer os.RemoveAll(dbdir)
+	updater := NewRateUpdater(http.DefaultClient, dbdir)
 	updater.coingeckoURL = ts.URL
 	updater.history = map[string][]exchangeRate{
 		"btcUSD": {
@@ -94,6 +100,13 @@ func TestUpdateHistory(t *testing.T) {
 		},
 	}
 	assert.Equal(t, wantHistory, updater.history, "updater.history")
+	updater.Stop() // closes dbdir so updater2 can load it
+
+	updater2 := NewRateUpdater(http.DefaultClient, dbdir)
+	defer updater2.Stop()
+	updater2.coingeckoURL = "unused"
+	updater2.loadHistoryBucket("btcUSD")
+	assert.Equal(t, wantHistory, updater.history, "updater2.history")
 }
 
 func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
@@ -113,7 +126,8 @@ func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 }
 
 func TestHistoryEarliestLatest(t *testing.T) {
-	updater := NewRateUpdater(nil)
+	updater := NewRateUpdater(nil, "/dev/null")
+	defer updater.Stop()
 	updater.history = map[string][]exchangeRate{
 		"btcUSD": {
 			{value: 1, timestamp: time.Unix(1598832062, 0)}, // 2020-08-31 00:01:02
@@ -131,4 +145,104 @@ func TestHistoryEarliestLatest(t *testing.T) {
 
 	assert.Zero(t, updater.HistoryEarliestTimestamp("foo", "bar"), "zero earliest")
 	assert.Zero(t, updater.HistoryLatestTimestamp("foo", "bar"), "zero latest")
+}
+
+// TestLoadDumpUnusableDB ensures no panic when the RateUpdater.historyDB is unusable.
+func TestLoadDumpBucketUnusableDB(t *testing.T) {
+	updater := NewRateUpdater(nil, "/dev/null")
+	defer updater.Stop()
+	_, err1 := updater.loadHistoryBucket("foo")
+	assert.Error(t, err1, "loadHistoryBucket")
+	err2 := updater.dumpHistoryBucket("bar", nil)
+	assert.Error(t, err2, "dumpHistoryBucket")
+}
+
+func TestDumpLoadHistoryBucket(t *testing.T) {
+	wantRates := []exchangeRate{
+		{value: 1, timestamp: time.Unix(1598832062, 0)},
+		{value: 2, timestamp: time.Unix(1598918700, 0)},
+		{value: 3, timestamp: time.Unix(1598922501, 0)},
+		{value: 4, timestamp: time.Unix(1599091262, 0)},
+	}
+	dbdir := test.TstTempDir("TestLoadDumpHistoryBucket")
+	defer os.RemoveAll(dbdir)
+
+	updater1 := NewRateUpdater(nil, dbdir)
+	require.NoError(t, updater1.dumpHistoryBucket("btcUSD", wantRates), "dumpHistoryBucket")
+	updater1.Stop() // close dbdir so updater2 can load
+
+	updater2 := NewRateUpdater(nil, dbdir)
+	defer updater2.Stop()
+	rates, err := updater2.loadHistoryBucket("btcUSD")
+	require.NoError(t, err, "updater2.loadHistoryBucket")
+	assert.Equal(t, 4, len(rates), "len(rates)")
+}
+
+func TestReconfigureHistoryLoadsFromDB(t *testing.T) {
+	sampleRates := []exchangeRate{
+		{value: 1, timestamp: time.Unix(1598832062, 0)},
+		{value: 2, timestamp: time.Unix(1598918700, 0)},
+		{value: 3, timestamp: time.Unix(1598922501, 0)},
+		{value: 4, timestamp: time.Unix(1599091262, 0)},
+	}
+	dbdir := test.TstTempDir("TestReconfigureHistoryLoadsFromDB")
+	defer os.RemoveAll(dbdir)
+
+	updater1 := NewRateUpdater(nil, dbdir)
+	require.NoError(t, updater1.dumpHistoryBucket("btcUSD", sampleRates), "dumpHistoryBucket")
+	updater1.Stop() // close dbdir so updater2 can load
+
+	updater2 := NewRateUpdater(http.DefaultClient, dbdir)
+	updater2.coingeckoURL = "unused" // avoid hitting real API
+	defer updater2.Stop()
+	updater2.ReconfigureHistory([]string{"btc"}, []string{"USD"})
+	// Loading from bbolt DB may result in unsorted slice.
+	// To test this manually, comment out sortRatesByTimestamp in
+	// RateUpdater.loadHistoryBucket and add the following here:
+	// assert.Equal(t, nil, updater2.history["btcUSD"])
+	for _, rate := range sampleRates {
+		v := updater2.PriceAt("btc", "USD", rate.timestamp)
+		assert.Equal(t, rate.value, v, "PriceAt(btc, USD, %d)", rate.timestamp.Unix())
+	}
+}
+
+func BenchmarkDumpHistoryBucket(b *testing.B) {
+	var rates []exchangeRate
+	for i := 0; i < 5000; i++ {
+		rates = append(rates, exchangeRate{
+			value:     float64(i),
+			timestamp: time.Unix(int64(i), 0),
+		})
+	}
+	updater := NewRateUpdater(nil, test.TstTempDir("BenchmarkDumpHistoryBucket"))
+	defer updater.Stop()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := updater.dumpHistoryBucket("btcUSD", rates)
+		require.NoError(b, err, "updater.dumpHistoryBucket")
+	}
+}
+
+func BenchmarkLoadHistoryBucket(b *testing.B) {
+	var rates []exchangeRate
+	for i := 0; i < 5000; i++ {
+		rates = append(rates, exchangeRate{
+			value:     float64(i),
+			timestamp: time.Unix(int64(i), 0),
+		})
+	}
+	dbdir := test.TstTempDir("BenchmarkLoadHistoryBucket")
+	updater := NewRateUpdater(nil, dbdir)
+	updater.dumpHistoryBucket("btcUSD", rates)
+	updater.Stop()
+	updater = nil // make sure unused in the rest of the test
+
+	updater2 := NewRateUpdater(nil, dbdir)
+	defer updater2.Stop()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		rates, err := updater2.loadHistoryBucket("btcUSD")
+		require.NoError(b, err, "updater.loadHistoryBucket")
+		require.Equal(b, 5000, len(rates), "len(rates)")
+	}
 }

@@ -93,6 +93,12 @@ func (updater *RateUpdater) ReconfigureHistory(coins, fiats []string) {
 			if _, exists := updater.historyGo[key]; exists {
 				continue // already running
 			}
+			if rates, err := updater.loadHistoryBucket(key); err != nil {
+				// Non-critical: can continue without database cache.
+				updater.log.Errorf("loadHistoryBucket(%q): %v", key, err)
+			} else {
+				updater.history[key] = rates
+			}
 			ctx, cancel := context.WithCancel(context.Background())
 			updater.historyGo[key] = cancel
 			go updater.historyUpdateLoop(ctx, coin, fiat)
@@ -216,7 +222,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string, start, end time.Time) (n int, err error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
-	rates, err := updater.fetchGeckoMarketRange(ctx, coin, fiat, start, end)
+	fetchedRates, err := updater.fetchGeckoMarketRange(ctx, coin, fiat, start, end)
 	if err != nil {
 		return 0, err
 	}
@@ -224,12 +230,17 @@ func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string
 	key := coin + fiat
 	updater.historyMu.Lock()
 	defer updater.historyMu.Unlock()
-	a := append(updater.history[key], rates...)
-	sort.Slice(a, func(i, j int) bool {
-		return a[i].timestamp.Before(a[j].timestamp)
+	allRates := append(updater.history[key], fetchedRates...)
+	sort.Slice(allRates, func(i, j int) bool {
+		return allRates[i].timestamp.Before(allRates[j].timestamp)
 	})
-	updater.history[key] = a
-	return len(rates), nil
+	updater.history[key] = allRates
+	if err := updater.dumpHistoryBucket(key, allRates); err != nil {
+		// Non-critical: can continue without persistent DB.
+		updater.log.Errorf("dumpHistoryBucket(%q): %v", key, err)
+	}
+
+	return len(fetchedRates), nil
 }
 
 // HistoryLatestTimestamp reports the most recent timestamp at which an exchange rate
