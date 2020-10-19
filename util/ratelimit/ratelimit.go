@@ -20,6 +20,13 @@ import (
 	"time"
 )
 
+// FromTransport creates a new HTTP client wrapping base with RateLimitedHTTPTransport.
+// The arguments are the same as in NewRateLimitedHTTPTransport.
+func FromTransport(base http.RoundTripper, callInterval time.Duration) *http.Client {
+	rt := NewRateLimitedHTTPTransport(base, callInterval)
+	return &http.Client{Transport: rt}
+}
+
 // RateLimitedHTTPTransport is a http.RoundTripper that rate limits the requests, waiting at least
 // `callInterval` between requests.
 type RateLimitedHTTPTransport struct {

@@ -179,23 +179,20 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.config.AppConfig().Backend.Proxy.UseProxy,
 		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
 	)
+	hclient, err := backend.socksProxy.GetHTTPClient()
+	if err != nil {
+		return nil, err
+	}
+	backend.httpClient = hclient
+	backend.etherScanHTTPClient = ratelimit.FromTransport(hclient.Transport, etherscan.CallInterval)
+
 	backend.baseManager = mdns.NewManager(
 		backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister,
 		backend.BitBoxBaseDeregister, backend.BitBoxBaseRemove,
 		backend.EmitBitBoxBaseReconnected, backend.config,
 		backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
-	hclient, err := backend.socksProxy.GetHTTPClient()
-	if err != nil {
-		return nil, err
-	}
-	backend.httpClient = hclient
-	backend.etherScanHTTPClient = &http.Client{
-		Transport: ratelimit.NewRateLimitedHTTPTransport(hclient.Transport, etherscan.CallInterval),
-	}
-	backend.ratesUpdater = rates.NewRateUpdater(&http.Client{
-		Transport: ratelimit.NewRateLimitedHTTPTransport(hclient.Transport, rates.CoinGeckoRateLimit),
-	})
+	backend.ratesUpdater = rates.NewRateUpdater(ratelimit.FromTransport(hclient.Transport, rates.CoinGeckoRateLimit))
 	backend.ratesUpdater.Observe(backend.Notify)
 
 	backend.banners = banners.NewBanners()
