@@ -203,6 +203,10 @@
     background-image: url(../../assets/exchanges/logos/xsats.png);
 }
 
+.logo-relai {
+    background-image: url(../../assets/exchanges/logos/relai.png);
+}
+
 .logo-swan_bitcoin {
     background-image: url(../../assets/exchanges/logos/swan_bitcoin.png);
 }
