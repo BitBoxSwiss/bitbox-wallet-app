@@ -130,6 +130,13 @@ export const data: ExchangeData[] = [
         payment: ['DCA'],
     },
     {
+        key: 'coinfloor',
+        link: 'https://coinfloor.co.uk/',
+        description: 'Automatically buy Bitcoin, simply and safely, on the UK\'s longest-running Bitcoin exchange',
+        regions: ['EU'],
+        payment: ['DCA'],
+    },
+    {
         key: 'bullbitcoin',
         link: 'https://bullbitcoin.com/recurring-buys',
         description: 'Bull Bitcoin is a fixed rate Bitcoin exchange for Canadians to buy, sell and spend bitcoins online.',

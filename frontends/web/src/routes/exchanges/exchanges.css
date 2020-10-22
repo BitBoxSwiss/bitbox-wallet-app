@@ -207,6 +207,10 @@
     background-image: url(../../assets/exchanges/logos/relai.png);
 }
 
+.logo-coinfloor {
+    background-image: url(../../assets/exchanges/logos/coinfloor.png);
+}
+
 .logo-swan_bitcoin {
     background-image: url(../../assets/exchanges/logos/swan_bitcoin.png);
 }
