@@ -44,6 +44,7 @@ import (
 type Coin struct {
 	initOnce              sync.Once
 	code                  coin.Code
+	name                  string
 	unit                  string
 	net                   *chaincfg.Params
 	dbFolder              string
@@ -61,6 +62,7 @@ type Coin struct {
 // NewCoin creates a new coin with the given parameters.
 func NewCoin(
 	code coin.Code,
+	name string,
 	unit string,
 	net *chaincfg.Params,
 	dbFolder string,
@@ -71,6 +73,7 @@ func NewCoin(
 	log := logging.Get().WithGroup("coin").WithField("code", code)
 	coin := &Coin{
 		code:                  code,
+		name:                  name,
 		unit:                  unit,
 		net:                   net,
 		dbFolder:              dbFolder,
@@ -126,6 +129,11 @@ func (coin *Coin) Initialize() {
 			}
 		})
 	})
+}
+
+// Name implements coin.Coin.
+func (coin *Coin) Name() string {
+	return coin.name
 }
 
 // Code implements coin.Coin.

@@ -43,7 +43,7 @@ func TestAccount(t *testing.T) {
 	defer func() { _ = os.RemoveAll(dbFolder) }()
 
 	coin := btc.NewCoin(
-		code, unit, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
+		code, "Bitcoin Testnet", unit, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
 
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockRegisterOnConnectionStatusChangedEvent = func(onConnectionStatusChanged func(blockchain.Status)) {

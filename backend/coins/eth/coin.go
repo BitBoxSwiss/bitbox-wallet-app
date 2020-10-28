@@ -44,6 +44,7 @@ type Coin struct {
 	observable.Implementation
 	client                rpcclient.Interface
 	code                  coin.Code
+	name                  string
 	unit                  string
 	feeUnit               string
 	net                   *params.ChainConfig
@@ -63,6 +64,7 @@ type Coin struct {
 func NewCoin(
 	client rpcclient.Interface,
 	code coin.Code,
+	name string,
 	unit string,
 	feeUnit string,
 	net *params.ChainConfig,
@@ -73,6 +75,7 @@ func NewCoin(
 	return &Coin{
 		client:                client,
 		code:                  code,
+		name:                  name,
 		unit:                  unit,
 		feeUnit:               feeUnit,
 		net:                   net,
@@ -91,6 +94,11 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 
 // Initialize implements coin.Coin.
 func (coin *Coin) Initialize() {}
+
+// Name implements coin.Coin.
+func (coin *Coin) Name() string {
+	return coin.name
+}
 
 // Code implements coin.Coin.
 func (coin *Coin) Code() coin.Code {
