@@ -44,9 +44,14 @@ interface Totals {
     [code: string]: AmountInterface;
 }
 
+interface CoinNames {
+    [code: string]: string;
+}
+
 interface Response {
     accounts: AccountAndBalanceInterface[];
     totals: Totals;
+    coinNames: CoinNames;
     chartDataMissing: boolean;
     chartData: ChartData;
 }
@@ -115,6 +120,7 @@ class AccountsSummary extends Component<Props, State> {
                                                        coinCode={coin}
                                                        accounts={groupedAccounts[coin]}
                                                        total={data.totals[coin]}
+                                                       title={data.coinNames[coin]}
                                                        index={index} />)) :
                                                <p>{t('accountSummary.noAccount')}</p>
                             }
