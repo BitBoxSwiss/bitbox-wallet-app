@@ -369,9 +369,9 @@ func (backend *Backend) createAndAddBTCAccount(
 	keystore keystore.Keystore,
 	coin coin.Coin,
 	code string,
-	name string,
 	configs []scriptTypeWithKeypath,
 ) {
+	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
 	if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
 		log.Info("skipping inactive account")
@@ -455,9 +455,9 @@ func (backend *Backend) createAndAddETHAccount(
 	keystore keystore.Keystore,
 	coin coin.Coin,
 	code string,
-	name string,
 	keypath string,
 ) {
+	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
 	prefix := "eth-erc20-"
 	if strings.HasPrefix(code, prefix) {
@@ -604,51 +604,51 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
 			"https://blockstream.info/testnet/tx/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", &chaincfg.MainNetParams, dbFolder, servers,
 			"https://blockstream.info/tx/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", &ltc.TestNet4Params, dbFolder, servers,
 			"http://explorer.litecointools.com/tx/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "ETH", "ETH", params.MainnetChainConfig,
+		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeRETH:
 		etherScan := etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "RETH", "RETH", params.RinkebyChainConfig,
+		coin = eth.NewCoin(etherScan, code, "Ethereum Rinkeby", "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeTETH:
 		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "TETH", "TETH", params.TestnetChainConfig,
+		coin = eth.NewCoin(etherScan, code, "Ethereum Ropsten", "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeERC20TEST:
 		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "TEST", "TETH", params.TestnetChainConfig,
+		coin = eth.NewCoin(etherScan, code, "ERC20 TEST", "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
 		)
 	case erc20Token != nil:
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
+		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			erc20Token.token,
@@ -701,7 +701,7 @@ func (backend *Backend) initDefaultAccounts() {
 		if backend.arguments.Regtest() {
 			RBTC, _ := backend.Coin(coinpkg.CodeRBTC)
 			backend.createAndAddBTCAccount(keystore, RBTC,
-				"rbtc", "Bitcoin Regtest",
+				"rbtc",
 				[]scriptTypeWithKeypath{
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
 					newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/1'/0'"),
@@ -710,7 +710,7 @@ func (backend *Backend) initDefaultAccounts() {
 		} else {
 			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
 			backend.createAndAddBTCAccount(keystore, TBTC,
-				"tbtc", "Bitcoin Testnet",
+				"tbtc",
 				[]scriptTypeWithKeypath{
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
@@ -720,7 +720,7 @@ func (backend *Backend) initDefaultAccounts() {
 
 			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
 			backend.createAndAddBTCAccount(keystore, TLTC,
-				"tltc", "Litecoin Testnet",
+				"tltc",
 				[]scriptTypeWithKeypath{
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
@@ -728,16 +728,16 @@ func (backend *Backend) initDefaultAccounts() {
 			)
 
 			TETH, _ := backend.Coin(coinpkg.CodeTETH)
-			backend.createAndAddETHAccount(keystore, TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0")
+			backend.createAndAddETHAccount(keystore, TETH, "teth", "m/44'/1'/0'/0")
 			RETH, _ := backend.Coin(coinpkg.CodeRETH)
-			backend.createAndAddETHAccount(keystore, RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0")
+			backend.createAndAddETHAccount(keystore, RETH, "reth", "m/44'/1'/0'/0")
 			erc20TEST, _ := backend.Coin(coinpkg.CodeERC20TEST)
-			backend.createAndAddETHAccount(keystore, erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0")
+			backend.createAndAddETHAccount(keystore, erc20TEST, "erc20Test", "m/44'/1'/0'/0")
 		}
 	} else {
 		BTC, _ := backend.Coin(coinpkg.CodeBTC)
 		backend.createAndAddBTCAccount(keystore, BTC,
-			"btc", "Bitcoin",
+			"btc",
 			[]scriptTypeWithKeypath{
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/0'/0'"),
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/0'/0'"),
@@ -747,7 +747,7 @@ func (backend *Backend) initDefaultAccounts() {
 
 		LTC, _ := backend.Coin(coinpkg.CodeLTC)
 		backend.createAndAddBTCAccount(keystore, LTC,
-			"ltc", "Litecoin",
+			"ltc",
 			[]scriptTypeWithKeypath{
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/2'/0'"),
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/2'/0'"),
@@ -755,12 +755,12 @@ func (backend *Backend) initDefaultAccounts() {
 		)
 
 		ETH, _ := backend.Coin(coinpkg.CodeETH)
-		backend.createAndAddETHAccount(keystore, ETH, "eth", "Ethereum", "m/44'/60'/0'/0")
+		backend.createAndAddETHAccount(keystore, ETH, "eth", "m/44'/60'/0'/0")
 
 		if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
 			for _, erc20Token := range erc20Tokens {
 				token, _ := backend.Coin(erc20Token.code)
-				backend.createAndAddETHAccount(keystore, token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0")
+				backend.createAndAddETHAccount(keystore, token, string(erc20Token.code), "m/44'/60'/0'/0")
 			}
 		}
 	}
