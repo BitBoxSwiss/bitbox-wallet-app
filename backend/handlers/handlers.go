@@ -869,6 +869,13 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			(!earliestTxTime.IsZero() && earliestTxTime.Before(earliestPriceAvailable)) ||
 			until.After(latestPriceAvailable) {
 			chartDataMissing = true
+			handlers.log.
+				WithField("coin", account.Coin().Code()).
+				WithField("latestPriceAvailable", latestPriceAvailable).
+				WithField("earliestTxTime", earliestTxTime).
+				WithField("earliestPriceAvailable", earliestPriceAvailable).
+				WithField("latestPriceAvailable", latestPriceAvailable).
+				Info("ChartDataMissing")
 			continue
 		}
 
@@ -878,6 +885,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			24*time.Hour,
 		)
 		if errp.Cause(err) == errors.ErrNotAvailable {
+			handlers.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
 			chartDataMissing = true
 			continue
 		}
@@ -890,6 +898,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			time.Hour,
 		)
 		if errp.Cause(err) == errors.ErrNotAvailable {
+			handlers.log.Info("ChartDataMissing")
 			chartDataMissing = true
 			continue
 		}
