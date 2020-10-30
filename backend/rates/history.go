@@ -268,6 +268,22 @@ func (updater *RateUpdater) HistoryEarliestTimestamp(coin, fiat string) time.Tim
 	return t
 }
 
+// HistoryLatestTimestampAll returns the latest timestamp for which there an exchange rates is
+// available for all coins. In other words: the earliest of all latest timestamps.
+func (updater *RateUpdater) HistoryLatestTimestampAll(coins []string, fiat string) time.Time {
+	var result time.Time
+	for _, coin := range coins {
+		latest := updater.HistoryLatestTimestamp(coin, fiat)
+		if latest.IsZero() {
+			return latest
+		}
+		if result.IsZero() || latest.Before(result) {
+			result = latest
+		}
+	}
+	return result
+}
+
 // fetchGeckoMarketRange slurps historical exchange rates using CoinGecko's
 // "market_chart/range" API.
 func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fiat string, start, end time.Time) ([]exchangeRate, error) {
