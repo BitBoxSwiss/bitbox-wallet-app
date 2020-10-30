@@ -84,6 +84,8 @@ type RateUpdater struct {
 // The dbdir argument is the location of a historical rates database cache.
 // The returned updater can function without a valid database cache but may be
 // impacted by rate limits. The database cache is transparent to the updater users.
+// To stay within acceptable rate limits defined by CoinGeckoRateLimit, callers can
+// use util/ratelimit package.
 //
 // Both Last and PriceAt of the newly created updater always return zero values
 // until data is fetched from the external APIs. To make the updater start fetching data
