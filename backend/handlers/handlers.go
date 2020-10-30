@@ -850,7 +850,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		fiat := "USD"
 
 		// Time from which the chart turns from daily points to hourly points.
-		hourlyFrom := time.Now().AddDate(0, -3, 0).Truncate(24 * time.Hour)
+		hourlyFrom := time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour)
 		// Chart data until this point in time.
 		until := time.Now().Truncate(time.Hour)
 
