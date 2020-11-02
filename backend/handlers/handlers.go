@@ -790,6 +790,17 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance co
 	}
 }
 
+func (handlers *Handlers) allCoinCodes() []string {
+	allCoinCodes := []string{}
+	for _, account := range handlers.backend.Accounts() {
+		if account.FatalError() {
+			continue
+		}
+		allCoinCodes = append(allCoinCodes, string(account.Coin().Code()))
+	}
+	return allCoinCodes
+}
+
 func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
 	type chartEntry struct {
 		Time  int64   `json:"time"`
@@ -811,6 +822,13 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	chartDataMissing := false
 	var chartEntries []chartEntry
 
+	// TODO: use active (starred) fiat currency.
+	fiat := "USD"
+	// Chart data until this point in time.
+	until := handlers.backend.RatesUpdater().HistoryLatestTimestampAll(handlers.allCoinCodes(), fiat)
+	if until.IsZero() {
+		chartDataMissing = true
+	}
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
 			continue
@@ -849,18 +867,10 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			continue
 		}
 
-		// TODO: use active (starred) fiat currency.
-		fiat := "USD"
-
 		// Time from which the chart turns from daily points to hourly points.
 		hourlyFrom := time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour)
-		// Chart data until this point in time.
-		until := time.Now().Truncate(time.Hour)
 
 		earliestPriceAvailable := handlers.backend.RatesUpdater().HistoryEarliestTimestamp(
-			string(account.Coin().Code()),
-			fiat)
-		latestPriceAvailable := handlers.backend.RatesUpdater().HistoryLatestTimestamp(
 			string(account.Coin().Code()),
 			fiat)
 		earliestTxTime := txs.EarliestTime()
@@ -868,16 +878,12 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		// shown more quickly instead of waiting for all historical rates first.
 		// For now, we show the chartDataMissing error.
 		if earliestPriceAvailable.IsZero() ||
-			latestPriceAvailable.IsZero() ||
-			(!earliestTxTime.IsZero() && earliestTxTime.Before(earliestPriceAvailable)) ||
-			until.After(latestPriceAvailable) {
+			(!earliestTxTime.IsZero() && earliestTxTime.Before(earliestPriceAvailable)) {
 			chartDataMissing = true
 			handlers.log.
 				WithField("coin", account.Coin().Code()).
-				WithField("latestPriceAvailable", latestPriceAvailable).
 				WithField("earliestTxTime", earliestTxTime).
 				WithField("earliestPriceAvailable", earliestPriceAvailable).
-				WithField("latestPriceAvailable", latestPriceAvailable).
 				Info("ChartDataMissing")
 			continue
 		}

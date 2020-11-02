@@ -135,6 +135,10 @@ func TestHistoryEarliestLatest(t *testing.T) {
 			{value: 3, timestamp: time.Unix(1598922501, 0)},
 			{value: 4, timestamp: time.Unix(1599091262, 0)}, // 2020-09-03 00:01:02
 		},
+		"ltcUSD": {
+			{value: 4, timestamp: time.Date(2020, 8, 02, 23, 0, 0, 0, time.UTC)},
+			{value: 4, timestamp: time.Date(2020, 9, 02, 23, 0, 0, 0, time.UTC)},
+		},
 	}
 
 	earliest := updater.HistoryEarliestTimestamp("btc", "USD")
@@ -145,6 +149,13 @@ func TestHistoryEarliestLatest(t *testing.T) {
 
 	assert.Zero(t, updater.HistoryEarliestTimestamp("foo", "bar"), "zero earliest")
 	assert.Zero(t, updater.HistoryLatestTimestamp("foo", "bar"), "zero latest")
+
+	assert.Equal(t,
+		updater.history["ltcUSD"][1].timestamp,
+		updater.HistoryLatestTimestampAll([]string{"btc", "ltc"}, "USD"))
+
+	assert.Zero(t, updater.HistoryLatestTimestampAll([]string{"btc", "foo"}, "USD"))
+	assert.Zero(t, updater.HistoryLatestTimestampAll([]string{"foo", "btc"}, "USD"))
 }
 
 // TestLoadDumpUnusableDB ensures no panic when the RateUpdater.historyDB is unusable.
