@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"sort"
@@ -120,7 +121,7 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 	updater.log.Printf("started historyUpdateLoop for %s/%s", coin, fiat)
 	for {
 		// When to update next, after this loop iteration is done.
-		untilNext := 10 * time.Minute // TODO: add jitter
+		untilNext := time.Minute + time.Duration(rand.Intn(30))*time.Second
 
 		start := updater.HistoryLatestTimestamp(coin, fiat)
 		// When zero, there's no point in fetching data here because the backfillHistory
@@ -139,7 +140,7 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 				// All other errors indicate we should retry.
 				if err != context.Canceled {
 					updater.log.Errorf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, now, err)
-					untilNext = time.Minute // TODO: exponential backoff
+					untilNext = time.Second // TODO: exponential backoff
 				}
 			}
 		}
@@ -163,8 +164,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 	updater.log.Printf("started backfillHistory for %s/%s", coin, fiat)
 	for {
 		// When to update next, after this loop iteration is done.
-		// Assume we're rate-limited by the backend: can use any arbitrary small value.
-		untilNext := time.Second // TODO: add jitter
+		untilNext := time.Duration(1+rand.Intn(5)) * time.Second
 
 		end := updater.HistoryEarliestTimestamp(coin, fiat)
 		var start time.Time
@@ -193,7 +193,6 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 					updater.log.Printf("backfillHistory for %s/%s: reached end of data at %s", coin, fiat, start)
 					return
 				}
-				// Assume we're rate-limited by the backend: can use any arbitrary small value.
 				untilNext = time.Second // TODO: exponential backoff
 			}
 		case err != nil:
@@ -202,7 +201,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 			// All other errors indicate we should retry.
 			if err != context.Canceled {
 				updater.log.Printf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, end, err)
-				untilNext = time.Minute // TODO: exponential backoff
+				untilNext = time.Second // TODO: exponential backoff
 			}
 		}
 
