@@ -8,6 +8,7 @@
 package btcjson
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 
@@ -63,14 +64,50 @@ type CreateRawTransactionCmd struct {
 // NewCreateRawTransactionCmd returns a new instance which can be used to issue
 // a createrawtransaction JSON-RPC command.
 //
-// Amounts are in BTC.
+// Amounts are in BTC. Passing in nil and the empty slice as inputs is equivalent,
+// both gets interpreted as the empty slice.
 func NewCreateRawTransactionCmd(inputs []TransactionInput, amounts map[string]float64,
 	lockTime *int64) *CreateRawTransactionCmd {
-
+	// to make sure we're serializing this to the empty list and not null, we
+	// explicitly initialize the list
+	if inputs == nil {
+		inputs = []TransactionInput{}
+	}
 	return &CreateRawTransactionCmd{
 		Inputs:   inputs,
 		Amounts:  amounts,
 		LockTime: lockTime,
+	}
+}
+
+// FundRawTransactionOpts are the different options that can be passed to rawtransaction
+type FundRawTransactionOpts struct {
+	ChangeAddress          *string               `json:"changeAddress,omitempty"`
+	ChangePosition         *int                  `json:"changePosition,omitempty"`
+	ChangeType             *string               `json:"change_type,omitempty"`
+	IncludeWatching        *bool                 `json:"includeWatching,omitempty"`
+	LockUnspents           *bool                 `json:"lockUnspents,omitempty"`
+	FeeRate                *float64              `json:"feeRate,omitempty"` // BTC/kB
+	SubtractFeeFromOutputs []int                 `json:"subtractFeeFromOutputs,omitempty"`
+	Replaceable            *bool                 `json:"replaceable,omitempty"`
+	ConfTarget             *int                  `json:"conf_target,omitempty"`
+	EstimateMode           *EstimateSmartFeeMode `json:"estimate_mode,omitempty"`
+}
+
+// FundRawTransactionCmd defines the fundrawtransaction JSON-RPC command
+type FundRawTransactionCmd struct {
+	HexTx     string
+	Options   FundRawTransactionOpts
+	IsWitness *bool
+}
+
+// NewFundRawTransactionCmd returns a new instance which can be used to issue
+// a fundrawtransaction JSON-RPC command
+func NewFundRawTransactionCmd(serializedTx []byte, opts FundRawTransactionOpts, isWitness *bool) *FundRawTransactionCmd {
+	return &FundRawTransactionCmd{
+		HexTx:     hex.EncodeToString(serializedTx),
+		Options:   opts,
+		IsWitness: isWitness,
 	}
 }
 
@@ -130,8 +167,7 @@ func NewGetBestBlockHashCmd() *GetBestBlockHashCmd {
 // GetBlockCmd defines the getblock JSON-RPC command.
 type GetBlockCmd struct {
 	Hash      string
-	Verbose   *bool `jsonrpcdefault:"true"`
-	VerboseTx *bool `jsonrpcdefault:"false"`
+	Verbosity *int `jsonrpcdefault:"1"`
 }
 
 // NewGetBlockCmd returns a new instance which can be used to issue a getblock
@@ -139,11 +175,10 @@ type GetBlockCmd struct {
 //
 // The parameters which are pointers indicate they are optional.  Passing nil
 // for optional parameters will use the default value.
-func NewGetBlockCmd(hash string, verbose, verboseTx *bool) *GetBlockCmd {
+func NewGetBlockCmd(hash string, verbosity *int) *GetBlockCmd {
 	return &GetBlockCmd{
 		Hash:      hash,
-		Verbose:   verbose,
-		VerboseTx: verboseTx,
+		Verbosity: verbosity,
 	}
 }
 
@@ -190,6 +225,50 @@ func NewGetBlockHeaderCmd(hash string, verbose *bool) *GetBlockHeaderCmd {
 	return &GetBlockHeaderCmd{
 		Hash:    hash,
 		Verbose: verbose,
+	}
+}
+
+// HashOrHeight defines a type that can be used as hash_or_height value in JSON-RPC commands.
+type HashOrHeight struct {
+	Value interface{}
+}
+
+// MarshalJSON implements the json.Marshaler interface
+func (h HashOrHeight) MarshalJSON() ([]byte, error) {
+	return json.Marshal(h.Value)
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface
+func (h *HashOrHeight) UnmarshalJSON(data []byte) error {
+	var unmarshalled interface{}
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		return err
+	}
+
+	switch v := unmarshalled.(type) {
+	case float64:
+		h.Value = int(v)
+	case string:
+		h.Value = v
+	default:
+		return fmt.Errorf("invalid hash_or_height value: %v", unmarshalled)
+	}
+
+	return nil
+}
+
+// GetBlockStatsCmd defines the getblockstats JSON-RPC command.
+type GetBlockStatsCmd struct {
+	HashOrHeight HashOrHeight
+	Stats        *[]string
+}
+
+// NewGetBlockStatsCmd returns a new instance which can be used to issue a
+// getblockstats JSON-RPC command. Either height or hash must be specified.
+func NewGetBlockStatsCmd(hashOrHeight HashOrHeight, stats *[]string) *GetBlockStatsCmd {
+	return &GetBlockStatsCmd{
+		HashOrHeight: hashOrHeight,
+		Stats:        stats,
 	}
 }
 
@@ -319,6 +398,24 @@ type GetChainTipsCmd struct{}
 // getchaintips JSON-RPC command.
 func NewGetChainTipsCmd() *GetChainTipsCmd {
 	return &GetChainTipsCmd{}
+}
+
+// GetChainTxStatsCmd defines the getchaintxstats JSON-RPC command.
+type GetChainTxStatsCmd struct {
+	NBlocks   *int32
+	BlockHash *string
+}
+
+// NewGetChainTxStatsCmd returns a new instance which can be used to issue a
+// getchaintxstats JSON-RPC command.
+//
+// The parameters which are pointers indicate they are optional.  Passing nil
+// for optional parameters will use the default value.
+func NewGetChainTxStatsCmd(nBlocks *int32, blockHash *string) *GetChainTxStatsCmd {
+	return &GetChainTxStatsCmd{
+		NBlocks:   nBlocks,
+		BlockHash: blockHash,
+	}
 }
 
 // GetConnectionCountCmd defines the getconnectioncount JSON-RPC command.
@@ -791,6 +888,7 @@ func init() {
 
 	MustRegisterCmd("addnode", (*AddNodeCmd)(nil), flags)
 	MustRegisterCmd("createrawtransaction", (*CreateRawTransactionCmd)(nil), flags)
+	MustRegisterCmd("fundrawtransaction", (*FundRawTransactionCmd)(nil), flags)
 	MustRegisterCmd("decoderawtransaction", (*DecodeRawTransactionCmd)(nil), flags)
 	MustRegisterCmd("decodescript", (*DecodeScriptCmd)(nil), flags)
 	MustRegisterCmd("getaddednodeinfo", (*GetAddedNodeInfoCmd)(nil), flags)
@@ -800,10 +898,12 @@ func init() {
 	MustRegisterCmd("getblockcount", (*GetBlockCountCmd)(nil), flags)
 	MustRegisterCmd("getblockhash", (*GetBlockHashCmd)(nil), flags)
 	MustRegisterCmd("getblockheader", (*GetBlockHeaderCmd)(nil), flags)
+	MustRegisterCmd("getblockstats", (*GetBlockStatsCmd)(nil), flags)
 	MustRegisterCmd("getblocktemplate", (*GetBlockTemplateCmd)(nil), flags)
 	MustRegisterCmd("getcfilter", (*GetCFilterCmd)(nil), flags)
 	MustRegisterCmd("getcfilterheader", (*GetCFilterHeaderCmd)(nil), flags)
 	MustRegisterCmd("getchaintips", (*GetChainTipsCmd)(nil), flags)
+	MustRegisterCmd("getchaintxstats", (*GetChainTxStatsCmd)(nil), flags)
 	MustRegisterCmd("getconnectioncount", (*GetConnectionCountCmd)(nil), flags)
 	MustRegisterCmd("getdifficulty", (*GetDifficultyCmd)(nil), flags)
 	MustRegisterCmd("getgenerate", (*GetGenerateCmd)(nil), flags)
