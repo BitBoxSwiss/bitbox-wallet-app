@@ -802,7 +802,9 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	}
 
 	jsonAccounts := []*extendedAccountJSON{}
-	totals := make(map[coinpkg.Coin]*big.Int)
+	totals := map[coinpkg.Coin]*big.Int{}
+	// coin code to coin name.
+	coinNames := map[string]string{}
 
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
@@ -840,6 +842,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 
 		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
+		coinNames[string(account.Coin().Code())] = account.Coin().Name()
 
 		// Below here, only chart data is being computed.
 		if chartDataMissing {
@@ -960,6 +963,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	return map[string]interface{}{
 		"accounts":         jsonAccounts,
 		"totals":           jsonTotals,
+		"coinNames":        coinNames,
 		"chartDataMissing": chartDataMissing,
 		"chartData":        chartEntries,
 	}, nil

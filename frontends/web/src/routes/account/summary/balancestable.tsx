@@ -26,6 +26,7 @@ interface ProvidedProps {
     coinCode: string;
     accounts: AccountAndBalanceInterface[];
     total: AmountInterface;
+    title: string;
     index: number;
 }
 
@@ -33,14 +34,14 @@ type Props = ProvidedProps & TranslateProps;
 
 class BalancesTable extends Component<Props> {
     public render(
-        { t, coinCode, accounts, total, index }: RenderableProps<Props>,
+        { t, coinCode, accounts, total, title, index }: RenderableProps<Props>,
     ) {
         return (
             <div>
                 <div className={['subHeaderContainer', index < 1 && 'first'].join(' ')}>
                     <div className={['subHeader', style.coinheader].join(' ')}>
                         <Logo className={style.coincode} coinCode={coinCode} alt={coinCode} active={true} />
-                        <h3>{coinCode.toUpperCase()}</h3>
+                        <h3>{title}</h3>
                     </div>
                 </div>
                 <table className={style.table}>
