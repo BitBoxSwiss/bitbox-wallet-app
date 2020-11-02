@@ -18,7 +18,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 dockerdev () {
     local container_name=bitbox-wallet-dev
 
-    if ! docker images | grep -q bitbox-wallet; then
+    if ! docker images | grep -q bitbox-wallet-app; then
         echo "No bitbox-wallet docker image found! Maybe you need to run 'make dockerinit'?" >&2
         exit 1
     fi
@@ -43,7 +43,7 @@ dockerdev () {
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
            -v $repo_path:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
-           bitbox-wallet bash
+           shiftcrypto/bitbox-wallet-app bash
 
     # Use same user/group id as on the host, so that files are not created as root in the mounted
     # volume.
