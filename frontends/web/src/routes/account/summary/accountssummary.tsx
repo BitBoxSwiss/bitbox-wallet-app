@@ -20,7 +20,7 @@ import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
-import { AmountInterface } from '../../../components/rates/rates';
+import { AmountInterface, Fiat } from '../../../components/rates/rates';
 import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -55,6 +55,7 @@ interface Response {
     chartDataMissing: boolean;
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
+    chartFiat: Fiat;
 }
 
 type Props = TranslateProps & AccountSummaryProps;
