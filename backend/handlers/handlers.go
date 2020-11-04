@@ -823,8 +823,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	var chartEntriesDaily []chartEntry
 	var chartEntriesHourly []chartEntry
 
-	// TODO: use active (starred) fiat currency.
-	fiat := "USD"
+	fiat := handlers.backend.Config().AppConfig().Backend.MainFiat
 	// Chart data until this point in time.
 	until := handlers.backend.RatesUpdater().HistoryLatestTimestampAll(handlers.allCoinCodes(), fiat)
 	if until.IsZero() {
@@ -978,6 +977,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		"chartDataMissing": chartDataMissing,
 		"chartDataDaily":   truncateLeadingZeroes(chartEntriesDaily),
 		"chartDataHourly":  truncateLeadingZeroes(chartEntriesHourly),
+		"chartFiat":        fiat,
 	}, nil
 }
 
