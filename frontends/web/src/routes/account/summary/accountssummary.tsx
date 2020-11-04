@@ -53,7 +53,8 @@ interface Response {
     totals: Totals;
     coinNames: CoinNames;
     chartDataMissing: boolean;
-    chartData: ChartData;
+    chartDataDaily: ChartData;
+    chartDataHourly: ChartData;
 }
 
 type Props = TranslateProps & AccountSummaryProps;
@@ -111,7 +112,7 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Chart data={data.chartDataMissing ? undefined : data.chartData}/>
+                            <Chart data={data.chartDataMissing ? undefined : data.chartDataDaily}/>
                             {
                                 coins.length > 0 ?
                                                coins.map((coin, index) =>
