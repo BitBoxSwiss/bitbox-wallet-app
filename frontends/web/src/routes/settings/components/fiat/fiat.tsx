@@ -65,7 +65,7 @@ function Selection({
                         const main = currency === active;
                         const toggled = selected.includes(currency);
                         return (
-                            <div className={parentStyle.setting}>
+                            <div key={currency} className={parentStyle.setting}>
                                 <p className="m-none">{currency}</p>
                                 {
                                     toggled && (
