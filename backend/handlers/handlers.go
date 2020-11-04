@@ -877,11 +877,11 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			string(account.Coin().Code()),
 			fiat)
 		earliestTxTime := txs.EarliestTime()
-		// TODO: show chart starting at `earliestPriceavailable`, so the last three months can be
-		// shown more quickly instead of waiting for all historical rates first.
-		// For now, we show the chartDataMissing error.
-		if earliestPriceAvailable.IsZero() ||
-			(!earliestTxTime.IsZero() && earliestTxTime.Before(earliestPriceAvailable)) {
+		if earliestTxTime.IsZero() {
+			// Ignore the chart for this account, there is no timed transaction.
+			continue
+		}
+		if earliestPriceAvailable.IsZero() || earliestTxTime.Before(earliestPriceAvailable) {
 			chartDataMissing = true
 			handlers.log.
 				WithField("coin", account.Coin().Code()).
@@ -892,7 +892,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 
 		timeseriesDaily, err := txs.Timeseries(
-			time.Now().AddDate(-4, 0, 0).Truncate(24*time.Hour).Add(time.Hour),
+			earliestTxTime.Truncate(24*time.Hour).Add(time.Hour),
 			until,
 			24*time.Hour,
 		)
