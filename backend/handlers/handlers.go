@@ -820,7 +820,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
 	chartDataMissing := false
-	var chartEntries []chartEntry
+	var chartEntriesDaily []chartEntry
+	var chartEntriesHourly []chartEntry
 
 	// TODO: use active (starred) fiat currency.
 	fiat := "USD"
@@ -890,7 +891,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 		timeseriesDaily, err := txs.Timeseries(
 			time.Now().AddDate(-4, 0, 0).Truncate(24*time.Hour).Add(time.Hour),
-			hourlyFrom,
+			until,
 			24*time.Hour,
 		)
 		if errp.Cause(err) == errors.ErrNotAvailable {
@@ -902,12 +903,12 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			return nil, err
 		}
 		timeseriesHourly, err := txs.Timeseries(
-			hourlyFrom.Add(time.Hour),
+			hourlyFrom,
 			until,
 			time.Hour,
 		)
 		if errp.Cause(err) == errors.ErrNotAvailable {
-			handlers.log.Info("ChartDataMissing")
+			handlers.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing")
 			chartDataMissing = true
 			continue
 		}
@@ -915,10 +916,11 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			return nil, err
 		}
 
-		timeseries := append(timeseriesDaily, timeseriesHourly...)
-
-		if chartEntries == nil {
-			chartEntries = make([]chartEntry, len(timeseries))
+		if chartEntriesDaily == nil {
+			chartEntriesDaily = make([]chartEntry, len(timeseriesDaily))
+		}
+		if chartEntriesHourly == nil {
+			chartEntriesHourly = make([]chartEntry, len(timeseriesHourly))
 		}
 
 		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
@@ -929,28 +931,30 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			nil,
 		)
 
-		for i, e := range timeseries {
-			price := handlers.backend.RatesUpdater().PriceAt(
-				string(account.Coin().Code()),
-				fiat,
-				e.Time)
-			timestamp := e.Time.Unix()
-			if chartEntries[i].Time != 0 && chartEntries[i].Time != timestamp {
-				panic("expected same timestamp for all data entries")
-			}
-			chartEntries[i].Time = timestamp
-			fiatValue, _ := new(big.Rat).Mul(
-				new(big.Rat).SetFrac(
-					e.Value.BigInt(),
-					coinDecimals,
-				),
-				new(big.Rat).SetFloat64(price),
-			).Float64()
-			chartEntries[i].Value += fiatValue
-			if i == len(timeseries)-1 {
-				fmt.Println("LOL", account.Coin().Code(), e.Time, e.Value.BigInt().Int64(), price)
+		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries []chartEntry) {
+			for i, e := range timeseries {
+				price := handlers.backend.RatesUpdater().PriceAt(
+					string(coinCode),
+					fiat,
+					e.Time)
+				timestamp := e.Time.Unix()
+				if chartEntries[i].Time != 0 && chartEntries[i].Time != timestamp {
+					panic("expected same timestamp for all data entries")
+				}
+				chartEntries[i].Time = timestamp
+				fiatValue, _ := new(big.Rat).Mul(
+					new(big.Rat).SetFrac(
+						e.Value.BigInt(),
+						coinDecimals,
+					),
+					new(big.Rat).SetFloat64(price),
+				).Float64()
+				chartEntries[i].Value += fiatValue
 			}
 		}
+
+		addChartData(account.Coin().Code(), timeseriesDaily, chartEntriesDaily)
+		addChartData(account.Coin().Code(), timeseriesHourly, chartEntriesHourly)
 	}
 
 	jsonTotals := make(map[coinpkg.Code]accountHandlers.FormattedAmount)
@@ -958,12 +962,13 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		jsonTotals[c.Code()] = handlers.formatAmountAsJSON(coin.NewAmount(total), c, false)
 	}
 
-	// Truncate leading zero values.
-	for i, e := range chartEntries {
-		if e.Value != 0 {
-			chartEntries = chartEntries[i:]
-			break
+	truncateLeadingZeroes := func(s []chartEntry) []chartEntry {
+		for i, e := range s {
+			if e.Value != 0 {
+				return s[i:]
+			}
 		}
+		return s
 	}
 
 	return map[string]interface{}{
@@ -971,7 +976,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		"totals":           jsonTotals,
 		"coinNames":        coinNames,
 		"chartDataMissing": chartDataMissing,
-		"chartData":        chartEntries,
+		"chartDataDaily":   truncateLeadingZeroes(chartEntriesDaily),
+		"chartDataHourly":  truncateLeadingZeroes(chartEntriesHourly),
 	}, nil
 }
 
