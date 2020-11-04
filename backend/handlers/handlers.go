@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -820,8 +821,10 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
 	chartDataMissing := false
-	var chartEntriesDaily []chartEntry
-	var chartEntriesHourly []chartEntry
+
+	// key: unix timestamp.
+	chartEntriesDaily := map[int64]chartEntry{}
+	chartEntriesHourly := map[int64]chartEntry{}
 
 	fiat := handlers.backend.Config().AppConfig().Backend.MainFiat
 	// Chart data until this point in time.
@@ -915,13 +918,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			return nil, err
 		}
 
-		if chartEntriesDaily == nil {
-			chartEntriesDaily = make([]chartEntry, len(timeseriesDaily))
-		}
-		if chartEntriesHourly == nil {
-			chartEntriesHourly = make([]chartEntry, len(timeseriesHourly))
-		}
-
 		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
 		// unit to the standard unit (BTC, LTC; ETH, etc.).
 		coinDecimals := new(big.Int).Exp(
@@ -930,17 +926,16 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			nil,
 		)
 
-		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries []chartEntry) {
-			for i, e := range timeseries {
+		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries map[int64]chartEntry) {
+			for _, e := range timeseries {
 				price := handlers.backend.RatesUpdater().PriceAt(
 					string(coinCode),
 					fiat,
 					e.Time)
 				timestamp := e.Time.Unix()
-				if chartEntries[i].Time != 0 && chartEntries[i].Time != timestamp {
-					panic("expected same timestamp for all data entries")
-				}
-				chartEntries[i].Time = timestamp
+				chartEntry := chartEntries[timestamp]
+
+				chartEntry.Time = timestamp
 				fiatValue, _ := new(big.Rat).Mul(
 					new(big.Rat).SetFrac(
 						e.Value.BigInt(),
@@ -948,7 +943,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 					),
 					new(big.Rat).SetFloat64(price),
 				).Float64()
-				chartEntries[i].Value += fiatValue
+				chartEntry.Value += fiatValue
+				chartEntries[timestamp] = chartEntry
 			}
 		}
 
@@ -961,13 +957,21 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		jsonTotals[c.Code()] = handlers.formatAmountAsJSON(coin.NewAmount(total), c, false)
 	}
 
-	truncateLeadingZeroes := func(s []chartEntry) []chartEntry {
-		for i, e := range s {
+	toSortedSlice := func(s map[int64]chartEntry) []chartEntry {
+		result := make([]chartEntry, len(s))
+		i := 0
+		for _, entry := range s {
+			result[i] = entry
+			i++
+		}
+		sort.Slice(result, func(i, j int) bool { return result[i].Time < result[j].Time })
+		// Truncate leading zeroes.
+		for i, e := range result {
 			if e.Value != 0 {
-				return s[i:]
+				return result[i:]
 			}
 		}
-		return s
+		return result
 	}
 
 	return map[string]interface{}{
@@ -975,8 +979,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		"totals":           jsonTotals,
 		"coinNames":        coinNames,
 		"chartDataMissing": chartDataMissing,
-		"chartDataDaily":   truncateLeadingZeroes(chartEntriesDaily),
-		"chartDataHourly":  truncateLeadingZeroes(chartEntriesHourly),
+		"chartDataDaily":   toSortedSlice(chartEntriesDaily),
+		"chartDataHourly":  toSortedSlice(chartEntriesHourly),
 		"chartFiat":        fiat,
 	}, nil
 }
