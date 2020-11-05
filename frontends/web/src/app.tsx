@@ -141,13 +141,17 @@ class App extends Component<Props, State> {
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.props.accounts;
+        if (currentURL.startsWith('/account-summary') && accounts.length === 0) {
+            route('/', true);
+            return;
+        }
         if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
             route('/', true);
             return;
         }
         if (isIndex || currentURL === '/account') {
             if (accounts && accounts.length) {
-                route(`/account/${accounts[0].code}`, true);
+                route(`/account-summary`, true);
                 return;
             }
         }
