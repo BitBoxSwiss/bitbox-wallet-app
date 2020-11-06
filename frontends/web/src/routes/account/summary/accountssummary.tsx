@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +21,14 @@ import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
-import { AmountInterface, Fiat } from '../../../components/rates/rates';
+import { AmountInterface, Fiat, FiatConversion } from '../../../components/rates/rates';
 import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
+import Logo from '../../../components/icon/logo';
 import { apiPost } from '../../../utils/request';
-import { AccountInterface } from '../account';
-import { BalancesTable } from './balancestable';
+import { AccountInterface, CoinCode } from '../account';
 import { Chart, ChartData } from './chart';
+import * as style from './accountssummary.css';
 
 export interface AccountAndBalanceInterface extends AccountInterface {
     balance: BalanceInterface;
@@ -60,34 +62,68 @@ interface Response {
 
 type Props = TranslateProps & AccountSummaryProps;
 
-class AccountsSummary extends Component<Props, State> {
-    constructor(props) {
-        super(props);
-        this.state = ({ exported: '' });
-    }
+export type GroupedByCoinCode = {
+    [key in CoinCode]?: AccountAndBalanceInterface[];
+}
 
-    private groupByCoin(accounts: AccountAndBalanceInterface[]) {
-        return accounts.reduce((accumulator: {[coinCode: string]: AccountAndBalanceInterface[]}, currentValue) => {
-            const key: string = currentValue.coinCode;
-            if (!accumulator[key]) {
-                accumulator[key] = [];
+interface BalanceRowProps {
+    name: string;
+    balance: BalanceInterface;
+    coinUnit: string;
+    coinCode: CoinCode;
+    title: string;
+}
+
+class AccountsSummary extends Component<Props, State> {
+    public readonly state: State = {
+        exported: '',
+    };
+
+    private groupByCoinCode(accounts: AccountAndBalanceInterface[]): GroupedByCoinCode {
+        return accounts.reduce((acc, current) => {
+            const coinCode = current.coinCode;
+            if (!acc[coinCode]) {
+                acc[coinCode] = [];
             }
-            accumulator[key].push(currentValue);
-            return accumulator;
+            acc[coinCode].push(current);
+            return acc;
         }, {});
     }
 
     private export = () => {
-        apiPost(`export-account-summary`).then(exported => {
+        apiPost('export-account-summary').then(exported => {
             this.setState({ exported });
         });
     }
 
+    private balanceRow = ({ name, balance, coinUnit, children }: RenderableProps<BalanceRowProps>) => {
+        const { t } = this.props;
+        return (
+            <tr key={name}>
+                <td data-label={t('accountSummary.name')}>
+                    <div class={style.coinName}>
+                        {children}
+                        {name}
+                    </div>
+                </td>
+                <td data-label={t('accountSummary.balance')}>
+                    <span>
+                        {balance.available.amount}{' '}
+                        <span className={style.coinUnit}>{coinUnit}</span>
+                    </span>
+                </td>
+                <td data-label={t('accountSummary.fiatBalance')}>
+                    <FiatConversion amount={balance.available} noAction={true} />
+                </td>
+            </tr>
+        );
+    };
+
     public render(
         { t, data }: RenderableProps<Props>, { exported }: State,
     ) {
-        const groupedAccounts = this.groupByCoin(data.accounts);
-        const coins = Object.keys(groupedAccounts);
+        const accountsByCoinCodes = this.groupByCoinCode(data.accounts);
+        const coins = Object.keys(accountsByCoinCodes);
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -117,18 +153,31 @@ class AccountsSummary extends Component<Props, State> {
                                 dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
                                 dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
                                 fiatUnit={data.chartFiat} />
-                            {
-                                coins.length > 0 ?
-                                               coins.map((coin, index) =>
-                                                   (<BalancesTable
-                                                       key={coin}
-                                                       coinCode={coin}
-                                                       accounts={groupedAccounts[coin]}
-                                                       total={data.totals[coin]}
-                                                       title={data.coinNames[coin]}
-                                                       index={index} />)) :
-                                               <p>{t('accountSummary.noAccount')}</p>
-                            }
+                            <div className={style.balanceTable}>
+                                <table className={style.table}>
+                                    <thead>
+                                        <tr>
+                                            <th>{t('accountSummary.name')}</th>
+                                            <th>{t('accountSummary.balance')}</th>
+                                            <th>{t('accountSummary.fiatBalance')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        { coins.length > 0 ? (
+                                            coins.map((coinCode) => (
+                                                accountsByCoinCodes[coinCode].map(account => this.balanceRow({
+                                                    children: <Logo className={style.coincode} coinCode={coinCode} alt={data.coinNames[coinCode]} active={true} />,
+                                                    coinCode,
+                                                    title: data.coinNames[coinCode],
+                                                    ...account
+                                                }))
+                                            ))
+                                        ) : (
+                                            <p>{t('accountSummary.noAccount')}</p>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
