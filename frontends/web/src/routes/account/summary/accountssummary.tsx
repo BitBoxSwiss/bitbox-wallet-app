@@ -113,7 +113,10 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Chart data={data.chartDataMissing ? undefined : data.chartDataDaily}/>
+                            <Chart
+                                dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
+                                dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
+                                fiatUnit={data.chartFiat} />
                             {
                                 coins.length > 0 ?
                                                coins.map((coin, index) =>
