@@ -29,6 +29,7 @@ import (
 	"time"
 
 	bbolt "github.com/coreos/bbolt"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -40,6 +41,28 @@ var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "SAI", "
 
 // TODO: Unify these with geckoFiat map.
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD", "AUD", "ILS"}
+
+var cryptoCompareCoin = map[string]string{
+	"btc": "BTC",
+	"ltc": "LTC",
+	"eth": "ETH",
+	// Useful for testing with testnets.
+	"tbtc": "BTC",
+	"rbtc": "BTC",
+	"tltc": "LTC",
+	"teth": "ETH",
+	"reth": "ETH",
+	// ERC20 tokens as used in the backend.
+	// Frontend and app config use unprefixed name, without "eth-erc20-".
+	"eth-erc20-bat":       "BAT",
+	"eth-erc20-dai0x6b17": "DAI",
+	"eth-erc20-link":      "LINK",
+	"eth-erc20-mkr":       "MKR",
+	"eth-erc20-sai0x89d2": "SAI",
+	"eth-erc20-usdc":      "USDC",
+	"eth-erc20-usdt":      "USDT",
+	"eth-erc20-zrx":       "ZRX",
+}
 
 const interval = time.Minute
 const cryptoCompareURL = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
@@ -120,6 +143,18 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 // RateUpdater assumes the returned value is never modified by the callers.
 func (updater *RateUpdater) Last() map[string]map[string]float64 {
 	return updater.last
+}
+
+// LastForPair returns the conversion rate for the given (coin, fiat) pair. Returns an error if the
+// rates have not been fetched yet. `coinCode` values are the same as `coin.Code`.
+func (updater *RateUpdater) LastForPair(coinCode, fiat string) (float64, error) {
+	// TODO: use coin.Code
+	last := updater.Last()
+	if last == nil {
+		return 0, errp.New("rates not available yet")
+	}
+	key := cryptoCompareCoin[coinCode]
+	return last[key][fiat], nil
 }
 
 // PriceAt returns a historical exchange rate for the given coin.
