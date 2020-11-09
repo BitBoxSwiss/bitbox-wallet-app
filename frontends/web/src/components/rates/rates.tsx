@@ -101,7 +101,7 @@ export function unselectFiat(fiat: Fiat): void {
     });
 }
 
-function formatAsCurrency(amount: number): string {
+export function formatNumber(amount: number): string {
     let formatted = amount.toFixed(2);
     let position = formatted.indexOf('.') - 3;
     while (position > 0) {
@@ -148,7 +148,7 @@ function Conversion({
     }
     let formattedValue = '';
     if (rates[mainnetCoin]) {
-        formattedValue = formatAsCurrency(rates[mainnetCoin][active] * Number(amount.amount));
+        formattedValue = formatNumber(rates[mainnetCoin][active] * Number(amount.amount));
     }
     if (tableRow) {
         return (

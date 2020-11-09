@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi, LineData } from 'lightweight-charts';
+import { createChart, IChartApi, LineData, LineStyle, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
+import { formatNumber, Fiat } from '../../../components/rates/rates';
+import * as styles from './chart.css';
 
 export type ChartData = LineData[];
 
 interface ChartProps {
     // If undefined, data is missing.
-    data?: ChartData;
+    dataDaily?: ChartData;
+    dataHourly?: ChartData;
+    fiatUnit: Fiat;
 }
 
 interface State {
+    display: 'week' | 'month' | 'year' | 'all';
+    source: 'daily' | 'hourly';
+    difference?: number;
+    diffSince?: string;
 }
 
 type Props = ChartProps & TranslateProps;
@@ -33,8 +41,94 @@ type Props = ChartProps & TranslateProps;
 class Chart extends Component<Props, State> {
     private ref = createRef();
     private chart?: IChartApi;
+    private lineSeries?: ISeriesApi<'Area'>;
     private resizeTimerID?: any;
     private height: number = 300;
+
+    public readonly state: State = {
+        display: 'all',
+        source: 'daily',
+    };
+
+    public componentDidMount() {
+        if (this.ref.current) {
+            this.chart = createChart(this.ref.current, {
+                width: this.ref.current.offsetWidth,
+                height: this.height,
+                handleScroll: false,
+                handleScale: false,
+                crosshair: {
+                    vertLine: {
+                        visible: false,
+                        labelVisible: true,
+                    },
+                    horzLine: {
+                        visible: false,
+                        labelVisible: true,
+                    },
+                    mode: 1,
+                },
+                grid: {
+                    vertLines: {
+                        visible: false,
+                    },
+                    horzLines: {
+                        color: '#dedede',
+                        style: LineStyle.Solid,
+                        visible: true,
+                    },
+                },
+                layout: {
+                    backgroundColor: '#F5F5F5',
+                    fontSize: 11,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+                    textColor: '#1D1D1B',
+                },
+                leftPriceScale: {
+                    scaleMargins: {
+                        top: 0.2,
+                        bottom: 0.1,
+                    },
+                    visible: true,
+                    borderVisible: false,
+                    drawTicks: false,
+                    entireTextOnly: true,
+                },
+                localization: {
+                    locale: this.props.i18n.language,
+                },
+                rightPriceScale: {
+                    visible: false,
+                },
+                timeScale: {
+                    borderVisible: false,
+                    timeVisible: false,
+                }
+            });
+            if (this.props.dataDaily !== undefined) {
+                this.lineSeries = this.chart.addAreaSeries({
+                    priceFormat: {
+                        type: 'volume',
+                    },
+                    topColor: 'rgba(94, 148, 192, 0.5)',
+                    bottomColor: 'rgba(94, 148, 192, 0.02)',
+                    lineColor: 'rgba(94, 148, 192, 1)',
+                });
+                this.lineSeries.setData(this.props.dataDaily);
+                this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
+            }
+            this.chart.timeScale().fitContent();
+            window.addEventListener('resize', this.onResize);
+            setTimeout(() => this.ref.current.classList.remove(styles.invisible), 200);
+        }
+    }
+
+    public componentWillUnmount() {
+        window.removeEventListener('resize', this.onResize);
+        if (this.chart) {
+            this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
+        }
+    }
 
     private onResize = () => {
         if (this.resizeTimerID) {
@@ -48,36 +142,189 @@ class Chart extends Component<Props, State> {
         }, 200);
     }
 
-    public componentDidMount() {
-        if (this.ref.current) {
-            this.chart = createChart(this.ref.current, {
-                width: this.ref.current.offsetWidth,
-                height: this.height,
-            });
-            if (this.props.data !== undefined) {
-                const lineSeries = this.chart.addLineSeries();
-                lineSeries.setData(this.props.data);
-            }
-            this.chart.timeScale().fitContent();
-            window.addEventListener('resize', this.onResize);
+    private getCurrentTotal = () => {
+        const dataHourly = this.props.dataHourly;
+        if (!dataHourly || !dataHourly.length) {
+            return 0;
         }
+        return dataHourly[dataHourly.length - 1].value;
     }
 
-    public componentWillUnmount() {
-        window.removeEventListener('resize', this.onResize);
+    private getUTCRange = () => {
+        const now = new Date();
+        const utcYear = now.getUTCFullYear();
+        const utcMonth = now.getUTCMonth();
+        const utcDate = now.getUTCDate();
+        const utcHours = now.getUTCHours();
+        const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+        const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+        return {
+            utcYear,
+            utcMonth,
+            utcDate,
+            to,
+            from,
+        };
+    }
+
+    private displayWeek = () => {
+        if (this.state.source !== 'hourly' && this.lineSeries && this.props.dataHourly && this.chart) {
+            this.lineSeries.setData(this.props.dataHourly);
+            this.chart.applyOptions({ timeScale: { timeVisible: true } });
+        }
+        this.setState(
+            { display: 'week', source: 'hourly' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                const { utcDate, from, to } = this.getUTCRange();
+                from.setUTCDate(utcDate - 7);
+                this.chart.timeScale().setVisibleRange({
+                    from: from.getTime() / 1000 as UTCTimestamp,
+                    to: to.getTime() / 1000 as UTCTimestamp,
+                });
+            }
+        );
+    }
+
+    private displayMonth = () => {
+        if (this.state.source !== 'daily' && this.lineSeries && this.props.dataDaily && this.chart) {
+            this.lineSeries.setData(this.props.dataDaily);
+            this.chart.applyOptions({ timeScale: { timeVisible: false } });
+        }
+        this.setState(
+            { display: 'month', source: 'daily' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                const { utcMonth, from, to } = this.getUTCRange();
+                from.setUTCMonth(utcMonth - 1);
+                this.chart.timeScale().setVisibleRange({
+                    from: from.getTime() / 1000 as UTCTimestamp,
+                    to: to.getTime() / 1000 as UTCTimestamp,
+                });
+            }
+        );
+    }
+
+    private displayYear = () => {
+        if (this.state.source !== 'daily' && this.lineSeries && this.props.dataDaily && this.chart) {
+            this.lineSeries.setData(this.props.dataDaily);
+            this.chart.applyOptions({ timeScale: { timeVisible: false } });
+        }
+        this.setState(
+            { display: 'year', source: 'daily' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                const { utcYear, from, to } = this.getUTCRange();
+                from.setUTCFullYear(utcYear - 1);
+                this.chart && this.chart.timeScale().setVisibleRange({
+                    from: from.getTime() / 1000 as UTCTimestamp,
+                    to: to.getTime() / 1000 as UTCTimestamp,
+                });
+            }
+        );
+    }
+
+    private displayAll = () => {
+        if (this.state.source !== 'daily' && this.lineSeries && this.props.dataDaily && this.chart) {
+            this.lineSeries.setData(this.props.dataDaily);
+            this.chart.applyOptions({ timeScale: { timeVisible: false } });
+        }
+        this.setState(
+            { display: 'all', source: 'daily' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                this.chart.timeScale().fitContent();
+            }
+        );
+    }
+
+    private calculateChange = () => {
+        const data = this.props[this.state.source === 'daily' ? 'dataDaily' : 'dataHourly'];
+        if (!data || !this.chart || !this.lineSeries) {
+            return;
+        }
+        const { barsBefore } = this.lineSeries.barsInLogicalRange(this.chart.timeScale().getVisibleLogicalRange() as any) as any;
+        const rangeFrom = Math.max(Math.floor(barsBefore), 0);
+        if (!data[rangeFrom]){
+            // when data series have changed it triggers subscribeVisibleLogicalRangeChange
+            // but at this point the setVisibleRange has not executed what the new range
+            // should be and therefore barsBefore might still point to the old range
+            // so we have to ignore this call and expect setVisibleRange with correct range
+            this.setState({ difference: 0, diffSince: '' });
+            return;
+        }
+        const valueFrom = data[rangeFrom].value;
+        const valueTo = this.getCurrentTotal();
+        const valueDiff = valueTo ? valueTo - valueFrom : 0;
+        this.setState({
+            difference: ((valueDiff / valueFrom) * 100),
+            diffSince: `${data[rangeFrom].value.toFixed(2)} / ${new Date(Number(data[rangeFrom].time) * 1000)}`
+        });
     }
 
     public render(
-        { t, data }: RenderableProps<Props>,
-        { }: State,
+        { t, dataDaily, fiatUnit }: RenderableProps<Props>,
+        { difference, diffSince, display }: State,
     ) {
+        if (!dataDaily) {
+            return (
+                <p>
+                    {t('chart.dataMissing')}
+                </p>
+            );
+        }
+
+        const diff = difference && Number.isFinite(difference) ? (
+            <span className={styles[difference < 0 ? 'down' : 'up']} title={diffSince}>
+                <span className={styles.arrow}>
+                    {difference < 0 ? (<ArrowUp />) : (<ArrowDown />)}
+                </span>
+                <span className={styles.diffValue}>
+                    {formatNumber(difference)}
+                    <span className={styles.diffUnit}>%</span>
+                </span>
+            </span>
+        ) : null;
+
+        const currentTotal = this.getCurrentTotal();
+
         return (
-            <div>
-                { data === undefined && (
-                      <div>{t('chart.dataMissing')}</div>
-                )}
-                <div ref={this.ref}></div>
-            </div>
+            <section className={styles.chart}>
+                <header>
+                    <div className={styles.summary}>
+                        {currentTotal ? (
+                            <div className={styles.totalValue}>
+                                {formatNumber(currentTotal)}
+                                <span className={styles.totalUnit}>{fiatUnit}</span>
+                            </div>
+                        ) : null}
+                        {diff}
+                    </div>
+                    <div className={styles.filters}>
+                        <button className={display === 'week' ? styles.filterActive : undefined} onClick={this.displayWeek}>
+                            {t('chart.filter.week')}
+                        </button>
+                        <button className={display === 'month' ? styles.filterActive : undefined} onClick={this.displayMonth}>
+                            {t('chart.filter.month')}
+                        </button>
+                        <button className={display === 'year' ? styles.filterActive : undefined} onClick={this.displayYear}>
+                            {t('chart.filter.year')}
+                        </button>
+                        <button className={display === 'all' ? styles.filterActive : undefined} onClick={this.displayAll}>
+                            {t('chart.filter.all')}
+                        </button>
+                    </div>
+                </header>
+                <div ref={this.ref} className={styles.invisible}></div>
+            </section>
         );
     }
 }
@@ -85,3 +332,35 @@ class Chart extends Component<Props, State> {
 const HOC = translate<ChartProps>()(Chart);
 
 export { HOC as Chart };
+
+export const ArrowUp = () => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+    </svg>
+);
+
+export const ArrowDown = () => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round">
+        <line x1="12" y1="19" x2="12" y2="5"></line>
+        <polyline points="5 12 12 5 19 12"></polyline>
+    </svg>
+);
