@@ -217,7 +217,7 @@ class Sidebar extends Component<Props> {
                             </div>
                         </div>
                     </div> */}
-                    {debug &&
+                    { accounts.length &&
                         <div className="sidebarItem">
                             <Link
                                 activeClassName="sidebar-active"
