@@ -829,8 +829,12 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	fiat := handlers.backend.Config().AppConfig().Backend.MainFiat
 	// Chart data until this point in time.
 	until := handlers.backend.RatesUpdater().HistoryLatestTimestampAll(handlers.allCoinCodes(), fiat)
-	if until.IsZero() {
+	if until.IsZero() || time.Since(until) > 2*time.Hour {
 		chartDataMissing = true
+		handlers.log.
+			WithField("until", until).
+			WithField("now", time.Now()).
+			Info("ChartDataMissing")
 	}
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
