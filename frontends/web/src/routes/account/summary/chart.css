@@ -3,6 +3,14 @@
   margin-bottom: var(--spacing-large);
 }
 
+.chartCanvas {
+  position: relative;
+}
+
+.chartUpdatignMessage {
+  text-align: center;
+}
+
 .invisible {
   visibility: hidden;
 }

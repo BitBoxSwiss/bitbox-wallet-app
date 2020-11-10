@@ -53,6 +53,33 @@ class Chart extends Component<Props, State> {
     };
 
     public componentDidMount() {
+        this.createChart();
+    }
+
+    public componentWillUnmount() {
+        window.removeEventListener('resize', this.onResize);
+        if (this.chart) {
+            this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
+        }
+    }
+
+    public componentDidUpdate(prev) {
+        const { dataDaily, dataHourly } = this.props;
+        if (!this.chart && dataDaily && dataHourly) {
+            this.createChart();
+        }
+        if (
+            (this.lineSeries && prev.dataDaily && prev.dataHourly && dataDaily && dataHourly)
+            && (
+                prev.dataDaily.length !== dataDaily.length
+                || prev.dataHourly.length !== dataHourly.length
+            )
+        ) {
+            this.lineSeries.setData(dataDaily);
+        }
+    }
+
+    private createChart = () => {
         if (this.ref.current) {
             this.chart = createChart(this.ref.current, {
                 width: this.ref.current.offsetWidth,
@@ -117,18 +144,13 @@ class Chart extends Component<Props, State> {
                     lineColor: 'rgba(94, 148, 192, 1)',
                 });
                 this.lineSeries.setData(this.props.dataDaily);
-                this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
+                if (this.props.dataDaily.length) {
+                    this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
+                }
             }
             this.chart.timeScale().fitContent();
             window.addEventListener('resize', this.onResize);
             setTimeout(() => this.ref.current.classList.remove(styles.invisible), 200);
-        }
-    }
-
-    public componentWillUnmount() {
-        window.removeEventListener('resize', this.onResize);
-        if (this.chart) {
-            this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
         }
     }
 
@@ -249,7 +271,12 @@ class Chart extends Component<Props, State> {
         if (!data || !this.chart || !this.lineSeries) {
             return;
         }
-        const { barsBefore } = this.lineSeries.barsInLogicalRange(this.chart.timeScale().getVisibleLogicalRange() as any) as any;
+        const visiblerange = this.lineSeries.barsInLogicalRange(this.chart.timeScale().getVisibleLogicalRange() as any) as any;
+        if (!visiblerange || !visiblerange.barsBefore) {
+            // if the chart is empty, during first load, barsInLogicalRange is null
+            return;
+        }
+        const { barsBefore } = visiblerange;
         const rangeFrom = Math.max(Math.floor(barsBefore), 0);
         if (!data[rangeFrom]){
             // when data series have changed it triggers subscribeVisibleLogicalRangeChange
@@ -269,12 +296,12 @@ class Chart extends Component<Props, State> {
     }
 
     public render(
-        { t, dataDaily, fiatUnit }: RenderableProps<Props>,
+        { t, dataDaily, fiatUnit, isUpToDate }: RenderableProps<Props>,
         { difference, diffSince, display }: State,
     ) {
-        if (!dataDaily) {
+        if (!dataDaily || !dataDaily.length) {
             return (
-                <p>
+                <p className={styles.chartUpdatignMessage}>
                     {t('chart.dataMissing')}
                 </p>
             );
@@ -321,6 +348,9 @@ class Chart extends Component<Props, State> {
                         </button>
                     </div>
                 </header>
+                <div className={styles.chartUpdatignMessage}>
+                    {!isUpToDate ? t('chart.dataUpdating') : null}
+                </div>
                 <div ref={this.ref} className={styles.invisible}></div>
             </section>
         );

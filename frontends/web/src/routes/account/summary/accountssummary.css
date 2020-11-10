@@ -46,6 +46,7 @@
 .table tr td,
 .table tfoot th {
     font-size: var(--size-default) !important;
+    line-height: 1.5714;
 }
 
 .table tbody td {
