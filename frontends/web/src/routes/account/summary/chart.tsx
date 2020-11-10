@@ -27,6 +27,8 @@ interface ChartProps {
     dataDaily?: ChartData;
     dataHourly?: ChartData;
     fiatUnit: Fiat;
+    total: number;
+    isUpToDate: boolean;
 }
 
 interface State {
@@ -143,11 +145,7 @@ class Chart extends Component<Props, State> {
     }
 
     private getCurrentTotal = () => {
-        const dataHourly = this.props.dataHourly;
-        if (!dataHourly || !dataHourly.length) {
-            return 0;
-        }
-        return dataHourly[dataHourly.length - 1].value;
+        return this.props.total;
     }
 
     private getUTCRange = () => {

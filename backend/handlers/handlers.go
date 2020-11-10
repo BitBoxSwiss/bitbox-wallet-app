@@ -829,13 +829,14 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	fiat := handlers.backend.Config().AppConfig().Backend.MainFiat
 	// Chart data until this point in time.
 	until := handlers.backend.RatesUpdater().HistoryLatestTimestampAll(handlers.allCoinCodes(), fiat)
-	if until.IsZero() || time.Since(until) > 2*time.Hour {
+	if until.IsZero() {
 		chartDataMissing = true
-		handlers.log.
-			WithField("until", until).
-			WithField("now", time.Now()).
-			Info("ChartDataMissing")
+		handlers.log.Info("ChartDataMissing, until is zero")
 	}
+	isUpToDate := time.Since(until) < 2*time.Hour
+	handlers.log.Infof("Chart/isUptodate: %v", isUpToDate)
+
+	var currentTotal float64
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
 			continue
@@ -960,10 +961,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		// prices from coingecko, which results in different total balances in the chart and the
 		// summary table.
 		//
-		// As a temporary workaround, until we use only one source for all prices, we manually add
-		// one final datapoint reflecting the latest price. This can be removed once we stop using
-		// CryptoCompare.
-		now := time.Now().Unix()
+		// As a temporary workaround, until we use only one source for all prices, we manually
+		// compute the total based on the latest rates from CryptoCompare.
 		price, err := handlers.backend.RatesUpdater().LastForPair(string(account.Coin().Code()), fiat)
 		if err != nil {
 			chartDataMissing = true
@@ -977,10 +976,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			),
 			new(big.Rat).SetFloat64(price),
 		).Float64()
-		entry := chartEntriesHourly[now]
-		entry.Time = now
-		entry.Value += fiatValue
-		chartEntriesHourly[now] = entry
+		currentTotal += fiatValue
 	}
 
 	jsonTotals := make(map[coinpkg.Code]accountHandlers.FormattedAmount)
@@ -1013,6 +1009,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		"chartDataDaily":   toSortedSlice(chartEntriesDaily),
 		"chartDataHourly":  toSortedSlice(chartEntriesHourly),
 		"chartFiat":        fiat,
+		"chartTotal":       currentTotal, // only valid is chartDataMissing is false
+		"chartIsUpToDate":  isUpToDate,   // only valid is chartDataMissing is false
 	}, nil
 }
 

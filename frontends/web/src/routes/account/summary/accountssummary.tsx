@@ -58,6 +58,8 @@ interface Response {
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
     chartFiat: Fiat;
+    chartTotal: number;  // only valid is chartDataMissing is false
+    chartIsUpToDate: boolean; // only valid is chartDataMissing is false
 }
 
 type Props = TranslateProps & AccountSummaryProps;
@@ -152,7 +154,9 @@ class AccountsSummary extends Component<Props, State> {
                             <Chart
                                 dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
                                 dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
-                                fiatUnit={data.chartFiat} />
+                                fiatUnit={data.chartFiat}
+                                total={data.chartTotal}
+                                isUpToDate={data.chartIsUpToDate} />
                             <div className={style.balanceTable}>
                                 <table className={style.table}>
                                     <thead>
