@@ -84,7 +84,7 @@ class AccountsSummary extends Component<Props, State> {
 
     public componentDidMount() {
         this.getAccountSummary = this.getAccountSummary.bind(this);
-        this.summaryReqTimerID = window.setTimeout(this.getAccountSummary, 1000);
+        this.getAccountSummary();
     }
 
     public componentWillUnmount() {
