@@ -58,7 +58,7 @@ interface Response {
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
     chartFiat: Fiat;
-    chartTotal: number;  // only valid is chartDataMissing is false
+    chartTotal: number | null;
     chartIsUpToDate: boolean; // only valid is chartDataMissing is false
 }
 

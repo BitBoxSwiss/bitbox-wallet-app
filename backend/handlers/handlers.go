@@ -836,7 +836,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	isUpToDate := time.Since(until) < 2*time.Hour
 	handlers.log.Infof("Chart/isUptodate: %v", isUpToDate)
 
-	var currentTotal float64
+	currentTotal := new(big.Rat)
+	currentTotalMissing := false
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
 			continue
@@ -869,6 +870,36 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
 		coinNames[string(account.Coin().Code())] = account.Coin().Name()
+
+		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
+		// unit to the standard unit (BTC, LTC; ETH, etc.).
+		coinDecimals := new(big.Int).Exp(
+			big.NewInt(10),
+			big.NewInt(int64(account.Coin().Decimals(false))),
+			nil,
+		)
+
+		// HACK: We still use the latest prices from CryptoCompare for the account fiat balances
+		// above (displayed in the summary table). Those might deviate from the latest historical
+		// prices from coingecko, which results in different total balances in the chart and the
+		// summary table.
+		//
+		// As a temporary workaround, until we use only one source for all prices, we manually
+		// compute the total based on the latest rates from CryptoCompare.
+		price, err := handlers.backend.RatesUpdater().LastForPair(string(account.Coin().Code()), fiat)
+		if err != nil {
+			currentTotalMissing = true
+			handlers.log.
+				WithField("coin", account.Coin().Code()).WithError(err).Info("currentTotalMissing")
+		}
+		fiatValue := new(big.Rat).Mul(
+			new(big.Rat).SetFrac(
+				balance.Available().BigInt(),
+				coinDecimals,
+			),
+			new(big.Rat).SetFloat64(price),
+		)
+		currentTotal.Add(currentTotal, fiatValue)
 
 		// Below here, only chart data is being computed.
 		if chartDataMissing {
@@ -923,14 +954,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			return nil, err
 		}
 
-		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
-		// unit to the standard unit (BTC, LTC; ETH, etc.).
-		coinDecimals := new(big.Int).Exp(
-			big.NewInt(10),
-			big.NewInt(int64(account.Coin().Decimals(false))),
-			nil,
-		)
-
 		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries map[int64]chartEntry) {
 			for _, e := range timeseries {
 				price := handlers.backend.RatesUpdater().PriceAt(
@@ -956,27 +979,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		addChartData(account.Coin().Code(), timeseriesDaily, chartEntriesDaily)
 		addChartData(account.Coin().Code(), timeseriesHourly, chartEntriesHourly)
 
-		// HACK: We still use the latest prices from CryptoCompare for the account fiat balances
-		// above (displayed in the summary table). Those might deviate from the latest historical
-		// prices from coingecko, which results in different total balances in the chart and the
-		// summary table.
-		//
-		// As a temporary workaround, until we use only one source for all prices, we manually
-		// compute the total based on the latest rates from CryptoCompare.
-		price, err := handlers.backend.RatesUpdater().LastForPair(string(account.Coin().Code()), fiat)
-		if err != nil {
-			chartDataMissing = true
-			handlers.log.WithError(err).Info("ChartDataMissing")
-			continue
-		}
-		fiatValue, _ := new(big.Rat).Mul(
-			new(big.Rat).SetFrac(
-				balance.Available().BigInt(),
-				coinDecimals,
-			),
-			new(big.Rat).SetFloat64(price),
-		).Float64()
-		currentTotal += fiatValue
 	}
 
 	jsonTotals := make(map[coinpkg.Code]accountHandlers.FormattedAmount)
@@ -1001,6 +1003,11 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		return result
 	}
 
+	var chartTotal *float64
+	if !currentTotalMissing {
+		tot, _ := currentTotal.Float64()
+		chartTotal = &tot
+	}
 	return map[string]interface{}{
 		"accounts":         jsonAccounts,
 		"totals":           jsonTotals,
@@ -1009,8 +1016,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		"chartDataDaily":   toSortedSlice(chartEntriesDaily),
 		"chartDataHourly":  toSortedSlice(chartEntriesHourly),
 		"chartFiat":        fiat,
-		"chartTotal":       currentTotal, // only valid is chartDataMissing is false
-		"chartIsUpToDate":  isUpToDate,   // only valid is chartDataMissing is false
+		"chartTotal":       chartTotal,
+		"chartIsUpToDate":  isUpToDate, // only valid is chartDataMissing is false
 	}, nil
 }
 

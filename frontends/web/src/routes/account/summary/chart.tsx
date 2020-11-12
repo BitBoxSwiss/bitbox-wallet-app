@@ -27,7 +27,7 @@ interface ChartProps {
     dataDaily?: ChartData;
     dataHourly?: ChartData;
     fiatUnit: Fiat;
-    total: number;
+    total: number | null;
     isUpToDate: boolean;
 }
 
