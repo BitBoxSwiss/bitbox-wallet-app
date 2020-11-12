@@ -493,6 +493,7 @@
   },
   "chart": {
     "dataMissing": "We are still gathering information. Please try again in a few minutes.",
+    "dataUpdating": "updating data…",
     "filter": {
       "all": "All",
       "month": "Month",

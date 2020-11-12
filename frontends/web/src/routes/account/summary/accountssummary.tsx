@@ -22,10 +22,9 @@ import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
 import { AmountInterface, Fiat, FiatConversion } from '../../../components/rates/rates';
-import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
 import Logo from '../../../components/icon/logo';
-import { apiPost } from '../../../utils/request';
+import { apiGet, apiPost } from '../../../utils/request';
 import { AccountInterface, CoinCode } from '../account';
 import { Chart, ChartData } from './chart';
 import * as style from './accountssummary.css';
@@ -35,10 +34,10 @@ export interface AccountAndBalanceInterface extends AccountInterface {
 }
 
 interface AccountSummaryProps {
-    data: Response;
 }
 
 interface State {
+    data?: Response;
     exported: string;
 }
 
@@ -58,6 +57,8 @@ interface Response {
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
     chartFiat: Fiat;
+    chartTotal: number | null;
+    chartIsUpToDate: boolean; // only valid is chartDataMissing is false
 }
 
 type Props = TranslateProps & AccountSummaryProps;
@@ -75,9 +76,29 @@ interface BalanceRowProps {
 }
 
 class AccountsSummary extends Component<Props, State> {
+    private summaryReqTimerID?: number;
     public readonly state: State = {
+        data: undefined,
         exported: '',
     };
+
+    public componentDidMount() {
+        this.getAccountSummary = this.getAccountSummary.bind(this);
+        this.getAccountSummary();
+    }
+
+    public componentWillUnmount() {
+        window.clearInterval(this.summaryReqTimerID);
+    }
+
+    private getAccountSummary() {
+        apiGet('account-summary').then(data => {
+            this.setState({ data }, () => {
+                const delay = (!data || data.chartDataMissing) ? 1000 : 10000;
+                this.summaryReqTimerID = window.setTimeout(this.getAccountSummary, delay);
+            });
+        }).catch(console.error);
+    }
 
     private groupByCoinCode(accounts: AccountAndBalanceInterface[]): GroupedByCoinCode {
         return accounts.reduce((acc, current) => {
@@ -117,12 +138,16 @@ class AccountsSummary extends Component<Props, State> {
                 </td>
             </tr>
         );
-    };
+    }
 
     public render(
-        { t, data }: RenderableProps<Props>, { exported }: State,
+        { t }: RenderableProps<Props>,
+        { exported, data }: State,
     ) {
-        const accountsByCoinCodes = this.groupByCoinCode(data.accounts);
+        if (!data) {
+            return null;
+        }
+        const accountsByCoinCodes = (data && !data.chartDataMissing) ? this.groupByCoinCode(data.accounts) : {};
         const coins = Object.keys(accountsByCoinCodes);
         return (
             <div className="contentWithGuide">
@@ -152,7 +177,9 @@ class AccountsSummary extends Component<Props, State> {
                             <Chart
                                 dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
                                 dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
-                                fiatUnit={data.chartFiat} />
+                                fiatUnit={data.chartFiat}
+                                total={data.chartTotal}
+                                isUpToDate={data.chartIsUpToDate} />
                             <div className={style.balanceTable}>
                                 <table className={style.table}>
                                     <thead>
@@ -186,5 +213,5 @@ class AccountsSummary extends Component<Props, State> {
     }
 }
 
-const HOC = translate()(load<AccountSummaryProps, TranslateProps>({ data: 'account-summary' })(AccountsSummary));
+const HOC = translate()(AccountsSummary);
 export { HOC as AccountsSummary };
