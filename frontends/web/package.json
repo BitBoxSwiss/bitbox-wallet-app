@@ -41,6 +41,6 @@
     "sortablejs": "^1.10.1"
   },
   "browserslist": [
-    "last 2 Chrome versions"
+    "chrome >= 65"
   ]
 }
