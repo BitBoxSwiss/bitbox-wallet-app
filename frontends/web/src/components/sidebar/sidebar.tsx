@@ -217,7 +217,7 @@ class Sidebar extends Component<Props> {
                             </div>
                         </div>
                     </div> */}
-                    { accounts.length &&
+                    { accounts.length ? (
                         <div className="sidebarItem">
                             <Link
                                 activeClassName="sidebar-active"
@@ -230,7 +230,7 @@ class Sidebar extends Component<Props> {
                                 <span className="sidebar_label">{t('accountSummary.title')}</span>
                             </Link>
                         </div>
-                    }
+                    ) : null }
                     { accounts && accounts.map(this.getAccountLink) }
                     <div className="sidebarHeaderContainer end"></div>
                     <div className="sidebarItem">
