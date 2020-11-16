@@ -100,30 +100,19 @@ class AccountsSummary extends Component<Props, State> {
         }).catch(console.error);
     }
 
-    private groupByCoinCode(accounts: AccountAndBalanceInterface[]): GroupedByCoinCode {
-        return accounts.reduce((acc, current) => {
-            const coinCode = current.coinCode;
-            if (!acc[coinCode]) {
-                acc[coinCode] = [];
-            }
-            acc[coinCode].push(current);
-            return acc;
-        }, {});
-    }
-
     private export = () => {
         apiPost('export-account-summary').then(exported => {
             this.setState({ exported });
         });
     }
 
-    private balanceRow = ({ name, balance, coinUnit, children }: RenderableProps<BalanceRowProps>) => {
+    private balanceRow = ({ name, balance, coinCode, title, coinUnit }: RenderableProps<BalanceRowProps>) => {
         const { t } = this.props;
         return (
             <tr key={name}>
                 <td data-label={t('accountSummary.name')}>
                     <div class={style.coinName}>
-                        {children}
+                        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={title} />
                         {name}
                     </div>
                 </td>
@@ -147,8 +136,6 @@ class AccountsSummary extends Component<Props, State> {
         if (!data) {
             return null;
         }
-        const accountsByCoinCodes = (data && !data.chartDataMissing) ? this.groupByCoinCode(data.accounts) : {};
-        const coins = Object.keys(accountsByCoinCodes);
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -190,15 +177,11 @@ class AccountsSummary extends Component<Props, State> {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        { coins.length > 0 ? (
-                                            coins.map((coinCode) => (
-                                                accountsByCoinCodes[coinCode].map(account => this.balanceRow({
-                                                    children: <Logo className={style.coincode} coinCode={coinCode} alt={data.coinNames[coinCode]} active={true} />,
-                                                    coinCode,
-                                                    title: data.coinNames[coinCode],
-                                                    ...account
-                                                }))
-                                            ))
+                                        { data.accounts.length > 0 ? (
+                                            data.accounts.map(account => this.balanceRow({
+                                                title: data.coinNames[account.coinCode],
+                                                ...account
+                                            }))
                                         ) : (
                                             <p>{t('accountSummary.noAccount')}</p>
                                         )}
