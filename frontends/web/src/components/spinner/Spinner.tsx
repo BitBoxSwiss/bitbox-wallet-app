@@ -29,9 +29,6 @@ interface SpinnerProps {
 type Props = SpinnerProps & TranslateProps & SharedProps;
 
 class Spinner extends Component<Props> {
-    constructor(props) {
-        super(props);
-    }
 
     public componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
@@ -68,9 +65,9 @@ class Spinner extends Component<Props> {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <circle cx="12" cy="12" r="4"></circle>
                                     <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
@@ -85,8 +82,8 @@ class Spinner extends Component<Props> {
                     }
                 </div>
                 {
-                    text && text.split('\n').map(line => (
-                        <p className={style.spinnerText}>{line}</p>
+                    text && text.split('\n').map((line, i) => (
+                        <p key={`${line}-${i}`} className={style.spinnerText}>{line}</p>
                     ))
                 }
                 <div className={style.spinner}>

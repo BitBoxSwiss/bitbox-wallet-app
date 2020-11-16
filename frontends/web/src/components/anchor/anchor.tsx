@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { h, JSX, RenderableProps } from 'preact';
 import { apiPost } from '../../utils/request';
 import * as style from './anchor.css';
 

@@ -18,6 +18,8 @@ package backend
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -35,6 +37,7 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
@@ -51,6 +54,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -137,9 +141,12 @@ type Backend struct {
 
 	log *logrus.Entry
 
-	socksProxy   socksproxy.SocksProxy
-	ratesUpdater *rates.RateUpdater
-	banners      *banners.Banners
+	socksProxy socksproxy.SocksProxy
+	// can be a regular or, if Tor is enabled in the config, a SOCKS5 proxy client.
+	httpClient          *http.Client
+	etherScanHTTPClient *http.Client
+	ratesUpdater        *rates.RateUpdater
+	banners             *banners.Banners
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -173,19 +180,51 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.config.AppConfig().Backend.Proxy.UseProxy,
 		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
 	)
+	hclient, err := backend.socksProxy.GetHTTPClient()
+	if err != nil {
+		return nil, err
+	}
+	backend.httpClient = hclient
+	backend.etherScanHTTPClient = ratelimit.FromTransport(hclient.Transport, etherscan.CallInterval)
+
 	backend.baseManager = mdns.NewManager(
 		backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister,
 		backend.BitBoxBaseDeregister, backend.BitBoxBaseRemove,
 		backend.EmitBitBoxBaseReconnected, backend.config,
 		backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
-	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
+	ratesCache := filepath.Join(arguments.CacheDirectoryPath(), "exchangerates")
+	if err := os.MkdirAll(ratesCache, 0700); err != nil {
+		log.Errorf("RateUpdater DB cache dir: %v", err)
+	}
+	client := ratelimit.FromTransport(hclient.Transport, rates.CoinGeckoRateLimit)
+	backend.ratesUpdater = rates.NewRateUpdater(client, ratesCache)
 	backend.ratesUpdater.Observe(backend.Notify)
 
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
 
 	return backend, nil
+}
+
+// configureHistoryExchangeRates changes backend.ratesUpdater settings.
+// It requires both backend.config to be up-to-date and all accounts initialized.
+func (backend *Backend) configureHistoryExchangeRates() {
+	var coins []string
+	for _, acct := range backend.Accounts() {
+		coins = append(coins, string(acct.Coin().Code()))
+	}
+	// No reason continue with ERC20 tokens if Ethereum is inactive.
+	if backend.config.AppConfig().Backend.CoinActive(coin.CodeETH) {
+		for _, token := range backend.config.AppConfig().Backend.ETH.ActiveERC20Tokens {
+			// The prefix is stripped on the frontend and in app config.
+			// TODO: Unify the prefix with frontend and erc20.go, and possibly
+			// move all that to coins/coin/code or eth/erc20.
+			coins = append(coins, "eth-erc20-"+token)
+		}
+	}
+	fiats := backend.config.AppConfig().Backend.FiatList
+	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
 }
 
 // addAccount adds the given account to the backend.
@@ -330,9 +369,9 @@ func (backend *Backend) createAndAddBTCAccount(
 	keystore keystore.Keystore,
 	coin coin.Coin,
 	code string,
-	name string,
 	configs []scriptTypeWithKeypath,
 ) {
+	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
 	if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
 		log.Info("skipping inactive account")
@@ -416,9 +455,9 @@ func (backend *Backend) createAndAddETHAccount(
 	keystore keystore.Keystore,
 	coin coin.Coin,
 	code string,
-	name string,
 	keypath string,
 ) {
+	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
 	prefix := "eth-erc20-"
 	if strings.HasPrefix(code, prefix) {
@@ -561,99 +600,58 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 	}
 	dbFolder := backend.arguments.CacheDirectoryPath()
 
-	// ethMakeTransactionsSource selects between the provided transactions sources based on the coin
-	// config. Currently we can only switch between None and EtherScan.
-	ethMakeTransactionsSource := func(
-		source config.ETHTransactionsSource,
-		etherScan eth.TransactionsSourceMaker) eth.TransactionsSourceMaker {
-		switch source {
-		case config.ETHTransactionsSourceNone:
-			return eth.TransactionsSourceNone
-		case config.ETHTransactionsSourceEtherScan:
-			return etherScan
-		default:
-			panic(fmt.Sprintf("unknown eth transactions source: %s", source))
-		}
-	}
 	erc20Token := erc20TokenByCode(code)
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
 			"https://blockstream.info/testnet/tx/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", &chaincfg.MainNetParams, dbFolder, servers,
 			"https://blockstream.info/tx/", backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", &ltc.TestNet4Params, dbFolder, servers,
 			"http://explorer.litecointools.com/tx/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
-		coinConfig := backend.config.AppConfig().Backend.ETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.socksProxy),
-		)
-		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
+		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
-			nil, backend.socksProxy)
+			etherScan,
+			nil)
 	case code == coinpkg.CodeRETH:
-		coinConfig := backend.config.AppConfig().Backend.RETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api", backend.socksProxy),
-		)
-		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.etherScanHTTPClient)
+		coin = eth.NewCoin(etherScan, code, "Ethereum Rinkeby", "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
-			nil, backend.socksProxy)
+			etherScan,
+			nil)
 	case code == coinpkg.CodeTETH:
-		coinConfig := backend.config.AppConfig().Backend.TETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.socksProxy),
-		)
-		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
+		coin = eth.NewCoin(etherScan, code, "Ethereum Ropsten", "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
-			nil, backend.socksProxy)
+			etherScan,
+			nil)
 	case code == coinpkg.CodeERC20TEST:
-		coinConfig := backend.config.AppConfig().Backend.TETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.socksProxy),
-		)
-		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
+		coin = eth.NewCoin(etherScan, code, "ERC20 TEST", "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
+			etherScan,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
-			backend.socksProxy,
 		)
 	case erc20Token != nil:
-		coinConfig := backend.config.AppConfig().Backend.ETH
-		transactionsSource := ethMakeTransactionsSource(
-			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.socksProxy),
-		)
-		coin = eth.NewCoin(erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
+		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
+		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			transactionsSource,
-			coinConfig.NodeURL,
+			etherScan,
 			erc20Token.token,
-			backend.socksProxy,
 		)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
@@ -703,7 +701,7 @@ func (backend *Backend) initDefaultAccounts() {
 		if backend.arguments.Regtest() {
 			RBTC, _ := backend.Coin(coinpkg.CodeRBTC)
 			backend.createAndAddBTCAccount(keystore, RBTC,
-				"rbtc", "Bitcoin Regtest",
+				"rbtc",
 				[]scriptTypeWithKeypath{
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
 					newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/1'/0'"),
@@ -712,7 +710,7 @@ func (backend *Backend) initDefaultAccounts() {
 		} else {
 			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
 			backend.createAndAddBTCAccount(keystore, TBTC,
-				"tbtc", "Bitcoin Testnet",
+				"tbtc",
 				[]scriptTypeWithKeypath{
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
@@ -722,7 +720,7 @@ func (backend *Backend) initDefaultAccounts() {
 
 			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
 			backend.createAndAddBTCAccount(keystore, TLTC,
-				"tltc", "Litecoin Testnet",
+				"tltc",
 				[]scriptTypeWithKeypath{
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
@@ -730,16 +728,16 @@ func (backend *Backend) initDefaultAccounts() {
 			)
 
 			TETH, _ := backend.Coin(coinpkg.CodeTETH)
-			backend.createAndAddETHAccount(keystore, TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0")
+			backend.createAndAddETHAccount(keystore, TETH, "teth", "m/44'/1'/0'/0")
 			RETH, _ := backend.Coin(coinpkg.CodeRETH)
-			backend.createAndAddETHAccount(keystore, RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0")
+			backend.createAndAddETHAccount(keystore, RETH, "reth", "m/44'/1'/0'/0")
 			erc20TEST, _ := backend.Coin(coinpkg.CodeERC20TEST)
-			backend.createAndAddETHAccount(keystore, erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0")
+			backend.createAndAddETHAccount(keystore, erc20TEST, "erc20Test", "m/44'/1'/0'/0")
 		}
 	} else {
 		BTC, _ := backend.Coin(coinpkg.CodeBTC)
 		backend.createAndAddBTCAccount(keystore, BTC,
-			"btc", "Bitcoin",
+			"btc",
 			[]scriptTypeWithKeypath{
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/0'/0'"),
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/0'/0'"),
@@ -749,7 +747,7 @@ func (backend *Backend) initDefaultAccounts() {
 
 		LTC, _ := backend.Coin(coinpkg.CodeLTC)
 		backend.createAndAddBTCAccount(keystore, LTC,
-			"ltc", "Litecoin",
+			"ltc",
 			[]scriptTypeWithKeypath{
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/2'/0'"),
 				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/2'/0'"),
@@ -757,12 +755,12 @@ func (backend *Backend) initDefaultAccounts() {
 		)
 
 		ETH, _ := backend.Coin(coinpkg.CodeETH)
-		backend.createAndAddETHAccount(keystore, ETH, "eth", "Ethereum", "m/44'/60'/0'/0")
+		backend.createAndAddETHAccount(keystore, ETH, "eth", "m/44'/60'/0'/0")
 
 		if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
 			for _, erc20Token := range erc20Tokens {
 				token, _ := backend.Coin(erc20Token.code)
-				backend.createAndAddETHAccount(keystore, token, string(erc20Token.code), erc20Token.name, "m/44'/60'/0'/0")
+				backend.createAndAddETHAccount(keystore, token, string(erc20Token.code), "m/44'/60'/0'/0")
 			}
 		}
 	}
@@ -776,6 +774,12 @@ func (backend *Backend) initAccounts() {
 	backend.initPersistedAccounts()
 
 	backend.emitAccountsStatusChanged()
+
+	// The updater fetches rates only for active accounts, so this seems the most
+	// appropriate place to update exchange rate configuration.
+	// Every time fiats or coins list is changed in the UI settings, ReinitializedAccounts
+	// is invoked which triggers this method.
+	backend.configureHistoryExchangeRates()
 }
 
 // ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
@@ -851,6 +855,10 @@ func (backend *Backend) Start() <-chan interface{} {
 	}
 	backend.initPersistedAccounts()
 	backend.emitAccountsStatusChanged()
+
+	backend.ratesUpdater.StartCurrentRates()
+	backend.configureHistoryExchangeRates()
+
 	return backend.events
 }
 
@@ -1146,6 +1154,7 @@ func (backend *Backend) Environment() Environment {
 func (backend *Backend) Close() error {
 	errors := []string{}
 
+	backend.ratesUpdater.Stop()
 	backend.uninitAccounts()
 
 	for _, coin := range backend.coins {

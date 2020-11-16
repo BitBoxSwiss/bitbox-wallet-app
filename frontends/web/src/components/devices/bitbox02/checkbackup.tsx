@@ -57,7 +57,7 @@ class Check extends Component<Props, State> {
                     this.setState({ foundBackup });
                     message = this.props.t('backup.check.success');
                 } else {
-                    message = this.props.t('unknownError', {errorMessage: 'Not found'});
+                    message = this.props.t('unknownError', { errorMessage: 'Not found' });
                 }
             // second non-silent call is blocking and waits for user to confirm backup on device screen
             } else if (!silent && response.success) {
@@ -76,16 +76,15 @@ class Check extends Component<Props, State> {
     }
 
     public render({ t, backups }: RenderableProps<Props>, { activeDialog, message, foundBackup, userVerified }: State) {
-        let silent: boolean;
         return (
             <div>
                 <Button
                     secondary
                     disabled={this.props.disabled}
                     onClick={() => {
-                        this.checkBackup(silent = true, backups = backups);
+                        this.checkBackup(true, backups);
                         this.setState({ activeDialog: true, userVerified: false });
-                        this.checkBackup(silent = false, backups = backups);
+                        this.checkBackup(false, backups);
                     }}
                 >
                     {t('button.check')}

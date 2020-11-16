@@ -60,7 +60,7 @@ class UnlockBitBoxBase extends Component<Props, State> {
         if (!this.validate()) {
             return;
         }
-        apiPost(this.apiPrefix() + '/user-authenticate', {username: 'admin', password: this.state.password })
+        apiPost(this.apiPrefix() + '/user-authenticate', { username: 'admin', password: this.state.password })
         .then(response => {
             if (!response.success) {
                 // TODO: Once error codes are implemented on the base, add them with corresponding text to app.json for translation
@@ -120,4 +120,4 @@ class UnlockBitBoxBase extends Component<Props, State> {
 }
 
 const HOC = translate<UnlockBitBoxBaseProps>()(UnlockBitBoxBase);
-export { HOC as UnlockBitBoxBase};
+export { HOC as UnlockBitBoxBase };

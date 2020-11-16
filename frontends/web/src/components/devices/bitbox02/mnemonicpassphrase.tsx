@@ -72,13 +72,11 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
                                         {
                                             !mnemonicPassphraseEnabled && message && (
                                                 <p>
-                                                    {
-                                                        message.split('\n').map(line => (
-                                                            <span>
-                                                                <SimpleMarkup tagName="span" markup={line} /><br/>
-                                                            </span>
-                                                        ))
-                                                    }
+                                                    { message.split('\n').map((line, i) => (
+                                                        <span key={`${line}-${i}`}>
+                                                            <SimpleMarkup tagName="span" markup={line} /><br/>
+                                                        </span>
+                                                    )) }
                                                 </p>
                                             )
                                         }

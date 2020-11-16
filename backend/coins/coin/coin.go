@@ -24,6 +24,9 @@ import (
 type Coin interface {
 	observable.Interface
 
+	// Name is the name of the coin, show to the user.
+	Name() string
+
 	// Code returns the code used to identify the coin (should be the acronym of the coin in
 	// lowercase).
 	Code() Code

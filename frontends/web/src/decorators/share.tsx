@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentFactory, h, RenderableProps } from 'preact';
+import { Component, ComponentFactory, h, JSX, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { ObjectButNotFunction } from '../utils/types';
 import { Store } from './store';

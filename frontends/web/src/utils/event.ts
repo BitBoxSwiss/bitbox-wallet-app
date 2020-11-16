@@ -90,12 +90,12 @@ export function apiSubscribe(subject: Subject, observer: Observer): Unsubscribe 
     observers.push(observer);
     return () => {
         if (!observers.includes(observer)) {
-            console.warn('!observers.includes(observer)'); // tslint:disable-line:no-console
+            console.warn('!observers.includes(observer)');
         }
         const index = observers.indexOf(observer);
         observers.splice(index, 1);
         if (observers.includes(observer)) {
-            console.warn('observers.includes(observer)'); // tslint:disable-line:no-console
+            console.warn('observers.includes(observer)');
         }
     };
 }

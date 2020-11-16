@@ -1,6 +1,7 @@
 image: Visual Studio 2017
 
 environment:
+  nodejs_version: "12"
   matrix:
     - QT: C:\Qt\5.11.3\msvc2017_64
       GO: C:\go
@@ -10,6 +11,9 @@ environment:
 
 # https://www.appveyor.com/docs/windows-images-software/#golang
 stack: go 1.14
+
+install:
+  - ps: Install-Product node $env:nodejs_version
 
 matrix:
   fast_finish: true

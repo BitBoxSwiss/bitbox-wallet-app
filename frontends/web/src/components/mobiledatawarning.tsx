@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { h, JSX, RenderableProps } from 'preact';
 import { subscribe } from '../decorators/subscribe';
 import { translate, TranslateProps } from '../decorators/translate';
 import Status from './status/status';

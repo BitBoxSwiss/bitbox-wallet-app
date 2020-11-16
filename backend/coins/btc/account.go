@@ -667,8 +667,8 @@ func (account *Account) subscribeAddress(
 	return nil
 }
 
-// Transactions wraps transaction.Transactions.Transactions().
-func (account *Account) Transactions() ([]*accounts.TransactionData, error) {
+// Transactions implements accounts.Interface.
+func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	if account.fatalError {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}

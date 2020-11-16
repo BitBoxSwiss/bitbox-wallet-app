@@ -59,6 +59,8 @@ class Settings extends Component<Props, State> {
         },
     ];
 
+    // Note: these are stored in the app config as is, without the "eth-erc20-" prefix,
+    // while backend uses the prefix in backend/erc20.go.
     private erc20TokenCodes = {
         usdt: 'Tether USD',
         usdc: 'USD Coin',
@@ -254,9 +256,9 @@ class Settings extends Component<Props, State> {
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
                                         className="m-right-tiny">
                                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -390,7 +392,7 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
-                                                             optionalText={t('generic.enabled', {context: config.backend.proxy.useProxy.toString()})}>
+                                                             optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
                                                             {t('settings.expert.useProxy')}
                                                         </SettingsButton>
                                                         {

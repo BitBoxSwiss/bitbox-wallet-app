@@ -15,10 +15,15 @@
 package accounts
 
 import (
+	"encoding/json"
+	"math/big"
+	"sort"
 	"time"
 
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // TxType is a type of transaction. See the TxType* constants.
@@ -61,6 +66,12 @@ type TransactionData struct {
 	// Fee is nil for a receiving tx. The fee is only displayed (and relevant) when sending funds
 	// from the wallet.
 	Fee *coin.Amount
+	// FeeIsDifferentUnit is true if the fee is paid in a different unit than the main transaction
+	// amount. Example: ERC20-tokens fees are paid in ETH.
+	// When true, the fee amount does not count towards the balance of the account associated with
+	// the transaction, but another account (e.g. counts towards the ETH account if the tx is an
+	// ERC20-token account).
+	FeeIsDifferentUnit bool
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	Timestamp *time.Time
 	// TxID is the tx ID.
@@ -83,6 +94,11 @@ type TransactionData struct {
 	Type TxType
 	// Amount is always >0 and is the amount received or sent (not including the fee).
 	Amount coin.Amount
+	// Balance is balance of the account at the time of this transaction. It is the sum of all
+	// transactions up to this point.
+	// This value is only valid as part of `OrderedTransactions`.
+	Balance coin.Amount
+
 	// Addresses money was sent to / received on.
 	Addresses []AddressAndAmount
 
@@ -102,4 +118,133 @@ type TransactionData struct {
 	// --- Fields only used for ETH follow
 
 	Gas uint64
+}
+
+// byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
+// height. Special case for unconfirmed transactions (height <=0), which come last. If the height
+// is the same for two txs, they are sorted by the created (first seen) time instead.
+type byHeight []*TransactionData
+
+func (s byHeight) Len() int { return len(s) }
+func (s byHeight) Less(i, j int) bool {
+	// Secondary sort by the time we've first seen the tx in the app.
+	if s[i].Height == s[j].Height && s[i].CreatedTimestamp != nil && s[j].CreatedTimestamp != nil {
+		return s[i].CreatedTimestamp.Before(*s[j].CreatedTimestamp)
+	}
+	if s[j].Height <= 0 {
+		return true
+	}
+	if s[i].Height <= 0 {
+		return false
+	}
+	return s[i].Height < s[j].Height
+}
+func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
+// OrderedTransactions is a list of transactions sorted from newest to oldest.
+type OrderedTransactions []*TransactionData
+
+// NewOrderedTransactions sorts the transactions from newest to oldest.
+// The input list is modified in place and must not be used anymore after calling this function.
+func NewOrderedTransactions(txs []*TransactionData) OrderedTransactions {
+	sort.Sort(sort.Reverse(byHeight(txs)))
+
+	balance := big.NewInt(0)
+	for i := len(txs) - 1; i >= 0; i-- {
+		tx := txs[i]
+		switch tx.Type {
+		case TxTypeReceive:
+			balance.Add(balance, tx.Amount.BigInt())
+		case TxTypeSend:
+			balance.Sub(balance, tx.Amount.BigInt())
+			// Subtract fee as well.
+			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
+				balance.Sub(balance, tx.Fee.BigInt())
+			}
+		case TxTypeSendSelf:
+			// Subtract only fee.
+			if tx.Fee != nil && !tx.FeeIsDifferentUnit {
+				balance.Sub(balance, tx.Fee.BigInt())
+			}
+		}
+		tx.Balance = coin.NewAmount(balance)
+	}
+	return txs
+}
+
+// TimeseriesEntry contains the balance of the account at the given time.
+type TimeseriesEntry struct {
+	Time  time.Time
+	Value coin.Amount
+}
+
+// MarshalJSON serializes the entry as JSON.
+func (c *TimeseriesEntry) MarshalJSON() ([]byte, error) {
+	value, err := c.Value.Int64()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(struct {
+		Time  int64 `json:"time"`
+		Value int64 `json:"value"`
+	}{
+		Time:  c.Time.Unix(),
+		Value: value,
+	})
+}
+
+// EarliestTime returns the timestamp of the latest transaction. Zero is returned if there is no
+// transaction with a timestamp.
+func (txs OrderedTransactions) EarliestTime() time.Time {
+	if len(txs) > 0 {
+		tx := txs[len(txs)-1]
+		if tx.Timestamp != nil {
+			return *tx.Timestamp
+		}
+	}
+	return time.Time{}
+}
+
+// Timeseries chunks the time between `start` and `end` into steps of `interval` duration, and
+// provides the balance of the account at each step.
+func (txs OrderedTransactions) Timeseries(
+	start, end time.Time, interval time.Duration) ([]TimeseriesEntry, error) {
+	for _, tx := range txs {
+		if tx.Height != 0 && tx.Timestamp == nil {
+			return nil, errp.WithStack(errors.ErrNotAvailable)
+		}
+	}
+	currentTime := start
+	if currentTime.IsZero() {
+		return nil, nil
+	}
+
+	result := []TimeseriesEntry{}
+	for {
+		// Find the latest tx before `currentTime`.
+		nextIndex := sort.Search(len(txs), func(idx int) bool {
+			tx := txs[idx]
+			if tx.Height == 0 {
+				return false
+			}
+			return tx.Timestamp.Before(currentTime) || tx.Timestamp.Equal(currentTime)
+		})
+		var value coin.Amount
+		if nextIndex == len(txs) {
+			value = coin.NewAmountFromInt64(0)
+		} else {
+			value = txs[nextIndex].Balance
+		}
+
+		result = append(result, TimeseriesEntry{
+			Time:  currentTime,
+			Value: value,
+		})
+
+		currentTime = currentTime.Add(interval)
+		if currentTime.After(end) {
+			break
+		}
+	}
+	return result, nil
 }

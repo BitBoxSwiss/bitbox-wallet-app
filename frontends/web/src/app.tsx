@@ -141,13 +141,17 @@ class App extends Component<Props, State> {
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.props.accounts;
+        if (currentURL.startsWith('/account-summary') && accounts.length === 0) {
+            route('/', true);
+            return;
+        }
         if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
             route('/', true);
             return;
         }
         if (isIndex || currentURL === '/account') {
             if (accounts && accounts.length) {
-                route(`/account/${accounts[0].code}`, true);
+                route(`/account-summary`, true);
                 return;
             }
         }
@@ -229,17 +233,17 @@ class App extends Component<Props, State> {
                         {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                         <ManageBackups
                             path="/manage-backups/:deviceID/:sdCardInserted?"
-                            key={devices}
+                            key={['manage-backups', devices]}
                             devices={devices}
                         />
                         <DeviceSwitch
                             path="/device/:deviceID"
-                            key={devices}
+                            key={['device-switch', devices]}
                             deviceID={null /* dummy to satisfy TS */}
                             devices={devices} />
                         <DeviceSwitch
                             default
-                            key={devices}
+                            key={['device-switch-default', devices]}
                             deviceID={null}
                             devices={devices} />
                     </Container>

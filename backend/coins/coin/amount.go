@@ -29,7 +29,7 @@ type Amount struct {
 
 // NewAmount creates a new amount.
 func NewAmount(amount *big.Int) Amount {
-	return Amount{n: amount}
+	return Amount{n: new(big.Int).Set(amount)}
 }
 
 // NewAmountFromInt64 creates a new amount.

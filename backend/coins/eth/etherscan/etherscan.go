@@ -30,8 +30,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -39,40 +37,29 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-// etherscan rate limits to one request per 0.2 seconds.
-var callInterval = 210 * time.Millisecond
+// CallInterval is the duration between etherscan requests.
+// Etherscan rate limits to one request per 0.2 seconds.
+var CallInterval = 210 * time.Millisecond
 
 const apiKey = "8GXVIES9ACAJIH7Q5PFXVHK8KH44HZRWBM"
 
 // EtherScan is a rate-limited etherscan api client. See https://etherscan.io/apis.
 type EtherScan struct {
-	url         string
-	rateLimiter <-chan time.Time
-	lock        locker.Locker
-	socksProxy  socksproxy.SocksProxy
+	url        string
+	httpClient *http.Client
 }
 
 // NewEtherScan creates a new instance of EtherScan.
-func NewEtherScan(url string, socksProxy socksproxy.SocksProxy) *EtherScan {
+func NewEtherScan(url string, httpClient *http.Client) *EtherScan {
 	return &EtherScan{
-		url:         url,
-		rateLimiter: time.After(0), // 0 so the first call does not wait.
-		socksProxy:  socksProxy,
+		url:        url,
+		httpClient: httpClient,
 	}
 }
 
 func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
-	defer etherScan.lock.Lock()()
-	<-etherScan.rateLimiter
-	defer func() {
-		etherScan.rateLimiter = time.After(callInterval)
-	}()
-	client, err := etherScan.socksProxy.GetHTTPClient()
-	if err != nil {
-		return errp.WithStack(err)
-	}
 	params.Set("apikey", apiKey)
-	response, err := client.Get(etherScan.url + "?" + params.Encode())
+	response, err := etherScan.httpClient.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
 		return errp.WithStack(err)
 	}
@@ -153,10 +140,11 @@ type Transaction struct {
 }
 
 // TransactionData returns the tx data to be shown to the user.
-func (tx *Transaction) TransactionData() *accounts.TransactionData {
+func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 	timestamp := time.Time(tx.jsonTransaction.Timestamp)
 	return &accounts.TransactionData{
 		Fee:                      tx.fee(),
+		FeeIsDifferentUnit:       isERC20,
 		Timestamp:                &timestamp,
 		TxID:                     tx.TxID(),
 		InternalID:               tx.internalID(),
@@ -266,6 +254,7 @@ func (tx *Transaction) gas() uint64 {
 // entries appear in the etherscan result if the recipient and sender are the same. It also sets the
 // transaction type (send, receive, send to self) based on the account address.
 func prepareTransactions(
+	isERC20 bool,
 	blockTipHeight *big.Int,
 	isInternal bool,
 	transactions []*Transaction, address common.Address) ([]*accounts.TransactionData, error) {
@@ -301,7 +290,7 @@ func prepareTransactions(
 		}
 		transaction.blockTipHeight = blockTipHeight
 		transaction.isInternal = isInternal
-		castTransactions = append(castTransactions, transaction.TransactionData())
+		castTransactions = append(castTransactions, transaction.TransactionData(isERC20))
 	}
 	return castTransactions, nil
 }
@@ -333,13 +322,14 @@ func (etherScan *EtherScan) Transactions(
 	if err := etherScan.call(params, &result); err != nil {
 		return nil, err
 	}
-	transactionsNormal, err := prepareTransactions(blockTipHeight, false, result.Result, address)
+	isERC20 := erc20Token != nil
+	transactionsNormal, err := prepareTransactions(isERC20, blockTipHeight, false, result.Result, address)
 	if err != nil {
 		return nil, err
 	}
 	var transactionsInternal []*accounts.TransactionData
 	if erc20Token == nil {
-		// Alo show internal transactions.
+		// Also show internal transactions.
 		params.Set("action", "txlistinternal")
 		resultInternal := struct {
 			Result []*Transaction
@@ -349,7 +339,7 @@ func (etherScan *EtherScan) Transactions(
 		}
 		var err error
 		transactionsInternal, err = prepareTransactions(
-			blockTipHeight, true, resultInternal.Result, address)
+			isERC20, blockTipHeight, true, resultInternal.Result, address)
 		if err != nil {
 			return nil, err
 		}

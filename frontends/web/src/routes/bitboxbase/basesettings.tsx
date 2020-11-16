@@ -42,7 +42,6 @@ import SimpleMarkup from '../../utils/simplemarkup';
 import { verificationProgress } from '../../utils/verificationprogress';
 import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo, statusBadgeColor } from './bitboxbase';
 import * as style from './bitboxbase.css';
-import { updateStatus } from './bitboxbase.css';
 
 interface SettingsProps {
     baseID: string;
@@ -116,9 +115,9 @@ class BaseSettings extends Component<Props, State> {
             if (response.success) {
                 // If we get a notification that the update has failed, don't reset state to updating
                 if (!this.state.updating && response.updateProgress.updateState !== UpdateState.updateFailed) {
-                    this.setState({updating: true});
+                    this.setState({ updating: true });
                 }
-                this.setState({updateProgress: response.updateProgress});
+                this.setState({ updateProgress: response.updateProgress });
             } else {
                 alertUser(response.message);
             }
@@ -145,10 +144,10 @@ class BaseSettings extends Component<Props, State> {
 
     private updateBase = (version: string) => {
         this.setState({ updating: true });
-        apiPost(this.props.apiPrefix + '/update-base', {version})
+        apiPost(this.props.apiPrefix + '/update-base', { version })
         .then(response => {
             if (!response.success) {
-                this.setState({updating: false});
+                this.setState({ updating: false });
                 alertUser(response.message);
             }
         });
@@ -161,12 +160,12 @@ class BaseSettings extends Component<Props, State> {
                 this.setState({ waitDialog: {
                     title: this.props.t('generic.applying'),
                     text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
-                }});
+                } });
                 apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
                 .then(response => {
                     if (response.success) {
                         this.props.getBaseInfo();
-                        this.setState({waitDialog: undefined, expandedTorAddress: false});
+                        this.setState({ waitDialog: undefined, expandedTorAddress: false });
                     } else {
                         alertUser(response.message);
                     }
@@ -395,8 +394,8 @@ class BaseSettings extends Component<Props, State> {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round">
                                     {
                                         expandedDashboard ? (
                                             <polyline points="18 15 12 9 6 15"></polyline>
@@ -409,7 +408,7 @@ class BaseSettings extends Component<Props, State> {
                         </div>
                         {
                             updating ?
-                            <div className={updateStatus}>
+                            <div className={style.updateStatus}>
                                 <CenteredContent>
                                     <div className="flex flex-column flex-items-center">
                                         <div className="subHeader">
@@ -452,7 +451,7 @@ class BaseSettings extends Component<Props, State> {
                                                 getBaseInfo={getBaseInfo} />
                                             <ChangeBasePassword apiPrefix={apiPrefix} />
                                             <SettingsButton
-                                                optionalText={t('generic.enabled', {context: baseInfo.isTorEnabled.toString()})}
+                                                optionalText={t('generic.enabled', { context: baseInfo.isTorEnabled.toString() })}
                                                 onClick={baseInfo.isTorEnabled ?
                                                     this.toggleExpandedTorAddress :
                                                     () => this.toggleTor(true)}>
@@ -547,7 +546,7 @@ class BaseSettings extends Component<Props, State> {
                 {
                     expandedTorAddress && (
                         <Dialog
-                            title={t('bitboxBase.settings.node.tor') + ': ' + t('generic.enabled', {context: baseInfo.isTorEnabled.toString()}).toLowerCase()}
+                            title={t('bitboxBase.settings.node.tor') + ': ' + t('generic.enabled', { context: baseInfo.isTorEnabled.toString() }).toLowerCase()}
                             onClose={this.toggleExpandedTorAddress}>
                             {
                                 baseInfo.isTorEnabled && (
@@ -564,7 +563,7 @@ class BaseSettings extends Component<Props, State> {
                                     danger
                                     style="width: 100%;"
                                     onClick={() => this.toggleTor(false)}>
-                                    {t('generic.enable', {context: 'false'})}
+                                    {t('generic.enable', { context: 'false' })}
                                 </Button>
                             </div>
                         </Dialog>

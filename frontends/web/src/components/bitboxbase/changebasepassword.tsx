@@ -57,7 +57,7 @@ class ChangeBasePassword extends Component<Props, State> {
         if (!this.validate('oldPassword')) {
             return;
         }
-        apiPost(this.props.apiPrefix + '/user-authenticate', {username: this.state.username, password: this.state.oldPassword })
+        apiPost(this.props.apiPrefix + '/user-authenticate', { username: this.state.username, password: this.state.oldPassword })
         .then(response => {
             if (response.success) {
                 this.setState({ authenticated: true });
@@ -74,7 +74,7 @@ class ChangeBasePassword extends Component<Props, State> {
         if (!this.validate('newPassword')) {
             return;
         }
-        apiPost(this.props.apiPrefix + '/user-change-password', {username: 'admin', password: this.state.oldPassword, newPassword: this.state.newPassword})
+        apiPost(this.props.apiPrefix + '/user-change-password', { username: 'admin', password: this.state.oldPassword, newPassword: this.state.newPassword })
         .then(response => {
             if (response.success) {
                 alertUser('Password changed successfully.');
@@ -138,7 +138,7 @@ class ChangeBasePassword extends Component<Props, State> {
                                         id="password"
                                         type="password"
                                         label={t('changePin.oldLabel')}
-                                        showLabel= " "
+                                        showLabel=" "
                                         onValidPassword={this.setValidOldPassword} />
                                 </div>
                                 <div className="buttons">
@@ -181,4 +181,4 @@ class ChangeBasePassword extends Component<Props, State> {
 }
 
 const HOC = translate<ChangeBasePasswordProps>()(ChangeBasePassword);
-export { HOC as ChangeBasePassword};
+export { HOC as ChangeBasePassword };

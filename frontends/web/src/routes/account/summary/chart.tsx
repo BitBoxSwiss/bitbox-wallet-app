@@ -1,0 +1,394 @@
+/**
+ * Copyright 2020 Shift Crypto AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { createChart, IChartApi, LineData, LineStyle, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
+import { Component, createRef, h, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { formatNumber, Fiat } from '../../../components/rates/rates';
+import * as styles from './chart.css';
+
+export type ChartData = LineData[];
+
+interface ChartProps {
+    // If undefined, data is missing.
+    dataDaily?: ChartData;
+    dataHourly?: ChartData;
+    fiatUnit: Fiat;
+    total: number | null;
+    isUpToDate: boolean;
+}
+
+interface State {
+    display: 'week' | 'month' | 'year' | 'all';
+    source: 'daily' | 'hourly';
+    difference?: number;
+    diffSince?: string;
+}
+
+type Props = ChartProps & TranslateProps;
+
+class Chart extends Component<Props, State> {
+    private ref = createRef();
+    private chart?: IChartApi;
+    private lineSeries?: ISeriesApi<'Area'>;
+    private resizeTimerID?: any;
+    private height: number = 300;
+
+    public readonly state: State = {
+        display: 'all',
+        source: 'daily',
+    };
+
+    public componentDidMount() {
+        this.createChart();
+    }
+
+    public componentWillUnmount() {
+        window.removeEventListener('resize', this.onResize);
+        if (this.chart) {
+            this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
+        }
+    }
+
+    public componentDidUpdate(prev) {
+        const { dataDaily, dataHourly } = this.props;
+        if (!this.chart && dataDaily && dataHourly) {
+            this.createChart();
+        }
+        if (
+            (this.lineSeries && prev.dataDaily && prev.dataHourly && dataDaily && dataHourly)
+            && (
+                prev.dataDaily.length !== dataDaily.length
+                || prev.dataHourly.length !== dataHourly.length
+            )
+        ) {
+            this.lineSeries.setData(dataDaily);
+        }
+    }
+
+    private createChart = () => {
+        if (this.ref.current) {
+            this.chart = createChart(this.ref.current, {
+                width: this.ref.current.offsetWidth,
+                height: this.height,
+                handleScroll: false,
+                handleScale: false,
+                crosshair: {
+                    vertLine: {
+                        visible: false,
+                        labelVisible: true,
+                    },
+                    horzLine: {
+                        visible: false,
+                        labelVisible: true,
+                    },
+                    mode: 1,
+                },
+                grid: {
+                    vertLines: {
+                        visible: false,
+                    },
+                    horzLines: {
+                        color: '#dedede',
+                        style: LineStyle.Solid,
+                        visible: true,
+                    },
+                },
+                layout: {
+                    backgroundColor: '#F5F5F5',
+                    fontSize: 11,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+                    textColor: '#1D1D1B',
+                },
+                leftPriceScale: {
+                    scaleMargins: {
+                        top: 0.2,
+                        bottom: 0.1,
+                    },
+                    visible: true,
+                    borderVisible: false,
+                    drawTicks: false,
+                    entireTextOnly: true,
+                },
+                localization: {
+                    locale: this.props.i18n.language,
+                },
+                rightPriceScale: {
+                    visible: false,
+                },
+                timeScale: {
+                    borderVisible: false,
+                    timeVisible: false,
+                }
+            });
+            if (this.props.dataDaily !== undefined) {
+                this.lineSeries = this.chart.addAreaSeries({
+                    priceFormat: {
+                        type: 'volume',
+                    },
+                    topColor: 'rgba(94, 148, 192, 0.5)',
+                    bottomColor: 'rgba(94, 148, 192, 0.02)',
+                    lineColor: 'rgba(94, 148, 192, 1)',
+                });
+                this.lineSeries.setData(this.props.dataDaily);
+                if (this.props.dataDaily.length) {
+                    this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
+                }
+            }
+            this.chart.timeScale().fitContent();
+            window.addEventListener('resize', this.onResize);
+            setTimeout(() => this.ref.current.classList.remove(styles.invisible), 200);
+        }
+    }
+
+    private onResize = () => {
+        if (this.resizeTimerID) {
+            clearTimeout(this.resizeTimerID);
+        }
+        this.resizeTimerID = setTimeout(() => {
+            if (!this.chart || !this.ref.current) {
+                return;
+            }
+            this.chart.resize(this.ref.current.offsetWidth, this.height);
+        }, 200);
+    }
+
+    private getCurrentTotal = () => {
+        return this.props.total;
+    }
+
+    private getUTCRange = () => {
+        const now = new Date();
+        const utcYear = now.getUTCFullYear();
+        const utcMonth = now.getUTCMonth();
+        const utcDate = now.getUTCDate();
+        const utcHours = now.getUTCHours();
+        const to = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+        const from = new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours, 0, 0, 0));
+        return {
+            utcYear,
+            utcMonth,
+            utcDate,
+            to,
+            from,
+        };
+    }
+
+    private displayWeek = () => {
+        if (this.state.source !== 'hourly' && this.lineSeries && this.props.dataHourly && this.chart) {
+            this.lineSeries.setData(this.props.dataHourly);
+            this.chart.applyOptions({ timeScale: { timeVisible: true } });
+        }
+        this.setState(
+            { display: 'week', source: 'hourly' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                const { utcDate, from, to } = this.getUTCRange();
+                from.setUTCDate(utcDate - 7);
+                this.chart.timeScale().setVisibleRange({
+                    from: from.getTime() / 1000 as UTCTimestamp,
+                    to: to.getTime() / 1000 as UTCTimestamp,
+                });
+            }
+        );
+    }
+
+    private displayMonth = () => {
+        if (this.state.source !== 'daily' && this.lineSeries && this.props.dataDaily && this.chart) {
+            this.lineSeries.setData(this.props.dataDaily);
+            this.chart.applyOptions({ timeScale: { timeVisible: false } });
+        }
+        this.setState(
+            { display: 'month', source: 'daily' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                const { utcMonth, from, to } = this.getUTCRange();
+                from.setUTCMonth(utcMonth - 1);
+                this.chart.timeScale().setVisibleRange({
+                    from: from.getTime() / 1000 as UTCTimestamp,
+                    to: to.getTime() / 1000 as UTCTimestamp,
+                });
+            }
+        );
+    }
+
+    private displayYear = () => {
+        if (this.state.source !== 'daily' && this.lineSeries && this.props.dataDaily && this.chart) {
+            this.lineSeries.setData(this.props.dataDaily);
+            this.chart.applyOptions({ timeScale: { timeVisible: false } });
+        }
+        this.setState(
+            { display: 'year', source: 'daily' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                const { utcYear, from, to } = this.getUTCRange();
+                from.setUTCFullYear(utcYear - 1);
+                this.chart && this.chart.timeScale().setVisibleRange({
+                    from: from.getTime() / 1000 as UTCTimestamp,
+                    to: to.getTime() / 1000 as UTCTimestamp,
+                });
+            }
+        );
+    }
+
+    private displayAll = () => {
+        if (this.state.source !== 'daily' && this.lineSeries && this.props.dataDaily && this.chart) {
+            this.lineSeries.setData(this.props.dataDaily);
+            this.chart.applyOptions({ timeScale: { timeVisible: false } });
+        }
+        this.setState(
+            { display: 'all', source: 'daily' },
+            () => {
+                if (!this.chart) {
+                    return;
+                }
+                this.chart.timeScale().fitContent();
+            }
+        );
+    }
+
+    private calculateChange = () => {
+        const data = this.props[this.state.source === 'daily' ? 'dataDaily' : 'dataHourly'];
+        if (!data || !this.chart || !this.lineSeries) {
+            return;
+        }
+        const visiblerange = this.lineSeries.barsInLogicalRange(this.chart.timeScale().getVisibleLogicalRange() as any) as any;
+        if (!visiblerange || !visiblerange.barsBefore) {
+            // if the chart is empty, during first load, barsInLogicalRange is null
+            return;
+        }
+        const { barsBefore } = visiblerange;
+        const rangeFrom = Math.max(Math.floor(barsBefore), 0);
+        if (!data[rangeFrom]){
+            // when data series have changed it triggers subscribeVisibleLogicalRangeChange
+            // but at this point the setVisibleRange has not executed what the new range
+            // should be and therefore barsBefore might still point to the old range
+            // so we have to ignore this call and expect setVisibleRange with correct range
+            this.setState({ difference: 0, diffSince: '' });
+            return;
+        }
+        const valueFrom = data[rangeFrom].value;
+        const valueTo = this.getCurrentTotal();
+        const valueDiff = valueTo ? valueTo - valueFrom : 0;
+        this.setState({
+            difference: ((valueDiff / valueFrom) * 100),
+            diffSince: `${data[rangeFrom].value.toFixed(2)} / ${new Date(Number(data[rangeFrom].time) * 1000)}`
+        });
+    }
+
+    public render(
+        { t, dataDaily, fiatUnit, isUpToDate }: RenderableProps<Props>,
+        { difference, diffSince, display }: State,
+    ) {
+        if (!dataDaily || !dataDaily.length) {
+            return (
+                <p className={styles.chartUpdatignMessage}>
+                    {t('chart.dataMissing')}
+                </p>
+            );
+        }
+
+        const diff = difference && Number.isFinite(difference) ? (
+            <span className={styles[difference < 0 ? 'down' : 'up']} title={diffSince}>
+                <span className={styles.arrow}>
+                    {difference < 0 ? (<ArrowUp />) : (<ArrowDown />)}
+                </span>
+                <span className={styles.diffValue}>
+                    {formatNumber(difference)}
+                    <span className={styles.diffUnit}>%</span>
+                </span>
+            </span>
+        ) : null;
+
+        const currentTotal = this.getCurrentTotal();
+
+        return (
+            <section className={styles.chart}>
+                <header>
+                    <div className={styles.summary}>
+                        {currentTotal ? (
+                            <div className={styles.totalValue}>
+                                {formatNumber(currentTotal)}
+                                <span className={styles.totalUnit}>{fiatUnit}</span>
+                            </div>
+                        ) : null}
+                        {diff}
+                    </div>
+                    <div className={styles.filters}>
+                        <button className={display === 'week' ? styles.filterActive : undefined} onClick={this.displayWeek}>
+                            {t('chart.filter.week')}
+                        </button>
+                        <button className={display === 'month' ? styles.filterActive : undefined} onClick={this.displayMonth}>
+                            {t('chart.filter.month')}
+                        </button>
+                        <button className={display === 'year' ? styles.filterActive : undefined} onClick={this.displayYear}>
+                            {t('chart.filter.year')}
+                        </button>
+                        <button className={display === 'all' ? styles.filterActive : undefined} onClick={this.displayAll}>
+                            {t('chart.filter.all')}
+                        </button>
+                    </div>
+                </header>
+                <div className={styles.chartUpdatignMessage}>
+                    {!isUpToDate ? t('chart.dataUpdating') : null}
+                </div>
+                <div ref={this.ref} className={styles.invisible}></div>
+            </section>
+        );
+    }
+}
+
+const HOC = translate<ChartProps>()(Chart);
+
+export { HOC as Chart };
+
+export const ArrowUp = () => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+    </svg>
+);
+
+export const ArrowDown = () => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round">
+        <line x1="12" y1="19" x2="12" y2="5"></line>
+        <polyline points="5 12 12 5 19 12"></polyline>
+    </svg>
+);

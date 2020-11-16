@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h, JSX, RenderableProps } from 'preact';
 import { Link, Match } from 'preact-router/match';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
@@ -60,10 +60,6 @@ export function setSidebarStatus(status: string) {
 
 class Sidebar extends Component<Props> {
     private swipe!: SwipeAttributes;
-
-    constructor(props: Props) {
-        super(props);
-    }
 
     public componentDidMount() {
         this.registerTouchEvents();
@@ -184,7 +180,7 @@ class Sidebar extends Component<Props> {
                                         title={t('sidebar.addAccount')}
                                         activeClassName="sidebar-active"
                                         onClick={this.handleSidebarItemClick}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="12" y1="8" x2="12" y2="16"></line>
                                             <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -221,7 +217,7 @@ class Sidebar extends Component<Props> {
                             </div>
                         </div>
                     </div> */}
-                    {debug &&
+                    { accounts.length ? (
                         <div className="sidebarItem">
                             <Link
                                 activeClassName="sidebar-active"
@@ -234,7 +230,7 @@ class Sidebar extends Component<Props> {
                                 <span className="sidebar_label">{t('accountSummary.title')}</span>
                             </Link>
                         </div>
-                    }
+                    ) : null }
                     { accounts && accounts.map(this.getAccountLink) }
                     <div className="sidebarHeaderContainer end"></div>
                     <div className="sidebarItem">

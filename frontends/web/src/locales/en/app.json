@@ -491,6 +491,16 @@
     "newTitle": "New device password",
     "oldLabel": "Current device password"
   },
+  "chart": {
+    "dataMissing": "We are still gathering information. Please try again in a few minutes.",
+    "dataUpdating": "updating data…",
+    "filter": {
+      "all": "All",
+      "month": "Month",
+      "week": "Week",
+      "year": "Year"
+    }
+  },
   "checkSDcard": "checking microSD card",
   "clickHere": "Click here.",
   "confirm": {

@@ -51,8 +51,8 @@ class ChangeBaseHostname extends Component<Props, State> {
     }
 
     private setHostname = () => {
-        this.setState({inProgress: true});
-        apiPost(this.props.apiPrefix + '/set-hostname', {hostname: this.state.newHostname})
+        this.setState({ inProgress: true });
+        apiPost(this.props.apiPrefix + '/set-hostname', { hostname: this.state.newHostname })
         .then(response => {
             if (response.success) {
                 this.props.getBaseInfo(); // FIXME: there should be a notification from the middleware when BaseInfo changes instead of having to call it manually
@@ -141,4 +141,4 @@ class ChangeBaseHostname extends Component<Props, State> {
 }
 
 const HOC = translate<ChangeBaseHostnameProps>()(ChangeBaseHostname);
-export { HOC as ChangeBaseHostname};
+export { HOC as ChangeBaseHostname };

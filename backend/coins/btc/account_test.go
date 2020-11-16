@@ -43,7 +43,7 @@ func TestAccount(t *testing.T) {
 	defer func() { _ = os.RemoveAll(dbFolder) }()
 
 	coin := btc.NewCoin(
-		code, unit, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
+		code, "Bitcoin Testnet", unit, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
 
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockRegisterOnConnectionStatusChangedEvent = func(onConnectionStatusChanged func(blockchain.Status)) {
@@ -90,7 +90,7 @@ func TestAccount(t *testing.T) {
 
 	transactions, err := account.Transactions()
 	require.NoError(t, err)
-	require.Equal(t, []*accounts.TransactionData{}, transactions)
+	require.Equal(t, accounts.OrderedTransactions{}, transactions)
 
 	require.Equal(t, []*btc.SpendableOutput{}, account.SpendableOutputs())
 }

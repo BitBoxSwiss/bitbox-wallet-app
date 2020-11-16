@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -53,10 +52,7 @@ const (
 
 // ethCoinConfig holds configurations for ethereum coins.
 type ethCoinConfig struct {
-	NodeURL string `json:"nodeURL"`
-
-	TransactionsSource ETHTransactionsSource `json:"transactionsSource"`
-	ActiveERC20Tokens  []string              `json:"activeERC20Tokens"`
+	ActiveERC20Tokens []string `json:"activeERC20Tokens"`
 }
 
 // ERC20TokenActive returns true if this token is configured to be active.
@@ -109,6 +105,13 @@ type Backend struct {
 	ETH  ethCoinConfig `json:"eth"`
 	TETH ethCoinConfig `json:"teth"`
 	RETH ethCoinConfig `json:"reth"`
+
+	// FiatList contains all enabled fiat currencies.
+	// These are used in the UI as well as by RateUpdater to fetch historical exchange rates.
+	FiatList []string `json:"fiatList"`
+	// MainFiat is the fiat currency used as a default for computing account portfolio data
+	// and transaction amounts.
+	MainFiat string `json:"mainFiat"`
 }
 
 // CoinActive returns the Active setting for a coin by code.
@@ -252,20 +255,17 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				NodeURL:            "etherscan+https://api.etherscan.io/api",
-				TransactionsSource: ETHTransactionsSourceEtherScan,
-				ActiveERC20Tokens:  []string{},
+				ActiveERC20Tokens: []string{},
 			},
 			TETH: ethCoinConfig{
-				NodeURL:            "etherscan+https://api-ropsten.etherscan.io/api",
-				TransactionsSource: ETHTransactionsSourceEtherScan,
-				ActiveERC20Tokens:  []string{},
+				ActiveERC20Tokens: []string{},
 			},
 			RETH: ethCoinConfig{
-				NodeURL:            "etherscan+https://api-rinkeby.etherscan.io/api",
-				TransactionsSource: ETHTransactionsSourceEtherScan,
-				ActiveERC20Tokens:  []string{},
+				ActiveERC20Tokens: []string{},
 			},
+			// Copied from frontend/web/src/components/rates/rates.tsx.
+			FiatList: []string{"USD", "EUR", "CHF"},
+			MainFiat: "CHF",
 		},
 	}
 }
@@ -292,8 +292,10 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
-	appConfig := config.migrateInfura(config.appConfig)
-	if err := config.SetAppConfig(appConfig); err != nil {
+	appconf := config.appConfig
+	migrateFiatList(&appconf)
+	migrateFiatCode(&appconf)
+	if err := config.SetAppConfig(appconf); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	return config, nil
@@ -382,15 +384,37 @@ func (config *Config) save(filename string, conf interface{}) error {
 	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
 }
 
-func (config *Config) migrateInfura(appConfig AppConfig) AppConfig {
-	migrate := func(ethConfig *ethCoinConfig, newURL string) {
-		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
-			ethConfig.NodeURL = newURL
+// migrateFiatList moves fiatList from appconf.Frontend to appconf.Backend.
+// This is because with the account portfolio feature, backend needs to know
+// which fiat currencies are enabled to fetch historical exchange rates.
+func migrateFiatList(appconf *AppConfig) {
+	frontconf, ok := appconf.Frontend.(map[string]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	fiats, ok := frontconf["fiatList"].([]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	appconf.Backend.FiatList = make([]string, len(fiats))
+	for i, f := range fiats {
+		if v, ok := f.(string); ok {
+			appconf.Backend.FiatList[i] = v
 		}
 	}
+	delete(frontconf, "fiatList")
+}
 
-	migrate(&appConfig.Backend.ETH, "etherscan+https://api.etherscan.io/api")
-	migrate(&appConfig.Backend.TETH, "etherscan+https://api-ropsten.etherscan.io/api")
-	migrate(&appConfig.Backend.RETH, "etherscan+https://api-rinkeby.etherscan.io/api")
-	return appConfig
+// migrateFiatCode moves fiatCode from appconf.Frontend to appconf.Backend
+// to aid the backend in constructing data series with correct main fiat code
+// for portfolio feature.
+func migrateFiatCode(appconf *AppConfig) {
+	frontconf, ok := appconf.Frontend.(map[string]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	if code, ok := frontconf["fiatCode"].(string); ok {
+		appconf.Backend.MainFiat = code
+		delete(frontconf, "fiatCode")
+	}
 }

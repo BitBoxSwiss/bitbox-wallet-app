@@ -79,13 +79,13 @@ export interface BaseUpdateInfo {
 const initSharedBaseState = (baseID: string) => {
     const initialStatus: InternalBaseStatus = '';
     const initialUserStatus: BaseUserStatus = 'Disconnected';
-    const initialState = {...baseStore.state.registeredBases, [baseID]: {
+    const initialState = { ...baseStore.state.registeredBases, [baseID]: {
         paired: false,
         internalStatus: initialStatus,
         userStatus: initialUserStatus,
         hostname: '',
-    }};
-    baseStore.setState({registeredBases: initialState});
+    } };
+    baseStore.setState({ registeredBases: initialState });
 };
 
 export const updateSharedBaseState = <K extends keyof RegisteredBaseFields>(key: K, value: RegisteredBaseFields[K], baseID: string) => {
@@ -238,7 +238,7 @@ class BitBoxBase extends Component<Props, State> {
 
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID && this.props.bitboxBaseID) {
-            this.setState({ bitboxBaseID : this.props.bitboxBaseID});
+            this.setState({ bitboxBaseID: this.props.bitboxBaseID });
         }
     }
 
@@ -257,7 +257,7 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private onStatusChanged = () => {
-        apiGet(this.apiPrefix() + '/status').then(({status}) => {
+        apiGet(this.apiPrefix() + '/status').then(({ status }) => {
             if (!this.state.showWizard && ['unpaired', 'pairingFailed', 'passwordNotSet', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
@@ -282,10 +282,10 @@ class BitBoxBase extends Component<Props, State> {
                     if (prevStatus === 'unpaired') {
                         break;
                     }
-                    this.setState({activeStep: ActiveStep.SetPassword});
+                    this.setState({ activeStep: ActiveStep.SetPassword });
                     break;
                 case 'bitcoinPre':
-                    this.setState({activeStep: ActiveStep.ChooseSetup});
+                    this.setState({ activeStep: ActiveStep.ChooseSetup });
                     break;
                 case 'locked':
                     // Advance automatically to the enter password screen only if noise pairing had already succeeded
@@ -324,7 +324,7 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private getServiceInfo = () => {
-        apiGet(this.apiPrefix() + '/service-info').then(({success, serviceInfo}) => {
+        apiGet(this.apiPrefix() + '/service-info').then(({ success, serviceInfo }) => {
             if (success) {
                 this.setState({ serviceInfo });
             }
@@ -363,8 +363,8 @@ class BitBoxBase extends Component<Props, State> {
 
     private connectElectrum = () => {
         apiPost(this.apiPrefix() + '/connect-electrum', {
-            bitboxBaseID : this.props.bitboxBaseID,
-        }).then(({success}) => {
+            bitboxBaseID: this.props.bitboxBaseID,
+        }).then(({ success }) => {
             if (!success) {
                 alertUser(success.errorMessage);
             }
@@ -373,7 +373,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private removeBitBoxBase = () => {
         apiPost(this.apiPrefix() + '/disconnect', {
-            bitboxBaseID : this.props.bitboxBaseID,
+            bitboxBaseID: this.props.bitboxBaseID,
         }).then(({ success }) => {
             if (!success) {
                 alertUser('Did not work');
@@ -390,7 +390,7 @@ class BitBoxBase extends Component<Props, State> {
     private submitChangePasswordSetup = (event: Event) => {
         event.preventDefault();
         this.setState({ inProgress: true });
-        apiPost(this.apiPrefix() + '/user-change-password', {username: 'admin', password: defaultPassword, newPassword: this.state.password})
+        apiPost(this.apiPrefix() + '/user-change-password', { username: 'admin', password: defaultPassword, newPassword: this.state.password })
         .then(response => {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.ChooseSetup });
@@ -414,7 +414,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private setHostname = () => {
         this.setState({ inProgress: true });
-        apiPost(this.apiPrefix() + '/set-hostname', {hostname: this.state.hostname})
+        apiPost(this.apiPrefix() + '/set-hostname', { hostname: this.state.hostname })
         .then(response => {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.ChooseSyncingOption });
@@ -567,8 +567,8 @@ class BitBoxBase extends Component<Props, State> {
                                                 // Go either to the set password screen or enter password screen
                                                 // depending if password had already been set
                                                 baseStore.state.registeredBases[bitboxBaseID].internalStatus === 'passwordNotSet' ?
-                                                    this.setState({activeStep: ActiveStep.SetPassword}) :
-                                                    this.setState({showWizard: false});
+                                                    this.setState({ activeStep: ActiveStep.SetPassword }) :
+                                                    this.setState({ showWizard: false });
                                                 }
                                             }>
                                             {t('bitbox02Wizard.pairing.confirmButton')}

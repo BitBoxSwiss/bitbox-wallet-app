@@ -47,6 +47,7 @@ export class Store<State extends ObjectButNotFunction> {
     /**
      * Creates a new store with the given initial state.
      */
+    /* eslint no-useless-constructor: "off" */
     public constructor(public readonly state: Readonly<State>) {}
 
     /**

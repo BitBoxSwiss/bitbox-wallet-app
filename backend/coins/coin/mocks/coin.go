@@ -16,6 +16,7 @@ var (
 	lockCoinMockDecimals                          sync.RWMutex
 	lockCoinMockFormatAmount                      sync.RWMutex
 	lockCoinMockInitialize                        sync.RWMutex
+	lockCoinMockName                              sync.RWMutex
 	lockCoinMockObserve                           sync.RWMutex
 	lockCoinMockSmallestUnit                      sync.RWMutex
 	lockCoinMockToUnit                            sync.RWMutex
@@ -49,6 +50,9 @@ var _ coin.Coin = &CoinMock{}
 //             },
 //             InitializeFunc: func()  {
 // 	               panic("mock out the Initialize method")
+//             },
+//             NameFunc: func() string {
+// 	               panic("mock out the Name method")
 //             },
 //             ObserveFunc: func(in1 func(observable.Event)) func() {
 // 	               panic("mock out the Observe method")
@@ -87,6 +91,9 @@ type CoinMock struct {
 	// InitializeFunc mocks the Initialize method.
 	InitializeFunc func()
 
+	// NameFunc mocks the Name method.
+	NameFunc func() string
+
 	// ObserveFunc mocks the Observe method.
 	ObserveFunc func(in1 func(observable.Event)) func()
 
@@ -124,6 +131,9 @@ type CoinMock struct {
 		}
 		// Initialize holds details about calls to the Initialize method.
 		Initialize []struct {
+		}
+		// Name holds details about calls to the Name method.
+		Name []struct {
 		}
 		// Observe holds details about calls to the Observe method.
 		Observe []struct {
@@ -315,6 +325,32 @@ func (mock *CoinMock) InitializeCalls() []struct {
 	lockCoinMockInitialize.RLock()
 	calls = mock.calls.Initialize
 	lockCoinMockInitialize.RUnlock()
+	return calls
+}
+
+// Name calls NameFunc.
+func (mock *CoinMock) Name() string {
+	if mock.NameFunc == nil {
+		panic("CoinMock.NameFunc: method is nil but Coin.Name was just called")
+	}
+	callInfo := struct {
+	}{}
+	lockCoinMockName.Lock()
+	mock.calls.Name = append(mock.calls.Name, callInfo)
+	lockCoinMockName.Unlock()
+	return mock.NameFunc()
+}
+
+// NameCalls gets all the calls that were made to Name.
+// Check the length with:
+//     len(mockedCoin.NameCalls())
+func (mock *CoinMock) NameCalls() []struct {
+} {
+	var calls []struct {
+	}
+	lockCoinMockName.RLock()
+	calls = mock.calls.Name
+	lockCoinMockName.RUnlock()
 	return calls
 }
 

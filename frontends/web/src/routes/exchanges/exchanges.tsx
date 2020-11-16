@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h, JSX, RenderableProps } from 'preact';
 import A from '../../components/anchor/anchor';
 import Button from '../../components/forms/button';
 import { Entry } from '../../components/guide/entry';
@@ -45,7 +45,7 @@ class Exchanges extends Component<Props, State> {
 
     constructor(props) {
         super(props);
-        this.data = data.map(({link, ...rest}) => ({
+        this.data = data.map(({ link, ...rest }) => ({
             ...rest,
             link,
             hostname: new URL(link).hostname,

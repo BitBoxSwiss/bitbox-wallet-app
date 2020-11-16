@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { h, JSX, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
 import { equal } from '../../utils/equal';
 import { apiSubscribe } from '../../utils/event';
-import { apiGet } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import * as style from './rates.css';
 
 export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
@@ -52,12 +52,12 @@ export const store = new Store<SharedProps>({
     selected: ['USD', 'EUR', 'CHF'],
 });
 
-apiGet('config').then(({ frontend }) => {
-    if (frontend && frontend.fiatCode) {
-        store.setState({ active: frontend.fiatCode });
+apiGet('config').then((appconf) => {
+    if (appconf.frontend && appconf.backend.mainFiat) {
+        store.setState({ active: appconf.backend.mainFiat });
     }
-    if (frontend && frontend.fiatList) {
-        store.setState({ selected: frontend.fiatList });
+    if (appconf.backend && appconf.backend.fiatList) {
+        store.setState({ selected: appconf.backend.fiatList });
     }
 });
 
@@ -70,7 +70,7 @@ export function setActiveFiat(fiat: Fiat): void {
         selectFiat(fiat);
     }
     store.setState({ active: fiat });
-    setConfig({ frontend: { fiatCode: fiat } });
+    setConfig({ backend: { mainFiat: fiat } });
 }
 
 export function rotateFiat(): void {
@@ -81,17 +81,27 @@ export function rotateFiat(): void {
 
 export function selectFiat(fiat: Fiat): void {
     const selected = [...store.state.selected, fiat];
-    setConfig({ frontend: { fiatList: selected } });
-    store.setState({ selected });
+    setConfig({ backend: { fiatList: selected } })
+    .then(() => {
+        store.setState({ selected });
+        // Need to reconfigure currency exchange rates updater
+        // which is done during accounts reset.
+        apiPost('accounts/reinitialize');
+    });
 }
 
 export function unselectFiat(fiat: Fiat): void {
     const selected = store.state.selected.filter(item => !equal(item, fiat));
-    setConfig({ frontend: { fiatList: selected } });
-    store.setState({ selected });
+    setConfig({ backend: { fiatList: selected } })
+    .then(() => {
+        store.setState({ selected });
+        // Need to reconfigure currency exchange rates updater
+        // which is done during accounts reset.
+        apiPost('accounts/reinitialize');
+    });
 }
 
-function formatAsCurrency(amount: number): string {
+export function formatNumber(amount: number): string {
     let formatted = amount.toFixed(2);
     let position = formatted.indexOf('.') - 3;
     while (position > 0) {
@@ -138,7 +148,7 @@ function Conversion({
     }
     let formattedValue = '';
     if (rates[mainnetCoin]) {
-        formattedValue = formatAsCurrency(rates[mainnetCoin][active] * Number(amount.amount));
+        formattedValue = formatNumber(rates[mainnetCoin][active] * Number(amount.amount));
     }
     if (tableRow) {
         return (

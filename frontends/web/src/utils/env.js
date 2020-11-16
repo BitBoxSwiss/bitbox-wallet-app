@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+ /* eslint no-undef: "off" */
 export const debug = process.env.NODE_ENV === 'development';
 
 /**

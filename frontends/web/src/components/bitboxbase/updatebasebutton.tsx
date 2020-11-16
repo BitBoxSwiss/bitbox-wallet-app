@@ -41,7 +41,7 @@ class UpdateBaseButton extends Component<Props, State> {
     }
 
     private onClick = (version: string) => {
-        this.setState({activeDialog: false});
+        this.setState({ activeDialog: false });
         this.props.updateBase(version);
     }
 
@@ -82,7 +82,7 @@ class UpdateBaseButton extends Component<Props, State> {
                             <div className={[dialogStyle.confirmationInstructions, dialogStyle.confirm].join(' ')}>
                                 {t('bitboxBase.settings.system.confirmUpdate', {
                                     current: currentVersion,
-                                    newVersion: updateInfo.version},
+                                    newVersion: updateInfo.version },
                                 )
                                 }
                             </div>
