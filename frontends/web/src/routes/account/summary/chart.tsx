@@ -17,7 +17,7 @@
 import { createChart, IChartApi, LineData, LineStyle, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { formatNumber, Fiat } from '../../../components/rates/rates';
+import { formatCurrency, formatNumber, Fiat } from '../../../components/rates/rates';
 import * as styles from './chart.css';
 
 export type ChartData = LineData[];
@@ -375,7 +375,7 @@ class Chart extends Component<Props, State> {
                     {difference < 0 ? (<ArrowUp />) : (<ArrowDown />)}
                 </span>
                 <span className={styles.diffValue}>
-                    {formatNumber(difference)}
+                    {formatNumber(difference, 2)}
                     <span className={styles.diffUnit}>%</span>
                 </span>
             </span>
@@ -388,7 +388,7 @@ class Chart extends Component<Props, State> {
                     <div className={styles.summary}>
                         {currentTotal ? (
                             <div className={styles.totalValue}>
-                                {formatNumber(currentTotal)}
+                                {formatCurrency(currentTotal, fiatUnit)}
                                 <span className={styles.totalUnit}>{fiatUnit}</span>
                             </div>
                         ) : null}
@@ -422,7 +422,7 @@ class Chart extends Component<Props, State> {
                         {toolTipValue ? (
                             <span>
                                 <h2 className={styles.toolTipValue}>
-                                    {formatNumber(toolTipValue)}
+                                    {formatNumber(toolTipValue, 2)}
                                     <span className={styles.toolTipUnit}>{fiatUnit}</span>
                                 </h2>
                                 {this.renderDate(toolTipTime * 1000)}

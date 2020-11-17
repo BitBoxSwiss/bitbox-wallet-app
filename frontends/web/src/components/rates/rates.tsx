@@ -101,14 +101,25 @@ export function unselectFiat(fiat: Fiat): void {
     });
 }
 
-export function formatNumber(amount: number): string {
-    let formatted = amount.toFixed(2);
+export function formatNumber(amount: number, maxDigits: number): string {
+    let formatted = amount.toFixed(maxDigits);
     let position = formatted.indexOf('.') - 3;
     while (position > 0) {
         formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
         position = position - 3;
     }
     return formatted;
+}
+
+export function formatCurrency(amount: number, fiat: Fiat): string {
+    const isBTC = fiat === 'BTC';
+    let formatted = formatNumber(amount, isBTC ? 8 : 2);
+    if (isBTC) {
+        // Replace trailing zeroes except, e.g. "1.10" => "1.1", "1.0" => "1".
+        formatted = formatted.replace(/0*$/, '').replace(/\.$/, '');
+    }
+    return formatted;
+
 }
 
 export interface AmountInterface {
@@ -148,7 +159,7 @@ function Conversion({
     }
     let formattedValue = '';
     if (rates[mainnetCoin]) {
-        formattedValue = formatNumber(rates[mainnetCoin][active] * Number(amount.amount));
+        formattedValue = formatCurrency(rates[mainnetCoin][active] * Number(amount.amount), active);
     }
     if (tableRow) {
         return (
