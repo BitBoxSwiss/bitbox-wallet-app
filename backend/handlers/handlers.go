@@ -894,7 +894,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 
 		timeseriesDaily, err := txs.Timeseries(
-			earliestTxTime.Truncate(24*time.Hour).Add(time.Hour),
+			earliestTxTime.Truncate(24*time.Hour),
 			until,
 			24*time.Hour,
 		)
