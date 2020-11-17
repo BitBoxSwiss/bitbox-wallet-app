@@ -21,11 +21,12 @@ import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
-import { AmountInterface, Fiat, FiatConversion } from '../../../components/rates/rates';
+import { Fiat, FiatConversion } from '../../../components/rates/rates';
 import { TranslateProps } from '../../../decorators/translate';
 import Logo from '../../../components/icon/logo';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
+import { apiWebsocket } from '../../../utils/websocket';
 import { AccountInterface, CoinCode } from '../account';
 import { Chart, ChartData } from './chart';
 import * as style from './accountssummary.css';
@@ -41,20 +42,19 @@ interface AccountSummaryProps {
 interface State {
     data?: Response;
     exported: string;
+    balances?: Balances;
+    syncStatus?: SyncStatus;
 }
 
-interface Totals {
-    [code: string]: AmountInterface;
-}
-
-interface CoinNames {
+interface SyncStatus {
     [code: string]: string;
 }
 
+interface Balances {
+    [code: string]: BalanceInterface;
+}
+
 interface Response {
-    accounts: AccountAndBalanceInterface[];
-    totals: Totals;
-    coinNames: CoinNames;
     chartDataMissing: boolean;
     chartDataDaily: ChartData;
     chartDataHourly: ChartData;
@@ -70,8 +70,9 @@ export type GroupedByCoinCode = {
 }
 
 interface BalanceRowProps {
+    code: string;
     name: string;
-    balance: BalanceInterface;
+    balance?: BalanceInterface;
     coinUnit: string;
     coinCode: CoinCode;
 }
@@ -82,14 +83,21 @@ class AccountsSummary extends Component<Props, State> {
         data: undefined,
         exported: '',
     };
+    private unsubscribe!: () => void;
 
     public componentDidMount() {
         this.getAccountSummary = this.getAccountSummary.bind(this);
         this.getAccountSummary();
+        this.unsubscribe = apiWebsocket(this.onEvent);
+
+        this.props.accounts.map((account: AccountInterface) => {
+            this.onStatusChanged(account.code);
+        });
     }
 
     public componentWillUnmount() {
         window.clearInterval(this.summaryReqTimerID);
+        this.unsubscribe();
     }
 
     private getAccountSummary() {
@@ -101,42 +109,95 @@ class AccountsSummary extends Component<Props, State> {
         }).catch(console.error);
     }
 
+    private onEvent = (data: any) => {
+        for (const account of this.props.accounts) {
+            if (data.subject ===  'account/' + account.code + '/synced-addresses-count') {
+                this.setState(state => {
+                    const syncStatus = {...state.syncStatus};
+                    syncStatus[account.code] = this.props.t('account.syncedAddressesCount', {
+                        count: data.object.toString(),
+                        defaultValue: 0,
+                    });
+                    return { syncStatus };
+                });
+            }
+        }
+        if (data.type === 'account') {
+            switch (data.data) {
+                case 'statusChanged':
+                    this.onStatusChanged(data.code);
+                    break;
+            }
+        }
+    }
+
+    private onStatusChanged(code: string) {
+        apiGet(`account/${code}/status`).then(status => {
+            const accountSynced = status.includes('accountSynced');
+            const accountDisabled = status.includes('accountDisabled');
+            if (accountDisabled) {
+                return;
+            }
+            if (!accountSynced) {
+                apiPost(`account/${code}/init`);
+            } else {
+                apiGet(`account/${code}/balance`).then(balance => {
+                    this.setState(state => {
+                        const balances = {...state.balances};
+                        balances[code] = balance;
+                        return { balances };
+                    });
+                });
+            }
+        });
+    }
+
     private export = () => {
         apiPost('export-account-summary').then(exported => {
             this.setState({ exported });
         });
     }
 
-    private balanceRow = ({ name, balance, coinCode, coinUnit }: RenderableProps<BalanceRowProps>) => {
+    private balanceRow = ({ code, name, coinCode, coinUnit }: RenderableProps<BalanceRowProps>) => {
         const { t } = this.props;
+        const balance = this.state.balances ? this.state.balances[code] : undefined;
+        const nameCol = (
+            <td data-label={t('accountSummary.name')}>
+                <div class={style.coinName}>
+                    <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
+                    {name}
+                </div>
+            </td>
+        );
+        if (balance) {
+            return (
+                <tr key={code}>
+                    { nameCol }
+                    <td data-label={t('accountSummary.balance')}>
+                        <span>
+                            {balance.available.amount}{' '}
+                            <span className={style.coinUnit}>{coinUnit}</span>
+                        </span>
+                    </td>
+                    <td data-label={t('accountSummary.fiatBalance')}>
+                        <FiatConversion amount={balance.available} noAction={true} />
+                    </td>
+                </tr>
+            );
+        }
+        const syncStatus = this.state.syncStatus && this.state.syncStatus[code];
         return (
-            <tr key={name}>
-                <td data-label={t('accountSummary.name')}>
-                    <div class={style.coinName}>
-                        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
-                        {name}
-                    </div>
-                </td>
-                <td data-label={t('accountSummary.balance')}>
-                    <span>
-                        {balance.available.amount}{' '}
-                        <span className={style.coinUnit}>{coinUnit}</span>
-                    </span>
-                </td>
-                <td data-label={t('accountSummary.fiatBalance')}>
-                    <FiatConversion amount={balance.available} noAction={true} />
-                </td>
+            <tr key={code}>
+                { nameCol }
+                <td colSpan={2}>spinning... { syncStatus }</td>
             </tr>
         );
     }
 
     public render(
-        { t }: RenderableProps<Props>,
+        { t, accounts }: RenderableProps<Props>,
         { exported, data }: State,
     ) {
-        if (!data) {
-            return null;
-        }
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -163,12 +224,12 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Chart
+                            {data && <Chart
                                 dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
                                 dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
                                 fiatUnit={data.chartFiat}
                                 total={data.chartTotal}
-                                isUpToDate={data.chartIsUpToDate} />
+                                isUpToDate={data.chartIsUpToDate} />}
                             <div className={style.balanceTable}>
                                 <table className={style.table}>
                                     <thead>
@@ -179,8 +240,8 @@ class AccountsSummary extends Component<Props, State> {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        { data.accounts.length > 0 ? (
-                                            data.accounts.map(account => this.balanceRow(account))
+                                        { accounts.length > 0 ? (
+                                            accounts.map(account => this.balanceRow(account))
                                         ) : (
                                             <p>{t('accountSummary.noAccount')}</p>
                                         )}

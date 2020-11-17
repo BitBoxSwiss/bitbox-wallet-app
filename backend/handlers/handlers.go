@@ -783,14 +783,6 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance coinpkg.Coin, isFee bool) accountHandlers.FormattedAmount {
-	return accountHandlers.FormattedAmount{
-		Amount:      coinInstance.FormatAmount(amount, isFee),
-		Unit:        coinInstance.Unit(isFee),
-		Conversions: coin.Conversions(amount, coinInstance, isFee, handlers.backend.RatesUpdater()),
-	}
-}
-
 func (handlers *Handlers) allCoinCodes() []string {
 	allCoinCodes := []string{}
 	for _, account := range handlers.backend.Accounts() {
@@ -807,14 +799,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		Time  int64   `json:"time"`
 		Value float64 `json:"value"`
 	}
-
-	type extendedAccountJSON struct {
-		*accountJSON
-		Balance map[string]interface{} `json:"balance"`
-	}
-
-	jsonAccounts := []*extendedAccountJSON{}
-	totals := map[coinpkg.Coin]*big.Int{}
 
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
@@ -852,21 +836,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		if err != nil {
 			return nil, err
 		}
-		jsonAccounts = append(jsonAccounts, &extendedAccountJSON{
-			accountJSON: newAccountJSON(account),
-			Balance: map[string]interface{}{
-				"available":   handlers.formatAmountAsJSON(balance.Available(), account.Coin(), false),
-				"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
-				"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
-			},
-		})
-
-		_, ok := totals[account.Coin()]
-		if !ok {
-			totals[account.Coin()] = new(big.Int)
-		}
-
-		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
 
 		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
 		// unit to the standard unit (BTC, LTC; ETH, etc.).
@@ -978,11 +947,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 	}
 
-	jsonTotals := make(map[coinpkg.Code]accountHandlers.FormattedAmount)
-	for c, total := range totals {
-		jsonTotals[c.Code()] = handlers.formatAmountAsJSON(coin.NewAmount(total), c, false)
-	}
-
 	toSortedSlice := func(s map[int64]chartEntry) []chartEntry {
 		result := make([]chartEntry, len(s))
 		i := 0
@@ -1006,8 +970,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		chartTotal = &tot
 	}
 	return map[string]interface{}{
-		"accounts":         jsonAccounts,
-		"totals":           jsonTotals,
 		"chartDataMissing": chartDataMissing,
 		"chartDataDaily":   toSortedSlice(chartEntriesDaily),
 		"chartDataHourly":  toSortedSlice(chartEntriesHourly),
