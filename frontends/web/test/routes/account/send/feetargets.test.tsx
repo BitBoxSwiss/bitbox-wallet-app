@@ -74,6 +74,7 @@ describe('routes/account/send/feetargets', () => {
                         KRW: '14.43',
                         RUB: '0.88',
                         USD: '0.02',
+                        BTC: '0.02',
                     },
                 }}
                 feePerByte=""
