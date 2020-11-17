@@ -188,12 +188,13 @@ func (account *Account) Initialize() error {
 	)
 
 	account.coin.Initialize()
-	go account.poll()
+	done := account.Synchronizer.IncRequestsCounter()
+	go account.poll(done)
 
 	return account.BaseAccount.Initialize(accountIdentifier)
 }
 
-func (account *Account) poll() {
+func (account *Account) poll(initDone func()) {
 	timer := time.After(0)
 	for {
 		select {
@@ -212,6 +213,10 @@ func (account *Account) poll() {
 				account.SetOffline(true)
 			} else {
 				account.SetOffline(false)
+			}
+			if initDone != nil {
+				initDone()
+				initDone = nil
 			}
 			timer = time.After(pollInterval)
 		}
