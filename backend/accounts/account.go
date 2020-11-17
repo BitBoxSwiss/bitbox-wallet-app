@@ -66,7 +66,9 @@ type Interface interface {
 	FatalError() bool
 	Close()
 	Notifier() Notifier
+	// Must enforce that initial sync is done before returning.
 	Transactions() (OrderedTransactions, error)
+	// Must enforce that initial sync is done before returning.
 	Balance() (*Balance, error)
 	// SendTx signs and sends the active tx proposal, set by TxProposal. Errors if none
 	// available. The note, if set by ProposeTxNote(), is persisted for the transaction.
