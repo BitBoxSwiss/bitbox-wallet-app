@@ -32,7 +32,6 @@
     "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
-    "synchronizing": "Synchronizing accounts with their blockchains: ",
     "title": "Accounts summary",
     "total": "Total",
     "transactionHistory": "Transaction history"

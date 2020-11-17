@@ -35,6 +35,7 @@ export interface AccountAndBalanceInterface extends AccountInterface {
 }
 
 interface AccountSummaryProps {
+    accounts: AccountInterface[];
 }
 
 interface State {
