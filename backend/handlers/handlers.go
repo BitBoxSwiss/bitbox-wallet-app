@@ -878,7 +878,17 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		earliestPriceAvailable := handlers.backend.RatesUpdater().HistoryEarliestTimestamp(
 			string(account.Coin().Code()),
 			fiat)
-		earliestTxTime := txs.EarliestTime()
+
+		earliestTxTime, err := txs.EarliestTime()
+		if errp.Cause(err) == errors.ErrNotAvailable {
+			handlers.log.WithField("coin", account.Coin().Code()).Info("ChartDataMissing/earliestTxtime")
+			chartDataMissing = true
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+
 		if earliestTxTime.IsZero() {
 			// Ignore the chart for this account, there is no timed transaction.
 			continue
