@@ -73,7 +73,6 @@ interface BalanceRowProps {
     balance: BalanceInterface;
     coinUnit: string;
     coinCode: CoinCode;
-    title: string;
 }
 
 class AccountsSummary extends Component<Props, State> {
@@ -107,13 +106,13 @@ class AccountsSummary extends Component<Props, State> {
         });
     }
 
-    private balanceRow = ({ name, balance, coinCode, title, coinUnit }: RenderableProps<BalanceRowProps>) => {
+    private balanceRow = ({ name, balance, coinCode, coinUnit }: RenderableProps<BalanceRowProps>) => {
         const { t } = this.props;
         return (
             <tr key={name}>
                 <td data-label={t('accountSummary.name')}>
                     <div class={style.coinName}>
-                        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={title} />
+                        <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
                         {name}
                     </div>
                 </td>
@@ -180,10 +179,7 @@ class AccountsSummary extends Component<Props, State> {
                                     </thead>
                                     <tbody>
                                         { data.accounts.length > 0 ? (
-                                            data.accounts.map(account => this.balanceRow({
-                                                title: data.coinNames[account.coinCode],
-                                                ...account
-                                            }))
+                                            data.accounts.map(account => this.balanceRow(account))
                                         ) : (
                                             <p>{t('accountSummary.noAccount')}</p>
                                         )}

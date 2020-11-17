@@ -815,8 +815,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 	jsonAccounts := []*extendedAccountJSON{}
 	totals := map[coinpkg.Coin]*big.Int{}
-	// coin code to coin name.
-	coinNames := map[string]string{}
 
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
@@ -869,7 +867,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 
 		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
-		coinNames[string(account.Coin().Code())] = account.Coin().Name()
 
 		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
 		// unit to the standard unit (BTC, LTC; ETH, etc.).
@@ -1011,7 +1008,6 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	return map[string]interface{}{
 		"accounts":         jsonAccounts,
 		"totals":           jsonTotals,
-		"coinNames":        coinNames,
 		"chartDataMissing": chartDataMissing,
 		"chartDataDaily":   toSortedSlice(chartEntriesDaily),
 		"chartDataHourly":  toSortedSlice(chartEntriesHourly),
