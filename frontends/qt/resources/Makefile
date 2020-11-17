@@ -1,6 +1,6 @@
 SIZES=16x16 32x32 48x48 64x64 128x128
 
-TARGETS=$(addsuffix /apps/bitbox.png, $(addprefix linux/usr/share/icons/hicolor/, ${SIZES}))
+TARGETS=$(addprefix linux/usr/share/icons/hicolor/, $(addsuffix /apps/bitbox.png, ${SIZES}))
 
 all: $(TARGETS)
 
