@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi, LineData, LineStyle, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
+import { createChart, IChartApi, LineData, LineStyle, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { formatNumber, Fiat } from '../../../components/rates/rates';
@@ -36,12 +36,18 @@ interface State {
     source: 'daily' | 'hourly';
     difference?: number;
     diffSince?: string;
+    toolTipVisible: boolean;
+    toolTipValue: number;
+    toolTipTop: number;
+    toolTipLeft: number;
+    toolTipTime: number;
 }
 
 type Props = ChartProps & TranslateProps;
 
 class Chart extends Component<Props, State> {
     private ref = createRef();
+    private refToolTip = createRef();
     private chart?: IChartApi;
     private lineSeries?: ISeriesApi<'Area'>;
     private resizeTimerID?: any;
@@ -50,6 +56,11 @@ class Chart extends Component<Props, State> {
     public readonly state: State = {
         display: 'all',
         source: 'daily',
+        toolTipVisible: false,
+        toolTipValue: 0,
+        toolTipTop: 0,
+        toolTipLeft: 0,
+        toolTipTime: 0,
     };
 
     public componentDidMount() {
@@ -60,6 +71,7 @@ class Chart extends Component<Props, State> {
         window.removeEventListener('resize', this.onResize);
         if (this.chart) {
             this.chart.timeScale().unsubscribeVisibleLogicalRangeChange(this.calculateChange);
+            this.chart.unsubscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
         }
     }
 
@@ -89,11 +101,11 @@ class Chart extends Component<Props, State> {
                 crosshair: {
                     vertLine: {
                         visible: false,
-                        labelVisible: true,
+                        labelVisible: false,
                     },
                     horzLine: {
                         visible: false,
-                        labelVisible: true,
+                        labelVisible: false,
                     },
                     mode: 1,
                 },
@@ -114,13 +126,9 @@ class Chart extends Component<Props, State> {
                     textColor: '#1D1D1B',
                 },
                 leftPriceScale: {
-                    scaleMargins: {
-                        top: 0.2,
-                        bottom: 0.1,
-                    },
-                    visible: true,
                     borderVisible: false,
                     drawTicks: false,
+                    visible: true,
                     entireTextOnly: true,
                 },
                 localization: {
@@ -128,6 +136,7 @@ class Chart extends Component<Props, State> {
                 },
                 rightPriceScale: {
                     visible: false,
+                    drawTicks: false,
                 },
                 timeScale: {
                     borderVisible: false,
@@ -136,16 +145,20 @@ class Chart extends Component<Props, State> {
             });
             if (this.props.dataDaily !== undefined) {
                 this.lineSeries = this.chart.addAreaSeries({
+                    priceLineVisible: false,
+                    lastValueVisible: false,
                     priceFormat: {
                         type: 'volume',
                     },
                     topColor: 'rgba(94, 148, 192, 0.5)',
                     bottomColor: 'rgba(94, 148, 192, 0.02)',
                     lineColor: 'rgba(94, 148, 192, 1)',
+                    crosshairMarkerRadius: 6,
                 });
                 this.lineSeries.setData(this.props.dataDaily);
                 if (this.props.dataDaily.length) {
                     this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
+                    this.chart.subscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
                 }
             }
             this.chart.timeScale().fitContent();
@@ -295,9 +308,58 @@ class Chart extends Component<Props, State> {
         });
     }
 
+    private handleCrosshair = ({ point, time, seriesPrices }) => {
+        if (!this.refToolTip) {
+            return;
+        }
+        const tooltip = this.refToolTip.current;
+        const parent = tooltip.parentNode;
+        if (
+            !this.lineSeries || !point || !time
+            || point.x < 0 || point.x > parent.clientWidth
+            || point.y < 0 || point.y > parent.clientHeight
+        ) {
+            this.setState({
+                toolTipVisible: false
+            });
+            return;
+        }
+        const price = seriesPrices.get(this.lineSeries);
+        const coordinate = this.lineSeries.priceToCoordinate(price);
+        if (!coordinate) {
+            return;
+        }
+        const toolTipTop = Math.max(coordinate - 70, 0);
+        const toolTipLeft =  Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
+        this.setState({
+            toolTipVisible: true,
+            toolTipValue: price,
+            toolTipTop,
+            toolTipLeft,
+            toolTipTime: time,
+        });
+    }
+
+    private renderDate = (date) => {
+        return  new Date(date).toLocaleString(this.props.i18n.language, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        });
+    }
+
     public render(
         { t, dataDaily, fiatUnit, isUpToDate }: RenderableProps<Props>,
-        { difference, diffSince, display }: State,
+        {
+            difference,
+            diffSince,
+            display,
+            toolTipVisible,
+            toolTipValue,
+            toolTipTop,
+            toolTipLeft,
+            toolTipTime,
+        }: State,
     ) {
         if (!dataDaily || !dataDaily.length) {
             return (
@@ -320,7 +382,6 @@ class Chart extends Component<Props, State> {
         ) : null;
 
         const currentTotal = this.getCurrentTotal();
-
         return (
             <section className={styles.chart}>
                 <header>
@@ -348,10 +409,27 @@ class Chart extends Component<Props, State> {
                         </button>
                     </div>
                 </header>
-                <div className={styles.chartUpdatignMessage}>
-                    {!isUpToDate ? t('chart.dataUpdating') : null}
+                <div className={styles.chartCanvas}>
+                    <div className={styles.chartUpdatignMessage}>
+                        {!isUpToDate ? t('chart.dataUpdating') : null}
+                    </div>
+                    <div ref={this.ref} className={styles.invisible}></div>
+                    <span
+                        ref={this.refToolTip}
+                        className={styles.tooltip}
+                        style={`left: ${toolTipLeft}px; top: ${toolTipTop}px;`}
+                        hidden={!toolTipVisible}>
+                        {toolTipValue ? (
+                            <span>
+                                <h2 className={styles.toolTipValue}>
+                                    {formatNumber(toolTipValue)}
+                                    <span className={styles.toolTipUnit}>{fiatUnit}</span>
+                                </h2>
+                                {this.renderDate(toolTipTime * 1000)}
+                            </span>
+                        ): null}
+                    </span>
                 </div>
-                <div ref={this.ref} className={styles.invisible}></div>
             </section>
         );
     }
