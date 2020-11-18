@@ -194,15 +194,18 @@ func (c *TimeseriesEntry) MarshalJSON() ([]byte, error) {
 }
 
 // EarliestTime returns the timestamp of the latest transaction. Zero is returned if there is no
-// transaction with a timestamp.
-func (txs OrderedTransactions) EarliestTime() time.Time {
+// transaction with a timestamp. Returns `errors.ErrNotAvailable` if timestap data is missing.
+func (txs OrderedTransactions) EarliestTime() (time.Time, error) {
 	if len(txs) > 0 {
 		tx := txs[len(txs)-1]
 		if tx.Timestamp != nil {
-			return *tx.Timestamp
+			return *tx.Timestamp, nil
+		}
+		if tx.Height != 0 {
+			return time.Time{}, errp.WithStack(errors.ErrNotAvailable)
 		}
 	}
-	return time.Time{}
+	return time.Time{}, nil
 }
 
 // Timeseries chunks the time between `start` and `end` into steps of `interval` duration, and
