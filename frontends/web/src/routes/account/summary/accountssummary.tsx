@@ -21,6 +21,8 @@ import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
+import { Entry } from '../../../components/guide/entry';
+import { Guide } from '../../../components/guide/guide';
 import { Fiat, FiatConversion } from '../../../components/rates/rates';
 import { TranslateProps } from '../../../decorators/translate';
 import Logo from '../../../components/icon/logo';
@@ -251,6 +253,10 @@ class AccountsSummary extends Component<Props, State> {
                         </div>
                     </div>
                 </div>
+                <Guide>
+                    <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
+                    <Entry key="accountSummaryAmount" entry={t('guide.accountSummaryAmount')} />
+                </Guide>
             </div>
         );
     }

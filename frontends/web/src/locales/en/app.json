@@ -679,6 +679,18 @@
       "text": "The ‘Send’ button is activated when your balance is more than zero.",
       "title": "Why can't I send any {{unit}}?"
     },
+    "accountSummaryAmount": {
+      "link": {
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com"
+      },
+      "text": "The total amount is the sum of all your crypto accounts. Exchange rates are obtained from coingecko.com.\n\nNote: If you use MyEtherWallet for tokens not supported in the BitBoxApp, they will not be included in the amount displayed.",
+      "title": "How is the total amount calculated?"
+    },
+    "accountSummaryDescription": {
+      "text": "Here you can see the performance of your portfolio over time. A summary of your individual crypro accounts is displayed under the chart.",
+      "title": "What does this page show me?"
+    },
     "accountTransactionAttributesBTC": {
       "text": "Virtual size: Determines the network fee. You successfully saved on fees if it is smaller than the transaction size.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: A new metric introduced with Segwit to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
       "title": "What about the Bitcoin-specific transaction details?"
