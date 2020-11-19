@@ -1,0 +1,30 @@
+.spinnerContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.spinner {
+  color: var(--color-blue);
+}
+
+.spinner:after {
+  position: relative;
+  top: 2px;
+  animation: changeContent .8s linear infinite;
+  display: block;
+  content: "⠋";
+  font-size: 14px;
+  margin-left: 3px;
+}
+
+@keyframes changeContent {
+  10% { content: "⠙"; }
+  20% { content: "⠹"; }
+  30% { content: "⠸"; }
+  40% { content: "⠼"; }
+  50% { content: "⠴"; }
+  60% { content: "⠦"; }
+  70% { content: "⠧"; }
+  80% { content: "⠇"; }
+  90% { content: "⠏"; }
+}

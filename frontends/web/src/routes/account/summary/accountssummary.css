@@ -17,6 +17,10 @@
     margin-right: calc(var(--space-half) / 2);
 }
 
+.dataMissing {
+    text-align: center;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -51,6 +55,10 @@
 
 .table tbody td {
     background-color: var(--color-white);
+}
+
+.summaryTableBalance {
+    white-space: nowrap;
 }
 
 .table tfoot th {
@@ -106,6 +114,7 @@
 
     .table tbody td::before {
         content: attr(data-label);
+        white-space: nowrap;
     }
 
     .table tbody td:last-child {
