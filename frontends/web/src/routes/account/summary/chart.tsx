@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi, LineData, LineStyle, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
+import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { formatNumber, Fiat } from '../../../components/rates/rates';
@@ -284,13 +284,13 @@ class Chart extends Component<Props, State> {
         if (!data || !this.chart || !this.lineSeries) {
             return;
         }
-        const visiblerange = this.lineSeries.barsInLogicalRange(this.chart.timeScale().getVisibleLogicalRange() as any) as any;
-        if (!visiblerange || !visiblerange.barsBefore) {
+        const logicalrange = this.chart.timeScale().getVisibleLogicalRange() as LogicalRange;
+        const visiblerange = this.lineSeries.barsInLogicalRange(logicalrange) as BarsInfo;
+        if (!visiblerange) {
             // if the chart is empty, during first load, barsInLogicalRange is null
             return;
         }
-        const { barsBefore } = visiblerange;
-        const rangeFrom = Math.max(Math.floor(barsBefore), 0);
+        const rangeFrom = Math.max(Math.floor(visiblerange.barsBefore), 0);
         if (!data[rangeFrom]){
             // when data series have changed it triggers subscribeVisibleLogicalRangeChange
             // but at this point the setVisibleRange has not executed what the new range
@@ -304,7 +304,7 @@ class Chart extends Component<Props, State> {
         const valueDiff = valueTo ? valueTo - valueFrom : 0;
         this.setState({
             difference: ((valueDiff / valueFrom) * 100),
-            diffSince: `${data[rangeFrom].value.toFixed(2)} / ${new Date(Number(data[rangeFrom].time) * 1000)}`
+            diffSince: `${data[rangeFrom].value.toFixed(2)} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
         });
     }
 
@@ -341,7 +341,7 @@ class Chart extends Component<Props, State> {
     }
 
     private renderDate = (date) => {
-        return  new Date(date).toLocaleString(this.props.i18n.language, {
+        return new Date(date).toLocaleString(this.props.i18n.language, {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
