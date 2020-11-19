@@ -1098,6 +1098,7 @@ func (backend *Backend) SystemOpen(url string) error {
 
 	for _, whitelistedURL := range []string{
 		"https://www.cryptocompare.com",
+		"https://www.coingecko.com",
 		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 		"https://en.bitcoin.it/wiki/Bech32_adoption",
 		"https://help.safello.com",
