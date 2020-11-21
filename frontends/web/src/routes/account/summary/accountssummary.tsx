@@ -26,6 +26,7 @@ import { Guide } from '../../../components/guide/guide';
 import { Fiat, FiatConversion } from '../../../components/rates/rates';
 import { TranslateProps } from '../../../decorators/translate';
 import Logo from '../../../components/icon/logo';
+import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
@@ -66,10 +67,6 @@ interface Response {
 }
 
 type Props = TranslateProps & AccountSummaryProps;
-
-export type GroupedByCoinCode = {
-    [key in CoinCode]?: AccountAndBalanceInterface[];
-}
 
 interface BalanceRowProps {
     code: string;
@@ -176,7 +173,7 @@ class AccountsSummary extends Component<Props, State> {
                 <tr key={code}>
                     { nameCol }
                     <td data-label={t('accountSummary.balance')}>
-                        <span>
+                        <span className={style.summaryTableBalance}>
                             {balance.available.amount}{' '}
                             <span className={style.coinUnit}>{coinUnit}</span>
                         </span>
@@ -191,7 +188,10 @@ class AccountsSummary extends Component<Props, State> {
         return (
             <tr key={code}>
                 { nameCol }
-                <td colSpan={2}>spinning... { syncStatus }</td>
+                <td colSpan={2}>
+                    { syncStatus }
+                    <Spinner />
+                </td>
             </tr>
         );
     }
@@ -205,35 +205,43 @@ class AccountsSummary extends Component<Props, State> {
                 <div className="container">
                     <Header title={<h2>{t('accountSummary.title')}</h2>}>
                         { debug && (
-                              exported ? (
-                                  <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
-                                      <span>
-                                          <img src={checkIcon} style="margin-right: 5px !important;" />
-                                          <span>{t('account.openFile')}</span>
-                                      </span>
-                                  </A>
-                              ) : (
-                                  <a onClick={this.export} title={t('accountSummary.exportSummary')}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#699ec6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                          <polyline points="7 10 12 15 17 10"></polyline>
-                                          <line x1="12" y1="15" x2="12" y2="3"></line>
-                                      </svg>
-                                  </a>
-                              )
-                        )
-                        }
+                            exported ? (
+                                <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
+                                    <span>
+                                        <img src={checkIcon} style="margin-right: 5px !important;" />
+                                        <span>{t('account.openFile')}</span>
+                                    </span>
+                                </A>
+                            ) : (
+                                <a onClick={this.export} title={t('accountSummary.exportSummary')}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#699ec6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </a>
+                            )
+                        )}
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            {data && <Chart
-                                dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
-                                dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
-                                fiatUnit={data.chartFiat}
-                                total={data.chartTotal}
-                                isUpToDate={data.chartIsUpToDate} />}
+                            {data ? (
+                                <Chart
+                                    dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
+                                    dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
+                                    fiatUnit={data.chartFiat}
+                                    total={data.chartTotal}
+                                    isUpToDate={data.chartIsUpToDate} />
+                            ) : (
+                                <p>&nbsp;</p>
+                            )}
                             <div className={style.balanceTable}>
                                 <table className={style.table}>
+                                    <colgroup>
+                                        <col width="33%" />
+                                        <col width="33%" />
+                                        <col width="*" />
+                                    </colgroup>
                                     <thead>
                                         <tr>
                                             <th>{t('accountSummary.name')}</th>

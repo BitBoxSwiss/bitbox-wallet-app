@@ -8,6 +8,10 @@
   visibility: hidden;
 }
 
+.chartUpdatingMessage {
+  text-align: center;
+}
+
 .chart header {
   display: flex;
   flex-wrap: wrap;
@@ -83,10 +87,6 @@
 
 .chartCanvas {
   position: relative;
-}
-
-.chartUpdatignMessage {
-  text-align: center;
 }
 
 .tooltip {
