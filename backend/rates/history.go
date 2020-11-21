@@ -62,6 +62,7 @@ var (
 		"CAD": "cad",
 		"AUD": "aud",
 		"ILS": "ils",
+		"BTC": "btc",
 	}
 )
 

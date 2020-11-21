@@ -30,7 +30,7 @@ export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
-export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD' | 'AUD' | 'ILS';
+export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD' | 'AUD' | 'ILS' | 'BTC';
 
 export type Rates = {
     [coin in MainnetCoin]: {
@@ -44,7 +44,7 @@ export interface SharedProps {
     selected: Fiat[];
 }
 
-export const currencies: Fiat[] = ['AUD', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'ILS', 'JPY', 'KRW', 'RUB', 'USD'];
+export const currencies: Fiat[] = ['AUD', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'ILS', 'JPY', 'KRW', 'RUB', 'USD', 'BTC'];
 
 export const store = new Store<SharedProps>({
     rates: undefined,
@@ -101,14 +101,25 @@ export function unselectFiat(fiat: Fiat): void {
     });
 }
 
-export function formatNumber(amount: number): string {
-    let formatted = amount.toFixed(2);
+export function formatNumber(amount: number, maxDigits: number): string {
+    let formatted = amount.toFixed(maxDigits);
     let position = formatted.indexOf('.') - 3;
     while (position > 0) {
         formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
         position = position - 3;
     }
     return formatted;
+}
+
+export function formatCurrency(amount: number, fiat: Fiat): string {
+    const isBTC = fiat === 'BTC';
+    let formatted = formatNumber(amount, isBTC ? 8 : 2);
+    if (isBTC) {
+        // Replace trailing zeroes except, e.g. "1.10" => "1.1", "1.0" => "1".
+        formatted = formatted.replace(/0*$/, '').replace(/\.$/, '');
+    }
+    return formatted;
+
 }
 
 export interface AmountInterface {
@@ -148,7 +159,7 @@ function Conversion({
     }
     let formattedValue = '';
     if (rates[mainnetCoin]) {
-        formattedValue = formatNumber(rates[mainnetCoin][active] * Number(amount.amount));
+        formattedValue = formatCurrency(rates[mainnetCoin][active] * Number(amount.amount), active);
     }
     if (tableRow) {
         return (
