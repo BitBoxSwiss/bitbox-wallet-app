@@ -965,13 +965,28 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			i++
 		}
 		sort.Slice(result, func(i, j int) bool { return result[i].Time < result[j].Time })
+
+		// Manually add the last point with the current total, to make the last point match.
+		// The last point might not match the account total otherwise because:
+		// 1) unconfirmed tx are not in the timeseries
+		// 2) coingecko might not have rates yet up until after all transactions, so they'd also be
+		// missing form the timeseries (`until` is up to 2h in the past).
+		if isUpToDate && !currentTotalMissing {
+			total, _ := currentTotal.Float64()
+			result = append(result, chartEntry{
+				Time:  time.Now().Unix(),
+				Value: total,
+			})
+		}
+
 		// Truncate leading zeroes.
 		for i, e := range result {
-			if e.Value != 0 {
+			if e.Value > 0 {
 				return result[i:]
 			}
 		}
-		return result
+		// Everything was zeroes.
+		return []chartEntry{}
 	}
 
 	var chartTotal *float64
