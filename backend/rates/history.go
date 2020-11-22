@@ -13,11 +13,11 @@ import (
 	"time"
 )
 
-// CoinGeckoRateLimit specifies the minimal interval between equally spaced
+// coingeckoRateLimit specifies the minimal interval between equally spaced
 // API calls. From https://www.coingecko.com/en/api:
 // > Generous rate limits with up to 100 requests/minute
 // We use slightly lower value.
-const CoinGeckoRateLimit = 2 * time.Second
+const coingeckoRateLimit = 2 * time.Second
 
 // See the following for docs and details: https://www.coingecko.com/en/api.
 // Rate limit: 6k QPS per IP address.
@@ -220,8 +220,6 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 // It returns a number of the newly fetched and stored entries.
 // The data is stored in updater.history.
 func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string, start, end time.Time) (n int, err error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
-	defer cancel()
 	fetchedRates, err := updater.fetchGeckoMarketRange(ctx, coin, fiat, start, end)
 	if err != nil {
 		return 0, err
@@ -288,6 +286,7 @@ func (updater *RateUpdater) HistoryLatestTimestampAll(coins []string, fiat strin
 // fetchGeckoMarketRange slurps historical exchange rates using CoinGecko's
 // "market_chart/range" API.
 func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fiat string, start, end time.Time) ([]exchangeRate, error) {
+	// Prepare a request URL to call the upstream API.
 	gcoin := geckoCoin[coin]
 	if gcoin == "" {
 		return nil, fmt.Errorf("fetchGeckoMarketRange: unsupported coin %s", coin)
@@ -307,23 +306,31 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 		return nil, err
 	}
 
-	res, err := updater.httpClient.Do(req.WithContext(ctx))
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close() //nolint:errcheck
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
-	}
-	var jsonBody struct {
-		Prices [][2]float64 // [timestamp in milliseconds, value], sorted by timestamp asc
-	}
-	// 1Mb is more than enough for a single response.
-	// For comparison, a range of 15 days is about 14Kb.
-	if err := json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody); err != nil {
-		return nil, err
+	// Make the call, abiding the upstream rate limits.
+	var jsonBody struct{ Prices [][2]float64 } // [timestamp in milliseconds, value]
+	var resErr error
+	updater.geckoLimiter.Call(endpoint, func() {
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		res, err := updater.httpClient.Do(req.WithContext(ctx))
+		if err != nil {
+			resErr = err
+			return
+		}
+		defer res.Body.Close() //nolint:errcheck
+		if res.StatusCode != http.StatusOK {
+			resErr = fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
+			return
+		}
+		// 1Mb is more than enough for a single response.
+		// For comparison, a range of 15 days is about 14Kb.
+		resErr = json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody)
+	})
+	if resErr != nil {
+		return nil, resErr
 	}
 
+	// Transform the response into a usable result.
 	rates := make([]exchangeRate, len(jsonBody.Prices))
 	for i, v := range jsonBody.Prices {
 		rates[i] = exchangeRate{

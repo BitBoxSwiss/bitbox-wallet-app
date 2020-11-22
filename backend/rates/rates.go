@@ -33,6 +33,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
 	"github.com/sirupsen/logrus"
 )
 
@@ -101,6 +102,8 @@ type RateUpdater struct {
 	// CoinGecko is where updater gets the historical conversion rates.
 	// See https://www.coingecko.com/en/api for details.
 	coingeckoURL string
+	// All requests to coingeckoURL are rate-limited using geckoLimiter.
+	geckoLimiter *ratelimit.LimitedCall
 }
 
 // NewRateUpdater returns a new rates updater.
@@ -135,6 +138,7 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 		log:          log,
 		httpClient:   client,
 		coingeckoURL: coingeckoAPIV3,
+		geckoLimiter: ratelimit.NewLimitedCall(coingeckoRateLimit),
 	}
 }
 

@@ -197,8 +197,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	if err := os.MkdirAll(ratesCache, 0700); err != nil {
 		log.Errorf("RateUpdater DB cache dir: %v", err)
 	}
-	client := ratelimit.FromTransport(hclient.Transport, rates.CoinGeckoRateLimit)
-	backend.ratesUpdater = rates.NewRateUpdater(client, ratesCache)
+	backend.ratesUpdater = rates.NewRateUpdater(hclient, ratesCache)
 	backend.ratesUpdater.Observe(backend.Notify)
 
 	backend.banners = banners.NewBanners()

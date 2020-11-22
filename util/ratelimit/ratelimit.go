@@ -18,6 +18,9 @@ package ratelimit
 import (
 	"net/http"
 	"time"
+
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/sirupsen/logrus"
 )
 
 // FromTransport creates a new HTTP client wrapping base with RateLimitedHTTPTransport.
@@ -27,12 +30,15 @@ func FromTransport(base http.RoundTripper, callInterval time.Duration) *http.Cli
 	return &http.Client{Transport: rt}
 }
 
-// RateLimitedHTTPTransport is a http.RoundTripper that rate limits the requests, waiting at least
-// `callInterval` between requests.
+// RateLimitedHTTPTransport is a http.RoundTripper that rate limits the requests,
+// waiting at least callInterval between requests.
+//
+// It is suitable only for the requests without a deadline because the transport
+// does not extend the timeout duration of a request's context while being blocked
+// by the callInterval limit. In such cases, LimitedCall is a better choice.
 type RateLimitedHTTPTransport struct {
-	base         http.RoundTripper
-	rateCh       chan struct{}
-	callInterval time.Duration
+	base        http.RoundTripper
+	callLimiter *LimitedCall
 }
 
 // NewRateLimitedHTTPTransport make a new rate limited http transport.
@@ -42,22 +48,68 @@ func NewRateLimitedHTTPTransport(
 	if base == nil {
 		base = http.DefaultTransport
 	}
-	transport := &RateLimitedHTTPTransport{
-		base:         base,
-		rateCh:       make(chan struct{}),
-		callInterval: callInterval,
+	return &RateLimitedHTTPTransport{
+		base:        base,
+		callLimiter: NewLimitedCall(callInterval),
 	}
-	go transport.tick()
-	return transport
-}
-
-func (transport *RateLimitedHTTPTransport) tick() {
-	transport.rateCh <- struct{}{}
-	time.AfterFunc(transport.callInterval, transport.tick)
 }
 
 // RoundTrip implements http.RoundTripper, rate limiting the requests.
 func (transport *RateLimitedHTTPTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	<-transport.rateCh
-	return transport.base.RoundTrip(req)
+	var res *http.Response
+	var err error
+	transport.callLimiter.Call(req.URL.String(), func() {
+		res, err = transport.base.RoundTrip(req)
+	})
+	return res, err
+}
+
+// LimitedCall allows to rate-limit recurring function calls.
+type LimitedCall struct {
+	tickInterval time.Duration
+	tickCh       chan struct{}
+	log          *logrus.Entry
+}
+
+// NewLimitedCall creates new LimitedCall which allows a function to be called
+// at most once per the specified internval.
+func NewLimitedCall(minInterval time.Duration) *LimitedCall {
+	l := &LimitedCall{
+		tickInterval: minInterval,
+		tickCh:       make(chan struct{}),
+		log:          logging.Get().WithGroup("ratelimit"),
+	}
+	go l.tick()
+	return l
+}
+
+func (l *LimitedCall) tick() {
+	l.tickCh <- struct{}{}
+	time.AfterFunc(l.tickInterval, l.tick)
+}
+
+// Call blocks fn from being executed until at least minInterval passed after
+// the previous invocation. The interval is specified in NewLimitedCall.
+//
+// The logAnnotate arg is the message logged together with the elapsed time
+// of how long fn is blocked for, periodically.
+func (l *LimitedCall) Call(logAnnotate string, fn func()) {
+	logInterval := 5 * time.Second // avoid excessive logging
+	if logInterval < l.tickInterval {
+		logInterval = l.tickInterval
+	}
+	var elapsed time.Duration
+	for {
+		select {
+		case <-l.tickCh:
+			if elapsed > 0 {
+				l.log.Printf("calling %s after %v", logAnnotate, elapsed)
+			}
+			fn()
+			return
+		case <-time.After(logInterval):
+			elapsed += logInterval
+			l.log.Printf("waiting to call %s for %v now", logAnnotate, elapsed)
+		}
+	}
 }
