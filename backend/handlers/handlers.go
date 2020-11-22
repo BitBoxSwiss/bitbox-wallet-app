@@ -971,7 +971,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 				return result[i:]
 			}
 		}
-		return result
+		// Everything was zeroes.
+		return []chartEntry{}
 	}
 
 	var chartTotal *float64
