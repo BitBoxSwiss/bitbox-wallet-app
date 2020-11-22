@@ -981,7 +981,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 		// Truncate leading zeroes.
 		for i, e := range result {
-			if e.Value != 0 {
+			if e.Value > 0 {
 				return result[i:]
 			}
 		}
