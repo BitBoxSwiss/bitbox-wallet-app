@@ -16,6 +16,7 @@
 package ratelimit
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -56,12 +57,13 @@ func NewRateLimitedHTTPTransport(
 
 // RoundTrip implements http.RoundTripper, rate limiting the requests.
 func (transport *RateLimitedHTTPTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	var res *http.Response
-	var err error
-	transport.callLimiter.Call(req.URL.String(), func() {
-		res, err = transport.base.RoundTrip(req)
+	var callRes *http.Response
+	callErr := transport.callLimiter.Call(req.Context(), req.URL.String(), func() error {
+		res, err := transport.base.RoundTrip(req)
+		callRes = res
+		return err
 	})
-	return res, err
+	return callRes, callErr
 }
 
 // LimitedCall allows to rate-limit recurring function calls.
@@ -88,12 +90,13 @@ func (l *LimitedCall) tick() {
 	time.AfterFunc(l.tickInterval, l.tick)
 }
 
-// Call blocks fn from being executed until at least minInterval passed after
-// the previous invocation. The interval is specified in NewLimitedCall.
+// Call blocks fn from being executed until at least minInterval, specified
+// in NewLimitedCall, passed after the previous invocation or the context is done.
+// It propagates the error returned by fn as is.
 //
 // The logAnnotate arg is the message logged together with the elapsed time
 // of how long fn is blocked for, periodically.
-func (l *LimitedCall) Call(logAnnotate string, fn func()) {
+func (l *LimitedCall) Call(ctx context.Context, logAnnotate string, fn func() error) error {
 	logInterval := 5 * time.Second // avoid excessive logging
 	if logInterval < l.tickInterval {
 		logInterval = l.tickInterval
@@ -105,8 +108,9 @@ func (l *LimitedCall) Call(logAnnotate string, fn func()) {
 			if elapsed > 0 {
 				l.log.Printf("calling %s after %v", logAnnotate, elapsed)
 			}
-			fn()
-			return
+			return fn()
+		case <-ctx.Done():
+			return ctx.Err()
 		case <-time.After(logInterval):
 			elapsed += logInterval
 			l.log.Printf("waiting to call %s for %v now", logAnnotate, elapsed)

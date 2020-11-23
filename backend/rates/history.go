@@ -301,26 +301,23 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 
 	// Make the call, abiding the upstream rate limits.
 	var jsonBody struct{ Prices [][2]float64 } // [timestamp in milliseconds, value]
-	var resErr error
-	updater.geckoLimiter.Call(endpoint, func() {
+	callErr := updater.geckoLimiter.Call(ctx, endpoint, func() error {
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 		res, err := updater.httpClient.Do(req.WithContext(ctx))
 		if err != nil {
-			resErr = err
-			return
+			return err
 		}
 		defer res.Body.Close() //nolint:errcheck
 		if res.StatusCode != http.StatusOK {
-			resErr = fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
-			return
+			return fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
 		}
 		// 1Mb is more than enough for a single response.
 		// For comparison, a range of 15 days is about 14Kb.
-		resErr = json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody)
+		return json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody)
 	})
-	if resErr != nil {
-		return nil, resErr
+	if callErr != nil {
+		return nil, callErr
 	}
 
 	// Transform the response into a usable result.
