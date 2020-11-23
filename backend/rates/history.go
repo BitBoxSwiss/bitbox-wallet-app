@@ -171,19 +171,13 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 		// 90 days is the max interval CoinGecko responds with hourly timeseries to.
 		end := updater.HistoryEarliestTimestamp(coin, fiat)
 		var start time.Time
-		switch {
-		// First time; don't have historical data yet.
-		case end.IsZero():
+		if end.IsZero() {
+			// First time; don't have historical data yet.
 			end = time.Now()
 			start = end.Add(-90*24*time.Hour + time.Hour) // +1h to be sure
-		// Less than 90 days: still want hourly rates.
-		case time.Since(end) < 90*24*time.Hour:
-			end = end.Add(-time.Hour)
-			start = time.Now().Add(-90 * 24 * time.Hour)
-		// We want daily rates for timestamps past the first 90 days.
-		// Use multiple of years interval but not "too much" to control
-		// upstream API response time and size.
-		default:
+		} else {
+			// Use multiple of years interval but not "too much" to control
+			// upstream API response time and size.
 			end = end.Add(-24 * time.Hour)
 			start = end.Add(-1000 * 24 * time.Hour)
 		}
