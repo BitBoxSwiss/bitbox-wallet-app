@@ -167,35 +167,34 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 		// When to update next, after this loop iteration is done.
 		untilNext := time.Duration(1+rand.Intn(5)) * time.Second
 
+		// We want hourly rates for the last 90 days and daily past that.
+		// 90 days is the max interval CoinGecko responds with hourly timeseries to.
 		end := updater.HistoryEarliestTimestamp(coin, fiat)
 		var start time.Time
-		if end.IsZero() {
-			// First time; don't have historical data yet.
+		switch {
+		// First time; don't have historical data yet.
+		case end.IsZero():
 			end = time.Now()
-			// 90 days is the max interval which CoinGecko responds to with hourly timeseries.
-			// Make sure we get hourly rates by requesting 90 days minus 1 hour, just in case.
-			start = end.Add(-90*24*time.Hour + time.Hour)
-		} else {
-			// End at the day earlier than the last known timestamp.
-			// We want daily rates for timestamps past the first 90 days: use annual intervals.
+			start = end.Add(-90*24*time.Hour + time.Hour) // +1h to be sure
+		// Less than 90 days: still want hourly rates.
+		case time.Since(end) < 90*24*time.Hour:
+			end = end.Add(-time.Hour)
+			start = time.Now().Add(-90 * 24 * time.Hour)
+		// We want daily rates for timestamps past the first 90 days.
+		// Use multiple of years interval but not "too much" to control
+		// upstream API response time and size.
+		default:
 			end = end.Add(-24 * time.Hour)
-			start = end.Add(-365 * 24 * time.Hour)
+			start = end.Add(-1000 * 24 * time.Hour)
 		}
 
 		n, err := updater.updateHistory(ctx, coin, fiat, start, end)
 		switch {
-		case err == nil:
-			// CoinGecko returns an empty list if we're too far back in history.
-			// Use it to detect when to stop.
-			// Unless the start/end range is suspiciously arbitrary close to current time.
-			// It may indicate an API failure and we'll want to retry.
-			if n == 0 {
-				if time.Since(end) > 365*24*time.Hour {
-					updater.log.Printf("backfillHistory for %s/%s: reached end of data at %s", coin, fiat, start)
-					return
-				}
-				untilNext = time.Second // TODO: exponential backoff
-			}
+		// CoinGecko returns an empty list if we're too far back in history.
+		// Use it to detect when to stop.
+		case err == nil && n == 0:
+			updater.log.Printf("backfillHistory for %s/%s: reached end of data at %s", coin, fiat, start)
+			return
 		case err != nil:
 			// Reduce logging by omitting context.Canceled error which simply indiates
 			// the context is done and we are exiting from the loop.
