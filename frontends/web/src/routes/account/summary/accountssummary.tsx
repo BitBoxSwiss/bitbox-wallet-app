@@ -23,7 +23,7 @@ import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { Fiat, FiatConversion } from '../../../components/rates/rates';
+import { Fiat, FiatConversion, formatCurrency } from '../../../components/rates/rates';
 import { TranslateProps } from '../../../decorators/translate';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
@@ -256,6 +256,24 @@ class AccountsSummary extends Component<Props, State> {
                                             <p>{t('accountSummary.noAccount')}</p>
                                         )}
                                     </tbody>
+                                    {(data && data.chartTotal) ? (
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    <strong>{t('accountSummary.total')}</strong>
+                                                </th>
+                                                <td colSpan={2}>
+                                                    <strong>
+                                                        {formatCurrency(data.chartTotal, data.chartFiat)}
+                                                    </strong>
+                                                    {' '}
+                                                    <span className={style.coinUnit}>
+                                                        {data.chartFiat}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    ) : null }
                                 </table>
                             </div>
                         </div>
