@@ -41,14 +41,15 @@
     text-align: right;
 }
 
-.table thead th {
+.table thead th,
+.table tfoot th {
     font-size: var(--size-small);
     background-color: var(--color-mediumgray);
     color: var(--color-default);
 }
 
 .table tr td,
-.table tfoot th {
+.table tr td {
     font-size: var(--size-default) !important;
     line-height: 1.5714;
 }
@@ -61,7 +62,8 @@
     white-space: nowrap;
 }
 
-.table tfoot th {
+.table tfoot th,
+.table tfoot td {
     background-color: var(--color-mediumgray);
 }
 
@@ -101,8 +103,15 @@
 
     .table,
     .table tbody,
-    .table tbody tr {
+    .table tbody tr,
+    .table tfoot {
         display: block;
+    }
+
+    .table tfoot tr {
+        background-color: var(--color-mediumgray);
+        display: flex;
+        justify-content: space-between;
     }
 
     .table tbody td {
