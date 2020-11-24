@@ -218,18 +218,19 @@ func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string
 		return 0, err
 	}
 
-	key := coin + fiat
+	bucketName := coin + fiat
+	if err := updater.dumpHistoryBucket(bucketName, fetchedRates); err != nil {
+		// Non-critical: can continue without persistent DB.
+		updater.log.Errorf("dumpHistoryBucket(%q): %v", bucketName, err)
+	}
+
 	updater.historyMu.Lock()
 	defer updater.historyMu.Unlock()
-	allRates := append(updater.history[key], fetchedRates...)
+	allRates := append(updater.history[bucketName], fetchedRates...)
 	sort.Slice(allRates, func(i, j int) bool {
 		return allRates[i].timestamp.Before(allRates[j].timestamp)
 	})
-	updater.history[key] = allRates
-	if err := updater.dumpHistoryBucket(key, allRates); err != nil {
-		// Non-critical: can continue without persistent DB.
-		updater.log.Errorf("dumpHistoryBucket(%q): %v", key, err)
-	}
+	updater.history[bucketName] = allRates
 
 	return len(fetchedRates), nil
 }
