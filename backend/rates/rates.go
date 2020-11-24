@@ -38,7 +38,7 @@ import (
 )
 
 // TODO: Unify these with geckoCoin map.
-var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "SAI", "DAI", "BAT", "USDC"}
+var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "SAI", "DAI", "BAT", "USDC", "WBTC", "PAXG"}
 
 // TODO: Unify these with geckoFiat map.
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD", "AUD", "ILS", "BTC", "SGD"}
@@ -63,6 +63,8 @@ var cryptoCompareCoin = map[string]string{
 	"eth-erc20-usdc":      "USDC",
 	"eth-erc20-usdt":      "USDT",
 	"eth-erc20-zrx":       "ZRX",
+	"eth-erc20-wbtc":      "WBTC",
+	"eth-erc20-paxg":      "PAXG",
 }
 
 const interval = time.Minute

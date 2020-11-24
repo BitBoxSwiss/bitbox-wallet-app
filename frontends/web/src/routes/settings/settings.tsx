@@ -68,6 +68,8 @@ class Settings extends Component<Props, State> {
         bat: 'Basic Attention Token',
         mkr: 'Maker',
         zrx: '0x',
+        wbtc: 'Wrapped Bitcoin',
+        paxg: 'Pax Gold',
         sai0x89d2: 'Sai',
         dai0x6b17: 'Dai',
     };
