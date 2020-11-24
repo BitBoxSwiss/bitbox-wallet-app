@@ -91,8 +91,12 @@ class Chart extends Component<Props, State> {
         }
     }
 
+    private hasData = () => {
+        return this.props.dataDaily && this.props.dataDaily.length;
+    }
+
     private createChart = () => {
-        if (this.ref.current) {
+        if (this.ref.current && this.hasData()) {
             if (!this.chart) {
                 this.chart = createChart(this.ref.current, {
                     width: this.ref.current.offsetWidth,
@@ -145,22 +149,20 @@ class Chart extends Component<Props, State> {
                     }
                 });
             }
-            if (this.props.dataDaily && this.props.dataDaily.length) {
-                this.lineSeries = this.chart.addAreaSeries({
-                    priceLineVisible: false,
-                    lastValueVisible: false,
-                    priceFormat: {
-                        type: 'volume',
-                    },
-                    topColor: 'rgba(94, 148, 192, 0.5)',
-                    bottomColor: 'rgba(94, 148, 192, 0.02)',
-                    lineColor: 'rgba(94, 148, 192, 1)',
-                    crosshairMarkerRadius: 6,
-                });
-                this.lineSeries.setData(this.props.dataDaily);
-                this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
-                this.chart.subscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
-            }
+            this.lineSeries = this.chart.addAreaSeries({
+                priceLineVisible: false,
+                lastValueVisible: false,
+                priceFormat: {
+                    type: 'volume',
+                },
+                topColor: 'rgba(94, 148, 192, 0.5)',
+                bottomColor: 'rgba(94, 148, 192, 0.02)',
+                lineColor: 'rgba(94, 148, 192, 1)',
+                crosshairMarkerRadius: 6,
+            });
+            this.lineSeries.setData(this.props.dataDaily as ChartData);
+            this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
+            this.chart.subscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
             this.chart.timeScale().fitContent();
             window.addEventListener('resize', this.onResize);
             setTimeout(() => this.ref.current.classList.remove(styles.invisible), 200);
@@ -388,20 +390,22 @@ class Chart extends Component<Props, State> {
                         ) : null}
                         {diff}
                     </div>
-                    <div className={styles.filters}>
-                        <button className={display === 'week' ? styles.filterActive : undefined} onClick={this.displayWeek}>
-                            {t('chart.filter.week')}
-                        </button>
-                        <button className={display === 'month' ? styles.filterActive : undefined} onClick={this.displayMonth}>
-                            {t('chart.filter.month')}
-                        </button>
-                        <button className={display === 'year' ? styles.filterActive : undefined} onClick={this.displayYear}>
-                            {t('chart.filter.year')}
-                        </button>
-                        <button className={display === 'all' ? styles.filterActive : undefined} onClick={this.displayAll}>
-                            {t('chart.filter.all')}
-                        </button>
-                    </div>
+                    { this.hasData() ? (
+                        <div className={styles.filters}>
+                            <button className={display === 'week' ? styles.filterActive : undefined} onClick={this.displayWeek}>
+                                {t('chart.filter.week')}
+                            </button>
+                            <button className={display === 'month' ? styles.filterActive : undefined} onClick={this.displayMonth}>
+                                {t('chart.filter.month')}
+                            </button>
+                            <button className={display === 'year' ? styles.filterActive : undefined} onClick={this.displayYear}>
+                                {t('chart.filter.year')}
+                            </button>
+                            <button className={display === 'all' ? styles.filterActive : undefined} onClick={this.displayAll}>
+                                {t('chart.filter.all')}
+                            </button>
+                        </div>
+                    ) : null }
                 </header>
                 <div className={styles.chartCanvas}>
                     <div className={styles.chartUpdatingMessage}>
