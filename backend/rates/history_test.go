@@ -87,8 +87,8 @@ func TestUpdateHistory(t *testing.T) {
 		},
 	}
 
-	start, end := time.Unix(wantStartUnix, 0), time.Unix(wantEndUnix, 0)
-	n, err := updater.updateHistory(context.Background(), "btc", "USD", start, end)
+	g := fixedTimeRange(time.Unix(wantStartUnix, 0), time.Unix(wantEndUnix, 0))
+	n, err := updater.updateHistory(context.Background(), "btc", "USD", g)
 	require.NoError(t, err, "updater.updateHistory err")
 	assert.Equal(t, 2, n, "updater.updateHistory n")
 	wantHistory := map[string][]exchangeRate{
@@ -119,7 +119,8 @@ func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 	for _, test := range tt {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		var updater RateUpdater
-		_, err := updater.fetchGeckoMarketRange(ctx, test.coin, test.fiat, time.Now().Add(-time.Hour), time.Now())
+		g := fixedTimeRange(time.Now().Add(-time.Hour), time.Now())
+		_, err := updater.fetchGeckoMarketRange(ctx, test.coin, test.fiat, g)
 		assert.Error(t, err, "fetchGeckoMarketRange(%q, %q) returned nil error", test.coin, test.fiat)
 		cancel()
 	}

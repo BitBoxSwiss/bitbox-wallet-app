@@ -129,18 +129,17 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 		// will kick in and fill it up for the past 90 days anyway.
 		if !start.IsZero() {
 			// Start slightly past the last fetched timestamp
-			start = start.Add(10 * time.Minute)
 			// TODO: Handle the case where (now - start) > 90 days to get hourly rates?
-			now := time.Now()
-			// It's ok if start == now or now < start. CoinGecko simply returns no results.
-			// It's also ok if our "now" doesn't match CoinGecko: it always returns
-			// the latest available data without errors.
-			if _, err := updater.updateHistory(ctx, coin, fiat, start, now); err != nil {
+			timeRange := fetchTimeRange{
+				start: start.Add(time.Minute),
+				end:   time.Now,
+			}
+			if _, err := updater.updateHistory(ctx, coin, fiat, timeRange); err != nil {
 				// Reduce logging by omitting context.Canceled error which simply indiates
 				// the context is done and we are exiting from the loop.
 				// All other errors indicate we should retry.
 				if err != context.Canceled {
-					updater.log.Errorf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, now, err)
+					updater.log.Errorf("updateHistory(%s/%s start=%s): %v", coin, fiat, start, err)
 					untilNext = time.Second // TODO: exponential backoff
 				}
 			}
@@ -182,7 +181,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 			start = end.Add(-1000 * 24 * time.Hour)
 		}
 
-		n, err := updater.updateHistory(ctx, coin, fiat, start, end)
+		n, err := updater.updateHistory(ctx, coin, fiat, fixedTimeRange(start, end))
 		switch {
 		// CoinGecko returns an empty list if we're too far back in history.
 		// Use it to detect when to stop.
@@ -209,11 +208,11 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 	}
 }
 
-// updateHistory fetches and stores historical data for later use.
-// It returns a number of the newly fetched and stored entries.
+// updateHistory fetches and stores historical data in the specified time range
+// for later use. It returns the number of the newly fetched and stored entries.
 // The data is stored in updater.history.
-func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string, start, end time.Time) (n int, err error) {
-	fetchedRates, err := updater.fetchGeckoMarketRange(ctx, coin, fiat, start, end)
+func (updater *RateUpdater) updateHistory(ctx context.Context, coin, fiat string, t fetchTimeRange) (n int, err error) {
+	fetchedRates, err := updater.fetchGeckoMarketRange(ctx, coin, fiat, t)
 	if err != nil {
 		return 0, err
 	}
@@ -276,9 +275,21 @@ func (updater *RateUpdater) HistoryLatestTimestampAll(coins []string, fiat strin
 	return result
 }
 
-// fetchGeckoMarketRange slurps historical exchange rates using CoinGecko's
-// "market_chart/range" API.
-func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fiat string, start, end time.Time) ([]exchangeRate, error) {
+type fetchTimeRange struct {
+	start time.Time
+	end   func() time.Time
+}
+
+func fixedTimeRange(start, end time.Time) fetchTimeRange {
+	return fetchTimeRange{
+		start: start,
+		end:   func() time.Time { return end },
+	}
+}
+
+// fetchGeckoMarketRange slurps historical exchange rates in the specified time range
+// using CoinGecko's "market_chart/range" API.
+func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fiat string, timeRange fetchTimeRange) ([]exchangeRate, error) {
 	// Prepare a request URL to call the upstream API.
 	gcoin := geckoCoin[coin]
 	if gcoin == "" {
@@ -288,20 +299,22 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 	if gfiat == "" {
 		return nil, fmt.Errorf("fetchGeckoMarketRange: unsupported fiat %s", fiat)
 	}
-	param := url.Values{
-		"from":        {strconv.FormatInt(start.Unix(), 10)},
-		"to":          {strconv.FormatInt(end.Unix(), 10)},
-		"vs_currency": {gfiat},
-	}
-	endpoint := fmt.Sprintf("%s/coins/%s/market_chart/range?%s", updater.coingeckoURL, gcoin, param.Encode())
-	req, err := http.NewRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
 
 	// Make the call, abiding the upstream rate limits.
+	msg := fmt.Sprintf("fetch coingecko coin=%s fiat=%s start=%s", coin, fiat, timeRange.start)
 	var jsonBody struct{ Prices [][2]float64 } // [timestamp in milliseconds, value]
-	callErr := updater.geckoLimiter.Call(ctx, endpoint, func() error {
+	callErr := updater.geckoLimiter.Call(ctx, msg, func() error {
+		param := url.Values{
+			"from":        {strconv.FormatInt(timeRange.start.Unix(), 10)},
+			"to":          {strconv.FormatInt(timeRange.end().Unix(), 10)},
+			"vs_currency": {gfiat},
+		}
+		endpoint := fmt.Sprintf("%s/coins/%s/market_chart/range?%s", updater.coingeckoURL, gcoin, param.Encode())
+		req, err := http.NewRequest("GET", endpoint, nil)
+		if err != nil {
+			return err
+		}
+
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 		res, err := updater.httpClient.Do(req.WithContext(ctx))
