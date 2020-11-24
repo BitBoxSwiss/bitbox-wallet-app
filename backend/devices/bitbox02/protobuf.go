@@ -51,6 +51,8 @@ var ethMsgCoinMap = map[coin.Code]messages.ETHCoin{
 	"eth-erc20-bat":       messages.ETHCoin_ETH,
 	"eth-erc20-mkr":       messages.ETHCoin_ETH,
 	"eth-erc20-zrx":       messages.ETHCoin_ETH,
+	"eth-erc20-wbtc":      messages.ETHCoin_ETH,
+	"eth-erc20-paxg":      messages.ETHCoin_ETH,
 	"eth-erc20-sai0x89d2": messages.ETHCoin_ETH,
 	"eth-erc20-dai0x6b17": messages.ETHCoin_ETH,
 	coin.CodeTETH:         messages.ETHCoin_RopstenETH,

@@ -80,6 +80,18 @@ var erc20Tokens = []erc20Token{
 		unit:  "ZRX",
 		token: erc20.NewToken("0xe41d2489571d322189246dafa5ebde1f4699f498", 18),
 	},
+	{
+		code:  "eth-erc20-wbtc",
+		name:  "Wrapped Bitcoin",
+		unit:  "WBTC",
+		token: erc20.NewToken("0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", 8),
+	},
+	{
+		code:  "eth-erc20-paxg",
+		name:  "Pax Gold",
+		unit:  "PAXG",
+		token: erc20.NewToken("0x45804880De22913dAFE09f4980848ECE6EcbAf78", 18),
+	},
 }
 
 func erc20TokenByCode(code coin.Code) *erc20Token {

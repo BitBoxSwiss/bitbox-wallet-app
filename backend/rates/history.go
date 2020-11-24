@@ -46,6 +46,8 @@ var (
 		"eth-erc20-usdc":      "usd-coin",
 		"eth-erc20-usdt":      "tether",
 		"eth-erc20-zrx":       "0x",
+		"eth-erc20-wbtc":      "wrapped-bitcoin",
+		"eth-erc20-paxg":      "pax-gold",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
