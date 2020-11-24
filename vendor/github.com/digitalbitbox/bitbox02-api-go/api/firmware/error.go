@@ -14,7 +14,11 @@
 
 package firmware
 
-import "github.com/digitalbitbox/bitbox02-api-go/util/errp"
+import (
+	"fmt"
+
+	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+)
 
 const (
 	// 100 errors are reserved for errors coming from the device firmware
@@ -52,4 +56,12 @@ func isErrorCode(err error, code int32) bool {
 // IsErrorAbort returns whether the user aborted the operation.
 func IsErrorAbort(err error) bool {
 	return isErrorCode(err, ErrUserAbort)
+}
+
+// UnsupportedError should wrap a version string, e.g. "9.2.0". It means a feature is not available
+// before this version.
+type UnsupportedError string
+
+func (e UnsupportedError) Error() string {
+	return fmt.Sprintf("This feature is supported from firmware version %s. Please upgrade your firmware.", string(e))
 }
