@@ -5,7 +5,7 @@ SetCompressor /SOLID lzma
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 4.23.0.0
+!define VERSION 4.24.0.0
 !define COMPANY "Shift Crypto AG"
 !define URL https://github.com/digitalbitbox/bitbox-wallet-app/releases/
 !define BINDIR "build\windows"
