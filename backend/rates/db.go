@@ -23,6 +23,7 @@ func (updater *RateUpdater) loadHistoryBucket(key string) ([]exchangeRate, error
 		if bucket == nil {
 			return nil // no history exists for this key
 		}
+		// The func is called with k items in already byte-sorted order.
 		return bucket.ForEach(func(k, v []byte) error {
 			timestamp := binary.BigEndian.Uint64(k)
 			value := math.Float64frombits(binary.BigEndian.Uint64(v))
@@ -33,13 +34,6 @@ func (updater *RateUpdater) loadHistoryBucket(key string) ([]exchangeRate, error
 			return nil
 		})
 	})
-	// bbolt's readme says it stores the keys in byte-sorted order within a bucket.
-	// It doesn't say anything about what order takes place during the reads.
-	// However, tests seem to confirm it's a sequential read, in the same order
-	// in which the keys are stored. Hope it stays that way.
-	// See vendor/github.com/coreos/bbolt/README.md for some more details.
-	//
-	// Given the above, assume rates is already sorted by timestamp in ascending order.
 	return rates, err
 }
 
@@ -47,8 +41,7 @@ func (updater *RateUpdater) loadHistoryBucket(key string) ([]exchangeRate, error
 // It assumes rates are already sorted by timestamp in ascending order.
 func (updater *RateUpdater) dumpHistoryBucket(key string, rates []exchangeRate) error {
 	return updater.historyDB.Update(func(tx *bbolt.Tx) error {
-		tx.DeleteBucket([]byte(key)) //nolint:errcheck // don't care: next line will fail anyway
-		bucket, err := tx.CreateBucket([]byte(key))
+		bucket, err := tx.CreateBucketIfNotExists([]byte(key))
 		if err != nil {
 			return err
 		}
