@@ -342,6 +342,9 @@ func (device *Device) SupportsETH(coinCode messages.ETHCoin) bool {
 }
 
 // SupportsERC20 returns true if an ERC20 token is supported by the device api.
+//
+// For now, this list only contains tokens relevant to the BitBoxApp, otherwise the bitbox02-api-js
+// library size would blow up. TODO: move this to the bitbox-wallet-app repo.
 func (device *Device) SupportsERC20(contractAddress string) bool {
 	if *device.product != common.ProductBitBox02Multi {
 		return false
@@ -363,6 +366,14 @@ func (device *Device) SupportsERC20(contractAddress string) bool {
 		case
 			"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
 			"0x6B175474E89094C44Da98b954EedeAC495271d0F": // DAI
+			return true
+		}
+	}
+	if device.version.AtLeast(semver.NewSemVer(6, 0, 0)) {
+		switch contractAddress {
+		case
+			"0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", // WBTC
+			"0x45804880De22913dAFE09f4980848ECE6EcbAf78": // PAXG
 			return true
 		}
 	}

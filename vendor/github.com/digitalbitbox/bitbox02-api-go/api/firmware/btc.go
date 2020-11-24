@@ -23,6 +23,7 @@ import (
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -366,4 +367,39 @@ func (device *Device) BTCRegisterScriptConfig(
 		return errp.New("unexpected response")
 	}
 	return nil
+}
+
+// BTCSignMessage signs a Bitcoin message. The 64 byte raw signature, the recoverable ID and the 65
+// byte signature in Electrum format are returned.
+func (device *Device) BTCSignMessage(
+	coin messages.BTCCoin,
+	scriptConfig *messages.BTCScriptConfigWithKeypath,
+	message []byte,
+) (raw []byte, recID byte, electrum65 []byte, err error) {
+	if !device.version.AtLeast(semver.NewSemVer(9, 2, 0)) {
+		return nil, 0, nil, UnsupportedError("9.2.0")
+	}
+
+	request := &messages.BTCRequest{
+		Request: &messages.BTCRequest_SignMessage{
+			SignMessage: &messages.BTCSignMessageRequest{
+				Coin:         coin,
+				ScriptConfig: scriptConfig,
+				Msg:          message,
+			},
+		},
+	}
+	response, err := device.queryBTC(request)
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
+	if !ok {
+		return nil, 0, nil, errp.New("unexpected response")
+	}
+	sig, recID := signResponse.SignMessage.Signature[:64], signResponse.SignMessage.Signature[64]
+	// See https://github.com/spesmilo/electrum/blob/84dc181b6e7bb20e88ef6b98fb8925c5f645a765/electrum/ecc.py#L521-L523
+	const compressed = 4 // BitBox02 uses only compressed pubkeys
+	electrumSig65 := append([]byte{27 + compressed + recID}, sig...)
+	return sig, recID, electrumSig65, nil
 }

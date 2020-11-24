@@ -14,6 +14,7 @@
 // limitations under the License.
 
 syntax = "proto3";
+package shiftcrypto.bitbox02;
 
 import "common.proto";
 
@@ -33,6 +34,11 @@ message BTCScriptConfig {
   }
 
   message Multisig {
+    enum ScriptType {
+      P2WSH = 0; // native segwit v0 multisig (bech32 addresses)
+      P2WSH_P2SH = 1; // wrapped segwit for legacy address compatibility
+    }
+
     uint32 threshold = 1;
     // xpubs are acount-level xpubs. Addresses are going to be derived from it using: m/<change>/<receive>.
     // The number of xpubs defines the number of cosigners.
@@ -40,6 +46,8 @@ message BTCScriptConfig {
     // Index to the xpub of our keystore in xpubs. The keypath to it is provided via
     // BTCPubRequest/BTCSignInit.
     uint32 our_xpub_index = 3;
+
+    ScriptType script_type = 4;
   }
 
   oneof config {
@@ -58,6 +66,8 @@ message BTCPubRequest {
     UPUB = 5;
     CAPITAL_VPUB = 6; // Vpub
     CAPITAL_ZPUB = 7; // Zpub
+    CAPITAL_UPUB = 8; // Upub
+    CAPITAL_YPUB = 9; // Ypub
   }
 
   BTCCoin coin = 1;
@@ -155,6 +165,13 @@ message BTCIsScriptConfigRegisteredResponse {
 message BTCRegisterScriptConfigRequest {
   BTCScriptConfigRegistration registration = 1;
   string name = 2;
+  enum XPubType {
+    // Automatically choose to match Electrum's xpub format (e.g. Zpub/Vpub for p2wsh multisig mainnet/testnet).
+    AUTO_ELECTRUM = 0;
+    // Always xpub for mainnets, tpub for testnets.
+    AUTO_XPUB_TPUB = 1;
+  }
+  XPubType xpub_type = 3;
 }
 
 message BTCPrevTxInitRequest {
@@ -176,6 +193,17 @@ message BTCPrevTxOutputRequest {
   bytes pubkey_script = 2;
 }
 
+message BTCSignMessageRequest {
+  BTCCoin coin = 1;
+  BTCScriptConfigWithKeypath script_config = 2;
+  bytes msg = 3;
+}
+
+message BTCSignMessageResponse {
+  // 65 bytes (32 bytes big endian R, 32 bytes big endian S, 1 recid).
+  bytes signature = 1;
+}
+
 message BTCRequest {
   oneof request {
     BTCIsScriptConfigRegisteredRequest is_script_config_registered = 1;
@@ -183,6 +211,7 @@ message BTCRequest {
     BTCPrevTxInitRequest prevtx_init = 3;
     BTCPrevTxInputRequest prevtx_input = 4;
     BTCPrevTxOutputRequest prevtx_output = 5;
+    BTCSignMessageRequest sign_message = 6;
   }
 }
 
@@ -191,5 +220,6 @@ message BTCResponse {
     BTCSuccess success = 1;
     BTCIsScriptConfigRegisteredResponse is_script_config_registered = 2;
     BTCSignNextResponse sign_next = 3;
+    BTCSignMessageResponse sign_message = 4;
   }
 }
