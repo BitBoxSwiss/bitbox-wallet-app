@@ -30,7 +30,7 @@ export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
-export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD' | 'AUD' | 'ILS' | 'BTC';
+export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD' | 'AUD' | 'ILS' | 'BTC' | 'SGD';
 
 export type Rates = {
     [coin in MainnetCoin]: {
@@ -44,7 +44,7 @@ export interface SharedProps {
     selected: Fiat[];
 }
 
-export const currencies: Fiat[] = ['AUD', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'ILS', 'JPY', 'KRW', 'RUB', 'USD', 'BTC'];
+export const currencies: Fiat[] = ['AUD', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'ILS', 'JPY', 'KRW', 'RUB', 'SGD', 'USD', 'BTC'];
 
 export const store = new Store<SharedProps>({
     rates: undefined,
