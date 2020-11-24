@@ -66,7 +66,7 @@ export interface AccountInfo {
 
 interface State {
     initialized: boolean;
-    connected: boolean;
+    connected?: boolean;
     transactions?: TransactionInterface[];
     balance?: BalanceInterface;
     hasCard: boolean;
@@ -80,7 +80,7 @@ type Props = SubscribedAccountProps & LoadedAccountProps & AccountProps & Transl
 class Account extends Component<Props, State> {
     public readonly state: State = {
         initialized: false,
-        connected: false,
+        connected: undefined,
         transactions: undefined,
         balance: undefined,
         hasCard: false,
@@ -296,7 +296,7 @@ class Account extends Component<Props, State> {
                         {hasCard && t('warning.sdcard')}
                     </Status>
                     {
-                        !connected ? (
+                        connected === false ? (
                             <Status>
                                 <p>{t('account.disconnect')}</p>
                             </Status>
@@ -350,9 +350,9 @@ class Account extends Component<Props, State> {
                                 <Balance balance={balance} />
                             </div>
                             {
-                                !initialized || !connected || !this.dataLoaded() || fatalError ? (
+                                !initialized || connected === false || !this.dataLoaded() || fatalError ? (
                                     <Spinner text={
-                                        !connected && t('account.reconnecting') ||
+                                        connected === false && t('account.reconnecting') ||
                                         !initialized && initializingSpinnerText ||
                                         fatalError && t('account.fatalError') || ''
                                     } />
