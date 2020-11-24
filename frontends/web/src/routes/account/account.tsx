@@ -298,7 +298,7 @@ class Account extends Component<Props, State> {
                     {
                         connected === false ? (
                             <Status>
-                                <p>{t('account.disconnect')}</p>
+                                <p>{t('account.reconnecting')}</p>
                             </Status>
                         ) : null
                     }
