@@ -125,7 +125,8 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 	updater.log.Printf("started historyUpdateLoop for %s/%s", coin, fiat)
 	for {
 		// When to update next, after this loop iteration is done.
-		untilNext := time.Minute + time.Duration(rand.Intn(30))*time.Second
+		// Empirical testing showed the upstream may lag behind a few minutes anyway.
+		untilNext := time.Minute + time.Duration(rand.Intn(300))*time.Second
 
 		start := updater.HistoryLatestTimestamp(coin, fiat)
 		// When zero, there's no point in fetching data here because the backfillHistory
@@ -143,7 +144,7 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 				// All other errors indicate we should retry.
 				if err != context.Canceled {
 					updater.log.Errorf("updateHistory(%s/%s start=%s): %v", coin, fiat, start, err)
-					untilNext = time.Second // TODO: exponential backoff
+					untilNext = time.Duration(1+rand.Intn(5)) * time.Second
 				}
 			}
 		}
@@ -197,7 +198,7 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 			// All other errors indicate we should retry.
 			if err != context.Canceled {
 				updater.log.Printf("updateHistory(%s, %s, %s, %s): %v", coin, fiat, start, end, err)
-				untilNext = time.Second // TODO: exponential backoff
+				untilNext = time.Duration(1+rand.Intn(5)) * time.Second
 			}
 		}
 
