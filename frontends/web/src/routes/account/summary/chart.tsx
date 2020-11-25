@@ -339,11 +339,18 @@ class Chart extends Component<Props, State> {
     }
 
     private renderDate = (date) => {
-        return new Date(date).toLocaleString(this.props.i18n.language, {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        });
+        return new Date(date).toLocaleString(
+            this.props.i18n.language,
+            {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                ...(this.state.source === 'hourly' ? {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                } : null)
+            }
+        );
     }
 
     public render(
@@ -423,7 +430,9 @@ class Chart extends Component<Props, State> {
                                     {formatNumber(toolTipValue, 2)}
                                     <span className={styles.toolTipUnit}>{fiatUnit}</span>
                                 </h2>
-                                {this.renderDate(toolTipTime * 1000)}
+                                <span className={styles.toolTipTime}>
+                                    {this.renderDate(toolTipTime * 1000)}
+                                </span>
                             </span>
                         ): null}
                     </span>
