@@ -37,7 +37,7 @@ interface State {
     difference?: number;
     diffSince?: string;
     toolTipVisible: boolean;
-    toolTipValue: number;
+    toolTipValue?: number;
     toolTipTop: number;
     toolTipLeft: number;
     toolTipTime: number;
@@ -57,7 +57,7 @@ class Chart extends Component<Props, State> {
         display: 'all',
         source: 'daily',
         toolTipVisible: false,
-        toolTipValue: 0,
+        toolTipValue: undefined,
         toolTipTop: 0,
         toolTipLeft: 0,
         toolTipTime: 0,
@@ -417,7 +417,7 @@ class Chart extends Component<Props, State> {
                         className={styles.tooltip}
                         style={`left: ${toolTipLeft}px; top: ${toolTipTop}px;`}
                         hidden={!toolTipVisible}>
-                        {toolTipValue ? (
+                        {toolTipValue !== undefined ? (
                             <span>
                                 <h2 className={styles.toolTipValue}>
                                     {formatNumber(toolTipValue, 2)}
