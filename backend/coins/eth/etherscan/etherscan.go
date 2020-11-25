@@ -39,7 +39,7 @@ import (
 
 // CallInterval is the duration between etherscan requests.
 // Etherscan rate limits to one request per 0.2 seconds.
-var CallInterval = 210 * time.Millisecond
+var CallInterval = 260 * time.Millisecond
 
 const apiKey = "8GXVIES9ACAJIH7Q5PFXVHK8KH44HZRWBM"
 
