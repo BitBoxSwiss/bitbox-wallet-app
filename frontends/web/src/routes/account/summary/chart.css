@@ -115,3 +115,7 @@
   font-size: var(--size-small);
   padding: 0 .125rem;
 }
+
+.toolTipTime {
+  white-space: nowrap;
+}
