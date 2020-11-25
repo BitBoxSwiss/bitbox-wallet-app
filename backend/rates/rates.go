@@ -132,6 +132,7 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 		// An unopened DB will simply return bbolt.ErrDatabaseNotOpen on all operations.
 		db = &bbolt.DB{}
 	}
+	apiURL := shiftGeckoMirrorAPIV3
 	return &RateUpdater{
 		last:         make(map[string]map[string]float64),
 		history:      make(map[string][]exchangeRate),
@@ -139,8 +140,8 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 		historyDB:    db,
 		log:          log,
 		httpClient:   client,
-		coingeckoURL: coingeckoAPIV3,
-		geckoLimiter: ratelimit.NewLimitedCall(coingeckoRateLimit),
+		coingeckoURL: apiURL,
+		geckoLimiter: ratelimit.NewLimitedCall(apiRateLimit(apiURL)),
 	}
 }
 
