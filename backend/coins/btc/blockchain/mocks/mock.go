@@ -26,7 +26,7 @@ type BlockchainMock struct {
 	MockScriptHashGetHistory func(blockchain.ScriptHashHex, func(blockchain.TxHistory), func(error))
 	MockTransactionGet       func(chainhash.Hash, func(*wire.MsgTx), func(error))
 	MockScriptHashSubscribe  func(func() func(error), blockchain.ScriptHashHex, func(string))
-	MockHeadersSubscribe     func(func() func(error), func(*blockchain.Header) error)
+	MockHeadersSubscribe     func(func() func(error), func(*blockchain.Header))
 	MockTransactionBroadcast func(*wire.MsgTx) error
 	MockRelayFee             func(func(btcutil.Amount), func(error))
 	MockEstimateFee          func(int, func(*btcutil.Amount), func(error))
@@ -60,7 +60,7 @@ func (b *BlockchainMock) ScriptHashSubscribe(setupAndTeardown func() func(error)
 }
 
 // HeadersSubscribe implements Interface.
-func (b *BlockchainMock) HeadersSubscribe(setupAndTeardown func() func(error), success func(*blockchain.Header) error) {
+func (b *BlockchainMock) HeadersSubscribe(setupAndTeardown func() func(error), success func(*blockchain.Header)) {
 	if b.MockHeadersSubscribe != nil {
 		b.MockHeadersSubscribe(setupAndTeardown, success)
 	}

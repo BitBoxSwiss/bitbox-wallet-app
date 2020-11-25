@@ -61,7 +61,7 @@ func (s *testSuite) SetupTest() {
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(
 		setup func() func(error),
-		result func(*blockchain.Header) error) {
+		result func(*blockchain.Header)) {
 
 	}
 	s.coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })
