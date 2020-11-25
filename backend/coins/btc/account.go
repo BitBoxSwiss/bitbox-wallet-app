@@ -415,15 +415,14 @@ func (account *Account) Info() *accounts.Info {
 	}
 }
 
-func (account *Account) onNewHeader(header *blockchain.Header) error {
+func (account *Account) onNewHeader(header *blockchain.Header) {
 	if account.isClosed() {
 		account.log.Debug("Ignoring new header after the account was closed")
-		return nil
+		return
 	}
 	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
-	return nil
 }
 
 // FatalError returns true if the account had a fatal error.

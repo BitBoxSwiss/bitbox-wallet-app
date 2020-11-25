@@ -176,8 +176,8 @@ func (headers *Headers) Initialize() {
 	go headers.download()
 	headers.blockchain.HeadersSubscribe(
 		nil,
-		func(header *blockchain.Header) error {
-			return headers.update(header.BlockHeight)
+		func(header *blockchain.Header) {
+			headers.update(header.BlockHeight)
 		},
 	)
 	headers.kickChan <- struct{}{}
@@ -440,12 +440,11 @@ func (headers *Headers) kick() {
 }
 
 // update should be called when there is a new header.
-func (headers *Headers) update(blockHeight int) error {
+func (headers *Headers) update(blockHeight int) {
 	headers.log.Debugf("new target %d", blockHeight)
 	headers.kick()
 	headers.targetHeight = blockHeight
 	headers.notifyEvent(EventNewTip)
-	return nil
 }
 
 func (headers *Headers) tip() int {
