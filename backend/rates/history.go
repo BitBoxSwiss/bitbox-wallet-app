@@ -13,15 +13,30 @@ import (
 	"time"
 )
 
-// coingeckoRateLimit specifies the minimal interval between equally spaced
-// API calls. From https://www.coingecko.com/en/api:
-// > Generous rate limits with up to 100 requests/minute
-// We use slightly lower value.
-const coingeckoRateLimit = 2 * time.Second
+const (
+	// See the following for docs and details: https://www.coingecko.com/en/api.
+	coingeckoAPIV3 = "https://api.coingecko.com/api/v3"
+	// A mirror of CoinGecko API specifically for use with BitBoxApp.
+	shiftGeckoMirrorAPIV3 = "https://exchangerates.shiftcrypto.io/api/v3"
+)
 
-// See the following for docs and details: https://www.coingecko.com/en/api.
-// Rate limit: 6k QPS per IP address.
-const coingeckoAPIV3 = "https://api.coingecko.com/api/v3"
+// apiRateLimit specifies the minimal interval between equally spaced API calls
+// to one of the supported exchange rates providers.
+func apiRateLimit(baseURL string) time.Duration {
+	switch baseURL {
+	default:
+		return time.Second // arbitrary; localhost, staging, etc.
+	case coingeckoAPIV3:
+		// API calls. From https://www.coingecko.com/en/api:
+		// > Generous rate limits with up to 100 requests/minute
+		// We use slightly lower value.
+		return 2 * time.Second
+	case shiftGeckoMirrorAPIV3:
+		// Avoid zero to prevent unexpected panics like in time.NewTicker
+		// and leave some room to breathe.
+		return 10 * time.Millisecond
+	}
+}
 
 var (
 	// Values are copied from https://api.coingecko.com/api/v3/coins/list.
