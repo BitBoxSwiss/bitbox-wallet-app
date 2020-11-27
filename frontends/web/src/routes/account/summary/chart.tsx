@@ -127,7 +127,7 @@ class Chart extends Component<Props, State> {
                     layout: {
                         backgroundColor: '#F5F5F5',
                         fontSize: 11,
-                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+                        fontFamily: 'Regular, sans-serif',
                         textColor: '#1D1D1B',
                     },
                     leftPriceScale: {

@@ -1,0 +1,39 @@
+:root {
+  --font-family: "Regular", sans-serif;
+}
+
+@font-face {
+  font-family: 'Regular';
+  src: url('../assets/fonts/public-sans/PublicSans-Regular.woff2') format('woff2'),
+       url('../assets/fonts/public-sans/PublicSans-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Italic';
+  src: url('../assets/fonts/public-sans/PublicSans-Italic.woff2') format('woff2'),
+       url('../assets/fonts/public-sans/PublicSans-Italic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Bold';
+  src: url('../assets/fonts/public-sans/PublicSans-Bold.woff2') format('woff2'),
+       url('../assets/fonts/public-sans/PublicSans-Bold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'BoldItalic';
+  src: url('../assets/fonts/public-sans/PublicSans-BoldItalic.woff2') format('woff2'),
+       url('../assets/fonts/public-sans/PublicSans-BoldItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Light';
+  src: url('../assets/fonts/public-sans/PublicSans-Light.woff2') format('woff2'),
+       url('../assets/fonts/public-sans/PublicSans-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'LightItalic';
+  src: url('../assets/fonts/public-sans/PublicSans-LightItalic.woff2') format('woff2'),
+       url('../assets/fonts/public-sans/PublicSans-LightItalic.woff') format('woff');
+}

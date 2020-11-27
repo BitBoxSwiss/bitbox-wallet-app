@@ -10,7 +10,6 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    font-family: var(--font-family);
     font-size: var(--size-default);
     font-weight: 400;
     justify-content: center;
