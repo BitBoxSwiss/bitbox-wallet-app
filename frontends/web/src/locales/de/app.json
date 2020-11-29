@@ -32,7 +32,6 @@
     "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
     "noAccount": "Keine Konten verfügbar",
-    "synchronizing": "Konten werden mit den Blockchains synchronisiert:",
     "title": "Kontenübersicht",
     "total": "Gesamt",
     "transactionHistory": "Transaktionsübersicht"
@@ -472,6 +471,16 @@
     "newTitle": "Neues Gerätepasswort",
     "oldLabel": "Aktuelles Gerätepasswort"
   },
+  "chart": {
+    "dataMissing": "Wir sammeln noch Informationen. Bitte versuchen Sie es in einigen Minuten erneut.",
+    "dataUpdating": "Daten aktualisieren…",
+    "filter": {
+      "all": "Alles",
+      "month": "Monat",
+      "week": "Woche",
+      "year": "Jahr"
+    }
+  },
   "checkSDcard": "Micro-SD-Karte wird überprüft",
   "clickHere": "Hier klicken.",
   "confirm": {
@@ -651,6 +660,18 @@
       "text": "Der \"Senden\" Knopf wird aktiviert, wenn Ihr Guthaben größer als Null ist.",
       "title": "Warum kann ich keine {{unit}} senden?"
     },
+    "accountSummaryAmount": {
+      "link": {
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com"
+      },
+      "text": "Der Gesamtbetrag ist die Summe aller Ihrer Kryptokonten. Die Wechselkurse werden von coingecko.com abgerufen.\n\nHinweis: Wenn Sie MyEtherWallet für Token verwenden, die in der BitBoxApp nicht unterstützt werden, dann sind diese nicht in dem angezeigten Gesamtbetrag einberechnet.",
+      "title": "Wie berechnet sich der Gesamtbetrag?"
+    },
+    "accountSummaryDescription": {
+      "text": "Hier können Sie den Ertrag Ihres Portfolios im Zeitverlauf sehen. Eine Zusammenfassung Ihrer individuellen Konten wird unten in der Tabelle angezeigt.",
+      "title": "Was kann ich auf dieser Seite sehen?"
+    },
     "accountTransactionAttributesBTC": {
       "text": "Virtuelle Größe: Wird zur Ermittlung der Netzwerkgebühr verwendet. Sie haben erfolgreich Gebühren gespart, wenn sie kleiner als die Transaktion sind.\nGröße: Aktuelle Transaktionsgröße in Bytes nach der Serialisierung gemäß der zugrunde liegenden Blockchain.\nGewicht: Mit Segwit eingeführt, ist dies eine neue Metrik zur Bewertung von Transaktions- und Blockgrößen. Jedes Segwit Byte zählt als eins, alles andere als vier \"Gewichtseinheiten\". Statt eines Megabytes, beträgt die Blockgrößenbegrenzung nun vier Millionen \"Gewichtseinheiten\".",
       "title": "Was hat es mit den Bitcoin-spezifischen Transaktionsdetails  auf sich?"
@@ -740,6 +761,11 @@
     },
     "buy": {
       "support": {
+        "link": {
+          "text": "",
+          "url": ""
+        },
+        "text": "",
         "title": ""
       }
     },
@@ -988,8 +1014,16 @@
       "text": "Etwas ist schief gelaufen. Bitte fang erneut an.",
       "title": "Error"
     },
+    "pullFailed": {
+      "text": "Fehler beim Abrufen einer Nachricht von Ihrem Mobiltelefon über den Relay-Server. Der Relay-Server ist möglicherweise offline. Wenden Sie sich an den Support.",
+      "title": "Laden fehlgeschlagen"
+    },
     "reconnectOnly": {
       "button": "Smartphone App erneut verbinden"
+    },
+    "scanningFailed": {
+      "text": "Das Handy konnte die Nachricht nicht scannen. Bitte versuche es erneut.",
+      "title": "Scannen fehlgeschlagen"
     },
     "start": {
       "hideAppQRCode": "QR Code ausblenden",
@@ -1119,6 +1153,7 @@
       "label": "Betrag",
       "placeholder": "Betrag eingeben"
     },
+    "availableBalance": "Kontostand",
     "button": "Prüfen",
     "coincontrol": {
       "address": "Adresse",

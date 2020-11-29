@@ -32,7 +32,6 @@
     "fiatBalance": "Stanje v fiat valuti",
     "name": "Ime računa",
     "noAccount": "Ni računov za prikaz.",
-    "synchronizing": "Sinhroniziranje računov s svojimi verigami blokov:",
     "title": "Povzetek računov",
     "total": "Skupaj",
     "transactionHistory": "Zgodovina transakcij"
@@ -491,6 +490,16 @@
     "newTitle": "Novo geslo naprave",
     "oldLabel": "Trenutno geslo naprave"
   },
+  "chart": {
+    "dataMissing": "Še vedno pridobivamo informacije. Poskusite znova čez nekaj minut. Čiči pa čaki™",
+    "dataUpdating": "posodabljam...",
+    "filter": {
+      "all": "Vse",
+      "month": "Mesec",
+      "week": "Teden",
+      "year": "Leto"
+    }
+  },
   "checkSDcard": "preverjanje microSD kartice",
   "clickHere": "Klikni tukaj.",
   "confirm": {
@@ -669,6 +678,18 @@
     "accountSendDisabled": {
       "text": "Gumb »Pošlji« se aktivira, ko je stanje večje od nič.",
       "title": "Zakaj ne morem poslati nobenega {{enota}}?"
+    },
+    "accountSummaryAmount": {
+      "link": {
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com"
+      },
+      "text": "Skupni znesek je vsota vseh vaših kripto računov. Menjalni tečaji so na voljo na spletnem mestu coingecko.com.\n\nOpomba: Če MyEtherWallet uporabljate za žetone, ki jih BitBoxApp ne podpira, ti ne bodo vključeni v prikazani znesek.",
+      "title": "Kako se skupni znesek izračunava?"
+    },
+    "accountSummaryDescription": {
+      "text": "Tu si lahko ogledate gibanje vašega portfelja skozi čas. Povzetek vaših posameznih računov je prikazan pod grafom.",
+      "title": "Kaj prikazuje ta stran?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Virtualna velikost: Uporablja se za določanje omrežnine. Na omrežnini ste uspešno ste prihranili, ko je ta manjša od velikosti transakcije.\nVelikost: Dejanska velikost transakcije v bajtih, ko je serializirana glede na izbrano verigo blokov.\nTeža: Uvedena s sistemom Segwit, je nova metrika za ovrednotenje velikosti transakcij in blokov. Vsak bajt \"segregated witness\" šteje kot ena, vsi ostali kot štiri enote teže. Namesto enega megabajta dejanske velikosti je zdaj nova omejitev velikosti blokov štiri milijone enot teže.",
@@ -1187,16 +1208,16 @@
     },
     "feeTarget": {
       "description": {
-        "economy": "24 blokov (približno 4 ure za Bitcoin, 1 uro za Litecoin)",
+        "economy": "4 ure (24 blokov)",
         "economy_ltc": "1 ura (24 blokov)",
-        "high": "2 bloka (približno 20 minut za Bitcoin, 5 minut za Litecoin)",
+        "high": "20 minut (2 bloka)",
         "high_ltc": "5 minut (2 bloka)",
-        "low": "12 blokov (približno 2 uri za Bitcoin, 30 minut za Litecoin)",
+        "low": "2 uri (12 blokov)",
         "low_ltc": "30 minut (12 blokov)",
-        "normal": "6 blokov (približno 1 uro za Bitcoin, 15 minut za Litecoin)",
+        "normal": "1 ura (6 blokov)",
         "normal_ltc": "15 minut (6 blokov)"
       },
-      "estimate": "Predviden čas čakanja:",
+      "estimate": "Predviden čas potrditve:",
       "label": {
         "custom": "Po meri",
         "economy": "Ekonomična",
