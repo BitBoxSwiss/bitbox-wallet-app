@@ -31,7 +31,6 @@
     "fiatBalance": "Balance Fiat",
     "name": "Nombre de cuenta",
     "noAccount": "No hay cuentas para mostrar.",
-    "synchronizing": "Sincronizando cuentas con sus blockchains: ",
     "title": "Sumario de cuentas",
     "total": "Total",
     "transactionHistory": "Historial de transacciones"
