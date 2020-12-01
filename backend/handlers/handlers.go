@@ -108,7 +108,7 @@ type Backend interface {
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
 	Environment() backend.Environment
-	ChartData() (interface{}, error)
+	ChartData() (*backend.Chart, error)
 }
 
 // Handlers provides a web api to the backend.

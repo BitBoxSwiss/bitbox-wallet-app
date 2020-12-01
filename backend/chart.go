@@ -36,20 +36,32 @@ func (backend *Backend) allCoinCodes() []string {
 	return allCoinCodes
 }
 
-// ChartData assembles chart data for all active accounts.
-func (backend *Backend) ChartData() (interface{}, error) {
-	type chartEntry struct {
-		Time  int64   `json:"time"`
-		Value float64 `json:"value"`
-	}
+// ChartEntry is one data point in the chart timeseries.
+type ChartEntry struct {
+	Time  int64   `json:"time"`
+	Value float64 `json:"value"`
+}
 
+// Chart has all data needed to show a time-based chart of their assets to the user.
+type Chart struct {
+	DataMissing bool         `json:"chartDataMissing"`
+	DataDaily   []ChartEntry `json:"chartDataDaily"`
+	DataHourly  []ChartEntry `json:"chartDataHourly"`
+	Fiat        string       `json:"chartFiat"`
+	Total       *float64     `json:"chartTotal"`
+	// only valid is DataMissing is false
+	IsUpToDate bool `json:"chartIsUpToDate"`
+}
+
+// ChartData assembles chart data for all active accounts.
+func (backend *Backend) ChartData() (*Chart, error) {
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
 	// data,
 	chartDataMissing := false
 
 	// key: unix timestamp.
-	chartEntriesDaily := map[int64]chartEntry{}
-	chartEntriesHourly := map[int64]chartEntry{}
+	chartEntriesDaily := map[int64]ChartEntry{}
+	chartEntriesHourly := map[int64]ChartEntry{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
 	// Chart data until this point in time.
@@ -176,16 +188,16 @@ func (backend *Backend) ChartData() (interface{}, error) {
 			return nil, err
 		}
 
-		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries map[int64]chartEntry) {
+		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries map[int64]ChartEntry) {
 			for _, e := range timeseries {
 				price := backend.RatesUpdater().PriceAt(
 					string(coinCode),
 					fiat,
 					e.Time)
 				timestamp := e.Time.Unix()
-				chartEntry := chartEntries[timestamp]
+				ChartEntry := chartEntries[timestamp]
 
-				chartEntry.Time = timestamp
+				ChartEntry.Time = timestamp
 				fiatValue, _ := new(big.Rat).Mul(
 					new(big.Rat).SetFrac(
 						e.Value.BigInt(),
@@ -193,8 +205,8 @@ func (backend *Backend) ChartData() (interface{}, error) {
 					),
 					new(big.Rat).SetFloat64(price),
 				).Float64()
-				chartEntry.Value += fiatValue
-				chartEntries[timestamp] = chartEntry
+				ChartEntry.Value += fiatValue
+				chartEntries[timestamp] = ChartEntry
 			}
 		}
 
@@ -203,8 +215,8 @@ func (backend *Backend) ChartData() (interface{}, error) {
 
 	}
 
-	toSortedSlice := func(s map[int64]chartEntry) []chartEntry {
-		result := make([]chartEntry, len(s))
+	toSortedSlice := func(s map[int64]ChartEntry) []ChartEntry {
+		result := make([]ChartEntry, len(s))
 		i := 0
 		for _, entry := range s {
 			result[i] = entry
@@ -219,7 +231,7 @@ func (backend *Backend) ChartData() (interface{}, error) {
 		// missing form the timeseries (`until` is up to 2h in the past).
 		if isUpToDate && !currentTotalMissing {
 			total, _ := currentTotal.Float64()
-			result = append(result, chartEntry{
+			result = append(result, ChartEntry{
 				Time:  time.Now().Unix(),
 				Value: total,
 			})
@@ -232,7 +244,7 @@ func (backend *Backend) ChartData() (interface{}, error) {
 			}
 		}
 		// Everything was zeroes.
-		return []chartEntry{}
+		return []ChartEntry{}
 	}
 
 	// Even if we are still gathering data (exchange rates, block headers), we know the result
@@ -248,12 +260,12 @@ func (backend *Backend) ChartData() (interface{}, error) {
 		tot, _ := currentTotal.Float64()
 		chartTotal = &tot
 	}
-	return map[string]interface{}{
-		"chartDataMissing": chartDataMissing,
-		"chartDataDaily":   toSortedSlice(chartEntriesDaily),
-		"chartDataHourly":  toSortedSlice(chartEntriesHourly),
-		"chartFiat":        fiat,
-		"chartTotal":       chartTotal,
-		"chartIsUpToDate":  isUpToDate, // only valid is chartDataMissing is false
+	return &Chart{
+		DataMissing: chartDataMissing,
+		DataDaily:   toSortedSlice(chartEntriesDaily),
+		DataHourly:  toSortedSlice(chartEntriesHourly),
+		Fiat:        fiat,
+		Total:       chartTotal,
+		IsUpToDate:  isUpToDate,
 	}, nil
 }
