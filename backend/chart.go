@@ -53,6 +53,34 @@ type Chart struct {
 	IsUpToDate bool `json:"chartIsUpToDate"`
 }
 
+func (backend *Backend) addChartData(
+	coinCode coin.Code,
+	fiat string,
+	coinDecimals *big.Int,
+	timeseries []accounts.TimeseriesEntry,
+	chartEntries map[int64]ChartEntry,
+) {
+	for _, e := range timeseries {
+		price := backend.RatesUpdater().PriceAt(
+			string(coinCode),
+			fiat,
+			e.Time)
+		timestamp := e.Time.Unix()
+		ChartEntry := chartEntries[timestamp]
+
+		ChartEntry.Time = timestamp
+		fiatValue, _ := new(big.Rat).Mul(
+			new(big.Rat).SetFrac(
+				e.Value.BigInt(),
+				coinDecimals,
+			),
+			new(big.Rat).SetFloat64(price),
+		).Float64()
+		ChartEntry.Value += fiatValue
+		chartEntries[timestamp] = ChartEntry
+	}
+}
+
 // ChartData assembles chart data for all active accounts.
 func (backend *Backend) ChartData() (*Chart, error) {
 	// If true, we are missing headers or historical conversion rates necessary to compute the chart
@@ -188,30 +216,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			return nil, err
 		}
 
-		addChartData := func(coinCode coin.Code, timeseries []accounts.TimeseriesEntry, chartEntries map[int64]ChartEntry) {
-			for _, e := range timeseries {
-				price := backend.RatesUpdater().PriceAt(
-					string(coinCode),
-					fiat,
-					e.Time)
-				timestamp := e.Time.Unix()
-				ChartEntry := chartEntries[timestamp]
-
-				ChartEntry.Time = timestamp
-				fiatValue, _ := new(big.Rat).Mul(
-					new(big.Rat).SetFrac(
-						e.Value.BigInt(),
-						coinDecimals,
-					),
-					new(big.Rat).SetFloat64(price),
-				).Float64()
-				ChartEntry.Value += fiatValue
-				chartEntries[timestamp] = ChartEntry
-			}
-		}
-
-		addChartData(account.Coin().Code(), timeseriesDaily, chartEntriesDaily)
-		addChartData(account.Coin().Code(), timeseriesHourly, chartEntriesHourly)
+		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesDaily, chartEntriesDaily)
+		backend.addChartData(account.Coin().Code(), fiat, coinDecimals, timeseriesHourly, chartEntriesHourly)
 
 	}
 
