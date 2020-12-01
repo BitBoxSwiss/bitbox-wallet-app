@@ -820,6 +820,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 	currentTotal := new(big.Rat)
 	currentTotalMissing := false
+	// Total number of transactions across all active accounts.
+	totalNumberOfTransactions := 0
 	for _, account := range handlers.backend.Accounts() {
 		if account.FatalError() {
 			continue
@@ -836,6 +838,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		if err != nil {
 			return nil, err
 		}
+		totalNumberOfTransactions += len(txs)
 
 		// e.g. 1e8 for Bitcoin/Litecoin, 1e18 for Ethereum, etc. Used to convert from the smallest
 		// unit to the standard unit (BTC, LTC; ETH, etc.).
@@ -987,6 +990,14 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 		}
 		// Everything was zeroes.
 		return []chartEntry{}
+	}
+
+	// Even if we are still gathering data (exchange rates, block headers), we know the result
+	// already if there are no transactions. This avoids showing the user a message that we are
+	// gathering data, only to show nothing in the end.
+	if chartDataMissing && totalNumberOfTransactions == 0 {
+		handlers.log.Info("ChartDataMissing forced to false")
+		chartDataMissing = false
 	}
 
 	var chartTotal *float64
