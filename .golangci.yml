@@ -57,7 +57,7 @@ linters-settings:
       - unlambda
       - unslice
   gocyclo:
-    min-complexity: 25
+    min-complexity: 27
   maligned:
     # print struct with more effective memory layout or not, false by default
     suggest-new: true
