@@ -95,7 +95,7 @@ class AccountsSummary extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        window.clearInterval(this.summaryReqTimerID);
+        window.clearTimeout(this.summaryReqTimerID);
         this.unsubscribe();
     }
 
@@ -124,7 +124,11 @@ class AccountsSummary extends Component<Props, State> {
         if (data.type === 'account') {
             switch (data.data) {
                 case 'statusChanged':
+                case 'syncdone':
                     this.onStatusChanged(data.code);
+                    // Force getting account summary now; cancel next scheduled call.
+                    window.clearTimeout(this.summaryReqTimerID);
+                    this.getAccountSummary();
                     break;
             }
         }
