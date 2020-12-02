@@ -44,12 +44,19 @@ type ChartEntry struct {
 
 // Chart has all data needed to show a time-based chart of their assets to the user.
 type Chart struct {
-	DataMissing bool         `json:"chartDataMissing"`
-	DataDaily   []ChartEntry `json:"chartDataDaily"`
-	DataHourly  []ChartEntry `json:"chartDataHourly"`
-	Fiat        string       `json:"chartFiat"`
-	Total       *float64     `json:"chartTotal"`
-	// only valid is DataMissing is false
+	// If true, we are missing historical exchange rates or block headers needed to compute the
+	// chart.
+	DataMissing bool `json:"chartDataMissing"`
+	// Only valid if DaataMissing is false. Contains the daily points for the chart.
+	DataDaily []ChartEntry `json:"chartDataDaily"`
+	// Only valid if DaataMissing is false. Contains the hourly points for the chart.
+	DataHourly []ChartEntry `json:"chartDataHourly"`
+	// Fiat currency of the value in the chart and in the total.
+	Fiat string `json:"chartFiat"`
+	// Current total value of all assets in the fiat currency. Nil if missing (this is independent
+	// of `DataMissing`).
+	Total *float64 `json:"chartTotal"`
+	// Only valid if DataMissing is false
 	IsUpToDate bool `json:"chartIsUpToDate"`
 }
 
