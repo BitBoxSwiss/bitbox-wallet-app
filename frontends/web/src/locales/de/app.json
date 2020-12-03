@@ -472,7 +472,7 @@
     "oldLabel": "Aktuelles Gerätepasswort"
   },
   "chart": {
-    "dataMissing": "Wir sammeln noch Informationen. Bitte versuchen Sie es in einigen Minuten erneut.",
+    "dataMissing": "Historische Daten werden gesammelt... gleich fertig.",
     "dataUpdating": "Daten aktualisieren…",
     "filter": {
       "all": "Alles",

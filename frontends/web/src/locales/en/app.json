@@ -491,7 +491,7 @@
     "oldLabel": "Current device password"
   },
   "chart": {
-    "dataMissing": "We are still gathering information. Please try again in a few minutes.",
+    "dataMissing": "Gathering historical data... stay tuned.",
     "dataUpdating": "updating data…",
     "filter": {
       "all": "All",
