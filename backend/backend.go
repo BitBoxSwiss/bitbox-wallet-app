@@ -208,9 +208,11 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
 // It requires both backend.config to be up-to-date and all accounts initialized.
+//
+// The accountsLock must be held when calling this function.
 func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
-	for _, acct := range backend.Accounts() {
+	for _, acct := range backend.accounts {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
 	// No reason continue with ERC20 tokens if Ethereum is inactive.
@@ -227,8 +229,8 @@ func (backend *Backend) configureHistoryExchangeRates() {
 }
 
 // addAccount adds the given account to the backend.
+// The accountsLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
-	defer backend.accountsLock.Lock()()
 	backend.accounts = append(backend.accounts, account)
 	account.Observe(backend.Notify)
 	backend.onAccountInit(account)
@@ -264,9 +266,8 @@ func (backend *Backend) emitAccountsStatusChanged() {
 	})
 }
 
-// CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
-// persist is true, the configuration is fetched and saved in the accounts configuration.
-func (backend *Backend) CreateAndAddAccount(
+// The accountsLock must be held when calling this function.
+func (backend *Backend) createAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
@@ -345,6 +346,20 @@ func (backend *Backend) CreateAndAddAccount(
 	return nil
 }
 
+// CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
+// persist is true, the configuration is fetched and saved in the accounts configuration.
+func (backend *Backend) CreateAndAddAccount(
+	coin coin.Coin,
+	code string,
+	name string,
+	getSigningConfigurations func() (signing.Configurations, error),
+	persist bool,
+	emitEvent bool,
+) error {
+	defer backend.accountsLock.Lock()()
+	return backend.createAndAddAccount(coin, code, name, getSigningConfigurations, persist, emitEvent)
+}
+
 type scriptTypeWithKeypath struct {
 	scriptType signing.ScriptType
 	keypath    signing.AbsoluteKeypath
@@ -364,6 +379,8 @@ func newScriptTypeWithKeypath(scriptType signing.ScriptType, keypath string) scr
 // adds a combined BTC account with the given script types. If the keystore requires split accounts
 // (bitbox01) or the user configure split accounts in the settings, one account per script type is
 // added instead of a combined account.
+//
+// The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddBTCAccount(
 	keystore keystore.Keystore,
 	coin coin.Coin,
@@ -420,7 +437,7 @@ func (backend *Backend) createAndAddBTCAccount(
 			case signing.ScriptTypeP2WPKH:
 				suffixedName += ": bech32"
 			}
-			err := backend.CreateAndAddAccount(
+			err := backend.createAndAddAccount(
 				coin,
 				fmt.Sprintf("%s-%s", code, cfg.scriptType),
 				suffixedName,
@@ -443,13 +460,14 @@ func (backend *Backend) createAndAddBTCAccount(
 			}
 			return result, nil
 		}
-		err := backend.CreateAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
+		err := backend.createAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
+// The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddETHAccount(
 	keystore keystore.Keystore,
 	coin coin.Coin,
@@ -493,7 +511,7 @@ func (backend *Backend) createAndAddETHAccount(
 			),
 		}, nil
 	}
-	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
+	err = backend.createAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
 	if err != nil {
 		panic(err)
 	}
@@ -660,6 +678,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 	return coin, nil
 }
 
+// The accountsLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts() {
 	for _, account := range backend.config.AccountsConfig().Accounts {
 		account := account
@@ -677,7 +696,7 @@ func (backend *Backend) initPersistedAccounts() {
 		getSigningConfigurations := func() (signing.Configurations, error) {
 			return signing.Configurations{account.Configuration}, nil
 		}
-		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations, false, false)
+		err = backend.createAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations, false, false)
 		if err != nil {
 			panic(err)
 		}
@@ -686,6 +705,8 @@ func (backend *Backend) initPersistedAccounts() {
 
 // initDefaultAccounts creates a bunch of default accounts for a set of keystores (not manually
 // user-added). Currently the first bip44 account for all supported and active account types.
+//
+// The accountsLock must be held when calling this function.
 func (backend *Backend) initDefaultAccounts() {
 	if backend.keystores.Count() == 0 {
 		return
@@ -765,6 +786,7 @@ func (backend *Backend) initDefaultAccounts() {
 	}
 }
 
+// The accountsLock must be held when calling this function.
 func (backend *Backend) initAccounts() {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts()
@@ -785,6 +807,8 @@ func (backend *Backend) initAccounts() {
 // if the configuration changed (e.g. which accounts are active). This is a stopgap measure until
 // accounts can be added and removed individually.
 func (backend *Backend) ReinitializeAccounts() {
+	defer backend.accountsLock.Lock()()
+
 	backend.log.Info("Reinitializing accounts")
 	backend.initAccounts()
 }
@@ -796,6 +820,7 @@ func (backend *Backend) Testing() bool {
 
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() []accounts.Interface {
+	defer backend.accountsLock.RLock()()
 	return backend.accounts
 }
 
@@ -852,6 +877,8 @@ func (backend *Backend) Start() <-chan interface{} {
 	if backend.arguments.DevMode() {
 		backend.baseManager.Start()
 	}
+
+	defer backend.accountsLock.Lock()()
 	backend.initPersistedAccounts()
 	backend.emitAccountsStatusChanged()
 
@@ -932,8 +959,8 @@ func (backend *Backend) BitBoxBaseDeregister(bitboxBaseID string) {
 	backend.events <- backendEvent{Type: "bitboxbases", Data: "registeredChanged"}
 }
 
+// The accountsLock must be held when calling this function.
 func (backend *Backend) uninitAccounts() {
-	defer backend.accountsLock.Lock()()
 	for _, account := range backend.accounts {
 		account := account
 		backend.onAccountUninit(account)
@@ -960,6 +987,8 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
 		return
 	}
+
+	defer backend.accountsLock.Lock()()
 	backend.initAccounts()
 }
 
@@ -971,6 +1000,9 @@ func (backend *Backend) DeregisterKeystore() {
 		Subject: "keystores",
 		Action:  action.Reload,
 	})
+
+	defer backend.accountsLock.Lock()()
+
 	backend.uninitAccounts()
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
@@ -1152,9 +1184,12 @@ func (backend *Backend) Environment() Environment {
 
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
+	defer backend.accountsLock.Lock()()
+
 	errors := []string{}
 
 	backend.ratesUpdater.Stop()
+
 	backend.uninitAccounts()
 
 	for _, coin := range backend.coins {
