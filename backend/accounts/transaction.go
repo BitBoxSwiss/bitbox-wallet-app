@@ -81,7 +81,8 @@ type TransactionData struct {
 	// (e.g. an internal/smart contract tx shown semantically, as well as the raw zero value
 	// contract execution tx).
 	InternalID string
-	// Height is the block number at which this tx confirmed, or 0 if unconfirmed.
+	// Height is the block number at which this tx confirmed, or 0 if unconfirmed. -1 if unconfirmed
+	// with an unconfirmed parent.
 	Height int
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
 	NumConfirmations int
@@ -118,6 +119,11 @@ type TransactionData struct {
 	// --- Fields only used for ETH follow
 
 	Gas uint64
+}
+
+// isConfirmed returns true if the transaction has has at least one confirmation.
+func (tx *TransactionData) isConfirmed() bool {
+	return tx.Height > 0
 }
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
@@ -201,7 +207,7 @@ func (txs OrderedTransactions) EarliestTime() (time.Time, error) {
 		if tx.Timestamp != nil {
 			return *tx.Timestamp, nil
 		}
-		if tx.Height != 0 {
+		if tx.isConfirmed() {
 			return time.Time{}, errp.WithStack(errors.ErrNotAvailable)
 		}
 	}
@@ -213,7 +219,7 @@ func (txs OrderedTransactions) EarliestTime() (time.Time, error) {
 func (txs OrderedTransactions) Timeseries(
 	start, end time.Time, interval time.Duration) ([]TimeseriesEntry, error) {
 	for _, tx := range txs {
-		if tx.Height != 0 && tx.Timestamp == nil {
+		if tx.isConfirmed() && tx.Timestamp == nil {
 			return nil, errp.WithStack(errors.ErrNotAvailable)
 		}
 	}
@@ -227,7 +233,7 @@ func (txs OrderedTransactions) Timeseries(
 		// Find the latest tx before `currentTime`.
 		nextIndex := sort.Search(len(txs), func(idx int) bool {
 			tx := txs[idx]
-			if tx.Height == 0 {
+			if !tx.isConfirmed() {
 				return false
 			}
 			return tx.Timestamp.Before(currentTime) || tx.Timestamp.Equal(currentTime)

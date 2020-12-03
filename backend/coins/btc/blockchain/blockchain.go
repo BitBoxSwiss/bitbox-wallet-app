@@ -55,6 +55,8 @@ func (txHash *TXHash) UnmarshalJSON(jsonBytes []byte) error {
 
 // TxInfo is returned by ScriptHashGetHistory.
 type TxInfo struct {
+	// >0 for a confirmed transaction. 0 for an unconfirmed transaction. -1 for an unconfirmed
+	// transaction with an unconfirmed parent transaction.
 	Height int    `json:"height"`
 	TXHash TXHash `json:"tx_hash"`
 	Fee    *int64 `json:"fee"`
