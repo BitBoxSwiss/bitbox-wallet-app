@@ -216,7 +216,7 @@ func CheckElectrumServer(serverInfo *config.ServerInfo, log *logrus.Entry, diale
 	// We receive the first one that comes back.
 	defer electrumClient.Close()
 	go func() {
-		_, err := electrumClient.ServerVersion()
+		err := electrumClient.CheckConnection()
 		select {
 		case errChan <- err:
 		default:

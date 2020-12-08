@@ -561,14 +561,17 @@ func (client *RPCClient) Method(
 // json-deserialized into response.
 func (client *RPCClient) MethodSync(response interface{}, method string, params ...interface{}) error {
 	responseChan := make(chan []byte)
-	errChan := make(chan error)
+	// errChan needs a buffer of at least 1 to accommodate MethodSync version check
+	// during a new connection in backend/coins/btc/electrum/client pkg without
+	// deadlocks.
+	errChan := make(chan error, 1)
 
 	client.Method(
 		func(responseBytes []byte) error {
 			responseChan <- responseBytes
 			return nil
 		},
-		func() func(error) { return func(error) {} },
+		func() func(error) { return func(err error) { errChan <- err } },
 		method, params...)
 	select {
 	case err := <-errChan:
