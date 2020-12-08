@@ -35,14 +35,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	clientVersion         = "0.0.1"
-	clientProtocolVersion = "1.4"
-)
+// SoftwareVersion reports to an electrum protocol compatible server
+// its name and a version so that server owners can identify what kind of
+// clients are connected.
+// It is set at the app startup in the backend and never changes during the runtime.
+var SoftwareVersion = "BitBoxApp/uninitialized"
+
+// supportedProtocolVersion reports to the servers the minimal supported electrum
+// protocol version during the initial connection phase.
+const supportedProtocolVersion = "1.4"
 
 // ElectrumClient is a high level API access to an Electrum protocol compatible server.
 // See https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
-// selecting the clientProtocolVersion currently in use.
+// selecting the supportedProtocolVersion currently in use.
 type ElectrumClient struct {
 	rpc *jsonrpc.RPCClient
 
@@ -143,7 +148,7 @@ func (v serverVersion) String() string {
 // condition.
 func (client *ElectrumClient) negotiateProtocol() (serverVersion, error) {
 	var resp [2]string // [software version, protocol version]
-	err := client.rpc.MethodSync(&resp, "server.version", clientVersion, clientProtocolVersion)
+	err := client.rpc.MethodSync(&resp, "server.version", SoftwareVersion, supportedProtocolVersion)
 	if err != nil {
 		return serverVersion{}, err
 	}

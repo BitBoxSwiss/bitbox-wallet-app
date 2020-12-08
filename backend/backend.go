@@ -60,6 +60,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func init() {
+	electrum.SetClientSoftwareVersion(Version)
+}
+
 type backendEvent struct {
 	Type string      `json:"type"`
 	Data string      `json:"data"`

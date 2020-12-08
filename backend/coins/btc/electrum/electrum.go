@@ -19,6 +19,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io"
 	"net"
 	"time"
@@ -29,9 +30,18 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
 )
+
+// SetClientSoftwareVersion updates an electrumx client software version string
+// sent to the servers during the protocol version negotiation.
+// This is purely informational and has no impact on supported protocol versions.
+// SetClientSoftwareVersion is unsafe for concurrent use.
+func SetClientSoftwareVersion(v *semver.SemVer) {
+	client.SoftwareVersion = fmt.Sprintf("BitBoxApp/%s", v)
+}
 
 // establishConnection connects to a backend and returns an rpc client
 // or an error if the connection could not be established.
