@@ -177,11 +177,18 @@ func (client *RPCClient) requeueSubscriptions() {
 func (client *RPCClient) resendPendingRequests() {
 	defer client.pendingRequestsLock.RLock()()
 	client.log.Debugf("Queueing %v pending requests to resend.", len(client.pendingRequests))
+	// An alternative is to grab the lock in the goroutine below
+	// but there's a high risk it'll keep the mutex locked for too long,
+	// preventing new requests to be dispatched.
+	pending := make([][]byte, 0, len(client.pendingRequests))
+	for _, req := range client.pendingRequests {
+		pending = append(pending, req.jsonText)
+	}
 	// This needs to be executed in a go-routine so that it doesn't block if the connection fails
 	// and a failover is initiated.
 	go func() {
-		for _, request := range client.pendingRequests {
-			err := client.send(request.jsonText)
+		for _, jsonText := range pending {
+			err := client.send(jsonText)
 			if err != nil {
 				wait := time.Minute / 4
 				client.log.Debugf("Resending failed. Waiting for %v", wait)
@@ -331,6 +338,14 @@ func (client *RPCClient) conn() (*connection, error) {
 func (client *RPCClient) cleanupFinishedRequest(responseError error, conn *connection, responseID int) {
 	defer client.pendingRequestsLock.Lock()()
 	finishedRequest := client.pendingRequests[responseID]
+	// Without the nil check it sometimes crashes with SIGSEGV on failover:
+	// panic: runtime error: invalid memory address or nil pointer dereference.
+	// It is unclear when exactly it happens but this package will be rewritten,
+	// so a simple nil check will do for now.
+	if finishedRequest == nil {
+		client.log.Infof("No pending req with response ID=%d; won't clean up", responseID)
+		return
+	}
 	finishedRequest.responseCallbacks.cleanup(responseError)
 	if responseError != nil && client.isSubscriptionRequest(finishedRequest.method) {
 		func() {
@@ -519,9 +534,12 @@ func (client *RPCClient) prepare(
 	params ...interface{},
 ) []byte {
 	// Ideally, we should have a worker thread that processes a "to be send" list.
-	cleanup := func(error) {}
+	var cleanup func(error)
 	if setupAndTeardown != nil {
 		cleanup = setupAndTeardown()
+	}
+	if cleanup == nil {
+		cleanup = func(error) {} // noop
 	}
 
 	msgID, jsonText := client.transform(method, params...)
