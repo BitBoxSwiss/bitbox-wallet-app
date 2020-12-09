@@ -134,41 +134,19 @@ type AppConfig struct {
 	Frontend interface{} `json:"frontend"`
 }
 
+// O=Shift Crypto, CN=ShiftCrypto R1
+// Serial: d35011c382968211cd4e29fefc144891.
 const shiftRootCA = `
 -----BEGIN CERTIFICATE-----
-MIIGGjCCBAKgAwIBAgIJAKRWPF0NRtHyMA0GCSqGSIb3DQEBDQUAMIGZMQswCQYD
-VQQGEwJDSDEPMA0GA1UECAwGWnVyaWNoMR0wGwYDVQQKDBRTaGlmdCBDcnlwdG9z
-ZWN1cml0eTEzMDEGA1UECwwqU2hpZnQgQ3J5cHRvc2VjdXJpdHkgQ2VydGlmaWNh
-dGUgQXV0aG9yaXR5MSUwIwYDVQQDDBxTaGlmdCBDcnlwdG9zZWN1cml0eSBSb290
-IENBMB4XDTE4MDYwODE0NTA0MloXDTM4MDYwMzE0NTA0MlowgZkxCzAJBgNVBAYT
-AkNIMQ8wDQYDVQQIDAZadXJpY2gxHTAbBgNVBAoMFFNoaWZ0IENyeXB0b3NlY3Vy
-aXR5MTMwMQYDVQQLDCpTaGlmdCBDcnlwdG9zZWN1cml0eSBDZXJ0aWZpY2F0ZSBB
-dXRob3JpdHkxJTAjBgNVBAMMHFNoaWZ0IENyeXB0b3NlY3VyaXR5IFJvb3QgQ0Ew
-ggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQC0H598q5C+yDJI9F8QYkYK
-6/48kFNQ0rbAKcKkgR0+H8CGuFVOGQdcv7tObCMe0Dyr8ioNkq7AP+Nt1e1TVgKQ
-ANmJqz2rKvA4sIIgdBjUs0DXPuCaDzGGbJHIXnGMuGANX6xnqvdOj7kIA6r6s7Hh
-eWQEB8tGiRdHWJitpkc1xEfW1DhnMQPnSihSJM5qltXVPKxzqqElv0iGI/La3S8W
-nJV7kTGTsLouX1CcwLjp6avlVy56utOYRXkgfuY88XxmOjlAECeoYCWFBGaSWK+h
-2sBLbRC9G0YWmNCqB+GjMj8myj06crLn7mZgBODEyUrFYMjAPrpmAScmw38y2rwN
-AK6ii75P+sHc3BPi05Vap2GoTAY0db62NiN3dsNxHB5DbehA4Zfaqzcakjv4CSRo
-zkg2JSlofOZWd3aomxIKfFLl+aVFjukXEKaz8P+2xe5/2/M35kKIIJCuHz1Ybor1
-Ze9YmLAnLnbTCA7VcKkUs25lskL/zRC4sdLzgJ2V2UdHWPAo/ttwBXtw6piw4v4N
-DfCuKDMiomxwNiGvb3GZWMhOHT30NLZ0nuRAGjeg7jFBqSh2SPeDu+hnImAAh2WX
-7ul3/kschLF+3otC/x7jmAMWXzb1oVWRqj2Gyjner1p82gWxj5k7Hs/2mG3TV6sv
-pyVqMqonbirxuO+kbzYLxQIDAQABo2MwYTAdBgNVHQ4EFgQU301oVCni/CbDXJ9V
-Fez6Vgu0arUwHwYDVR0jBBgwFoAU301oVCni/CbDXJ9VFez6Vgu0arUwDwYDVR0T
-AQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwDQYJKoZIhvcNAQENBQADggIBAD1d
-/KJ3w1Je3oOx0afcXOf2IOoMvKSFbBg9u+rpXBh60cacjPtwbIMIyF3ynYYGzx7D
-x8mr6wagJ+uqKn9E7JGp2h0lKhT9cgxzqIk3r4D/jhvh1zijInCEbPPphwbemzIG
-JxxmpDOeURHVxCcSpIJlGfRURdfdXwleWiz9zCkNUvmgTDrfBjEk6ywSSKD4uJuT
-jBcav1P4OkeFokAPO1Uc9NCXox5NUAsDosdZUbxbH8vf61Xbr6fnxmy731s9D7cc
-djXPb3pbXtRL4A0hNnOWcuPM30hn4ZkIm08TGT+IMOFYBk+pe2IXSFzUcDYEL/ws
-wuHqctRlw/t4extJFYvzASOkBr4zFceR9jCSWR8kOkWY81evx/bxG+eQBJMkzrdw
-LOChedVDVIuoTZxfqNzU4Y2TgMGMRWsrEVvBvTMIY3qBue1yeT9M4jzAPhms3/It
-Ps7ZeqmF+HrRtFz5ctHQa0QOdZodsKJO0WwjjzjYTDMzZO+bnVFFUy9cG+Gr6mt1
-XMKJKkvXQuYTfbRrox4HzIjyfi54xYHnUI35uUUUzEO19Qtm4Ds+sz7/vyz3cYFI
-d8IgKoqstjsxtaRq1IS6WIj0bQ/nEqoTNg0I3bndrmCq5LbCoq0z2yXYr5Vl5Gvf
-ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
+MIIBgjCCASigAwIBAgIRANNQEcOCloIRzU4p/vwUSJEwCgYIKoZIzj0EAwIwMDEV
+MBMGA1UEChMMU2hpZnQgQ3J5cHRvMRcwFQYDVQQDEw5TaGlmdENyeXB0byBSMTAe
+Fw0yMDEyMDgyMzU5MzZaFw0zMDEyMDYyMzU5MzZaMDAxFTATBgNVBAoTDFNoaWZ0
+IENyeXB0bzEXMBUGA1UEAxMOU2hpZnRDcnlwdG8gUjEwWTATBgcqhkjOPQIBBggq
+hkjOPQMBBwNCAARr5MqlIwZF1Vm4Ng5Smlb4ZuQ1wIwCVxl9zcX5kgMmaJFlTPpk
+8jj3KE4+DXkxixuHarJgdamGP/SYawG69HyMoyMwITAOBgNVHQ8BAf8EBAMCAoQw
+DwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNIADBFAiEApDfR07EgYNtXuXM1
+YFnRE7QtJtiu97fYZk3Qu8W3/TECIAtCHAzvA2AX/eX4fNTjUho/9y1qF9GAsnNN
+hbWFoWMI
 -----END CERTIFICATE-----
 `
 
@@ -192,12 +170,12 @@ func NewDefaultAppConfig() AppConfig {
 			BTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "btc.shiftcrypto.ch:443",
+						Server:  "btc1.shiftcrypto.io:50001",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "merkle.shiftcrypto.ch:443",
+						Server:  "btc2.shiftcrypto.io:50002",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -206,12 +184,12 @@ func NewDefaultAppConfig() AppConfig {
 			TBTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "btc.shiftcrypto.ch:51002",
+						Server:  "tbtc1.shiftcrypto.io:51001",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "merkle.shiftcrypto.ch:51002",
+						Server:  "tbtc2.shiftcrypto.io:51002",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -229,12 +207,12 @@ func NewDefaultAppConfig() AppConfig {
 			LTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "ltc.shiftcrypto.ch:443",
+						Server:  "ltc1.shiftcrypto.io:50011",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "ltc.shamir.shiftcrypto.ch:443",
+						Server:  "ltc2.shiftcrypto.io:50012",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -243,12 +221,12 @@ func NewDefaultAppConfig() AppConfig {
 			TLTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "ltc.shiftcrypto.ch:51004",
+						Server:  "tltc1.shiftcrypto.io:51011",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "ltc.shamir.shiftcrypto.ch:51004",
+						Server:  "tltc2.shiftcrypto.io:51012",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -295,6 +273,7 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	appconf := config.appConfig
 	migrateFiatList(&appconf)
 	migrateFiatCode(&appconf)
+	migrateElectrumX(&appconf)
 	if err := config.SetAppConfig(appconf); err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -416,5 +395,33 @@ func migrateFiatCode(appconf *AppConfig) {
 	if code, ok := frontconf["fiatCode"].(string); ok {
 		appconf.Backend.MainFiat = code
 		delete(frontconf, "fiatCode")
+	}
+}
+
+// migrateElectrumX replaces all instances of old ElectrumX servers to the new
+// ones which run protocol version of at least 1.4.
+func migrateElectrumX(appconf *AppConfig) {
+	migrateBTCCoinConfig(&appconf.Backend.BTC)
+	migrateBTCCoinConfig(&appconf.Backend.TBTC)
+	migrateBTCCoinConfig(&appconf.Backend.LTC)
+	migrateBTCCoinConfig(&appconf.Backend.TLTC)
+}
+
+func migrateBTCCoinConfig(conf *btcCoinConfig) {
+	newServers := map[string]string{ // old -> new
+		"btc.shiftcrypto.ch:443":          "btc1.shiftcrypto.io:50001",
+		"merkle.shiftcrypto.ch:443":       "btc2.shiftcrypto.io:50002",
+		"btc.shiftcrypto.ch:51002":        "tbtc1.shiftcrypto.io:51001",
+		"merkle.shiftcrypto.ch:51002":     "tbtc2.shiftcrypto.io:51002",
+		"ltc.shiftcrypto.ch:443":          "ltc1.shiftcrypto.io:50011",
+		"ltc.shamir.shiftcrypto.ch:443":   "ltc2.shiftcrypto.io:50012",
+		"ltc.shiftcrypto.ch:51004":        "tltc1.shiftcrypto.io:51011",
+		"ltc.shamir.shiftcrypto.ch:51004": "tltc2.shiftcrypto.io:51012",
+	}
+	for _, item := range conf.ElectrumServers {
+		if host, ok := newServers[item.Server]; ok {
+			item.Server = host
+			item.PEMCert = shiftRootCA
+		}
 	}
 }
