@@ -30,6 +30,7 @@ declare module '*.svg';
 declare namespace JSX { // tslint:disable-line:no-namespace
     interface HTMLAttributes {
         align?: 'left' | 'right' | 'center';
+        allow?: 'payment';
         autocorrect?: 'on' | 'off';
         spellcheck?: boolean;
     }

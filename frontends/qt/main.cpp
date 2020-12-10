@@ -53,11 +53,12 @@ public:
         if (info.requestUrl().scheme() == "qrc" || info.requestUrl().scheme() == "blob") {
             return;
         }
-#if 0 // Safello suspended services, maybe temporarily, so we keep this around for a bit.
+
+        // We treat the onramp page specially because we need to allow onramp
+        // widgets to load in an iframe as well as let them open external links
+        // in a browser.
         auto currentUrl = mainPage->requestedUrl().toString();
         bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^/]+?/buy$"));
-        // We treat the buy page specially, as we need to allow Safello to load in the iframe, as
-        // well as open Safello link externally in the browser.
         if (onBuyPage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
@@ -67,7 +68,7 @@ public:
             }
             return;
         }
-#endif
+
         std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;
         info.block(true);
     };
