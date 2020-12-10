@@ -206,27 +206,6 @@ class Settings extends Component<Props, State> {
         this.setState({ activeProxyDialog: false });
     }
 
-    /*
-    private setServicesConfig = servicesConfig => {
-        setConfig({
-            backend: { services: servicesConfig },
-        }).then(config => {
-            this.setState({ config });
-        });
-    }
-
-    private handleToggleSafello = (event: Event) => {
-        const config = this.state.config;
-        if (!config) {
-            return;
-        }
-        const target = (event.target as HTMLInputElement);
-        const services = config.backend.services;
-        services.safello = target.checked;
-        this.setServicesConfig(services);
-    }
-    */
-
     private handleRestartDismissMessage = () => {
         this.setState({ restart: false });
     }
@@ -434,31 +413,6 @@ class Settings extends Component<Props, State> {
                                                         }
                                                     </div>
                                                 </div>
-
-                                                {/* Safello suspended services, maybe temporarily, so we keep this around for a bit.
-                                                <div className="column column-1-3">
-                                                    <div class="subHeaderContainer">
-                                                        <div class="subHeader">
-                                                            <h3>{t('settings.services.title')}</h3>
-                                                        </div>
-                                                    </div>
-                                                    <div className="box slim divide">
-                                                        <div className={style.setting}>
-                                                            <div>
-                                                                <p className="m-none">Safello</p>
-                                                                <p className="m-none">
-                                                                    <Badge type="generic">BTC</Badge>
-                                                                </p>
-                                                            </div>
-                                                            <Toggle
-                                                                checked={config.backend.services.safello}
-                                                                id="safello"
-                                                                onChange={this.handleToggleSafello} />
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                                */}
                                             </div>
                                             {
                                                 restart && (

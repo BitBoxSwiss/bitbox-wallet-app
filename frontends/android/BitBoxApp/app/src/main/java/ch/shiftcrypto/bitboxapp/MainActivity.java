@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProviders;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
@@ -98,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide(); // hide title bar with app name.
         setContentView(R.layout.activity_main);
         final WebView vw = (WebView)findViewById(R.id.vw);
+        // For onramp iframe'd widgets like MoonPay.
+        CookieManager.getInstance().setAcceptThirdPartyCookies(vw, true);
 
         // GoModel invokes the Go backend. It is in a ViewModel so it only runs once, not every time
         // onCreate is called (on a configuration change like orientation change)
@@ -154,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 // Block navigating to any external site inside the app.
                 // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
                 try {
-                    // Allow opening in external browser instead, for links clicked in the buy page (e.g. links inside the Safello widget).
+                    // Allow opening in external browser instead, for links clicked in an onramp widget.
                     Pattern pattern = Pattern.compile("^file:///account/[^/]+/buy$");
                     if (pattern.matcher(view.getUrl()).matches()) {
                         Util.systemOpen(getApplication(), url);

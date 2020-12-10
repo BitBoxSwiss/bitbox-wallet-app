@@ -52,7 +52,7 @@ interface AccountProps {
 }
 
 interface LoadedAccountProps {
-    safelloBuySupported: boolean;
+    moonpayBuySupported: boolean;
     config: any;
 }
 
@@ -253,8 +253,8 @@ class Account extends Component<Props, State> {
     }
 
     private supportsBuy = () => {
-        // True if both the backend supports it for this account, as well as the app settings enable it.
-        return this.props.safelloBuySupported && this.props.config.backend.services.safello;
+        // True if at least one external service supports onramp for this account.
+        return this.props.moonpayBuySupported;
     }
 
     public render(
@@ -413,7 +413,7 @@ class Account extends Component<Props, State> {
 }
 
 const loadHOC = load<LoadedAccountProps, SubscribedAccountProps & AccountProps & TranslateProps>(({ code }) => ({
-    safelloBuySupported: `account/${code}/exchange/safello/buy-supported`,
+    moonpayBuySupported: `account/${code}/exchange/moonpay/buy-supported`,
     config: 'config',
 }))(Account);
 
