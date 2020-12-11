@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package client implements an Electrum JSON RPC client.
-// See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst
+// See ElectrumClient for more details.
 package client
 
 import (
@@ -35,20 +35,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	clientVersion         = "0.0.1"
-	clientProtocolVersion = "1.2"
-)
+// SoftwareVersion reports to an electrum protocol compatible server
+// its name and a version so that server owners can identify what kind of
+// clients are connected.
+// It is set at the app startup in the backend and never changes during the runtime.
+var SoftwareVersion = "BitBoxApp/uninitialized"
 
-// ElectrumClient is a high level API access to an ElectrumX server.
-// See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst.
+// supportedProtocolVersion reports to the servers the minimal supported electrum
+// protocol version during the initial connection phase.
+const supportedProtocolVersion = "1.4"
+
+// ElectrumClient is a high level API access to an Electrum protocol compatible server.
+// See https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html
+// selecting the supportedProtocolVersion currently in use.
 type ElectrumClient struct {
 	rpc *jsonrpc.RPCClient
 
 	scriptHashNotificationCallbacks     map[string][]func(string)
 	scriptHashNotificationCallbacksLock sync.RWMutex
-
-	serverVersion *ServerVersion
 
 	close bool
 	log   *logrus.Entry
@@ -91,11 +95,10 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 	rpcClient.OnConnect(func() error {
 		// Sends the version and must be the first message, to establish which methods the server
 		// accepts.
-		version, err := electrumClient.ServerVersion()
+		version, err := electrumClient.negotiateProtocol()
 		if err != nil {
 			return err
 		}
-		electrumClient.serverVersion = version
 		log.WithField("server-version", version).Debug("electrumx server version")
 		return nil
 	})
@@ -128,58 +131,45 @@ func (client *ElectrumClient) RegisterOnConnectionStatusChangedEvent(onConnectio
 	})
 }
 
-// ServerVersion is returned by ServerVersion().
-type ServerVersion struct {
-	Version         string
-	ProtocolVersion *semver.SemVer
+// serverVersion is returned by serverVersion().
+type serverVersion struct {
+	software string
+	protocol *semver.SemVer
 }
 
-func (version *ServerVersion) String() string {
-	return fmt.Sprintf("%s;%s", version.Version, version.ProtocolVersion)
+func (v serverVersion) String() string {
+	return fmt.Sprintf("%s;%s", v.software, v.protocol)
 }
 
-// UnmarshalJSON implements the json.Unmarshaler interface.
-func (version *ServerVersion) UnmarshalJSON(b []byte) error {
-	slice := []string{}
-	if err := json.Unmarshal(b, &slice); err != nil {
-		return errp.WithContext(errp.Wrap(err, "Failed to unmarshal JSON"), errp.Context{"raw": string(b)})
-	}
-	if len(slice) != 2 {
-		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"raw": string(b)})
-	}
-	version.Version = slice[0]
-	protocolVersion := slice[1]
-	// We expect the protocolVersion to be either major.minor or major.minor.patch.
-	protocolSemVer, err := semver.NewSemVerFromString(protocolVersion)
+// negotiateProtocol performs client/server protocol negotiation using the
+// server.version RPC call.
+// ElectrumX will reply with a success only once. Subsequent calls return
+// a "server.version already sent" error. Electrs doesn't enforce the "only once"
+// condition.
+func (client *ElectrumClient) negotiateProtocol() (serverVersion, error) {
+	var resp [2]string // [software version, protocol version]
+	err := client.rpc.MethodSync(&resp, "server.version", SoftwareVersion, supportedProtocolVersion)
 	if err != nil {
-		protocolSemVer, err = semver.NewSemVerFromString(protocolVersion + ".0")
-		if err != nil {
-			return err
-		}
+		return serverVersion{}, err
 	}
-	version.ProtocolVersion = protocolSemVer
-	return nil
+	semv, err := semver.NewSemVerFromString(resp[1])
+	if err != nil {
+		semv, err = semver.NewSemVerFromString(resp[1] + ".0")
+	}
+	if err != nil {
+		semv = &semver.SemVer{} // don't really care; nice to have
+	}
+	return serverVersion{software: resp[0], protocol: semv}, nil
 }
 
-// ServerVersion does the server.version() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#serverversion
-func (client *ElectrumClient) ServerVersion() (*ServerVersion, error) {
-	response := &ServerVersion{}
-	err := client.rpc.MethodSync(response, "server.version", clientVersion, clientProtocolVersion)
-	return response, err
-}
-
-// ServerFeatures is returned by ServerFeatures().
-type ServerFeatures struct {
-	GenesisHash string `json:"genesis_hash"`
-}
-
-// ServerFeatures does the server.features() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#serverfeatures
-func (client *ElectrumClient) ServerFeatures() (*ServerFeatures, error) {
-	response := &ServerFeatures{}
-	err := client.rpc.MethodSync(response, "server.features")
-	return response, err
+// CheckConnection reports whether the server returns a succesfull response
+// to a server.ping RPC method.
+// It is different when compared to a raw socket connection check.
+// A client seemingly connected at a transport level is not indicative of
+// a functioning application layer connection. This reports the latter.
+func (client *ElectrumClient) CheckConnection() error {
+	var empty struct{}
+	return client.rpc.MethodSync(&empty, "server.ping")
 }
 
 // Balance is returned by ScriptHashGetBalance().
@@ -188,8 +178,7 @@ type Balance struct {
 	Unconfirmed int64 `json:"unconfirmed"`
 }
 
-// ScriptHashGetBalance does the blockchain.scripthash.get_balance() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_balance
+// ScriptHashGetBalance does the blockchain.scripthash.get_balance RPC call.
 func (client *ElectrumClient) ScriptHashGetBalance(
 	scriptHashHex string,
 	success func(*Balance) error,
@@ -210,8 +199,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 		scriptHashHex)
 }
 
-// ScriptHashGetHistory does the blockchain.scripthash.get_history() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
+// ScriptHashGetHistory does the blockchain.scripthash.get_history RPC call.
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex blockchain.ScriptHashHex,
 	success func(blockchain.TxHistory),
@@ -234,8 +222,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 		string(scriptHashHex))
 }
 
-// ScriptHashSubscribe does the blockchain.scripthash.subscribe() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashsubscribe
+// ScriptHashSubscribe does the blockchain.scripthash.subscribe RPC call.
 func (client *ElectrumClient) ScriptHashSubscribe(
 	setupAndTeardown func() func(error),
 	scriptHashHex blockchain.ScriptHashHex,
@@ -281,8 +268,7 @@ func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 	return tx, nil
 }
 
-// TransactionGet downloads a transaction.
-// See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionget
+// TransactionGet downloads a transaction using the blockchain.transaction.get RPC method.
 func (client *ElectrumClient) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx),
@@ -308,26 +294,14 @@ func (client *ElectrumClient) TransactionGet(
 		txHash.String())
 }
 
-type electrumHeader struct {
-	// Provided by v1.4
-	BlockHeight int `json:"block_height"`
-	// Provided by v1.2
-	Height int `json:"height"`
-}
-
-func (h *electrumHeader) height(serverVersion *semver.SemVer) int {
-	if serverVersion.AtLeast(semver.NewSemVer(1, 4, 0)) {
-		return h.Height
-	}
-	return h.BlockHeight
-}
-
-// HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
+// HeadersSubscribe does the blockchain.headers.subscribe RPC call.
 func (client *ElectrumClient) HeadersSubscribe(
 	setupAndTeardown func() func(error),
 	success func(*blockchain.Header),
 ) {
+	type header struct {
+		Height int
+	}
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
 		response := []json.RawMessage{}
 		if err := json.Unmarshal(responseBytes, &response); err != nil {
@@ -338,20 +312,20 @@ func (client *ElectrumClient) HeadersSubscribe(
 			client.log.Error("could not handle header notification")
 			return
 		}
-		header := &electrumHeader{}
-		if err := json.Unmarshal(response[0], header); err != nil {
+		var h header
+		if err := json.Unmarshal(response[0], &h); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
-		success(&blockchain.Header{BlockHeight: header.height(client.serverVersion.ProtocolVersion)})
+		success(&blockchain.Header{BlockHeight: h.Height})
 	})
 	client.rpc.Method(
 		func(responseBytes []byte) error {
-			header := &electrumHeader{}
-			if err := json.Unmarshal(responseBytes, header); err != nil {
+			var h header
+			if err := json.Unmarshal(responseBytes, &h); err != nil {
 				return errp.WithStack(err)
 			}
-			success(&blockchain.Header{BlockHeight: header.height(client.serverVersion.ProtocolVersion)})
+			success(&blockchain.Header{BlockHeight: h.Height})
 			return nil
 		},
 		setupAndTeardown,
@@ -393,8 +367,7 @@ type UTXO struct {
 	Height int    `json:"height"`
 }
 
-// ScriptHashListUnspent does the blockchain.address.listunspent() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashlistunspent
+// ScriptHashListUnspent does the blockchain.address.listunspent RPC call.
 func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UTXO, error) {
 	response := []*UTXO{}
 	if err := client.rpc.MethodSync(&response, "blockchain.scripthash.listunspent", scriptHashHex); err != nil {
@@ -403,8 +376,7 @@ func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UT
 	return response, nil
 }
 
-// TransactionBroadcast does the blockchain.transaction.broadcast() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionbroadcast
+// TransactionBroadcast does the blockchain.transaction.broadcast RPC call.
 func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) error {
 	rawTx := &bytes.Buffer{}
 	_ = transaction.BtcEncode(rawTx, 0, wire.WitnessEncoding)
@@ -422,8 +394,7 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 	return nil
 }
 
-// RelayFee does the blockchain.relayfee() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainrelayfee
+// RelayFee does the blockchain.relayfee RPC call.
 func (client *ElectrumClient) RelayFee(
 	success func(btcutil.Amount),
 	cleanup func(error),
@@ -443,9 +414,9 @@ func (client *ElectrumClient) RelayFee(
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
-// blocks. If the fee rate could not be estimated by the blockchain node, `nil` is passed to the
+// blocks using the blockchain.estimatefee RPC method.
+// If the fee rate could not be estimated by the blockchain node, nil is passed to the
 // success callback.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainestimatefee
 func (client *ElectrumClient) EstimateFee(
 	number int,
 	success func(*btcutil.Amount),
@@ -491,8 +462,7 @@ func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
 	return headers, nil
 }
 
-// Headers does the blockchain.block.headers() RPC call. See
-// https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchainblockheaders
+// Headers does the blockchain.block.headers RPC call.
 func (client *ElectrumClient) Headers(
 	startHeight int, count int,
 	success func(headers []*wire.BlockHeader, max int),
@@ -527,8 +497,7 @@ func (client *ElectrumClient) Headers(
 		startHeight, count)
 }
 
-// GetMerkle does the blockchain.transaction.get_merkle() RPC call. See
-// https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchaintransactionget_merkle
+// GetMerkle does the blockchain.transaction.get_merkle RPC call.
 func (client *ElectrumClient) GetMerkle(
 	txHash chainhash.Hash, height int,
 	success func(merkle []blockchain.TXHash, pos int),
