@@ -87,7 +87,8 @@ class Chart extends Component<Props, State> {
                 || prev.dataHourly.length !== dataHourly.length
             )
         ) {
-            this.lineSeries.setData(dataDaily);
+            const data = this.state.source === 'hourly' ? dataHourly : dataDaily;
+            this.lineSeries.setData(data);
         }
     }
 
