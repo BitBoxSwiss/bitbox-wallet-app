@@ -484,7 +484,29 @@
     "upgrade": "Upgrade"
   },
   "buy": {
-    "title": "Buy {{accountName}}"
+    "info": {
+      "continue": "Agree and continue",
+      "disclaimer": [
+        "Introduction\n",
+        "- Prtnership with MoonPay\n\n",
+        "Futures\n",
+        "- Buy all coins support in app\n",
+        "- Different payment methods\n\n",
+        "Advantages to user\n",
+        "- Simple, fast\n\n",
+        "KYC information\n\n",
+        "Fees\n",
+        "- Percentage for cerdit card and bank transfers\n",
+        "- Disclaimer about exchange rates (controlled by MoonPay and will difer from the app)\n\n",
+        "Security model disclaimer"
+      ],
+      "next": "Next",
+      "selectLabel": "Choose your account",
+      "selectPlaceholder": "Select a coin",
+      "skip": "Do not show again",
+      "title": "Investing just got easier 🎉"
+    },
+    "title": "Buy crypto"
   },
   "changePin": {
     "newTitle": "New device password",
@@ -782,7 +804,7 @@
       "support": {
         "link": {
           "text": "Safello customer service",
-          "url": "https://help.safello.com"
+          "url": "/exchanges"
         },
         "text": "Please direct your support requests directly to Safello.",
         "title": "I experienced an issue with Safello"
@@ -1296,8 +1318,8 @@
     "addAccount": "Add account",
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "Connect BitBoxBase",
+    "buy": "Buy crypto",
     "device": "Manage device",
-    "exchanges": "Buy & sell",
     "leave": "Leave",
     "settings": "Settings"
   },

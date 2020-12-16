@@ -332,18 +332,15 @@ class Account extends Component<Props, State> {
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
-                                    { this.supportsBuy() && (
-                                          <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>
-                                    )
-                                    }
-                                    {
-                                        canSend ? (
-                                            <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
-                                        ) : (
-                                            <a className={[style.send, style.disabled].join(' ')}><span>{t('button.send')}</span></a>
-                                        )
-                                    }
+                                    {canSend ? (
+                                        <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                    ) : (
+                                        <span className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
+                                    )}
                                     <a href={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></a>
+                                    { this.supportsBuy() && (
+                                        <a href={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></a>
+                                    )}
                                 </div>
                             </div>
                             <div className="box large">
