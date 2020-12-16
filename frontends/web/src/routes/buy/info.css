@@ -1,0 +1,11 @@
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.disclaimer {
+  background-color: white;
+  font-family: var(--font-family);
+  padding: 1em;
+}
