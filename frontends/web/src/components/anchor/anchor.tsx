@@ -15,6 +15,9 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
+import { route } from 'preact-router';
+import { hide } from '../guide/guide';
+import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import * as style from './anchor.css';
 
@@ -26,8 +29,14 @@ interface Props {
 export default function A({ href, icon, children, ...props }: RenderableProps<Props>): JSX.Element {
     return (
         <span className={style.link} onClick={(e: Event) => {
-            apiPost('open', href);
             e.preventDefault();
+            const { hostname, origin } = new URL(href, location.href);
+            if (origin === 'qrc:' || (debug && hostname === location.hostname)) {
+                hide();
+                route(href);
+            } else {
+                apiPost('open', href);
+            }
         }} title={props.title || href} {...props}>
             {icon ? icon : null}
             {children}
