@@ -1,11 +1,14 @@
 .link {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
     align-items: center;
-    font-size: var(--size-default);
+    background: none;
+    border: none;
     color: var(--color-blue);
     cursor: default;
+    display: flex;
+    flex-direction: row;
+    font-size: var(--size-default);
+    justify-content: flex-start;
+    padding: var(--space-quarter);
 }
 
 .link svg {
