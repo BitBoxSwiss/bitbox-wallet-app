@@ -28,10 +28,11 @@ export default function Select({
         <div className={select}>
             {label && <label for={id}>{label}</label>}
             <select id={id} {...props}>
-                {options.map(({ value, text }) => (
+                {options.map(({ value, text, disabled = false }) => (
                     <option
                         key={value}
                         value={value}
+                        disabled={disabled}
                         selected={selected === value}>
                         {text}
                     </option>

@@ -37,3 +37,7 @@
     border: solid 1px var(--color-lightgray);
     background-color: white;
 }
+
+.select option[disabled] {
+    color: var(--color-mediumgray);
+}

@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2020 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +31,8 @@ import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account, AccountInterface } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
-import { Buy } from './routes/account/buy/buy';
+import { Moonpay } from './routes/buy/moonpay';
+import { BuyInfo } from './routes/buy/info';
 import Info from './routes/account/info/info';
 import { Receive } from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
@@ -199,8 +201,12 @@ class App extends Component<Props, State> {
                             devices={devices}
                             accounts={accounts}
                             deviceIDs={deviceIDs} />
-                        <Buy
-                            path="/account/:code/buy"
+                        <BuyInfo
+                            path="/buy/info/:code?"
+                            devices={devices}
+                            accounts={accounts} />
+                        <Moonpay
+                            path="/buy/moonpay/:code"
                             devices={devices}
                             accounts={accounts} />
                         <Exchanges
