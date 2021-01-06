@@ -16,8 +16,8 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
+import Guide from './guide';
+import A from '../../components/anchor/anchor';
 import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -65,23 +65,90 @@ class BuyInfo extends Component<Props, State> {
 
     public render(
         { accounts,
+          code,
           t }: RenderableProps<Props>,
         {
             status,
             selected,
         }: State
     ) {
+        const name = (code === 'btc' || code === 'tbtc') ? 'Bitcoin' : 'crypto';
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header />
-                    <div class="innerContainer scrollableContainer">
+                    <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+                    <div class="innerContainer">
                         { status === 'agree' ? (
-                            <div class="content narrow isVerticallyCentered">
-                                <h1 class={style.title}>{t('buy.info.title')}</h1>
-                                <pre class={style.disclaimer}>
-                                    {t('buy.info.disclaimer')}
-                                </pre>
+                            <div class={style.disclaimerContainer}>
+                                <div class={style.disclaimer}>
+                                    <h2 class={style.title}>
+                                        {t('buy.info.disclaimer.title', { name })}
+                                    </h2>
+                                    <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
+                                    <p>
+                                        {t('buy.info.disclaimer.intro.1', { name })}
+                                        {' '}
+                                        (<A class={style.link} href="https://support.moonpay.com/hc/en-gb/articles/360009279877-What-are-your-supported-countries-states-and-territories-">
+                                            {t('buy.info.disclaimer.intro.2')}
+                                        </A>).
+                                    </p>
+                                    <h2 class={style.title}>
+                                        {t('buy.info.disclaimer.payment.title')}
+                                    </h2>
+                                    <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
+                                    <div class={style.table}>
+                                        <table>
+                                            <colgroup>
+                                                <col width="*" />
+                                                <col width="50px" />
+                                                <col width="*" />
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th>{t('buy.info.disclaimer.payment.table.method')}</th>
+                                                    <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
+                                                    <th>{t('buy.info.disclaimer.payment.table.description')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
+                                                    <td class={style.nowrap}>1.9 %</td>
+                                                    <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
+                                                    <td class={style.nowrap}>5.9 %</td>
+                                                    <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>{t('buy.info.disclaimer.payment.table.3_method')}</td>
+                                                    <td class={style.nowrap}>5.9 %</td>
+                                                    <td>{t('buy.info.disclaimer.payment.table.3_description')}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p>{t('buy.info.disclaimer.payment.footnote')}</p>
+                                    <h2 class={style.title}>
+                                        {t('buy.info.disclaimer.security.title')}
+                                    </h2>
+                                    <p>{t('buy.info.disclaimer.security.description', { name })}</p>
+                                    <p>
+                                        <A class={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
+                                            {t('buy.info.disclaimer.security.link')}
+                                        </A>
+                                    </p>
+                                    <h2 class={style.title}>
+                                        {t('buy.info.disclaimer.protection.title')}
+                                    </h2>
+                                    <p>{t('buy.info.disclaimer.protection.description')}</p>
+                                    <p>
+                                        <A class={style.link} href="https://support.moonpay.com/hc/en-gb/articles/360009279877-What-are-your-supported-countries-states-and-territories-">
+                                            {t('buy.info.disclaimer.privacyPolicy')}
+                                        </A>
+                                    </p>
+                                </div>
                                 <div class="text-center m-bottom-quarter">
                                     <Checkbox
                                         id="skip_disclaimer"
@@ -130,9 +197,7 @@ class BuyInfo extends Component<Props, State> {
                         )}
                     </div>
                 </div>
-                <Guide>
-                    <Entry key="guide.buy.support" entry={t('guide.buy.support')} shown={true} />
-                </Guide>
+                <Guide t={t} name={name} />
             </div>
         );
     }
