@@ -1138,6 +1138,7 @@ func (backend *Backend) SystemOpen(url string) error {
 		"^https://etherscan\\.io/tx/",
 		"^https://rinkeby\\.etherscan\\.io/tx/",
 		"^https://ropsten\\.etherscan\\.io/tx/",
+		"^https://support.moonpay.com/",
 	}
 
 	if runtime.GOOS != "android" { // TODO: fix DownloadsDir() for android
