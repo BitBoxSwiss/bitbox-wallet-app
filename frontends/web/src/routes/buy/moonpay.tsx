@@ -16,8 +16,7 @@
  */
 
 import { Component, createRef, h, RenderableProps } from 'preact';
-import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
+import Guide from './guide';
 import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -75,7 +74,8 @@ class Moonpay extends Component<Props, State> {
     }
 
     public render(
-        { moonpay,
+        { code,
+            moonpay,
           t }: RenderableProps<Props>,
         { height }: State,
     ) {
@@ -83,7 +83,7 @@ class Moonpay extends Component<Props, State> {
         if (!account) {
             return null;
         }
-
+        const name = code === 'btc' || code === 'tbtc' ? 'Bitcoin' : 'crypto';
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -102,9 +102,7 @@ class Moonpay extends Component<Props, State> {
                         </div>
                     </div>
                 </div>
-                <Guide>
-                    <Entry key="guide.buy.support" entry={t('guide.buy.support')} shown={true} />
-                </Guide>
+                <Guide t={t} name={name} />
             </div>
         );
     }
