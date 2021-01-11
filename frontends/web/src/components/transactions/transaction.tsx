@@ -58,6 +58,7 @@ interface TransactionProps extends TransactionInterface {
     accountCode: string;
     index: number;
     explorerURL: string;
+    inlineEditMode?: boolean;
 }
 
 type Props = TransactionProps & TranslateProps;
@@ -71,6 +72,42 @@ class Transaction extends Component<Props, State> {
         newNote: this.props.note,
         editMode: !this.props.note,
     };
+
+    private autoSaveTimerID?: number;
+
+    public componentDidUpdate(prevProps) {
+        if (
+            !prevProps.inlineEditMode
+            && this.props.inlineEditMode
+            && !this.state.editMode
+            && this.props.index === 0
+            && this.input
+        ) {
+            this.input.focus();
+        }
+    }
+
+    public componentWillUnmount() {
+        window.clearTimeout(this.autoSaveTimerID);
+    }
+
+    private handleNoteInputAutoSave = (e: Event) => {
+        const target = e.target as HTMLInputElement;
+
+        if (this.autoSaveTimerID) {
+            clearTimeout(this.autoSaveTimerID);
+        }
+        this.autoSaveTimerID = window.setTimeout(() => this.autoSave(target.value), 550);
+    }
+        
+    private autoSave = (newNote) => {
+        this.setState(
+            { newNote },
+            () => {
+                this.saveNote(newNote);
+            },
+        );
+    }
 
     private parseTimeShort = time => {
         const options = {
@@ -90,7 +127,10 @@ class Transaction extends Component<Props, State> {
     }
 
     private hideDetails = () => {
-        this.setState({ transactionDialog: false });
+        this.setState({
+            transactionDialog: false,
+            editMode: false,
+        });
     }
 
     private handleNoteInput = (e: Event) => {
@@ -101,16 +141,20 @@ class Transaction extends Component<Props, State> {
     private handleEdit = (e: Event) => {
         e.preventDefault();
         if (this.state.editMode && this.props.note !== this.state.newNote) {
-            apiPost(`account/${this.props.accountCode}/notes/tx`, {
-                internalTxID: this.props.internalID,
-                note: this.state.newNote,
-            });
+            this.saveNote(this.state.newNote);
         }
         this.focusEdit();
         this.setState(
             ({ editMode }) => ({ editMode: !editMode }),
             this.focusEdit,
         );
+    }
+
+    private saveNote (newNote: string) {
+        apiPost(`account/${this.props.accountCode}/notes/tx`, {
+            internalTxID: this.props.internalID,
+            note: newNote,
+        });
     }
 
     private focusEdit = () => {
@@ -150,6 +194,7 @@ class Transaction extends Component<Props, State> {
         addresses,
         status,
         note = '',
+        inlineEditMode,
     }: RenderableProps<Props>,
                   {
         transactionDialog,
@@ -183,26 +228,41 @@ class Transaction extends Component<Props, State> {
                             </span>
                             <span className={style.date}>{sDate}</span>
                         </div>
-                        { note ? (
+                        { inlineEditMode ? (
                             <div className={parentStyle.activity}>
-                                <span className={style.address}>
-                                    {note}
-                                </span>
+                                <Input
+                                    align="left"
+                                    className={style.textOnlyInput}
+                                    type="text"
+                                    transparent
+                                    placeholder={t('note.input.placeholder')}
+                                    value={newNote}
+                                    maxLength={256}
+                                    onInput={this.handleNoteInputAutoSave}
+                                    getRef={index === 0 ? this.setInputRef : undefined}/>
                             </div>
                         ) : (
-                            <div className={parentStyle.activity}>
-                                <span className={style.label}>
-                                    {t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
-                                </span>
-                                <span className={style.address}>
-                                    {addresses[0]}
-                                    {addresses.length > 1 && (
-                                        <span className={style.badge}>
-                                            (+{addresses.length - 1})
-                                        </span>
-                                    )}
-                                </span>
-                            </div>
+                            note ? (
+                                <div className={parentStyle.activity}>
+                                    <span className={style.address}>
+                                        {note}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className={parentStyle.activity}>
+                                    <span className={style.label}>
+                                        {t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
+                                    </span>
+                                    <span className={style.address}>
+                                        {addresses[0]}
+                                        {addresses.length > 1 && (
+                                            <span className={style.badge}>
+                                                (+{addresses.length - 1})
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+                            )
                         )}
                         <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
                             <button type="button" className={style.action} onClick={this.showDetails}>

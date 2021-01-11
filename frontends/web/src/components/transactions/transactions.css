@@ -60,6 +60,31 @@
   text-align: left;
 }
 
+.inlineEditButton {
+  background: transparent;
+  border: none;
+  line-height: 1;
+  outline: none;
+  padding: 2px;
+  -webkit-appearance: none;
+}
+
+.activity svg {
+  height: 14px;
+}
+
+.activity input {
+  margin-top: -1px;
+}
+
+.iconActive {
+  stroke: var(--color-blue);
+}
+
+.iconNormal {
+  stroke: var(--color-gray);
+}
+
 .status {
   min-width: 106px;
   width: 106px;

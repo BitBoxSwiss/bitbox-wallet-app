@@ -20,7 +20,12 @@ import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction, TransactionInterface } from './transaction';
+import { Edit } from './components/icons';
 import * as style from './transactions.css';
+
+interface State {
+    notesEditMode: boolean;
+}
 
 interface TransactionsProps {
     accountCode: string;
@@ -32,7 +37,17 @@ interface TransactionsProps {
 
 type Props = TransactionsProps & TranslateProps;
 
-class Transactions extends Component<Props> {
+class Transactions extends Component<Props, State> {
+    public readonly state: State = {
+        notesEditMode: false,
+    };
+
+    private handleEditNotes = () => {
+        this.setState(({ notesEditMode }) => ({
+            notesEditMode: !notesEditMode
+        }));
+    }
+
     public render({
         t,
         accountCode,
@@ -40,7 +55,8 @@ class Transactions extends Component<Props> {
         transactions,
         exported,
         handleExport,
-    }: RenderableProps<Props>) {
+    }: RenderableProps<Props>,
+    { notesEditMode }: State) {
         // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
         // folder and permissions.
         const csvExportDisabled = runningInAndroid();
@@ -60,7 +76,14 @@ class Transactions extends Component<Props> {
                 <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
                     <div className={style.type}>{t('transaction.details.type')}</div>
                     <div className={style.date}>{t('transaction.details.date')}</div>
-                    <div className={style.activity}>{t('transaction.details.activity')}</div>
+                    <div className={style.activity}>
+                        {t('transaction.details.activity')}
+                        {transactions && transactions.length > 0 ? (
+                            <button onClick={this.handleEditNotes} className={style.inlineEditButton}>
+                                <Edit className={notesEditMode ? style.iconActive : style.iconNormal} />
+                            </button>
+                        ) : null}
+                    </div>
                     <div className={style.status}>{t('transaction.details.status')}</div>
                     <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
                     <div className={style.currency}>{t('transaction.details.amount')}</div>
@@ -70,9 +93,10 @@ class Transactions extends Component<Props> {
                     (transactions && transactions.length > 0) ? transactions
                     .map((props, index) => (
                         <Transaction
-                            accountCode={accountCode}
                             key={props.internalID}
+                            accountCode={accountCode}
                             explorerURL={explorerURL}
+                            inlineEditMode={notesEditMode}
                             index={index}
                             {...props} />
                     )) : (

@@ -163,6 +163,12 @@
 
 .textOnlyInput input {
     border: none;
+    height: auto;
+    padding: var(--space-quarter) 0;
+}
+
+.detailInput .textOnlyInput input {
+    padding: 0 var(--space-half);
 }
 
 .editButton {
