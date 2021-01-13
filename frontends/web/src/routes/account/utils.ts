@@ -17,6 +17,22 @@
 
 import { CoinCode } from './account';
 
+export function isBitcoin(code: string): boolean {
+    switch (code) {
+    case 'btc':
+    case 'btc-p2wpkh':
+    case 'btc-p2wpkh-p2sh':
+    case 'btc-p2pkh':
+    case 'tbtc':
+    case 'tbtc-p2wpkh':
+    case 'tbtc-p2wpkh-p2sh':
+    case 'tbtc-p2pkh':
+        return true;
+    default:
+        return false;
+    }
+}
+
 export function isBitcoinBased(coinCode: CoinCode): boolean {
     switch (coinCode) {
     case 'btc':

@@ -526,7 +526,7 @@
       "skip": "Do not show again",
       "title": "Buy {{name}}"
     },
-    "title": "Buy crypto"
+    "title": "Buy {{name}}"
   },
   "changePin": {
     "newTitle": "New device password",
