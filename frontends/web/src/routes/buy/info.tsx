@@ -23,8 +23,10 @@ import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button, Checkbox, Select } from '../../components/forms';
 import { Devices } from '../device/deviceswitch';
-import { AccountInterface } from '../account/account';
+import { AccountInterface, CoinCode } from '../account/account';
 import { setConfig } from '../../utils/config';
+import { apiGet } from '../../utils/request';
+import { isBitcoin } from '../account/utils';
 import * as style from './info.css';
 
 interface BuyInfoProps {
@@ -37,9 +39,15 @@ interface LoadedBuyInfoProps {
     config: any;
 }
 
+interface Option {
+    text: string;
+    value: CoinCode;
+}
+
 interface State {
     status: 'choose' | 'agree'
     selected?: string;
+    options: Option[]
 }
 
 type Props = BuyInfoProps & LoadedBuyInfoProps & TranslateProps;
@@ -48,6 +56,7 @@ class BuyInfo extends Component<Props, State> {
     public readonly state: State = {
         status: this.props.config.frontend.skipBuyDisclaimer ? 'choose' : 'agree',
         selected: this.props.code,
+        options: [],
     }
 
     private handleProceed = () => {
@@ -55,8 +64,28 @@ class BuyInfo extends Component<Props, State> {
         if (selected && (status === 'choose' || this.props.config.frontend.skipBuyDisclaimer)) {
             route(`/buy/moonpay/${selected}`);
         } else {
-            this.setState({ status: 'choose' });
+            this.setState({ status: 'choose' }, this.checkSupportedCoins);
         }
+    }
+
+    private checkSupportedCoins = () => {
+        Promise.all(
+            this.props.accounts.map((account) => (
+                apiGet(`account/${account.code}/exchange/moonpay/buy-supported`)
+                    .then(isSupported => (isSupported ? account : false))
+            ))
+        )
+        .then(results => results.filter(result => result))
+        // @ts-ignore
+        .then(accounts => accounts.map(({ name, code }) => ({ text: name, value: code })))
+        .then(options => {
+            if (this.state.status === 'choose' && options.length === 1) {
+                route(`/buy/moonpay/${options[0].value}`);
+            } else {
+                this.setState({ options });
+            }
+        })
+        .catch(console.error);
     }
 
     private handleSkipDisclaimer = (e) => {
@@ -64,15 +93,15 @@ class BuyInfo extends Component<Props, State> {
     }
 
     public render(
-        { accounts,
-          code,
+        { code,
           t }: RenderableProps<Props>,
         {
             status,
             selected,
+            options,
         }: State
     ) {
-        const name = (code === 'btc' || code === 'tbtc') ? 'Bitcoin' : 'crypto';
+        const name = (code && isBitcoin(code)) ? 'Bitcoin' : 'crypto';
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -142,7 +171,7 @@ class BuyInfo extends Component<Props, State> {
                                     <h2 class={style.title}>
                                         {t('buy.info.disclaimer.protection.title')}
                                     </h2>
-                                    <p>{t('buy.info.disclaimer.protection.description')}</p>
+                                    <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
                                     <p>
                                         <A class={style.link} href="https://support.moonpay.com/hc/en-gb/articles/360009279877-What-are-your-supported-countries-states-and-territories-">
                                             {t('buy.info.disclaimer.privacyPolicy')}
@@ -164,36 +193,34 @@ class BuyInfo extends Component<Props, State> {
                                 </div>
                             </div>
                         ) : (
-                            <div class="content narrow isVerticallyCentered">
-                                <h1 class={style.title}>{t('buy.title')}</h1>
-                                <Select
-                                    label={t('buy.info.selectLabel')}
-                                    placeholder={t('buy.info.selectPlaceholder')}
-                                    options={[{
-                                            text: t('buy.info.selectPlaceholder'),
-                                            disabled: true,
-                                            value: 'choose',
-                                        },
-                                        ...accounts.map(({ code, name}) => ({
-                                            text: `${name} (${code})`,
-                                            value: code,
-                                        }))]
-                                    }
-                                    onChange={e => this.setState({ selected: e.target.value})}
-                                    value={selected}
-                                    defaultValue={'choose'}
-                                    id="coinAndAccountCode"
-                                />
-                                <div class="buttons text-center m-bottom-xxlarge">
-                                    <Button
-                                        primary
-                                        onClick={this.handleProceed}
-                                        disabled={!selected}>
-                                        {t('buy.info.next')}
-                                    </Button>
+                            options.length === 0 ? null : (
+                                <div class="content narrow isVerticallyCentered">
+                                    <h1 class={style.title}>{t('buy.title', { name })}</h1>
+                                    <Select
+                                        label={t('buy.info.selectLabel')}
+                                        placeholder={t('buy.info.selectPlaceholder')}
+                                        options={[{
+                                                text: t('buy.info.selectPlaceholder'),
+                                                disabled: true,
+                                                value: 'choose',
+                                            },
+                                            ...options]
+                                        }
+                                        onChange={e => this.setState({ selected: e.target.value})}
+                                        value={selected}
+                                        defaultValue={'choose'}
+                                        id="coinAndAccountCode"
+                                    />
+                                    <div class="buttons text-center m-bottom-xxlarge">
+                                        <Button
+                                            primary
+                                            onClick={this.handleProceed}
+                                            disabled={!selected}>
+                                            {t('buy.info.next')}
+                                        </Button>
+                                    </div>
                                 </div>
-
-                            </div>
+                            )
                         )}
                     </div>
                 </div>
