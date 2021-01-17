@@ -16,11 +16,11 @@ package logging
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,19 +38,20 @@ func Get() *Logger {
 		var configuration Configuration
 		configFile := config.NewFile(config.AppDir(), configFileName)
 		if configFile.Exists() {
+			fmt.Printf("Loading log config from '%s'.\n", configFile.Path())
 			if err := configFile.ReadJSON(&configuration); err != nil {
-				panic(errp.WithStack(err))
+				fmt.Fprintf(os.Stderr, "Can't read log config: %v; logging to stderr.\n", err)
+				configuration.Output = "STDERR"
 			}
-			fmt.Printf("Logging configuration taken from '%s'.\n", configFile.Path())
 		} else {
+			fmt.Printf("Writing new log config to '%s'.\n", configFile.Path())
 			configuration = Configuration{
 				Output: filepath.Join(config.AppDir(), "log.txt"),
 				Level:  logrus.DebugLevel, // Change to InfoLevel before a release.
 			}
 			if err := configFile.WriteJSON(configuration); err != nil {
-				panic(errp.WithStack(err))
+				fmt.Fprintf(os.Stderr, "Can't write log config: %v.\n", err)
 			}
-			fmt.Printf("Logging configuration written to '%s'.\n", configFile.Path())
 		}
 		instance = NewLogger(&configuration)
 	})

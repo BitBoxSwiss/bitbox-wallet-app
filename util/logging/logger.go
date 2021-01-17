@@ -19,7 +19,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,6 +29,7 @@ type Logger struct {
 
 // NewLogger returns a new logger based on the given configuration.
 func NewLogger(configuration *Configuration) *Logger {
+	fmt.Printf("Logging into '%s' from '%s'.\n", configuration.Output, configuration.Level)
 	var logger = Logger{}
 	logger.Formatter = &logrus.TextFormatter{}
 	logger.Hooks = make(logrus.LevelHooks)
@@ -43,16 +43,19 @@ func NewLogger(configuration *Configuration) *Logger {
 		logger.Out = os.Stderr
 	default:
 		if err := os.MkdirAll(filepath.Dir(configuration.Output), os.ModeDir|os.ModePerm); err != nil {
-			panic(errp.WithStack(err))
+			fmt.Fprintf(os.Stderr, "Can't create log dir: %v; logging to stderr.\n", err)
+			logger.Out = os.Stderr
+			break
 		}
 		file, err := os.OpenFile(configuration.Output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			panic(errp.WithStack(err))
+			fmt.Fprintf(os.Stderr, "Can't open log file: %v; logging to stderr.\n", err)
+			logger.Out = os.Stderr
+			break
 		}
 		logger.Out = file
 	}
 	logger.Level = configuration.Level
-	fmt.Printf("Logging into '%s' from '%s'.\n", configuration.Output, configuration.Level)
 	return &logger
 }
 
