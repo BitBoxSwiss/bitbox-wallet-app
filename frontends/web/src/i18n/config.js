@@ -35,6 +35,12 @@ export default {
             }
             apiGet('native-locale').then(locale => {
                 if (typeof locale === 'string' && locale) {
+                    try {
+                        new Date().toLocaleString(i18nextFormat(locale));
+                    } catch (e) {
+                        cb(defaultUserLanguage);
+                        return;
+                    }
                     cb(i18nextFormat(locale));
                     return;
                 }
