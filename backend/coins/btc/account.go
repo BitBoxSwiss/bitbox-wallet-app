@@ -266,7 +266,6 @@ func (account *Account) Initialize() error {
 	}
 	defer account.Lock()()
 	if account.initialized {
-		account.log.Debug("Account has already been initialized")
 		return nil
 	}
 	account.initialized = true
