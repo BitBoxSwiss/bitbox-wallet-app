@@ -106,7 +106,6 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		backend.log.Info("ChartDataMissing, until is zero")
 	}
 	isUpToDate := time.Since(until) < 2*time.Hour
-	backend.log.Infof("Chart/isUptodate: %v", isUpToDate)
 
 	currentTotal := new(big.Rat)
 	currentTotalMissing := false

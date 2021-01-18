@@ -438,10 +438,6 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 			if ok {
 				client.log.Debug("Pong")
 				delete(client.pingRequests, *response.ID)
-			} else {
-				client.log.WithField("request_id", *response.ID).WithField("response", string(response.Result)).Info("Request not found in list of " +
-					"pending requests. It's likely that it finished before a failover and we therefore " +
-					"do not have to do anything.")
 			}
 			unlock()
 		}

@@ -70,12 +70,10 @@ func (synchronizer *Synchronizer) decRequestsCounter() {
 
 // WaitSynchronized blocks until all pending synchronization tasks are finished.
 func (synchronizer *Synchronizer) WaitSynchronized() {
-	synchronizer.log.WithFields(logrus.Fields{"requestCounter": synchronizer.requestsCounter}).
-		Debug("wait synchronized")
-	if func() int32 {
-		defer synchronizer.waitLock.RLock()()
-		return synchronizer.requestsCounter
-	}() == 0 {
+	unlock := synchronizer.waitLock.RLock()
+	n := synchronizer.requestsCounter
+	unlock()
+	if n == 0 {
 		return
 	}
 	<-synchronizer.wait
