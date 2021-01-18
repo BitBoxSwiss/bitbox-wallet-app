@@ -121,6 +121,9 @@ i18n.on('languageChanged', (lng) => {
             const localeLang = nativeLocale.replace('_', '-').split('-')[0];
             match = lngLang === localeLang;
         }
+        if (lng.toLowerCase() === 'c') {
+            lng = 'en';
+        }
         const uiLang = match ? null : lng;
         return setConfig({ frontend: { userLanguage: uiLang } });
     });
