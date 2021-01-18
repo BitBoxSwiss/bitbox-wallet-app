@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -30,11 +29,11 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -68,9 +67,8 @@ func NewHandlers(
 	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
-	handleFunc("/exchange/safello/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuySupported)).Methods("GET")
-	handleFunc("/exchange/safello/buy", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuy)).Methods("GET")
-	handleFunc("/exchange/safello/process-message", handlers.ensureAccountInitialized(handlers.postExchangeSafelloProcessMessage)).Methods("POST")
+	handleFunc("/exchange/moonpay/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeMoonpayBuySupported)).Methods("GET")
+	handleFunc("/exchange/moonpay/buy", handlers.ensureAccountInitialized(handlers.getExchangeMoonpayBuy)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	return handlers
@@ -486,24 +484,27 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, erro
 	}, nil
 }
 
-func (handlers *Handlers) getExchangeSafelloBuySupported(r *http.Request) (interface{}, error) {
-	return handlers.account.SafelloBuySupported(), nil
+func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
+	return exchanges.IsMoonpaySupported(handlers.account.Coin().Code()), nil
 }
 
-func (handlers *Handlers) getExchangeSafelloBuy(r *http.Request) (interface{}, error) {
-	return handlers.account.SafelloBuy(), nil
-}
-
-func (handlers *Handlers) postExchangeSafelloProcessMessage(r *http.Request) (interface{}, error) {
-	var message map[string]json.RawMessage
-	if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
-		return nil, errp.WithStack(err)
+func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
+	params := exchanges.BuyMoonpayParams{
+		Fiat: "CHF", // TODO: Get this from app config
+		Lang: "en",  // TODO: Get this from the backend
 	}
-
-	return nil, safello.StoreCallbackJSONMessage(
-		path.Join(handlers.account.FilesFolder(), "safello-buy.json"),
-		message,
-	)
+	buy, err := exchanges.BuyMoonpay(handlers.account, params)
+	if err != nil {
+		return nil, err
+	}
+	resp := struct {
+		URL     string `json:"url"`
+		Address string `json:"address"`
+	}{
+		URL:     buy.URL,
+		Address: buy.Address,
+	}
+	return resp, nil
 }
 
 func (handlers *Handlers) postProposeTxNote(r *http.Request) (interface{}, error) {

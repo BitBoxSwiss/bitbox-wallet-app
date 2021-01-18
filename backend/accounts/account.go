@@ -21,7 +21,6 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -81,12 +80,6 @@ type Interface interface {
 	GetUnusedReceiveAddresses() []AddressList
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
-
-	// SafelloBuySupported returns true if the Safello Buy widget can be used with this account.
-	SafelloBuySupported() bool
-	// Safello returns the infos needed to load the Safello Buy widget. panics() if Safello is not
-	// supported for this coin. Check support with `SafelloBuySupported()` before calling this.
-	SafelloBuy() *safello.Buy
 
 	Notes() *notes.Notes
 	// ProposeTxnote stores a note. The note is is persisted in the notes database upon calling

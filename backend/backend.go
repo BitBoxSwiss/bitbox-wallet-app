@@ -1114,7 +1114,12 @@ func (backend *Backend) SystemOpen(url string) error {
 		"https://www.coingecko.com",
 		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 		"https://en.bitcoin.it/wiki/Bech32_adoption",
-		"https://help.safello.com",
+		// Moonpay onramp
+		"https://www.moonpay.com",
+		"https://support.moonpay.com",
+		"https://support.moonpay.io",
+		"https://help.moonpay.io",
+		"https://help.moonpay.com",
 	} {
 		if url == whitelistedURL {
 			blocked = false
@@ -1133,6 +1138,7 @@ func (backend *Backend) SystemOpen(url string) error {
 		"^https://etherscan\\.io/tx/",
 		"^https://rinkeby\\.etherscan\\.io/tx/",
 		"^https://ropsten\\.etherscan\\.io/tx/",
+		"^https://support.moonpay.com/",
 	}
 
 	if runtime.GOOS != "android" { // TODO: fix DownloadsDir() for android

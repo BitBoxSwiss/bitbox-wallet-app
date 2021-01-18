@@ -52,7 +52,7 @@ interface AccountProps {
 }
 
 interface LoadedAccountProps {
-    safelloBuySupported: boolean;
+    moonpayBuySupported: boolean;
     config: any;
 }
 
@@ -253,8 +253,8 @@ class Account extends Component<Props, State> {
     }
 
     private supportsBuy = () => {
-        // True if both the backend supports it for this account, as well as the app settings enable it.
-        return this.props.safelloBuySupported && this.props.config.backend.services.safello;
+        // True if at least one external service supports onramp for this account.
+        return this.props.moonpayBuySupported;
     }
 
     public render(
@@ -332,18 +332,15 @@ class Account extends Component<Props, State> {
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
-                                    { this.supportsBuy() && (
-                                          <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>
-                                    )
-                                    }
-                                    {
-                                        canSend ? (
-                                            <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
-                                        ) : (
-                                            <a className={[style.send, style.disabled].join(' ')}><span>{t('button.send')}</span></a>
-                                        )
-                                    }
+                                    {canSend ? (
+                                        <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                    ) : (
+                                        <span className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
+                                    )}
                                     <a href={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></a>
+                                    { this.supportsBuy() && (
+                                        <a href={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></a>
+                                    )}
                                 </div>
                             </div>
                             <div className="box large">
@@ -413,7 +410,7 @@ class Account extends Component<Props, State> {
 }
 
 const loadHOC = load<LoadedAccountProps, SubscribedAccountProps & AccountProps & TranslateProps>(({ code }) => ({
-    safelloBuySupported: `account/${code}/exchange/safello/buy-supported`,
+    moonpayBuySupported: `account/${code}/exchange/moonpay/buy-supported`,
     config: 'config',
 }))(Account);
 

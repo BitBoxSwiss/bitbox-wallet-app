@@ -233,21 +233,23 @@ class Sidebar extends Component<Props> {
                     ) : null }
                     { accounts && accounts.map(this.getAccountLink) }
                     <div className="sidebarHeaderContainer end"></div>
-                    <div className="sidebarItem">
+                    { accounts.length ? (
+                    <div key="buy" className="sidebarItem">
                         <Link
                             activeClassName="sidebar-active"
-                            href="/exchanges"
+                            href="/buy/info"
                         >
                             <div className="single">
                                 <img draggable={false} className="sidebar_settings" src={coins} alt={t('sidebar.exchanges')} />
                             </div>
                             <span className="sidebar_label">
-                                {t('sidebar.exchanges')}
+                                {t('sidebar.buy')}
                             </span>
                         </Link>
                     </div>
+                    ) : null }
                     {debug &&
-                        <div className="sidebarItem">
+                        <div key="bitboxbase" className="sidebarItem">
                             <Link
                                 activeClassName="sidebar-active"
                                 href={`/bitboxbase`}
@@ -276,39 +278,21 @@ class Sidebar extends Component<Props> {
                             </div>
                         ))
                     } */}
-
-                    {
-                        (debug && keystores.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
-                            <div className="sidebarItem">
-                                <a href="#" onClick={eject}>
-                                    <div className="single">
-                                        <img
-                                            draggable={false}
-                                            className="sidebar_settings"
-                                            src={ejectIcon}
-                                            alt={t('sidebar.leave')} />
-                                    </div>
-                                </a>
-                            </div>
-                        )
-                    }
-                    {
-                        deviceIDs.map(deviceID => (
-                            <div key={deviceID} className="sidebarItem">
-                                <Link
-                                    href={`/device/${deviceID}`}
-                                    activeClassName="sidebar-active"
-                                    title={t('sidebar.device')}
-                                    onClick={this.handleSidebarItemClick}>
-                                    <div className="single">
-                                        <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
-                                    </div>
-                                    <span className="sidebar_label">{t('sidebar.device')}</span>
-                                </Link>
-                            </div>
-                        ))
-                    }
-                    <div className="sidebarItem">
+                    { deviceIDs.map(deviceID => (
+                        <div key={deviceID} className="sidebarItem">
+                            <Link
+                                href={`/device/${deviceID}`}
+                                activeClassName="sidebar-active"
+                                title={t('sidebar.device')}
+                                onClick={this.handleSidebarItemClick}>
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
+                                </div>
+                                <span className="sidebar_label">{t('sidebar.device')}</span>
+                            </Link>
+                        </div>
+                    )) }
+                    <div key="settings" className="sidebarItem">
                         <Link
                             activeClassName="sidebar-active"
                             href={`/settings`}
@@ -321,6 +305,19 @@ class Sidebar extends Component<Props> {
                             <span className="sidebar_label">{t('sidebar.settings')}</span>
                         </Link>
                     </div>
+                    {(debug && keystores.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
+                        <div key="eject" className="sidebarItem">
+                            <a href="#" onClick={eject}>
+                                <div className="single">
+                                    <img
+                                        draggable={false}
+                                        className="sidebar_settings"
+                                        src={ejectIcon}
+                                        alt={t('sidebar.leave')} />
+                                </div>
+                            </a>
+                        </div>
+                    )}
                 </nav>
             </div>
         );
