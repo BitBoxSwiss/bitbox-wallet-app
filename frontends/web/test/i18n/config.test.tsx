@@ -59,6 +59,20 @@ describe('language detector', () => {
         });
     });
 
+    it('uses defaultUserLanguage fallback if native-locale is C.UTF-8', done => {
+        (apiGet as jest.Mock).mockImplementation(endpoint => {
+            switch (endpoint) {
+                case 'config': { return Promise.resolve({}); }
+                case 'native-locale': { return Promise.resolve('C.UTF-8'); }
+                default: { return Promise.resolve(); }
+            }
+        });
+        i18nconfig.detect((lang) => {
+            expect(lang).toEqual('en');
+            done();
+        });
+    });
+
     it('uses native-locale if userLanguage is null', done => {
         (apiGet as jest.Mock).mockImplementation(endpoint => {
             switch (endpoint) {
