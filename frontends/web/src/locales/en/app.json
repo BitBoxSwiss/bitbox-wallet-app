@@ -821,7 +821,7 @@
       }
     },
     "buy": {
-      "support": {
+      "exchanges": {
         "link": {
           "text": "List of exchanges",
           "url": "/exchanges"
