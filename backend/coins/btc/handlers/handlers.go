@@ -33,7 +33,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -67,8 +66,6 @@ func NewHandlers(
 	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
-	handleFunc("/exchange/moonpay/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeMoonpayBuySupported)).Methods("GET")
-	handleFunc("/exchange/moonpay/buy", handlers.ensureAccountInitialized(handlers.getExchangeMoonpayBuy)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	return handlers
@@ -482,29 +479,6 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, erro
 		"hasSecureOutput": hasSecureOutput,
 		"optional":        optional,
 	}, nil
-}
-
-func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
-	return exchanges.IsMoonpaySupported(handlers.account.Coin().Code()), nil
-}
-
-func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
-	params := exchanges.BuyMoonpayParams{
-		Fiat: "CHF", // TODO: Get this from app config
-		Lang: "en",  // TODO: Get this from the backend
-	}
-	buy, err := exchanges.BuyMoonpay(handlers.account, params)
-	if err != nil {
-		return nil, err
-	}
-	resp := struct {
-		URL     string `json:"url"`
-		Address string `json:"address"`
-	}{
-		URL:     buy.URL,
-		Address: buy.Address,
-	}
-	return resp, nil
 }
 
 func (handlers *Handlers) postProposeTxNote(r *http.Request) (interface{}, error) {

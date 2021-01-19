@@ -410,7 +410,7 @@ class Account extends Component<Props, State> {
 }
 
 const loadHOC = load<LoadedAccountProps, SubscribedAccountProps & AccountProps & TranslateProps>(({ code }) => ({
-    moonpayBuySupported: `account/${code}/exchange/moonpay/buy-supported`,
+    moonpayBuySupported: `exchange/moonpay/buy-supported/${code}`,
     config: 'config',
 }))(Account);
 
