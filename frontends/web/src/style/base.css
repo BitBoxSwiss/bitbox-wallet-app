@@ -90,3 +90,7 @@ label,
 svg {
     stroke-width: 1.6 !important;
 }
+
+pre {
+    font-family: monospace;
+}
