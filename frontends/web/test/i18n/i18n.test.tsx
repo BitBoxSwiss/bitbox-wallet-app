@@ -68,8 +68,8 @@ describe('i18n', () => {
                 });
                 i18n.listeners.languageChanged(test.newLang).then(() => {
                     expect(apiPost).toBeCalledWith('config', {
-                        frontend: {userLanguage: test.userLang},
-                        backend: {},
+                        frontend: {},
+                        backend: {userLanguage: test.userLang},
                     });
                     done();
                 });

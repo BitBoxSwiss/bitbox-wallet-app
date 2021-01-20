@@ -28,9 +28,9 @@ export default {
     type: 'languageDetector',
     async: true,
     detect: (cb) => {
-        apiGet('config').then(({ frontend }) => {
-            if (frontend && frontend.userLanguage) {
-                cb(frontend.userLanguage);
+        apiGet('config').then(({ backend }) => {
+            if (backend && backend.userLanguage) {
+                cb(backend.userLanguage);
                 return;
             }
             apiGet('native-locale').then(locale => {

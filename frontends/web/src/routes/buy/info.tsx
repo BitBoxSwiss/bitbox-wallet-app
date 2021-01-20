@@ -75,7 +75,7 @@ class BuyInfo extends Component<Props, State> {
     private checkSupportedCoins = () => {
         Promise.all(
             this.props.accounts.map((account) => (
-                apiGet(`account/${account.code}/exchange/moonpay/buy-supported`)
+                apiGet(`exchange/moonpay/buy-supported/${account.code}`)
                     .then(isSupported => (isSupported ? account : false))
             ))
         )

@@ -107,6 +107,12 @@ type Backend struct {
 	// MainFiat is the fiat currency used as a default for computing account portfolio data
 	// and transaction amounts.
 	MainFiat string `json:"mainFiat"`
+
+	// UserLanguage is the UI language preferred by the user.
+	// It may be missing from an app config.json if the user never selected one
+	// or set to empty by the frontend if its value matches native locale
+	// as reported by the OS.
+	UserLanguage string `json:"userLanguage"`
 }
 
 // CoinActive returns the Active setting for a coin by code.
@@ -266,6 +272,7 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	migrateFiatList(&appconf)
 	migrateFiatCode(&appconf)
 	migrateElectrumX(&appconf)
+	migrateUserLanguage(&appconf)
 	if err := config.SetAppConfig(appconf); err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -415,5 +422,17 @@ func migrateBTCCoinConfig(conf *btcCoinConfig) {
 			item.Server = host
 			item.PEMCert = shiftRootCA
 		}
+	}
+}
+
+// migrateUserLanguage moves userLanguage field from frontend to backend.
+func migrateUserLanguage(appconf *AppConfig) {
+	frontconf, ok := appconf.Frontend.(map[string]interface{})
+	if !ok {
+		return // nothing to migrate
+	}
+	if lang, ok := frontconf["userLanguage"].(string); ok {
+		appconf.Backend.UserLanguage = lang
+		delete(frontconf, "userLanguage")
 	}
 }

@@ -109,7 +109,7 @@ class Moonpay extends Component<Props, State> {
 }
 
 const loadHOC = load<LoadedBuyProps, BuyProps & TranslateProps>(({ code }) => ({
-    moonpay: `account/${code}/exchange/moonpay/buy`,
+    moonpay: `exchange/moonpay/buy/${code}`,
 }))(Moonpay);
 const HOC = translate<BuyProps>()(loadHOC);
 export { HOC as Moonpay };

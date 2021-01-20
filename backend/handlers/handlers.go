@@ -48,6 +48,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	bitbox02bootloaderHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -202,6 +203,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
 	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
@@ -867,4 +870,48 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		}
 	}
 	return path, nil
+}
+
+func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
+	acctCode := mux.Vars(r)["code"]
+	// TODO: Refactor to make use of a map.
+	var acct accounts.Interface
+	for _, a := range handlers.backend.Accounts() {
+		if a.Config().Code == acctCode {
+			acct = a
+			break
+		}
+	}
+	return acct != nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
+}
+
+func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
+	acctCode := mux.Vars(r)["code"]
+	// TODO: Refactor to make use of a map.
+	var acct accounts.Interface
+	for _, a := range handlers.backend.Accounts() {
+		if a.Config().Code == acctCode {
+			acct = a
+			break
+		}
+	}
+	if acct == nil {
+		return nil, fmt.Errorf("unknown account code %q", acctCode)
+	}
+	params := exchanges.BuyMoonpayParams{
+		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
+		Lang: handlers.backend.Config().AppConfig().Backend.UserLanguage,
+	}
+	buy, err := exchanges.BuyMoonpay(acct, params)
+	if err != nil {
+		return nil, err
+	}
+	resp := struct {
+		URL     string `json:"url"`
+		Address string `json:"address"`
+	}{
+		URL:     buy.URL,
+		Address: buy.Address,
+	}
+	return resp, nil
 }
