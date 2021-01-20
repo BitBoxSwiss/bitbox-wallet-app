@@ -162,6 +162,10 @@ class App extends Component<Props, State> {
             route(`/device/${deviceIDs[0]}`, true);
             return;
         }
+        if (accounts.length === 0 && currentURL.startsWith('/buy/')) {
+            route('/', true);
+            return;
+        }
     }
 
     public componentDidUpdate(prevProps) {
