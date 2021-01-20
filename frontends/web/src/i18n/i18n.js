@@ -108,10 +108,14 @@ if (!i18nEditorActive) {
 }
 
 i18n.on('languageChanged', (lng) => {
-    // Set userLanguage in config back to null if system locale matches
+    // Set userLanguage in config back to empty if system locale matches
     // the newly selected language lng to make the app use native-locale again.
     // This also covers partial matches. For example, if native locale is pt_BR
     // and the app has only pt translation, assume they match.
+    //
+    // Since userLanguage is stored in the backend config as a string,
+    // setting it to null here in JS turns it into an empty string "" in Go backend.
+    // This is ok since we're just checking for a truthy value in the language detector.
     return apiGet('native-locale').then((nativeLocale) => {
         let match = lng === nativeLocale;
         if (!match) {
@@ -122,7 +126,7 @@ i18n.on('languageChanged', (lng) => {
             match = lngLang === localeLang;
         }
         const uiLang = match ? null : lng;
-        return setConfig({ frontend: { userLanguage: uiLang } });
+        return setConfig({ backend: { userLanguage: uiLang } });
     });
 });
 
