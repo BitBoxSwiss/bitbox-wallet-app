@@ -59,12 +59,16 @@ class BuyInfo extends Component<Props, State> {
         options: [],
     }
 
+    componentDidMount = () => {
+        this.checkSupportedCoins();
+    }
+
     private handleProceed = () => {
         const { status, selected } = this.state;
         if (selected && (status === 'choose' || this.props.config.frontend.skipBuyDisclaimer)) {
             route(`/buy/moonpay/${selected}`);
         } else {
-            this.setState({ status: 'choose' }, this.checkSupportedCoins);
+            this.setState({ status: 'choose' });
         }
     }
 
