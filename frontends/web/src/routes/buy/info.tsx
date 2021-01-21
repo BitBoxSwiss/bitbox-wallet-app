@@ -151,12 +151,12 @@ class BuyInfo extends Component<Props, State> {
                                                 </tr>
                                                 <tr>
                                                     <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                                                    <td class={style.nowrap}>5.9 %</td>
+                                                    <td class={style.nowrap}>4.9 %</td>
                                                     <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>{t('buy.info.disclaimer.payment.table.3_method')}</td>
-                                                    <td class={style.nowrap}>5.9 %</td>
+                                                    <td class={style.nowrap}>4.9 %</td>
                                                     <td>{t('buy.info.disclaimer.payment.table.3_description')}</td>
                                                 </tr>
                                             </tbody>
