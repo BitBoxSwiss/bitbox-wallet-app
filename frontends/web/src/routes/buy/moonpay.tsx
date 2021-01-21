@@ -23,6 +23,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { Devices } from '../device/deviceswitch';
 import { AccountInterface } from '../account/account';
 import { Spinner } from '../../components/spinner/Spinner';
+import { isBitcoin } from '../account/utils';
 import * as style from './moonpay.css';
 
 interface BuyProps {
@@ -83,11 +84,13 @@ class Moonpay extends Component<Props, State> {
         if (!account) {
             return null;
         }
-        const name = code === 'btc' || code === 'tbtc' ? 'Bitcoin' : 'crypto';
+        const name = (code && isBitcoin(code)) ? 'Bitcoin' : 'crypto';
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header />
+                    <div class={style.header}>
+                        <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+                    </div>
                     <div ref={this.ref} class="innerContainer">
                         <div class="content noSpace" style={{ height }}>
                             <Spinner text={t('loading')} />
