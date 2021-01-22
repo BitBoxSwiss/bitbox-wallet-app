@@ -41,7 +41,7 @@ export default function BuyGuide({
       <Entry key="guide.buy.protection" entry={{
         link: {
             text: t('buy.info.disclaimer.privacyPolicy'),
-            url: 'https://support.moonpay.com/hc/en-gb/articles/360009279877-What-are-your-supported-countries-states-and-territories-',
+            url: 'https://www.moonpay.com/privacy_policy',
         },
         text: t('buy.info.disclaimer.protection.description', { name }),
         title: t('buy.info.disclaimer.protection.title'),

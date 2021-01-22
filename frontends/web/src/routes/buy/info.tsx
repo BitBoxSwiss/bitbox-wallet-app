@@ -118,13 +118,7 @@ class BuyInfo extends Component<Props, State> {
                                         {t('buy.info.disclaimer.title', { name })}
                                     </h2>
                                     <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
-                                    <p>
-                                        {t('buy.info.disclaimer.intro.1', { name })}
-                                        {' '}
-                                        (<A class={style.link} href="https://support.moonpay.com/hc/en-gb/articles/360009279877-What-are-your-supported-countries-states-and-territories-">
-                                            {t('buy.info.disclaimer.intro.2')}
-                                        </A>).
-                                    </p>
+                                    <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
                                     <h2 class={style.title}>
                                         {t('buy.info.disclaimer.payment.title')}
                                     </h2>
@@ -177,7 +171,7 @@ class BuyInfo extends Component<Props, State> {
                                     </h2>
                                     <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
                                     <p>
-                                        <A class={style.link} href="https://support.moonpay.com/hc/en-gb/articles/360009279877-What-are-your-supported-countries-states-and-territories-">
+                                        <A class={style.link} href="https://www.moonpay.com/privacy_policy">
                                             {t('buy.info.disclaimer.privacyPolicy')}
                                         </A>
                                     </p>
