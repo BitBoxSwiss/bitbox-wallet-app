@@ -3,6 +3,7 @@ package exchanges
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -42,6 +43,17 @@ var moonpayAPICryptoCode = map[coin.Code]string{ // -> moonpay crypto currency c
 	coin.CodeTETH: "eth", // ropsten
 }
 
+// moonpayAPIPaymentMethods defines which payment methods can be used in onramp.
+var moonpayAPIPaymentMethods = []string{
+	"credit_debit_card",
+	"apple_pay",
+	"google_pay",
+	"samsung_pay",
+	"sepa_bank_transfer",
+	"gbp_bank_transfer",
+	"gbp_open_banking_payment",
+}
+
 // BuyMoonpayInfo contains a starting point for initiating an onramp flow.
 type BuyMoonpayInfo struct {
 	URL     string // moonpay's buy widget URL
@@ -71,13 +83,15 @@ func BuyMoonpay(acct accounts.Interface, params BuyMoonpayParams) (BuyMoonpayInf
 	}
 	unused := acct.GetUnusedReceiveAddresses()
 	addr := unused[0][0] // TODO: Let them choose sub acct?
+	// See https://www.moonpay.com/dashboard/getting_started/ for all available options.
+	// Note: the link is behind authentication.
 	val := url.Values{
-		// TODO: Honor -testnet flag to switch between test/prod
-		"apiKey":           {apiKey},
-		"walletAddress":    {addr.EncodeForHumans()},
-		"currencyCode":     {ccode},
-		"language":         {params.Lang},
-		"baseCurrencyCode": {params.Fiat},
+		"apiKey":                {apiKey},
+		"enabledPaymentMethods": {strings.Join(moonpayAPIPaymentMethods, ",")},
+		"walletAddress":         {addr.EncodeForHumans()},
+		"currencyCode":          {ccode},
+		"language":              {params.Lang},
+		"baseCurrencyCode":      {params.Fiat},
 	}
 	return BuyMoonpayInfo{
 		URL:     fmt.Sprintf("%s?%s", apiURL, val.Encode()),
