@@ -9,19 +9,19 @@ env:
   #
   # To update this image, generate a personal token with write:packages scope
   # on https://github.com/settings/tokens and authenticate yourself locally with
-  # "docker login https://docker.pkg.github.com -u <github-username>" using the
+  # "docker login ghcr.io -u <github-username>" using the
   # newly generated token as password.
   # Once logged in, tag an new image:
   #   docker tag shiftcrypto/bitbox-wallet-app:VERSION \
-  #   docker.pkg.github.com/digitalbitbox/bitbox-wallet-app/ci-builder:VERSION
+  #     ghcr.io/digitalbitbox/bitbox-wallet-app-ci:VERSION
   # and push as usual:
-  #   docker push docker.pkg.github.com/digitalbitbox/bitbox-wallet-app/ci-builder:VERSION
+  #   docker push ghcr.io/digitalbitbox/bitbox-wallet-app-ci:VERSION
   # Lastly, update the next line to use the newly pushed image version.
   # See docs for more details:
-  # https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages
+  # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/travis-ci.sh.
-  CI_IMAGE: docker.pkg.github.com/digitalbitbox/bitbox-wallet-app/ci-builder:6
+  CI_IMAGE: ghcr.io/digitalbitbox/bitbox-wallet-app-ci:8
   TRAVIS_BUILD_DIR: ${{github.workspace}}
 
 jobs:
@@ -30,8 +30,6 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
-      - name: Docker login
-        run: docker login -u ${{github.actor}} -p ${{github.token}} https://docker.pkg.github.com
       - name: Enable caching
         uses: actions/cache@v2
         with:
@@ -48,8 +46,6 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
-      - name: Docker login
-        run: docker login -u ${{github.actor}} -p ${{github.token}} https://docker.pkg.github.com
       - name: Enable caching
         uses: actions/cache@v2
         with:
@@ -72,8 +68,6 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
-      - name: Docker login
-        run: docker login -u ${{github.actor}} -p ${{github.token}} https://docker.pkg.github.com
       - name: Enable caching
         uses: actions/cache@v2
         with:

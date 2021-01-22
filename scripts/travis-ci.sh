@@ -14,7 +14,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     # Which docker image to use to run the CI. Defaults to Docker Hub.
     # Overwrite with CI_IMAGE=docker/image/path environment variable.
     # Keep this in sync with .github/workflows/ci.yml.
-    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:6}"
+    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:8}"
     # Time image pull to compare in the future.
     time docker pull "$CI_IMAGE"
 
@@ -33,13 +33,10 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     # this script.
     go version
     brew install qt
-    # Install yarn only if it isn't already.
-    # GitHub runners already have node and yarn installed which makes homebrew
-    # fail due to conflicting files.
-    type yarn > /dev/null || brew install yarn
     brew install nvm
     source /usr/local/opt/nvm/nvm.sh
-    nvm install 10.16.3 # install this node version
+    nvm install 14.15.4 # install this node version
+    npm install -g yarn
     export PATH="/usr/local/opt/qt/bin:$PATH"
     export LDFLAGS="-L/usr/local/opt/qt/lib"
     export CPPFLAGS="-I/usr/local/opt/qt/include"

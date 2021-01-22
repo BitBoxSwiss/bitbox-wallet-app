@@ -81,9 +81,10 @@ RUN apt-get -y install --no-install-recommends \
 
 # Get the source code
 RUN cd /tmp && \
-    wget https://download.qt.io/archive/qt/5.11/5.11.2/single/qt-everywhere-src-5.11.2.tar.xz && \
-    tar -xf qt-everywhere-src-5.11.2.tar.xz && \
-    mv qt-everywhere-src-5.11.2 qt5
+    git clone git://code.qt.io/qt/qt5.git && \
+    cd qt5 && \
+    git checkout 5.12.8 && \
+    git submodule update --init --recursive
 
 RUN cd /tmp/qt5 && \
     ./configure \

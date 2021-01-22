@@ -13,7 +13,7 @@
 # limitations under the License.
 FROM thyrlian/android-sdk:3.0 as android
 
-FROM shiftcrypto/qt5:16.04
+FROM shiftcrypto/qt5:5.12.8
 
 # Android
 COPY --from=android /opt/android-sdk /opt/android-sdk
