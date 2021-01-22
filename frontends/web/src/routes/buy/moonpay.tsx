@@ -89,7 +89,7 @@ class Moonpay extends Component<Props, State> {
                 <div class="container">
                     <Header />
                     <div ref={this.ref} class="innerContainer">
-                        <div class="content noSpace" style={{ height }}>
+                        <div class="noSpace" style={{ height }}>
                             <Spinner text={t('loading')} />
                             <iframe
                                 width="100%"
