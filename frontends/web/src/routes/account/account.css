@@ -21,6 +21,7 @@
 }
 
 .actionsContainer {
+    display: flex;
     transform: translateY(-36%);
 }
 
@@ -66,7 +67,17 @@
 
 @media (max-width: 768px) {
     .actionsContainer {
-        transform: translateY(-34%);
+        flex: 0 0 91%;
+        justify-content: space-between;
+        margin-bottom: var(--space-default);
+        max-width: 91%;
+        transform: none;
+        width: 91%;
+    }
+    .actionsContainer a {
+        flex: 1 0 30%;
+        margin-right: 0;
+        max-width: 30%;
     }
 
     .send,
