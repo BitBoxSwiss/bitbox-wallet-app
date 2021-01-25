@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 
@@ -62,6 +61,36 @@ import (
 
 func init() {
 	electrum.SetClientSoftwareVersion(Version)
+}
+
+// fixedURLWhitelist is always allowed by SystemOpen, in addition to some
+// adhoc URLs. See SystemOpen for details.
+var fixedURLWhitelist = []string{
+	// Shift Crypto owned domains.
+	"https://shiftcrypto.ch/",
+	"https://ext.shiftcrypto.ch/",
+	"https://shop.shiftcrypto.ch/",
+	"https://guides.shiftcrypto.ch/",
+	// Exchange rates.
+	"https://www.coingecko.com/",
+	"https://www.cryptocompare.com/",
+	// Block explorers.
+	"https://blockstream.info/tx/",
+	"https://blockstream.info/testnet/tx/",
+	"http://explorer.litecointools.com/tx/",
+	"https://insight.litecore.io/tx/",
+	"https://etherscan.io/tx/",
+	"https://rinkeby.etherscan.io/tx/",
+	"https://ropsten.etherscan.io/tx/",
+	// Moonpay onramp
+	"https://www.moonpay.com/",
+	"https://support.moonpay.com/",
+	"https://support.moonpay.io/",
+	"https://help.moonpay.io/",
+	"https://help.moonpay.com/",
+	// Documentation and other articles.
+	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
+	"https://en.bitcoin.it/wiki/Bech32_adoption",
 }
 
 type backendEvent struct {
@@ -1103,66 +1132,32 @@ func (backend *Backend) NotifyUser(text string) {
 	backend.environment.NotifyUser(text)
 }
 
-// SystemOpen opens a web url in the default browser, or a file url in the default application. It
-// whitelists url patterns and blocks all invalid ones. Returns an error if the url was blocked or
-// the url could not be opened.
+// SystemOpen opens the given URL using backend.environment.
+// It consults fixedURLWhitelist, matching the URL with each whitelist item.
+// If an item is a prefix of url, it is allowed to be openend. Otherwise, an ad-hoc
+// patter matching is performed for URLs like the CSV export download path.
+//
+// If none matched, an ad-hoc URL construction failed or opening a URL failed,
+// an error is returned.
 func (backend *Backend) SystemOpen(url string) error {
-	blocked := true
-
-	for _, whitelistedURL := range []string{
-		"https://www.cryptocompare.com",
-		"https://www.coingecko.com",
-		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
-		"https://en.bitcoin.it/wiki/Bech32_adoption",
-		// Moonpay onramp
-		"https://www.moonpay.com",
-		"https://support.moonpay.com",
-		"https://support.moonpay.io",
-		"https://help.moonpay.io",
-		"https://help.moonpay.com",
-	} {
-		if url == whitelistedURL {
-			blocked = false
-			break
+	for _, whitelisted := range fixedURLWhitelist {
+		if strings.HasPrefix(url, whitelisted) {
+			return backend.environment.SystemOpen(url)
 		}
 	}
 
-	whitelistedPatterns := []string{
-		"^https://shiftcrypto.ch/",
-		"^https://ext.shiftcrypto.ch/",
-		"^https://guides.shiftcrypto.ch/",
-		"^https://shop.shiftcrypto.ch/",
-		"^https://blockstream\\.info/(testnet/)?tx/",
-		"^http://explorer\\.litecointools\\.com/tx/",
-		"^https://insight\\.litecore\\.io/tx/",
-		"^https://etherscan\\.io/tx/",
-		"^https://rinkeby\\.etherscan\\.io/tx/",
-		"^https://ropsten\\.etherscan\\.io/tx/",
-		"^https://support.moonpay.com/",
-	}
-
 	if runtime.GOOS != "android" { // TODO: fix DownloadsDir() for android
-		// Whitelist csv export.
+		// Whitelist CSV export.
 		downloadDir, err := utilConfig.DownloadsDir()
 		if err != nil {
 			return err
 		}
-		whitelistedPatterns = append(whitelistedPatterns,
-			fmt.Sprintf("^%s", regexp.QuoteMeta(downloadDir)),
-		)
-	}
-
-	for _, pattern := range whitelistedPatterns {
-		if regexp.MustCompile(pattern).MatchString(url) {
-			blocked = false
-			break
+		if strings.HasPrefix(url, downloadDir) {
+			return backend.environment.SystemOpen(url)
 		}
 	}
-	if blocked {
-		return errp.Newf("Blocked /open with url: %s", url)
-	}
-	return backend.environment.SystemOpen(url)
 
+	return errp.Newf("Blocked /open with url: %s", url)
 }
 
 // Environment returns the app native environment.
