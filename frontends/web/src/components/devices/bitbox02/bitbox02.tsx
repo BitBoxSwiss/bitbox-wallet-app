@@ -72,7 +72,11 @@ interface State {
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
-    readDisclaimers: boolean;
+    agreement1: boolean;
+    agreement2: boolean;
+    agreement3: boolean;
+    agreement4: boolean;
+    agreement5: boolean;
     waitDialog?: {
         title: string;
         text?: string;
@@ -80,8 +84,6 @@ interface State {
 }
 
 class BitBox02 extends Component<Props, State> {
-    private disclaimerForm!: HTMLElement;
-
     constructor(props) {
         super(props);
         this.state = {
@@ -98,7 +100,11 @@ class BitBox02 extends Component<Props, State> {
             deviceName: '',
             unlockOnly: true,
             showWizard: false,
-            readDisclaimers: false,
+            agreement1: false,
+            agreement2: false,
+            agreement3: false,
+            agreement4: false,
+            agreement5: false,
             waitDialog: undefined,
         };
     }
@@ -349,19 +355,12 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
-    private setDisclaimerRef = (element: HTMLElement) => {
-        this.disclaimerForm = element;
-    }
-
-    private handleDisclaimerCheck = () => {
-        const checkboxes = this.disclaimerForm.querySelectorAll('input');
-        let result = true;
-        for (const checkbox of checkboxes) {
-            if (!checkbox.checked) {
-                result = false;
-            }
-        }
-        this.setState({ readDisclaimers: result });
+    private handleDisclaimerCheck = (event: InputEvent) => {
+        const target = event.target as HTMLInputElement;
+        const key = target.id as 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
+        const obj = {};
+        obj[key] = target.checked;
+        this.setState(obj);
     }
 
     public render(
@@ -382,7 +381,11 @@ class BitBox02 extends Component<Props, State> {
             showWizard,
             sdCardInserted,
             deviceName,
-            readDisclaimers,
+            agreement1,
+            agreement2,
+            agreement3,
+            agreement4,
+            agreement5,
             waitDialog,
         }: State,
     ) {
@@ -415,6 +418,7 @@ class BitBox02 extends Component<Props, State> {
             return <Settings deviceID={deviceID}/>;
         }
         const passwordGif = versionInfo.currentVersion === '1.0.0' || versionInfo.currentVersion === '2.0.0' ? passwordEntryOldGif : passwordEntryGif;
+        const readDisclaimers = agreement1 && agreement2 && agreement3 && agreement4 && agreement5;
         // TODO: move to wizard.tsx
         return (
             <div className="contentWithGuide">
@@ -605,28 +609,46 @@ class BitBox02 extends Component<Props, State> {
                                         <div className={style.stepContext}>
                                             <p>{t('bitbox02Wizard.stepBackup.createBackup')}</p>
                                             <p className="m-bottom-default">{t('bitbox02Wizard.stepBackup.beforeProceed')}</p>
-                                            <form ref={this.setDisclaimerRef}>
+                                            <form>
                                                 <div className="m-top-quarter">
-                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement1" label={t('bitbox02Wizard.backup.userConfirmation1')} />
+                                                    <Checkbox
+                                                        onChange={this.handleDisclaimerCheck}
+                                                        className={style.wizardCheckbox}
+                                                        id="agreement1"
+                                                        checked={agreement1}
+                                                        label={t('bitbox02Wizard.backup.userConfirmation1')} />
                                                 </div>
                                                 <div>
                                                     <Checkbox
                                                         onChange={this.handleDisclaimerCheck}
                                                         className={style.wizardCheckbox}
-                                                        id="agreement2" label={t('bitbox02Wizard.backup.userConfirmation2')} />
+                                                        id="agreement2"
+                                                        checked={agreement2}
+                                                        label={t('bitbox02Wizard.backup.userConfirmation2')} />
                                                 </div>
                                                 <div className="m-top-quarter">
                                                     <Checkbox
                                                         onChange={this.handleDisclaimerCheck}
                                                         className={style.wizardCheckbox}
                                                         id="agreement3"
+                                                        checked={agreement3}
                                                         label={t('bitbox02Wizard.backup.userConfirmation3')} />
                                                 </div>
                                                 <div className="m-top-quarter">
-                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label={t('bitbox02Wizard.backup.userConfirmation4')}/>
+                                                    <Checkbox
+                                                        onChange={this.handleDisclaimerCheck}
+                                                        className={style.wizardCheckbox}
+                                                        id="agreement4"
+                                                        checked={agreement4}
+                                                        label={t('bitbox02Wizard.backup.userConfirmation4')}/>
                                                 </div>
                                                 <div className="m-top-quarter">
-                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement5" label={t('bitbox02Wizard.backup.userConfirmation5')}/>
+                                                    <Checkbox
+                                                        onChange={this.handleDisclaimerCheck}
+                                                        className={style.wizardCheckbox}
+                                                        id="agreement5"
+                                                        checked={agreement5}
+                                                        label={t('bitbox02Wizard.backup.userConfirmation5')}/>
                                                 </div>
                                             </form>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
