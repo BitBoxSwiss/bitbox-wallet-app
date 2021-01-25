@@ -329,8 +329,8 @@ class Account extends Component<Props, State> {
                             <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
                                 {t(`account.info.${code}`, { defaultValue: '' })}
                             </Status>
-                            <div class="flex flex-row flex-between flex-items-center">
-                                <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
+                            <div class="flex flex-row flex-between flex-items-center flex-column-mobile flex-reverse-mobile">
+                                <label className="labelXLarge flex-self-start-mobile">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     {canSend ? (
                                         <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>

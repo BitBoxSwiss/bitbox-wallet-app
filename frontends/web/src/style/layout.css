@@ -16,6 +16,11 @@
 .flex-1 { flex: 1; }
 .flex-none { flex: none !important; }
 .flex > * { min-width: 0; }
+@media (max-width: 768px) {
+    .flex-column-mobile { flex-direction: column; }
+    .flex-reverse-mobile { flex-direction: column-reverse; }
+    .flex-self-start-mobile { align-self: flex-start; }
+}
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
