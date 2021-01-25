@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
                 try {
                     // Allow opening in external browser instead, for links clicked in an onramp widget.
-                    Pattern pattern = Pattern.compile("^file:///account/[^/]+/buy$");
+                    Pattern pattern = Pattern.compile("^file:///buy/.*$");
                     if (pattern.matcher(view.getUrl()).matches()) {
                         Util.systemOpen(getApplication(), url);
                         return true;

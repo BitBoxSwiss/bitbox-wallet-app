@@ -58,7 +58,7 @@ public:
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
         auto currentUrl = mainPage->requestedUrl().toString();
-        bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/moonpay/[^/]+?$"));
+        bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/.*$"));
         if (onBuyPage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
