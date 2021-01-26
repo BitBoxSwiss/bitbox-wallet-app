@@ -211,6 +211,7 @@ class App extends Component<Props, State> {
                             accounts={accounts} />
                         <Moonpay
                             path="/buy/moonpay/:code"
+                            code={'' /* dummy to satisfy TS */}
                             devices={devices}
                             accounts={accounts} />
                         <Exchanges

@@ -28,7 +28,7 @@ import * as style from './moonpay.css';
 
 interface BuyProps {
     accounts: AccountInterface[];
-    code?: string;
+    code: string;
     devices: Devices;
 }
 
@@ -76,7 +76,7 @@ class Moonpay extends Component<Props, State> {
 
     public render(
         { code,
-            moonpay,
+          moonpay,
           t }: RenderableProps<Props>,
         { height }: State,
     ) {
@@ -84,7 +84,7 @@ class Moonpay extends Component<Props, State> {
         if (!account || moonpay.url === '') {
             return null;
         }
-        const name = (code && isBitcoin(code)) ? 'Bitcoin' : 'crypto';
+        const name = isBitcoin(code) ? 'Bitcoin' : 'crypto';
         return (
             <div class="contentWithGuide">
                 <div class="container">
