@@ -900,6 +900,11 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 	if acct == nil {
 		return nil, fmt.Errorf("unknown account code %q", acctCode)
 	}
+
+	if err := acct.Initialize(); err != nil {
+		return nil, err
+	}
+
 	params := exchanges.BuyMoonpayParams{
 		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
 		Lang: handlers.backend.Config().AppConfig().Backend.UserLanguage,
