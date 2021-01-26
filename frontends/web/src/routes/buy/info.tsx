@@ -191,7 +191,9 @@ class BuyInfo extends Component<Props, State> {
                                 </div>
                             </div>
                         ) : (
-                            options.length === 0 ? null : (
+                            options.length === 0 ? (
+                                <div class="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
+                            ) : (
                                 <div class="content narrow isVerticallyCentered">
                                     <h1 class={style.title}>{t('buy.title', { name })}</h1>
                                     <Select
