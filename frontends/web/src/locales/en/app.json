@@ -499,8 +499,6 @@
             "1_method": "Bank transfers (ACH / SEPA)",
             "2_description": "Quick and nearly instant, but higher fees",
             "2_method": "Credit & debit cards",
-            "3_description": "Quick and nearly instant, but higher fees",
-            "3_method": "Apple / Google / Samsung Pay",
             "description": "Description",
             "fee": "Fee",
             "method": "Method"
