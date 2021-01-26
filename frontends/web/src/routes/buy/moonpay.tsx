@@ -81,7 +81,7 @@ class Moonpay extends Component<Props, State> {
         { height }: State,
     ) {
         const account = this.getAccount();
-        if (!account) {
+        if (!account || moonpay.url === '') {
             return null;
         }
         const name = (code && isBitcoin(code)) ? 'Bitcoin' : 'crypto';
