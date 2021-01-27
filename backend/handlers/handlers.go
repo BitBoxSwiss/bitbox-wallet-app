@@ -882,7 +882,9 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 			break
 		}
 	}
-	return acct != nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
+	// TODO: Offline() can be removed from here once there is a unified way of initializing accounts
+	// and showing sync status, offline/fatal states, etc.
+	return acct != nil && !acct.Offline() && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
@@ -898,6 +900,11 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 	if acct == nil {
 		return nil, fmt.Errorf("unknown account code %q", acctCode)
 	}
+
+	if err := acct.Initialize(); err != nil {
+		return nil, err
+	}
+
 	params := exchanges.BuyMoonpayParams{
 		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
 		Lang: handlers.backend.Config().AppConfig().Backend.UserLanguage,

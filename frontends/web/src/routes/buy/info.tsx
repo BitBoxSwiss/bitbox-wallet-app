@@ -68,7 +68,13 @@ class BuyInfo extends Component<Props, State> {
         if (selected && (status === 'choose' || this.props.config.frontend.skipBuyDisclaimer)) {
             route(`/buy/moonpay/${selected}`);
         } else {
-            this.setState({ status: 'choose' });
+            this.setState({ status: 'choose' }, this.maybeProceed);
+        }
+    }
+
+    private maybeProceed = () => {
+        if (this.state.status === 'choose' && this.state.options.length === 1) {
+            route(`/buy/moonpay/${this.state.options[0].value}`);
         }
     }
 
@@ -83,11 +89,7 @@ class BuyInfo extends Component<Props, State> {
         // @ts-ignore
         .then(accounts => accounts.map(({ name, code }) => ({ text: name, value: code })))
         .then(options => {
-            if (this.state.status === 'choose' && options.length === 1) {
-                route(`/buy/moonpay/${options[0].value}`);
-            } else {
-                this.setState({ options });
-            }
+            this.setState({ options }, this.maybeProceed);
         })
         .catch(console.error);
     }
@@ -186,7 +188,9 @@ class BuyInfo extends Component<Props, State> {
                                 </div>
                             </div>
                         ) : (
-                            options.length === 0 ? null : (
+                            options.length === 0 ? (
+                                <div class="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
+                            ) : (
                                 <div class="content narrow isVerticallyCentered">
                                     <h1 class={style.title}>{t('buy.title', { name })}</h1>
                                     <Select
