@@ -1128,7 +1128,7 @@
   "reset": {
     "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive Ihres Private-Keys!",
     "notReset": "Gerät NICHT zurück gesetzt.",
-    "title": "Gerät auf Werkseinstellung zurücksetzen",
+    "title": "Gerät in Werkszustand zurücksetzen",
     "understand": "Ich habe ein Backup und kenne mein Wiederherstellungskennwort",
     "understandBB02": "Ich habe ein valides Backup"
   },
@@ -1281,7 +1281,7 @@
       "download-cert": "Remote-Zertifikat herunterladen",
       "remove-server": "Entfernen",
       "removeConfirm": "Entfernen {{server}}?",
-      "reset": "Auf Werkseinstellungen zurücksetzten",
+      "reset": "In Werkszustand zurücksetzten",
       "resetConfirm": "Möchten Sie alle Server entfernen und die Standardserver installieren?",
       "servers": "Servers",
       "step1": "1",
@@ -1388,7 +1388,7 @@
   "unlock": {
     "description": "Geben Sie Ihr Gerätepasswort ein um Ihr Gerät zu entsperren.",
     "error": {
-      "e109_normal": "Gerätepasswort inkorrekt.  {{remainingAttempts}} Versuche verbleibend, bevor sich das Gerät auf die Werkseinstellungen zurücksetzt. ",
+      "e109_normal": "Gerätepasswort inkorrekt.  {{remainingAttempts}} Versuche verbleibend, bevor sich das Gerät in den Werkszustand zurücksetzt. ",
       "e109_touch": "$t(unlock.error.e109_normal) Beim nächsten Loginversuch müssen Sie die LED lange halten.",
       "e113": "Aufgrund zu vieler Loginversuche müssen Sie beim nächsten Versuch die LED 4 Sekunden lang drücken."
     },

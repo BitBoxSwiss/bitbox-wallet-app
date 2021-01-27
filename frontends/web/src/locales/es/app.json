@@ -497,7 +497,7 @@
           "footnote": "Tenga en cuenta que los tipos de cambio de MoonPay pueden diferenciarse de los utilizados en BitBoxApp, lo que se nota en cantidades ligeramente diferentes.",
           "table": {
             "1_description": "Tarifa baja, puede tardar 3 días laborales",
-            "1_method": "Transferencias bancarias (ACH / SEPA)",
+            "1_method": "Transferencias bancarias (SEPA)",
             "2_description": "Tarifas altas pero inmediato y rápido",
             "2_method": "Tarjetas de crédito & débito",
             "3_description": "Tarifas altas pero inmediato y rápido",
