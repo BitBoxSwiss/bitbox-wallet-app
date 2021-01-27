@@ -497,7 +497,7 @@
           "footnote": "Menjalni tečaji storitve MoonPay se lahko razlikujejo od tistih, ki se uporabljajo v BitBoxApp.",
           "table": {
             "1_description": "Najnižja provizija, lahko traja do 3 delovne dni",
-            "1_method": "Bančno nakazilo (ACH / SEPA)",
+            "1_method": "Bančno nakazilo (SEPA)",
             "2_description": "Višja provizija vendar takojšnja izvršitev",
             "2_method": "Kreditna ali debetna kartica",
             "3_description": "Višja provizija vendar takojšnja izvršitev",
