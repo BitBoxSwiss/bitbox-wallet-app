@@ -489,15 +489,15 @@
       "disclaimer": {
         "intro": [
           "We partner with MoonPay to offer you a seamless way to buy {{name}} directly within the BitBoxApp. It's just a few clicks.",
-          "MoonPay is a fully regulated financial services platform that makes it easy and quick to buy {{name}} in over 160+ countries"
+          "MoonPay is a platform that makes it easy and quick to buy {{name}} in over 160+ countries."
         ],
         "payment": {
           "details": "You can buy {{name}} instantly via MoonPay with the following payment methods. Credit or debit card orders are instant and convenient, but more expensive due to increased chargeback risk. We recommend using the bank transfer option for larger amounts. The minimum fee is 4 USD/EUR or equivalent.",
           "footnote": "Please note that MoonPay's exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
           "table": {
             "1_description": "Lowest fees, can take up to 3 working days",
-            "1_method": "Bank transfers (ACH / SEPA)",
-            "2_description": "Quick and nearly instant, but higher fees",
+            "1_method": "Bank transfers (SEPA)",
+            "2_description": "Higher fees but quick and instant",
             "2_method": "Credit & debit cards",
             "description": "Description",
             "fee": "Fee",
@@ -523,7 +523,7 @@
       "skip": "Do not show again",
       "title": "Buy {{name}}"
     },
-    "title": "Buy {{name}}"
+    "title": "Buy {{accountName}}"
   },
   "changePin": {
     "newTitle": "New device password",
