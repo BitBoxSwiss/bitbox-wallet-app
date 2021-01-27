@@ -465,6 +465,48 @@
     "upgrade": "Aktualisieren"
   },
   "buy": {
+    "info": {
+      "continue": "Zustimmen und fortfahren",
+      "disclaimer": {
+        "intro": [
+          "Wir arbeiten mit MoonPay zusammen, damit Sie mit nur ein paar Klicks ganz einfach {{name}} direkt in der BitBoxApp kaufen können. ",
+          "MoonPay ist eine vollständig regulierte Finanzdienstleistungsplattform, die den Kauf von {{name}}  in über 160 Ländern einfach und schnell macht.",
+          "mit wenigen Ausnahmen"
+        ],
+        "payment": {
+          "details": "Sie können {{name}} über MoonPay mit den folgenden Zahlungsmethoden kaufen. Mit Kredit- oder Debitkarten geht es sofort und bequem, ist aber aufgrund des erhöhten Rückbuchungsrisikos teurer. Wir empfehlen die Verwendung der Überweisungsoption für größere Beträge. Die Mindestgebühr beträgt 4 USD / EUR oder gleichwertig.",
+          "footnote": "Bitte beachten Sie, dass die Wechselkurse von MoonPay von den in der BitBoxApp verwendeten abweichen können, was zu geringfügig unterschiedlichen Beträgen führen kann.",
+          "table": {
+            "1_description": "Niedrigste Gebühren, kann bis zu 3 Werktage dauern",
+            "1_method": "Banküberweisungen (SEPA)",
+            "2_description": "Höhere Gebühren, aber schnell und sofort",
+            "2_method": "Kredit & Debitkarten",
+            "3_description": "Höhere Gebühren, aber schnell und sofort",
+            "3_method": "Apple / Google / Samsung Pay",
+            "description": "Beschreibung",
+            "fee": "Gebühr",
+            "method": "Methode"
+          },
+          "title": "Zahlungsmethoden und Gebühren"
+        },
+        "privacyPolicy": "MoonPay-Datenschutzrichtlinie",
+        "protection": {
+          "description": "Die BitBoxApp sammelt beim Kauf von {{name}} keine Daten. Die eingehenden Transaktionen werden wie reguläre Transaktion behandelt. MoonPay muss einige persönliche Daten sammeln, um funktionieren zu können. In deren Datenschutzbestimmungen wird ausführlich erläutert, wie mit diesen Daten umgegangen wird.",
+          "title": "Datenschutz"
+        },
+        "security": {
+          "description": "Wenn Sie {{name}} über MoonPay kaufen, dann nutzen Sie einen externen Dienst. Dieser Dienst liegt außerhalb des Anwendungsbereichs des BitBox02 Sicherheitsbedrohungsmodells und verlässt sich auf die Sicherheit des Geräts, auf dem die BitBoxApp Software läuft.",
+          "link": "Sicherheitsbedrohungsmodells",
+          "title": "Sicherheitsmodell"
+        },
+        "title": "Willkommen in Ihrem One-Stop-Shop zum Kauf von {{name}}"
+      },
+      "next": "Weiter",
+      "selectLabel": "Konto wählen",
+      "selectPlaceholder": "Wähle eine Währung",
+      "skip": "Nicht mehr anzeigen",
+      "title": "{{name}} kaufen "
+    },
     "title": "{{accountName}} kaufen"
   },
   "changePin": {
@@ -760,6 +802,13 @@
       }
     },
     "buy": {
+      "exchanges": {
+        "link": {
+          "text": "Liste der Börsen"
+        },
+        "text": "Hier finden Sie eine Liste der von uns empfohlenen Börsen, abhängig von Ihrer Region und Ihrer bevorzugten Zahlungsmethode.",
+        "title": "Auf der Suche nach einer Börse?"
+      },
       "support": {
         "link": {
           "text": "",
@@ -1277,6 +1326,7 @@
     "addAccount": "Konto hinzufügen",
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "BitBoxBase verbinden",
+    "buy": "Krypto kaufen",
     "device": "Gerät verwalten",
     "exchanges": "Kaufen & Verkaufen",
     "leave": "Verlassen",
