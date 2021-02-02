@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ import { SharedProps as SharedPanelProps, store as panelStore } from '../../comp
 import { share } from '../../decorators/share';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { AccountInterface } from '../../routes/account/account';
+import { IAccount } from '../../routes/account/account';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
@@ -34,7 +35,7 @@ import Logo, { AppLogoInverted } from '../icon/logo';
 interface SidebarProps {
     deviceIDs: string[];
     bitboxBaseIDs: string[];
-    accounts: AccountInterface[];
+    accounts: IAccount[];
 }
 
 interface SubscribedProps {
@@ -122,7 +123,7 @@ class Sidebar extends Component<Props> {
         }
     }
 
-    private getAccountLink = ({ coinCode, code, name }: AccountInterface): JSX.Element => {
+    private getAccountLink = ({ coinCode, code, name }: IAccount): JSX.Element => {
         return (
             <div key={code} className="sidebarItem">
                 <Match>

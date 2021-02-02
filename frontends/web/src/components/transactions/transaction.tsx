@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import * as accountApi from '../../api/account';
 import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { AmountWithConversions } from '../../routes/account/send/send';
-import { apiPost } from '../../utils/request';
 import A from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
-import { AmountInterface, FiatConversion } from '../rates/rates';
+import { FiatConversion } from '../rates/rates';
 import { ArrowIn, ArrowOut, ArrowSelf, Edit, Save } from './components/icons';
 import * as style from './transaction.css';
 import * as parentStyle from './transactions.css';
@@ -35,26 +34,7 @@ interface State {
     editMode: boolean;
 }
 
-export interface TransactionInterface {
-    type: 'send' | 'receive' | 'self';
-    txID: string;
-    amount: AmountInterface;
-    fee: AmountWithConversions;
-    feeRatePerKb: AmountWithConversions;
-    gas: number;
-    vsize: number;
-    size: number;
-    weight: number;
-    numConfirmations: number;
-    numConfirmationsComplete: number;
-    time: string | null;
-    addresses: string[];
-    status: 'complete' | 'pending' | 'failed';
-    internalID: string;
-    note: string;
-}
-
-interface TransactionProps extends TransactionInterface {
+interface TransactionProps extends accountApi.ITransaction {
     accountCode: string;
     index: number;
     explorerURL: string;
@@ -101,10 +81,11 @@ class Transaction extends Component<Props, State> {
     private handleEdit = (e: Event) => {
         e.preventDefault();
         if (this.state.editMode && this.props.note !== this.state.newNote) {
-            apiPost(`account/${this.props.accountCode}/notes/tx`, {
+            accountApi.postNotesTx(this.props.accountCode, {
                 internalTxID: this.props.internalID,
                 note: this.state.newNote,
-            });
+            })
+            .catch(console.error);
         }
         this.focusEdit();
         this.setState(

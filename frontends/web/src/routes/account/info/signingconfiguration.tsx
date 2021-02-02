@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { ISigningConfiguration } from '../../../api/account';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
@@ -23,19 +25,9 @@ import { apiGet, apiPost } from '../../../utils/request';
 import * as style from './info.css';
 
 interface ProvidedProps {
-    info: SigningConfigurationInterface;
+    info: ISigningConfiguration;
     code: string;
     signingConfigIndex: number;
-}
-
-export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
-
-export interface SigningConfigurationInterface {
-    scriptType: ScriptType;
-    keypath: string;
-    threshold: number;
-    xpubs: string[];
-    address: string;
 }
 
 interface State {

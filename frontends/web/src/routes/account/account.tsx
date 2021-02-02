@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,26 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { Balance, BalanceInterface } from '../../components/balance/balance';
+import * as accountApi from '../../api/account';
+import { Balance } from '../../components/balance/balance';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import HeadersSync from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
-import { TransactionInterface } from '../../components/transactions/transaction';
 import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { apiGet, apiPost } from '../../utils/request';
+import { apiGet } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Devices } from '../device/deviceswitch';
 import * as style from './account.css';
-import { ScriptType, SigningConfigurationInterface } from './info/signingconfiguration';
 import { isBitcoinBased } from './utils';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
-
-export interface AccountInterface {
-    coinCode: CoinCode;
+export interface IAccount {
+    coinCode: accountApi.CoinCode;
     coinUnit: string;
     code: string;
     name: string;
@@ -48,7 +45,7 @@ export interface AccountInterface {
 interface AccountProps {
     code: string;
     devices: Devices;
-    accounts: AccountInterface[];
+    accounts: IAccount[];
 }
 
 interface LoadedAccountProps {
@@ -60,18 +57,14 @@ interface SubscribedAccountProps {
     syncedAddressesCount?: number;
 }
 
-export interface AccountInfo {
-    signingConfigurations: SigningConfigurationInterface[];
-}
-
 interface State {
     initialized: boolean;
     connected?: boolean;
-    transactions?: TransactionInterface[];
-    balance?: BalanceInterface;
+    transactions?: accountApi.ITransaction[];
+    balance?: accountApi.IBalance;
     hasCard: boolean;
     exported: string;
-    accountInfo?: AccountInfo;
+    accountInfo?:accountApi. ISigningConfigurationList;
     fatalError: boolean;
 }
 
@@ -170,7 +163,7 @@ class Account extends Component<Props, State> {
         if (!code) {
             return;
         }
-        apiGet(`account/${code}/status`).then(status => {
+        accountApi.getStatus(code).then(status => {
             if (this.props.code !== code) {
                 // Results came in after the account was switched. Ignore.
                 return;
@@ -181,16 +174,17 @@ class Account extends Component<Props, State> {
                 fatalError: status.includes('fatalError'),
             };
             if (!state.initialized && !status.includes('accountDisabled')) {
-                apiPost(`account/${code}/init`);
+                accountApi.init(code).catch(console.error);
             }
             if (state.initialized && !status.includes('accountDisabled')) {
-                apiGet(`account/${code}/info`).then(accountInfo => {
+                accountApi.getInfo(code).then(accountInfo => {
                     if (this.props.code !== code) {
                         // Results came in after the account was switched. Ignore.
                         return;
                     }
                     this.setState({ accountInfo });
-                });
+                })
+                .catch(console.error);
             }
 
             this.setState(state);
@@ -204,14 +198,14 @@ class Account extends Component<Props, State> {
         }
         if (this.state.initialized && this.state.connected) {
             const expectedCode = this.props.code;
-            apiGet(`account/${this.props.code}/balance`).then(balance => {
+            accountApi.getBalance(this.props.code).then(balance => {
                 if (this.props.code !== expectedCode) {
                     // Results came in after the account was switched. Ignore.
                     return;
                 }
                 this.setState({ balance });
             });
-            apiGet(`account/${this.props.code}/transactions`).then(transactions => {
+            accountApi.getTransactionList(this.props.code).then(transactions => {
                 if (this.props.code !== expectedCode) {
                     // Results came in after the account was switched. Ignore.
                     return;
@@ -231,12 +225,12 @@ class Account extends Component<Props, State> {
         if (this.state.fatalError) {
             return;
         }
-        apiPost(`account/${this.props.code}/export`).then(exported => {
+        accountApi.exportAccount(this.props.code).then(exported => {
             this.setState({ exported });
-        });
+        }).catch(console.error);
     }
 
-    private isBTCScriptType = (scriptType: ScriptType, account: AccountInterface, accountInfo?: AccountInfo): boolean => {
+    private isBTCScriptType = (scriptType: accountApi.ScriptType, account: IAccount, accountInfo?: accountApi.ISigningConfigurationList): boolean => {
         if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
             return false;
         }

@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,13 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { Fiat } from '../../../components/rates/rates';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet } from '../../../utils/request';
-import { CoinCode } from '../account';
 import { getCoinCode, isBitcoinBased } from '../utils';
 import * as style from './feetargets.css';
-import { AmountWithConversions } from './send';
-
-export type Code = 'custom' | 'low' | 'economy' | 'normal' | 'high';
 
 interface LoadedProps {
     config: any;
@@ -34,26 +30,21 @@ interface LoadedProps {
 
 interface FeeTargetsProps {
     accountCode: string;
-    coinCode: CoinCode;
+    coinCode: accountApi.CoinCode;
     disabled: boolean;
     fiatUnit: Fiat;
-    proposedFee?: AmountWithConversions;
+    proposedFee?: accountApi.IAmount;
     feePerByte: string;
     showCalculatingFeeLabel?: boolean;
-    onFeeTargetChange: (code: Code) => void;
+    onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
     onFeePerByte: (feePerByte: string) => void;
     error?: string;
 }
 
 export type Props = LoadedProps & FeeTargetsProps & TranslateProps;
 
-interface FeeTarget {
-    code: Code;
-    feeRateInfo: string;
-}
-
 interface Options {
-    value: Code;
+    value: accountApi.FeeTargetCode;
     text: string;
 }
 
@@ -79,8 +70,8 @@ class FeeTargets extends Component<Props, State> {
     }
 
     private updateFeeTargets = (accountCode: string) => {
-        apiGet('account/' + accountCode + '/fee-targets')
-            .then(({ feeTargets, defaultFeeTarget }: {feeTargets: FeeTarget[], defaultFeeTarget: Code}) => {
+        accountApi.getFeeTargetList(accountCode)
+            .then(({ feeTargets, defaultFeeTarget }) => {
                 const expert = this.props.config.frontend.expertFee;
                 const options = feeTargets.map(({ code, feeRateInfo }) => ({
                     value: code,
@@ -94,12 +85,13 @@ class FeeTargets extends Component<Props, State> {
                 }
                 this.setState({ options });
                 this.setFeeTarget(defaultFeeTarget);
-            });
+            })
+            .catch(console.error);
     }
 
     private handleFeeTargetChange = (event: Event) => {
         const target = event.target as HTMLSelectElement;
-        this.setFeeTarget(target.options[target.selectedIndex].value as Code);
+        this.setFeeTarget(target.options[target.selectedIndex].value as accountApi.FeeTargetCode);
     }
 
     private handleFeePerByte = (event: Event) => {
@@ -107,7 +99,7 @@ class FeeTargets extends Component<Props, State> {
         this.props.onFeePerByte(target.value);
     }
 
-    private setFeeTarget = (feeTarget: Code) => {
+    private setFeeTarget = (feeTarget: accountApi.FeeTargetCode) => {
         this.setState({ feeTarget });
         this.props.onFeeTargetChange(feeTarget);
     }

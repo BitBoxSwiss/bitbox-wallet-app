@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@
 import { BrowserQRCodeReader } from '@zxing/library';
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import * as accountApi from '../../../api/account';
+import { IAccount } from '../account';
 import reject from '../../../assets/icons/cancel.svg';
 import approve from '../../../assets/icons/checked.svg';
 import qrcodeIcon from '../../../assets/icons/qrcode.png';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
-import { Balance, BalanceInterface } from '../../../components/balance/balance';
+import { Balance } from '../../../components/balance/balance';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
@@ -38,29 +40,17 @@ import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Devices } from '../../device/deviceswitch';
-import { AccountInterface } from '../account';
-import { ReceiveAddresses } from '../receive/receive';
 import { isBitcoinBased } from '../utils';
-import { Code as FeeCode, FeeTargets } from './feetargets';
+import { FeeTargets } from './feetargets';
 import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
 interface SendProps {
-    accounts: AccountInterface[];
+    accounts: IAccount[];
     code?: string;
     devices: Devices;
     deviceIDs: string[];
 }
-
-export interface AmountWithConversions {
-    amount: string;
-    unit: string;
-    conversions: Conversions;
-}
-
-type Conversions = {
-    [key in Fiat]: string;
-};
 
 interface SignProgress {
     steps: number;
@@ -71,18 +61,18 @@ type Props = SendProps & TranslateProps;
 
 interface State {
     account?: Account;
-    balance?: BalanceInterface;
-    proposedFee?: AmountWithConversions;
-    proposedTotal?: AmountWithConversions;
+    balance?: accountApi.IBalance;
+    proposedFee?: accountApi.IAmount;
+    proposedTotal?: accountApi.IAmount;
     recipientAddress?: string;
-    proposedAmount?: AmountWithConversions;
+    proposedAmount?: accountApi.IAmount;
     valid: boolean;
     amount?: string;
     data?: string;
     fiatAmount?: string;
     fiatUnit: Fiat;
     sendAll: boolean;
-    feeTarget?: FeeCode;
+    feeTarget?: accountApi.FeeTargetCode;
     feePerByte: string;
     isConfirming: boolean;
     isSent: boolean;
@@ -146,7 +136,11 @@ class Send extends Component<Props, State> {
     }
 
     public componentDidMount() {
-        apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
+        if (this.props.code) {
+            accountApi.getBalance(this.props.code)
+                .then(balance => this.setState({ balance }))
+                .catch(console.error);
+        }
         if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
                 apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
@@ -220,7 +214,7 @@ class Send extends Component<Props, State> {
             return;
         }
         this.setState({ signProgress: undefined, isConfirming: true });
-        apiPost('account/' + this.getAccount()!.code + '/sendtx').then(result => {
+        accountApi.sendTx(this.getAccount()!.code).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
@@ -247,7 +241,8 @@ class Send extends Component<Props, State> {
                 this.setState({ isAborted: true });
                 setTimeout(() => this.setState({ isAborted: false }), 5000);
             } else {
-                alertUser(this.props.t('unknownError', { errorMessage: result.errorMessage }));
+                const { errorMessage } = result;
+                alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
             }
             // The following method allows pressing escape again.
             this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
@@ -426,14 +421,15 @@ class Send extends Component<Props, State> {
     }
 
     private sendToSelf = (event: Event) => {
-        apiGet('account/' + this.getAccount()!.code + '/receive-addresses')
-            .then((receiveAddresses: ReceiveAddresses) => {
+        accountApi.getReceiveAddressList(this.getAccount()!.code)
+            .then(receiveAddresses => {
                 this.setState({ recipientAddress: receiveAddresses[0][0].address });
                 this.handleFormChange(event);
-            });
+            })
+            .catch(console.error);
     }
 
-    private feeTargetChange = (feeTarget: FeeCode) => {
+    private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
         this.setState(
             { feeTarget, feePerByte: '' },
             () => this.validateAndDisplayFee(this.state.sendAll),
