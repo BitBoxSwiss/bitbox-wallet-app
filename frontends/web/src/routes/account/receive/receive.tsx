@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import * as accountApi from '../../../api/account';
 import { alertUser } from '../../../components/alert/Alert';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -29,14 +31,14 @@ import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Devices } from '../../device/deviceswitch';
-import { AccountInterface } from '../account';
+import { IAccount } from '../account';
 import { isEthereumBased } from '../utils';
 import * as style from './receive.css';
 
 interface ReceiveProps {
     code?: string;
     devices: Devices;
-    accounts: AccountInterface[];
+    accounts: IAccount[];
     deviceIDs: string[];
 }
 
@@ -47,16 +49,9 @@ interface State {
     addressType: number;
 }
 
-interface ReceiveAddress {
-    addressID: string;
-    address: string;
-}
-
-export type ReceiveAddresses = ReceiveAddress[][];
-
 interface LoadedReceiveProps {
     // first array index: address types. second array index: unused addresses of that address type.
-    receiveAddresses: ReceiveAddresses;
+    receiveAddresses: accountApi.ReceiveAddressList;
     secureOutput: {
         hasSecureOutput: boolean;
         optional: boolean;

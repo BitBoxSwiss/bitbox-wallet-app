@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import { CoinCode } from '../../api/account';
 import Guide from './guide';
 import A from '../../components/anchor/anchor';
 import { Header } from '../../components/layout';
@@ -23,14 +24,14 @@ import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button, Checkbox, Select } from '../../components/forms';
 import { Devices } from '../device/deviceswitch';
-import { AccountInterface, CoinCode } from '../account/account';
+import { IAccount } from '../account/account';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import { isBitcoin } from '../account/utils';
 import * as style from './info.css';
 
 interface BuyInfoProps {
-    accounts: AccountInterface[];
+    accounts: IAccount[];
     code?: string;
     devices: Devices;
 }

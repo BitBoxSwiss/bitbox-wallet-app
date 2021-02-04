@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import { Update } from './components/update/update';
 import { subscribe } from './decorators/subscribe';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
-import { Account, AccountInterface } from './routes/account/account';
+import { Account, IAccount } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
 import { Moonpay } from './routes/buy/moonpay';
 import { BuyInfo } from './routes/buy/info';
@@ -53,7 +53,7 @@ interface State {
 }
 
 interface SubscribedProps {
-    accounts: AccountInterface[];
+    accounts: IAccount[];
     devices: Devices;
 }
 

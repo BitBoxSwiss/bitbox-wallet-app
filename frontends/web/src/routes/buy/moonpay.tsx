@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Devices } from '../device/deviceswitch';
-import { AccountInterface } from '../account/account';
+import { IAccount } from '../account/account';
 import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoin } from '../account/utils';
 import * as style from './moonpay.css';
 
 interface BuyProps {
-    accounts: AccountInterface[];
+    accounts: IAccount[];
     code: string;
     devices: Devices;
 }

@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +16,13 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { AmountInterface, FiatConversion } from '../../components/rates/rates';
+import { IBalance } from '../../api/account';
+import { FiatConversion } from '../../components/rates/rates';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './balance.css';
 
-export interface BalanceInterface {
-    available: AmountInterface;
-    incoming: AmountInterface;
-    hasIncoming: boolean;
-}
-
 interface BalanceProps {
-    balance?: BalanceInterface;
+    balance?: IBalance;
 }
 
 type Props = BalanceProps & TranslateProps;

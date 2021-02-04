@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { ITransaction } from '../../api/account';
 import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { runningInAndroid } from '../../utils/env';
-import { Transaction, TransactionInterface } from './transaction';
+import { Transaction } from './transaction';
 import * as style from './transactions.css';
 
 interface TransactionsProps {
     accountCode: string;
     explorerURL: string;
-    transactions?: TransactionInterface[];
+    transactions?: ITransaction[];
     exported: string;
     handleExport: () => void;
 }

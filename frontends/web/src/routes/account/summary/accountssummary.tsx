@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,53 +17,39 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate } from 'react-i18next';
+import * as accountApi from '../../../api/account';
 import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
-import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { Fiat, FiatConversion, formatCurrency } from '../../../components/rates/rates';
+import { FiatConversion, formatCurrency } from '../../../components/rates/rates';
 import { TranslateProps } from '../../../decorators/translate';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
-import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import { AccountInterface, CoinCode } from '../account';
-import { Chart, ChartData } from './chart';
+import { IAccount } from '../account';
+import { Chart } from './chart';
 import * as style from './accountssummary.css';
 
-export interface AccountAndBalanceInterface extends AccountInterface {
-    balance: BalanceInterface;
-}
-
 interface AccountSummaryProps {
-    accounts: AccountInterface[];
+    accounts: IAccount[];
 }
 
-interface State {
-    data?: Response;
-    exported: string;
-    balances?: Balances;
-    syncStatus?: SyncStatus;
+interface Balances {
+    [code: string]: accountApi.IBalance;
 }
 
 interface SyncStatus {
     [code: string]: string;
 }
 
-interface Balances {
-    [code: string]: BalanceInterface;
-}
-
-interface Response {
-    chartDataMissing: boolean;
-    chartDataDaily: ChartData;
-    chartDataHourly: ChartData;
-    chartFiat: Fiat;
-    chartTotal: number | null;
-    chartIsUpToDate: boolean; // only valid is chartDataMissing is false
+interface State {
+    data?: accountApi.ISummary;
+    exported: string;
+    balances?: Balances;
+    syncStatus?: SyncStatus;
 }
 
 type Props = TranslateProps & AccountSummaryProps;
@@ -71,9 +57,9 @@ type Props = TranslateProps & AccountSummaryProps;
 interface BalanceRowProps {
     code: string;
     name: string;
-    balance?: BalanceInterface;
+    balance?: accountApi.IBalance;
     coinUnit: string;
-    coinCode: CoinCode;
+    coinCode: accountApi.CoinCode;
 }
 
 class AccountsSummary extends Component<Props, State> {
@@ -85,11 +71,10 @@ class AccountsSummary extends Component<Props, State> {
     private unsubscribe!: () => void;
 
     public componentDidMount() {
-        this.getAccountSummary = this.getAccountSummary.bind(this);
         this.getAccountSummary();
         this.unsubscribe = apiWebsocket(this.onEvent);
 
-        this.props.accounts.map((account: AccountInterface) => {
+        this.props.accounts.map((account) => {
             this.onStatusChanged(account.code);
         });
     }
@@ -99,8 +84,8 @@ class AccountsSummary extends Component<Props, State> {
         this.unsubscribe();
     }
 
-    private getAccountSummary() {
-        apiGet('account-summary').then(data => {
+    private getAccountSummary = () => {
+        accountApi.getSummary().then(data => {
             this.setState({ data }, () => {
                 const delay = (!data || data.chartDataMissing) ? 1000 : 10000;
                 this.summaryReqTimerID = window.setTimeout(this.getAccountSummary, delay);
@@ -135,30 +120,31 @@ class AccountsSummary extends Component<Props, State> {
     }
 
     private onStatusChanged(code: string) {
-        apiGet(`account/${code}/status`).then(status => {
+        accountApi.getStatus(code).then(status => {
             const accountSynced = status.includes('accountSynced');
             const accountDisabled = status.includes('accountDisabled');
             if (accountDisabled) {
                 return;
             }
             if (!accountSynced) {
-                apiPost(`account/${code}/init`);
-            } else {
-                apiGet(`account/${code}/balance`).then(balance => {
-                    this.setState(state => {
-                        const balances = {...state.balances};
-                        balances[code] = balance;
-                        return { balances };
-                    });
-                });
+                return accountApi.init(code);
             }
-        });
+            return accountApi.getBalance(code).then(balance => {
+                this.setState(state => {
+                    const balances = {...state.balances};
+                    balances[code] = balance;
+                    return { balances };
+                });
+            });
+        })
+        .catch(console.error);
     }
 
     private export = () => {
-        apiPost('export-account-summary').then(exported => {
+        accountApi.exportSummary().then(exported => {
             this.setState({ exported });
-        });
+        })
+        .catch(console.error);
     }
 
     private balanceRow = ({ code, name, coinCode, coinUnit }: RenderableProps<BalanceRowProps>) => {
