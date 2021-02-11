@@ -18,7 +18,7 @@ apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
 # add repository for node/npm
-curl -sL https://deb.nodesource.com/setup_10.x | bash -
+curl -sL https://deb.nodesource.com/setup_14.x | bash -
 
 apt-get install -y --no-install-recommends \
     clang \
@@ -39,7 +39,7 @@ npm install -g yarn
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
-curl https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+curl https://dl.google.com/go/go1.14.15.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
 
 # Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
