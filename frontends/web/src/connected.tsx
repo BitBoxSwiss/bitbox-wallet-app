@@ -14,22 +14,45 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
-import { App } from './app';
-import { subscribe } from './decorators/subscribe';
+import { Component, h, RenderableProps } from 'preact';
+import { backendConnected } from './api/subscribe';
 
-interface Props {
-    connected?: boolean;
+interface State {
+    connected: boolean;
 }
 
-function ConnectedApp({ connected = true }: RenderableProps<Props>): JSX.Element {
-    return connected ? <App /> : (
-        <div className="app" style="padding: 40px">
-            The WebSocket closed. Please restart the backend and reload this page.
-        </div>
-    );
+interface Props {}
+
+class ConnectedApp extends Component<Props, State> {
+    public readonly state: State = {
+        connected: true,
+    };
+
+    private unsubscribe!: () => void;
+
+    public componentDidMount() {
+        this.unsubscribe = backendConnected(connected => this.setState({ connected }));
+    }
+
+    public componentWillUnmount() {
+        this.unsubscribe();
+    }
+
+    public render(
+        { children }: RenderableProps<Props>,
+        { connected }: State,
+    ) {
+        if (!connected) {
+            return (
+                <div className="app" style="padding: 40px">
+                    The WebSocket closed. Please restart the backend and reload this page.
+                </div>
+            );
+        }
+        return (
+            <div>{children}</div>
+        );
+    }
 }
 
-const HOC = subscribe<Props>({ connected: 'backend/connected' }, false, true)(ConnectedApp);
-
-export { HOC as ConnectedApp };
+export { ConnectedApp };
