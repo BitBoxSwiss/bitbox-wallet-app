@@ -16,12 +16,12 @@
  */
 
 import { Component, createRef, h, RenderableProps } from 'preact';
+import { IAccount } from '../../api/account';
 import Guide from './guide';
 import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Devices } from '../device/deviceswitch';
-import { IAccount } from '../account/account';
 import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoin } from '../account/utils';
 import * as style from './moonpay.css';
