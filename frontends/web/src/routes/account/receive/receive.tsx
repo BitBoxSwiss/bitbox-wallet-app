@@ -31,14 +31,13 @@ import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Devices } from '../../device/deviceswitch';
-import { IAccount } from '../account';
 import { isEthereumBased } from '../utils';
 import * as style from './receive.css';
 
 interface ReceiveProps {
     code?: string;
     devices: Devices;
-    accounts: IAccount[];
+    accounts: accountApi.IAccount[];
     deviceIDs: string[];
 }
 
