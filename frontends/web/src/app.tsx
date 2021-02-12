@@ -17,6 +17,10 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { getCurrentUrl, route } from 'preact-router';
+import { getAccounts, IAccount } from './api/account';
+import { syncAccountsList } from './api/accountsync';
+import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
+import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
@@ -29,7 +33,7 @@ import { Update } from './components/update/update';
 import { subscribe } from './decorators/subscribe';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
-import { Account, IAccount } from './routes/account/account';
+import { Account } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
 import { Moonpay } from './routes/buy/moonpay';
 import { BuyInfo } from './routes/buy/info';
@@ -48,12 +52,12 @@ import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
 interface State {
+    accounts: IAccount[];
     detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
 }
 
 interface SubscribedProps {
-    accounts: IAccount[];
     devices: Devices;
 }
 
@@ -61,11 +65,13 @@ type Props = SubscribedProps & TranslateProps;
 
 class App extends Component<Props, State> {
     public readonly state: State = {
+        accounts: [],
         detectedBases: {},
         bitboxBaseIDs: [],
     };
 
     private unsubscribe!: () => void;
+    private unsubscribeList: UnsubscribeList = [];
 
     /**
      * Gets fired when the route changes.
@@ -74,11 +80,9 @@ class App extends Component<Props, State> {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
-        setTimeout(this.maybeRoute);
     }
 
     public componentDidMount() {
-        this.maybeRoute();
         this.onBitBoxBasesRegisteredChanged();
         this.onBitBoxBasesDetectedChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
@@ -109,10 +113,23 @@ class App extends Component<Props, State> {
                 }
             }
         });
+
+        getAccounts()
+            .then(accounts => this.setState({ accounts }))
+            .catch(console.error);
+
+        this.unsubscribeList.push(
+            syncAccountsList(accounts => {
+                this.setState({ accounts }, this.maybeRoute);
+            }),
+            // TODO: add syncBackendNewTX
+            // TODO: add syncBitBoxBase ?
+        );
     }
 
     public componentWillUnmount() {
         this.unsubscribe();
+        unsubscribe(this.unsubscribeList);
     }
 
     private onBitBoxBasesDetectedChanged = () => {
@@ -142,7 +159,7 @@ class App extends Component<Props, State> {
         const currentURL = getCurrentUrl();
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
-        const accounts = this.props.accounts;
+        const accounts = this.state.accounts;
         if (currentURL.startsWith('/account-summary') && accounts.length === 0) {
             route('/', true);
             return;
@@ -169,7 +186,7 @@ class App extends Component<Props, State> {
     }
 
     public componentDidUpdate(prevProps) {
-        if (prevProps.accounts !== this.props.accounts || prevProps.devices !== this.props.devices) {
+        if (prevProps.devices !== this.props.devices) {
             this.maybeRoute();
         }
     }
@@ -179,96 +196,97 @@ class App extends Component<Props, State> {
     }
 
     public render(
-        { accounts, devices }: RenderableProps<Props>,
-        { bitboxBaseIDs, detectedBases }: State,
+        { devices }: RenderableProps<Props>,
+        { accounts, bitboxBaseIDs, detectedBases }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
         return (
-            <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
-                <TranslationHelper />
-                <Sidebar
-                    accounts={accounts}
-                    deviceIDs={deviceIDs}
-                    bitboxBaseIDs={bitboxBaseIDs} />
-                <div class="appContent flex flex-column flex-1" style="min-width: 0;">
-                    <Update />
-                    <Banner msgKey="bitbox01" />
-                    <MobileDataWarning />
-                    <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
-                        <Send
-                            path="/account/:code/send"
-                            devices={devices}
-                            deviceIDs={deviceIDs}
-                            accounts={accounts} />
-                        <Receive
-                            path="/account/:code/receive"
-                            devices={devices}
-                            accounts={accounts}
-                            deviceIDs={deviceIDs} />
-                        <BuyInfo
-                            path="/buy/info/:code?"
-                            devices={devices}
-                            accounts={accounts} />
-                        <Moonpay
-                            path="/buy/moonpay/:code"
-                            code={'' /* dummy to satisfy TS */}
-                            devices={devices}
-                            accounts={accounts} />
-                        <Exchanges
-                            path="/exchanges" />
-                        <Info
-                            path="/account/:code/info"
-                            accounts={accounts} />
-                        <Account
-                            path="/account/:code"
-                            code={'' /* dummy to satisfy TS */}
-                            devices={devices}
-                            accounts={accounts} />
-                        <AddAccount
-                            path="/add-account" />
-                        <AccountsSummary accounts={accounts}
-                            path="/account-summary" />
-                        <BitBoxBaseConnect
-                            path="/bitboxbase"
-                            detectedBases={detectedBases}
-                            bitboxBaseIDs={bitboxBaseIDs} />
-                        <BitBoxBase
-                            path="/bitboxbase/:bitboxBaseID"
-                            bitboxBaseID={null} />
-                        <ElectrumSettings
-                            path="/settings/electrum" />
-                        <Settings
-                            deviceIDs={deviceIDs}
-                            path="/settings" />
-                        {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
-                        {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
-                        <ManageBackups
-                            path="/manage-backups/:deviceID/:sdCardInserted?"
-                            key={['manage-backups', devices]}
-                            devices={devices}
-                        />
-                        <DeviceSwitch
-                            path="/device/:deviceID"
-                            key={['device-switch', devices]}
-                            deviceID={null /* dummy to satisfy TS */}
-                            devices={devices} />
-                        <DeviceSwitch
-                            default
-                            key={['device-switch-default', devices]}
-                            deviceID={null}
-                            devices={devices} />
-                    </Container>
+            <ConnectedApp>
+                <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
+                    <TranslationHelper />
+                    <Sidebar
+                        accounts={accounts}
+                        deviceIDs={deviceIDs}
+                        bitboxBaseIDs={bitboxBaseIDs} />
+                    <div class="appContent flex flex-column flex-1" style="min-width: 0;">
+                        <Update />
+                        <Banner msgKey="bitbox01" />
+                        <MobileDataWarning />
+                        <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
+                            <Send
+                                path="/account/:code/send"
+                                devices={devices}
+                                deviceIDs={deviceIDs}
+                                accounts={accounts} />
+                            <Receive
+                                path="/account/:code/receive"
+                                devices={devices}
+                                accounts={accounts}
+                                deviceIDs={deviceIDs} />
+                            <BuyInfo
+                                path="/buy/info/:code?"
+                                devices={devices}
+                                accounts={accounts} />
+                            <Moonpay
+                                path="/buy/moonpay/:code"
+                                code={'' /* dummy to satisfy TS */}
+                                devices={devices}
+                                accounts={accounts} />
+                            <Exchanges
+                                path="/exchanges" />
+                            <Info
+                                path="/account/:code/info"
+                                accounts={accounts} />
+                            <Account
+                                path="/account/:code"
+                                code={'' /* dummy to satisfy TS */}
+                                devices={devices}
+                                accounts={accounts} />
+                            <AddAccount
+                                path="/add-account" />
+                            <AccountsSummary accounts={accounts}
+                                path="/account-summary" />
+                            <BitBoxBaseConnect
+                                path="/bitboxbase"
+                                detectedBases={detectedBases}
+                                bitboxBaseIDs={bitboxBaseIDs} />
+                            <BitBoxBase
+                                path="/bitboxbase/:bitboxBaseID"
+                                bitboxBaseID={null} />
+                            <ElectrumSettings
+                                path="/settings/electrum" />
+                            <Settings
+                                deviceIDs={deviceIDs}
+                                path="/settings" />
+                            {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
+                            {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
+                            <ManageBackups
+                                path="/manage-backups/:deviceID/:sdCardInserted?"
+                                key={['manage-backups', devices]}
+                                devices={devices}
+                            />
+                            <DeviceSwitch
+                                path="/device/:deviceID"
+                                key={['device-switch', devices]}
+                                deviceID={null /* dummy to satisfy TS */}
+                                devices={devices} />
+                            <DeviceSwitch
+                                default
+                                key={['device-switch-default', devices]}
+                                deviceID={null}
+                                devices={devices} />
+                        </Container>
+                    </div>
+                    <Alert />
+                    <Confirm />
                 </div>
-                <Alert />
-                <Confirm />
-            </div>
+            </ConnectedApp>
         );
     }
 }
 
 const subscribeHOC = subscribe<SubscribedProps, TranslateProps>(
     {
-        accounts: 'accounts',
         devices: 'devices/registered',
     },
     true,
