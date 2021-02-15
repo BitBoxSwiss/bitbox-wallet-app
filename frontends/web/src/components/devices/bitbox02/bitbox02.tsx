@@ -433,7 +433,7 @@ class BitBox02 extends Component<Props, State> {
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />
                     </Header>
-                    <div className="flex flex-column flex-center flex-items-center flex-1 scrollableContainer">
+                    <div className="flex flex-1 scrollableContainer">
                         <Steps>
                             <Step active={status === 'connected'} title={t('button.unlock')} width={700}>
                                 <div className={style.stepContext}>
