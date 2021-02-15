@@ -63,8 +63,15 @@
 }
 
 /* focus */
-.radio input:focus {
+
+.radio input[type="radio"]:focus + label::before {
+    box-shadow: 0px 0px 2px 2px var(--color-blue);
     outline: none;
+    outline-offset: 0;
+}
+
+.radio input[type="radio"]:checked:focus + label::before {
+    box-shadow: 0px 0px 2px 2px var(--color-blue);
 }
 
 
