@@ -16,16 +16,16 @@
     width: 100%;
 }
 
-.table {
+.item {
     width: 100%;
     padding: var(--space-quarter) var(--space-half);
 }
 
-.table:not(:first-child) {
+.item:not(:first-child) {
     border-top: solid 1px var(--color-lightgray);
 }
 
-.table label {
+.item label {
     margin-bottom: 0 !important;
 }
 

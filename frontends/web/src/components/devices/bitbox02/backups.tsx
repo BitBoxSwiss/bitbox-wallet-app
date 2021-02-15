@@ -115,7 +115,7 @@ class Backups extends Component<Props, State> {
                                 <div className={backupStyle.listContainer}>
                                     {
                                         backups.backups!.map(backup => (
-                                            <table key={backup.id} className={backupStyle.table}>
+                                            <div key={backup.id} className={backupStyle.item}>
                                                 <BackupsListItem
                                                     disabled={restoring}
                                                     backup={backup}
@@ -123,7 +123,7 @@ class Backups extends Component<Props, State> {
                                                     handleChange={(b => this.setState({ selectedBackup: b }))}
                                                     onFocus={() => undefined}
                                                     radio={showRadio} />
-                                            </table>
+                                            </div>
                                         ))
                                     }
                                 </div>
