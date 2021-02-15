@@ -15,7 +15,6 @@
 package handlers
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -34,7 +33,6 @@ import (
 type BitBox02 interface {
 	Version() *semver.SemVer
 	Status() firmware.Status
-	Random() ([]byte, error)
 	ChannelHash() (string, bool)
 	ChannelHashVerify(ok bool)
 	DeviceInfo() (*firmware.DeviceInfo, error)
@@ -70,7 +68,6 @@ func NewHandlers(
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/attestation", handlers.getAttestationHandler).Methods("GET")
-	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
@@ -124,15 +121,6 @@ func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error)
 func (handlers *Handlers) getAttestationHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Attestation")
 	return handlers.device.Attestation(), nil
-}
-
-func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Random Number")
-	randomNumber, err := handlers.device.Random()
-	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
-	}
-	return hex.EncodeToString(randomNumber), nil
 }
 
 func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
