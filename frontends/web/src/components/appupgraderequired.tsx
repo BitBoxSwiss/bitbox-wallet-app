@@ -41,5 +41,5 @@ function AppUpgradeRequired({ t }: RenderableProps<Props>): JSX.Element {
     );
 }
 
-const HOC = translate<{}>()(AppUpgradeRequired);
+const HOC = translate()(AppUpgradeRequired);
 export { HOC as AppUpgradeRequired };

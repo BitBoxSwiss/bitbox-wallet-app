@@ -231,7 +231,7 @@ class Transaction extends Component<Props, State> {
                                 <label for="note">{t('note.title')}</label>
                                 <Input
                                     align="right"
-                                    autoFocus={!editMode ? 'false' : 'true'}
+                                    autoFocus={!!editMode}
                                     className={style.textOnlyInput}
                                     readOnly={!editMode}
                                     type="text"

@@ -19,9 +19,10 @@
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,
         "noUnusedLocals": true,
-        "noUnusedParameters": true,
+        "noUnusedParameters": true
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "tests/**/*"
     ]
 }

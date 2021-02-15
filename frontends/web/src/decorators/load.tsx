@@ -33,6 +33,7 @@ let logCounter = 0;
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @return A function that returns the higher-order component that loads the endpoints into the props of the decorated component.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!

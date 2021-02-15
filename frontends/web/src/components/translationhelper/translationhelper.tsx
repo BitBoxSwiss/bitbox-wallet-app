@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { i18nEditorActive } from '../../i18n/i18n';
 
-export default class TranslationHelper extends Component<{}, {}> {
+export default class TranslationHelper extends Component {
     private lastLanguage: string | null;
     constructor(props) {
         super(props);

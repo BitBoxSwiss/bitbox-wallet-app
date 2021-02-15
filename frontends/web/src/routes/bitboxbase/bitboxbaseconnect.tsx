@@ -74,7 +74,7 @@ interface State {
 type Props = SharedProps & BitBoxBaseConnectProps & TranslateProps;
 
 class BitBoxBaseConnect extends Component<Props, State> {
-    private sortableContainer!: HTMLElement;
+    private sortableContainer?: HTMLDivElement | null;
 
     constructor(props) {
         super(props);
@@ -173,10 +173,6 @@ class BitBoxBaseConnect extends Component<Props, State> {
         this.setState({ bitboxBaseIDs: this.props.bitboxBaseIDs });
     }
 
-    private setSortableContainer = (el: HTMLElement) => {
-        this.sortableContainer = el;
-    }
-
     public render(
         {
             t,
@@ -262,7 +258,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         <div className="flex flex-row flex-between flex-items-center m-bottom-large">
                                             <label className="labelXLarge m-none">{t('bitboxBase.connectedBases')}</label>
                                         </div>
-                                        <div className="box slim divide" ref={this.setSortableContainer}>
+                                        <div className="box slim divide" ref={ref => this.sortableContainer = ref}>
                                             {
                                                 bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => {
                                                     return (

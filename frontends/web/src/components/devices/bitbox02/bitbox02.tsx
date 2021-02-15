@@ -23,7 +23,7 @@ import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Checkbox, Input  } from '../../../components/forms';
-import { Step, Steps } from '../../../components/steps';
+import { Step } from '../../../components/steps';
 import * as style from '../../../components/steps/steps.css';
 import Toast from '../../../components/toast/Toast';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -33,7 +33,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { store as panelStore } from '../../guide/guide';
 import { SwissMadeOpenSource } from '../../icon/logo';
-import LanguageSwitch from '../../language/language';
+import { LanguageSwitch } from '../../language/language';
 import { Header } from '../../layout/header';
 import { setSidebarStatus } from '../../sidebar/sidebar';
 import Status from '../../status/status';
@@ -436,7 +436,7 @@ class BitBox02 extends Component<Props, State> {
                         <LanguageSwitch />
                     </Header>
                     <div className="flex flex-1 scrollableContainer">
-                        <Steps>
+                        <div className={style.steps}>
                             <Step active={status === 'connected'} title={t('button.unlock')} width={700}>
                                 <div className={style.stepContext}>
                                     <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
@@ -791,7 +791,7 @@ class BitBox02 extends Component<Props, State> {
                                     </Step>
                                 )
                             }
-                        </Steps>
+                        </div>
                     </div>
                     {
                         attestationResult === false && (

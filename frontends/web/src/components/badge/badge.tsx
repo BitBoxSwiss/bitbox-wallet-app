@@ -6,6 +6,7 @@ interface BadgeProps {
     className?: string;
 }
 
+// eslint-disable-next-line react/prefer-stateless-function
 class Badge extends Component<BadgeProps> {
     public render(
         { type, className, children }: RenderableProps<BadgeProps>,

@@ -17,7 +17,9 @@
 import { h, JSX, RenderableProps } from 'preact';
 import * as style from './style.css';
 
-export function CenteredContent({ children }: RenderableProps<{}>): JSX.Element {
+interface Props {}
+
+export function CenteredContent({ children }: RenderableProps<Props>): JSX.Element {
     return (
         <div class="contentWithGuide">
             <div className={style.container}>

@@ -89,11 +89,12 @@ export default class Device extends Component {
             this.setState({
                 deviceRegistered,
                 deviceStatus: null
+            }, () => {
+                // only if deviceRegistered or softwarekeystore
+                if (this.state.deviceRegistered) {
+                    this.onDeviceStatusChanged();
+                }
             });
-            // only if deviceRegistered or softwarekeystore
-            if (deviceRegistered) {
-                this.onDeviceStatusChanged();
-            }
         });
     }
 

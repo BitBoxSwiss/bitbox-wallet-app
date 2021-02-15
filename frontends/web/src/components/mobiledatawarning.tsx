@@ -36,7 +36,7 @@ function MobileDataWarning({ usingMobileData, t }: RenderableProps<Props>): JSX.
     );
 }
 
-const HOC = translate<{}>()(
+const HOC = translate()(
     subscribe<LoadedProps, TranslateProps>({ usingMobileData: 'using-mobile-data' })(MobileDataWarning),
 );
 

@@ -15,11 +15,13 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import LanguageSwitch from '../language/language';
+import { LanguageSwitch } from '../language/language';
 import * as style from './footer.css';
 import { Version } from './version';
 
-export function Footer({ children }: RenderableProps<{}>) {
+interface Props {}
+
+export function Footer({ children }: RenderableProps<Props>) {
     return (
         <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
             {children}

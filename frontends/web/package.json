@@ -4,43 +4,92 @@
   "version": "0.0.0",
   "scripts": {
     "gen-ts-css": "tcm src --camelCase dashes",
-    "build": "yarn run gen-ts-css && preact build --no-sw --no-esm --no-inline-css --no-prerender --no-prerenderUrls --no-json --verbose",
-    "dev": "yarn run gen-ts-css && preact watch --refresh",
+    "prebuild": "yarn run gen-ts-css",
+    "build": "preact build --no-sw --no-esm --no-inline-css --no-prerender --no-prerenderUrls --no-json --verbose",
+    "predev": "yarn run gen-ts-css",
+    "dev": "preact watch --refresh",
     "prelint": "yarn run gen-ts-css",
     "lint": "eslint --max-warnings 0 --cache --format unix --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
     "fix": "eslint --fix --no-cache --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
-    "test": "yarn run gen-ts-css && jest",
+    "pretest": "yarn run gen-ts-css",
+    "test": "jest ./tests",
     "browserlist": "browserslist"
-  },
-  "devDependencies": {
-    "@types/jest": "23.3.10",
-    "@typescript-eslint/eslint-plugin": "4.2.0",
-    "@typescript-eslint/parser": "4.2.0",
-    "eslint": "7.10.0",
-    "eslint-plugin-react": "7.21.2",
-    "identity-obj-proxy": "3.0.0",
-    "if-env": "1.0.4",
-    "jest": "23.6.0",
-    "preact-cli": "3.0.5",
-    "preact-cli-plugin-env-vars": "^1.2.1",
-    "preact-render-spy": "1.3.0",
-    "ts-jest": "23.10.5",
-    "typed-css-modules": "0.3.5"
   },
   "dependencies": {
     "@zxing/library": "0.18.3",
-    "i18next": "11.3.6",
-    "i18next-locize-backend": "4.1.9",
+    "i18next": "19.9.1",
+    "i18next-locize-backend": "4.1.2",
     "lightweight-charts": "3.1.5",
     "linkstate": "1.1.1",
     "locize-editor": "3.1.1",
-    "preact": "8.5.3",
-    "preact-compat": "3.19.0",
-    "preact-router": "2.6.1",
+    "preact": "10.5.13",
+    "preact-router": "3.2.1",
     "react-i18next": "7.9.0",
     "sortablejs": "^1.10.1"
   },
+  "devDependencies": {
+    "@types/enzyme": "3.10.8",
+    "@types/jest": "26.0.22",
+    "@typescript-eslint/eslint-plugin": "4.21.0",
+    "@typescript-eslint/parser": "4.21.0",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-preact-pure": "3.1.0",
+    "enzyme-to-json": "3.6.2",
+    "eslint": "7.24.0",
+    "eslint-config-preact": "1.1.3",
+    "jest": "26.6.3",
+    "jest-preset-preact": "4.0.2",
+    "preact-cli": "3.0.5",
+    "preact-cli-plugin-env-vars": "1.2.1",
+    "typed-css-modules": "0.6.7",
+    "typescript": "3.9.9"
+  },
   "browserslist": [
     "chrome >= 65"
-  ]
+  ],
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "preact",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "ignorePatterns": [
+      "build/"
+    ],
+    "rules": {
+      "no-lonely-if": "off",
+      "quote-props": [
+        "warn",
+        "consistent-as-needed"
+      ],
+      "react/jsx-no-target-blank": "off",
+      "react/no-did-update-set-state": "warn",
+      "react/no-did-mount-set-state": "warn",
+      "react/prefer-stateless-function": "warn",
+      "react/self-closing-comp": 0,
+      "@typescript-eslint/no-empty-interface": "off",
+      "prefer-template": 0,
+      "react/jsx-tag-spacing": "off",
+      "@typescript-eslint/ban-types": "warn",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-inferrable-types": "off"
+    }
+  },
+  "jest": {
+    "preset": "jest-preset-preact",
+    "setupFiles": [
+      "<rootDir>/tests/__mocks__/browserMocks.ts",
+      "<rootDir>/tests/__mocks__/setupTests.ts"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "setupFilesAfterEnv": [
+      "./tests/setup.js"
+    ]
+  }
 }

@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +42,6 @@ class Header extends Component<Props> {
     public render(
         { t, title, narrow, children, guideExists, shown, sidebarStatus }: RenderableProps<Props>,
     ) {
-        const hasChildren = Array.isArray(children) && children.length > 0;
         return (
             <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
                 <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
@@ -50,7 +50,7 @@ class Header extends Component<Props> {
                     </div>
                     <div className={style.title}>{title}</div>
                     <div className={style.children}>
-                        {hasChildren && children}
+                        {children}
                         {
                             guideExists && (
                                 <span className={style.guideIconContainer}>

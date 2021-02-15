@@ -48,6 +48,7 @@ import { Store } from './store';
  * export { HOC as Counter };
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function share<SharedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     store: Store<SharedProps>,
 ) {

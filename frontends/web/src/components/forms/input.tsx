@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +20,17 @@ import * as styles from './input.css';
 
 export interface Props {
     align?: 'left' | 'right';
-    autoComplete?: boolean | 'on' | 'off';
-    autoFocus?: boolean | 'false' | 'true';
+    autoFocus?: boolean;
     className?: string;
     disabled?: boolean;
-    error?: string | object;
-    getRef?: (node: HTMLInputElement) => void;
+    error?: string;
+    getRef?: (node: HTMLInputElement | null) => void;
     id?: string;
     label?: string;
     min?: string;
     name?: string;
-    onInput?: (e: any) => void;
-    onPaste?: (e: any) => void;
+    onInput?: (e: Event) => void;
+    onPaste?: (e: Event) => void;
     pattern?: string;
     placeholder?: string;
     readOnly?: boolean;
@@ -42,7 +42,6 @@ export interface Props {
     value?: string | number;
     maxLength?: number;
     labelSection?: JSX.Element | undefined;
-    // [property: string]: any;
 }
 
 export default function Input({
@@ -82,8 +81,8 @@ export default function Input({
                 )
             }
             <input
-                autocomplete="off"
-                autocorrect="off"
+                autoComplete="off"
+                autoCorrect="off"
                 spellcheck={false}
                 type={type}
                 id={id}

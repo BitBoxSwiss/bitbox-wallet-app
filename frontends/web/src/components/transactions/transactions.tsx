@@ -33,6 +33,7 @@ interface TransactionsProps {
 
 type Props = TransactionsProps & TranslateProps;
 
+// eslint-disable-next-line react/prefer-stateless-function
 class Transactions extends Component<Props> {
     public render({
         t,

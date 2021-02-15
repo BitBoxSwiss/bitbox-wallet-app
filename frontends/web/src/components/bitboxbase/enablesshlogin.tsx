@@ -45,6 +45,7 @@ class EnableSSHLogin extends Component<Props, State> {
 
     public componentDidUpdate() {
         if (!this.state.active && this.props.enabled !== this.state.enabled) {
+            // eslint-disable-next-line react/no-did-update-set-state
             this.setState({ enabled: this.props.enabled });
         }
     }

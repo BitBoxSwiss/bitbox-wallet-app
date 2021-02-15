@@ -15,7 +15,6 @@
  */
 
 import { ComponentFactory } from 'preact';
-// @ts-ignore ('frontends/web/node_modules/react-i18next/dist/commonjs/index.js' implicitly has an 'any' type)
 import { translate as originalTranslate } from 'react-i18next';
 import { ObjectButNotFunction } from '../utils/types';
 
@@ -52,7 +51,7 @@ export type Translate = (i18nKey: string, values?: TranslateOptions) => any;
  */
 export interface TranslateProps {
     t: Translate;
-    i18n: any;
+    i18n: originalTranslate;
 }
 
 interface HOCOptions {
@@ -68,6 +67,7 @@ type NamespaceOptions<ProvidedProps extends ObjectButNotFunction> = Namespaces |
 /**
  * This function provides type safety for the 'react-i18next' translate decorator.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function translate<ProvidedProps extends ObjectButNotFunction = {}>(
     namespace?: NamespaceOptions<ProvidedProps>,
     options?: HOCOptions,

@@ -39,7 +39,7 @@ class CopyableInput extends Component<Props, State> {
         success: false,
     }
 
-    private textArea!: HTMLTextAreaElement;
+    private textArea: HTMLTextAreaElement | null = null;
 
     public componentDidMount() {
         this.setHeight();
@@ -51,14 +51,12 @@ class CopyableInput extends Component<Props, State> {
 
     private setHeight() {
         const textarea = this.textArea;
-        const fontSize = window.getComputedStyle(textarea, null).getPropertyValue('font-size');
-        const units = Number(fontSize.replace('px', '')) + 2;
-        textarea.setAttribute('rows', '1');
-        textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
-    }
-
-    private setRef = (textarea: HTMLTextAreaElement) => {
-        this.textArea = textarea;
+        if (textarea) {
+            const fontSize = window.getComputedStyle(textarea, null).getPropertyValue('font-size');
+            const units = Number(fontSize.replace('px', '')) + 2;
+            textarea.setAttribute('rows', '1');
+            textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
+        }
     }
 
     private onFocus = (e: FocusEvent) => {
@@ -69,7 +67,7 @@ class CopyableInput extends Component<Props, State> {
     }
 
     private copy = () => {
-        this.textArea.select();
+        this.textArea?.select();
         if (document.execCommand('copy')) {
             this.setState({ success: true }, () => {
                 setTimeout(() => this.setState({ success: false }), 1500);
@@ -96,7 +94,7 @@ class CopyableInput extends Component<Props, State> {
                     readOnly
                     onFocus={this.onFocus}
                     value={value}
-                    ref={this.setRef}
+                    ref={textarea => this.textArea = textarea}
                     rows={1}
                     className={[style.inputField, flexibleHeight && style.flexibleHeight].join(' ')} />
                 {copyButton}

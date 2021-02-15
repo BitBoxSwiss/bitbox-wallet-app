@@ -379,11 +379,11 @@ class Send extends Component<Props, State> {
         } else if (target.id === 'amount') {
             this.convertToFiat(value);
         }
-        this.setState(prevState => ({
-            ...prevState,
+        this.setState(() => ({
             [target.id]: value,
-        }));
-        this.validateAndDisplayFee(true);
+        }), () => {
+            this.validateAndDisplayFee(true);
+        });
     }
 
     private handleFiatInput = (event: Event) => {

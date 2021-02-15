@@ -18,7 +18,7 @@ interface State {
 }
 
 class Step extends Component<StepProps, State> {
-    private container!: Element;
+    private container!: HTMLDivElement | null;
 
     constructor(props) {
         super(props);
@@ -29,6 +29,9 @@ class Step extends Component<StepProps, State> {
     }
 
     public componentDidUpdate(prevProps) {
+        if (!this.container) {
+            return;
+        }
         const { active } = this.props;
         if ((prevProps.active && !active) || (!prevProps.active && active)) {
             animate(this.container, 'fadeIn');
@@ -52,14 +55,13 @@ class Step extends Component<StepProps, State> {
         return [this.props.activeStep].includes(this.props.order);
     }
 
-    private setRef = (ref: Element) => {
-        this.container = ref;
-    }
-
     public render(
         { active, empty, title, large, width, children }: RenderableProps<StepProps>,
         { isComplete, visible }: State,
     ) {
+        if (!active) {
+            return null;
+        }
         return (
             <div
                 className={[
@@ -70,7 +72,7 @@ class Step extends Component<StepProps, State> {
                     large ? style.large : '',
                 ].join(' ')}
                 style={width ? `max-width: ${width}px` : ''}
-                ref={this.setRef}>
+                ref={ref => this.container = ref}>
                 <div className={style.stepContentContainer}>
                     <div className={style.stepContent}>
                         <div className={style.stepTitle}>

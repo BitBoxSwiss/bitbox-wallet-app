@@ -26,7 +26,8 @@ interface Props {
     deviceID: string | null;
 }
 
-class DeviceSwitch extends Component<Props, {}> {
+// eslint-disable-next-line react/prefer-stateless-function
+class DeviceSwitch extends Component<Props> {
     public render({ deviceID, devices }: RenderableProps<Props>) {
         if (this.props.default || deviceID === null || !Object.keys(devices).includes(deviceID)) {
             return <Waiting />;

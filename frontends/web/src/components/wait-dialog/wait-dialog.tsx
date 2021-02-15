@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentChild, h, JSX, RenderableProps } from 'preact';
+import { Component, h, JSX, toChildArray, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
@@ -151,7 +151,7 @@ class WaitDialog extends Component<Props, State> {
             </div>
         );
 
-        const hasChildren = children && (children as ComponentChild[]).length > 0;
+        const hasChildren = toChildArray(children).length > 0;
         return (
             <div
                 className={style.overlay}

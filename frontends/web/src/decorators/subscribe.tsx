@@ -31,6 +31,7 @@ import { load } from './load';
  * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first. Use true only if all loaded props are optional!
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true,

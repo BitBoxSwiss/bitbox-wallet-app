@@ -24,7 +24,7 @@ import { SwissMadeOpenSource } from '../../components/icon';
 import { Header } from '../../components/layout/header';
 import { PasswordRepeatInput } from '../../components/password';
 import { Spinner } from '../../components/spinner/Spinner';
-import { Step, Steps } from '../../components/steps';
+import { Step } from '../../components/steps';
 import * as stepStyle from '../../components/steps/steps.css';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -238,6 +238,7 @@ class BitBoxBase extends Component<Props, State> {
 
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID && this.props.bitboxBaseID) {
+            // eslint-disable-next-line react/no-did-mount-set-state
             this.setState({ bitboxBaseID: this.props.bitboxBaseID });
         }
     }
@@ -548,7 +549,7 @@ class BitBoxBase extends Component<Props, State> {
                 <div className="container">
                     <Header title={<h2>{t('bitboxBaseWizard.welcome')}</h2>} />
                     <div className="flex flex-column flex-center flex-items-center flex-1 scrollableContainer">
-                        <Steps>
+                        <div className={stepStyle.steps}>
 
                             <Step
                                 title={t('bitboxBaseWizard.pairing.title')}
@@ -767,7 +768,7 @@ class BitBoxBase extends Component<Props, State> {
                                                         ?
                                                         <span>{t('bitboxBaseWizard.networks.tor.label1')}</span>
                                                         :
-                                                        <p style={syncingOption === SyncingOptions.Resync && 'padding-bottom: 22px'}>
+                                                        <p style={syncingOption === SyncingOptions.Resync ? ({'padding-bottom': '22px'}) : undefined}>
                                                             {t('bitboxBaseWizard.networks.tor.label2')}
                                                         </p>
                                                     }
@@ -916,7 +917,7 @@ class BitBoxBase extends Component<Props, State> {
                                 </div>
                             </Step>
 
-                        </Steps>
+                        </div>
                     </div>
                 </div>
             </div>

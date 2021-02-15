@@ -30,7 +30,7 @@ interface LoadedProps {
 
 type Props = ToggleProps & LoadedProps & TranslateProps;
 
-class ToggleFWHash extends Component<Props, {}> {
+class ToggleFWHash extends Component<Props> {
     private handleToggle = event => {
         apiPost(
             'devices/bitbox02-bootloader/' + this.props.deviceID + '/set-firmware-hash-enabled',
@@ -42,7 +42,6 @@ class ToggleFWHash extends Component<Props, {}> {
         { t,
           enabled,
         }: RenderableProps<Props>,
-        {}: {},
     ) {
         return (
             <div className="box slim divide">

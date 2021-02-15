@@ -5,6 +5,7 @@ interface SettingsItemProps {
     optionalText?: string | null;
 }
 
+// eslint-disable-next-line react/prefer-stateless-function
 class SettingsItem extends Component<SettingsItemProps> {
     public render({ optionalText, children }: RenderableProps<SettingsItemProps>) {
         return (

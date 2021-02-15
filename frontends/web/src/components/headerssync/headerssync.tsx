@@ -52,6 +52,8 @@ class HeadersSync extends Component<Props, IState> {
     componentDidUpdate(prevProps) {
         const { status } = this.props;
         if (status && prevProps.status && status.tip !== prevProps.status.tip) {
+
+            // eslint-disable-next-line react/no-did-update-set-state
             this.setState({ show: status.tip });
             if (status.tip === status.targetHeight) {
                 // hide component after 4s when tip reached targetHeight

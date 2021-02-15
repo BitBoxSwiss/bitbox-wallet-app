@@ -36,21 +36,21 @@ export interface Backup {
 
 type Props = BackupsListItemProps & TranslateProps;
 
+// eslint-disable-next-line react/prefer-stateless-function
 class BackupsListItem extends Component<Props> {
     public render(
         { disabled, backup, selectedBackup, handleChange, onFocus, radio }: RenderableProps<Props>,
     ) {
         let date = '';
         if (backup.date && backup.date !== '') {
-            const options = {
+            date = new Date(backup.date).toLocaleString(this.context.i18n.language, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-            };
-            date = new Date(backup.date).toLocaleString(this.context.i18n.language, options);
+            });
         } else {
             date = 'unknown';
         }
@@ -70,7 +70,7 @@ class BackupsListItem extends Component<Props> {
             </Radio> :
             <div>
                 <div className="text-medium m-bottom-quarter">{backup.name}</div>
-                <div className={style.backupID}>ID: {backup.id}</div>
+                <div className={style.backupId}>ID: {backup.id}</div>
                 <div className="text-small text-gray">{date}</div>
             </div>
         );

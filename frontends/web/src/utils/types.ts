@@ -25,4 +25,5 @@ export type KeysOf<T> = Array<keyof T>;
  * As it turns out, you need TypeScript 3 to enforce this constraint.
  * At the moment, we are using version 2.9.2 (yarn run tsc -version).
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type ObjectButNotFunction = object & { prototype?: never; };

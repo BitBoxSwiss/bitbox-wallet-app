@@ -90,7 +90,6 @@ export default class Create extends Component {
                             <form onSubmit={this.create}>
                                 <Input
                                     autoFocus
-                                    autoComplete="off"
                                     id="backupName"
                                     label={t('backup.create.name.label')}
                                     placeholder={t('backup.create.name.placeholder')}

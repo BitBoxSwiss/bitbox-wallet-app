@@ -11,6 +11,7 @@ interface ToggleProps {
     [key: string]: any;
 }
 
+// eslint-disable-next-line react/prefer-stateless-function
 class Toggle extends Component<ToggleProps> {
     public render(props: RenderableProps<ToggleProps>) {
         return (

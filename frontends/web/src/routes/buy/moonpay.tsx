@@ -99,6 +99,7 @@ class Moonpay extends Component<Props, State> {
                                 height={height}
                                 frameBorder="0"
                                 className={style.iframe}
+                                /* @ts-ignore */
                                 allow="camera; payment"
                                 src={`${moonpay.url}&colorCode=%235E94BF`}>
                             </iframe>
