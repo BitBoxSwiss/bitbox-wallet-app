@@ -134,14 +134,14 @@ class Backups extends Component<Props, State> {
                     <div className={style.listContainer}>
                         {
                             backupList.length ? backupList.map(backup => (
-                                <table key={backup.id} className={style.table}>
+                                <div key={backup.id} className={style.item}>
                                     <BackupsListItem
                                         backup={backup}
                                         selectedBackup={selectedBackup}
                                         handleChange={this.handleBackuplistChange}
                                         onFocus={this.scrollIntoView}
                                         radio={true} />
-                                </table>
+                                </div>
                             )) : (
                                 <p class={style.emptyText}>
                                     {t('backup.noBackups')}

@@ -68,11 +68,11 @@ class BackupsListItem extends Component<Props> {
                 sizeMedium>
                 <span className="text-small text-gray">{date}</span>
             </Radio> :
-            <tr>
+            <div>
                 <div className="text-medium m-bottom-quarter">{backup.name}</div>
                 <div className={style.backupID}>ID: {backup.id}</div>
                 <div className="text-small text-gray">{date}</div>
-            </tr>
+            </div>
         );
     }
 }

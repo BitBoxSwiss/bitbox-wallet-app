@@ -6,22 +6,26 @@
 }
 
 .listContainer {
-    max-height: 320px;
-    width: 100%;
-    overflow: scroll;
     border: solid 1px var(--color-lightgray);
+    display: flex;
+    flex-direction: column;
+    max-height: 320px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    position: relative;
+    width: 100%;
 }
 
-.table {
+.item {
     width: 100%;
     padding: var(--space-quarter) var(--space-half);
 }
 
-.table:not(:first-child) {
+.item:not(:first-child) {
     border-top: solid 1px var(--color-lightgray);
 }
 
-.table label {
+.item label {
     margin-bottom: 0 !important;
 }
 
@@ -41,6 +45,7 @@
 
 .backupItem + label {
     color: var(--color-dark);
+    word-break: break-all;
 }
 
 .backupID {
