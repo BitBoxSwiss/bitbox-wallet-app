@@ -16,9 +16,9 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { BitBox02 } from '../../components/devices/bitbox02/bitbox02';
 import { BitBox02Bootloader } from '../../components/devices/bitbox02bootloader/bitbox02bootloader';
-import Device from './device';
+import BitBox01 from './bitbox01';
+import { BitBox02 } from './bitbox02/bitbox02';
 import { Waiting } from './waiting';
 
 export interface Devices {
@@ -46,7 +46,7 @@ class DeviceSwitch extends Component<Props, {}> {
         }
         switch (devices[deviceID]) {
         case 'bitbox':
-            return <Device deviceID={deviceID} />;
+            return <BitBox01 deviceID={deviceID} />;
         case 'bitbox02':
              return <BitBox02 deviceID={deviceID} />;
         case 'bitbox02-bootloader':

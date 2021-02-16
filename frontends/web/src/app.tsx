@@ -40,6 +40,7 @@ import { AccountsSummary } from './routes/account/summary/accountssummary';
 import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseState } from './routes/bitboxbase/bitboxbase';
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
+import { Success } from './routes/device/bitbox02/success';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
@@ -247,6 +248,9 @@ class App extends Component<Props, State> {
                             key={['manage-backups', devices]}
                             devices={devices}
                         />
+                        <Success
+                            task={null /* dummy to satisfy TS */}
+                            path="/devices/bitbox02/success/:task" />
                         <DeviceSwitch
                             path="/device/:deviceID"
                             key={['device-switch', devices]}

@@ -29,17 +29,17 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import '../../../style/animate.css';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import { alertUser } from '../../alert/Alert';
-import { store as panelStore } from '../../guide/guide';
-import { SwissMadeOpenSource } from '../../icon/logo';
-import LanguageSwitch from '../../language/language';
-import { Header } from '../../layout/header';
-import { setSidebarStatus } from '../../sidebar/sidebar';
-import Status from '../../status/status';
-import WaitDialog from '../../wait-dialog/wait-dialog';
-import { BackupsV2 } from './backups';
-import { Settings } from './settings';
-import { UpgradeButton, VersionInfo } from './upgradebutton';
+import { alertUser } from '../../../components/alert/Alert';
+import { store as panelStore } from '../../../components/guide/guide';
+import { SwissMadeOpenSource } from '../../../components/icon/logo';
+import LanguageSwitch from '../../../components/language/language';
+import { Header } from '../../../components/layout/header';
+import { setSidebarStatus } from '../../../components/sidebar/sidebar';
+import Status from '../../../components/status/status';
+import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
+import { Settings } from '../../../components/devices/bitbox02/settings';
+import { UpgradeButton, VersionInfo } from '../../../components/devices/bitbox02/upgradebutton';
 
 interface BitBox02Props {
     deviceID: string;
@@ -143,6 +143,13 @@ class BitBox02 extends Component<Props, State> {
                             break;
                         case 'attestationCheckDone':
                             this.updateAttestationCheck();
+                            break;
+                        case 'keystoreAvailable':
+                            if (this.state.appStatus === 'createWallet') {
+                                route('/devices/bitbox02/success/create');
+                            } else {
+                                route('/devices/bitbox02/success/restore');
+                            }
                             break;
                     }
                     break;
@@ -746,33 +753,6 @@ class BitBox02 extends Component<Props, State> {
                                             <ul>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
-                                                <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
-                                                <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
-                                                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
-                                            </ul>
-                                            <div className={['buttons text-center', style.fullWidth].join(' ')}>
-                                                <Button primary onClick={this.handleGetStarted}>
-                                                    {t('success.getstarted')}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <div className="text-center m-top-large">
-                                            <SwissMadeOpenSource large />
-                                        </div>
-                                    </Step>
-                                )
-                            }
-
-                            {
-                                appStatus === 'restoreFromMnemonic' && (
-                                    <Step
-                                        width={700}
-                                        active={status === 'initialized'}
-                                        title={t('bitbox02Wizard.stepBackupSuccess.title')}>
-                                        <div className={style.stepContext}>
-                                        <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
-                                            <ul>
-                                                <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
