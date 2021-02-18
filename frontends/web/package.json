@@ -30,10 +30,10 @@
   "dependencies": {
     "@zxing/library": "0.11.0",
     "i18next": "11.3.6",
-    "i18next-locize-backend": "1.6.0",
+    "i18next-locize-backend": "4.1.9",
     "lightweight-charts": "3.1.5",
     "linkstate": "1.1.1",
-    "locize-editor": "1.7.0",
+    "locize-editor": "3.1.1",
     "preact": "8.5.3",
     "preact-compat": "3.19.0",
     "preact-router": "2.6.1",

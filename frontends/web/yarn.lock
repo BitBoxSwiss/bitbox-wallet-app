@@ -885,6 +885,13 @@
     "@babel/helper-plugin-utils" "^7.10.4"
     "@babel/plugin-transform-typescript" "^7.10.4"
 
+"@babel/runtime@^7.12.1":
+  version "7.12.13"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
+  integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
   version "7.11.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
@@ -5225,10 +5232,12 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
-i18next-locize-backend@1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/i18next-locize-backend/-/i18next-locize-backend-1.6.0.tgz#4a95c19fa2bee623c1d61ce5a80a76a123f7ff92"
-  integrity sha512-3+hlwM7eC8MclWIfZ89hXwir4HC5YKUxrx+aLWWPC1H1hrB9dFh4uxve1o2HqJnravOrg247xHvW8xGv9h/Asg==
+i18next-locize-backend@4.1.9:
+  version "4.1.9"
+  resolved "https://registry.yarnpkg.com/i18next-locize-backend/-/i18next-locize-backend-4.1.9.tgz#0abd64caae6e240a4882e342ed83670ca808b078"
+  integrity sha512-gqYehO2cLlhJczfLXCZptt55X3/iW7x0s9yipADyt8fFMmgJF4SvvAT7PNBxIf5fOnxhkETxO8eKdd02HDd8/A==
+  dependencies:
+    node-fetch "2.6.1"
 
 i18next@11.3.6:
   version "11.3.6"
@@ -6718,10 +6727,12 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-locize-editor@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/locize-editor/-/locize-editor-1.7.0.tgz#3c14abb93f6d7c4e197511221f8c4a3954e63502"
-  integrity sha512-KdxAlwViz3KjGDEH3WIgaaUDw8XS8GNPpUDNAXM/vnRUryJgkA3n6DrDAeKJ99nixlx7G7+SZ9FZx2ZV9mIv8w==
+locize-editor@3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/locize-editor/-/locize-editor-3.1.1.tgz#d16c2e1b9a793f14d63d532dc8cc8892b703bfbd"
+  integrity sha512-QxbwhiJRWqRncU5gt4hlGOjHclYiBxEHP12Q1lhnIJeuHLaEMveio6bakwbniH/4mhx7UuDkV1kl5EfJA181hA==
+  dependencies:
+    "@babel/runtime" "^7.12.1"
 
 lodash._reinterpolate@^3.0.0:
   version "3.0.0"
@@ -7354,7 +7365,7 @@ no-case@^2.2.0:
   dependencies:
     lower-case "^1.1.1"
 
-node-fetch@^2.2.0:
+node-fetch@2.6.1, node-fetch@^2.2.0:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
