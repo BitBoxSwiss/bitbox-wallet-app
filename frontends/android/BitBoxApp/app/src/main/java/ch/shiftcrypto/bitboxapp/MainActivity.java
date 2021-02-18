@@ -134,6 +134,8 @@ public class MainActivity extends AppCompatActivity {
         vw.clearHistory();
         vw.getSettings().setJavaScriptEnabled(true);
         vw.getSettings().setAllowUniversalAccessFromFileURLs(true);
+        // For MoonPay WebRTC camera access.
+        vw.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
         vw.setWebViewClient(new WebViewClient() {
             @Override

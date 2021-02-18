@@ -205,9 +205,6 @@ int main(int argc, char *argv[])
         view->page(),
         &QWebEnginePage::featurePermissionRequested,
         [&](const QUrl& securityOrigin, QWebEnginePage::Feature feature) {
-            if (securityOrigin.scheme() != "qrc") {
-                return;
-            }
             if (feature == QWebEnginePage::MediaVideoCapture) {
                 // Allow video capture for QR code scanning.
                 view->page()->setFeaturePermission(
