@@ -116,6 +116,7 @@ type jsonTransaction struct {
 	BlockNumber jsonBigInt     `json:"blockNumber"`
 	GasUsed     jsonBigInt     `json:"gasUsed"`
 	GasPrice    jsonBigInt     `json:"gasPrice"`
+	Nonce       jsonBigInt     `json:"nonce"`
 	Hash        common.Hash    `json:"hash"`
 	Timestamp   timestamp      `json:"timeStamp"`
 	From        common.Address `json:"from"`
@@ -142,6 +143,7 @@ type Transaction struct {
 // TransactionData returns the tx data to be shown to the user.
 func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 	timestamp := time.Time(tx.jsonTransaction.Timestamp)
+	nonce := tx.jsonTransaction.Nonce.BigInt().Uint64()
 	return &accounts.TransactionData{
 		Fee:                      tx.fee(),
 		FeeIsDifferentUnit:       isERC20,
@@ -156,6 +158,7 @@ func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 		Amount:                   tx.amount(),
 		Addresses:                tx.addresses(),
 		Gas:                      tx.gas(),
+		Nonce:                    &nonce,
 	}
 }
 
