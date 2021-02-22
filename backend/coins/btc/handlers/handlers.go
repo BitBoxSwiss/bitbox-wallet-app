@@ -127,7 +127,8 @@ type Transaction struct {
 	FeeRatePerKb FormattedAmount `json:"feeRatePerKb"`
 
 	// ETH specific fields
-	Gas uint64 `json:"gas"`
+	Gas   uint64  `json:"gas"`
+	Nonce *uint64 `json:"nonce"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -187,6 +188,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			}
 		case *eth.Coin:
 			txInfoJSON.Gas = txInfo.Gas
+			txInfoJSON.Nonce = txInfo.Nonce
 		}
 		result = append(result, txInfoJSON)
 	}

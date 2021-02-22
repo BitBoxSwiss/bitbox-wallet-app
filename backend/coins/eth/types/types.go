@@ -107,6 +107,7 @@ func (txh *TransactionWithMetadata) TransactionData(
 	}
 
 	numConfirmations := txh.numConfirmations(tipHeight)
+	nonce := txh.Transaction.Nonce()
 	return &accounts.TransactionData{
 		Fee: txh.fee(),
 		// ERC20 token transaction pay fees in Ether.
@@ -124,7 +125,8 @@ func (txh *TransactionWithMetadata) TransactionData(
 			Address: address,
 			Amount:  amount,
 		}},
-		Gas: txh.gas(),
+		Gas:   txh.gas(),
+		Nonce: &nonce,
 	}
 }
 
