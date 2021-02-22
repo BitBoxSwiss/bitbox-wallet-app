@@ -157,7 +157,7 @@ func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 		Type:                     tx.txType,
 		Amount:                   tx.amount(),
 		Addresses:                tx.addresses(),
-		Gas:                      tx.gas(),
+		Gas:                      tx.jsonTransaction.GasUsed.BigInt().Uint64(),
 		Nonce:                    &nonce,
 	}
 }
@@ -244,13 +244,6 @@ func (tx *Transaction) addresses() []accounts.AddressAndAmount {
 		Address: address,
 		Amount:  tx.amount(),
 	}}
-}
-
-func (tx *Transaction) gas() uint64 {
-	if !tx.jsonTransaction.GasUsed.BigInt().IsInt64() {
-		panic("gas must be int64")
-	}
-	return uint64(tx.jsonTransaction.GasUsed.BigInt().Int64())
 }
 
 // prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate
