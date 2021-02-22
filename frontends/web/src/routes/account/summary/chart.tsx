@@ -428,7 +428,7 @@ class Chart extends Component<Props, State> {
                         {toolTipValue !== undefined ? (
                             <span>
                                 <h2 className={styles.toolTipValue}>
-                                    {formatNumber(toolTipValue, 2)}
+                                    {formatCurrency(toolTipValue, fiatUnit)}
                                     <span className={styles.toolTipUnit}>{fiatUnit}</span>
                                 </h2>
                                 <span className={styles.toolTipTime}>
