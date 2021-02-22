@@ -728,7 +728,10 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 // isAPITokenValid checks whether we are in dev or prod mode and, if we are in prod mode, verifies
 // that an authorization token is received as an HTTP Authorization header and that it is valid.
 func isAPITokenValid(w http.ResponseWriter, r *http.Request, apiData *ConnectionData, log *logrus.Entry) bool {
-	methodLogEntry := log.WithField("path", r.URL.Path)
+	methodLogEntry := log.
+		WithField("path", r.URL.Path).
+		WithField("method", r.Method)
+	methodLogEntry.Debug("endpoint")
 	// In dev mode, we allow unauthorized requests
 	if apiData.devMode {
 		return true
