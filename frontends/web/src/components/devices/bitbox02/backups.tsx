@@ -132,7 +132,7 @@ class Backups extends Component<Props, State> {
                             )
                         }
                     </div>
-                    <div className={['buttons text-center', style.fullWidth].join(' ')}>
+                    <div className={backupStyle.backupButtons}>
                         {
                             showRestore && (
                                 <Button
