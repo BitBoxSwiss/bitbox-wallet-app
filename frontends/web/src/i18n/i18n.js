@@ -30,6 +30,7 @@ import appTranslationsFA from '../locales/fa/app.json';
 import appTranslationsES from '../locales/es/app.json';
 import appTranslationsSL from '../locales/sl/app.json';
 import appTranslationsHE from '../locales/he/app.json';
+import appTranslationsIT from '../locales/it/app.json';
 import languageFromConfig from './config';
 import Backend from 'i18next-locize-backend';
 import locizeEditor from 'locize-editor';
@@ -105,6 +106,7 @@ if (!i18nEditorActive) {
     i18n.addResourceBundle('es', 'app', appTranslationsES);
     i18n.addResourceBundle('sl', 'app', appTranslationsSL);
     i18n.addResourceBundle('he', 'app', appTranslationsHE);
+    i18n.addResourceBundle('it', 'app', appTranslationsIT);
 }
 
 i18n.on('languageChanged', (lng) => {

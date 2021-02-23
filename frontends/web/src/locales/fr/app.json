@@ -483,7 +483,7 @@
     "upgrade": "Mettre à jour"
   },
   "buy": {
-    "title": "Acheter {{accountName}}"
+    "title": "Acheter {{name}}"
   },
   "changePin": {
     "newTitle": "Nouveau mot de passe de l'appareil",

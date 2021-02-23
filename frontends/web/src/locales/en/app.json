@@ -523,7 +523,7 @@
       "skip": "Do not show again",
       "title": "Buy {{name}}"
     },
-    "title": "Buy {{accountName}}"
+    "title": "Buy {{name}}"
   },
   "changePin": {
     "newTitle": "New device password",

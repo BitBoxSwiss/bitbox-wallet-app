@@ -277,7 +277,7 @@
     "upgrade": "Обновить"
   },
   "buy": {
-    "title": "Купить {{accountName}}"
+    "title": "Купить {{name}}"
   },
   "changePin": {
     "newTitle": "Новый пароль устройства",

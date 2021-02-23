@@ -526,7 +526,7 @@
       "skip": "No mostrar de nuevo",
       "title": "Compra {{name}}"
     },
-    "title": "Compra {{accountName}}"
+    "title": "Compra {{name}}"
   },
   "changePin": {
     "newTitle": "Nueva contraseña del dispositivo",
