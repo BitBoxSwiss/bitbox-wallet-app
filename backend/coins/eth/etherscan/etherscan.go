@@ -384,6 +384,19 @@ func (etherScan *EtherScan) TransactionReceiptWithBlockNumber(
 	return result, nil
 }
 
+// TransactionByHash implements rpc.Interface.
+func (etherScan *EtherScan) TransactionByHash(
+	ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
+	params := url.Values{}
+	params.Set("action", "eth_getTransactionByHash")
+	params.Set("txhash", hash.Hex())
+	var result rpcclient.RPCTransaction
+	if err := etherScan.rpcCall(params, &result); err != nil {
+		return nil, false, err
+	}
+	return &result.Transaction, result.BlockNumber == nil, nil
+}
+
 // HeaderByNumber implements rpc.Interface.
 func (etherScan *EtherScan) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	params := url.Values{}

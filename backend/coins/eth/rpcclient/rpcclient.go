@@ -33,6 +33,7 @@ type Interface interface {
 	TransactionReceiptWithBlockNumber(
 		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
 	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
+	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
 	BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
 	bind.ContractBackend
 }
@@ -42,6 +43,10 @@ type RPCClient struct {
 	*ethclient.Client
 	c *rpc.Client
 }
+
+// Interface sanity check: we currently do not instantiate ethclient.Client anywhere (a direct node
+// RPC client), but we might use it again in the future.
+var _ Interface = &RPCClient{}
 
 // RPCDial connects to a backend.
 func RPCDial(url string) (*RPCClient, error) {
@@ -60,6 +65,13 @@ func RPCDial(url string) (*RPCClient, error) {
 type RPCTransactionReceipt struct {
 	types.Receipt
 	BlockNumber uint64
+}
+
+// RPCTransaction is a transaction extended with additional fields populated by the
+// `eth_getTransactionByHash api` call.
+type RPCTransaction struct {
+	types.Transaction
+	BlockNumber *string `json:"blockNumber,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
