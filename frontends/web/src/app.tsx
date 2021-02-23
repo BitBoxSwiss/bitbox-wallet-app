@@ -168,6 +168,12 @@ class App extends Component<Props, State> {
         }
     }
 
+    // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
+    // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
+    private devicesKey = (prefix: string): string => {
+        return prefix + ':' + JSON.stringify(this.props.devices, Object.keys(this.props.devices).sort());
+    }
+
     public componentDidUpdate(prevProps) {
         if (prevProps.accounts !== this.props.accounts || prevProps.devices !== this.props.devices) {
             this.maybeRoute();
@@ -244,17 +250,17 @@ class App extends Component<Props, State> {
                         {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                         <ManageBackups
                             path="/manage-backups/:deviceID/:sdCardInserted?"
-                            key={['manage-backups', devices]}
+                            key={this.devicesKey('manage-backups')}
                             devices={devices}
                         />
                         <DeviceSwitch
                             path="/device/:deviceID"
-                            key={['device-switch', devices]}
+                            key={this.devicesKey('device-switch')}
                             deviceID={null /* dummy to satisfy TS */}
                             devices={devices} />
                         <DeviceSwitch
                             default
-                            key={['device-switch-default', devices]}
+                            key={this.devicesKey('device-switch-default')}
                             deviceID={null}
                             devices={devices} />
                     </Container>
