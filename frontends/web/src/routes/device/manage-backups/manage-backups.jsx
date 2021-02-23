@@ -17,26 +17,16 @@
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { ButtonLink, Button } from '../../../components/forms';
+import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
-import * as dialogStyle from '../../../components/dialog/dialog.css';
 import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
-import { apiGet } from '../../../utils/request';
-import { Dialog } from '../../../components/dialog/dialog';
+import { SDCardCheck } from '../../../components/devices/bitbox02/sdcardcheck';
 
 @translate()
 export default class ManageBackups extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            sdCardInserted: this.props.sdCardInserted === 'true',
-            activeDialog: !this.state.sdCardInserted,
-        };
-    }
-
     hasDevice = () => {
         return !!this.props.devices[this.props.deviceID];
     }
@@ -70,46 +60,19 @@ export default class ManageBackups extends Component {
             );
         case 'bitbox02':
             return (
-                this.state.sdCardInserted ?
+                <SDCardCheck deviceID={this.props.deviceID}>
                     <BackupsV2
                         deviceID={this.props.deviceID}
                         showCreate={true}
                         showRestore={false}
                         showRadio={false}>
                         {this.backButton()}
-                    </BackupsV2> : (
-                        <div>
-                            {
-                                this.state.activeDialog && (
-                                    <Dialog title="Check your device" small>
-                                        <div className="columnsContainer half">
-                                            <div className="columns">
-                                                <div className="column">
-                                                    <p>{this.props.t('backup.insert')}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className={dialogStyle.actions}>
-                                            <Button
-                                                primary
-                                                onClick={this.checkBB02SDCard}>
-                                                {this.props.t('button.ok')}
-                                            </Button>
-                                            {this.backButton()}
-                                        </div>
-                                    </Dialog>
-                                )
-                            }
-                        </div>
-                    )
+                    </BackupsV2>
+                </SDCardCheck>
             );
         default:
             return;
         }
-    }
-
-    checkBB02SDCard = () => {
-        apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(inserted => this.setState({ sdCardInserted: inserted }));
     }
 
     renderGuide = t => {
