@@ -507,7 +507,7 @@
       "skip": "Nicht mehr anzeigen",
       "title": "{{name}} kaufen "
     },
-    "title": "{{accountName}} kaufen"
+    "title": "{{name}} kaufen"
   },
   "changePin": {
     "newTitle": "Neues Gerätepasswort",

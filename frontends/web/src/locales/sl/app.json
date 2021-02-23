@@ -526,7 +526,7 @@
       "skip": "Ne prikazuj več",
       "title": "Kupi {{name}}"
     },
-    "title": "Kupi {{accountName}}"
+    "title": "Kupi {{name}}"
   },
   "changePin": {
     "newTitle": "Novo geslo naprave",
