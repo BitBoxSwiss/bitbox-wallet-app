@@ -17,6 +17,7 @@
 
 import { Component, h, JSX, RenderableProps } from 'preact';
 import { Link, Match } from 'preact-router/match';
+import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
@@ -27,7 +28,6 @@ import { SharedProps as SharedPanelProps, store as panelStore } from '../../comp
 import { share } from '../../decorators/share';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { IAccount } from '../../routes/account/account';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';

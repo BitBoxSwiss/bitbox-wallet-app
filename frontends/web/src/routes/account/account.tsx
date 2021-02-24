@@ -17,6 +17,9 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import * as accountApi from '../../api/account';
+import { syncAddressesCount } from '../../api/accountsync';
+import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
+import { statusChanged, syncdone } from '../../api/subscribe-legacy';
 import { Balance } from '../../components/balance/balance';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
@@ -26,26 +29,16 @@ import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
-import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
-import { apiWebsocket } from '../../utils/websocket';
 import { Devices } from '../device/deviceswitch';
 import * as style from './account.css';
 import { isBitcoinBased } from './utils';
 
-export interface IAccount {
-    coinCode: accountApi.CoinCode;
-    coinUnit: string;
-    code: string;
-    name: string;
-    blockExplorerTxPrefix: string;
-}
-
 interface AccountProps {
     code: string;
     devices: Devices;
-    accounts: IAccount[];
+    accounts: accountApi.IAccount[];
 }
 
 interface LoadedAccountProps {
@@ -53,48 +46,46 @@ interface LoadedAccountProps {
     config: any;
 }
 
-interface SubscribedAccountProps {
-    syncedAddressesCount?: number;
-}
-
 interface State {
-    initialized: boolean;
-    connected?: boolean;
+    accountSynced: boolean;
+    offlineMode?: boolean;
     transactions?: accountApi.ITransaction[];
     balance?: accountApi.IBalance;
     hasCard: boolean;
     exported: string;
     accountInfo?:accountApi. ISigningConfigurationList;
     fatalError: boolean;
+    syncedAddressesCount?: number;
 }
 
-type Props = SubscribedAccountProps & LoadedAccountProps & AccountProps & TranslateProps;
+type Props = LoadedAccountProps & AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
     public readonly state: State = {
-        initialized: false,
-        connected: undefined,
+        accountSynced: false,
+        offlineMode: undefined,
         transactions: undefined,
         balance: undefined,
         hasCard: false,
         exported: '',
         accountInfo: undefined,
         fatalError: false,
+        syncedAddressesCount: undefined,
     };
 
-    private unsubscribe!: () => void;
+    private subscribtions: UnsubscribeList = [];
 
     public componentDidMount() {
-        this.unsubscribe = apiWebsocket(this.onEvent);
         this.checkSDCards();
         if (!this.props.code) {
             return;
         }
+        this.subscribe();
         this.onStatusChanged();
     }
 
     public componentWillUnmount() {
-        this.unsubscribe();
+        unsubscribe(this.subscribtions);
     }
 
     public componentWillReceiveProps(nextProps) {
@@ -103,6 +94,8 @@ class Account extends Component<Props, State> {
                 balance: undefined,
                 transactions: undefined,
             });
+            unsubscribe(this.subscribtions);
+            this.subscribe();
         }
     }
 
@@ -117,6 +110,18 @@ class Account extends Component<Props, State> {
         if (this.deviceIDs(this.props.devices).length !== this.deviceIDs(prevProps.devices).length) {
             this.checkSDCards();
         }
+    }
+
+    private subscribe() {
+        this.subscribtions.push(
+            syncAddressesCount(this.props.code, (code, syncedAddressesCount) => {
+                if (code === this.props.code) {
+                    this.setState({ syncedAddressesCount });
+                }
+            }),
+            statusChanged(this.props.code, this.onStatusChanged),
+            syncdone(this.props.code, this.onAccountChanged),
+        );
     }
 
     private checkSDCards() {
@@ -137,25 +142,9 @@ class Account extends Component<Props, State> {
                     return;
             }
         }))
-               .then(sdcards => sdcards.some(sdcard => sdcard))
-               .then(hasCard => this.setState({ hasCard }));
-    }
-
-    private onEvent = data => {
-        if (!this.props.code) {
-            return;
-        }
-        if (data.type !== 'account' || data.code !== this.props.code) {
-            return;
-        }
-        switch (data.data) {
-            case 'statusChanged':
-                this.onStatusChanged();
-                break;
-            case 'syncdone':
-                this.onAccountChanged();
-                break;
-        }
+            .then(sdcards => sdcards.some(sdcard => sdcard))
+            .then(hasCard => this.setState({ hasCard }))
+            .catch(console.error);
     }
 
     private onStatusChanged() {
@@ -169,49 +158,53 @@ class Account extends Component<Props, State> {
                 return;
             }
             const state = {
-                initialized: status.includes('accountSynced'),
-                connected: !status.includes('offlineMode'),
+                accountSynced: status.includes('accountSynced'),
+                offlineMode: status.includes('offlineMode'),
                 fatalError: status.includes('fatalError'),
             };
-            if (!state.initialized && !status.includes('accountDisabled')) {
-                accountApi.init(code).catch(console.error);
+            if (!status.includes('accountDisabled')) {
+                if (!state.accountSynced) {
+                    accountApi.init(code).catch(console.error);
+                }
+                if (state.accountSynced) {
+                    accountApi.getInfo(code).then(accountInfo => {
+                        if (this.props.code !== code) {
+                            // Results came in after the account was switched. Ignore.
+                            return;
+                        }
+                        this.setState({ accountInfo });
+                    })
+                    .catch(console.error);
+                }
             }
-            if (state.initialized && !status.includes('accountDisabled')) {
-                accountApi.getInfo(code).then(accountInfo => {
-                    if (this.props.code !== code) {
-                        // Results came in after the account was switched. Ignore.
-                        return;
-                    }
-                    this.setState({ accountInfo });
-                })
-                .catch(console.error);
-            }
-
-            this.setState(state);
-            this.onAccountChanged();
-        });
+            this.setState(state, this.onAccountChanged);
+        })
+        .catch(console.error);
     }
 
     private onAccountChanged = () => {
         if (!this.props.code || this.state.fatalError) {
             return;
         }
-        if (this.state.initialized && this.state.connected) {
+        if (this.state.accountSynced && !this.state.offlineMode) {
             const expectedCode = this.props.code;
-            accountApi.getBalance(this.props.code).then(balance => {
-                if (this.props.code !== expectedCode) {
-                    // Results came in after the account was switched. Ignore.
-                    return;
-                }
-                this.setState({ balance });
-            });
-            accountApi.getTransactionList(this.props.code).then(transactions => {
-                if (this.props.code !== expectedCode) {
-                    // Results came in after the account was switched. Ignore.
-                    return;
-                }
-                this.setState({ transactions });
-            });
+            Promise.all([
+                accountApi.getBalance(this.props.code).then(balance => {
+                    if (this.props.code !== expectedCode) {
+                        // Results came in after the account was switched. Ignore.
+                        return;
+                    }
+                    this.setState({ balance });
+                }),
+                accountApi.getTransactionList(this.props.code).then(transactions => {
+                    if (this.props.code !== expectedCode) {
+                        // Results came in after the account was switched. Ignore.
+                        return;
+                    }
+                    this.setState({ transactions });
+                })
+            ])
+            .catch(console.error);
         } else {
             this.setState({
                 balance: undefined,
@@ -225,12 +218,16 @@ class Account extends Component<Props, State> {
         if (this.state.fatalError) {
             return;
         }
-        accountApi.exportAccount(this.props.code).then(exported => {
-            this.setState({ exported });
-        }).catch(console.error);
+        accountApi.exportAccount(this.props.code)
+            .then(exported => this.setState({ exported }))
+            .catch(console.error);
     }
 
-    private isBTCScriptType = (scriptType: accountApi.ScriptType, account: IAccount, accountInfo?: accountApi.ISigningConfigurationList): boolean => {
+    private isBTCScriptType = (
+        scriptType: accountApi.ScriptType,
+        account: accountApi.IAccount,
+        accountInfo?: accountApi.ISigningConfigurationList,
+    ): boolean => {
         if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
             return false;
         }
@@ -256,17 +253,17 @@ class Account extends Component<Props, State> {
             t,
             code,
             accounts,
-            syncedAddressesCount,
         }: RenderableProps<Props>,
         {
             transactions,
-            initialized,
-            connected,
+            accountSynced,
+            offlineMode,
             balance,
             hasCard,
             exported,
             accountInfo,
             fatalError,
+            syncedAddressesCount,
         }: State) {
         const account = accounts &&
                         accounts.find(acct => acct.code === code);
@@ -275,13 +272,13 @@ class Account extends Component<Props, State> {
         }
         const canSend = balance && balance.available.amount !== '0';
 
-        let initializingSpinnerText = t('account.initializing');
-        if (syncedAddressesCount !== undefined && syncedAddressesCount > 1) {
-            initializingSpinnerText += '\n' + t('account.syncedAddressesCount', {
-                count: syncedAddressesCount.toString(),
-                defaultValue: 0,
-            });
-        }
+        const initializingSpinnerText =
+            (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
+                '\n' + t('account.syncedAddressesCount', {
+                    count: syncedAddressesCount.toString(),
+                    defaultValue: 0,
+                })
+            ) : null;
 
         return (
             <div class="contentWithGuide">
@@ -289,13 +286,11 @@ class Account extends Component<Props, State> {
                     <Status type="warning">
                         {hasCard && t('warning.sdcard')}
                     </Status>
-                    {
-                        connected === false ? (
-                            <Status>
-                                <p>{t('account.reconnecting')}</p>
-                            </Status>
-                        ) : null
-                    }
+                    { offlineMode ? (
+                        <Status>
+                            <p>{t('account.reconnecting')}</p>
+                        </Status>
+                    ) : null }
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
                         {isBitcoinBased(account.coinCode) ? (
@@ -317,7 +312,7 @@ class Account extends Component<Props, State> {
                             </a>
                         ) : null}
                     </Header>
-                    {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
+                    {accountSynced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
                             <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
@@ -341,11 +336,14 @@ class Account extends Component<Props, State> {
                                 <Balance balance={balance} />
                             </div>
                             {
-                                !initialized || connected === false || !this.dataLoaded() || fatalError ? (
+                                !accountSynced || offlineMode || !this.dataLoaded() || fatalError ? (
                                     <Spinner text={
-                                        connected === false && t('account.reconnecting') ||
-                                        !initialized && initializingSpinnerText ||
-                                        fatalError && t('account.fatalError') || ''
+                                        fatalError && t('account.fatalError') ||
+                                        offlineMode && t('account.reconnecting') ||
+                                        !accountSynced && (
+                                            t('account.initializing')
+                                            + initializingSpinnerText
+                                        ) || ''
                                     } />
                                 ) : (
                                     <Transactions
@@ -403,14 +401,10 @@ class Account extends Component<Props, State> {
     }
 }
 
-const loadHOC = load<LoadedAccountProps, SubscribedAccountProps & AccountProps & TranslateProps>(({ code }) => ({
+const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
     moonpayBuySupported: `exchange/moonpay/buy-supported/${code}`,
     config: 'config',
 }))(Account);
 
-const subscribeHOC = subscribe<SubscribedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
-    syncedAddressesCount: `account/${code}/synced-addresses-count`,
-}), false, true)(loadHOC);
-
-const HOC = translate<AccountProps>()(subscribeHOC);
+const HOC = translate<AccountProps>()(loadHOC);
 export { HOC as Account };

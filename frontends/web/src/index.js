@@ -20,12 +20,12 @@
 
 import { h } from 'preact';
 import { I18nextProvider } from 'react-i18next';
-import { ConnectedApp } from './connected';
+import { App } from './app';
 import i18n from './i18n/i18n';
 import './style';
 
 export default function Index() {
     return (
-        <I18nextProvider i18n={i18n}><ConnectedApp /></I18nextProvider>
+        <I18nextProvider i18n={i18n}><App /></I18nextProvider>
     );
 }
