@@ -94,8 +94,6 @@ class Account extends Component<Props, State> {
                 balance: undefined,
                 transactions: undefined,
             });
-            unsubscribe(this.subscribtions);
-            this.subscribe();
         }
     }
 
@@ -106,6 +104,8 @@ class Account extends Component<Props, State> {
         if (this.props.code !== prevProps.code) {
             this.onStatusChanged();
             this.checkSDCards();
+            unsubscribe(this.subscribtions);
+            this.subscribe();
         }
         if (this.deviceIDs(this.props.devices).length !== this.deviceIDs(prevProps.devices).length) {
             this.checkSDCards();
@@ -119,8 +119,8 @@ class Account extends Component<Props, State> {
                     this.setState({ syncedAddressesCount });
                 }
             }),
-            statusChanged(this.props.code, this.onStatusChanged),
-            syncdone(this.props.code, this.onAccountChanged),
+            statusChanged(this.props.code, () => this.onStatusChanged()),
+            syncdone(this.props.code, () => this.onAccountChanged()),
         );
     }
 
