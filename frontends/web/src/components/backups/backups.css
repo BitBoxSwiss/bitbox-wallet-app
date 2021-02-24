@@ -9,7 +9,7 @@
     border: solid 1px var(--color-lightgray);
     display: flex;
     flex-direction: column;
-    max-height: 320px;
+    max-height: 45vh;
     overflow-x: hidden;
     overflow-y: scroll;
     position: relative;
@@ -53,4 +53,20 @@
     margin-bottom: var(--space-quarter);
     font-size: var(--size-small);
     color: var(--color-secondary);
+}
+
+.backupButtons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+    gap: var(--space-half);
+    margin-top: var(--space-default);
+}
+
+@media (max-width: 768px) {
+    .backupButtons {
+        align-items: center;
+        flex-direction: column;
+        margin-top: var(--space-default);
+    }
 }

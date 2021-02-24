@@ -79,7 +79,7 @@ class Check extends Component<Props, State> {
         return (
             <div>
                 <Button
-                    secondary
+                    primary
                     disabled={this.props.disabled}
                     onClick={() => {
                         this.checkBackup(true, backups);
