@@ -336,7 +336,6 @@
 }
 
 .step button {
-    height: var(--wizard-item-height);
     font-size: var(--size-wizard-text);
 }
 
