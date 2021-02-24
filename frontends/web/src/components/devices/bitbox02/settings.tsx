@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SwissMadeOpenSource } from '../../icon/logo';
@@ -43,11 +42,7 @@ interface State {
     };
 }
 
-interface LoadedSettingsProps {
-    sdCardInserted: boolean;
-}
-
-type Props = LoadedSettingsProps & SettingsProps & TranslateProps;
+type Props = SettingsProps & TranslateProps;
 
 class Settings extends Component<Props, State> {
     private apiPrefix = () => {
@@ -70,7 +65,6 @@ class Settings extends Component<Props, State> {
     public render(
         {
             deviceID,
-            sdCardInserted,
             t,
         }: RenderableProps<Props>,
         {
@@ -96,7 +90,7 @@ class Settings extends Component<Props, State> {
                                             </div>
                                         </div>
                                         <div className="box slim divide">
-                                            <SettingsButton link href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
+                                            <SettingsButton link href={`/manage-backups/${deviceID}`}>
                                                 {t('deviceSettings.secrets.manageBackups')}
                                             </SettingsButton>
                                             <ShowMnemonic apiPrefix={this.apiPrefix()} />
@@ -164,6 +158,5 @@ class Settings extends Component<Props, State> {
     }
 }
 
-const loadHOC = load<LoadedSettingsProps, SettingsProps & TranslateProps>(({ deviceID }) => ({ sdCardInserted: 'devices/bitbox02/' + deviceID + '/check-sdcard' }))(Settings);
-const HOC = translate<SettingsProps>()(loadHOC);
+const HOC = translate<SettingsProps>()(Settings);
 export { HOC as Settings };

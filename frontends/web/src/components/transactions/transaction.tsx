@@ -122,6 +122,7 @@ class Transaction extends Component<Props, State> {
         fee,
         feeRatePerKb,
         gas,
+        nonce,
         vsize,
         size,
         weight,
@@ -327,6 +328,14 @@ class Transaction extends Component<Props, State> {
                                     <div className={style.detail}>
                                         <label>{t('transaction.gas')}</label>
                                         <p>{gas}</p>
+                                    </div>
+                                ) : null
+                            }
+                            {
+                                nonce !== null ? (
+                                    <div className={style.detail}>
+                                        <label>Nonce</label>
+                                        <p>{nonce}</p>
                                     </div>
                                 ) : null
                             }

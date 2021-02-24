@@ -252,7 +252,7 @@ func (device *Device) BTCSign(
 
 			var hostNonce []byte
 			if supportsAntiklepto && isInputsPass2 {
-				nonce, err := randomBytes(32)
+				nonce, err := generateHostNonce()
 				if err != nil {
 					return nil, err
 				}
@@ -430,12 +430,28 @@ func (device *Device) BTCSignMessage(
 		return nil, 0, nil, UnsupportedError("9.2.0")
 	}
 
+	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 5, 0))
+	var hostNonceCommitment *messages.AntiKleptoHostNonceCommitment
+	var hostNonce []byte
+
+	if supportsAntiklepto {
+		var err error
+		hostNonce, err = generateHostNonce()
+		if err != nil {
+			return nil, 0, nil, err
+		}
+		hostNonceCommitment = &messages.AntiKleptoHostNonceCommitment{
+			Commitment: antikleptoHostCommit(hostNonce),
+		}
+	}
+
 	request := &messages.BTCRequest{
 		Request: &messages.BTCRequest_SignMessage{
 			SignMessage: &messages.BTCSignMessageRequest{
-				Coin:         coin,
-				ScriptConfig: scriptConfig,
-				Msg:          message,
+				Coin:                coin,
+				ScriptConfig:        scriptConfig,
+				Msg:                 message,
+				HostNonceCommitment: hostNonceCommitment,
 			},
 		},
 	}
@@ -443,11 +459,46 @@ func (device *Device) BTCSignMessage(
 	if err != nil {
 		return nil, 0, nil, err
 	}
-	signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
-	if !ok {
-		return nil, 0, nil, errp.New("unexpected response")
+
+	var signature []byte
+	if supportsAntiklepto {
+		signerCommitment, ok := response.Response.(*messages.BTCResponse_AntikleptoSignerCommitment)
+		if !ok {
+			return nil, 0, nil, errp.New("unexpected response")
+		}
+		response, err := device.queryBTC(&messages.BTCRequest{
+			Request: &messages.BTCRequest_AntikleptoSignature{
+				AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
+					HostNonce: hostNonce,
+				},
+			},
+		})
+		if err != nil {
+			return nil, 0, nil, err
+		}
+
+		signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
+		if !ok {
+			return nil, 0, nil, errp.New("unexpected response")
+		}
+		signature = signResponse.SignMessage.Signature
+		err = antikleptoVerify(
+			hostNonce,
+			signerCommitment.AntikleptoSignerCommitment.Commitment,
+			signature[:64],
+		)
+		if err != nil {
+			return nil, 0, nil, err
+		}
+	} else {
+		signResponse, ok := response.Response.(*messages.BTCResponse_SignMessage)
+		if !ok {
+			return nil, 0, nil, errp.New("unexpected response")
+		}
+		signature = signResponse.SignMessage.Signature
 	}
-	sig, recID := signResponse.SignMessage.Signature[:64], signResponse.SignMessage.Signature[64]
+
+	sig, recID := signature[:64], signature[64]
 	// See https://github.com/spesmilo/electrum/blob/84dc181b6e7bb20e88ef6b98fb8925c5f645a765/electrum/ecc.py#L521-L523
 	const compressed = 4 // BitBox02 uses only compressed pubkeys
 	electrumSig65 := append([]byte{27 + compressed + recID}, sig...)

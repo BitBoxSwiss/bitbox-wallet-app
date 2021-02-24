@@ -116,6 +116,7 @@ export interface ITransaction {
     fee: IAmount;
     feeRatePerKb: IAmount;
     gas: number;
+    nonce: number | null;
     internalID: string;
     note: string;
     numConfirmations: number;
