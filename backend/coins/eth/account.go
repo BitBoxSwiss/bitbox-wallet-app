@@ -244,13 +244,27 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 	}
 
 	// Update the stored txs' metadata if up to 12 confirmations.
-	for _, tx := range outgoingTransactions {
+	for idx, tx := range outgoingTransactions {
+		txLog := account.log.WithField("idx", idx)
 		remoteTx, err := account.coin.client.TransactionReceiptWithBlockNumber(context.TODO(), tx.Transaction.Hash())
-		if err != nil {
-			account.log.WithError(err).Error("could not fetch transaction")
-			continue
-		}
-		if remoteTx == nil {
+		if remoteTx == nil || err != nil {
+			// Transaction not found. This usually happens for pending transactions.
+			// In this case, check if the node actually knows about the transaction, and if not, re-broadcast.
+			// We do this because it seems that sometimes, a transaction that was broadcast without error still ends up lost.
+			_, _, err := account.coin.client.TransactionByHash(context.TODO(), tx.Transaction.Hash())
+			if err != nil {
+				tx.BroadcastAttempts++
+				txLog.WithError(err).Errorf("could not fetch transaction - rebroadcasting, attempt %d", tx.BroadcastAttempts)
+				if err := dbTx.PutOutgoingTransaction(tx); err != nil {
+					txLog.WithError(err).Error("could not update outgoing tx")
+					// Do not abort here, we want to attempt broadcastng the tx in any case.
+				}
+				if err := account.coin.client.SendTransaction(context.TODO(), tx.Transaction); err != nil {
+					txLog.WithError(err).Error("failed to broadcast")
+					continue
+				}
+				txLog.Info("Broadcasting did not return an error")
+			}
 			continue
 		}
 		success := remoteTx.Status == types.ReceiptStatusSuccessful
@@ -259,7 +273,7 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 			tx.GasUsed = remoteTx.GasUsed
 			tx.Success = success
 			if err := dbTx.PutOutgoingTransaction(tx); err != nil {
-				account.log.WithError(err).Error("could not update outgoing tx")
+				txLog.WithError(err).Error("could not update outgoing tx")
 				continue
 			}
 		}
@@ -561,8 +575,8 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 	defer dbTx.Rollback()
 	if err := dbTx.PutOutgoingTransaction(
 		&ethtypes.TransactionWithMetadata{
-			Transaction: transaction,
-			Height:      0,
+			Transaction:       transaction,
+			BroadcastAttempts: 1,
 		}); err != nil {
 		return err
 	}
@@ -588,6 +602,9 @@ func (account *Account) SendTx() error {
 	if err := account.Config().Keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
+	// By experience, at least with the Etherscan backend, this can succeed and still the
+	// transaction will be lost (not in any block explorer, the node does not know about it, etc.).
+	// We do an attempt here and more attempts if needed in `updateOutgoingTransactions()`.
 	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
 		return errp.WithStack(err)
 	}
