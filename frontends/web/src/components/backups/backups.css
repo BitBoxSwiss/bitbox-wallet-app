@@ -59,8 +59,13 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: row-reverse;
-    gap: var(--space-half);
     margin-top: var(--space-default);
+}
+
+@media (min-width: 769px) {
+    .backupButtons > *:not(:first-child) {
+        margin-right: var(--space-half);
+    }
 }
 
 @media (max-width: 768px) {
@@ -68,5 +73,9 @@
         align-items: center;
         flex-direction: column;
         margin-top: var(--space-default);
+    }
+
+    .backupButtons > *:not(:first-child) {
+        margin-top: var(--space-half);
     }
 }
