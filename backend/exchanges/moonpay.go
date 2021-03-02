@@ -36,7 +36,16 @@ var moonpayAPICryptoCode = map[coin.Code]string{ // -> moonpay crypto currency c
 	coin.CodeBTC: "btc",
 	coin.CodeLTC: "ltc",
 	coin.CodeETH: "eth",
-	// TODO: ERC20 tokens; figure out eth-erc20- prefix vs frontend
+
+	"eth-erc20-usdt":      "usdt",
+	"eth-erc20-usdc":      "usdc",
+	"eth-erc20-bat":       "bat",
+	"eth-erc20-dai0x6b17": "dai",
+	"eth-erc20-link":      "link",
+	"eth-erc20-mkr":       "mkr",
+	"eth-erc20-zrx":       "zrx",
+	"eth-erc20-wbtc":      "wbtc",
+	"eth-erc20-paxg":      "paxg",
 
 	// Test mode.
 	coin.CodeTBTC: "btc", // testnet
