@@ -17,11 +17,11 @@
 
 import { Component, createRef, h, RenderableProps } from 'preact';
 import { IAccount } from '../../api/account';
+import { TDevices } from '../../api/devices';
 import Guide from './guide';
 import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Devices } from '../device/deviceswitch';
 import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoin } from '../account/utils';
 import * as style from './moonpay.css';
@@ -29,7 +29,7 @@ import * as style from './moonpay.css';
 interface BuyProps {
     accounts: IAccount[];
     code: string;
-    devices: Devices;
+    devices: TDevices;
 }
 
 interface LoadedBuyProps {

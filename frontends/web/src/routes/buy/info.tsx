@@ -17,13 +17,13 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { CoinCode, IAccount } from '../../api/account';
+import { TDevices } from '../../api/devices';
 import Guide from './guide';
 import A from '../../components/anchor/anchor';
 import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button, Checkbox, Select } from '../../components/forms';
-import { Devices } from '../device/deviceswitch';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import { isBitcoin } from '../account/utils';
@@ -32,7 +32,7 @@ import * as style from './info.css';
 interface BuyInfoProps {
     accounts: IAccount[];
     code?: string;
-    devices: Devices;
+    devices: TDevices;
 }
 
 interface LoadedBuyInfoProps {

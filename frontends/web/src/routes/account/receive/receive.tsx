@@ -18,6 +18,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
+import { TDevices } from '../../../api/devices';
 import { alertUser } from '../../../components/alert/Alert';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -30,13 +31,12 @@ import Status from '../../../components/status/status';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
-import { Devices } from '../../device/deviceswitch';
 import { isEthereumBased } from '../utils';
 import * as style from './receive.css';
 
 interface ReceiveProps {
     code?: string;
-    devices: Devices;
+    devices: TDevices;
     accounts: accountApi.IAccount[];
     deviceIDs: string[];
 }

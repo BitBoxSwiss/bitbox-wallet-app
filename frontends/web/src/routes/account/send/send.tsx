@@ -19,6 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
+import { TDevices } from '../../../api/devices';
 import reject from '../../../assets/icons/cancel.svg';
 import approve from '../../../assets/icons/checked.svg';
 import qrcodeIcon from '../../../assets/icons/qrcode.png';
@@ -38,7 +39,6 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import { Devices } from '../../device/deviceswitch';
 import { isBitcoinBased } from '../utils';
 import { FeeTargets } from './feetargets';
 import * as style from './send.css';
@@ -47,7 +47,7 @@ import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 interface SendProps {
     accounts: accountApi.IAccount[];
     code?: string;
-    devices: Devices;
+    devices: TDevices;
     deviceIDs: string[];
 }
 

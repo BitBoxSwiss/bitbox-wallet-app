@@ -161,7 +161,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private handleGetStarted = () => {
-        route('/account', true);
+        route('/account-summary', true);
     }
 
     private onChannelHashChanged = () => {
@@ -194,7 +194,7 @@ class BitBox02 extends Component<Props, State> {
                 errorText: undefined,
             });
             if (status === 'initialized' && unlockOnly && showWizard) {
-                route('/account', true);
+                route('/account-summary', true);
             }
         });
     }
