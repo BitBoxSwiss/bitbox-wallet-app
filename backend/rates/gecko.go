@@ -54,9 +54,28 @@ var (
 		"eth-erc20-paxg":      "pax-gold",
 	}
 
+	// The keys are CoinGecok coin codes.
+	// The values are BitBoxApp coin units.
+	geckoCoinToUnit = map[string]string{
+		"bitcoin":  "BTC",
+		"litecoin": "LTC",
+		"ethereum": "ETH",
+		// ERC20 tokens as used in the backend.
+		"basic-attention-token": "BAT",
+		"dai":                   "DAI",
+		"chainlink":             "LINK",
+		"maker":                 "MKR",
+		"sai":                   "SAI",
+		"usd-coin":              "USDC",
+		"tether":                "USDT",
+		"0x":                    "ZRX",
+		"wrapped-bitcoin":       "WBTC",
+		"pax-gold":              "PAXG",
+	}
+
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
-	// The keys must match entries in fiats slice.
-	geckoFiat = map[string]string{
+	// The keys are BitBoxApp fiat codes. Values are CoinGecko fiat codes.
+	toGeckoFiat = map[string]string{
 		"USD": "usd",
 		"EUR": "eur",
 		"CHF": "chf",
@@ -70,5 +89,23 @@ var (
 		"ILS": "ils",
 		"BTC": "btc",
 		"SGD": "sgd",
+	}
+
+	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
+	// The keys are CoinGecko fiat codes. Values are BitBoxApp fiat codes.
+	fromGeckoFiat = map[string]string{
+		"usd": "USD",
+		"eur": "EUR",
+		"chf": "CHF",
+		"gbp": "GBP",
+		"jpy": "JPY",
+		"krw": "KRW",
+		"cny": "CNY",
+		"rub": "RUB",
+		"cad": "CAD",
+		"aud": "AUD",
+		"ils": "ILS",
+		"btc": "BTC",
+		"sgd": "SGD",
 	}
 )

@@ -33,7 +33,7 @@ func (updater *RateUpdater) ReconfigureHistory(coins, fiats []string) {
 			continue
 		}
 		for _, fiat := range fiats {
-			if geckoFiat[fiat] == "" {
+			if toGeckoFiat[fiat] == "" {
 				updater.log.Errorf("ReconfigureHistory: unsupported fiat %q", fiat)
 				continue
 			}
@@ -244,7 +244,7 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 	if gcoin == "" {
 		return nil, fmt.Errorf("fetchGeckoMarketRange: unsupported coin %s", coin)
 	}
-	gfiat := geckoFiat[fiat]
+	gfiat := toGeckoFiat[fiat]
 	if gfiat == "" {
 		return nil, fmt.Errorf("fetchGeckoMarketRange: unsupported fiat %s", fiat)
 	}

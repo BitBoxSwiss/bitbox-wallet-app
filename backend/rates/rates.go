@@ -22,9 +22,9 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"reflect"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -37,38 +37,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// TODO: Unify these with geckoCoin map.
-var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "SAI", "DAI", "BAT", "USDC", "WBTC", "PAXG"}
-
-// TODO: Unify these with geckoFiat map.
-var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD", "AUD", "ILS", "BTC", "SGD"}
-
-var cryptoCompareCoin = map[string]string{
-	"btc": "BTC",
-	"ltc": "LTC",
-	"eth": "ETH",
-	// Useful for testing with testnets.
-	"tbtc": "BTC",
-	"rbtc": "BTC",
-	"tltc": "LTC",
-	"teth": "ETH",
-	"reth": "ETH",
-	// ERC20 tokens as used in the backend.
-	// Frontend and app config use unprefixed name, without "eth-erc20-".
-	"eth-erc20-bat":       "BAT",
-	"eth-erc20-dai0x6b17": "DAI",
-	"eth-erc20-link":      "LINK",
-	"eth-erc20-mkr":       "MKR",
-	"eth-erc20-sai0x89d2": "SAI",
-	"eth-erc20-usdc":      "USDC",
-	"eth-erc20-usdt":      "USDT",
-	"eth-erc20-zrx":       "ZRX",
-	"eth-erc20-wbtc":      "WBTC",
-	"eth-erc20-paxg":      "PAXG",
-}
+const (
+	// Latest rates are fetched for all these (coin, fiat) pairs.
+	simplePriceAllIDs        = "bitcoin,litecoin,ethereum,basic-attention-token,dai,chainlink,maker,sai,usd-coin,tether,0x,wrapped-bitcoin,pax-gold"
+	simplePriceAllCurrencies = "usd,eur,chf,gbp,jpy,krw,cny,rub,cad,aud,ils,btc,sgd"
+)
 
 const interval = time.Minute
-const cryptoCompareURL = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
 
 type exchangeRate struct {
 	value     float64
@@ -153,15 +128,14 @@ func (updater *RateUpdater) Last() map[string]map[string]float64 {
 }
 
 // LastForPair returns the conversion rate for the given (coin, fiat) pair. Returns an error if the
-// rates have not been fetched yet. `coinCode` values are the same as `coin.Code`.
-func (updater *RateUpdater) LastForPair(coinCode, fiat string) (float64, error) {
+// rates have not been fetched yet. `coinUnit` values are the same as `coin.Unit`.
+func (updater *RateUpdater) LastForPair(coinUnit, fiat string) (float64, error) {
 	// TODO: use coin.Code
 	last := updater.Last()
 	if last == nil {
 		return 0, errp.New("rates not available yet")
 	}
-	key := cryptoCompareCoin[coinCode]
-	return last[key][fiat], nil
+	return last[coinUnit][fiat], nil
 }
 
 // PriceAt returns a historical exchange rate for the given coin.
@@ -241,28 +215,34 @@ func (updater *RateUpdater) lastUpdateLoop(ctx context.Context) {
 }
 
 func (updater *RateUpdater) updateLast(ctx context.Context) {
-	url := fmt.Sprintf(cryptoCompareURL,
-		strings.Join(coins, ","),
-		strings.Join(fiats, ","),
-	)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		updater.log.Errorf("updateLast: http.NewRequest: %v", err)
-		return
+	param := url.Values{
+		"ids":           {simplePriceAllIDs},
+		"vs_currencies": {simplePriceAllCurrencies},
 	}
-	response, err := updater.httpClient.Do(req.WithContext(ctx))
+	endpoint := fmt.Sprintf("%s/simple/price?%s", updater.coingeckoURL, param.Encode())
+	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
-		updater.log.WithError(err).WithField("url", url).Error("Error getting rates")
+		updater.log.WithError(err).Error("could not create request")
 		updater.last = nil
 		return
 	}
-	defer func() {
-		_ = response.Body.Close()
-	}()
 
-	var rates map[string]map[string]float64
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	res, err := updater.httpClient.Do(req.WithContext(ctx))
+	if err != nil {
+		updater.log.WithError(err).WithField("url", endpoint).Error("Error getting rates")
+		updater.last = nil
+		return
+	}
+	defer res.Body.Close() //nolint:errcheck
+	if res.StatusCode != http.StatusOK {
+		updater.log.Errorf("bad response code %d", res.StatusCode)
+		updater.last = nil
+		return
+	}
 	const max = 10240
-	responseBody, err := ioutil.ReadAll(io.LimitReader(response.Body, max+1))
+	responseBody, err := ioutil.ReadAll(io.LimitReader(res.Body, max+1))
 	if err != nil {
 		updater.last = nil
 		return
@@ -272,10 +252,31 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 		updater.last = nil
 		return
 	}
-	if err := json.Unmarshal(responseBody, &rates); err != nil {
+	var geckoRates map[string]map[string]float64
+	if err := json.Unmarshal(responseBody, &geckoRates); err != nil {
 		updater.log.WithError(err).Errorf("could not parse rates response: %s", string(responseBody))
 		updater.last = nil
 		return
+	}
+
+	// Convert the map with coingecko coin/fiat codes to a map of coin/fiat units.
+	rates := map[string]map[string]float64{}
+	for coin, val := range geckoRates {
+		coinUnit := geckoCoinToUnit[coin]
+		if coinUnit == "" {
+			updater.log.Errorf("unsupported CoinGecko coin: %s", coin)
+			continue
+		}
+		newVal := map[string]float64{}
+		for geckoFiat, rates := range val {
+			fiat, ok := fromGeckoFiat[geckoFiat]
+			if !ok {
+				updater.log.Errorf("unsupported fiat: %s", geckoFiat)
+				continue
+			}
+			newVal[fiat] = rates
+		}
+		rates[coinUnit] = newVal
 	}
 
 	if reflect.DeepEqual(rates, updater.last) {

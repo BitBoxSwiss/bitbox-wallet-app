@@ -111,10 +111,10 @@ func TestUpdateHistory(t *testing.T) {
 
 func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 	tt := []struct{ coin, fiat string }{
-		{coins[0], "invalid"},
-		{coins[0], ""},
-		{"unsupported", fiats[0]},
-		{"", fiats[0]},
+		{"BTC", "invalid"},
+		{"BTC", ""},
+		{"unsupported", "USD"},
+		{"", "USD"},
 	}
 	for _, test := range tt {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)

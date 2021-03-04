@@ -144,7 +144,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		//
 		// As a temporary workaround, until we use only one source for all prices, we manually
 		// compute the total based on the latest rates from CryptoCompare.
-		price, err := backend.RatesUpdater().LastForPair(string(account.Coin().Code()), fiat)
+		price, err := backend.RatesUpdater().LastForPair(account.Coin().Unit(false), fiat)
 		if err != nil {
 			currentTotalMissing = true
 			backend.log.
