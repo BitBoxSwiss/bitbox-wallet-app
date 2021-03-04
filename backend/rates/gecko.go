@@ -54,7 +54,7 @@ var (
 		"eth-erc20-paxg":      "pax-gold",
 	}
 
-	// The keys are CoinGecok coin codes.
+	// The keys are CoinGecko coin codes.
 	// The values are BitBoxApp coin units.
 	geckoCoinToUnit = map[string]string{
 		"bitcoin":  "BTC",

@@ -151,15 +151,9 @@ function Conversion({
         return null;
     }
     const coin = amount.unit;
-    let mainnetCoin: MainnetCoin;
-    if (coin.length === 4 && coin.startsWith('T') || coin === 'RETH') {
-        mainnetCoin = coin.substring(1) as MainnetCoin;
-    } else {
-        mainnetCoin = coin as MainnetCoin;
-    }
     let formattedValue = '';
-    if (rates[mainnetCoin]) {
-        formattedValue = formatCurrency(rates[mainnetCoin][active] * Number(amount.amount), active);
+    if (rates[coin]) {
+        formattedValue = formatCurrency(rates[coin][active] * Number(amount.amount), active);
     }
     if (tableRow) {
         return (

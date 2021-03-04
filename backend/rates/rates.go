@@ -279,6 +279,11 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 		rates[coinUnit] = newVal
 	}
 
+	// Provide conversion rates for testnets as well, useful for testing.
+	for _, testnetUnit := range []string{"TBTC", "RBTC", "TLTC", "TETH", "RETH"} {
+		rates[testnetUnit] = rates[testnetUnit[1:]]
+	}
+
 	if reflect.DeepEqual(rates, updater.last) {
 		return
 	}

@@ -137,13 +137,11 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			nil,
 		)
 
-		// HACK: We still use the latest prices from CryptoCompare for the account fiat balances
-		// above (displayed in the summary table). Those might deviate from the latest historical
-		// prices from coingecko, which results in different total balances in the chart and the
+		// HACK: The latest prices might deviate from the latest historical prices (which can lag
+		// behind by many minutes), which results in different total balances in the chart and the
 		// summary table.
 		//
-		// As a temporary workaround, until we use only one source for all prices, we manually
-		// compute the total based on the latest rates from CryptoCompare.
+		// As a workaround, we manually compute the total based on the latest rates.
 		price, err := backend.RatesUpdater().LastForPair(account.Coin().Unit(false), fiat)
 		if err != nil {
 			currentTotalMissing = true
