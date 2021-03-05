@@ -15,9 +15,9 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
+import { Fiat } from '../../../../api/account';
 import {
     currencies,
-    Fiat,
     selectFiat,
     setActiveFiat,
     SharedProps,

@@ -16,6 +16,7 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
+import { Coin, Fiat, MainnetCoin } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
@@ -24,13 +25,6 @@ import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import * as style from './rates.css';
 
-export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
-
-export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
-
-export type Coin = MainnetCoin | TestnetCoin;
-
-export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD' | 'AUD' | 'ILS' | 'BTC' | 'SGD';
 
 export type Rates = {
     [coin in MainnetCoin]: {

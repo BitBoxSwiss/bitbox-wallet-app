@@ -15,11 +15,12 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { Coin } from '../../../api/account';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
 import { ExpandOpen } from '../../../components/icon/icon';
-import { Coin, FiatConversion } from '../../../components/rates/rates';
+import { FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import * as style from './utxos.css';

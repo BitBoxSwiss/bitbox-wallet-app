@@ -18,7 +18,6 @@
 import { Component, h, RenderableProps } from 'preact';
 import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
-import { Fiat } from '../../../components/rates/rates';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { getCoinCode, isBitcoinBased } from '../utils';
@@ -32,7 +31,7 @@ interface FeeTargetsProps {
     accountCode: string;
     coinCode: accountApi.CoinCode;
     disabled: boolean;
-    fiatUnit: Fiat;
+    fiatUnit: accountApi.Fiat;
     proposedFee?: accountApi.IAmount;
     feePerByte: string;
     showCalculatingFeeLabel?: boolean;

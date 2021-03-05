@@ -16,8 +16,9 @@
 
 import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
 import { Component, createRef, h, RenderableProps } from 'preact';
+import { Fiat } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { formatCurrency, formatNumber, Fiat } from '../../../components/rates/rates';
+import { formatCurrency, formatNumber } from '../../../components/rates/rates';
 import * as styles from './chart.css';
 
 export type ChartData = LineData[];

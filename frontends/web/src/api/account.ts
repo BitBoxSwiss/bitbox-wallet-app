@@ -45,10 +45,6 @@ export const init = (code: string): Promise<null> => {
     return apiPost(`account/${code}/init`);
 };
 
-export const reinitialize = (): Promise<null> => {
-    return apiPost('accounts/reinitialize');
-};
-
 export interface ISummary {
     chartDataMissing: boolean;
     chartDataDaily: ChartData;
@@ -136,18 +132,10 @@ export const exportAccount = (code: string): Promise<string> => {
     return apiPost(`account/${code}/export`);
 };
 
-export const getCanVerifyXPub = (code: string): Promise<number[]> => {
-    return apiGet(`account/${code}/can-verify-extended-public-key`);
-};
-
 export interface IReceiveAddress {
     addressID: string;
     address: string;
 }
-
-export const verifyAddress = (code: string, addressID: string): Promise<boolean> => {
-    return apiPost(`account/${code}/verify-address`, addressID);
-};
 
 export type ReceiveAddressList = IReceiveAddress[][];
 
@@ -182,24 +170,6 @@ export interface IProposeTx {
     success?: boolean;
     errorMessage?: string;
 }
-
-export const proposeTx = (code: string, data: IProposeTxData): Promise<IProposeTx> => {
-    return apiPost(`account/${code}/tx-proposal`, data);
-};
-
-export const proposeTxNote = (code: string, note: string): Promise<null> => {
-    return apiPost(`account/${code}/propose-tx-note`, note);
-};
-
-export interface IUTXO {
-    address: string;
-    amount: IAmount;
-    outPoint: string;
-}
-
-export const getUTXOList = (code: string): Promise<IUTXO[]> => {
-    return apiGet(`account/${code}/utxos`);
-};
 
 export interface IFeeTarget {
     code: FeeTargetCode;

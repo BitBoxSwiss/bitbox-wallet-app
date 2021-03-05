@@ -31,7 +31,7 @@ import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
-import { Fiat, store as fiat } from '../../../components/rates/rates';
+import { store as fiat } from '../../../components/rates/rates';
 import { Spinner } from '../../../components/spinner/Spinner';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
@@ -70,7 +70,7 @@ interface State {
     amount?: string;
     data?: string;
     fiatAmount?: string;
-    fiatUnit: Fiat;
+    fiatUnit: accountApi.Fiat;
     sendAll: boolean;
     feeTarget?: accountApi.FeeTargetCode;
     feePerByte: string;
