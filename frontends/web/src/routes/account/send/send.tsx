@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { BrowserQRCodeReader } from '@zxing/library';
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { IAccount } from '../account';
 import reject from '../../../assets/icons/cancel.svg';
@@ -100,7 +100,7 @@ class Send extends Component<Props, State> {
     private utxos!: Component<UTXOsProps>;
     private selectedUTXOs: SelectedUTXO = {};
     private unsubscribe!: () => void;
-    private qrCodeReader: BrowserQRCodeReader = new BrowserQRCodeReader();
+    private qrCodeReader?: BrowserQRCodeReader;
 
     // pendingProposals keeps all requests that have been made
     // to /tx-proposal in case there are multiple parallel requests
@@ -174,11 +174,18 @@ class Send extends Component<Props, State> {
         this.registerEvents();
         const account = this.getAccount();
         if (account && !account.coinCode.startsWith('eth-erc20-') && account.coinCode !== 'eth') {
-            this.qrCodeReader
-                .getVideoInputDevices()
-                .then(videoInputDevices => {
-                    this.setState({ hasCamera: videoInputDevices.length > 0 });
-                });
+            import('../../../components/qrcode/qrreader')
+                .then(({ BrowserQRCodeReader }) => {
+                    if (!this.qrCodeReader) {
+                        this.qrCodeReader = new BrowserQRCodeReader();
+                    }
+                    this.qrCodeReader
+                        .getVideoInputDevices()
+                        .then(videoInputDevices => {
+                            this.setState({ hasCamera: videoInputDevices.length > 0 });
+                        });
+                })
+                .catch(console.error);
         }
     }
 
@@ -187,7 +194,9 @@ class Send extends Component<Props, State> {
         if (this.unsubscribe) {
             this.unsubscribe();
         }
-        this.qrCodeReader.reset();
+        if (this.qrCodeReader) {
+            this.qrCodeReader.reset();
+        }
     }
 
     private registerEvents = () => {
@@ -492,8 +501,10 @@ class Send extends Component<Props, State> {
 
     private toggleScanQR = () => {
         if (this.state.activeScanQR) {
-            // release camera; invokes the catch function below.
-            this.qrCodeReader.reset();
+            if (this.qrCodeReader) {
+                // release camera; invokes the catch function below.
+                this.qrCodeReader.reset();
+            }
             // should already be false, set by the catch function below. we do it again anyway, in
             // case it is not called consistently on each platform.
             this.setState({ activeScanQR: false });
@@ -503,12 +514,14 @@ class Send extends Component<Props, State> {
             activeScanQR: true,
             videoLoading: true,
         }, () => {
-            this.qrCodeReader
+            this.qrCodeReader && this.qrCodeReader
                 .decodeFromInputVideoDevice(undefined, 'video')
                 .then(result => {
                     this.setState({ activeScanQR: false });
                     this.parseQRResult(result.getText());
-                    this.qrCodeReader.reset(); // release camera
+                    if (this.qrCodeReader) {
+                        this.qrCodeReader.reset(); // release camera
+                    }
                 })
                 .catch(() => {
                     this.setState({ activeScanQR: false });
