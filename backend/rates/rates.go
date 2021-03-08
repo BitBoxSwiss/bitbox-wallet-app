@@ -120,29 +120,31 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 	}
 }
 
-// Last returns the most recent conversion rates.
+// LatestPrice returns the most recent conversion rates.
 // The returned map is keyed by a crypto coin with values mapped by fiat rates.
 // RateUpdater assumes the returned value is never modified by the callers.
-func (updater *RateUpdater) Last() map[string]map[string]float64 {
+func (updater *RateUpdater) LatestPrice() map[string]map[string]float64 {
 	return updater.last
 }
 
-// LastForPair returns the conversion rate for the given (coin, fiat) pair. Returns an error if the
-// rates have not been fetched yet. `coinUnit` values are the same as `coin.Unit`.
-func (updater *RateUpdater) LastForPair(coinUnit, fiat string) (float64, error) {
+// LatestPriceForPair returns the conversion rate for the given (coin, fiat) pair. Returns an error
+// if the rates have not been fetched yet. `coinUnit` values are the same as `coin.Unit`.
+func (updater *RateUpdater) LatestPriceForPair(coinUnit, fiat string) (float64, error) {
 	// TODO: use coin.Code
-	last := updater.Last()
+	last := updater.LatestPrice()
 	if last == nil {
 		return 0, errp.New("rates not available yet")
 	}
 	return last[coinUnit][fiat], nil
 }
 
-// PriceAt returns a historical exchange rate for the given coin.
+// HistoricalPriceAt returns a historical exchange rate for the given coin.
 // The returned value may be imprecise if at arg matches no timestamp exactly.
 // In this case, linear interpolation is used as an approximation.
-// If no data is available with the given args, PriceAt returns 0.
-func (updater *RateUpdater) PriceAt(coin, fiat string, at time.Time) float64 {
+// If no data is available with the given args, HistoricalPriceAt returns 0.
+// The latest rates can lag behind by many minutes (5-30min). Use `LatestPrice` get get the latest
+// rates.
+func (updater *RateUpdater) HistoricalPriceAt(coin, fiat string, at time.Time) float64 {
 	updater.historyMu.RLock()
 	defer updater.historyMu.RUnlock()
 	data := updater.history[coin+fiat]

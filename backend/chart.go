@@ -68,7 +68,7 @@ func (backend *Backend) addChartData(
 	chartEntries map[int64]ChartEntry,
 ) {
 	for _, e := range timeseries {
-		price := backend.RatesUpdater().PriceAt(
+		price := backend.RatesUpdater().HistoricalPriceAt(
 			string(coinCode),
 			fiat,
 			e.Time)
@@ -142,7 +142,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		// summary table.
 		//
 		// As a workaround, we manually compute the total based on the latest rates.
-		price, err := backend.RatesUpdater().LastForPair(account.Coin().Unit(false), fiat)
+		price, err := backend.RatesUpdater().LatestPriceForPair(account.Coin().Unit(false), fiat)
 		if err != nil {
 			currentTotalMissing = true
 			backend.log.

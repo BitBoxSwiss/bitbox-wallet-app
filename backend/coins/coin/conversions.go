@@ -20,7 +20,7 @@ func formatAsCurrency(amount float64) string {
 // Conversions handles fiat conversions.
 func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateUpdater) map[string]string {
 	var conversions map[string]string
-	rates := ratesUpdater.Last()
+	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
 		float := coin.ToUnit(amount, isFee)
