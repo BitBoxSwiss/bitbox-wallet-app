@@ -16,6 +16,7 @@ package jsonrpc
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,6 +27,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,6 +37,8 @@ func init() {
 
 const (
 	responseTimeout = 30 * time.Second
+	// If all backends are down, wait for this duration before trying again.
+	connectionRetryAfter = 30 * time.Second
 )
 
 // Backend is a server to connect to.
@@ -94,8 +98,9 @@ type heartBeat struct {
 // RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
 // remote notifications.
 type RPCClient struct {
-	connection *connection
-	connLock   sync.RWMutex
+	connection      *connection
+	connLock        sync.RWMutex
+	connRateLimiter *ratelimit.LimitedCall
 
 	backends []*Backend
 
@@ -133,6 +138,7 @@ type RPCClient struct {
 // connection). onError is called for unexpected errors like malformed server responses.
 func NewRPCClient(backends []*Backend, onError func(error), log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
+		connRateLimiter:                ratelimit.NewLimitedCall(connectionRetryAfter),
 		backends:                       backends,
 		msgID:                          0,
 		connectionError:                nil,
@@ -296,43 +302,47 @@ func (client *RPCClient) conn() (*connection, error) {
 		return conn, nil
 	}
 
-	conn, err := func() (*connection, error) {
-		client.connLock.Lock()
-		defer client.connLock.Unlock()
-		if client.connection != nil {
-			return client.connection, nil
-		}
-
-		start := 0
-		if len(client.backends) > 0 {
-			start = rand.Intn(len(client.backends))
-		}
-		lastErr := errp.New("No full nodes configured.")
-		for i := 0; i < len(client.backends); i++ {
-			client.log.Debugf("Trying to connect to backend %v", client.backends[start].Name)
-			conn, err := client.establishConnection(client.backends[start])
-			if err != nil {
-				client.log.WithError(err).Info("Failover: backend is down")
-				start = (start + 1) % len(client.backends)
-				lastErr = err
-				client.connection = nil
-			} else {
-				client.log.Debug("Successfully connected to backend")
-				client.connection = conn
-				lastErr = nil
-				break
+	conn = nil
+	err := client.connRateLimiter.Call(context.TODO(), "establish connection",
+		func() error {
+			client.connLock.Lock()
+			defer client.connLock.Unlock()
+			if client.connection != nil {
+				conn = client.connection
+				return nil
 			}
-		}
-		if lastErr != nil {
-			client.log = client.log.WithField("backend", "offline")
-			// tried all backends
-			client.log.Debug("Disconnected from all backends")
-			client.setConnectionError(lastErr)
-			return nil, lastErr
-		}
-		client.setConnectionError(nil)
-		return client.connection, nil
-	}()
+
+			start := 0
+			if len(client.backends) > 0 {
+				start = rand.Intn(len(client.backends))
+			}
+			lastErr := errp.New("No full nodes configured.")
+			for i := 0; i < len(client.backends); i++ {
+				client.log.Debugf("Trying to connect to backend %v", client.backends[start].Name)
+				conn, err := client.establishConnection(client.backends[start])
+				if err != nil {
+					client.log.WithError(err).Info("Failover: backend is down")
+					start = (start + 1) % len(client.backends)
+					lastErr = err
+					client.connection = nil
+				} else {
+					client.log.Debug("Successfully connected to backend")
+					client.connection = conn
+					lastErr = nil
+					break
+				}
+			}
+			if lastErr != nil {
+				client.log = client.log.WithField("backend", "offline")
+				// tried all backends
+				client.log.Debug("Disconnected from all backends")
+				client.setConnectionError(lastErr)
+				return lastErr
+			}
+			client.setConnectionError(nil)
+			conn = client.connection
+			return nil
+		})
 	if err != nil {
 		return nil, err
 	}
