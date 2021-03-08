@@ -47,14 +47,12 @@ interface LoadedAccountProps {
 }
 
 interface State {
-    accountSynced: boolean;
-    offlineMode?: boolean;
+    status?: accountApi.IStatus;
     transactions?: accountApi.ITransaction[];
     balance?: accountApi.IBalance;
     hasCard: boolean;
     exported: string;
     accountInfo?:accountApi. ISigningConfigurationList;
-    fatalError: boolean;
     syncedAddressesCount?: number;
 }
 
@@ -62,14 +60,12 @@ type Props = LoadedAccountProps & AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
     public readonly state: State = {
-        accountSynced: false,
-        offlineMode: undefined,
+        status: undefined,
         transactions: undefined,
         balance: undefined,
         hasCard: false,
         exported: '',
         accountInfo: undefined,
-        fatalError: false,
         syncedAddressesCount: undefined,
     };
 
@@ -91,7 +87,7 @@ class Account extends Component<Props, State> {
     public componentWillReceiveProps(nextProps) {
         if (nextProps.code && nextProps.code !== this.props.code) {
             this.setState({
-                accountSynced: false,
+                status: undefined,
                 balance: undefined,
                 syncedAddressesCount: 0,
                 transactions: undefined,
@@ -159,16 +155,10 @@ class Account extends Component<Props, State> {
                 // Results came in after the account was switched. Ignore.
                 return;
             }
-            const state = {
-                accountSynced: status.includes('accountSynced'),
-                offlineMode: status.includes('offlineMode'),
-                fatalError: status.includes('fatalError'),
-            };
-            if (!status.includes('accountDisabled')) {
-                if (!state.accountSynced) {
+            if (!status.disabled) {
+                if (!status.synced) {
                     accountApi.init(code).catch(console.error);
-                }
-                if (state.accountSynced) {
+                } else {
                     accountApi.getInfo(code).then(accountInfo => {
                         if (this.props.code !== code) {
                             // Results came in after the account was switched. Ignore.
@@ -179,16 +169,17 @@ class Account extends Component<Props, State> {
                     .catch(console.error);
                 }
             }
-            this.setState(state, this.onAccountChanged);
+            this.setState({ status }, this.onAccountChanged);
         })
         .catch(console.error);
     }
 
     private onAccountChanged = () => {
-        if (!this.props.code || this.state.fatalError) {
+        const status = this.state.status;
+        if (!this.props.code || status === undefined || status.fatalError) {
             return;
         }
-        if (this.state.accountSynced && !this.state.offlineMode) {
+        if (status.synced && !status.offline) {
             const expectedCode = this.props.code;
             Promise.all([
                 accountApi.getBalance(this.props.code).then(balance => {
@@ -217,7 +208,7 @@ class Account extends Component<Props, State> {
     }
 
     private export = () => {
-        if (this.state.fatalError) {
+        if (this.state.status === undefined || this.state.status.fatalError) {
             return;
         }
         accountApi.exportAccount(this.props.code)
@@ -257,21 +248,20 @@ class Account extends Component<Props, State> {
             accounts,
         }: RenderableProps<Props>,
         {
+            status,
             transactions,
-            accountSynced,
-            offlineMode,
             balance,
             hasCard,
             exported,
             accountInfo,
-            fatalError,
             syncedAddressesCount,
         }: State) {
         const account = accounts &&
                         accounts.find(acct => acct.code === code);
-        if (!account) {
+        if (!account || status === undefined) {
             return null;
         }
+
         const canSend = balance && balance.available.amount !== '0';
 
         const initializingSpinnerText =
@@ -288,7 +278,7 @@ class Account extends Component<Props, State> {
                     <Status type="warning">
                         {hasCard && t('warning.sdcard')}
                     </Status>
-                    { offlineMode ? (
+                    { status.offline ? (
                         <Status>
                             <p>{t('account.reconnecting')}</p>
                         </Status>
@@ -314,7 +304,7 @@ class Account extends Component<Props, State> {
                             </a>
                         ) : null}
                     </Header>
-                    {accountSynced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
+                    {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
                             <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
@@ -338,11 +328,11 @@ class Account extends Component<Props, State> {
                                 <Balance balance={balance} />
                             </div>
                             {
-                                !accountSynced || offlineMode || !this.dataLoaded() || fatalError ? (
+                                !status.synced || status.offline || !this.dataLoaded() || status.fatalError ? (
                                     <Spinner text={
-                                        fatalError && t('account.fatalError') ||
-                                        offlineMode && t('account.reconnecting') ||
-                                        !accountSynced && (
+                                        status.fatalError && t('account.fatalError') ||
+                                        status.offline && t('account.reconnecting') ||
+                                        !status.synced && (
                                             t('account.initializing')
                                             + initializingSpinnerText
                                         ) || ''
