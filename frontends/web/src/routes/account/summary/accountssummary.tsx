@@ -117,12 +117,10 @@ class AccountsSummary extends Component<Props, State> {
 
     private onStatusChanged(code: string) {
         accountApi.getStatus(code).then(status => {
-            const accountSynced = status.includes('accountSynced');
-            const accountDisabled = status.includes('accountDisabled');
-            if (accountDisabled) {
+            if (status.disabled) {
                 return;
             }
-            if (!accountSynced) {
+            if (!status.synced) {
                 return accountApi.init(code);
             }
             return accountApi.getBalance(code).then(balance => {
