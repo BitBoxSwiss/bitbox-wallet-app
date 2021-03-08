@@ -41,9 +41,14 @@ export const getAccounts = (): Promise<IAccount[]> => {
     return apiGet(`accounts`);
 };
 
-export type AccountState = 'accountSynced' | 'accountDisabled' | 'fatalError' | 'offlineMode';
+export interface IStatus {
+    disabled: boolean;
+    synced: boolean;
+    fatalError: boolean;
+    offline: boolean;
+}
 
-export const getStatus = (code: string): Promise<AccountState[]> => {
+export const getStatus = (code: string): Promise<IStatus> => {
     return apiGet(`account/${code}/status`);
 };
 
