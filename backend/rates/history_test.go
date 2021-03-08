@@ -42,7 +42,9 @@ func TestPriceAt(t *testing.T) {
 		{7.25, time.Date(2020, 9, 3, 18, 0, 0, 0, time.UTC)},
 	}
 	for _, test := range tt {
-		assert.Equal(t, test.wantValue, updater.PriceAt("btc", "USD", test.at), "at = %s", test.at)
+		assert.Equal(t,
+			test.wantValue,
+			updater.HistoricalPriceAt("btc", "USD", test.at), "at = %s", test.at)
 	}
 }
 
@@ -111,10 +113,10 @@ func TestUpdateHistory(t *testing.T) {
 
 func TestFetchGeckoMarketRangeInvalidCoinFiat(t *testing.T) {
 	tt := []struct{ coin, fiat string }{
-		{coins[0], "invalid"},
-		{coins[0], ""},
-		{"unsupported", fiats[0]},
-		{"", fiats[0]},
+		{"BTC", "invalid"},
+		{"BTC", ""},
+		{"unsupported", "USD"},
+		{"", "USD"},
 	}
 	for _, test := range tt {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -213,7 +215,7 @@ func TestReconfigureHistoryLoadsFromDB(t *testing.T) {
 	// RateUpdater.loadHistoryBucket and add the following here:
 	// assert.Equal(t, nil, updater2.history["btcUSD"])
 	for _, rate := range sampleRates {
-		v := updater2.PriceAt("btc", "USD", rate.timestamp)
+		v := updater2.HistoricalPriceAt("btc", "USD", rate.timestamp)
 		assert.Equal(t, rate.value, v, "PriceAt(btc, USD, %d)", rate.timestamp.Unix())
 	}
 }

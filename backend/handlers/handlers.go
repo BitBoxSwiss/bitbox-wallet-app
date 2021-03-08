@@ -579,7 +579,7 @@ func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) (in
 }
 
 func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.RatesUpdater().Last(), nil
+	return handlers.backend.RatesUpdater().LatestPrice(), nil
 }
 
 func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{}, error) {
@@ -593,7 +593,7 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 			"errMsg":  "invalid amount",
 		}, nil
 	}
-	rate := handlers.backend.RatesUpdater().Last()[from][to]
+	rate := handlers.backend.RatesUpdater().LatestPrice()[from][to]
 	return map[string]interface{}{
 		"success":    true,
 		"fiatAmount": strconv.FormatFloat(amountAsFloat*rate, 'f', 2, 64),
@@ -625,7 +625,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	case "TBTC", "TLTC", "TETH", "RETH":
 		unit = unit[1:]
 	}
-	rate := handlers.backend.RatesUpdater().Last()[unit][from]
+	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
 	result := 0.0
 	if rate != 0.0 {
 		result = amountAsFloat / rate
