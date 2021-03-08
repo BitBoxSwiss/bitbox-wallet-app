@@ -294,25 +294,22 @@ func (account *Account) Initialize() error {
 	account.db = db
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
-	onConnectionStatusChanged := func(status blockchain.Status) {
-		switch status {
-		case blockchain.DISCONNECTED:
-			account.log.Warn("Connection to blockchain backend lost")
-			account.SetOffline(true)
-		case blockchain.CONNECTED:
+	onConnectionStatusChanged := func(err error) {
+		if err != nil {
+			account.log.WithError(err).Warn("Connection to blockchain backend lost")
+			account.SetOffline(err)
+		} else {
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
 			account.ResetSynced()
-			account.SetOffline(false)
+			account.SetOffline(nil)
 			account.minRelayFeeRate = nil
 			account.log.Debug("Connection to blockchain backend established")
-		default:
-			account.log.Panicf("Status %d is unknown.", status)
 		}
 	}
 	account.coin.Initialize()
-	account.SetOffline(account.coin.Blockchain().ConnectionStatus() == blockchain.DISCONNECTED)
-	account.coin.Blockchain().RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
+	account.SetOffline(account.coin.Blockchain().ConnectionError())
+	account.coin.Blockchain().RegisterOnConnectionErrorChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
@@ -427,7 +424,7 @@ func (account *Account) onNewHeader(header *blockchain.Header) {
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
 	// Wait until synchronized, to include server errors without manually dealing with sync status.
-	if !account.Offline() {
+	if account.Offline() == nil {
 		account.Synchronizer.WaitSynchronized()
 	}
 	return account.fatalError

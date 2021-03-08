@@ -210,9 +210,9 @@ func (account *Account) poll(initDone func()) {
 			}
 			if err := account.update(); err != nil {
 				account.log.WithError(err).Error("error updating account")
-				account.SetOffline(true)
+				account.SetOffline(err)
 			} else {
-				account.SetOffline(false)
+				account.SetOffline(nil)
 			}
 			if initDone != nil {
 				initDone()

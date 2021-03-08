@@ -107,28 +107,15 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 	return electrumClient
 }
 
-// ConnectionStatus returns the current connection status of the backend.
-func (client *ElectrumClient) ConnectionStatus() blockchain.Status {
-	switch client.rpc.ConnectionStatus() {
-	case jsonrpc.CONNECTED:
-		return blockchain.CONNECTED
-	case jsonrpc.DISCONNECTED:
-		return blockchain.DISCONNECTED
-	}
-	panic(errp.New("Connection status could not be determined"))
+// ConnectionError returns the current connection status of the backend.
+func (client *ElectrumClient) ConnectionError() error {
+	return client.rpc.ConnectionError()
 }
 
-// RegisterOnConnectionStatusChangedEvent registers an event that forwards the connection status from
+// RegisterOnConnectionErrorChangedEvent registers an event that forwards the connection status from
 // the underlying client to the given callback.
-func (client *ElectrumClient) RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged func(blockchain.Status)) {
-	client.rpc.RegisterOnConnectionStatusChangedEvent(func(status jsonrpc.Status) {
-		switch status {
-		case jsonrpc.CONNECTED:
-			onConnectionStatusChanged(blockchain.CONNECTED)
-		case jsonrpc.DISCONNECTED:
-			onConnectionStatusChanged(blockchain.DISCONNECTED)
-		}
-	})
+func (client *ElectrumClient) RegisterOnConnectionErrorChangedEvent(f func(error)) {
+	client.rpc.RegisterOnConnectionErrorChangedEvent(f)
 }
 
 // serverVersion is returned by serverVersion().

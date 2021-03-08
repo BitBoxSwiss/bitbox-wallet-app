@@ -16,6 +16,7 @@ package accounts
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 	"time"
 
@@ -86,12 +87,12 @@ func TestBaseAccount(t *testing.T) {
 	})
 
 	t.Run("offline", func(t *testing.T) {
-		require.False(t, account.Offline())
-		account.SetOffline(true)
-		require.True(t, account.Offline())
+		require.NoError(t, account.Offline())
+		account.SetOffline(errors.New("error"))
+		require.Error(t, account.Offline())
 		require.Equal(t, EventStatusChanged, checkEvent())
-		account.SetOffline(false)
-		require.False(t, account.Offline())
+		account.SetOffline(nil)
+		require.NoError(t, account.Offline())
 		require.Equal(t, EventStatusChanged, checkEvent())
 	})
 

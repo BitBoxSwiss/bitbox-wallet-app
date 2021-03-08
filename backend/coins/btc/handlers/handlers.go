@@ -385,7 +385,7 @@ type statusResponse struct {
 	// Synced indicates that the account is synced.
 	Synced bool `json:"synced"`
 	// Offline indicates that the connection to the blockchain network could not be established.
-	Offline bool `json:"offline"`
+	OfflineError *string `json:"offlineError"`
 	// FatalError indicates that there was a fatal error in handling the account. When this happens,
 	// an error is shown to the user and the account is made unusable.
 	FatalError bool `json:"fatalError"`
@@ -395,10 +395,16 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 	if handlers.account == nil {
 		return statusResponse{Disabled: true}, nil
 	}
+	offlineErr := handlers.account.Offline()
+	var offlineError *string
+	if offlineErr != nil {
+		s := offlineErr.Error()
+		offlineError = &s
+	}
 	return statusResponse{
-		Synced:     handlers.account.Synced(),
-		Offline:    handlers.account.Offline(),
-		FatalError: handlers.account.FatalError(),
+		Synced:       handlers.account.Synced(),
+		OfflineError: offlineError,
+		FatalError:   handlers.account.FatalError(),
 	}, nil
 }
 
