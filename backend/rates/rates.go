@@ -229,38 +229,37 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-	res, err := updater.httpClient.Do(req.WithContext(ctx))
-	if err != nil {
-		updater.log.WithError(err).WithField("url", endpoint).Error("Error getting rates")
-		updater.last = nil
-		return
-	}
-	defer res.Body.Close() //nolint:errcheck
-	if res.StatusCode != http.StatusOK {
-		updater.log.Errorf("bad response code %d", res.StatusCode)
-		updater.last = nil
-		return
-	}
-	const max = 10240
-	responseBody, err := ioutil.ReadAll(io.LimitReader(res.Body, max+1))
-	if err != nil {
-		updater.last = nil
-		return
-	}
-	if len(responseBody) > max {
-		updater.log.Errorf("rates response too long (> %d bytes)", max)
-		updater.last = nil
-		return
-	}
 	var geckoRates map[string]map[string]float64
-	if err := json.Unmarshal(responseBody, &geckoRates); err != nil {
-		updater.log.WithError(err).Errorf("could not parse rates response: %s", string(responseBody))
+	callErr := updater.geckoLimiter.Call(ctx, "updateLast", func() error {
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		res, err := updater.httpClient.Do(req.WithContext(ctx))
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		defer res.Body.Close() //nolint:errcheck
+		if res.StatusCode != http.StatusOK {
+			return errp.Newf("bad response code %d", res.StatusCode)
+		}
+		const max = 10240
+		responseBody, err := ioutil.ReadAll(io.LimitReader(res.Body, max+1))
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		if len(responseBody) > max {
+			return errp.Newf("rates response too long (> %d bytes)", max)
+		}
+		if err := json.Unmarshal(responseBody, &geckoRates); err != nil {
+			return errp.WithMessage(err,
+				fmt.Sprintf("could not parse rates response: %s", string(responseBody)))
+		}
+		return nil
+	})
+	if callErr != nil {
+		updater.log.WithError(callErr).Errorf("updateLast")
 		updater.last = nil
 		return
 	}
-
 	// Convert the map with coingecko coin/fiat codes to a map of coin/fiat units.
 	rates := map[string]map[string]float64{}
 	for coin, val := range geckoRates {
@@ -289,7 +288,6 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 	if reflect.DeepEqual(rates, updater.last) {
 		return
 	}
-
 	updater.last = rates
 	updater.Notify(observable.Event{
 		Subject: "rates",
