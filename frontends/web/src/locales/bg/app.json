@@ -532,10 +532,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Обменните курсове се актуализират веднъж на минута от CryptoCompare (www.cryptocompare.com).",
+      "text": "Обменните курсове се актуализират веднъж на минута от CoinGecko.",
       "title": "Какви обменни курсове използваме?"
     },
     "accountReload": {

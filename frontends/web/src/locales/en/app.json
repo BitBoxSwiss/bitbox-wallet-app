@@ -154,7 +154,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Device attestation failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again.",
+    "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@shiftcrypto.ch if this persists.",
     "backup": {
       "point1": "Select a backup on the microSD card",
       "point2": "Set a password for your device",
@@ -704,10 +704,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "We update exchange rates every minute from CryptoCompare. www.cryptocompare.com\n",
+      "text": "We update exchange rates every minute from CoinGecko.",
       "title": "Which exchange rates apply?"
     },
     "accountReload": {

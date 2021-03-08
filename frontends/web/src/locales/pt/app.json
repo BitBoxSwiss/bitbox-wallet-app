@@ -444,10 +444,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Nós atualizamos as taxas de câmbio a cada minuto no CryptoCompare. www.cryptocompare.com\n",
+      "text": "Nós atualizamos as taxas de câmbio a cada minuto no CoinGecko.",
       "title": "Quais taxas de câmbio são aplicadas?"
     },
     "accountReload": {

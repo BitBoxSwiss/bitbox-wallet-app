@@ -343,10 +343,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Kadar pertukaran dikemas kini setiap minit oleh CryptoCompare.",
+      "text": "Kadar pertukaran dikemas kini setiap minit oleh CoinGecko.",
       "title": "Kadar mana yang digunakan?"
     },
     "accountReload": {

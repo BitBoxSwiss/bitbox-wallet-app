@@ -601,10 +601,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Kripto para kurlarını her dakika CryptoCompare'dan güncelliyoruz. www.cryptocompare.com\n",
+      "text": "Kripto para kurlarını her dakika CoinGecko'dan güncelliyoruz.",
       "title": "Hangi döviz kurları uygulanıyor?"
     },
     "accountReload": {

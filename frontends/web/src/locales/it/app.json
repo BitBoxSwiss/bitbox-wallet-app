@@ -517,10 +517,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Aggiorniamo i tassi di cambio ogni minuto da CryptoCompare. www.cryptocompare.com",
+      "text": "Aggiorniamo i tassi di cambio ogni minuto da CoinGecko.",
       "title": "Quali tassi di cambio si applicano?"
     },
     "accountReload": {

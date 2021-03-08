@@ -469,10 +469,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "換算レートは毎分CryptoCompareの情報を取得して更新されます。",
+      "text": "換算レートは毎分CoinGeckoの情報を取得して更新されます。",
       "title": "どのレートが使用されていますか？"
     },
     "accountReload": {

@@ -707,10 +707,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Menjalni tečaji se vsako minuto posodobijo s strani CryptoCompare, www.cryptocompare.com.",
+      "text": "Menjalni tečaji se vsako minuto posodobijo s strani CoinGecko.",
       "title": "Od kod izvirajo prikazani menjalni tečaji?"
     },
     "accountReload": {

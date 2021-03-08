@@ -601,10 +601,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "हम CryptoCompare से हर मिनट विनिमय दर अपडेट करते हैं। www.cryptocompare.com\n",
+      "text": "हम CoinGecko से हर मिनट विनिमय दर अपडेट करते हैं। \n",
       "title": "कौन सी विनिमय दरें लागू होती हैं?"
     },
     "accountReload": {

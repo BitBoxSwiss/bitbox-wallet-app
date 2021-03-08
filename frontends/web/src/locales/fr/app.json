@@ -634,10 +634,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Les taux de change sont mis à jour toutes les minutes à partir de CryptoCompare.\nwww.cryptocompare.com",
+      "text": "Les taux de change sont mis à jour toutes les minutes à partir de CoinGecko.",
       "title": "Quels taux de change sont utilisés ?"
     },
     "accountReload": {
