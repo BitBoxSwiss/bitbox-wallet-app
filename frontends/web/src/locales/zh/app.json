@@ -601,10 +601,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "我们每分钟都会通过CryptoCompare更新汇率。 www.cryptocompare.com\n",
+      "text": "我们每分钟都会通过CoinGecko更新汇率。",
       "title": "使用的哪种汇率？"
     },
     "accountReload": {

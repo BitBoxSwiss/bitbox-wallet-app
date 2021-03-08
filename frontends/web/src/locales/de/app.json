@@ -154,7 +154,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "BitBox Überprüfung fehlgeschlagen. Bitte stecken Sie die BitBox aus und wieder ein. ",
+    "attestationFailed": "Echtheitsprüfung fehlgeschlagen. Bitte stecken Sie die BitBox aus und wieder ein.  Bitte kontaktieren Sie support@shiftcrypto.ch, falls dieses Problem weiterhin besteht.",
     "backup": {
       "point1": "Wähle ein Backup von der microSD Karte aus",
       "point2": "Setze ein Passwort für dein Gerät",
@@ -450,7 +450,7 @@
     "check": "Backup überprüfen",
     "continue": "Weiter",
     "copy": "Kopieren",
-    "create": "Backup erstellen",
+    "create": "Erstellen",
     "download": "Herunterladen",
     "hiddenwallet": "Verstecktes Wallet erstellen",
     "next": "Weiter",
@@ -688,10 +688,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Die Wechselkurse werden minütlich von CryptoCompare aktualisiert.",
+      "text": "Die Wechselkurse werden minütlich von CoinGecko aktualisiert.",
       "title": "Welche Wechselkurse werden benutzt?"
     },
     "accountReload": {

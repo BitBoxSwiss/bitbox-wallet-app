@@ -458,10 +458,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Курсы валют обновляются каждую минуту с помощью CryptoCompare.",
+      "text": "Курсы валют обновляются каждую минуту с помощью CoinGecko.",
       "title": "Какие курсы используются?"
     },
     "accountReload": {

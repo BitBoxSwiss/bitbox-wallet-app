@@ -707,10 +707,10 @@
     },
     "accountRates": {
       "link": {
-        "text": "www.cryptocompare.com",
-        "url": "https://www.cryptocompare.com"
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
       },
-      "text": "Los tipos de cambio se actualizan cada minuto desde CryptoCompare. www.cryptocompare.com",
+      "text": "Los tipos de cambio se actualizan cada minuto desde CoinGecko.",
       "title": "¿Qué tipo de cambio se utiliza?"
     },
     "accountReload": {
