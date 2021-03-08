@@ -95,10 +95,9 @@ type heartBeat struct {
 // remote notifications.
 type RPCClient struct {
 	connection *connection
-	connLock   locker.Locker
+	connLock   sync.RWMutex
 
-	backends     []*Backend
-	backendsLock locker.Locker
+	backends []*Backend
 
 	pendingRequests     map[int]*request
 	pendingRequestsLock locker.Locker
@@ -258,21 +257,17 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 // establishConnection attempts to establish a connection to a given backend. On success, it returns
 // a connection, otherwise it returns an error. If successful, the read function is started in a
 // separate go routine to listen for incoming data.
-func (client *RPCClient) establishConnection(backend *Backend) error {
+func (client *RPCClient) establishConnection(backend *Backend) (*connection, error) {
 	conn, err := backend.EstablishConnection()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	client.log = client.log.WithField("backend", backend.Name)
 	client.log.Debugf("Established connection to backend")
-	client.connection = &connection{conn, backend}
-	go client.read(client.connection, client.handleResponse)
-	if err := client.onConnectCallback(); err != nil {
-		client.log.WithError(err).Error("Error happened in connect callback")
-		return err
-	}
+	rpcConn := &connection{conn, backend}
+	go client.read(rpcConn, client.handleResponse)
 	go client.ping()
-	return nil
+	return rpcConn, nil
 }
 
 func (client *RPCClient) notify(err error) {
@@ -294,37 +289,63 @@ func (client *RPCClient) setConnectionError(err error) {
 // desktop applications, but we store the active connection and ping it regularly to
 // keep it alive (see ping()).
 func (client *RPCClient) conn() (*connection, error) {
-	if client.connection == nil {
-		defer client.connLock.Lock()()
-		if client.connection == nil {
-			defer client.backendsLock.RLock()()
-			start := 0
-			if len(client.backends) > 0 {
-				start = rand.Intn(len(client.backends))
-			}
-			lastErr := errp.New("No full nodes configured.")
-			for i := 0; i < len(client.backends); i++ {
-				client.log.Debugf("Trying to connect to backend %v", client.backends[start].Name)
-				lastErr = client.establishConnection(client.backends[start])
-				if lastErr != nil {
-					client.log.WithError(lastErr).Info("Failover: backend is down")
-					start = (start + 1) % len(client.backends)
-				} else {
-					client.log.Debug("Successfully connected to backend")
-					break
-				}
-			}
-			if lastErr != nil {
-				client.log = client.log.WithField("backend", "offline")
-				// tried all backends
-				client.log.Debug("Disconnected from all backends")
-				client.setConnectionError(lastErr)
-				return nil, lastErr
-			}
-			client.setConnectionError(nil)
-		}
+	client.connLock.RLock()
+	conn := client.connection
+	client.connLock.RUnlock()
+	if conn != nil {
+		return conn, nil
 	}
-	return client.connection, nil
+
+	conn, err := func() (*connection, error) {
+		client.connLock.Lock()
+		defer client.connLock.Unlock()
+		if client.connection != nil {
+			return client.connection, nil
+		}
+
+		start := 0
+		if len(client.backends) > 0 {
+			start = rand.Intn(len(client.backends))
+		}
+		lastErr := errp.New("No full nodes configured.")
+		for i := 0; i < len(client.backends); i++ {
+			client.log.Debugf("Trying to connect to backend %v", client.backends[start].Name)
+			conn, err := client.establishConnection(client.backends[start])
+			if err != nil {
+				client.log.WithError(err).Info("Failover: backend is down")
+				start = (start + 1) % len(client.backends)
+				lastErr = err
+				client.connection = nil
+			} else {
+				client.log.Debug("Successfully connected to backend")
+				client.connection = conn
+				lastErr = nil
+				break
+			}
+		}
+		if lastErr != nil {
+			client.log = client.log.WithField("backend", "offline")
+			// tried all backends
+			client.log.Debug("Disconnected from all backends")
+			client.setConnectionError(lastErr)
+			return nil, lastErr
+		}
+		client.setConnectionError(nil)
+		return client.connection, nil
+	}()
+	if err != nil {
+		return nil, err
+	}
+	if err := client.onConnectCallback(); err != nil {
+		client.setConnectionError(err)
+		client.log.WithError(err).Error("Error happened in connect callback")
+
+		client.connLock.Lock()
+		client.connection = nil
+		client.connLock.Unlock()
+		return nil, err
+	}
+	return conn, nil
 }
 
 // cleanupFinishedRequest removes the finished request from the collection of pending requests
@@ -352,7 +373,8 @@ func (client *RPCClient) cleanupFinishedRequest(responseError error, conn *conne
 			// if connection is still up and running we add it to the list of subscription requests
 			// and remove it from the collection of pending requests.  Otherwise it remains in the
 			// collection of pending requests.
-			defer client.connLock.Lock()()
+			client.connLock.RLock()
+			defer client.connLock.RUnlock()
 			if client.connection == conn {
 				client.subscriptionRequests = append(client.subscriptionRequests, finishedRequest)
 				delete(client.pendingRequests, responseID)
