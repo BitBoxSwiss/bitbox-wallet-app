@@ -179,7 +179,7 @@ class Account extends Component<Props, State> {
         if (!this.props.code || status === undefined || status.fatalError) {
             return;
         }
-        if (status.synced && !status.offline) {
+        if (status.synced && status.offlineError === null) {
             const expectedCode = this.props.code;
             Promise.all([
                 accountApi.getBalance(this.props.code).then(balance => {
@@ -278,7 +278,7 @@ class Account extends Component<Props, State> {
                     <Status type="warning">
                         {hasCard && t('warning.sdcard')}
                     </Status>
-                    { status.offline ? (
+                    { status.offlineError !== null ? (
                         <Status>
                             <p>{t('account.reconnecting')}</p>
                         </Status>
@@ -328,10 +328,12 @@ class Account extends Component<Props, State> {
                                 <Balance balance={balance} />
                             </div>
                             {
-                                !status.synced || status.offline || !this.dataLoaded() || status.fatalError ? (
+                                !status.synced || status.offlineError !== null || !this.dataLoaded() || status.fatalError ? (
                                     <Spinner text={
                                         status.fatalError && t('account.fatalError') ||
-                                        status.offline && t('account.reconnecting') ||
+                                        status.offlineError !== null && (
+                                            t('account.reconnecting') + '\n' + status.offlineError
+                                        ) ||
                                         !status.synced && (
                                             t('account.initializing')
                                             + initializingSpinnerText

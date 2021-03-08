@@ -23,15 +23,15 @@ func (_m *Interface) Close() {
 	_m.Called()
 }
 
-// ConnectionStatus provides a mock function with given fields:
-func (_m *Interface) ConnectionStatus() blockchain.Status {
+// ConnectionError provides a mock function with given fields:
+func (_m *Interface) ConnectionError() error {
 	ret := _m.Called()
 
-	var r0 blockchain.Status
-	if rf, ok := ret.Get(0).(func() blockchain.Status); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(blockchain.Status)
+		r0 = ret.Error(0)
 	}
 
 	return r0
@@ -57,8 +57,8 @@ func (_m *Interface) HeadersSubscribe(_a0 func() func(error), _a1 func(*blockcha
 	_m.Called(_a0, _a1)
 }
 
-// RegisterOnConnectionStatusChangedEvent provides a mock function with given fields: _a0
-func (_m *Interface) RegisterOnConnectionStatusChangedEvent(_a0 func(blockchain.Status)) {
+// RegisterOnConnectionErrorChangedEvent provides a mock function with given fields: _a0
+func (_m *Interface) RegisterOnConnectionErrorChangedEvent(_a0 func(error)) {
 	_m.Called(_a0)
 }
 

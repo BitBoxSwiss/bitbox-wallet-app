@@ -92,16 +92,6 @@ type Header struct {
 	BlockHeight int
 }
 
-// Status is the connection status to the blockchain node.
-type Status int
-
-const (
-	// CONNECTED indicates that we are online
-	CONNECTED Status = iota
-	// DISCONNECTED indicates that we are offline
-	DISCONNECTED
-)
-
 // Interface is the interface to a blockchain index backend. Currently geared to Electrum, though
 // other backends can implement the same interface.
 //go:generate mockery --name Interface
@@ -116,6 +106,6 @@ type Interface interface {
 	Headers(int, int, func([]*wire.BlockHeader, int))
 	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
 	Close()
-	ConnectionStatus() Status
-	RegisterOnConnectionStatusChangedEvent(func(Status))
+	ConnectionError() error
+	RegisterOnConnectionErrorChangedEvent(func(error))
 }

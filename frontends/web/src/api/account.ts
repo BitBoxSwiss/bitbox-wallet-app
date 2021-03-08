@@ -45,7 +45,7 @@ export interface IStatus {
     disabled: boolean;
     synced: boolean;
     fatalError: boolean;
-    offline: boolean;
+    offlineError: string | null;
 }
 
 export const getStatus = (code: string): Promise<IStatus> => {

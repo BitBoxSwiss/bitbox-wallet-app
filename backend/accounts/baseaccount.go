@@ -63,7 +63,7 @@ type BaseAccount struct {
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
 	synced  bool
-	offline bool
+	offline error
 
 	notes *notes.Notes
 
@@ -117,18 +117,15 @@ func (account *BaseAccount) ResetSynced() {
 }
 
 // Offline implements Interface.
-func (account *BaseAccount) Offline() bool {
+func (account *BaseAccount) Offline() error {
 	return account.offline
 }
 
 // SetOffline sets the account offline status and emits the EventStatusChanged() if the status
 // changed.
-func (account *BaseAccount) SetOffline(offline bool) {
-	wasOffline := account.offline
+func (account *BaseAccount) SetOffline(offline error) {
 	account.offline = offline
-	if wasOffline != offline {
-		account.config.OnEvent(EventStatusChanged)
-	}
+	account.config.OnEvent(EventStatusChanged)
 }
 
 // Initialize initializes the account. `accountIdentifier` is used as part of the filename of
