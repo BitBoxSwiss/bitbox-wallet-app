@@ -16,6 +16,7 @@ package jsonrpc
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,6 +27,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,6 +37,8 @@ func init() {
 
 const (
 	responseTimeout = 30 * time.Second
+	// If all backends are down, wait for this duration before trying again.
+	connectionRetryAfter = 30 * time.Second
 )
 
 // Backend is a server to connect to.
@@ -94,11 +98,11 @@ type heartBeat struct {
 // RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
 // remote notifications.
 type RPCClient struct {
-	connection *connection
-	connLock   locker.Locker
+	connection      *connection
+	connLock        sync.RWMutex
+	connRateLimiter *ratelimit.LimitedCall
 
-	backends     []*Backend
-	backendsLock locker.Locker
+	backends []*Backend
 
 	pendingRequests     map[int]*request
 	pendingRequestsLock locker.Locker
@@ -111,9 +115,9 @@ type RPCClient struct {
 
 	retryLock locker.Locker
 
-	status                              Status
-	onConnectionStatusChangesNotify     []func(Status)
-	onConnectionStatusChangesNotifyLock locker.Locker
+	connectionError                    error
+	onConnectionErrorChangesNotify     []func(error)
+	onConnectionErrorChangesNotifyLock locker.Locker
 
 	onConnectCallback func() error
 	heartBeat         *heartBeat
@@ -134,35 +138,33 @@ type RPCClient struct {
 // connection). onError is called for unexpected errors like malformed server responses.
 func NewRPCClient(backends []*Backend, onError func(error), log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
-		backends:                        backends,
-		msgID:                           0,
-		status:                          CONNECTED,
-		onConnectionStatusChangesNotify: []func(Status){},
-		pendingRequests:                 map[int]*request{},
-		pingRequests:                    map[int]bool{},
-		subscriptionRequests:            []*request{},
-		notificationsCallbacks:          map[string][]func([]byte){},
-		onError:                         onError,
-		log:                             log,
+		connRateLimiter:                ratelimit.NewLimitedCall(connectionRetryAfter),
+		backends:                       backends,
+		msgID:                          0,
+		connectionError:                nil,
+		onConnectionErrorChangesNotify: []func(error){},
+		pendingRequests:                map[int]*request{},
+		pingRequests:                   map[int]bool{},
+		subscriptionRequests:           []*request{},
+		notificationsCallbacks:         map[string][]func([]byte){},
+		onError:                        onError,
+		log:                            log,
 	}
 	return client
 }
 
-// ConnectionStatus returns the current connection status of this client to the backend(s).
-func (client *RPCClient) ConnectionStatus() Status {
-	if _, err := client.conn(); err != nil {
-		return DISCONNECTED
-	}
-	return CONNECTED
+// ConnectionError returns the current connection status of this client to the backend(s).
+func (client *RPCClient) ConnectionError() error {
+	return client.connectionError
 }
 
-// RegisterOnConnectionStatusChangedEvent registers an event that is fired if the connection status changes.
+// RegisterOnConnectionErrorChangedEvent registers an event that is fired if the connection status changes.
 // After registration it fires the event to notify the holder of the callback about the current status.
 // TODO: eventually return a de-register method that deletes the callback. Will be required once we
 // allow the user to manage their accounts fully.
-func (client *RPCClient) RegisterOnConnectionStatusChangedEvent(onConnectionStatusChangedEvent func(Status)) {
-	defer client.onConnectionStatusChangesNotifyLock.Lock()()
-	client.onConnectionStatusChangesNotify = append(client.onConnectionStatusChangesNotify, onConnectionStatusChangedEvent)
+func (client *RPCClient) RegisterOnConnectionErrorChangedEvent(onConnectionStatusChangedEvent func(error)) {
+	defer client.onConnectionErrorChangesNotifyLock.Lock()()
+	client.onConnectionErrorChangesNotify = append(client.onConnectionErrorChangesNotify, onConnectionStatusChangedEvent)
 }
 
 func (client *RPCClient) requeueSubscriptions() {
@@ -245,7 +247,7 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 				panic(errp.Newf("Unrecoverable error happened in read channel: %v", r))
 			}
 		} else if client.close {
-			client.setStatus(DISCONNECTED)
+			client.setConnectionError(nil)
 		}
 	}()
 	reader := bufio.NewReader(connection.conn)
@@ -261,33 +263,29 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 // establishConnection attempts to establish a connection to a given backend. On success, it returns
 // a connection, otherwise it returns an error. If successful, the read function is started in a
 // separate go routine to listen for incoming data.
-func (client *RPCClient) establishConnection(backend *Backend) error {
+func (client *RPCClient) establishConnection(backend *Backend) (*connection, error) {
 	conn, err := backend.EstablishConnection()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	client.log = client.log.WithField("backend", backend.Name)
 	client.log.Debugf("Established connection to backend")
-	client.connection = &connection{conn, backend}
-	go client.read(client.connection, client.handleResponse)
-	if err := client.onConnectCallback(); err != nil {
-		client.log.WithError(err).Error("Error happened in connect callback")
-		return err
-	}
+	rpcConn := &connection{conn, backend}
+	go client.read(rpcConn, client.handleResponse)
 	go client.ping()
-	return nil
+	return rpcConn, nil
 }
 
-func (client *RPCClient) notify(status Status) {
-	for _, callback := range client.onConnectionStatusChangesNotify {
-		callback(status)
+func (client *RPCClient) notify(err error) {
+	for _, callback := range client.onConnectionErrorChangesNotify {
+		callback(err)
 	}
 }
 
-func (client *RPCClient) setStatus(status Status) {
-	if status != client.status {
-		client.status = status
-		go client.notify(status)
+func (client *RPCClient) setConnectionError(err error) {
+	if err != client.connectionError {
+		client.connectionError = err
+		go client.notify(err)
 	}
 }
 
@@ -297,35 +295,67 @@ func (client *RPCClient) setStatus(status Status) {
 // desktop applications, but we store the active connection and ping it regularly to
 // keep it alive (see ping()).
 func (client *RPCClient) conn() (*connection, error) {
-	if client.connection == nil {
-		defer client.connLock.Lock()()
-		if client.connection == nil {
-			defer client.backendsLock.RLock()()
+	client.connLock.RLock()
+	conn := client.connection
+	client.connLock.RUnlock()
+	if conn != nil {
+		return conn, nil
+	}
+
+	conn = nil
+	err := client.connRateLimiter.Call(context.TODO(), "establish connection",
+		func() error {
+			client.connLock.Lock()
+			defer client.connLock.Unlock()
+			if client.connection != nil {
+				conn = client.connection
+				return nil
+			}
+
 			start := 0
 			if len(client.backends) > 0 {
 				start = rand.Intn(len(client.backends))
 			}
+			lastErr := errp.New("No full nodes configured.")
 			for i := 0; i < len(client.backends); i++ {
 				client.log.Debugf("Trying to connect to backend %v", client.backends[start].Name)
-				err := client.establishConnection(client.backends[start])
+				conn, err := client.establishConnection(client.backends[start])
 				if err != nil {
 					client.log.WithError(err).Info("Failover: backend is down")
 					start = (start + 1) % len(client.backends)
+					lastErr = err
+					client.connection = nil
 				} else {
 					client.log.Debug("Successfully connected to backend")
+					client.connection = conn
+					lastErr = nil
 					break
 				}
 			}
-			if client.connection == nil {
+			if lastErr != nil {
 				client.log = client.log.WithField("backend", "offline")
 				// tried all backends
-				client.setStatus(DISCONNECTED)
-				return nil, errp.Newf("Disconnected from all backends")
+				client.log.Debug("Disconnected from all backends")
+				client.setConnectionError(lastErr)
+				return lastErr
 			}
-			go client.setStatus(CONNECTED)
-		}
+			client.setConnectionError(nil)
+			conn = client.connection
+			return nil
+		})
+	if err != nil {
+		return nil, err
 	}
-	return client.connection, nil
+	if err := client.onConnectCallback(); err != nil {
+		client.setConnectionError(err)
+		client.log.WithError(err).Error("Error happened in connect callback")
+
+		client.connLock.Lock()
+		client.connection = nil
+		client.connLock.Unlock()
+		return nil, err
+	}
+	return conn, nil
 }
 
 // cleanupFinishedRequest removes the finished request from the collection of pending requests
@@ -353,7 +383,8 @@ func (client *RPCClient) cleanupFinishedRequest(responseError error, conn *conne
 			// if connection is still up and running we add it to the list of subscription requests
 			// and remove it from the collection of pending requests.  Otherwise it remains in the
 			// collection of pending requests.
-			defer client.connLock.Lock()()
+			client.connLock.RLock()
+			defer client.connLock.RUnlock()
 			if client.connection == conn {
 				client.subscriptionRequests = append(client.subscriptionRequests, finishedRequest)
 				delete(client.pendingRequests, responseID)
