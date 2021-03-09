@@ -288,11 +288,6 @@ class Account extends Component<Props, State> {
                     <Status type="warning">
                         {hasCard && t('warning.sdcard')}
                     </Status>
-                    { status.offlineError !== null ? (
-                        <Status>
-                            <p>{t('account.reconnecting')}</p>
-                        </Status>
-                    ) : null }
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
                         {isBitcoinBased(account.coinCode) ? (
