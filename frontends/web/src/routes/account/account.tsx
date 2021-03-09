@@ -246,6 +246,7 @@ class Account extends Component<Props, State> {
             t,
             code,
             accounts,
+            config,
         }: RenderableProps<Props>,
         {
             status,
@@ -271,6 +272,15 @@ class Account extends Component<Props, State> {
                     defaultValue: 0,
                 })
             ) : '';
+
+        const offlineErrorTextLines: string[] = [];
+        if (status.offlineError !== null) {
+            offlineErrorTextLines.push(t('account.reconnecting'));
+            offlineErrorTextLines.push(status.offlineError);
+            if (config.backend.proxy.useProxy) {
+                offlineErrorTextLines.push(t('account.maybeProxyError'));
+            }
+        }
 
         return (
             <div class="contentWithGuide">
@@ -328,12 +338,10 @@ class Account extends Component<Props, State> {
                                 <Balance balance={balance} />
                             </div>
                             {
-                                !status.synced || status.offlineError !== null || !this.dataLoaded() || status.fatalError ? (
+                                !status.synced || offlineErrorTextLines.length || !this.dataLoaded() || status.fatalError ? (
                                     <Spinner text={
                                         status.fatalError && t('account.fatalError') ||
-                                        status.offlineError !== null && (
-                                            t('account.reconnecting') + '\n' + status.offlineError
-                                        ) ||
+                                        offlineErrorTextLines.join('\n') ||
                                         !status.synced && (
                                             t('account.initializing')
                                             + initializingSpinnerText
