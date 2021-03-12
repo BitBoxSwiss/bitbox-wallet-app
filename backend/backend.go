@@ -1109,7 +1109,7 @@ func (backend *Backend) RatesUpdater() *rates.RateUpdater {
 
 // DownloadCert downloads the first element of the remote certificate chain.
 func (backend *Backend) DownloadCert(server string) (string, error) {
-	return electrum.DownloadCert(server, backend.socksProxy)
+	return electrum.DownloadCert(server, backend.socksProxy.GetTCPProxyDialer())
 }
 
 // CheckElectrumServer checks if a connection can be established with the electrum server, and
