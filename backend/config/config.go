@@ -168,12 +168,12 @@ func NewDefaultAppConfig() AppConfig {
 			BTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "btc1.shiftcrypto.io:50001",
+						Server:  "btc1.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "btc2.shiftcrypto.io:50002",
+						Server:  "btc2.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -182,12 +182,12 @@ func NewDefaultAppConfig() AppConfig {
 			TBTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "tbtc1.shiftcrypto.io:51001",
+						Server:  "tbtc1.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "tbtc2.shiftcrypto.io:51002",
+						Server:  "tbtc2.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -205,12 +205,12 @@ func NewDefaultAppConfig() AppConfig {
 			LTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "ltc1.shiftcrypto.io:50011",
+						Server:  "ltc1.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "ltc2.shiftcrypto.io:50012",
+						Server:  "ltc2.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -219,12 +219,12 @@ func NewDefaultAppConfig() AppConfig {
 			TLTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
 					{
-						Server:  "tltc1.shiftcrypto.io:51011",
+						Server:  "tltc1.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
 					{
-						Server:  "tltc2.shiftcrypto.io:51012",
+						Server:  "tltc2.shiftcrypto.io:443",
 						TLS:     true,
 						PEMCert: shiftRootCA,
 					},
@@ -407,15 +407,27 @@ func migrateElectrumX(appconf *AppConfig) {
 }
 
 func migrateBTCCoinConfig(conf *btcCoinConfig) {
-	newServers := map[string]string{ // old -> new
-		"btc.shiftcrypto.ch:443":          "btc1.shiftcrypto.io:50001",
-		"merkle.shiftcrypto.ch:443":       "btc2.shiftcrypto.io:50002",
-		"btc.shiftcrypto.ch:51002":        "tbtc1.shiftcrypto.io:51001",
-		"merkle.shiftcrypto.ch:51002":     "tbtc2.shiftcrypto.io:51002",
-		"ltc.shiftcrypto.ch:443":          "ltc1.shiftcrypto.io:50011",
-		"ltc.shamir.shiftcrypto.ch:443":   "ltc2.shiftcrypto.io:50012",
-		"ltc.shiftcrypto.ch:51004":        "tltc1.shiftcrypto.io:51011",
-		"ltc.shamir.shiftcrypto.ch:51004": "tltc2.shiftcrypto.io:51012",
+	newServers := map[string]string{
+		// Old pre v1.4 electrum protocol => new v1.4 or later.
+		"btc.shiftcrypto.ch:443":          "btc1.shiftcrypto.io:443",
+		"merkle.shiftcrypto.ch:443":       "btc2.shiftcrypto.io:443",
+		"btc.shiftcrypto.ch:51002":        "tbtc1.shiftcrypto.io:443",
+		"merkle.shiftcrypto.ch:51002":     "tbtc2.shiftcrypto.io:443",
+		"ltc.shiftcrypto.ch:443":          "ltc1.shiftcrypto.io:443",
+		"ltc.shamir.shiftcrypto.ch:443":   "ltc2.shiftcrypto.io:443",
+		"ltc.shiftcrypto.ch:51004":        "tltc1.shiftcrypto.io:443",
+		"ltc.shamir.shiftcrypto.ch:51004": "tltc2.shiftcrypto.io:443",
+		// Same new v1.4 servers, just different ports.
+		// The original 5xxxx ports is what we've migrated app v4.24.1 to.
+		// They remain functional but are more likely to be blocked by various firewalls.
+		"btc1.shiftcrypto.io:50001":  "btc1.shiftcrypto.io:443",
+		"btc2.shiftcrypto.io:50002":  "btc2.shiftcrypto.io:443",
+		"tbtc1.shiftcrypto.io:51001": "tbtc1.shiftcrypto.io:443",
+		"tbtc2.shiftcrypto.io:51002": "tbtc2.shiftcrypto.io:443",
+		"ltc1.shiftcrypto.io:50011":  "ltc1.shiftcrypto.io:443",
+		"ltc2.shiftcrypto.io:50012":  "ltc2.shiftcrypto.io:443",
+		"tltc1.shiftcrypto.io:51011": "tltc1.shiftcrypto.io:443",
+		"tltc2.shiftcrypto.io:51012": "tltc2.shiftcrypto.io:443",
 	}
 	for _, item := range conf.ElectrumServers {
 		if host, ok := newServers[item.Server]; ok {
