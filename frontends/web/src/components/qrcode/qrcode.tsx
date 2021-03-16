@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +29,8 @@ interface State {
 }
 
 class QRCode extends Component<Props, State> {
-    constructor(props) {
-        super(props);
-        this.state = {
-            src: '',
-        };
+    public readonly state: State = {
+        src: '',
     }
 
     public static defaultProps = {

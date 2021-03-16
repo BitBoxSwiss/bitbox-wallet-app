@@ -61,14 +61,11 @@ interface LoadedReceiveProps {
 type Props = LoadedReceiveProps & ReceiveProps & TranslateProps;
 
 class Receive extends Component<Props, State> {
-    constructor(props) {
-        super(props);
-        this.state = {
-            verifying: false,
-            activeIndex: 0,
-            paired: null,
-            addressType: 0,
-        };
+    public readonly state: State = {
+        verifying: false,
+        activeIndex: 0,
+        paired: null,
+        addressType: 0,
     }
 
     public componentDidMount() {
