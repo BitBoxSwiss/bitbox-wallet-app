@@ -1,6 +1,9 @@
 Name "BitBoxApp"
 
-RequestExecutionLevel highest
+# Need admin privileges for writing to $PROGRAMFILES64 and HKLM.
+# Unfortunately, the installer mixes per-user and system-wide things.
+# TODO: Switch to per-user install and drop admin execution level.
+RequestExecutionLevel admin
 SetCompressor /SOLID lzma
 
 # General Symbol Definitions
