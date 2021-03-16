@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,6 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import CheckIcon from '../../assets/icons/check.svg';
-import CopyDisabledIcon from '../../assets/icons/copy-disabled.svg';
 import CopyIcon from '../../assets/icons/copy.svg';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './Copy.css';
@@ -82,6 +82,14 @@ class CopyableInput extends Component<Props, State> {
         { t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
         { success }: State,
     ) {
+        const copyButton = disabled ? null : (
+            <button
+                onClick={this.copy}
+                className={[style.button, success && style.success, 'ignore'].join(' ')}
+                title={t('button.copy')}>
+                <img src={success ? CheckIcon : CopyIcon} />
+            </button>
+        );
         return (
             <div class={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
                 <textarea
@@ -92,13 +100,7 @@ class CopyableInput extends Component<Props, State> {
                     ref={this.setRef}
                     rows={1}
                     className={[style.inputField, flexibleHeight && style.flexibleHeight].join(' ')} />
-                <button
-                    disabled={disabled}
-                    onClick={this.copy}
-                    className={[style.button, success && style.success, 'ignore'].join(' ')}
-                    title={t('button.copy')}>
-                        <img src={success ? CheckIcon : disabled ? CopyDisabledIcon : CopyIcon} />
-                </button>
+                {copyButton}
             </div>
         );
     }
