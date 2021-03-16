@@ -205,16 +205,25 @@ class Transaction extends Component<Props, State> {
                             />
                             <span className={style.status}>{statusText}</span>
                         </div>
-                        <div className={parentStyle.fiat}>
-                            <span className={`${style.fiat} ${typeClassName}`}>
-                                <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
-                            </span>
-                        </div>
                         <div className={parentStyle.currency}>
                             <span className={`${style.currency} ${typeClassName}`}>
                                 {sign}{amount.amount}
                                 {' '}
                                 <span className={style.currencyUnit}>{amount.unit}</span>
+                            </span>
+                        </div>
+                        <div className={parentStyle.fee}>
+                            { type !== 'receive' ? (
+                                <span className={`${style.currency} ${style.send}`}>
+                                    −{fee.amount}
+                                    {' '}
+                                    <span className={style.currencyUnit}>{fee.unit}</span>
+                                </span>
+                            ) : null }
+                        </div>
+                        <div className={parentStyle.fiat}>
+                            <span className={`${style.fiat} ${typeClassName}`}>
+                                <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
                             </span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>

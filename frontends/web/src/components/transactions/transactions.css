@@ -26,7 +26,6 @@
 .headers {
   height: 48px;
   color: var(--color-softblack);
-  text-transform: uppercase;
 }
 
 .columns >  *,
@@ -55,8 +54,8 @@
 }
 
 .activity {
-  min-width: 362px;
-  width: 362px;
+  min-width: 162px;
+  width: 162px;
   text-align: left;
 }
 
@@ -72,6 +71,12 @@
 }
 
 .currency {
+  min-width: 202px;
+  width: 202px;
+  justify-content: flex-end;
+}
+
+.fee {
   min-width: 202px;
   width: 202px;
   justify-content: flex-end;
@@ -139,7 +144,9 @@
   }
 
   .fiat,
-  .currency {
+  .currency,
+  .fee,
+  .status {
     justify-content: flex-start;
     min-width: 0;
     width: auto;
@@ -188,7 +195,7 @@
   }
 
   .status {
-    min-width: 100px;
+    min-width: 30px;
     margin-left: 2px;
   }
 }

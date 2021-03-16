@@ -63,8 +63,9 @@ class Transactions extends Component<Props> {
                     <div className={style.date}>{t('transaction.details.date')}</div>
                     <div className={style.activity}>{t('transaction.details.activity')}</div>
                     <div className={style.status}>{t('transaction.details.status')}</div>
-                    <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
                     <div className={style.currency}>{t('transaction.details.amount')}</div>
+                    <div className={style.fee}>{t('transaction.details.fee')}</div>
+                    <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
                 {

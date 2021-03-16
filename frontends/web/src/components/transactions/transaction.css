@@ -223,7 +223,7 @@
 
 @media (max-width: 1080px), (min-width: 1200px) and (max-width: 1322px) {
     .container {
-        margin: 0 0 var(--space-half) 0;
+        margin: 0 0 2px 0;
     }
 
     .container.first {
@@ -271,5 +271,8 @@
 
     .fee {
         min-width: 0;
+    }
+    .status {
+        display: none;
     }
 }
