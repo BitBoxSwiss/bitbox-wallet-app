@@ -80,9 +80,11 @@ class App extends Component<Props, State> {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
+        setTimeout(this.maybeRoute);
     }
 
     public componentDidMount() {
+        this.maybeRoute();
         this.onBitBoxBasesRegisteredChanged();
         this.onBitBoxBasesDetectedChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
