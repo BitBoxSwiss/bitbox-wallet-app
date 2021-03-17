@@ -29,7 +29,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
@@ -65,6 +64,13 @@ func establishConnection(
 }
 
 func newTLSConnection(address string, rootCert string, dialer proxy.Dialer) (*tls.Conn, error) {
+	// hostname is used as server name in SNI client hello during the handshake.
+	// It is set to empty string by tls.Client if address is an IP address.
+	hostname, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return nil, errp.WithMessage(err, fmt.Sprintf("Invalid server address %q", address))
+	}
+
 	caCertPool := x509.NewCertPool()
 	if ok := caCertPool.AppendCertsFromPEM([]byte(rootCert)); !ok {
 		return nil, errp.New("Failed to append CA cert as trusted cert")
@@ -74,7 +80,8 @@ func newTLSConnection(address string, rootCert string, dialer proxy.Dialer) (*tl
 		return nil, errp.WithStack(err)
 	}
 	tlsConn := tls.Client(conn, &tls.Config{
-		RootCAs: caCertPool,
+		ServerName: hostname,
+		RootCAs:    caCertPool,
 		// Expecting a self-signed cert.
 		// See custom verification against a rootCert in VerifyPeerCertificate.
 		InsecureSkipVerify: true,
@@ -150,15 +157,22 @@ func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry, dial
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
-func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, error) {
+func DownloadCert(server string, dialer proxy.Dialer) (string, error) {
+	// hostname is used as server name in SNI client hello during the handshake.
+	// It is set to empty string by tls.Client if address is an IP address.
+	hostname, _, err := net.SplitHostPort(server)
+	if err != nil {
+		return "", errp.WithMessage(err, fmt.Sprintf("Invalid server address %q", server))
+	}
+
 	var pemCert []byte
-	dialer := socksProxy.GetTCPProxyDialer()
 	conn, err := dialer.Dial("tcp", server)
 	if err != nil {
 		return "", errp.WithStack(err)
 	}
 
 	tlsConn := tls.Client(conn, &tls.Config{
+		ServerName: hostname,
 		// Just fetching the cert. No need to verify.
 		// newTLSConnection is where the actual connection happens and the cert is verified.
 		InsecureSkipVerify: true,

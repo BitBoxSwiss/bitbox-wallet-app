@@ -141,7 +141,7 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	}
 	electrumAddress := base.address + ":" + base.electrsRPCPort
 
-	electrumCert, err := electrum.DownloadCert(electrumAddress, base.socksProxy)
+	electrumCert, err := electrum.DownloadCert(electrumAddress, base.socksProxy.GetTCPProxyDialer())
 	if err != nil {
 		base.log.WithField("ElectrumIP: ", electrumAddress).Error(err.Error())
 		return err
