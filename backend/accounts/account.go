@@ -61,7 +61,10 @@ type Interface interface {
 	Initialize() error
 	// Synced indicates whether the account has loaded and finished the initial sync.
 	Synced() bool
-	Offline() bool
+	// If there was a network connection issue, this returns the network error.
+	Offline() error
+	// FatalError indicates that there was a fatal error in handling the account. When this happens,
+	// an error is shown to the user and the account is made unusable.
 	FatalError() bool
 	Close()
 	Notifier() Notifier

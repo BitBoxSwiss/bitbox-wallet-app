@@ -17,9 +17,38 @@
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
 
-export type AccountState = 'accountSynced' | 'accountDisabled' | 'fatalError' | 'offlineMode';
 
-export const getStatus = (code: string): Promise<AccountState[]> => {
+export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
+
+export type Fiat = 'AUD' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'EUR' | 'GBP' | 'ILS' | 'JPY' | 'KRW' | 'RUB' | 'SGD' | 'USD';
+
+export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
+
+export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
+
+export type Coin = MainnetCoin | TestnetCoin;
+
+
+export interface IAccount {
+    coinCode: CoinCode;
+    coinUnit: string;
+    code: string;
+    name: string;
+    blockExplorerTxPrefix: string;
+}
+
+export const getAccounts = (): Promise<IAccount[]> => {
+    return apiGet(`accounts`);
+};
+
+export interface IStatus {
+    disabled: boolean;
+    synced: boolean;
+    fatalError: boolean;
+    offlineError: string | null;
+}
+
+export const getStatus = (code: string): Promise<IStatus> => {
     return apiGet(`account/${code}/status`);
 };
 
@@ -62,14 +91,6 @@ export const exportSummary = (): Promise<string> => {
     return apiPost('export-account-summary');
 };
 
-export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
-
-export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
-
-export type Coin = MainnetCoin | TestnetCoin;
-
-export type Fiat = 'AUD' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'EUR' | 'GBP' | 'ILS' | 'JPY' | 'KRW' | 'RUB' | 'SGD' | 'USD';
-
 export type Conversions = null | {
     [key in Fiat]: string;
 }
@@ -79,8 +100,6 @@ export interface IAmount {
     conversions: Conversions;
     unit: Coin;
 }
-
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
 
 export interface IBalance {
     available: IAmount;

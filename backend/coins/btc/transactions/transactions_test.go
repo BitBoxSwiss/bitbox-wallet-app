@@ -77,8 +77,8 @@ func (blockchain *BlockchainMock) TransactionGet(
 	go success(tx)
 }
 
-func (blockchain *BlockchainMock) ConnectionStatus() blockchainpkg.Status {
-	return blockchainpkg.CONNECTED
+func (blockchain *BlockchainMock) ConnectionError() error {
+	return nil
 }
 
 type transactionsSuite struct {

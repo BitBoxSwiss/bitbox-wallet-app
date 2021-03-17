@@ -29,12 +29,11 @@ import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
 import { apiWebsocket } from '../../../utils/websocket';
-import { IAccount } from '../account';
 import { Chart } from './chart';
 import * as style from './accountssummary.css';
 
 interface AccountSummaryProps {
-    accounts: IAccount[];
+    accounts: accountApi.IAccount[];
 }
 
 interface Balances {
@@ -98,10 +97,7 @@ class AccountsSummary extends Component<Props, State> {
             if (data.subject ===  'account/' + account.code + '/synced-addresses-count') {
                 this.setState(state => {
                     const syncStatus = {...state.syncStatus};
-                    syncStatus[account.code] = this.props.t('account.syncedAddressesCount', {
-                        count: data.object.toString(),
-                        defaultValue: 0,
-                    });
+                    syncStatus[account.code] = data.object;
                     return { syncStatus };
                 });
             }
@@ -121,12 +117,10 @@ class AccountsSummary extends Component<Props, State> {
 
     private onStatusChanged(code: string) {
         accountApi.getStatus(code).then(status => {
-            const accountSynced = status.includes('accountSynced');
-            const accountDisabled = status.includes('accountDisabled');
-            if (accountDisabled) {
+            if (status.disabled) {
                 return;
             }
-            if (!accountSynced) {
+            if (!status.synced) {
                 return accountApi.init(code);
             }
             return accountApi.getBalance(code).then(balance => {
@@ -179,7 +173,10 @@ class AccountsSummary extends Component<Props, State> {
             <tr key={code}>
                 { nameCol }
                 <td colSpan={2}>
-                    { syncStatus }
+                    { t('account.syncedAddressesCount', {
+                        count: syncStatus?.toString(),
+                        defaultValue: 0,
+                    }) }
                     <Spinner />
                 </td>
             </tr>

@@ -46,8 +46,7 @@ func TestAccount(t *testing.T) {
 		code, "Bitcoin Testnet", unit, net, dbFolder, nil, explorer, socksproxy.NewSocksProxy(false, ""))
 
 	blockchainMock := &blockchainMock.BlockchainMock{}
-	blockchainMock.MockRegisterOnConnectionStatusChangedEvent = func(onConnectionStatusChanged func(blockchain.Status)) {
-	}
+	blockchainMock.MockRegisterOnConnectionErrorChangedEvent = func(f func(error)) {}
 
 	coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })
 

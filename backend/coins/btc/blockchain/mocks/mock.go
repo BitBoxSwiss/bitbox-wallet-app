@@ -15,6 +15,8 @@
 package mocks
 
 import (
+	"errors"
+
 	chainhash "github.com/btcsuite/btcd/chaincfg/chainhash"
 	wire "github.com/btcsuite/btcd/wire"
 	btcutil "github.com/btcsuite/btcutil"
@@ -33,9 +35,9 @@ type BlockchainMock struct {
 	MockHeaders              func(int, int, func([]*wire.BlockHeader, int))
 	MockGetMerkle            func(chainhash.Hash, int, func(merkle []blockchain.TXHash, pos int), func(error))
 	MockClose                func()
-	MockConnectionStatus     func() blockchain.Status
+	MockConnectionError      func() error
 
-	MockRegisterOnConnectionStatusChangedEvent func(func(blockchain.Status))
+	MockRegisterOnConnectionErrorChangedEvent func(func(error))
 }
 
 // ScriptHashGetHistory implements Interface.
@@ -111,15 +113,15 @@ func (b *BlockchainMock) Close() {
 	}
 }
 
-// ConnectionStatus implements Interface.
-func (b *BlockchainMock) ConnectionStatus() blockchain.Status {
-	if b.MockConnectionStatus != nil {
-		return b.MockConnectionStatus()
+// ConnectionError implements Interface.
+func (b *BlockchainMock) ConnectionError() error {
+	if b.MockConnectionError != nil {
+		return b.MockConnectionError()
 	}
-	return blockchain.DISCONNECTED
+	return errors.New("disconnected")
 }
 
-// RegisterOnConnectionStatusChangedEvent implements Interface.
-func (b *BlockchainMock) RegisterOnConnectionStatusChangedEvent(f func(blockchain.Status)) {
-	b.MockRegisterOnConnectionStatusChangedEvent(f)
+// RegisterOnConnectionErrorChangedEvent implements Interface.
+func (b *BlockchainMock) RegisterOnConnectionErrorChangedEvent(f func(error)) {
+	b.MockRegisterOnConnectionErrorChangedEvent(f)
 }

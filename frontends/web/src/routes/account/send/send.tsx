@@ -19,7 +19,6 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
-import { IAccount } from '../account';
 import reject from '../../../assets/icons/cancel.svg';
 import approve from '../../../assets/icons/checked.svg';
 import qrcodeIcon from '../../../assets/icons/qrcode.png';
@@ -46,7 +45,7 @@ import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
 interface SendProps {
-    accounts: IAccount[];
+    accounts: accountApi.IAccount[];
     code?: string;
     devices: Devices;
     deviceIDs: string[];

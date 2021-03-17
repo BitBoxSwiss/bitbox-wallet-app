@@ -14,6 +14,7 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Getting information from the blockchain…",
+    "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "openFile": "Open file",
     "reconnecting": "Lost connection, trying to reconnect…",
     "syncedAddressesCount": "Scanned {{count}} addresses"

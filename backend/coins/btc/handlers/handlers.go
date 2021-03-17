@@ -379,42 +379,33 @@ func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
 	return nil, handlers.account.Initialize()
 }
 
-// status indicates the connection and initialization status.
-type status string
-
-const (
-	// accountSynced indicates that the account is synced.
-	accountSynced status = "accountSynced"
-
-	// accountDisabled indicates that the account has not yet been initialized.
-	accountDisabled status = "accountDisabled"
-
-	// offlineMode indicates that the connection to the blockchain network could not be established.
-	offlineMode status = "offlineMode"
-
-	// fatalError indicates that there was a fatal error in handling the account. When this happens,
+type statusResponse struct {
+	// Disabled indicates that the account has not yet been initialized.
+	Disabled bool `json:"disabled"`
+	// Synced indicates that the account is synced.
+	Synced bool `json:"synced"`
+	// Offline indicates that the connection to the blockchain network could not be established.
+	OfflineError *string `json:"offlineError"`
+	// FatalError indicates that there was a fatal error in handling the account. When this happens,
 	// an error is shown to the user and the account is made unusable.
-	fatalError status = "fatalError"
-)
+	FatalError bool `json:"fatalError"`
+}
 
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {
-	status := []status{}
 	if handlers.account == nil {
-		status = append(status, accountDisabled)
-	} else {
-		if handlers.account.Synced() {
-			status = append(status, accountSynced)
-		}
-
-		if handlers.account.Offline() {
-			status = append(status, offlineMode)
-		}
-
-		if handlers.account.FatalError() {
-			status = append(status, fatalError)
-		}
+		return statusResponse{Disabled: true}, nil
 	}
-	return status, nil
+	offlineErr := handlers.account.Offline()
+	var offlineError *string
+	if offlineErr != nil {
+		s := offlineErr.Error()
+		offlineError = &s
+	}
+	return statusResponse{
+		Synced:       handlers.account.Synced(),
+		OfflineError: offlineError,
+		FatalError:   handlers.account.FatalError(),
+	}, nil
 }
 
 type jsonAddress struct {
