@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +25,7 @@ import * as dialogStyle from '../dialog/dialog.css';
 import { Button, Checkbox } from '../forms';
 import { PasswordRepeatInput } from '../password';
 import { Spinner } from '../spinner/Spinner';
-import WaitDialog from '../wait-dialog/wait-dialog';
+import { WaitDialog } from '../wait-dialog/wait-dialog';
 import * as style from './backups.css';
 
 interface RestoreProps {

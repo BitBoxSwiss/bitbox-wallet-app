@@ -34,7 +34,7 @@ import { Header } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Spinner } from '../../../components/spinner/Spinner';
 import Status from '../../../components/status/status';
-import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -85,8 +85,7 @@ interface State {
     noMobileChannelError?: boolean;
     signProgress?: SignProgress;
     // show visual BitBox in dialog when instructed to sign.
-    // can't be undefined because of the default touchConfirm param in the wait dialog.
-    signConfirm: boolean | null;
+    signConfirm: boolean;
     coinControl: boolean;
     activeCoinControl: boolean;
     hasCamera: boolean;
@@ -111,7 +110,7 @@ class Send extends Component<Props, State> {
         valid: false,
         sendAll: false,
         isConfirming: false,
-        signConfirm: null,
+        signConfirm: false,
         isSent: false,
         isAborted: false,
         isUpdatingProposal: false,
@@ -158,7 +157,7 @@ class Send extends Component<Props, State> {
                 case 'device':
                     switch (data) {
                         case 'signProgress':
-                            this.setState({ signProgress: meta, signConfirm: null });
+                            this.setState({ signProgress: meta, signConfirm: false });
                             break;
                         case 'signConfirm':
                             this.setState({ signConfirm: true });
@@ -252,10 +251,11 @@ class Send extends Component<Props, State> {
                 const { errorMessage } = result;
                 alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
             }
+        })
+        .catch((error) => console.error(error))
+        .then(() => {
             // The following method allows pressing escape again.
-            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
-        }).catch(() => {
-            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
         });
     }
 
@@ -572,7 +572,7 @@ class Send extends Component<Props, State> {
         if (!account) {
             return null;
         }
-        const confirmPrequel = signProgress && signProgress.steps > 1 && (
+        const confirmPrequel = (signProgress && signProgress.steps > 1) ? (
             <span>
                 {
                     t('send.signprogress.description', {
@@ -582,7 +582,7 @@ class Send extends Component<Props, State> {
                 <br />
                 {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
             </span>
-        );
+        ) : undefined;
         return (
             <div class="contentWithGuide">
                 <div class="container">

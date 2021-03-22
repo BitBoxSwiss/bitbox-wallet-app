@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@ import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../../../../components/forms';
 import { Dialog } from '../../../../components/dialog/dialog';
-import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
+import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
 import { alertUser } from '../../../../components/alert/Alert';
@@ -116,14 +117,9 @@ export default class Reset extends Component {
                         </Dialog>
                     )
                 }
-                {
-                    isConfirming && (
-                        <WaitDialog
-                            active={isConfirming}
-                            title={t('reset.title')}
-                        />
-                    )
-                }
+                { isConfirming ? (
+                    <WaitDialog title={t('reset.title')} />
+                ) : null }
             </div>
         );
     }

@@ -1,5 +1,6 @@
 /**
  * Copyright 2019 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../components/settingsButton/settingsItem';
 import * as spinnerStyle from '../../components/spinner/Spinner.css';
 import { TruncateMiddle } from '../../components/truncateMiddle/truncateMiddle';
-import WaitDialog from '../../components/wait-dialog/wait-dialog';
+import { WaitDialog } from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';

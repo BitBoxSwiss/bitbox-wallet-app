@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@ import { apiPost } from '../../../utils/request';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import { alertUser } from '../../alert/Alert';
 import { SettingsButton } from '../../settingsButton/settingsButton';
-import WaitDialog from '../../wait-dialog/wait-dialog';
+import { WaitDialog } from '../../wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
     apiPrefix: string;
