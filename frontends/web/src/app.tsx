@@ -79,11 +79,9 @@ class App extends Component<Props, State> {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
-        setTimeout(this.maybeRoute);
     }
 
     public componentDidMount() {
-        this.maybeRoute();
         this.onBitBoxBasesRegisteredChanged();
         this.onBitBoxBasesDetectedChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
@@ -115,9 +113,9 @@ class App extends Component<Props, State> {
             }
         });
 
-        Promise.all([getAccounts(), getDeviceList()])
-            .then(([accounts, devices]) => {
-                return this.setState({ accounts, devices }, this.maybeRoute);
+        Promise.all([getDeviceList(), getAccounts()])
+            .then(([devices, accounts]) => {
+                this.setState({ accounts, devices }, this.maybeRoute);
             })
             .catch(console.error);
 
@@ -126,7 +124,18 @@ class App extends Component<Props, State> {
                 this.setState({ accounts }, this.maybeRoute);
             }),
             syncDeviceList(devices => {
-                this.setState({ devices }, this.maybeRoute);
+                const oldDeviceIDList = Object.keys(this.state.devices);
+                this.setState({ devices }, () => {
+                    const newDeviceIDList: string[] = Object.keys(this.state.devices);
+                    // if the first device is new route to the device view
+                    if (
+                        newDeviceIDList.length > 0
+                        && newDeviceIDList[0] !== oldDeviceIDList[0]
+                    ) {
+                        // route to the first device for unlock, create, restore etc.
+                        route(`/device/${newDeviceIDList[0]}`, true);
+                    }
+                });
             }),
             // TODO: add syncBackendNewTX
             // TODO: add syncBitBoxBase ?
@@ -178,13 +187,7 @@ class App extends Component<Props, State> {
         }
         // if on index page and there is at least 1 account route to /account-summary
         if (isIndex && accounts && accounts.length) {
-            route(`/account-summary`, true);
-            return;
-        }
-        const deviceIDs: string[] = Object.keys(this.state.devices);
-        // if on index page and there is at least 1 deviceID route to the first deviceID
-        if (isIndex && deviceIDs.length > 0) {
-            route(`/device/${deviceIDs[0]}`, true);
+            route('/account-summary', true);
             return;
         }
         // if on the /buy/ view and there are no accounts view route to /
