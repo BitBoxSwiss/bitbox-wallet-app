@@ -6,6 +6,9 @@
 - Bundle BitBox02 v9.5.0 firmware
 - Run BitBoxApp installer as admin by default on Windows
 - Close a running BitBoxApp instance on Windows when installing an update to ensure success
+- Show connection error in detail
+- Connect default BTC/LTC full nodes on port 443 to work around firewalls blocking the 5XXXXX ports
+- Remove confusing disabled copy button in the receive screen
 
 ## 4.26.0 [released 2021-02-25]
 - Activate antiklepto for Ethereum and ERC20 transactions
