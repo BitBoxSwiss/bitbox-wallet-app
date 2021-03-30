@@ -73,6 +73,13 @@ func NewDevice(
 			device.fireEvent()
 		},
 	)
+
+	firmwareHash, signingKeysHash, err := device.Device.GetHashes(false, false)
+	if err != nil {
+		log.WithError(err).Error("Could not get hashes from bootloader")
+	} else {
+		log.Infof("firmwareHash=%x, signingKeysHash=%x", firmwareHash, signingKeysHash)
+	}
 	return device
 }
 
