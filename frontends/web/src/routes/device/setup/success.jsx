@@ -27,7 +27,7 @@ import * as style from '../device.css';
 export default class Success extends Component {
 
     handleGetStarted = () => {
-        route('/account', true);
+        route('/account-summary', true);
     }
 
     render({

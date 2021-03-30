@@ -19,6 +19,8 @@ import { Component, h, RenderableProps } from 'preact';
 import { getCurrentUrl, route } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
+import { getDeviceList, TDevices } from './api/devices';
+import { syncDeviceList } from './api/devicessync';
 import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
@@ -30,7 +32,6 @@ import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
-import { subscribe } from './decorators/subscribe';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account } from './routes/account/account';
@@ -43,7 +44,7 @@ import { Send } from './routes/account/send/send';
 import { AccountsSummary } from './routes/account/summary/accountssummary';
 import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseState } from './routes/bitboxbase/bitboxbase';
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
-import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
+import { DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
@@ -53,21 +54,19 @@ import { apiWebsocket } from './utils/websocket';
 
 interface State {
     accounts: IAccount[];
-    detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
+    detectedBases: DetectedBitBoxBases;
+    devices: TDevices;
 }
 
-interface SubscribedProps {
-    devices: Devices;
-}
-
-type Props = SubscribedProps & TranslateProps;
+type Props = TranslateProps;
 
 class App extends Component<Props, State> {
     public readonly state: State = {
         accounts: [],
-        detectedBases: {},
         bitboxBaseIDs: [],
+        detectedBases: {},
+        devices: {},
     };
 
     private unsubscribe!: () => void;
@@ -80,11 +79,9 @@ class App extends Component<Props, State> {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
-        setTimeout(this.maybeRoute);
     }
 
     public componentDidMount() {
-        this.maybeRoute();
         this.onBitBoxBasesRegisteredChanged();
         this.onBitBoxBasesDetectedChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
@@ -116,13 +113,29 @@ class App extends Component<Props, State> {
             }
         });
 
-        getAccounts()
-            .then(accounts => this.setState({ accounts }, this.maybeRoute))
+        Promise.all([getDeviceList(), getAccounts()])
+            .then(([devices, accounts]) => {
+                this.setState({ accounts, devices }, this.maybeRoute);
+            })
             .catch(console.error);
 
         this.unsubscribeList.push(
             syncAccountsList(accounts => {
                 this.setState({ accounts }, this.maybeRoute);
+            }),
+            syncDeviceList(devices => {
+                const oldDeviceIDList = Object.keys(this.state.devices);
+                this.setState({ devices }, () => {
+                    const newDeviceIDList: string[] = Object.keys(this.state.devices);
+                    // if the first device is new route to the device view
+                    if (
+                        newDeviceIDList.length > 0
+                        && newDeviceIDList[0] !== oldDeviceIDList[0]
+                    ) {
+                        // route to the first device for unlock, create, restore etc.
+                        route(`/device/${newDeviceIDList[0]}`, true);
+                    }
+                });
             }),
             // TODO: add syncBackendNewTX
             // TODO: add syncBitBoxBase ?
@@ -162,25 +175,22 @@ class App extends Component<Props, State> {
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.state.accounts;
+        // if no accounts are registered on /account-summary view route to /
         if (currentURL.startsWith('/account-summary') && accounts.length === 0) {
             route('/', true);
             return;
         }
+        // if on an account that isnt registered route to /
         if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
             route('/', true);
             return;
         }
-        if (isIndex || currentURL === '/account') {
-            if (accounts && accounts.length) {
-                route(`/account-summary`, true);
-                return;
-            }
-        }
-        const deviceIDs: string[] = Object.keys(this.props.devices);
-        if (isIndex && deviceIDs.length > 0) {
-            route(`/device/${deviceIDs[0]}`, true);
+        // if on index page and there is at least 1 account route to /account-summary
+        if (isIndex && accounts && accounts.length) {
+            route('/account-summary', true);
             return;
         }
+        // if on the /buy/ view and there are no accounts view route to /
         if (accounts.length === 0 && currentURL.startsWith('/buy/')) {
             route('/', true);
             return;
@@ -190,13 +200,7 @@ class App extends Component<Props, State> {
     // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
     // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
     private devicesKey = (prefix: string): string => {
-        return prefix + ':' + JSON.stringify(this.props.devices, Object.keys(this.props.devices).sort());
-    }
-
-    public componentDidUpdate(prevProps) {
-        if (prevProps.devices !== this.props.devices) {
-            this.maybeRoute();
-        }
+        return prefix + ':' + JSON.stringify(this.state.devices, Object.keys(this.state.devices).sort());
     }
 
     private toggleSidebar = () => {
@@ -204,8 +208,8 @@ class App extends Component<Props, State> {
     }
 
     public render(
-        { devices }: RenderableProps<Props>,
-        { accounts, bitboxBaseIDs, detectedBases }: State,
+        {  }: RenderableProps<Props>,
+        { accounts, bitboxBaseIDs, detectedBases, devices }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
         return (
@@ -293,13 +297,5 @@ class App extends Component<Props, State> {
     }
 }
 
-const subscribeHOC = subscribe<SubscribedProps, TranslateProps>(
-    {
-        devices: 'devices/registered',
-    },
-    true,
-    false,
-)(App);
-
-const HOC = translate()(subscribeHOC);
+const HOC = translate()(App);
 export { HOC as App };

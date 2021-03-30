@@ -18,6 +18,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
+import { TDevices } from '../../api/devices';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
 import { Balance } from '../../components/balance/balance';
@@ -31,13 +32,12 @@ import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
-import { Devices } from '../device/deviceswitch';
 import * as style from './account.css';
 import { isBitcoinBased } from './utils';
 
 interface AccountProps {
     code: string;
-    devices: Devices;
+    devices: TDevices;
     accounts: accountApi.IAccount[];
 }
 
@@ -228,7 +228,7 @@ class Account extends Component<Props, State> {
             accountInfo.signingConfigurations[0].scriptType === scriptType;
     }
 
-    private deviceIDs = (devices: Devices) => {
+    private deviceIDs = (devices: TDevices) => {
         return Object.keys(devices);
     }
 
