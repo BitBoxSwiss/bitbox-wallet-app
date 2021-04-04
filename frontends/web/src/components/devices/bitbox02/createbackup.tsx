@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@ import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../alert/Alert';
 import { confirmation } from '../../confirm/Confirm';
 import { Button } from '../../forms';
-import WaitDialog from '../../wait-dialog/wait-dialog';
+import { WaitDialog } from '../../wait-dialog/wait-dialog';
 
 interface CreateProps {
     deviceID: string;
@@ -70,8 +71,9 @@ class Create extends Component<Props, State> {
 
     public render(
         { t }: RenderableProps<Props>,
-        { creatingBackup,
-          disabled,
+        {
+            creatingBackup,
+            disabled,
         }: State) {
         return (
             <span>
@@ -82,11 +84,9 @@ class Create extends Component<Props, State> {
                     {t('backup.create.title')}
                 </Button>
                 { creatingBackup && (
-                      <WaitDialog
-                          title={t('backup.create.title')}
-                      >
-                          {t('bitbox02Interact.followInstructions')}
-                      </WaitDialog>
+                    <WaitDialog title={t('backup.create.title')}>
+                        {t('bitbox02Interact.followInstructions')}
+                    </WaitDialog>
                 )}
             </span>
         );

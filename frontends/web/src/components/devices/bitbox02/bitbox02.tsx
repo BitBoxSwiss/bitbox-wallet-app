@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ import LanguageSwitch from '../../language/language';
 import { Header } from '../../layout/header';
 import { setSidebarStatus } from '../../sidebar/sidebar';
 import Status from '../../status/status';
-import WaitDialog from '../../wait-dialog/wait-dialog';
+import { WaitDialog } from '../../wait-dialog/wait-dialog';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';

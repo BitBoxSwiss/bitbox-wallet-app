@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,58 +15,85 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, ComponentChild, h, JSX, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
 import { animate } from '../../utils/animation';
 import * as style from '../dialog/dialog.css';
 
-@translate()
-export default class WaitDialog extends Component {
-    state = {
+interface WaitDialogProps {
+    includeDefault?: boolean;
+    prequel?: JSX.Element;
+    title?: string;
+    paired?: boolean;
+    touchConfirm?: boolean;
+}
+
+type Props = WaitDialogProps & TranslateProps;
+
+interface State {
+    active: boolean;
+}
+
+class WaitDialog extends Component<Props, State> {
+    private overlay?: HTMLDivElement;
+    private modal?: HTMLDivElement;
+
+    public readonly state: State = {
         active: false,
     }
 
-    componentWillMount() {
+    public componentWillMount() {
         document.body.addEventListener('keydown', this.handleKeyDown);
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         setTimeout(this.activate, 10);
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         document.body.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = e => {
-        // @ts-ignore (blur exists only on HTMLElements)
-        document.activeElement.blur();
+    private handleKeyDown = (e: KeyboardEvent) => {
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement instanceof HTMLElement) {
+            activeElement.blur();
+        }
         e.preventDefault();
         e.stopPropagation();
     }
 
-    setOverlay = ref => {
+    private setOverlay = ref => {
         this.overlay = ref;
     }
 
-    setModal = ref => {
+    private setModal = ref => {
         this.modal = ref;
     }
 
-    activate = () => {
+    private activate = () => {
         this.setState({ active: true }, () => {
+            if (!this.overlay || !this.modal) {
+                return;
+            }
             animate(this.overlay, 'fadeIn', () => {
+                if (!this.overlay) {
+                    return;
+                }
                 this.overlay.classList.add(style.activeOverlay);
             });
             animate(this.modal, 'fadeInUp', () => {
+                if (!this.modal) {
+                    return;
+                }
                 this.modal.classList.add(style.activeModal);
             });
         });
     }
 
-    render({
+    public render({
         t,
         includeDefault,
         prequel,
@@ -73,7 +101,8 @@ export default class WaitDialog extends Component {
         paired = false,
         touchConfirm = true,
         children,
-    }, {}) {
+    }: RenderableProps<Props>,
+    {}: State) {
         const defaultContent = (
             <div>
                 {
@@ -121,6 +150,8 @@ export default class WaitDialog extends Component {
                 }
             </div>
         );
+
+        const hasChildren = children && (children as ComponentChild[]).length > 0;
         return (
             <div
                 className={style.overlay}
@@ -136,16 +167,12 @@ export default class WaitDialog extends Component {
                     }
                     <div className={style.contentContainer}>
                         <div className={style.content}>
-                            {
-                                (children.length > 0 && includeDefault) && defaultContent
-                            }
-                            {
-                                children.length > 0 ? (
-                                    <div class="flex flex-column flex-start">
-                                        {children}
-                                    </div>
-                                ) : defaultContent
-                            }
+                            { (hasChildren && includeDefault) ? defaultContent : null }
+                            { hasChildren ? (
+                                <div class="flex flex-column flex-start">
+                                    {children}
+                                </div>
+                            ) : defaultContent }
                         </div>
                     </div>
                 </div>
@@ -153,3 +180,6 @@ export default class WaitDialog extends Component {
         );
     }
 }
+
+const TranslatedWaitDialog = translate<WaitDialogProps>()(WaitDialog);
+export { TranslatedWaitDialog as WaitDialog };

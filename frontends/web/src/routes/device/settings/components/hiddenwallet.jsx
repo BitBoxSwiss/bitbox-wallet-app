@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@ import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import { alertUser } from '../../../../components/alert/Alert';
 import { Dialog } from '../../../../components/dialog/dialog';
-import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
+import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
 import SimpleMarkup from '../../../../utils/simplemarkup';

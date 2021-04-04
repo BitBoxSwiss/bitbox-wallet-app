@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +23,7 @@ import { Dialog } from '../../dialog/dialog';
 import * as dialogStyle from '../../dialog/dialog.css';
 import { Button, Checkbox } from '../../forms';
 import { SettingsButton } from '../../settingsButton/settingsButton';
-import WaitDialog from '../../wait-dialog/wait-dialog';
+import { WaitDialog } from '../../wait-dialog/wait-dialog';
 
 interface ResetProps {
     apiPrefix: string;
@@ -113,7 +114,6 @@ class Reset extends Component<Props, State> {
                 {
                     isConfirming && (
                         <WaitDialog
-                            active={isConfirming}
                             title={t('reset.title')} >
                             {t('bitbox02Interact.followInstructions')}
                         </WaitDialog>
