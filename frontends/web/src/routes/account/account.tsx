@@ -263,6 +263,8 @@ class Account extends Component<Props, State> {
             return null;
         }
 
+        const coinCodeInfo: string = t(`account.info.${code}`, { defaultValue: '' });
+
         const canSend = balance && balance.available.amount !== '0';
 
         const initializingSpinnerText =
@@ -285,8 +287,11 @@ class Account extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Status type="warning">
-                        {hasCard && t('warning.sdcard')}
+                    <Status key="warning.sdcard" hidden={!hasCard} type="warning">
+                        {t('warning.sdcard')}
+                    </Status>
+                    <Status key="info.connection" hidden={status.offlineError === null}>
+                        <p>{t('account.reconnecting')}</p>
                     </Status>
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
@@ -312,8 +317,12 @@ class Account extends Component<Props, State> {
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
-                                {t(`account.info.${code}`, { defaultValue: '' })}
+                            <Status
+                                className="m-bottom-default"
+                                hidden={!coinCodeInfo}
+                                dismissable={`info-${code}`}
+                                type="info">
+                                {coinCodeInfo}
                             </Status>
                             <div class="flex flex-row flex-between flex-items-center flex-column-mobile flex-reverse-mobile">
                                 <label className="labelXLarge flex-self-start-mobile">{t('accountSummary.availableBalance')}</label>

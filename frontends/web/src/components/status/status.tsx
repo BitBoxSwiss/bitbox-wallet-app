@@ -23,6 +23,7 @@ interface State {
 }
 
 interface StatusProps {
+    hidden?: boolean;
     type?: 'success' | 'warning' | 'info';
     // used as keyName in the config if dismissing the status should be persisted, so it is not
     // shown again. Use an empty string if it should be dismissable without storing it in the
@@ -83,6 +84,7 @@ export default class Status extends Component<Props, State> {
     public render(
         {
             children,
+            hidden,
             type = 'warning',
             dismissable,
             className,
@@ -91,35 +93,31 @@ export default class Status extends Component<Props, State> {
             show,
         }: State) {
         const childrenList = children as ComponentChild[];
-        if (!show || (childrenList && childrenList.length === 1 && !childrenList[0])) {
+        if (hidden || !show || (childrenList && childrenList.length === 1 && !childrenList[0])) {
             return null;
         }
         return (
             <div className={[style.container, style[type], className ? className : ''].join(' ')}>
                 <div className={style.status}>
                     {children}
-                    {
-                        dismissable !== undefined && (
-                            <a
-                                href="#"
-                                className={`${style.close} ${style[`close-${type}`]}`}
-                                onClick={this.dismiss} >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </a>
-                        )
-                    }
+                    <button
+                        hidden={!dismissable}
+                        className={`${style.close} ${style[`close-${type}`]}`}
+                        onClick={this.dismiss} >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
         );

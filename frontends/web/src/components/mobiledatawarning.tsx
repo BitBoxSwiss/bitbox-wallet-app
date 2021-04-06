@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { h, RenderableProps } from 'preact';
 import { subscribe } from '../decorators/subscribe';
 import { translate, TranslateProps } from '../decorators/translate';
 import Status from './status/status';
@@ -25,12 +26,9 @@ interface LoadedProps {
 
 type Props = LoadedProps & TranslateProps;
 
-function MobileDataWarning({ usingMobileData, t }: RenderableProps<Props>): JSX.Element | null {
-    if (!usingMobileData) {
-        return null;
-    }
+function MobileDataWarning({ usingMobileData, t }: RenderableProps<Props>) {
     return (
-        <Status dismissable="mobile-data-warning" type="warning">
+        <Status dismissable="mobile-data-warning" type="warning" hidden={!usingMobileData}>
             {t('mobile.usingMobileDataWarning')}
         </Status>
     );

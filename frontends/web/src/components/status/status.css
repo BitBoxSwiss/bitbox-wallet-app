@@ -42,6 +42,7 @@
 }
 
 .close {
+    border: none;
     color: var(--color-white);
     line-height: .5;
     padding: var(--space-half);

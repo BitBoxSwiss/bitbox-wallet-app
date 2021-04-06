@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { h, RenderableProps } from 'preact';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
@@ -35,8 +36,11 @@ interface LoadedProps {
 
 type Props = LoadedProps & TranslateProps;
 
-function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
-    return file && (
+function Update({ file, t }: RenderableProps<Props>) {
+    if (!file) {
+        return null;
+    }
+    return (
         <Status dismissable={`update-${file.version}`} type="info">
             {t('app.upgrade', {
                 current: file.current,
