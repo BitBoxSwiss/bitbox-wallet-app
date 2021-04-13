@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { Link, route } from 'preact-router';
+import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
 import { Dialog } from '../../components/dialog/dialog';
 import * as dialogStyle from '../../components/dialog/dialog.css';
@@ -173,7 +174,11 @@ class Settings extends Component<Props, State> {
         setConfig({
             backend: { proxy: proxyConfig },
         }).then(config => {
-            this.setState({ config, restart: true });
+            this.setState({
+                config,
+                proxyAddress: proxyConfig.proxyAddress,
+                restart: true,
+            });
         });
     }
 
@@ -190,12 +195,18 @@ class Settings extends Component<Props, State> {
 
     private setProxyAddress = () => {
         const config = this.state.config;
-        if (!config) {
+        if (!config || this.state.proxyAddress === undefined) {
             return;
         }
         const proxy = config.backend.proxy;
         proxy.proxyAddress = this.state.proxyAddress;
-        this.setProxyConfig(proxy);
+        apiPost('socksproxy/check', proxy.proxyAddress).then(({ success, errorMessage }) => {
+            if (success) {
+                this.setProxyConfig(proxy);
+            } else {
+                alertUser(errorMessage);
+            }
+        });
     }
 
     private showProxyDialog = () => {

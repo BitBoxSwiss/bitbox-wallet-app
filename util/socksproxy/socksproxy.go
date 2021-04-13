@@ -49,6 +49,21 @@ func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 	return proxy
 }
 
+// Validate validates the socks5 proxy endpoint.
+// We check if we could instantiate a proxied http client.
+// Currently, no actual connectivity checks as performed.
+func (socksProxy SocksProxy) Validate() error {
+	if !socksProxy.useProxy {
+		return nil
+	}
+	tbProxyURL, err := url.Parse(socksProxy.fullProxyAddress)
+	if err != nil {
+		return err
+	}
+	_, err = proxy.FromURL(tbProxyURL, proxy.Direct)
+	return err
+}
+
 // GetTCPProxyDialer returns a tcp connection. The connection is proxied, if useProxy is true.
 func (socksProxy *SocksProxy) GetTCPProxyDialer() proxy.Dialer {
 	if socksProxy.useProxy {
