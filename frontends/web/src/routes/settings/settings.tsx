@@ -199,7 +199,7 @@ class Settings extends Component<Props, State> {
             return;
         }
         const proxy = config.backend.proxy;
-        proxy.proxyAddress = this.state.proxyAddress;
+        proxy.proxyAddress = this.state.proxyAddress.trim();
         apiPost('socksproxy/check', proxy.proxyAddress).then(({ success, errorMessage }) => {
             if (success) {
                 this.setProxyConfig(proxy);
