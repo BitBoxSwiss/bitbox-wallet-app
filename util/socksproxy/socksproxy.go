@@ -32,8 +32,14 @@ type SocksProxy struct {
 	log              *logrus.Entry
 }
 
-// NewSocksProxy returns a new socks proxy instance.
+const defaultProxyAddress = "127.0.0.1:9050"
+
+// NewSocksProxy returns a new socks proxy instance. If proxyAddress is the empty string, the default
+// address '127.0.0.1:9050' will be used.
 func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
+	if proxyAddress == "" {
+		proxyAddress = defaultProxyAddress
+	}
 	proxy := SocksProxy{
 		useProxy:     useProxy,
 		proxyAddress: proxyAddress,

@@ -24,8 +24,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
 
-const defaultProxyAddress = "127.0.0.1:9050"
-
 // ServerInfo holds information about the backend server(s).
 type ServerInfo struct {
 	Server  string `json:"server"`
@@ -69,15 +67,6 @@ func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
 type proxyConfig struct {
 	UseProxy     bool   `json:"useProxy"`
 	ProxyAddress string `json:"proxyAddress"`
-}
-
-// ProxyAddressOrDefault returns the configured proxy address. If not set, it returns the default
-// one.
-func (proxy proxyConfig) ProxyAddressOrDefault() string {
-	if proxy.ProxyAddress != "" {
-		return proxy.ProxyAddress
-	}
-	return defaultProxyAddress
 }
 
 // Backend holds the backend specific configuration.
@@ -157,7 +146,7 @@ func NewDefaultAppConfig() AppConfig {
 		Backend: Backend{
 			Proxy: proxyConfig{
 				UseProxy:     false,
-				ProxyAddress: defaultProxyAddress,
+				ProxyAddress: "",
 			},
 			BitcoinActive:  true,
 			LitecoinActive: true,

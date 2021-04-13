@@ -211,7 +211,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 	backend.socksProxy = socksproxy.NewSocksProxy(
 		backend.config.AppConfig().Backend.Proxy.UseProxy,
-		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
+		backend.config.AppConfig().Backend.Proxy.ProxyAddress,
 	)
 	hclient, err := backend.socksProxy.GetHTTPClient()
 	if err != nil {
