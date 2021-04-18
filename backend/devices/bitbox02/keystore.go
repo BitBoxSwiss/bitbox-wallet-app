@@ -38,7 +38,6 @@ import (
 
 type keystore struct {
 	device        *Device
-	configuration *signing.Configuration
 	cosignerIndex int
 	log           *logrus.Entry
 }

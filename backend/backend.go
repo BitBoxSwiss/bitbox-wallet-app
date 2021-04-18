@@ -1040,13 +1040,13 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
 			if backend.arguments.Multisig() {
 				backend.RegisterKeystore(
-					theDevice.KeystoreForConfiguration(nil, backend.keystores.Count()))
+					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
 			} else if mainKeystore {
 				// HACK: for device based, only one is supported at the moment.
 				backend.keystores = keystore.NewKeystores()
 
 				backend.RegisterKeystore(
-					theDevice.KeystoreForConfiguration(nil, backend.keystores.Count()))
+					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
 			}
 		}
 		backend.events <- deviceEvent{

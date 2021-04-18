@@ -17,7 +17,6 @@ package device
 import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
@@ -41,7 +40,7 @@ type Interface interface {
 	// ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
-	KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystore.Keystore
+	KeystoreForConfiguration(cosignerIndex int) keystore.Keystore
 
 	// Locked() bool
 

@@ -1374,7 +1374,6 @@ func (dbb *Device) ExtendedPublicKey(keypath signing.AbsoluteKeypath) (*hdkeycha
 
 // KeystoreForConfiguration implements device.Interface.
 func (dbb *Device) KeystoreForConfiguration(
-	configuration *signing.Configuration,
 	cosignerIndex int,
 ) keystoreInterface.Keystore {
 	if dbb.Status() != StatusSeeded {
@@ -1382,7 +1381,6 @@ func (dbb *Device) KeystoreForConfiguration(
 	}
 	return &keystore{
 		dbb:           dbb,
-		configuration: configuration,
 		cosignerIndex: cosignerIndex,
 		log:           dbb.log,
 	}
