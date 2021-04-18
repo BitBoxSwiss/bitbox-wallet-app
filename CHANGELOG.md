@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- Validate socks proxy url
+
+## 4.27.0 [released 2021-03-17]
 - Buy ERC20 tokens using Moonpay
 - Remove CryptoCompare; use Coingecko for latest conversion rates. Fixes rate limiting issues, especially for VPN/Tor users.
 - Bundle BitBox02 v9.5.0 firmware
