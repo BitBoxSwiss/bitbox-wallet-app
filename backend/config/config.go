@@ -336,10 +336,13 @@ func (config *Config) AccountsConfig() AccountsConfig {
 	return config.accountsConfig
 }
 
-// SetAccountsConfig sets and persists the accounts config.
-func (config *Config) SetAccountsConfig(accountsConfig AccountsConfig) error {
+// ModifyAccountsConfig calls f with the current config, allowing f to make any changes, and
+// persists the result if f returns nil error.  It propagates the f's error as is.
+func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error {
 	defer config.lock.Lock()()
-	config.accountsConfig = accountsConfig
+	if err := f(&config.accountsConfig); err != nil {
+		return err
+	}
 	return config.save(config.accountsConfigFilename, config.accountsConfig)
 }
 

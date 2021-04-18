@@ -309,32 +309,34 @@ func (backend *Backend) createAndAddAccount(
 	emitEvent bool,
 ) error {
 	if persist {
-		configurations, err := getSigningConfigurations()
-		if err != nil {
-			return err
-		}
-		accountsConfig := backend.config.AccountsConfig()
-		for _, account := range accountsConfig.Accounts {
-			if account.CoinCode == coin.Code() {
-				// We detect a duplicate account (subaccount in a unified account) if any of the
-				// configurations is already present.
-				for _, config := range account.Configurations {
-					for _, config2 := range configurations {
-						if config.Hash() == config2.Hash() {
-							return errp.WithStack(ErrAccountAlreadyExists)
+		err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+			configurations, err := getSigningConfigurations()
+			if err != nil {
+				return err
+			}
+			for _, account := range accountsConfig.Accounts {
+				if account.CoinCode == coin.Code() {
+					// We detect a duplicate account (subaccount in a unified account) if any of the
+					// configurations is already present.
+					for _, config := range account.Configurations {
+						for _, config2 := range configurations {
+							if config.Hash() == config2.Hash() {
+								return errp.WithStack(ErrAccountAlreadyExists)
+							}
 						}
 					}
-				}
 
+				}
 			}
-		}
-		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
-			CoinCode:       coin.Code(),
-			Code:           code,
-			Name:           name,
-			Configurations: configurations,
+			accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
+				CoinCode:       coin.Code(),
+				Code:           code,
+				Name:           name,
+				Configurations: configurations,
+			})
+			return nil
 		})
-		if err := backend.config.SetAccountsConfig(accountsConfig); err != nil {
+		if err != nil {
 			return err
 		}
 	}
