@@ -966,8 +966,8 @@ func (backend *Backend) Keystores() *keystore.Keystores {
 	return backend.keystores
 }
 
-// RegisterKeystore registers the given keystore at this backend.
-func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
+// registerKeystore registers the given keystore at this backend.
+func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	backend.log.Info("registering keystore")
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
@@ -1020,13 +1020,13 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
 			if backend.arguments.Multisig() {
-				backend.RegisterKeystore(
+				backend.registerKeystore(
 					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
 			} else if mainKeystore {
 				// HACK: for device based, only one is supported at the moment.
 				backend.keystores = keystore.NewKeystores()
 
-				backend.RegisterKeystore(
+				backend.registerKeystore(
 					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
 			}
 		}
@@ -1105,7 +1105,7 @@ func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error
 func (backend *Backend) RegisterTestKeystore(pin string) {
 	softwareBasedKeystore := software.NewKeystoreFromPIN(
 		backend.keystores.Count(), pin)
-	backend.RegisterKeystore(softwareBasedKeystore)
+	backend.registerKeystore(softwareBasedKeystore)
 }
 
 // NotifyUser creates a desktop notification.

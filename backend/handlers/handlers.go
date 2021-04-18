@@ -92,7 +92,6 @@ type Backend interface {
 	BitBoxBasesDetected() map[string]string
 	BitBoxBasesRegistered() map[string]*bitboxbase.BitBoxBase
 	Start() <-chan interface{}
-	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
