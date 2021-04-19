@@ -43,12 +43,12 @@ type AccountConfig struct {
 	// DBFolder is the folder for all accounts. Full path.
 	DBFolder string
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
-	NotesFolder              string
-	Keystores                *keystore.Keystores
-	OnEvent                  func(Event)
-	RateUpdater              *rates.RateUpdater
-	GetSigningConfigurations func() (signing.Configurations, error)
-	GetNotifier              func(signing.Configurations) Notifier
+	NotesFolder           string
+	Keystores             *keystore.Keystores
+	OnEvent               func(Event)
+	RateUpdater           *rates.RateUpdater
+	SigningConfigurations signing.Configurations
+	GetNotifier           func(signing.Configurations) Notifier
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.

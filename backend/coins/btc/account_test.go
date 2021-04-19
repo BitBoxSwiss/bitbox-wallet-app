@@ -50,30 +50,28 @@ func TestAccount(t *testing.T) {
 
 	coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })
 
-	getSigningConfigurations := func() (signing.Configurations, error) {
-		keypath, err := signing.NewAbsoluteKeypath("m/49'/1'/0'")
-		require.NoError(t, err)
-		xpub, err := hdkeychain.NewMaster(make([]byte, 32), net)
-		require.NoError(t, err)
-		xpub, err = xpub.Neuter()
-		require.NoError(t, err)
+	keypath, err := signing.NewAbsoluteKeypath("m/49'/1'/0'")
+	require.NoError(t, err)
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), net)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
 
-		return signing.Configurations{signing.NewSinglesigConfiguration(
-			signing.ScriptTypeP2WPKHP2SH,
-			keypath,
-			xpub,
-		)}, nil
-	}
+	signingConfigurations := signing.Configurations{signing.NewSinglesigConfiguration(
+		signing.ScriptTypeP2WPKHP2SH,
+		keypath,
+		xpub)}
+
 	account := btc.NewAccount(
 		&accounts.AccountConfig{
-			Code:                     "accountcode",
-			Name:                     "accountname",
-			DBFolder:                 dbFolder,
-			Keystores:                nil,
-			OnEvent:                  func(accounts.Event) {},
-			RateUpdater:              nil,
-			GetSigningConfigurations: getSigningConfigurations,
-			GetNotifier:              func(signing.Configurations) accounts.Notifier { return nil },
+			Code:                  "accountcode",
+			Name:                  "accountname",
+			DBFolder:              dbFolder,
+			Keystores:             nil,
+			OnEvent:               func(accounts.Event) {},
+			RateUpdater:           nil,
+			SigningConfigurations: signingConfigurations,
+			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
 		},
 		coin, nil,
 		logging.Get().WithGroup("account_test"),

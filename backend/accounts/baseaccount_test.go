@@ -40,15 +40,15 @@ func TestBaseAccount(t *testing.T) {
 	}
 	const accountIdentifier = "test-account-identifier"
 	cfg := &AccountConfig{
-		Code:                     "test",
-		Name:                     "Test",
-		DBFolder:                 test.TstTempDir("baseaccount_test_dbfolder"),
-		NotesFolder:              test.TstTempDir("baseaccount_test_notesfolder"),
-		Keystores:                nil,
-		OnEvent:                  func(event Event) { events <- event },
-		RateUpdater:              nil,
-		GetSigningConfigurations: nil,
-		GetNotifier:              nil,
+		Code:                  "test",
+		Name:                  "Test",
+		DBFolder:              test.TstTempDir("baseaccount_test_dbfolder"),
+		NotesFolder:           test.TstTempDir("baseaccount_test_notesfolder"),
+		Keystores:             nil,
+		OnEvent:               func(event Event) { events <- event },
+		RateUpdater:           nil,
+		SigningConfigurations: nil,
+		GetNotifier:           nil,
 	}
 
 	mockCoin := &mocks.CoinMock{

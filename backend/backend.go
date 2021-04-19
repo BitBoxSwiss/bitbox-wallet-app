@@ -327,7 +327,7 @@ func (backend *Backend) createAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
-	getSigningConfigurations func() (signing.Configurations, error),
+	signingConfigurations signing.Configurations,
 ) {
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
@@ -342,8 +342,8 @@ func (backend *Backend) createAndAddAccount(
 				backend.notifyNewTxs(account)
 			}
 		},
-		RateUpdater:              backend.ratesUpdater,
-		GetSigningConfigurations: getSigningConfigurations,
+		RateUpdater:           backend.ratesUpdater,
+		SigningConfigurations: signingConfigurations,
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
 		},
@@ -450,12 +450,11 @@ func (backend *Backend) createAndAddBTCAccount(
 	if splitAccounts {
 		for _, cfg := range supportedConfigs {
 			cfg := cfg
-			getSigningConfigurations := func() (signing.Configurations, error) {
-				signingConfiguration, err := getSigningConfiguration(cfg)
-				if err != nil {
-					return nil, err
-				}
-				return signing.Configurations{signingConfiguration}, nil
+			signingConfiguration, err := getSigningConfiguration(cfg)
+			if err != nil {
+				log.WithError(err).Errorf(
+					"Could not create signing configuration at keypath %s", cfg.keypath.Encode())
+				continue
 			}
 			suffixedName := name
 			switch cfg.scriptType {
@@ -468,22 +467,21 @@ func (backend *Backend) createAndAddBTCAccount(
 				coin,
 				fmt.Sprintf("%s-%s", code, cfg.scriptType),
 				suffixedName,
-				getSigningConfigurations,
+				signing.Configurations{signingConfiguration},
 			)
 		}
 	} else {
-		getSigningConfigurations := func() (signing.Configurations, error) {
-			var result signing.Configurations
-			for _, cfg := range supportedConfigs {
-				signingConfiguration, err := getSigningConfiguration(cfg)
-				if err != nil {
-					return nil, err
-				}
-				result = append(result, signingConfiguration)
+		var signingConfigurations signing.Configurations
+		for _, cfg := range supportedConfigs {
+			signingConfiguration, err := getSigningConfiguration(cfg)
+			if err != nil {
+				log.WithError(err).Errorf(
+					"Could not create signing configuration at keypath %s", cfg.keypath.Encode())
+				continue
 			}
-			return result, nil
+			signingConfigurations = append(signingConfigurations, signingConfiguration)
 		}
-		backend.createAndAddAccount(coin, code, name, getSigningConfigurations)
+		backend.createAndAddAccount(coin, code, name, signingConfigurations)
 	}
 }
 
@@ -517,21 +515,20 @@ func (backend *Backend) createAndAddETHAccount(
 	if err != nil {
 		panic(err)
 	}
-	getSigningConfigurations := func() (signing.Configurations, error) {
-		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
-		if err != nil {
-			return nil, err
-		}
-
-		return signing.Configurations{
-			signing.NewSinglesigConfiguration(
-				signing.ScriptTypeP2PKH, // TODO: meaningless in Ethereum
-				absoluteKeypath,
-				extendedPublicKey,
-			),
-		}, nil
+	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
+	if err != nil {
+		log.WithError(err).Errorf("Could not derive xpub at %s", absoluteKeypath.Encode())
+		return
 	}
-	backend.createAndAddAccount(coin, code, name, getSigningConfigurations)
+
+	signingConfigurations := signing.Configurations{
+		signing.NewSinglesigConfiguration(
+			signing.ScriptTypeP2PKH, // TODO: meaningless in Ethereum
+			absoluteKeypath,
+			extendedPublicKey,
+		),
+	}
+	backend.createAndAddAccount(coin, code, name, signingConfigurations)
 }
 
 // Config returns the app config.
@@ -688,10 +685,7 @@ func (backend *Backend) initPersistedAccounts() {
 				account.CoinCode, account.Code)
 			continue
 		}
-		getSigningConfigurations := func() (signing.Configurations, error) {
-			return account.Configurations, nil
-		}
-		backend.createAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations)
+		backend.createAndAddAccount(coin, account.Code, account.Name, account.Configurations)
 	}
 }
 
