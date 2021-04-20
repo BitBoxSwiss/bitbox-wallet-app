@@ -299,48 +299,45 @@ func (backend *Backend) emitAccountsStatusChanged() {
 	})
 }
 
+// persistAccount adds the account information to the accounts database. These accounts are loaded
+// in `initPersistedAccounts()`.
+func (backend *Backend) persistAccount(
+	coin coin.Coin,
+	code string,
+	name string,
+	signingConfigurations signing.Configurations) error {
+	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		for _, account := range accountsConfig.Accounts {
+			if account.CoinCode == coin.Code() {
+				// We detect a duplicate account (subaccount in a unified account) if any of the
+				// configurations is already present.
+				for _, config := range account.Configurations {
+					for _, config2 := range signingConfigurations {
+						if config.Hash() == config2.Hash() {
+							return errp.WithStack(ErrAccountAlreadyExists)
+						}
+					}
+				}
+
+			}
+		}
+		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
+			CoinCode:       coin.Code(),
+			Code:           code,
+			Name:           name,
+			Configurations: signingConfigurations,
+		})
+		return nil
+	})
+}
+
 // The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
 	getSigningConfigurations func() (signing.Configurations, error),
-	persist bool,
-	emitEvent bool,
-) error {
-	if persist {
-		err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-			configurations, err := getSigningConfigurations()
-			if err != nil {
-				return err
-			}
-			for _, account := range accountsConfig.Accounts {
-				if account.CoinCode == coin.Code() {
-					// We detect a duplicate account (subaccount in a unified account) if any of the
-					// configurations is already present.
-					for _, config := range account.Configurations {
-						for _, config2 := range configurations {
-							if config.Hash() == config2.Hash() {
-								return errp.WithStack(ErrAccountAlreadyExists)
-							}
-						}
-					}
-
-				}
-			}
-			accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
-				CoinCode:       coin.Code(),
-				Code:           code,
-				Name:           name,
-				Configurations: configurations,
-			})
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-	}
-
+) {
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
 		Code:        code,
@@ -361,7 +358,6 @@ func (backend *Backend) createAndAddAccount(
 		},
 	}
 
-	accountAdded := false
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(
@@ -371,18 +367,12 @@ func (backend *Backend) createAndAddAccount(
 			backend.log,
 		)
 		backend.addAccount(account)
-		accountAdded = true
 	case *eth.Coin:
 		account = eth.NewAccount(accountConfig, specificCoin, backend.log)
 		backend.addAccount(account)
-		accountAdded = true
 	default:
 		panic("unknown coin type")
 	}
-	if emitEvent && accountAdded {
-		backend.emitAccountsStatusChanged()
-	}
-	return nil
 }
 
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
@@ -391,12 +381,14 @@ func (backend *Backend) CreateAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
-	getSigningConfigurations func() (signing.Configurations, error),
-	persist bool,
-	emitEvent bool,
+	signingConfigurations signing.Configurations,
 ) error {
 	defer backend.accountsLock.Lock()()
-	return backend.createAndAddAccount(coin, code, name, getSigningConfigurations, persist, emitEvent)
+	if err := backend.persistAccount(coin, code, name, signingConfigurations); err != nil {
+		return err
+	}
+	backend.initAccounts()
+	return nil
 }
 
 type scriptTypeWithKeypath struct {
@@ -476,16 +468,12 @@ func (backend *Backend) createAndAddBTCAccount(
 			case signing.ScriptTypeP2WPKH:
 				suffixedName += ": bech32"
 			}
-			err := backend.createAndAddAccount(
+			backend.createAndAddAccount(
 				coin,
 				fmt.Sprintf("%s-%s", code, cfg.scriptType),
 				suffixedName,
 				getSigningConfigurations,
-				false, false,
 			)
-			if err != nil {
-				panic(err)
-			}
 		}
 	} else {
 		getSigningConfigurations := func() (signing.Configurations, error) {
@@ -499,10 +487,7 @@ func (backend *Backend) createAndAddBTCAccount(
 			}
 			return result, nil
 		}
-		err := backend.createAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
-		if err != nil {
-			panic(err)
-		}
+		backend.createAndAddAccount(coin, code, name, getSigningConfigurations)
 	}
 }
 
@@ -550,10 +535,7 @@ func (backend *Backend) createAndAddETHAccount(
 			),
 		}, nil
 	}
-	err = backend.createAndAddAccount(coin, code, name, getSigningConfigurations, false, false)
-	if err != nil {
-		panic(err)
-	}
+	backend.createAndAddAccount(coin, code, name, getSigningConfigurations)
 }
 
 // Config returns the app config.
@@ -713,10 +695,7 @@ func (backend *Backend) initPersistedAccounts() {
 		getSigningConfigurations := func() (signing.Configurations, error) {
 			return account.Configurations, nil
 		}
-		err = backend.createAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations, false, false)
-		if err != nil {
-			panic(err)
-		}
+		backend.createAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations)
 	}
 }
 
