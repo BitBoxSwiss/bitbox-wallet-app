@@ -32,8 +32,14 @@ type SocksProxy struct {
 	log              *logrus.Entry
 }
 
-// NewSocksProxy returns a new socks proxy instance.
+const defaultProxyAddress = "127.0.0.1:9050"
+
+// NewSocksProxy returns a new socks proxy instance. If proxyAddress is the empty string, the default
+// address '127.0.0.1:9050' will be used.
 func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
+	if proxyAddress == "" {
+		proxyAddress = defaultProxyAddress
+	}
 	proxy := SocksProxy{
 		useProxy:     useProxy,
 		proxyAddress: proxyAddress,
@@ -41,6 +47,21 @@ func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 	}
 	proxy.fullProxyAddress = "socks5://" + proxyAddress
 	return proxy
+}
+
+// Validate validates the socks5 proxy endpoint.
+// We check if we could instantiate a proxied http client.
+// Currently, no actual connectivity checks as performed.
+func (socksProxy SocksProxy) Validate() error {
+	if !socksProxy.useProxy {
+		return nil
+	}
+	tbProxyURL, err := url.Parse(socksProxy.fullProxyAddress)
+	if err != nil {
+		return err
+	}
+	_, err = proxy.FromURL(tbProxyURL, proxy.Direct)
+	return err
 }
 
 // GetTCPProxyDialer returns a tcp connection. The connection is proxied, if useProxy is true.

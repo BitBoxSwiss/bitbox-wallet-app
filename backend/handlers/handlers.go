@@ -58,6 +58,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -203,6 +204,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
 	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
@@ -678,6 +680,29 @@ func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) (interface{}
 	}
 	return map[string]interface{}{
 		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postSocksProxyCheck(r *http.Request) (interface{}, error) {
+	var endpoint string
+	if err := json.NewDecoder(r.Body).Decode(&endpoint); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	err := socksproxy.NewSocksProxy(true, endpoint).Validate()
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}, nil
+	}
+	return response{
+		Success: true,
 	}, nil
 }
 
