@@ -1,0 +1,14 @@
+.manageContainer {
+    min-height: 350px;
+}
+
+.title {
+    font-size: var(--size-large);
+    font-weight: 400;
+}
+
+.successCheck {
+    background-color: var(--color-success);
+    border: .5rem solid var(--color-success);
+    border-radius: 100px;
+}
