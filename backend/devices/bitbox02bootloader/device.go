@@ -20,7 +20,6 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox02-api-go/api/bootloader"
@@ -99,7 +98,7 @@ func (device *Device) Identifier() string {
 }
 
 // KeystoreForConfiguration implements device.Device.
-func (device *Device) KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystoreInterface.Keystore {
+func (device *Device) KeystoreForConfiguration(cosignerIndex int) keystoreInterface.Keystore {
 	panic("not supported")
 }
 

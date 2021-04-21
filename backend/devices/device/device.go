@@ -17,7 +17,6 @@ package device
 import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
@@ -36,7 +35,7 @@ type Interface interface {
 	Identifier() string
 
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
-	KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystore.Keystore
+	KeystoreForConfiguration(cosignerIndex int) keystore.Keystore
 
 	// SetOnEvent installs a callback which is called for various events.
 	SetOnEvent(func(event.Event, interface{}))
