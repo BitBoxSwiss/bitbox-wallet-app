@@ -23,6 +23,8 @@ import (
 
 // Interface represents a hardware wallet device.
 type Interface interface {
+	observable.Interface
+
 	Init(testing bool) error
 	// ProductName returns the product name of the device in lowercase/no spaces.
 	// It acts as an identifier for the device type, not for display.
@@ -33,27 +35,12 @@ type Interface interface {
 	// Identifier returns the hash of the type and the serial number.
 	Identifier() string
 
-	// FirmwareVersion() string
-
-	// UserChosenName() string
-
-	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
-	// ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
-
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
 	KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystore.Keystore
-
-	// Locked() bool
-
-	// Unlock(string) error
-
-	// Lock() error
 
 	// SetOnEvent installs a callback which is called for various events.
 	SetOnEvent(func(event.Event, interface{}))
 
 	// Close tells the device to close all connections.
 	Close()
-
-	observable.Interface
 }
