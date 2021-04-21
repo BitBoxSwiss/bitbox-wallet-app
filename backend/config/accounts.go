@@ -22,10 +22,10 @@ import (
 
 // Account holds information related to an account.
 type Account struct {
-	CoinCode      coin.Code              `json:"coinCode"`
-	Name          string                 `json:"name"`
-	Code          string                 `json:"code"`
-	Configuration *signing.Configuration `json:"configuration"`
+	CoinCode       coin.Code              `json:"coinCode"`
+	Name           string                 `json:"name"`
+	Code           string                 `json:"code"`
+	Configurations signing.Configurations `json:"configurations"`
 }
 
 // AccountsConfig persists the list of accounts added to the app.

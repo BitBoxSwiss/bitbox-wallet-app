@@ -313,22 +313,26 @@ func (backend *Backend) createAndAddAccount(
 		if err != nil {
 			return err
 		}
-		if len(configurations) != 1 {
-			// TODO: unified-accounts
-			return errp.New("Watch-only accounts don't support mixed inputs yet")
-		}
-		configuration := configurations[0]
 		accountsConfig := backend.config.AccountsConfig()
 		for _, account := range accountsConfig.Accounts {
-			if account.Configuration.Hash() == configuration.Hash() && account.CoinCode == coin.Code() {
-				return errp.WithStack(ErrAccountAlreadyExists)
+			if account.CoinCode == coin.Code() {
+				// We detect a duplicate account (subaccount in a unified account) if any of the
+				// configurations is already present.
+				for _, config := range account.Configurations {
+					for _, config2 := range configurations {
+						if config.Hash() == config2.Hash() {
+							return errp.WithStack(ErrAccountAlreadyExists)
+						}
+					}
+				}
+
 			}
 		}
 		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
-			CoinCode:      coin.Code(),
-			Code:          code,
-			Name:          name,
-			Configuration: configuration,
+			CoinCode:       coin.Code(),
+			Code:           code,
+			Name:           name,
+			Configurations: configurations,
 		})
 		if err := backend.config.SetAccountsConfig(accountsConfig); err != nil {
 			return err
@@ -705,7 +709,7 @@ func (backend *Backend) initPersistedAccounts() {
 			continue
 		}
 		getSigningConfigurations := func() (signing.Configurations, error) {
-			return signing.Configurations{account.Configuration}, nil
+			return account.Configurations, nil
 		}
 		err = backend.createAndAddAccount(coin, account.Code, account.Name, getSigningConfigurations, false, false)
 		if err != nil {
