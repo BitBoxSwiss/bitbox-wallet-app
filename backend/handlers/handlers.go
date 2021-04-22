@@ -80,9 +80,7 @@ type Backend interface {
 		coin coinpkg.Coin,
 		code string,
 		name string,
-		getSigningConfigurations func() (signing.Configurations, error),
-		persist bool,
-		emitEvent bool,
+		signingConfigurations signing.Configurations,
 	) error
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
@@ -489,12 +487,9 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
 	}
 
-	getSigningConfigurations := func() (signing.Configurations, error) {
-		return signing.Configurations{configuration}, nil
-	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
 	err = handlers.backend.CreateAndAddAccount(
-		coin, accountCode, jsonAccountName, getSigningConfigurations, true, true)
+		coin, accountCode, jsonAccountName, signing.Configurations{configuration})
 	if errp.Cause(err) == backend.ErrAccountAlreadyExists {
 		return map[string]interface{}{"success": false, "errorCode": "alreadyExists"}, nil
 	}
