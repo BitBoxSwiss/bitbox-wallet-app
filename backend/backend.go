@@ -328,6 +328,7 @@ func (backend *Backend) createAndAddAccount(
 	code string,
 	name string,
 	signingConfigurations signing.Configurations,
+	activeTokens []string,
 ) {
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
@@ -361,6 +362,16 @@ func (backend *Backend) createAndAddAccount(
 	case *eth.Coin:
 		account = eth.NewAccount(accountConfig, specificCoin, backend.log)
 		backend.addAccount(account)
+
+		// Load ERC20 tokens enabled with this Ethereum account.
+		for _, erc20TokenCode := range activeTokens {
+			token, err := backend.Coin(coinpkg.Code(erc20TokenCode))
+			if err != nil {
+				backend.log.WithError(err).Error("could not find ERC20 token")
+				continue
+			}
+			backend.createAndAddAccount(token, erc20TokenCode, token.Name(), signingConfigurations, nil)
+		}
 	default:
 		panic("unknown coin type")
 	}
@@ -506,6 +517,18 @@ func (backend *Backend) persistETHAccountConfig(
 			extendedPublicKey,
 		),
 	}
+	// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
+	// active/inactive per ETH account. We use the previous global settings to decide the default
+	// set of active tokens, for a smoother migration for the user.
+	var activeTokens []string
+	if coin.Code() == coinpkg.CodeETH {
+		for _, tokenCode := range backend.config.AppConfig().Backend.ETH.ActiveERC20Tokens {
+			prefix := "eth-erc20-"
+			// Old config entries did not contain this prefix, but the token codes in the new config
+			// do, to match the codes listed in erc20.go
+			activeTokens = append(activeTokens, prefix+tokenCode)
+		}
+	}
 
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
@@ -519,6 +542,7 @@ func (backend *Backend) persistETHAccountConfig(
 		SupportsUnifiedAccounts: keystore.SupportsUnifiedAccounts(),
 		RootFingerprint:         rootFingerprint,
 		Configurations:          signingConfigurations,
+		ActiveTokens:            activeTokens,
 	})
 	if errp.Cause(err) == ErrAccountAlreadyExists {
 		// This is adding initial default accounts. If this already happened, there is nothing else
@@ -708,10 +732,12 @@ func (backend *Backend) initPersistedAccounts() {
 					fmt.Sprintf("%s-%s", account.Code, signingConfiguration.ScriptType()),
 					suffixedName,
 					signing.Configurations{signingConfiguration},
+					account.ActiveTokens,
 				)
 			}
 		} else {
-			backend.createAndAddAccount(coin, account.Code, account.Name, account.Configurations)
+			backend.createAndAddAccount(
+				coin, account.Code, account.Name, account.Configurations, account.ActiveTokens)
 		}
 	}
 }
