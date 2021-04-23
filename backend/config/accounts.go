@@ -30,8 +30,13 @@ type Account struct {
 	//
 	// This is used to unify multiple Bitcoin script types (p2wsh, p2wsh-p2sh) in one account. The
 	// keystore must be able to sign transactions with mixed inputs.
-	SupportsUnifiedAccounts bool                   `json:"supportsUnifiedaccounts"`
-	Configurations          signing.Configurations `json:"configurations"`
+	SupportsUnifiedAccounts bool `json:"supportsUnifiedaccounts"`
+	// If not nil, all configurations must be xpub based and derived from the same BIP39 seed with
+	// this fingerprint. The root fingerprint is the first 32 bits of the hash160 of the pubkey at
+	// the keypath m/.
+	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers
+	RootFingerprint []byte                 `json:"rootFingerprint"`
+	Configurations  signing.Configurations `json:"configurations"`
 }
 
 // AccountsConfig persists the list of accounts added to the app.
