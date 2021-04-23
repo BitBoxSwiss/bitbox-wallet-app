@@ -403,9 +403,7 @@ func newScriptTypeWithKeypath(scriptType signing.ScriptType, keypath string) scr
 	}
 }
 
-// adds a combined BTC account with the given script types. If the keystore requires split accounts
-// (bitbox01) or the user configure split accounts in the settings, one account per script type is
-// added instead of a combined account.
+// adds a combined BTC account with the given script types.
 //
 // The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddBTCAccount(
@@ -445,44 +443,17 @@ func (backend *Backend) createAndAddBTCAccount(
 		), nil
 	}
 
-	splitAccounts := backend.config.AppConfig().Backend.SplitAccounts ||
-		!keystore.SupportsUnifiedAccounts()
-	if splitAccounts {
-		for _, cfg := range supportedConfigs {
-			cfg := cfg
-			signingConfiguration, err := getSigningConfiguration(cfg)
-			if err != nil {
-				log.WithError(err).Errorf(
-					"Could not create signing configuration at keypath %s", cfg.keypath.Encode())
-				continue
-			}
-			suffixedName := name
-			switch cfg.scriptType {
-			case signing.ScriptTypeP2PKH:
-				suffixedName += ": legacy"
-			case signing.ScriptTypeP2WPKH:
-				suffixedName += ": bech32"
-			}
-			backend.createAndAddAccount(
-				coin,
-				fmt.Sprintf("%s-%s", code, cfg.scriptType),
-				suffixedName,
-				signing.Configurations{signingConfiguration},
-			)
+	var signingConfigurations signing.Configurations
+	for _, cfg := range supportedConfigs {
+		signingConfiguration, err := getSigningConfiguration(cfg)
+		if err != nil {
+			log.WithError(err).Errorf(
+				"Could not create signing configuration at keypath %s", cfg.keypath.Encode())
+			continue
 		}
-	} else {
-		var signingConfigurations signing.Configurations
-		for _, cfg := range supportedConfigs {
-			signingConfiguration, err := getSigningConfiguration(cfg)
-			if err != nil {
-				log.WithError(err).Errorf(
-					"Could not create signing configuration at keypath %s", cfg.keypath.Encode())
-				continue
-			}
-			signingConfigurations = append(signingConfigurations, signingConfiguration)
-		}
-		backend.createAndAddAccount(coin, code, name, signingConfigurations)
+		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}
+	backend.createAndAddAccount(coin, code, name, signingConfigurations)
 }
 
 // The accountsLock must be held when calling this function.
@@ -685,7 +656,37 @@ func (backend *Backend) initPersistedAccounts() {
 				account.CoinCode, account.Code)
 			continue
 		}
-		backend.createAndAddAccount(coin, account.Code, account.Name, account.Configurations)
+
+		// We split accounts if the user setting dictates it or if the keystore connected to the
+		// account does not support unified accounts.
+
+		var isBTCBased bool
+		switch account.CoinCode {
+		case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC, coinpkg.CodeLTC, coinpkg.CodeTLTC:
+			isBTCBased = true
+		}
+		splitAccounts := isBTCBased && (backend.config.AppConfig().Backend.SplitAccounts ||
+			!account.SupportsUnifiedAccounts)
+
+		if splitAccounts {
+			for _, signingConfiguration := range account.Configurations {
+				suffixedName := account.Name
+				switch signingConfiguration.ScriptType() {
+				case signing.ScriptTypeP2PKH:
+					suffixedName += ": legacy"
+				case signing.ScriptTypeP2WPKH:
+					suffixedName += ": bech32"
+				}
+				backend.createAndAddAccount(
+					coin,
+					fmt.Sprintf("%s-%s", account.Code, signingConfiguration.ScriptType()),
+					suffixedName,
+					signing.Configurations{signingConfiguration},
+				)
+			}
+		} else {
+			backend.createAndAddAccount(coin, account.Code, account.Name, account.Configurations)
+		}
 	}
 }
 
@@ -732,7 +733,6 @@ func (backend *Backend) initDefaultAccounts() {
 					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
 				},
 			)
-
 			TETH, _ := backend.Coin(coinpkg.CodeTETH)
 			backend.createAndAddETHAccount(keystore, TETH, "teth", "m/44'/1'/0'/0")
 			RETH, _ := backend.Coin(coinpkg.CodeRETH)
