@@ -301,18 +301,14 @@ func (backend *Backend) emitAccountsStatusChanged() {
 
 // persistAccount adds the account information to the accounts database. These accounts are loaded
 // in `initPersistedAccounts()`.
-func (backend *Backend) persistAccount(
-	coin coin.Coin,
-	code string,
-	name string,
-	signingConfigurations signing.Configurations) error {
+func (backend *Backend) persistAccount(account config.Account) error {
 	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		for _, account := range accountsConfig.Accounts {
-			if account.CoinCode == coin.Code() {
+		for _, account2 := range accountsConfig.Accounts {
+			if account.CoinCode == account2.CoinCode {
 				// We detect a duplicate account (subaccount in a unified account) if any of the
 				// configurations is already present.
 				for _, config := range account.Configurations {
-					for _, config2 := range signingConfigurations {
+					for _, config2 := range account2.Configurations {
 						if config.Hash() == config2.Hash() {
 							return errp.WithStack(ErrAccountAlreadyExists)
 						}
@@ -321,12 +317,7 @@ func (backend *Backend) persistAccount(
 
 			}
 		}
-		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
-			CoinCode:       coin.Code(),
-			Code:           code,
-			Name:           name,
-			Configurations: signingConfigurations,
-		})
+		accountsConfig.Accounts = append(accountsConfig.Accounts, account)
 		return nil
 	})
 }
@@ -384,7 +375,12 @@ func (backend *Backend) CreateAndAddAccount(
 	signingConfigurations signing.Configurations,
 ) error {
 	defer backend.accountsLock.Lock()()
-	if err := backend.persistAccount(coin, code, name, signingConfigurations); err != nil {
+	if err := backend.persistAccount(config.Account{
+		CoinCode:       coin.Code(),
+		Code:           code,
+		Name:           name,
+		Configurations: signingConfigurations,
+	}); err != nil {
 		return err
 	}
 	backend.initAccounts()
