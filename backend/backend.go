@@ -430,27 +430,20 @@ func (backend *Backend) createAndAddBTCAccount(
 	}
 	log.Info("init account")
 
-	getSigningConfiguration := func(cfg scriptTypeWithKeypath) (*signing.Configuration, error) {
+	var signingConfigurations signing.Configurations
+	for _, cfg := range supportedConfigs {
 		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
 		if err != nil {
-			return nil, err
+			log.WithError(err).Errorf(
+				"Could not derive xpub at keypath %s", cfg.keypath.Encode())
+			continue
 		}
 
-		return signing.NewSinglesigConfiguration(
+		signingConfiguration := signing.NewSinglesigConfiguration(
 			cfg.scriptType,
 			cfg.keypath,
 			extendedPublicKey,
-		), nil
-	}
-
-	var signingConfigurations signing.Configurations
-	for _, cfg := range supportedConfigs {
-		signingConfiguration, err := getSigningConfiguration(cfg)
-		if err != nil {
-			log.WithError(err).Errorf(
-				"Could not create signing configuration at keypath %s", cfg.keypath.Encode())
-			continue
-		}
+		)
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}
 	backend.createAndAddAccount(coin, code, name, signingConfigurations)
