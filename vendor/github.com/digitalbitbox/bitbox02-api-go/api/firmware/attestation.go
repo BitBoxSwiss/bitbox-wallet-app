@@ -20,6 +20,7 @@ import (
 	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"math/big"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -76,29 +77,44 @@ func (device *Device) performAttestation() (bool, error) {
 	challenge := bytesOrPanic(32)
 	response, err := device.rawQuery(append([]byte(opAttestation), challenge...))
 	if err != nil {
+		device.log.Error(fmt.Sprintf("attestation: could not perform request. challenge=%x", challenge), err)
 		return false, err
 	}
+
 	// See parsing below for what the sizes mean.
 	if len(response) < 1+32+64+64+32+64 {
+		device.log.Error(
+			fmt.Sprintf("attestation: response too short. challenge=%x, response=%x", challenge, response), nil)
 		return false, nil
 	}
 	if string(response[:1]) != responseSuccess {
+		device.log.Error(
+			fmt.Sprintf("attestation: expected success. challenge=%x, response=%x", challenge, response), nil)
 		return false, nil
 	}
-	response = response[1:]
+	rsp := response[1:]
 	var bootloaderHash, devicePubkeyBytes, certificate, rootPubkeyIdentifier, challengeSignature []byte
-	bootloaderHash, response = response[:32], response[32:]
-	devicePubkeyBytes, response = response[:64], response[64:]
-	certificate, response = response[:64], response[64:]
-	rootPubkeyIdentifier, response = response[:32], response[32:]
-	challengeSignature = response[:64]
+	bootloaderHash, rsp = rsp[:32], rsp[32:]
+	devicePubkeyBytes, rsp = rsp[:64], rsp[64:]
+	certificate, rsp = rsp[:64], rsp[64:]
+	rootPubkeyIdentifier, rsp = rsp[:32], rsp[32:]
+	challengeSignature = rsp[:64]
 
 	rootPubkeyInfo, ok := attestationPubkeys[hex.EncodeToString(rootPubkeyIdentifier)]
 	if !ok {
+		device.log.Error(fmt.Sprintf(
+			"could not find root pubkey. challenge=%x, response=%x, identifier=%x",
+			challenge,
+			response,
+			rootPubkeyIdentifier), nil)
 		return false, nil
 	}
 	if rootPubkeyInfo.acceptedBootloaderHashHex != "" {
 		if rootPubkeyInfo.acceptedBootloaderHashHex != hex.EncodeToString(bootloaderHash) {
+			device.log.Error(
+				fmt.Sprintf(
+					"attestation: bootloader not accepted. challenge=%x, response=%x, bootloaderHash=%x, acceptedBootloaderHashHex=%s",
+					challenge, response, bootloaderHash, rootPubkeyInfo.acceptedBootloaderHashHex), nil)
 			return false, nil
 		}
 	}
@@ -128,10 +144,14 @@ func (device *Device) performAttestation() (bool, error) {
 	certMsg.Write(bootloaderHash)
 	certMsg.Write(devicePubkeyBytes)
 	if !verify(rootPubkey.ToECDSA(), certMsg.Bytes(), certificate) {
+		device.log.Error(
+			fmt.Sprintf("attestation: could not verify certificate. challenge=%x, response=%x", challenge, response), nil)
 		return false, nil
 	}
 	// Verify challenge
 	if !verify(&devicePubkey, challenge, challengeSignature) {
+		device.log.Error(
+			fmt.Sprintf("attestation: could not verify challgege signature. challenge=%x, response=%x", challenge, response), nil)
 		return false, nil
 	}
 	return true, nil

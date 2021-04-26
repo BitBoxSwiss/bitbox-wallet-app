@@ -68,6 +68,7 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 		Version:                   deviceInfoResponse.DeviceInfo.Version,
 		Initialized:               deviceInfoResponse.DeviceInfo.Initialized,
 		MnemonicPassphraseEnabled: deviceInfoResponse.DeviceInfo.MnemonicPassphraseEnabled,
+		SecurechipModel:           deviceInfoResponse.DeviceInfo.SecurechipModel,
 	}
 
 	return deviceInfo, nil
@@ -99,10 +100,10 @@ func (device *Device) SetPassword() error {
 	return nil
 }
 
-func (device *Device) reboot() error {
+func (device *Device) reboot(purpose messages.RebootRequest_Purpose) error {
 	request := &messages.Request{
 		Request: &messages.Request_Reboot{
-			Reboot: &messages.RebootRequest{},
+			Reboot: &messages.RebootRequest{Purpose: purpose},
 		},
 	}
 
@@ -117,7 +118,13 @@ func (device *Device) reboot() error {
 
 // UpgradeFirmware reboots into the bootloader so a firmware can be flashed.
 func (device *Device) UpgradeFirmware() error {
-	return device.reboot()
+	return device.reboot(messages.RebootRequest_UPGRADE)
+}
+
+// GotoStartupSettings reboots into the bootloader with a 'Go to startup settings?' confirmation
+// dialog.
+func (device *Device) GotoStartupSettings() error {
+	return device.reboot(messages.RebootRequest_SETTINGS)
 }
 
 // Reset factory resets the device. You must call device.Init() afterwards.

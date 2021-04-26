@@ -104,7 +104,13 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 						_ = client.WriteMessage(websocket.CloseMessage, []byte{})
 						return
 					}
-					err := client.WriteMessage(websocket.BinaryMessage, rpcClient.sendCipher.Encrypt(nil, nil, message))
+					msg, err := rpcClient.sendCipher.Encrypt(nil, nil, message)
+					if err != nil {
+						rpcClient.log.WithError(err).Error("Could not encrypt message")
+						continue
+					}
+
+					err = client.WriteMessage(websocket.BinaryMessage, msg)
 					if err != nil {
 						rpcClient.log.WithError(err).Error("websocket could not write message")
 					}
