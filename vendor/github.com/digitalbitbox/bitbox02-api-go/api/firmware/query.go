@@ -109,7 +109,10 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 		return nil, errp.WithStack(err)
 	}
 
-	requestBytesEncrypted := device.sendCipher.Encrypt(nil, nil, requestBytes)
+	requestBytesEncrypted, err := device.sendCipher.Encrypt(nil, nil, requestBytes)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
 		requestBytesEncrypted = append([]byte(opNoiseMsg), requestBytesEncrypted...)
 	}
