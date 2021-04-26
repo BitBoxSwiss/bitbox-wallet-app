@@ -303,7 +303,8 @@ func (backend *Backend) emitAccountsStatusChanged() {
 // in `initPersistedAccounts()`.
 func (backend *Backend) persistAccount(account config.Account) error {
 	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		for _, account2 := range accountsConfig.Accounts {
+		for idx := range accountsConfig.Accounts {
+			account2 := &accountsConfig.Accounts[idx]
 			if account.CoinCode == account2.CoinCode {
 				// We detect a duplicate account (subaccount in a unified account) if any of the
 				// configurations is already present.
@@ -693,8 +694,9 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 
 // The accountsLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts() {
-	for _, account := range backend.config.AccountsConfig().Accounts {
-		account := account
+	accounts := backend.config.AccountsConfig().Accounts
+	for idx := range accounts {
+		account := &accounts[idx]
 		if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
 			// Don't load testnet accounts when running normally, nor mainnet accounts when running
 			// in testing mode
