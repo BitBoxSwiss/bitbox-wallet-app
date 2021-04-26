@@ -301,18 +301,14 @@ func (backend *Backend) emitAccountsStatusChanged() {
 
 // persistAccount adds the account information to the accounts database. These accounts are loaded
 // in `initPersistedAccounts()`.
-func (backend *Backend) persistAccount(
-	coin coin.Coin,
-	code string,
-	name string,
-	signingConfigurations signing.Configurations) error {
+func (backend *Backend) persistAccount(account config.Account) error {
 	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		for _, account := range accountsConfig.Accounts {
-			if account.CoinCode == coin.Code() {
+		for _, account2 := range accountsConfig.Accounts {
+			if account.CoinCode == account2.CoinCode {
 				// We detect a duplicate account (subaccount in a unified account) if any of the
 				// configurations is already present.
 				for _, config := range account.Configurations {
-					for _, config2 := range signingConfigurations {
+					for _, config2 := range account2.Configurations {
 						if config.Hash() == config2.Hash() {
 							return errp.WithStack(ErrAccountAlreadyExists)
 						}
@@ -321,12 +317,7 @@ func (backend *Backend) persistAccount(
 
 			}
 		}
-		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
-			CoinCode:       coin.Code(),
-			Code:           code,
-			Name:           name,
-			Configurations: signingConfigurations,
-		})
+		accountsConfig.Accounts = append(accountsConfig.Accounts, account)
 		return nil
 	})
 }
@@ -384,7 +375,12 @@ func (backend *Backend) CreateAndAddAccount(
 	signingConfigurations signing.Configurations,
 ) error {
 	defer backend.accountsLock.Lock()()
-	if err := backend.persistAccount(coin, code, name, signingConfigurations); err != nil {
+	if err := backend.persistAccount(config.Account{
+		CoinCode:       coin.Code(),
+		Code:           code,
+		Name:           name,
+		Configurations: signingConfigurations,
+	}); err != nil {
 		return err
 	}
 	backend.initAccounts()
@@ -970,8 +966,8 @@ func (backend *Backend) Keystores() *keystore.Keystores {
 	return backend.keystores
 }
 
-// RegisterKeystore registers the given keystore at this backend.
-func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
+// registerKeystore registers the given keystore at this backend.
+func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	backend.log.Info("registering keystore")
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
@@ -1024,13 +1020,13 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
 			if backend.arguments.Multisig() {
-				backend.RegisterKeystore(
+				backend.registerKeystore(
 					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
 			} else if mainKeystore {
 				// HACK: for device based, only one is supported at the moment.
 				backend.keystores = keystore.NewKeystores()
 
-				backend.RegisterKeystore(
+				backend.registerKeystore(
 					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
 			}
 		}
@@ -1109,7 +1105,7 @@ func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error
 func (backend *Backend) RegisterTestKeystore(pin string) {
 	softwareBasedKeystore := software.NewKeystoreFromPIN(
 		backend.keystores.Count(), pin)
-	backend.RegisterKeystore(softwareBasedKeystore)
+	backend.registerKeystore(softwareBasedKeystore)
 }
 
 // NotifyUser creates a desktop notification.
