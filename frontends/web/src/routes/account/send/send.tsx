@@ -382,8 +382,9 @@ class Send extends Component<Props, State> {
         this.setState(prevState => ({
             ...prevState,
             [target.id]: value,
-        }));
-        this.validateAndDisplayFee(true);
+        }), () => {
+            this.validateAndDisplayFee(true);
+        });
     }
 
     private handleFiatInput = (event: Event) => {

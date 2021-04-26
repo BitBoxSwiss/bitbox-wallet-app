@@ -74,8 +74,7 @@ export class PasswordSingleInput extends Component {
     }
 
     validate = () => {
-        // @ts-ignore
-        if (this.regex && (!this.password.validity.valid)) {
+        if (this.regex && this.password && !this.password.validity.valid) {
             return this.props.onValidPassword(null);
         }
         if (this.state.password) {
@@ -91,8 +90,7 @@ export class PasswordSingleInput extends Component {
             value = event.target.checked;
         }
         const stateKey = event.target.id.slice(this.idPrefix().length);
-        this.setState({ [stateKey]: value });
-        this.validate();
+        this.setState({ [stateKey]: value }, this.validate);
     }
 
     handleCheckCaps = event => {
@@ -195,8 +193,10 @@ export class PasswordRepeatInput extends Component {
     }
 
     validate = () => {
-        // @ts-ignore
-        if (this.regex && (!this.password.validity.valid || !this.passwordRepeat.validity.valid)) {
+        if (
+            this.regex && this.password && this.passwordRepeat
+            && (!this.password.validity.valid || !this.passwordRepeat.validity.valid)
+        ) {
             return this.props.onValidPassword(null);
         }
         if (this.state.password && this.state.password === this.state.passwordRepeat) {
@@ -212,8 +212,7 @@ export class PasswordRepeatInput extends Component {
             value = event.target.checked;
         }
         const stateKey = event.target.id.slice(this.idPrefix().length);
-        this.setState({ [stateKey]: value });
-        this.validate();
+        this.setState({ [stateKey]: value }, this.validate);
     }
 
     handleCheckCaps = event => {
