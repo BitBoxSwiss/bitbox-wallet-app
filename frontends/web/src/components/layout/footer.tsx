@@ -15,7 +15,7 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import LanguageSwitch from '../language/language';
+import { LanguageSwitch } from '../language/language';
 import * as style from './footer.css';
 import { Version } from './version';
 

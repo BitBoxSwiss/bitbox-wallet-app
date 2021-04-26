@@ -22,20 +22,21 @@ jest.mock('../../../src/i18n/i18n');
 import { h } from 'preact';
 
 import i18n from '../../../src/i18n/i18n';
-import LanguageSwitch from '../../../src/components/language/language';
+import { LanguageSwitch } from '../../../src/components/language/language';
 
 describe('components/language/language', () => {
     describe('selectedIndex', () => {
         const supportedLangs = [
-            {code: 'en'},
-            {code: 'en-US'},
-            {code: 'pt'},
+            {code: 'en', display: 'EN'},
+            {code: 'en-US', display: 'EN'},
+            {code: 'pt', display: 'PT'},
         ];
 
         supportedLangs.forEach((lang, idx) => {
             it(`returns exact match (${lang.code})`, (done) => {
                 i18n.changeLanguage(lang.code, (err) => {
                     expect(err).toBe(null);
+                    /* @ts-ignore */
                     const ctx = deep(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
                     expect(ctx.state('selectedIndex')).toEqual(idx);
                     done();
@@ -46,6 +47,7 @@ describe('components/language/language', () => {
         it('matches main language tag', (done) => {
             i18n.changeLanguage('pt_BR', (err) => {
                 expect(err).toBe(null);
+                /* @ts-ignore */
                 const ctx = deep(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
                 expect(ctx.state('selectedIndex')).toEqual(2); // 'pt'
                 done();
@@ -55,6 +57,7 @@ describe('components/language/language', () => {
         it('returns default if none matched', (done) => {
             i18n.changeLanguage('it', (err) => {
                 expect(err).toBe(null);
+                /* @ts-ignore */
                 const ctx = deep(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
                 expect(ctx.state('selectedIndex')).toEqual(0); // 'en'
                 done();

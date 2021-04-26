@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +15,66 @@
  * limitations under the License.
  */
 
+import { Component, h, RenderableProps } from 'preact';
 import { /* i18nEditorActive, */ extraLanguages } from '../../i18n/i18n';
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+
+import { translate as translateDecorator, TranslateProps } from '../../decorators/translate';
 import { Dialog } from '../dialog/dialog';
 import * as style from './language.css';
 
-@translate()
-export default class LanguageSwitcher extends Component {
+type TActiveLanguageCodes = 'bg' | 'de' | 'en' | 'es'
+    | 'fr' | 'hi' | 'it' | 'ja' | 'ms' | 'pt'
+    | 'ru' | 'sl' | 'tr' | 'zh';
+
+type TLanguage = {
+    code: TActiveLanguageCodes;
+    display: string;
+};
+
+type TLanguagesList = TLanguage[];
+
+interface State {
+    selectedIndex: number;
+    activeDialog: boolean;
+    languages: TLanguagesList;
+}
+
+interface LanguageSwitchProps {
+    languages?: TLanguagesList;
+    i18n?: any;
+}
+
+type Props = TranslateProps & LanguageSwitchProps;
+
+const defaultLanguages = [
+    { code: 'bg', display: 'България' },
+    { code: 'de', display: 'Deutsch' },
+    { code: 'en', display: 'English' },
+    { code: 'es', display: 'Español' },
+    { code: 'fa', display: 'فارسی' },
+    { code: 'fr', display: 'Français' },
+    { code: 'he', display: 'עברית' },
+    { code: 'hi', display: 'हिन्दी ' },
+    { code: 'it', display: 'Italiano' },
+    { code: 'ja', display: '日本語' },
+    { code: 'ms', display: 'Bahasa Melayu' },
+    { code: 'pt', display: 'Português' },
+    { code: 'ru', display: 'Русский' },
+    { code: 'sl', display: 'Slovenščina' },
+    { code: 'tr', display: 'Türkçe' },
+    { code: 'zh', display: '中文' },
+] as TLanguagesList;
+
+class LanguageSwitch extends Component<Props, State> {
     constructor(props) {
         super(props);
-        const languages = props.languages || [
-            { code: 'bg', display: 'България' },
-            { code: 'de', display: 'Deutsch' },
-            { code: 'en', display: 'English' },
-            { code: 'fr', display: 'Français' },
-            { code: 'hi', display: 'हिन्दी ' },
-            { code: 'it', display: 'Italiano' },
-            { code: 'ja', display: '日本語' },
-            { code: 'ms', display: 'Bahasa Melayu' },
-            { code: 'pt', display: 'Português' },
-            { code: 'es', display: 'Español' },
-            { code: 'ru', display: 'Русский' },
-            { code: 'sl', display: 'Slovenščina' },
-            { code: 'tr', display: 'Türkçe' },
-            { code: 'fa', display: 'فارسی' },
-            { code: 'zh', display: '中文' },
-            { code: 'he', display: 'עברית' },
-        ];
+        const languages = this.props.languages || defaultLanguages;
         if (extraLanguages) {
             extraLanguages.split(',').forEach(code => {
                 languages.push({
                     code,
                     display: code,
-                });
+                } as TLanguage);
             });
         }
         this.state = {
@@ -120,11 +147,11 @@ export default class LanguageSwitcher extends Component {
 
     render({
         t,
-    }, {
+    }: RenderableProps<Props>, {
         selectedIndex,
         activeDialog,
         languages,
-    }) {
+    }: State) {
         if (languages.length === 1) {
             return null;
         }
@@ -144,9 +171,9 @@ export default class LanguageSwitcher extends Component {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                     </svg>
                     {languages[selectedIndex].code === 'en' ? 'Other languages' : 'English'}
                 </button>
@@ -177,7 +204,7 @@ export default class LanguageSwitcher extends Component {
                                                         strokeWidth="2"
                                                         strokeLinecap="round"
                                                         strokeLinejoin="round">
-                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                        <polyline points="20 6 9 17 4 12" />
                                                     </svg>
                                                 )
                                             }
@@ -192,3 +219,7 @@ export default class LanguageSwitcher extends Component {
         );
     }
 }
+
+const TranslatedLanguageSwitcher = translateDecorator<LanguageSwitchProps>()(LanguageSwitch);
+
+export { TranslatedLanguageSwitcher as LanguageSwitch };

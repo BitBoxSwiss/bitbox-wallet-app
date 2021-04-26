@@ -24,7 +24,7 @@ import { SwissMadeOpenSource, Alert } from '../../../components/icon';
 import { Header } from '../../../components/layout';
 import { Spinner } from '../../../components/spinner/Spinner';
 import warning from '../../../assets/icons/warning.png';
-import LanguageSwitch from '../../../components/language/language';
+import { LanguageSwitch } from '../../../components/language/language';
 import * as style from '../device.css';
 
 const STATUS = Object.freeze({
