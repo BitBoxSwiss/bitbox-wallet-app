@@ -35,6 +35,16 @@ import { apiGet } from '../../utils/request';
 import * as style from './account.css';
 import { isBitcoinBased } from './utils';
 
+// Show some additional info for the following coin types, if legacy split acocunts is enabled.
+const WithCoinTypeInfo = [
+    'btc-p2pkh',
+    'btc-p2wpkh',
+    'btc-p2wpkh-p2sh',
+    'tbtc-p2pkh',
+    'tbtc-p2wpkh',
+    'tbtc-p2wpkh-p2sh',
+];
+
 interface AccountProps {
     code: string;
     devices: TDevices;
@@ -285,8 +295,8 @@ class Account extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Status type="warning">
-                        {hasCard && t('warning.sdcard')}
+                    <Status hidden={!hasCard} type="warning">
+                        {t('warning.sdcard')}
                     </Status>
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
@@ -312,8 +322,12 @@ class Account extends Component<Props, State> {
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <Status dismissable={`info-${code}`} type="info" className="m-bottom-default">
-                                {t(`account.info.${code}`, { defaultValue: '' })}
+                            <Status
+                                className="m-bottom-default"
+                                hidden={!WithCoinTypeInfo.includes(code)}
+                                dismissable={`info-${code}`}
+                                type="info">
+                                {t(`account.info.${code}`)}
                             </Status>
                             <div class="flex flex-row flex-between flex-items-center flex-column-mobile flex-reverse-mobile">
                                 <label className="labelXLarge flex-self-start-mobile">{t('accountSummary.availableBalance')}</label>

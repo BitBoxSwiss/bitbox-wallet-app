@@ -315,8 +315,8 @@ class Receive extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Status type="warning">
-                        {paired === false && t('warning.receivePairing')}
+                    <Status type="warning" hidden={paired !== false}>
+                        {t('warning.receivePairing')}
                     </Status>
                     <Header title={<h2>{t('receive.title', { accountName: account.name })}</h2>} />
                     <div class="innerContainer scrollableContainer">

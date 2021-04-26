@@ -586,8 +586,8 @@ class Send extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Status type="warning">
-                        {paired === false && t('warning.sendPairing')}
+                    <Status type="warning" hidden={paired !== false}>
+                        {t('warning.sendPairing')}
                     </Status>
                     <Header title={<h2>{t('send.title', { accountName: account.name })}</h2>} />
                     <div class="innerContainer scrollableContainer">
