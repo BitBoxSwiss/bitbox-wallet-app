@@ -47,6 +47,11 @@ func (keystore *keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeHardware
 }
 
+// RootFingerprint implements keystore.Keystore.
+func (keystore *keystore) RootFingerprint() ([]byte, error) {
+	return keystore.device.RootFingerprint()
+}
+
 // CosignerIndex implements keystore.Keystore.
 func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex

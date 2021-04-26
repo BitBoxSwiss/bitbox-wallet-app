@@ -42,6 +42,12 @@ type Keystore interface {
 	// Type denotes the type of the keystore.
 	Type() Type
 
+	// RootFingerprint returns the keystore's root fingerprint, which is the first 32 bits of the
+	// hash160 of the pubkey at the keypath m/.
+	//
+	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers
+	RootFingerprint() ([]byte, error)
+
 	// CosignerIndex returns the index at which the keystore signs in a multisig configuration.
 	// The returned value is always zero for a singlesig configuration.
 	CosignerIndex() int

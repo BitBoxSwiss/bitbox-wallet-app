@@ -17,6 +17,7 @@ package software
 
 import (
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -70,6 +71,23 @@ func NewKeystoreFromPIN(cosignerIndex int, pin string) *Keystore {
 // Type implements keystore.Keystore.
 func (keystore *Keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeSoftware
+}
+
+// RootFingerprint implements keystore.Keystore.
+func (keystore *Keystore) RootFingerprint() ([]byte, error) {
+	// The bip32 Go lib we use does not expose a key's fingerprint. We simply get an arbitrary child
+	// xpub and read the parentFingerprint field. This is part of the BIP32 specification.
+	keypath, err := signing.NewAbsoluteKeypath("m/84'")
+	if err != nil {
+		return nil, err
+	}
+	xprv, err := keypath.Derive(keystore.master)
+	if err != nil {
+		return nil, err
+	}
+	fingerprint := make([]byte, 4)
+	binary.BigEndian.PutUint32(fingerprint, xprv.ParentFingerprint())
+	return fingerprint, nil
 }
 
 // Configuration implements keystore.Keystore.

@@ -16,6 +16,7 @@
 package bitbox
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	"github.com/btcsuite/btcd/txscript"
@@ -39,6 +40,20 @@ type keystore struct {
 // Type implements keystore.Keystore.
 func (keystore *keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeHardware
+}
+
+// RootFingerprint implements keystore.Keystore.
+func (keystore *keystore) RootFingerprint() ([]byte, error) {
+	// The BitBox01 does not expose the root fingerprint, and it does not allow getting the xpub at
+	// "m/".  We simply get an arbitrary child xpub and read the parentFingerprint property, which
+	// equals the fingerprint at m/. This is part of the BIP32 specification.
+	xpub, err := keystore.dbb.xpub("m/84'")
+	if err != nil {
+		return nil, err
+	}
+	fingerprint := make([]byte, 4)
+	binary.BigEndian.PutUint32(fingerprint, xpub.ParentFingerprint())
+	return fingerprint, nil
 }
 
 // CosignerIndex implements keystore.Keystore.
