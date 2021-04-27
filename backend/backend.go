@@ -1066,7 +1066,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 				// HACK: for device based, only one is supported at the moment.
 				backend.keystores = keystore.NewKeystores()
 
-				backend.registerKeystore(theDevice.KeystoreForConfiguration())
+				backend.registerKeystore(theDevice.Keystore())
 			}
 		}
 		backend.events <- deviceEvent{
