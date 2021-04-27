@@ -33,7 +33,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/mdns"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
@@ -165,7 +164,7 @@ type Backend struct {
 	onBitBoxBaseInit   func(*bitboxbase.BitBoxBase)
 	onBitBoxBaseUninit func(string)
 
-	coins     map[coinpkg.Code]coin.Coin
+	coins     map[coinpkg.Code]coinpkg.Coin
 	coinsLock locker.Locker
 
 	accounts     []accounts.Interface
@@ -201,7 +200,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		devices:     map[string]device.Interface{},
 		bitboxBases: map[string]*bitboxbase.BitBoxBase{},
 		keystores:   keystore.NewKeystores(),
-		coins:       map[coinpkg.Code]coin.Coin{},
+		coins:       map[coinpkg.Code]coinpkg.Coin{},
 		accounts:    []accounts.Interface{},
 		log:         log,
 	}
@@ -250,7 +249,7 @@ func (backend *Backend) configureHistoryExchangeRates() {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
 	// No reason continue with ERC20 tokens if Ethereum is inactive.
-	if backend.config.AppConfig().Backend.CoinActive(coin.CodeETH) {
+	if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
 		for _, token := range backend.config.AppConfig().Backend.ETH.ActiveERC20Tokens {
 			// The prefix is stripped on the frontend and in app config.
 			// TODO: Unify the prefix with frontend and erc20.go, and possibly
@@ -326,7 +325,7 @@ func (backend *Backend) persistAccount(account config.Account) error {
 
 // The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	code string,
 	name string,
 	signingConfigurations signing.Configurations,
@@ -382,7 +381,7 @@ func (backend *Backend) createAndAddAccount(
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
 // persist is true, the configuration is fetched and saved in the accounts configuration.
 func (backend *Backend) CreateAndAddAccount(
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	code string,
 	name string,
 	signingConfigurations signing.Configurations,
@@ -419,7 +418,7 @@ func newScriptTypeWithKeypath(scriptType signing.ScriptType, keypath string) scr
 // adds a combined BTC account with the given script types.
 func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	code string,
 	configs []scriptTypeWithKeypath,
 ) {
@@ -483,7 +482,7 @@ func (backend *Backend) persistBTCAccountConfig(
 
 func (backend *Backend) persistETHAccountConfig(
 	keystore keystore.Keystore,
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	code string,
 	keypath string,
 ) {
@@ -624,7 +623,7 @@ func (backend *Backend) defaultElectrumXServers(code coinpkg.Code) []*config.Ser
 }
 
 // Coin returns the coin with the given code or an error if no such coin exists.
-func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
+func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	defer backend.coinsLock.Lock()()
 	coin, ok := backend.coins[code]
 	if ok {
