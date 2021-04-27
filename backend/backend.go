@@ -1062,13 +1062,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		case deviceevent.EventKeystoreGone:
 			backend.DeregisterKeystore()
 		case deviceevent.EventKeystoreAvailable:
-			// absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
-			// extendedPublicKey, err := backend.device.ExtendedPublicKey(absoluteKeypath)
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// configuration := signing.NewConfiguration(absoluteKeypath,
-			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
 			if mainKeystore {
 				// HACK: for device based, only one is supported at the moment.
 				backend.keystores = keystore.NewKeystores()
