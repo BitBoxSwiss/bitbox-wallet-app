@@ -1024,7 +1024,17 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		return
 	}
 
-	backend.persistDefaultAccountConfigs(keystore)
+	belongsToKeystore := func(account *config.Account) bool {
+		fingerprint, err := keystore.RootFingerprint()
+		if err != nil {
+			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
+			return false
+		}
+		return bytes.Equal(fingerprint, account.RootFingerprint)
+	}
+	if len(backend.filterAccounts(belongsToKeystore)) == 0 {
+		backend.persistDefaultAccountConfigs(keystore)
+	}
 
 	defer backend.accountsLock.Lock()()
 	backend.initAccounts()
