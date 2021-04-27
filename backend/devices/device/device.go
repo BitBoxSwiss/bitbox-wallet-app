@@ -35,7 +35,7 @@ type Interface interface {
 	Identifier() string
 
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
-	KeystoreForConfiguration(cosignerIndex int) keystore.Keystore
+	KeystoreForConfiguration() keystore.Keystore
 
 	// SetOnEvent installs a callback which is called for various events.
 	SetOnEvent(func(event.Event, interface{}))

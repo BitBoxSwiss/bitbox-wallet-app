@@ -110,14 +110,13 @@ func (device *Device) Identifier() string {
 }
 
 // KeystoreForConfiguration implements device.Device.
-func (device *Device) KeystoreForConfiguration(cosignerIndex int) keystoreInterface.Keystore {
+func (device *Device) KeystoreForConfiguration() keystoreInterface.Keystore {
 	if device.Status() != firmware.StatusInitialized {
 		return nil
 	}
 	return &keystore{
-		device:        device,
-		cosignerIndex: cosignerIndex,
-		log:           device.log,
+		device: device,
+		log:    device.log,
 	}
 }
 

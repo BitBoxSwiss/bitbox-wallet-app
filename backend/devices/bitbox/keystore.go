@@ -32,9 +32,8 @@ import (
 )
 
 type keystore struct {
-	dbb           *Device
-	cosignerIndex int
-	log           *logrus.Entry
+	dbb *Device
+	log *logrus.Entry
 }
 
 // Type implements keystore.Keystore.
@@ -56,17 +55,11 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return fingerprint, nil
 }
 
-// CosignerIndex implements keystore.Keystore.
-func (keystore *keystore) CosignerIndex() int {
-	return keystore.cosignerIndex
-}
-
 // SupportsAccount implements keystore.Keystore.
-func (keystore *keystore) SupportsAccount(
-	coin coin.Coin, multisig bool, meta interface{}) bool {
+func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
 	switch coin.(type) {
 	case *btc.Coin:
-		return !multisig
+		return true
 	default:
 		return false
 	}
@@ -168,7 +161,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	}
 	for i, signature := range signatures {
 		signature := signature
-		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature.Signature
+		btcProposedTx.Signatures[i][0] = &signature.Signature
 	}
 	return nil
 }

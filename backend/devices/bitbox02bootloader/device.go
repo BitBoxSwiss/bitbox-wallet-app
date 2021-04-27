@@ -98,7 +98,7 @@ func (device *Device) Identifier() string {
 }
 
 // KeystoreForConfiguration implements device.Device.
-func (device *Device) KeystoreForConfiguration(cosignerIndex int) keystoreInterface.Keystore {
+func (device *Device) KeystoreForConfiguration() keystoreInterface.Keystore {
 	panic("not supported")
 }
 

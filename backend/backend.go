@@ -432,7 +432,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
-		if keystore.SupportsAccount(coin, false, cfg.scriptType) {
+		if keystore.SupportsAccount(coin, cfg.scriptType) {
 			supportedConfigs = append(supportedConfigs, cfg)
 		}
 	}
@@ -495,7 +495,7 @@ func (backend *Backend) persistETHAccountConfig(
 		return
 	}
 
-	if !keystore.SupportsAccount(coin, false, nil) {
+	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
 		return
 	}
@@ -892,15 +892,13 @@ func (backend *Backend) OnBitBoxBaseUninit(f func(string)) {
 // Start starts the background services. It returns a channel of events to handle by the library
 // client.
 func (backend *Backend) Start() <-chan interface{} {
-	// We support only one device at a time at the moment.
-	onlyOne := !backend.arguments.Multisig()
 	usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
 		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
-		backend.Deregister, onlyOne).Start()
+		backend.Deregister).Start()
 
 	httpClient, err := backend.socksProxy.GetHTTPClient()
 	if err != nil {
@@ -1019,9 +1017,6 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		Subject: "keystores",
 		Action:  action.Reload,
 	})
-	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
-		return
-	}
 
 	belongsToKeystore := func(account *config.Account) bool {
 		fingerprint, err := keystore.RootFingerprint()
@@ -1074,15 +1069,11 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// }
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
-			if backend.arguments.Multisig() {
-				backend.registerKeystore(
-					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
-			} else if mainKeystore {
+			if mainKeystore {
 				// HACK: for device based, only one is supported at the moment.
 				backend.keystores = keystore.NewKeystores()
 
-				backend.registerKeystore(
-					theDevice.KeystoreForConfiguration(backend.keystores.Count()))
+				backend.registerKeystore(theDevice.KeystoreForConfiguration())
 			}
 		}
 		backend.events <- deviceEvent{
@@ -1158,8 +1149,7 @@ func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
 // devmode.
 func (backend *Backend) RegisterTestKeystore(pin string) {
-	softwareBasedKeystore := software.NewKeystoreFromPIN(
-		backend.keystores.Count(), pin)
+	softwareBasedKeystore := software.NewKeystoreFromPIN(pin)
 	backend.registerKeystore(softwareBasedKeystore)
 }
 

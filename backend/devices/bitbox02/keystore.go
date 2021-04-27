@@ -37,9 +37,8 @@ import (
 )
 
 type keystore struct {
-	device        *Device
-	cosignerIndex int
-	log           *logrus.Entry
+	device *Device
+	log    *logrus.Entry
 }
 
 // Type implements keystore.Keystore.
@@ -52,21 +51,15 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return keystore.device.RootFingerprint()
 }
 
-// CosignerIndex implements keystore.Keystore.
-func (keystore *keystore) CosignerIndex() int {
-	return keystore.cosignerIndex
-}
-
 // SupportsAccount implements keystore.Keystore.
-func (keystore *keystore) SupportsAccount(
-	coin coin.Coin, multisig bool, meta interface{}) bool {
+func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		if (coin.Code() == coinpkg.CodeLTC || coin.Code() == coinpkg.CodeTLTC) && !keystore.device.SupportsLTC() {
 			return false
 		}
 		scriptType := meta.(signing.ScriptType)
-		return !multisig && scriptType != signing.ScriptTypeP2PKH
+		return scriptType != signing.ScriptTypeP2PKH
 	case *eth.Coin:
 		if specificCoin.ERC20Token() != nil {
 			return keystore.device.SupportsERC20(specificCoin.ERC20Token().ContractAddress().String())
@@ -350,7 +343,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return err
 	}
 	for index, signature := range signatures {
-		btcProposedTx.Signatures[index][keystore.CosignerIndex()] = &btcec.Signature{
+		btcProposedTx.Signatures[index][0] = &btcec.Signature{
 			R: big.NewInt(0).SetBytes(signature[:32]),
 			S: big.NewInt(0).SetBytes(signature[32:]),
 		}

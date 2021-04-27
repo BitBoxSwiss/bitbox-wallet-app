@@ -36,7 +36,6 @@ import (
 
 // Keystore implements a keystore in software.
 type Keystore struct {
-	cosignerIndex int
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
 	identifier string
@@ -45,27 +44,25 @@ type Keystore struct {
 
 // NewKeystore creates a new keystore with the given configuration, index and key.
 func NewKeystore(
-	cosignerIndex int,
 	master *hdkeychain.ExtendedKey,
 ) *Keystore {
 	publicKey, _ := master.ECPubKey()
 	hash := sha256.Sum256(publicKey.SerializeCompressed())
 	return &Keystore{
-		cosignerIndex: cosignerIndex,
-		master:        master,
-		identifier:    hex.EncodeToString(hash[:]),
-		log:           logging.Get().WithGroup("software"),
+		master:     master,
+		identifier: hex.EncodeToString(hash[:]),
+		log:        logging.Get().WithGroup("software"),
 	}
 }
 
 // NewKeystoreFromPIN creates a new unique keystore derived from the PIN.
-func NewKeystoreFromPIN(cosignerIndex int, pin string) *Keystore {
+func NewKeystoreFromPIN(pin string) *Keystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
 	master, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	return NewKeystore(cosignerIndex, master)
+	return NewKeystore(master)
 }
 
 // Type implements keystore.Keystore.
@@ -95,17 +92,12 @@ func (keystore *Keystore) Configuration() *signing.Configuration {
 	return nil
 }
 
-// CosignerIndex implements keystore.Keystore.
-func (keystore *Keystore) CosignerIndex() int {
-	return keystore.cosignerIndex
-}
-
 // SupportsAccount implements keystore.Keystore.
 func (keystore *Keystore) SupportsAccount(
-	coin coin.Coin, multisig bool, meta interface{}) bool {
+	coin coin.Coin, meta interface{}) bool {
 	switch coin.(type) {
 	case *btc.Coin:
-		return !multisig
+		return true
 	default:
 		return false
 	}
@@ -229,7 +221,7 @@ func (keystore *Keystore) SignTransaction(
 	}
 	for i, signature := range signatures {
 		signature := signature
-		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature
+		btcProposedTx.Signatures[i][0] = &signature
 	}
 	return nil
 }
