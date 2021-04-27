@@ -16,6 +16,7 @@
 package backend
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -694,14 +695,26 @@ func (backend *Backend) Coin(code coinpkg.Code) (coin.Coin, error) {
 
 // The accountsLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts() {
-	accounts := backend.config.AccountsConfig().Accounts
-	for idx := range accounts {
-		account := &accounts[idx]
-		if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
-			// Don't load testnet accounts when running normally, nor mainnet accounts when running
-			// in testing mode
+	// Only load accounts which belong to connected keystores.
+	var connectedFingerprints [][]byte
+	for _, keystore := range backend.keystores.Keystores() {
+		rootFingerprint, err := keystore.RootFingerprint()
+		if err != nil {
+			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
 			continue
 		}
+		connectedFingerprints = append(connectedFingerprints, rootFingerprint)
+	}
+	keystoreConnected := func(account *config.Account) bool {
+		for _, fingerprint := range connectedFingerprints {
+			if bytes.Equal(fingerprint, account.RootFingerprint) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, account := range backend.filterAccounts(keystoreConnected) {
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
