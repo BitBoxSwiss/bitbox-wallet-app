@@ -48,6 +48,9 @@ type Keystore interface {
 	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers
 	RootFingerprint() ([]byte, error)
 
+	// SupportsCoin returns true if the keystore supports at least one account type for this coin.
+	SupportsCoin(coin coin.Coin) bool
+
 	// SupportsAccount returns true if they keystore supports the given coin/account.
 	// meta is a coin-specific metadata related to the account type.
 	SupportsAccount(coin coin.Coin, meta interface{}) bool

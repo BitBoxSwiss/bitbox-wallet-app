@@ -55,14 +55,19 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return fingerprint, nil
 }
 
-// SupportsAccount implements keystore.Keystore.
-func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+// SupportsCoin implements keystore.Keystore.
+func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
 	switch coin.(type) {
 	case *btc.Coin:
 		return true
 	default:
 		return false
 	}
+}
+
+// SupportsAccount implements keystore.Keystore.
+func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+	return keystore.SupportsCoin(coin)
 }
 
 // SupportsUnifiedAccounts implements keystore.Keystore.

@@ -92,15 +92,19 @@ func (keystore *Keystore) Configuration() *signing.Configuration {
 	return nil
 }
 
-// SupportsAccount implements keystore.Keystore.
-func (keystore *Keystore) SupportsAccount(
-	coin coin.Coin, meta interface{}) bool {
+// SupportsCoin implements keystore.Keystore.
+func (keystore *Keystore) SupportsCoin(coin coin.Coin) bool {
 	switch coin.(type) {
 	case *btc.Coin:
 		return true
 	default:
 		return false
 	}
+}
+
+// SupportsAccount implements keystore.Keystore.
+func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+	return keystore.SupportsCoin(coin)
 }
 
 // SupportsUnifiedAccounts implements keystore.Keystore.

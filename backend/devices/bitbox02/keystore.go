@@ -51,15 +51,14 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	return keystore.device.RootFingerprint()
 }
 
-// SupportsAccount implements keystore.Keystore.
-func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+// SupportsCoin implements keystore.Keystore.
+func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		if (coin.Code() == coinpkg.CodeLTC || coin.Code() == coinpkg.CodeTLTC) && !keystore.device.SupportsLTC() {
 			return false
 		}
-		scriptType := meta.(signing.ScriptType)
-		return scriptType != signing.ScriptTypeP2PKH
+		return true
 	case *eth.Coin:
 		if specificCoin.ERC20Token() != nil {
 			return keystore.device.SupportsERC20(specificCoin.ERC20Token().ContractAddress().String())
@@ -67,6 +66,20 @@ func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool
 		return keystore.device.SupportsETH(ethMsgCoinMap[coin.Code()])
 	default:
 		return false
+	}
+}
+
+// SupportsAccount implements keystore.Keystore.
+func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+	if !keystore.SupportsCoin(coin) {
+		return false
+	}
+	switch coin.(type) {
+	case *btc.Coin:
+		scriptType := meta.(signing.ScriptType)
+		return scriptType != signing.ScriptTypeP2PKH
+	default:
+		return true
 	}
 }
 
