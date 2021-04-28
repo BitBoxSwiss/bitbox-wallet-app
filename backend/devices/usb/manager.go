@@ -86,8 +86,6 @@ type Manager struct {
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
 
-	onlyOne bool
-
 	socksProxy socksproxy.SocksProxy
 
 	log *logrus.Entry
@@ -105,7 +103,6 @@ func NewManager(
 	deviceInfos func() []DeviceInfo,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
-	onlyOne bool,
 ) *Manager {
 	return &Manager{
 		devices:           map[string]device.Interface{},
@@ -114,7 +111,6 @@ func NewManager(
 		deviceInfos:       deviceInfos,
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
-		onlyOne:           onlyOne,
 		socksProxy:        socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
@@ -280,7 +276,7 @@ func (manager *Manager) listen() {
 				continue
 			}
 			// Skip if we already have another device registered and we only support one device.
-			if manager.onlyOne && len(manager.devices) != 0 {
+			if len(manager.devices) != 0 {
 				continue
 			}
 			var device device.Interface
