@@ -33,7 +33,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { store as panelStore } from '../../guide/guide';
 import { SwissMadeOpenSource } from '../../icon/logo';
-import LanguageSwitch from '../../language/language';
+import { LanguageSwitch } from '../../language/language';
 import { Header } from '../../layout/header';
 import { setSidebarStatus } from '../../sidebar/sidebar';
 import Status from '../../status/status';
@@ -793,13 +793,9 @@ class BitBox02 extends Component<Props, State> {
                             }
                         </Steps>
                     </div>
-                    {
-                        attestationResult === false && (
-                            <Status>
-                                {t('bitbox02Wizard.attestationFailed')}
-                            </Status>
-                        )
-                    }
+                    <Status hidden={attestationResult !== false}>
+                        {t('bitbox02Wizard.attestationFailed')}
+                    </Status>
                 </div>
             </div>
         );

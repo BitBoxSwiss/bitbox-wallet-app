@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,18 +37,15 @@ interface State {
 }
 
 class Dialog extends Component<Props, State> {
-    private overlay!: HTMLElement;
-    private modal!: HTMLElement;
-    private modalContent!: HTMLElement;
+    private overlay?: HTMLDivElement | null;
+    private modal?: HTMLDivElement | null;
+    private modalContent?: HTMLDivElement | null;
     private focusableChildren!: NodeListOf<HTMLElement>;
 
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            active: false,
-            currentTab: 0,
-        };
-    }
+    public readonly state: State = {
+        active: false,
+        currentTab: 0,
+    };
 
     public componentDidMount() {
         setTimeout(this.activate, 10);
@@ -57,18 +55,6 @@ class Dialog extends Component<Props, State> {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    private setOverlay = (element: HTMLDivElement) => {
-        this.overlay = element;
-    }
-
-    private setModal = (element: HTMLDivElement) => {
-        this.modal = element;
-    }
-
-    private setModalContent = (element: HTMLDivElement) => {
-        this.modalContent = element;
-    }
-
     private handleFocus = (e: FocusEvent) => {
         const input = e.target as HTMLElement;
         const index = input.getAttribute('index');
@@ -76,14 +62,16 @@ class Dialog extends Component<Props, State> {
     }
 
     private focusWithin = () => {
-        this.focusableChildren = this.modalContent.querySelectorAll('a, button, input, textarea');
-        const focusables = Array.from(this.focusableChildren);
-        for (const c of focusables) {
-            c.classList.add('tabbable');
-            c.setAttribute('index', focusables.indexOf(c).toString());
-            c.addEventListener('focus', this.handleFocus);
+        if (this.modalContent) {
+            this.focusableChildren = this.modalContent.querySelectorAll('a, button, input, textarea');
+            const focusables = Array.from(this.focusableChildren);
+            for (const c of focusables) {
+                c.classList.add('tabbable');
+                c.setAttribute('index', focusables.indexOf(c).toString());
+                c.addEventListener('focus', this.handleFocus);
+            }
+            document.addEventListener('keydown', this.handleKeyDown);
         }
-        document.addEventListener('keydown', this.handleKeyDown);
     }
 
     private focusFirst = () => {
@@ -128,7 +116,13 @@ class Dialog extends Component<Props, State> {
     }
 
     private deactivate = () => {
+        if (!this.modal || !this.overlay) {
+            return;
+        }
         animate(this.modal, 'fadeOutUp', () => {
+            if (!this.modal) {
+                return;
+            }
             this.modal.classList.remove(style.activeModal);
             this.setState({ active: false, currentTab: 0 }, () => {
                 document.removeEventListener('keydown', this.handleKeyDown);
@@ -138,16 +132,29 @@ class Dialog extends Component<Props, State> {
             });
         });
         animate(this.overlay, 'fadeOut', () => {
+            if (!this.overlay) {
+                return;
+            }
             this.overlay.classList.remove(style.activeOverlay);
         });
+
     }
 
     private activate = () => {
         this.setState({ active: true }, () => {
+            if (!this.modal || !this.overlay) {
+                return;
+            }
             animate(this.overlay, 'fadeIn', () => {
+                if (!this.overlay) {
+                    return;
+                }
                 this.overlay.classList.add(style.activeOverlay);
             });
             animate(this.modal, 'fadeInUp', () => {
+                if (!this.modal) {
+                    return;
+                }
                 this.modal.classList.add(style.activeModal);
                 this.focusWithin();
                 this.focusFirst();
@@ -175,26 +182,28 @@ class Dialog extends Component<Props, State> {
         const isSlim = slim ? style.slim : '';
         const isCentered = centered && !onClose ? style.centered : '';
         return (
-            <div className={[style.overlay].join(' ')} ref={this.setOverlay}>
-                <div className={[style.modal, isSmall, isMedium, isLarge].join(' ')} ref={this.setModal}>
+            <div className={style.overlay} ref={element => this.overlay = element}>
+                <div
+                    className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
+                    ref={element => this.modal = element}>
                     {
                         title && (
                             <div className={[style.header, isCentered].join(' ')}>
                                 <h3 class={style.title}>{title}</h3>
-                                {
-                                    onClose && (
-                                        <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
-                                    )
-                                }
+                                { onClose ? (
+                                    <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                ) : null }
                             </div>
                         )
                     }
-                    <div className={[style.contentContainer, isSlim].join(' ')} ref={this.setModalContent}>
+                    <div
+                        className={[style.contentContainer, isSlim].join(' ')}
+                        ref={element => this.modalContent = element}>
                         <div className={style.content}>
                             {children}
                         </div>

@@ -18,7 +18,7 @@ import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { SwissMadeOpenSource } from '../../../components/icon';
-import LanguageSwitch from '../../../components/language/language';
+import { LanguageSwitch } from '../../../components/language/language';
 import { Header } from '../../../components/layout';
 import { Button } from '../../../components/forms';
 import * as style from '../device.css';

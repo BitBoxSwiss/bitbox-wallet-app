@@ -17,7 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { Button } from '../../../components/forms';
 import { Alert, SwissMadeOpenSource } from '../../../components/icon';
-import LanguageSwitch from '../../../components/language/language';
+import { LanguageSwitch } from '../../../components/language/language';
 import { Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { translate,  TranslateProps } from '../../../decorators/translate';
