@@ -15,9 +15,9 @@
 package backend
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 )
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
@@ -32,7 +32,7 @@ func (backend *Backend) filterAccounts(filter func(*config.Account) bool) []*con
 			// in testing mode
 			continue
 		}
-		if isRegtest := account.CoinCode == coin.CodeRBTC; isRegtest != backend.arguments.Regtest() {
+		if isRegtest := account.CoinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
 			// Don't load regtest accounts when running normally, nor mainnet accounts when running
 			// in regtest mode.
 			continue
@@ -49,4 +49,36 @@ func (backend *Backend) filterAccounts(filter func(*config.Account) bool) []*con
 		accounts = append(accounts, account)
 	}
 	return accounts
+}
+
+// SupportedCoins returns the list of coins that can be used with the given keystore.
+func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Code {
+	allCoins := []coinpkg.Code{
+		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
+		coinpkg.CodeLTC, coinpkg.CodeTLTC,
+		coinpkg.CodeETH, coinpkg.CodeTETH,
+	}
+	var availableCoins []coinpkg.Code
+	for _, coinCode := range allCoins {
+		if _, isTestnet := coinpkg.TestnetCoins[coinCode]; isTestnet != backend.Testing() {
+			// Don't load testnet accounts when running normally, nor mainnet accounts when running
+			// in testing mode
+			continue
+		}
+		if isRegtest := coinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
+			// Don't load regtest accounts when running normally, nor mainnet accounts when running
+			// in regtest mode.
+			continue
+		}
+		coin, err := backend.Coin(coinCode)
+		if err != nil {
+			backend.log.WithError(err).Errorf("AvailableCoins")
+			continue
+		}
+		if !keystore.SupportsCoin(coin) {
+			continue
+		}
+		availableCoins = append(availableCoins, coinCode)
+	}
+	return availableCoins
 }

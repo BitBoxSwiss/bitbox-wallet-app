@@ -38,6 +38,7 @@ import (
 	baseHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -108,6 +109,7 @@ type Backend interface {
 	Banners() *banners.Banners
 	Environment() backend.Environment
 	ChartData() (*backend.Chart, error)
+	SupportedCoins(keystore.Keystore) []coin.Code
 }
 
 // Handlers provides a web api to the backend.
@@ -190,6 +192,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
+	getAPIRouter(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
@@ -804,6 +807,16 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 }
 func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
 	return handlers.backend.ChartData()
+}
+
+// getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
+// Exactly one keystore must be connected, otherwise an empty array is returned.
+func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}, error) {
+	keystores := handlers.backend.Keystores().Keystores()
+	if len(keystores) != 1 {
+		return []string{}, nil
+	}
+	return handlers.backend.SupportedCoins(keystores[0]), nil
 }
 
 func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}, error) {
