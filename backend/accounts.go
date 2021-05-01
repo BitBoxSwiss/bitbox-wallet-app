@@ -15,10 +15,17 @@
 package backend
 
 import (
+	"fmt"
+
+	"github.com/btcsuite/btcutil/hdkeychain"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
+
+// hardenedKeystart is the BIP44 offset to make a keypath element hardened.
+const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
 // accounts are not loaded in mainnet and vice versa.
@@ -43,6 +50,7 @@ func (backend *Backend) filterAccounts(filter func(*config.Account) bool) []*con
 				account.CoinCode, account.Code)
 			continue
 		}
+
 		if !filter(account) {
 			continue
 		}
@@ -81,4 +89,67 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 		availableCoins = append(availableCoins, coinCode)
 	}
 	return availableCoins
+}
+
+// createAndPersistAccountConfig adds an account for the given coin and account number. The account numbers start
+// at 0 (first account). The added account will be a unified account supporting all types that the
+// keystore supports. The keypaths will be standard BIP44 keypaths for the respective account types.
+func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, accountNumber uint16, keystore keystore.Keystore) error {
+	coin, err := backend.Coin(coinCode)
+	if err != nil {
+		return err
+	}
+	rootFingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return err
+	}
+	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
+	// and avoid any collisions.
+	accountCode := fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber)
+
+	log := backend.log.
+		WithField("accountCode", accountCode).
+		WithField("coinCode", coinCode).
+		WithField("accountNumber", accountNumber)
+	log.Info("Persisting new account config")
+	accountNumberHardened := uint32(accountNumber) + hardenedKeystart
+
+	switch coinCode {
+	case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
+		bip44Coin := 1 + hardenedKeystart
+		if coinCode == coinpkg.CodeBTC {
+			bip44Coin = hardenedKeystart
+		}
+		backend.persistBTCAccountConfig(keystore, coin,
+			accountCode,
+			[]scriptTypeWithKeypath{
+				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2PKH, signing.NewAbsoluteKeypathFromUint32(44+hardenedKeystart, bip44Coin, accountNumberHardened)},
+			},
+		)
+	case coinpkg.CodeLTC, coinpkg.CodeTLTC:
+		bip44Coin := 1 + hardenedKeystart
+		if coinCode == coinpkg.CodeLTC {
+			bip44Coin = 2 + hardenedKeystart
+		}
+		backend.persistBTCAccountConfig(keystore, coin,
+			accountCode,
+			[]scriptTypeWithKeypath{
+				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
+				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
+			},
+		)
+	case coinpkg.CodeETH, coinpkg.CodeRETH, coinpkg.CodeTETH:
+		bip44Coin := "1'"
+		if coinCode == coinpkg.CodeETH {
+			bip44Coin = "60'"
+		}
+		backend.persistETHAccountConfig(
+			keystore, coin, accountCode,
+			// TODO: Use []uint32 instead of a string keypath
+			fmt.Sprintf("m/44'/%s/0'/%d", bip44Coin, accountNumber))
+	}
+
+	return nil
 }

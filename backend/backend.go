@@ -404,17 +404,6 @@ type scriptTypeWithKeypath struct {
 	keypath    signing.AbsoluteKeypath
 }
 
-func newScriptTypeWithKeypath(scriptType signing.ScriptType, keypath string) scriptTypeWithKeypath {
-	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
-	if err != nil {
-		panic(err)
-	}
-	return scriptTypeWithKeypath{
-		scriptType: scriptType,
-		keypath:    absoluteKeypath,
-	}
-}
-
 // adds a combined BTC account with the given script types.
 func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
@@ -760,66 +749,38 @@ func (backend *Backend) initPersistedAccounts() {
 // manually user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if
 // they were configured to be active by the user in the past, when they could still configure them
 // globally in the settings.
-func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore) {
+//
+// The accounts are only added for the coins that are marked active in the settings. This used to be
+// a user-facing setting. Now we simply use it for migration to decide which coins to add by
+// default.
+func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore) error {
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
-			RBTC, _ := backend.Coin(coinpkg.CodeRBTC)
-			backend.persistBTCAccountConfig(keystore, RBTC,
-				"rbtc",
-				[]scriptTypeWithKeypath{
-					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
-					newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/1'/0'"),
-				},
-			)
+			if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeRBTC) {
+				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, keystore); err != nil {
+					return err
+				}
+			}
 		} else {
-			TBTC, _ := backend.Coin(coinpkg.CodeTBTC)
-			backend.persistBTCAccountConfig(keystore, TBTC,
-				"tbtc",
-				[]scriptTypeWithKeypath{
-					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
-					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
-					newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/1'/0'"),
-				},
-			)
+			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH} {
+				if backend.config.AppConfig().Backend.CoinActive(coinCode) {
+					if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore); err != nil {
+						return err
 
-			TLTC, _ := backend.Coin(coinpkg.CodeTLTC)
-			backend.persistBTCAccountConfig(keystore, TLTC,
-				"tltc",
-				[]scriptTypeWithKeypath{
-					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/1'/0'"),
-					newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/1'/0'"),
-				},
-			)
-			TETH, _ := backend.Coin(coinpkg.CodeTETH)
-			backend.persistETHAccountConfig(keystore, TETH, "teth", "m/44'/1'/0'/0")
-			RETH, _ := backend.Coin(coinpkg.CodeRETH)
-			backend.persistETHAccountConfig(keystore, RETH, "reth", "m/44'/1'/0'/0")
-			erc20TEST, _ := backend.Coin(coinpkg.CodeERC20TEST)
-			backend.persistETHAccountConfig(keystore, erc20TEST, "erc20Test", "m/44'/1'/0'/0")
+					}
+				}
+			}
 		}
 	} else {
-		BTC, _ := backend.Coin(coinpkg.CodeBTC)
-		backend.persistBTCAccountConfig(keystore, BTC,
-			"btc",
-			[]scriptTypeWithKeypath{
-				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/0'/0'"),
-				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/0'/0'"),
-				newScriptTypeWithKeypath(signing.ScriptTypeP2PKH, "m/44'/0'/0'"),
-			},
-		)
-
-		LTC, _ := backend.Coin(coinpkg.CodeLTC)
-		backend.persistBTCAccountConfig(keystore, LTC,
-			"ltc",
-			[]scriptTypeWithKeypath{
-				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKH, "m/84'/2'/0'"),
-				newScriptTypeWithKeypath(signing.ScriptTypeP2WPKHP2SH, "m/49'/2'/0'"),
-			},
-		)
-
-		ETH, _ := backend.Coin(coinpkg.CodeETH)
-		backend.persistETHAccountConfig(keystore, ETH, "eth", "m/44'/60'/0'/0")
+		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
+			if backend.config.AppConfig().Backend.CoinActive(coinCode) {
+				if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore); err != nil {
+					return err
+				}
+			}
+		}
 	}
+	return nil
 }
 
 // The accountsLock must be held when calling this function.
@@ -1027,7 +988,9 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		return bytes.Equal(fingerprint, account.RootFingerprint)
 	}
 	if len(backend.filterAccounts(belongsToKeystore)) == 0 {
-		backend.persistDefaultAccountConfigs(keystore)
+		if err := backend.persistDefaultAccountConfigs(keystore); err != nil {
+			backend.log.WithError(err).Error("Could not persist default accounts")
+		}
 	}
 
 	defer backend.accountsLock.Lock()()
