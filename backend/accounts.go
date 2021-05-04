@@ -29,11 +29,10 @@ const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
 // accounts are not loaded in mainnet and vice versa.
-func (backend *Backend) filterAccounts(filter func(*config.Account) bool) []*config.Account {
+func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.Account) bool) []*config.Account {
 	var accounts []*config.Account
-	persistedAccounts := backend.config.AccountsConfig().Accounts
-	for idx := range persistedAccounts {
-		account := &persistedAccounts[idx]
+	for idx := range accountsConfig.Accounts {
+		account := &accountsConfig.Accounts[idx]
 		if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
 			// Don't load testnet accounts when running normally, nor mainnet accounts when running
 			// in testing mode
@@ -94,7 +93,7 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 // createAndPersistAccountConfig adds an account for the given coin and account number. The account numbers start
 // at 0 (first account). The added account will be a unified account supporting all types that the
 // keystore supports. The keypaths will be standard BIP44 keypaths for the respective account types.
-func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, accountNumber uint16, keystore keystore.Keystore) error {
+func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, accountNumber uint16, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
 	coin, err := backend.Coin(coinCode)
 	if err != nil {
 		return err
@@ -127,6 +126,7 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
 				{signing.ScriptTypeP2PKH, signing.NewAbsoluteKeypathFromUint32(44+hardenedKeystart, bip44Coin, accountNumberHardened)},
 			},
+			accountsConfig,
 		)
 	case coinpkg.CodeLTC, coinpkg.CodeTLTC:
 		bip44Coin := 1 + hardenedKeystart
@@ -139,6 +139,7 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
 				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
 			},
+			accountsConfig,
 		)
 	case coinpkg.CodeETH, coinpkg.CodeRETH, coinpkg.CodeTETH:
 		bip44Coin := "1'"
@@ -148,7 +149,8 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 		backend.persistETHAccountConfig(
 			keystore, coin, accountCode,
 			// TODO: Use []uint32 instead of a string keypath
-			fmt.Sprintf("m/44'/%s/0'/%d", bip44Coin, accountNumber))
+			fmt.Sprintf("m/44'/%s/0'/%d", bip44Coin, accountNumber),
+			accountsConfig)
 	}
 
 	return nil

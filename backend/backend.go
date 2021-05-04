@@ -301,26 +301,25 @@ func (backend *Backend) emitAccountsStatusChanged() {
 
 // persistAccount adds the account information to the accounts database. These accounts are loaded
 // in `initPersistedAccounts()`.
-func (backend *Backend) persistAccount(account config.Account) error {
-	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		for idx := range accountsConfig.Accounts {
-			account2 := &accountsConfig.Accounts[idx]
-			if account.CoinCode == account2.CoinCode {
-				// We detect a duplicate account (subaccount in a unified account) if any of the
-				// configurations is already present.
-				for _, config := range account.Configurations {
-					for _, config2 := range account2.Configurations {
-						if config.Hash() == config2.Hash() {
-							return errp.WithStack(ErrAccountAlreadyExists)
-						}
+func (backend *Backend) persistAccount(account config.Account, accountsConfig *config.AccountsConfig) error {
+	for idx := range accountsConfig.Accounts {
+		account2 := &accountsConfig.Accounts[idx]
+		if account.CoinCode == account2.CoinCode {
+			// We detect a duplicate account (subaccount in a unified account) if any of the
+			// configurations is already present.
+			for _, config := range account.Configurations {
+				for _, config2 := range account2.Configurations {
+					if config.Hash() == config2.Hash() {
+						return errp.WithStack(ErrAccountAlreadyExists)
 					}
 				}
-
 			}
+
 		}
-		accountsConfig.Accounts = append(accountsConfig.Accounts, account)
-		return nil
-	})
+	}
+	accountsConfig.Accounts = append(accountsConfig.Accounts, account)
+	return nil
+
 }
 
 // The accountsLock must be held when calling this function.
@@ -387,12 +386,15 @@ func (backend *Backend) CreateAndAddAccount(
 	signingConfigurations signing.Configurations,
 ) error {
 	defer backend.accountsLock.Lock()()
-	if err := backend.persistAccount(config.Account{
-		CoinCode:       coin.Code(),
-		Code:           code,
-		Name:           name,
-		Configurations: signingConfigurations,
-	}); err != nil {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		return backend.persistAccount(config.Account{
+			CoinCode:       coin.Code(),
+			Code:           code,
+			Name:           name,
+			Configurations: signingConfigurations,
+		}, accountsConfig)
+	})
+	if err != nil {
 		return err
 	}
 	backend.initAccounts()
@@ -410,6 +412,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	coin coinpkg.Coin,
 	code string,
 	configs []scriptTypeWithKeypath,
+	accountsConfig *config.AccountsConfig,
 ) {
 	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
@@ -459,8 +462,7 @@ func (backend *Backend) persistBTCAccountConfig(
 		SupportsUnifiedAccounts: keystore.SupportsUnifiedAccounts(),
 		RootFingerprint:         rootFingerprint,
 		Configurations:          signingConfigurations,
-	})
-
+	}, accountsConfig)
 	if errp.Cause(err) == ErrAccountAlreadyExists {
 		// This is adding initial default accounts. If this already happened, there is nothing else
 		// to do.
@@ -474,6 +476,7 @@ func (backend *Backend) persistETHAccountConfig(
 	coin coinpkg.Coin,
 	code string,
 	keypath string,
+	accountsConfig *config.AccountsConfig,
 ) {
 	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
@@ -533,7 +536,7 @@ func (backend *Backend) persistETHAccountConfig(
 		RootFingerprint:         rootFingerprint,
 		Configurations:          signingConfigurations,
 		ActiveTokens:            activeTokens,
-	})
+	}, accountsConfig)
 	if errp.Cause(err) == ErrAccountAlreadyExists {
 		// This is adding initial default accounts. If this already happened, there is nothing else
 		// to do.
@@ -702,7 +705,8 @@ func (backend *Backend) initPersistedAccounts() {
 		return false
 	}
 
-	for _, account := range backend.filterAccounts(keystoreConnected) {
+	persistedAccounts := backend.config.AccountsConfig()
+	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnected) {
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
@@ -753,18 +757,18 @@ func (backend *Backend) initPersistedAccounts() {
 // The accounts are only added for the coins that are marked active in the settings. This used to be
 // a user-facing setting. Now we simply use it for migration to decide which coins to add by
 // default.
-func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore) error {
+func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeRBTC) {
-				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, keystore); err != nil {
+				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, keystore, accountsConfig); err != nil {
 					return err
 				}
 			}
 		} else {
 			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH} {
 				if backend.config.AppConfig().Backend.CoinActive(coinCode) {
-					if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore); err != nil {
+					if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore, accountsConfig); err != nil {
 						return err
 
 					}
@@ -774,7 +778,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore)
 	} else {
 		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
 			if backend.config.AppConfig().Backend.CoinActive(coinCode) {
-				if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore); err != nil {
+				if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore, accountsConfig); err != nil {
 					return err
 				}
 			}
@@ -987,10 +991,14 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		}
 		return bytes.Equal(fingerprint, account.RootFingerprint)
 	}
-	if len(backend.filterAccounts(belongsToKeystore)) == 0 {
-		if err := backend.persistDefaultAccountConfigs(keystore); err != nil {
-			backend.log.WithError(err).Error("Could not persist default accounts")
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		if len(backend.filterAccounts(accountsConfig, belongsToKeystore)) != 0 {
+			return nil
 		}
+		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
+	})
+	if err != nil {
+		backend.log.WithError(err).Error("Could not persist default accounts")
 	}
 
 	defer backend.accountsLock.Lock()()
