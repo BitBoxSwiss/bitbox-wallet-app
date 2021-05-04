@@ -411,10 +411,10 @@ func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
 	code string,
+	name string,
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
 ) {
-	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
 	// This used to be a user-facing setting. Now we simply use it for migration to decide which
 	// coins to add by default.
@@ -476,9 +476,9 @@ func (backend *Backend) persistETHAccountConfig(
 	coin coinpkg.Coin,
 	code string,
 	keypath string,
+	name string,
 	accountsConfig *config.AccountsConfig,
 ) {
-	name := coin.Name()
 	log := backend.log.WithField("code", code).WithField("name", name)
 	// This used to be a user-facing setting. Now we simply use it for migration to decide which
 	// coins to add by default.
@@ -761,14 +761,14 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeRBTC) {
-				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, keystore, accountsConfig); err != nil {
+				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, accountsConfig); err != nil {
 					return err
 				}
 			}
 		} else {
 			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH} {
 				if backend.config.AppConfig().Backend.CoinActive(coinCode) {
-					if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore, accountsConfig); err != nil {
+					if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, accountsConfig); err != nil {
 						return err
 
 					}
@@ -778,7 +778,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	} else {
 		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
 			if backend.config.AppConfig().Backend.CoinActive(coinCode) {
-				if err := backend.createAndPersistAccountConfig(coinCode, 0, keystore, accountsConfig); err != nil {
+				if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, accountsConfig); err != nil {
 					return err
 				}
 			}

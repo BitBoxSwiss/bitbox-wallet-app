@@ -98,18 +98,33 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	return availableCoins
 }
 
-// createAndPersistAccountConfig adds an account for the given coin and account number. The account numbers start
-// at 0 (first account). The added account will be a unified account supporting all types that the
-// keystore supports. The keypaths will be standard BIP44 keypaths for the respective account types.
-func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, accountNumber uint16, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
-	coin, err := backend.Coin(coinCode)
-	if err != nil {
-		return err
-	}
+// createAndPersistAccountConfig adds an account for the given coin and account number. The account
+// numbers start at 0 (first account). The added account will be a unified account supporting all
+// types that the keystore supports. The keypaths will be standard BIP44 keypaths for the respective
+// account types. `name` is the name of the new account and will be shown to the user.
+// If empty, a default name will be used.
+func (backend *Backend) createAndPersistAccountConfig(
+	coinCode coinpkg.Code,
+	accountNumber uint16,
+	name string,
+	keystore keystore.Keystore,
+	accountsConfig *config.AccountsConfig) error {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
 		return err
 	}
+	coin, err := backend.Coin(coinCode)
+	if err != nil {
+		return err
+	}
+	if name == "" {
+		if accountNumber == 0 {
+			name = coin.Name()
+		} else {
+			name = fmt.Sprintf("%s %d", coin.Name(), accountNumber+1)
+		}
+	}
+
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
 	// and avoid any collisions.
 	accountCode := fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber)
@@ -129,6 +144,7 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 		}
 		backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
+			name,
 			[]scriptTypeWithKeypath{
 				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
 				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
@@ -143,6 +159,7 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 		}
 		backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
+			name,
 			[]scriptTypeWithKeypath{
 				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
 				{signing.ScriptTypeP2WPKHP2SH, signing.NewAbsoluteKeypathFromUint32(49+hardenedKeystart, bip44Coin, accountNumberHardened)},
@@ -155,7 +172,7 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 			bip44Coin = "60'"
 		}
 		backend.persistETHAccountConfig(
-			keystore, coin, accountCode,
+			keystore, coin, accountCode, name,
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/%d", bip44Coin, accountNumber),
 			accountsConfig)
@@ -197,13 +214,15 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
 // adds it to the accounts database. The next account number, which is part of the BIP44 keypath, is
 // determined automatically to be the increment of the highest existing account.
-func (backend *Backend) CreateAndPersistAccountConfig(coinCode coinpkg.Code, keystore keystore.Keystore) error {
+// `name` is the account name, shown to the user. If empty, a default name will be set.
+func (backend *Backend) CreateAndPersistAccountConfig(
+	coinCode coinpkg.Code, name string, keystore keystore.Keystore) error {
 	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		nextAccountNumber, err := backend.nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
 			return err
 		}
 		return backend.createAndPersistAccountConfig(
-			coinCode, nextAccountNumber, keystore, accountsConfig)
+			coinCode, nextAccountNumber, name, keystore, accountsConfig)
 	})
 }
