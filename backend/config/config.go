@@ -237,13 +237,13 @@ func NewDefaultAppConfig() AppConfig {
 
 // Config manages the app configuration.
 type Config struct {
-	lock locker.Locker
-
 	appConfigFilename string
 	appConfig         AppConfig
+	appConfigLock     locker.Locker
 
 	accountsConfigFilename string
 	accountsConfig         AccountsConfig
+	accountsConfigLock     locker.Locker
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
@@ -319,27 +319,27 @@ func (config *Config) load() {
 
 // AppConfig returns the app config.
 func (config *Config) AppConfig() AppConfig {
-	defer config.lock.RLock()()
+	defer config.appConfigLock.RLock()()
 	return config.appConfig
 }
 
 // SetAppConfig sets and persists the app config.
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
-	defer config.lock.Lock()()
+	defer config.appConfigLock.Lock()()
 	config.appConfig = appConfig
 	return config.save(config.appConfigFilename, config.appConfig)
 }
 
 // AccountsConfig returns the accounts config.
 func (config *Config) AccountsConfig() AccountsConfig {
-	defer config.lock.RLock()()
+	defer config.accountsConfigLock.RLock()()
 	return config.accountsConfig
 }
 
 // ModifyAccountsConfig calls f with the current config, allowing f to make any changes, and
 // persists the result if f returns nil error.  It propagates the f's error as is.
 func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error {
-	defer config.lock.Lock()()
+	defer config.accountsConfigLock.Lock()()
 	if err := f(&config.accountsConfig); err != nil {
 		return err
 	}
