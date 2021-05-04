@@ -15,6 +15,7 @@
 package backend
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -22,10 +23,17 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
 const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
+
+// accountsHardlimit is the maximum possible number of accounts per coin and keystore.  This is
+// useful in recovery, so we can scan a fixed number of accounts to discover all funds.  The
+// alternative (or a complement) would be an accounts gap limit, similar to Bitcoin's address gap
+// limit, but simply use a hard limit for simplicity.
+const accountsHardLimit = 5
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
 // accounts are not loaded in mainnet and vice versa.
@@ -154,4 +162,48 @@ func (backend *Backend) createAndPersistAccountConfig(coinCode coinpkg.Code, acc
 	}
 
 	return nil
+}
+
+// nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
+// account number of the new account.
+func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) (uint16, error) {
+	rootFingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return 0, err
+	}
+	filter := func(account *config.Account) bool {
+		// Same coin:
+		if coinCode != account.CoinCode {
+			return false
+		}
+		// Consider only single-sig:
+		for _, signingConfiguration := range account.Configurations {
+			if !signingConfiguration.Singlesig() {
+				return false
+			}
+		}
+		// Belongs to keystore:
+		return bytes.Equal(rootFingerprint, account.RootFingerprint)
+	}
+
+	nextAccountNumber := uint16(len(backend.filterAccounts(accountsConfig, filter)))
+
+	if nextAccountNumber >= accountsHardLimit {
+		return 0, errp.Newf("Can't use more than %d accounts", accountsHardLimit)
+	}
+	return nextAccountNumber, nil
+}
+
+// CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
+// adds it to the accounts database. The next account number, which is part of the BIP44 keypath, is
+// determined automatically to be the increment of the highest existing account.
+func (backend *Backend) CreateAndPersistAccountConfig(coinCode coinpkg.Code, keystore keystore.Keystore) error {
+	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		nextAccountNumber, err := backend.nextAccountNumber(coinCode, keystore, accountsConfig)
+		if err != nil {
+			return err
+		}
+		return backend.createAndPersistAccountConfig(
+			coinCode, nextAccountNumber, keystore, accountsConfig)
+	})
 }
