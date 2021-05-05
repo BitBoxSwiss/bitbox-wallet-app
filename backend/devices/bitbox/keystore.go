@@ -18,6 +18,7 @@ package bitbox
 import (
 	"encoding/binary"
 	"fmt"
+	"sync"
 
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -34,6 +35,9 @@ import (
 type keystore struct {
 	dbb *Device
 	log *logrus.Entry
+
+	rootFingerMu sync.Mutex
+	rootFinger   []byte // cached result of RootFingerprint
 }
 
 // Type implements keystore.Keystore.
@@ -43,6 +47,11 @@ func (keystore *keystore) Type() keystorePkg.Type {
 
 // RootFingerprint implements keystore.Keystore.
 func (keystore *keystore) RootFingerprint() ([]byte, error) {
+	keystore.rootFingerMu.Lock()
+	defer keystore.rootFingerMu.Unlock()
+	if keystore.rootFinger != nil {
+		return keystore.rootFinger, nil
+	}
 	// The BitBox01 does not expose the root fingerprint, and it does not allow getting the xpub at
 	// "m/".  We simply get an arbitrary child xpub and read the parentFingerprint property, which
 	// equals the fingerprint at m/. This is part of the BIP32 specification.
@@ -52,6 +61,7 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	}
 	fingerprint := make([]byte, 4)
 	binary.BigEndian.PutUint32(fingerprint, xpub.ParentFingerprint())
+	keystore.rootFinger = fingerprint
 	return fingerprint, nil
 }
 
