@@ -50,18 +50,7 @@ const (
 
 // ethCoinConfig holds configurations for ethereum coins.
 type ethCoinConfig struct {
-	ActiveERC20Tokens []string `json:"activeERC20Tokens"`
-}
-
-// ERC20TokenActive returns true if this token is configured to be active.
-// code is the token id, e.g. "usdt".
-func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
-	for _, tokenCode := range eth.ActiveERC20Tokens {
-		if tokenCode == code {
-			return true
-		}
-	}
-	return false
+	DeprecatedActiveERC20Tokens []string `json:"activeERC20Tokens"`
 }
 
 type proxyConfig struct {
@@ -73,9 +62,9 @@ type proxyConfig struct {
 type Backend struct {
 	Proxy proxyConfig `json:"proxy"`
 
-	BitcoinActive  bool `json:"bitcoinActive"`
-	LitecoinActive bool `json:"litecoinActive"`
-	EthereumActive bool `json:"ethereumActive"`
+	DeprecatedBitcoinActive  bool `json:"bitcoinActive"`
+	DeprecatedLitecoinActive bool `json:"litecoinActive"`
+	DeprecatedEthereumActive bool `json:"ethereumActive"`
 
 	// Whether Bitcoin, Litecoin should be shown in multiple accounts - one per script type -
 	// instead of a combined account.
@@ -104,15 +93,17 @@ type Backend struct {
 	UserLanguage string `json:"userLanguage"`
 }
 
-// CoinActive returns the Active setting for a coin by code.
-func (backend Backend) CoinActive(code coin.Code) bool {
+// DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be
+// used anymore except for migration purposes. Coins are not activated globally anymore, but are
+// kept in the accounts config.
+func (backend Backend) DeprecatedCoinActive(code coin.Code) bool {
 	switch code {
 	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
-		return backend.BitcoinActive
+		return backend.DeprecatedBitcoinActive
 	case coin.CodeLTC, coin.CodeTLTC:
-		return backend.LitecoinActive
+		return backend.DeprecatedLitecoinActive
 	case coin.CodeETH, coin.CodeTETH, coin.CodeRETH, coin.CodeERC20TEST:
-		return backend.EthereumActive
+		return backend.DeprecatedEthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
 	}
@@ -148,9 +139,9 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
-			BitcoinActive:  true,
-			LitecoinActive: true,
-			EthereumActive: true,
+			DeprecatedBitcoinActive:  true,
+			DeprecatedLitecoinActive: true,
+			DeprecatedEthereumActive: true,
 
 			SplitAccounts: false,
 
@@ -220,13 +211,13 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				ActiveERC20Tokens: []string{},
+				DeprecatedActiveERC20Tokens: []string{},
 			},
 			TETH: ethCoinConfig{
-				ActiveERC20Tokens: []string{},
+				DeprecatedActiveERC20Tokens: []string{},
 			},
 			RETH: ethCoinConfig{
-				ActiveERC20Tokens: []string{},
+				DeprecatedActiveERC20Tokens: []string{},
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.
 			FiatList: []string{"USD", "EUR", "CHF"},
@@ -270,8 +261,8 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 
 // SetBtcOnly sets non-bitcoin accounts in the config to false.
 func (config *Config) SetBtcOnly() {
-	config.appConfig.Backend.LitecoinActive = false
-	config.appConfig.Backend.EthereumActive = false
+	config.appConfig.Backend.DeprecatedLitecoinActive = false
+	config.appConfig.Backend.DeprecatedEthereumActive = false
 }
 
 // SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert.
