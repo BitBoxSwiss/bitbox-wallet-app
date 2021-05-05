@@ -152,9 +152,7 @@ class AddAccount extends Component<Props, State> {
                 accountName: this.state.accountName,
                 extendedPublicKey: this.state.extendedPublicKey,
                 address: this.state.address,
-        })
-
-        .then((data: ResponseData) => {
+        }).then((data: ResponseData) => {
             if (data.success) {
                 if (data.warningCode) {
                     alertUser(this.props.t(`addAccount.warning.${data.warningCode}`));

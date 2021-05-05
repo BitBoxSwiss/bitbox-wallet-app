@@ -255,7 +255,7 @@ class App extends Component<Props, State> {
                                 devices={devices}
                                 accounts={accounts} />
                             <ManageAccount
-                                path="/add-account/:type?" />
+                                path="/add-account" />
                             <AccountsSummary accounts={accounts}
                                 path="/account-summary" />
                             <BitBoxBaseConnect

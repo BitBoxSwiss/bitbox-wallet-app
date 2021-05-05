@@ -17,8 +17,9 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
-import { getSupportedCoins } from '../../../api/backend';
+import * as backendAPI from '../../../api/backend';
 import SimpleMarkup from '../../../utils/simplemarkup';
+import { alertUser } from '../../../components/alert/Alert';
 import { Button, Input } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
@@ -28,9 +29,9 @@ import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
 import * as styles from '../manage/manage.css';
 import checkicon from '../../../assets/icons/check.svg';
+import { apiPost } from '../../../utils/request';
 
 interface AddAccountProps {
-    // type?: 'multi' | 'btconly'
 }
 
 type Props = AddAccountProps & TranslateProps;
@@ -38,22 +39,24 @@ type Props = AddAccountProps & TranslateProps;
 interface State {
     accountName: string;
     coinCode: 'choose' | accountApi.CoinCode;
-    onlyOneSupportedCoin: boolean;
     step: 0 | 1 | 2;
-    supportedCoins: string[];
+    supportedCoins: backendAPI.ICoin[];
 }
 
 class ManageAccount extends Component<Props, State> {
     public readonly state: State = {
         accountName: '',
         coinCode: 'choose',
-        onlyOneSupportedCoin: false,
         step: 0,
         supportedCoins: [],
     };
 
+    private onlyOneSupportedCoin = (): boolean => {
+        return this.state.supportedCoins.length === 1;
+    }
+
     public componentDidMount() {
-        getSupportedCoins()
+        backendAPI.getSupportedCoins()
             // TEST with only 1 coin
             // .then(() => (['btc']))
             .then((coins) => {
@@ -61,7 +64,6 @@ class ManageAccount extends Component<Props, State> {
                 this.setState({
                     // @ts-ignore
                     coinCode: onlyOneSupportedCoin ? coins[0] : 'choose',
-                    onlyOneSupportedCoin,
                     supportedCoins: coins
                 });
             })
@@ -69,8 +71,8 @@ class ManageAccount extends Component<Props, State> {
     }
 
     private getStep = () => {
-        const { onlyOneSupportedCoin, step } = this.state;
-        if (onlyOneSupportedCoin) {
+        const { step } = this.state;
+        if (this.onlyOneSupportedCoin()) {
             return step === 0 ? 'choose-name' : 'success';
         }
         switch (step) {
@@ -95,23 +97,35 @@ class ManageAccount extends Component<Props, State> {
         switch (this.getStep()) {
             case 'select-coin':
                 console.info(`${coinCode} selected`);
+                this.setState({ step: 1 });
                 break;
             case 'choose-name':
-                // TODO: post accountName and coinCode to backend
-                console.info(`add new account for ${coinCode} with the name: ${accountName}`);
+                interface ResponseData {
+                    success: boolean;
+                    errorCode?: 'alreadyExists' | 'limitReached';
+                    errorMessage?: string;
+                }
+
+                apiPost('account-add', {
+                    coinCode,
+                    name: accountName,
+                }).then((data: ResponseData) => {
+                    if (data.success) {
+                        this.setState({ step: 2 });
+                        //route('/account/' + data.accountCode);
+                    } else {
+                        if (data.errorCode) {
+                            alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
+                        } else if (data.errorMessage) {
+                            alertUser(this.props.t('unknownError', { errorMessage: data.errorMessage }));
+                        }
+                    }
+                });
                 break;
             case 'success':
                 route('/account-summary');
                 return;
-                break;
         }
-        this.setState((state) => {
-            switch (state.step) {
-                case 0: return ({ step: 1 });
-                case 1: return ({ step: 2 });
-                case 2: return ({ step: 2 });
-            }
-        });
     }
 
     private renderContent = () => {
@@ -140,7 +154,7 @@ class ManageAccount extends Component<Props, State> {
                         <SimpleMarkup
                             markup={t('manageAccounts.success.message', { accountName })}
                             tagName="p" />
-                        
+
                     </div>
                 );
         }
@@ -151,7 +165,6 @@ class ManageAccount extends Component<Props, State> {
         {
             accountName,
             coinCode,
-            onlyOneSupportedCoin,
             step,
             supportedCoins,
         }: Readonly<State>
@@ -176,7 +189,7 @@ class ManageAccount extends Component<Props, State> {
                             </div>
                             <div class="row">
                                 <Steps current={step}>
-                                    <Step key="select-coin" hidden={onlyOneSupportedCoin}>
+                                    <Step key="select-coin" hidden={this.onlyOneSupportedCoin()}>
                                         {t('manageAccounts.select-coin.step')}
                                     </Step>
                                     <Step key="choose-name">
