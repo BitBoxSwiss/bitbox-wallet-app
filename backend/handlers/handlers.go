@@ -38,7 +38,6 @@ import (
 	baseHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -109,7 +108,8 @@ type Backend interface {
 	Banners() *banners.Banners
 	Environment() backend.Environment
 	ChartData() (*backend.Chart, error)
-	SupportedCoins(keystore.Keystore) []coin.Code
+	SupportedCoins(keystore.Keystore) []coinpkg.Code
+	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
 }
 
 // Handlers provides a web api to the backend.
@@ -812,11 +812,29 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 // getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
 // Exactly one keystore must be connected, otherwise an empty array is returned.
 func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}, error) {
+	type element struct {
+		CoinCode      coinpkg.Code `json:"coinCode"`
+		Name          string       `json:"name"`
+		CanAddAccount bool         `json:"canAddAccount"`
+	}
 	keystores := handlers.backend.Keystores().Keystores()
 	if len(keystores) != 1 {
 		return []string{}, nil
 	}
-	return handlers.backend.SupportedCoins(keystores[0]), nil
+	keystore := keystores[0]
+	var result []element
+	for _, coinCode := range handlers.backend.SupportedCoins(keystore) {
+		coin, err := handlers.backend.Coin(coinCode)
+		if err != nil {
+			continue
+		}
+		result = append(result, element{
+			CoinCode:      coinCode,
+			Name:          coin.Name(),
+			CanAddAccount: handlers.backend.CanAddAccount(coinCode, keystore),
+		})
+	}
+	return result, nil
 }
 
 func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}, error) {

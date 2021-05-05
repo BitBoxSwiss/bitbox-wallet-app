@@ -17,6 +17,12 @@
 import { CoinCode } from './account';
 import { apiGet } from '../utils/request';
 
-export const getSupportedCoins = (): Promise<CoinCode[]> => {
+export interface ICoin {
+    coinCode: CoinCode;
+    name: string;
+    canAddAccount: boolean;
+}
+
+export const getSupportedCoins = (): Promise<ICoin[]> => {
     return apiGet('supported-coins');
 };

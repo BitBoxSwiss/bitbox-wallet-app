@@ -211,6 +211,13 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 	return nextAccountNumber, nil
 }
 
+// CanAddAccount returns true if it is possible to add an account for the given coin and keystore.
+func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) bool {
+	conf := backend.config.AccountsConfig()
+	_, err := backend.nextAccountNumber(coinCode, keystore, &conf)
+	return err == nil
+}
+
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
 // adds it to the accounts database. The next account number, which is part of the BIP44 keypath, is
 // determined automatically to be the increment of the highest existing account.
