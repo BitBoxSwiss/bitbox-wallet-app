@@ -17,7 +17,6 @@ package backend
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -113,9 +112,6 @@ type AccountEvent struct {
 	Code string `json:"code"`
 	Data string `json:"data"`
 }
-
-// ErrAccountAlreadyExists is returned if an account is being added which already exists.
-var ErrAccountAlreadyExists = errors.New("already exists")
 
 // Environment represents functionality where the implementation depends on the environment the app
 // runs in, e.g. Qt5/Mobile/webdev.
@@ -378,30 +374,6 @@ func (backend *Backend) createAndAddAccount(
 	}
 }
 
-// CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
-// persist is true, the configuration is fetched and saved in the accounts configuration.
-func (backend *Backend) CreateAndAddAccount(
-	coin coinpkg.Coin,
-	code string,
-	name string,
-	signingConfigurations signing.Configurations,
-) error {
-	defer backend.accountsLock.Lock()()
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		return backend.persistAccount(config.Account{
-			CoinCode:       coin.Code(),
-			Code:           code,
-			Name:           name,
-			Configurations: signingConfigurations,
-		}, accountsConfig)
-	})
-	if err != nil {
-		return err
-	}
-	backend.initAccounts()
-	return nil
-}
-
 type scriptTypeWithKeypath struct {
 	scriptType signing.ScriptType
 	keypath    signing.AbsoluteKeypath
@@ -415,7 +387,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	name string,
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
-) {
+) error {
 	log := backend.log.WithField("code", code).WithField("name", name)
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
@@ -425,7 +397,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 	if len(supportedConfigs) == 0 {
 		log.Info("skipping unsupported account")
-		return
+		return nil
 	}
 	log.Info("persist account")
 
@@ -447,10 +419,9 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
-		log.WithError(err).Error("Could not retrieve the keystore's root fingerprint")
-		return
+		return err
 	}
-	err = backend.persistAccount(config.Account{
+	return backend.persistAccount(config.Account{
 		CoinCode:                coin.Code(),
 		Name:                    name,
 		Code:                    code,
@@ -458,12 +429,6 @@ func (backend *Backend) persistBTCAccountConfig(
 		RootFingerprint:         rootFingerprint,
 		Configurations:          signingConfigurations,
 	}, accountsConfig)
-	if errp.Cause(err) == ErrAccountAlreadyExists {
-		// This is adding initial default accounts. If this already happened, there is nothing else
-		// to do.
-	} else if err != nil {
-		log.WithError(err).Error("Error persisting default BTC account")
-	}
 }
 
 func (backend *Backend) persistETHAccountConfig(
@@ -473,12 +438,12 @@ func (backend *Backend) persistETHAccountConfig(
 	keypath string,
 	name string,
 	accountsConfig *config.AccountsConfig,
-) {
+) error {
 	log := backend.log.WithField("code", code).WithField("name", name)
 
 	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
-		return
+		return nil
 	}
 
 	log.Info("persist account")
@@ -488,8 +453,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 	extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
 	if err != nil {
-		log.WithError(err).Errorf("Could not derive xpub at %s", absoluteKeypath.Encode())
-		return
+		return err
 	}
 
 	signingConfigurations := signing.Configurations{
@@ -514,10 +478,9 @@ func (backend *Backend) persistETHAccountConfig(
 
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
-		log.WithError(err).Error("Could not retrieve the keystore's root fingerprint")
-		return
+		return err
 	}
-	err = backend.persistAccount(config.Account{
+	return backend.persistAccount(config.Account{
 		CoinCode:                coin.Code(),
 		Name:                    name,
 		Code:                    code,
@@ -526,12 +489,6 @@ func (backend *Backend) persistETHAccountConfig(
 		Configurations:          signingConfigurations,
 		ActiveTokens:            activeTokens,
 	}, accountsConfig)
-	if errp.Cause(err) == ErrAccountAlreadyExists {
-		// This is adding initial default accounts. If this already happened, there is nothing else
-		// to do.
-	} else if err != nil {
-		log.WithError(err).Error("Error persisting default ETH account")
-	}
 }
 
 // Config returns the app config.
