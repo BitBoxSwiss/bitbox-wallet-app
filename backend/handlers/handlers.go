@@ -29,8 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
@@ -51,7 +49,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
@@ -59,7 +56,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -76,12 +72,6 @@ type Backend interface {
 	Testing() bool
 	Accounts() []accounts.Interface
 	Keystores() *keystore.Keystores
-	CreateAndAddAccount(
-		coin coinpkg.Coin,
-		code string,
-		name string,
-		signingConfigurations signing.Configurations,
-	) error
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
@@ -110,6 +100,7 @@ type Backend interface {
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
+	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) error
 }
 
 // Handlers provides a web api to the backend.
@@ -426,87 +417,37 @@ func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error
 }
 
 func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
+	var jsonBody struct {
+		CoinCode coinpkg.Code `json:"coinCode"`
+		Name     string       `json:"name"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	// The following parameters only work for watch-only singlesig accounts at the moment.
-	jsonCoinCode := coinpkg.Code(jsonBody["coinCode"])
-	jsonScriptType := jsonBody["scriptType"]
-	jsonAccountName := jsonBody["accountName"]
-	jsonExtendedPublicKey := jsonBody["extendedPublicKey"]
-	jsonAddress := jsonBody["address"]
 
-	coin, err := handlers.backend.Coin(jsonCoinCode)
+	keystores := handlers.backend.Keystores().Keystores()
+	if len(keystores) != 1 {
+		return response{Success: false, ErrorMessage: "Keystore not found"}, nil
+	}
+	keystore := keystores[0]
+
+	err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
 	if err != nil {
-		return nil, err
-	}
-
-	scriptType, err := signing.DecodeScriptType(jsonScriptType)
-	if err != nil {
-		return nil, err
-	}
-	keypath := signing.NewEmptyAbsoluteKeypath()
-
-	var configuration *signing.Configuration
-	var warningCode string
-
-	if jsonAddress != "" {
-		switch jsonCoinCode {
-		case coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeTBTC, coinpkg.CodeTLTC:
-			btcCoin, ok := coin.(*btc.Coin)
-			if !ok {
-				panic("unexpected type, expected: *btc.Coin")
-			}
-			_, err := btcCoin.DecodeAddress(jsonAddress)
-			if err != nil {
-				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
-			}
-			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
-		case coinpkg.CodeETH, coinpkg.CodeTETH:
-			if !common.IsHexAddress(jsonAddress) {
-				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
-			}
-			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
+		handlers.log.WithError(err).Error("Could not add account")
+		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
+			return response{Success: false, ErrorCode: errCode.Error()}, nil
 		}
-
-	} else {
-		extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
-		if err != nil {
-			return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
-		}
-		if extendedPublicKey.IsPrivate() {
-			return map[string]interface{}{"success": false, "errorCode": "xprivEntered"}, nil
-		}
-		if btcCoin, ok := coin.(*btc.Coin); ok {
-			expectedNet := &chaincfg.Params{
-				HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
-			}
-			if !extendedPublicKey.IsForNet(expectedNet) {
-				warningCode = "xpubWrongNet"
-			}
-		}
-		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
-
-	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
-	err = handlers.backend.CreateAndAddAccount(
-		coin, accountCode, jsonAccountName, signing.Configurations{configuration})
-	if errp.Cause(err) == backend.ErrAccountAlreadyExists {
-		return map[string]interface{}{"success": false, "errorCode": "alreadyExists"}, nil
-	}
-	if err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorCode":    "unknown",
-			"errorMessage": err.Error(),
-		}, nil
-	}
-	return map[string]interface{}{
-		"success":     true,
-		"accountCode": accountCode,
-		"warningCode": warningCode,
-	}, nil
+	handlers.backend.ReinitializeAccounts()
+	return response{Success: true}, nil
 }
 
 func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, error) {

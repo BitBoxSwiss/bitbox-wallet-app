@@ -43,9 +43,7 @@
     "coin": "Coin",
     "error": {
       "alreadyExists": "The account already exists.",
-      "invalidAddress": "Please enter a valid address",
-      "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
-      "xpubInvalid": "Extended public key malformatted."
+      "limitReached": "Cannot add account. The maximum number of accounts for this coin has been reached."
     },
     "extendedPublicKey": "Extended public key",
     "scriptType": "Script type",

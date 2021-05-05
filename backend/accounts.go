@@ -35,6 +35,21 @@ const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 // limit, but simply use a hard limit for simplicity.
 const accountsHardLimit = 5
 
+// ErrorCode are errors that are represented by an error code. This helps the frontend to translate
+// error messages.
+type ErrorCode string
+
+func (e ErrorCode) Error() string {
+	return string(e)
+}
+
+const (
+	// ErrAccountAlreadyExists is returned if an account is being added which already exists.
+	ErrAccountAlreadyExists ErrorCode = "alreadyExists"
+	// ErrAccountLimitReached is returned when adding an account if no more accounts can be added.
+	ErrAccountLimitReached ErrorCode = "limitReached"
+)
+
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
 // accounts are not loaded in mainnet and vice versa.
 func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.Account) bool) []*config.Account {
@@ -142,7 +157,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeBTC {
 			bip44Coin = hardenedKeystart
 		}
-		backend.persistBTCAccountConfig(keystore, coin,
+		return backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
 			name,
 			[]scriptTypeWithKeypath{
@@ -157,7 +172,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeLTC {
 			bip44Coin = 2 + hardenedKeystart
 		}
-		backend.persistBTCAccountConfig(keystore, coin,
+		return backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
 			name,
 			[]scriptTypeWithKeypath{
@@ -171,14 +186,14 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeETH {
 			bip44Coin = "60'"
 		}
-		backend.persistETHAccountConfig(
+		return backend.persistETHAccountConfig(
 			keystore, coin, accountCode, name,
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/%d", bip44Coin, accountNumber),
 			accountsConfig)
+	default:
+		return errp.Newf("Unrecognized coin code: %s", coinCode)
 	}
-
-	return nil
 }
 
 // nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
@@ -206,7 +221,7 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 	nextAccountNumber := uint16(len(backend.filterAccounts(accountsConfig, filter)))
 
 	if nextAccountNumber >= accountsHardLimit {
-		return 0, errp.Newf("Can't use more than %d accounts", accountsHardLimit)
+		return 0, errp.WithStack(ErrAccountLimitReached)
 	}
 	return nextAccountNumber, nil
 }
