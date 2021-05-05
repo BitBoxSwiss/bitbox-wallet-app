@@ -58,8 +58,8 @@ const (
 
 type subaccount struct {
 	signingConfiguration *signing.Configuration
-	receiveAddresses     AddressChain
-	changeAddresses      AddressChain
+	receiveAddresses     *addresses.AddressChain
+	changeAddresses      *addresses.AddressChain
 }
 
 // Account is a account whose addresses are derived from an xpub.
@@ -323,24 +323,17 @@ func (account *Account) Initialize() error {
 
 		var subacc subaccount
 		subacc.signingConfiguration = signingConfiguration
-		if signingConfiguration.IsAddressBased() {
-			subacc.receiveAddresses = addresses.NewSingleAddress(
-				signingConfiguration, account.coin.Net(), account.log)
-			account.log.Debug("creating single change address for address based account")
-			subacc.changeAddresses = addresses.NewSingleAddress(
-				signingConfiguration, account.coin.Net(), account.log)
-		} else {
-			gapLimits, err := account.gapLimits(signingConfiguration)
-			if err != nil {
-				return err
-			}
-			account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
-
-			subacc.receiveAddresses = addresses.NewAddressChain(
-				signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
-			subacc.changeAddresses = addresses.NewAddressChain(
-				signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
+		gapLimits, err := account.gapLimits(signingConfiguration)
+		if err != nil {
+			return err
 		}
+		account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
+
+		subacc.receiveAddresses = addresses.NewAddressChain(
+			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
+		subacc.changeAddresses = addresses.NewAddressChain(
+			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
+
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
 	account.ensureAddresses()
@@ -399,7 +392,6 @@ func (account *Account) Info() *accounts.Info {
 			subacc.signingConfiguration.ScriptType(),
 			subacc.signingConfiguration.AbsoluteKeypath(),
 			xpubs,
-			subacc.signingConfiguration.Address(),
 			subacc.signingConfiguration.SigningThreshold(),
 		)
 	}
@@ -605,7 +597,7 @@ func (account *Account) ensureAddresses() {
 	}
 	defer dbTx.Rollback()
 
-	syncSequence := func(addressChain AddressChain) error {
+	syncSequence := func(addressChain *addresses.AddressChain) error {
 		for {
 			newAddresses := addressChain.EnsureAddresses()
 			if len(newAddresses) == 0 {

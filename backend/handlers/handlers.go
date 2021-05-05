@@ -37,7 +37,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
@@ -808,7 +807,6 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		"Unit",
 		"Type",
 		"Xpubs",
-		"Address",
 	})
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -831,23 +829,13 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		unit := account.Coin().SmallestUnit()
 		var accountType string
 		var xpubs []string
-		var address string
 		signingConfigurations := account.Info().SigningConfigurations
-		if len(signingConfigurations) == 1 && signingConfigurations[0].IsAddressBased() {
-			accountType = "address"
-			address = signingConfigurations[0].Address()
-		} else {
-			accountType = "xpubs"
-			for _, signingConfiguration := range signingConfigurations {
-				if len(signingConfiguration.ExtendedPublicKeys()) != 1 {
-					return nil, errp.New("multisig not supported in the export yet")
-				}
-				xpubs = append(xpubs, signingConfiguration.ExtendedPublicKeys()[0].String())
+		accountType = "xpubs"
+		for _, signingConfiguration := range signingConfigurations {
+			if len(signingConfiguration.ExtendedPublicKeys()) != 1 {
+				return nil, errp.New("multisig not supported in the export yet")
 			}
-
-			if _, ok := account.(*eth.Account); ok {
-				address = signingConfigurations[0].Address()
-			}
+			xpubs = append(xpubs, signingConfiguration.ExtendedPublicKeys()[0].String())
 		}
 
 		err = writer.Write([]string{
@@ -857,7 +845,6 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			unit,
 			accountType,
 			strings.Join(xpubs, "; "),
-			address,
 		})
 		if err != nil {
 			return nil, errp.WithStack(err)

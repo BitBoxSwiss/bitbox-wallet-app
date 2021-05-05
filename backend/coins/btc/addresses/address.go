@@ -67,11 +67,6 @@ func NewAccountAddress(
 	log.Debug("Creating new account address")
 
 	switch {
-	case configuration.IsAddressBased():
-		address, err = btcutil.DecodeAddress(configuration.Address(), net)
-		if err != nil {
-			log.WithError(err).Panic("invalid address")
-		}
 	case configuration.Multisig():
 		sortedPublicKeys := configuration.SortedPublicKeys()
 		addresses := make([]*btcutil.AddressPubKey, len(sortedPublicKeys))
