@@ -249,8 +249,9 @@ func (backend *Backend) configureHistoryExchangeRates() {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
 	// No reason continue with ERC20 tokens if Ethereum is inactive.
-	if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeETH) {
-		for _, token := range backend.config.AppConfig().Backend.ETH.ActiveERC20Tokens {
+	// TODO: don't use deprecated setting to configure exchange rates.
+	if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeETH) {
+		for _, token := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
 			// The prefix is stripped on the frontend and in app config.
 			// TODO: Unify the prefix with frontend and erc20.go, and possibly
 			// move all that to coins/coin/code or eth/erc20.
@@ -416,12 +417,6 @@ func (backend *Backend) persistBTCAccountConfig(
 	accountsConfig *config.AccountsConfig,
 ) {
 	log := backend.log.WithField("code", code).WithField("name", name)
-	// This used to be a user-facing setting. Now we simply use it for migration to decide which
-	// coins to add by default.
-	if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
-		log.Info("skipping inactive account")
-		return
-	}
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
 		if keystore.SupportsAccount(coin, cfg.scriptType) {
@@ -480,12 +475,6 @@ func (backend *Backend) persistETHAccountConfig(
 	accountsConfig *config.AccountsConfig,
 ) {
 	log := backend.log.WithField("code", code).WithField("name", name)
-	// This used to be a user-facing setting. Now we simply use it for migration to decide which
-	// coins to add by default.
-	if !backend.config.AppConfig().Backend.CoinActive(coin.Code()) {
-		log.Info("skipping inactive account")
-		return
-	}
 
 	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
@@ -515,7 +504,7 @@ func (backend *Backend) persistETHAccountConfig(
 	// set of active tokens, for a smoother migration for the user.
 	var activeTokens []string
 	if coin.Code() == coinpkg.CodeETH {
-		for _, tokenCode := range backend.config.AppConfig().Backend.ETH.ActiveERC20Tokens {
+		for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
 			prefix := "eth-erc20-"
 			// Old config entries did not contain this prefix, but the token codes in the new config
 			// do, to match the codes listed in erc20.go
@@ -760,14 +749,14 @@ func (backend *Backend) initPersistedAccounts() {
 func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
-			if backend.config.AppConfig().Backend.CoinActive(coinpkg.CodeRBTC) {
+			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
 				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, accountsConfig); err != nil {
 					return err
 				}
 			}
 		} else {
 			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH} {
-				if backend.config.AppConfig().Backend.CoinActive(coinCode) {
+				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 					if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, accountsConfig); err != nil {
 						return err
 
@@ -777,7 +766,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 		}
 	} else {
 		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
-			if backend.config.AppConfig().Backend.CoinActive(coinCode) {
+			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 				if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, accountsConfig); err != nil {
 					return err
 				}

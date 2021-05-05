@@ -1278,9 +1278,6 @@
     "transactionDetails": "Transaction details"
   },
   "settings": {
-    "accounts": {
-      "title": "Active accounts"
-    },
     "electrum": {
       "add": "Add a server",
       "add-server": "Add",
