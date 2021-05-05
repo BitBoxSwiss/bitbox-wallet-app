@@ -187,9 +187,10 @@ func (backend *Backend) createAndPersistAccountConfig(
 			bip44Coin = "60'"
 		}
 		return backend.persistETHAccountConfig(
-			keystore, coin, accountCode, name,
+			keystore, coin, accountCode,
 			// TODO: Use []uint32 instead of a string keypath
-			fmt.Sprintf("m/44'/%s/0'/%d", bip44Coin, accountNumber),
+			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
+			name,
 			accountsConfig)
 	default:
 		return errp.Newf("Unrecognized coin code: %s", coinCode)
