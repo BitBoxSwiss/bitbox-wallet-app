@@ -34,11 +34,12 @@ interface SettingsProps {
 
 interface State {
     versionInfo?: VersionInfo;
-    deviceInfo: {
+    deviceInfo?: {
         name: string;
         initialized: boolean;
         version: string;
         mnemonicPassphraseEnabled: boolean;
+        securechipModel: string;
     };
 }
 
@@ -109,6 +110,13 @@ class Settings extends Component<Props, State> {
                                                 getInfo={this.getInfo}
                                                 name={(deviceInfo && deviceInfo.name) ? deviceInfo.name : undefined} />
                                         </div>
+                                        { deviceInfo && deviceInfo.securechipModel !== '' && (
+                                              <div className="box slim divide">
+                                                  <SettingsItem optionalText={deviceInfo.securechipModel}>
+                                                      {t('deviceSettings.hardware.securechip')}
+                                                  </SettingsItem>
+                                              </div>
+                                        ) }
                                     </div>
                                 </div>
                                 <div className="columns">
