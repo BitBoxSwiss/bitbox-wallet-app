@@ -378,7 +378,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return err
 	}
 	for index, signature := range signatures {
-		btcProposedTx.Signatures[index][0] = &btcec.Signature{
+		btcProposedTx.Signatures[index] = &btcec.Signature{
 			R: big.NewInt(0).SetBytes(signature[:32]),
 			S: big.NewInt(0).SetBytes(signature[32:]),
 		}

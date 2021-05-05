@@ -46,7 +46,7 @@ func NewAddressChain() (*signing.Configuration, *addresses.AddressChain) {
 		panic(err)
 	}
 	configuration := signing.NewConfiguration(
-		signing.ScriptTypeP2PKH, derivationPath, []*hdkeychain.ExtendedKey{xpub}, 1)
+		signing.ScriptTypeP2PKH, derivationPath, xpub)
 	return configuration, addresses.NewAddressChain(configuration, net, 20, 0, log)
 }
 
@@ -56,34 +56,7 @@ func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 	if err != nil {
 		panic(err)
 	}
-	configuration := signing.NewSinglesigConfiguration(scriptType, absoluteKeypath, extendedPublicKey)
-	return addresses.NewAccountAddress(
-		configuration,
-		signing.NewEmptyRelativeKeypath(),
-		net,
-		logging.Get().WithGroup("addresses_test"),
-	)
-}
-
-// GetMultisigAddress returns a dummy multisig address.
-func GetMultisigAddress(signingThreshold, numberOfSigners int) *addresses.AccountAddress {
-	xpubs := make([]*hdkeychain.ExtendedKey, numberOfSigners)
-	for i := range xpubs {
-		seed, err := hdkeychain.GenerateSeed(32)
-		if err != nil {
-			panic(err)
-		}
-		master, err := hdkeychain.NewMaster(seed, net)
-		if err != nil {
-			panic(err)
-		}
-		xpub, err := master.Neuter()
-		if err != nil {
-			panic(err)
-		}
-		xpubs[i] = xpub
-	}
-	configuration := signing.NewConfiguration(signing.ScriptTypeP2PKH, absoluteKeypath, xpubs, signingThreshold)
+	configuration := signing.NewConfiguration(scriptType, absoluteKeypath, extendedPublicKey)
 	return addresses.NewAccountAddress(
 		configuration,
 		signing.NewEmptyRelativeKeypath(),

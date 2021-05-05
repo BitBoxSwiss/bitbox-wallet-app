@@ -410,7 +410,7 @@ func (backend *Backend) persistBTCAccountConfig(
 			continue
 		}
 
-		signingConfiguration := signing.NewSinglesigConfiguration(
+		signingConfiguration := signing.NewConfiguration(
 			cfg.scriptType,
 			cfg.keypath,
 			extendedPublicKey,
@@ -460,7 +460,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	signingConfigurations := signing.Configurations{
-		signing.NewSinglesigConfiguration(
+		signing.NewConfiguration(
 			signing.ScriptTypeP2PKH, // TODO: meaningless in Ethereum
 			absoluteKeypath,
 			extendedPublicKey,

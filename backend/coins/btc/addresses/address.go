@@ -66,55 +66,36 @@ func NewAccountAddress(
 	})
 	log.Debug("Creating new account address")
 
-	switch {
-	case configuration.Multisig():
-		sortedPublicKeys := configuration.SortedPublicKeys()
-		addresses := make([]*btcutil.AddressPubKey, len(sortedPublicKeys))
-		for index, publicKey := range sortedPublicKeys {
-			addresses[index], err = btcutil.NewAddressPubKey(publicKey.SerializeCompressed(), net)
-			if err != nil {
-				log.WithError(err).Panic("Failed to get a P2PK address from a public key.")
-			}
-		}
-		redeemScript, err = txscript.MultiSigScript(addresses, configuration.SigningThreshold())
+	publicKeyHash := btcutil.Hash160(configuration.PublicKey().SerializeCompressed())
+	switch configuration.ScriptType() {
+	case signing.ScriptTypeP2PKH:
+		address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, net)
 		if err != nil {
-			log.WithError(err).Panic("Failed to get the redeem script for multisig.")
+			log.WithError(err).Panic("Failed to get P2PKH addr. from public key hash.")
+		}
+	case signing.ScriptTypeP2WPKHP2SH:
+		var segwitAddress *btcutil.AddressWitnessPubKeyHash
+		segwitAddress, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+		if err != nil {
+			log.WithError(err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
+		}
+		redeemScript, err = txscript.PayToAddrScript(segwitAddress)
+		if err != nil {
+			log.WithError(err).Panic("Failed to get redeem script for segwit address.")
 		}
 		address, err = btcutil.NewAddressScriptHash(redeemScript, net)
 		if err != nil {
-			log.WithError(err).Panic("Failed to get a P2SH address for multisig.")
+			log.WithError(err).Panic("Failed to get a P2SH address for segwit.")
+		}
+	case signing.ScriptTypeP2WPKH:
+		address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+		if err != nil {
+			log.WithError(err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
 		}
 	default:
-		publicKeyHash := btcutil.Hash160(configuration.PublicKeys()[0].SerializeCompressed())
-		switch configuration.ScriptType() {
-		case signing.ScriptTypeP2PKH:
-			address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, net)
-			if err != nil {
-				log.WithError(err).Panic("Failed to get P2PKH addr. from public key hash.")
-			}
-		case signing.ScriptTypeP2WPKHP2SH:
-			var segwitAddress *btcutil.AddressWitnessPubKeyHash
-			segwitAddress, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
-			if err != nil {
-				log.WithError(err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
-			}
-			redeemScript, err = txscript.PayToAddrScript(segwitAddress)
-			if err != nil {
-				log.WithError(err).Panic("Failed to get redeem script for segwit address.")
-			}
-			address, err = btcutil.NewAddressScriptHash(redeemScript, net)
-			if err != nil {
-				log.WithError(err).Panic("Failed to get a P2SH address for segwit.")
-			}
-		case signing.ScriptTypeP2WPKH:
-			address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
-			if err != nil {
-				log.WithError(err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
-			}
-		default:
-			log.Panic(fmt.Sprintf("Unrecognized script type: %s", configuration.ScriptType()))
-		}
+		log.Panic(fmt.Sprintf("Unrecognized script type: %s", configuration.ScriptType()))
 	}
+
 	return &AccountAddress{
 		Address:       address,
 		Configuration: configuration,
@@ -157,9 +138,6 @@ func (address *AccountAddress) PubkeyScriptHashHex() blockchain.ScriptHashHex {
 // calculating the hash to be signed in a transaction. This info is needed when trying to spend
 // from this address.
 func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
-	if address.Configuration.Multisig() {
-		return false, address.redeemScript
-	}
 	switch address.Configuration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		return false, address.PubkeyScript()
@@ -173,48 +151,12 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 	panic("The end of the function cannot be reached.")
 }
 
-func index(publicKey *btcec.PublicKey, sortedPublicKeys []*btcec.PublicKey) int {
-	for index, sortedPublicKey := range sortedPublicKeys {
-		if sortedPublicKey.IsEqual(publicKey) {
-			return index
-		}
-	}
-	panic("Could not find a public key among the sorted public keys.")
-}
-
 // SignatureScript returns the signature script (and witness) needed to spend from this address.
 // The signatures have to be provided in the order of the configuration (and some can be nil).
 func (address *AccountAddress) SignatureScript(
-	signatures []*btcec.Signature,
+	signature btcec.Signature,
 ) ([]byte, wire.TxWitness) {
-	if len(signatures) != address.Configuration.NumberOfSigners() {
-		address.log.Panic("The wrong number of signatures were provided.")
-	}
-	if address.Configuration.Multisig() {
-		length := address.Configuration.NumberOfSigners()
-		publicKeys := address.Configuration.PublicKeys()
-		sortedPublicKeys := address.Configuration.SortedPublicKeys()
-		sortedSignatures := make([]*btcec.Signature, length)
-		for i := 0; i < length; i++ {
-			sortedSignatures[index(publicKeys[i], sortedPublicKeys)] = signatures[i]
-		}
-		scriptBuilder := txscript.NewScriptBuilder().AddOp(txscript.OP_0)
-		for _, signature := range sortedSignatures {
-			if signature != nil {
-				scriptBuilder.AddData(append(signature.Serialize(), byte(txscript.SigHashAll)))
-			}
-		}
-		signatureScript, err := scriptBuilder.AddData(address.redeemScript).Script()
-		if err != nil {
-			address.log.WithError(err).Panic("Failed to build signa. script for multisig.")
-		}
-		return signatureScript, nil
-	}
-	signature := signatures[0]
-	if signature == nil {
-		address.log.Panic("At least one signature has to be provided.")
-	}
-	publicKey := address.Configuration.PublicKeys()[0]
+	publicKey := address.Configuration.PublicKey()
 	switch address.Configuration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		signatureScript, err := txscript.NewScriptBuilder().

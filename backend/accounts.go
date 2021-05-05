@@ -209,12 +209,6 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 		if coinCode != account.CoinCode {
 			return false
 		}
-		// Consider only single-sig:
-		for _, signingConfiguration := range account.Configurations {
-			if !signingConfiguration.Singlesig() {
-				return false
-			}
-		}
 		// Belongs to keystore:
 		return bytes.Equal(rootFingerprint, account.RootFingerprint)
 	}

@@ -30,8 +30,8 @@ func TestConfigurationsHash(t *testing.T) {
 	keypath, err := NewAbsoluteKeypath("m/")
 	require.NoError(t, err)
 
-	cfg1 := NewSinglesigConfiguration(ScriptTypeP2PKH, keypath, xpub)
-	cfg2 := NewSinglesigConfiguration(ScriptTypeP2WPKH, keypath, xpub)
+	cfg1 := NewConfiguration(ScriptTypeP2PKH, keypath, xpub)
+	cfg2 := NewConfiguration(ScriptTypeP2WPKH, keypath, xpub)
 
 	// Different order does not change the hash.
 	require.NotEqual(t, cfg1.Hash(), cfg2.Hash())

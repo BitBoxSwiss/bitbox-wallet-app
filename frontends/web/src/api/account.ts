@@ -55,11 +55,9 @@ export const getStatus = (code: string): Promise<IStatus> => {
 export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
 
 export interface ISigningConfiguration {
-    address: string;
     keypath: string;
     scriptType: ScriptType;
-    threshold: number;
-    xpubs: string[];
+    xpub: string;
 }
 
 export interface ISigningConfigurationList {

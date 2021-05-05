@@ -832,10 +832,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		signingConfigurations := account.Info().SigningConfigurations
 		accountType = "xpubs"
 		for _, signingConfiguration := range signingConfigurations {
-			if len(signingConfiguration.ExtendedPublicKeys()) != 1 {
-				return nil, errp.New("multisig not supported in the export yet")
-			}
-			xpubs = append(xpubs, signingConfiguration.ExtendedPublicKeys()[0].String())
+			xpubs = append(xpubs, signingConfiguration.ExtendedPublicKey().String())
 		}
 
 		err = writer.Write([]string{

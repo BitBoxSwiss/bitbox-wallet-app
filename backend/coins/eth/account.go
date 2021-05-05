@@ -154,14 +154,13 @@ func (account *Account) Initialize() error {
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	account.address = Address{
-		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
+		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
 	}
 
 	account.signingConfiguration = signing.NewConfiguration(
 		account.signingConfiguration.ScriptType(),
 		account.signingConfiguration.AbsoluteKeypath(),
-		account.signingConfiguration.ExtendedPublicKeys(),
-		account.signingConfiguration.SigningThreshold(),
+		account.signingConfiguration.ExtendedPublicKey(),
 	)
 
 	account.coin.Initialize()

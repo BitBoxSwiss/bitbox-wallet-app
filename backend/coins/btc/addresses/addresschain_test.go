@@ -57,7 +57,7 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.chainIndex = 1
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
-		signing.NewSinglesigConfiguration(signing.ScriptTypeP2PKH, signing.NewEmptyAbsoluteKeypath(), xpub),
+		signing.NewConfiguration(signing.ScriptTypeP2PKH, signing.NewEmptyAbsoluteKeypath(), xpub),
 		net, s.gapLimit, s.chainIndex, s.log)
 }
 
@@ -119,7 +119,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	}
 	require.Len(s.T(), newAddresses, s.gapLimit)
 	for index, address := range newAddresses {
-		require.Equal(s.T(), getPubKey(index), address.Configuration.PublicKeys()[0])
+		require.Equal(s.T(), getPubKey(index), address.Configuration.PublicKey())
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	require.Empty(s.T(), s.addresses.EnsureAddresses())

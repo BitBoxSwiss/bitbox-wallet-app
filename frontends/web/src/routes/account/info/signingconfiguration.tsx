@@ -75,40 +75,24 @@ class SigningConfiguration extends Component<Props, State> {
         }: RenderableProps<Props>,
         { canVerifyExtendedPublicKey }: State) {
         return (
-        // TODO: add info if single or multisig, and threshold.
-        <div className={style.address}>
-            { info.address ?
-                <div>
-                    <label className="labelLarge">{t('accountInfo.address')}</label>
-                    <QRCode data={info.address} />
+            <div className={style.address}>
+                <div key={info.xpub}>
+                    <h2>{this.scriptTypeTitle(info.scriptType)}</h2>
+                    <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
+                    <QRCode data={info.xpub} />
                     <div className={style.textareaContainer}>
-                        <CopyableInput flexibleHeight value={info.address} />
+                        <CopyableInput value={info.xpub} flexibleHeight />
+                    </div>
+                    <div className="buttons">
+                        {
+                            canVerifyExtendedPublicKey.includes(0) && (
+                                <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex, 0)}>
+                                    {t('accountInfo.verify')}
+                                </Button>
+                            )
+                        }
                     </div>
                 </div>
-                    :
-                info.xpubs.map((xpub, xpubIndex) => {
-                    return (
-                        <div key={xpub}>
-                            <h2>{this.scriptTypeTitle(info.scriptType)}</h2>
-                            <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
-                            {info.xpubs.length > 1 && (' #' + (xpubIndex + 1))}
-                            <QRCode data={xpub} />
-                            <div className={style.textareaContainer}>
-                                <CopyableInput value={xpub} flexibleHeight />
-                            </div>
-                            <div className="buttons">
-                                {
-                                    canVerifyExtendedPublicKey.includes(xpubIndex) && (
-                                        <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex, xpubIndex)}>
-                                            {t('accountInfo.verify')}
-                                        </Button>
-                                    )
-                                }
-                            </div>
-                        </div>
-                    );
-                })
-            }
         </div>
     ); }
 }

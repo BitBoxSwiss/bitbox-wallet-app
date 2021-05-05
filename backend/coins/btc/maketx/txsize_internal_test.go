@@ -66,7 +66,7 @@ func testEstimateTxSize(
 	for counter := 0; counter < 10; counter++ {
 		for _, inputScriptType := range inputScriptTypes {
 			inputAddress := addressesTest.GetAddress(inputScriptType)
-			sigScript, witness := inputAddress.SignatureScript([]*btcec.Signature{sig})
+			sigScript, witness := inputAddress.SignatureScript(*sig)
 			tx.TxIn = append(tx.TxIn, &wire.TxIn{
 				SignatureScript: sigScript,
 				Witness:         witness,

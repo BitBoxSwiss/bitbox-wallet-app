@@ -156,8 +156,7 @@ func (account *Account) defaultGapLimits(signingConfiguration *signing.Configura
 		Change:  6,
 	}
 
-	if signingConfiguration.Singlesig() &&
-		signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
+	if signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
 		// Usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
 		// We increase it a bit more as some users still had change buried a bit deeper.
 		limits.Change = 25
@@ -371,28 +370,24 @@ func (account *Account) Info() *accounts.Info {
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
 	signingConfigurations := make([]*signing.Configuration, len(account.subaccounts))
 	for idx, subacc := range account.subaccounts {
-		var xpubs []*hdkeychain.ExtendedKey
-		for _, xpub := range subacc.signingConfiguration.ExtendedPublicKeys() {
-			if xpub.IsPrivate() {
-				panic("xpub can't be private")
-			}
-			xpubCopy, err := hdkeychain.NewKeyFromString(xpub.String())
-			if err != nil {
-				panic(err)
-			}
-			xpubCopy.SetNet(
-				&chaincfg.Params{
-					HDPublicKeyID: XPubVersionForScriptType(
-						account.coin, subacc.signingConfiguration.ScriptType()),
-				},
-			)
-			xpubs = append(xpubs, xpubCopy)
+		xpub := subacc.signingConfiguration.ExtendedPublicKey()
+		if xpub.IsPrivate() {
+			panic("xpub can't be private")
 		}
+		xpubCopy, err := hdkeychain.NewKeyFromString(xpub.String())
+		if err != nil {
+			panic(err)
+		}
+		xpubCopy.SetNet(
+			&chaincfg.Params{
+				HDPublicKeyID: XPubVersionForScriptType(
+					account.coin, subacc.signingConfiguration.ScriptType()),
+			},
+		)
 		signingConfigurations[idx] = signing.NewConfiguration(
 			subacc.signingConfiguration.ScriptType(),
 			subacc.signingConfiguration.AbsoluteKeypath(),
-			xpubs,
-			subacc.signingConfiguration.SigningThreshold(),
+			xpubCopy,
 		)
 	}
 	return &accounts.Info{
