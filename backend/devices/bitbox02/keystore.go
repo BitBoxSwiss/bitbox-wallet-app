@@ -226,8 +226,30 @@ func (keystore *keystore) ExtendedPublicKey(
 		if !ok {
 			return nil, errp.New("unsupported coin")
 		}
+
+		// The BitBox02 only accepts four-element keypaths to get the xpub, e.g.
+		// m/44'/60'/0'/0.
+		//
+		// In Ethereum, the element defining the account is the fifth element, e.g. the 10th account
+		// is at m/44'/60'/0'/0/9.
+		//
+		// To get the xpub at the account-level keypath, we workaround this by getting the base xpub
+		// and deriving the last step here.
+		keypathUint32 := keyPath.ToUInt32()
+		if len(keypathUint32) == 5 {
+			xpubStr, err := keystore.device.ETHPub(
+				msgCoin, keypathUint32[:4], messages.ETHPubRequest_XPUB, false, []byte{})
+			if err != nil {
+				return nil, err
+			}
+			xpub, err := hdkeychain.NewKeyFromString(xpubStr)
+			if err != nil {
+				return nil, err
+			}
+			return xpub.Child(keypathUint32[4])
+		}
 		xpubStr, err := keystore.device.ETHPub(
-			msgCoin, keyPath.ToUInt32(), messages.ETHPubRequest_XPUB, false, []byte{})
+			msgCoin, keypathUint32, messages.ETHPubRequest_XPUB, false, []byte{})
 		if err != nil {
 			return nil, err
 		}
