@@ -439,7 +439,10 @@ func (backend *Backend) persistETHAccountConfig(
 	name string,
 	accountsConfig *config.AccountsConfig,
 ) error {
-	log := backend.log.WithField("code", code).WithField("name", name)
+	log := backend.log.
+		WithField("code", code).
+		WithField("name", name).
+		WithField("keypath", keypath)
 
 	if !keystore.SupportsAccount(coin, nil) {
 		log.Info("skipping unsupported account")
