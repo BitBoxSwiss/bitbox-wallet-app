@@ -243,16 +243,6 @@ func (backend *Backend) configureHistoryExchangeRates() {
 	for _, acct := range backend.accounts {
 		coins = append(coins, string(acct.Coin().Code()))
 	}
-	// No reason continue with ERC20 tokens if Ethereum is inactive.
-	// TODO: don't use deprecated setting to configure exchange rates.
-	if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeETH) {
-		for _, token := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
-			// The prefix is stripped on the frontend and in app config.
-			// TODO: Unify the prefix with frontend and erc20.go, and possibly
-			// move all that to coins/coin/code or eth/erc20.
-			coins = append(coins, "eth-erc20-"+token)
-		}
-	}
 	fiats := backend.config.AppConfig().Backend.FiatList
 	backend.ratesUpdater.ReconfigureHistory(coins, fiats)
 }
