@@ -15,12 +15,73 @@
 package signing
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/stretchr/testify/require"
 )
+
+func TestEncodeDecode(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	keypath, err := NewAbsoluteKeypath("m/84'/1'/0'")
+	require.NoError(t, err)
+	rootFingerprint := []byte{1, 2, 3, 4}
+
+	cfg := NewBitcoinConfiguration(ScriptTypeP2WPKH, rootFingerprint, keypath, xpub)
+	jsonBytes, err := json.Marshal(cfg)
+	require.NoError(t, err)
+	var cfgDecoded Configuration
+	require.NoError(t, json.Unmarshal(jsonBytes, &cfgDecoded))
+	require.Nil(t, cfgDecoded.EthereumSimple)
+	require.NotNil(t, cfgDecoded.BitcoinSimple)
+	require.Equal(t,
+		cfg.BitcoinSimple.KeyInfo.RootFingerprint,
+		cfgDecoded.BitcoinSimple.KeyInfo.RootFingerprint)
+	require.Equal(t,
+		cfg.BitcoinSimple.KeyInfo.ExtendedPublicKey.String(),
+		cfgDecoded.BitcoinSimple.KeyInfo.ExtendedPublicKey.String())
+	require.Equal(t,
+		cfg.BitcoinSimple.KeyInfo.AbsoluteKeypath.Encode(),
+		cfgDecoded.BitcoinSimple.KeyInfo.AbsoluteKeypath.Encode())
+
+	cfg = NewEthereumConfiguration(rootFingerprint, keypath, xpub)
+	jsonBytes, err = json.Marshal(cfg)
+	require.NoError(t, err)
+	var cfgDecodedEth Configuration
+	require.NoError(t, json.Unmarshal(jsonBytes, &cfgDecodedEth))
+	require.Nil(t, cfgDecodedEth.BitcoinSimple)
+	require.NotNil(t, cfgDecodedEth.EthereumSimple)
+	require.Equal(t,
+		cfg.EthereumSimple.KeyInfo.RootFingerprint,
+		cfgDecodedEth.EthereumSimple.KeyInfo.RootFingerprint)
+	require.Equal(t,
+		cfg.EthereumSimple.KeyInfo.ExtendedPublicKey.String(),
+		cfgDecodedEth.EthereumSimple.KeyInfo.ExtendedPublicKey.String())
+	require.Equal(t,
+		cfg.EthereumSimple.KeyInfo.AbsoluteKeypath.Encode(),
+		cfgDecodedEth.EthereumSimple.KeyInfo.AbsoluteKeypath.Encode())
+}
+
+func TestContainsRootFingerprint(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	keypath, err := NewAbsoluteKeypath("m/84'/1'/0'")
+	require.NoError(t, err)
+	configs := Configurations{
+		NewBitcoinConfiguration(ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, keypath, xpub),
+		NewEthereumConfiguration([]byte{5, 6, 7, 8}, keypath, xpub),
+	}
+	require.False(t, configs.ContainsRootFingerprint([]byte{1, 1, 1, 1}))
+	require.True(t, configs.ContainsRootFingerprint([]byte{1, 2, 3, 4}))
+	require.True(t, configs.ContainsRootFingerprint([]byte{5, 6, 7, 8}))
+}
 
 func TestConfigurationsHash(t *testing.T) {
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
@@ -29,9 +90,9 @@ func TestConfigurationsHash(t *testing.T) {
 	require.NoError(t, err)
 	keypath, err := NewAbsoluteKeypath("m/")
 	require.NoError(t, err)
-
-	cfg1 := NewBitcoinConfiguration(ScriptTypeP2PKH, keypath, xpub)
-	cfg2 := NewBitcoinConfiguration(ScriptTypeP2WPKH, keypath, xpub)
+	rootFingerprint := []byte{1, 2, 3, 4}
+	cfg1 := NewBitcoinConfiguration(ScriptTypeP2PKH, rootFingerprint, keypath, xpub)
+	cfg2 := NewBitcoinConfiguration(ScriptTypeP2WPKH, rootFingerprint, keypath, xpub)
 	// Different order does not change the hash.
 	require.NotEqual(t, cfg1.Hash(), cfg2.Hash())
 	require.Equal(t,

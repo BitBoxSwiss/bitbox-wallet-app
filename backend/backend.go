@@ -16,7 +16,6 @@
 package backend
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -401,6 +400,11 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 	log.Info("persist account")
 
+	rootFingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return err
+	}
+
 	var signingConfigurations signing.Configurations
 	for _, cfg := range supportedConfigs {
 		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
@@ -412,21 +416,17 @@ func (backend *Backend) persistBTCAccountConfig(
 
 		signingConfiguration := signing.NewBitcoinConfiguration(
 			cfg.scriptType,
+			rootFingerprint,
 			cfg.keypath,
 			extendedPublicKey,
 		)
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
-	}
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return err
 	}
 	return backend.persistAccount(config.Account{
 		CoinCode:                coin.Code(),
 		Name:                    name,
 		Code:                    code,
 		SupportsUnifiedAccounts: keystore.SupportsUnifiedAccounts(),
-		RootFingerprint:         rootFingerprint,
 		Configurations:          signingConfigurations,
 	}, accountsConfig)
 }
@@ -459,8 +459,13 @@ func (backend *Backend) persistETHAccountConfig(
 		return err
 	}
 
+	rootFingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return err
+	}
 	signingConfigurations := signing.Configurations{
 		signing.NewEthereumConfiguration(
+			rootFingerprint,
 			absoluteKeypath,
 			extendedPublicKey,
 		),
@@ -478,16 +483,11 @@ func (backend *Backend) persistETHAccountConfig(
 		}
 	}
 
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return err
-	}
 	return backend.persistAccount(config.Account{
 		CoinCode:                coin.Code(),
 		Name:                    name,
 		Code:                    code,
 		SupportsUnifiedAccounts: keystore.SupportsUnifiedAccounts(),
-		RootFingerprint:         rootFingerprint,
 		Configurations:          signingConfigurations,
 		ActiveTokens:            activeTokens,
 	}, accountsConfig)
@@ -646,7 +646,7 @@ func (backend *Backend) initPersistedAccounts() {
 	}
 	keystoreConnected := func(account *config.Account) bool {
 		for _, fingerprint := range connectedFingerprints {
-			if bytes.Equal(fingerprint, account.RootFingerprint) {
+			if account.Configurations.ContainsRootFingerprint(fingerprint) {
 				return true
 			}
 		}
@@ -937,7 +937,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
 			return false
 		}
-		return bytes.Equal(fingerprint, account.RootFingerprint)
+		return account.Configurations.ContainsRootFingerprint(fingerprint)
 	}
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		if len(backend.filterAccounts(accountsConfig, belongsToKeystore)) != 0 {

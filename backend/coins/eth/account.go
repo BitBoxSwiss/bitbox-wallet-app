@@ -158,6 +158,7 @@ func (account *Account) Initialize() error {
 	}
 
 	account.signingConfiguration = signing.NewEthereumConfiguration(
+		account.signingConfiguration.EthereumSimple.KeyInfo.RootFingerprint,
 		account.signingConfiguration.AbsoluteKeypath(),
 		account.signingConfiguration.ExtendedPublicKey(),
 	)

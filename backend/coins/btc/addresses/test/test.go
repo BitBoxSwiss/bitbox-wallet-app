@@ -46,7 +46,7 @@ func NewAddressChain() (*signing.Configuration, *addresses.AddressChain) {
 		panic(err)
 	}
 	configuration := signing.NewBitcoinConfiguration(
-		signing.ScriptTypeP2PKH, derivationPath, xpub)
+		signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, xpub)
 	return configuration, addresses.NewAddressChain(configuration, net, 20, 0, log)
 }
 
@@ -56,7 +56,8 @@ func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 	if err != nil {
 		panic(err)
 	}
-	configuration := signing.NewBitcoinConfiguration(scriptType, absoluteKeypath, extendedPublicKey)
+	configuration := signing.NewBitcoinConfiguration(
+		scriptType, []byte{1, 2, 3, 4}, absoluteKeypath, extendedPublicKey)
 	return addresses.NewAccountAddress(
 		configuration,
 		signing.NewEmptyRelativeKeypath(),

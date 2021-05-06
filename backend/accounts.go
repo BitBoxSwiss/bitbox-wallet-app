@@ -15,7 +15,6 @@
 package backend
 
 import (
-	"bytes"
 	"fmt"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -210,7 +209,7 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 			return false
 		}
 		// Belongs to keystore:
-		return bytes.Equal(rootFingerprint, account.RootFingerprint)
+		return account.Configurations.ContainsRootFingerprint(rootFingerprint)
 	}
 
 	nextAccountNumber := uint16(len(backend.filterAccounts(accountsConfig, filter)))
