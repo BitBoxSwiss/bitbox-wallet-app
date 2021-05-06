@@ -57,7 +57,7 @@ func TestAccount(t *testing.T) {
 	xpub, err = xpub.Neuter()
 	require.NoError(t, err)
 
-	signingConfigurations := signing.Configurations{signing.NewConfiguration(
+	signingConfigurations := signing.Configurations{signing.NewBitcoinConfiguration(
 		signing.ScriptTypeP2WPKHP2SH,
 		keypath,
 		xpub)}

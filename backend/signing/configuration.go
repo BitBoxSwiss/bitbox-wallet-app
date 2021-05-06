@@ -29,15 +29,66 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
-// Configuration models a signing configuration.
-type Configuration struct {
-	scriptType        ScriptType // Only used in btc and ltc, dummy for eth
-	absoluteKeypath   AbsoluteKeypath
-	extendedPublicKey *hdkeychain.ExtendedKey
+// KeyInfo contains information about the key and where it is coming from.
+type KeyInfo struct {
+	AbsoluteKeypath   AbsoluteKeypath
+	ExtendedPublicKey *hdkeychain.ExtendedKey
 }
 
-// NewConfiguration creates a new configuration.
-func NewConfiguration(
+func (ki KeyInfo) String() string {
+	return fmt.Sprintf("keypath=%s,xpub=%s", ki.AbsoluteKeypath.Encode(), ki.ExtendedPublicKey)
+}
+
+type keyInfoEncoding struct {
+	Keypath AbsoluteKeypath `json:"keypath"`
+	Xpub    string          `json:"xpub"`
+}
+
+// MarshalJSON implements json.Marshaler.
+func (ki KeyInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(keyInfoEncoding{
+		Keypath: ki.AbsoluteKeypath,
+		Xpub:    ki.ExtendedPublicKey.String(),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (ki *KeyInfo) UnmarshalJSON(bytes []byte) error {
+	var encoding keyInfoEncoding
+	if err := json.Unmarshal(bytes, &encoding); err != nil {
+		return errp.Wrap(err, "Could not unmarshal KeyInfo")
+	}
+	ki.AbsoluteKeypath = encoding.Keypath
+	extendedPublicKey, err := hdkeychain.NewKeyFromString(encoding.Xpub)
+	if err != nil {
+		return errp.Wrap(err, "Could not read an extended public key.")
+	}
+	ki.ExtendedPublicKey = extendedPublicKey
+	return nil
+}
+
+// BitcoinSimple represents a simple (single-signature) Bitcoin/Litecoin signing configuration.
+type BitcoinSimple struct {
+	KeyInfo    KeyInfo    `json:"keyInfo"`
+	ScriptType ScriptType `json:"scriptType"`
+}
+
+// EthereumSimple represents a simple (standard single-sig, no exotic signing methods) Ethereum
+// signing configuration.
+type EthereumSimple struct {
+	KeyInfo KeyInfo `json:"keyInfo"`
+}
+
+// Configuration models a signing configuration.
+type Configuration struct {
+	// Poor man's union type: only one of the below can be non-nil.
+
+	BitcoinSimple  *BitcoinSimple  `json:"bitcoinSimple,omitempty"`
+	EthereumSimple *EthereumSimple `json:"ethereumSimple,omitempty"`
+}
+
+// NewBitcoinConfiguration creates a new configuration.
+func NewBitcoinConfiguration(
 	scriptType ScriptType,
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKey *hdkeychain.ExtendedKey,
@@ -46,30 +97,58 @@ func NewConfiguration(
 		panic("An extended key is private! Only extended public keys are accepted.")
 	}
 	return &Configuration{
-		scriptType:        scriptType,
-		absoluteKeypath:   absoluteKeypath,
-		extendedPublicKey: extendedPublicKey,
+		BitcoinSimple: &BitcoinSimple{
+			ScriptType: scriptType,
+			KeyInfo: KeyInfo{
+				AbsoluteKeypath:   absoluteKeypath,
+				ExtendedPublicKey: extendedPublicKey,
+			},
+		},
+	}
+}
+
+// NewEthereumConfiguration creates a new configuration.
+func NewEthereumConfiguration(
+	absoluteKeypath AbsoluteKeypath,
+	extendedPublicKey *hdkeychain.ExtendedKey,
+) *Configuration {
+	if extendedPublicKey.IsPrivate() {
+		panic("An extended key is private! Only extended public keys are accepted.")
+	}
+	return &Configuration{
+		EthereumSimple: &EthereumSimple{
+			KeyInfo{
+				AbsoluteKeypath:   absoluteKeypath,
+				ExtendedPublicKey: extendedPublicKey,
+			},
+		},
 	}
 }
 
 // ScriptType returns the configuration's keypath.
 func (configuration *Configuration) ScriptType() ScriptType {
-	return configuration.scriptType
+	return configuration.BitcoinSimple.ScriptType
 }
 
 // AbsoluteKeypath returns the configuration's keypath.
 func (configuration *Configuration) AbsoluteKeypath() AbsoluteKeypath {
-	return configuration.absoluteKeypath
+	if configuration.BitcoinSimple != nil {
+		return configuration.BitcoinSimple.KeyInfo.AbsoluteKeypath
+	}
+	return configuration.EthereumSimple.KeyInfo.AbsoluteKeypath
 }
 
 // ExtendedPublicKey returns the configuration's extended public key.
 func (configuration *Configuration) ExtendedPublicKey() *hdkeychain.ExtendedKey {
-	return configuration.extendedPublicKey
+	if configuration.BitcoinSimple != nil {
+		return configuration.BitcoinSimple.KeyInfo.ExtendedPublicKey
+	}
+	return configuration.EthereumSimple.KeyInfo.ExtendedPublicKey
 }
 
 // PublicKey returns the configuration's public key.
 func (configuration *Configuration) PublicKey() *btcec.PublicKey {
-	publicKey, err := configuration.extendedPublicKey.ECPubKey()
+	publicKey, err := configuration.ExtendedPublicKey().ECPubKey()
 	if err != nil {
 		panic("Failed to convert an extended public key to a normal public key.")
 	}
@@ -78,50 +157,24 @@ func (configuration *Configuration) PublicKey() *btcec.PublicKey {
 
 // Derive derives a subkeypath from the configuration's base absolute keypath.
 func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Configuration, error) {
-	if relativeKeypath.Hardened() {
-		return nil, errp.New("A configuration can only be derived with a non-hardened relative keypath.")
+	btc := configuration.BitcoinSimple
+	if btc != nil {
+		if relativeKeypath.Hardened() {
+			return nil, errp.New("A configuration can only be derived with a non-hardened relative keypath.")
+		}
+
+		derivedPublicKey, err := relativeKeypath.Derive(btc.KeyInfo.ExtendedPublicKey)
+		if err != nil {
+			return nil, err
+		}
+		return NewBitcoinConfiguration(
+			btc.ScriptType,
+			btc.KeyInfo.AbsoluteKeypath.Append(relativeKeypath),
+			derivedPublicKey,
+		), nil
 	}
 
-	derivedPublicKey, err := relativeKeypath.Derive(configuration.extendedPublicKey)
-	if err != nil {
-		return nil, err
-	}
-	return &Configuration{
-		scriptType:        configuration.scriptType,
-		absoluteKeypath:   configuration.absoluteKeypath.Append(relativeKeypath),
-		extendedPublicKey: derivedPublicKey,
-	}, nil
-}
-
-type configurationEncoding struct {
-	ScriptType string          `json:"scriptType"`
-	Keypath    AbsoluteKeypath `json:"keypath"`
-	Xpub       string          `json:"xpub"`
-}
-
-// MarshalJSON implements json.Marshaler.
-func (configuration Configuration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&configurationEncoding{
-		ScriptType: string(configuration.scriptType),
-		Keypath:    configuration.absoluteKeypath,
-		Xpub:       configuration.extendedPublicKey.String(),
-	})
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
-	var encoding configurationEncoding
-	if err := json.Unmarshal(bytes, &encoding); err != nil {
-		return errp.Wrap(err, "Could not unmarshal a signing configuration.")
-	}
-	configuration.scriptType = ScriptType(encoding.ScriptType)
-	configuration.absoluteKeypath = encoding.Keypath
-	extendedPublicKey, err := hdkeychain.NewKeyFromString(encoding.Xpub)
-	if err != nil {
-		return errp.Wrap(err, "Could not read an extended public key.")
-	}
-	configuration.extendedPublicKey = extendedPublicKey
-	return nil
+	return nil, errp.New("Can only call this on a bitcoin configuration")
 }
 
 // Hash returns a hash of the configuration in hex format.
@@ -132,7 +185,11 @@ func (configuration *Configuration) Hash() string {
 
 // String returns a short summary of the configuration to be used in logs, etc.
 func (configuration *Configuration) String() string {
-	return fmt.Sprintf("single sig, scriptType: %s", configuration.scriptType)
+	if configuration.BitcoinSimple != nil {
+		return fmt.Sprintf("bitcoinSimple;scriptType=%s;%s",
+			configuration.BitcoinSimple.ScriptType, configuration.BitcoinSimple.KeyInfo)
+	}
+	return fmt.Sprintf("ethereumSimple;%s", configuration.EthereumSimple.KeyInfo)
 }
 
 // Configurations is an unordered collection of configurations.

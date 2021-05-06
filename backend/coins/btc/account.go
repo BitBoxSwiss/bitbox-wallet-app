@@ -384,7 +384,7 @@ func (account *Account) Info() *accounts.Info {
 					account.coin, subacc.signingConfiguration.ScriptType()),
 			},
 		)
-		signingConfigurations[idx] = signing.NewConfiguration(
+		signingConfigurations[idx] = signing.NewBitcoinConfiguration(
 			subacc.signingConfiguration.ScriptType(),
 			subacc.signingConfiguration.AbsoluteKeypath(),
 			xpubCopy,

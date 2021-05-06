@@ -157,8 +157,7 @@ func (account *Account) Initialize() error {
 		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
 	}
 
-	account.signingConfiguration = signing.NewConfiguration(
-		account.signingConfiguration.ScriptType(),
+	account.signingConfiguration = signing.NewEthereumConfiguration(
 		account.signingConfiguration.AbsoluteKeypath(),
 		account.signingConfiguration.ExtendedPublicKey(),
 	)

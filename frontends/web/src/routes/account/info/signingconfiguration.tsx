@@ -74,14 +74,17 @@ class SigningConfiguration extends Component<Props, State> {
           signingConfigIndex,
         }: RenderableProps<Props>,
         { canVerifyExtendedPublicKey }: State) {
+        if (info.bitcoinSimple === undefined) {
+            return null;
+        }
         return (
             <div className={style.address}>
-                <div key={info.xpub}>
-                    <h2>{this.scriptTypeTitle(info.scriptType)}</h2>
+                <div key={info.bitcoinSimple.keyInfo.xpub}>
+                    <h2>{this.scriptTypeTitle(info.bitcoinSimple.scriptType)}</h2>
                     <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
-                    <QRCode data={info.xpub} />
+                    <QRCode data={info.bitcoinSimple.keyInfo.xpub} />
                     <div className={style.textareaContainer}>
-                        <CopyableInput value={info.xpub} flexibleHeight />
+                        <CopyableInput value={info.bitcoinSimple.keyInfo.xpub} flexibleHeight />
                     </div>
                     <div className="buttons">
                         {

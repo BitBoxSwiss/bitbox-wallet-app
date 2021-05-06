@@ -57,7 +57,7 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.chainIndex = 1
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
-		signing.NewConfiguration(signing.ScriptTypeP2PKH, signing.NewEmptyAbsoluteKeypath(), xpub),
+		signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, signing.NewEmptyAbsoluteKeypath(), xpub),
 		net, s.gapLimit, s.chainIndex, s.log)
 }
 
