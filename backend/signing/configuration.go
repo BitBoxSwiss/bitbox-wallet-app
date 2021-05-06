@@ -31,6 +31,9 @@ import (
 
 // KeyInfo contains information about the key and where it is coming from.
 type KeyInfo struct {
+	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.
+	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers
+	RootFingerprint   []byte
 	AbsoluteKeypath   AbsoluteKeypath
 	ExtendedPublicKey *hdkeychain.ExtendedKey
 }
@@ -40,15 +43,17 @@ func (ki KeyInfo) String() string {
 }
 
 type keyInfoEncoding struct {
-	Keypath AbsoluteKeypath `json:"keypath"`
-	Xpub    string          `json:"xpub"`
+	RootFingerprint string          `json:"rootFingerprint"`
+	Keypath         AbsoluteKeypath `json:"keypath"`
+	Xpub            string          `json:"xpub"`
 }
 
 // MarshalJSON implements json.Marshaler.
 func (ki KeyInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(keyInfoEncoding{
-		Keypath: ki.AbsoluteKeypath,
-		Xpub:    ki.ExtendedPublicKey.String(),
+		RootFingerprint: hex.EncodeToString(ki.RootFingerprint),
+		Keypath:         ki.AbsoluteKeypath,
+		Xpub:            ki.ExtendedPublicKey.String(),
 	})
 }
 
@@ -58,6 +63,11 @@ func (ki *KeyInfo) UnmarshalJSON(bytes []byte) error {
 	if err := json.Unmarshal(bytes, &encoding); err != nil {
 		return errp.Wrap(err, "Could not unmarshal KeyInfo")
 	}
+	rootFingerprint, err := hex.DecodeString(encoding.RootFingerprint)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	ki.RootFingerprint = rootFingerprint
 	ki.AbsoluteKeypath = encoding.Keypath
 	extendedPublicKey, err := hdkeychain.NewKeyFromString(encoding.Xpub)
 	if err != nil {
@@ -90,6 +100,7 @@ type Configuration struct {
 // NewBitcoinConfiguration creates a new configuration.
 func NewBitcoinConfiguration(
 	scriptType ScriptType,
+	rootFingerprint []byte,
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKey *hdkeychain.ExtendedKey,
 ) *Configuration {
@@ -100,6 +111,7 @@ func NewBitcoinConfiguration(
 		BitcoinSimple: &BitcoinSimple{
 			ScriptType: scriptType,
 			KeyInfo: KeyInfo{
+				RootFingerprint:   rootFingerprint,
 				AbsoluteKeypath:   absoluteKeypath,
 				ExtendedPublicKey: extendedPublicKey,
 			},
@@ -109,6 +121,7 @@ func NewBitcoinConfiguration(
 
 // NewEthereumConfiguration creates a new configuration.
 func NewEthereumConfiguration(
+	rootFingerprint []byte,
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKey *hdkeychain.ExtendedKey,
 ) *Configuration {
@@ -118,6 +131,7 @@ func NewEthereumConfiguration(
 	return &Configuration{
 		EthereumSimple: &EthereumSimple{
 			KeyInfo{
+				RootFingerprint:   rootFingerprint,
 				AbsoluteKeypath:   absoluteKeypath,
 				ExtendedPublicKey: extendedPublicKey,
 			},
@@ -169,6 +183,7 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 		}
 		return NewBitcoinConfiguration(
 			btc.ScriptType,
+			btc.KeyInfo.RootFingerprint,
 			btc.KeyInfo.AbsoluteKeypath.Append(relativeKeypath),
 			derivedPublicKey,
 		), nil
@@ -194,6 +209,23 @@ func (configuration *Configuration) String() string {
 
 // Configurations is an unordered collection of configurations.
 type Configurations []*Configuration
+
+// ContainsRootFingerprint returns true if the rootFingerprint is present in one of the configurations.
+func (configs Configurations) ContainsRootFingerprint(rootFingerprint []byte) bool {
+	for _, config := range configs {
+		if config.BitcoinSimple != nil {
+			if bytes.Equal(config.BitcoinSimple.KeyInfo.RootFingerprint, rootFingerprint) {
+				return true
+			}
+		}
+		if config.EthereumSimple != nil {
+			if bytes.Equal(config.EthereumSimple.KeyInfo.RootFingerprint, rootFingerprint) {
+				return true
+			}
+		}
+	}
+	return false
+}
 
 // Hash returns a hash of all configurations in hex format. It is defined as
 // `sha256(<32 bytes hash 1>|<32 bytes hash 2>|...)`, where the hashes are first sorted, so

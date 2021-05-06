@@ -59,6 +59,7 @@ func TestAccount(t *testing.T) {
 
 	signingConfigurations := signing.Configurations{signing.NewBitcoinConfiguration(
 		signing.ScriptTypeP2WPKHP2SH,
+		[]byte{1, 2, 3, 4},
 		keypath,
 		xpub)}
 
