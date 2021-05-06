@@ -1039,7 +1039,7 @@ func (dbb *Device) signBatch(
 
 		if btcProposedTx.TXProposal.ChangeAddress != nil {
 			configuration := btcProposedTx.TXProposal.ChangeAddress.Configuration
-			publicKey := configuration.PublicKeys()[0]
+			publicKey := configuration.PublicKey()
 			command["sign"]["checkpub"] = []map[string]interface{}{{
 				"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
 				"keypath": configuration.AbsoluteKeypath().Encode(),

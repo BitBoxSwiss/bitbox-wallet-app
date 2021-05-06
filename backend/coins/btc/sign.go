@@ -36,8 +36,8 @@ type ProposedTransaction struct {
 	PreviousOutputs              map[wire.OutPoint]*transactions.SpendableOutput
 	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	GetPrevTx                    func(chainhash.Hash) *wire.MsgTx
-	// Signatures collects the signatures (signatures[transactionInput][cosignerIndex]).
-	Signatures [][]*btcec.Signature
+	// Signatures collects the signatures, one per transaction input.
+	Signatures []*btcec.Signature
 	SigHashes  *txscript.TxSigHashes
 }
 
@@ -58,13 +58,8 @@ func (account *Account) signTransaction(
 		PreviousOutputs:              previousOutputs,
 		GetAddress:                   account.getAddress,
 		GetPrevTx:                    getPrevTx,
-		Signatures:                   make([][]*btcec.Signature, len(txProposal.Transaction.TxIn)),
+		Signatures:                   make([]*btcec.Signature, len(txProposal.Transaction.TxIn)),
 		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction),
-	}
-
-	for i := range proposedTransaction.Signatures {
-		// TODO: Replace count with configuration.NumberOfSigners()
-		proposedTransaction.Signatures[i] = make([]*btcec.Signature, account.Config().Keystores.Count())
 	}
 
 	if err := account.Config().Keystores.SignTransaction(proposedTransaction); err != nil {
@@ -74,8 +69,11 @@ func (account *Account) signTransaction(
 	for index, input := range txProposal.Transaction.TxIn {
 		spentOutput := previousOutputs[input.PreviousOutPoint]
 		address := proposedTransaction.GetAddress(spentOutput.ScriptHashHex())
-		input.SignatureScript, input.Witness = address.SignatureScript(
-			proposedTransaction.Signatures[index])
+		signature := proposedTransaction.Signatures[index]
+		if signature == nil {
+			return errp.New("Signature missing")
+		}
+		input.SignatureScript, input.Witness = address.SignatureScript(*signature)
 	}
 
 	// Sanity check: see if the created transaction is valid.

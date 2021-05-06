@@ -166,7 +166,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	}
 	for i, signature := range signatures {
 		signature := signature
-		btcProposedTx.Signatures[i][0] = &signature.Signature
+		btcProposedTx.Signatures[i] = &signature.Signature
 	}
 	return nil
 }
