@@ -615,11 +615,11 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		coin = eth.NewCoin(etherScan, code, "ERC20 TEST", "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
-			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
+			erc20.NewToken("teth-erc20-test", "0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
 		)
 	case erc20Token != nil:
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
+		coin = eth.NewCoin(etherScan, erc20Token.token.Code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			etherScan,
 			erc20Token.token,

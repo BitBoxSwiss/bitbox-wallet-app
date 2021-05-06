@@ -14,21 +14,26 @@
 
 package erc20
 
-import "github.com/ethereum/go-ethereum/common"
+import (
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/ethereum/go-ethereum/common"
+)
 
 // Token holds infos about the erc20 token needed to fetch balances, format amounts, etc.
 type Token struct {
+	Code            coin.Code
 	contractAddress common.Address
 	decimals        uint
 }
 
 // NewToken creates a new Token instance.
-func NewToken(contractAddress string, decimals uint) *Token {
+func NewToken(code coin.Code, contractAddress string, decimals uint) *Token {
 	if !common.IsHexAddress(contractAddress) {
 		panic("invalid erc20 contract address")
 	}
 
 	return &Token{
+		Code:            code,
 		contractAddress: common.HexToAddress(contractAddress),
 		decimals:        decimals,
 	}
