@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,12 +99,18 @@ interface Props {
     className?: string;
     alt?: string;
     active?: boolean;
+    stacked?: boolean;
 }
 
-function Logo({ coinCode, active, ...rest }: Props) {
+function Logo({ coinCode, active, stacked, ...rest }: Props) {
     if (!logoMap[coinCode]) {
         console.error('logo undefined for ', coinCode);
         return null;
+    }
+    if (!stacked) {
+        return (
+            <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+        );
     }
     return (
         <div>
