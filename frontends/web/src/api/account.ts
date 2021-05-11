@@ -32,6 +32,7 @@ export type Coin = MainnetCoin | TestnetCoin;
 export interface IAccount {
     coinCode: CoinCode;
     coinUnit: string;
+    coinName: string;
     code: string;
     name: string;
     blockExplorerTxPrefix: string;

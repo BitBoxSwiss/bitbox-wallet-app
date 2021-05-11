@@ -589,7 +589,7 @@ class Send extends Component<Props, State> {
                     <Status type="warning">
                         {paired === false && t('warning.sendPairing')}
                     </Status>
-                    <Header title={<h2>{t('send.title', { accountName: account.name })}</h2>} />
+                    <Header title={<h2>{t('send.title', { accountName: account.coinName })}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div>
