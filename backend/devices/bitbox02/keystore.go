@@ -18,6 +18,7 @@ package bitbox02
 import (
 	"bytes"
 	"math/big"
+	"sync"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -39,6 +40,9 @@ import (
 type keystore struct {
 	device *Device
 	log    *logrus.Entry
+
+	rootFingerMu sync.Mutex
+	rootFinger   []byte // cached result of RootFingerprint
 }
 
 // Type implements keystore.Keystore.
@@ -48,7 +52,17 @@ func (keystore *keystore) Type() keystorePkg.Type {
 
 // RootFingerprint implements keystore.Keystore.
 func (keystore *keystore) RootFingerprint() ([]byte, error) {
-	return keystore.device.RootFingerprint()
+	keystore.rootFingerMu.Lock()
+	defer keystore.rootFingerMu.Unlock()
+	if keystore.rootFinger != nil {
+		return keystore.rootFinger, nil
+	}
+	res, err := keystore.device.RootFingerprint()
+	if err != nil {
+		return nil, err
+	}
+	keystore.rootFinger = res
+	return res, nil
 }
 
 // SupportsCoin implements keystore.Keystore.
