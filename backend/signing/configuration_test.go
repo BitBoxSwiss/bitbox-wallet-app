@@ -82,21 +82,3 @@ func TestContainsRootFingerprint(t *testing.T) {
 	require.True(t, configs.ContainsRootFingerprint([]byte{1, 2, 3, 4}))
 	require.True(t, configs.ContainsRootFingerprint([]byte{5, 6, 7, 8}))
 }
-
-func TestConfigurationsHash(t *testing.T) {
-	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
-	require.NoError(t, err)
-	xpub, err = xpub.Neuter()
-	require.NoError(t, err)
-	keypath, err := NewAbsoluteKeypath("m/")
-	require.NoError(t, err)
-	rootFingerprint := []byte{1, 2, 3, 4}
-	cfg1 := NewBitcoinConfiguration(ScriptTypeP2PKH, rootFingerprint, keypath, xpub)
-	cfg2 := NewBitcoinConfiguration(ScriptTypeP2WPKH, rootFingerprint, keypath, xpub)
-	// Different order does not change the hash.
-	require.NotEqual(t, cfg1.Hash(), cfg2.Hash())
-	require.Equal(t,
-		(Configurations{cfg1, cfg2}).Hash(),
-		(Configurations{cfg2, cfg1}).Hash(),
-	)
-}

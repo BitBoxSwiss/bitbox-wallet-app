@@ -17,16 +17,13 @@ package signing
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"sort"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
 // KeyInfo contains information about the key and where it is coming from.
@@ -192,12 +189,6 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 	return nil, errp.New("Can only call this on a bitcoin configuration")
 }
 
-// Hash returns a hash of the configuration in hex format.
-func (configuration *Configuration) Hash() string {
-	hash := sha256.Sum256(jsonp.MustMarshal(configuration))
-	return hex.EncodeToString(hash[:])
-}
-
 // String returns a short summary of the configuration to be used in logs, etc.
 func (configuration *Configuration) String() string {
 	if configuration.BitcoinSimple != nil {
@@ -225,26 +216,4 @@ func (configs Configurations) ContainsRootFingerprint(rootFingerprint []byte) bo
 		}
 	}
 	return false
-}
-
-// Hash returns a hash of all configurations in hex format. It is defined as
-// `sha256(<32 bytes hash 1>|<32 bytes hash 2>|...)`, where the hashes are first sorted, so
-// changing the order does *not* change the hash.
-func (configs Configurations) Hash() string {
-	hashes := make([][]byte, len(configs))
-	for i, cfg := range configs {
-		hash, err := hex.DecodeString(cfg.Hash())
-		if err != nil {
-			panic(errp.WithStack(err))
-		}
-		hashes[i] = hash
-	}
-	sort.Slice(hashes, func(i, j int) bool { return bytes.Compare(hashes[i], hashes[j]) < 0 })
-	h := sha256.New()
-	for _, hash := range hashes {
-		if _, err := h.Write(hash); err != nil {
-			panic(errp.WithStack(err))
-		}
-	}
-	return hex.EncodeToString(h.Sum(nil))
 }
