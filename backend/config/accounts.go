@@ -35,7 +35,7 @@ type Account struct {
 	// ActiveTokens list the tokens that should be loaded along with the account.  Currently, this
 	// only applies to ETH, and the elements are ERC20 token codes (e.g. "eth-erc20-usdt",
 	// "eth-erc20-bat", etc).
-	ActiveTokens []string `json:"activeTokens"`
+	ActiveTokens []string `json:"activeTokens,omitempty"`
 }
 
 // AccountsConfig persists the list of accounts added to the app.

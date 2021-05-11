@@ -427,6 +427,7 @@ func (backend *Backend) persistETHAccountConfig(
 	code string,
 	keypath string,
 	name string,
+	activeTokens []string,
 	accountsConfig *config.AccountsConfig,
 ) error {
 	log := backend.log.
@@ -459,18 +460,6 @@ func (backend *Backend) persistETHAccountConfig(
 			absoluteKeypath,
 			extendedPublicKey,
 		),
-	}
-	// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
-	// active/inactive per ETH account. We use the previous global settings to decide the default
-	// set of active tokens, for a smoother migration for the user.
-	var activeTokens []string
-	if coin.Code() == coinpkg.CodeETH {
-		for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
-			prefix := "eth-erc20-"
-			// Old config entries did not contain this prefix, but the token codes in the new config
-			// do, to match the codes listed in erc20.go
-			activeTokens = append(activeTokens, prefix+tokenCode)
-		}
 	}
 
 	return backend.persistAccount(config.Account{
@@ -699,14 +688,14 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
-				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, accountsConfig); err != nil {
+				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, nil, accountsConfig); err != nil {
 					return err
 				}
 			}
 		} else {
 			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH} {
 				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-					if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, accountsConfig); err != nil {
+					if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, nil, accountsConfig); err != nil {
 						return err
 
 					}
@@ -716,7 +705,20 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	} else {
 		for _, coinCode := range []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH} {
 			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-				if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, accountsConfig); err != nil {
+				// In the past, ERC20 tokens were configured to be active or inactive globally, now they are
+				// active/inactive per ETH account. We use the previous global settings to decide the default
+				// set of active tokens, for a smoother migration for the user.
+				var activeTokens []string
+				if coinCode == coinpkg.CodeETH {
+					for _, tokenCode := range backend.config.AppConfig().Backend.ETH.DeprecatedActiveERC20Tokens {
+						prefix := "eth-erc20-"
+						// Old config entries did not contain this prefix, but the token codes in the new config
+						// do, to match the codes listed in erc20.go
+						activeTokens = append(activeTokens, prefix+tokenCode)
+					}
+				}
+
+				if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, activeTokens, accountsConfig); err != nil {
 					return err
 				}
 			}

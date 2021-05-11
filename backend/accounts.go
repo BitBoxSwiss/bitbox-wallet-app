@@ -122,6 +122,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 	accountNumber uint16,
 	name string,
 	keystore keystore.Keystore,
+	activeTokens []string,
 	accountsConfig *config.AccountsConfig) error {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
@@ -190,6 +191,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
 			name,
+			activeTokens,
 			accountsConfig)
 	default:
 		return errp.Newf("Unrecognized coin code: %s", coinCode)
@@ -239,6 +241,6 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 			return err
 		}
 		return backend.createAndPersistAccountConfig(
-			coinCode, nextAccountNumber, name, keystore, accountsConfig)
+			coinCode, nextAccountNumber, name, keystore, nil, accountsConfig)
 	})
 }
