@@ -325,6 +325,7 @@ func writeJSON(w io.Writer, value interface{}) {
 type accountJSON struct {
 	CoinCode              coinpkg.Code `json:"coinCode"`
 	CoinUnit              string       `json:"coinUnit"`
+	CoinName              string       `json:"coinName"`
 	Code                  string       `json:"code"`
 	Name                  string       `json:"name"`
 	BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
@@ -334,6 +335,7 @@ func newAccountJSON(account accounts.Interface) *accountJSON {
 	return &accountJSON{
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
+		CoinName:              account.Coin().Name(),
 		Code:                  account.Config().Code,
 		Name:                  account.Config().Name,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
