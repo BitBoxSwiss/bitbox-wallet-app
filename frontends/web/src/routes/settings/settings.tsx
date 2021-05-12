@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { IAccount } from '../../api/account';
 import { Link, route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
@@ -36,6 +38,7 @@ import { FiatSelection } from './components/fiat/fiat';
 import * as style from './settings.css';
 
 interface SettingsProps {
+    accounts: IAccount[];
     deviceIDs: string[];
 }
 
@@ -164,12 +167,16 @@ class Settings extends Component<Props, State> {
         route('/', true);
     }
 
-    public render(
-        { t, deviceIDs }: RenderableProps<Props>,
-        { config,
-            restart,
-            proxyAddress,
-            activeProxyDialog }: State,
+    public render({
+        accounts,
+        deviceIDs,
+        t,
+    }: RenderableProps<Props>,
+    {
+        config,
+        restart,
+        proxyAddress,
+        activeProxyDialog }: State,
     ) {
         if (proxyAddress === undefined) {
             return null;
@@ -209,7 +216,24 @@ class Settings extends Component<Props, State> {
                                                 <div className="column column-1-3">
                                                     <FiatSelection />
                                                 </div>
-                                                <div className="column column-1-3">
+                                                <div className="column column-2-3">
+                                                    { accounts.length ? (
+                                                        <div>
+                                                            <div class="subHeaderContainer">
+                                                                <div class="subHeader">
+                                                                    <h3>Accounts</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div className="box slim divide m-bottom-large">
+                                                                <SettingsButton
+                                                                    onClick={() => route('/settings/manage-accounts', true)}
+                                                                    secondaryText="Add and activate/deactivate accounts"
+                                                                    optionalText={accounts.length.toString()}>
+                                                                    Manage accounts
+                                                                </SettingsButton>
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.expert.title')}</h3>
@@ -263,7 +287,7 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
-                                                             optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
+                                                            optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
                                                             {t('settings.expert.useProxy')}
                                                         </SettingsButton>
                                                         {

@@ -46,6 +46,7 @@ import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseS
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
+import { ManageAccounts } from './routes/settings/manage-accounts';
 import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
@@ -268,8 +269,13 @@ class App extends Component<Props, State> {
                             <ElectrumSettings
                                 path="/settings/electrum" />
                             <Settings
+                                accounts={accounts}
                                 deviceIDs={deviceIDs}
                                 path="/settings" />
+                            <ManageAccounts
+                                accounts={accounts}
+                                key={'manage-accounts'}
+                                path="/settings/manage-accounts" />
                             {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
                             {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                             <ManageBackups

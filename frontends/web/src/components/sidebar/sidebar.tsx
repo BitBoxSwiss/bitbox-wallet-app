@@ -141,7 +141,7 @@ class Sidebar extends Component<Props> {
                 href={`/account/${code}`}
                 onClick={this.handleSidebarItemClick}
                 title={name}>
-                <Logo coinCode={coinCode} className="sidebar_icon" alt={name} />
+                <Logo stacked coinCode={coinCode} className="sidebar_icon" alt={name} />
                 <span className="sidebar_label">{name}</span>
             </Link>
         );
