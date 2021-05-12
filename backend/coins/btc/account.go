@@ -275,7 +275,7 @@ func (account *Account) Initialize() error {
 	}
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", signingConfigurations.Hash(), account.Config().Code)
+	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)

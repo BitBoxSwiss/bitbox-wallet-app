@@ -290,12 +290,15 @@ func (backend *Backend) emitAccountsStatusChanged() {
 func (backend *Backend) persistAccount(account config.Account, accountsConfig *config.AccountsConfig) error {
 	for idx := range accountsConfig.Accounts {
 		account2 := &accountsConfig.Accounts[idx]
+		if account.Code == account2.Code {
+			return errp.WithStack(ErrAccountAlreadyExists)
+		}
 		if account.CoinCode == account2.CoinCode {
 			// We detect a duplicate account (subaccount in a unified account) if any of the
 			// configurations is already present.
 			for _, config := range account.Configurations {
 				for _, config2 := range account2.Configurations {
-					if config.Hash() == config2.Hash() {
+					if config.ExtendedPublicKey().String() == config2.ExtendedPublicKey().String() {
 						return errp.WithStack(ErrAccountAlreadyExists)
 					}
 				}
@@ -332,7 +335,7 @@ func (backend *Backend) createAndAddAccount(
 		RateUpdater:           backend.ratesUpdater,
 		SigningConfigurations: signingConfigurations,
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
-			return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configurations.Hash(), code))
+			return backend.notifier.ForAccount(code)
 		},
 	}
 
