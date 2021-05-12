@@ -5,7 +5,7 @@
   "scripts": {
     "gen-ts-css": "tcm src --camelCase dashes",
     "build": "yarn run gen-ts-css && preact build --no-sw --no-esm --no-inline-css --no-prerender --no-prerenderUrls --no-json --verbose",
-    "dev": "yarn run gen-ts-css && preact watch --refresh",
+    "dev": "yarn run gen-ts-css && preact watch --no-sw --no-esm --no-prerender --no-prerenderUrls --no-json --refresh",
     "prelint": "yarn run gen-ts-css",
     "lint": "eslint --max-warnings 0 --cache --format unix --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
     "fix": "eslint --fix --no-cache --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
