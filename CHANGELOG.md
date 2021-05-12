@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Validate socks proxy url
+- Remove the setting 'Separate accounts by address type (legacy behavior)'. BitBox02 accounts are now always unified.
 
 ## 4.27.0 [released 2021-03-17]
 - Buy ERC20 tokens using Moonpay

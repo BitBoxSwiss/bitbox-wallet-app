@@ -74,19 +74,6 @@ class Settings extends Component<Props, State> {
         }
     }
 
-    private handleToggleSplitAccounts = (event: Event) => {
-        const target = (event.target as HTMLInputElement);
-        setConfig({
-            backend: {
-                [target.id]: target.checked,
-            },
-        })
-            .then(config => {
-                this.setState({ config });
-                this.reinitializeAccounts();
-            });
-    }
-
     private handleToggleFrontendSetting = (event: Event) => {
         const target = (event.target as HTMLInputElement);
         setConfig({
@@ -95,10 +82,6 @@ class Settings extends Component<Props, State> {
             },
         })
             .then(config => this.setState({ config }));
-    }
-
-    private reinitializeAccounts = () => {
-        apiPost('accounts/reinitialize');
     }
 
     private handleFormChange = (event: Event) => {
@@ -266,25 +249,6 @@ class Settings extends Component<Props, State> {
                                                                 id="coinControl"
                                                                 onChange={this.handleToggleFrontendSetting} />
                                                         </div>
-                                                        <div className={style.setting}>
-                                                            <div className="m-top-quarter m-bottom-quarter">
-                                                                <p className="m-none">{t('settings.expert.splitAccounts')}</p>
-                                                                <p className="m-none">
-                                                                    <Badge type="generic">BitBox02</Badge>
-                                                                    <span className="text-gray"> (</span>
-                                                                    <Badge type="primary">Multi</Badge>
-                                                                    <span className="text-gray">,</span>
-                                                                    <Badge type="secondary" className="m-left-quarter">Bitcoin-only</Badge>
-                                                                    <span className="text-gray">)</span>
-                                                                    <Badge type="generic" className="m-left-quarter">BTC</Badge>
-                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
-                                                                </p>
-                                                            </div>
-                                                            <Toggle
-                                                                id="splitAccounts"
-                                                                checked={config.backend.splitAccounts}
-                                                                onChange={this.handleToggleSplitAccounts} />
-                                                        </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
                                                             optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
@@ -350,7 +314,6 @@ class Settings extends Component<Props, State> {
                     </div>
                 </div>
                 <Guide>
-                    <Entry key="guide.settings.whyMultipleAccounts" entry={t('guide.settings.whyMultipleAccounts')} />
                     <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
                     <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
                     <Entry key="guide.accountRates" entry={t('guide.accountRates')} />
