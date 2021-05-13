@@ -86,6 +86,9 @@ class AccountsSummary extends Component<Props, State> {
     private getAccountSummary = () => {
         accountApi.getSummary().then(data => {
             this.setState({ data }, () => {
+                if (this.summaryReqTimerID) {
+                    return;
+                }
                 const delay = (!data || data.chartDataMissing) ? 1000 : 10000;
                 this.summaryReqTimerID = window.setTimeout(this.getAccountSummary, delay);
             });
@@ -109,6 +112,7 @@ class AccountsSummary extends Component<Props, State> {
                     this.onStatusChanged(data.code);
                     // Force getting account summary now; cancel next scheduled call.
                     window.clearTimeout(this.summaryReqTimerID);
+                    this.summaryReqTimerID = undefined;
                     this.getAccountSummary();
                     break;
             }
