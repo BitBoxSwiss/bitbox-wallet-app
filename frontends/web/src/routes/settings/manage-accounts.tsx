@@ -26,7 +26,7 @@ import { Guide } from '../../components/guide/guide';
 import { Header } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
 import { translate, TranslateProps } from '../../decorators/translate';
-import * as style from './settings.css';
+import * as style from './manage-accounts.css';
 
 interface ManageAccountsProps {
     accounts: accountAPI.IAccount[];
@@ -80,6 +80,7 @@ class ManageAccounts extends Component<Props, State> {
             return null;
         }
         return accounts.map(account => {
+            const active = (account.code in favorites) ? favorites[account.code] : true;
             return (
                 <div key={account.code} className={style.setting}>
                     <Logo className="m-right-half" coinCode={account.coinCode} alt={account.coinUnit} />
@@ -92,12 +93,60 @@ class ManageAccounts extends Component<Props, State> {
                         Edit
                     </ButtonLink> */}
                     <Toggle
-                        checked={(account.code in favorites) ? favorites[account.code] : true}
+                        checked={active}
                         id={account.code}
                         onChange={this.toggleFavorAccount} />
+                        {active && account.coinCode.includes('eth') ? (
+                            <div className={style.tokenSection}>
+                                {this.renderTokens(account.code)}
+                            </div>
+                        ) : null}
                 </div>
             );
         });
+    }
+
+    private erc20TokenCodes = {
+        usdt: 'Tether USD',
+        usdc: 'USD Coin',
+        link: 'Chainlink',
+        bat: 'Basic Attention Token',
+        mkr: 'Maker',
+        zrx: '0x',
+        wbtc: 'Wrapped Bitcoin',
+        paxg: 'Pax Gold',
+        sai0x89d2: 'Sai',
+        dai0x6b17: 'Dai',
+    };
+
+    private renderTokens = (ethAccountCoinCode) => {
+        const { favorites } = this.state;
+        if (!favorites) {
+            return null;
+        }
+        return Object.entries(this.erc20TokenCodes)
+            .map(([key, value]) => {
+                const active = !(Math.random() < 0.5);
+                return (
+                    <div key={key}
+                        onClick={() => this.toggleToken(ethAccountCoinCode, key)}
+                        className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
+                        <Logo
+                            active={active}
+                            alt={value}
+                            className={style.tokenIcon}
+                            coinCode={`eth-erc20-${key}`}
+                            stacked />
+                        <span className="flex-1 p-left-quarter">
+                            {value} ({key})
+                        </span>
+                    </div>
+                );
+            });
+    }
+
+    private toggleToken = (ethAccountCoinCode, token) => {
+        console.info('toggle token', ethAccountCoinCode, token);
     }
 
     public render(
