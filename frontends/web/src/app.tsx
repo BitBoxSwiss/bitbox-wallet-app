@@ -176,11 +176,13 @@ class App extends Component<Props, State> {
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.state.accounts;
-        // if no accounts are registered on /account-summary view route to /
-        if (
-            accounts.length === 0
-            && (currentURL.startsWith('/account-summary') || currentURL.startsWith('/add-account'))
-        ) {
+
+        // if no accounts are registered on specified views route to /
+        if ( accounts.length === 0 && (
+            currentURL.startsWith('/account-summary')
+            || currentURL.startsWith('/add-account')
+            || currentURL.startsWith('/settings/manage-accounts')
+        )) {
             route('/', true);
             return;
         }
