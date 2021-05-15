@@ -408,10 +408,6 @@ func (account *Account) onNewHeader(header *blockchain.Header) {
 
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
-	// Wait until synchronized, to include server errors without manually dealing with sync status.
-	if account.Offline() == nil {
-		account.Synchronizer.WaitSynchronized()
-	}
 	return account.fatalError
 }
 
