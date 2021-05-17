@@ -942,10 +942,6 @@
       "servers": {
         "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CryptoCompare. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"
-      },
-      "whyMultipleAccounts": {
-        "text": "Some cryptocurrencies have multiple address and transaction formats. These addresses are separated into extra accounts.",
-        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guide",
@@ -1331,7 +1327,6 @@
       },
       "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
-      "splitAccounts": "Separate accounts by address type (legacy behavior)",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy"
     },

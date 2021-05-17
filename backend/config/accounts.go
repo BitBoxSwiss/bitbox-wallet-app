@@ -22,16 +22,10 @@ import (
 
 // Account holds information related to an account.
 type Account struct {
-	CoinCode coin.Code `json:"coinCode"`
-	Name     string    `json:"name"`
-	Code     string    `json:"code"`
-	// SupportsUnifiedAccounts, if true, allows multiple configurations in one account. If false,
-	// one account will be added per configuration.
-	//
-	// This is used to unify multiple Bitcoin script types (p2wsh, p2wsh-p2sh) in one account. The
-	// keystore must be able to sign transactions with mixed inputs.
-	SupportsUnifiedAccounts bool                   `json:"supportsUnifiedAccounts"`
-	Configurations          signing.Configurations `json:"configurations"`
+	CoinCode       coin.Code              `json:"coinCode"`
+	Name           string                 `json:"name"`
+	Code           string                 `json:"code"`
+	Configurations signing.Configurations `json:"configurations"`
 	// ActiveTokens list the tokens that should be loaded along with the account.  Currently, this
 	// only applies to ETH, and the elements are ERC20 token codes (e.g. "eth-erc20-usdt",
 	// "eth-erc20-bat", etc).

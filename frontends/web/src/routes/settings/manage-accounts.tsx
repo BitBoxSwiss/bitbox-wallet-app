@@ -21,8 +21,6 @@ import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { Button } from '../../components/forms';
 import Logo from '../../components/icon/logo';
-import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
 import { Header } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -128,9 +126,6 @@ class ManageAccounts extends Component<Props, State> {
                         </div>
                     </div>
                 </div>
-                <Guide>
-                    <Entry key="guide.settings.whyMultipleAccounts" entry={t('guide.settings.whyMultipleAccounts')} />
-                </Guide>
             </div>
         );
     }

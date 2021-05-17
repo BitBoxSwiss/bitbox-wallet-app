@@ -66,10 +66,6 @@ type Backend struct {
 	DeprecatedLitecoinActive bool `json:"litecoinActive"`
 	DeprecatedEthereumActive bool `json:"ethereumActive"`
 
-	// Whether Bitcoin, Litecoin should be shown in multiple accounts - one per script type -
-	// instead of a combined account.
-	SplitAccounts bool `json:"splitAccounts"`
-
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
 	RBTC btcCoinConfig `json:"rbtc"`
@@ -142,8 +138,6 @@ func NewDefaultAppConfig() AppConfig {
 			DeprecatedBitcoinActive:  true,
 			DeprecatedLitecoinActive: true,
 			DeprecatedEthereumActive: true,
-
-			SplitAccounts: false,
 
 			BTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{

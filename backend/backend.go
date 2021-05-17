@@ -415,13 +415,37 @@ func (backend *Backend) persistBTCAccountConfig(
 		)
 		signingConfigurations = append(signingConfigurations, signingConfiguration)
 	}
-	return backend.persistAccount(config.Account{
-		CoinCode:                coin.Code(),
-		Name:                    name,
-		Code:                    code,
-		SupportsUnifiedAccounts: keystore.SupportsUnifiedAccounts(),
-		Configurations:          signingConfigurations,
-	}, accountsConfig)
+
+	if keystore.SupportsUnifiedAccounts() {
+		return backend.persistAccount(config.Account{
+			CoinCode:       coin.Code(),
+			Name:           name,
+			Code:           code,
+			Configurations: signingConfigurations,
+		}, accountsConfig)
+	}
+
+	// Unified accounts not supported, so we add one account per configuration.
+	for _, cfg := range signingConfigurations {
+		suffixedName := name
+		switch cfg.ScriptType() {
+		case signing.ScriptTypeP2PKH:
+			suffixedName += ": legacy"
+		case signing.ScriptTypeP2WPKH:
+			suffixedName += ": bech32"
+		}
+
+		err := backend.persistAccount(config.Account{
+			CoinCode:       coin.Code(),
+			Name:           suffixedName,
+			Code:           fmt.Sprintf("%s-%s", code, cfg.ScriptType()),
+			Configurations: signing.Configurations{cfg},
+		}, accountsConfig)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (backend *Backend) persistETHAccountConfig(
@@ -466,12 +490,11 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	return backend.persistAccount(config.Account{
-		CoinCode:                coin.Code(),
-		Name:                    name,
-		Code:                    code,
-		SupportsUnifiedAccounts: keystore.SupportsUnifiedAccounts(),
-		Configurations:          signingConfigurations,
-		ActiveTokens:            activeTokens,
+		CoinCode:       coin.Code(),
+		Name:           name,
+		Code:           code,
+		Configurations: signingConfigurations,
+		ActiveTokens:   activeTokens,
 	}, accountsConfig)
 }
 
@@ -643,39 +666,9 @@ func (backend *Backend) initPersistedAccounts() {
 				account.CoinCode, account.Code)
 			continue
 		}
+		backend.createAndAddAccount(
+			coin, account.Code, account.Name, account.Configurations, account.ActiveTokens)
 
-		// We split accounts if the user setting dictates it or if the keystore connected to the
-		// account does not support unified accounts.
-
-		var isBTCBased bool
-		switch account.CoinCode {
-		case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC, coinpkg.CodeLTC, coinpkg.CodeTLTC:
-			isBTCBased = true
-		}
-		splitAccounts := isBTCBased && (backend.config.AppConfig().Backend.SplitAccounts ||
-			!account.SupportsUnifiedAccounts)
-
-		if splitAccounts {
-			for _, signingConfiguration := range account.Configurations {
-				suffixedName := account.Name
-				switch signingConfiguration.ScriptType() {
-				case signing.ScriptTypeP2PKH:
-					suffixedName += ": legacy"
-				case signing.ScriptTypeP2WPKH:
-					suffixedName += ": bech32"
-				}
-				backend.createAndAddAccount(
-					coin,
-					fmt.Sprintf("%s-%s", account.Code, signingConfiguration.ScriptType()),
-					suffixedName,
-					signing.Configurations{signingConfiguration},
-					account.ActiveTokens,
-				)
-			}
-		} else {
-			backend.createAndAddAccount(
-				coin, account.Code, account.Name, account.Configurations, account.ActiveTokens)
-		}
 	}
 }
 
