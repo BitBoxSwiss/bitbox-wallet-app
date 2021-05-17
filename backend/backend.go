@@ -685,14 +685,14 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
-				if err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, nil, accountsConfig); err != nil {
+				if _, err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, nil, accountsConfig); err != nil {
 					return err
 				}
 			}
 		} else {
 			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH} {
 				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-					if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, nil, accountsConfig); err != nil {
+					if _, err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, nil, accountsConfig); err != nil {
 						return err
 
 					}
@@ -715,7 +715,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 					}
 				}
 
-				if err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, activeTokens, accountsConfig); err != nil {
+				if _, err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, activeTokens, accountsConfig); err != nil {
 					return err
 				}
 			}

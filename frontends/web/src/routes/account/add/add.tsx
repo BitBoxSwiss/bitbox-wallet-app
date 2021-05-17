@@ -37,6 +37,7 @@ interface AddAccountProps {
 type Props = AddAccountProps & TranslateProps;
 
 interface State {
+    accountCode?: string;
     accountName: string;
     coinCode: 'choose' | accountApi.CoinCode;
     errorMessage?: string;
@@ -46,6 +47,7 @@ interface State {
 
 class AddAccount extends Component<Props, State> {
     public readonly state: State = {
+        accountCode: undefined,
         accountName: '',
         coinCode: 'choose',
         errorMessage: undefined,
@@ -59,8 +61,6 @@ class AddAccount extends Component<Props, State> {
 
     public componentDidMount() {
         backendAPI.getSupportedCoins()
-            // TEST with only 1 coin
-            // .then(() => ([{coinCode: 'tbtc' as accountApi.CoinCode, name: 'Bitcoin Testnet', canAddAccount: true}]))
             .then((coins) => {
                 const onlyOneSupportedCoin = (coins.length === 1);
                 this.setState({
@@ -68,8 +68,7 @@ class AddAccount extends Component<Props, State> {
                     step: onlyOneSupportedCoin ? 'choose-name' : 'select-coin',
                     supportedCoins: coins,
                 });
-            })
-            .catch(error => console.error(error));
+            });
     }
 
     private back = () => {
@@ -85,7 +84,7 @@ class AddAccount extends Component<Props, State> {
 
     private next = (e: Event) => {
         e.preventDefault();
-        const { accountName, coinCode, step } = this.state;
+        const { accountCode, accountName, coinCode, step } = this.state;
         const { t } = this.props;
         switch (step) {
             case 'select-coin':
@@ -94,6 +93,7 @@ class AddAccount extends Component<Props, State> {
             case 'choose-name':
                 interface ResponseData {
                     success: boolean;
+                    accountCode?: string;
                     errorCode?: 'alreadyExists' | 'limitReached';
                     errorMessage?: string;
                 }
@@ -104,8 +104,10 @@ class AddAccount extends Component<Props, State> {
                 })
                     .then((data: ResponseData) => {
                         if (data.success) {
-                            this.setState({ step: 'success' });
-                            //route('/account/' + data.accountCode);
+                            this.setState({
+                                accountCode: data.accountCode,
+                                step: 'success'
+                            });
                         } else if (data.errorCode) {
                             this.setState({
                                 errorMessage: t(`addAccount.error.${data.errorCode}`)
@@ -115,13 +117,14 @@ class AddAccount extends Component<Props, State> {
                                 errorMessage: t('unknownError', { errorMessage: data.errorMessage })
                             });
                         }
-                    })
-                    .catch(error => console.error(error));
+                    });
                 break;
             case 'success':
-                // TODO: route to manage accounts to configure tokens
-                route('/account-summary');
-                return;
+                if (accountCode) {
+                    route(`/account/${accountCode}`);
+                }
+                break;
+
         }
     }
 
