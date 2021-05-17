@@ -27,7 +27,7 @@ import { Header } from '../../../components/layout';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
-import * as styles from '../manage/manage.css';
+import * as styles from './add.css';
 import checkicon from '../../../assets/icons/check.svg';
 import { apiPost } from '../../../utils/request';
 
@@ -44,7 +44,7 @@ interface State {
     supportedCoins: backendAPI.ICoin[];
 }
 
-class ManageAccount extends Component<Props, State> {
+class AddAccount extends Component<Props, State> {
     public readonly state: State = {
         accountName: '',
         coinCode: 'choose',
@@ -259,6 +259,6 @@ class ManageAccount extends Component<Props, State> {
     }
 }
 
-const HOC = translate<AddAccountProps>()(ManageAccount);
+const HOC = translate<AddAccountProps>()(AddAccount);
 
-export { HOC as ManageAccount };
+export { HOC as AddAccount };

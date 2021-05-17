@@ -35,7 +35,7 @@ import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account } from './routes/account/account';
-import { ManageAccount } from './routes/account/manage/manage';
+import { AddAccount } from './routes/account/add/add';
 import { Moonpay } from './routes/buy/moonpay';
 import { BuyInfo } from './routes/buy/info';
 import Info from './routes/account/info/info';
@@ -255,7 +255,7 @@ class App extends Component<Props, State> {
                                 code={'' /* dummy to satisfy TS */}
                                 devices={devices}
                                 accounts={accounts} />
-                            <ManageAccount
+                            <AddAccount
                                 path="/add-account" />
                             <AccountsSummary accounts={accounts}
                                 path="/account-summary" />
