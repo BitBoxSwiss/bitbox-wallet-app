@@ -273,7 +273,6 @@ class App extends Component<Props, State> {
                                 deviceIDs={deviceIDs}
                                 path="/settings" />
                             <ManageAccounts
-                                accounts={accounts}
                                 key={'manage-accounts'}
                                 path="/settings/manage-accounts" />
                             {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}

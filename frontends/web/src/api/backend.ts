@@ -15,7 +15,7 @@
  */
 
 import { CoinCode } from './account';
-import { apiGet } from '../utils/request';
+import { apiGet, apiPost } from '../utils/request';
 
 export interface ICoin {
     coinCode: CoinCode;
@@ -23,6 +23,19 @@ export interface ICoin {
     canAddAccount: boolean;
 }
 
+export interface ISuccess {
+    success: boolean;
+    errorMessage?: string;
+}
+
 export const getSupportedCoins = (): Promise<ICoin[]> => {
     return apiGet('supported-coins');
+};
+
+export const setTokenActive = (accountCode: string, tokenCode: string, active: boolean): Promise<ISuccess> => {
+    return apiPost('set-token-active', { accountCode, tokenCode, active });
+};
+
+export const reinitializeAccounts = (): Promise<null> => {
+    return apiPost('accounts/reinitialize');
 };

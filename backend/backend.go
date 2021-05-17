@@ -359,7 +359,8 @@ func (backend *Backend) createAndAddAccount(
 				backend.log.WithError(err).Error("could not find ERC20 token")
 				continue
 			}
-			backend.createAndAddAccount(token, erc20TokenCode, token.Name(), signingConfigurations, nil)
+			erc20AccountCode := fmt.Sprintf("%s-%s", code, erc20TokenCode)
+			backend.createAndAddAccount(token, erc20AccountCode, token.Name(), signingConfigurations, nil)
 		}
 	default:
 		panic("unknown coin type")

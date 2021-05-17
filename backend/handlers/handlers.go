@@ -37,6 +37,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
@@ -100,6 +101,7 @@ type Backend interface {
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) error
+	SetTokenActive(accountCode string, tokenCode string, active bool) error
 }
 
 // Handlers provides a web api to the backend.
@@ -179,6 +181,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
@@ -328,16 +331,22 @@ type accountJSON struct {
 	CoinName              string       `json:"coinName"`
 	Code                  string       `json:"code"`
 	Name                  string       `json:"name"`
+	IsToken               bool         `json:"isToken"`
+	ActiveTokens          []string     `json:"activeTokens,omitempty"`
 	BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(account accounts.Interface) *accountJSON {
+func newAccountJSON(account accounts.Interface, activeTokens []string) *accountJSON {
+	eth, ok := account.Coin().(*eth.Coin)
+	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
 		Code:                  account.Config().Code,
 		Name:                  account.Config().Name,
+		IsToken:               isToken,
+		ActiveTokens:          activeTokens,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
 	}
 }
@@ -466,10 +475,41 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, err
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
 	accounts := []*accountJSON{}
+	persistedAccounts := handlers.backend.Config().AccountsConfig()
 	for _, account := range handlers.backend.Accounts() {
-		accounts = append(accounts, newAccountJSON(account))
+		var activeTokens []string
+		if account.Coin().Code() == coinpkg.CodeETH {
+			persistedAccount := persistedAccounts.Lookup(account.Config().Code)
+			if persistedAccount == nil {
+				handlers.log.WithField("code", account.Config().Code).Error("account not found in accounts database")
+				continue
+			}
+			activeTokens = persistedAccount.ActiveTokens
+		}
+		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}
 	return accounts, nil
+}
+
+func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{}, error) {
+	var jsonBody struct {
+		AccountCode string `json:"accountCode"`
+		TokenCode   string `json:"tokenCode"`
+		Active      bool   `json:"active"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if err := handlers.backend.SetTokenActive(jsonBody.AccountCode, jsonBody.TokenCode, jsonBody.Active); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true}, nil
 }
 
 func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) (interface{}, error) {

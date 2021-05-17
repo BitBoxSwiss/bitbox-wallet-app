@@ -1,0 +1,63 @@
+.setting {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    min-height: var(--item-height);
+    padding: 10px var(--space-half);
+}
+
+.setting > label {
+    flex-shrink: 0;
+}
+
+.setting.disabled > p {
+    color: var(--color-gray-alt);
+}
+
+.tokenSection {
+    display: flex;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    padding: 10px 4px;
+}
+
+.token {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-right: var(--space-default);
+    min-height: var(--item-height);
+    padding: 10px 0;
+}
+
+.token:hover .stacked{
+    background: red;
+}
+
+.token:hover img:last-child {
+    opacity: 1;
+}
+
+.token img:first-child {
+    margin-right: 0;
+}
+
+.tokenIcon {
+    max-height: 24px;
+    max-width: 24px;
+}
+
+.tokenActive {}
+
+.tokenInactive {
+    color: var(--color-gray-alt);
+    transition: color 0.2s ease;
+}
+
+.tokenInactive:hover {
+    color: var(--color-default);
+}

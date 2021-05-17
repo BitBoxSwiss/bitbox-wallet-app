@@ -95,10 +95,10 @@ const logoMap = {
 };
 
 interface Props {
-    coinCode: string;
-    className?: string;
-    alt?: string;
     active?: boolean;
+    alt?: string;
+    className?: string;
+    coinCode: string;
     stacked?: boolean;
 }
 
