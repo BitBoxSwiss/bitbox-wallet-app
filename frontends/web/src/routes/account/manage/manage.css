@@ -13,3 +13,11 @@
     border: .5rem solid var(--color-success);
     border-radius: 100px;
 }
+
+.successMessage {
+    color: var(--color-gray);
+}
+
+.successMessage strong {
+    color: var(--color-default);
+}

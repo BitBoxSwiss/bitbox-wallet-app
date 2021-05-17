@@ -152,6 +152,7 @@ class ManageAccount extends Component<Props, State> {
                     <div className="text-center">
                         <img src={checkicon} className={styles.successCheck} /><br />
                         <SimpleMarkup
+                            className={styles.successMessage}
                             markup={t('manageAccounts.success.message', { accountName })}
                             tagName="p" />
                     </div>
