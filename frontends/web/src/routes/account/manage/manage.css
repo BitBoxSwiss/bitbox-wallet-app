@@ -1,5 +1,6 @@
 .manageContainer {
-    min-height: 350px;
+    margin-bottom: var(--header-height);
+    min-height: 390px;
 }
 
 .title {

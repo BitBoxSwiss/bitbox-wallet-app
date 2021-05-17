@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-import { h, cloneElement, RenderableProps } from 'preact';
+import { h, cloneElement, JSX, RenderableProps } from 'preact';
 import * as style from './steps.css';
 
-// type Status = 'process' | 'finish' | 'wait';
+interface Props {
+    current: number;
+}
 
 export function Steps({
     current,
     children
-}) {
+}: RenderableProps<Props>) {
     return (
         <div className={style.steps}>
-            { children
+            { (children as JSX.Element[])
             .filter((child) => !child.attributes.hidden)
             .map((child, step) => {
                 if (!child) return null;
@@ -37,7 +39,6 @@ export function Steps({
                     step: step + 1,
                     line,
                     status,
-                    ...child.props,
                 });
             }) }
         </div>
