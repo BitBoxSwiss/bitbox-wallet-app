@@ -102,6 +102,7 @@ class ManageAccount extends Component<Props, State> {
             case 'choose-name':
                 interface ResponseData {
                     success: boolean;
+                    accountCode?: string;
                     errorCode?: 'alreadyExists' | 'limitReached';
                     errorMessage?: string;
                 }
@@ -112,7 +113,9 @@ class ManageAccount extends Component<Props, State> {
                 }).then((data: ResponseData) => {
                     if (data.success) {
                         this.setState({ step: 2 });
-                        //route('/account/' + data.accountCode);
+                        if (data.accountCode) {
+                            route('/account/' + data.accountCode);
+                        }
                     } else {
                         if (data.errorCode) {
                             alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
