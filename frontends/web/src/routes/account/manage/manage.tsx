@@ -218,13 +218,7 @@ class ManageAccount extends Component<Props, State> {
                                     </Step>
                                 </Steps>
                             </div>
-                            <div class="row flex flex-row flex-between flex-start m-bottom">
-                                <Button
-                                    onClick={this.back}
-                                    disabled={this.isFirstStep()}
-                                    transparent>
-                                    {t('button.back')}
-                                </Button>
+                            <div class="row flex flex-row flex-between m-bottom" style="flex-direction: row-reverse;">
                                 <Button
                                     disabled={
                                         (step === 'select-coin' && coinCode === 'choose')
@@ -233,6 +227,13 @@ class ManageAccount extends Component<Props, State> {
                                     primary
                                     type="submit">
                                     {t(`manageAccounts.${step}.nextButton`)}
+                                </Button>
+                                <Button
+                                    onClick={this.back}
+                                    disabled={this.isFirstStep()}
+                                    hidden={this.isFirstStep() || step === 'success'}
+                                    transparent>
+                                    {t('button.back')}
                                 </Button>
                             </div>
                         </form>
