@@ -18,6 +18,7 @@ package config
 import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // Account holds information related to an account.
@@ -32,6 +33,25 @@ type Account struct {
 	ActiveTokens []string `json:"activeTokens,omitempty"`
 }
 
+// SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
+// code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
+func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
+	if acct.CoinCode != coin.CodeETH {
+		return errp.New("tokens are only enabled for ETH")
+	}
+	var activeTokens []string
+	for _, activeToken := range acct.ActiveTokens {
+		if activeToken != tokenCode {
+			activeTokens = append(activeTokens, activeToken)
+		}
+	}
+	if active {
+		activeTokens = append(activeTokens, tokenCode)
+	}
+	acct.ActiveTokens = activeTokens
+	return nil
+}
+
 // AccountsConfig persists the list of accounts added to the app.
 type AccountsConfig struct {
 	Accounts []Account `json:"accounts"`
@@ -42,4 +62,16 @@ func newDefaultAccountsonfig() AccountsConfig {
 	return AccountsConfig{
 		Accounts: []Account{},
 	}
+}
+
+// Lookup returns the account with the given code, or nil if no such account exists.
+// A reference is returned, so the account can be modified by the caller.
+func (cfg AccountsConfig) Lookup(code string) *Account {
+	for i := range cfg.Accounts {
+		acct := &cfg.Accounts[i]
+		if acct.Code == code {
+			return acct
+		}
+	}
+	return nil
 }

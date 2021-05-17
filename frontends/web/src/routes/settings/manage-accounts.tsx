@@ -17,8 +17,10 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import * as accountAPI from '../../api/account';
+import * as backendAPI from '../../api/backend';
 import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
+import { alertUser } from '../../components/alert/Alert';
 import { Button } from '../../components/forms';
 import Logo from '../../components/icon/logo';
 import { Header } from '../../components/layout';
@@ -27,7 +29,6 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './manage-accounts.css';
 
 interface ManageAccountsProps {
-    accounts: accountAPI.IAccount[];
 }
 
 type Props = ManageAccountsProps & TranslateProps;
@@ -38,14 +39,22 @@ export type TFavorites = {
 
 interface State {
     favorites?: TFavorites;
+    accounts: accountAPI.IAccount[];
 }
 
 class ManageAccounts extends Component<Props, State> {
     public readonly state: State = {
         favorites: undefined,
+        accounts: [],
     };
 
+    private fetchAccounts = () => {
+        accountAPI.getAccounts().then(accounts => this.setState({ accounts }));
+    }
+
     public componentDidMount() {
+        this.fetchAccounts();
+
         apiGet('config')
             .then(({ frontend = {} }) => {
                 this.setState({
@@ -72,12 +81,11 @@ class ManageAccounts extends Component<Props, State> {
     }
 
     private renderAccounts = () => {
-        const { accounts } = this.props;
-        const { favorites } = this.state;
+        const { favorites, accounts } = this.state;
         if (!favorites) {
             return null;
         }
-        return accounts.map(account => {
+        return accounts.filter(account => !account.isToken).map(account => {
             const active = (account.code in favorites) ? favorites[account.code] : true;
             return (
                 <div key={account.code} className={style.setting}>
@@ -94,9 +102,9 @@ class ManageAccounts extends Component<Props, State> {
                         checked={active}
                         id={account.code}
                         onChange={this.toggleFavorAccount} />
-                        {active && account.coinCode.includes('eth') ? (
+                        {active && account.coinCode === 'eth' ? (
                             <div className={style.tokenSection}>
-                                {this.renderTokens(account.code)}
+                                {this.renderTokens(account.code, account.activeTokens)}
                             </div>
                         ) : null}
                 </div>
@@ -105,46 +113,53 @@ class ManageAccounts extends Component<Props, State> {
     }
 
     private erc20TokenCodes = {
-        usdt: 'Tether USD',
-        usdc: 'USD Coin',
-        link: 'Chainlink',
-        bat: 'Basic Attention Token',
-        mkr: 'Maker',
-        zrx: '0x',
-        wbtc: 'Wrapped Bitcoin',
-        paxg: 'Pax Gold',
-        sai0x89d2: 'Sai',
-        dai0x6b17: 'Dai',
+        'eth-erc20-usdt': 'Tether USD',
+        'eth-erc20-usdc': 'USD Coin',
+        'eth-erc20-link': 'Chainlink',
+        'eth-erc20-bat': 'Basic Attention Token',
+        'eth-erc20-mkr': 'Maker',
+        'eth-erc20-zrx': '0x',
+        'eth-erc20-wbtc': 'Wrapped Bitcoin',
+        'eth-erc20-paxg': 'Pax Gold',
+        'eth-erc20-sai0x89d2': 'Sai',
+        'eth-erc20-dai0x6b17': 'Dai',
     };
 
-    private renderTokens = (ethAccountCoinCode) => {
+    private renderTokens = (ethAccountCode: string, activeTokens?: string[]) => {
         const { favorites } = this.state;
         if (!favorites) {
             return null;
         }
         return Object.entries(this.erc20TokenCodes)
-            .map(([key, value]) => {
-                const active = !(Math.random() < 0.5);
+            .map(([tokenCode, name]) => {
+                const active = activeTokens && activeTokens.includes(tokenCode);
                 return (
-                    <div key={key}
-                        onClick={() => this.toggleToken(ethAccountCoinCode, key)}
+                    <div key={tokenCode}
+                        onClick={() => this.toggleToken(ethAccountCode, tokenCode, !active)}
                         className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
                         <Logo
                             active={active}
-                            alt={value}
+                            alt={name}
                             className={style.tokenIcon}
-                            coinCode={`eth-erc20-${key}`}
+                            coinCode={tokenCode}
                             stacked />
                         <span className="flex-1 p-left-quarter">
-                            {value} ({key})
+                            {name} ({tokenCode})
                         </span>
                     </div>
                 );
             });
     }
 
-    private toggleToken = (ethAccountCoinCode, token) => {
-        console.info('toggle token', ethAccountCoinCode, token);
+    private toggleToken = (ethAccountCode: string, tokenCode: string, active: boolean) => {
+        backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
+            if (success) {
+                this.fetchAccounts();
+                backendAPI.reinitializeAccounts();
+            } else if (errorMessage) {
+                alertUser(errorMessage);
+            }
+        });
     }
 
     public render(

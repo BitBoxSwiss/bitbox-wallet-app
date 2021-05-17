@@ -35,6 +35,8 @@ export interface IAccount {
     coinName: string;
     code: string;
     name: string;
+    isToken: boolean;
+    activeTokens?: string[];
     blockExplorerTxPrefix: string;
 }
 
