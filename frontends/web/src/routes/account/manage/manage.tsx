@@ -81,7 +81,8 @@ class ManageAccount extends Component<Props, State> {
         }
     }
 
-    private next = () => {
+    private next = (e: Event) => {
+        e.preventDefault();
         const { accountName, coinCode, step } = this.state;
         switch (step) {
             case 'select-coin':
@@ -128,6 +129,15 @@ class ManageAccount extends Component<Props, State> {
         }
     }
 
+    private focusRef = (ref) => {
+        setTimeout(() => {
+            if (ref === document.activeElement) {
+                return;
+            }
+            ref?.focus();
+        }, 0);
+    }
+
     private renderContent = () => {
         const { t } = this.props;
         const { accountName, coinCode, step, supportedCoins } = this.state;
@@ -142,6 +152,8 @@ class ManageAccount extends Component<Props, State> {
             case 'choose-name':
                 return (
                     <Input
+                        autoFocus
+                        getRef={this.focusRef}
                         id="accountName"
                         onInput={e => this.setState({ accountName: e.target.value })}
                         placeholder={t('addAccount.accountName')}
@@ -183,7 +195,9 @@ class ManageAccount extends Component<Props, State> {
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content narrow isVerticallyCentered">
-                        <div className={`${styles.manageContainer} box large flex flex-column flex-between`}>
+                        <form
+                            className={`${styles.manageContainer} box large flex flex-column flex-between`}
+                            onSubmit={this.next}>
                             <div className="text-center">
                                 {t('manageAccounts.addAccount')}
                                 <h1 class={styles.title}>{t(`manageAccounts.${step}.title`)}</h1>
@@ -216,12 +230,12 @@ class ManageAccount extends Component<Props, State> {
                                         (step === 'select-coin' && coinCode === 'choose')
                                         || (step === 'choose-name' && accountName === '')
                                     }
-                                    onClick={this.next}
-                                    primary>
+                                    primary
+                                    type="submit">
                                     {t(`manageAccounts.${step}.nextButton`)}
                                 </Button>
                             </div>
-                        </div>
+                        </form>
                         </div>
                     </div>
                 </div>
