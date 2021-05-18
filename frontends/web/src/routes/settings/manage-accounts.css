@@ -16,6 +16,23 @@
     color: var(--color-gray-alt);
 }
 
+.coinLogo {
+    outline: 3px solid white;
+    position: relative;
+    z-index: 2;
+}
+
+.acccountLink {
+    align-items: center;
+    display: flex;
+}
+
+.accountName {}
+
+.accountActive {
+    cursor: pointer;
+}
+
 .tokenSection {
     display: flex;
     flex-basis: 100%;
@@ -25,21 +42,24 @@
 
 .token {
     align-items: center;
-    cursor: pointer;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-right: var(--space-default);
     min-height: var(--item-height);
     padding: 10px 0;
+    position: relative;
+    width: 100%;
 }
 
-.token:hover .stacked{
-    background: red;
-}
-
-.token:hover img:last-child {
-    opacity: 1;
+.token::before {
+    background-color: #ddd;
+    content: "";
+    height: 22px;
+    left: 10px;
+    position: absolute;
+    top: -13px;
+    right: 8px;
+    width: 3px;
 }
 
 .token img:first-child {
@@ -51,13 +71,15 @@
     max-width: 24px;
 }
 
+.tokenName {
+    flex: 1;
+    display: inline-block;
+    padding-left: 20px;
+}
+
 .tokenActive {}
 
 .tokenInactive {
     color: var(--color-gray-alt);
     transition: color 0.2s ease;
-}
-
-.tokenInactive:hover {
-    color: var(--color-default);
 }

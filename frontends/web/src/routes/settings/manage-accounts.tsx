@@ -19,7 +19,6 @@ import { route } from 'preact-router';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { apiGet } from '../../utils/request';
-import { setConfig } from '../../utils/config';
 import { alertUser } from '../../components/alert/Alert';
 import { Button } from '../../components/forms';
 import Logo from '../../components/icon/logo';
@@ -64,21 +63,22 @@ class ManageAccounts extends Component<Props, State> {
             .catch(console.error);
     }
 
-    private toggleFavorAccount = (e) => {
-        const { checked, id } = e.target as HTMLInputElement;
-        this.setState(({ favorites }) => ({
-            favorites: {
-                ...favorites,
-                [id]: checked,
-            }
-        }), () => {
-            setConfig({
-                frontend: {
-                    favorites: this.state.favorites
-                }
-            }).catch(console.error);
-        });
-    }
+    // TODO: keeping for next release when we enable favorite accounts
+    // private toggleFavorAccount = (e) => {
+    //     const { checked, id } = e.target as HTMLInputElement;
+    //     this.setState(({ favorites }) => ({
+    //         favorites: {
+    //             ...favorites,
+    //             [id]: checked,
+    //         }
+    //     }), () => {
+    //         setConfig({
+    //             frontend: {
+    //                 favorites: this.state.favorites
+    //             }
+    //         }).catch(console.error);
+    //     });
+    // }
 
     private renderAccounts = () => {
         const { favorites, accounts } = this.state;
@@ -89,19 +89,23 @@ class ManageAccounts extends Component<Props, State> {
             const active = (account.code in favorites) ? favorites[account.code] : true;
             return (
                 <div key={account.code} className={style.setting}>
-                    <Logo className="m-right-half" coinCode={account.coinCode} alt={account.coinUnit} />
-                    <span className="flex-1">
-                        {account.name}
-                        {' '}
-                        <span className="unit">({account.coinUnit})</span>
-                    </span>
+                    <div
+                        className={`${style.acccountLink} ${style.accountActive}`}
+                        onClick={() => route(`/account/${account.code}`)}>
+                        <Logo className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
+                        <span className={style.accountName}>
+                            {account.name}
+                            {' '}
+                            <span className="unit">({account.coinUnit})</span>
+                        </span>
+                    </div>
                     {/* <ButtonLink>
                         Edit
                     </ButtonLink> */}
-                    <Toggle
+                    {/* <Toggle
                         checked={active}
                         id={account.code}
-                        onChange={this.toggleFavorAccount} />
+                        onChange={this.toggleFavorAccount} /> */}
                         {active && account.coinCode === 'eth' ? (
                             <div className={style.tokenSection}>
                                 {this.renderTokens(account.code, account.activeTokens)}
@@ -132,20 +136,27 @@ class ManageAccounts extends Component<Props, State> {
         }
         return Object.entries(this.erc20TokenCodes)
             .map(([tokenCode, name]) => {
-                const active = activeTokens && activeTokens.includes(tokenCode);
+                const active = activeTokens !== undefined && activeTokens.includes(tokenCode);
                 return (
                     <div key={tokenCode}
-                        onClick={() => this.toggleToken(ethAccountCode, tokenCode, !active)}
                         className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
-                        <Logo
-                            active={active}
-                            alt={name}
-                            className={style.tokenIcon}
-                            coinCode={tokenCode}
-                            stacked />
-                        <span className="flex-1 p-left-quarter">
-                            {name} ({tokenCode})
-                        </span>
+                        <div
+                            className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+                            onClick={() => active && route(`/account/${tokenCode}`)}>
+                            <Logo
+                                active={active}
+                                alt={name}
+                                className={style.tokenIcon}
+                                coinCode={tokenCode}
+                                stacked />
+                            <span className={style.tokenName}>
+                                {name}
+                            </span>
+                        </div>
+                        <Toggle
+                            checked={active}
+                            id={tokenCode}
+                            onChange={() => this.toggleToken(ethAccountCode, tokenCode, !active)} />
                     </div>
                 );
             });
