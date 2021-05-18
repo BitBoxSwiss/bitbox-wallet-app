@@ -23,13 +23,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func mustKeypath(keypath string) AbsoluteKeypath {
+	kp, err := NewAbsoluteKeypath(keypath)
+	if err != nil {
+		panic(err)
+	}
+	return kp
+}
+
 func TestEncodeDecode(t *testing.T) {
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
 	require.NoError(t, err)
 	xpub, err = xpub.Neuter()
 	require.NoError(t, err)
-	keypath, err := NewAbsoluteKeypath("m/84'/1'/0'")
-	require.NoError(t, err)
+	keypath := mustKeypath("m/84'/1'/0'")
 	rootFingerprint := []byte{1, 2, 3, 4}
 
 	cfg := NewBitcoinConfiguration(ScriptTypeP2WPKH, rootFingerprint, keypath, xpub)
@@ -72,8 +79,7 @@ func TestContainsRootFingerprint(t *testing.T) {
 	require.NoError(t, err)
 	xpub, err = xpub.Neuter()
 	require.NoError(t, err)
-	keypath, err := NewAbsoluteKeypath("m/84'/1'/0'")
-	require.NoError(t, err)
+	keypath := mustKeypath("m/84'/1'/0'")
 	configs := Configurations{
 		NewBitcoinConfiguration(ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, keypath, xpub),
 		NewEthereumConfiguration([]byte{5, 6, 7, 8}, keypath, xpub),
@@ -81,4 +87,44 @@ func TestContainsRootFingerprint(t *testing.T) {
 	require.False(t, configs.ContainsRootFingerprint([]byte{1, 1, 1, 1}))
 	require.True(t, configs.ContainsRootFingerprint([]byte{1, 2, 3, 4}))
 	require.True(t, configs.ContainsRootFingerprint([]byte{5, 6, 7, 8}))
+}
+
+func TestAccountNumber(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	rootFingerprint := []byte{1, 2, 3, 4}
+
+	cfg := NewBitcoinConfiguration(
+		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/0'"), xpub)
+	num, err := cfg.AccountNumber()
+	require.NoError(t, err)
+	require.Equal(t, uint32(0), num)
+	cfg = NewBitcoinConfiguration(
+		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/10'"), xpub)
+	num, err = cfg.AccountNumber()
+	require.NoError(t, err)
+	require.Equal(t, uint32(10), num)
+	cfg = NewBitcoinConfiguration(
+		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/0'/10'"), xpub)
+	num, err = cfg.AccountNumber()
+	require.Error(t, err)
+	require.Equal(t, uint32(0), num)
+
+	cfg = NewEthereumConfiguration(
+		rootFingerprint, mustKeypath("m/44'/60'/0'/0/0"), xpub)
+	num, err = cfg.AccountNumber()
+	require.NoError(t, err)
+	require.Equal(t, uint32(0), num)
+	cfg = NewEthereumConfiguration(
+		rootFingerprint, mustKeypath("m/44'/60'/0'/0/10"), xpub)
+	num, err = cfg.AccountNumber()
+	require.NoError(t, err)
+	require.Equal(t, uint32(10), num)
+	cfg = NewEthereumConfiguration(
+		rootFingerprint, mustKeypath("m/44'/60'/0'/0/0/10"), xpub)
+	num, err = cfg.AccountNumber()
+	require.Error(t, err)
+	require.Equal(t, uint32(0), num)
 }

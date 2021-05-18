@@ -16,6 +16,8 @@ package backend
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -49,6 +51,44 @@ const (
 	ErrAccountLimitReached ErrorCode = "limitReached"
 )
 
+// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
+func sortAccounts(accounts []*config.Account) {
+	compareCoin := func(coin1, coin2 coinpkg.Code) int {
+		order := map[coinpkg.Code]int{
+			coinpkg.CodeBTC:  0,
+			coinpkg.CodeTBTC: 1,
+			coinpkg.CodeLTC:  2,
+			coinpkg.CodeTLTC: 3,
+			coinpkg.CodeETH:  4,
+			coinpkg.CodeTETH: 5,
+			coinpkg.CodeRETH: 6,
+		}
+		order1, ok1 := order[coin1]
+		order2, ok2 := order[coin2]
+		if !ok1 || !ok2 {
+			// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
+			return strings.Compare(string(coin1), string(coin2))
+		}
+		return order1 - order2
+	}
+	less := func(i, j int) bool {
+		acct1 := accounts[i]
+		acct2 := accounts[j]
+		coinCmp := compareCoin(acct1.CoinCode, acct2.CoinCode)
+		if coinCmp == 0 && len(acct1.Configurations) > 0 && len(acct2.Configurations) > 0 {
+			signingCfg1 := acct1.Configurations[0]
+			signingCfg2 := acct2.Configurations[0]
+			// An error should never happen here, but if it does, we just sort as if it was account
+			// number 0.
+			accountNumber1, _ := signingCfg1.AccountNumber()
+			accountNumber2, _ := signingCfg2.AccountNumber()
+			return accountNumber1 < accountNumber2
+		}
+		return coinCmp < 0
+	}
+	sort.Slice(accounts, less)
+}
+
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
 // accounts are not loaded in mainnet and vice versa.
 func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.Account) bool) []*config.Account {
@@ -77,6 +117,7 @@ func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, fi
 		}
 		accounts = append(accounts, account)
 	}
+	sortAccounts(accounts)
 	return accounts
 }
 
