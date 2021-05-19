@@ -157,13 +157,19 @@ class ManageAccounts extends Component<Props, State> {
     };
 
     private renderTokens = (ethAccountCode: string, activeTokens?: string[]) => {
-        const { favorites } = this.state;
+        const { accounts, favorites } = this.state;
         if (!favorites) {
             return null;
         }
         return Object.entries(this.erc20TokenCodes)
             .map(([tokenCode, name]) => {
                 const active = activeTokens !== undefined && activeTokens.includes(tokenCode);
+                const accountCode = accounts
+                    .filter(account => account.coinCode === tokenCode);
+                    // .filter or .find by my ETH account somehow, need ETH parent account
+                if (accountCode.length > 1) {
+                    console.log(accountCode);
+                }
                 return (
                     <div key={tokenCode}
                         className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
