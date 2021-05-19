@@ -100,7 +100,7 @@ type Backend interface {
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
-	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) error
+	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error)
 	SetTokenActive(accountCode string, tokenCode string, active bool) error
 }
 
@@ -434,6 +434,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 
 	type response struct {
 		Success      bool   `json:"success"`
+		AccountCode  string `json:"accountCode,omitempty"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
@@ -448,7 +449,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	}
 	keystore := keystores[0]
 
-	err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
+	accountCode, err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not add account")
 		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
@@ -457,7 +458,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	handlers.backend.ReinitializeAccounts()
-	return response{Success: true}, nil
+	return response{Success: true, AccountCode: accountCode}, nil
 }
 
 func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, error) {

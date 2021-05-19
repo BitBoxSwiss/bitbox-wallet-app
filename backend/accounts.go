@@ -158,20 +158,22 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 // types that the keystore supports. The keypaths will be standard BIP44 keypaths for the respective
 // account types. `name` is the name of the new account and will be shown to the user.
 // If empty, a default name will be used.
+//
+// The account code of the newly created account is returned.
 func (backend *Backend) createAndPersistAccountConfig(
 	coinCode coinpkg.Code,
 	accountNumber uint16,
 	name string,
 	keystore keystore.Keystore,
 	activeTokens []string,
-	accountsConfig *config.AccountsConfig) error {
+	accountsConfig *config.AccountsConfig) (string, error) {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
-		return err
+		return "", err
 	}
 	coin, err := backend.Coin(coinCode)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if name == "" {
 		if accountNumber == 0 {
@@ -198,7 +200,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeBTC {
 			bip44Coin = hardenedKeystart
 		}
-		return backend.persistBTCAccountConfig(keystore, coin,
+		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
 			name,
 			[]scriptTypeWithKeypath{
@@ -213,7 +215,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeLTC {
 			bip44Coin = 2 + hardenedKeystart
 		}
-		return backend.persistBTCAccountConfig(keystore, coin,
+		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
 			name,
 			[]scriptTypeWithKeypath{
@@ -227,7 +229,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		if coinCode == coinpkg.CodeETH {
 			bip44Coin = "60'"
 		}
-		return backend.persistETHAccountConfig(
+		return accountCode, backend.persistETHAccountConfig(
 			keystore, coin, accountCode,
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
@@ -235,7 +237,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			activeTokens,
 			accountsConfig)
 	default:
-		return errp.Newf("Unrecognized coin code: %s", coinCode)
+		return "", errp.Newf("Unrecognized coin code: %s", coinCode)
 	}
 }
 
@@ -275,15 +277,18 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // determined automatically to be the increment of the highest existing account.
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
-	coinCode coinpkg.Code, name string, keystore keystore.Keystore) error {
-	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error) {
+	var accountCode string
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		nextAccountNumber, err := backend.nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
 			return err
 		}
-		return backend.createAndPersistAccountConfig(
+		accountCode, err = backend.createAndPersistAccountConfig(
 			coinCode, nextAccountNumber, name, keystore, nil, accountsConfig)
+		return err
 	})
+	return accountCode, err
 }
 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token

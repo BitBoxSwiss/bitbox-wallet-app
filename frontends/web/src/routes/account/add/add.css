@@ -1,5 +1,6 @@
 .manageContainer {
-    min-height: 350px;
+    margin-bottom: var(--header-height);
+    min-height: 390px;
 }
 
 .title {
@@ -11,4 +12,12 @@
     background-color: var(--color-success);
     border: .5rem solid var(--color-success);
     border-radius: 100px;
+}
+
+.successMessage {
+    color: var(--color-gray);
+}
+
+.successMessage strong {
+    color: var(--color-default);
 }

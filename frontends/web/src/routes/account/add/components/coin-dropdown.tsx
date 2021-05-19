@@ -36,6 +36,7 @@ function CoinDropDown({
 }: RenderableProps<Props>) {
     return (
         <Select
+            autoFocus
             options={[
                 {
                     text: t('buy.info.selectPlaceholder'),
