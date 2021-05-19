@@ -177,7 +177,10 @@ class App extends Component<Props, State> {
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.state.accounts;
         // if no accounts are registered on /account-summary view route to /
-        if (currentURL.startsWith('/account-summary') && accounts.length === 0) {
+        if (
+            accounts.length === 0
+            && (currentURL.startsWith('/account-summary') || currentURL.startsWith('/add-account'))
+        ) {
             route('/', true);
             return;
         }
