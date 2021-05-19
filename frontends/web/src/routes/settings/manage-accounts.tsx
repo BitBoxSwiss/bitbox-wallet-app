@@ -36,15 +36,21 @@ export type TFavorites = {
     readonly [key in string]: boolean;
 }
 
+type TShowTokens = {
+    readonly [key in string]: boolean;
+}
+
 interface State {
     favorites?: TFavorites;
     accounts: accountAPI.IAccount[];
+    showTokens: TShowTokens;
 }
 
 class ManageAccounts extends Component<Props, State> {
     public readonly state: State = {
         favorites: undefined,
         accounts: [],
+        showTokens: {}
     };
 
     private fetchAccounts = () => {
@@ -81,12 +87,14 @@ class ManageAccounts extends Component<Props, State> {
     // }
 
     private renderAccounts = () => {
-        const { favorites, accounts } = this.state;
+        const { accounts, favorites, showTokens } = this.state;
+        const { t } = this.props;
         if (!favorites) {
             return null;
         }
         return accounts.filter(account => !account.isToken).map(account => {
             const active = (account.code in favorites) ? favorites[account.code] : true;
+            const tokensVisible = showTokens[account.code];
             return (
                 <div key={account.code} className={style.setting}>
                     <div
@@ -106,14 +114,33 @@ class ManageAccounts extends Component<Props, State> {
                         checked={active}
                         id={account.code}
                         onChange={this.toggleFavorAccount} /> */}
-                        {active && account.coinCode === 'eth' ? (
-                            <div className={style.tokenSection}>
+                    {active && account.coinCode === 'eth' ? (
+                        <div className={style.tokenSection}>
+                            <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
                                 {this.renderTokens(account.code, account.activeTokens)}
                             </div>
-                        ) : null}
+                            <Button
+                                className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
+                                onClick={() => this.toggleShowTokens(account.code)}
+                                transparent>
+                                {t( tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
+                                    activeTokenCount: `${account.activeTokens?.length || 0}`
+                                })}
+                            </Button>
+                        </div>
+                    ) : null}
                 </div>
             );
         });
+    }
+
+    private toggleShowTokens = (accountCode) => {
+        this.setState(({ showTokens }) => ({
+            showTokens: {
+                ...showTokens,
+                [accountCode]: (accountCode in showTokens) ? !showTokens[accountCode] : true,
+            }
+        }));
     }
 
     private erc20TokenCodes = {
@@ -182,7 +209,7 @@ class ManageAccounts extends Component<Props, State> {
             <div class="contentWithGuide">
                 <div class="container">
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
+                    <div class="innerContainer scrollContainer">
                         <div class="content">
                         { favorites ? (
                             <div className="columnsContainer">
