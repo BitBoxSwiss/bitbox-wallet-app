@@ -90,6 +90,7 @@
     /* content */
     --content-width: 1080px;
     --content-width-small: 550px;
+    --content-width-larger: 740px;
 
     /* guide */
     --guide-width: 350px;

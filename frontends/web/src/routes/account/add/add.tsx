@@ -205,9 +205,9 @@ class AddAccount extends Component<Props, State> {
                 <div class="container">
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
-                        <div class="content narrow isVerticallyCentered">
+                        <div class="content larger isVerticallyCentered">
                         <form
-                            className={`${styles.manageContainer} box large flex flex-column flex-between`}
+                            className={`${styles.manageContainer} box larger flex flex-column flex-between`}
                             onSubmit={this.next}>
                             <div className="text-center">
                                 {t('manageAccounts.addAccount')}
