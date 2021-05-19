@@ -87,7 +87,7 @@ class BuyInfo extends Component<Props, State> {
         )
         .then(results => results.filter(result => result))
         // @ts-ignore
-        .then(accounts => accounts.map(({ name, code }) => ({ text: name, value: code })))
+        .then(accounts => accounts.map(({ isToken, name, coinName, code }) => ({ text: isToken || name === coinName ? name : `${name} (${coinName})`, value: code })))
         .then(options => {
             this.setState({ options }, this.maybeProceed);
         })
