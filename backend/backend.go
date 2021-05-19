@@ -366,7 +366,16 @@ func (backend *Backend) createAndAddAccount(
 				continue
 			}
 			erc20AccountCode := Erc20AccountCode(code, erc20TokenCode)
-			backend.createAndAddAccount(token, erc20AccountCode, token.Name(), signingConfigurations, nil)
+
+			tokenName := token.Name()
+
+			accountNumber, err := accountConfig.SigningConfigurations[0].AccountNumber()
+			if err != nil {
+				backend.log.WithError(err).Error("could not get account number")
+			} else if accountNumber > 0 {
+				tokenName = fmt.Sprintf("%s %d", tokenName, accountNumber+1)
+			}
+			backend.createAndAddAccount(token, erc20AccountCode, tokenName, signingConfigurations, nil)
 		}
 	default:
 		panic("unknown coin type")
