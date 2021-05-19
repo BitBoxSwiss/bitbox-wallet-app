@@ -121,8 +121,9 @@
     overflow: auto;
 }
 
-.scrollableContainer .content {
-    /* overflow: visible; */
+.scrollContainer {
+    overflow-x: auto;
+    overflow-y: scroll;
 }
 
 .subHeaderContainer {

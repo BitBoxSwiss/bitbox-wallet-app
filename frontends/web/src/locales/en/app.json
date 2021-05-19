@@ -1050,6 +1050,10 @@
       "step": "Select coin",
       "title": "Select cryptocurrency"
     },
+    "settings": {
+      "hideTokens": "Hide tokens",
+      "showTokens": "Show tokens ({{activeTokenCount}})"
+    },
     "success": {
       "message": "<strong>{{accountName}}</strong> has now been added to your accounts.",
       "nextButton": "Done",

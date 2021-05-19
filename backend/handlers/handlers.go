@@ -325,18 +325,26 @@ func writeJSON(w io.Writer, value interface{}) {
 	}
 }
 
-type accountJSON struct {
-	CoinCode              coinpkg.Code `json:"coinCode"`
-	CoinUnit              string       `json:"coinUnit"`
-	CoinName              string       `json:"coinName"`
-	Code                  string       `json:"code"`
-	Name                  string       `json:"name"`
-	IsToken               bool         `json:"isToken"`
-	ActiveTokens          []string     `json:"activeTokens,omitempty"`
-	BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
+type activeToken struct {
+	// TokenCode is the token code as defined in erc20.go, e.g. "eth-erc20-usdt".
+	TokenCode string `json:"tokenCode"`
+	// AccountCode is the code of the account, which is not the same as the TokenCode, as there can
+	// be many accounts for the same token.
+	AccountCode string `json:"accountCode"`
 }
 
-func newAccountJSON(account accounts.Interface, activeTokens []string) *accountJSON {
+type accountJSON struct {
+	CoinCode              coinpkg.Code  `json:"coinCode"`
+	CoinUnit              string        `json:"coinUnit"`
+	CoinName              string        `json:"coinName"`
+	Code                  string        `json:"code"`
+	Name                  string        `json:"name"`
+	IsToken               bool          `json:"isToken"`
+	ActiveTokens          []activeToken `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix string        `json:"blockExplorerTxPrefix"`
+}
+
+func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
@@ -478,14 +486,19 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 	accounts := []*accountJSON{}
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 	for _, account := range handlers.backend.Accounts() {
-		var activeTokens []string
+		var activeTokens []activeToken
 		if account.Coin().Code() == coinpkg.CodeETH {
 			persistedAccount := persistedAccounts.Lookup(account.Config().Code)
 			if persistedAccount == nil {
 				handlers.log.WithField("code", account.Config().Code).Error("account not found in accounts database")
 				continue
 			}
-			activeTokens = persistedAccount.ActiveTokens
+			for _, tokenCode := range persistedAccount.ActiveTokens {
+				activeTokens = append(activeTokens, activeToken{
+					TokenCode:   tokenCode,
+					AccountCode: backend.Erc20AccountCode(account.Config().Code, tokenCode),
+				})
+			}
 		}
 		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}

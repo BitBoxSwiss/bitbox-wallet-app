@@ -19,7 +19,6 @@ import { route } from 'preact-router';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { apiGet } from '../../utils/request';
-import { setConfig } from '../../utils/config';
 import { alertUser } from '../../components/alert/Alert';
 import { Button } from '../../components/forms';
 import Logo from '../../components/icon/logo';
@@ -37,15 +36,21 @@ export type TFavorites = {
     readonly [key in string]: boolean;
 }
 
+type TShowTokens = {
+    readonly [key in string]: boolean;
+}
+
 interface State {
     favorites?: TFavorites;
     accounts: accountAPI.IAccount[];
+    showTokens: TShowTokens;
 }
 
 class ManageAccounts extends Component<Props, State> {
     public readonly state: State = {
         favorites: undefined,
         accounts: [],
+        showTokens: {}
     };
 
     private fetchAccounts = () => {
@@ -64,52 +69,78 @@ class ManageAccounts extends Component<Props, State> {
             .catch(console.error);
     }
 
-    private toggleFavorAccount = (e) => {
-        const { checked, id } = e.target as HTMLInputElement;
-        this.setState(({ favorites }) => ({
-            favorites: {
-                ...favorites,
-                [id]: checked,
-            }
-        }), () => {
-            setConfig({
-                frontend: {
-                    favorites: this.state.favorites
-                }
-            }).catch(console.error);
-        });
-    }
+    // TODO: keeping for next release when we enable favorite accounts
+    // private toggleFavorAccount = (e) => {
+    //     const { checked, id } = e.target as HTMLInputElement;
+    //     this.setState(({ favorites }) => ({
+    //         favorites: {
+    //             ...favorites,
+    //             [id]: checked,
+    //         }
+    //     }), () => {
+    //         setConfig({
+    //             frontend: {
+    //                 favorites: this.state.favorites
+    //             }
+    //         }).catch(console.error);
+    //     });
+    // }
 
     private renderAccounts = () => {
-        const { favorites, accounts } = this.state;
+        const { accounts, favorites, showTokens } = this.state;
+        const { t } = this.props;
         if (!favorites) {
             return null;
         }
         return accounts.filter(account => !account.isToken).map(account => {
             const active = (account.code in favorites) ? favorites[account.code] : true;
+            const tokensVisible = showTokens[account.code];
             return (
                 <div key={account.code} className={style.setting}>
-                    <Logo className="m-right-half" coinCode={account.coinCode} alt={account.coinUnit} />
-                    <span className="flex-1">
-                        {account.name}
-                        {' '}
-                        <span className="unit">({account.coinUnit})</span>
-                    </span>
+                    <div
+                        className={`${style.acccountLink} ${style.accountActive}`}
+                        onClick={() => route(`/account/${account.code}`)}>
+                        <Logo className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
+                        <span className={style.accountName}>
+                            {account.name}
+                            {' '}
+                            <span className="unit">({account.coinUnit})</span>
+                        </span>
+                    </div>
                     {/* <ButtonLink>
                         Edit
                     </ButtonLink> */}
-                    <Toggle
+                    {/* <Toggle
                         checked={active}
                         id={account.code}
-                        onChange={this.toggleFavorAccount} />
-                        {active && account.coinCode === 'eth' ? (
-                            <div className={style.tokenSection}>
+                        onChange={this.toggleFavorAccount} /> */}
+                    {active && account.coinCode === 'eth' ? (
+                        <div className={style.tokenSection}>
+                            <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
                                 {this.renderTokens(account.code, account.activeTokens)}
                             </div>
-                        ) : null}
+                            <Button
+                                className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
+                                onClick={() => this.toggleShowTokens(account.code)}
+                                transparent>
+                                {t( tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
+                                    activeTokenCount: `${account.activeTokens?.length || 0}`
+                                })}
+                            </Button>
+                        </div>
+                    ) : null}
                 </div>
             );
         });
+    }
+
+    private toggleShowTokens = (accountCode) => {
+        this.setState(({ showTokens }) => ({
+            showTokens: {
+                ...showTokens,
+                [accountCode]: (accountCode in showTokens) ? !showTokens[accountCode] : true,
+            }
+        }));
     }
 
     private erc20TokenCodes = {
@@ -125,27 +156,35 @@ class ManageAccounts extends Component<Props, State> {
         'eth-erc20-dai0x6b17': 'Dai',
     };
 
-    private renderTokens = (ethAccountCode: string, activeTokens?: string[]) => {
+    private renderTokens = (ethAccountCode: string, activeTokens?: accountAPI.IActiveToken[]) => {
         const { favorites } = this.state;
         if (!favorites) {
             return null;
         }
         return Object.entries(this.erc20TokenCodes)
             .map(([tokenCode, name]) => {
-                const active = activeTokens && activeTokens.includes(tokenCode);
+                const activeToken = (activeTokens || []).find(t => t.tokenCode === tokenCode);
+                const active = activeToken !== undefined;
                 return (
                     <div key={tokenCode}
-                        onClick={() => this.toggleToken(ethAccountCode, tokenCode, !active)}
                         className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
-                        <Logo
-                            active={active}
-                            alt={name}
-                            className={style.tokenIcon}
-                            coinCode={tokenCode}
-                            stacked />
-                        <span className="flex-1 p-left-quarter">
-                            {name} ({tokenCode})
-                        </span>
+                        <div
+                            className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+                            onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
+                            <Logo
+                                active={active}
+                                alt={name}
+                                className={style.tokenIcon}
+                                coinCode={tokenCode}
+                                stacked />
+                            <span className={style.tokenName}>
+                                {name}
+                            </span>
+                        </div>
+                        <Toggle
+                            checked={active}
+                            id={tokenCode}
+                            onChange={() => this.toggleToken(ethAccountCode, tokenCode, !active)} />
                     </div>
                 );
             });
@@ -171,7 +210,7 @@ class ManageAccounts extends Component<Props, State> {
             <div class="contentWithGuide">
                 <div class="container">
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
+                    <div class="innerContainer scrollContainer">
                         <div class="content">
                         { favorites ? (
                             <div className="columnsContainer">
