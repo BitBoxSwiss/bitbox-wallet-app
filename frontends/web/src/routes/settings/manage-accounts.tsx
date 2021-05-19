@@ -156,26 +156,21 @@ class ManageAccounts extends Component<Props, State> {
         'eth-erc20-dai0x6b17': 'Dai',
     };
 
-    private renderTokens = (ethAccountCode: string, activeTokens?: string[]) => {
-        const { accounts, favorites } = this.state;
+    private renderTokens = (ethAccountCode: string, activeTokens?: accountAPI.IActiveToken[]) => {
+        const { favorites } = this.state;
         if (!favorites) {
             return null;
         }
         return Object.entries(this.erc20TokenCodes)
             .map(([tokenCode, name]) => {
-                const active = activeTokens !== undefined && activeTokens.includes(tokenCode);
-                const accountCode = accounts
-                    .filter(account => account.coinCode === tokenCode);
-                    // .filter or .find by my ETH account somehow, need ETH parent account
-                if (accountCode.length > 1) {
-                    console.log(accountCode);
-                }
+                const activeToken = (activeTokens || []).find(t => t.tokenCode === tokenCode);
+                const active = activeToken !== undefined;
                 return (
                     <div key={tokenCode}
                         className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
                         <div
                             className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
-                            onClick={() => active && route(`/account/${tokenCode}`)}>
+                            onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
                             <Logo
                                 active={active}
                                 alt={name}

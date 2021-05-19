@@ -311,6 +311,12 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 
 }
 
+// Erc20AccountCode returns the account code used for an ERC20 token.
+// It is derived from the account code of the parent ETH account and the token code.
+func Erc20AccountCode(ethereumAccountCode, tokenCode string) string {
+	return fmt.Sprintf("%s-%s", ethereumAccountCode, tokenCode)
+}
+
 // The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(
 	coin coinpkg.Coin,
@@ -359,7 +365,7 @@ func (backend *Backend) createAndAddAccount(
 				backend.log.WithError(err).Error("could not find ERC20 token")
 				continue
 			}
-			erc20AccountCode := fmt.Sprintf("%s-%s", code, erc20TokenCode)
+			erc20AccountCode := Erc20AccountCode(code, erc20TokenCode)
 			backend.createAndAddAccount(token, erc20AccountCode, token.Name(), signingConfigurations, nil)
 		}
 	default:

@@ -28,6 +28,10 @@ export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
+export interface IActiveToken {
+    tokenCode: string;
+    accountCode: string;
+}
 
 export interface IAccount {
     coinCode: CoinCode;
@@ -36,7 +40,7 @@ export interface IAccount {
     code: string;
     name: string;
     isToken: boolean;
-    activeTokens?: string[];
+    activeTokens?: IActiveToken[];
     blockExplorerTxPrefix: string;
 }
 
