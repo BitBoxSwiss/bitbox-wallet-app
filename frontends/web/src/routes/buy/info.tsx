@@ -194,10 +194,8 @@ class BuyInfo extends Component<Props, State> {
                                 <div class="content narrow isVerticallyCentered">
                                     <h1 class={style.title}>{t('buy.title', { name })}</h1>
                                     <Select
-                                        label={t('buy.info.selectLabel')}
-                                        placeholder={t('buy.info.selectPlaceholder')}
                                         options={[{
-                                                text: t('buy.info.selectPlaceholder'),
+                                                text: t('buy.info.selectLabel'),
                                                 disabled: true,
                                                 value: 'choose',
                                             },
