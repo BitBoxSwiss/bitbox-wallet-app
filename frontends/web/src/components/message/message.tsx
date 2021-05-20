@@ -18,15 +18,20 @@ import { h, RenderableProps } from 'preact';
 import * as styles from './message.css';
 
 export interface Props {
+    hidden?: boolean;
     type?: 'message' | 'success' | 'info' | 'warning' | 'error';
     style?: string;
 }
 
 export function Message({
+    hidden,
     type = 'message',
     style = '',
     children,
 }: RenderableProps<Props>) {
+    if (hidden) {
+        return null;
+    }
     return (
         <div className={styles[type]} style={style}>
             {children}

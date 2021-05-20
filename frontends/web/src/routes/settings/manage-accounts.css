@@ -28,6 +28,13 @@
 
 .accountName {}
 
+.editBtn {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    line-height: 2;
+}
+
 .accountActive {
     cursor: pointer;
 }

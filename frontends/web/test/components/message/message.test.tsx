@@ -36,6 +36,11 @@ describe('components/message/message', () => {
         expect(msg.children()[0]).toEqual(<span>hello</span>);
     });
 
+    it('should return return null', () => {
+        const msg = deep(<Message hidden><span>hello</span></Message>);
+        expect(msg.output()).toEqual(null);
+    });
+
     it('should preserve text', () => {
         const msg = shallow(<Message><span>hello world</span></Message>);
         expect(msg.text()).toBe('hello world');
