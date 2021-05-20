@@ -102,6 +102,7 @@ type Backend interface {
 	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error)
 	SetTokenActive(accountCode string, tokenCode string, active bool) error
+	RenameAccount(accountCode string, name string) error
 }
 
 // Handlers provides a web api to the backend.
@@ -182,6 +183,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
@@ -521,6 +523,26 @@ func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.backend.SetTokenActive(jsonBody.AccountCode, jsonBody.TokenCode, jsonBody.Active); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true}, nil
+}
+
+func (handlers *Handlers) postRenameAccountHandler(r *http.Request) (interface{}, error) {
+	var jsonBody struct {
+		AccountCode string `json:"accountCode"`
+		Name        string `json:"name"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if err := handlers.backend.RenameAccount(jsonBody.AccountCode, jsonBody.Name); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true}, nil
