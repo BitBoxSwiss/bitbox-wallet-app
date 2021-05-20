@@ -21,6 +21,7 @@ import { TDevices } from '../../api/devices';
 import Guide from './guide';
 import A from '../../components/anchor/anchor';
 import { Header } from '../../components/layout';
+import { Spinner } from '../../components/spinner/Spinner';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button, Checkbox, Select } from '../../components/forms';
@@ -47,7 +48,7 @@ interface Option {
 interface State {
     status: 'choose' | 'agree'
     selected?: string;
-    options: Option[]
+    options?: Option[]
 }
 
 type Props = BuyInfoProps & LoadedBuyInfoProps & TranslateProps;
@@ -56,7 +57,6 @@ class BuyInfo extends Component<Props, State> {
     public readonly state: State = {
         status: this.props.config.frontend.skipBuyDisclaimer ? 'choose' : 'agree',
         selected: this.props.code,
-        options: [],
     }
 
     componentDidMount = () => {
@@ -73,7 +73,7 @@ class BuyInfo extends Component<Props, State> {
     }
 
     private maybeProceed = () => {
-        if (this.state.status === 'choose' && this.state.options.length === 1) {
+        if (this.state.status === 'choose' && this.state.options !== undefined && this.state.options.length === 1) {
             route(`/buy/moonpay/${this.state.options[0].value}`);
         }
     }
@@ -107,6 +107,9 @@ class BuyInfo extends Component<Props, State> {
             options,
         }: State
     ) {
+        if (options === undefined) {
+            return <Spinner text={t('loading')} />;
+        }
         const name = (code && isBitcoin(code)) ? 'Bitcoin' : 'crypto';
         return (
             <div class="contentWithGuide">
