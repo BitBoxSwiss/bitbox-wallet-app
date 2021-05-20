@@ -1053,7 +1053,6 @@
   },
   "loading": "loading…",
   "manageAccounts": {
-    "addAccount": "$t(addAccount.title)",
     "noAccounts": "no accounts found",
     "settings": {
       "hideTokens": "Hide tokens",
