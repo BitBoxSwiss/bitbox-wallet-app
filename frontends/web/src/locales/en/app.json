@@ -39,7 +39,7 @@
   },
   "addAccount": {
     "accountName": "Account name",
-    "choose-name": {
+    "chooseName": {
       "nextButton": "Add account",
       "step": "Name account",
       "title": "Name your account"
@@ -48,7 +48,7 @@
       "alreadyExists": "The account already exists.",
       "limitReached": "Cannot add account. The maximum number of accounts for this coin has been reached."
     },
-    "select-coin": {
+    "selectCoin": {
       "nextButton": "Next",
       "step": "Select coin",
       "title": "Select cryptocurrency"
@@ -1053,7 +1053,6 @@
       "hideTokens": "Hide tokens",
       "showTokens": "Show tokens ({{activeTokenCount}})"
     },
-    "settingsButton": "$t(manageAccounts.title)",
     "settingsButtonDescription": "Add and activate/deactivate accounts",
     "title": "Manage accounts"
   },

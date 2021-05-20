@@ -36,12 +36,14 @@ interface AddAccountProps {
 
 type Props = AddAccountProps & TranslateProps;
 
+type TStep = 'select-coin' | 'choose-name' | 'success';
+
 interface State {
     accountCode?: string;
     accountName: string;
     coinCode: 'choose' | accountApi.CoinCode;
     errorMessage?: string;
-    step: 'select-coin' | 'choose-name' | 'success';
+    step: TStep;
     supportedCoins: backendAPI.ICoin[];
 }
 
@@ -182,6 +184,27 @@ class AddAccount extends Component<Props, State> {
         }
     }
 
+    private getTextFor = (step: TStep) => {
+        const { t } = this.props;
+        switch (step) {
+            case 'select-coin':
+                return {
+                    titleText: t('addAccount.selectCoin.title'),
+                    nextButtonText: t('addAccount.selectCoin.nextButton'),
+                };
+            case 'choose-name':
+                return {
+                    titleText: t('addAccount.chooseName.title'),
+                    nextButtonText: t('addAccount.chooseName.nextButton'),
+                };
+            case 'success':
+                return {
+                    titleText: t('addAccount.success.title'),
+                    nextButtonText: t('addAccount.success.nextButton'),
+                };
+        }
+    }
+
     public render(
         { t }: RenderableProps<Props>,
         {
@@ -200,6 +223,7 @@ class AddAccount extends Component<Props, State> {
             'choose-name',
             'success'
         ].indexOf(step);
+        const { titleText, nextButtonText } = this.getTextFor(step);
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -211,7 +235,7 @@ class AddAccount extends Component<Props, State> {
                             onSubmit={this.next}>
                             <div className="text-center">
                                 {t('addAccount.title')}
-                                <h1 class={styles.title}>{t(`addAccount.${step}.title`)}</h1>
+                                <h1 class={styles.title}>{titleText}</h1>
                             </div>
                             <div class="row" hidden={!errorMessage}>
                                 <Message type="warning">{errorMessage}</Message>
@@ -222,10 +246,10 @@ class AddAccount extends Component<Props, State> {
                             <div class="row">
                                 <Steps current={currentStep}>
                                     <Step key="select-coin" hidden={this.onlyOneSupportedCoin()}>
-                                        {t('addAccount.select-coin.step')}
+                                        {t('addAccount.selectCoin.step')}
                                     </Step>
                                     <Step key="choose-name">
-                                        {t('addAccount.choose-name.step')}
+                                        {t('addAccount.chooseName.step')}
                                     </Step>
                                     <Step key="success">
                                         {t('addAccount.success.step')}
@@ -240,7 +264,7 @@ class AddAccount extends Component<Props, State> {
                                     }
                                     primary
                                     type="submit">
-                                    {t(`addAccount.${step}.nextButton`)}
+                                    {nextButtonText}
                                 </Button>
                                 <Button
                                     onClick={this.back}

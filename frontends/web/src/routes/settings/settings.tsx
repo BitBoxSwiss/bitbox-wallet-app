@@ -212,7 +212,7 @@ class Settings extends Component<Props, State> {
                                                                     onClick={() => route('/settings/manage-accounts', true)}
                                                                     secondaryText={t('manageAccounts.settingsButtonDescription')}
                                                                     optionalText={accounts.length.toString()}>
-                                                                    {t('manageAccounts.settingsButton')}
+                                                                    {t('manageAccounts.title')}
                                                                 </SettingsButton>
                                                             </div>
                                                         </div>
