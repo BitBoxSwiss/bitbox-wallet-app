@@ -167,7 +167,7 @@ class Chart extends Component<Props, State> {
             this.chart.subscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
             this.chart.timeScale().fitContent();
             window.addEventListener('resize', this.onResize);
-            setTimeout(() => this.ref.current.classList.remove(styles.invisible), 200);
+            setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
         }
     }
 
