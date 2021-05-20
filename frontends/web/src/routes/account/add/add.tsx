@@ -175,7 +175,7 @@ class AddAccount extends Component<Props, State> {
                         <img src={checkicon} className={styles.successCheck} /><br />
                         <SimpleMarkup
                             className={styles.successMessage}
-                            markup={t('manageAccounts.success.message', { accountName })}
+                            markup={t('addAccount.success.message', { accountName })}
                             tagName="p" />
                     </div>
                 );
@@ -210,8 +210,8 @@ class AddAccount extends Component<Props, State> {
                             className={`${styles.manageContainer} box large flex flex-column flex-between`}
                             onSubmit={this.next}>
                             <div className="text-center">
-                                {t('manageAccounts.addAccount')}
-                                <h1 class={styles.title}>{t(`manageAccounts.${step}.title`)}</h1>
+                                {t('addAccount.title')}
+                                <h1 class={styles.title}>{t(`addAccount.${step}.title`)}</h1>
                             </div>
                             <div class="row" hidden={!errorMessage}>
                                 <Message type="warning">{errorMessage}</Message>
@@ -222,13 +222,13 @@ class AddAccount extends Component<Props, State> {
                             <div class="row">
                                 <Steps current={currentStep}>
                                     <Step key="select-coin" hidden={this.onlyOneSupportedCoin()}>
-                                        {t('manageAccounts.select-coin.step')}
+                                        {t('addAccount.select-coin.step')}
                                     </Step>
                                     <Step key="choose-name">
-                                    {t('manageAccounts.choose-name.step')}
+                                        {t('addAccount.choose-name.step')}
                                     </Step>
                                     <Step key="success">
-                                        {t('manageAccounts.success.step')}
+                                        {t('addAccount.success.step')}
                                     </Step>
                                 </Steps>
                             </div>
@@ -240,7 +240,7 @@ class AddAccount extends Component<Props, State> {
                                     }
                                     primary
                                     type="submit">
-                                    {t(`manageAccounts.${step}.nextButton`)}
+                                    {t(`addAccount.${step}.nextButton`)}
                                 </Button>
                                 <Button
                                     onClick={this.back}

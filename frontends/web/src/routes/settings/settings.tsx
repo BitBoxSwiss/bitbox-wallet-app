@@ -210,9 +210,9 @@ class Settings extends Component<Props, State> {
                                                             <div className="box slim divide m-bottom-large">
                                                                 <SettingsButton
                                                                     onClick={() => route('/settings/manage-accounts', true)}
-                                                                    secondaryText="Add and activate/deactivate accounts"
+                                                                    secondaryText={t('manageAccounts.settingsButtonDescription')}
                                                                     optionalText={accounts.length.toString()}>
-                                                                    Manage accounts
+                                                                    {t('manageAccounts.settingsButton')}
                                                                 </SettingsButton>
                                                             </div>
                                                         </div>
