@@ -36,6 +36,10 @@ export const setTokenActive = (accountCode: string, tokenCode: string, active: b
     return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
 
+export const renameAccount = (accountCode: string, name: string): Promise<ISuccess> => {
+    return apiPost('rename-account', { accountCode, name });
+};
+
 export const reinitializeAccounts = (): Promise<null> => {
     return apiPost('accounts/reinitialize');
 };

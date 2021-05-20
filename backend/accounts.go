@@ -302,3 +302,20 @@ func (backend *Backend) SetTokenActive(accountCode string, tokenCode string, act
 		return acct.SetTokenActive(tokenCode, active)
 	})
 }
+
+// RenameAccount renames an account in the accounts database.
+func (backend *Backend) RenameAccount(accountCode string, name string) error {
+	if name == "" {
+		return errp.New("Name cannot be empty")
+	}
+	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		for i := range accountsConfig.Accounts {
+			account := &accountsConfig.Accounts[i]
+			if account.Code == accountCode {
+				account.Name = name
+				return nil
+			}
+		}
+		return errp.Newf("Account not found: %s", accountCode)
+	})
+}
