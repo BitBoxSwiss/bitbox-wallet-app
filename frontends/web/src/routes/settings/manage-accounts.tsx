@@ -20,10 +20,13 @@ import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { apiGet } from '../../utils/request';
 import { alertUser } from '../../components/alert/Alert';
-import { Button } from '../../components/forms';
+import { Button, Input } from '../../components/forms';
 import Logo from '../../components/icon/logo';
 import { Header } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
+import { Dialog } from '../../components/dialog/dialog';
+import { Message } from '../../components/message/message';
+import * as dialogStyle from '../../components/dialog/dialog.css';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './manage-accounts.css';
 
@@ -41,6 +44,9 @@ type TShowTokens = {
 }
 
 interface State {
+    editAccountCode?: string;
+    editAccountNewName: string;
+    editErrorMessage?: string;
     favorites?: TFavorites;
     accounts: accountAPI.IAccount[];
     showTokens: TShowTokens;
@@ -48,6 +54,8 @@ interface State {
 
 class ManageAccounts extends Component<Props, State> {
     public readonly state: State = {
+        editAccountNewName: '',
+        editErrorMessage: undefined,
         favorites: undefined,
         accounts: [],
         showTokens: {}
@@ -107,9 +115,11 @@ class ManageAccounts extends Component<Props, State> {
                             <span className="unit">({account.coinUnit})</span>
                         </span>
                     </div>
-                    {/* <ButtonLink>
-                        Edit
-                    </ButtonLink> */}
+                    <button
+                        className={style.editBtn}
+                        onClick={() => this.setState({ editAccountCode: account.code, editAccountNewName: account.name })}>
+                        {t('manageAccounts.editAccount')}
+                    </button>
                     {/* <Toggle
                         checked={active}
                         id={account.code}
@@ -201,9 +211,31 @@ class ManageAccounts extends Component<Props, State> {
         });
     }
 
+    private updateAccountName = (event: Event) => {
+        event.preventDefault();
+        const { editAccountCode, editAccountNewName } = this.state;
+
+        backendAPI.renameAccount(editAccountCode!, editAccountNewName!)
+            .then(result => {
+                if (!result.success) {
+                    this.setState({ editErrorMessage: result.errorMessage });
+                    return;
+                }
+                return backendAPI.reinitializeAccounts()
+                    .then(() => {
+                        this.fetchAccounts();
+                        this.setState({
+                            editAccountCode: undefined,
+                            editAccountNewName: '',
+                            editErrorMessage: undefined,
+                        });
+                    });
+            });
+    }
+
     public render(
         { t }: RenderableProps<Props>,
-        { favorites }: State,
+        { editAccountCode, editAccountNewName, editErrorMessage, favorites }: State,
     ) {
         const accountList = this.renderAccounts();
         return (
@@ -226,6 +258,28 @@ class ManageAccounts extends Component<Props, State> {
                                 </div>
                             </div>
                         ) : null }
+                        { editAccountCode ? (
+                            <Dialog
+                                onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
+                                title={t('manageAccounts.editAccountNameTitle')}>
+                                <form onSubmit={this.updateAccountName}>
+                                    <Message type="error" hidden={!editErrorMessage}>
+                                        {editErrorMessage}
+                                    </Message>
+                                    <Input
+                                        onInput={e => this.setState({ editAccountNewName: e.target.value })}
+                                        value={editAccountNewName} />
+                                    <div className={dialogStyle.actions}>
+                                        <Button
+                                            disabled={!editAccountNewName}
+                                            primary
+                                            type="submit">
+                                            {t('button.update')}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Dialog>
+                        ) : null}
                         </div>
                     </div>
                 </div>
