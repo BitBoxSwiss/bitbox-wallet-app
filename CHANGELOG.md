@@ -1,8 +1,11 @@
 # Changelog
 
 ## [Unreleased]
-- Validate socks proxy url
+- Bundle BitBox02 v9.6.0 firmware
+- New feature: add additional accounts
 - Remove the setting 'Separate accounts by address type (legacy behavior)'. BitBox02 accounts are now always unified.
+- Validate socks proxy url
+- Display the BitBox02 secure chip version (from v9.6.0)
 
 ## 4.27.0 [released 2021-03-17]
 - Buy ERC20 tokens using Moonpay
