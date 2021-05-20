@@ -21,8 +21,6 @@ import * as backendAPI from '../../../api/backend';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import { Message } from '../../../components/message/message';
 import { Button, Input } from '../../../components/forms';
-import { Entry } from '../../../components/guide/entry';
-import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Step, Steps } from './components/steps';
@@ -30,6 +28,7 @@ import { CoinDropDown } from './components/coin-dropdown';
 import * as styles from './add.css';
 import checkicon from '../../../assets/icons/check.svg';
 import { apiPost } from '../../../utils/request';
+import Guide from '../../settings/manage-account-guide';
 
 interface AddAccountProps {
 }
@@ -278,9 +277,7 @@ class AddAccount extends Component<Props, State> {
                         </div>
                     </div>
                 </div>
-                <Guide>
-                    <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} />
-                </Guide>
+                <Guide t={t} />
             </div>
         );
     }
