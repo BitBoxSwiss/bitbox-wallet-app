@@ -525,7 +525,6 @@
         "title": "Welcome to your one stop shop for buying {{name}}"
       },
       "next": "Next",
-      "selectLabel": "Choose your account",
       "selectPlaceholder": "Select a coin",
       "skip": "Do not show again",
       "title": "Buy {{name}}"
