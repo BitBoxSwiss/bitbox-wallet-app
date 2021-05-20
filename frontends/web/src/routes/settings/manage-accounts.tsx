@@ -28,6 +28,7 @@ import { Dialog } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
 import * as dialogStyle from '../../components/dialog/dialog.css';
 import { translate, TranslateProps } from '../../decorators/translate';
+import Guide from './manage-account-guide';
 import * as style from './manage-accounts.css';
 
 interface ManageAccountsProps {
@@ -283,6 +284,7 @@ class ManageAccounts extends Component<Props, State> {
                         </div>
                     </div>
                 </div>
+                <Guide t={t} />
             </div>
         );
     }
