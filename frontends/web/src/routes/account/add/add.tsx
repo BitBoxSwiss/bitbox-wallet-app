@@ -36,12 +36,14 @@ interface AddAccountProps {
 
 type Props = AddAccountProps & TranslateProps;
 
+type TStep = 'select-coin' | 'choose-name' | 'success';
+
 interface State {
     accountCode?: string;
     accountName: string;
     coinCode: 'choose' | accountApi.CoinCode;
     errorMessage?: string;
-    step: 'select-coin' | 'choose-name' | 'success';
+    step: TStep;
     supportedCoins: backendAPI.ICoin[];
 }
 
@@ -175,10 +177,31 @@ class AddAccount extends Component<Props, State> {
                         <img src={checkicon} className={styles.successCheck} /><br />
                         <SimpleMarkup
                             className={styles.successMessage}
-                            markup={t('manageAccounts.success.message', { accountName })}
+                            markup={t('addAccount.success.message', { accountName })}
                             tagName="p" />
                     </div>
                 );
+        }
+    }
+
+    private getTextFor = (step: TStep) => {
+        const { t } = this.props;
+        switch (step) {
+            case 'select-coin':
+                return {
+                    titleText: t('addAccount.selectCoin.title'),
+                    nextButtonText: t('addAccount.selectCoin.nextButton'),
+                };
+            case 'choose-name':
+                return {
+                    titleText: t('addAccount.chooseName.title'),
+                    nextButtonText: t('addAccount.chooseName.nextButton'),
+                };
+            case 'success':
+                return {
+                    titleText: t('addAccount.success.title'),
+                    nextButtonText: t('addAccount.success.nextButton'),
+                };
         }
     }
 
@@ -200,6 +223,7 @@ class AddAccount extends Component<Props, State> {
             'choose-name',
             'success'
         ].indexOf(step);
+        const { titleText, nextButtonText } = this.getTextFor(step);
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -210,8 +234,8 @@ class AddAccount extends Component<Props, State> {
                             className={`${styles.manageContainer} box large flex flex-column flex-between`}
                             onSubmit={this.next}>
                             <div className="text-center">
-                                {t('manageAccounts.addAccount')}
-                                <h1 class={styles.title}>{t(`manageAccounts.${step}.title`)}</h1>
+                                {t('addAccount.title')}
+                                <h1 class={styles.title}>{titleText}</h1>
                             </div>
                             <div class="row" hidden={!errorMessage}>
                                 <Message type="warning">{errorMessage}</Message>
@@ -222,13 +246,13 @@ class AddAccount extends Component<Props, State> {
                             <div class="row">
                                 <Steps current={currentStep}>
                                     <Step key="select-coin" hidden={this.onlyOneSupportedCoin()}>
-                                        {t('manageAccounts.select-coin.step')}
+                                        {t('addAccount.selectCoin.step')}
                                     </Step>
                                     <Step key="choose-name">
-                                    {t('manageAccounts.choose-name.step')}
+                                        {t('addAccount.chooseName.step')}
                                     </Step>
                                     <Step key="success">
-                                        {t('manageAccounts.success.step')}
+                                        {t('addAccount.success.step')}
                                     </Step>
                                 </Steps>
                             </div>
@@ -240,7 +264,7 @@ class AddAccount extends Component<Props, State> {
                                     }
                                     primary
                                     type="submit">
-                                    {t(`manageAccounts.${step}.nextButton`)}
+                                    {nextButtonText}
                                 </Button>
                                 <Button
                                     onClick={this.back}
