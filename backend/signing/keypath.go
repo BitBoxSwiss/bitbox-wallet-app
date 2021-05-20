@@ -181,6 +181,20 @@ func NewAbsoluteKeypath(input string) (AbsoluteKeypath, error) {
 	return AbsoluteKeypath(path), nil
 }
 
+// NewAbsoluteKeypathFromUint32 creates a new keypath from individual numbers.
+// Hardened children have an offset of 0x80000000.
+func NewAbsoluteKeypathFromUint32(elements ...uint32) AbsoluteKeypath {
+	path := keypath{}
+	for _, element := range elements {
+		if element >= hdkeychain.HardenedKeyStart {
+			path = append(path, keyNode{index: element - hdkeychain.HardenedKeyStart, hardened: true})
+		} else {
+			path = append(path, keyNode{index: element, hardened: false})
+		}
+	}
+	return AbsoluteKeypath(path)
+}
+
 // Encode encodes the absolute keypath as a string.
 func (absoluteKeypath AbsoluteKeypath) Encode() string {
 	return "m/" + keypath(absoluteKeypath).encode()

@@ -318,7 +318,7 @@ class Receive extends Component<Props, State> {
                     <Status type="warning" hidden={paired !== false}>
                         {t('warning.receivePairing')}
                     </Status>
-                    <Header title={<h2>{t('receive.title', { accountName: account.name })}</h2>} />
+                    <Header title={<h2>{t('receive.title', { accountName: account.coinName })}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content narrow isVerticallyCentered">
                             <div class="box large text-center">

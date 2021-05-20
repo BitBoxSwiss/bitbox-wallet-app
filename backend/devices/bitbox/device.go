@@ -1039,7 +1039,7 @@ func (dbb *Device) signBatch(
 
 		if btcProposedTx.TXProposal.ChangeAddress != nil {
 			configuration := btcProposedTx.TXProposal.ChangeAddress.Configuration
-			publicKey := configuration.PublicKeys()[0]
+			publicKey := configuration.PublicKey()
 			command["sign"]["checkpub"] = []map[string]interface{}{{
 				"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
 				"keypath": configuration.AbsoluteKeypath().Encode(),
@@ -1372,17 +1372,14 @@ func (dbb *Device) ExtendedPublicKey(keypath signing.AbsoluteKeypath) (*hdkeycha
 	return dbb.xpub(keypath.Encode())
 }
 
-// KeystoreForConfiguration implements device.Interface.
-func (dbb *Device) KeystoreForConfiguration(
-	cosignerIndex int,
-) keystoreInterface.Keystore {
+// Keystore implements device.Interface.
+func (dbb *Device) Keystore() keystoreInterface.Keystore {
 	if dbb.Status() != StatusSeeded {
 		return nil
 	}
 	return &keystore{
-		dbb:           dbb,
-		cosignerIndex: cosignerIndex,
-		log:           dbb.log,
+		dbb: dbb,
+		log: dbb.log,
 	}
 }
 

@@ -1,0 +1,119 @@
+:root {
+    --icon-size: 10px;
+    --icon-size-small: 8px;
+}
+
+.steps {
+    align-items: flex-start;
+    display: inline-flex;
+    flex-shrink: 0;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    margin-bottom: var(--space-half);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+/* .steps::before {
+    content: "";
+    background: #1f87e2;
+    display: block;
+    width: 100%;
+    height: 3px;
+    position: absolute;
+    top: 6px;
+} */
+
+.step {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    text-align: left;
+}
+
+.dot {
+    display: inline-block;
+    margin-bottom: var(--space-quarter);
+    min-height: var(--icon-size);
+}
+
+.dot::before {
+    background: var(--color-primary);
+    border: 4px solid white;
+    border-radius: 50%;
+    content: "";
+    display: inline-block;
+    flex-shrink: 0;
+    font-size: 14px;
+    height: var(--icon-size);
+    line-height: var(--icon-size);
+    position: relative;
+    text-align: center;
+    transition: background-color .3s, border-color .3s;
+    vertical-align: top;
+    width: var(--icon-size);
+    z-index: 13;
+}
+
+.dot::after {
+    border-top: 5px solid white;
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 50%;
+    width: 100vw;
+    z-index: 12;
+}
+
+.line .dot::after {
+    z-index: 1;
+}
+
+.finish .dot::before {
+    height: var(--icon-size-small);
+    width: var(--icon-size-small);
+}
+
+.wait {
+    color: var(--color-gray-alt);
+}
+
+.finish .dot::before,
+.wait .dot::before {
+    margin-top: 1px;
+}
+
+.wait .dot::before {
+    background: var(--color-mediumgray);
+    height: var(--icon-size-small);
+    width: var(--icon-size-small);
+}
+
+.finish.line .dot::after,
+.process.line .dot::after {
+    border-color: var(--color-primary);
+    border-top-width: 3px;
+    z-index: 11;
+    top: 7px;
+}
+
+.wait.line .dot::after {
+    border-color: var(--color-mediumgray);
+    border-top-width: 3px;
+    top: 7px;
+}
+
+.content {
+    font-size: var(--size-small);
+    line-height: 1;
+    margin: 0;
+    min-width: 90px;
+    position: relative;
+    text-align: center;
+    width: min-content;
+    white-space: nowrap;
+}

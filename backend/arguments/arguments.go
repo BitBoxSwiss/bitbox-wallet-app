@@ -179,11 +179,6 @@ func (arguments *Arguments) Regtest() bool {
 	return arguments.regtest
 }
 
-// Multisig returns whether the backend is in multisig mode.
-func (arguments *Arguments) Multisig() bool {
-	return false
-}
-
 // GapLimits returns the gap limits to be used in btc/ltc (all account types).
 // This is optional, so nil is a valid return value.
 func (arguments *Arguments) GapLimits() *btctypes.GapLimits {

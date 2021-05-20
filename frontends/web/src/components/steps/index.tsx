@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
- export { Steps } from './steps';
- export { Step } from './step';
+export { Steps } from './steps';
+export { Step } from './step';

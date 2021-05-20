@@ -35,7 +35,7 @@ import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account } from './routes/account/account';
-import { AddAccount } from './routes/account/add/addaccount';
+import { AddAccount } from './routes/account/add/add';
 import { Moonpay } from './routes/buy/moonpay';
 import { BuyInfo } from './routes/buy/info';
 import Info from './routes/account/info/info';
@@ -46,6 +46,7 @@ import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseS
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
+import { ManageAccounts } from './routes/settings/manage-accounts';
 import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
@@ -175,8 +176,13 @@ class App extends Component<Props, State> {
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.state.accounts;
-        // if no accounts are registered on /account-summary view route to /
-        if (currentURL.startsWith('/account-summary') && accounts.length === 0) {
+
+        // if no accounts are registered on specified views route to /
+        if ( accounts.length === 0 && (
+            currentURL.startsWith('/account-summary')
+            || currentURL.startsWith('/add-account')
+            || currentURL.startsWith('/settings/manage-accounts')
+        )) {
             route('/', true);
             return;
         }
@@ -268,8 +274,12 @@ class App extends Component<Props, State> {
                             <ElectrumSettings
                                 path="/settings/electrum" />
                             <Settings
+                                accounts={accounts}
                                 deviceIDs={deviceIDs}
                                 path="/settings" />
+                            <ManageAccounts
+                                key={'manage-accounts'}
+                                path="/settings/manage-accounts" />
                             {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
                             {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                             <ManageBackups

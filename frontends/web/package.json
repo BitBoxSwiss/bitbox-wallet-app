@@ -5,7 +5,7 @@
   "scripts": {
     "gen-ts-css": "tcm src --camelCase dashes",
     "build": "yarn run gen-ts-css && preact build --no-sw --no-esm --no-inline-css --no-prerender --no-prerenderUrls --no-json --verbose",
-    "dev": "yarn run gen-ts-css && preact watch --refresh",
+    "dev": "yarn run gen-ts-css && preact watch --no-sw --no-esm --no-prerender --no-prerenderUrls --no-json --refresh",
     "prelint": "yarn run gen-ts-css",
     "lint": "eslint --max-warnings 0 --cache --format unix --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
     "fix": "eslint --fix --no-cache --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
@@ -32,7 +32,6 @@
     "i18next": "11.3.6",
     "i18next-locize-backend": "4.1.9",
     "lightweight-charts": "3.1.5",
-    "linkstate": "1.1.1",
     "locize-editor": "3.1.1",
     "preact": "8.5.3",
     "preact-compat": "3.19.0",

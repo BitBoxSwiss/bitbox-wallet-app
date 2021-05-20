@@ -50,18 +50,7 @@ const (
 
 // ethCoinConfig holds configurations for ethereum coins.
 type ethCoinConfig struct {
-	ActiveERC20Tokens []string `json:"activeERC20Tokens"`
-}
-
-// ERC20TokenActive returns true if this token is configured to be active.
-// code is the token id, e.g. "usdt".
-func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
-	for _, tokenCode := range eth.ActiveERC20Tokens {
-		if tokenCode == code {
-			return true
-		}
-	}
-	return false
+	DeprecatedActiveERC20Tokens []string `json:"activeERC20Tokens"`
 }
 
 type proxyConfig struct {
@@ -73,13 +62,9 @@ type proxyConfig struct {
 type Backend struct {
 	Proxy proxyConfig `json:"proxy"`
 
-	BitcoinActive  bool `json:"bitcoinActive"`
-	LitecoinActive bool `json:"litecoinActive"`
-	EthereumActive bool `json:"ethereumActive"`
-
-	// Whether Bitcoin, Litecoin should be shown in multiple accounts - one per script type -
-	// instead of a combined account.
-	SplitAccounts bool `json:"splitAccounts"`
+	DeprecatedBitcoinActive  bool `json:"bitcoinActive"`
+	DeprecatedLitecoinActive bool `json:"litecoinActive"`
+	DeprecatedEthereumActive bool `json:"ethereumActive"`
 
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
@@ -104,15 +89,17 @@ type Backend struct {
 	UserLanguage string `json:"userLanguage"`
 }
 
-// CoinActive returns the Active setting for a coin by code.
-func (backend Backend) CoinActive(code coin.Code) bool {
+// DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be
+// used anymore except for migration purposes. Coins are not activated globally anymore, but are
+// kept in the accounts config.
+func (backend Backend) DeprecatedCoinActive(code coin.Code) bool {
 	switch code {
 	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
-		return backend.BitcoinActive
+		return backend.DeprecatedBitcoinActive
 	case coin.CodeLTC, coin.CodeTLTC:
-		return backend.LitecoinActive
+		return backend.DeprecatedLitecoinActive
 	case coin.CodeETH, coin.CodeTETH, coin.CodeRETH, coin.CodeERC20TEST:
-		return backend.EthereumActive
+		return backend.DeprecatedEthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
 	}
@@ -148,11 +135,9 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
-			BitcoinActive:  true,
-			LitecoinActive: true,
-			EthereumActive: true,
-
-			SplitAccounts: false,
+			DeprecatedBitcoinActive:  true,
+			DeprecatedLitecoinActive: true,
+			DeprecatedEthereumActive: true,
 
 			BTC: btcCoinConfig{
 				ElectrumServers: []*ServerInfo{
@@ -220,13 +205,13 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				ActiveERC20Tokens: []string{},
+				DeprecatedActiveERC20Tokens: []string{},
 			},
 			TETH: ethCoinConfig{
-				ActiveERC20Tokens: []string{},
+				DeprecatedActiveERC20Tokens: []string{},
 			},
 			RETH: ethCoinConfig{
-				ActiveERC20Tokens: []string{},
+				DeprecatedActiveERC20Tokens: []string{},
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.
 			FiatList: []string{"USD", "EUR", "CHF"},
@@ -237,13 +222,13 @@ func NewDefaultAppConfig() AppConfig {
 
 // Config manages the app configuration.
 type Config struct {
-	lock locker.Locker
-
 	appConfigFilename string
 	appConfig         AppConfig
+	appConfigLock     locker.Locker
 
 	accountsConfigFilename string
 	accountsConfig         AccountsConfig
+	accountsConfigLock     locker.Locker
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
@@ -270,8 +255,8 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 
 // SetBtcOnly sets non-bitcoin accounts in the config to false.
 func (config *Config) SetBtcOnly() {
-	config.appConfig.Backend.LitecoinActive = false
-	config.appConfig.Backend.EthereumActive = false
+	config.appConfig.Backend.DeprecatedLitecoinActive = false
+	config.appConfig.Backend.DeprecatedEthereumActive = false
 }
 
 // SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert.
@@ -319,27 +304,27 @@ func (config *Config) load() {
 
 // AppConfig returns the app config.
 func (config *Config) AppConfig() AppConfig {
-	defer config.lock.RLock()()
+	defer config.appConfigLock.RLock()()
 	return config.appConfig
 }
 
 // SetAppConfig sets and persists the app config.
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
-	defer config.lock.Lock()()
+	defer config.appConfigLock.Lock()()
 	config.appConfig = appConfig
 	return config.save(config.appConfigFilename, config.appConfig)
 }
 
 // AccountsConfig returns the accounts config.
 func (config *Config) AccountsConfig() AccountsConfig {
-	defer config.lock.RLock()()
+	defer config.accountsConfigLock.RLock()()
 	return config.accountsConfig
 }
 
 // ModifyAccountsConfig calls f with the current config, allowing f to make any changes, and
 // persists the result if f returns nil error.  It propagates the f's error as is.
 func (config *Config) ModifyAccountsConfig(f func(*AccountsConfig) error) error {
-	defer config.lock.Lock()()
+	defer config.accountsConfigLock.Lock()()
 	if err := f(&config.accountsConfig); err != nil {
 		return err
 	}

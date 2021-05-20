@@ -135,19 +135,10 @@ func (account *Account) Initialize() error {
 	}
 	signingConfiguration := signingConfigurations[0]
 
-	// Derive m/0, first account.
-	relKeyPath, err := signing.NewRelativeKeypath("0")
-	if err != nil {
-		return err
-	}
-	signingConfiguration, err = signingConfiguration.Derive(relKeyPath)
-	if err != nil {
-		return err
-	}
 	account.signingConfiguration = signingConfiguration
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.Config().Code)
+	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -162,25 +153,14 @@ func (account *Account) Initialize() error {
 	account.db = db
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
-	if account.signingConfiguration.IsAddressBased() {
-		if !ethcommon.IsHexAddress(account.signingConfiguration.Address()) {
-			return errp.WithStack(errors.ErrInvalidAddress)
-		}
-		account.address = Address{
-			Address: ethcommon.HexToAddress(account.signingConfiguration.Address()),
-		}
-	} else {
-		account.address = Address{
-			Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
-		}
+	account.address = Address{
+		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
 	}
 
-	account.signingConfiguration = signing.NewConfiguration(
-		account.signingConfiguration.ScriptType(),
+	account.signingConfiguration = signing.NewEthereumConfiguration(
+		account.signingConfiguration.EthereumSimple.KeyInfo.RootFingerprint,
 		account.signingConfiguration.AbsoluteKeypath(),
-		account.signingConfiguration.ExtendedPublicKeys(),
-		account.address.String(),
-		account.signingConfiguration.SigningThreshold(),
+		account.signingConfiguration.ExtendedPublicKey(),
 	)
 
 	account.coin.Initialize()

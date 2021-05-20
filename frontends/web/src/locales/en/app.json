@@ -39,21 +39,27 @@
   },
   "addAccount": {
     "accountName": "Account name",
-    "address": "Address",
-    "coin": "Coin",
+    "chooseName": {
+      "nextButton": "Add account",
+      "step": "Name account",
+      "title": "Name your account"
+    },
     "error": {
       "alreadyExists": "The account already exists.",
-      "invalidAddress": "Please enter a valid address",
-      "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
-      "xpubInvalid": "Extended public key malformatted."
+      "limitReached": "Cannot add account. The maximum number of accounts for this coin has been reached."
     },
-    "extendedPublicKey": "Extended public key",
-    "scriptType": "Script type",
-    "submit": "Add account",
-    "title": "Add account",
-    "warning": {
-      "xpubWrongNet": "Warning: The extended public key format indicates that it might not be valid for the selected account type. If you do not see the expected transactions, then try to import the extended public key with another account type."
-    }
+    "selectCoin": {
+      "nextButton": "Next",
+      "step": "Select coin",
+      "title": "Select cryptocurrency"
+    },
+    "success": {
+      "message": "<strong>{{accountName}}</strong> has now been added to your accounts.",
+      "nextButton": "Done",
+      "step": "Finished",
+      "title": "Account added"
+    },
+    "title": "Add account"
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
@@ -519,7 +525,6 @@
         "title": "Welcome to your one stop shop for buying {{name}}"
       },
       "next": "Next",
-      "selectLabel": "Choose your account",
       "selectPlaceholder": "Select a coin",
       "skip": "Do not show again",
       "title": "Buy {{name}}"
@@ -945,10 +950,6 @@
       "servers": {
         "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CryptoCompare. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"
-      },
-      "whyMultipleAccounts": {
-        "text": "Some cryptocurrencies have multiple address and transaction formats. These addresses are separated into extra accounts.",
-        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guide",
@@ -1045,6 +1046,16 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "loading": "loading…",
+  "manageAccounts": {
+    "addAccount": "$t(addAccount.title)",
+    "noAccounts": "no accounts found",
+    "settings": {
+      "hideTokens": "Hide tokens",
+      "showTokens": "Show tokens ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Add and activate/deactivate accounts",
+    "title": "Manage accounts"
+  },
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
   },
@@ -1279,9 +1290,6 @@
     "transactionDetails": "Transaction details"
   },
   "settings": {
-    "accounts": {
-      "title": "Active accounts"
-    },
     "electrum": {
       "add": "Add a server",
       "add-server": "Add",
@@ -1317,7 +1325,6 @@
       },
       "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
-      "splitAccounts": "Separate accounts by address type (legacy behavior)",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy"
     },

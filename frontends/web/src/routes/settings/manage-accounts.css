@@ -1,0 +1,128 @@
+.setting {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    min-height: var(--item-height);
+    padding: 10px var(--space-half);
+}
+
+.setting > label {
+    flex-shrink: 0;
+}
+
+.setting.disabled > p {
+    color: var(--color-gray-alt);
+}
+
+.coinLogo {
+    position: relative;
+    z-index: 2;
+}
+
+.acccountLink {
+    align-items: center;
+    display: flex;
+}
+
+.accountName {}
+
+.accountActive {
+    cursor: pointer;
+}
+
+.tokenSection {
+    align-items: flex-start;
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 0 4px;
+}
+
+.tokenContainer {
+    max-height: 0vh;
+    overflow: hidden;
+    transition: max-height .27s ease;
+    width: 100%;
+}
+
+.tokenContainerOpen {
+    /*
+        a numeric value that is higher than the height of the token list,
+        so the animation works nicely.
+        could be also be a fixed high value, e.g. 3000rem
+        i.e.
+     */
+    max-height: 200vh;
+    padding: 10px 0 0 0;
+}
+
+.token {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    min-height: var(--item-height);
+    padding: 10px 0;
+    position: relative;
+    width: 100%;
+}
+
+.token::before {
+    background-color: #ddd;
+    content: "";
+    height: 22px;
+    left: 10px;
+    position: absolute;
+    top: -13px;
+    right: 8px;
+    width: 3px;
+}
+
+.token:first-child::before {
+    height: 16px;
+    top: -7px;
+}
+
+.token img:first-child {
+    margin-right: 0;
+}
+
+.tokenIcon {
+    max-height: 24px;
+    max-width: 24px;
+}
+
+.tokenName {
+    flex: 1;
+    display: inline-block;
+    padding-left: 20px;
+}
+
+.tokenActive {}
+
+.tokenInactive {
+    color: var(--color-gray-alt);
+    transition: color 0.2s ease;
+}
+
+.expandBtn {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' aria-labelledby='chevron down' color='%235e94bf'%3E%3Cdefs/%3E%3Cpolyline points='6 10 12 16 18 10'/%3E%3C/svg%3E%0A");
+    background-position: 100% center;
+    background-repeat: no-repeat;
+    height: 40px;
+}
+
+.expandBtnOpen {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' aria-labelledby='chevron down' color='%235e94bf'%3E%3Cdefs/%3E%3Cpolyline points='6 16 12 10 18 16'/%3E%3C/svg%3E%0A");
+}
+
+.expandBtn,
+.expandBtn:focus,
+.expandBtn:hover {
+    border-color: white !important;
+    margin-left: 10px;
+    outline: none;
+}

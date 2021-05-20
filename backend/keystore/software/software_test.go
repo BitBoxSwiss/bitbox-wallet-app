@@ -26,7 +26,7 @@ func TestRootFingerprint(t *testing.T) {
 	// awkward squirrel wait rubber biology escape toe daring still pause fitness vendor
 	rootXprv, err := hdkeychain.NewKeyFromString("xprv9s21ZrQH143K3uDh9hiNXB3a9GVzcCujEmCwmZA9g8m4i5nUDVdLHJjsLMPzV26vj8Q7ceGrUhX119Y3XzGhJqq5K6LWP1h6gjv2cbkMEH1")
 	require.NoError(t, err)
-	keystore := NewKeystore(0, rootXprv)
+	keystore := NewKeystore(rootXprv)
 	rootFingerprint, err := keystore.RootFingerprint()
 	require.NoError(t, err)
 	// Verified by comparing to the root fingerprint produced by the BitBox02 and Electrum.

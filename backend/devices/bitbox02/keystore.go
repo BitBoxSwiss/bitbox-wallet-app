@@ -18,6 +18,7 @@ package bitbox02
 import (
 	"bytes"
 	"math/big"
+	"sync"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -37,9 +38,11 @@ import (
 )
 
 type keystore struct {
-	device        *Device
-	cosignerIndex int
-	log           *logrus.Entry
+	device *Device
+	log    *logrus.Entry
+
+	rootFingerMu sync.Mutex
+	rootFinger   []byte // cached result of RootFingerprint
 }
 
 // Type implements keystore.Keystore.
@@ -49,24 +52,27 @@ func (keystore *keystore) Type() keystorePkg.Type {
 
 // RootFingerprint implements keystore.Keystore.
 func (keystore *keystore) RootFingerprint() ([]byte, error) {
-	return keystore.device.RootFingerprint()
+	keystore.rootFingerMu.Lock()
+	defer keystore.rootFingerMu.Unlock()
+	if keystore.rootFinger != nil {
+		return keystore.rootFinger, nil
+	}
+	res, err := keystore.device.RootFingerprint()
+	if err != nil {
+		return nil, err
+	}
+	keystore.rootFinger = res
+	return res, nil
 }
 
-// CosignerIndex implements keystore.Keystore.
-func (keystore *keystore) CosignerIndex() int {
-	return keystore.cosignerIndex
-}
-
-// SupportsAccount implements keystore.Keystore.
-func (keystore *keystore) SupportsAccount(
-	coin coin.Coin, multisig bool, meta interface{}) bool {
+// SupportsCoin implements keystore.Keystore.
+func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		if (coin.Code() == coinpkg.CodeLTC || coin.Code() == coinpkg.CodeTLTC) && !keystore.device.SupportsLTC() {
 			return false
 		}
-		scriptType := meta.(signing.ScriptType)
-		return !multisig && scriptType != signing.ScriptTypeP2PKH
+		return true
 	case *eth.Coin:
 		if specificCoin.ERC20Token() != nil {
 			return keystore.device.SupportsERC20(specificCoin.ERC20Token().ContractAddress().String())
@@ -74,6 +80,20 @@ func (keystore *keystore) SupportsAccount(
 		return keystore.device.SupportsETH(ethMsgCoinMap[coin.Code()])
 	default:
 		return false
+	}
+}
+
+// SupportsAccount implements keystore.Keystore.
+func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+	if !keystore.SupportsCoin(coin) {
+		return false
+	}
+	switch coin.(type) {
+	case *btc.Coin:
+		scriptType := meta.(signing.ScriptType)
+		return scriptType != signing.ScriptTypeP2PKH
+	default:
+		return true
 	}
 }
 
@@ -220,8 +240,30 @@ func (keystore *keystore) ExtendedPublicKey(
 		if !ok {
 			return nil, errp.New("unsupported coin")
 		}
+
+		// The BitBox02 only accepts four-element keypaths to get the xpub, e.g.
+		// m/44'/60'/0'/0.
+		//
+		// In Ethereum, the element defining the account is the fifth element, e.g. the 10th account
+		// is at m/44'/60'/0'/0/9.
+		//
+		// To get the xpub at the account-level keypath, we workaround this by getting the base xpub
+		// and deriving the last step here.
+		keypathUint32 := keyPath.ToUInt32()
+		if len(keypathUint32) == 5 {
+			xpubStr, err := keystore.device.ETHPub(
+				msgCoin, keypathUint32[:4], messages.ETHPubRequest_XPUB, false, []byte{})
+			if err != nil {
+				return nil, err
+			}
+			xpub, err := hdkeychain.NewKeyFromString(xpubStr)
+			if err != nil {
+				return nil, err
+			}
+			return xpub.Child(keypathUint32[4])
+		}
 		xpubStr, err := keystore.device.ETHPub(
-			msgCoin, keyPath.ToUInt32(), messages.ETHPubRequest_XPUB, false, []byte{})
+			msgCoin, keypathUint32, messages.ETHPubRequest_XPUB, false, []byte{})
 		if err != nil {
 			return nil, err
 		}
@@ -350,7 +392,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return err
 	}
 	for index, signature := range signatures {
-		btcProposedTx.Signatures[index][keystore.CosignerIndex()] = &btcec.Signature{
+		btcProposedTx.Signatures[index] = &btcec.Signature{
 			R: big.NewInt(0).SetBytes(signature[:32]),
 			S: big.NewInt(0).SetBytes(signature[32:]),
 		}

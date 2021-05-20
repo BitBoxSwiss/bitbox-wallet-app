@@ -29,8 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
@@ -51,7 +49,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
@@ -59,7 +56,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -76,12 +72,6 @@ type Backend interface {
 	Testing() bool
 	Accounts() []accounts.Interface
 	Keystores() *keystore.Keystores
-	CreateAndAddAccount(
-		coin coinpkg.Coin,
-		code string,
-		name string,
-		signingConfigurations signing.Configurations,
-	) error
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
@@ -108,6 +98,10 @@ type Backend interface {
 	Banners() *banners.Banners
 	Environment() backend.Environment
 	ChartData() (*backend.Chart, error)
+	SupportedCoins(keystore.Keystore) []coinpkg.Code
+	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
+	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error)
+	SetTokenActive(accountCode string, tokenCode string, active bool) error
 }
 
 // Handlers provides a web api to the backend.
@@ -187,9 +181,11 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
+	getAPIRouter(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
@@ -329,20 +325,36 @@ func writeJSON(w io.Writer, value interface{}) {
 	}
 }
 
-type accountJSON struct {
-	CoinCode              coinpkg.Code `json:"coinCode"`
-	CoinUnit              string       `json:"coinUnit"`
-	Code                  string       `json:"code"`
-	Name                  string       `json:"name"`
-	BlockExplorerTxPrefix string       `json:"blockExplorerTxPrefix"`
+type activeToken struct {
+	// TokenCode is the token code as defined in erc20.go, e.g. "eth-erc20-usdt".
+	TokenCode string `json:"tokenCode"`
+	// AccountCode is the code of the account, which is not the same as the TokenCode, as there can
+	// be many accounts for the same token.
+	AccountCode string `json:"accountCode"`
 }
 
-func newAccountJSON(account accounts.Interface) *accountJSON {
+type accountJSON struct {
+	CoinCode              coinpkg.Code  `json:"coinCode"`
+	CoinUnit              string        `json:"coinUnit"`
+	CoinName              string        `json:"coinName"`
+	Code                  string        `json:"code"`
+	Name                  string        `json:"name"`
+	IsToken               bool          `json:"isToken"`
+	ActiveTokens          []activeToken `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix string        `json:"blockExplorerTxPrefix"`
+}
+
+func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
+	eth, ok := account.Coin().(*eth.Coin)
+	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
+		CoinName:              account.Coin().Name(),
 		Code:                  account.Config().Code,
 		Name:                  account.Config().Name,
+		IsToken:               isToken,
+		ActiveTokens:          activeTokens,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
 	}
 }
@@ -423,87 +435,38 @@ func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error
 }
 
 func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
+	var jsonBody struct {
+		CoinCode coinpkg.Code `json:"coinCode"`
+		Name     string       `json:"name"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		AccountCode  string `json:"accountCode,omitempty"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	// The following parameters only work for watch-only singlesig accounts at the moment.
-	jsonCoinCode := coinpkg.Code(jsonBody["coinCode"])
-	jsonScriptType := jsonBody["scriptType"]
-	jsonAccountName := jsonBody["accountName"]
-	jsonExtendedPublicKey := jsonBody["extendedPublicKey"]
-	jsonAddress := jsonBody["address"]
 
-	coin, err := handlers.backend.Coin(jsonCoinCode)
+	keystores := handlers.backend.Keystores().Keystores()
+	if len(keystores) != 1 {
+		return response{Success: false, ErrorMessage: "Keystore not found"}, nil
+	}
+	keystore := keystores[0]
+
+	accountCode, err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
 	if err != nil {
-		return nil, err
-	}
-
-	scriptType, err := signing.DecodeScriptType(jsonScriptType)
-	if err != nil {
-		return nil, err
-	}
-	keypath := signing.NewEmptyAbsoluteKeypath()
-
-	var configuration *signing.Configuration
-	var warningCode string
-
-	if jsonAddress != "" {
-		switch jsonCoinCode {
-		case coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeTBTC, coinpkg.CodeTLTC:
-			btcCoin, ok := coin.(*btc.Coin)
-			if !ok {
-				panic("unexpected type, expected: *btc.Coin")
-			}
-			_, err := btcCoin.DecodeAddress(jsonAddress)
-			if err != nil {
-				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
-			}
-			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
-		case coinpkg.CodeETH, coinpkg.CodeTETH:
-			if !common.IsHexAddress(jsonAddress) {
-				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
-			}
-			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
+		handlers.log.WithError(err).Error("Could not add account")
+		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
+			return response{Success: false, ErrorCode: errCode.Error()}, nil
 		}
-
-	} else {
-		extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
-		if err != nil {
-			return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
-		}
-		if extendedPublicKey.IsPrivate() {
-			return map[string]interface{}{"success": false, "errorCode": "xprivEntered"}, nil
-		}
-		if btcCoin, ok := coin.(*btc.Coin); ok {
-			expectedNet := &chaincfg.Params{
-				HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
-			}
-			if !extendedPublicKey.IsForNet(expectedNet) {
-				warningCode = "xpubWrongNet"
-			}
-		}
-		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
-
-	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
-	err = handlers.backend.CreateAndAddAccount(
-		coin, accountCode, jsonAccountName, signing.Configurations{configuration})
-	if errp.Cause(err) == backend.ErrAccountAlreadyExists {
-		return map[string]interface{}{"success": false, "errorCode": "alreadyExists"}, nil
-	}
-	if err != nil {
-		return map[string]interface{}{
-			"success":      false,
-			"errorCode":    "unknown",
-			"errorMessage": err.Error(),
-		}, nil
-	}
-	return map[string]interface{}{
-		"success":     true,
-		"accountCode": accountCode,
-		"warningCode": warningCode,
-	}, nil
+	handlers.backend.ReinitializeAccounts()
+	return response{Success: true, AccountCode: accountCode}, nil
 }
 
 func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, error) {
@@ -521,10 +484,46 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, err
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
 	accounts := []*accountJSON{}
+	persistedAccounts := handlers.backend.Config().AccountsConfig()
 	for _, account := range handlers.backend.Accounts() {
-		accounts = append(accounts, newAccountJSON(account))
+		var activeTokens []activeToken
+		if account.Coin().Code() == coinpkg.CodeETH {
+			persistedAccount := persistedAccounts.Lookup(account.Config().Code)
+			if persistedAccount == nil {
+				handlers.log.WithField("code", account.Config().Code).Error("account not found in accounts database")
+				continue
+			}
+			for _, tokenCode := range persistedAccount.ActiveTokens {
+				activeTokens = append(activeTokens, activeToken{
+					TokenCode:   tokenCode,
+					AccountCode: backend.Erc20AccountCode(account.Config().Code, tokenCode),
+				})
+			}
+		}
+		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}
 	return accounts, nil
+}
+
+func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{}, error) {
+	var jsonBody struct {
+		AccountCode string `json:"accountCode"`
+		TokenCode   string `json:"tokenCode"`
+		Active      bool   `json:"active"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if err := handlers.backend.SetTokenActive(jsonBody.AccountCode, jsonBody.TokenCode, jsonBody.Active); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true}, nil
 }
 
 func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) (interface{}, error) {
@@ -806,6 +805,34 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	return handlers.backend.ChartData()
 }
 
+// getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
+// Exactly one keystore must be connected, otherwise an empty array is returned.
+func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}, error) {
+	type element struct {
+		CoinCode      coinpkg.Code `json:"coinCode"`
+		Name          string       `json:"name"`
+		CanAddAccount bool         `json:"canAddAccount"`
+	}
+	keystores := handlers.backend.Keystores().Keystores()
+	if len(keystores) != 1 {
+		return []string{}, nil
+	}
+	keystore := keystores[0]
+	var result []element
+	for _, coinCode := range handlers.backend.SupportedCoins(keystore) {
+		coin, err := handlers.backend.Coin(coinCode)
+		if err != nil {
+			continue
+		}
+		result = append(result, element{
+			CoinCode:      coinCode,
+			Name:          coin.Name(),
+			CanAddAccount: handlers.backend.CanAddAccount(coinCode, keystore),
+		})
+	}
+	return result, nil
+}
+
 func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}, error) {
 	name := time.Now().Format("2006-01-02-at-15-04-05-") + "Accounts-Summary.csv"
 	downloadsDir, err := utilConfig.DownloadsDir()
@@ -836,7 +863,6 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		"Unit",
 		"Type",
 		"Xpubs",
-		"Address",
 	})
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -859,23 +885,10 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		unit := account.Coin().SmallestUnit()
 		var accountType string
 		var xpubs []string
-		var address string
 		signingConfigurations := account.Info().SigningConfigurations
-		if len(signingConfigurations) == 1 && signingConfigurations[0].IsAddressBased() {
-			accountType = "address"
-			address = signingConfigurations[0].Address()
-		} else {
-			accountType = "xpubs"
-			for _, signingConfiguration := range signingConfigurations {
-				if len(signingConfiguration.ExtendedPublicKeys()) != 1 {
-					return nil, errp.New("multisig not supported in the export yet")
-				}
-				xpubs = append(xpubs, signingConfiguration.ExtendedPublicKeys()[0].String())
-			}
-
-			if _, ok := account.(*eth.Account); ok {
-				address = signingConfigurations[0].Address()
-			}
+		accountType = "xpubs"
+		for _, signingConfiguration := range signingConfigurations {
+			xpubs = append(xpubs, signingConfiguration.ExtendedPublicKey().String())
 		}
 
 		err = writer.Write([]string{
@@ -885,7 +898,6 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			unit,
 			accountType,
 			strings.Join(xpubs, "; "),
-			address,
 		})
 		if err != nil {
 			return nil, errp.WithStack(err)

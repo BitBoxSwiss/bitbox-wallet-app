@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { IAccount } from '../../api/account';
 import { Link, route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
@@ -36,6 +38,7 @@ import { FiatSelection } from './components/fiat/fiat';
 import * as style from './settings.css';
 
 interface SettingsProps {
+    accounts: IAccount[];
     deviceIDs: string[];
 }
 
@@ -49,32 +52,6 @@ interface State {
 }
 
 class Settings extends Component<Props, State> {
-    private accountsList = [
-        { name: 'bitcoinActive',
-          label: 'Bitcoin',
-          badges: [],
-        },
-        { name: 'litecoinActive',
-          label: 'Litecoin',
-          badges: ['BitBox02-Multi', 'BitBox01'],
-        },
-    ];
-
-    // Note: these are stored in the app config as is, without the "eth-erc20-" prefix,
-    // while backend uses the prefix in backend/erc20.go.
-    private erc20TokenCodes = {
-        usdt: 'Tether USD',
-        usdc: 'USD Coin',
-        link: 'Chainlink',
-        bat: 'Basic Attention Token',
-        mkr: 'Maker',
-        zrx: '0x',
-        wbtc: 'Wrapped Bitcoin',
-        paxg: 'Pax Gold',
-        sai0x89d2: 'Sai',
-        dai0x6b17: 'Dai',
-    };
-
     constructor(props) {
         super(props);
         this.state = {
@@ -97,19 +74,6 @@ class Settings extends Component<Props, State> {
         }
     }
 
-    private handleToggleAccount = (event: Event) => {
-        const target = (event.target as HTMLInputElement);
-        setConfig({
-            backend: {
-                [target.id]: target.checked,
-            },
-        })
-            .then(config => {
-                this.setState({ config });
-                this.reinitializeAccounts();
-            });
-    }
-
     private handleToggleFrontendSetting = (event: Event) => {
         const target = (event.target as HTMLInputElement);
         setConfig({
@@ -118,45 +82,6 @@ class Settings extends Component<Props, State> {
             },
         })
             .then(config => this.setState({ config }));
-    }
-
-    private reinitializeAccounts = () => {
-        apiPost('accounts/reinitialize');
-    }
-
-    private handleToggleEthereum = (event: Event) => {
-        const target = (event.target as HTMLInputElement);
-        setConfig({
-            backend: {
-                ethereumActive: target.checked,
-            },
-        })
-            .then(config => {
-                this.setState({ config });
-                this.reinitializeAccounts();
-            });
-    }
-
-    private handleToggleERC20Token = (event: Event) => {
-        const config = this.state.config;
-        if (!config || !config.backend.eth) {
-            return;
-        }
-        const target = (event.target as HTMLInputElement);
-        const tokenCode = target.dataset.tokencode;
-        const eth = config.backend.eth;
-        const activeTokens = eth.activeERC20Tokens.filter(val => val !== tokenCode);
-        if (target.checked) {
-            activeTokens.push(tokenCode);
-        }
-        eth.activeERC20Tokens = activeTokens;
-        setConfig({
-            backend: { eth },
-        })
-            .then(newConfig => {
-                this.setState({ config: newConfig });
-                this.reinitializeAccounts();
-            });
     }
 
     private handleFormChange = (event: Event) => {
@@ -225,12 +150,16 @@ class Settings extends Component<Props, State> {
         route('/', true);
     }
 
-    public render(
-        { t, deviceIDs }: RenderableProps<Props>,
-        { config,
-            restart,
-            proxyAddress,
-            activeProxyDialog }: State,
+    public render({
+        accounts,
+        deviceIDs,
+        t,
+    }: RenderableProps<Props>,
+    {
+        config,
+        restart,
+        proxyAddress,
+        activeProxyDialog }: State,
     ) {
         if (proxyAddress === undefined) {
             return null;
@@ -270,67 +199,24 @@ class Settings extends Component<Props, State> {
                                                 <div className="column column-1-3">
                                                     <FiatSelection />
                                                 </div>
-                                                <div className="column column-1-3">
-                                                    <div class="subHeaderContainer">
-                                                        <div class="subHeader">
-                                                            <h3>{t('settings.accounts.title')}</h3>
-                                                        </div>
-                                                    </div>
-                                                    <div className="box slim">
-                                                        {
-                                                            this.accountsList.map((account, index) => (
-                                                                <div className={style.setting} key={`available-fiat-${index}`}>
-                                                                    <div>
-                                                                        <p className="m-none">{account.label}</p>
-                                                                        {account.badges.map((badge, i) => (
-                                                                            <Badge
-                                                                                key={`badge-${i}`}
-                                                                                type={badge === 'BitBox02-Multi' ? 'primary' : 'generic'}
-                                                                                className="m-right-quarter">
-                                                                                {badge}
-                                                                            </Badge>
-                                                                        ))}
-                                                                    </div>
-                                                                    <Toggle
-                                                                        id={account.name}
-                                                                        checked={config.backend[account.name]}
-                                                                        onChange={this.handleToggleAccount} />
-                                                                </div>
-                                                            ))
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <div className="column column-1-3">
-                                                    <div class="subHeaderContainer withToggler">
-                                                        <div class="subHeader">
-                                                            <h3>Ethereum</h3>
-                                                            <Badge type="primary" className="m-left-quarter">BitBox02-Multi</Badge>
-                                                        </div>
-                                                        <div className="subHeaderToggler">
-                                                            <Toggle
-                                                                checked={config.backend.ethereumActive}
-                                                                id="ethereumActive"
-                                                                onChange={this.handleToggleEthereum} />
-                                                        </div>
-                                                    </div>
-                                                    <div className="box slim">
-                                                        {
-                                                            Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => (
-                                                                <div className={[style.setting, !config.backend.ethereumActive ? style.disabled : ''].join(' ')} key={tokenCode}>
-                                                                    <p className="m-none">{tokenName}</p>
-                                                                    <Toggle
-                                                                        checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
-                                                                        disabled={!config.backend.ethereumActive}
-                                                                        id={'erc20-' + tokenCode}
-                                                                        data-tokencode={tokenCode}
-                                                                        onChange={this.handleToggleERC20Token} />
-                                                                </div>
-                                                            ))
-                                                        }
-                                                    </div>
-                                                    <p className="text-gray text-small">powered by Etherscan.io APIs</p>
-                                                </div>
                                                 <div className="column column-2-3">
+                                                    { accounts.length ? (
+                                                        <div>
+                                                            <div class="subHeaderContainer">
+                                                                <div class="subHeader">
+                                                                    <h3>Accounts</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div className="box slim divide m-bottom-large">
+                                                                <SettingsButton
+                                                                    onClick={() => route('/settings/manage-accounts', true)}
+                                                                    secondaryText={t('manageAccounts.settingsButtonDescription')}
+                                                                    optionalText={accounts.length.toString()}>
+                                                                    {t('manageAccounts.title')}
+                                                                </SettingsButton>
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.expert.title')}</h3>
@@ -363,28 +249,9 @@ class Settings extends Component<Props, State> {
                                                                 id="coinControl"
                                                                 onChange={this.handleToggleFrontendSetting} />
                                                         </div>
-                                                        <div className={style.setting}>
-                                                            <div className="m-top-quarter m-bottom-quarter">
-                                                                <p className="m-none">{t('settings.expert.splitAccounts')}</p>
-                                                                <p className="m-none">
-                                                                    <Badge type="generic">BitBox02</Badge>
-                                                                    <span className="text-gray"> (</span>
-                                                                    <Badge type="primary">Multi</Badge>
-                                                                    <span className="text-gray">,</span>
-                                                                    <Badge type="secondary" className="m-left-quarter">Bitcoin-only</Badge>
-                                                                    <span className="text-gray">)</span>
-                                                                    <Badge type="generic" className="m-left-quarter">BTC</Badge>
-                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
-                                                                </p>
-                                                            </div>
-                                                            <Toggle
-                                                                id="splitAccounts"
-                                                                checked={config.backend.splitAccounts}
-                                                                onChange={this.handleToggleAccount} />
-                                                        </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
-                                                             optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
+                                                            optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
                                                             {t('settings.expert.useProxy')}
                                                         </SettingsButton>
                                                         {
@@ -447,7 +314,6 @@ class Settings extends Component<Props, State> {
                     </div>
                 </div>
                 <Guide>
-                    <Entry key="guide.settings.whyMultipleAccounts" entry={t('guide.settings.whyMultipleAccounts')} />
                     <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
                     <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
                     <Entry key="guide.accountRates" entry={t('guide.accountRates')} />

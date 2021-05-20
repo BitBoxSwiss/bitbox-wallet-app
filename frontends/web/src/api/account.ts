@@ -28,12 +28,19 @@ export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
+export interface IActiveToken {
+    tokenCode: string;
+    accountCode: string;
+}
 
 export interface IAccount {
     coinCode: CoinCode;
     coinUnit: string;
+    coinName: string;
     code: string;
     name: string;
+    isToken: boolean;
+    activeTokens?: IActiveToken[];
     blockExplorerTxPrefix: string;
 }
 
@@ -54,12 +61,19 @@ export const getStatus = (code: string): Promise<IStatus> => {
 
 export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
 
-export interface ISigningConfiguration {
-    address: string;
+export interface IKeyInfo {
     keypath: string;
-    scriptType: ScriptType;
-    threshold: number;
-    xpubs: string[];
+    xpub: string;
+}
+
+export interface ISigningConfiguration {
+    bitcoinSimple?: {
+        keyInfo: IKeyInfo;
+        scriptType: ScriptType;
+    };
+    ethereumSimple?: {
+        keyInfo: IKeyInfo;
+    }
 }
 
 export interface ISigningConfigurationList {

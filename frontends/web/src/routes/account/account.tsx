@@ -234,8 +234,9 @@ class Account extends Component<Props, State> {
         if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
             return false;
         }
+        const config = accountInfo.signingConfigurations[0].bitcoinSimple;
         return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
-            accountInfo.signingConfigurations[0].scriptType === scriptType;
+            config !== undefined && config.scriptType === scriptType;
     }
 
     private deviceIDs = (devices: TDevices) => {

@@ -121,8 +121,9 @@
     overflow: auto;
 }
 
-.scrollableContainer .content {
-    /* overflow: visible; */
+.scrollContainer {
+    overflow-x: auto;
+    overflow-y: scroll;
 }
 
 .subHeaderContainer {
@@ -171,6 +172,10 @@
 
 .content.narrow {
     max-width: var(--content-width-small);
+}
+
+.content.larger {
+    max-width: var(--content-width-larger);
 }
 
 .content.noSpace {
@@ -291,6 +296,10 @@
 
 .box.large {
     padding: var(--space-default);
+}
+
+.box.larger {
+    padding: var(--space-large);
 }
 
 .box.slim {
@@ -425,6 +434,10 @@
 
     .box.large {
         padding: var(--space-half);
+    }
+
+    .box.larger {
+        padding: var(--space-default);
     }
 
     .m-top-quarter-on-small {
