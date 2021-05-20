@@ -39,15 +39,19 @@
   },
   "addAccount": {
     "accountName": "Account name",
+    "address": "Address",
     "chooseName": {
       "nextButton": "Add account",
       "step": "Name account",
       "title": "Name your account"
     },
+    "coin": "Coin",
     "error": {
       "alreadyExists": "The account already exists.",
       "limitReached": "Cannot add account. The maximum number of accounts for this coin has been reached."
     },
+    "extendedPublicKey": "Extended public key",
+    "scriptType": "Script type",
     "selectCoin": {
       "nextButton": "Next",
       "step": "Select coin",
@@ -59,7 +63,10 @@
       "step": "Finished",
       "title": "Account added"
     },
-    "title": "Add account"
+    "title": "Add account",
+    "warning": {
+      "xpubWrongNet": "Warning: The extended public key format indicates that it might not be valid for the selected account type. If you do not see the expected transactions, then try to import the extended public key with another account type."
+    }
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
