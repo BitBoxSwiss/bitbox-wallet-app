@@ -1163,7 +1163,7 @@
     "label": "Your address",
     "onlyThisCoin": {
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
-      "warning": "Make sure to only receive {{accountName}} on this address."
+      "warning": "Make sure to only receive {{coinName}} ({{coinUnit}}) on this address."
     },
     "showFull": "Show and verify full address on device",
     "title": "Get {{accountName}}",
