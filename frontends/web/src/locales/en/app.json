@@ -493,6 +493,7 @@
   "buy": {
     "info": {
       "continue": "Agree and continue",
+      "crypto": "crypto",
       "disclaimer": {
         "intro": [
           "We partner with MoonPay to offer you a seamless way to buy {{name}} directly within the BitBoxApp. It's just a few clicks.",
