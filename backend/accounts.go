@@ -259,6 +259,10 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 
 	nextAccountNumber := uint16(len(backend.filterAccounts(accountsConfig, filter)))
 
+	if !keystore.SupportsMultipleAccounts() && nextAccountNumber >= 1 {
+		return 0, errp.WithStack(ErrAccountLimitReached)
+	}
+
 	if nextAccountNumber >= accountsHardLimit {
 		return 0, errp.WithStack(ErrAccountLimitReached)
 	}

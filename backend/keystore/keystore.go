@@ -60,6 +60,10 @@ type Keystore interface {
 	// If false, the backend will add one account per supported script type.
 	SupportsUnifiedAccounts() bool
 
+	// SupportsMultipleAccounts returns true if the keystore can handle more than one account per
+	// coin.
+	SupportsMultipleAccounts() bool
+
 	// CanVerifyAddress returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
 	// optional is true if the user can skip verification, and false if they should be forced to

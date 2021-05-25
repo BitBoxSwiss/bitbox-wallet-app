@@ -112,6 +112,11 @@ func (keystore *Keystore) SupportsUnifiedAccounts() bool {
 	return true
 }
 
+// SupportsMultipleAccounts implements keystore.Keystore.
+func (keystore *Keystore) SupportsMultipleAccounts() bool {
+	return true
+}
+
 // Identifier implements keystore.Keystore.
 func (keystore *Keystore) Identifier() (string, error) {
 	return keystore.identifier, nil
