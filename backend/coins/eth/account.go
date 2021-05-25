@@ -42,7 +42,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var pollInterval = 30 * time.Second
+var pollInterval = 60 * time.Second
 
 // Account is an Ethereum account, with one address.
 type Account struct {
