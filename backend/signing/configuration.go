@@ -162,20 +162,20 @@ func (configuration *Configuration) ExtendedPublicKey() *hdkeychain.ExtendedKey 
 // m/purpose'/coin'/account' for Bitcoin-based coins.
 // m/44'/coin'/0'/0/account for Ethereum.
 // For invalid keypaths, zero is returned for the account number, along with an error.
-func (configuration *Configuration) AccountNumber() (uint32, error) {
+func (configuration *Configuration) AccountNumber() (uint16, error) {
 	if configuration.BitcoinSimple != nil {
 		keypath := configuration.BitcoinSimple.KeyInfo.AbsoluteKeypath.ToUInt32()
 		if len(keypath) != 3 || keypath[2] < hdkeychain.HardenedKeyStart {
 			return 0, errp.Newf("unexpected bitcoin keypath: %v", keypath)
 		}
-		return keypath[2] - hdkeychain.HardenedKeyStart, nil
+		return uint16(keypath[2] - hdkeychain.HardenedKeyStart), nil
 	}
 	if configuration.EthereumSimple != nil {
 		keypath := configuration.EthereumSimple.KeyInfo.AbsoluteKeypath.ToUInt32()
 		if len(keypath) != 5 || keypath[4] >= hdkeychain.HardenedKeyStart {
 			return 0, errp.Newf("unexpected ethereum keypath: %v", keypath)
 		}
-		return keypath[4], nil
+		return uint16(keypath[4]), nil
 	}
 	return 0, errp.New("unknown signing configuration type")
 }

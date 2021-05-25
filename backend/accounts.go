@@ -257,7 +257,7 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 		return account.Configurations.ContainsRootFingerprint(rootFingerprint)
 	}
 
-	nextAccountNumber := uint32(0)
+	nextAccountNumber := uint16(0)
 	for _, account := range backend.filterAccounts(accountsConfig, filter) {
 		if len(account.Configurations) == 0 {
 			backend.log.WithField("code", account.Code).Error("expected at least one signing configuration")
@@ -279,7 +279,7 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 	if nextAccountNumber >= accountsHardLimit {
 		return 0, errp.WithStack(ErrAccountLimitReached)
 	}
-	return uint16(nextAccountNumber), nil
+	return nextAccountNumber, nil
 }
 
 // CanAddAccount returns true if it is possible to add an account for the given coin and keystore.
