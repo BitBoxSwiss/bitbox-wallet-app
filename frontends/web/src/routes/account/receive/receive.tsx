@@ -295,7 +295,9 @@ class Receive extends Component<Props, State> {
                                     isEthereumBased(account.coinCode) &&
                                     <p>
                                         <strong>
-                                            {t('receive.onlyThisCoin.warning', { accountName: account.name })}
+                                            {t('receive.onlyThisCoin.warning', {
+                                                coinName: account.coinName,
+                                            })}
                                         </strong><br />
                                         {t('receive.onlyThisCoin.description')}
                                     </p>

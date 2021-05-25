@@ -110,7 +110,7 @@ class BuyInfo extends Component<Props, State> {
         if (options === undefined) {
             return <Spinner text={t('loading')} />;
         }
-        const name = (code && isBitcoin(code)) ? 'Bitcoin' : 'crypto';
+        const name = (code && isBitcoin(code)) ? 'Bitcoin' : t('buy.info.crypto');
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -198,7 +198,7 @@ class BuyInfo extends Component<Props, State> {
                                     <h1 class={style.title}>{t('buy.title', { name })}</h1>
                                     <Select
                                         options={[{
-                                                text: t('buy.info.selectPlaceholder'),
+                                                text: t('buy.info.selectLabel'),
                                                 disabled: true,
                                                 value: 'choose',
                                             },
