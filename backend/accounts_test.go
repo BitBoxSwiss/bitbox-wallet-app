@@ -21,10 +21,20 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func mustKeypath(keypath string) signing.AbsoluteKeypath {
+	kp, err := signing.NewAbsoluteKeypath(keypath)
+	if err != nil {
+		panic(err)
+	}
+	return kp
+}
 
 func TestSortAccounts(t *testing.T) {
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
@@ -75,4 +85,96 @@ func TestSortAccounts(t *testing.T) {
 	for i := range accounts {
 		assert.Equal(t, expectedOrder[i], accounts[i].Code)
 	}
+}
+
+func TestNextAccountNumber(t *testing.T) {
+	fingerprint1 := []byte{0x55, 0x55, 0x55, 0x55}
+	fingerprint2 := []byte{0x66, 0x66, 0x66, 0x66}
+	fingerprintEmpty := []byte{0x77, 0x77, 0x77, 0x77}
+	ks := func(fingerprint []byte, supportsMultipleAccounts bool) *keystoremock.KeystoreMock {
+		return &keystoremock.KeystoreMock{
+			RootFingerprintFunc: func() ([]byte, error) {
+				return fingerprint, nil
+			},
+			SupportsMultipleAccountsFunc: func() bool {
+				return supportsMultipleAccounts
+			},
+		}
+	}
+
+	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err := xprv.Neuter()
+	require.NoError(t, err)
+
+	accountsConfig := &config.AccountsConfig{
+		Accounts: []config.Account{
+			{
+				CoinCode: coinpkg.CodeBTC,
+				Configurations: signing.Configurations{
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2WPKH,
+						fingerprint1,
+						mustKeypath("m/84'/0'/0'"),
+						xpub,
+					),
+				},
+			},
+			{
+				CoinCode: coinpkg.CodeBTC,
+				Configurations: signing.Configurations{
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2WPKHP2SH,
+						fingerprint1,
+						mustKeypath("m/49'/0'/0'"),
+						xpub,
+					),
+				},
+			},
+			{
+				CoinCode: coinpkg.CodeTBTC,
+				Configurations: signing.Configurations{
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2WPKH,
+						fingerprint1,
+						mustKeypath("m/84'/0'/3'"),
+						xpub,
+					),
+				},
+			},
+			{
+				CoinCode: coinpkg.CodeTBTC,
+				Configurations: signing.Configurations{
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2WPKH,
+						fingerprint2,
+						mustKeypath("m/84'/0'/4'"),
+						xpub,
+					),
+				},
+			},
+		},
+	}
+
+	num, err := nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, true), accountsConfig)
+	require.NoError(t, err)
+	require.Equal(t, uint16(0), num)
+
+	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprintEmpty, false), accountsConfig)
+	require.NoError(t, err)
+	require.Equal(t, uint16(0), num)
+
+	num, err = nextAccountNumber(coinpkg.CodeBTC, ks(fingerprint1, true), accountsConfig)
+	require.NoError(t, err)
+	require.Equal(t, uint16(1), num)
+
+	_, err = nextAccountNumber(coinpkg.CodeBTC, ks(fingerprint1, false), accountsConfig)
+	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+
+	num, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint1, true), accountsConfig)
+	require.NoError(t, err)
+	require.Equal(t, uint16(4), num)
+
+	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint2, true), accountsConfig)
+	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
 }

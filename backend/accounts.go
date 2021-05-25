@@ -243,29 +243,24 @@ func (backend *Backend) createAndPersistAccountConfig(
 
 // nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
 // account number of the new account.
-func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) (uint16, error) {
+func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) (uint16, error) {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
 		return 0, err
 	}
-	filter := func(account *config.Account) bool {
-		// Same coin:
-		if coinCode != account.CoinCode {
-			return false
-		}
-		// Belongs to keystore:
-		return account.Configurations.ContainsRootFingerprint(rootFingerprint)
-	}
-
 	nextAccountNumber := uint16(0)
-	for _, account := range backend.filterAccounts(accountsConfig, filter) {
+	for _, account := range accountsConfig.Accounts {
+		if coinCode != account.CoinCode {
+			continue
+		}
+		if !account.Configurations.ContainsRootFingerprint(rootFingerprint) {
+			continue
+		}
 		if len(account.Configurations) == 0 {
-			backend.log.WithField("code", account.Code).Error("expected at least one signing configuration")
 			continue
 		}
 		accountNumber, err := account.Configurations[0].AccountNumber()
 		if err != nil {
-			backend.log.WithField("code", account.Code).Error("could not parse account number")
 			continue
 		}
 		if accountNumber+1 > nextAccountNumber {
@@ -285,7 +280,7 @@ func (backend *Backend) nextAccountNumber(coinCode coinpkg.Code, keystore keysto
 // CanAddAccount returns true if it is possible to add an account for the given coin and keystore.
 func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) bool {
 	conf := backend.config.AccountsConfig()
-	_, err := backend.nextAccountNumber(coinCode, keystore, &conf)
+	_, err := nextAccountNumber(coinCode, keystore, &conf)
 	return err == nil
 }
 
@@ -297,7 +292,7 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error) {
 	var accountCode string
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		nextAccountNumber, err := backend.nextAccountNumber(coinCode, keystore, accountsConfig)
+		nextAccountNumber, err := nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
 			return err
 		}
