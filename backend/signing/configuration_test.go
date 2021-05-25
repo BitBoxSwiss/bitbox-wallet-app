@@ -100,31 +100,31 @@ func TestAccountNumber(t *testing.T) {
 		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/0'"), xpub)
 	num, err := cfg.AccountNumber()
 	require.NoError(t, err)
-	require.Equal(t, uint32(0), num)
+	require.Equal(t, uint16(0), num)
 	cfg = NewBitcoinConfiguration(
 		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/10'"), xpub)
 	num, err = cfg.AccountNumber()
 	require.NoError(t, err)
-	require.Equal(t, uint32(10), num)
+	require.Equal(t, uint16(10), num)
 	cfg = NewBitcoinConfiguration(
 		ScriptTypeP2WPKH, rootFingerprint, mustKeypath("m/48'/0'/0'/10'"), xpub)
 	num, err = cfg.AccountNumber()
 	require.Error(t, err)
-	require.Equal(t, uint32(0), num)
+	require.Equal(t, uint16(0), num)
 
 	cfg = NewEthereumConfiguration(
 		rootFingerprint, mustKeypath("m/44'/60'/0'/0/0"), xpub)
 	num, err = cfg.AccountNumber()
 	require.NoError(t, err)
-	require.Equal(t, uint32(0), num)
+	require.Equal(t, uint16(0), num)
 	cfg = NewEthereumConfiguration(
 		rootFingerprint, mustKeypath("m/44'/60'/0'/0/10"), xpub)
 	num, err = cfg.AccountNumber()
 	require.NoError(t, err)
-	require.Equal(t, uint32(10), num)
+	require.Equal(t, uint16(10), num)
 	cfg = NewEthereumConfiguration(
 		rootFingerprint, mustKeypath("m/44'/60'/0'/0/0/10"), xpub)
 	num, err = cfg.AccountNumber()
 	require.Error(t, err)
-	require.Equal(t, uint32(0), num)
+	require.Equal(t, uint16(0), num)
 }

@@ -85,6 +85,11 @@ func (keystore *keystore) SupportsUnifiedAccounts() bool {
 	return false
 }
 
+// SupportsMultipleAccounts implements keystore.Keystore.
+func (keystore *keystore) SupportsMultipleAccounts() bool {
+	return false
+}
+
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(coin coin.Coin) (bool, bool, error) {
 	deviceInfo, err := keystore.dbb.DeviceInfo()
