@@ -635,7 +635,7 @@
       "title": "Ne zaman görüntülenir?"
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact\n",
+      "href": "https://shiftcrypto.ch/contact",
       "link": "Bizimle iletişime geçin!",
       "text": "Başka bir soru?"
     },
@@ -777,7 +777,7 @@
         "title": "Daha fazla para ekleyebilir misin?"
       },
       "servers": {
-        "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CryptoCompare'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
+        "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CoinGecko'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
         "title": "Bu uygulama hangi sunucularla konuşuyor?"
       },
       "whyMultipleAccounts": {
@@ -936,7 +936,7 @@
     "label": "Sizin adresiniz",
     "onlyThisCoin": {
       "description": "Başka token'ları almak için, onları ayarlardan etkinleştirin. Diğer token'ları yatırırsanız, erişilebilir olmayabilir.",
-      "warning": "Sadece bu adresle  {{accountName}} almak istediğinize emin olun"
+      "warning": "Sadece bu adresle  {{coinName}} almak istediğinize emin olun"
     },
     "showFull": "Cihazdaki tam adresi göster ve doğrula",
     "title": "{{accountName}} Al",

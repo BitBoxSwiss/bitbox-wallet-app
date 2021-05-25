@@ -483,7 +483,7 @@
     "accountSummaryAmount": {
       "link": {
         "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com"
+        "url": "/https://www.coingecko.com"
       },
       "text": "coingecko.com הסכום הסופי הוא סכימת כל חשבונות הקריפטו שלך. שערי המרה נלקחים מ\n\nלאסימונים שלא נתמכים בתכנה זו, הם לא יכללו בכמות המוצגת MyEtherWallet הערה: אם אתה משתמש ב\n\n",
       "title": "?כיצד הכמות הסופית מחושבת"
@@ -886,7 +886,7 @@
     "label": "כתובתך",
     "onlyThisCoin": {
       "description": ".בכדי לקבל אסימונים אחרים, אפשר אותם בהגדרות. אם תפקיד אסימונים שונים, ייתכן שהם לא יהיו נגישים",
-      "warning": ".וודא כי אתה מקבל {{accountName}} בלבד בכתובת זו"
+      "warning": ".וודא כי אתה מקבל {{coinName}} בלבד בכתובת זו"
     },
     "showFull": "הראה ואמת כתובת מלאה בהתקן",
     "title": "קבל {{accountName}}",

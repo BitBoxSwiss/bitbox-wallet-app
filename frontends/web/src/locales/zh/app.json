@@ -778,7 +778,7 @@
         "title": "可以添加更多币种吗？"
       },
       "servers": {
-        "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CryptoCompare检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
+        "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CoinGecko检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
       },
       "whyMultipleAccounts": {
@@ -936,7 +936,7 @@
     "label": "你的地址",
     "onlyThisCoin": {
       "description": "要接收其他代币，请先在设置中启用它们。否则如果您存入其他代币，则可能无法访问它们。",
-      "warning": "确保只在这个地址上接收 {{accountName}} 。"
+      "warning": "确保只在这个地址上接收 {{coinName}} 。"
     },
     "showFull": "在设备上显示并验证完整的地址",
     "title": "获取 {{accountName}}",

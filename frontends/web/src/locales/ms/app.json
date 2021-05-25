@@ -516,7 +516,7 @@
         "title": "Dapatkah anda menambah lebih banyak syiling?"
       },
       "servers": {
-        "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CryptoCompare. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
+        "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CoinGecko. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
         "title": "Server mana yang digunakan aplikasi ini?"
       },
       "whyMultipleAccounts": {

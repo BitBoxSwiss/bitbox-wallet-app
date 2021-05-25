@@ -86,7 +86,7 @@
       "title": "Créer une sauvegarde",
       "verificationFailed": "Le mot de passe de récupération NE CORRESPOND PAS à ce portefeuille. La sauvegarde a été créée. Veuillez utiliser «Vérifier la sauvegarde» pour vérifier à nouveau votre mot de passe de récupération."
     },
-    "description": "Sélectionnez le <strong>fichier de sauvegarde du portefeuille</ strong>.",
+    "description": "Sélectionnez le <strong>fichier de sauvegarde du portefeuille</strong>.",
     "insert": "Veuillez insérer la carte microSD pour gérer les sauvegardes.",
     "insertButton": "J'ai inséré la carte microSD",
     "list": "Vos sauvegardes sur la carte microSD",
@@ -817,7 +817,7 @@
         "title": "Qu'est-ce que Bitcoin bech32 ?"
       },
       "servers": {
-        "text": "Cette application communique avec les serveurs de Shift Crypto pour rechercher des mises à jour, charger des transactions et envoyer des informations aux applications mobiles appairées.\nDe plus, elle récupère les derniers taux de change de CryptoCompare.\nLes conversions sont calculées localement, aucun de vos montants n'est transmis.\nNote : Pour Ethereum et les jetons ERC20, nous utilisons Etherscan.io APIs.",
+        "text": "Cette application communique avec les serveurs de Shift Crypto pour rechercher des mises à jour, charger des transactions et envoyer des informations aux applications mobiles appairées.\nDe plus, elle récupère les derniers taux de change de CoinGecko.\nLes conversions sont calculées localement, aucun de vos montants n'est transmis.\nNote : Pour Ethereum et les jetons ERC20, nous utilisons Etherscan.io APIs.",
         "title": "Avec quels serveurs cette application communique-t-elle ?"
       },
       "whyMultipleAccounts": {
@@ -879,8 +879,8 @@
     "blocksSynced": "{{blocks}} blocs synchronisés"
   },
   "hiddenWallet": {
-    "info1HTML": "Pour un besoin de déni plausible, un portefeuille caché peut être créé à partir d'une combinaison de <strong> différents </ strong> mot de passe de récupération et d'appareil.",
-    "info2HTML": "Définissez le mot de passe de l'appareil et de récupération que vous souhaitez associer à votre portefeuille caché ci-dessous. Le mot de passe de l'appareil et le mot de passe de récupération doivent être <strong> différents </ strong> de ceux que vous avez définis pour votre portefeuille principal.",
+    "info1HTML": "Pour un besoin de déni plausible, un portefeuille caché peut être créé à partir d'une combinaison de <strong> différents </strong> mot de passe de récupération et d'appareil.",
+    "info2HTML": "Définissez le mot de passe de l'appareil et de récupération que vous souhaitez associer à votre portefeuille caché ci-dessous. Le mot de passe de l'appareil et le mot de passe de récupération doivent être <strong> différents </strong> de ceux que vous avez définis pour votre portefeuille principal.",
     "passwordLabel": "Mot de passe de récupération caché",
     "passwordPlaceholder": "Veuillez confirmer le mot de passe de récupération caché",
     "pinLabel": "Mot de passe de l'appareil caché",
@@ -984,7 +984,7 @@
     "label": "Votre adresse",
     "onlyThisCoin": {
       "description": "Pour recevoir d'autres coins, activez-les dans les paramètres. Si vous déposez d'autres coins, il se peut qu'ils ne soient pas accessibles.",
-      "warning": "Assurez-vous de ne recevoir que {{accountName}} sur cette adresse."
+      "warning": "Assurez-vous de ne recevoir que {{coinName}} sur cette adresse."
     },
     "showFull": "Afficher et vérifier l'adresse complète sur l'appareil",
     "title": "Recevoir {{accountName}}",
@@ -1008,9 +1008,9 @@
       "button": "Continuer",
       "description1": "Il est recommandé de configurer votre appareil dans un environnement sécurisé.",
       "description2": "Il vous sera demandé de créer deux mots de passe.",
-      "description3": "Le premier est le <strong>mot de passe de l'appareil</ strong> qui déverrouille votre BitBox et peut être modifié ultérieurement.",
-      "description4": "Le second est le <strong>mot de passe de récupération</ strong> qui déverrouille votre portefeuille. Ce mot de passe ne peut PAS être changé ultérieurement.",
-      "description5": "Le portefeuille que vous créez sera sauvegardé dans un fichier sur la carte microSD fournie. Elle peut être utilisé en cas d'urgence pour récupérer vos fonds avec l'aide de votre <strong>mot de passe de récupération</ strong>.",
+      "description3": "Le premier est le <strong>mot de passe de l'appareil</strong> qui déverrouille votre BitBox et peut être modifié ultérieurement.",
+      "description4": "Le second est le <strong>mot de passe de récupération</strong> qui déverrouille votre portefeuille. Ce mot de passe ne peut PAS être changé ultérieurement.",
+      "description5": "Le portefeuille que vous créez sera sauvegardé dans un fichier sur la carte microSD fournie. Elle peut être utilisé en cas d'urgence pour récupérer vos fonds avec l'aide de votre <strong>mot de passe de récupération</strong>.",
       "title": "Information de sécurité"
     },
     "restore": {

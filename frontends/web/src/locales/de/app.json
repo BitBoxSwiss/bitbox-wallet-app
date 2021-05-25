@@ -14,6 +14,7 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Informationen werden von der Blockchain geladen…",
+    "maybeProxyError": "Tor-Proxy aktiviert. Stelle sicher, dass Tor-Proxy ordnungsgemäß ausgeführt wird, oder deaktivieren Sie die Proxy-Einstellung.",
     "openFile": "Öffne Datei",
     "reconnecting": "Verbindung abgebrochen, neue Verbindung wird aufgebaut…",
     "syncedAddressesCount": "{{count}} Adressen gescannt"
@@ -39,16 +40,33 @@
   "addAccount": {
     "accountName": "Konto Name",
     "address": "Adresse",
+    "chooseName": {
+      "nextButton": "Konto hinzufügen",
+      "step": "Konto benennen",
+      "title": "Benennen Sie Ihr Konto"
+    },
     "coin": "Coin",
     "error": {
       "alreadyExists": "Dieses Konto existiert bereits.",
       "invalidAddress": "Bitte geben Sie eine gültige Adresse ein",
+      "limitReached": "Konto kann nicht hinzugefügt werden. Die maximale Kontenanzahl für diese Währung wurde erreicht.",
       "xprivEntered": "WARNUNG: Sie haben einen erweiterten Private-Key eingegeben. Bitte geben Sie einen erweiterten Public-Key ein und bewahren Sie Ihren Private-Key sicher auf.",
       "xpubInvalid": "Erweiterter Public Key falsch formattiert"
     },
     "extendedPublicKey": "Erweiterter Public Key",
     "scriptType": "Script Type",
+    "selectCoin": {
+      "nextButton": "Weiter",
+      "step": "Coin wählen",
+      "title": "Kryptowährung wählen"
+    },
     "submit": "Konto hinzufügen",
+    "success": {
+      "message": "<strong>{{accountName}}</strong> wurde zu Ihren Konten hinzugefügt.",
+      "nextButton": "Fertig",
+      "step": "Erledigt",
+      "title": "Konto hinzugefügt"
+    },
     "title": "Konto hinzufügen",
     "warning": {
       "xpubWrongNet": "Warnung: Das Format des erweiterten Public Keys entspricht nicht dem ausgewählten Kontotyp. Sollten die erwarteten Transaktionen nicht angezeigt werden versuchen Sie, den erweiterten Public Key mit einem anderen Kontotyp zu importieren."
@@ -467,6 +485,7 @@
   "buy": {
     "info": {
       "continue": "Zustimmen und fortfahren",
+      "crypto": "Krypto",
       "disclaimer": {
         "intro": [
           "Wir arbeiten mit MoonPay zusammen, damit Sie mit nur ein paar Klicks ganz einfach {{name}} direkt in der BitBoxApp kaufen können. ",
@@ -562,6 +581,7 @@
         "label": "microSD Karte",
         "true": "Eingesteckt"
       },
+      "securechip": "Secure chip",
       "title": "Hardware"
     },
     "loading": "Geräteinformationen werden abgerufen...\n\n",
@@ -593,6 +613,11 @@
     "cancel": "Abbrechen",
     "confirm": "Bestätigen",
     "confirmTitle": "Bestätigung"
+  },
+  "error": {
+    "accountAlreadyExists": "Dieses Konto existiert bereits.",
+    "accountLimitReached": "Konto kann nicht hinzugefügt werden. Die maximale Kontenanzahl für diese Währung wurde erreicht.",
+    "accountNameAlreadyExists": "Ein Konto mit diesem Namen existiert bereits."
   },
   "exchanges": {
     "method": "Zahlungsmethode wählen",
@@ -705,7 +730,7 @@
     "accountSummaryAmount": {
       "link": {
         "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com"
+        "url": "https://www.coingecko.com/"
       },
       "text": "Der Gesamtbetrag ist die Summe aller Ihrer Kryptokonten. Die Wechselkurse werden von coingecko.com abgerufen.\n\nHinweis: Wenn Sie MyEtherWallet für Token verwenden, die in der BitBoxApp nicht unterstützt werden, dann sind diese nicht in dem angezeigten Gesamtbetrag einberechnet.",
       "title": "Wie berechnet sich der Gesamtbetrag?"
@@ -734,8 +759,34 @@
       "text": "Der Zeitpunkt, zu dem die Transaktion in der Blockchain bestätigt wurde.",
       "title": "Welche Zeit wird angezeigt?"
     },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "Jede Währung kann maximal fünf Konten haben.",
+        "title": "Wie viele Konten kann ich erstellen?"
+      },
+      "howtoAddTokens": {
+        "text": "ERC-20 Token sind an ein bestimmtes Ethereum-Konto gebunden. Um einen Token zu aktivieren oder zu deaktivieren, gehe zu \"Konten verwalten\", klicke auf das Ethereum-Konto und schalte den gewünschten Token ein oder aus.",
+        "title": "Wie kann ich zusätzliche Token hinzufügen?"
+      },
+      "moveFunds": {
+        "text": "Ja. Da Konten jedoch eigenständig sind, müssen Coins mit einer reguläre Transaktion zwischen den Konten verschoben werden.",
+        "title": "Kann ich Geld zwischen Konten verschieben?"
+      },
+      "recoverAccounts": {
+        "text": "Ja. Die BitBoxApp erstellt Konten nach bewährten Standards, die mit den meisten Krypto-Wallets kompatibel sind.",
+        "title": "Kann ich meine Konten in anderen Wallets wiederherstellen?"
+      },
+      "whatAreAccounts": {
+        "text": "Ihr Wallet kann mehrere Konten derselben Währung verwalten. Konten machen es einfach, Coins separiert zu halten.",
+        "title": "Was sind Konten?"
+      },
+      "whyIsThisUseful": {
+        "text": "Separate Konten eignen sich hervorragend für die Verwaltung von Coins für verschiedene Personen oder Zwecke. Sie können auch den \"erweiterten öffentlichen Schlüssel\" (extended public key) eines Kontos freigeben, ohne etwas über Ihre anderen Konten preiszugeben. Auf diese Weise können Sie wiederholt Geld erhalten, ohne Adressen wiederzuverwenden, z. B. Ihren Lohn zu erhalten oder um regelmäßig Krypto zu kaufen.",
+        "title": "Warum ist das nützlich?"
+      }
+    },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact\n",
+      "href": "https://shiftcrypto.ch/contact",
       "link": "Kontaktieren Sie uns!",
       "text": "Sie haben Fragen?"
     },
@@ -804,7 +855,8 @@
     "buy": {
       "exchanges": {
         "link": {
-          "text": "Liste der Börsen"
+          "text": "Liste der Börsen",
+          "url": "/exchanges"
         },
         "text": "Hier finden Sie eine Liste der von uns empfohlenen Börsen, abhängig von Ihrer Region und Ihrer bevorzugten Zahlungsmethode.",
         "title": "Auf der Suche nach einer Börse?"
@@ -932,7 +984,7 @@
         "title": "Was ist Bitcoin bech32?"
       },
       "servers": {
-        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CryptoCompare abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
+        "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CoinGecko abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
         "title": "Mit welchen Servern kommuniziert die Applikation?"
       },
       "whyMultipleAccounts": {
@@ -1034,6 +1086,18 @@
     "successEnable": "Das versteckte legacy Wallet wurde erfolgreich aktiviert. Stecken Sie Ihre BitBox erneut ein und geben Sie das versteckte Gerätepasswort ein, um auf das versteckte Wallet zuzugreifen."
   },
   "loading": "laden...",
+  "manageAccounts": {
+    "addAccount": "$t(addAccount.title)",
+    "editAccount": "Bearbeiten",
+    "editAccountNameTitle": "Kontonamen bearbeiten",
+    "noAccounts": "Keine Konten gefunden",
+    "settings": {
+      "hideTokens": "Token verstecken",
+      "showTokens": "Token anzeigen ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Konten hinzufügen und aktivieren / deaktivieren",
+    "title": "Konten verwalten"
+  },
   "mobile": {
     "usingMobileDataWarning": "Mobile Datennutzung: Diese App downloaded ein paar hundert Megabytes an Blockchain Daten nachdem ein Konto geöffnet wurde. Bitte verbinden Sie ihr Handy für diesen einmaligen Download mit Ihrem Wifi. "
   },
@@ -1113,7 +1177,7 @@
     "label": "Meine Adresse",
     "onlyThisCoin": {
       "description": "Um andere Token empfangen zu können, aktivieren Sie diese in den Einstellungen. Sollten Sie Token empfangen, welche die BitBoxApp nicht unterstützt, haben Sie möglicherweise keinen Zugang mehr zu diesen. ",
-      "warning": "Stellen Sie sicher, dass Sie nur {{accountName}} auf diese Adresse senden."
+      "warning": "Stellen Sie sicher, dass Sie nur {{coinName}} auf diese Adresse senden."
     },
     "showFull": "Adresse auf BitBox bestätigen",
     "title": "{{accountName}} empfangen",
