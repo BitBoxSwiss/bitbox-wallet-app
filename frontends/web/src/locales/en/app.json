@@ -44,10 +44,6 @@
       "step": "Name account",
       "title": "Name your account"
     },
-    "error": {
-      "alreadyExists": "The account already exists.",
-      "limitReached": "Cannot add account. The maximum number of accounts for this coin has been reached."
-    },
     "selectCoin": {
       "nextButton": "Next",
       "step": "Select coin",
@@ -617,6 +613,11 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "confirmTitle": "Confirmation"
+  },
+  "error": {
+    "accountAlreadyExists": "The account already exists.",
+    "accountLimitReached": "Cannot add account. The maximum number of accounts for this coin has been reached.",
+    "accountNameAlreadyExists": "An account with the same name already exists."
   },
   "exchanges": {
     "method": "Select your payment method",

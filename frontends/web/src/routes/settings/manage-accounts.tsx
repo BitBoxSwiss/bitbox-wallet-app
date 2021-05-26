@@ -219,7 +219,11 @@ class ManageAccounts extends Component<Props, State> {
         backendAPI.renameAccount(editAccountCode!, editAccountNewName!)
             .then(result => {
                 if (!result.success) {
-                    this.setState({ editErrorMessage: result.errorMessage });
+                    if (result.errorCode) {
+                        this.setState({ editErrorMessage: this.props.t(`error.${result.errorCode}`) });
+                    } else if (result.errorMessage) {
+                        this.setState({ editErrorMessage: result.errorMessage });
+                    }
                     return;
                 }
                 return backendAPI.reinitializeAccounts()
