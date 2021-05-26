@@ -854,8 +854,7 @@
     "buy": {
       "exchanges": {
         "link": {
-          "text": "List of exchanges",
-          "url": "/exchanges"
+          "text": "List of exchanges"
         },
         "text": "Here is a list of ones we recommend depending on your region and purchasing preferences.",
         "title": "Looking for an exchange?"
