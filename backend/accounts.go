@@ -155,10 +155,21 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	return availableCoins
 }
 
+// defaultAccountName returns a default name for a new account. The first account is the coin name,
+// the following accounts is the coin name followed by the account number. Note: `accountNumber` is
+// 0-indexed, so `accountNumber 1` results in e.g. "Bitcoin 2".
+func defaultAccountName(coin coinpkg.Coin, accountNumber uint16) string {
+	if accountNumber > 0 {
+		return fmt.Sprintf("%s %d", coin.Name(), accountNumber+1)
+	}
+	return coin.Name()
+}
+
 // createAndPersistAccountConfig adds an account for the given coin and account number. The account
 // numbers start at 0 (first account). The added account will be a unified account supporting all
 // types that the keystore supports. The keypaths will be standard BIP44 keypaths for the respective
 // account types. `name` is the name of the new account and will be shown to the user.
+// If empty, a default name will be used.
 //
 // The account code of the newly created account is returned.
 func (backend *Backend) createAndPersistAccountConfig(
@@ -175,6 +186,9 @@ func (backend *Backend) createAndPersistAccountConfig(
 	coin, err := backend.Coin(coinCode)
 	if err != nil {
 		return "", err
+	}
+	if name == "" {
+		name = defaultAccountName(coin, accountNumber)
 	}
 
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
@@ -283,11 +297,7 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 	if err != nil {
 		return "", false
 	}
-	name := coin.Name()
-	if accountNumber > 0 {
-		name = fmt.Sprintf("%s %d", coin.Name(), accountNumber+1)
-	}
-	return name, true
+	return defaultAccountName(coin, accountNumber), true
 }
 
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
