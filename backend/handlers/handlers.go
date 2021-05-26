@@ -99,7 +99,7 @@ type Backend interface {
 	Environment() backend.Environment
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
-	CanAddAccount(coinpkg.Code, keystore.Keystore) bool
+	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error)
 	SetTokenActive(accountCode string, tokenCode string, active bool) error
 	RenameAccount(accountCode string, name string) error
@@ -831,9 +831,10 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 // Exactly one keystore must be connected, otherwise an empty array is returned.
 func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}, error) {
 	type element struct {
-		CoinCode      coinpkg.Code `json:"coinCode"`
-		Name          string       `json:"name"`
-		CanAddAccount bool         `json:"canAddAccount"`
+		CoinCode             coinpkg.Code `json:"coinCode"`
+		Name                 string       `json:"name"`
+		CanAddAccount        bool         `json:"canAddAccount"`
+		SuggestedAccountName string       `json:"suggestedAccountName"`
 	}
 	keystores := handlers.backend.Keystores().Keystores()
 	if len(keystores) != 1 {
@@ -846,10 +847,12 @@ func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}
 		if err != nil {
 			continue
 		}
+		suggestedAccountName, canAddAccount := handlers.backend.CanAddAccount(coinCode, keystore)
 		result = append(result, element{
-			CoinCode:      coinCode,
-			Name:          coin.Name(),
-			CanAddAccount: handlers.backend.CanAddAccount(coinCode, keystore),
+			CoinCode:             coinCode,
+			Name:                 coin.Name(),
+			CanAddAccount:        canAddAccount,
+			SuggestedAccountName: suggestedAccountName,
 		})
 	}
 	return result, nil

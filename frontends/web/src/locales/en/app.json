@@ -38,7 +38,6 @@
     "transactionHistory": "Transaction history"
   },
   "addAccount": {
-    "accountName": "Account name",
     "chooseName": {
       "nextButton": "Add account",
       "step": "Name account",

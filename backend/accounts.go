@@ -157,7 +157,6 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 // numbers start at 0 (first account). The added account will be a unified account supporting all
 // types that the keystore supports. The keypaths will be standard BIP44 keypaths for the respective
 // account types. `name` is the name of the new account and will be shown to the user.
-// If empty, a default name will be used.
 //
 // The account code of the newly created account is returned.
 func (backend *Backend) createAndPersistAccountConfig(
@@ -174,13 +173,6 @@ func (backend *Backend) createAndPersistAccountConfig(
 	coin, err := backend.Coin(coinCode)
 	if err != nil {
 		return "", err
-	}
-	if name == "" {
-		if accountNumber == 0 {
-			name = coin.Name()
-		} else {
-			name = fmt.Sprintf("%s %d", coin.Name(), accountNumber+1)
-		}
 	}
 
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
@@ -277,11 +269,23 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 	return nextAccountNumber, nil
 }
 
-// CanAddAccount returns true if it is possible to add an account for the given coin and keystore.
-func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) bool {
+// CanAddAccount returns true if it is possible to add an account for the given coin and keystore,
+// along with a suggested name for the account.
+func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) (string, bool) {
 	conf := backend.config.AccountsConfig()
-	_, err := nextAccountNumber(coinCode, keystore, &conf)
-	return err == nil
+	accountNumber, err := nextAccountNumber(coinCode, keystore, &conf)
+	if err != nil {
+		return "", false
+	}
+	coin, err := backend.Coin(coinCode)
+	if err != nil {
+		return "", false
+	}
+	name := coin.Name()
+	if accountNumber > 0 {
+		name = fmt.Sprintf("%s %d", coin.Name(), accountNumber+1)
+	}
+	return name, true
 }
 
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,

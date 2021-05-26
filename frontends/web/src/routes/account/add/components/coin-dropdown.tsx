@@ -15,13 +15,12 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import * as accountApi from '../../../../api/account';
 import * as backendAPI from '../../../../api/backend';
 import { Select } from '../../../../components/forms';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 
 interface CoinDropDownProps {
-    onChange: (coin: accountApi.CoinCode) => void;
+    onChange: (coin: backendAPI.ICoin) => void;
     supportedCoins: backendAPI.ICoin[];
     value: string;
 }
@@ -43,13 +42,15 @@ function CoinDropDown({
                     disabled: true,
                     value: 'choose',
                 },
-                ...(supportedCoins).map(({ coinCode, name, canAddAccount}) => ({
+                ...(supportedCoins).map(({ coinCode, name, canAddAccount }) => ({
                     value: coinCode,
                     text: name,
                     disabled: !canAddAccount,
                 }))
             ]}
-            onInput={e => onChange(e.target.value)}
+            onInput={e => onChange(supportedCoins.find(c => {
+                return c.coinCode === e.target.value;
+            }) as backendAPI.ICoin)}
             defaultValue={'choose'}
             placeholder={t('buy.info.selectPlaceholder')}
             value={value}

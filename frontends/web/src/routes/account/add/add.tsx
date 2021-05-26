@@ -45,6 +45,7 @@ interface State {
     step: TStep;
     supportedCoins: backendAPI.ICoin[];
     adding: boolean; // true while the backend is working to add the account.
+    accountNamePlaceholder: string;
 }
 
 class AddAccount extends Component<Props, State> {
@@ -56,6 +57,7 @@ class AddAccount extends Component<Props, State> {
         step: 'select-coin',
         supportedCoins: [],
         adding: false,
+        accountNamePlaceholder: '',
     };
 
     private onlyOneSupportedCoin = (): boolean => {
@@ -87,7 +89,7 @@ class AddAccount extends Component<Props, State> {
 
     private next = (e: Event) => {
         e.preventDefault();
-        const { accountCode, accountName, coinCode, step } = this.state;
+        const { accountCode, accountName, accountNamePlaceholder, coinCode, step } = this.state;
         const { t } = this.props;
         switch (step) {
             case 'select-coin':
@@ -103,7 +105,7 @@ class AddAccount extends Component<Props, State> {
                 this.setState({ adding: true });
                 apiPost('account-add', {
                     coinCode,
-                    name: accountName,
+                    name: accountName === '' ? accountNamePlaceholder : accountName,
                 })
                     .then((data: ResponseData) => {
                         this.setState({ adding: false });
@@ -154,12 +156,12 @@ class AddAccount extends Component<Props, State> {
 
     private renderContent = () => {
         const { t } = this.props;
-        const { accountName, coinCode, step, supportedCoins } = this.state;
+        const { accountName, accountNamePlaceholder, coinCode, step, supportedCoins} = this.state;
         switch (step) {
             case 'select-coin':
                 return (
                     <CoinDropDown
-                        onChange={(coinCode) => this.setState({ coinCode })}
+                        onChange={coin => this.setState({ coinCode: coin.coinCode, accountNamePlaceholder: coin.suggestedAccountName })}
                         supportedCoins={supportedCoins}
                         value={coinCode} />
                 );
@@ -170,7 +172,7 @@ class AddAccount extends Component<Props, State> {
                         getRef={this.focusRef}
                         id="accountName"
                         onInput={e => this.setState({ accountName: e.target.value })}
-                        placeholder={t('addAccount.accountName')}
+                        placeholder={accountNamePlaceholder}
                         value={accountName} />
                 );
             case 'success':
@@ -210,7 +212,6 @@ class AddAccount extends Component<Props, State> {
     public render(
         { t }: RenderableProps<Props>,
         {
-            accountName,
             coinCode,
             errorMessage,
             step,
@@ -263,7 +264,7 @@ class AddAccount extends Component<Props, State> {
                                 <Button
                                     disabled={
                                         (step === 'select-coin' && coinCode === 'choose')
-                                        || (step === 'choose-name' && (accountName === '' || adding))
+                                        || (step === 'choose-name' && adding)
                                     }
                                     primary
                                     type="submit">
