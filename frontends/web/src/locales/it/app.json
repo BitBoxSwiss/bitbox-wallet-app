@@ -534,7 +534,7 @@
     "accountSummaryAmount": {
       "link": {
         "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com"
+        "url": "https://www.coingecko.com/"
       },
       "text": "L'importo totale è la somma di tutti i tuoi conti. I tassi di cambio sono ottenuti da coingecko.com.\n\nNota: se usi MyEtherWallet per i token non supportati nella BitBoxApp, questi non saranno inclusi nell'importo visualizzato.",
       "title": "Come viene calcolato l'importo totale?"
@@ -754,7 +754,7 @@
         "title": "Cos'è Bitcoin bech32"
       },
       "servers": {
-        "text": "Questa app comunica con i server Shift Crypto per controllare gli aggiornamenti, caricare le transazioni e inviare informazioni alle app mobili abbinate.\nL'app recupera anche gli ultimi tassi di cambio da CryptoCompare. Tutte le conversioni sono calcolate localmente, il che significa che nessun dato sull'importo della tua transazione viene mai trasmesso.\nNota: Per Ethereum e i Token ERC20, usiamo le API di Etherscan.io.",
+        "text": "Questa app comunica con i server Shift Crypto per controllare gli aggiornamenti, caricare le transazioni e inviare informazioni alle app mobili abbinate.\nL'app recupera anche gli ultimi tassi di cambio da CoinGecko. Tutte le conversioni sono calcolate localmente, il che significa che nessun dato sull'importo della tua transazione viene mai trasmesso.\nNota: Per Ethereum e i Token ERC20, usiamo le API di Etherscan.io.",
         "title": "A quali server si connette questa app?"
       },
       "whyMultipleAccounts": {
@@ -935,7 +935,7 @@
     "label": "Il tuo indirizzo",
     "onlyThisCoin": {
       "description": "Per ricevere altri token, abilitali nelle impostazioni. Se depositi altri token, potrebbero non essere accessibili.",
-      "warning": "Assicurati di ricevere solo {{nomeAccount}} su questo indirizzo."
+      "warning": "Assicurati di ricevere solo {{coinName}} su questo indirizzo."
     },
     "showFull": "Mostra e verifica l'indirizzo completo sul dispositivo",
     "title": "Ricevi {{accountName}}",

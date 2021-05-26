@@ -464,7 +464,7 @@
   "button": {
     "abort": "Prekini",
     "back": "Nazaj",
-    "buy": "Nakup",
+    "buy": "Kupi",
     "changepin": "Spremenite geslo naprave",
     "check": "Preverite arhivsko kopijo",
     "continue": "Nadaljujte",
@@ -724,7 +724,7 @@
     "accountSummaryAmount": {
       "link": {
         "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com"
+        "url": "https://www.coingecko.com/"
       },
       "text": "Skupni znesek je vsota vseh vaših kripto računov. Menjalni tečaji so na voljo na spletnem mestu coingecko.com.\n\nOpomba: Če MyEtherWallet uporabljate za žetone, ki jih BitBoxApp ne podpira, ti ne bodo vključeni v prikazani znesek.",
       "title": "Kako se skupni znesek izračunava?"
@@ -949,7 +949,7 @@
         "title": "Kaj je Bitcoin bech32?"
       },
       "servers": {
-        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CryptoCompare. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
+        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CoinGecko. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
         "title": "S katerimi strežniki govori ta aplikacija?"
       },
       "whyMultipleAccounts": {
@@ -1011,8 +1011,8 @@
     "blocksSynced": "{{blocks}} sinhroniziranje blokov"
   },
   "hiddenWallet": {
-    "info1HTML": "Za namene verodostojnega zanikanja (obstoja prave denarnice) lahko ustvarite skrito denarnico na podlagi <strong>drugačne (alternativne)</ strong> kombinacije gesla in gesla za obnovitev arhivske kopije. ",
-    "info2HTML": "Določite geslo naprave in geslo za obnovitev, ki ju želite povezati s spodnjo skrito denarnico. To geslo naprave in geslo za obnovitev morata biti <strong> drugačna </ strong> od tistih, ki ste ju določili za primarno denarnico.",
+    "info1HTML": "Za namene verodostojnega zanikanja (obstoja prave denarnice) lahko ustvarite skrito denarnico na podlagi <strong>drugačne (alternativne)</strong> kombinacije gesla in gesla za obnovitev arhivske kopije. ",
+    "info2HTML": "Določite geslo naprave in geslo za obnovitev, ki ju želite povezati s spodnjo skrito denarnico. To geslo naprave in geslo za obnovitev morata biti <strong> drugačna </strong> od tistih, ki ste ju določili za primarno denarnico.",
     "passwordLabel": "Skrito geslo za obnovitev",
     "passwordPlaceholder": "Potrdite skrito geslo za obnovitev",
     "pinLabel": "Geslo za skrito denarnico",
@@ -1132,7 +1132,7 @@
     "label": "Vaš naslov",
     "onlyThisCoin": {
       "description": "Če želite prejemati druge podprte žetone, jih omogočite v nastavitvah. Če na naslove, ki so na voljo nakažete/pošljete nepodprte žetone, zelo verjetno ne bodo vidni/ dostopni.",
-      "warning": "Prepričajte se, da na ta naslov prejemate le {{accountName}}."
+      "warning": "Prepričajte se, da na ta naslov prejemate le {{coinName}}."
     },
     "showFull": "Pokaži in preveri polni naslov na napravi",
     "title": "Pridobi {{accountName}}",

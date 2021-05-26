@@ -724,7 +724,7 @@
     "accountSummaryAmount": {
       "link": {
         "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com"
+        "url": "https://www.coingecko.com/"
       },
       "text": "La cantidad total es la suma de todas tus cuentas criptográficas. Los tipos de cambio se consiguen de coingecko.com.\n\nNota: Si usas MyEtherWallet para tokens no admitidos en BitBoxApp, no se incluirán en la cantidad que se muestra.\n\n",
       "title": "¿Cómo se calcula la suma total?"
@@ -952,7 +952,7 @@
         "title": "¿Qué es Bitcoin bech32?"
       },
       "servers": {
-        "text": "Esta aplicación se comunica con los servidores de Shift Crypto para buscar actualizaciones, cargar transacciones y enviar información a aplicaciones móviles sincronizadas.\nAdemás, recupera los últimos tipos de cambio de CryptoCompare. Todas las conversiones se calculan de forma local lo que significa que no se envían las cantidades que uno tiene a ningún servidor. \nNota: Para Ethereum y tokens ERC20, utilizamos la API de Etherscan.io",
+        "text": "Esta aplicación se comunica con los servidores de Shift Crypto para buscar actualizaciones, cargar transacciones y enviar información a aplicaciones móviles sincronizadas.\nAdemás, recupera los últimos tipos de cambio de CoinGecko. Todas las conversiones se calculan de forma local lo que significa que no se envían las cantidades que uno tiene a ningún servidor. \nNota: Para Ethereum y tokens ERC20, utilizamos la API de Etherscan.io",
         "title": "¿Con qué servidores se comunica esta aplicación?"
       },
       "whyMultipleAccounts": {
@@ -1133,7 +1133,7 @@
     "label": "Tu dirección",
     "onlyThisCoin": {
       "description": "Para recibir otros tokens, por favor actívalos en la configuración. Si depositas otros tokens, podrían no ser accesibles. ",
-      "warning": "Asegúrate de recibir solo {{accountName}} en esta dirección."
+      "warning": "Asegúrate de recibir solo {{coinName}} en esta dirección."
     },
     "showFull": "Muestra y verifica la dirección completa en el dispositivo",
     "title": "Consigue {{accountName}}",

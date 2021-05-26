@@ -639,7 +639,7 @@
         "title": "O que é Bitcoin bech32?"
       },
       "servers": {
-        "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CryptoCompare. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
+        "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CoinGecko. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
         "title": "Com quais servidores este aplicativo se comunica?"
       },
       "whyMultipleAccounts": {
@@ -798,7 +798,7 @@
     "label": "Seu endereço",
     "onlyThisCoin": {
       "description": "Para receber outros tokens, ative-os nas configurações. Se você depositar outros tokens, eles podem não ser acessíveis.",
-      "warning": "Certifique-se de receber apenas {{accountName}} neste endereço."
+      "warning": "Certifique-se de receber apenas {{coinName}} neste endereço."
     },
     "showFull": "Mostrar e verificar endereço completo no dispositivo",
     "title": "Receber {{accountName}}",

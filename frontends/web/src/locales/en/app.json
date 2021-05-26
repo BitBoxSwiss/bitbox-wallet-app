@@ -521,7 +521,8 @@
         "title": "Welcome to your one stop shop for buying {{name}}"
       },
       "next": "Next",
-      "selectLabel": "Select an account",
+      "selectLabel": "Choose your account",
+      "selectPlaceholder": "Select a coin",
       "skip": "Do not show again",
       "title": "Buy {{name}}"
     },
@@ -729,7 +730,7 @@
     "accountSummaryAmount": {
       "link": {
         "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com"
+        "url": "https://www.coingecko.com/"
       },
       "text": "The total amount is the sum of all your crypto accounts. Exchange rates are obtained from coingecko.com.\n\nNote: If you use MyEtherWallet for tokens not supported in the BitBoxApp, they will not be included in the amount displayed.",
       "title": "How is the total amount calculated?"
@@ -974,7 +975,7 @@
         "title": "What is Bitcoin bech32?"
       },
       "servers": {
-        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CryptoCompare. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
+        "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"
       }
     },
@@ -1163,7 +1164,7 @@
     "label": "Your address",
     "onlyThisCoin": {
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
-      "warning": "Make sure to only receive {{coinName}} ({{coinUnit}}) on this address."
+      "warning": "Make sure to only receive {{coinName}} on this address."
     },
     "showFull": "Show and verify full address on device",
     "title": "Get {{accountName}}",
@@ -1368,7 +1369,7 @@
   },
   "setup": "Setup device",
   "sidebar": {
-    "accounts": "Accounts",
+    "accounts": "My portfolio",
     "addAccount": "Add account",
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "Connect BitBoxBase",
