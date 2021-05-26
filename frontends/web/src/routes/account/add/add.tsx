@@ -44,6 +44,7 @@ interface State {
     errorMessage?: string;
     step: TStep;
     supportedCoins: backendAPI.ICoin[];
+    adding: boolean; // true while the backend is working to add the account.
 }
 
 class AddAccount extends Component<Props, State> {
@@ -54,6 +55,7 @@ class AddAccount extends Component<Props, State> {
         errorMessage: undefined,
         step: 'select-coin',
         supportedCoins: [],
+        adding: false,
     };
 
     private onlyOneSupportedCoin = (): boolean => {
@@ -98,12 +100,13 @@ class AddAccount extends Component<Props, State> {
                     errorCode?: 'alreadyExists' | 'limitReached';
                     errorMessage?: string;
                 }
-
+                this.setState({ adding: true });
                 apiPost('account-add', {
                     coinCode,
                     name: accountName,
                 })
                     .then((data: ResponseData) => {
+                        this.setState({ adding: false });
                         if (data.success) {
                             this.setState({
                                 accountCode: data.accountCode,
@@ -212,6 +215,7 @@ class AddAccount extends Component<Props, State> {
             errorMessage,
             step,
             supportedCoins,
+            adding,
         }: Readonly<State>
     ) {
         if (supportedCoins.length === 0) {
@@ -259,7 +263,7 @@ class AddAccount extends Component<Props, State> {
                                 <Button
                                     disabled={
                                         (step === 'select-coin' && coinCode === 'choose')
-                                        || (step === 'choose-name' && accountName === '')
+                                        || (step === 'choose-name' && (accountName === '' || adding))
                                     }
                                     primary
                                     type="submit">
