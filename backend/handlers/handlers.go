@@ -463,7 +463,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not add account")
 		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
-			return response{Success: false, ErrorCode: errCode.Error()}, nil
+			return response{Success: false, ErrorCode: string(errCode)}, nil
 		}
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
@@ -537,12 +537,16 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) (interface{}
 	type response struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.backend.RenameAccount(jsonBody.AccountCode, jsonBody.Name); err != nil {
+		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
+			return response{Success: false, ErrorCode: string(errCode)}, nil
+		}
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true}, nil

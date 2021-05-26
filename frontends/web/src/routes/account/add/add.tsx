@@ -111,7 +111,7 @@ class AddAccount extends Component<Props, State> {
                             });
                         } else if (data.errorCode) {
                             this.setState({
-                                errorMessage: t(`addAccount.error.${data.errorCode}`)
+                                errorMessage: t(`error.${data.errorCode}`)
                             });
                         } else if (data.errorMessage) {
                             this.setState({

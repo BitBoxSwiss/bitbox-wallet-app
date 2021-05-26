@@ -26,6 +26,7 @@ export interface ICoin {
 export interface ISuccess {
     success: boolean;
     errorMessage?: string;
+    errorCode?: string;
 }
 
 export const getSupportedCoins = (): Promise<ICoin[]> => {
