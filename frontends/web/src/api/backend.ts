@@ -21,6 +21,7 @@ export interface ICoin {
     coinCode: CoinCode;
     name: string;
     canAddAccount: boolean;
+    suggestedAccountName: string;
 }
 
 export interface ISuccess {

@@ -288,6 +288,9 @@ func (backend *Backend) emitAccountsStatusChanged() {
 // persistAccount adds the account information to the accounts database. These accounts are loaded
 // in `initPersistedAccounts()`.
 func (backend *Backend) persistAccount(account config.Account, accountsConfig *config.AccountsConfig) error {
+	if account.Name == "" {
+		return errp.New("Account name cannot be empty")
+	}
 	for idx := range accountsConfig.Accounts {
 		account2 := &accountsConfig.Accounts[idx]
 		if strings.EqualFold(account.Name, account2.Name) {
