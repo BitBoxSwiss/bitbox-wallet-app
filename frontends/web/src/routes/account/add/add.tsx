@@ -79,7 +79,7 @@ class AddAccount extends Component<Props, State> {
     private back = () => {
         switch (this.state.step) {
             case 'choose-name':
-                this.setState({ step: 'select-coin' });
+                this.setState({ step: 'select-coin', errorMessage: undefined });
                 break;
             case 'success':
                 this.setState({ step: 'choose-name' });
@@ -112,6 +112,7 @@ class AddAccount extends Component<Props, State> {
                         if (data.success) {
                             this.setState({
                                 accountCode: data.accountCode,
+                                errorMessage: undefined,
                                 step: 'success'
                             });
                         } else if (data.errorCode) {
