@@ -49,8 +49,6 @@ const (
 	ErrAccountAlreadyExists ErrorCode = "accountAlreadyExists"
 	// ErrAccountLimitReached is returned when adding an account if no more accounts can be added.
 	ErrAccountLimitReached ErrorCode = "accountLimitReached"
-	// ErrAccountNameAlreadyExists is returned if an account is being added which already exists.
-	ErrAccountNameAlreadyExists ErrorCode = "accountNameAlreadyExists"
 )
 
 // sortAccounts sorts the accounts in-place by 1) coin 2) account number.
@@ -337,11 +335,6 @@ func (backend *Backend) RenameAccount(accountCode string, name string) error {
 		return errp.New("Name cannot be empty")
 	}
 	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		for _, account := range accountsConfig.Accounts {
-			if strings.EqualFold(account.Name, name) {
-				return errp.WithStack(ErrAccountNameAlreadyExists)
-			}
-		}
 		for i := range accountsConfig.Accounts {
 			account := &accountsConfig.Accounts[i]
 			if account.Code == accountCode {
