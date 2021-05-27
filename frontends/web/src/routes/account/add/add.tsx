@@ -87,9 +87,14 @@ class AddAccount extends Component<Props, State> {
         }
     }
 
+    private accountName = (): string => {
+        const { accountName, accountNamePlaceholder } = this.state;
+        return accountName === '' ? accountNamePlaceholder : accountName;
+    }
+
     private next = (e: Event) => {
         e.preventDefault();
-        const { accountCode, accountName, accountNamePlaceholder, coinCode, step } = this.state;
+        const { accountCode, coinCode, step } = this.state;
         const { t } = this.props;
         switch (step) {
             case 'select-coin':
@@ -105,7 +110,7 @@ class AddAccount extends Component<Props, State> {
                 this.setState({ adding: true });
                 apiPost('account-add', {
                     coinCode,
-                    name: accountName === '' ? accountNamePlaceholder : accountName,
+                    name: this.accountName(),
                 })
                     .then((data: ResponseData) => {
                         this.setState({ adding: false });
@@ -181,7 +186,7 @@ class AddAccount extends Component<Props, State> {
                         <img src={checkicon} className={styles.successCheck} /><br />
                         <SimpleMarkup
                             className={styles.successMessage}
-                            markup={t('addAccount.success.message', { accountName })}
+                            markup={t('addAccount.success.message', { accountName: this.accountName() })}
                             tagName="p" />
                     </div>
                 );
