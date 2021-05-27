@@ -616,8 +616,7 @@
   },
   "error": {
     "accountAlreadyExists": "The account already exists.",
-    "accountLimitReached": "Cannot add account. The maximum number of accounts for this coin has been reached.",
-    "accountNameAlreadyExists": "An account with the same name already exists."
+    "accountLimitReached": "Cannot add account. The maximum number of accounts for this coin has been reached."
   },
   "exchanges": {
     "method": "Select your payment method",

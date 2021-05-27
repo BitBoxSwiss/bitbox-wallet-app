@@ -293,10 +293,6 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	}
 	for idx := range accountsConfig.Accounts {
 		account2 := &accountsConfig.Accounts[idx]
-		if strings.EqualFold(account.Name, account2.Name) {
-			backend.log.Errorf("An account with same name already exists: %s", account.Name)
-			return errp.WithStack(ErrAccountNameAlreadyExists)
-		}
 		if account.Code == account2.Code {
 			backend.log.Errorf("An account with same code exists: %s", account.Code)
 			return errp.WithStack(ErrAccountAlreadyExists)
