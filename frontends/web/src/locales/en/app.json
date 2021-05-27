@@ -33,7 +33,7 @@
     "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
-    "title": "Accounts summary",
+    "title": "My portfolio",
     "total": "Total",
     "transactionHistory": "Transaction history"
   },
@@ -1369,7 +1369,7 @@
   },
   "setup": "Setup device",
   "sidebar": {
-    "accounts": "My portfolio",
+    "accounts": "Accounts",
     "addAccount": "Add account",
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "Connect BitBoxBase",
