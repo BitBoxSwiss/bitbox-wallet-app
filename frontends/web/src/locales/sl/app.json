@@ -14,6 +14,7 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Pridobivam podatke iz verige blokov...",
+    "maybeProxyError": "Tor proxy omogočen. Prepričajte se, da Tor proxy deluje pravilno, ali onemogočite proxy.",
     "openFile": "Odprite datoteko",
     "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo...",
     "syncedAddressesCount": "Prešteto št. naslovov: {{count}}"
@@ -37,21 +38,37 @@
     "transactionHistory": "Zgodovina transakcij"
   },
   "addAccount": {
-    "accountName": "Ime računa",
-    "address": "Naslov",
-    "coin": "Kovanec",
-    "error": {
-      "alreadyExists": "Račun že obstaja.",
-      "invalidAddress": "Vnesite veljaven naslov",
-      "xprivEntered": "OPOZORILO: Vnesli ste zasebni ključ. Vnesite javni ključ in zaščitite svoje zasebne ključe.",
-      "xpubInvalid": "Razširjen javni ključ je oblikovan nepravilno."
+    "accountName": "",
+    "address": "",
+    "chooseName": {
+      "nextButton": "Dodaj račun",
+      "step": "Poimenuj račun",
+      "title": "Poimenuj račun"
     },
-    "extendedPublicKey": "Razširjen javni ključ",
-    "scriptType": "Vrsta skripte",
-    "submit": "Dodajte račun",
+    "coin": "",
+    "error": {
+      "alreadyExists": "",
+      "invalidAddress": "",
+      "xprivEntered": "",
+      "xpubInvalid": ""
+    },
+    "extendedPublicKey": "",
+    "scriptType": "",
+    "selectCoin": {
+      "nextButton": "Naprej",
+      "step": "Izberi kovanec",
+      "title": "Izberi kriptovaluto"
+    },
+    "submit": "",
+    "success": {
+      "message": "<strong> {{accountName}} </strong> je zdaj dodan med vaše račune.",
+      "nextButton": "OK",
+      "step": "Zaklljučeno",
+      "title": "Račun dodan"
+    },
     "title": "Dodajte račun",
     "warning": {
-      "xpubWrongNet": "Opozorilo: Oblika razširjenega javnega ključa morda ni veljavna za izbrano vrsto računa. Če ne vidite pričakovanih transakcij, poskusite uvoziti razširjeni javni ključ v drugo vrsto računa."
+      "xpubWrongNet": ""
     }
   },
   "app": {
@@ -154,7 +171,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Preverjanje naprave ni uspelo. To je lahko posledica ponovnega zagona aplikacije, medtem ko je naprava čakala na vaš vnos. Ponovno jo vklopite in poskusite znova.",
+    "attestationFailed": "Preverjanje ni uspelo, kar je lahko posledica ponovnega zagona aplikacije, medtem ko je naprava čakala na uporabniški vnos (dotik). Napravo znova vklopite in poskusite znova. Če težava ne izgine, se obrnite na support@shiftcrypto.ch (v angleščini).",
     "backup": {
       "point1": "Izberite arhivsko kopijo na microSD kartici",
       "point2": "Nastavite geslo za svojo napravo",
@@ -490,7 +507,7 @@
         "intro": [
           "V sodelovanju z MoonPay vam ponujamo možnost nakupa {{name}} neposredno znotraj BitBoxApp. S samo nekaj kliki.",
           "MoonPay je regulirana platforma za finančne storitve, ki omogoča preprost in hiter nakup {{name}} v več kot 160 državah",
-          "z nekaj izjemami"
+          ""
         ],
         "payment": {
           "details": "{{name}} je možno kupiti takoj prek storitve MoonPay z naslednjimi načini plačila. Plačila s kreditno ali debetno kartico so takojšnja in priročna, vendar dražja. Za večje zneske priporočamo uporabo bančnega nakazila. Minimalna pristojbina je 4 EUR.",
@@ -500,8 +517,8 @@
             "1_method": "Bančno nakazilo (SEPA)",
             "2_description": "Višja provizija vendar takojšnja izvršitev",
             "2_method": "Kreditna ali debetna kartica",
-            "3_description": "Višja provizija vendar takojšnja izvršitev",
-            "3_method": "Apple / Google / Samsung Pay",
+            "3_description": "",
+            "3_method": "",
             "description": "Opis",
             "fee": "Provizija",
             "method": "Način plačila"
@@ -516,13 +533,13 @@
         "security": {
           "description": "Ko kupujete {{name}} prek MoonPay uporabljate zunanjo storitev. Ta storitev ne sodi v obseg zaščite, ki jo nudi BitBox02 in temelji na varnosti in zaščiti okolja, v katerem deluje programska oprema BitBoxApp.",
           "link": "Več o varni uporabi",
-          "title": "Varnost uporabe"
+          "title": "Varnostni model"
         },
         "title": "Dobrodošli! Ste na pravem na mestu za nakup {{name}}"
       },
       "next": "Naprej",
       "selectLabel": "Izberi svoj račun",
-      "selectPlaceholder": "Kriptovaluta",
+      "selectPlaceholder": "Izberi kovanec",
       "skip": "Ne prikazuj več",
       "title": "Kupi {{name}}"
     },
@@ -581,6 +598,7 @@
         "label": "microSD kartica",
         "true": "Vstavljena"
       },
+      "securechip": "Verzija varnega čipa",
       "title": "Hardware"
     },
     "loading": "Pridobivam informacije o napravi ...",
@@ -612,6 +630,11 @@
     "cancel": "Prekliči",
     "confirm": "Potrdite",
     "confirmTitle": "Potrditev"
+  },
+  "error": {
+    "accountAlreadyExists": "Račun že obstaja.",
+    "accountLimitReached": "Računa ni mogoče dodati. Doseženo je največje število računov za ta kovanec.",
+    "accountNameAlreadyExists": "Račun z enakim imenom že obstaja."
   },
   "exchanges": {
     "method": "Izberite željen način plačila",
@@ -753,6 +776,32 @@
       "text": "Zabeležen čas, ko je transakcija potrjena v verigi blokov (v blockchainu).",
       "title": "Kateri čas je prikazan?"
     },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "Vsak kovanec ima lahko največ pet računov.",
+        "title": "Koliko računov lahko ustvarim?"
+      },
+      "howtoAddTokens": {
+        "text": "Žetoni, ki uporabljajo standard ERC20, so vezani na določen Ethereum račun. Če želite omogočiti ali onemogočiti določen žeton, odprite »Upravljanje računov«, razširite račun Ethereum in vklopite ali izklopite želeni žeton.",
+        "title": "Kako lahko dodam dodatne žetone?"
+      },
+      "moveFunds": {
+        "text": "Da. Ker pa so računi neodvisni, morate sredstva poslati z običajno transakcijo.",
+        "title": "Ali lahko premikam sredstva med računi?"
+      },
+      "recoverAccounts": {
+        "text": "Da. BitBoxApp ustvarja račune z uveljavljenimi standardi, združljivimi z večino drugih kripto denarnic.",
+        "title": "Ali lahko obnovim račune z drugimi denarnicami?"
+      },
+      "whatAreAccounts": {
+        "text": "Vaša denarnica lahko upravlja več računov istega kovanca. Računi so koristni, če želite sredstva hraniti ločeno.",
+        "title": "Kaj so računi?"
+      },
+      "whyIsThisUseful": {
+        "text": "Računi so odlični za upravljanje sredstev za različne ljudi ali namene, ker so ločeni. Svoj \"razširjeni javni ključ\" računa lahko delite, ne da bi razkrili česarkoli o svojih drugih računih. To vam omogoča večkratno prejemanje sredstev brez ponovne uporabe naslovov, na primer prejemanja plače ali rednega nakupa kriptovalut.",
+        "title": "Zakaj je to koristno?"
+      }
+    },
     "appendix": {
       "href": "https://shiftcrypto.ch/contact",
       "link": "Kontaktirajte nas!",
@@ -823,16 +872,19 @@
     "buy": {
       "exchanges": {
         "link": {
+          "text": "Seznam menjalnic",
           "url": ""
-        }
+        },
+        "text": "Tu je seznam tistih, ki jih priporočamo glede na vašo regijo in nakupne preference.",
+        "title": "Iščete kripto menjalnico?"
       },
       "support": {
         "link": {
-          "text": "Pomoč storitve Safello",
-          "url": "https://help.safello.com"
+          "text": "",
+          "url": ""
         },
-        "text": "Prosimo, da zahteve za podporo usmerite neposredno na Safello.",
-        "title": "Pri uporabi Safella sem doživel težavo"
+        "text": "",
+        "title": ""
       }
     },
     "exchanges": {
@@ -953,8 +1005,8 @@
         "title": "S katerimi strežniki govori ta aplikacija?"
       },
       "whyMultipleAccounts": {
-        "text": "Nekatere kriptovalute imajo več oblik naslovov in transakcij. Ti naslovi so ločeni v dodatne račune.",
-        "title": "$t(settings.expert.splitAccounts)"
+        "text": "",
+        "title": ""
       }
     },
     "title": "Vodič vam v pomoč",
@@ -1051,6 +1103,17 @@
     "successEnable": "Skrita denarnica starejšega formata je uspešno omogočena. Znova priključite svoj BitBox in skrbno vnesite geslo naprave za dostop do starejše skrite denarnice."
   },
   "loading": "nalaganje…",
+  "manageAccounts": {
+    "editAccount": "Uredi",
+    "editAccountNameTitle": "Uredi ime računa",
+    "noAccounts": "ni računov",
+    "settings": {
+      "hideTokens": "Skrij žetone",
+      "showTokens": "Prikaži žetone ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Dodaj in aktiviraj / deaktiviraj račune",
+    "title": "Upravljanje računov"
+  },
   "mobile": {
     "usingMobileDataWarning": "Uporaba podatkov na mobilni napravi: ta aplikacija lahko po odklepanju računa naloži do nekaj sto megabajtov podatkov. Če želite preprečiti uporabo mobilnih podatkov, se povežite z Wi-Fi omrežjem. \nTo sporočilo ne bo več prikazano, če ga ugasnete."
   },
@@ -1288,7 +1351,7 @@
   },
   "settings": {
     "accounts": {
-      "title": "Aktivni računi"
+      "title": ""
     },
     "electrum": {
       "add": "Dodaj strežnik",
@@ -1325,7 +1388,7 @@
       },
       "fee": "Omogoči omrežnine po meri",
       "setProxyAddress": "Nastavite naslov proxy strežnika",
-      "splitAccounts": "Ločite račune po formatu naslova",
+      "splitAccounts": "",
       "title": "Napredne nastavitve",
       "useProxy": "Omogoči tor proxy"
     },
@@ -1347,7 +1410,7 @@
     "bitboxBaseConnect": "Povežite BitBoxBase",
     "buy": "Kupite kripto",
     "device": "Upravljanje naprave",
-    "exchanges": "Kupi & Prodaj",
+    "exchanges": "",
     "leave": "Zapusti",
     "settings": "Nastavitve"
   },

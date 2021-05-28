@@ -522,7 +522,7 @@
       },
       "next": "Siguiente",
       "selectLabel": "Elige tu cuenta",
-      "selectPlaceholder": "Elige criptomoneda",
+      "selectPlaceholder": "Seleccione una moneda",
       "skip": "No mostrar de nuevo",
       "title": "Compra {{name}}"
     },
@@ -612,6 +612,9 @@
     "cancel": "Cancela",
     "confirm": "Confirma",
     "confirmTitle": "Confirmación"
+  },
+  "error": {
+    "accountAlreadyExists": "La cuenta ya existe."
   },
   "exchanges": {
     "method": "Selecciona tu método de pago",
@@ -824,7 +827,7 @@
       "exchanges": {
         "link": {
           "text": "Listado de cambios",
-          "url": "/cambios"
+          "url": ""
         },
         "text": "Aquí hay una lista de los que recomendamos nosotros según tu región y preferencias de compra.",
         "title": "¿Buscas un intercambio?"
