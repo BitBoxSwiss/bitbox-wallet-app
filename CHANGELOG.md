@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- Improve error message when EtherScan responds with a rate limit error.
+
+## 4.28.0 [released 2021-05-27]
 - Bundle BitBox02 v9.6.0 firmware
 - New feature: add additional accounts
 - Remove the setting 'Separate accounts by address type (legacy behavior)'. BitBox02 accounts are now always unified.
