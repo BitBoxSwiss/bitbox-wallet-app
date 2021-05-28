@@ -20,7 +20,6 @@ import (
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -84,7 +83,7 @@ type Interface interface {
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
 
-	Notes() *notes.Notes
+	TxNote(txID string) string
 	// ProposeTxnote stores a note. The note is is persisted in the notes database upon calling
 	// SendTx(). This function must be called before `SendTx()`.
 	ProposeTxNote(string)

@@ -17,11 +17,15 @@ package accounts
 import (
 	"bytes"
 	"errors"
+	"io/ioutil"
+	"path"
 	"testing"
 	"time"
 
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
@@ -38,20 +42,65 @@ func TestBaseAccount(t *testing.T) {
 		}
 		panic("can't reach")
 	}
+
+	derivationPath, err := signing.NewAbsoluteKeypath("m/84'/1'/0'")
+	require.NoError(t, err)
+	const xpub = "tpubDCxoQyC5JaGydxN3yprM6sgqgu65LruN3JBm1fnSmGxXR3AcuNwr" +
+		"E7J2CVaCvuLPJtJNySjshNsYbR96Y7yfEdcywYqWubzUQLVGh2b4mF9"
+	extendedPublicKey, err := hdkeychain.NewKeyFromString(xpub)
+	require.NoError(t, err)
+
 	const accountIdentifier = "test-account-identifier"
 	cfg := &AccountConfig{
-		Code:                  "test",
-		Name:                  "Test",
-		DBFolder:              test.TstTempDir("baseaccount_test_dbfolder"),
-		NotesFolder:           test.TstTempDir("baseaccount_test_notesfolder"),
-		Keystores:             nil,
-		OnEvent:               func(event Event) { events <- event },
-		RateUpdater:           nil,
-		SigningConfigurations: nil,
-		GetNotifier:           nil,
+		Code:        "test",
+		Name:        "Test",
+		DBFolder:    test.TstTempDir("baseaccount_test_dbfolder"),
+		NotesFolder: test.TstTempDir("baseaccount_test_notesfolder"),
+		Keystores:   nil,
+		OnEvent:     func(event Event) { events <- event },
+		RateUpdater: nil,
+		SigningConfigurations: signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+		},
+		GetNotifier: nil,
 	}
+	// The long ID in the filename is the legacy hash of the configurations above (unified and split).
+	// This tests notes migration from v4.27.0 to v4.28.0.
+	require.NoError(t,
+		ioutil.WriteFile(
+			path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"),
+			[]byte(`{"transactions": { "legacy-1": "legacy note in unified account" }}`),
+			0666,
+		),
+	)
+	require.NoError(t,
+		ioutil.WriteFile(
+			path.Join(cfg.NotesFolder, "account-989b84ec36f0b84e7926f9f5715e4b59a0592993b1fa4b70836addbcb0cb6e09-tbtc-p2pkh.json"),
+			[]byte(`{"transactions": { "legacy-2": "legacy note in split account, p2pkh" }}`),
+			0666,
+		),
+	)
+	require.NoError(t,
+		ioutil.WriteFile(
+			path.Join(cfg.NotesFolder, "account-e60b99507ba983d522f15932dbe1214e99de13c56e2bea75ed9c285f7c013117-tbtc-p2wpkh.json"),
+			[]byte(`{"transactions": { "legacy-3": "legacy note in split account, p2wpkh" }}`),
+			0666,
+		),
+	)
+	require.NoError(t,
+		ioutil.WriteFile(
+			path.Join(cfg.NotesFolder, "account-9e779e0d49e77236f0769e0bab2fd656958d3fd023dce2388525ee66fead88bb-tbtc-p2wpkh-p2sh.json"),
+			[]byte(`{"transactions": { "legacy-4": "legacy note in split account, p2wpkh-p2sh" }}`),
+			0666,
+		),
+	)
 
 	mockCoin := &mocks.CoinMock{
+		CodeFunc: func() coin.Code {
+			return coin.CodeTBTC
+		},
 		SmallestUnitFunc: func() string {
 			return "satoshi"
 		},
@@ -103,12 +152,26 @@ func TestBaseAccount(t *testing.T) {
 		// Was cleared by the previous call.
 		require.Equal(t, "", account.GetAndClearProposedTxNote())
 
-		notes := account.Notes()
-		require.NotNil(t, notes)
-
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
 		require.Equal(t, EventStatusChanged, checkEvent())
-		require.Equal(t, "another test note", notes.TxNote("test-tx-id"))
+		require.Equal(t, "another test note", account.TxNote("test-tx-id"))
+
+		// Test notes migration from v4.27.0 to v4.28.0
+		require.Equal(t, "legacy note in unified account", account.TxNote("legacy-1"))
+		require.Equal(t, "legacy note in split account, p2pkh", account.TxNote("legacy-2"))
+		require.Equal(t, "legacy note in split account, p2wpkh", account.TxNote("legacy-3"))
+		require.Equal(t, "legacy note in split account, p2wpkh-p2sh", account.TxNote("legacy-4"))
+		// Setting a note sets it in the main notes file, and wipes it out in legacy note files.
+		require.NoError(t, account.SetTxNote("legacy-1", "updated legacy note"))
+		require.Equal(t, "updated legacy note", account.TxNote("legacy-1"))
+		contents, err := ioutil.ReadFile(path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"))
+		require.NoError(t, err)
+		require.JSONEq(t, `{"transactions":{}}`, string(contents))
+
+		// Test that the notes were persisted under the right file name with the right contents.
+		contents, err = ioutil.ReadFile(path.Join(cfg.NotesFolder, "test-account-identifier.json"))
+		require.NoError(t, err)
+		require.JSONEq(t, `{"transactions":{"legacy-1": "updated legacy note", "test-tx-id": "another test note"}}`, string(contents))
 	})
 
 	t.Run("exportCSV", func(t *testing.T) {
@@ -122,7 +185,7 @@ func TestBaseAccount(t *testing.T) {
 
 		require.Equal(t, header, export(nil))
 
-		require.NoError(t, account.notes.SetTxNote("some-internal-tx-id", "some note, with a comma"))
+		require.NoError(t, account.SetTxNote("some-internal-tx-id", "some note, with a comma"))
 		fee := coin.NewAmountFromInt64(101)
 		timestamp := time.Date(2020, 2, 30, 16, 44, 20, 0, time.UTC)
 		require.Equal(t,

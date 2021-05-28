@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Restore lost transaction notes when ugprading to v4.28.0.
 - Improve error message when EtherScan responds with a rate limit error.
 
 ## 4.28.0 [released 2021-05-27]

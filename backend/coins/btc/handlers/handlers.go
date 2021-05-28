@@ -175,7 +175,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			Fee:       feeString,
 			Time:      formattedTime,
 			Addresses: addresses,
-			Note:      handlers.account.Notes().TxNote(txInfo.InternalID),
+			Note:      handlers.account.TxNote(txInfo.InternalID),
 		}
 		switch handlers.account.Coin().(type) {
 		case *btc.Coin:
