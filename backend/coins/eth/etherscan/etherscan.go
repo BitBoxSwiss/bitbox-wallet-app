@@ -18,6 +18,7 @@ package etherscan
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -67,8 +68,12 @@ func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
 	if response.StatusCode != http.StatusOK {
 		return errp.Newf("expected 200 OK, got %d", response.StatusCode)
 	}
-	if err := json.NewDecoder(response.Body).Decode(result); err != nil {
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
 		return errp.WithStack(err)
+	}
+	if err := json.Unmarshal(body, result); err != nil {
+		return errp.Newf("unexpected response from EtherScan: %s", string(body))
 	}
 	return nil
 }
@@ -368,7 +373,10 @@ func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error
 	if wrapped.Result == nil {
 		return errp.New("expected result")
 	}
-	return json.Unmarshal(*wrapped.Result, result)
+	if err := json.Unmarshal(*wrapped.Result, result); err != nil {
+		return errp.WithStack(err)
+	}
+	return nil
 }
 
 // TransactionReceiptWithBlockNumber implements rpc.Interface.
@@ -435,11 +443,11 @@ func (etherScan *EtherScan) BalanceAt(ctx context.Context, account common.Addres
 		return nil, err
 	}
 	if result.Status != "1" {
-		return nil, errp.New("unexpected response")
+		return nil, errp.New("unexpected response from EtherScan")
 	}
 	balance, ok := new(big.Int).SetString(result.Result, 10)
 	if !ok {
-		return nil, errp.New("unexpected response")
+		return nil, errp.New("unexpected response from EtherScan")
 	}
 	return balance, nil
 }
