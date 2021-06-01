@@ -127,11 +127,11 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	allCoins := []coinpkg.Code{
 		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
 		coinpkg.CodeLTC, coinpkg.CodeTLTC,
-		coinpkg.CodeETH, coinpkg.CodeTETH,
+		coinpkg.CodeETH, coinpkg.CodeTETH, coinpkg.CodeRETH,
 	}
 	var availableCoins []coinpkg.Code
 	for _, coinCode := range allCoins {
-		if _, isTestnet := coinpkg.TestnetCoins[coinCode]; isTestnet != backend.Testing() {
+		if _, isTestnet := coinpkg.TestnetCoins[coinCode]; !backend.arguments.Regtest() && isTestnet != backend.Testing() {
 			// Don't load testnet accounts when running normally, nor mainnet accounts when running
 			// in testing mode
 			continue

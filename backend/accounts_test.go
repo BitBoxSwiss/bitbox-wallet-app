@@ -20,11 +20,14 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -178,4 +181,87 @@ func TestNextAccountNumber(t *testing.T) {
 
 	_, err = nextAccountNumber(coinpkg.CodeTBTC, ks(fingerprint2, true), accountsConfig)
 	require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
+}
+
+func newBackend(t *testing.T, testing, regtest bool) *Backend {
+	t.Helper()
+	b, err := NewBackend(
+		arguments.NewArguments(
+			test.TstTempDir("appfolder"),
+			testing, regtest,
+			false, false,
+			&types.GapLimits{Receive: 20, Change: 6}),
+		nil,
+	)
+	require.NoError(t, err)
+	return b
+}
+
+func TestSupportedCoins(t *testing.T) {
+	// All coins supported, mainnet.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, false, false)
+		defer b.Close()
+		require.Equal(t,
+			[]coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC, coinpkg.CodeETH},
+			b.SupportedCoins(&keystoremock.KeystoreMock{
+				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+					return true
+				},
+			}),
+		)
+	})
+	// All coins supported, testnet.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, true, false)
+		defer b.Close()
+		require.Equal(t,
+			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH},
+			b.SupportedCoins(&keystoremock.KeystoreMock{
+				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+					return true
+				},
+			}),
+		)
+	})
+	// All coins supported, regtest
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, true, true)
+		defer b.Close()
+		require.Equal(t,
+			[]coinpkg.Code{coinpkg.CodeRBTC},
+			b.SupportedCoins(&keystoremock.KeystoreMock{
+				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+					return true
+				},
+			}),
+		)
+	})
+	// No coins supported
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, false, false)
+		defer b.Close()
+		require.Equal(t,
+			[]coinpkg.Code(nil),
+			b.SupportedCoins(&keystoremock.KeystoreMock{
+				SupportsCoinFunc: func(code coinpkg.Coin) bool {
+					return false
+				},
+			}),
+		)
+	})
+
+	// Subset supported.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, false, false)
+		defer b.Close()
+		require.Equal(t,
+			[]coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC},
+			b.SupportedCoins(&keystoremock.KeystoreMock{
+				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
+					return coin.Code() == coinpkg.CodeBTC || coin.Code() == coinpkg.CodeLTC
+				},
+			}),
+		)
+	})
 }
