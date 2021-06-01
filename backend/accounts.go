@@ -192,7 +192,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
 	// and avoid any collisions.
-	accountCode := accounts.Code(fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber))
+	accountCode := regularAccountCode(rootFingerprint, coinCode, accountNumber)
 
 	log := backend.log.
 		WithField("accountCode", accountCode).
