@@ -32,7 +32,6 @@ import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { Toggle } from '../../components/toggle/toggle';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
-import { debug } from '../../utils/env';
 import { apiGet, apiPost } from '../../utils/request';
 import { FiatSelection } from './components/fiat/fiat';
 import * as style from './settings.css';
@@ -286,9 +285,6 @@ class Settings extends Component<Props, State> {
                                                             )
                                                         }
                                                         <SettingsButton link href="/settings/electrum">{t('settings.expert.electrum.title')}</SettingsButton>
-                                                        {
-                                                            debug && <SettingsButton link href="/bitboxbase">{t('settings.expert.base')}</SettingsButton>
-                                                        }
                                                     </div>
                                                 </div>
                                             </div>

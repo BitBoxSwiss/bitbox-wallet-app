@@ -34,7 +34,6 @@ import Logo, { AppLogoInverted } from '../icon/logo';
 
 interface SidebarProps {
     deviceIDs: string[];
-    bitboxBaseIDs: string[];
     accounts: IAccount[];
 }
 
@@ -234,36 +233,6 @@ class Sidebar extends Component<Props> {
                         </Link>
                     </div>
                     ) : null }
-                    {debug &&
-                        <div key="bitboxbase" className="sidebarItem">
-                            <Link
-                                activeClassName="sidebar-active"
-                                href={`/bitboxbase`}
-                                title={t('sidebar.bitboxBaseConnect')}
-                                onClick={this.handleSidebarItemClick}>
-                                <div className="stacked">
-                                    <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.bitboxBase')} />
-                                    <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
-                                </div>
-                                <span className="sidebar_label">{t('sidebar.bitboxBaseConnect')}</span>
-                            </Link>
-                        </div>
-                    }
-                    {/* {debug && bitboxBaseIDs.map(bitboxBaseID => (
-                            <div key={bitboxBaseID} className="sidebarItem">
-                                <Link
-                                    href={`/bitboxbase/${bitboxBaseID}`}
-                                    activeClassName="sidebar-active"
-                                    title={t('sidebar.bitboxBase')}
-                                    onClick={this.handleSidebarItemClick}>
-                                    <div className="single">
-                                        <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
-                                    </div>
-                                    <span className="sidebar_label">{t('sidebar.bitboxBase')}</span>
-                                </Link>
-                            </div>
-                        ))
-                    } */}
                     { deviceIDs.map(deviceID => (
                         <div key={deviceID} className="sidebarItem">
                             <Link

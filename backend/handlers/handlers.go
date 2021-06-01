@@ -32,8 +32,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
-	baseHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -77,17 +75,11 @@ type Backend interface {
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() map[string]device.Interface
-	OnBitBoxBaseInit(f func(*bitboxbase.BitBoxBase))
-	OnBitBoxBaseUninit(f func(bitboxBaseID string))
-	BitBoxBasesDetected() map[string]string
-	BitBoxBasesRegistered() map[string]*bitboxbase.BitBoxBase
 	Start() <-chan interface{}
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
-	TryMakeNewBase(ip string) (bool, error)
 	RatesUpdater() *rates.RateUpdater
-	BitBoxBaseDeregister(bitboxBaseID string)
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
@@ -202,14 +194,9 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
-	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
-
-	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
-	bitboxBasesRouter("/registered", handlers.getBitBoxBasesRegisteredHandler).Methods("GET")
-	bitboxBasesRouter("/detected", handlers.getBitBoxBasesDetectedHandler).Methods("GET")
 
 	handlersMapLock := locker.Locker{}
 
@@ -267,17 +254,6 @@ func NewHandlers(
 		return bitbox02BootloaderHandlersMap[deviceID]
 	}
 
-	baseHandlersMap := map[string]*baseHandlers.Handlers{}
-	getBaseHandlers := func(bitboxBaseID string) *baseHandlers.Handlers {
-		defer handlersMapLock.Lock()()
-		if _, ok := baseHandlersMap[bitboxBaseID]; !ok {
-			baseHandlersMap[bitboxBaseID] = baseHandlers.NewHandlers(getAPIRouter(
-				apiRouter.PathPrefix(fmt.Sprintf("/bitboxbases/%s", bitboxBaseID)).Subrouter(),
-			), log)
-		}
-		return baseHandlersMap[bitboxBaseID]
-	}
-
 	backend.OnDeviceInit(func(device device.Interface) {
 		switch specificDevice := device.(type) {
 		case *bitbox.Device:
@@ -290,13 +266,6 @@ func NewHandlers(
 	})
 	backend.OnDeviceUninit(func(deviceID string) {
 		getDeviceHandlers(deviceID).Uninit()
-	})
-
-	backend.OnBitBoxBaseInit(func(baseDevice *bitboxbase.BitBoxBase) {
-		getBaseHandlers(baseDevice.Identifier()).Init(baseDevice)
-	})
-	backend.OnBitBoxBaseUninit(func(bitboxBaseID string) {
-		getBaseHandlers(bitboxBaseID).Uninit()
 	})
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
@@ -565,22 +534,6 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return jsonDevices, nil
 }
 
-func (handlers *Handlers) getBitBoxBasesDetectedHandler(_ *http.Request) (interface{}, error) {
-	jsonDetectedBases := map[string]string{}
-	for hostname, baseIPv4 := range handlers.backend.BitBoxBasesDetected() {
-		jsonDetectedBases[hostname] = baseIPv4
-	}
-	return jsonDetectedBases, nil
-}
-
-func (handlers *Handlers) getBitBoxBasesRegisteredHandler(_ *http.Request) (interface{}, error) {
-	jsonRegisteredBases := map[string]string{}
-	for bitboxBaseID, bitboxBase := range handlers.backend.BitBoxBasesRegistered() {
-		jsonRegisteredBases[bitboxBaseID] = bitboxBase.GetLocalHostname()
-	}
-	return jsonRegisteredBases, nil
-}
-
 func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
@@ -722,26 +675,6 @@ func (handlers *Handlers) postSocksProxyCheck(r *http.Request) (interface{}, err
 	}
 	return response{
 		Success: true,
-	}, nil
-}
-
-func (handlers *Handlers) postEstablishConnectionHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	ip := jsonBody["ip"]
-	handlers.log.WithField("ip", ip).Debug("Connect to middleware with the following ip:")
-
-	success, err := handlers.backend.TryMakeNewBase(ip)
-	if err != nil {
-		return map[string]interface{}{
-			"success":      success,
-			"errorMessage": err.Error(),
-		}, nil
-	}
-	return map[string]interface{}{
-		"success": true,
 	}, nil
 }
 

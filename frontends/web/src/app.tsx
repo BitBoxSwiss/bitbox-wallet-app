@@ -42,21 +42,17 @@ import Info from './routes/account/info/info';
 import { Receive } from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { AccountsSummary } from './routes/account/summary/accountssummary';
-import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseState } from './routes/bitboxbase/bitboxbase';
-import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import { ManageAccounts } from './routes/settings/manage-accounts';
 import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
-import { apiGet, apiPost } from './utils/request';
+import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
 interface State {
     accounts: IAccount[];
-    bitboxBaseIDs: string[];
-    detectedBases: DetectedBitBoxBases;
     devices: TDevices;
 }
 
@@ -65,8 +61,6 @@ type Props = TranslateProps;
 class App extends Component<Props, State> {
     public readonly state: State = {
         accounts: [],
-        bitboxBaseIDs: [],
-        detectedBases: {},
         devices: {},
     };
 
@@ -83,8 +77,6 @@ class App extends Component<Props, State> {
     }
 
     public componentDidMount() {
-        this.onBitBoxBasesRegisteredChanged();
-        this.onBitBoxBasesDetectedChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
             case 'backend':
@@ -99,18 +91,6 @@ class App extends Component<Props, State> {
                     break;
                 }
                 break;
-            case 'bitboxbases':
-                switch (data) {
-                case 'registeredChanged':
-                    this.onBitBoxBasesRegisteredChanged();
-                    break;
-                case 'detectedChanged':
-                    this.onBitBoxBasesDetectedChanged();
-                    break;
-                case 'reconnected':
-                    this.onBitBoxBaseReconnected(meta.ID);
-                    break;
-                }
             }
         });
 
@@ -139,36 +119,12 @@ class App extends Component<Props, State> {
                 });
             }),
             // TODO: add syncBackendNewTX
-            // TODO: add syncBitBoxBase ?
         );
     }
 
     public componentWillUnmount() {
         this.unsubscribe();
         unsubscribe(this.unsubscribeList);
-    }
-
-    private onBitBoxBasesDetectedChanged = () => {
-        apiGet('bitboxbases/detected').then(detectedBases => {
-            this.setState({ detectedBases });
-        });
-    }
-
-    private onBitBoxBasesRegisteredChanged = () => {
-        apiGet('bitboxbases/registered').then(bases => {
-            let bitboxBaseIDs: string[] = [];
-            if (bases !== null) {
-                // Registered bases are returned in the format {ID: hostname}
-                bitboxBaseIDs = Object.keys(bases);
-            }
-            this.setState({ bitboxBaseIDs });
-            bitboxBaseIDs.map(ID => updateSharedBaseState('hostname', bases[ID].split('.')[0], ID));
-        });
-    }
-
-    private onBitBoxBaseReconnected = (ID: string) => {
-        setInternalBaseStatus('locked', ID);
-        setBaseUserStatus('OK', ID);
     }
 
     private maybeRoute = () => {
@@ -215,7 +171,7 @@ class App extends Component<Props, State> {
 
     public render(
         {  }: RenderableProps<Props>,
-        { accounts, bitboxBaseIDs, detectedBases, devices }: State,
+        { accounts, devices }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
         return (
@@ -224,8 +180,7 @@ class App extends Component<Props, State> {
                     <TranslationHelper />
                     <Sidebar
                         accounts={accounts}
-                        deviceIDs={deviceIDs}
-                        bitboxBaseIDs={bitboxBaseIDs} />
+                        deviceIDs={deviceIDs} />
                     <div class="appContent flex flex-column flex-1" style="min-width: 0;">
                         <Update />
                         <Banner msgKey="bitbox01" />
@@ -264,13 +219,6 @@ class App extends Component<Props, State> {
                                 path="/add-account" />
                             <AccountsSummary accounts={accounts}
                                 path="/account-summary" />
-                            <BitBoxBaseConnect
-                                path="/bitboxbase"
-                                detectedBases={detectedBases}
-                                bitboxBaseIDs={bitboxBaseIDs} />
-                            <BitBoxBase
-                                path="/bitboxbase/:bitboxBaseID"
-                                bitboxBaseID={null} />
                             <ElectrumSettings
                                 path="/settings/electrum" />
                             <Settings

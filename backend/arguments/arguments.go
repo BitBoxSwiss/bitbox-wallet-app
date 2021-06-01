@@ -30,9 +30,6 @@ type Arguments struct {
 	// bitbox02DirectoryPath stores the location where bitbox02 application data is stored.
 	bitbox02DirectoryPath string
 
-	// bitboxBaseDirectoryPath stores the location where bitbox base application data is stored.
-	bitboxBaseDirectoryPath string
-
 	// cacheDirectoryPath stores the location where application data is stored.
 	cacheDirectoryPath string
 
@@ -82,11 +79,6 @@ func NewArguments(
 		panic("Cannot create the bitbox02 directory.")
 	}
 
-	bitboxBaseDirectoryPath := path.Join(mainDirectoryPath, "bitboxBase")
-	if err := os.MkdirAll(bitboxBaseDirectoryPath, 0700); err != nil {
-		panic("Cannot create the bitboxBase directory.")
-	}
-
 	cacheDirectoryPath := path.Join(mainDirectoryPath, "cache")
 	if err := os.MkdirAll(cacheDirectoryPath, 0700); err != nil {
 		panic("Cannot create the cache directory.")
@@ -99,9 +91,8 @@ func NewArguments(
 
 	log := logging.Get().WithGroup("arguments")
 	arguments := &Arguments{
-		mainDirectoryPath:       mainDirectoryPath,
-		bitbox02DirectoryPath:   bitbox02DirectoryPath,
-		bitboxBaseDirectoryPath: bitboxBaseDirectoryPath,
+		mainDirectoryPath:     mainDirectoryPath,
+		bitbox02DirectoryPath: bitbox02DirectoryPath,
 
 		cacheDirectoryPath:     cacheDirectoryPath,
 		notesDirectoryPath:     notesDirectoryPath,
@@ -135,16 +126,10 @@ func (arguments *Arguments) AccountsConfigFilename() string {
 	return arguments.accountsConfigFilename
 }
 
-// BitBox02DirectoryPath returns the path where BitBox Base data is stored.
+// BitBox02DirectoryPath returns the path where BitBox data is stored.
 // The above constructor ensures that the directory with the returned path exists.
 func (arguments *Arguments) BitBox02DirectoryPath() string {
 	return arguments.bitbox02DirectoryPath
-}
-
-// BitBoxBaseDirectoryPath returns the path to the bitbox02 directory of the backend to store caches.
-// The above constructor ensures that the directory with the returned path exists.
-func (arguments *Arguments) BitBoxBaseDirectoryPath() string {
-	return arguments.bitboxBaseDirectoryPath
 }
 
 // CacheDirectoryPath returns the path to the cache directory of the backend to store caches.
