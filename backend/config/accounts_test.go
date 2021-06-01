@@ -30,11 +30,11 @@ func TestByCode(t *testing.T) {
 	}
 	acct := cfg.Lookup("a")
 	require.NotNil(t, acct)
-	require.Equal(t, "a", acct.Code)
+	require.Equal(t, "a", string(acct.Code))
 
 	acct = cfg.Lookup("b")
 	require.NotNil(t, acct)
-	require.Equal(t, "b", acct.Code)
+	require.Equal(t, "b", string(acct.Code))
 
 	require.Nil(t, cfg.Lookup("c"))
 

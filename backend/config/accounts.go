@@ -16,6 +16,7 @@
 package config
 
 import (
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -25,7 +26,7 @@ import (
 type Account struct {
 	CoinCode       coin.Code              `json:"coinCode"`
 	Name           string                 `json:"name"`
-	Code           string                 `json:"code"`
+	Code           accounts.Code          `json:"code"`
 	Configurations signing.Configurations `json:"configurations"`
 	// ActiveTokens list the tokens that should be loaded along with the account.  Currently, this
 	// only applies to ETH, and the elements are ERC20 token codes (e.g. "eth-erc20-usdt",
@@ -66,7 +67,7 @@ func newDefaultAccountsonfig() AccountsConfig {
 
 // Lookup returns the account with the given code, or nil if no such account exists.
 // A reference is returned, so the account can be modified by the caller.
-func (cfg AccountsConfig) Lookup(code string) *Account {
+func (cfg AccountsConfig) Lookup(code accounts.Code) *Account {
 	for i := range cfg.Accounts {
 		acct := &cfg.Accounts[i]
 		if acct.Code == code {

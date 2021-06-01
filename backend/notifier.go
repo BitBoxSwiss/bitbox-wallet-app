@@ -48,11 +48,11 @@ func (notifier *Notifier) Close() error {
 
 type notifierForAccount struct {
 	db          *bbolt.DB
-	accountCode string
+	accountCode accounts.Code
 }
 
 // ForAccount returns a Notifier for a specific account.
-func (notifier *Notifier) ForAccount(accountCode string) accounts.Notifier {
+func (notifier *Notifier) ForAccount(accountCode accounts.Code) accounts.Notifier {
 	return &notifierForAccount{db: notifier.db, accountCode: accountCode}
 }
 
