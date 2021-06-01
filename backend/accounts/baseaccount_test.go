@@ -56,7 +56,7 @@ func TestBaseAccount(t *testing.T) {
 		Name:        "Test",
 		DBFolder:    test.TstTempDir("baseaccount_test_dbfolder"),
 		NotesFolder: test.TstTempDir("baseaccount_test_notesfolder"),
-		Keystores:   nil,
+		Keystore:    nil,
 		OnEvent:     func(event Event) { events <- event },
 		RateUpdater: nil,
 		SigningConfigurations: signing.Configurations{

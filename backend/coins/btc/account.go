@@ -698,12 +698,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystore.CanVerifyAddress(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Config().Keystores.VerifyAddress(address.Configuration, account.Coin())
+		return true, account.Config().Keystore.VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
@@ -713,7 +713,7 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if !account.initialized {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
+	return account.Config().Keystore.CanVerifyAddress(account.Coin())
 }
 
 type byValue struct {
@@ -748,20 +748,12 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	return result
 }
 
-// CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification.
-func (account *Account) CanVerifyExtendedPublicKey() []int {
-	return account.Config().Keystores.CanVerifyExtendedPublicKeys()
-}
-
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output
 // exists.
 //
 // signingConfigIndex refers to the subaccount / signing config.
-//
-// xpubIndex is the position of an xpub in the []*hdkeychain which corresponds to the particular
-// keystore in []Keystore.
-func (account *Account) VerifyExtendedPublicKey(signingConfigIndex, xpubIndex int) (bool, error) {
-	keystore := account.Config().Keystores.Keystores()[xpubIndex]
+func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, error) {
+	keystore := account.Config().Keystore
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(
 			account.Coin(),

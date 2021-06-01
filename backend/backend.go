@@ -147,8 +147,13 @@ type Backend struct {
 
 	notifier *Notifier
 
-	devices         map[string]device.Interface
-	keystores       *keystore.Keystores
+	devices map[string]device.Interface
+
+	accountsAndKeystoreLock locker.Locker
+	// keystore is nil if no keystore is connected.
+	accounts []accounts.Interface
+	keystore keystore.Keystore
+
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
 	onDeviceInit    func(device.Interface)
@@ -156,9 +161,6 @@ type Backend struct {
 
 	coins     map[coinpkg.Code]coinpkg.Coin
 	coinsLock locker.Locker
-
-	accounts     []accounts.Interface
-	accountsLock locker.Locker
 
 	log *logrus.Entry
 
@@ -185,11 +187,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		config:      config,
 		events:      make(chan interface{}, 1000),
 
-		devices:   map[string]device.Interface{},
-		keystores: keystore.NewKeystores(),
-		coins:     map[coinpkg.Code]coinpkg.Coin{},
-		accounts:  []accounts.Interface{},
-		log:       log,
+		devices:  map[string]device.Interface{},
+		coins:    map[coinpkg.Code]coinpkg.Coin{},
+		accounts: []accounts.Interface{},
+		log:      log,
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
@@ -223,7 +224,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 // configureHistoryExchangeRates changes backend.ratesUpdater settings.
 // It requires both backend.config to be up-to-date and all accounts initialized.
 //
-// The accountsLock must be held when calling this function.
+// The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) configureHistoryExchangeRates() {
 	var coins []string
 	for _, acct := range backend.accounts {
@@ -234,7 +235,7 @@ func (backend *Backend) configureHistoryExchangeRates() {
 }
 
 // addAccount adds the given account to the backend.
-// The accountsLock must be held when calling this function.
+// The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
 	account.Observe(backend.Notify)
@@ -300,7 +301,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	return nil
 }
 
-// The accountsLock must be held when calling this function.
+// The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(
 	coin coinpkg.Coin,
 	code accounts.Code,
@@ -314,7 +315,7 @@ func (backend *Backend) createAndAddAccount(
 		Name:        name,
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
-		Keystores:   backend.keystores,
+		Keystore:    backend.keystore,
 		OnEvent: func(event accounts.Event) {
 			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
 			if account != nil && event == accounts.EventSyncDone {
@@ -636,25 +637,19 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	return coin, nil
 }
 
-// The accountsLock must be held when calling this function.
+// The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts() {
+	if backend.keystore == nil {
+		return
+	}
 	// Only load accounts which belong to connected keystores.
-	var connectedFingerprints [][]byte
-	for _, keystore := range backend.keystores.Keystores() {
-		rootFingerprint, err := keystore.RootFingerprint()
-		if err != nil {
-			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
-			continue
-		}
-		connectedFingerprints = append(connectedFingerprints, rootFingerprint)
+	rootFingerprint, err := backend.keystore.RootFingerprint()
+	if err != nil {
+		backend.log.WithError(err).Error("Could not retrieve root fingerprint")
+		return
 	}
 	keystoreConnected := func(account *config.Account) bool {
-		for _, fingerprint := range connectedFingerprints {
-			if account.Configurations.ContainsRootFingerprint(fingerprint) {
-				return true
-			}
-		}
-		return false
+		return account.Configurations.ContainsRootFingerprint(rootFingerprint)
 	}
 
 	persistedAccounts := backend.config.AccountsConfig()
@@ -722,7 +717,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	return nil
 }
 
-// The accountsLock must be held when calling this function.
+// The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) initAccounts() {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts()
@@ -742,7 +737,7 @@ func (backend *Backend) initAccounts() {
 // if the configuration changed (e.g. which accounts are active). This is a stopgap measure until
 // accounts can be added and removed individually.
 func (backend *Backend) ReinitializeAccounts() {
-	defer backend.accountsLock.Lock()()
+	defer backend.accountsAndKeystoreLock.Lock()()
 
 	backend.log.Info("Reinitializing accounts")
 	backend.initAccounts()
@@ -755,7 +750,7 @@ func (backend *Backend) Testing() bool {
 
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() []accounts.Interface {
-	defer backend.accountsLock.RLock()()
+	defer backend.accountsAndKeystoreLock.RLock()()
 	return backend.accounts
 }
 
@@ -797,7 +792,7 @@ func (backend *Backend) Start() <-chan interface{} {
 		go backend.banners.Init(httpClient)
 	}
 
-	defer backend.accountsLock.Lock()()
+	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.initPersistedAccounts()
 	backend.emitAccountsStatusChanged()
 
@@ -812,7 +807,7 @@ func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 	return backend.devices
 }
 
-// The accountsLock must be held when calling this function.
+// The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) uninitAccounts() {
 	for _, account := range backend.accounts {
 		account := account
@@ -822,17 +817,20 @@ func (backend *Backend) uninitAccounts() {
 	backend.accounts = []accounts.Interface{}
 }
 
-// Keystores returns the keystores registered at this backend.
-func (backend *Backend) Keystores() *keystore.Keystores {
-	return backend.keystores
+// Keystore returns the keystore registered at this backend, or nil if no keystore is registered.
+func (backend *Backend) Keystore() keystore.Keystore {
+	defer backend.accountsAndKeystoreLock.RLock()()
+	return backend.keystore
 }
 
 // registerKeystore registers the given keystore at this backend.
 func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
-	backend.log.Info("registering keystore")
-	if err := backend.keystores.Add(keystore); err != nil {
-		backend.log.Panic("Failed to add a keystore.", err)
-	}
+	defer backend.accountsAndKeystoreLock.Lock()()
+	// Only for logging, if there is an error we continue anyway.
+	fingerprint, _ := keystore.RootFingerprint()
+	log := backend.log.WithField("rootFingerprint", fingerprint)
+	log.Info("registering keystore")
+	backend.keystore = keystore
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
@@ -841,7 +839,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	belongsToKeystore := func(account *config.Account) bool {
 		fingerprint, err := keystore.RootFingerprint()
 		if err != nil {
-			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
+			log.WithError(err).Error("Could not retrieve root fingerprint")
 			return false
 		}
 		return account.Configurations.ContainsRootFingerprint(fingerprint)
@@ -853,23 +851,28 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
 	})
 	if err != nil {
-		backend.log.WithError(err).Error("Could not persist default accounts")
+		log.WithError(err).Error("Could not persist default accounts")
 	}
 
-	defer backend.accountsLock.Lock()()
 	backend.initAccounts()
 }
 
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
-	backend.log.Info("deregistering keystore")
-	backend.keystores = keystore.NewKeystores()
+	defer backend.accountsAndKeystoreLock.Lock()()
+
+	if backend.keystore == nil {
+		backend.log.Error("deregistering keystore, but no keystore found")
+		return
+	}
+	// Only for logging, if there is an error we continue anyway.
+	fingerprint, _ := backend.keystore.RootFingerprint()
+	backend.log.WithField("rootFingerprint", fingerprint).Info("deregistering keystore")
+	backend.keystore = nil
 	backend.Notify(observable.Event{
 		Subject: "keystores",
 		Action:  action.Reload,
 	})
-
-	defer backend.accountsLock.Lock()()
 
 	backend.uninitAccounts()
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
@@ -890,8 +893,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		case deviceevent.EventKeystoreAvailable:
 			if mainKeystore {
 				// HACK: for device based, only one is supported at the moment.
-				backend.keystores = keystore.NewKeystores()
-
 				backend.registerKeystore(theDevice.Keystore())
 			}
 		}
@@ -1012,7 +1013,7 @@ func (backend *Backend) Environment() Environment {
 
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
-	defer backend.accountsLock.Lock()()
+	defer backend.accountsAndKeystoreLock.Lock()()
 
 	errors := []string{}
 

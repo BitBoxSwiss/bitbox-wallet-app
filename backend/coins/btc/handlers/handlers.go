@@ -440,10 +440,10 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interface{}, error) {
 	switch specificAccount := handlers.account.(type) {
 	case *btc.Account:
-		return specificAccount.CanVerifyExtendedPublicKey(), nil
+		return specificAccount.Config().Keystore.CanVerifyExtendedPublicKey(), nil
 	case *eth.Account:
 		// No xpub verification for ethereum accounts
-		return []int{}, nil
+		return false, nil
 	default:
 		return nil, nil
 	}
@@ -451,7 +451,6 @@ func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interf
 
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
 	var input struct {
-		XPubIndex          int `json:"xpubIndex"`
 		SigningConfigIndex int `json:"signingConfigIndex"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -461,7 +460,7 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 	if !ok {
 		return nil, errp.New("An account must be BTC based to support xpub verification")
 	}
-	return btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex, input.XPubIndex)
+	return btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
