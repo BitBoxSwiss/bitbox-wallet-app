@@ -18,6 +18,7 @@ package handlers
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -196,7 +197,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
-	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Config().Code + "-export.csv"
+	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Code)
 	downloadsDir, err := config.DownloadsDir()
 	if err != nil {
 		return nil, err

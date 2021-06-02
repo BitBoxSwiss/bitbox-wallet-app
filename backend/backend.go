@@ -105,9 +105,9 @@ type deviceEvent struct {
 
 // AccountEvent models an event triggered by an account.
 type AccountEvent struct {
-	Type string `json:"type"`
-	Code string `json:"code"`
-	Data string `json:"data"`
+	Type string        `json:"type"`
+	Code accounts.Code `json:"code"`
+	Data string        `json:"data"`
 }
 
 // Environment represents functionality where the implementation depends on the environment the app
@@ -298,19 +298,12 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	}
 	accountsConfig.Accounts = append(accountsConfig.Accounts, account)
 	return nil
-
-}
-
-// Erc20AccountCode returns the account code used for an ERC20 token.
-// It is derived from the account code of the parent ETH account and the token code.
-func Erc20AccountCode(ethereumAccountCode, tokenCode string) string {
-	return fmt.Sprintf("%s-%s", ethereumAccountCode, tokenCode)
 }
 
 // The accountsLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(
 	coin coinpkg.Coin,
-	code string,
+	code accounts.Code,
 	name string,
 	signingConfigurations signing.Configurations,
 	activeTokens []string,
@@ -381,7 +374,7 @@ type scriptTypeWithKeypath struct {
 func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
-	code string,
+	code accounts.Code,
 	name string,
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
@@ -444,7 +437,7 @@ func (backend *Backend) persistBTCAccountConfig(
 		err := backend.persistAccount(config.Account{
 			CoinCode:       coin.Code(),
 			Name:           suffixedName,
-			Code:           fmt.Sprintf("%s-%s", code, cfg.ScriptType()),
+			Code:           splitAccountCode(code, cfg.ScriptType()),
 			Configurations: signing.Configurations{cfg},
 		}, accountsConfig)
 		if err != nil {
@@ -457,7 +450,7 @@ func (backend *Backend) persistBTCAccountConfig(
 func (backend *Backend) persistETHAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
-	code string,
+	code accounts.Code,
 	keypath string,
 	name string,
 	activeTokens []string,

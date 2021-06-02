@@ -19,6 +19,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
@@ -57,7 +58,7 @@ func TestSortAccounts(t *testing.T) {
 		}
 	}
 
-	accounts := []*config.Account{
+	accts := []*config.Account{
 		{Code: "acct-eth-2", CoinCode: coinpkg.CodeETH, Configurations: ethConfig("m/44'/60'/0'/0/1")},
 		{Code: "acct-eth-1", CoinCode: coinpkg.CodeETH, Configurations: ethConfig("m/44'/60'/0'/0/0")},
 		{Code: "acct-btc-1", CoinCode: coinpkg.CodeBTC, Configurations: btcConfig("m/84'/0'/0'")},
@@ -69,8 +70,8 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-tltc", CoinCode: coinpkg.CodeTLTC},
 		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
 	}
-	sortAccounts(accounts)
-	expectedOrder := []string{
+	sortAccounts(accts)
+	expectedOrder := []accounts.Code{
 		"acct-btc-1",
 		"acct-btc-2",
 		"acct-btc-3",
@@ -82,8 +83,8 @@ func TestSortAccounts(t *testing.T) {
 		"acct-teth",
 		"acct-reth",
 	}
-	for i := range accounts {
-		assert.Equal(t, expectedOrder[i], accounts[i].Code)
+	for i := range accts {
+		assert.Equal(t, expectedOrder[i], accts[i].Code)
 	}
 }
 

@@ -92,9 +92,9 @@ type Backend interface {
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
-	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error)
-	SetTokenActive(accountCode string, tokenCode string, active bool) error
-	RenameAccount(accountCode string, name string) error
+	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accounts.Code, error)
+	SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error
+	RenameAccount(accountCode accounts.Code, name string) error
 }
 
 // Handlers provides a web api to the backend.
@@ -200,8 +200,8 @@ func NewHandlers(
 
 	handlersMapLock := locker.Locker{}
 
-	accountHandlersMap := map[string]*accountHandlers.Handlers{}
-	getAccountHandlers := func(accountCode string) *accountHandlers.Handlers {
+	accountHandlersMap := map[accounts.Code]*accountHandlers.Handlers{}
+	getAccountHandlers := func(accountCode accounts.Code) *accountHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
 			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
@@ -301,14 +301,14 @@ type activeToken struct {
 	TokenCode string `json:"tokenCode"`
 	// AccountCode is the code of the account, which is not the same as the TokenCode, as there can
 	// be many accounts for the same token.
-	AccountCode string `json:"accountCode"`
+	AccountCode accounts.Code `json:"accountCode"`
 }
 
 type accountJSON struct {
 	CoinCode              coinpkg.Code  `json:"coinCode"`
 	CoinUnit              string        `json:"coinUnit"`
 	CoinName              string        `json:"coinName"`
-	Code                  string        `json:"code"`
+	Code                  accounts.Code `json:"code"`
 	Name                  string        `json:"name"`
 	IsToken               bool          `json:"isToken"`
 	ActiveTokens          []activeToken `json:"activeTokens,omitempty"`
@@ -412,10 +412,10 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	}
 
 	type response struct {
-		Success      bool   `json:"success"`
-		AccountCode  string `json:"accountCode,omitempty"`
-		ErrorMessage string `json:"errorMessage,omitempty"`
-		ErrorCode    string `json:"errorCode,omitempty"`
+		Success      bool          `json:"success"`
+		AccountCode  accounts.Code `json:"accountCode,omitempty"`
+		ErrorMessage string        `json:"errorMessage,omitempty"`
+		ErrorCode    string        `json:"errorCode,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
@@ -478,9 +478,9 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 
 func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{}, error) {
 	var jsonBody struct {
-		AccountCode string `json:"accountCode"`
-		TokenCode   string `json:"tokenCode"`
-		Active      bool   `json:"active"`
+		AccountCode accounts.Code `json:"accountCode"`
+		TokenCode   string        `json:"tokenCode"`
+		Active      bool          `json:"active"`
 	}
 
 	type response struct {
@@ -499,8 +499,8 @@ func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{
 
 func (handlers *Handlers) postRenameAccountHandler(r *http.Request) (interface{}, error) {
 	var jsonBody struct {
-		AccountCode string `json:"accountCode"`
-		Name        string `json:"name"`
+		AccountCode accounts.Code `json:"accountCode"`
+		Name        string        `json:"name"`
 	}
 
 	type response struct {
@@ -873,7 +873,7 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range handlers.backend.Accounts() {
-		if a.Config().Code == acctCode {
+		if string(a.Config().Code) == acctCode {
 			acct = a
 			break
 		}
@@ -884,7 +884,7 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
-	acctCode := mux.Vars(r)["code"]
+	acctCode := accounts.Code(mux.Vars(r)["code"])
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range handlers.backend.Accounts() {

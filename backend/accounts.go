@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -176,7 +177,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 	name string,
 	keystore keystore.Keystore,
 	activeTokens []string,
-	accountsConfig *config.AccountsConfig) (string, error) {
+	accountsConfig *config.AccountsConfig) (accounts.Code, error) {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
 		return "", err
@@ -191,7 +192,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 
 	// v0 prefix: in case this code turns out to be not unique in the future, we can switch to 'v1-'
 	// and avoid any collisions.
-	accountCode := fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber)
+	accountCode := regularAccountCode(rootFingerprint, coinCode, accountNumber)
 
 	log := backend.log.
 		WithField("accountCode", accountCode).
@@ -303,8 +304,8 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // determined automatically to be the increment of the highest existing account.
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
-	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (string, error) {
-	var accountCode string
+	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accounts.Code, error) {
+	var accountCode accounts.Code
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		nextAccountNumber, err := nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
@@ -319,7 +320,7 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
-func (backend *Backend) SetTokenActive(accountCode string, tokenCode string, active bool) error {
+func (backend *Backend) SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error {
 	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
@@ -330,7 +331,7 @@ func (backend *Backend) SetTokenActive(accountCode string, tokenCode string, act
 }
 
 // RenameAccount renames an account in the accounts database.
-func (backend *Backend) RenameAccount(accountCode string, name string) error {
+func (backend *Backend) RenameAccount(accountCode accounts.Code, name string) error {
 	if name == "" {
 		return errp.New("Name cannot be empty")
 	}
