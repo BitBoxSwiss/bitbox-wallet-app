@@ -356,7 +356,9 @@ func (backend *Backend) RenameAccount(accountCode accounts.Code, name string) er
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
 	account.Observe(backend.Notify)
-	backend.onAccountInit(account)
+	if backend.onAccountInit != nil {
+		backend.onAccountInit(account)
+	}
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -702,8 +704,9 @@ func (backend *Backend) ReinitializeAccounts() {
 func (backend *Backend) uninitAccounts() {
 	for _, account := range backend.accounts {
 		account := account
-		backend.onAccountUninit(account)
-		account.Close()
+		if backend.onAccountUninit != nil {
+			backend.onAccountUninit(account)
+		}
 	}
 	backend.accounts = []accounts.Interface{}
 }

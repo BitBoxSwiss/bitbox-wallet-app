@@ -24,6 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
@@ -209,6 +210,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 			&types.GapLimits{Receive: 20, Change: 6}),
 		nil,
 	)
+	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 	require.NoError(t, err)
 	return b
 }
@@ -576,4 +578,106 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
 	})
+}
+
+func TestCreateAndAddAccount(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	fingerprint := []byte{0x55, 0x55, 0x55, 0x55}
+
+	require.Equal(t, []accounts.Interface{}, b.Accounts())
+
+	// Add a Bitcoin account.
+	coin, err := b.Coin(coinpkg.CodeBTC)
+	require.NoError(t, err)
+	b.createAndAddAccount(coin, "test-btc-account-code", "Bitcoin account name",
+		signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
+		},
+		nil,
+	)
+	require.Len(t, b.Accounts(), 1)
+	// Check some properties of the newly added account.
+	acct := b.Accounts()[0]
+	_, ok := acct.(*btc.Account)
+	require.True(t, ok)
+	require.Equal(t, accounts.Code("test-btc-account-code"), acct.Config().Code)
+	require.Equal(t, coin, acct.Coin())
+	require.Equal(t, "Bitcoin account name", acct.Config().Name)
+
+	// Add a Litecoin account.
+	coin, err = b.Coin(coinpkg.CodeLTC)
+	require.NoError(t, err)
+	b.createAndAddAccount(coin, "test-ltc-account-code", "Litecoin account name",
+		signing.Configurations{
+			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
+		},
+		nil,
+	)
+	require.Len(t, b.Accounts(), 2)
+	// Check some properties of the newly added account.
+	acct = b.Accounts()[1]
+	_, ok = acct.(*btc.Account)
+	require.True(t, ok)
+	require.Equal(t, accounts.Code("test-ltc-account-code"), acct.Config().Code)
+	require.Equal(t, coin, acct.Coin())
+	require.Equal(t, "Litecoin account name", acct.Config().Name)
+
+	// Add an Ethereum account with some active ERC20 tokens..
+	coin, err = b.Coin(coinpkg.CodeETH)
+	require.NoError(t, err)
+	b.createAndAddAccount(coin, "test-eth-account-code", "Ethereum account name",
+		signing.Configurations{
+			signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/0"), mustXKey("xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E")),
+		},
+		[]string{"eth-erc20-mkr"},
+	)
+	// 2 more accounts: the added ETH account plus the active token for the ETH account.
+	require.Len(t, b.Accounts(), 4)
+	// Check some properties of the newly added account.
+	acct = b.Accounts()[2]
+	_, ok = acct.(*eth.Account)
+	require.True(t, ok)
+	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
+	require.Equal(t, accounts.Code("test-eth-account-code"), acct.Config().Code)
+	require.Equal(t, coin, acct.Coin())
+	require.Equal(t, "Ethereum account name", acct.Config().Name)
+	acct = b.Accounts()[3]
+	_, ok = acct.(*eth.Account)
+	require.True(t, ok)
+	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
+	require.Equal(t, accounts.Code("test-eth-account-code-eth-erc20-mkr"), acct.Config().Code)
+	require.Equal(t, "Maker", acct.Config().Name)
+
+	// Add another Ethereum account with some active ERC20 tokens.
+	coin, err = b.Coin(coinpkg.CodeETH)
+	require.NoError(t, err)
+	b.createAndAddAccount(coin, "test-eth-account-code-2", "Ethereum account name 2",
+		signing.Configurations{
+			signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/1"), mustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
+		},
+		[]string{"eth-erc20-usdt", "eth-erc20-bat"},
+	)
+	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
+	require.Len(t, b.Accounts(), 7)
+	// Check some properties of the newly added accounts.
+	acct = b.Accounts()[4]
+	_, ok = acct.(*eth.Account)
+	require.True(t, ok)
+	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
+	require.Equal(t, accounts.Code("test-eth-account-code-2"), acct.Config().Code)
+	require.Equal(t, coin, acct.Coin())
+	require.Equal(t, "Ethereum account name 2", acct.Config().Name)
+	acct = b.Accounts()[5]
+	_, ok = acct.(*eth.Account)
+	require.True(t, ok)
+	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
+	require.Equal(t, accounts.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Code)
+	require.Equal(t, "Tether USD 2", acct.Config().Name)
+	acct = b.Accounts()[6]
+	_, ok = acct.(*eth.Account)
+	require.True(t, ok)
+	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
+	require.Equal(t, accounts.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Code)
+	require.Equal(t, "Basic Attention Token 2", acct.Config().Name)
 }
