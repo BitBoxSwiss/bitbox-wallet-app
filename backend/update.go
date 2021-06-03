@@ -27,7 +27,7 @@ const updateFileURL = "https://shiftcrypto.ch/updates/desktop.json"
 
 var (
 	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(4, 28, 1)
+	Version = semver.NewSemVer(4, 28, 2)
 )
 
 // UpdateFile is retrieved from the server.
