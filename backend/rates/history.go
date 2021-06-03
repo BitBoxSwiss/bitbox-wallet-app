@@ -77,10 +77,16 @@ func (updater *RateUpdater) historyUpdateLoop(ctx context.Context, coin, fiat st
 		// will kick in and fill it up for the past 90 days anyway.
 		if !start.IsZero() {
 			// Start slightly past the last fetched timestamp
-			// TODO: Handle the case where (now - start) > 90 days to get hourly rates?
+			start = start.Add(time.Minute)
 			timeRange := fetchTimeRange{
-				start: start.Add(time.Minute),
-				end:   time.Now,
+				start: start,
+				end: func() time.Time {
+					// Make sure we're not requesting too much data at once.
+					if time.Since(start) > maxGeckoRange {
+						return start.Add(maxGeckoRange)
+					}
+					return time.Now()
+				},
 			}
 			if _, err := updater.updateHistory(ctx, coin, fiat, timeRange); err != nil {
 				// Reduce logging by omitting context.Canceled error which simply indiates
@@ -123,10 +129,9 @@ func (updater *RateUpdater) backfillHistory(ctx context.Context, coin, fiat stri
 			end = time.Now()
 			start = end.Add(-90*24*time.Hour + time.Hour) // +1h to be sure
 		} else {
-			// Use multiple of years interval but not "too much" to control
-			// upstream API response time and size.
+			// Use the max allowed range so that it fits response size limits.
 			end = end.Add(-24 * time.Hour)
-			start = end.Add(-1000 * 24 * time.Hour)
+			start = end.Add(-maxGeckoRange)
 		}
 
 		n, err := updater.updateHistory(ctx, coin, fiat, fixedTimeRange(start, end))
@@ -274,8 +279,8 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 		if res.StatusCode != http.StatusOK {
 			return fmt.Errorf("fetchGeckoMarketRange: bad response code %d", res.StatusCode)
 		}
-		// 1Mb is more than enough for a single response.
-		// For comparison, a range of 15 days is about 14Kb.
+		// 1Mb is more than enough for a single response, but make sure initial
+		// download with empty cache fits here. See maxGeckoRange.
 		return json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&jsonBody)
 	})
 	if callErr != nil {

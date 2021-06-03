@@ -7,6 +7,13 @@ const (
 	coingeckoAPIV3 = "https://api.coingecko.com/api/v3"
 	// A mirror of CoinGecko API specifically for use with BitBoxApp.
 	shiftGeckoMirrorAPIV3 = "https://exchangerates.shiftcrypto.io/api/v3"
+	// The maximum duration the updater is allowed to get exchange rates for
+	// in a single request. If increasing the range, make sure the response
+	// fits into LimitReader in fetchGeckoMarketRange.
+	// Larger range reduces the QPS but increases size and IO time, and may lead
+	// to increased request failures especially with an intermittent connection.
+	// For comparison, a range of 2 years is about 1Mb.
+	maxGeckoRange = 364 * 24 * time.Hour
 )
 
 // apiRateLimit specifies the minimal interval between equally spaced API calls
