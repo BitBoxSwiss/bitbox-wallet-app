@@ -34,6 +34,11 @@ export const getSupportedCoins = (): Promise<ICoin[]> => {
     return apiGet('supported-coins');
 };
 
+// TODO: implemnt backend
+export const setCoinActive = (accountCode: string, active: boolean): Promise<ISuccess> => {
+    return apiPost('set-coin-active', { accountCode, active });
+};
+
 export const setTokenActive = (accountCode: string, tokenCode: string, active: boolean): Promise<ISuccess> => {
     return apiPost('set-token-active', { accountCode, tokenCode, active });
 };

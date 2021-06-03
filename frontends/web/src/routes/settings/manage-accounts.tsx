@@ -121,10 +121,10 @@ class ManageAccounts extends Component<Props, State> {
                         onClick={() => this.setState({ editAccountCode: account.code, editAccountNewName: account.name })}>
                         {t('manageAccounts.editAccount')}
                     </button>
-                    {/* <Toggle
+                    <Toggle
                         checked={active}
                         id={account.code}
-                        onChange={this.toggleFavorAccount} /> */}
+                        onChange={() => this.toggleCoin(account.code, !active)} />
                     {active && account.coinCode === 'eth' ? (
                         <div className={style.tokenSection}>
                             <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
@@ -142,6 +142,17 @@ class ManageAccounts extends Component<Props, State> {
                     ) : null}
                 </div>
             );
+        });
+    }
+
+    private toggleCoin = (accountCode: string, active: boolean) => {
+        backendAPI.setCoinActive(accountCode, active).then(({ success, errorMessage }) => {
+            if (success) {
+                this.fetchAccounts();
+                backendAPI.reinitializeAccounts();
+            } else if (errorMessage) {
+                alertUser(errorMessage);
+            }
         });
     }
 
