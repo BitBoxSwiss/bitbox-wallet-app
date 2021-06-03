@@ -1,6 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+
+## 4.28.2 [released 2021-06-03]
+- Fix a conversion rates updater bug
+
+## 4.28.1 [released 2021-05-28]
 - Restore lost transaction notes when ugprading to v4.28.0.
 - Improve error message when EtherScan responds with a rate limit error.
 
