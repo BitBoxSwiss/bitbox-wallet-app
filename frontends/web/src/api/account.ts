@@ -166,6 +166,17 @@ export const exportAccount = (code: string): Promise<string> => {
     return apiPost(`account/${code}/export`);
 };
 
+export const getCanVerifyXPub = (code: string): Promise<boolean> => {
+    return apiGet(`account/${code}/can-verify-extended-public-key`);
+};
+
+export const verifyXPub = (
+    code: string,
+    signingConfigIndex: number,
+): Promise<void> => {
+    return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
+};
+
 export interface IReceiveAddress {
     addressID: string;
     address: string;

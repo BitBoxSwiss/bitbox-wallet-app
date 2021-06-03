@@ -16,12 +16,11 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { ISigningConfiguration } from '../../../api/account';
+import { getCanVerifyXPub, ISigningConfiguration, ScriptType, verifyXPub } from '../../../api/account';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
 import * as style from './info.css';
 
 interface ProvidedProps {
@@ -37,22 +36,26 @@ interface State {
 type Props = ProvidedProps & TranslateProps;
 
 class SigningConfiguration extends Component<Props, State> {
-    constructor(props) {
-        super(props);
+
+    public readonly state: State = {
+        canVerifyExtendedPublicKey: false,
+    }
+
+    public componentDidMount() {
         this.canVerifyExtendedPublicKeys();
     }
 
     private canVerifyExtendedPublicKeys = () => {
-        apiGet(`account/${this.props.code}/can-verify-extended-public-key`).then(canVerifyExtendedPublicKey => {
+        getCanVerifyXPub(this.props.code).then(canVerifyExtendedPublicKey => {
             this.setState({ canVerifyExtendedPublicKey });
         });
     }
 
     private verifyExtendedPublicKey = (signingConfigIndex: number) => {
-        apiPost(`account/${this.props.code}/verify-extended-public-key`, { signingConfigIndex });
+        verifyXPub(this.props.code, signingConfigIndex);
     }
 
-    private scriptTypeTitle = (scriptType: string) => {
+    private scriptTypeTitle = (scriptType: ScriptType): string => {
         switch (scriptType) {
             case 'p2pkh':
                 return 'Legacy';
@@ -60,8 +63,6 @@ class SigningConfiguration extends Component<Props, State> {
                 return 'Segwit';
             case 'p2wpkh':
                 return 'Native segwit (bech32)';
-            default:
-                return scriptType;
         }
     }
 
@@ -84,13 +85,11 @@ class SigningConfiguration extends Component<Props, State> {
                         <CopyableInput value={info.bitcoinSimple.keyInfo.xpub} flexibleHeight />
                     </div>
                     <div className="buttons">
-                        {
-                            canVerifyExtendedPublicKey && (
-                                <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
-                                    {t('accountInfo.verify')}
-                                </Button>
-                            )
-                        }
+                        { canVerifyExtendedPublicKey ? (
+                            <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
+                                {t('accountInfo.verify')}
+                            </Button>
+                        ) : null }
                     </div>
                 </div>
         </div>
