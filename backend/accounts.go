@@ -319,19 +319,28 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 			coinCode, nextAccountNumber, name, keystore, nil, accountsConfig)
 		return err
 	})
-	return accountCode, err
+	if err != nil {
+		return "", err
+	}
+	backend.ReinitializeAccounts()
+	return accountCode, nil
 }
 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
 func (backend *Backend) SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error {
-	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
 			return errp.Newf("Could not find account %s", accountCode)
 		}
 		return acct.SetTokenActive(tokenCode, active)
 	})
+	if err != nil {
+		return err
+	}
+	backend.ReinitializeAccounts()
+	return nil
 }
 
 // RenameAccount renames an account in the accounts database.
@@ -339,7 +348,7 @@ func (backend *Backend) RenameAccount(accountCode accounts.Code, name string) er
 	if name == "" {
 		return errp.New("Name cannot be empty")
 	}
-	return backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		for i := range accountsConfig.Accounts {
 			account := &accountsConfig.Accounts[i]
 			if account.Code == accountCode {
@@ -349,6 +358,11 @@ func (backend *Backend) RenameAccount(accountCode accounts.Code, name string) er
 		}
 		return errp.Newf("Account not found: %s", accountCode)
 	})
+	if err != nil {
+		return err
+	}
+	backend.ReinitializeAccounts()
+	return nil
 }
 
 // addAccount adds the given account to the backend.

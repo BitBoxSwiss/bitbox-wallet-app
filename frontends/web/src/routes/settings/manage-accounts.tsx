@@ -205,7 +205,6 @@ class ManageAccounts extends Component<Props, State> {
         backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
             if (success) {
                 this.fetchAccounts();
-                backendAPI.reinitializeAccounts();
             } else if (errorMessage) {
                 alertUser(errorMessage);
             }
@@ -226,15 +225,12 @@ class ManageAccounts extends Component<Props, State> {
                     }
                     return;
                 }
-                return backendAPI.reinitializeAccounts()
-                    .then(() => {
-                        this.fetchAccounts();
-                        this.setState({
-                            editAccountCode: undefined,
-                            editAccountNewName: '',
-                            editErrorMessage: undefined,
-                        });
-                    });
+                this.fetchAccounts();
+                this.setState({
+                    editAccountCode: undefined,
+                    editAccountNewName: '',
+                    editErrorMessage: undefined,
+                });
             });
     }
 
