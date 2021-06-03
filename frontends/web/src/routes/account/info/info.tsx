@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,58 +15,64 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { translate } from 'react-i18next';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/account';
 import { ButtonLink } from '../../../components/forms';
-import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header } from '../../../components/layout';
 import * as style from './info.css';
 import { SigningConfiguration } from './signingconfiguration';
 
-@translate()
-export default class Info extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            balance: null,
-            info: null
-        };
+
+interface InfoProps {
+    accounts: IAccount[];
+    code: string;
+}
+
+interface State {
+    info?: ISigningConfigurationList;
+}
+
+type Props = InfoProps & TranslateProps;
+
+class Info extends Component<Props, State> {
+    public readonly state: State = {
+        info: undefined,
     }
 
-    componentDidMount() {
-        apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
-        apiGet(`account/${this.props.code}/info`).then(info => this.setState({ info }));
+    public componentDidMount() {
+        getInfo(this.props.code).then(info => this.setState({ info }));
     }
 
-    componentWillMount() {
+    public componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = e => {
+    private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
             console.info('receive.jsx route to /');
             route(`/account/${this.props.code}`);
         }
     }
 
-    getAccount() {
-        if (!this.props.accounts) return null;
+    private getAccount(): IAccount | undefined {
+        if (!this.props.accounts) {
+            return;
+        }
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
-    render({
-        t,
-        code,
-    }, {
-        info,
-    }) {
+    public render(
+        { t, code }: RenderableProps<Props>,
+        { info }: State
+    ) {
         const account = this.getAccount();
         if (!account || !info) return null;
         return (
@@ -98,3 +105,6 @@ export default class Info extends Component {
         );
     }
 }
+
+const HOC = translate<InfoProps>()(Info);
+export { HOC as Info };
