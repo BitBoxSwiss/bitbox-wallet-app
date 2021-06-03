@@ -349,14 +349,12 @@ func (backend *Backend) RenameAccount(accountCode accounts.Code, name string) er
 		return errp.New("Name cannot be empty")
 	}
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		for i := range accountsConfig.Accounts {
-			account := &accountsConfig.Accounts[i]
-			if account.Code == accountCode {
-				account.Name = name
-				return nil
-			}
+		acct := accountsConfig.Lookup(accountCode)
+		if acct == nil {
+			return errp.Newf("Could not find account %s", accountCode)
 		}
-		return errp.Newf("Account not found: %s", accountCode)
+		acct.Name = name
+		return nil
 	})
 	if err != nil {
 		return err
