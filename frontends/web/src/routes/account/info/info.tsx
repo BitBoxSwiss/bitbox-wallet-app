@@ -26,7 +26,6 @@ import { Header } from '../../../components/layout';
 import * as style from './info.css';
 import { SigningConfiguration } from './signingconfiguration';
 
-
 interface InfoProps {
     accounts: IAccount[];
     code: string;
@@ -34,6 +33,7 @@ interface InfoProps {
 
 interface State {
     info?: ISigningConfigurationList;
+    viewXPub: number;
 }
 
 type Props = InfoProps & TranslateProps;
@@ -41,6 +41,7 @@ type Props = InfoProps & TranslateProps;
 class Info extends Component<Props, State> {
     public readonly state: State = {
         info: undefined,
+        viewXPub: 0,
     }
 
     public componentDidMount() {
@@ -67,31 +68,56 @@ class Info extends Component<Props, State> {
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
+    private showNextXPub = () => {
+        if (!this.state.info) {
+            return;
+        }
+        const numberOfXPubs = this.state.info.signingConfigurations.length;
+        this.setState(({ viewXPub }) => ({
+            viewXPub: (viewXPub + 1) % numberOfXPubs
+        }));
+    }
+
     public render(
         { t, code }: RenderableProps<Props>,
-        { info }: State
+        { info, viewXPub }: State
     ) {
         const account = this.getAccount();
         if (!account || !info) return null;
+        const config = info.signingConfigurations[viewXPub];
+        const numberOfXPubs = info.signingConfigurations.length;
         return (
             <div class="contentWithGuide">
                 <div class="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div class={[style.infoContent, 'box large'].join(' ')}>
-                                {
-                                    info.signingConfigurations.map((config, index) => (
-                                        <SigningConfiguration key={index} info={config} code={code} signingConfigIndex={index} />
-                                    ))
-                                }
-                                <div className="buttons">
+                            <div class={`${style.infoContent} box larger`}>
+                                <h2 className={style.title}>
+                                    {t('accountInfo.extendedPublicKey')}
+                                </h2>
+                                { numberOfXPubs > 1 ? (
+                                    <p className={style.xPubInfo}>
+                                        {t(`accountInfo.xpubTypeInfo.${viewXPub}`, {
+                                            current: `${viewXPub + 1}`,
+                                            numberOfXPubs: numberOfXPubs.toString(),
+                                        })}<br />
+                                        <button class={style.nextButton} onClick={this.showNextXPub}>
+                                            {t(`accountInfo.xpubTypeChangeBtn.${viewXPub}`)}
+                                        </button>
+                                    </p>
+                                ) : null}
+                                <SigningConfiguration
+                                    key={viewXPub}
+                                    code={code}
+                                    info={config}
+                                    signingConfigIndex={viewXPub}>
                                     <ButtonLink
                                         transparent
                                         href={`/account/${code}`}>
                                         {t('button.back')}
                                     </ButtonLink>
-                                </div>
+                                </SigningConfiguration>
                             </div>
                         </div>
                     </div>

@@ -22,10 +22,11 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './Copy.css';
 
 interface CopyableInputProps {
-    value: string;
     className?: string;
     disabled?: boolean;
     flexibleHeight?: boolean;
+    alignLeft?: boolean;
+    value: string;
 }
 
 type Props = CopyableInputProps & TranslateProps;
@@ -78,7 +79,7 @@ class CopyableInput extends Component<Props, State> {
     }
 
     public render(
-        { t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
+        { alignLeft, t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
         { success }: State,
     ) {
         const copyButton = disabled ? null : (
@@ -98,7 +99,11 @@ class CopyableInput extends Component<Props, State> {
                     value={value}
                     ref={this.setRef}
                     rows={1}
-                    className={[style.inputField, flexibleHeight && style.flexibleHeight].join(' ')} />
+                    className={[
+                        style.inputField,
+                        flexibleHeight && style.flexibleHeight,
+                        alignLeft && style.alignLeft
+                    ].join(' ')} />
                 {copyButton}
             </div>
         );

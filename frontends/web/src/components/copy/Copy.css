@@ -71,3 +71,7 @@
 .flexibleHeight {
     height: auto;
 }
+
+.alignLeft {
+    text-align: left;
+}

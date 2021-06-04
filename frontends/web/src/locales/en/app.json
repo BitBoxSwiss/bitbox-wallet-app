@@ -24,7 +24,15 @@
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "title": "Account information",
-    "verify": "Verify on device"
+    "verify": "Verify on device",
+    "xpubTypeChangeBtn": [
+      "View older segwit extended public key",
+      "Switch back to Native segwit (bech32)"
+    ],
+    "xpubTypeInfo": [
+      "Currently displaying Native segwit (bech32) extended public key ({{current}} of {{numberOfXPubs}})",
+      "Currently displaying segwit extended public key ({{current}} of {{numberOfXPubs}})"
+    ]
   },
   "accountSummary": {
     "availableBalance": "Available balance",
