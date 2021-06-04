@@ -64,6 +64,7 @@ export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
 
 export interface IKeyInfo {
     keypath: string;
+    rootFingerprint: string;
     xpub: string;
 }
 

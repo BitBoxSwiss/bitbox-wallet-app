@@ -1,15 +1,67 @@
 .infoContent {
-    width: var(--content-width-small);
-    margin: 0 auto;
-    text-align: center;
+    padding-top: var(--space-default) !important;
+}
+
+.title {
+    font-size: var(--header-default-font-size);
+    font-weight: 400;
 }
 
 .textareaContainer {
     margin-top: var(--space-half);
 }
 
-.address {
+.details {
     margin-bottom: var(--space-default);
+}
+
+.qrCode {
+    text-align: center;
+}
+
+@media screen and (min-width: 640px) {
+
+    .xPubInfo {
+        max-width: calc(100% - 218px);
+    }
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        /* QRcode is 256px with 2 x 38px white border = 180px */
+        height: 180px;
+    }
+
+    .qrCode {
+        float: right;
+        min-height: 260px;
+        position: relative;
+        /* QRCode image has 38px white border */
+        top: -38px;
+        right: -38px;
+    }
+
+}
+
+.address {
+}
+
+.buttons {
+    clear: both;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    min-height: 3.5rem;
+}
+
+.nextButton {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-size: inherit;
+    padding: 2px 0 2px var(--space-quarter);
+    text-align: left;
+    margin: 0 0 0 calc(-1 * var(--space-quarter));
 }
 
 @media (max-width: 640px) {

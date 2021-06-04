@@ -67,7 +67,8 @@ class SigningConfiguration extends Component<Props, State> {
     }
 
     public render(
-        { t,
+        { children,
+          t,
           info,
           signingConfigIndex,
         }: RenderableProps<Props>,
@@ -77,23 +78,38 @@ class SigningConfiguration extends Component<Props, State> {
         }
         return (
             <div className={style.address}>
-                <div key={info.bitcoinSimple.keyInfo.xpub}>
-                    <h2>{this.scriptTypeTitle(info.bitcoinSimple.scriptType)}</h2>
-                    <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
+                <div className={style.qrCode}>
                     <QRCode data={info.bitcoinSimple.keyInfo.xpub} />
-                    <div className={style.textareaContainer}>
-                        <CopyableInput value={info.bitcoinSimple.keyInfo.xpub} flexibleHeight />
+                </div>
+                <div className={style.details}>
+                    <div className="labelLarge">
+                        <p className="flex flex-between">
+                            <strong>Type:</strong>
+                            <span>{this.scriptTypeTitle(info.bitcoinSimple.scriptType)}</span>
+                        </p>
+                        <p className="flex flex-between">
+                            <strong>Keypath:</strong>
+                            <code>{info.bitcoinSimple.keyInfo.keypath}</code>
+                        </p>
                     </div>
-                    <div className="buttons">
-                        { canVerifyExtendedPublicKey ? (
-                            <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
-                                {t('accountInfo.verify')}
-                            </Button>
-                        ) : null }
+                    <div className={style.textareaContainer}>
+                        <CopyableInput
+                            alignLeft
+                            flexibleHeight
+                            value={info.bitcoinSimple.keyInfo.xpub} />
                     </div>
                 </div>
-        </div>
-    ); }
+                <div className={style.buttons}>
+                    { canVerifyExtendedPublicKey ? (
+                        <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
+                            {t('accountInfo.verify')}
+                        </Button>
+                    ) : null }
+                    {children}
+                </div>
+            </div>
+        );
+    }
 }
 
 const HOC = translate<ProvidedProps>()(SigningConfiguration);
