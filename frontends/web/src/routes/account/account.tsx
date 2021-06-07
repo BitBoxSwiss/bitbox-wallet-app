@@ -26,6 +26,7 @@ import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { HeadersSync } from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
+import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
@@ -303,19 +304,7 @@ class Account extends Component<Props, State> {
                         title={<h2><span>{account.name}</span></h2>}>
                         {isBitcoinBased(account.coinCode) ? (
                             <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className={style.accountIcon}>
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                                    <line x1="12" y1="8" x2="12" y2="8"></line>
-                                </svg>
+                                <Info className={style.accountIcon} />
                                 <span>{t('accountInfo.label')}</span>
                             </a>
                         ) : null}
