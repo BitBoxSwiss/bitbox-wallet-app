@@ -120,6 +120,11 @@ func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 	}
 }
 
+// SetCoingeckoURL overrides the default URL the rates updater connects to. Useful for testing.
+func (updater *RateUpdater) SetCoingeckoURL(url string) {
+	updater.coingeckoURL = url
+}
+
 // LatestPrice returns the most recent conversion rates.
 // The returned map is keyed by a crypto coin with values mapped by fiat rates.
 // RateUpdater assumes the returned value is never modified by the callers.

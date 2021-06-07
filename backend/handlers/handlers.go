@@ -435,7 +435,6 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		}
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	handlers.backend.ReinitializeAccounts()
 	return response{Success: true, AccountCode: accountCode}, nil
 }
 
