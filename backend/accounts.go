@@ -622,6 +622,7 @@ func (backend *Backend) initPersistedAccounts() {
 	}
 
 	persistedAccounts := backend.config.AccountsConfig()
+outer:
 	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnected) {
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
@@ -629,9 +630,21 @@ func (backend *Backend) initPersistedAccounts() {
 				account.CoinCode, account.Code)
 			continue
 		}
+		switch coin.(type) {
+		case *btc.Coin:
+			for _, cfg := range account.Configurations {
+				if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
+					continue outer
+				}
+			}
+		default:
+			if !backend.keystore.SupportsAccount(coin, nil) {
+				continue
+			}
+		}
+
 		backend.createAndAddAccount(
 			coin, account.Code, account.Name, account.Configurations, account.ActiveTokens)
-
 	}
 }
 
