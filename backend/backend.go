@@ -824,6 +824,7 @@ func (backend *Backend) Keystore() keystore.Keystore {
 }
 
 // registerKeystore registers the given keystore at this backend.
+// if another keystore is already registered, it will be replaced.
 func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	// Only for logging, if there is an error we continue anyway.
