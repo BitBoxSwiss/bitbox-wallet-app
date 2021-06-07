@@ -77,13 +77,16 @@ export type TEthereumSimple = {
     keyInfo: IKeyInfo;
 }
 
-export interface ISigningConfiguration {
-    bitcoinSimple?: TBitcoinSimple;
-    ethereumSimple?: TEthereumSimple;
+export type TSigningConfiguration = {
+    bitcoinSimple: TBitcoinSimple;
+    ethereumSimple?: never;
+} | {
+    bitcoinSimple?: never;
+    ethereumSimple: TEthereumSimple;
 }
 
 export interface ISigningConfigurationList {
-    signingConfigurations: ISigningConfiguration[];
+    signingConfigurations: TSigningConfiguration[];
 }
 
 export const getInfo = (code: string): Promise<ISigningConfigurationList> => {

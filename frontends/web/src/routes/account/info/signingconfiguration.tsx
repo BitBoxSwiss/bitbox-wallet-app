@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCanVerifyXPub, ISigningConfiguration, ScriptType, TBitcoinSimple, TEthereumSimple, verifyXPub } from '../../../api/account';
+import { getCanVerifyXPub, ScriptType, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
@@ -24,7 +24,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import * as style from './info.css';
 
 interface ProvidedProps {
-    info: ISigningConfiguration;
+    info: TSigningConfiguration;
     code: string;
     signingConfigIndex: number;
 }
@@ -34,8 +34,6 @@ interface State {
 }
 
 type Props = ProvidedProps & TranslateProps;
-
-type TSimpleConfig = TBitcoinSimple | TEthereumSimple | undefined
 
 class SigningConfiguration extends Component<Props, State> {
 
@@ -68,14 +66,12 @@ class SigningConfiguration extends Component<Props, State> {
         }
     }
 
-    private getSimpleInfo(): TSimpleConfig {
+    private getSimpleInfo(): TBitcoinSimple | TEthereumSimple {
         const { info } = this.props;
         if (info.bitcoinSimple !== undefined) {
             return info.bitcoinSimple;
-        } else if (info.ethereumSimple !== undefined) {
-            return info.ethereumSimple;
         }
-        return;
+        return info.ethereumSimple;
     }
 
     public render(
@@ -83,12 +79,9 @@ class SigningConfiguration extends Component<Props, State> {
           t,
           signingConfigIndex,
         }: RenderableProps<Props>,
-        { canVerifyExtendedPublicKey }: State) {
-
+        { canVerifyExtendedPublicKey }: State
+    ) {
         const config = this.getSimpleInfo();
-        if (config === undefined) {
-            return null;
-        }
         return (
             <div className={style.address}>
                 <div className={style.qrCode}>
