@@ -63,7 +63,7 @@ interface State {
     balance?: accountApi.IBalance;
     hasCard: boolean;
     exported: string;
-    accountInfo?:accountApi. ISigningConfigurationList;
+    accountInfo?: accountApi.ISigningConfigurationList;
     syncedAddressesCount?: number;
 }
 
