@@ -681,3 +681,72 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Equal(t, accounts.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Code)
 	require.Equal(t, "Basic Attention Token 2", acct.Config().Name)
 }
+
+// TestAccountSupported tests that only accounts supported by a keystore are 1) persisted when the
+// keystore is first registered 2) loaded when the keytore is registered.
+// The second point is important because it's possible to use e.g. a BitBox02-Multi and a
+// Bitbox02-btconly with the same seed, so we shouldn't load all persisted accounts without checking.
+func TestAccountSupported(t *testing.T) {
+	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	keystoreHelper := software.NewKeystore(rootKey)
+
+	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
+	bb02Multi := &keystoremock.KeystoreMock{
+		RootFingerprintFunc: func() ([]byte, error) {
+			return fingerprint, nil
+		},
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				return scriptType != signing.ScriptTypeP2PKH
+			default:
+				return true
+			}
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+	}
+	bb02BtcOnly := &keystoremock.KeystoreMock{
+		RootFingerprintFunc: func() ([]byte, error) {
+			return fingerprint, nil
+		},
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				return coin.Code() == coinpkg.CodeBTC && scriptType != signing.ScriptTypeP2PKH
+			default:
+				return false
+			}
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+	}
+
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	// Registering a new keystore persists a set of initial default accounts.
+	b.registerKeystore(bb02Multi)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	b.DeregisterKeystore()
+	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
+	// were persisted previously.
+	b.registerKeystore(bb02BtcOnly)
+	require.Len(t, b.Accounts(), 1)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+}
