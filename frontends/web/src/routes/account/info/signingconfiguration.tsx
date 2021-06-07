@@ -31,7 +31,7 @@ interface ProvidedProps {
 }
 
 interface State {
-    canVerifyExtendedPublicKey: number[]; // holds a list of keystores which support secure verification
+    canVerifyExtendedPublicKey: boolean;
 }
 
 type Props = ProvidedProps & TranslateProps;
@@ -39,7 +39,6 @@ type Props = ProvidedProps & TranslateProps;
 class SigningConfiguration extends Component<Props, State> {
     constructor(props) {
         super(props);
-        this.state = ({ canVerifyExtendedPublicKey: [] });
         this.canVerifyExtendedPublicKeys();
     }
 
@@ -49,10 +48,8 @@ class SigningConfiguration extends Component<Props, State> {
         });
     }
 
-    private verifyExtendedPublicKey = (signingConfigIndex: number, xpubIndex: number) => {
-        apiPost(`account/${this.props.code}/verify-extended-public-key`, {
-            signingConfigIndex, xpubIndex,
-        });
+    private verifyExtendedPublicKey = (signingConfigIndex: number) => {
+        apiPost(`account/${this.props.code}/verify-extended-public-key`, { signingConfigIndex });
     }
 
     private scriptTypeTitle = (scriptType: string) => {
@@ -88,8 +85,8 @@ class SigningConfiguration extends Component<Props, State> {
                     </div>
                     <div className="buttons">
                         {
-                            canVerifyExtendedPublicKey.includes(0) && (
-                                <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex, 0)}>
+                            canVerifyExtendedPublicKey && (
+                                <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
                                     {t('accountInfo.verify')}
                                 </Button>
                             )

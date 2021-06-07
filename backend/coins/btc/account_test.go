@@ -68,7 +68,7 @@ func TestAccount(t *testing.T) {
 			Code:                  "accountcode",
 			Name:                  "accountname",
 			DBFolder:              dbFolder,
-			Keystores:             nil,
+			Keystore:              nil,
 			OnEvent:               func(accounts.Event) {},
 			RateUpdater:           nil,
 			SigningConfigurations: signingConfigurations,

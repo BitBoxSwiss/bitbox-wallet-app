@@ -62,7 +62,7 @@ func (account *Account) signTransaction(
 		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction),
 	}
 
-	if err := account.Config().Keystores.SignTransaction(proposedTransaction); err != nil {
+	if err := account.Config().Keystore.SignTransaction(proposedTransaction); err != nil {
 		return err
 	}
 

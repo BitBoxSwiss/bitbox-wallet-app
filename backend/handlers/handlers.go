@@ -69,7 +69,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() []accounts.Interface
-	Keystores() *keystore.Keystores
+	Keystore() keystore.Keystore
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
@@ -422,11 +422,10 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	keystores := handlers.backend.Keystores().Keystores()
-	if len(keystores) != 1 {
+	keystore := handlers.backend.Keystore()
+	if keystore == nil {
 		return response{Success: false, ErrorMessage: "Keystore not found"}, nil
 	}
-	keystore := keystores[0]
 
 	accountCode, err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
 	if err != nil {
@@ -445,7 +444,9 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, err
 		Type keystore.Type `json:"type"`
 	}
 	keystores := []*json{}
-	for _, keystore := range handlers.backend.Keystores().Keystores() {
+
+	keystore := handlers.backend.Keystore()
+	if keystore != nil {
 		keystores = append(keystores, &json{
 			Type: keystore.Type(),
 		})
@@ -773,11 +774,10 @@ func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}
 		CanAddAccount        bool         `json:"canAddAccount"`
 		SuggestedAccountName string       `json:"suggestedAccountName"`
 	}
-	keystores := handlers.backend.Keystores().Keystores()
-	if len(keystores) != 1 {
+	keystore := handlers.backend.Keystore()
+	if keystore == nil {
 		return []string{}, nil
 	}
-	keystore := keystores[0]
 	var result []element
 	for _, coinCode := range handlers.backend.SupportedCoins(keystore) {
 		coin, err := handlers.backend.Coin(coinCode)

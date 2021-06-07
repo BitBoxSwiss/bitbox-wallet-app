@@ -49,7 +49,7 @@ type AccountConfig struct {
 	DBFolder string
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
 	NotesFolder           string
-	Keystores             *keystore.Keystores
+	Keystore              keystore.Keystore
 	OnEvent               func(Event)
 	RateUpdater           *rates.RateUpdater
 	SigningConfigurations signing.Configurations

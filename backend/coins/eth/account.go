@@ -575,7 +575,7 @@ func (account *Account) SendTx() error {
 	note := account.BaseAccount.GetAndClearProposedTxNote()
 
 	account.log.Info("Signing and sending transaction")
-	if err := account.Config().Keystores.SignTransaction(txProposal); err != nil {
+	if err := account.Config().Keystore.SignTransaction(txProposal); err != nil {
 		return err
 	}
 	// By experience, at least with the Etherscan backend, this can succeed and still the
@@ -634,12 +634,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	}
 	account.Synchronizer.WaitSynchronized()
 	defer account.RLock()()
-	canVerifyAddress, _, err := account.Config().Keystores.CanVerifyAddresses(account.Coin())
+	canVerifyAddress, _, err := account.Config().Keystore.CanVerifyAddress(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Config().Keystores.VerifyAddress(account.signingConfiguration, account.Coin())
+		return true, account.Config().Keystore.VerifyAddress(account.signingConfiguration, account.Coin())
 	}
 	return false, nil
 }
@@ -649,5 +649,5 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	if account.signingConfiguration == nil {
 		return false, false, errp.New("account must be initialized")
 	}
-	return account.Config().Keystores.CanVerifyAddresses(account.Coin())
+	return account.Config().Keystore.CanVerifyAddress(account.Coin())
 }
