@@ -85,6 +85,8 @@ var fixedURLWhitelist = []string{
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
+	// Others
+	"https://cointracking.info/import/bitbox/",
 }
 
 type backendEvent struct {

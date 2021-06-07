@@ -650,6 +650,10 @@
         "title": "Looking for an exchange?"
       }
     },
+    "cointracking": {
+      "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
+      "title": "How to import my transactions into CoinTracking?"
+    },
     "exchanges": {
       "commission": {
         "text": "This page uses affiliate links where available. However, not all listed exchanges have an affiliate program. Whether an exchange offers one does not influence our decision to list them.",

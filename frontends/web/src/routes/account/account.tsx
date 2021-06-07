@@ -405,8 +405,18 @@ class Account extends Component<Props, State> {
                     )}
                     <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation')} />
                     <Entry key="accountFiat" entry={t('guide.accountFiat')} />
+
                     { /* careful, also used in Settings */ }
                     <Entry key="accountRates" entry={t('guide.accountRates')} />
+
+                    <Entry key="cointracking" entry={{
+                        link: {
+                            text: 'CoinTracking',
+                            url: 'https://cointracking.info/import/bitbox/',
+                        },
+                        text: t('guide.cointracking.text'),
+                        title: t('guide.cointracking.title')
+                    }} />
                 </Guide>
             </div>
         );

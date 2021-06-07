@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Add a guide entry: How to import my transactions into CoinTracking?
 
 ## 4.28.2 [released 2021-06-03]
 - Fix a conversion rates updater bug
