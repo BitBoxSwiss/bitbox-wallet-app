@@ -302,12 +302,10 @@ class Account extends Component<Props, State> {
                     </Status>
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
-                        {isBitcoinBased(account.coinCode) ? (
-                            <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
-                                <Info className={style.accountIcon} />
-                                <span>{t('accountInfo.label')}</span>
-                            </a>
-                        ) : null}
+                        <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+                            <Info className={style.accountIcon} />
+                            <span>{t('accountInfo.label')}</span>
+                        </a>
                     </Header>
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">

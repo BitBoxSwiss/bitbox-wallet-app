@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCanVerifyXPub, ISigningConfiguration, ScriptType, verifyXPub } from '../../../api/account';
+import { getCanVerifyXPub, ISigningConfiguration, ScriptType, TBitcoinSimple, TEthereumSimple, verifyXPub } from '../../../api/account';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
@@ -34,6 +34,8 @@ interface State {
 }
 
 type Props = ProvidedProps & TranslateProps;
+
+type TSimpleConfig = TBitcoinSimple | TEthereumSimple | undefined
 
 class SigningConfiguration extends Component<Props, State> {
 
@@ -66,42 +68,55 @@ class SigningConfiguration extends Component<Props, State> {
         }
     }
 
+    private getSimpleInfo(): TSimpleConfig {
+        const { info } = this.props;
+        if (info.bitcoinSimple !== undefined) {
+            return info.bitcoinSimple;
+        } else if (info.ethereumSimple !== undefined) {
+            return info.ethereumSimple;
+        }
+        return;
+    }
+
     public render(
         { children,
           t,
-          info,
           signingConfigIndex,
         }: RenderableProps<Props>,
         { canVerifyExtendedPublicKey }: State) {
-        if (info.bitcoinSimple === undefined) {
+
+        const config = this.getSimpleInfo();
+        if (config === undefined) {
             return null;
         }
         return (
             <div className={style.address}>
                 <div className={style.qrCode}>
-                    <QRCode data={info.bitcoinSimple.keyInfo.xpub} />
+                    <QRCode data={config.keyInfo.xpub} />
                 </div>
                 <div className={style.details}>
                     <div className="labelLarge">
-                        <p className="flex flex-between">
-                            <strong>Type:</strong>
-                            <span>{this.scriptTypeTitle(info.bitcoinSimple.scriptType)}</span>
-                        </p>
+                        { ('scriptType' in config) ? (
+                            <p className="flex flex-between">
+                                <strong>Type:</strong>
+                                <span>{this.scriptTypeTitle(config.scriptType)}</span>
+                            </p>
+                        ) : null}
                         <p className="flex flex-between">
                             <strong>Keypath:</strong>
-                            <code>{info.bitcoinSimple.keyInfo.keypath}</code>
+                            <code>{config.keyInfo.keypath}</code>
                         </p>
                     </div>
                     <div className={style.textareaContainer}>
                         <CopyableInput
                             alignLeft
                             flexibleHeight
-                            value={info.bitcoinSimple.keyInfo.xpub} />
+                            value={config.keyInfo.xpub} />
                     </div>
                 </div>
                 <div className={style.buttons}>
                     { canVerifyExtendedPublicKey ? (
-                        <Button primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
+                        <Button className={style.verifyButton} primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
                             {t('accountInfo.verify')}
                         </Button>
                     ) : null }
