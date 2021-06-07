@@ -67,14 +67,18 @@ export interface IKeyInfo {
     xpub: string;
 }
 
+export type TBitcoinSimple = {
+    keyInfo: IKeyInfo;
+    scriptType: ScriptType;
+}
+
+export type TEthereumSimple = {
+    keyInfo: IKeyInfo;
+}
+
 export interface ISigningConfiguration {
-    bitcoinSimple?: {
-        keyInfo: IKeyInfo;
-        scriptType: ScriptType;
-    };
-    ethereumSimple?: {
-        keyInfo: IKeyInfo;
-    }
+    bitcoinSimple?: TBitcoinSimple;
+    ethereumSimple?: TEthereumSimple;
 }
 
 export interface ISigningConfigurationList {

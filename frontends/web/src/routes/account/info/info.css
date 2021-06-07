@@ -7,6 +7,16 @@
     font-weight: 400;
 }
 
+.nextButton {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-size: inherit;
+    padding: 2px 0 2px var(--space-quarter);
+    text-align: left;
+    margin: 0 0 0 calc(-1 * var(--space-quarter));
+}
+
 .textareaContainer {
     margin-top: var(--space-half);
 }
@@ -49,19 +59,12 @@
 .buttons {
     clear: both;
     display: flex;
-    flex-direction: row-reverse;
     justify-content: space-between;
     min-height: 3.5rem;
 }
 
-.nextButton {
-    background: transparent;
-    border: none;
-    color: var(--color-primary);
-    font-size: inherit;
-    padding: 2px 0 2px var(--space-quarter);
-    text-align: left;
-    margin: 0 0 0 calc(-1 * var(--space-quarter));
+.verifyButton {
+    order: 2;
 }
 
 @media (max-width: 640px) {
