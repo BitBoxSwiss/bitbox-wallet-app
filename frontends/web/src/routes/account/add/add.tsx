@@ -71,6 +71,9 @@ class AddAccount extends Component<Props, State> {
                     step: onlyOneSupportedCoin ? 'choose-name' : 'select-coin',
                     supportedCoins: coins,
                 });
+                if (onlyOneSupportedCoin) {
+                    this.setState({ accountName: coins[0].suggestedAccountName });
+                }
             });
     }
 
