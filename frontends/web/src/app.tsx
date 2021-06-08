@@ -94,9 +94,24 @@ class App extends Component<Props, State> {
             }
         });
 
+        const setDevices = (devices: TDevices) => {
+            const oldDeviceIDList = Object.keys(this.state.devices);
+            this.setState({ devices }, () => {
+                const newDeviceIDList: string[] = Object.keys(this.state.devices);
+                if (
+                    newDeviceIDList.length > 0
+                    && (oldDeviceIDList.length === 0 || newDeviceIDList[0] !== oldDeviceIDList[0])
+                ) {
+                    // route to the first device for unlock, create, restore etc.
+                    route(`/device/${newDeviceIDList[0]}`, true);
+                }
+            });
+        };
+
         Promise.all([getDeviceList(), getAccounts()])
             .then(([devices, accounts]) => {
-                this.setState({ accounts, devices }, this.maybeRoute);
+                this.setState({ accounts }, this.maybeRoute);
+                setDevices(devices);
             })
             .catch(console.error);
 
@@ -104,20 +119,7 @@ class App extends Component<Props, State> {
             syncAccountsList(accounts => {
                 this.setState({ accounts }, this.maybeRoute);
             }),
-            syncDeviceList(devices => {
-                const oldDeviceIDList = Object.keys(this.state.devices);
-                this.setState({ devices }, () => {
-                    const newDeviceIDList: string[] = Object.keys(this.state.devices);
-                    // if the first device is new route to the device view
-                    if (
-                        newDeviceIDList.length > 0
-                        && newDeviceIDList[0] !== oldDeviceIDList[0]
-                    ) {
-                        // route to the first device for unlock, create, restore etc.
-                        route(`/device/${newDeviceIDList[0]}`, true);
-                    }
-                });
-            }),
+            syncDeviceList(setDevices),
             // TODO: add syncBackendNewTX
         );
     }
