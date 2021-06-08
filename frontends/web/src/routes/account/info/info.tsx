@@ -103,7 +103,7 @@ class Info extends Component<Props, State> {
                                             numberOfXPubs: numberOfXPubs.toString(),
                                         })}<br />
                                         <button class={style.nextButton} onClick={this.showNextXPub}>
-                                            {t(`accountInfo.xpubTypeChangeBtn.${viewXPub}`)}
+                                            {t(`accountInfo.xpubTypeChangeBtn.${(viewXPub + 1) % numberOfXPubs}`)}
                                         </button>
                                     </p>
                                 ) : null}
