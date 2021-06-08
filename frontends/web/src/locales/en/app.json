@@ -26,12 +26,14 @@
     "title": "Account information",
     "verify": "Verify on device",
     "xpubTypeChangeBtn": [
+      "Switch back to Native segwit (bech32)",
       "View older segwit extended public key",
-      "Switch back to Native segwit (bech32)"
+      "View legacy P2PKH extended public key"
     ],
     "xpubTypeInfo": [
       "Currently displaying Native segwit (bech32) extended public key ({{current}} of {{numberOfXPubs}})",
-      "Currently displaying segwit extended public key ({{current}} of {{numberOfXPubs}})"
+      "Currently displaying segwit extended public key ({{current}} of {{numberOfXPubs}})",
+      "Currently displaying legacy P2PKH extended public key ({{current}} of {{numberOfXPubs}})"
     ]
   },
   "accountSummary": {
