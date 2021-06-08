@@ -76,9 +76,9 @@ func backendCall(queryID C.int, s *C.char) {
 
 //export serve
 func serve(
-	pushNotificationsCallback C.pushNotificationsCallback,
-	responseCallback C.responseCallback,
-	notifyUserCallback C.notifyUserCallback,
+	pushNotificationsFn C.pushNotificationsCallback,
+	responseFn C.responseCallback,
+	notifyUserFn C.notifyUserCallback,
 	preferredLocale *C.char,
 ) {
 	log := logging.Get().WithGroup("server")
@@ -122,16 +122,16 @@ func serve(
 		&nativeCommunication{
 			respond: func(queryID int, response string) {
 				cResponse := C.CString(response)
-				C.respond(responseCallback, C.int(queryID), cResponse)
+				C.respond(responseFn, C.int(queryID), cResponse)
 				C.free(unsafe.Pointer(cResponse))
 			},
 			pushNotify: func(msg string) {
-				C.pushNotify(pushNotificationsCallback, C.CString(msg))
+				C.pushNotify(pushNotificationsFn, C.CString(msg))
 			},
 		},
 		&bridgecommon.BackendEnvironment{
 			NotifyUserFunc: func(text string) {
-				C.notifyUser(notifyUserCallback, C.CString(text))
+				C.notifyUser(notifyUserFn, C.CString(text))
 			},
 			DeviceInfosFunc:     usb.DeviceInfos,
 			SystemOpenFunc:      system.Open,
