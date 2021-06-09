@@ -17,10 +17,6 @@
     margin: 0 0 0 calc(-1 * var(--space-quarter));
 }
 
-.textareaContainer {
-    margin-top: var(--space-half);
-}
-
 .details {
     margin-bottom: var(--space-default);
 }
@@ -39,7 +35,7 @@
         display: flex;
         flex-direction: column;
         /* QRcode is 256px with 2 x 38px white border = 180px */
-        height: 180px;
+        min-height: 180px;
     }
 
     .qrCode {
@@ -67,9 +63,25 @@
     order: 2;
 }
 
+.entry {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
 @media (max-width: 640px) {
     .infoContent {
         width: 100%;
+    }
+
+    .largeEntry {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .largeEntry strong {
+        display: block;
+        margin-bottom: var(--space-quarter);
     }
 
     .addressField input {
