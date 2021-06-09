@@ -16,7 +16,8 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCanVerifyXPub, ScriptType, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
+import { route } from 'preact-router';
+import { getCanVerifyXPub, IAccount, ScriptType, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
@@ -24,6 +25,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import * as style from './info.css';
 
 interface ProvidedProps {
+    account: IAccount;
     info: TSigningConfiguration;
     code: string;
     signingConfigIndex: number;
@@ -78,41 +80,69 @@ class SigningConfiguration extends Component<Props, State> {
 
     public render(
         { children,
+          account,
+          code,
           t,
           signingConfigIndex,
         }: RenderableProps<Props>,
         { canVerifyExtendedPublicKey }: State
     ) {
         const config = this.getSimpleInfo();
+        const isEthereumBased = 'ethereumSimple' in this.props.info;
         return (
             <div className={style.address}>
                 <div className={style.qrCode}>
-                    <QRCode data={config.keyInfo.xpub} />
+                    { isEthereumBased ? null : (
+                        <QRCode
+                            data={config.keyInfo.xpub} />
+                    ) }
                 </div>
                 <div className={style.details}>
                     <div className="labelLarge">
+                        { account.isToken ? null : (
+                            <p key="accountname" className={style.entry}>
+                                <strong>Account name:</strong>
+                                <span>{account.name}</span>
+                            </p>
+                        )}
+                        <p key="keypath" className={style.entry}>
+                            <strong>Keypath:</strong>
+                            <code>{config.keyInfo.keypath}</code>
+                        </p>
                         { ('scriptType' in config) ? (
-                            <p className="flex flex-between">
+                            <p key="accountType" className={style.entry}>
                                 <strong>Type:</strong>
                                 <span>{this.scriptTypeTitle(config.scriptType)}</span>
                             </p>
                         ) : null}
-                        <p className="flex flex-between">
-                            <strong>Keypath:</strong>
-                            <code>{config.keyInfo.keypath}</code>
+                        <p key="coinName" className={style.entry}>
+                            <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
+                            <span>{account.coinName}</span>
                         </p>
-                    </div>
-                    <div className={style.textareaContainer}>
-                        <CopyableInput
-                            alignLeft
-                            flexibleHeight
-                            value={config.keyInfo.xpub} />
+                        <p key="coinUnit" className={style.entry}>
+                            <strong>Unit:</strong>
+                            <span>{account.coinUnit}</span>
+                        </p>
+                        { isEthereumBased ? null : (
+                            <p key="xpub" className={`${style.entry} ${style.largeEntry}`}>
+                                <strong className="m-right-half">xPub:</strong>
+                                <CopyableInput
+                                    className="flex-grow"
+                                    alignLeft
+                                    flexibleHeight
+                                    value={config.keyInfo.xpub} />
+                            </p>
+                        ) }
                     </div>
                 </div>
                 <div className={style.buttons}>
                     { canVerifyExtendedPublicKey ? (
                         <Button className={style.verifyButton} primary onClick={() => this.verifyExtendedPublicKey(signingConfigIndex)}>
                             {t('accountInfo.verify')}
+                        </Button>
+                    ) : isEthereumBased ? (
+                        <Button className={style.verifyButton} primary onClick={() => route(`/account/${code}/receive`)}>
+                            {t('receive.verify')}
                         </Button>
                     ) : null }
                     {children}

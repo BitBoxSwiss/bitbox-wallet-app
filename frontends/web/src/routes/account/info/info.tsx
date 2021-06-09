@@ -19,6 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/account';
+import { isEthereumBased } from '../utils';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
@@ -93,9 +94,11 @@ class Info extends Component<Props, State> {
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class={`${style.infoContent} box larger`}>
-                                <h2 className={style.title}>
-                                    {t('accountInfo.extendedPublicKey')}
-                                </h2>
+                                { isEthereumBased(account.coinCode) ? null : (
+                                    <strong>
+                                        {t('accountInfo.extendedPublicKey')}
+                                    </strong>
+                                ) }
                                 { numberOfXPubs > 1 ? (
                                     <p className={style.xPubInfo}>
                                         {t(`accountInfo.xpubTypeInfo.${viewXPub}`, {
@@ -109,6 +112,7 @@ class Info extends Component<Props, State> {
                                 ) : null}
                                 <SigningConfiguration
                                     key={viewXPub}
+                                    account={account}
                                     code={code}
                                     info={config}
                                     signingConfigIndex={viewXPub}>
