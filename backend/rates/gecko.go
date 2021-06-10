@@ -96,6 +96,8 @@ var (
 		"ILS": "ils",
 		"BTC": "btc",
 		"SGD": "sgd",
+		"HKD": "hkd",
+		"BRL": "brl",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
@@ -114,5 +116,7 @@ var (
 		"ils": "ILS",
 		"btc": "BTC",
 		"sgd": "SGD",
+		"hkd": "HKD",
+		"brl": "BRL",
 	}
 )
