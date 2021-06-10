@@ -21,11 +21,10 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/account';
 import { isEthereumBased } from '../utils';
 import { ButtonLink } from '../../../components/forms';
-import { Guide } from '../../../components/guide/guide';
-import { Entry } from '../../../components/guide/entry';
 import { Header } from '../../../components/layout';
 import * as style from './info.css';
 import { SigningConfiguration } from './signingconfiguration';
+import { BitcoinBasedAccountInfoGuide } from './guide';
 
 interface InfoProps {
     accounts: IAccount[];
@@ -126,9 +125,9 @@ class Info extends Component<Props, State> {
                         </div>
                     </div>
                 </div>
-                <Guide>
-                    <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} />
-                </Guide>
+                { isEthereumBased(account.coinCode) ? null : (
+                    <BitcoinBasedAccountInfoGuide t={t} coinName={account.coinName} />
+                ) }
             </div>
         );
     }
