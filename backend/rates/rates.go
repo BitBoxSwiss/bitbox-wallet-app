@@ -40,7 +40,7 @@ import (
 const (
 	// Latest rates are fetched for all these (coin, fiat) pairs.
 	simplePriceAllIDs        = "bitcoin,litecoin,ethereum,basic-attention-token,dai,chainlink,maker,sai,usd-coin,tether,0x,wrapped-bitcoin,pax-gold"
-	simplePriceAllCurrencies = "usd,eur,chf,gbp,jpy,krw,cny,rub,cad,aud,ils,btc,sgd"
+	simplePriceAllCurrencies = "usd,eur,chf,gbp,jpy,krw,cny,rub,cad,aud,ils,btc,sgd,hkd,brl"
 )
 
 const interval = time.Minute

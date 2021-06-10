@@ -64,11 +64,13 @@ describe('routes/account/send/feetargets', () => {
                     unit: 'ETH',
                     conversions: {
                         AUD: '0.02',
+                        BRL: '12900',
                         CAD: '0.02',
                         CHF: '0.01',
                         CNY: '0.08',
                         EUR: '0.02',
                         GBP: '0.02',
+                        HKD: '19880',
                         ILS: '0.02',
                         JPY: '1.30',
                         KRW: '14.43',
