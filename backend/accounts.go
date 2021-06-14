@@ -326,6 +326,23 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 	return accountCode, nil
 }
 
+// SetAccountActive activates/deactivates an account.
+func (backend *Backend) SetAccountActive(accountCode accounts.Code, active bool) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(accountCode)
+		if acct == nil {
+			return errp.Newf("Could not find account %s", accountCode)
+		}
+		acct.Inactive = !active
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	backend.ReinitializeAccounts()
+	return nil
+}
+
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
 func (backend *Backend) SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error {
@@ -379,10 +396,12 @@ func (backend *Backend) createAndAddAccount(
 	code accounts.Code,
 	name string,
 	signingConfigurations signing.Configurations,
+	active bool,
 	activeTokens []string,
 ) {
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
+		Active:      active,
 		Code:        code,
 		Name:        name,
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
@@ -431,7 +450,7 @@ func (backend *Backend) createAndAddAccount(
 			} else if accountNumber > 0 {
 				tokenName = fmt.Sprintf("%s %d", tokenName, accountNumber+1)
 			}
-			backend.createAndAddAccount(token, erc20AccountCode, tokenName, signingConfigurations, nil)
+			backend.createAndAddAccount(token, erc20AccountCode, tokenName, signingConfigurations, active, nil)
 		}
 	default:
 		panic("unknown coin type")
@@ -644,7 +663,7 @@ outer:
 		}
 
 		backend.createAndAddAccount(
-			coin, account.Code, account.Name, account.Configurations, account.ActiveTokens)
+			coin, account.Code, account.Name, account.Configurations, !account.Inactive, account.ActiveTokens)
 	}
 }
 

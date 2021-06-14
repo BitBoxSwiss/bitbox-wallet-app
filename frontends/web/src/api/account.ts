@@ -34,6 +34,7 @@ export interface IActiveToken {
 }
 
 export interface IAccount {
+    active: boolean;
     coinCode: CoinCode;
     coinUnit: string;
     coinName: string;

@@ -28,6 +28,9 @@ import (
 func (backend *Backend) allCoinCodes() []string {
 	allCoinCodes := []string{}
 	for _, account := range backend.Accounts() {
+		if !account.Config().Active {
+			continue
+		}
 		if account.FatalError() {
 			continue
 		}
@@ -112,6 +115,9 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	// Total number of transactions across all active accounts.
 	totalNumberOfTransactions := 0
 	for _, account := range backend.Accounts() {
+		if !account.Config().Active {
+			continue
+		}
 		if account.FatalError() {
 			continue
 		}

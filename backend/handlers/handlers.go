@@ -93,6 +93,7 @@ type Backend interface {
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
 	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accounts.Code, error)
+	SetAccountActive(accountCode accounts.Code, active bool) error
 	SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accounts.Code, name string) error
 }
@@ -174,6 +175,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
@@ -305,6 +307,7 @@ type activeToken struct {
 }
 
 type accountJSON struct {
+	Active                bool          `json:"active"`
 	CoinCode              coinpkg.Code  `json:"coinCode"`
 	CoinUnit              string        `json:"coinUnit"`
 	CoinName              string        `json:"coinName"`
@@ -319,6 +322,7 @@ func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *acc
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
+		Active:                account.Config().Active,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -474,6 +478,26 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}
 	return accounts, nil
+}
+
+func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interface{}, error) {
+	var jsonBody struct {
+		AccountCode accounts.Code `json:"accountCode"`
+		Active      bool          `json:"active"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if err := handlers.backend.SetAccountActive(jsonBody.AccountCode, jsonBody.Active); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true}, nil
 }
 
 func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{}, error) {
@@ -830,6 +854,9 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	}
 
 	for _, account := range handlers.backend.Accounts() {
+		if !account.Config().Active {
+			continue
+		}
 		if account.FatalError() {
 			continue
 		}
@@ -872,6 +899,9 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range handlers.backend.Accounts() {
+		if !a.Config().Active {
+			continue
+		}
 		if string(a.Config().Code) == acctCode {
 			acct = a
 			break
@@ -887,6 +917,9 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range handlers.backend.Accounts() {
+		if !a.Config().Active {
+			continue
+		}
 		if a.Config().Code == acctCode {
 			acct = a
 			break
