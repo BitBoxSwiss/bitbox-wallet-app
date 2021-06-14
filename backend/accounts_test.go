@@ -594,6 +594,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		signing.Configurations{
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 		},
+		true,
 		nil,
 	)
 	require.Len(t, b.Accounts(), 1)
@@ -612,6 +613,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		signing.Configurations{
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 		},
+		true,
 		nil,
 	)
 	require.Len(t, b.Accounts(), 2)
@@ -630,6 +632,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		signing.Configurations{
 			signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/0"), mustXKey("xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E")),
 		},
+		true,
 		[]string{"eth-erc20-mkr"},
 	)
 	// 2 more accounts: the added ETH account plus the active token for the ETH account.
@@ -656,6 +659,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		signing.Configurations{
 			signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/1"), mustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
 		},
+		true,
 		[]string{"eth-erc20-usdt", "eth-erc20-bat"},
 	)
 	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
@@ -748,5 +752,100 @@ func TestAccountSupported(t *testing.T) {
 	// were persisted previously.
 	b.registerKeystore(bb02BtcOnly)
 	require.Len(t, b.Accounts(), 1)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+}
+
+func TestInactiveAccount(t *testing.T) {
+	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	keystoreHelper := software.NewKeystore(rootKey)
+	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
+
+	// A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
+	// legacy P2PKH.
+	bitbox02LikeKeystore := &keystoremock.KeystoreMock{
+		RootFingerprintFunc: func() ([]byte, error) {
+			return fingerprint, nil
+		},
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				return scriptType != signing.ScriptTypeP2PKH
+			default:
+				return true
+			}
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+	}
+
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	// 1) Registering a new keystore persists a set of initial default accounts.
+	b.registerKeystore(bitbox02LikeKeystore)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
+	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-btc-0").Config().Active)
+	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
+	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0").Inactive)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-ltc-0").Config().Active)
+	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
+	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Inactive)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Active)
+
+	// Deactive an account.
+	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.True(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
+	require.False(t, lookup(b.Accounts(), "v0-55555555-btc-0").Config().Active)
+
+	// Reactivate.
+	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", true))
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-btc-0").Config().Active)
+
+	// Deactivating an ETH account with tokens also removes the tokens
+	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
+	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
+	require.Len(t, b.Accounts(), 5)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
+	require.Len(t, b.Accounts(), 5)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.False(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Active)
+	require.False(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt").Config().Active)
+	require.False(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat").Config().Active)
+	// Reactivating restores them again.
+	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", true))
+	require.Len(t, b.Accounts(), 5)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Active)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt").Config().Active)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat").Config().Active)
+
+	// Deactivate all accounts.
+	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
+	require.NoError(t, b.SetAccountActive("v0-55555555-ltc-0", false))
+	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
+	require.Len(t, b.Accounts(), 5)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	// Re-registering the keystore (i.e. replugging the device) ends in the same state: no
+	// additional accounts created.
+	b.DeregisterKeystore()
+	b.registerKeystore(bitbox02LikeKeystore)
+	require.Len(t, b.Accounts(), 5)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
 }

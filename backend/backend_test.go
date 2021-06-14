@@ -113,12 +113,23 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
 }
 
+func lookup(accts []accounts.Interface, code accounts.Code) accounts.Interface {
+	for _, acct := range accts {
+		if acct.Config().Code == code {
+			return acct
+		}
+	}
+	return nil
+}
+
 // TestAccounts performs a series of typical actions related accounts.
 // 1) Register a keystore, which automatically adds some default accounts
 // 2) Add a second BTC account
 // 3) Activate some ETH tokens
 // 4) Deactivate an ETH token
 // 5) Rename an account
+// 6) Deactivate an account.
+// 7) Rename an inactive account.
 func TestAccounts(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
@@ -190,5 +201,14 @@ func TestAccounts(t *testing.T) {
 	// 5) Rename an account
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH"))
 	require.Equal(t, "My ETH", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH", b.Accounts()[3].Config().Name)
+	require.Equal(t, "My ETH", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Name)
+
+	// 6) Deactivate an ETH account - it also deactivates the tokens.
+	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
+	require.False(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Active)
+
+	// 7) Rename an inactive account.
+	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
+	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
+	require.Equal(t, "My ETH Renamed", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Name)
 }

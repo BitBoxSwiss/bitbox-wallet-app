@@ -24,6 +24,9 @@ import (
 
 // Account holds information related to an account.
 type Account struct {
+	// Inactive is true if the account should not be loaded in the sidebar and portfolio. It will
+	// still be shown in 'Manage accounts'.
+	Inactive       bool                   `json:"inactive"`
 	CoinCode       coin.Code              `json:"coinCode"`
 	Name           string                 `json:"name"`
 	Code           accounts.Code          `json:"code"`

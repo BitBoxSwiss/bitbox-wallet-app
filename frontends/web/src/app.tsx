@@ -171,17 +171,22 @@ class App extends Component<Props, State> {
         panelStore.setState({ activeSidebar: !panelStore.state.activeSidebar });
     }
 
+    private activeAccounts = (): IAccount[] => {
+        return this.state.accounts.filter(acct => acct.active);
+    }
+
     public render(
         {  }: RenderableProps<Props>,
         { accounts, devices }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
+        const activeAccounts = this.activeAccounts();
         return (
             <ConnectedApp>
                 <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
                     <TranslationHelper />
                     <Sidebar
-                        accounts={accounts}
+                        accounts={activeAccounts}
                         deviceIDs={deviceIDs} />
                     <div class="appContent flex flex-column flex-1" style="min-width: 0;">
                         <Update />
@@ -192,39 +197,39 @@ class App extends Component<Props, State> {
                                 path="/account/:code/send"
                                 devices={devices}
                                 deviceIDs={deviceIDs}
-                                accounts={accounts} />
+                                accounts={activeAccounts} />
                             <Receive
                                 path="/account/:code/receive"
                                 devices={devices}
-                                accounts={accounts}
+                                accounts={activeAccounts}
                                 deviceIDs={deviceIDs} />
                             <BuyInfo
                                 path="/buy/info/:code?"
                                 devices={devices}
-                                accounts={accounts} />
+                                accounts={activeAccounts} />
                             <Moonpay
                                 path="/buy/moonpay/:code"
                                 code={'' /* dummy to satisfy TS */}
                                 devices={devices}
-                                accounts={accounts} />
+                                accounts={activeAccounts} />
                             <Exchanges
                                 path="/exchanges" />
                             <Info
                                 path="/account/:code/info"
-                                accounts={accounts} />
+                                accounts={activeAccounts} />
                             <Account
                                 path="/account/:code"
                                 code={'' /* dummy to satisfy TS */}
                                 devices={devices}
-                                accounts={accounts} />
+                                accounts={activeAccounts} />
                             <AddAccount
                                 path="/add-account" />
-                            <AccountsSummary accounts={accounts}
+                            <AccountsSummary accounts={activeAccounts}
                                 path="/account-summary" />
                             <ElectrumSettings
                                 path="/settings/electrum" />
                             <Settings
-                                accounts={accounts}
+                                manageAccountsLen={accounts.length}
                                 deviceIDs={deviceIDs}
                                 path="/settings" />
                             <ManageAccounts

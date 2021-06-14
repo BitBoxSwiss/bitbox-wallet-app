@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { IAccount } from '../../api/account';
 import { Link, route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
@@ -37,7 +36,7 @@ import { FiatSelection } from './components/fiat/fiat';
 import * as style from './settings.css';
 
 interface SettingsProps {
-    accounts: IAccount[];
+    manageAccountsLen: number;
     deviceIDs: string[];
 }
 
@@ -150,7 +149,7 @@ class Settings extends Component<Props, State> {
     }
 
     public render({
-        accounts,
+        manageAccountsLen,
         deviceIDs,
         t,
     }: RenderableProps<Props>,
@@ -199,7 +198,7 @@ class Settings extends Component<Props, State> {
                                                     <FiatSelection />
                                                 </div>
                                                 <div className="column column-2-3">
-                                                    { accounts.length ? (
+                                                    { manageAccountsLen ? (
                                                         <div>
                                                             <div class="subHeaderContainer">
                                                                 <div class="subHeader">
@@ -210,7 +209,7 @@ class Settings extends Component<Props, State> {
                                                                 <SettingsButton
                                                                     onClick={() => route('/settings/manage-accounts', true)}
                                                                     secondaryText={t('manageAccounts.settingsButtonDescription')}
-                                                                    optionalText={accounts.length.toString()}>
+                                                                    optionalText={manageAccountsLen.toString()}>
                                                                     {t('manageAccounts.title')}
                                                                 </SettingsButton>
                                                             </div>
