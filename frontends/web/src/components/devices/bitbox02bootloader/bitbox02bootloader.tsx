@@ -29,6 +29,9 @@ interface BitBox02BootloaderProps {
 }
 
 interface LoadedProps {
+    // Indicates whether the device has any firmware already installed on it.
+    // It is considered "erased" if there's no firmware, and it also happens
+    // to be the state in which BitBox02 is shipped to customers.
     erased: boolean;
 }
 
@@ -113,7 +116,12 @@ class BitBox02Bootloader extends Component<Props, State> {
             if (status.upgradeSuccessful) {
                 contents = (
                     <div className="box large">
-                        <p style="margin-bottom: 0;">{t('bb02Bootloader.success', { rebootSeconds: status.rebootSeconds.toString() })}</p>
+                        <p style="margin-bottom: 0;">
+                            {t('bb02Bootloader.success', {
+                                rebootSeconds: status.rebootSeconds.toString(),
+                                context: (erased ? 'install' : ''),
+                            })}
+                        </p>
                     </div>
                 );
             } else {
@@ -121,20 +129,31 @@ class BitBox02Bootloader extends Component<Props, State> {
                 contents = (
                     <div className="box large">
                         <progress value={value} max="100">{value}%</progress>
-                        <p style="margin-bottom: 0;">{t('bootloader.progress', {
-                            progress: value.toString(),
-                        })}</p>
+                        <p style="margin-bottom: 0;">
+                            {t('bootloader.progress', {
+                                progress: value.toString(),
+                                context: (erased ? 'install' : ''),
+                            })}
+                        </p>
                     </div>
                 );
             }
         } else {
             contents = (
                 <div className="box large" style="min-height: 390px">
+                    {erased && (
+                        <div class="subHeaderContainer first">
+                            <div class="subHeader">
+                              <h2>{t('welcome.title')}</h2>
+                              <h3>{t('welcome.getStarted')}</h3>
+                            </div>
+                        </div>
+                    )}
                     <div className="buttons">
                         <Button
                             primary
                             onClick={this.upgradeFirmware}>
-                            {t('bootloader.button')}
+                            {t('bootloader.button', { context: (erased ? 'install' : '') })}
                         </Button>
                         { !erased && (
                             <Button

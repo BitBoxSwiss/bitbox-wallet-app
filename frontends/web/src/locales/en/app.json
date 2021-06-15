@@ -123,7 +123,8 @@
     },
     "flipscreen": "Flip screen",
     "orientation": "Device oriented the wrong way?",
-    "success": "Upgrade successful! Continuing in {{rebootSeconds}} seconds..."
+    "success": "Upgrade successful! Continuing in {{rebootSeconds}} seconds...",
+    "success_install": "Installation successful! Continuing in {{rebootSeconds}} seconds..."
   },
   "bitbox": {
     "error": {
@@ -250,7 +251,9 @@
   },
   "bootloader": {
     "button": "Upgrade firmware now",
+    "button_install": "Install firmware now",
     "progress": "Upgrading: {{progress}}%",
+    "progress_install": "Installing: {{progress}}%",
     "success": "Upgrade successful! Please replug the device. This time, do not touch the button."
   },
   "button": {
@@ -1251,6 +1254,7 @@
     "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar."
   },
   "welcome": {
+    "getStarted": "Let's get started by installing firmware on your BitBox02.",
     "insertBitBox02": "For the BitBox02, please tap the device to continue.",
     "insertDevice": "Please connect your device to get started",
     "title": "Welcome"
