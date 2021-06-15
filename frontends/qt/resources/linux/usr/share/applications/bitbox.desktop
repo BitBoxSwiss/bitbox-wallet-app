@@ -1,8 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=BitBoxApp
-Exec=BitBox
+Exec=BitBox %u
 Icon=bitbox
 Comment=Manage your crypto assets
 Categories=Network;Utility;Finance;
 Terminal=false
+MimeType=x-scheme-handler/aopp;
