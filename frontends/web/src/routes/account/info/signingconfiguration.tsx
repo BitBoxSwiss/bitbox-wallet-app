@@ -17,8 +17,8 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { getCanVerifyXPub, IAccount, ScriptType, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
-import { isBitcoinBased } from '../utils';
+import { getCanVerifyXPub, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
+import { getScriptName, isBitcoinBased } from '../utils';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
@@ -58,17 +58,6 @@ class SigningConfiguration extends Component<Props, State> {
         verifyXPub(this.props.code, signingConfigIndex);
     }
 
-    private scriptTypeTitle = (scriptType: ScriptType): string => {
-        switch (scriptType) {
-            case 'p2pkh':
-                return 'Legacy';
-            case 'p2wpkh-p2sh':
-                return 'Segwit';
-            case 'p2wpkh':
-                return 'Native segwit (bech32)';
-        }
-    }
-
     private getSimpleInfo(): TBitcoinSimple | TEthereumSimple {
         const { info } = this.props;
         if (info.bitcoinSimple !== undefined) {
@@ -100,7 +89,8 @@ class SigningConfiguration extends Component<Props, State> {
                     <div className="labelLarge">
                         { account.isToken ? null : (
                             <p key="accountname" className={style.entry}>
-                                <strong>Account name:</strong>
+                                {/* borrowing translation from accountSummary */}
+                                <strong>{t('accountSummary.name')}:</strong>
                                 <span>{account.name}</span>
                             </p>
                         )}
@@ -111,20 +101,24 @@ class SigningConfiguration extends Component<Props, State> {
                         { ('scriptType' in config) ? (
                             <p key="scriptName" className={style.entry}>
                                 <strong>Type:</strong>
-                                <span>{this.scriptTypeTitle(config.scriptType)}</span>
+                                <span>{getScriptName(config.scriptType)}</span>
+                            </p>
+                        ) : null}
+                        { ('scriptType' in config) ? (
+                            <p key="scriptType" className={style.entry}>
+                                <strong>Script Type:</strong>
+                                <span>{config.scriptType.toUpperCase()}</span>
                             </p>
                         ) : null}
                         <p key="coinName" className={style.entry}>
                             <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
-                            <span>{account.coinName}</span>
-                        </p>
-                        <p key="coinUnit" className={style.entry}>
-                            <strong>Unit:</strong>
-                            <span>{account.coinUnit}</span>
+                            <span>{account.coinName} ({account.coinUnit})</span>
                         </p>
                         { bitcoinBased ? (
                             <p key="xpub" className={`${style.entry} ${style.largeEntry}`}>
-                                <strong className="m-right-half">xPub:</strong>
+                                <strong className="m-right-half">
+                                    {t('accountInfo.extendedPublicKey')}:
+                                </strong>
                                 <CopyableInput
                                     className="flex-grow"
                                     alignLeft

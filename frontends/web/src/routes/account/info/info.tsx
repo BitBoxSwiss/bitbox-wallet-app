@@ -59,7 +59,6 @@ class Info extends Component<Props, State> {
 
     private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
-            console.info('receive.jsx route to /');
             route(`/account/${this.props.code}`);
         }
     }
@@ -89,26 +88,29 @@ class Info extends Component<Props, State> {
         if (!account || !info) return null;
         const config = info.signingConfigurations[viewXPub];
         const numberOfXPubs = info.signingConfigurations.length;
+        const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
+
         return (
             <div class="contentWithGuide">
                 <div class="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div class={`${style.infoContent} box larger`}>
+                            <div class="box larger">
                                 { isBitcoinBased(account.coinCode) ? (
-                                    <strong>
+                                    <h2 className={style.title}>
                                         {t('accountInfo.extendedPublicKey')}
-                                    </strong>
+                                    </h2>
                                 ) : null }
-                                { numberOfXPubs > 1 ? (
+                                { (config.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
                                     <p className={style.xPubInfo}>
-                                        {t(`accountInfo.xpubTypeInfo.${viewXPub}`, {
+                                        {t('accountInfo.xpubTypeInfo', {
                                             current: `${viewXPub + 1}`,
                                             numberOfXPubs: numberOfXPubs.toString(),
+                                            scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
                                         })}<br />
                                         <button class={style.nextButton} onClick={this.showNextXPub}>
-                                            {t(`accountInfo.xpubTypeChangeBtn.${(viewXPub + 1) % numberOfXPubs}`)}
+                                            {t(`accountInfo.xpubTypeChangeBtn.${xpubTypes[(viewXPub + 1) % numberOfXPubs]}`)}
                                         </button>
                                     </p>
                                 ) : null}

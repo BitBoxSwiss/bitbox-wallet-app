@@ -25,16 +25,12 @@
     "label": "Account info",
     "title": "Account information",
     "verify": "Verify on device",
-    "xpubTypeChangeBtn": [
-      "Switch back to Native segwit (bech32)",
-      "View older segwit extended public key",
-      "View legacy P2PKH extended public key"
-    ],
-    "xpubTypeInfo": [
-      "Currently displaying Native segwit (bech32) extended public key ({{current}} of {{numberOfXPubs}})",
-      "Currently displaying segwit extended public key ({{current}} of {{numberOfXPubs}})",
-      "Currently displaying legacy P2PKH extended public key ({{current}} of {{numberOfXPubs}})"
-    ]
+    "xpubTypeChangeBtn": {
+      "p2pkh": "View legacy P2PKH extended public key",
+      "p2wpkh": "View Native segwit",
+      "p2wpkh-p2sh": "View older segwit extended public key"
+    },
+    "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Available balance",
