@@ -14,6 +14,7 @@ SetCompressor /SOLID lzma
 !define BINDIR "build\windows"
 !define ICONDIR "resources\win"
 !define APP_EXE "BitBox.exe"
+!define AOPP_EXE "$\"$INSTDIR\${APP_EXE}$\" $\"%1$\""
 
 # MUI Symbol Definitions
 !define MUI_ICON "${ICONDIR}\icon.ico"
@@ -106,6 +107,23 @@ Section -post SEC0001
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" UninstallString $INSTDIR\uninstall.exe
     WriteRegDWORD HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoModify 1
     WriteRegDWORD HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoRepair 1
+
+    # Links aopp: URI scheme.
+    # It links it silently if no other app is registered, to not overwrite.
+    # If another app is registered, we ask the user for permission.
+    ReadRegStr $0 HKCU "SOFTWARE\Classes\aopp\shell\open\command" ""
+    ${If} $0 != "${AOPP_EXE}"
+        ${If} $0 == ""
+            Goto true
+        ${Endif}
+        MessageBox MB_YESNO "Do you want to set the BitBoxApp as the default program to handle AOPP (Address Ownership Proof Protocol) links?" IDYES true IDNO false
+        true:
+            WriteRegStr HKCU "SOFTWARE\Classes\aopp" "" "URL:aopp Protocol"
+            WriteRegStr HKCU "SOFTWARE\Classes\aopp" "URL Protocol" ""
+            WriteRegStr HKCU "SOFTWARE\Classes\aopp" "DefaultIcon" "$\"$INSTDIR\${APP_EXE},1$\""
+            WriteRegStr HKCU "SOFTWARE\Classes\aopp\shell\open\command" "" "${AOPP_EXE}"
+        false:
+    ${EndIf}
 SectionEnd
 
 # Macro for selecting uninstaller sections
@@ -141,6 +159,14 @@ Section -un.post UNSEC0001
     DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
     DeleteRegKey /IfEmpty HKCU "${REGKEY}"
     #DeleteRegKey HKCR "@PACKAGE_TARNAME@"
+
+    # Unlinks aopp: URI scheme
+    # Delete only if the value points to the BitBoxApp, to not delete another app's registration.
+    ReadRegStr $0 HKCU "SOFTWARE\Classes\aopp\shell\open\command" ""
+    ${If} $0 == "${AOPP_EXE}"
+        DeleteRegKey HKCU "SOFTWARE\Classes\aopp"
+    ${EndIf}
+
     RmDir /REBOOTOK $SMPROGRAMS\$StartMenuGroup
     RmDir /REBOOTOK $INSTDIR
     Push $R0
