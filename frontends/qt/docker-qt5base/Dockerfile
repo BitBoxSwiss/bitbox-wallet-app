@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:16.04 as qt5base
+FROM ubuntu:18.04 as qt5base
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -76,15 +76,17 @@ RUN apt-get -y install --no-install-recommends \
     gyp \
     libxss-dev \
     libasound2-dev \
-    libgstreamer0.10-dev \
-    libgstreamer-plugins-base0.10-dev
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev
 
 # Get the source code
 RUN cd /tmp && \
     git clone git://code.qt.io/qt/qt5.git && \
     cd qt5 && \
-    git checkout 5.12.8 && \
+    git checkout 5.15.2 && \
     git submodule update --init --recursive
+
+RUN apt-get -y install --no-install-recommends libxkbcommon-dev libxkbcommon-x11-dev
 
 RUN cd /tmp/qt5 && \
     ./configure \
@@ -93,9 +95,10 @@ RUN cd /tmp/qt5 && \
       -confirm-license \
       -nomake tests \
       -nomake examples \
+      -skip qtdocgallery \
+      -skip qtquick3d \
       -dbus \
-      -xcb \
-      -system-xcb \
+      -xcb -xcb-xlib -bundled-xcb-xinput \
       -qpa xcb \
       -release \
       -reduce-relocations \
@@ -105,7 +108,7 @@ RUN cd /tmp/qt5 && make -j1
 
 RUN cd /tmp/qt5 && make install
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 COPY --from=qt5base /opt/qt5 /opt/qt5
 
