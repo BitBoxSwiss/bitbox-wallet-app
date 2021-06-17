@@ -14,7 +14,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QSystemTrayIcon>
-
+#include <QMessageBox>
 #include <iostream>
 #include <set>
 #include <string>
@@ -31,6 +31,35 @@ static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
 static QSystemTrayIcon* trayIcon;
+
+class BitBoxApp : public QApplication
+{
+public:
+    BitBoxApp(int &argc, char **argv): QApplication(argc, argv)
+    {
+    }
+
+#if defined(Q_OS_MACOS)
+    bool event(QEvent *event) override
+    {
+        if (event->type() == QEvent::FileOpen) {
+            QFileOpenEvent* openEvent = static_cast<QFileOpenEvent*>(event);
+            if (!openEvent->url().isEmpty()) {
+                // This is only supported on macOS and is used to handle URIs that are opened with
+                // the BitBoxApp, such as "aopp:..." links. The event is received and handled both
+                // if the BitBoxApp is launched and also when it is already running, in which case
+                // it is brought to the foreground automatically.
+
+                // TODO: handle the URI.
+                // After removing the messagebox here, remove the QMessageBox include above.
+                QMessageBox::information(NULL, QString("Handle URI"), openEvent->url().toString());
+            }
+        }
+
+        return QApplication::event(event);
+    }
+#endif
+};
 
 class WebEnginePage : public QWebEnginePage {
 public:
@@ -130,7 +159,7 @@ int main(int argc, char *argv[])
 #endif
 
 
-    QApplication a(argc, argv);
+    BitBoxApp a(argc, argv);
     a.setApplicationName(APPNAME);
     a.setOrganizationDomain("shiftcrypto.ch");
     a.setOrganizationName("Shift Crypto");
