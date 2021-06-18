@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.usb.UsbManager;
+import android.net.Uri;
 import android.os.Process;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -31,6 +32,7 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.InputStream;
 import java.util.regex.Pattern;
@@ -217,7 +219,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
-        // This is only called reliably when USB is attached with android:launchMode="singleTop"
+        // This is only called reliably when intents are received (e.g. USB is attached or when
+        // handling 'aopp:' URIs through the android.intent.action.VIEW intent) with
+        // android:launchMode="singleTop"
         super.onNewIntent(intent);
         setIntent(intent); // make sure onResume will have access to this intent
     }
@@ -250,6 +254,20 @@ public class MainActivity extends AppCompatActivity {
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
+        // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
+        // running and brought to the foreground.
+        Intent intent = getIntent();
+        if(Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                if (uri.getScheme().equals("aopp")) {
+                    log("Handle aopp link: " + uri.toString());
+                    // TODO: handle link and remove the toast below.
+                    Toast.makeText(getApplicationContext(), "Handle aopp link: " + uri.toString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 
     @Override
