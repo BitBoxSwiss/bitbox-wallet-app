@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - name: Clone the repo
+        with:
+          submodules: recursive
         uses: actions/checkout@v2
       - name: Enable caching
         uses: actions/cache@v2
@@ -68,6 +70,8 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Enable caching
         uses: actions/cache@v2
         with:
@@ -97,6 +101,8 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Enable caching
         uses: actions/cache@v2
         with:

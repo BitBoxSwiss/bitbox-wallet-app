@@ -15,6 +15,7 @@ stack: go 1.14
 
 install:
   - ps: Install-Product node $env:nodejs_version
+  - git submodule update --init --recursive
 
 matrix:
   fast_finish: true
