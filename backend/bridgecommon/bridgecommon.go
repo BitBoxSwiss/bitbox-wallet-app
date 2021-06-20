@@ -109,6 +109,18 @@ func BackendCall(queryID int, jsonQuery string) {
 	}(globalHandlers, globalCommunication)
 }
 
+// HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs. The
+// schemes are registered and handled on each platform (e.g. .desktop entry on Linux, Info.plist on
+// macOS, etc.). All platforms then call this function to handle the URI in the backend.
+func HandleURI(uri string) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.HandleURI(uri)
+}
+
 // UsingMobileDataChanged should be called when the network connnection changed.
 func UsingMobileDataChanged() {
 	mu.RLock()
