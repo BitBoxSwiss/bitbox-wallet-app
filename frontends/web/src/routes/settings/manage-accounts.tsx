@@ -102,7 +102,7 @@ class ManageAccounts extends Component<Props, State> {
             return null;
         }
         return accounts.filter(account => !account.isToken).map(account => {
-            const active = (account.code in favorites) ? favorites[account.code] : true;
+            const active = account.active;
             const tokensVisible = showTokens[account.code];
             return (
                 <div key={account.code} className={style.setting}>
@@ -121,10 +121,10 @@ class ManageAccounts extends Component<Props, State> {
                         onClick={() => this.setState({ editAccountCode: account.code, editAccountNewName: account.name })}>
                         {t('manageAccounts.editAccount')}
                     </button>
-                    {/* <Toggle
+                    <Toggle
                         checked={active}
                         id={account.code}
-                        onChange={this.toggleFavorAccount} /> */}
+                        onChange={() => this.toggleAccount(account.code, !active)} />
                     {active && account.coinCode === 'eth' ? (
                         <div className={style.tokenSection}>
                             <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
@@ -142,6 +142,16 @@ class ManageAccounts extends Component<Props, State> {
                     ) : null}
                 </div>
             );
+        });
+    }
+
+    private toggleAccount = (accountCode: string, active: boolean) => {
+        backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
+            if (success) {
+                this.fetchAccounts();
+            } else if (errorMessage) {
+                alertUser(errorMessage);
+            }
         });
     }
 

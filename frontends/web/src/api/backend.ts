@@ -34,6 +34,10 @@ export const getSupportedCoins = (): Promise<ICoin[]> => {
     return apiGet('supported-coins');
 };
 
+export const setAccountActive = (accountCode: string, active: boolean): Promise<ISuccess> => {
+    return apiPost('set-account-active', { accountCode, active });
+};
+
 export const setTokenActive = (accountCode: string, tokenCode: string, active: boolean): Promise<ISuccess> => {
     return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
