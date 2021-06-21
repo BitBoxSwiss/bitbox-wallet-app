@@ -27,7 +27,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { Button, Checkbox, Select } from '../../components/forms';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
-import { isBitcoin } from '../account/utils';
+import { isBitcoinOnly } from '../account/utils';
 import * as style from './info.css';
 
 interface BuyInfoProps {
@@ -98,9 +98,21 @@ class BuyInfo extends Component<Props, State> {
         setConfig({ frontend: { skipBuyDisclaimer: e.target.checked }});
     }
 
+    private getCryptoName = (): string => {
+        const { accounts, code, t } = this.props;
+        if (!code) {
+            const onlyBitcoin = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+            return onlyBitcoin ? 'Bitcoin' : t('buy.info.crypto');
+        }
+        const account = accounts.find(account => account.code === code);
+        if (account) {
+            return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
+        }
+        return t('buy.info.crypto');
+    }
+
     public render(
-        { code,
-          t }: RenderableProps<Props>,
+        { t }: RenderableProps<Props>,
         {
             status,
             selected,
@@ -110,7 +122,7 @@ class BuyInfo extends Component<Props, State> {
         if (options === undefined) {
             return <Spinner text={t('loading')} />;
         }
-        const name = (code && isBitcoin(code)) ? 'Bitcoin' : t('buy.info.crypto');
+        const name = this.getCryptoName();
         return (
             <div class="contentWithGuide">
                 <div class="container">
