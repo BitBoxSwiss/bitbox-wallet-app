@@ -109,14 +109,12 @@ class Settings extends Component<Props, State> {
                                                 apiPrefix={this.apiPrefix()}
                                                 getInfo={this.getInfo}
                                                 name={(deviceInfo && deviceInfo.name) ? deviceInfo.name : undefined} />
+                                            { deviceInfo && deviceInfo.securechipModel !== '' && (
+                                                <SettingsItem optionalText={deviceInfo.securechipModel}>
+                                                    {t('deviceSettings.hardware.securechip')}
+                                                </SettingsItem>
+                                            ) }
                                         </div>
-                                        { deviceInfo && deviceInfo.securechipModel !== '' && (
-                                              <div className="box slim divide">
-                                                  <SettingsItem optionalText={deviceInfo.securechipModel}>
-                                                      {t('deviceSettings.hardware.securechip')}
-                                                  </SettingsItem>
-                                              </div>
-                                        ) }
                                     </div>
                                 </div>
                                 <div className="columns">
