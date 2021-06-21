@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { CoinCode } from '../../api/account';
+import { CoinCode, ScriptType } from '../../api/account';
 
 export function isBitcoin(code: string): boolean {
     switch (code) {
@@ -61,5 +61,17 @@ export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
         case 'teth':
         case 'reth':
             return 'eth';
+    }
+}
+
+
+export function getScriptName(scriptType: ScriptType): string {
+    switch (scriptType) {
+        case 'p2pkh':
+            return 'Legacy';
+        case 'p2wpkh-p2sh':
+            return 'Segwit';
+        case 'p2wpkh':
+            return 'Native segwit (bech32)';
     }
 }

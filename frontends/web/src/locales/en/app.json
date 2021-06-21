@@ -24,7 +24,13 @@
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "title": "Account information",
-    "verify": "Verify on device"
+    "verify": "Verify on device",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "View legacy P2PKH extended public key",
+      "p2wpkh": "View Native segwit",
+      "p2wpkh-p2sh": "View older segwit extended public key"
+    },
+    "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Available balance",
@@ -494,9 +500,21 @@
       "title": "What does incoming mean?"
     },
     "accountInfo": {
+      "multipleXPubs": {
+        "text": "Each xpub is tied to the \"Type\" shown: either \"Native segwit (bech32)\" or \"Wrapped segwit\". These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the standard address, you only need the \"bech32\" xpub. However, if you also receive funds on the \"compatible address\" type, these will be shown on the \"older segwit\" extended public key.",
+        "title": "Why are there multiple xpubs?"
+      },
+      "privacy": {
+        "text": "For this specific account, the extended public key reveals the entire financial history, your account balance, and all future transactions. But the xpub does not allow anyone to spend your coins.\n\nIf you give an xpub to someone, you should be aware that this person or company can see all other transactions of the same account. Therefore, it’s a good idea to use that account only for this purpose and keep other funds in different accounts.",
+        "title": "Do I need to keep my xpub secret?"
+      },
+      "verify": {
+        "text": "Yes, it’s always a good idea to double-check your xpub. If someone else will generate receive addresses from this xpub to send you money, this is especially important. You need to verify it on the device to ensure that this xpub belongs to you; otherwise, all funds could go to the wrong addresses.",
+        "title": "Do I need to verify the xpub on the device?"
+      },
       "xpub": {
-        "text": "An extended public key is a root key from which all receiving addresses of an account are derived.\nIt is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel.",
-        "title": "What is an extended public key?"
+        "text": "An extended public key (also called \"xpub\" for short) allows you to share view-only access to this account. For example, you can use it with another wallet to see your balance (but not spend your coins) or allow someone else to generate many new receiving addresses for this account to send you money.\n\nEach xpub is tied to a specific account and does not reveal any information about your other accounts.",
+        "title": "What is an extended public key (xpub)?"
       }
     },
     "accountLegacyConvert": {
