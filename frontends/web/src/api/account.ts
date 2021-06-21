@@ -64,21 +64,29 @@ export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
 
 export interface IKeyInfo {
     keypath: string;
+    rootFingerprint: string;
     xpub: string;
 }
 
-export interface ISigningConfiguration {
-    bitcoinSimple?: {
-        keyInfo: IKeyInfo;
-        scriptType: ScriptType;
-    };
-    ethereumSimple?: {
-        keyInfo: IKeyInfo;
-    }
+export type TBitcoinSimple = {
+    keyInfo: IKeyInfo;
+    scriptType: ScriptType;
+}
+
+export type TEthereumSimple = {
+    keyInfo: IKeyInfo;
+}
+
+export type TSigningConfiguration = {
+    bitcoinSimple: TBitcoinSimple;
+    ethereumSimple?: never;
+} | {
+    bitcoinSimple?: never;
+    ethereumSimple: TEthereumSimple;
 }
 
 export interface ISigningConfigurationList {
-    signingConfigurations: ISigningConfiguration[];
+    signingConfigurations: TSigningConfiguration[];
 }
 
 export const getInfo = (code: string): Promise<ISigningConfigurationList> => {
@@ -164,6 +172,17 @@ export const getTransactionList = (code: string): Promise<ITransaction[]> => {
 
 export const exportAccount = (code: string): Promise<string> => {
     return apiPost(`account/${code}/export`);
+};
+
+export const getCanVerifyXPub = (code: string): Promise<boolean> => {
+    return apiGet(`account/${code}/can-verify-extended-public-key`);
+};
+
+export const verifyXPub = (
+    code: string,
+    signingConfigIndex: number,
+): Promise<void> => {
+    return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
 };
 
 export interface IReceiveAddress {

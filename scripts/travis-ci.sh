@@ -14,7 +14,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     # Which docker image to use to run the CI. Defaults to Docker Hub.
     # Overwrite with CI_IMAGE=docker/image/path environment variable.
     # Keep this in sync with .github/workflows/ci.yml.
-    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:9}"
+    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:10}"
     # Time image pull to compare in the future.
     time docker pull "$CI_IMAGE"
 
@@ -32,14 +32,14 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     # GitHub CI installs it directly in the macos action, before executing
     # this script.
     go version
-    brew install qt
+    brew install qt@5
     brew install nvm
     source /usr/local/opt/nvm/nvm.sh
     nvm install 14.15.4 # install this node version
     npm install -g yarn
-    export PATH="/usr/local/opt/qt/bin:$PATH"
-    export LDFLAGS="-L/usr/local/opt/qt/lib"
-    export CPPFLAGS="-I/usr/local/opt/qt/include"
+    export PATH="/usr/local/opt/qt@5/bin:$PATH"
+    export LDFLAGS="-L/usr/local/opt/qt@5/lib"
+    export CPPFLAGS="-I/usr/local/opt/qt@5/include"
     export GOPATH=~/go
     export PATH=$PATH:~/go/bin
     mkdir -p $GOPATH/$(dirname $GO_SRC_DIR)

@@ -24,7 +24,7 @@ envinit:
 	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.27.0
 	GO111MODULE=off go get -u github.com/stretchr/testify # needed for mockery
-	GO111MODULE=off go get -u github.com/vektra/mockery/...
+	GO111MODULE=on go get -u github.com/vektra/mockery/...
 	GO111MODULE=off go get -u github.com/matryer/moq
 	GO111MODULE=off go get -u github.com/goware/modvendor
 	GO111MODULE=off go get golang.org/x/tools/cmd/goimports
@@ -33,7 +33,7 @@ envinit:
 	GO111MODULE=off gomobile init
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
-#  - additional dependencies: Qt 5.11 & Xcode command line tools
+#  - additional dependencies: Qt 5.15 & Xcode command line tools
 #  - add to $PATH: /usr/local/opt/go@1.14/bin
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"

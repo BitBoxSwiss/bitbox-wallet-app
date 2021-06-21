@@ -16,7 +16,6 @@
 
 import { Component, ComponentFactory, h, JSX, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
-import { equal } from '../utils/equal';
 import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
 import { KeysOf, ObjectButNotFunction } from '../utils/types';
@@ -69,15 +68,6 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
                     switch (event.action) {
                     case 'replace':
                         this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
-                        break;
-                    case 'prepend':
-                        this.setState(state => ({ [key]: [event.object, ...state[key] as any] } as any));
-                        break;
-                    case 'append':
-                        this.setState(state => ({ [key]: [...state[key] as any, event.object] } as any));
-                        break;
-                    case 'remove':
-                        this.setState(state => ({ [key]: (state[key] as any).filter((item: any) => !equal(item, event.object)) } as any));
                         break;
                     case 'reload':
                         apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
