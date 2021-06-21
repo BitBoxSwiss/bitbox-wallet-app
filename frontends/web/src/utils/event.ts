@@ -24,7 +24,7 @@ export type Subject = string;
 /**
  * This type enumerates the various actions of an event.
  */
-export type Action = 'replace' | 'prepend' | 'append' | 'remove' | 'reload';
+export type Action = 'replace' | 'reload';
 
 /**
  * This interface models the events that are received from the backend.
