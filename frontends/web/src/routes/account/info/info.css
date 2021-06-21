@@ -1,23 +1,103 @@
-.infoContent {
-    width: var(--content-width-small);
-    margin: 0 auto;
-    text-align: center;
+.title {
+    font-size: var(--header-default-font-size);
+    font-weight: 400;
 }
 
-.textareaContainer {
-    margin-top: var(--space-half);
+.nextButton {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: inherit;
+    padding: 2px;
+    text-align: left;
+    margin: 0 0 0 -2px;
 }
 
-.address {
+.details {
     margin-bottom: var(--space-default);
 }
 
+.qrCode {
+    min-height: 260px;
+    text-align: center;
+}
+
+.qrCode img {
+    height: auto;
+    max-width: 100%;
+}
+
+.address {
+}
+
+.buttons {
+    clear: both;
+    display: flex;
+    justify-content: space-between;
+    min-height: 3.5rem;
+}
+
+.verifyButton {
+    order: 2;
+}
+
+.entry {
+    align-items: baseline;
+    display: flex;
+    justify-content: space-between;
+}
+
+@media screen and (min-width: 640px) {
+
+    .xPubInfo {
+        max-width: calc(100% - 218px);
+    }
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        /* QRcode is 256px with 2 x 38px white border = 180px */
+        min-height: 180px;
+    }
+
+    .entry:first-child {
+        margin-top: 0;
+    }
+
+    .qrCode {
+        float: right;
+        position: relative;
+        /* QRCode image has 38px white border */
+        top: -38px;
+        right: calc(-1 * var(--space-default));
+    }
+
+}
+
 @media (max-width: 640px) {
+
     .infoContent {
         width: 100%;
+    }
+
+    .largeEntry {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .largeEntry strong {
+        display: block;
+        margin-bottom: var(--space-quarter);
     }
 
     .addressField input {
         font-size: var(--size-small);
     }
+
+    .qrCode {
+        margin-left: calc(-1 * var(--space-default));
+        margin-right: calc(-1 * var(--space-default));
+    }
+
 }

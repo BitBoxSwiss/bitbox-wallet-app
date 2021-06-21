@@ -35,6 +35,13 @@ apt-get install -y --no-install-recommends \
     dnsutils \
     gcc-mingw-w64-x86-64
 
+# Deps required by Qt / linuxdeployqt:
+apt-get install -y --no-install-recommends \
+        file \
+        libtiff-dev \
+        libxkbcommon-x11-dev \
+        libxrandr-dev
+
 npm install -g yarn
 npm install -g locize-cli
 
@@ -44,9 +51,9 @@ curl https://dl.google.com/go/go1.14.15.linux-amd64.tar.gz | tar -xz -C /opt/go_
 # Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
 cd /opt && \
-    wget https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage && \
-    echo "562d2e4dca44767bbf2410523d50b2834aa3e8c91199716e0f7d5690de47f0d1 /opt/linuxdeployqt-6-x86_64.AppImage" | sha256sum -c - && \
-    chmod +x /opt/linuxdeployqt-6-x86_64.AppImage
+    wget https://github.com/probonopd/linuxdeployqt/releases/download/7/linuxdeployqt-7-x86_64.AppImage && \
+    echo "645276306a801d7154d59e5b4b3c2fac3d34e09be57ec31f6d9a09814c6c162a /opt/linuxdeployqt-7-x86_64.AppImage" | sha256sum -c - && \
+    chmod +x /opt/linuxdeployqt-7-x86_64.AppImage
 
 # Install fpm to create deb/rpm packages
 apt-get install -y --no-install-recommends \
@@ -56,4 +63,4 @@ gem install --no-ri --no-rdoc fpm
 # Needed for Android.
 apt-get install -y --no-install-recommends default-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
-/opt/android-sdk/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-29" "build-tools;29.0.0" "platform-tools"
+/opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-29" "build-tools;29.0.0" "platform-tools"

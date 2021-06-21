@@ -16,6 +16,7 @@
 
 import { h, JSX } from 'preact';
 import alert from './assets/icons/alert-triangle.svg';
+import info from './assets/icons/info.svg';
 import * as style from './icon.css';
 
 export function Alert(props): JSX.Element {
@@ -70,3 +71,13 @@ export const ExpandIcon = ({
 }: ExpandIconProps): JSX.Element => (
     expand ? <ExpandOpen /> : <ExpandClose />
 );
+
+interface InfoProps {
+    className?: string;
+}
+
+export function Info(props: InfoProps) {
+    return (
+        <img src={info} {...props} />
+    );
+}

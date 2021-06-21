@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM thyrlian/android-sdk:3.0 as android
+FROM thyrlian/android-sdk:4.0 as android
 
-FROM shiftcrypto/qt5:5.12.8
+FROM shiftcrypto/qt5:5.15.2
 
 # Android
 COPY --from=android /opt/android-sdk /opt/android-sdk

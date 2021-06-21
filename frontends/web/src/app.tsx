@@ -38,7 +38,7 @@ import { Account } from './routes/account/account';
 import { AddAccount } from './routes/account/add/add';
 import { Moonpay } from './routes/buy/moonpay';
 import { BuyInfo } from './routes/buy/info';
-import Info from './routes/account/info/info';
+import { Info } from './routes/account/info/info';
 import { Receive } from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { AccountsSummary } from './routes/account/summary/accountssummary';
@@ -216,6 +216,7 @@ class App extends Component<Props, State> {
                                 path="/exchanges" />
                             <Info
                                 path="/account/:code/info"
+                                code={'' /* dummy to satisfy TS */}
                                 accounts={activeAccounts} />
                             <Account
                                 path="/account/:code"

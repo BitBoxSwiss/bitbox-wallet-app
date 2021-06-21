@@ -140,8 +140,6 @@ public:
 int main(int argc, char *argv[])
 {
 // Enable auto HiDPI scaling on Windows only for now.
-// Historically, auto scaling did not work as expected on other platforms
-// before Qt v5.14 but we're at 5.11 due to older systems support.
 #if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
