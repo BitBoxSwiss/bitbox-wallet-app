@@ -84,7 +84,12 @@ type Keystore interface {
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
-	// SignMessage(string, *signing.AbsoluteKeypath, accounts.Coin) (*big.Int, error)
+	// CanSignMessage returns true if the keystore can sign a message for a coin.
+	CanSignMessage(coin.Code) bool
+	// SignBTCMessage signs the message using the private key at the keypath. The scriptType is
+	// required to compute and verify the address. The returned signature is a 65 byte signature in
+	// Electrum format.
+	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
 
 	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
 	// aborts.
