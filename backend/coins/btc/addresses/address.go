@@ -115,6 +115,11 @@ func (address *AccountAddress) EncodeForHumans() string {
 	return address.EncodeAddress()
 }
 
+// AbsoluteKeypath implements coin.AbsoluteKeypath.
+func (address *AccountAddress) AbsoluteKeypath() signing.AbsoluteKeypath {
+	return address.Configuration.AbsoluteKeypath()
+}
+
 func (address *AccountAddress) isUsed() bool {
 	return address.HistoryStatus != ""
 }
