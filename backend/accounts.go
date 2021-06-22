@@ -41,21 +41,6 @@ const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 // limit, but simply use a hard limit for simplicity.
 const accountsHardLimit = 5
 
-// ErrorCode are errors that are represented by an error code. This helps the frontend to translate
-// error messages.
-type ErrorCode string
-
-func (e ErrorCode) Error() string {
-	return string(e)
-}
-
-const (
-	// ErrAccountAlreadyExists is returned if an account is being added which already exists.
-	ErrAccountAlreadyExists ErrorCode = "accountAlreadyExists"
-	// ErrAccountLimitReached is returned when adding an account if no more accounts can be added.
-	ErrAccountLimitReached ErrorCode = "accountLimitReached"
-)
-
 // sortAccounts sorts the accounts in-place by 1) coin 2) account number.
 func sortAccounts(accounts []*config.Account) {
 	compareCoin := func(coin1, coin2 coinpkg.Code) int {
