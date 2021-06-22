@@ -684,3 +684,11 @@ func (backend *Backend) Close() error {
 func (backend *Backend) Banners() *banners.Banners {
 	return backend.banners
 }
+
+// HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs.  The uri
+// param can be any string, as it is potentially passed without any validation from the calling
+// platform.
+func (backend *Backend) HandleURI(uri string) {
+	// TODO: handle
+	backend.log.Debugf("Handle URI: %s", uri)
+}

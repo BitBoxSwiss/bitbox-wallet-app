@@ -74,6 +74,11 @@ func backendCall(queryID C.int, s *C.char) {
 	bridgecommon.BackendCall(int(queryID), C.GoString(s))
 }
 
+//export handleURI
+func handleURI(uri *C.char) {
+	bridgecommon.HandleURI(C.GoString(uri))
+}
+
 //export serve
 func serve(
 	pushNotificationsFn C.pushNotificationsCallback,

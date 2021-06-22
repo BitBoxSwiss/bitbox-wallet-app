@@ -63,9 +63,7 @@ public:
                 // if the BitBoxApp is launched and also when it is already running, in which case
                 // it is brought to the foreground automatically.
 
-                // TODO: handle the URI.
-                // After removing the messagebox here, remove the QMessageBox include above.
-                QMessageBox::information(NULL, QString("Handle URI"), openEvent->url().toString());
+                handleURI(const_cast<char*>(openEvent->url().toString().toStdString().c_str()));
             }
         }
 
@@ -180,23 +178,16 @@ int main(int argc, char *argv[])
     a.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/bitbox.png"));
 
     if(a.isSecondary()) {
-        // The application is already running. We send the arguments to the primary instance to
+        // The application is already running. If there is exactly one positional argument, we send
+        // assume it is an URI click and send it to the primary instance to parse, validate and
         // handle.
 
-        // TODO: check if there is one positional arg which is a URI and only forward that one. No
-        // need to handle all types of args here.
-        a.sendMessage(a.arguments().join(' ').toUtf8());
+        if (a.arguments().size() == 2) {
+            a.sendMessage(a.arguments()[1].toUtf8());
+        }
         qDebug() << "App already running.";
         return 0;
     }
-    // Receive and handle an URI sent by a secondary instance (see above).
-    QObject::connect(
-        &a,
-        &SingleApplication::receivedMessage,
-        [&](int instanceId, QByteArray message) {
-            QString args = QString::fromUtf8(message);
-            qDebug() << "Received args from secondary instance:" << args;
-        });
 
     view = new WebEngineView();
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
@@ -320,6 +311,20 @@ int main(int argc, char *argv[])
     // Without this, on Windows, only the taskbar entry would light up.
     QWindowsWindowFunctions::setWindowActivationBehavior(QWindowsWindowFunctions::AlwaysActivateWindow);
 #endif
+
+    // Receive and handle an URI sent by a secondary instance (see above).
+    QObject::connect(
+        &a,
+        &SingleApplication::receivedMessage,
+        [&](int instanceId, QByteArray message) {
+            QString arg = QString::fromUtf8(message);
+            qDebug() << "Received arg from secondary instance:" << arg;
+            handleURI(const_cast<char*>(arg.toStdString().c_str()));
+        });
+    // Handle URI which the app was launched with in the primary instance.
+    if (a.arguments().size() == 2) {
+        handleURI(const_cast<char*>(a.arguments()[1].toStdString().c_str()));
+    }
 
     return a.exec();
 }

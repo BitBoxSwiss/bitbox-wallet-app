@@ -262,9 +262,7 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = intent.getData();
             if (uri != null) {
                 if (uri.getScheme().equals("aopp")) {
-                    log("Handle aopp link: " + uri.toString());
-                    // TODO: handle link and remove the toast below.
-                    Toast.makeText(getApplicationContext(), "Handle aopp link: " + uri.toString(), Toast.LENGTH_LONG).show();
+                    Goserver.handleURI(uri.toString());
                 }
             }
         }

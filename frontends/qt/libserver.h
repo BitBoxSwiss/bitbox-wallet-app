@@ -26,6 +26,8 @@ extern "C" {
 
 extern void backendCall(int p0, char* p1);
 
+extern void handleURI(char* p0);
+
 extern void serve(
     pushNotificationsCallback p0,
     responseCallback p1,
