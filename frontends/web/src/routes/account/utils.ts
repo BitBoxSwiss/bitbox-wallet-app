@@ -17,16 +17,10 @@
 
 import { CoinCode, ScriptType } from '../../api/account';
 
-export function isBitcoin(code: string): boolean {
-    switch (code) {
+export function isBitcoinOnly(coinCode: CoinCode): boolean {
+    switch (coinCode) {
     case 'btc':
-    case 'btc-p2wpkh':
-    case 'btc-p2wpkh-p2sh':
-    case 'btc-p2pkh':
     case 'tbtc':
-    case 'tbtc-p2wpkh':
-    case 'tbtc-p2wpkh-p2sh':
-    case 'tbtc-p2pkh':
         return true;
     default:
         return false;
