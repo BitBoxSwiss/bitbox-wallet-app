@@ -28,14 +28,21 @@ const (
 	// ErrAccountLimitReached is returned when adding an account if no more accounts can be added.
 	ErrAccountLimitReached ErrorCode = "accountLimitReached"
 
-	// errAoppUnsupportedAsset is returned when an AOPP request is for an asset we don't support AOPP
-	// for.
-	errAoppUnsupportedAsset ErrorCode = "aoppUnsupportedAsset"
-	// errAoppVersion is returned when we cannot handle an AOPP request because we don't support the
+	// errAOPPUnsupportedAsset is returned when an AOPP request is for an asset we don't support
+	// AOPP for.
+	errAOPPUnsupportedAsset ErrorCode = "aoppUnsupportedAsset"
+	// errAOPPVersion is returned when we cannot handle an AOPP request because we don't support the
 	// request version.
-	errAoppVersion ErrorCode = "aoppVersion"
-	// errAoppNoAccounts is returned when there are no available accounts to choose from.
-	errAoppNoAccounts ErrorCode = "aoppNoAccounts"
-	// errAoppCannotSign is returned when the connected keystore does not support signing messages.
-	errAoppCannotSign ErrorCode = "aoppCannotSign"
+	errAOPPVersion        ErrorCode = "aoppVersion"
+	errAOPPInvalidRequest ErrorCode = "aoppInvalidRequest"
+	// errAOPPNoAccounts is returned when there are no available accounts to choose from.
+	errAOPPNoAccounts ErrorCode = "aoppNoAccounts"
+	// errAOPPUnsupportedKeystore is returned when the connected keystore does not support signing messages.
+	errAOPPUnsupportedKeystore ErrorCode = "aoppUnsupportedKeystore"
+	// errAOPPUnknown is returned on unexpected errors that in theory should never happen.
+	errAOPPUnknown ErrorCode = "aoppUnknown"
+	// errAOPPSigningAborted is returned when the user cancels the message signing on the device.
+	errAOPPSigningAborted ErrorCode = "aoppSigningAborted"
+	// errAOPPCallback is returned when there was an error calling the callback in the AOPP request.
+	errAOPPCallback ErrorCode = "aoppCallback"
 )

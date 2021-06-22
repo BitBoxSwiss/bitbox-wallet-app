@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoinCode } from './account';
+import { AccountCode, CoinCode } from './account';
 import { apiGet, apiPost } from '../utils/request';
 
 export interface ICoin {
@@ -34,15 +34,15 @@ export const getSupportedCoins = (): Promise<ICoin[]> => {
     return apiGet('supported-coins');
 };
 
-export const setAccountActive = (accountCode: string, active: boolean): Promise<ISuccess> => {
+export const setAccountActive = (accountCode: AccountCode, active: boolean): Promise<ISuccess> => {
     return apiPost('set-account-active', { accountCode, active });
 };
 
-export const setTokenActive = (accountCode: string, tokenCode: string, active: boolean): Promise<ISuccess> => {
+export const setTokenActive = (accountCode: AccountCode, tokenCode: string, active: boolean): Promise<ISuccess> => {
     return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
 
-export const renameAccount = (accountCode: string, name: string): Promise<ISuccess> => {
+export const renameAccount = (accountCode: AccountCode, name: string): Promise<ISuccess> => {
     return apiPost('rename-account', { accountCode, name });
 };
 

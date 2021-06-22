@@ -24,6 +24,7 @@ import { syncDeviceList } from './api/devicessync';
 import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
+import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
@@ -192,6 +193,7 @@ class App extends Component<Props, State> {
                         <Update />
                         <Banner msgKey="bitbox01" />
                         <MobileDataWarning />
+                        <Aopp />
                         <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
                             <Send
                                 path="/account/:code/send"
