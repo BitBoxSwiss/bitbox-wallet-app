@@ -16,7 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { CoinCode, IAccount } from '../../api/account';
+import { AccountCode, IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
 import A from '../../components/anchor/anchor';
@@ -42,7 +42,7 @@ interface LoadedBuyInfoProps {
 
 interface Option {
     text: string;
-    value: CoinCode;
+    value: AccountCode;
 }
 
 interface State {
