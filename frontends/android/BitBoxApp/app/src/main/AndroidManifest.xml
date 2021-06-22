@@ -33,6 +33,17 @@
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
+            <!-- Register URI protocol to handle 'aopp:...' links -->
+            <!-- For testing, you can simulate an aopp link click using: -->
+            <!-- adb shell 'am start -n ch.shiftcrypto.bitboxapp.debug/ch.shiftcrypto.bitboxapp.MainActivity -a android.intent.action.VIEW -d "aopp:..."' -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--BROWSABLE: can be opened by clicking a link in a browser or email -->
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- No andriod:host attribute because there is no host in "aopp:?..." -->
+                <data android:scheme="aopp" />
+            </intent-filter>
             <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
