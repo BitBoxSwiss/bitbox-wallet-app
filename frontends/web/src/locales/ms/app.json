@@ -543,7 +543,7 @@
       "getDevice": {
         "link": {
           "text": "Pesan sebuah BitBox",
-          "url": "https://shiftcrypto.ch/shop"
+          "url": "https://shiftcrypto.shop/"
         },
         "text": "Anda boleh membeli BitBox di kedai online kami:",
         "title": "Bagaimana saya boleh mendapatkan peranti?"
@@ -555,7 +555,7 @@
       "lostDevice": {
         "link": {
           "text": "Pusat Backup",
-          "url": "http://shiftcrypto.ch/backup"
+          "url": "https://shiftcrypto.ch/backup"
         },
         "text": "Anda boleh memulihkan akaun anda pada BitBox baru atau dengan pusat backup kami.",
         "title": "Saya kehilangan peranti saya. Bagaimana sekarang?"
