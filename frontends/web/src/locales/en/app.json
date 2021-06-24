@@ -525,8 +525,8 @@
         "title": "Do I need to verify the xpub on the device?"
       },
       "xpub": {
-        "text": "An extended public key (also called \"xpub\" for short) allows you to share view-only access to this account. For example, you can use it with another wallet to see your balance (but not spend your coins) or allow someone else to generate many new receiving addresses for this account to send you money.\n\nEach xpub is tied to a specific account and does not reveal any information about your other accounts.",
-        "title": "What is an extended public key (xpub)?"
+        "text": "An extended public key is a root key from which all receiving addresses of an account are derived.\nIt is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel.",
+        "title": "What is an extended public key?"
       }
     },
     "accountLegacyConvert": {
@@ -828,7 +828,7 @@
       "getDevice": {
         "link": {
           "text": "Order a BitBox",
-          "url": "https://shiftcrypto.ch/shop"
+          "url": "https://shiftcrypto.shop/"
         },
         "text": "You can buy a BitBox in our online shop:",
         "title": "How can I get a device?"
@@ -908,7 +908,7 @@
       "hideTokens": "Hide tokens",
       "showTokens": "Show tokens ({{activeTokenCount}})"
     },
-    "settingsButtonDescription": "Add and activate/deactivate accounts",
+    "settingsButtonDescription": "Add and show/hide accounts",
     "title": "Manage accounts"
   },
   "mobile": {

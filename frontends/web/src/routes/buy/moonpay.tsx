@@ -23,7 +23,7 @@ import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Spinner } from '../../components/spinner/Spinner';
-import { isBitcoin } from '../account/utils';
+import { isBitcoinOnly } from '../account/utils';
 import * as style from './moonpay.css';
 
 interface BuyProps {
@@ -67,24 +67,31 @@ class Moonpay extends Component<Props, State> {
         }, 200);
     }
 
-    private getAccount = () => {
+    private getAccount = (): IAccount | undefined => {
         if (!this.props.accounts) {
             return undefined;
         }
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
+    private getCryptoName = (): string => {
+        const { t } = this.props;
+        const account = this.getAccount();
+        if (account) {
+            return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
+        }
+        return t('buy.info.crypto');
+    }
+
     public render(
-        { code,
-          moonpay,
-          t }: RenderableProps<Props>,
+        { moonpay, t }: RenderableProps<Props>,
         { height }: State,
     ) {
         const account = this.getAccount();
         if (!account || moonpay.url === '') {
             return null;
         }
-        const name = isBitcoin(code) ? 'Bitcoin' : 'crypto';
+        const name = this.getCryptoName();
         return (
             <div class="contentWithGuide">
                 <div class="container">
