@@ -31,8 +31,7 @@ import (
 // aoppCoinMap maps from the asset codes specified by AOPP to our own coin codes.
 var aoppCoinMap = map[string]coinpkg.Code{
 	"btc": coinpkg.CodeBTC,
-	// TODO: add support for ETH
-	// "eth": coinpkg.CodeETH,
+	"eth": coinpkg.CodeETH,
 }
 
 type account struct {
@@ -256,6 +255,22 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 			[]byte(backend.aopp.message),
 			addr.AbsoluteKeypath(),
 			account.Config().SigningConfigurations[signingConfigIdx].ScriptType(),
+		)
+		if err != nil {
+			if firmware.IsErrorAbort(err) {
+				backend.log.WithError(err).Error("user aborted msg signing")
+				backend.aoppSetError(errAOPPSigningAborted)
+				return
+			}
+			backend.log.WithError(err).Error("signing error")
+			backend.aoppSetError(errAOPPUnknown)
+			return
+		}
+		signature = sig
+	case coinpkg.CodeETH:
+		sig, err := backend.keystore.SignETHMessage(
+			[]byte(backend.aopp.message),
+			addr.AbsoluteKeypath(),
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {
