@@ -90,6 +90,10 @@ type Keystore interface {
 	// required to compute and verify the address. The returned signature is a 65 byte signature in
 	// Electrum format.
 	SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
+	// SignETHMessage signs the message using thep rivate key at the keypath. The result contains a
+	// 65 byte signature. The first 64 bytes are the secp256k1 signature in / compact format (R and
+	// S values), and the last byte is the recoverable id (recid).
+	SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
 	// aborts.
