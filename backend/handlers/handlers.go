@@ -96,6 +96,9 @@ type Backend interface {
 	SetAccountActive(accountCode accounts.Code, active bool) error
 	SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accounts.Code, name string) error
+	AOPP() backend.AOPP
+	AOPPCancel()
+	AOPPChooseAccount(code accounts.Code)
 }
 
 // Handlers provides a web api to the backend.
@@ -196,6 +199,9 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
+	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -912,6 +918,10 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 	return acct != nil && acct.Offline() == nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
 }
 
+func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
+	return handlers.backend.AOPP(), nil
+}
+
 func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
 	acctCode := accounts.Code(mux.Vars(r)["code"])
 	// TODO: Refactor to make use of a map.
@@ -949,4 +959,21 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 		Address: buy.Address,
 	}
 	return resp, nil
+}
+
+func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interface{}, error) {
+	var request struct {
+		AccountCode accounts.Code `json:"accountCode"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	handlers.backend.AOPPChooseAccount(request.AccountCode)
+	return nil, nil
+}
+
+func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) (interface{}, error) {
+	handlers.backend.AOPPCancel()
+	return nil, nil
 }

@@ -154,7 +154,8 @@ func (account *Account) Initialize() error {
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	account.address = Address{
-		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
+		Address:         crypto.PubkeyToAddress(*account.signingConfiguration.PublicKey().ToECDSA()),
+		absoluteKeypath: account.signingConfiguration.AbsoluteKeypath(),
 	}
 
 	account.signingConfiguration = signing.NewEthereumConfiguration(
