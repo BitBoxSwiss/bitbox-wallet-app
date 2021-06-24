@@ -20,10 +20,10 @@ import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
-import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
-import { SDCardCheck } from '../../../components/devices/bitbox02/sdcardcheck';
+import { Backups } from '../bitbox01/backups';
+import { BackupsV2 } from '../bitbox02/backups';
+import { SDCardCheck } from '../bitbox02/sdcardcheck';
 
 @translate()
 export default class ManageBackups extends Component {
