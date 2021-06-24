@@ -78,6 +78,8 @@ type Headers struct {
 	eventCallbacks []func(Event)
 	events         chan Event
 
+	closed bool
+
 	// Only for testing, must be nil in production.
 	testDownloadFinished func()
 }
@@ -200,6 +202,9 @@ func (headers *Headers) download() {
 
 	downloadAndProcessBatch := func() {
 		defer headers.lock.Lock()()
+		if headers.closed {
+			return
+		}
 		db := headers.db
 		tip, err := db.Tip()
 		if err != nil {
@@ -481,6 +486,8 @@ func (headers *Headers) Status() (*Status, error) {
 
 // Close shuts down the downloading goroutine and closes the database.
 func (headers *Headers) Close() error {
+	defer headers.lock.Lock()()
 	close(headers.quitChan)
+	headers.closed = true
 	return headers.db.Close()
 }
