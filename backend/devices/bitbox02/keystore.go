@@ -453,7 +453,7 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 
 // CanSignMessage implements keystore.Keystore.
 func (keystore *keystore) CanSignMessage(code coin.Code) bool {
-	return code == coin.CodeBTC
+	return code == coin.CodeBTC || code == coin.CodeETH
 }
 
 // SignBTCMessage implements keystore.Keystore.
@@ -471,4 +471,9 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 		message,
 	)
 	return electrum65, err
+}
+
+// SignETHMessage implements keystore.Keystore.
+func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return keystore.device.ETHSignMessage(messages.ETHCoin_ETH, keypath.ToUInt32(), message)
 }

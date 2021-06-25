@@ -18,6 +18,7 @@ var (
 	lockKeystoreMockExtendedPublicKey          sync.RWMutex
 	lockKeystoreMockRootFingerprint            sync.RWMutex
 	lockKeystoreMockSignBTCMessage             sync.RWMutex
+	lockKeystoreMockSignETHMessage             sync.RWMutex
 	lockKeystoreMockSignTransaction            sync.RWMutex
 	lockKeystoreMockSupportsAccount            sync.RWMutex
 	lockKeystoreMockSupportsCoin               sync.RWMutex
@@ -55,6 +56,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //             },
 //             SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
 // 	               panic("mock out the SignBTCMessage method")
+//             },
+//             SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+// 	               panic("mock out the SignETHMessage method")
 //             },
 //             SignTransactionFunc: func(in1 interface{}) error {
 // 	               panic("mock out the SignTransaction method")
@@ -104,6 +108,9 @@ type KeystoreMock struct {
 
 	// SignBTCMessageFunc mocks the SignBTCMessage method.
 	SignBTCMessageFunc func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
+
+	// SignETHMessageFunc mocks the SignETHMessage method.
+	SignETHMessageFunc func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// SignTransactionFunc mocks the SignTransaction method.
 	SignTransactionFunc func(in1 interface{}) error
@@ -162,6 +169,13 @@ type KeystoreMock struct {
 			Keypath signing.AbsoluteKeypath
 			// ScriptType is the scriptType argument value.
 			ScriptType signing.ScriptType
+		}
+		// SignETHMessage holds details about calls to the SignETHMessage method.
+		SignETHMessage []struct {
+			// Message is the message argument value.
+			Message []byte
+			// Keypath is the keypath argument value.
+			Keypath signing.AbsoluteKeypath
 		}
 		// SignTransaction holds details about calls to the SignTransaction method.
 		SignTransaction []struct {
@@ -391,6 +405,41 @@ func (mock *KeystoreMock) SignBTCMessageCalls() []struct {
 	lockKeystoreMockSignBTCMessage.RLock()
 	calls = mock.calls.SignBTCMessage
 	lockKeystoreMockSignBTCMessage.RUnlock()
+	return calls
+}
+
+// SignETHMessage calls SignETHMessageFunc.
+func (mock *KeystoreMock) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	if mock.SignETHMessageFunc == nil {
+		panic("KeystoreMock.SignETHMessageFunc: method is nil but Keystore.SignETHMessage was just called")
+	}
+	callInfo := struct {
+		Message []byte
+		Keypath signing.AbsoluteKeypath
+	}{
+		Message: message,
+		Keypath: keypath,
+	}
+	lockKeystoreMockSignETHMessage.Lock()
+	mock.calls.SignETHMessage = append(mock.calls.SignETHMessage, callInfo)
+	lockKeystoreMockSignETHMessage.Unlock()
+	return mock.SignETHMessageFunc(message, keypath)
+}
+
+// SignETHMessageCalls gets all the calls that were made to SignETHMessage.
+// Check the length with:
+//     len(mockedKeystore.SignETHMessageCalls())
+func (mock *KeystoreMock) SignETHMessageCalls() []struct {
+	Message []byte
+	Keypath signing.AbsoluteKeypath
+} {
+	var calls []struct {
+		Message []byte
+		Keypath signing.AbsoluteKeypath
+	}
+	lockKeystoreMockSignETHMessage.RLock()
+	calls = mock.calls.SignETHMessage
+	lockKeystoreMockSignETHMessage.RUnlock()
 	return calls
 }
 
