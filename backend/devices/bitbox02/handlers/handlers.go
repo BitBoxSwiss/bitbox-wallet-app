@@ -51,6 +51,7 @@ type BitBox02 interface {
 	ShowMnemonic() error
 	RestoreFromMnemonic() error
 	Product() bitbox02common.Product
+	GotoStartupSettings() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -86,6 +87,7 @@ func NewHandlers(
 	handleFunc("/reset", handlers.postResetHandler).Methods("POST")
 	handleFunc("/show-mnemonic", handlers.postShowMnemonicHandler).Methods("POST")
 	handleFunc("/restore-from-mnemonic", handlers.postRestoreFromMnemonicHandler).Methods("POST")
+	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
 	return handlers
 }
 
@@ -297,6 +299,14 @@ func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) (interface{},
 
 func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) (interface{}, error) {
 	err := handlers.device.RestoreFromMnemonic()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) (interface{}, error) {
+	err := handlers.device.GotoStartupSettings()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}

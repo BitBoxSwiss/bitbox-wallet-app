@@ -22,6 +22,7 @@ import { Footer } from '../../../components/layout';
 import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../components/settingsButton/settingsItem';
+import { GotoStartupSettings } from './gotostartupsettings';
 import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
@@ -149,6 +150,7 @@ class Settings extends Component<Props, State> {
                                                 apiPrefix={this.apiPrefix()}
                                                 mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
                                                 getInfo={this.getInfo} />
+                                            <GotoStartupSettings apiPrefix={this.apiPrefix()} />
                                         </div>
                                     </div>
                                 </div>

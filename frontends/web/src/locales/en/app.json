@@ -154,6 +154,10 @@
       "placeholder": "New device name",
       "title": "Set BitBox02 name"
     },
+    "gotoStartupSettings": {
+      "description": "This will reboot your BitBox02 and enter the startup settings.",
+      "title": "Go to startup settings"
+    },
     "mnemonicPassphrase": {
       "description": "This allows you to enter an optional passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any passphrase derives a new separate wallet.\nKeep your passphrase <strong>secure</strong>.\n<strong>A loss of the passphrase is NOT RECOVERABLE.</strong>",
       "disable": "Disable optional passphrase",
