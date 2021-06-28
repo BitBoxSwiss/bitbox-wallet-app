@@ -154,16 +154,18 @@ class BitBox02Bootloader extends Component<Props, State> {
                         </div>
                     )}
                     <div className="buttons">
-                        <Button
-                            primary
-                            onClick={this.upgradeFirmware}>
-                            {t('bootloader.button', { context: (versionInfo.erased ? 'install' : '') })}
-                        </Button>
+                        { versionInfo.canUpgrade ? (
+                            <Button
+                                primary
+                                onClick={this.upgradeFirmware}>
+                                {t('bootloader.button', { context: (versionInfo.erased ? 'install' : '') })}
+                            </Button>
+                            ) : null }
                         { !versionInfo.erased && (
                             <Button
                                 transparent
                                 onClick={this.reboot}>
-                                {t('bb02Bootloader.abort')}
+                                {t('bb02Bootloader.abort', { context: !versionInfo.canUpgrade ? 'noUpgrade' : '' })}
                             </Button>
                         )}
                     </div>
