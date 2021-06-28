@@ -426,6 +426,7 @@
     "aoppSigningAborted": "Address ownership request cancelled.",
     "aoppUnknown": "An unknown error occurred.",
     "aoppUnsupportedAsset": "The asset is not supported.",
+    "aoppUnsupportedFormat": "There are no available accounts that support the requested address format.",
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
     "aoppVersion": "Unknown version."
   },
