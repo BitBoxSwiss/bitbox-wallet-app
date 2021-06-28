@@ -268,13 +268,15 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error
 	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Product())
 
 	return struct {
-		CurrentVersion string `json:"currentVersion"`
-		NewVersion     string `json:"newVersion"`
-		CanUpgrade     bool   `json:"canUpgrade"`
+		CurrentVersion         string `json:"currentVersion"`
+		NewVersion             string `json:"newVersion"`
+		CanUpgrade             bool   `json:"canUpgrade"`
+		CanGotoStartupSettings bool   `json:"canGotoStartupSettings"`
 	}{
-		CurrentVersion: currentVersion.String(),
-		NewVersion:     newVersion.String(),
-		CanUpgrade:     newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+		CurrentVersion:         currentVersion.String(),
+		NewVersion:             newVersion.String(),
+		CanUpgrade:             newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+		CanGotoStartupSettings: currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 	}, nil
 }
 

@@ -150,7 +150,10 @@ class Settings extends Component<Props, State> {
                                                 apiPrefix={this.apiPrefix()}
                                                 mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
                                                 getInfo={this.getInfo} />
-                                            <GotoStartupSettings apiPrefix={this.apiPrefix()} />
+                                            { versionInfo && versionInfo.canGotoStartupSettings ? (
+                                                  <GotoStartupSettings apiPrefix={this.apiPrefix()} />
+                                            ) : null
+                                            }
                                         </div>
                                     </div>
                                 </div>
