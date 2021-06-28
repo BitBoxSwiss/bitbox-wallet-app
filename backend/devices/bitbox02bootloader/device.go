@@ -124,3 +124,32 @@ func (device *Device) UpgradeFirmware() error {
 	device.log.Infof("upgrading firmware: %s, %s", product, BundledFirmwareVersion(product))
 	return device.Device.UpgradeFirmware(bundledFirmware(product))
 }
+
+// VersionInfo contains version information about the upgrade.
+type VersionInfo struct {
+	Erased     bool `json:"erased"`
+	CanUpgrade bool `json:"canUpgrade"`
+}
+
+// VersionInfo returns info about the upgrade to the bundled firmware.
+func (device *Device) VersionInfo() (*VersionInfo, error) {
+	erased, err := device.Device.Erased()
+	if err != nil {
+		return nil, err
+	}
+	currentFirmwareVersion, _, err := device.Device.Versions()
+	if err != nil {
+		return nil, err
+	}
+	bundledFirmwareVersion, err := device.Device.SignedFirmwareVersion(
+		bundledFirmware(device.Device.Product()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	canUpgrade := erased || bundledFirmwareVersion > currentFirmwareVersion
+	return &VersionInfo{
+		Erased:     erased,
+		CanUpgrade: canUpgrade,
+	}, nil
+}
