@@ -59,7 +59,7 @@ class Settings extends Component<Props, State> {
 
     public componentDidMount() {
         this.getInfo();
-        apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
+        apiGet(this.apiPrefix() + '/version').then(versionInfo => {
             this.setState({ versionInfo });
         });
     }

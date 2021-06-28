@@ -82,7 +82,7 @@ func NewHandlers(
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
-	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
+	handleFunc("/version", handlers.getVersionHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetHandler).Methods("POST")
 	handleFunc("/show-mnemonic", handlers.postShowMnemonicHandler).Methods("POST")
@@ -263,13 +263,18 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (int
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
 	currentVersion := handlers.device.Version()
 	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Product())
-	return map[string]interface{}{
-		"currentVersion": currentVersion.String(),
-		"newVersion":     newVersion.String(),
-		"canUpgrade":     newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+
+	return struct {
+		CurrentVersion string `json:"currentVersion"`
+		NewVersion     string `json:"newVersion"`
+		CanUpgrade     bool   `json:"canUpgrade"`
+	}{
+		CurrentVersion: currentVersion.String(),
+		NewVersion:     newVersion.String(),
+		CanUpgrade:     newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
 	}, nil
 }
 
