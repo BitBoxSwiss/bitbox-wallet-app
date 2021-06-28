@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
@@ -35,7 +36,6 @@ func TestAOPPSuccess(t *testing.T) {
 	keystoreHelper := software.NewKeystore(rootKey)
 	dummySignature := []byte(`signature`)
 	const dummyMsg = "message to be signed"
-	const expectedAddress = "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3"
 
 	ks := &keystoremock.KeystoreMock{
 		RootFingerprintFunc: func() ([]byte, error) {
@@ -57,77 +57,130 @@ func TestAOPPSuccess(t *testing.T) {
 			require.Equal(t, dummyMsg, string(message))
 			return dummySignature, nil
 		},
+		SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+			require.Equal(t, dummyMsg, string(message))
+			return dummySignature, nil
+		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, "POST", r.Method)
-		require.Equal(t,
-			[]string{"application/json"},
-			r.Header["Content-Type"],
-		)
-		body, err := ioutil.ReadAll(r.Body)
-		require.NoError(t, err)
-
-		require.JSONEq(t,
-			fmt.Sprintf(`{"version": 0, "address": "%s", "signature": "c2lnbmF0dXJl"}`, expectedAddress),
-			string(body),
-		)
-		w.WriteHeader(http.StatusNoContent)
-	}))
-	defer server.Close()
-
-	b := newBackend(t, testnetDisabled, regtestDisabled)
-	defer b.Close()
-
-	callback := server.URL
-	aoppURI := fmt.Sprintf("aopp:?v=0&msg=%s&asset=btc&format=any&callback=%s", dummyMsg, callback)
-
-	callbackURL, err := url.Parse(callback)
-	require.NoError(t, err)
-	callbackHost := callbackURL.Host
-
-	require.Equal(t, AOPP{State: aoppStateInactive}, b.AOPP())
-	b.HandleURI(aoppURI)
-	require.Equal(t,
-		AOPP{
-			State:        aoppStateAwaitingKeystore,
-			CallbackHost: callbackHost,
-			coinCode:     coinpkg.CodeBTC,
-			format:       "any",
-			message:      dummyMsg,
-			callback:     callback,
+	tests := []struct {
+		asset       string
+		coinCode    coinpkg.Code
+		format      string
+		address     string
+		accountCode accounts.Code
+		accountName string
+	}{
+		{
+			asset:       "btc",
+			coinCode:    coinpkg.CodeBTC,
+			format:      "any", // defaults to p2wpkh
+			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
+			accountCode: "v0-55555555-btc-0",
+			accountName: "Bitcoin",
 		},
-		b.AOPP(),
-	)
-
-	b.registerKeystore(ks)
-
-	require.Equal(t,
-		AOPP{
-			State:        aoppStateChoosingAccount,
-			Accounts:     []account{{Name: "Bitcoin", Code: "v0-55555555-btc-0"}},
-			CallbackHost: callbackHost,
-			coinCode:     coinpkg.CodeBTC,
-			format:       "any",
-			message:      dummyMsg,
-			callback:     callback,
+		{
+			asset:       "btc",
+			coinCode:    coinpkg.CodeBTC,
+			format:      "p2wpkh",
+			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
+			accountCode: "v0-55555555-btc-0",
+			accountName: "Bitcoin",
 		},
-		b.AOPP(),
-	)
-
-	b.AOPPChooseAccount("v0-55555555-btc-0")
-	require.Equal(t,
-		AOPP{
-			State:        aoppStateSuccess,
-			Accounts:     []account{{Name: "Bitcoin", Code: "v0-55555555-btc-0"}},
-			Address:      expectedAddress,
-			CallbackHost: callbackHost,
-			coinCode:     coinpkg.CodeBTC,
-			format:       "any",
-			message:      dummyMsg,
-			callback:     callback,
+		{
+			asset:       "btc",
+			coinCode:    coinpkg.CodeBTC,
+			format:      "p2sh",
+			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
+			accountCode: "v0-55555555-btc-0",
+			accountName: "Bitcoin",
 		},
-		b.AOPP(),
-	)
+		{
+			asset:       "eth",
+			coinCode:    coinpkg.CodeETH,
+			format:      "any",
+			address:     "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
+			accountCode: "v0-55555555-eth-0",
+			accountName: "Ethereum",
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run("", func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				require.Equal(t, "POST", r.Method)
+				require.Equal(t,
+					[]string{"application/json"},
+					r.Header["Content-Type"],
+				)
+				body, err := ioutil.ReadAll(r.Body)
+				require.NoError(t, err)
+
+				require.JSONEq(t,
+					fmt.Sprintf(`{"version": 0, "address": "%s", "signature": "c2lnbmF0dXJl"}`, test.address),
+					string(body),
+				)
+				w.WriteHeader(http.StatusNoContent)
+			}))
+			defer server.Close()
+
+			b := newBackend(t, testnetDisabled, regtestDisabled)
+			defer b.Close()
+
+			callback := server.URL
+			aoppURI := fmt.Sprintf(
+				"aopp:?v=0&msg=%s&asset=%s&format=%s&callback=%s",
+				dummyMsg, test.asset, test.format, callback)
+
+			callbackURL, err := url.Parse(callback)
+			require.NoError(t, err)
+			callbackHost := callbackURL.Host
+
+			require.Equal(t, AOPP{State: aoppStateInactive}, b.AOPP())
+			b.HandleURI(aoppURI)
+			require.Equal(t,
+				AOPP{
+					State:        aoppStateAwaitingKeystore,
+					CallbackHost: callbackHost,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					message:      dummyMsg,
+					callback:     callback,
+				},
+				b.AOPP(),
+			)
+
+			b.registerKeystore(ks)
+
+			require.Equal(t,
+				AOPP{
+					State:        aoppStateChoosingAccount,
+					Accounts:     []account{{Name: test.accountName, Code: test.accountCode}},
+					CallbackHost: callbackHost,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					message:      dummyMsg,
+					callback:     callback,
+				},
+				b.AOPP(),
+			)
+
+			b.AOPPChooseAccount(test.accountCode)
+			require.Equal(t,
+				AOPP{
+					State:        aoppStateSuccess,
+					Accounts:     []account{{Name: test.accountName, Code: test.accountCode}},
+					Address:      test.address,
+					CallbackHost: callbackHost,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					message:      dummyMsg,
+					callback:     callback,
+				},
+				b.AOPP(),
+			)
+		})
+	}
 }
