@@ -27,6 +27,7 @@ export interface VersionInfo {
     newVersion: string;
     currentVersion: string;
     canUpgrade: boolean;
+    canGotoStartupSettings: boolean;
 }
 
 interface UpgradeButtonProps {

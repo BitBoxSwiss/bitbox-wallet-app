@@ -59,7 +59,7 @@ class Settings extends Component<Props, State> {
 
     public componentDidMount() {
         this.getInfo();
-        apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
+        apiGet(this.apiPrefix() + '/version').then(versionInfo => {
             this.setState({ versionInfo });
         });
     }
@@ -150,7 +150,10 @@ class Settings extends Component<Props, State> {
                                                 apiPrefix={this.apiPrefix()}
                                                 mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
                                                 getInfo={this.getInfo} />
-                                            <GotoStartupSettings apiPrefix={this.apiPrefix()} />
+                                            { versionInfo && versionInfo.canGotoStartupSettings ? (
+                                                  <GotoStartupSettings apiPrefix={this.apiPrefix()} />
+                                            ) : null
+                                            }
                                         </div>
                                     </div>
                                 </div>
