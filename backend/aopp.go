@@ -23,6 +23,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
@@ -32,6 +33,14 @@ import (
 var aoppCoinMap = map[string]coinpkg.Code{
 	"btc": coinpkg.CodeBTC,
 	"eth": coinpkg.CodeETH,
+}
+
+// aoppBTCScriptTypeMap maps from format codes specified by AOPP to our own script type codes. See
+// https://gitlab.com/aopp/address-ownership-proof-protocol/-/blob/450e0446528885109c46e62e8220d869795127a5/README.md#specification
+var aoppBTCScriptTypeMap = map[string]signing.ScriptType{
+	"p2pkh":  signing.ScriptTypeP2PKH,
+	"p2wpkh": signing.ScriptTypeP2WPKH,
+	"p2sh":   signing.ScriptTypeP2WPKHP2SH,
 }
 
 type account struct {
@@ -80,6 +89,8 @@ type AOPP struct {
 	CallbackHost string `json:"callbackHost"`
 	// coinCode is the requested asset. Available for all states except aoppStateInactive.
 	coinCode coinpkg.Code
+	// format is the requested format. Available for all states except aoppStateInactive.
+	format string
 	// message is the requested message to be signed. Available for all states except
 	// aoppStateInactive.
 	message string
@@ -131,12 +142,21 @@ func (backend *Backend) aoppKeystoreRegistered() {
 		return
 	}
 	var accounts []account
+	var filteredDueToScriptType bool
 	for _, acct := range backend.accounts {
 		if !acct.Config().Active {
 			continue
 		}
 		if acct.Coin().Code() != backend.aopp.coinCode {
 			continue
+		}
+		// Filter for the requested script type.
+		if acct.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
+			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
+			if !ok || acct.Config().SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
+				filteredDueToScriptType = true
+				continue
+			}
 		}
 		accounts = append(accounts, account{
 			Name: acct.Config().Name,
@@ -145,7 +165,11 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	}
 
 	if len(accounts) == 0 {
-		backend.aoppSetError(errAOPPNoAccounts)
+		if filteredDueToScriptType {
+			backend.aoppSetError(errAOPPUnsupportedFormat)
+		} else {
+			backend.aoppSetError(errAOPPNoAccounts)
+		}
 		return
 	}
 
@@ -198,6 +222,8 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 	}
 	backend.aopp.message = msg
 
+	backend.aopp.format = q.Get("format")
+
 	backend.aopp.State = aoppStateAwaitingKeystore
 	if backend.keystore == nil {
 		backend.notifyAOPP()
@@ -226,12 +252,12 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 		}
 	}
 	if account == nil {
-		backend.log.Error("aopp: could not find account")
+		log.Error("aopp: could not find account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
 	if err := account.Initialize(); err != nil {
-		backend.log.
+		log.
 			WithError(err).
 			WithField("code", account.Config().Code).
 			Error("could not initialize account")
@@ -241,7 +267,22 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 
 	unused := account.GetUnusedReceiveAddresses()
 
-	signingConfigIdx := 0 // TODO: use the aopp format hint to choose the signing config.
+	signingConfigIdx := 0
+	// Use the format hint to get a compatible address.
+	if account.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
+		expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
+		if !ok {
+			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
+			backend.aoppSetError(errAOPPUnknown)
+			return
+		}
+		signingConfigIdx = account.Config().SigningConfigurations.FindScriptType(expectedScriptType)
+		if signingConfigIdx == -1 {
+			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
+			backend.aoppSetError(errAOPPUnknown)
+			return
+		}
+	}
 	addr := unused[signingConfigIdx][0]
 
 	backend.aopp.Address = addr.EncodeForHumans()
@@ -258,11 +299,11 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {
-				backend.log.WithError(err).Error("user aborted msg signing")
+				log.WithError(err).Error("user aborted msg signing")
 				backend.aoppSetError(errAOPPSigningAborted)
 				return
 			}
-			backend.log.WithError(err).Error("signing error")
+			log.WithError(err).Error("signing error")
 			backend.aoppSetError(errAOPPUnknown)
 			return
 		}
@@ -274,17 +315,17 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {
-				backend.log.WithError(err).Error("user aborted msg signing")
+				log.WithError(err).Error("user aborted msg signing")
 				backend.aoppSetError(errAOPPSigningAborted)
 				return
 			}
-			backend.log.WithError(err).Error("signing error")
+			log.WithError(err).Error("signing error")
 			backend.aoppSetError(errAOPPUnknown)
 			return
 		}
 		signature = sig
 	default:
-		backend.log.Errorf("unsupported coin: %s", account.Coin().Code())
+		log.Errorf("unsupported coin: %s", account.Coin().Code())
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}

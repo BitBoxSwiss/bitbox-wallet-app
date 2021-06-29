@@ -89,6 +89,26 @@ func TestContainsRootFingerprint(t *testing.T) {
 	require.True(t, configs.ContainsRootFingerprint([]byte{5, 6, 7, 8}))
 }
 
+func TestFindScriptType(t *testing.T) {
+	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
+	require.NoError(t, err)
+	xpub, err = xpub.Neuter()
+	require.NoError(t, err)
+	keypath := mustKeypath("m/84'/1'/0'")
+	configs := Configurations{
+		NewBitcoinConfiguration(ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, keypath, xpub),
+		NewBitcoinConfiguration(ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, keypath, xpub),
+	}
+	require.Equal(t, 0, configs.FindScriptType(ScriptTypeP2WPKH))
+	require.Equal(t, 1, configs.FindScriptType(ScriptTypeP2WPKHP2SH))
+	require.Equal(t, -1, configs.FindScriptType(ScriptTypeP2PKH))
+
+	configs = Configurations{
+		NewEthereumConfiguration([]byte{5, 6, 7, 8}, keypath, xpub),
+	}
+	require.Equal(t, -1, configs.FindScriptType(ScriptTypeP2WPKH))
+}
+
 func TestAccountNumber(t *testing.T) {
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
 	require.NoError(t, err)

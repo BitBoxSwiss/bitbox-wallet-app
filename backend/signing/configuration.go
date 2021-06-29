@@ -240,3 +240,14 @@ func (configs Configurations) ContainsRootFingerprint(rootFingerprint []byte) bo
 	}
 	return false
 }
+
+// FindScriptType returns the index of the the first configuration that is a Bitcoin configuration
+// and uses the provided script type. Returns -1 if none is found.
+func (configs Configurations) FindScriptType(scriptType ScriptType) int {
+	for idx, config := range configs {
+		if config.BitcoinSimple != nil && config.BitcoinSimple.ScriptType == scriptType {
+			return idx
+		}
+	}
+	return -1
+}

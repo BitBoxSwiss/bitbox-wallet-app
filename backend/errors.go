@@ -31,6 +31,9 @@ const (
 	// errAOPPUnsupportedAsset is returned when an AOPP request is for an asset we don't support
 	// AOPP for.
 	errAOPPUnsupportedAsset ErrorCode = "aoppUnsupportedAsset"
+	// errAOPPUnsupportedFormat is returned when the requested format (script type) is not supported
+	// by the keystore.
+	errAOPPUnsupportedFormat ErrorCode = "aoppUnsupportedFormat"
 	// errAOPPVersion is returned when we cannot handle an AOPP request because we don't support the
 	// request version.
 	errAOPPVersion        ErrorCode = "aoppVersion"
