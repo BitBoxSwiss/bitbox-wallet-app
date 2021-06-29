@@ -56,7 +56,7 @@ $  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --pass
 
 ## Windows
 
-The build requires `mingw-w64`, `bash`, `make`, `Microsoft Visual Studio 2019`, `go 1.14`, `yarn`,
+The build requires `mingw-w64`, `bash`, `make`, `Microsoft Visual Studio 2019`, `go 1.16`, `yarn`,
 `QT 5.15.2` and possibly other tools.
 
 Add a system environment variable `MINGW_BIN` pointing to the bin directory of mingw
