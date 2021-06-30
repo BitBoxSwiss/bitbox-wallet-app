@@ -17,6 +17,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
@@ -140,7 +141,7 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	deviceName := jsonBody["name"]
-	if err := handlers.device.SetDeviceName(deviceName); err != nil {
+	if err := handlers.device.SetDeviceName(strings.TrimSpace(deviceName)); err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
