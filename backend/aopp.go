@@ -60,7 +60,11 @@ const (
 
 	// Nothing is happening, we are waiting for an AOPP request.
 	aoppStateInactive aoppState = "inactive"
-	// No keystore is connected, so we are waiting for the user to insert and unlock their device.
+	// The user is prompted to continue or cancel a new AOPP request. This state is skipped if there
+	// is no connected keystore, in which case we go straight to aoppStateAwaitingKeystore.
+	aoppStateUserApproval aoppState = "user-approval"
+	// No keystore is connected, so we are waiting for the user to insert and unlock their
+	// device. This state is skipped if a keystore already exists.
 	aoppStateAwaitingKeystore aoppState = "awaiting-keystore"
 	// Keystore is registered - the user chooses an account from which to get a receive address
 	// from.
@@ -227,6 +231,23 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 
 	backend.aopp.format = q.Get("format")
 
+	if backend.keystore == nil {
+		backend.aopp.State = aoppStateAwaitingKeystore
+		backend.notifyAOPP()
+		return
+	}
+	backend.aopp.State = aoppStateUserApproval
+	backend.notifyAOPP()
+}
+
+// AOPPApprove is called when the user approves the AOPP request, moving the state from
+// `aoppStateUserApproval` to either `aoppStateAwaitingKeystore` or `aoppStateChoosingAccount`
+// depending on if there is a keystore.
+func (backend *Backend) AOPPApprove() {
+	defer backend.accountsAndKeystoreLock.Lock()()
+	if backend.aopp.State != aoppStateUserApproval {
+		return
+	}
 	backend.aopp.State = aoppStateAwaitingKeystore
 	if backend.keystore == nil {
 		backend.notifyAOPP()

@@ -202,6 +202,31 @@ func TestAOPPSuccess(t *testing.T) {
 			)
 		})
 	}
+
+	// If a keystore is already registered, the user is first asked for approval to continue.
+	t.Run("user-approve", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		params := defaultParams()
+		b.registerKeystore(&ks)
+		b.HandleURI("aopp:?" + params.Encode())
+		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
+		b.AOPPApprove()
+		require.Equal(t, aoppStateChoosingAccount, b.AOPP().State)
+	})
+	// If a keystore is already registered, the user is first asked for approval to continue. Edge
+	// case: keystore is disconnected during approval.
+	t.Run("user-approve-2", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		params := defaultParams()
+		b.registerKeystore(&ks)
+		b.HandleURI("aopp:?" + params.Encode())
+		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
+		b.DeregisterKeystore()
+		b.AOPPApprove()
+		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
+	})
 }
 
 func TestAOPPFailures(t *testing.T) {
@@ -308,6 +333,7 @@ func TestAOPPFailures(t *testing.T) {
 		b.registerKeystore(&ks)
 		require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 		b.HandleURI("aopp:?" + params.Encode())
+		b.AOPPApprove()
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPNoAccounts, b.AOPP().ErrorCode)
 	})
