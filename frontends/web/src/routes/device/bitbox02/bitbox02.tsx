@@ -334,6 +334,8 @@ class BitBox02 extends Component<Props, State> {
             this.setState({ waitDialog: undefined });
             if (result.success) {
                 this.setPassword();
+            } else if (result.message) {
+                alertUser(result.message);
             }
         });
     }
