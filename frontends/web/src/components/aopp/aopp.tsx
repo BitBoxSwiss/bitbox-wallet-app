@@ -34,16 +34,6 @@ interface SubscribedProps {
 type Props = SubscribedProps & AoppProps & TranslateProps;
 
 class Aopp extends Component<Props, State> {
-    public readonly state: State = {
-        aopp: {
-            state: 'inactive',
-            accounts: [],
-            errorCode: '',
-            address: '',
-            callbackHost: '',
-        },
-    };
-
     private chooseAccount = (code: AccountCode) => {
         aoppAPI.chooseAccount(code);
     }
