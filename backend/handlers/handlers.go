@@ -98,6 +98,7 @@ type Backend interface {
 	RenameAccount(accountCode accounts.Code, name string) error
 	AOPP() backend.AOPP
 	AOPPCancel()
+	AOPPApprove()
 	AOPPChooseAccount(code accounts.Code)
 }
 
@@ -201,6 +202,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
 	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
@@ -975,5 +977,10 @@ func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interfa
 
 func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) (interface{}, error) {
 	handlers.backend.AOPPCancel()
+	return nil, nil
+}
+
+func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) (interface{}, error) {
+	handlers.backend.AOPPApprove()
 	return nil, nil
 }

@@ -24,7 +24,7 @@ export interface Account {
 
 export interface Aopp {
     // See backend/aopp.go for a description of the states.
-    state: 'error' | 'inactive' | 'awaiting-keystore' | 'choosing-account' | 'syncing' | 'signing' | 'success';
+    state: 'error' | 'inactive' | 'user-approval' | 'awaiting-keystore' | 'choosing-account' | 'syncing' | 'signing' | 'success';
     accounts: Account[];
     // See backend/errors.go for a description of the errors.
     errorCode: '' | 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
@@ -34,6 +34,10 @@ export interface Aopp {
 
 export const cancel = (): Promise<null> => {
     return apiPost('aopp/cancel');
+};
+
+export const approve = (): Promise<null> => {
+    return apiPost('aopp/approve');
 };
 
 export const chooseAccount = (accountCode: AccountCode): Promise<null> => {

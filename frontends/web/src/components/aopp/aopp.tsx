@@ -56,6 +56,16 @@ class Aopp extends Component<Props, State> {
             case 'inactive':
                 // Inactive, waiting for action.
                 return null;
+            case 'user-approval':
+                return (
+                    <div>
+                        <p>{ t('aopp.addressRequested', { host: aopp.callbackHost }) }</p>
+                        <p>Do you want to continue?</p>
+                        <Button onclick={aoppAPI.cancel}>Cancel</Button>
+                        <Button primary onclick={aoppAPI.approve}>Continue</Button>
+                    </div>
+                );
+
             case 'awaiting-keystore':
                 return (
                     <div>
