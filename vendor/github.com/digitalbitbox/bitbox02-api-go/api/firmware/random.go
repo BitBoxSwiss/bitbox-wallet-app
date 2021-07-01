@@ -30,7 +30,7 @@ func bytesOrPanic(length int) []byte {
 	return bytes
 }
 
-func randomBytes(length int) ([]byte, error) { // nolint:unparam
+func randomBytes(length int) ([]byte, error) {
 	result := make([]byte, length)
 	n, err := rand.Read(result)
 	if err != nil {

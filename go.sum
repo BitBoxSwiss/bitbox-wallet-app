@@ -41,8 +41,8 @@ github.com/deckarep/golang-set v1.7.1 h1:SCQV0S6gTtp6itiFrTqI+pfmJ4LN85S1YzhDf9r
 github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14yDtF28KmMOgQ=
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210426160321-73144d36822c h1:9jXP1GqwmeSiu17IdpYdJSIdBFCsHEctym53Pw0x90M=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210426160321-73144d36822c/go.mod h1:ZuNrUW4Olzu0VWUqBqe0yoSJbPmkjh7gFbN/TWpSHGo=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210630124228-10b7c78b0c21 h1:lq29rp+nVQpU5Xv3BaQZjqkU9iqeSh8Ml7DiNE0VxR0=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210630124228-10b7c78b0c21/go.mod h1:ZuNrUW4Olzu0VWUqBqe0yoSJbPmkjh7gFbN/TWpSHGo=
 github.com/edsrzf/mmap-go v1.0.0 h1:CEBF7HpRnUCSJgGUb5h1Gm7e3VkmVDrR8lvWVLtrOFw=
 github.com/edsrzf/mmap-go v1.0.0/go.mod h1:YO35OhQPt3KJa3ryjFM5Bs14WD66h8eGKpfaBNrHW5M=
 github.com/elastic/gosigar v0.10.5 h1:GzPQ+78RaAb4J63unidA/JavQRKrB6s8IOzN6Ib59jo=

@@ -87,7 +87,7 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 }
 
 // CheckBackup checks if any backup on the SD card matches the current seed on the device
-// and returns the name and ID of the matching backup
+// and returns the name and ID of the matching backup.
 func (device *Device) CheckBackup(silent bool) (string, error) {
 	request := &messages.Request{
 		Request: &messages.Request_CheckBackup{

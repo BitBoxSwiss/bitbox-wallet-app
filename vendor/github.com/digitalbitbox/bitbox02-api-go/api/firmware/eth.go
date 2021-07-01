@@ -155,6 +155,7 @@ func (device *Device) ETHSign(
 // ETHSignMessage signs an Ethereum message. The provided msg will be prefixed with "\x19Ethereum
 // message\n" + len(msg) in the hardware, e.g. "\x19Ethereum\n5hello" (yes, the len prefix is the
 // ascii representation with no fixed size or delimiter, WTF).
+// 27 is added to the recID to denote an uncompressed pubkey.
 func (device *Device) ETHSignMessage(
 	coin messages.ETHCoin,
 	keypath []uint32,
@@ -223,6 +224,8 @@ func (device *Device) ETHSignMessage(
 		if err != nil {
 			return nil, err
 		}
+		// 27 is the magic constant to add to the recoverable ID to denote an uncompressed pubkey.
+		signature[64] += 27
 		return signature, nil
 	}
 
@@ -230,5 +233,9 @@ func (device *Device) ETHSignMessage(
 	if !ok {
 		return nil, errp.New("unexpected response")
 	}
-	return signResponse.Sign.Signature, nil
+	signature := signResponse.Sign.Signature
+	// 27 is the magic constant to add to the recoverable ID to denote an uncompressed pubkey.
+	signature[64] += 27
+
+	return signature, nil
 }

@@ -238,8 +238,8 @@ func (device *Device) inferVersionAndProduct() error {
 // otherwise performs the attestation check, unlock, and noise pairing. This call is blocking.
 // After this call finishes, Status() will be either:
 // - StatusRequireAppUpgrade
-// - StatusPairingFailed (pairing rejected on the device)
-// - StatusUnpaired (in which the host needs to confirm the pairing with ChannelHashVerify(true))
+// - StatusPairingFailed: pairing rejected on the device
+// - StatusUnpaired: the host needs to confirm the pairing with ChannelHashVerify(true).
 func (device *Device) Init() error {
 	device.attestation = nil
 	device.deviceNoiseStaticPubkey = nil
@@ -300,7 +300,7 @@ func (device *Device) Close() {
 	device.communication.Close()
 }
 
-// Random requests a random number from the device using protobuf messages
+// Random requests a random number from the device using protobuf messages.
 func (device *Device) Random() ([]byte, error) {
 	request := &messages.Request{
 		Request: &messages.Request_RandomNumber{
