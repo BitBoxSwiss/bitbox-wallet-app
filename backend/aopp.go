@@ -181,6 +181,9 @@ func (backend *Backend) aoppKeystoreRegistered() {
 // handleAOPP handles an AOPP (Address Ownership Proof Protocol) request. See https://aopp.group/.
 func (backend *Backend) handleAOPP(uri url.URL) {
 	defer backend.accountsAndKeystoreLock.Lock()()
+
+	backend.aopp = AOPP{State: aoppStateInactive}
+
 	log := backend.log.WithField("aopp-uri", uri.String())
 	q := uri.Query()
 	backend.aopp.CallbackHost = "<unknown>"
