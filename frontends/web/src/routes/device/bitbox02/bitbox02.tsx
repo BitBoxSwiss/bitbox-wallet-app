@@ -195,8 +195,7 @@ class BitBox02 extends Component<Props, State> {
                 errorText: undefined,
             });
             if (status === 'initialized' && unlockOnly && showWizard) {
-                // bitbox is unlocked, now route to / and wait for incoming accounts
-                route('/', true);
+                route('/account-summary', true);
             }
         });
     }

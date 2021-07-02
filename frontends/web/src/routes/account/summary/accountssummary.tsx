@@ -244,7 +244,11 @@ class AccountsSummary extends Component<Props, State> {
                                         { accounts.length > 0 ? (
                                             accounts.map(account => this.balanceRow(account))
                                         ) : (
-                                            <p>{t('accountSummary.noAccount')}</p>
+                                            <tr>
+                                                <td colSpan={3} className={style.loadingAccounts}>
+                                                    {t('loading')}
+                                                </td>
+                                            </tr>
                                         )}
                                     </tbody>
                                     {(data && data.chartTotal) ? (

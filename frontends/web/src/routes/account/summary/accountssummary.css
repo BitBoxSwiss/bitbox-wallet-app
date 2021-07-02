@@ -62,6 +62,11 @@
     white-space: nowrap;
 }
 
+.table tr td.loadingAccounts {
+    color: var(--color-gray);
+    text-align: center;
+}
+
 .table tfoot th,
 .table tfoot td {
     background-color: var(--color-mediumgray);
