@@ -214,4 +214,29 @@ class Dialog extends Component<Props, State> {
     }
 }
 
-export { Dialog };
+/**
+ * ### Container to place buttons in a dialog
+ *
+ * Example:
+ * ```jsx
+ *   <Dialog title={t('title')}>
+ *       <p>{t('message')}</p>
+ *       <DialogButtons>
+ *           <Button primary onClick={aoppAPI.approve}>
+ *               {t('button.continue')}
+ *           </Button>
+ *           <Button secondary onClick={aoppAPI.cancel}>
+ *               {t('dialog.cancel')}
+ *           </Button>
+ *       </DialogButtons>
+ *   </Dialog>
+ * ```
+ */
+
+function DialogButtons({ children }: RenderableProps<{}>) {
+    return (
+        <div class={style.dialogButtons}>{children}</div>
+    );
+}
+
+export { Dialog, DialogButtons };
