@@ -11,7 +11,7 @@ require (
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/coreos/bbolt v1.3.0
 	github.com/deckarep/golang-set v1.7.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210426160321-73144d36822c
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210630124228-10b7c78b0c21
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.10.5 // indirect
 	github.com/ethereum/go-ethereum v1.9.5
@@ -30,8 +30,6 @@ require (
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/micro/mdns v0.1.0
-	github.com/miekg/dns v1.1.9 // indirect
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/pborman/uuid v0.0.0-20180906182336-adf5a7427709 // indirect
 	github.com/pkg/errors v0.8.1
