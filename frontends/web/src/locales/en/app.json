@@ -123,6 +123,7 @@
   },
   "bb02Bootloader": {
     "abort": "Don't upgrade – take me back",
+    "abort_noUpgrade": "Take me back",
     "advanced": {
       "label": "Advanced settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
