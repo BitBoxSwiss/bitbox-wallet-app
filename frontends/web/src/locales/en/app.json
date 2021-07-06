@@ -63,8 +63,20 @@
     "title": "Add account"
   },
   "aopp": {
-    "addressRequested": "A receive address was requested by {{host}}.",
-    "awaitingKeystore": "Please insert and unlock your BitBox."
+    "addressRequest": "{{host}} is requesting a receiving address.",
+    "banner": "Address request in progress.",
+    "errorTitle": "Error during address request ",
+    "labelAddress": "Address",
+    "labelMessage": "Message",
+    "reverify": "Show address on BitBox02",
+    "reverifyInfoText": "Use to verify agianst external service",
+    "signing": "To proceed, confirm message on your BitBox02.",
+    "success": {
+      "message": "Proceed on {{host}}",
+      "title": "Successfully sent address to external service."
+    },
+    "syncing": "Syncing the account, please stand by.",
+    "title": "Address request"
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
@@ -277,6 +289,7 @@
     "buy": "Buy",
     "changepin": "Change device password",
     "check": "Check backup",
+    "complete": "Complete",
     "continue": "Continue",
     "copy": "Copy",
     "create": "Create",

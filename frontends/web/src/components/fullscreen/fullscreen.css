@@ -1,0 +1,47 @@
+.fullscreen {
+    background: var(--color-lightgray);
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    left: 0;
+    overflow-x: inherit;
+    overflow-y: auto;
+    padding: var(--space-default);
+    position: absolute;
+    right: 0;
+    top: 0;
+    /* z-index between sidebar (~4000) and wait-dialog (~10000) */
+    z-index: 5100;
+}
+
+.inner {
+    margin: auto;
+    max-width: 100%;
+    text-align: center;
+}
+
+.header {
+    margin-bottom: var(--space-default);
+}
+
+.title {
+    font-weight: 400;
+    font-size: var(--size-subheader);
+    margin-bottom: var(--space-default);
+}
+
+.content {
+    min-height: 80px;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    margin-top: var(--space-default);
+}
+
+.buttons > *:only-child {
+    margin: 0 auto;
+}
