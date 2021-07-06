@@ -43,6 +43,7 @@ const ProgressRing = ({
             className={[style.container, className ? className : ''].join(' ')}
             width={width}
             height={width}
+            style={{ minWidth: width }}
             viewBox={`0 0 ${width} ${width}`}>
             <circle
                 className={style.background}
