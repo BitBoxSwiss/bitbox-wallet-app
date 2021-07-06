@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +15,15 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, JSX } from 'preact';
+import * as style from './field.css';
 
-export default function Label({
-    className,
-    style,
-    children,
-    ...props
-}) {
-    const classes = ['label', className].join(' ');
+export function Field({
+    children, ...props
+}: JSX.IntrinsicElements['div']) {
     return (
-        <label className={classes} style={style} {...props}>
+        <div className={style.field} {...props}>
             {children}
-        </label>
+        </div>
     );
 }

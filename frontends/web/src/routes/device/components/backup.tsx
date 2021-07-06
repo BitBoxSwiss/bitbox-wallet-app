@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +25,7 @@ interface BackupsListItemProps {
     backup: Backup;
     selectedBackup?: string;
     handleChange: (value: string) => void;
-    onFocus: ({ target }: { target: HTMLElement; }) => void;
+    onFocus: (event: Event) => void;
     radio: boolean;
 }
 
@@ -42,15 +43,14 @@ class BackupsListItem extends Component<Props> {
     ) {
         let date = '';
         if (backup.date && backup.date !== '') {
-            const options = {
+            date = new Date(backup.date).toLocaleString(this.context.i18n.language, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-            };
-            date = new Date(backup.date).toLocaleString(this.context.i18n.language, options);
+            });
         } else {
             date = 'unknown';
         }
@@ -59,13 +59,12 @@ class BackupsListItem extends Component<Props> {
             <Radio
                 disabled={!!disabled}
                 checked={selectedBackup === backup.id}
-                onChange={event => handleChange(event.target.value)}
+                onChange={(event: Event) => handleChange((event.target as HTMLInputElement).value)}
                 id={backup.id}
                 label={backup.name && backup.name !== '' ? backup.name : backup.id}
                 value={backup.id}
                 onFocus={onFocus}
-                className={style.backupItem}
-                sizeMedium>
+                className={style.backupItem}>
                 <span className="text-small text-gray">{date}</span>
             </Radio> :
             <div>

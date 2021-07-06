@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +15,18 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, JSX } from 'preact';
 import * as style from './radio.css';
 
-export default function Radio({
+export function Radio({
     disabled = false,
     label,
     id,
     children,
-    sizeMedium,
     ...props
-}) {
+}: JSX.IntrinsicElements['input']) {
     return (
-        <span className={[style.radio, sizeMedium ? style.textMedium : ''].join(' ')}>
+        <span className={style.radio}>
             <input
                 type="radio"
                 id={id}
