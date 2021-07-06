@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +17,14 @@
 
 import { h, JSX } from 'preact';
 import alert from './assets/icons/alert-triangle.svg';
+import BB02Stylized from '../../assets/device/bitbox02-stylized-reflection.png';
 import info from './assets/icons/info.svg';
+import arrowDownSVG from './assets/icons/arrow-down-active.svg';
+import checkSVG from './assets/icons/check.svg';
+import checkedSVG from './assets/icons/checked.svg';
+import cancelSVG from './assets/icons/cancel.svg';
+import copySVG from './assets/icons/copy.svg';
 import * as style from './icon.css';
-
-export function Alert(props): JSX.Element {
-    return (
-        <img draggable={false} src={alert} {...props} />
-    );
-}
 
 export const ExpandOpen = (): JSX.Element => (
     <svg
@@ -72,12 +73,13 @@ export const ExpandIcon = ({
     expand ? <ExpandOpen /> : <ExpandClose />
 );
 
-interface InfoProps {
-    className?: string;
-}
+type IconProps = JSX.IntrinsicElements['img'];
 
-export function Info(props: InfoProps) {
-    return (
-        <img src={info} {...props} />
-    );
-}
+export const Alert = (props: IconProps) => (<img src={alert} draggable={false} {...props} />);
+export const Info = (props: IconProps) => (<img src={info} draggable={false} {...props} />);
+export const BitBox02Stylized = (props: IconProps) => (<img src={BB02Stylized} draggable={false} {...props} />);
+export const ArrowDown = (props: IconProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
+export const Check = (props: IconProps) => (<img src={checkSVG} draggable={false} {...props} />);
+export const Checked = (props: IconProps) => (<img src={checkedSVG} draggable={false} {...props} />);
+export const Cancel = (props: IconProps) => (<img src={cancelSVG} draggable={false} {...props} />);
+export const Copy = (props: IconProps) => (<img src={copySVG} draggable={false} {...props} />);
