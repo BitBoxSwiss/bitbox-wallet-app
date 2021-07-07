@@ -88,9 +88,8 @@ type AOPP struct {
 	Accounts []account `json:"accounts"`
 	// Address that will be delivered to the requesting party via the callback. Only applies if State == aoppStateSigning.
 	Address string `json:"address"`
-	// CallbackHost contains the host of the AOPP callback URL. Available for all states except
-	// aoppStateInactive.
-	CallbackHost string `json:"callbackHost"`
+	// Callback contains the AOPP callback URL. Available for all states except aoppStateInactive.
+	Callback string `json:"callback"`
 	// Message is the requested message to be signed. Available for all states except
 	// aoppStateInactive.
 	Message string `json:"message"`
@@ -98,8 +97,6 @@ type AOPP struct {
 	coinCode coinpkg.Code
 	// format is the requested format. Available for all states except aoppStateInactive.
 	format string
-	// callback is the AOPP callback param. Available for all states except aoppStateInactive.
-	callback string
 }
 
 // AOPP returns the current AOPP state.
@@ -190,7 +187,7 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 
 	log := backend.log.WithField("aopp-uri", uri.String())
 	q := uri.Query()
-	backend.aopp.CallbackHost = "<unknown>"
+	backend.aopp.Callback = ""
 
 	if q.Get("v") != "0" {
 		log.Error("Can only handle version 0 aopp URIs")
@@ -204,14 +201,13 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
-	callbackURL, err := url.Parse(callback)
+	_, err := url.Parse(callback)
 	if err != nil {
 		log.WithError(err).Error("Invalid callback")
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
-	backend.aopp.CallbackHost = callbackURL.Host
-	backend.aopp.callback = callback
+	backend.aopp.Callback = callback
 
 	coinCode, ok := aoppCoinMap[strings.ToLower(q.Get("asset"))]
 	if !ok {
@@ -363,7 +359,7 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 		backend.aoppSetError(errAOPPUnknown)
 		return
 	}
-	resp, err := backend.httpClient.Post(backend.aopp.callback, "application/json", bytes.NewBuffer(jsonBody))
+	resp, err := backend.httpClient.Post(backend.aopp.Callback, "application/json", bytes.NewBuffer(jsonBody))
 	if err != nil {
 		log.WithError(err).Error("Error calling callback")
 		backend.aoppSetError(errAOPPCallback)

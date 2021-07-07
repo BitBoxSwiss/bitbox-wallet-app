@@ -153,20 +153,15 @@ func TestAOPPSuccess(t *testing.T) {
 			params.Set("format", test.format)
 			params.Set("callback", callback)
 
-			callbackURL, err := url.Parse(callback)
-			require.NoError(t, err)
-			callbackHost := callbackURL.Host
-
 			require.Equal(t, AOPP{State: aoppStateInactive}, b.AOPP())
 			b.HandleURI("aopp:?" + params.Encode())
 			require.Equal(t,
 				AOPP{
-					State:        aoppStateUserApproval,
-					CallbackHost: callbackHost,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					message:      dummyMsg,
-					callback:     callback,
+					State:    aoppStateUserApproval,
+					Callback: callback,
+					Message:  dummyMsg,
+					coinCode: test.coinCode,
+					format:   test.format,
 				},
 				b.AOPP(),
 			)
@@ -174,12 +169,11 @@ func TestAOPPSuccess(t *testing.T) {
 			b.AOPPApprove()
 			require.Equal(t,
 				AOPP{
-					State:        aoppStateAwaitingKeystore,
-					CallbackHost: callbackHost,
-					Message:      dummyMsg,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					callback:     callback,
+					State:    aoppStateAwaitingKeystore,
+					Callback: callback,
+					Message:  dummyMsg,
+					coinCode: test.coinCode,
+					format:   test.format,
 				},
 				b.AOPP(),
 			)
@@ -188,13 +182,12 @@ func TestAOPPSuccess(t *testing.T) {
 
 			require.Equal(t,
 				AOPP{
-					State:        aoppStateChoosingAccount,
-					Accounts:     []account{{Name: test.accountName, Code: test.accountCode}},
-					CallbackHost: callbackHost,
-					Message:      dummyMsg,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					callback:     callback,
+					State:    aoppStateChoosingAccount,
+					Accounts: []account{{Name: test.accountName, Code: test.accountCode}},
+					Callback: callback,
+					Message:  dummyMsg,
+					coinCode: test.coinCode,
+					format:   test.format,
 				},
 				b.AOPP(),
 			)
@@ -202,14 +195,13 @@ func TestAOPPSuccess(t *testing.T) {
 			b.AOPPChooseAccount(test.accountCode)
 			require.Equal(t,
 				AOPP{
-					State:        aoppStateSuccess,
-					Accounts:     []account{{Name: test.accountName, Code: test.accountCode}},
-					Address:      test.address,
-					CallbackHost: callbackHost,
-					Message:      dummyMsg,
-					coinCode:     test.coinCode,
-					format:       test.format,
-					callback:     callback,
+					State:    aoppStateSuccess,
+					Accounts: []account{{Name: test.accountName, Code: test.accountCode}},
+					Address:  test.address,
+					Callback: callback,
+					Message:  dummyMsg,
+					coinCode: test.coinCode,
+					format:   test.format,
 				},
 				b.AOPP(),
 			)

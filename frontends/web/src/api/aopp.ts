@@ -29,7 +29,7 @@ export interface Aopp {
     // See backend/errors.go for a description of the errors.
     errorCode: '' | 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
     address: string;
-    callbackHost: string;
+    callback: string;
     message: string;
 }
 
