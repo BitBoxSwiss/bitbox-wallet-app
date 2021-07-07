@@ -161,6 +161,19 @@ func TestAOPPSuccess(t *testing.T) {
 			b.HandleURI("aopp:?" + params.Encode())
 			require.Equal(t,
 				AOPP{
+					State:        aoppStateUserApproval,
+					CallbackHost: callbackHost,
+					coinCode:     test.coinCode,
+					format:       test.format,
+					message:      dummyMsg,
+					callback:     callback,
+				},
+				b.AOPP(),
+			)
+
+			b.AOPPApprove()
+			require.Equal(t,
+				AOPP{
 					State:        aoppStateAwaitingKeystore,
 					CallbackHost: callbackHost,
 					coinCode:     test.coinCode,
@@ -318,6 +331,7 @@ func TestAOPPFailures(t *testing.T) {
 		defer b.Close()
 		params := defaultParams()
 		b.HandleURI("aopp:?" + params.Encode())
+		b.AOPPApprove()
 		ks2 := ks
 		ks2.CanSignMessageFunc = func(coinpkg.Code) bool {
 			return false
@@ -343,6 +357,7 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		params.Set("format", "p2pkh")
 		b.HandleURI("aopp:?" + params.Encode())
+		b.AOPPApprove()
 		b.registerKeystore(&ks)
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPUnsupportedFormat, b.AOPP().ErrorCode)
@@ -352,6 +367,7 @@ func TestAOPPFailures(t *testing.T) {
 		defer b.Close()
 		params := defaultParams()
 		b.HandleURI("aopp:?" + params.Encode())
+		b.AOPPApprove()
 		ks2 := ks
 		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType) ([]byte, error) {
 			return nil, firmware.NewError(firmware.ErrUserAbort, "")
@@ -373,6 +389,7 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		params.Set("callback", server.URL)
 		b.HandleURI("aopp:?" + params.Encode())
+		b.AOPPApprove()
 		b.registerKeystore(&ks)
 		b.AOPPChooseAccount("v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)

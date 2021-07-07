@@ -60,8 +60,8 @@ const (
 
 	// Nothing is happening, we are waiting for an AOPP request.
 	aoppStateInactive aoppState = "inactive"
-	// The user is prompted to continue or cancel a new AOPP request. This state is skipped if there
-	// is no connected keystore, in which case we go straight to aoppStateAwaitingKeystore.
+	// The user is prompted to continue or cancel a new AOPP request. This is always the first state
+	// when a new AOPP request is is handled.
 	aoppStateUserApproval aoppState = "user-approval"
 	// No keystore is connected, so we are waiting for the user to insert and unlock their
 	// device. This state is skipped if a keystore already exists.
@@ -231,11 +231,6 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 
 	backend.aopp.format = q.Get("format")
 
-	if backend.keystore == nil {
-		backend.aopp.State = aoppStateAwaitingKeystore
-		backend.notifyAOPP()
-		return
-	}
 	backend.aopp.State = aoppStateUserApproval
 	backend.notifyAOPP()
 }
