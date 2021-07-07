@@ -91,13 +91,13 @@ type AOPP struct {
 	// CallbackHost contains the host of the AOPP callback URL. Available for all states except
 	// aoppStateInactive.
 	CallbackHost string `json:"callbackHost"`
+	// Message is the requested message to be signed. Available for all states except
+	// aoppStateInactive.
+	Message string `json:"message"`
 	// coinCode is the requested asset. Available for all states except aoppStateInactive.
 	coinCode coinpkg.Code
 	// format is the requested format. Available for all states except aoppStateInactive.
 	format string
-	// message is the requested message to be signed. Available for all states except
-	// aoppStateInactive.
-	message string
 	// callback is the AOPP callback param. Available for all states except aoppStateInactive.
 	callback string
 }
@@ -227,7 +227,7 @@ func (backend *Backend) handleAOPP(uri url.URL) {
 		backend.aoppSetError(errAOPPInvalidRequest)
 		return
 	}
-	backend.aopp.message = msg
+	backend.aopp.Message = msg
 
 	backend.aopp.format = q.Get("format")
 
@@ -312,7 +312,7 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 	switch account.Coin().Code() {
 	case coinpkg.CodeBTC:
 		sig, err := backend.keystore.SignBTCMessage(
-			[]byte(backend.aopp.message),
+			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
 			account.Config().SigningConfigurations[signingConfigIdx].ScriptType(),
 		)
@@ -329,7 +329,7 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 		signature = sig
 	case coinpkg.CodeETH:
 		sig, err := backend.keystore.SignETHMessage(
-			[]byte(backend.aopp.message),
+			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
 		)
 		if err != nil {

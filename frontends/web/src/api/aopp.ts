@@ -30,6 +30,7 @@ export interface Aopp {
     errorCode: '' | 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
     address: string;
     callbackHost: string;
+    message: string;
 }
 
 export const cancel = (): Promise<null> => {
