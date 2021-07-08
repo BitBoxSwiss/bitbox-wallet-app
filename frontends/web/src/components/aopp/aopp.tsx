@@ -48,8 +48,8 @@ class Aopp extends Component<Props, State> {
             case 'error':
                 return (
                     <div>
-                        <p>{ t('aopp.addressRequested', { host: aopp.callbackHost }) }</p>
-                        <p>{ t(`error.${aopp.errorCode}`, { host: aopp.callbackHost }) }</p>
+                        <p>{ t('aopp.addressRequested', { host: aopp.callback }) }</p>
+                        <p>{ t(`error.${aopp.errorCode}`, { host: aopp.callback }) }</p>
                         <Button primary onclick={aoppAPI.cancel}>Dismiss</Button>
                     </div>
                 );
@@ -59,7 +59,7 @@ class Aopp extends Component<Props, State> {
             case 'user-approval':
                 return (
                     <div>
-                        <p>{ t('aopp.addressRequested', { host: aopp.callbackHost }) }</p>
+                        <p>{ t('aopp.addressRequested', { host: aopp.callback }) }</p>
                         <p>Do you want to continue?</p>
                         <Button onclick={aoppAPI.cancel}>Cancel</Button>
                         <Button primary onclick={aoppAPI.approve}>Continue</Button>
@@ -69,7 +69,7 @@ class Aopp extends Component<Props, State> {
             case 'awaiting-keystore':
                 return (
                     <div>
-                        <p>{ t('aopp.addressRequested', { host: aopp.callbackHost }) }</p>
+                        <p>{ t('aopp.addressRequested', { host: aopp.callback }) }</p>
                         <p>{ t('aopp.awaitingKeystore') }</p>
                         <Button primary onclick={aoppAPI.cancel}>Cancel</Button>
                     </div>
