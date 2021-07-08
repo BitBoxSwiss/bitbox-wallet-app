@@ -20,8 +20,7 @@ import { route } from 'preact-router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
-import { Dialog } from '../../../components/dialog/dialog';
-import * as dialogStyle from '../../../components/dialog/dialog.css';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Spinner } from '../../../components/spinner/Spinner';
@@ -153,7 +152,7 @@ class Restore extends Component<Props, State> {
                                         checked={understand}
                                         onChange={this.handleUnderstandChange} />
                                 </div>
-                                <div class={dialogStyle.actions}>
+                                <DialogButtons>
                                     <Button
                                         type="submit"
                                         danger={requireConfirmation}
@@ -167,7 +166,7 @@ class Restore extends Component<Props, State> {
                                         disabled={isConfirming}>
                                         {t('button.back')}
                                     </Button>
-                                </div>
+                                </DialogButtons>
                             </form>
                         </Dialog>
                     )

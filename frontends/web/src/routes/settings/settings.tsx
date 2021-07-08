@@ -19,8 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { Link, route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
-import { Dialog } from '../../components/dialog/dialog';
-import * as dialogStyle from '../../components/dialog/dialog.css';
+import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
@@ -268,13 +267,13 @@ class Settings extends Component<Props, State> {
                                                                             placeholder="127.0.0.1:9050"
                                                                             disabled={!config.backend.proxy.useProxy}
                                                                         />
-                                                                        <div className={dialogStyle.actions}>
+                                                                        <DialogButtons>
                                                                             <Button primary
                                                                                 onClick={this.setProxyAddress}
                                                                                 disabled={!config.backend.proxy.useProxy || proxyAddress === config.backend.proxy.proxyAddress}>
                                                                                 {t('settings.expert.setProxyAddress')}
                                                                             </Button>
-                                                                        </div>
+                                                                        </DialogButtons>
                                                                     </div>
                                                                 </Dialog>
                                                             )

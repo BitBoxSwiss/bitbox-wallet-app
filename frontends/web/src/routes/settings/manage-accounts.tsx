@@ -24,9 +24,8 @@ import { Button, Input } from '../../components/forms';
 import Logo from '../../components/icon/logo';
 import { Header } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
-import { Dialog } from '../../components/dialog/dialog';
+import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
-import * as dialogStyle from '../../components/dialog/dialog.css';
 import { translate, TranslateProps } from '../../decorators/translate';
 import Guide from './manage-account-guide';
 import * as style from './manage-accounts.css';
@@ -280,14 +279,14 @@ class ManageAccounts extends Component<Props, State> {
                                     <Input
                                         onInput={e => this.setState({ editAccountNewName: e.target.value })}
                                         value={editAccountNewName} />
-                                    <div className={dialogStyle.actions}>
+                                    <DialogButtons>
                                         <Button
                                             disabled={!editAccountNewName}
                                             primary
                                             type="submit">
                                             {t('button.update')}
                                         </Button>
-                                    </div>
+                                    </DialogButtons>
                                 </form>
                             </Dialog>
                         ) : null}
