@@ -26,7 +26,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
 import * as styles from './add.css';
-import checkicon from '../../../assets/icons/check.svg';
+import { Check } from '../../../components/icon/icon';
 import { apiPost } from '../../../utils/request';
 import Guide from '../../settings/manage-account-guide';
 
@@ -179,7 +179,7 @@ class AddAccount extends Component<Props, State> {
             case 'success':
                 return (
                     <div className="text-center">
-                        <img src={checkicon} className={styles.successCheck} /><br />
+                        <Check className={styles.successCheck} /><br />
                         <SimpleMarkup
                             className={styles.successMessage}
                             markup={t('addAccount.success.message', { accountName })}

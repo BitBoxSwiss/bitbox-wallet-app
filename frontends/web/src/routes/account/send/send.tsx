@@ -20,8 +20,7 @@ import { route } from 'preact-router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
-import reject from '../../../assets/icons/cancel.svg';
-import approve from '../../../assets/icons/checked.svg';
+import { Checked, Cancel } from '../../../components/icon/icon';
 import qrcodeIcon from '../../../assets/icons/qrcode.png';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
@@ -59,7 +58,7 @@ interface SignProgress {
 type Props = SendProps & TranslateProps;
 
 interface State {
-    account?: Account;
+    account?: accountApi.IAccount;
     balance?: accountApi.IBalance;
     proposedFee?: accountApi.IAmount;
     proposedTotal?: accountApi.IAmount;
@@ -813,7 +812,7 @@ class Send extends Component<Props, State> {
                         isSent && (
                             <WaitDialog>
                                 <div class="flex flex-row flex-center flex-items-center">
-                                    <img src={approve} alt="Success" style="height: 18px; margin-right: 1rem;" />{t('send.success')}
+                                    <Checked alt="Success" style="height: 18px; margin-right: 1rem;" />{t('send.success')}
                                 </div>
                             </WaitDialog>
                         )
@@ -822,7 +821,7 @@ class Send extends Component<Props, State> {
                         isAborted && (
                             <WaitDialog>
                                 <div class="flex flex-row flex-center flex-items-center">
-                                    <img src={reject} alt="Abort" style="height: 18px; margin-right: 1rem;" />{t('send.abort')}
+                                    <Cancel alt="Abort" style="height: 18px; margin-right: 1rem;" />{t('send.abort')}
                                 </div>
                             </WaitDialog>
                         )

@@ -18,13 +18,13 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import checkIcon from '../../../assets/icons/check.svg';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { FiatConversion, formatCurrency } from '../../../components/rates/rates';
 import { TranslateProps } from '../../../decorators/translate';
+import { Check } from '../../../components/icon/icon';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
@@ -199,7 +199,7 @@ class AccountsSummary extends Component<Props, State> {
                             exported ? (
                                 <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
                                     <span>
-                                        <img src={checkIcon} style="margin-right: 5px !important;" />
+                                        <Check style="margin-right: 5px !important;" />
                                         <span>{t('account.openFile')}</span>
                                     </span>
                                 </A>
