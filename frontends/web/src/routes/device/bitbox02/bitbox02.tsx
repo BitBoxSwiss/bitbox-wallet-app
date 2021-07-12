@@ -120,7 +120,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     public componentDidMount() {
-        apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
+        apiGet(this.apiPrefix() + '/version').then(versionInfo => {
             this.setState({ versionInfo });
         });
         this.updateAttestationCheck();
@@ -334,6 +334,8 @@ class BitBox02 extends Component<Props, State> {
             this.setState({ waitDialog: undefined });
             if (result.success) {
                 this.setPassword();
+            } else if (result.message) {
+                alertUser(result.message);
             }
         });
     }

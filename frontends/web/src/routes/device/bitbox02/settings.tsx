@@ -22,6 +22,7 @@ import { Footer } from '../../../components/layout';
 import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../components/settingsButton/settingsItem';
+import { GotoStartupSettings } from './gotostartupsettings';
 import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
@@ -58,7 +59,7 @@ class Settings extends Component<Props, State> {
 
     public componentDidMount() {
         this.getInfo();
-        apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
+        apiGet(this.apiPrefix() + '/version').then(versionInfo => {
             this.setState({ versionInfo });
         });
     }
@@ -149,6 +150,10 @@ class Settings extends Component<Props, State> {
                                                 apiPrefix={this.apiPrefix()}
                                                 mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
                                                 getInfo={this.getInfo} />
+                                            { versionInfo && versionInfo.canGotoStartupSettings ? (
+                                                  <GotoStartupSettings apiPrefix={this.apiPrefix()} />
+                                            ) : null
+                                            }
                                         </div>
                                     </div>
                                 </div>

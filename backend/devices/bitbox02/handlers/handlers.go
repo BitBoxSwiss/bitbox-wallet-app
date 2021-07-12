@@ -17,6 +17,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
@@ -51,6 +52,7 @@ type BitBox02 interface {
 	ShowMnemonic() error
 	RestoreFromMnemonic() error
 	Product() bitbox02common.Product
+	GotoStartupSettings() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -81,11 +83,12 @@ func NewHandlers(
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
-	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
+	handleFunc("/version", handlers.getVersionHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetHandler).Methods("POST")
 	handleFunc("/show-mnemonic", handlers.postShowMnemonicHandler).Methods("POST")
 	handleFunc("/restore-from-mnemonic", handlers.postRestoreFromMnemonicHandler).Methods("POST")
+	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
 	return handlers
 }
 
@@ -138,7 +141,7 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	deviceName := jsonBody["name"]
-	if err := handlers.device.SetDeviceName(deviceName); err != nil {
+	if err := handlers.device.SetDeviceName(strings.TrimSpace(deviceName)); err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
@@ -261,13 +264,20 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (int
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
 	currentVersion := handlers.device.Version()
 	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Product())
-	return map[string]interface{}{
-		"currentVersion": currentVersion.String(),
-		"newVersion":     newVersion.String(),
-		"canUpgrade":     newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+
+	return struct {
+		CurrentVersion         string `json:"currentVersion"`
+		NewVersion             string `json:"newVersion"`
+		CanUpgrade             bool   `json:"canUpgrade"`
+		CanGotoStartupSettings bool   `json:"canGotoStartupSettings"`
+	}{
+		CurrentVersion:         currentVersion.String(),
+		NewVersion:             newVersion.String(),
+		CanUpgrade:             newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+		CanGotoStartupSettings: currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 	}, nil
 }
 
@@ -297,6 +307,14 @@ func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) (interface{},
 
 func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) (interface{}, error) {
 	err := handlers.device.RestoreFromMnemonic()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) (interface{}, error) {
+	err := handlers.device.GotoStartupSettings()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}

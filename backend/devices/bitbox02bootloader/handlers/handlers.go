@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox02-api-go/api/bootloader"
 	"github.com/gorilla/mux"
@@ -31,7 +32,7 @@ type BitBox02Bootloader interface {
 	Reboot() error
 	ShowFirmwareHashEnabled() (bool, error)
 	SetShowFirmwareHashEnabled(bool) error
-	Erased() (bool, error)
+	VersionInfo() (*bitbox02bootloader.VersionInfo, error)
 	ScreenRotate() error
 }
 
@@ -53,7 +54,7 @@ func NewHandlers(
 	handleFunc("/reboot", handlers.postRebootHandler).Methods("POST")
 	handleFunc("/show-firmware-hash-enabled", handlers.getShowFirmwareHashEnabledHandler).Methods("GET")
 	handleFunc("/set-firmware-hash-enabled", handlers.postSetShowFirmwareHashEnabledHandler).Methods("POST")
-	handleFunc("/erased", handlers.getErasedHandler).Methods("GET")
+	handleFunc("/version-info", handlers.getVersionInfoHandler).Methods("GET")
 	handleFunc("/screen-rotate", handlers.postScreenRotateHandler).Methods("POST")
 
 	return handlers
@@ -96,8 +97,8 @@ func (handlers *Handlers) postSetShowFirmwareHashEnabledHandler(r *http.Request)
 	return nil, handlers.device.SetShowFirmwareHashEnabled(enabled)
 }
 
-func (handlers *Handlers) getErasedHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Erased()
+func (handlers *Handlers) getVersionInfoHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.VersionInfo()
 }
 
 func (handlers *Handlers) postScreenRotateHandler(_ *http.Request) (interface{}, error) {
