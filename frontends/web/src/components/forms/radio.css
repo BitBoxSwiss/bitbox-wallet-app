@@ -6,14 +6,11 @@
 .radio input + label {
     display: inline-flex;
     flex-direction: column;
+    font-size: var(--size-default);
     line-height: 1.5;
     margin-right: var(--space-half);
     padding-left: calc(var(--space-half) + var(--space-quarter));
     position: relative;
-}
-
-.radio.textMedium input + label {
-    font-size: var(--size-default);
 }
 
 .radio input + label::before,
@@ -37,18 +34,13 @@
 .radio input + label::after {
     background: var(--color-blue);
     border-radius: 1em;
-    width: 6px;
-    height: 6px;
+    width: 10px;
+    height: 10px;
     position: absolute;
     top: 6px;
     left: 2px;
     opacity: 0;
     transform: scale(0);
-}
-
-.radio.textMedium input + label::after {
-    width: 10px;
-    height: 10px;
 }
 
 /* checked */
