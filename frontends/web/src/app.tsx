@@ -184,6 +184,7 @@ class App extends Component<Props, State> {
         const activeAccounts = this.activeAccounts();
         return (
             <ConnectedApp>
+                <Aopp />
                 <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
                     <TranslationHelper />
                     <Sidebar
@@ -193,7 +194,6 @@ class App extends Component<Props, State> {
                         <Update />
                         <Banner msgKey="bitbox01" />
                         <MobileDataWarning />
-                        <Aopp />
                         <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
                             <Send
                                 path="/account/:code/send"

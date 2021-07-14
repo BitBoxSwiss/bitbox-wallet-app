@@ -19,9 +19,20 @@ import { AccountCode } from '../../api/account';
 import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Button, Select } from '../forms';
+import { equal } from '../../utils/equal';
+import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } from '../fullscreen/fullscreen';
+import { Message } from '../message/message';
+import { Button, Field, Input, Label, Select } from '../forms';
+import { CopyableInput } from '../copy/Copy';
+import { AppLogo, ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
+import * as styles from './aopp.css';
+
+const Banner = ({ children }: RenderableProps<{}>) => (
+    <div className={styles.banner}>{children}</div>
+);
 
 interface State {
+    accountCode: AccountCode;
 }
 
 interface AoppProps {
@@ -34,45 +45,80 @@ interface SubscribedProps {
 type Props = SubscribedProps & AoppProps & TranslateProps;
 
 class Aopp extends Component<Props, State> {
-    private chooseAccount = (code: AccountCode) => {
-        aoppAPI.chooseAccount(code);
+    public readonly state: State = {
+        accountCode: '',
+    };
+
+    public componentDidMount() {
+        this.setAccountCodeDefault();
+    }
+
+    public componentDidUpdate(prevProps) {
+        if (!equal(this.props.aopp?.accounts, prevProps.aopp?.accounts)) {
+            this.setAccountCodeDefault();
+        }
+    }
+
+    private setAccountCodeDefault() {
+        const { aopp } = this.props;
+        if (aopp?.accounts && aopp?.accounts?.length) {
+            this.setState({ accountCode: aopp.accounts[0].code });
+        }
+    }
+
+    private chooseAccount = (e: Event) => {
+        if (this.state.accountCode) {
+            aoppAPI.chooseAccount(this.state.accountCode);
+        }
+        e.preventDefault();
     }
 
     public render(
         { t, aopp }: RenderableProps<Props>,
+        { accountCode }: State,
     ) {
         if (!aopp) {
             return null;
         }
+        const domain = aopp.callback ? new URL(aopp.callback).host : '';
         switch (aopp.state) {
             case 'error':
                 return (
-                    <div>
-                        <p>{ t('aopp.addressRequested', { host: aopp.callback }) }</p>
-                        <p>{ t(`error.${aopp.errorCode}`, { host: aopp.callback }) }</p>
-                        <Button primary onclick={aoppAPI.cancel}>Dismiss</Button>
-                    </div>
+                    <Fullscreen>
+                        <FullscreenHeader title={t('aopp.errorTitle')}>
+                            <p>{domain}</p>
+                        </FullscreenHeader>
+                        <FullscreenContent>
+                            <Message type="error">
+                                <Cancel className={styles.smallIcon} /><br />
+                                {t(`error.${aopp.errorCode}`, { host: domain })}
+                            </Message>
+                        </FullscreenContent>
+                        <FullscreenButtons>
+                            <Button danger onClick={aoppAPI.cancel}>Dismiss</Button>
+                        </FullscreenButtons>
+                    </Fullscreen>
                 );
             case 'inactive':
                 // Inactive, waiting for action.
                 return null;
             case 'user-approval':
                 return (
-                    <div>
-                        <p>{ t('aopp.addressRequested', { host: aopp.callback }) }</p>
-                        <p>Do you want to continue?</p>
-                        <Button onclick={aoppAPI.cancel}>Cancel</Button>
-                        <Button primary onclick={aoppAPI.approve}>Continue</Button>
-                    </div>
+                    <Fullscreen>
+                        <AppLogo />
+                        <FullscreenHeader title={t('aopp.title')} />
+                        <FullscreenContent>
+                            <p>{t('aopp.addressRequest', { host: domain })}</p>
+                        </FullscreenContent>
+                        <FullscreenButtons>
+                            <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
+                            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+                        </FullscreenButtons>
+                    </Fullscreen>
                 );
-
             case 'awaiting-keystore':
                 return (
-                    <div>
-                        <p>{ t('aopp.addressRequested', { host: aopp.callback }) }</p>
-                        <p>{ t('aopp.awaitingKeystore') }</p>
-                        <Button primary onclick={aoppAPI.cancel}>Cancel</Button>
-                    </div>
+                    <Banner>{t('aopp.banner')}</Banner>
                 );
             case 'choosing-account': {
                 const options = aopp.accounts.map(account => {
@@ -82,37 +128,85 @@ class Aopp extends Component<Props, State> {
                     };
                 });
                 return (
-                    <div>
-                        <Select
-                            options={[{
-                                text: t('buy.info.selectLabel'),
-                                disabled: true,
-                                value: 'choose',
-                            }, ...options]
-                            }
-                            defaultValue={'choose'}
-                            onChange={e => this.chooseAccount(e.target.value)}
-                            id="account"
-                        />
-                        <Button primary onclick={aoppAPI.cancel}>Cancel</Button>
-                    </div>
+                    <Fullscreen>
+                        <FullscreenHeader title={t('aopp.title')}>
+                            <p>{domain}</p>
+                        </FullscreenHeader>
+                        <form onSubmit={this.chooseAccount}>
+                            <FullscreenContent>
+                                <Select
+                                    label={t('buy.info.selectLabel')}
+                                    options={options}
+                                    defaultValue={options[0].value}
+                                    value={accountCode}
+                                    onChange={e => this.setState({ accountCode: e.target.value })}
+                                    id="account" />
+                            </FullscreenContent>
+                            <FullscreenButtons>
+                                <Button primary type="submit">{t('button.next')}</Button>
+                                <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+                            </FullscreenButtons>
+                        </form>
+                    </Fullscreen>
                 );
             }
             case 'syncing':
-                return <div>Syncing the account, please stand by.</div>;
+                return (
+                    <Fullscreen>
+                        <FullscreenHeader title={t('aopp.title')}>
+                            <p>{domain}</p>
+                        </FullscreenHeader>
+                        <FullscreenContent>{t('aopp.syncing')}</FullscreenContent>
+                    </Fullscreen>
+                );
             case 'signing':
                 return (
-                    <div>
-                        <p>Address: {aopp.address}</p>
-                        <p>Please confirm on your BitBox.</p>
-                    </div>
+                    <Fullscreen>
+                        <FullscreenHeader title={t('aopp.title')}>
+                            <p className={styles.domainName}>{domain}</p>
+                        </FullscreenHeader>
+                        <FullscreenContent>
+                            <p>{t('aopp.signing')}</p>
+                            <ArrowDown />
+                            <BitBox02Stylized className={styles.device} />
+                        </FullscreenContent>
+                        <FullscreenButtons>
+                            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+                        </FullscreenButtons>
+                    </Fullscreen>
                 );
             case 'success':
                 return (
-                    <div>
-                        <p>Successfully delivered a fresh address to the third party.</p>
-                        <Button primary onclick={aoppAPI.cancel}>Dismiss</Button>
-                    </div>
+                    <Fullscreen>
+                        <FullscreenHeader title={t('aopp.title')}>
+                            <p className={styles.domainName}>{domain}</p>
+                        </FullscreenHeader>
+                        <FullscreenContent>
+                            <Checked className={styles.largeIcon} />
+                            <h2 className={styles.title}>{t('aopp.success.title')}</h2>
+                            <p>{t('aopp.success.message', { host: domain })}</p>
+                            <Field>
+                                <Label>{t('aopp.labelAddress')}</Label>
+                                <CopyableInput alignLeft value={aopp.address} />
+                            </Field>
+                            <Field>
+                                <Label>{t('aopp.labelMessage')}</Label>
+                                <Input readOnly value={aopp.message} />
+                            </Field>
+                        </FullscreenContent>
+                        <FullscreenButtons>
+                            <Button primary onClick={aoppAPI.cancel}>{t('button.complete')}</Button>
+                            <div className={styles.buttonWithInfo}>
+                                {/* TODO: show address again on the device */}
+                                <Button secondary onClick={() => console.warn('TODO: show address on device again')}>
+                                    {t('aopp.reverify')}
+                                </Button>
+                                <div className={styles.buttonInfoText}>
+                                    {t('aopp.reverifyInfoText')}
+                                </div>
+                            </div>
+                        </FullscreenButtons>
+                    </Fullscreen>
                 );
         }
     }

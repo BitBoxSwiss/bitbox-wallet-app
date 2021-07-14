@@ -22,16 +22,31 @@ export interface Account {
     code: AccountCode;
 }
 
-export interface Aopp {
+interface Accounts extends Array<Account> {
+    0: Account,
+}
+
+type AOPPWithAccounts = {
     // See backend/aopp.go for a description of the states.
-    state: 'error' | 'inactive' | 'user-approval' | 'awaiting-keystore' | 'choosing-account' | 'syncing' | 'signing' | 'success';
-    accounts: Account[];
+    state: 'inactive' | 'user-approval' | 'choosing-account' | 'signing' | 'success';
+    accounts: Accounts;
+}
+
+type AOPPWithoutAccounts = {
+    // See backend/aopp.go for a description of the states.
+    state: 'error' | 'awaiting-keystore' | 'syncing';
+    accounts: null;
+}
+
+type AOPPAccountIndependent = {
     // See backend/errors.go for a description of the errors.
     errorCode: '' | 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
     address: string;
     callback: string;
     message: string;
 }
+
+export type Aopp = (AOPPWithAccounts | AOPPWithoutAccounts) & AOPPAccountIndependent;
 
 export const cancel = (): Promise<null> => {
     return apiPost('aopp/cancel');

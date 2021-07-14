@@ -1,0 +1,45 @@
+.banner {
+    background-color: var(--color-blue);
+    color: var(--color-white);
+    font-weight: 400;
+    font-size: var(--size-subheader);
+    padding: var(--space-half);
+    text-align: center;
+}
+
+.domainName {
+    color: var(--color-secondary);
+}
+
+.title {
+    font-weight: 400;
+    font-size: var(--size-subheader);
+    margin-bottom: var(--space-default);
+}
+
+.device {
+    max-width: 100%;
+    position: relative;
+    right: -30px;
+}
+
+.largeIcon {
+    margin: var(--space-default) 0;
+    width: 50%;
+}
+
+.smallIcon {
+    margin: var(--space-half) 0;
+    width: 30px;
+}
+
+.buttonWithInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.buttonInfoText {
+    font-size: var(--size-small);
+    margin-top: var(--space-quarter);
+    text-align: center;
+}
