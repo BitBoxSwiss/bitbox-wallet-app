@@ -24,7 +24,7 @@ import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } fr
 import { Message } from '../message/message';
 import { Button, Field, Input, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { AppLogo, ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
+import { ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
 import * as styles from './aopp.css';
 
 const Banner = ({ children }: RenderableProps<{}>) => (
@@ -105,8 +105,7 @@ class Aopp extends Component<Props, State> {
             case 'user-approval':
                 return (
                     <Fullscreen>
-                        <AppLogo />
-                        <FullscreenHeader title={t('aopp.title')} />
+                        <FullscreenHeader title={t('aopp.title')} withAppLogo />
                         <FullscreenContent>
                             <p>{t('aopp.addressRequest', { host: domain })}</p>
                         </FullscreenContent>
@@ -128,11 +127,11 @@ class Aopp extends Component<Props, State> {
                     };
                 });
                 return (
-                    <Fullscreen>
-                        <FullscreenHeader title={t('aopp.title')}>
-                            <p>{domain}</p>
-                        </FullscreenHeader>
-                        <form onSubmit={this.chooseAccount}>
+                    <form onSubmit={this.chooseAccount}>
+                        <Fullscreen>
+                            <FullscreenHeader title={t('aopp.title')}>
+                                <p>{domain}</p>
+                            </FullscreenHeader>
                             <FullscreenContent>
                                 <Select
                                     label={t('buy.info.selectLabel')}
@@ -146,8 +145,8 @@ class Aopp extends Component<Props, State> {
                                 <Button primary type="submit">{t('button.next')}</Button>
                                 <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
                             </FullscreenButtons>
-                        </form>
-                    </Fullscreen>
+                        </Fullscreen>
+                    </form>
                 );
             }
             case 'syncing':
