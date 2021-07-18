@@ -5,6 +5,7 @@
 - Updated to Qt 5.15 from Qt 5.12 for Linux, macOS and Windows
 - Revamped account-info view to show account keypath, scriptType etc.
 - Allow disabling accounts in 'Manage accounts'.
+- Prevent screen from turning off while the app is in foreground on Android
 
 ## 4.28.2 [released 2021-06-03]
 - Fix a conversion rates updater bug
