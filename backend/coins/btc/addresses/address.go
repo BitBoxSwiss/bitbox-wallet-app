@@ -105,12 +105,12 @@ func NewAccountAddress(
 	}
 }
 
-// ID implements coin.Address.
+// ID implements accounts.Address.
 func (address *AccountAddress) ID() string {
 	return string(address.PubkeyScriptHashHex())
 }
 
-// EncodeForHumans implements coin.EncodeForHumans.
+// EncodeForHumans implements accounts.Address.
 func (address *AccountAddress) EncodeForHumans() string {
 	return address.EncodeAddress()
 }

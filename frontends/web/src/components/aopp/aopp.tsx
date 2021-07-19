@@ -15,7 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { AccountCode } from '../../api/account';
+import * as accountAPI from '../../api/account';
 import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -32,7 +32,7 @@ const Banner = ({ children }: RenderableProps<{}>) => (
 );
 
 interface State {
-    accountCode: AccountCode;
+    accountCode: accountAPI.AccountCode;
 }
 
 interface AoppProps {
@@ -71,6 +71,14 @@ class Aopp extends Component<Props, State> {
             aoppAPI.chooseAccount(this.state.accountCode);
         }
         e.preventDefault();
+    }
+
+    private verifyAddress = () => {
+        if (this.props.aopp === undefined) {
+            return;
+        }
+        // TODO: make a blocking dialog during verification.
+        accountAPI.verifyAddress(this.state.accountCode, this.props.aopp.addressID);
     }
 
     public render(
@@ -194,8 +202,8 @@ class Aopp extends Component<Props, State> {
                             <Button primary onClick={aoppAPI.cancel}>{t('button.complete')}</Button>
                             <div className={styles.buttonWithInfo}>
                                 {/* TODO: show address again on the device */}
-                                <Button secondary onClick={() => console.warn('TODO: show address on device again')}>
-                                    {t('aopp.reverify')}
+                                <Button secondary onClick={this.verifyAddress}>
+                                    {t('receive.verifyBitBox02')}
                                 </Button>
                                 <div className={styles.buttonInfoText}>
                                     {t('aopp.reverifyInfoText')}
