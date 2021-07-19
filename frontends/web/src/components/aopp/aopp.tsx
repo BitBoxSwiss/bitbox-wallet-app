@@ -190,7 +190,9 @@ class Aopp extends Component<Props, State> {
                         <FullscreenContent>
                             <Checked className={styles.largeIcon} />
                             <h2 className={styles.title}>{t('aopp.success.title')}</h2>
-                            <p>{t('aopp.success.message', { host: domain(aopp.callback) })}</p>
+                            <p className={styles.proceed}>
+                                {t('aopp.success.message', { host: domain(aopp.callback) })}
+                            </p>
                             <Field>
                                 <Label>{t('aopp.labelAddress')}</Label>
                                 <CopyableInput alignLeft flexibleHeight value={aopp.address} />

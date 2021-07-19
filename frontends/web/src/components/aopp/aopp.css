@@ -12,9 +12,10 @@
 }
 
 .title {
+    color: var(--color-gray);
     font-weight: 400;
     font-size: var(--size-subheader);
-    margin-bottom: var(--space-default);
+    margin-bottom: 0;
 }
 
 .device {
@@ -42,6 +43,10 @@
 .smallIcon {
     margin: auto 0;
     width: 30px;
+}
+
+.proceed {
+    margin-bottom: var(--space-default);
 }
 
 .buttonWithInfo {
