@@ -207,7 +207,7 @@ class Aopp extends Component<Props, State> {
                             <div className={styles.buttonWithInfo}>
                                 {/* TODO: show address again on the device */}
                                 <Button secondary onClick={this.verifyAddress}>
-                                    {t('aopp.reverify')}
+                                    {t('receive.verifyBitBox02')}
                                 </Button>
                                 <div className={styles.buttonInfoText}>
                                     {t('aopp.reverifyInfoText')}

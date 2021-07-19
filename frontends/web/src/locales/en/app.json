@@ -68,7 +68,6 @@
     "errorTitle": "Error during address request ",
     "labelAddress": "Address",
     "labelMessage": "Message",
-    "reverify": "Show address on BitBox02",
     "reverifyInfoText": "Use to verify agianst external service",
     "signing": "To proceed, confirm message on your BitBox02.",
     "success": {
