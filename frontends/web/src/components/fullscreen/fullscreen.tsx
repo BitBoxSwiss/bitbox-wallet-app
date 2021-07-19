@@ -15,6 +15,7 @@
  */
 
 import { h, RenderableProps } from 'preact';
+import { AppLogo } from '../icon';
 import * as style from './fullscreen.css';
 
 interface Props {
@@ -42,11 +43,13 @@ export function FullscreenContent({ children }: RenderableProps<{}>) {
 
 interface HeaderProps {
     title: string;
+    withAppLogo?: boolean;
 }
 
 export function FullscreenHeader(props: RenderableProps<HeaderProps>) {
     return (
         <header className={style.header}>
+            {props.withAppLogo && <AppLogo style="margin-bottom: 0;" />}
             <h1 className={style.title}>{props.title}</h1>
             {props.children}
         </header>
