@@ -184,10 +184,9 @@ class Aopp extends Component<Props, State> {
             case 'success':
                 return (
                     <Fullscreen>
-                        <FullscreenHeader small title={t('aopp.title')} />
                         <FullscreenContent>
                             <Checked className={styles.largeIcon} />
-                            <h2 className={styles.title}>{t('aopp.success.title')}</h2>
+                            <p className={styles.successText}>{t('aopp.success.title')}</p>
                             <p className={styles.proceed}>
                                 {t('aopp.success.message', { host: domain(aopp.callback) })}
                             </p>
@@ -195,7 +194,7 @@ class Aopp extends Component<Props, State> {
                                 <Label>{t('aopp.labelAddress')}</Label>
                                 <CopyableInput alignLeft flexibleHeight value={aopp.address} />
                             </Field>
-                            <Field>
+                            <Field style="margin-bottom: 0;">
                                 <Label>{t('aopp.labelMessage')}</Label>
                                 <div className={styles.message}>
                                     {aopp.message}

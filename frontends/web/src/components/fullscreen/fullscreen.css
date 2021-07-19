@@ -93,6 +93,7 @@
         gap: var(--space-half);
         justify-content: flex-end;
         margin-top: var(--space-half);
+        padding-bottom: var(--space-half);
     }
 }
 

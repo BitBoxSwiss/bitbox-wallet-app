@@ -11,13 +11,6 @@
     color: var(--color-secondary);
 }
 
-.title {
-    color: var(--color-gray);
-    font-weight: 400;
-    font-size: var(--size-subheader);
-    margin-bottom: 0;
-}
-
 .device {
     max-width: 100%;
     position: relative;
@@ -36,6 +29,7 @@
 @media (max-width: 768px) {
     .largeIcon {
         margin-bottom: var(--space-half);
+        margin-top: var(--space-half);
         max-width: 160px;
     }
 }
@@ -45,8 +39,22 @@
     width: 30px;
 }
 
+.successText {
+    color: var(--color-gray);
+    font-weight: 400;
+    font-size: var(--size-subheader);
+    margin-bottom: var(--space-quarter);
+}
+@media (max-width: 768px) {
+    .successText {
+        font-size: var(--size-default);
+        margin-top: 0;
+    }
+}
+
 .proceed {
-    margin-bottom: var(--space-default);
+    margin-bottom: var(--space-half);
+    margin-top: 0;
 }
 
 .message {
