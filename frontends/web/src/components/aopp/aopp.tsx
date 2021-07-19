@@ -100,7 +100,7 @@ class Aopp extends Component<Props, State> {
                         </FullscreenHeader>
                         <FullscreenContent>
                             <Message type="error">
-                                <Cancel className={styles.smallIcon} /><br />
+                                <Cancel className={styles.smallIcon} />
                                 {t(`error.${aopp.errorCode}`, { host: domain(aopp.callback) })}
                             </Message>
                         </FullscreenContent>
