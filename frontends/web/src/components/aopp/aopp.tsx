@@ -170,9 +170,6 @@ class Aopp extends Component<Props, State> {
                             <ArrowDown />
                             <BitBox02Stylized className={styles.device} />
                         </FullscreenContent>
-                        <FullscreenButtons>
-                            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
-                        </FullscreenButtons>
                     </Fullscreen>
                 );
             case 'success':
