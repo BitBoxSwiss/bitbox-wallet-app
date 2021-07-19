@@ -49,6 +49,12 @@
         padding-top: var(--space-large);
     }
 }
+@media (max-width: 768px) {
+    .smallHeader {
+        margin-bottom: var(--space-half);
+        padding-top: var(--space-half);
+    }
+}
 
 .title {
     color: var(--color-default);
