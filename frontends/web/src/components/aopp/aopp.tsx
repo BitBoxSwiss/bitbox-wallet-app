@@ -193,7 +193,7 @@ class Aopp extends Component<Props, State> {
                             <p>{t('aopp.success.message', { host: domain(aopp.callback) })}</p>
                             <Field>
                                 <Label>{t('aopp.labelAddress')}</Label>
-                                <CopyableInput alignLeft value={aopp.address} />
+                                <CopyableInput alignLeft flexibleHeight value={aopp.address} />
                             </Field>
                             <Field>
                                 <Label>{t('aopp.labelMessage')}</Label>
