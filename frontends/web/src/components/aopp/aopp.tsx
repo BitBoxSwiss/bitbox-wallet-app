@@ -24,7 +24,7 @@ import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } fr
 import { Message } from '../message/message';
 import { Button, Field, Input, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { ArrowDown, BitBox02Stylized,Cancel, Checked } from '../icon';
+import { ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import * as styles from './aopp.css';
 
