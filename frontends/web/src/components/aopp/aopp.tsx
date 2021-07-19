@@ -22,7 +22,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
 import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } from '../fullscreen/fullscreen';
 import { Message } from '../message/message';
-import { Button, Field, Input, Label, Select } from '../forms';
+import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
 import { ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
 import { VerifyAddress } from './verifyaddress';
@@ -199,7 +199,9 @@ class Aopp extends Component<Props, State> {
                             </Field>
                             <Field>
                                 <Label>{t('aopp.labelMessage')}</Label>
-                                <Input readOnly value={aopp.message} />
+                                <div className={styles.message}>
+                                    {aopp.message}
+                                </div>
                             </Field>
                         </FullscreenContent>
                         <FullscreenButtons>

@@ -49,6 +49,22 @@
     margin-bottom: var(--space-default);
 }
 
+.message {
+    background-color: var(--color-white);
+    border-color: var(--color-mediumgray);
+    border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: var(--font-family);
+    font-size: var(--size-default);
+    font-weight: 400;
+    min-height: 52px;
+    padding: var(--space-quarter) var(--space-half);
+    text-align: left;
+    width: 100%;
+    white-space: pre-line;
+}
+
 .buttonWithInfo {
     display: flex;
     flex-direction: column;
