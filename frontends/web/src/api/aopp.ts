@@ -26,28 +26,28 @@ interface Accounts extends Array<Account> {
     0: Account,
 }
 
-type AOPPWithAccounts = {
-    // See backend/aopp.go for a description of the states.
-    state: 'inactive' | 'user-approval' | 'choosing-account' | 'signing' | 'success';
+export type Aopp = {
+    state: 'error';
+    errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
+    callback: string;
+} | {
+    state: 'inactive';
+} | {
+    state: 'user-approval' | 'awaiting-keystore' | 'syncing';
+    message: string;
+    callback: string;
+} | {
+    state: 'choosing-account';
     accounts: Accounts;
-}
-
-type AOPPWithoutAccounts = {
-    // See backend/aopp.go for a description of the states.
-    state: 'error' | 'awaiting-keystore' | 'syncing';
-    accounts: null;
-}
-
-type AOPPAccountIndependent = {
-    // See backend/errors.go for a description of the errors.
-    errorCode: '' | 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback';
+    message: string;
+    callback: string;
+} | {
+    state: 'signing' | 'success';
     address: string;
     addressID: string;
-    callback: string;
     message: string;
-}
-
-export type Aopp = (AOPPWithAccounts | AOPPWithoutAccounts) & AOPPAccountIndependent;
+    callback: string;
+};
 
 export const cancel = (): Promise<null> => {
     return apiPost('aopp/cancel');
