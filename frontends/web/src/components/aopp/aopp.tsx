@@ -184,9 +184,7 @@ class Aopp extends Component<Props, State> {
             case 'success':
                 return (
                     <Fullscreen>
-                        <FullscreenHeader title={t('aopp.title')}>
-                            <p className={styles.domainName}>{domain(aopp.callback)}</p>
-                        </FullscreenHeader>
+                        <FullscreenHeader small title={t('aopp.title')} />
                         <FullscreenContent>
                             <Checked className={styles.largeIcon} />
                             <h2 className={styles.title}>{t('aopp.success.title')}</h2>

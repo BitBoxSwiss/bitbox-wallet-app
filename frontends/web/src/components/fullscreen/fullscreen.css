@@ -7,7 +7,7 @@
     left: 0;
     overflow-x: inherit;
     overflow-y: auto;
-    padding: var(--space-default);
+    padding: 22px;
     position: absolute;
     right: 0;
     top: 0;
