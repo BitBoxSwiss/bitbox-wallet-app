@@ -24,7 +24,8 @@ import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } fr
 import { Message } from '../message/message';
 import { Button, Field, Input, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
+import { ArrowDown, BitBox02Stylized,Cancel, Checked } from '../icon';
+import { VerifyAddress } from './verifyaddress';
 import * as styles from './aopp.css';
 
 const Banner = ({ children }: RenderableProps<{}>) => (
@@ -71,14 +72,6 @@ class Aopp extends Component<Props, State> {
             aoppAPI.chooseAccount(this.state.accountCode);
         }
         e.preventDefault();
-    }
-
-    private verifyAddress = () => {
-        if (this.props.aopp === undefined) {
-            return;
-        }
-        // TODO: make a blocking dialog during verification.
-        accountAPI.verifyAddress(this.state.accountCode, this.props.aopp.addressID);
     }
 
     public render(
@@ -201,10 +194,11 @@ class Aopp extends Component<Props, State> {
                         <FullscreenButtons>
                             <Button primary onClick={aoppAPI.cancel}>{t('button.complete')}</Button>
                             <div className={styles.buttonWithInfo}>
-                                {/* TODO: show address again on the device */}
-                                <Button secondary onClick={this.verifyAddress}>
-                                    {t('receive.verifyBitBox02')}
-                                </Button>
+                                <VerifyAddress
+                                    accountCode={accountCode}
+                                    address={aopp!.address}
+                                    addressID={aopp!.addressID}
+                                />
                                 <div className={styles.buttonInfoText}>
                                     {t('aopp.reverifyInfoText')}
                                 </div>
