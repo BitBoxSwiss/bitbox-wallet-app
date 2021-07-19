@@ -103,7 +103,7 @@ class Aopp extends Component<Props, State> {
                             </Message>
                         </FullscreenContent>
                         <FullscreenButtons>
-                            <Button danger onClick={aoppAPI.cancel}>Dismiss</Button>
+                            <Button danger onClick={aoppAPI.cancel}>{t('button.dismiss')}</Button>
                         </FullscreenButtons>
                     </Fullscreen>
                 );
