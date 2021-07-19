@@ -22,10 +22,21 @@
     position: relative;
     right: -30px;
 }
+@media (max-width: 768px) {
+    .device {
+        right: -20px;
+    }
+}
 
 .largeIcon {
-    margin: var(--space-default) 0;
+    margin: 0 0 var(--space-default) 0;
     width: 50%;
+}
+@media (max-width: 768px) {
+    .largeIcon {
+        margin-bottom: var(--space-half);
+        max-width: 160px;
+    }
 }
 
 .smallIcon {
