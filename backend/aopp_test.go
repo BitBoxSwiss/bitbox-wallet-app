@@ -87,6 +87,7 @@ func TestAOPPSuccess(t *testing.T) {
 		coinCode    coinpkg.Code
 		format      string
 		address     string
+		addressID   string
 		accountCode accounts.Code
 		accountName string
 	}{
@@ -95,6 +96,7 @@ func TestAOPPSuccess(t *testing.T) {
 			coinCode:    coinpkg.CodeBTC,
 			format:      "any", // defaults to p2wpkh
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
+			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
 			accountCode: "v0-55555555-btc-0",
 			accountName: "Bitcoin",
 		},
@@ -103,6 +105,7 @@ func TestAOPPSuccess(t *testing.T) {
 			coinCode:    coinpkg.CodeBTC,
 			format:      "p2wpkh",
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
+			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
 			accountCode: "v0-55555555-btc-0",
 			accountName: "Bitcoin",
 		},
@@ -111,6 +114,7 @@ func TestAOPPSuccess(t *testing.T) {
 			coinCode:    coinpkg.CodeBTC,
 			format:      "p2sh",
 			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
+			addressID:   "58c9954205732bcae1b9dd7eccda521ba5257749680fad3336556e0d46f68866",
 			accountCode: "v0-55555555-btc-0",
 			accountName: "Bitcoin",
 		},
@@ -119,6 +123,7 @@ func TestAOPPSuccess(t *testing.T) {
 			coinCode:    coinpkg.CodeETH,
 			format:      "any",
 			address:     "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
+			addressID:   "0xB7C853464BE7Ae39c366C9C2A9D4b95340a708c7",
 			accountCode: "v0-55555555-eth-0",
 			accountName: "Ethereum",
 		},
@@ -195,13 +200,14 @@ func TestAOPPSuccess(t *testing.T) {
 			b.AOPPChooseAccount(test.accountCode)
 			require.Equal(t,
 				AOPP{
-					State:    aoppStateSuccess,
-					Accounts: []account{{Name: test.accountName, Code: test.accountCode}},
-					Address:  test.address,
-					Callback: callback,
-					Message:  dummyMsg,
-					coinCode: test.coinCode,
-					format:   test.format,
+					State:     aoppStateSuccess,
+					Accounts:  []account{{Name: test.accountName, Code: test.accountCode}},
+					Address:   test.address,
+					AddressID: test.addressID,
+					Callback:  callback,
+					Message:   dummyMsg,
+					coinCode:  test.coinCode,
+					format:    test.format,
 				},
 				b.AOPP(),
 			)

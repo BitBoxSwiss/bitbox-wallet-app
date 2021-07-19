@@ -86,8 +86,12 @@ type AOPP struct {
 	ErrorCode ErrorCode `json:"errorCode"`
 	// Accounts is the list of accounts the user can choose from. Only applies if State == aoppStateChoosingAccount.
 	Accounts []account `json:"accounts"`
-	// Address that will be delivered to the requesting party via the callback. Only applies if State == aoppStateSigning.
+	// Address that will be delivered to the requesting party via the callback. Only applies if
+	// State == aoppStateSigning or aoppStateSuccess.
 	Address string `json:"address"`
+	// AddressID is the ID of the address, used to display the address on the device. Only applies
+	// if State == aoppStateSigning or aoppStateSuccess
+	AddressID string `json:"addressID"`
 	// Callback contains the AOPP callback URL. Available for all states except aoppStateInactive.
 	Callback string `json:"callback"`
 	// Message is the requested message to be signed. Available for all states except
@@ -301,6 +305,7 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 	addr := unused[signingConfigIdx][0]
 
 	backend.aopp.Address = addr.EncodeForHumans()
+	backend.aopp.AddressID = addr.ID()
 	backend.aopp.State = aoppStateSigning
 	backend.notifyAOPP()
 
