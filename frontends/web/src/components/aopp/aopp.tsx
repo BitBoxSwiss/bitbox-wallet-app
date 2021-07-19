@@ -45,6 +45,8 @@ interface SubscribedProps {
 
 type Props = SubscribedProps & AoppProps & TranslateProps;
 
+const domain = (callback: string): string => new URL(callback).host;
+
 class Aopp extends Component<Props, State> {
     public readonly state: State = {
         accountCode: '',
@@ -55,14 +57,22 @@ class Aopp extends Component<Props, State> {
     }
 
     public componentDidUpdate(prevProps) {
-        if (!equal(this.props.aopp?.accounts, prevProps.aopp?.accounts)) {
-            this.setAccountCodeDefault();
+        if (this.props.aopp === undefined) {
+            return;
+        }
+        if (this.props.aopp.state === 'choosing-account') {
+            if (!equal(this.props.aopp.accounts, prevProps.aopp?.accounts)) {
+                this.setAccountCodeDefault();
+            }
         }
     }
 
     private setAccountCodeDefault() {
         const { aopp } = this.props;
-        if (aopp?.accounts && aopp?.accounts?.length) {
+        if (aopp === undefined || aopp.state !== 'choosing-account') {
+            return;
+        }
+        if (aopp.accounts.length) {
             this.setState({ accountCode: aopp.accounts[0].code });
         }
     }
@@ -81,18 +91,17 @@ class Aopp extends Component<Props, State> {
         if (!aopp) {
             return null;
         }
-        const domain = aopp.callback ? new URL(aopp.callback).host : '';
         switch (aopp.state) {
             case 'error':
                 return (
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.errorTitle')}>
-                            <p>{domain}</p>
+                            <p>{domain(aopp.callback)}</p>
                         </FullscreenHeader>
                         <FullscreenContent>
                             <Message type="error">
                                 <Cancel className={styles.smallIcon} /><br />
-                                {t(`error.${aopp.errorCode}`, { host: domain })}
+                                {t(`error.${aopp.errorCode}`, { host: domain(aopp.callback) })}
                             </Message>
                         </FullscreenContent>
                         <FullscreenButtons>
@@ -108,7 +117,7 @@ class Aopp extends Component<Props, State> {
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')} withAppLogo />
                         <FullscreenContent>
-                            <p>{t('aopp.addressRequest', { host: domain })}</p>
+                            <p>{t('aopp.addressRequest', { host: domain(aopp.callback) })}</p>
                         </FullscreenContent>
                         <FullscreenButtons>
                             <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
@@ -131,7 +140,7 @@ class Aopp extends Component<Props, State> {
                     <form onSubmit={this.chooseAccount}>
                         <Fullscreen>
                             <FullscreenHeader title={t('aopp.title')}>
-                                <p>{domain}</p>
+                                <p>{domain(aopp.callback)}</p>
                             </FullscreenHeader>
                             <FullscreenContent>
                                 <Select
@@ -154,7 +163,7 @@ class Aopp extends Component<Props, State> {
                 return (
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')}>
-                            <p>{domain}</p>
+                            <p>{domain(aopp.callback)}</p>
                         </FullscreenHeader>
                         <FullscreenContent>{t('aopp.syncing')}</FullscreenContent>
                     </Fullscreen>
@@ -163,7 +172,7 @@ class Aopp extends Component<Props, State> {
                 return (
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')}>
-                            <p className={styles.domainName}>{domain}</p>
+                            <p className={styles.domainName}>{domain(aopp.callback)}</p>
                         </FullscreenHeader>
                         <FullscreenContent>
                             <p>{t('aopp.signing')}</p>
@@ -176,12 +185,12 @@ class Aopp extends Component<Props, State> {
                 return (
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')}>
-                            <p className={styles.domainName}>{domain}</p>
+                            <p className={styles.domainName}>{domain(aopp.callback)}</p>
                         </FullscreenHeader>
                         <FullscreenContent>
                             <Checked className={styles.largeIcon} />
                             <h2 className={styles.title}>{t('aopp.success.title')}</h2>
-                            <p>{t('aopp.success.message', { host: domain })}</p>
+                            <p>{t('aopp.success.message', { host: domain(aopp.callback) })}</p>
                             <Field>
                                 <Label>{t('aopp.labelAddress')}</Label>
                                 <CopyableInput alignLeft value={aopp.address} />
@@ -196,8 +205,8 @@ class Aopp extends Component<Props, State> {
                             <div className={styles.buttonWithInfo}>
                                 <VerifyAddress
                                     accountCode={accountCode}
-                                    address={aopp!.address}
-                                    addressID={aopp!.addressID}
+                                    address={aopp.address}
+                                    addressID={aopp.addressID}
                                 />
                                 <div className={styles.buttonInfoText}>
                                     {t('aopp.reverifyInfoText')}
