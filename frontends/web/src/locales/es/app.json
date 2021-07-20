@@ -729,7 +729,7 @@
         "text": "www.coingecko.com",
         "url": "https://www.coingecko.com/"
       },
-      "text": "La cantidad total es la suma de todas tus cuentas criptográficas. Los tipos de cambio se consiguen de coingecko.com.\n\nNota: Si usas MyEtherWallet para tokens no admitidos en BitBoxApp, no se incluirán en la cantidad que se muestra.\n\n",
+      "text": "La cantidad total es la suma de todas tus cuentas criptográficas. Los tipos de cambio se consiguen de coingecko.com.\n\nNota: Si usas MyEtherWallet para tokens no admitidos en BitBoxApp, no se incluirán en la cantidad que se muestra.",
       "title": "¿Cómo se calcula la suma total?"
     },
     "accountSummaryDescription": {
