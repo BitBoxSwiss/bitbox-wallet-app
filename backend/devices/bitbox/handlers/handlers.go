@@ -325,7 +325,11 @@ func (handlers *Handlers) postResetDeviceHandler(r *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.bitbox.BootloaderUpgradeFirmware(bitbox.BundledFirmware())
+	binary, err := bitbox.BundledFirmware()
+	if err != nil {
+		return nil, err
+	}
+	return nil, handlers.bitbox.BootloaderUpgradeFirmware(binary)
 }
 
 func (handlers *Handlers) postLockHandler(_ *http.Request) (interface{}, error) {

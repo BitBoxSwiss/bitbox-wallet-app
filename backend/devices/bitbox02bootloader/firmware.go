@@ -15,27 +15,37 @@
 package bitbox02bootloader
 
 import (
-	"fmt"
+	"bytes"
+	"compress/gzip"
+	_ "embed" // Needed for the go:embed directives below.
+	"io/ioutil"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
-//go:generate go-bindata -pkg $GOPACKAGE -o assets.go assets
+//go:embed assets/firmware-btc.v9.6.0.signed.bin.gz
+var firmwareBinaryBTCOnly []byte
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 6, 0)
+
+//go:embed assets/firmware.v9.6.0.signed.bin.gz
+var firmwareBinaryMulti []byte
+var firmwareVersionMulti = semver.NewSemVer(9, 6, 0)
 
 type firmwareInfo struct {
-	version  *semver.SemVer
-	filename string
+	version *semver.SemVer
+	binary  []byte
 }
 
 var bundledFirmwares = map[bitbox02common.Product]firmwareInfo{
 	bitbox02common.ProductBitBox02Multi: {
-		version:  semver.NewSemVer(9, 6, 0),
-		filename: "assets/firmware.v%s.signed.bin",
+		version: firmwareVersionMulti,
+		binary:  firmwareBinaryMulti,
 	},
 	bitbox02common.ProductBitBox02BTCOnly: {
-		version:  semver.NewSemVer(9, 6, 0),
-		filename: "assets/firmware-btc.v%s.signed.bin",
+		version: firmwareVersionBTCOnly,
+		binary:  firmwareBinaryBTCOnly,
 	},
 }
 
@@ -49,14 +59,14 @@ func BundledFirmwareVersion(product bitbox02common.Product) *semver.SemVer {
 }
 
 // bundledFirmware returns the binary of the bundled firmware.
-func bundledFirmware(product bitbox02common.Product) []byte {
+func bundledFirmware(product bitbox02common.Product) ([]byte, error) {
 	info, ok := bundledFirmwares[product]
 	if !ok {
-		panic("unrecognized product")
+		return nil, errp.New("unrecognized product")
 	}
-	binary, err := Asset(fmt.Sprintf(info.filename, BundledFirmwareVersion(product).String()))
+	gz, err := gzip.NewReader(bytes.NewBuffer(info.binary))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return binary
+	return ioutil.ReadAll(gz)
 }

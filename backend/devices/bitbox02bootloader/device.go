@@ -122,7 +122,11 @@ func (device *Device) fireEvent() {
 func (device *Device) UpgradeFirmware() error {
 	product := device.Device.Product()
 	device.log.Infof("upgrading firmware: %s, %s", product, BundledFirmwareVersion(product))
-	return device.Device.UpgradeFirmware(bundledFirmware(product))
+	binary, err := bundledFirmware(product)
+	if err != nil {
+		return err
+	}
+	return device.Device.UpgradeFirmware(binary)
 }
 
 // VersionInfo contains version information about the upgrade.
@@ -141,9 +145,11 @@ func (device *Device) VersionInfo() (*VersionInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	bundledFirmwareVersion, err := device.Device.SignedFirmwareVersion(
-		bundledFirmware(device.Device.Product()),
-	)
+	binary, err := bundledFirmware(device.Device.Product())
+	if err != nil {
+		return nil, err
+	}
+	bundledFirmwareVersion, err := device.Device.SignedFirmwareVersion(binary)
 	if err != nil {
 		return nil, err
 	}
