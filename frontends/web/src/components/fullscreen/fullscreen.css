@@ -7,7 +7,7 @@
     left: 0;
     overflow-x: inherit;
     overflow-y: auto;
-    padding: var(--space-default);
+    padding: 22px;
     position: absolute;
     right: 0;
     top: 0;
@@ -49,6 +49,12 @@
         padding-top: var(--space-large);
     }
 }
+@media (max-width: 768px) {
+    .smallHeader {
+        margin-bottom: var(--space-half);
+        padding-top: var(--space-half);
+    }
+}
 
 .title {
     color: var(--color-default);
@@ -84,9 +90,12 @@
         align-items: stretch;
         flex-direction: column;
         flex-grow: 0;
-        gap: var(--space-half);
         justify-content: flex-end;
         margin-top: var(--space-half);
+        padding-bottom: var(--space-half);
+    }
+    .buttons > *:not(:last-child) {
+        margin-bottom: var(--space-half);
     }
 }
 

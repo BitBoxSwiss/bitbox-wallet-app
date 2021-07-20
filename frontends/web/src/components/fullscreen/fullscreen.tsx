@@ -42,16 +42,23 @@ export function FullscreenContent({ children }: RenderableProps<{}>) {
 }
 
 interface HeaderProps {
+    small?: boolean;
     title: string;
     withAppLogo?: boolean;
 }
 
-export function FullscreenHeader(props: RenderableProps<HeaderProps>) {
+export function FullscreenHeader({
+    children,
+    small,
+    title,
+    withAppLogo,
+}: RenderableProps<HeaderProps>) {
+    const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
     return (
-        <header className={style.header}>
-            {props.withAppLogo && <AppLogo style="margin-bottom: 0;" />}
-            <h1 className={style.title}>{props.title}</h1>
-            {props.children}
+        <header className={headerStyles}>
+            {withAppLogo && <AppLogo style="margin-bottom: 0;" />}
+            <h1 className={style.title}>{title}</h1>
+            {children}
         </header>
     );
 }

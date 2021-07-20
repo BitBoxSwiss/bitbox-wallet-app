@@ -45,7 +45,7 @@ class VerifyAddress extends Component<Props, State> {
         { verifying }: State,
     ) {
         return (
-            <div>
+            <div className="flex flex-column">
                 <Button secondary onClick={this.verifyAddress}>
                     {t('receive.verifyBitBox02')}
                 </Button>

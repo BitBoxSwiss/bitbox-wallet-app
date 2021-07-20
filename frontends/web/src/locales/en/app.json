@@ -72,7 +72,7 @@
     "signing": "To proceed, confirm message on your BitBox02.",
     "success": {
       "message": "Proceed on {{host}}",
-      "title": "Successfully sent address to external service."
+      "title": "Address successfully sent"
     },
     "syncing": "Syncing the account, please stand by.",
     "title": "Address request"

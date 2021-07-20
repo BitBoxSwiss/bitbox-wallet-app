@@ -22,9 +22,9 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
 import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } from '../fullscreen/fullscreen';
 import { Message } from '../message/message';
-import { Button, Field, Input, Label, Select } from '../forms';
+import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
+import { BitBox02Stylized, Cancel, CaretDown, Checked } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import * as styles from './aopp.css';
 
@@ -100,7 +100,7 @@ class Aopp extends Component<Props, State> {
                         </FullscreenHeader>
                         <FullscreenContent>
                             <Message type="error">
-                                <Cancel className={styles.smallIcon} /><br />
+                                <Cancel className={styles.smallIcon} />
                                 {t(`error.${aopp.errorCode}`, { host: domain(aopp.callback) })}
                             </Message>
                         </FullscreenContent>
@@ -176,7 +176,7 @@ class Aopp extends Component<Props, State> {
                         </FullscreenHeader>
                         <FullscreenContent>
                             <p>{t('aopp.signing')}</p>
-                            <ArrowDown />
+                            <CaretDown className={styles.caret} />
                             <BitBox02Stylized className={styles.device} />
                         </FullscreenContent>
                     </Fullscreen>
@@ -184,20 +184,21 @@ class Aopp extends Component<Props, State> {
             case 'success':
                 return (
                     <Fullscreen>
-                        <FullscreenHeader title={t('aopp.title')}>
-                            <p className={styles.domainName}>{domain(aopp.callback)}</p>
-                        </FullscreenHeader>
                         <FullscreenContent>
                             <Checked className={styles.largeIcon} />
-                            <h2 className={styles.title}>{t('aopp.success.title')}</h2>
-                            <p>{t('aopp.success.message', { host: domain(aopp.callback) })}</p>
+                            <p className={styles.successText}>{t('aopp.success.title')}</p>
+                            <p className={styles.proceed}>
+                                {t('aopp.success.message', { host: domain(aopp.callback) })}
+                            </p>
                             <Field>
                                 <Label>{t('aopp.labelAddress')}</Label>
-                                <CopyableInput alignLeft value={aopp.address} />
+                                <CopyableInput alignLeft flexibleHeight value={aopp.address} />
                             </Field>
-                            <Field>
+                            <Field style="margin-bottom: 0;">
                                 <Label>{t('aopp.labelMessage')}</Label>
-                                <Input readOnly value={aopp.message} />
+                                <div className={styles.message}>
+                                    {aopp.message}
+                                </div>
                             </Field>
                         </FullscreenContent>
                         <FullscreenButtons>
