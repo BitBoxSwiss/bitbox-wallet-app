@@ -574,7 +574,7 @@
         "text": "www.coingecko.com",
         "url": "https://www.coingecko.com/"
       },
-      "text": "\nO montante total é a soma de de saldo de todas sua contas crpto. Taxas de troca são obtidas através da coingecko.com.\n\nObs: Se você usa a MyEtherWallet para tokens ela não é suportada no BitBoxApp, por isso não será incluso no montante total mostrado.",
+      "text": "O montante total é a soma de de saldo de todas sua contas crypto. Taxas de troca são obtidas através da coingecko.com.\n\nObs: Se você usa a MyEtherWallet para tokens ela não é suportada no BitBoxApp, por isso não será incluso no montante total mostrado.",
       "title": "Como o valor total é calculado?"
     },
     "accountSummaryDescription": {
