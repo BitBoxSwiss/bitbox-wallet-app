@@ -1,11 +1,14 @@
 # Changelog
 
 ## [Unreleased]
+- Add support for the Address Ownership Proof Protocol (AOPP), i.e.: handle 'aopp:?...' URIs. See https://aopp.group/.
 - Add a guide entry: How to import my transactions into CoinTracking?
 - Updated to Qt 5.15 from Qt 5.12 for Linux, macOS and Windows
 - Revamped account-info view to show account keypath, scriptType etc.
 - Allow disabling accounts in 'Manage accounts'.
 - Prevent screen from turning off while the app is in foreground on Android
+- Allow entering the BitBox02 startup settings in 'Manage device' to toggle showing the firmware hash at any time
+- More user-friendly messages for first BitBox02 firmware install
 
 ## 4.28.2 [released 2021-06-03]
 - Fix a conversion rates updater bug
