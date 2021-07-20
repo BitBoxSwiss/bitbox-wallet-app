@@ -6,40 +6,52 @@
     "fatalError": "Ocorreu um erro inesperado.",
     "incoming": "Lançamentos",
     "info": {
-      "btc-p2pkh": "Essa é uma conta Bitcoin Legacy. É recomendado que você utilize uma conta Bitcoin Segwit, devido às menores taxas de rede.",
-      "btc-p2wpkh": "Essa conta Bitcoin Segwit nativa requer ainda menos taxas de rede através do formato de endereço bech32. É uma tecnologia de ponta, mas ainda não é amplamente aceita.",
-      "btc-p2wpkh-p2sh": "Essa é uma conta Bitcoin Segwit, e é recomendada para taxas de rede mais baixas. Se você acabou de atualizar do aplicativo anterior, você pode ver seu saldo na conta Bitcoin Legacy, que você pode habilitar nas configurações. Se você quiser testar uma tecnologia de ponta e economizar ainda mais em taxas de rede, vá para Configurações e habilite uma conta Bitcoin Segwit nativa, que utiliza o formato de endereço Bech32.",
+      "btc-p2pkh": "Essa é uma conta Bitcoin Legacy. É recomendado que você utilize uma conta Bitcoin Segwit para as taxas de rede serem menores.",
+      "btc-p2wpkh": "Essa conta Bitcoin Segwit nativa implica em taxas de rede mais baixas, através do formato de endereço bech32. É uma tecnologia de ponta, mas ainda não é amplamente aceita.",
+      "btc-p2wpkh-p2sh": "Essa é uma conta Bitcoin Segwit e é recomendada para taxas de rede mais baixas. Se você atualizou recentemente da versão anterior do aplicativo, você pode ver seu saldo na conta Bitcoin Legacy, que você pode habilitar nas configurações. Se você quiser testar uma tecnologia de ponta e economizar ainda mais em taxas de rede, vá para Configurações e habilite uma conta Bitcoin Segwit nativa, que utiliza o formato de endereço Bech32.",
       "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
       "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Obtendo informações da blockchain...",
+    "maybeProxyError": "Tor proxy ativado. Certifique-se que seu Tor esteja rodando corretamente ou desative as opções de proxy.",
     "openFile": "Abrir arquivo",
     "reconnecting": "Conexão perdida, tentando reconectar...",
-    "syncedAddressesCount": ""
+    "syncedAddressesCount": "Encontrado {{count}} endereços"
   },
   "accountInfo": {
     "address": "Endereço",
     "extendedPublicKey": "Chave pública estendida",
-    "label": "Informações da Conta",
+    "label": "Informações da conta",
     "title": "Informações da conta",
-    "verify": "Verificar no dispositivo"
+    "verify": "Verificar no dispositivo",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "Visualizar chave P2PKH pública estendida já existente.",
+      "p2wpkh": "Visualizar chave Segwit nativa",
+      "p2wpkh-p2sh": "Visualizar chave antiga segwit pública estendida."
+    },
+    "xpubTypeInfo": "Atualmente mostrando {{scriptType}} chave pública estendida ({{current}} de {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Saldo disponível",
     "balance": "Saldo",
     "exportSummary": "Exportar resumo de contas para a pasta de Downloads como um arquivo CSV",
-    "fiatBalance": "Saldo em moeda fiduciária",
+    "fiatBalance": "Saldo em moeda corrente",
     "name": "Nome da conta",
     "noAccount": "Não há contas para mostrar.",
     "synchronizing": "Sincronizando contas com suas blockchains:",
-    "title": "Resumo das contas",
+    "title": "Meu portfólio",
     "total": "Total",
     "transactionHistory": "Histórico de transações"
   },
   "addAccount": {
     "accountName": "Nome da conta",
     "address": "Endereço",
+    "chooseName": {
+      "nextButton": "Adicionar conta",
+      "step": "Nome conta",
+      "title": "Um nome para sua conta"
+    },
     "coin": "Moeda",
     "error": {
       "alreadyExists": "A conta já existe.",
@@ -49,7 +61,18 @@
     },
     "extendedPublicKey": "Chave pública estendida",
     "scriptType": "Tipo de script",
+    "selectCoin": {
+      "nextButton": "Próximo",
+      "step": "Selecione a moeda",
+      "title": "Selecione a crypto."
+    },
     "submit": "Adicionar conta",
+    "success": {
+      "message": "<strong>{{accountName}}</strong> foi addicionado agora as suas contas.",
+      "nextButton": "Pronto",
+      "step": "Terminado",
+      "title": "Conta adicionada"
+    },
     "title": "Adicionar conta",
     "warning": {
       "xpubWrongNet": "Aviso: O formato da chave pública estendida indica que não é válido para o tipo de conta selecionado. Se você não vir as transações que espera, tente importar a chave pública estendida com outro tipo de conta."
@@ -62,8 +85,8 @@
     "check": {
       "checking": "Checando backup...",
       "confirmTitle": "Checar backup",
-      "notOK": "O backup NÃO corresponde à carteira.",
-      "ok": "O backup corresponde à carteira.",
+      "notOK": "O Backup NÃO corresponde à carteira.",
+      "ok": "Backup corresponde à carteira.",
       "password": {
         "label": "Senha de recuperação",
         "placeholder": "Senha de recuperação",
@@ -122,7 +145,8 @@
     },
     "flipscreen": "Girar tela",
     "orientation": "Dispositivo orientado de maneira errada?",
-    "success": "Atualização bem sucedida! Continuando em {{rebootSeconds}} segundos..."
+    "success": "Atualização bem sucedida! Continuando em {{rebootSeconds}} segundos...",
+    "success_install": "Instalação com sucesso! Continuando em {{rebootSeconds}} segundos..."
   },
   "bitbox": {
     "error": {
@@ -166,7 +190,8 @@
       "userConfirmation1": "Eu devo armazenar meu backup em um local seguro.",
       "userConfirmation2": "Meu backup não é protegido por senha. Qualquer pessoa com acesso a ele pode acessar minha carteira.",
       "userConfirmation3": "Se eu perder ou danificar minha BitBox02, a única maneira de recuperar meus fundos é restaurando do meu backup.",
-      "userConfirmation4": "Se eu perder ou danificar meu backup e minha BitBox02, meus fundos serão perdidos."
+      "userConfirmation4": "Se eu perder ou danificar meu backup e minha BitBox02, meus fundos serão perdidos.",
+      "userConfirmation5": "Eu não devo colocar meu cartão de backup microSD em um computador, telefone, impressora ou qualquer dispositivo a não ser o BitBox02. "
     },
     "create": {
       "button": "Nomear dispositivo e continuar",
@@ -177,6 +202,7 @@
       "point3": "Criar um backup",
       "text": "Ok, vamos criar uma nova carteira!"
     },
+    "createBackupFailed": "Falha na criação do backup, tente novamente.",
     "initialize": {
       "passwordText": "Agora vamos definir uma senha para o seu dispositivo. Use os controles da sua BitBox para entrar e escolher uma senha.",
       "passwordTitle": "Definir uma senha para a sua BitBox",
@@ -185,6 +211,7 @@
       "title": "Inicialize sua BitBox"
     },
     "insertSDCard": "<strong>Por favor, verifique se você tem um cartão microSD inserido em sua BitBox02.</strong>",
+    "noPasswordMatch": "Senhas não conferem, tente novamente.",
     "pairing": {
       "confirmButton": "Continuar",
       "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox02.",
@@ -217,6 +244,10 @@
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox02 e guarde-o em um local seguro.",
       "success": "Você criou com êxito seu backup."
+    },
+    "stepInsertSD": {
+      "insertSDCard": "Por favor insira um cartão microSD na sua BitBox02 para continuar.",
+      "insertSDcardTitle": "Insira cartão microSD."
     },
     "stepPassword": {
       "title": "Definir senha da BitBox02",
@@ -258,12 +289,15 @@
   },
   "bootloader": {
     "button": "Atualizar firmware agora",
+    "button_install": "Instale o firmware agora",
     "progress": "Atualizando: {{progress}}%",
+    "progress_install": "Instalando: {{progress}}%",
     "success": "Atualização bem sucedida! Por favor, insira novamente o dispositivo. Desta vez, não toque no botão."
   },
   "button": {
     "abort": "Abortar",
     "back": "Voltar",
+    "buy": "Comprar",
     "changepin": "Mudar senha do dispositivo",
     "check": "Checar backup",
     "continue": "Continuar",
@@ -282,9 +316,62 @@
     "update": "Atualizar",
     "upgrade": "Atualizar"
   },
+  "buy": {
+    "info": {
+      "continue": "Concordo e continue",
+      "crypto": "crypto",
+      "disclaimer": {
+        "intro": [
+          "Somos parceiros da MoonPay para oferecer a você um modo perfeito de comprar {{name}} diretamente para o BitBoxApp. Em apenas alguns cliques.",
+          "MoonPay é uma plataforma simples e rápida para comprar {{name}} em mais de 160 países."
+        ],
+        "payment": {
+          "details": "Você pode comprar {{name}} instantâneamente através da MoonPay com os seguintes métodos de pagamento. Compras com cartão de crédito ou débito são convenientes e instantâneas, mas são mais caras devido ao risco de estorno. Nós recomendamos que use a opção de transferência bancária para quantidades maiores. A taxa mínima é de 4 USD/EUR ou equivalente.",
+          "footnote": "Por favor preceba que a taxa da corretora MoonPay pode ser diferente da taxa usada no BitBoxApp, resultando em diferentes valores consideráveis.",
+          "table": {
+            "1_description": "Taxas baixas podem levar até 3 dias úteis.",
+            "1_method": "Transferência bancária (SEPA)",
+            "2_description": "Taxas altas mas rápidas e instantâneas",
+            "2_method": "Cartões de crédito & débito",
+            "description": "Descrição",
+            "fee": "Taxa",
+            "method": "Método"
+          },
+          "title": "Métodos de pagamento e taxas"
+        },
+        "privacyPolicy": "Política de privacidade MoonPay",
+        "protection": {
+          "description": "O BitBoxApp não coleta nenhum dando quando você comprar {{name}}, o saldo recebido é tratado como uma transação regular. A MoonPay precisa coletar alguns dados pessoais para a operação. A Política de Privacidade da MoonPay explica detalhadamente quais dados seus eles manipulam.",
+          "title": "Proteção dos dados"
+        },
+        "security": {
+          "description": "Quando você comprar {{name}} através da MoonPay, você está usando um serviço externo. Esse serviço está fora do escopo do modelo de ameaça de segurança da BitBox02 e fora do ambiente de segurança onde o aplcativo BitBoxApp está rodando.",
+          "link": "Modelo de ameaça de segurança",
+          "title": "Modelo de segurança"
+        },
+        "title": "Bem-vindo a sua loja virtual pessoal para comprar {{name}}"
+      },
+      "next": "Próximo",
+      "selectLabel": "Seleciona sua conta",
+      "selectPlaceholder": "Selecione uma moeda",
+      "skip": "Não mostre novamente",
+      "title": "Comprar {{name}}"
+    },
+    "title": "Comprar {{name}}"
+  },
   "changePin": {
     "newTitle": "Nova senha do dispositivo",
     "oldLabel": "Senha atual do dispositivo"
+  },
+  "chart": {
+    "dataMissing": "Buscando dados históricos... fique ligado.",
+    "dataUpdating": "atualizando dados...",
+    "filter": {
+      "all": "Todos",
+      "month": "Mês",
+      "week": "Semana",
+      "year": "Ano"
+    }
   },
   "checkSDcard": "checando cartão microSD",
   "clickHere": "Clique aqui.",
@@ -325,6 +412,7 @@
         "label": "Cartão microSD",
         "true": "Inserido"
       },
+      "securechip": "Chip seguro",
       "title": "Hardware"
     },
     "loading": "Recuperando informações do dispositivo...",
@@ -354,7 +442,12 @@
   "deviceTampered": "Sua BitBox foi fornecida com uma senha de recuperação? Se sim, pare o processo de configuração e contate o suporte imediatamente. A Shift nunca lhe dará uma carteira pronta ou fará recomendações de senha.",
   "dialog": {
     "cancel": "Cancelar",
-    "confirm": "Confirmar"
+    "confirm": "Confirmar",
+    "confirmTitle": "Confirmação"
+  },
+  "error": {
+    "accountAlreadyExists": "A conta já existe.",
+    "accountLimitReached": "Não foi possível adicionar a conta. O número máximo de contas para essa moeda foi atingido."
   },
   "exchanges": {
     "method": "Selecione sua forma de pagamento",
@@ -365,6 +458,7 @@
       "P2P": "Peer-to-peer",
       "SW": "Crypto swap"
     },
+    "nomatch": "nenhuma corretora corresponde ao seu critério",
     "region": "Escolha sua região",
     "regions": {
       "AF": "África",
@@ -384,9 +478,14 @@
     "appVersion": "Versão do aplicativo:"
   },
   "generic": {
-    "applying": "",
+    "and": "e",
+    "applying": "Aplicando configuração",
     "confirmToContinue": "Confirme para continuar.",
-    "description": "Descrição"
+    "description": "Descrição",
+    "enable_false": "Desabilitar",
+    "enable_true": "Habilitar",
+    "enabled_false": "Desabilitado",
+    "enabled_true": "Habilitado"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -433,6 +532,18 @@
       "title": "O que significa lançamentos?"
     },
     "accountInfo": {
+      "multipleXPubs": {
+        "text": "Cada xpub é atrelado ao \"Tipo\" mostrado: tanto a \"Segwit Nativa (bech32)\" como ao \"Wrapped segwit\". Esses são tipos de scrypts usados pela {{coinName}}. O BitBoxApp combina eles, suportando multiplos tipos de scripts na mesma conta. Por isso cada tipo de scrypt te fornece um xpub diferente, existem vários xpubs por conta.\n\nSe você recebe constantemente em um tipo de endereço padrão, você só precisa da \"bech332\" xpub. Entretando, se você recebe saldo nos tipos de \"endereço compatíveis\", estes serão mostrados no modelo \"segwit antigo\" de chave pública estendida.",
+        "title": "Por que tem vários xpubs?"
+      },
+      "privacy": {
+        "text": "Para esse tipo específio de conta, a chave pública estendida revela seu histórico financeiro completo, seu saldo em conta e todas suas transações futuras. Mas a xpub não permite que ninguém gaste suas moedas.\n\nSe você fornecer sua xpub à alguém, você deverá ter em mente que essa pessoa ou empresa poderá ver todas as transações antigas da sua conta. Assim achamos uma boa idéia que você use essa conta somente para esse propósito e mantenha seus fundos salvos em contas diferentes dessa.",
+        "title": "Por que preciso manter minha xpub secreta?"
+      },
+      "verify": {
+        "text": "Sim, é sempre uma boa idéia revisar sua xpub. Se alguma outra pessoa gerar um endereço de recebimento através da sua xpub para mandar seu dinheiro, isso é muito importante. Você precisa verificar no dispositivo para garantir que essa xpub pertence a você para que seus fundos não acabem indo para endereços errados e sejam perdidos.",
+        "title": "Preciso verificar minha xpub nesse dispositivo?"
+      },
       "xpub": {
         "text": "Uma chave pública estendida é uma chave-raiz da qual todos os endereços de recebimento de uma conta são derivados.\nEla é fornecida aqui para uso avançado e interoperabilidade com carteiras watch-only, como Electrum ou Sentinel.",
         "title": "O que é uma chave pública estendida?"
@@ -458,12 +569,24 @@
       "text": "O botão \"Enviar\" é ativado quando seu saldo for maior que zero.",
       "title": "Por que não consigo enviar {{unit}}?"
     },
+    "accountSummaryAmount": {
+      "link": {
+        "text": "www.coingecko.com",
+        "url": "https://www.coingecko.com/"
+      },
+      "text": "\nO montante total é a soma de de saldo de todas sua contas crpto. Taxas de troca são obtidas através da coingecko.com.\n\nObs: Se você usa a MyEtherWallet para tokens ela não é suportada no BitBoxApp, por isso não será incluso no montante total mostrado.",
+      "title": "Como o valor total é calculado?"
+    },
+    "accountSummaryDescription": {
+      "text": "Aqui você pode visualizar a performance do seu portfólio de tempo em tempo. Um resumo das suas contas de crypto é mostrado individualmente abaixo do gráfico.",
+      "title": "O que essa página me mostra?"
+    },
     "accountTransactionAttributesBTC": {
       "text": "Tamanho virtual: determina a taxa de rede. Você economizou com sucesso em taxas se for menor que o tamanho da transação.\nTamanho: tamanho real da transação em bytes quando serializado de acordo com a blockchain subjacente.\nPeso: uma nova métrica introduzida no Segwit para avaliar os tamanhos de transação e bloco. Cada segregated witness (segwit) byte conta como um, todo o resto como quatro unidades de peso. Em vez de um megabyte em tamanho real, o limite de tamanho do bloco agora é de quatro milhões de unidades de peso.",
       "title": "E os detalhes da transação específica do Bitcoin?"
     },
     "accountTransactionAttributesGeneric": {
-      "text": "Confirmações: sua primeira transmissão de transação não é confirmada até que um minerador a inclua em um bloco, após o qual ela tem uma confirmação. Cada bloco transmitido na rede adiciona outra confirmação à sua transação. Geralmente, os comerciantes e outros agentes da rede somente liquidam transações com três a seis confirmações.\nID da transação: um número de identificação exclusivo que permite procurar uma transação em um explorador de blocos.\nTaxa: Os mineradores recebem uma taxa de transação como incentivo para incluir transações nos blocos que mineram. Para saber mais, clique no botão enviar.",
+      "text": "Confirmações: sua primeira transmissão de transação não é confirmada até que um minerador a inclua em um bloco, isso só acontece após uma confirmação. Cada bloco transmitido na rede adiciona outra confirmação à sua transação. Geralmente, os comerciantes e outros agentes da rede somente liquidam transações com três a seis confirmações.\nID da transação: um número de identificação exclusivo que permite procurar uma transação em um explorador de blocos.\nTaxa: Os mineradores recebem uma taxa de mineração como incentivo para incluir transações nos blocos que mineram. Para saber mais, clique no botão enviar.",
       "title": "Quais são as informações nos detalhes da transação?"
     },
     "accountTransactionConfirmation": {
@@ -475,8 +598,34 @@
       "title": "Qual endereço é exibido para cada transação?"
     },
     "accountTransactionTime": {
-      "text": "O horário de confirmação da transação da blockchain.",
+      "text": "O horário de confirmação da transação blockchain.",
       "title": "Qual horário é exibido?"
+    },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "Cada moeda tem no máximo cinco contas.",
+        "title": "Quantas contas posso criar?"
+      },
+      "howtoAddTokens": {
+        "text": "Tokens usando o padrão ERC20 são atrelados a uma conta Ethereum específica. Para habilitar ou desabilitar um token em particular, abra a tela \"Gerenciar contas\", e expanda até a sua conta Ethereum e mude o token desejado para ligado ou desligado.",
+        "title": "Como posso adicionar mais tokens?"
+      },
+      "moveFunds": {
+        "text": "Sim. Porque as contas são independentes, você deve mandar saldo usando uma transação regular.",
+        "title": "Posso mover saldo entre contas?"
+      },
+      "recoverAccounts": {
+        "text": "Sim, O BitBoxApp cria suas contas usando o melhor padrão estabelecido compatível com a maioria das outras carteiras de crypto.",
+        "title": "Posso recuperar minhas contas com outras carteiras?"
+      },
+      "whatAreAccounts": {
+        "text": "Sua carteira pode gerenciar contas múltiplas da mesma moeda. Várias contas são de extrema ajuda para manter seus fundos separadamente.",
+        "title": "O que são contas?"
+      },
+      "whyIsThisUseful": {
+        "text": "Contas são ótimas para gerenciar seus fundos para pessoas ou propósitos diferentes porque são separadas. Você pode também compartilhar sua \"chave pública estendida\" de uma conta sem revelar nada sobre suas outras contas.Isso permite você repetidamente receber saldo sem reutilizar os seus endereços, bem como receber seu salário ou seu saldo de crypto que for comprado.",
+        "title": "Por que isso é útil?"
+      }
     },
     "appendix": {
       "href": "https://shiftcrypto.ch/contact",
@@ -493,7 +642,7 @@
         "title": "Posso criptografar o backup?"
       },
       "howOften": {
-        "text": "O backup é gerado automaticamente quando uma nova carteira é criada. Você só precisa fazer um novo backup se o seu cartão microSD for perdido ou danificado ou se desejar usar vários cartões microSD como backups.\nVocê não precisa criar novos backups depois de transações. Todos os seus dados de transação podem ser recriados pelo seu backup único que foi gerado automaticamente para você.",
+        "text": "O backup é gerado automaticamente quando uma nova carteira é criada. Você só precisa fazer um novo backup se o seu cartão microSD for perdido ou danificado ou se desejar usar vários cartões microSD como backups.\nVocê não precisa criar novos backups depois das atividades de transação. Todos os seus dados de transação podem ser recriados pelo backup único que foi gerado automaticamente para você.",
         "title": "Com que frequência tenho que fazer um backup?"
       },
       "whatIsABackup": {
@@ -517,8 +666,8 @@
     },
     "bitbox": {
       "2FA": {
-        "text": "Quando o 2FA é ativado, todas as transações precisam ser aprovadas no celular emparelhado para gastar moedas. Internamente, um número de uso único criptografado é enviado para o aplicativo móvel, descriptografado lá e retornado à BitBox ao pressionar o botão Aceitar. Esta comunicação com o dispositivo é feita através do canal entre o telefone celular e este aplicativo de desktop estabelecido durante o emparelhamento.\n\nCertifique-se de fazer um backup de sua carteira e emparelhar o aplicativo móvel antes de ativar o 2FA. Uma vez ativado, o slot de cartão microSD e o emparelhamento via aplicativo móvel são desativados. Eles podem ser reativados resetando a BitBox, o que formata o dispositivo.",
-        "title": "Como funciona a autorização de dois fatores (2FA)?"
+        "text": "Quando o 2FA é ativado, todas as transações de moedas precisam ser aprovadas no celular emparelhado. Internamente, um número de uso único criptografado é enviado para o aplicativo móvel, é descriptografado e retornado à BitBox ao pressionar o botão Aceitar. Esta comunicação com o dispositivo é feita através do canal entre o telefone celular e este aplicativo de desktop estabelecido durante o emparelhamento.\n\nCertifique-se de fazer um backup de sua carteira e emparelhar o aplicativo móvel antes de ativar o 2FA. Uma vez ativado, o slot de cartão microSD e o emparelhamento via aplicativo móvel são desativados. Eles podem ser reativados resetando a BitBox, o que formata o dispositivo.",
+        "title": "Como funciona a autenticação de dois fatores (2FA)?"
       },
       "disable2FA": {
         "text": "Para desabilitar o 2FA, você precisa resetar a sua BitBox e restaurar a carteira através do seu backup. Certifique-se de que você ainda tem o cartão microSD com o backup e que você ainda se lembra da senha de recuperação. Em seguida, pressione 'Resetar dispositivo'. Defina uma nova senha para o dispositivo e escolha \"Ou restaurar a partir de um backup\". Selecione o backup que você fez da carteira, clique em 'Restaurar' e insira a senha de recuperação que você usou ao criar a carteira.",
@@ -545,10 +694,23 @@
         "title": "Como emparelhar de forma segura com o seu telefone"
       }
     },
+    "buy": {
+      "exchanges": {
+        "link": {
+          "text": "Lista de corretoras"
+        },
+        "text": "Aqui está uma lista das que nós recomendamos dependendo da sua região ou da sua preferência de compra.",
+        "title": "Procurando por uma corretora?"
+      }
+    },
+    "cointracking": {
+      "text": "Clique no botão \"Exportar\" e abra a pasta de downloads onde você ira encontrar seu arquivo CSV exportado. Depois clique no link abaixo, faça upload do arquivo CSV BitBox e importe ele a fim de usar os dados no seu Gerenciador de rastreamento de moeda e poderá criar seus relatórios de taxa.",
+      "title": "Como importar minhas transações para a CoinTracking?"
+    },
     "exchanges": {
       "commission": {
         "text": "Esta página usa links afiliados, quando disponíveis. No entanto, nem todas as exchanges listadas possuem um programa de afiliados. O fato de uma exchange oferecer não influencia nossa decisão de listá-la.",
-        "title": "Você recebe comissão quando compro Bitcoin em um desses serviços?"
+        "title": "Vocês recebem comissão quando compro Bitcoin em um desses serviços?"
       },
       "description": {
         "text": "Esta página mostra uma seleção de nossos lugares favoritos para comprar Bitcoin e outras criptomoedas.\nNo topo da página você pode escolher sua região e a forma de pagamento desejada para filtrar as opções.",
@@ -567,6 +729,10 @@
       "addressChange": {
         "text": "Assim que você realiza a transação, um novo endereço é automaticamente adicionado à lista, para que haja sempre 20 endereços disponíveis que nunca receberam moedas.",
         "title": "Quando os endereços mudam?"
+      },
+      "addressFormats": {
+        "text": "Um endereço padrão compatível segwit usa o endereço moderno e nativo segwit (bech32). Por padrão o BitBotx02 usa o padrão moderno. Se você está tendo problemas para mandar nesse endereço, clique em \"mudar para endereço compatível\".",
+        "title": "Qual a diferença entre endereço compatível e endereço moderno?"
       },
       "howVerify": {
         "text": "Para a BitBox01, clique no ícone BitBox na barra lateral à esquerda e veja a seção Emparelhamento. O guia será atualizado e você poderá continuar seguindo as instruções.\nPara a BitBox02, você pode verificar os endereços diretamente no dispositivo durante o processo de envio/recebimento.",
@@ -604,6 +770,22 @@
       }
     },
     "settings-electrum": {
+      "connection": {
+        "text": "Se você pretente apenas conectar seu nó quando você tiver em uma rede específica (ex: seu wifi de casa), então uma comunicação padrão apenas é suficiente.\nNesse caso é aconselhado que seu servidor Electrum forneça um certificado TLS para encriptar a comunicação.\nSe você prente conectar seu nó de qualquer lugar usando o protocolo Tor a melhor opção e necessária é não usar um certificado TLS para esse caso.",
+        "title": "Devo usar clearnet TCP, TLS ou Tor?"
+      },
+      "instructions": {
+        "link": {
+          "text": "Guia para conectar seu nó",
+          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+        },
+        "text": "Para um tutorial completo, por favor visite nosso guia:",
+        "title": "Como conecto meu BitBoxApp no meu prórprio nó?"
+      },
+      "options": {
+        "text": "Existem várias opções para você rodar seu próprio nó, como comprar um dispositivo próprio, construir um ou usar a rede Bitcoin Core.\nSe você deseja conectar seu BitBoxApp no seu nó, certifique-se de quele roda um servidor Electrum compatível. Trata-se de um programa dedicado que permite que seu aplicativo de carteira se comunique com seu próprio nó.\nOperações suportadas incluem Electrs, Electrum Personal Server (EPS) ou Bitcoin Wallet Tracker (BTW).",
+        "title": "Quais opções tenho para rodar um nó?"
+      },
       "tor": {
         "text": "Tor significa 'The Onion Router', que é um software de código aberto e gratuito que oferece muitos benefícios de privacidade e é especialmente útil ao usar Bitcoin.\nSe você pretende se conectar ao seu node através do Tor, certifique-se de que o Tor está instalado no seu computador e ative o Proxy Tor nas configurações do BitBoxApp.\nNa maioria dos sistemas operacionais, existem duas maneiras de executar o Tor:\n1. Navegador Tor: baixe e abra o navegador Tor. Isso permitirá que o BitBoxApp se conecte à rede Tor configurando a porta 9150 nas configurações de proxy do Tor.\n2. Serviço Tor em segundo plano: instale o daemon Tor, que sempre é executado em segundo plano. O BitBoxApp pode então se conectar definindo a porta 9050 nas configurações de proxy do Tor.",
         "title": "O que é Tor, proxy Tor e qual porta devo usar?"
@@ -741,6 +923,28 @@
     "successEnable": "Carteira legacy oculta ativada com sucesso. Reconecte sua BitBox e digite a senha oculta do dispositivo para acessar a carteira legacy oculta."
   },
   "loading": "carregando…",
+  "manageAccounts": {
+    "addAccount": "$t(addAccount.title)",
+    "editAccount": "Editar",
+    "editAccountNameTitle": "Editar nome da conta",
+    "noAccounts": "nenhuma conta encontrada",
+    "settings": {
+      "hideTokens": "Esconder tokens",
+      "showTokens": "Exibir tokens ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Adicionar e exibir/mostrar contas",
+    "title": "Gerenciar contas"
+  },
+  "mobile": {
+    "usingMobileDataWarning": "Uso de dados móveis: esse aplicativo baixa centenas de megabytes de dados de cabeçalho de blockhain depois de desbloquear sua conta. Por favor conecte no Wi-Fi para evitar de usar dados móveis desnecessários. Depois de descartar isso, essa mensagem não aparecerá novamente."
+  },
+  "note": {
+    "input": {
+      "description": "(opcional)",
+      "placeholder": "Adicionar nota..."
+    },
+    "title": "Nota"
+  },
   "notification": {
     "newTxs": "Nova transação em: {{accountName}}",
     "newTxs_plural": "{{count}} novas transações em: {{accountName}}"
@@ -760,8 +964,16 @@
       "text": "Algo deu errado. Por favor comece de novo.",
       "title": "Erro"
     },
+    "pullFailed": {
+      "text": "Falha ao obter mensagem de seu dispositivo móvel através do servidor. O servidor pode estar offline, por favor entre em contato com o suporte.",
+      "title": "Falha ao obter"
+    },
     "reconnectOnly": {
       "button": "Reconectar aplicativo móvel"
+    },
+    "scanningFailed": {
+      "text": "Telefone não foi capaz de scanear a mensagem com sucesso. Por favor tente novamente.",
+      "title": "Falha ao scanear."
     },
     "start": {
       "hideAppQRCode": "Ocultar QR code",
@@ -795,6 +1007,10 @@
     "description": "Sua BitBox gerou o seguinte número aleatório de {{bits}} bits:"
   },
   "receive": {
+    "addressType": [
+      "mudar para endereço compatível (Segwit)",
+      "mudar para endereço moderno (recomendado)"
+    ],
     "label": "Seu endereço",
     "onlyThisCoin": {
       "description": "Para receber outros tokens, ative-os nas configurações. Se você depositar outros tokens, eles podem não ser acessíveis.",
@@ -887,6 +1103,7 @@
       "label": "Montante",
       "placeholder": "Insira o valor"
     },
+    "availableBalance": "Saldo disponível",
     "button": "Revisar",
     "coincontrol": {
       "address": "Endereço",
@@ -907,6 +1124,7 @@
       "placeholder": "Digite dados hexadecimais"
     },
     "error": {
+      "feeTooLow": "taxa muito baixa",
       "insufficientFunds": "saldo insuficiente",
       "invalidAddress": "endereço inválido",
       "invalidAmount": "montante inválido",
@@ -920,12 +1138,17 @@
     "feeTarget": {
       "description": {
         "economy": "24 blocos (cerca de 4 horas para Bitcoin, 1 hora para Litecoin)",
+        "economy_ltc": "1 hora (24 blocos)",
         "high": "2 blocos (cerca de 20 minutos para Bitcoin, 5 minutos para Litecoin)",
+        "high_ltc": "5 minutos (2 blocos)",
         "low": "12 blocos (cerca de 2 horas para Bitcoin, 30 minutos para Litecoin)",
-        "normal": "6 blocos (cerca de 1 hora para Bitcoin, 15 minutos para Litecoin)"
+        "low_ltc": "30 minutos (12 blocos)",
+        "normal": "6 blocos (cerca de 1 hora para Bitcoin, 15 minutos para Litecoin)",
+        "normal_ltc": "15 minutos (6 blocos)"
       },
       "estimate": "Tempo de espera estimado:",
       "label": {
+        "custom": "Customizar",
         "economy": "Econômica",
         "high": "Alta",
         "low": "Baixa",
@@ -934,6 +1157,7 @@
       "placeholder": "Calculando a taxa ..."
     },
     "maximum": "Enviar tudo",
+    "priority": "Prioridade",
     "scanQR": "Escanear QR code",
     "signprogress": {
       "description": "Esta é uma transação que contém muitos dados. Para assinar completamente a transação, você será solicitado a confirmar {{steps}} vezes.",
@@ -941,7 +1165,8 @@
     },
     "success": "A transação foi assinada e enviada.",
     "title": "Enviar {{accountName}}",
-    "toggleCoinControl": "Alternar controle de moedas"
+    "toggleCoinControl": "Alternar controle de moedas",
+    "transactionDetails": "Detalhes da transação"
   },
   "settings": {
     "accounts": {
@@ -964,6 +1189,7 @@
       "step1-text": "Digite o endpoint.",
       "step2": "2",
       "step2-text": "Digite um certificado da cadeia de certificados do servidor. Alternativamente, baixe o certificado remoto e compare-o visualmente.",
+      "step2-text-tcp": "Você pode pular essa estapa se não quiser usar TLS.",
       "step3": "3",
       "step3-text": "Checar a conexão e adicionar o servidor.",
       "step4": "4",
@@ -987,6 +1213,9 @@
       "home": "Início"
     },
     "restart": "Por favor, reinicie o BitBoxApp para que as alterações façam efeito.",
+    "services": {
+      "title": "Serviços"
+    },
     "success": "Por favor, retire e reconecte a BitBox para que as mudanças façam efeito.",
     "title": "Configurações"
   },
@@ -995,6 +1224,7 @@
     "accounts": "Contas",
     "addAccount": "Adicionar conta",
     "bitboxBase": "BitBoxBase",
+    "buy": "Comprar crypto",
     "device": "Gerenciar dispositivo",
     "exchanges": "Comprar & vender",
     "leave": "Sair",
@@ -1018,9 +1248,11 @@
     "confirmation": "Confirmações",
     "details": {
       "activity": "Movimentação",
+      "address": "Endereço",
       "amount": "Valor",
       "date": "Data",
-      "fiatAmount": "Valor Fiat",
+      "fiat": "Fiduciária",
+      "fiatAmount": "Valor fiduciário",
       "status": "Status",
       "type": "Tipo"
     },
@@ -1029,8 +1261,17 @@
     "fee": "Taxa",
     "fiatHistorical": "Histórico",
     "gas": "Gas",
+    "note": {
+      "edit": "Editar nó",
+      "save": "Salvar nó"
+    },
     "pending": "Transação pendente",
     "size": "Tamanho",
+    "status": {
+      "complete": "Completa",
+      "failed": "Falhou",
+      "pending": "Pendente"
+    },
     "tx": {
       "received": "Recebido para",
       "sent": "Enviado para"
@@ -1072,6 +1313,7 @@
     "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
   },
   "welcome": {
+    "getStarted": "Vamos começar instalando o firmware no seu BitBox02.",
     "insertBitBox02": "Para a BitBox02, por favor, toque no dispositivo para continuar.",
     "insertDevice": "Por favor, conecte seu dispositivo para iniciar",
     "title": "Bem-vindo"
