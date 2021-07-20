@@ -112,15 +112,12 @@ jobs:
           path: |
             frontends/web/node_modules
             ~/Library/Caches/Homebrew
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16.x
       - name: Build macOS app
-        # Unlike Travis where Go is pre-installed, GitHub has none so we use homebrew
-        # but prevent the very long update process because go1.14 already present
-        # in their database.
         run: >
-          export HOMEBREW_NO_AUTO_UPDATE=1;
-          export HOMEBREW_NO_INSTALL_CLEANUP=1;
-          brew install go@1.14;
-          export PATH=/usr/local/opt/go@1.14/bin:$PATH;
           ./scripts/travis-ci.sh qt-osx;
         env:
           TRAVIS_OS_NAME: osx
