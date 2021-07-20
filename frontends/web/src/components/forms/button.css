@@ -26,26 +26,37 @@
     will-change: background-color, color;
 }
 
+.button:focus {
+    outline: none;
+}
+
 .primary {
     composes: button;
     background: var(--color-blue);
     color: var(--color-white);
 }
 
+.primary:not([disabled]):focus,
 .primary:not([disabled]):hover {
     background-color: var(--color-lightblue);
 }
 
 .secondary {
     composes: button;
-    background-color: var(--color-orange);
-    border-color: var(--color-orange);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    border-color: var(--color-gray-alt);
+    color: var(--color-default);
 }
 
-.secondary:not([diabled]):hover {
-    border-color: var(--color-lightorange);
-    background-color: var(--color-lightorange);
+.secondary:not([disabled]):focus,
+.secondary:not([disabled]):hover {
+    color: var(--color-blue);
+    border-color: var(--color-blue);
+}
+
+.secondary[disabled] {
+    color: var(--color-gray-alt);
+    border-color: var(--color-mediumgray);
 }
 
 .danger {
@@ -55,6 +66,7 @@
     color: var(--color-white);
 }
 
+.danger:not([disabled]):focus,
 .danger:not([disabled]):hover {
     background-color: var(--color-lightred);
     border-color: var(--color-lightred);
@@ -71,12 +83,15 @@
     border-color: var(--color-blue);
 }
 
+.transparent:not([disabled]):focus,
 .transparent:not([disabled]):hover {
     color: var(--color-lightblue);
     border-color: var(--color-lightblue);
 }
 
-.button[disabled] {
+.primary[disabled],
+.danger[disabled],
+.transparent[disabled] {
     opacity: 0.4;
 }
 

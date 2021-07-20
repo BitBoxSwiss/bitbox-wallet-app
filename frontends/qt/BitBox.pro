@@ -21,6 +21,10 @@ CASLR = -fPIE -fPIC
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
+# Include library that allows us to enforce a single instance of the application.
+include(external/singleapplication/singleapplication.pri)
+DEFINES += QAPPLICATION_CLASS=QApplication
+
 win32 {
     # -llibssp would be nice to have on Windows
     LIBS += -L$$PWD/server/ -llibserver

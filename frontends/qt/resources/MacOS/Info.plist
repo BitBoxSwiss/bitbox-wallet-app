@@ -43,5 +43,18 @@
 
 	<key>NSCameraUsageDescription</key>
 	<string>The camera is used to scan QR codes of receive addresses.</string>
+
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>ch.shiftcrypto.wallet</string>
+
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>aopp</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

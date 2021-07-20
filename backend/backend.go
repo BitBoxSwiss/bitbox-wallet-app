@@ -17,6 +17,7 @@ package backend
 
 import (
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -154,6 +155,7 @@ type Backend struct {
 	// keystore is nil if no keystore is connected.
 	accounts []accounts.Interface
 	keystore keystore.Keystore
+	aopp     AOPP
 
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
@@ -191,6 +193,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		devices:  map[string]device.Interface{},
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
 		accounts: []accounts.Interface{},
+		aopp:     AOPP{State: aoppStateInactive},
 		log:      log,
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
@@ -452,7 +455,6 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
-
 	return backend.events
 }
 
@@ -500,6 +502,8 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	}
 
 	backend.initAccounts()
+
+	backend.aoppKeystoreRegistered()
 }
 
 // DeregisterKeystore removes the registered keystore.
@@ -683,4 +687,21 @@ func (backend *Backend) Close() error {
 // Banners returns the banners instance.
 func (backend *Backend) Banners() *banners.Banners {
 	return backend.banners
+}
+
+// HandleURI handles an external URI click for registered protocols, e.g. 'aopp:?...' URIs.  The uri
+// param can be any string, as it is potentially passed without any validation from the calling
+// platform.
+func (backend *Backend) HandleURI(uri string) {
+	u, err := url.Parse(uri)
+	if err != nil {
+		backend.log.WithError(err).Warningf("Handling URI failed: %s", uri)
+		return
+	}
+	switch u.Scheme {
+	case "aopp":
+		backend.handleAOPP(*u)
+	default:
+		backend.log.Warningf("Unknown URI scheme: %s", uri)
+	}
 }

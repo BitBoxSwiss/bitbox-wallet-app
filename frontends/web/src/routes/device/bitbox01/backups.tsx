@@ -82,7 +82,8 @@ class Backups extends Component<Props, State> {
         this.setState({ selectedBackup: backupID });
     }
 
-    private scrollIntoView = ({ target }: { target: HTMLElement }) => {
+    private scrollIntoView = (event: Event) => {
+        const target = event.target as HTMLInputElement;
         const offsetTop = target.offsetTop;
         const offsetHeight = (target.parentNode as HTMLElement).offsetHeight;
         if (offsetTop > this.scrollableContainer.scrollTop + offsetHeight) {

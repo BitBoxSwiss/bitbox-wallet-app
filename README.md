@@ -56,7 +56,7 @@ Make sure the following environment variables are set:
 - `$GOPATH`
 - `$PATH`: should include `$GOPATH/bin`, `$GOROOT/bin` and the location of `qmake` and `rcc`
 
-Clone this repository to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
+Clone this repository to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`) using `git clone --resursive`.
 
 To initialize the build environment and install the required go utilities (linters, ...), call
 * `make envinit`, or

@@ -227,3 +227,18 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 		panic("unknown proposal type")
 	}
 }
+
+// CanSignMessage implements keystore.Keystore.
+func (keystore *keystore) CanSignMessage(coin.Code) bool {
+	return false
+}
+
+// SignBTCMessage implements keystore.Keystore.
+func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHMessage implements keystore.Keystore.
+func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}

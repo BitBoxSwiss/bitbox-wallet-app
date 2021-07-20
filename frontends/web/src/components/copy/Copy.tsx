@@ -16,9 +16,8 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import CheckIcon from '../../assets/icons/check.svg';
-import CopyIcon from '../../assets/icons/copy.svg';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { Check, Copy } from '../icon/icon';
 import * as style from './Copy.css';
 
 interface CopyableInputProps {
@@ -87,7 +86,7 @@ class CopyableInput extends Component<Props, State> {
                 onClick={this.copy}
                 className={[style.button, success && style.success, 'ignore'].join(' ')}
                 title={t('button.copy')}>
-                <img src={success ? CheckIcon : CopyIcon} />
+                {success ? <Check /> : <Copy />}
             </button>
         );
         return (

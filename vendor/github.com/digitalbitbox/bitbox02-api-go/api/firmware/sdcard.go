@@ -19,7 +19,7 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 )
 
-// CheckSDCard checks whether an sd card is inserted in the device
+// CheckSDCard checks whether an sd card is inserted in the device.
 func (device *Device) CheckSDCard() (bool, error) {
 	request := &messages.Request{
 		Request: &messages.Request_CheckSdcard{
@@ -37,7 +37,7 @@ func (device *Device) CheckSDCard() (bool, error) {
 	return sdCardInserted.CheckSdcard.Inserted, nil
 }
 
-// InsertRemoveSDCard sends a command to the device to insert of remove the sd card based on the workflow state
+// InsertRemoveSDCard sends a command to the device to insert of remove the sd card based on the workflow state.
 func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error {
 	request := &messages.Request{
 		Request: &messages.Request_InsertRemoveSdcard{

@@ -239,3 +239,7 @@ export interface IFeeTargetList {
 export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
     return apiGet(`account/${code}/fee-targets`);
 };
+
+export const verifyAddress = (code: AccountCode, addressID: string): Promise<boolean> => {
+    return apiPost(`account/${code}/verify-address`, addressID);
+};

@@ -1,3 +1,4 @@
+#include <singleapplication.h>
 #include <QApplication>
 #include <QWebEngineView>
 #include <QWebEngineProfile>
@@ -14,6 +15,10 @@
 #include <QSettings>
 #include <QMenu>
 #include <QSystemTrayIcon>
+#include <QMessageBox>
+#if defined(_WIN32)
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 #include <iostream>
 #include <set>
@@ -31,6 +36,41 @@ static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
 static QSystemTrayIcon* trayIcon;
+
+class BitBoxApp : public SingleApplication
+{
+public:
+    BitBoxApp(int &argc, char **argv): SingleApplication(
+        argc,
+        argv,
+        true, // allow 2nd instance to launch so we can send a message to the primary instance
+        // User: different users can each have one instance.
+        // SecondaryNotification: enable instanceStarted event.
+        // ExcludeAppVersion: we want one instance independent of its version
+        // ExcludeAppPath: the path might not always be the same, especially with .AppImage, it extracts to a new location on every launch.
+        Mode::User | Mode::SecondaryNotification | Mode::ExcludeAppVersion | Mode::ExcludeAppPath)
+    {
+    }
+
+#if defined(Q_OS_MACOS)
+    bool event(QEvent *event) override
+    {
+        if (event->type() == QEvent::FileOpen) {
+            QFileOpenEvent* openEvent = static_cast<QFileOpenEvent*>(event);
+            if (!openEvent->url().isEmpty()) {
+                // This is only supported on macOS and is used to handle URIs that are opened with
+                // the BitBoxApp, such as "aopp:..." links. The event is received and handled both
+                // if the BitBoxApp is launched and also when it is already running, in which case
+                // it is brought to the foreground automatically.
+
+                handleURI(const_cast<char*>(openEvent->url().toString().toStdString().c_str()));
+            }
+        }
+
+        return QApplication::event(event);
+    }
+#endif
+};
 
 class WebEnginePage : public QWebEnginePage {
 public:
@@ -128,14 +168,38 @@ int main(int argc, char *argv[])
 #endif
 
 
-    QApplication a(argc, argv);
+    BitBoxApp a(argc, argv);
+    // These three are part of the SingleApplication instance ID - if changed, the user should close
+    // th existing app before launching the new one.
+    // See https://github.com/digitalbitbox/SingleApplication/blob/c557da5d0cb63b8002c1ba99ec18f257620009b1/singleapplication_p.cpp#L135-L137
     a.setApplicationName(APPNAME);
     a.setOrganizationDomain("shiftcrypto.ch");
     a.setOrganizationName("Shift Crypto");
     a.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/bitbox.png"));
+
+    if(a.isSecondary()) {
+        // The application is already running. If there is exactly one positional argument, we send
+        // assume it is an URI click and send it to the primary instance to parse, validate and
+        // handle.
+
+        if (a.arguments().size() == 2) {
+            a.sendMessage(a.arguments()[1].toUtf8());
+        }
+        qDebug() << "App already running.";
+        return 0;
+    }
+
     view = new WebEngineView();
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
     view->setMinimumSize(650, 375);
+
+    // Bring the primary instance to the foreground.
+    QObject::connect(
+        &a, &SingleApplication::instanceStarted,
+        [&]() {
+            view->activateWindow();
+            view->raise();
+        });
 
     QSettings settings;
     if (settings.contains("mainWindowGeometry")) {
@@ -241,6 +305,26 @@ int main(int argc, char *argv[])
             workerThread.quit();
             workerThread.wait();
         });
+
+#if defined(_WIN32)
+    // Allow existing app to be brought to the foreground. See `view->activateWindow()` above.
+    // Without this, on Windows, only the taskbar entry would light up.
+    QWindowsWindowFunctions::setWindowActivationBehavior(QWindowsWindowFunctions::AlwaysActivateWindow);
+#endif
+
+    // Receive and handle an URI sent by a secondary instance (see above).
+    QObject::connect(
+        &a,
+        &SingleApplication::receivedMessage,
+        [&](int instanceId, QByteArray message) {
+            QString arg = QString::fromUtf8(message);
+            qDebug() << "Received arg from secondary instance:" << arg;
+            handleURI(const_cast<char*>(arg.toStdString().c_str()));
+        });
+    // Handle URI which the app was launched with in the primary instance.
+    if (a.arguments().size() == 2) {
+        handleURI(const_cast<char*>(a.arguments()[1].toStdString().c_str()));
+    }
 
     return a.exec();
 }

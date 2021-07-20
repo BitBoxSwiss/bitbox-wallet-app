@@ -19,7 +19,7 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 )
 
-// SetDeviceName sends a request to the device using protobuf to set the device name
+// SetDeviceName sends a request to the device using protobuf to set the device name.
 func (device *Device) SetDeviceName(deviceName string) error {
 	if len(deviceName) > 64 {
 		return errp.New("device name too long")
@@ -45,7 +45,7 @@ func (device *Device) SetDeviceName(deviceName string) error {
 	return nil
 }
 
-// DeviceInfo retrieves the current device info from the bitbox
+// DeviceInfo retrieves the current device info from the bitbox.
 func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	request := &messages.Request{
 		Request: &messages.Request_DeviceInfo{

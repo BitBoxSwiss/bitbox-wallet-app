@@ -12,10 +12,13 @@ import (
 )
 
 var (
+	lockKeystoreMockCanSignMessage             sync.RWMutex
 	lockKeystoreMockCanVerifyAddress           sync.RWMutex
 	lockKeystoreMockCanVerifyExtendedPublicKey sync.RWMutex
 	lockKeystoreMockExtendedPublicKey          sync.RWMutex
 	lockKeystoreMockRootFingerprint            sync.RWMutex
+	lockKeystoreMockSignBTCMessage             sync.RWMutex
+	lockKeystoreMockSignETHMessage             sync.RWMutex
 	lockKeystoreMockSignTransaction            sync.RWMutex
 	lockKeystoreMockSupportsAccount            sync.RWMutex
 	lockKeystoreMockSupportsCoin               sync.RWMutex
@@ -36,6 +39,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //
 //         // make and configure a mocked keystore.Keystore
 //         mockedKeystore := &KeystoreMock{
+//             CanSignMessageFunc: func(in1 coin.Code) bool {
+// 	               panic("mock out the CanSignMessage method")
+//             },
 //             CanVerifyAddressFunc: func(in1 coin.Coin) (bool, bool, error) {
 // 	               panic("mock out the CanVerifyAddress method")
 //             },
@@ -47,6 +53,12 @@ var _ keystore.Keystore = &KeystoreMock{}
 //             },
 //             RootFingerprintFunc: func() ([]byte, error) {
 // 	               panic("mock out the RootFingerprint method")
+//             },
+//             SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+// 	               panic("mock out the SignBTCMessage method")
+//             },
+//             SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+// 	               panic("mock out the SignETHMessage method")
 //             },
 //             SignTransactionFunc: func(in1 interface{}) error {
 // 	               panic("mock out the SignTransaction method")
@@ -79,6 +91,9 @@ var _ keystore.Keystore = &KeystoreMock{}
 //
 //     }
 type KeystoreMock struct {
+	// CanSignMessageFunc mocks the CanSignMessage method.
+	CanSignMessageFunc func(in1 coin.Code) bool
+
 	// CanVerifyAddressFunc mocks the CanVerifyAddress method.
 	CanVerifyAddressFunc func(in1 coin.Coin) (bool, bool, error)
 
@@ -90,6 +105,12 @@ type KeystoreMock struct {
 
 	// RootFingerprintFunc mocks the RootFingerprint method.
 	RootFingerprintFunc func() ([]byte, error)
+
+	// SignBTCMessageFunc mocks the SignBTCMessage method.
+	SignBTCMessageFunc func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error)
+
+	// SignETHMessageFunc mocks the SignETHMessage method.
+	SignETHMessageFunc func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error)
 
 	// SignTransactionFunc mocks the SignTransaction method.
 	SignTransactionFunc func(in1 interface{}) error
@@ -117,6 +138,11 @@ type KeystoreMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// CanSignMessage holds details about calls to the CanSignMessage method.
+		CanSignMessage []struct {
+			// In1 is the in1 argument value.
+			In1 coin.Code
+		}
 		// CanVerifyAddress holds details about calls to the CanVerifyAddress method.
 		CanVerifyAddress []struct {
 			// In1 is the in1 argument value.
@@ -134,6 +160,22 @@ type KeystoreMock struct {
 		}
 		// RootFingerprint holds details about calls to the RootFingerprint method.
 		RootFingerprint []struct {
+		}
+		// SignBTCMessage holds details about calls to the SignBTCMessage method.
+		SignBTCMessage []struct {
+			// Message is the message argument value.
+			Message []byte
+			// Keypath is the keypath argument value.
+			Keypath signing.AbsoluteKeypath
+			// ScriptType is the scriptType argument value.
+			ScriptType signing.ScriptType
+		}
+		// SignETHMessage holds details about calls to the SignETHMessage method.
+		SignETHMessage []struct {
+			// Message is the message argument value.
+			Message []byte
+			// Keypath is the keypath argument value.
+			Keypath signing.AbsoluteKeypath
 		}
 		// SignTransaction holds details about calls to the SignTransaction method.
 		SignTransaction []struct {
@@ -176,6 +218,37 @@ type KeystoreMock struct {
 			In2 *signing.Configuration
 		}
 	}
+}
+
+// CanSignMessage calls CanSignMessageFunc.
+func (mock *KeystoreMock) CanSignMessage(in1 coin.Code) bool {
+	if mock.CanSignMessageFunc == nil {
+		panic("KeystoreMock.CanSignMessageFunc: method is nil but Keystore.CanSignMessage was just called")
+	}
+	callInfo := struct {
+		In1 coin.Code
+	}{
+		In1: in1,
+	}
+	lockKeystoreMockCanSignMessage.Lock()
+	mock.calls.CanSignMessage = append(mock.calls.CanSignMessage, callInfo)
+	lockKeystoreMockCanSignMessage.Unlock()
+	return mock.CanSignMessageFunc(in1)
+}
+
+// CanSignMessageCalls gets all the calls that were made to CanSignMessage.
+// Check the length with:
+//     len(mockedKeystore.CanSignMessageCalls())
+func (mock *KeystoreMock) CanSignMessageCalls() []struct {
+	In1 coin.Code
+} {
+	var calls []struct {
+		In1 coin.Code
+	}
+	lockKeystoreMockCanSignMessage.RLock()
+	calls = mock.calls.CanSignMessage
+	lockKeystoreMockCanSignMessage.RUnlock()
+	return calls
 }
 
 // CanVerifyAddress calls CanVerifyAddressFunc.
@@ -293,6 +366,80 @@ func (mock *KeystoreMock) RootFingerprintCalls() []struct {
 	lockKeystoreMockRootFingerprint.RLock()
 	calls = mock.calls.RootFingerprint
 	lockKeystoreMockRootFingerprint.RUnlock()
+	return calls
+}
+
+// SignBTCMessage calls SignBTCMessageFunc.
+func (mock *KeystoreMock) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+	if mock.SignBTCMessageFunc == nil {
+		panic("KeystoreMock.SignBTCMessageFunc: method is nil but Keystore.SignBTCMessage was just called")
+	}
+	callInfo := struct {
+		Message    []byte
+		Keypath    signing.AbsoluteKeypath
+		ScriptType signing.ScriptType
+	}{
+		Message:    message,
+		Keypath:    keypath,
+		ScriptType: scriptType,
+	}
+	lockKeystoreMockSignBTCMessage.Lock()
+	mock.calls.SignBTCMessage = append(mock.calls.SignBTCMessage, callInfo)
+	lockKeystoreMockSignBTCMessage.Unlock()
+	return mock.SignBTCMessageFunc(message, keypath, scriptType)
+}
+
+// SignBTCMessageCalls gets all the calls that were made to SignBTCMessage.
+// Check the length with:
+//     len(mockedKeystore.SignBTCMessageCalls())
+func (mock *KeystoreMock) SignBTCMessageCalls() []struct {
+	Message    []byte
+	Keypath    signing.AbsoluteKeypath
+	ScriptType signing.ScriptType
+} {
+	var calls []struct {
+		Message    []byte
+		Keypath    signing.AbsoluteKeypath
+		ScriptType signing.ScriptType
+	}
+	lockKeystoreMockSignBTCMessage.RLock()
+	calls = mock.calls.SignBTCMessage
+	lockKeystoreMockSignBTCMessage.RUnlock()
+	return calls
+}
+
+// SignETHMessage calls SignETHMessageFunc.
+func (mock *KeystoreMock) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	if mock.SignETHMessageFunc == nil {
+		panic("KeystoreMock.SignETHMessageFunc: method is nil but Keystore.SignETHMessage was just called")
+	}
+	callInfo := struct {
+		Message []byte
+		Keypath signing.AbsoluteKeypath
+	}{
+		Message: message,
+		Keypath: keypath,
+	}
+	lockKeystoreMockSignETHMessage.Lock()
+	mock.calls.SignETHMessage = append(mock.calls.SignETHMessage, callInfo)
+	lockKeystoreMockSignETHMessage.Unlock()
+	return mock.SignETHMessageFunc(message, keypath)
+}
+
+// SignETHMessageCalls gets all the calls that were made to SignETHMessage.
+// Check the length with:
+//     len(mockedKeystore.SignETHMessageCalls())
+func (mock *KeystoreMock) SignETHMessageCalls() []struct {
+	Message []byte
+	Keypath signing.AbsoluteKeypath
+} {
+	var calls []struct {
+		Message []byte
+		Keypath signing.AbsoluteKeypath
+	}
+	lockKeystoreMockSignETHMessage.RLock()
+	calls = mock.calls.SignETHMessage
+	lockKeystoreMockSignETHMessage.RUnlock()
 	return calls
 }
 

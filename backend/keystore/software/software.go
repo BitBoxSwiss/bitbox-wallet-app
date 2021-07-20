@@ -234,3 +234,18 @@ func (keystore *Keystore) SignTransaction(
 	}
 	return nil
 }
+
+// CanSignMessage implements keystore.Keystore.
+func (keystore *Keystore) CanSignMessage(coin.Code) bool {
+	return false
+}
+
+// SignBTCMessage implements keystore.Keystore.
+func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHMessage implements keystore.Keystore.
+func (keystore *Keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}

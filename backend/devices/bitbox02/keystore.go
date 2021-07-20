@@ -450,3 +450,30 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 		panic("unknown proposal type")
 	}
 }
+
+// CanSignMessage implements keystore.Keystore.
+func (keystore *keystore) CanSignMessage(code coin.Code) bool {
+	return code == coin.CodeBTC || code == coin.CodeETH
+}
+
+// SignBTCMessage implements keystore.Keystore.
+func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+	sc, ok := btcMsgScriptTypeMap[scriptType]
+	if !ok {
+		return nil, errp.Newf("scriptType not supported: %s", scriptType)
+	}
+	_, _, electrum65, err := keystore.device.BTCSignMessage(
+		messages.BTCCoin_BTC,
+		&messages.BTCScriptConfigWithKeypath{
+			ScriptConfig: firmware.NewBTCScriptConfigSimple(sc),
+			Keypath:      keypath.ToUInt32(),
+		},
+		message,
+	)
+	return electrum65, err
+}
+
+// SignETHMessage implements keystore.Keystore.
+func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return keystore.device.ETHSignMessage(messages.ETHCoin_ETH, keypath.ToUInt32(), message)
+}

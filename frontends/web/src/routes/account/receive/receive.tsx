@@ -30,7 +30,7 @@ import { QRCode } from '../../../components/qrcode/qrcode';
 import Status from '../../../components/status/status';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
+import { apiGet } from '../../../utils/request';
 import { isEthereumBased } from '../utils';
 import * as style from './receive.css';
 
@@ -100,7 +100,10 @@ class Receive extends Component<Props, State> {
     }
 
     private verifyAddress = (addressesIndex: number) => {
-        const { receiveAddresses, secureOutput } = this.props;
+        const { receiveAddresses, secureOutput, code } = this.props;
+        if (code === undefined) {
+            return;
+        }
         const { activeIndex } = this.state;
         if (!secureOutput.hasSecureOutput) {
             this.unregisterEvents();
@@ -108,9 +111,11 @@ class Receive extends Component<Props, State> {
             return;
         }
         this.setState({ verifying: true });
-        apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[addressesIndex][activeIndex].addressID).then(() => {
-            this.setState({ verifying: false });
-        });
+        accountApi.verifyAddress(
+            code,
+            receiveAddresses[addressesIndex][activeIndex].addressID).then(() => {
+                this.setState({ verifying: false });
+            });
     }
 
     private previous = (e: Event) => {

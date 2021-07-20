@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +17,13 @@
 
 import { h, JSX } from 'preact';
 import alert from './assets/icons/alert-triangle.svg';
+import BB02Stylized from '../../assets/device/bitbox02-stylized-reflection.png';
 import info from './assets/icons/info.svg';
+import arrowDownSVG from './assets/icons/arrow-down-active.svg';
+import checkSVG from './assets/icons/check.svg';
+import cancelSVG from './assets/icons/cancel.svg';
+import copySVG from './assets/icons/copy.svg';
 import * as style from './icon.css';
-
-export function Alert(props): JSX.Element {
-    return (
-        <img draggable={false} src={alert} {...props} />
-    );
-}
 
 export const ExpandOpen = (): JSX.Element => (
     <svg
@@ -62,6 +62,21 @@ export const ExpandClose = (): JSX.Element => (
     </svg>
 );
 
+type SVGProps = JSX.IntrinsicElements['svg'];
+
+export const Checked = ({className, ...props}: SVGProps) => (
+    <svg className={`checked ${className || ''}`} viewBox="0 0 52 52" draggable={false} {...props}>
+        <circle className="checked-circle" cx="26" cy="26" r="25" fill="none"/>
+        <path className="checked-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>
+);
+
+export const CaretDown = ({className, ...props}: SVGProps) => (
+    <svg className={`caretDown ${className || ''}`} viewBox="0 0 1024 1024" draggable={false} {...props}>
+        <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path>
+    </svg>
+);
+
 interface ExpandIconProps {
     expand: boolean;
 }
@@ -72,12 +87,12 @@ export const ExpandIcon = ({
     expand ? <ExpandOpen /> : <ExpandClose />
 );
 
-interface InfoProps {
-    className?: string;
-}
+type ImgProps = JSX.IntrinsicElements['img'];
 
-export function Info(props: InfoProps) {
-    return (
-        <img src={info} {...props} />
-    );
-}
+export const Alert = (props: ImgProps) => (<img src={alert} draggable={false} {...props} />);
+export const Info = (props: ImgProps) => (<img src={info} draggable={false} {...props} />);
+export const BitBox02Stylized = (props: ImgProps) => (<img src={BB02Stylized} draggable={false} {...props} />);
+export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
+export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
+export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
+export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
