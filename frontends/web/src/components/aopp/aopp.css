@@ -11,15 +11,15 @@
     color: var(--color-secondary);
 }
 
-.device {
-    max-width: 100%;
-    position: relative;
-    right: -30px;
+.caret {
+    display: block;
+    margin: 0 auto;
 }
-@media (max-width: 768px) {
-    .device {
-        right: -20px;
-    }
+
+.device {
+    max-width: 300px;
+    position: relative;
+    right: -18px;
 }
 
 .largeIcon {

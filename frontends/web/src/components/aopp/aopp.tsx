@@ -24,7 +24,7 @@ import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } fr
 import { Message } from '../message/message';
 import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { ArrowDown, BitBox02Stylized, Cancel, Checked } from '../icon';
+import { BitBox02Stylized, Cancel, CaretDown, Checked } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import * as styles from './aopp.css';
 
@@ -176,7 +176,7 @@ class Aopp extends Component<Props, State> {
                         </FullscreenHeader>
                         <FullscreenContent>
                             <p>{t('aopp.signing')}</p>
-                            <ArrowDown />
+                            <CaretDown className={styles.caret} />
                             <BitBox02Stylized className={styles.device} />
                         </FullscreenContent>
                     </Fullscreen>

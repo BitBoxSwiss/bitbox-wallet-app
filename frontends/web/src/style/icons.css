@@ -38,3 +38,14 @@
         transform: scale3d(1.02, 1.02, 1);
     }
 }
+
+.caretDown {
+    animation: fadeinout 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    stroke-width: 1 !important; /* reset because stroke-width is defined with 1.6 in base.css */
+    max-width: 26px;
+}
+
+@keyframes fadeinout {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.1; }
+}
