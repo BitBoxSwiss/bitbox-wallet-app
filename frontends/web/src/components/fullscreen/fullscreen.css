@@ -90,10 +90,12 @@
         align-items: stretch;
         flex-direction: column;
         flex-grow: 0;
-        gap: var(--space-half);
         justify-content: flex-end;
         margin-top: var(--space-half);
         padding-bottom: var(--space-half);
+    }
+    .buttons > *:not(:last-child) {
+        margin-bottom: var(--space-half);
     }
 }
 
