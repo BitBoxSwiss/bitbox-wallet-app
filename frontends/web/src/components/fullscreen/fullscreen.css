@@ -25,6 +25,7 @@
     margin: auto;
     max-width: 100%;
     text-align: center;
+    width: 480px;
 }
 @media (max-width: 768px) {
     .inner {
@@ -32,6 +33,11 @@
         flex-direction: column;
         min-height: 100vh;
         margin: 0 auto;
+    }
+}
+@media (min-width: 1200px) {
+    .inner {
+        width: 580px;
     }
 }
 
@@ -77,6 +83,11 @@
         flex-shrink: 0;
     }
 }
+@media (min-width: 1200px) {
+    .content {
+        min-height: 130px;
+    }
+}
 
 .buttons {
     display: flex;
@@ -101,4 +112,20 @@
 
 .buttons > *:only-child {
     margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+    .title {
+        --size-subheader: 28px;
+    }
+    .fullscreen p {
+        --size-default: 20px;
+    }
+    .content input,
+    .content label,
+    .content select,
+    .content textarea,
+    .buttons button {
+        --size-default: 18px;
+    }
 }

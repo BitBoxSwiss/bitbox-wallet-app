@@ -19,16 +19,14 @@ import { AppLogo } from '../icon';
 import * as style from './fullscreen.css';
 
 interface Props {
-    width?: number;
 }
 
 export function Fullscreen({
     children,
-    width = 480,
 }: RenderableProps<Props>) {
     return (
         <div className={style.fullscreen}>
-            <div className={style.inner} style={`width: ${width}px;`}>
+            <div className={style.inner}>
                 {children}
             </div>
         </div>
@@ -56,7 +54,7 @@ export function FullscreenHeader({
     const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
     return (
         <header className={headerStyles}>
-            {withAppLogo && <AppLogo style="margin-bottom: 0;" />}
+            {withAppLogo && <AppLogo />}
             <h1 className={style.title}>{title}</h1>
             {children}
         </header>
