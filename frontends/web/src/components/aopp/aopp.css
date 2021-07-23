@@ -17,9 +17,9 @@
 }
 
 .device {
-    max-width: 300px;
+    max-width: 264px;
     position: relative;
-    right: -18px;
+    right: -16px;
 }
 
 .largeIcon {
@@ -82,4 +82,13 @@
     font-size: var(--size-small);
     margin-top: var(--space-quarter);
     text-align: center;
+}
+
+@media (min-width: 1200px) {
+    .message {
+        --size-default: 18px;
+    }
+    .buttonInfoText {
+        --size-small: 14px;
+    }
 }

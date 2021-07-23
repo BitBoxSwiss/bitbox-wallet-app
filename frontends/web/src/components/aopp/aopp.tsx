@@ -20,6 +20,7 @@ import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
+import { SimpleMarkup } from '../../utils/simplemarkup';
 import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } from '../fullscreen/fullscreen';
 import { Message } from '../message/message';
 import { Button, Field, Label, Select } from '../forms';
@@ -117,7 +118,9 @@ class Aopp extends Component<Props, State> {
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')} withAppLogo />
                         <FullscreenContent>
-                            <p>{t('aopp.addressRequest', { host: domain(aopp.callback) })}</p>
+                            <SimpleMarkup tagName="p" markup={t('aopp.addressRequest', {
+                                host: `<strong>${domain(aopp.callback)}</strong>`
+                            })}/>
                         </FullscreenContent>
                         <FullscreenButtons>
                             <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
@@ -176,6 +179,16 @@ class Aopp extends Component<Props, State> {
                         </FullscreenHeader>
                         <FullscreenContent>
                             <p>{t('aopp.signing')}</p>
+                            <Field>
+                                <Label>{t('aopp.labelAddress')}</Label>
+                                <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+                            </Field>
+                            <Field>
+                                <Label>{t('aopp.labelMessage')}</Label>
+                                <div className={styles.message}>
+                                    {aopp.message}
+                                </div>
+                            </Field>
                             <CaretDown className={styles.caret} />
                             <BitBox02Stylized className={styles.device} />
                         </FullscreenContent>
