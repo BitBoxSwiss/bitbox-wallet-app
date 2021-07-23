@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +15,24 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, JSX } from 'preact';
+
+type SimpleMarkupProps = {
+    tagName: keyof JSX.IntrinsicElements;
+    markup: string;
+} & JSX.HTMLAttributes;
+
+const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
 
 // SimpleMarkup renders `foo <strong>bar</strong> baz` safely as `foo <strong>bar</strong> baz`. Anything else is rendered as sanitized text.
 // Only <strong> is supported to keep it simple.
-export default function SimpleMarkup({ tagName, markup, ...props }) {
+export function SimpleMarkup({ tagName, markup, ...props }: SimpleMarkupProps) {
     if (typeof markup !== 'string') {
         return null;
     }
-    let simpleMarkupChunks = /^(.*)<strong>(.*)<\/strong>(.*)$/.exec(markup);
+    const simpleMarkupChunks = captureStrongElement.exec(markup);
     if (simpleMarkupChunks === null || simpleMarkupChunks.length !== 4) {
         return h(tagName, props, markup);
     }
     return h(tagName, props, simpleMarkupChunks[1], h('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
-
 }

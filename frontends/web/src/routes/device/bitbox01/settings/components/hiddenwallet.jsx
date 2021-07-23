@@ -23,7 +23,7 @@ import { Dialog } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
-import SimpleMarkup from '../../../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../../../utils/simplemarkup';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 import * as dialogStyle from '../../../../../components/dialog/dialog.css';
 

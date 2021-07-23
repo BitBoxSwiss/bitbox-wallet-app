@@ -18,7 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import * as backendAPI from '../../../api/backend';
-import SimpleMarkup from '../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../utils/simplemarkup';
 import { Message } from '../../../components/message/message';
 import { Button, Input } from '../../../components/forms';
 import { Header } from '../../../components/layout';
