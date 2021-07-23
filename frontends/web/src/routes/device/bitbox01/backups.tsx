@@ -17,7 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
-import SimpleMarkup from '../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../utils/simplemarkup';
 import { alertUser } from '../../../components/alert/Alert';
 import { Button } from '../../../components/forms';
 import { Backup, BackupsListItem } from '../components/backup';
