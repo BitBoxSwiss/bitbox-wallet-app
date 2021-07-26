@@ -43,6 +43,7 @@
 
 .header {
     color: var(--color-gray);
+    font-size: var(--size-default);
     margin-bottom: var(--space-default);
 }
 @media (max-width: 768px) {
@@ -118,6 +119,7 @@
     .title {
         --size-subheader: 28px;
     }
+    .header,
     .fullscreen p {
         --size-default: 20px;
     }
