@@ -69,7 +69,7 @@
     "labelAddress": "Address",
     "labelMessage": "Message",
     "reverifyInfoText": "Use to verify agianst external service",
-    "signing": "To proceed, confirm message on your BitBox02.",
+    "signing": "To proceed, sign message on your BitBox02.",
     "success": {
       "message": "Proceed on {{host}}",
       "title": "Address successfully sent"
@@ -288,11 +288,11 @@
     "buy": "Buy",
     "changepin": "Change device password",
     "check": "Check backup",
-    "complete": "Complete",
     "continue": "Continue",
     "copy": "Copy",
     "create": "Create",
     "dismiss": "Dismiss",
+    "done": "Done",
     "download": "Download",
     "hiddenwallet": "Create hidden wallet",
     "next": "Next",
