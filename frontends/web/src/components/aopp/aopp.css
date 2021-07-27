@@ -7,10 +7,6 @@
     text-align: center;
 }
 
-.domainName {
-    color: var(--color-secondary);
-}
-
 .caret {
     display: block;
     margin: 0 auto;

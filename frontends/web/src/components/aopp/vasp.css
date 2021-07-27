@@ -1,0 +1,29 @@
+.logo {
+    display: block;
+    filter: grayscale(100%);
+    margin: var(--space-half) auto;
+    max-height: 32px;
+    max-width: 100%;
+    opacity: .61;
+}
+.prominent {
+    max-height: 48px;
+}
+@media (min-width: 1200px) {
+    .logo {
+        margin-top: var(--space-default);
+        max-height: 42px;
+    }
+    .prominent {
+        max-height: 72px;
+    }
+}
+
+.hostname {
+    color: var(--color-secondary);
+    margin: 0;
+}
+
+.capitalized::first-letter {
+    text-transform: capitalize;
+}

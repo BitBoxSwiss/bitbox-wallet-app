@@ -27,6 +27,7 @@ import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
 import { BitBox02Stylized, Cancel, CaretDown, Checked } from '../icon';
 import { VerifyAddress } from './verifyaddress';
+import { Vasp } from './vasp';
 import * as styles from './aopp.css';
 
 const Banner = ({ children }: RenderableProps<{}>) => (
@@ -118,9 +119,14 @@ class Aopp extends Component<Props, State> {
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')} withAppLogo />
                         <FullscreenContent>
-                            <SimpleMarkup tagName="p" markup={t('aopp.addressRequest', {
-                                host: `<strong>${domain(aopp.callback)}</strong>`
-                            })}/>
+                            <Vasp prominent
+                                hostname={domain(aopp.callback)}
+                                fallback={(
+                                    <SimpleMarkup tagName="p" markup={t('aopp.addressRequest', {
+                                        host: `<strong>${domain(aopp.callback)}</strong>`
+                                    })}/>
+                                )}
+                                withLogoText={t('aopp.addressRequestWithLogo')} />
                         </FullscreenContent>
                         <FullscreenButtons>
                             <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
@@ -143,7 +149,7 @@ class Aopp extends Component<Props, State> {
                     <form onSubmit={this.chooseAccount}>
                         <Fullscreen>
                             <FullscreenHeader title={t('aopp.title')}>
-                                <p>{domain(aopp.callback)}</p>
+                                <Vasp hostname={domain(aopp.callback)} />
                             </FullscreenHeader>
                             <FullscreenContent>
                                 <Select
@@ -166,16 +172,18 @@ class Aopp extends Component<Props, State> {
                 return (
                     <Fullscreen>
                         <FullscreenHeader title={t('aopp.title')}>
-                            <p>{domain(aopp.callback)}</p>
+                            <Vasp hostname={domain(aopp.callback)} />
                         </FullscreenHeader>
-                        <FullscreenContent>{t('aopp.syncing')}</FullscreenContent>
+                        <FullscreenContent>
+                            <p>{t('aopp.syncing')}</p>
+                        </FullscreenContent>
                     </Fullscreen>
                 );
             case 'signing':
                 return (
                     <Fullscreen>
-                        <FullscreenHeader title={t('aopp.title')}>
-                            <p className={styles.domainName}>{domain(aopp.callback)}</p>
+                        <FullscreenHeader small title={t('aopp.title')}>
+                            <Vasp hostname={domain(aopp.callback)} />
                         </FullscreenHeader>
                         <FullscreenContent>
                             <p>{t('aopp.signing')}</p>
