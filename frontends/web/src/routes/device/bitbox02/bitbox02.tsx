@@ -176,7 +176,7 @@ class BitBox02 extends Component<Props, State> {
         const { sidebarStatus } = panelStore.state;
         apiGet(this.apiPrefix() + '/status').then(status => {
             const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
-            if (restoreSidebar || status === 'connected') {
+            if (restoreSidebar) {
                 setSidebarStatus('');
             } else if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
                 setSidebarStatus('forceHidden');
