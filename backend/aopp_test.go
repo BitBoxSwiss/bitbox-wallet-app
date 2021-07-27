@@ -49,9 +49,10 @@ func TestAOPPSuccess(t *testing.T) {
 	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 	dummySignature := []byte(`signature`)
+	rootFingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	ks := keystoremock.KeystoreMock{
 		RootFingerprintFunc: func() ([]byte, error) {
-			return []byte{0x55, 0x055, 0x55, 0x55}, nil
+			return rootFingerprint, nil
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -152,6 +153,18 @@ func TestAOPPSuccess(t *testing.T) {
 			b := newBackend(t, testnetDisabled, regtestDisabled)
 			defer b.Close()
 
+			// Add a second account so we can test the choosing-account step. If there is only one
+			// account, the account is used automatically, skipping the step where the user chooses
+			// the account.
+			b.registerKeystore(&ks)
+			_, err := b.CreateAndPersistAccountConfig(
+				test.coinCode,
+				"Second account",
+				&ks,
+			)
+			require.NoError(t, err)
+			b.DeregisterKeystore()
+
 			callback := server.URL
 			params := defaultParams()
 			params.Set("asset", test.asset)
@@ -187,8 +200,11 @@ func TestAOPPSuccess(t *testing.T) {
 
 			require.Equal(t,
 				AOPP{
-					State:    aoppStateChoosingAccount,
-					Accounts: []account{{Name: test.accountName, Code: test.accountCode}},
+					State: aoppStateChoosingAccount,
+					Accounts: []account{
+						{Name: test.accountName, Code: test.accountCode},
+						{Name: "Second account", Code: regularAccountCode(rootFingerprint, test.coinCode, 1)},
+					},
 					Callback: callback,
 					Message:  dummyMsg,
 					coinCode: test.coinCode,
@@ -200,8 +216,11 @@ func TestAOPPSuccess(t *testing.T) {
 			b.AOPPChooseAccount(test.accountCode)
 			require.Equal(t,
 				AOPP{
-					State:     aoppStateSuccess,
-					Accounts:  []account{{Name: test.accountName, Code: test.accountCode}},
+					State: aoppStateSuccess,
+					Accounts: []account{
+						{Name: test.accountName, Code: test.accountCode},
+						{Name: "Second account", Code: regularAccountCode(rootFingerprint, test.coinCode, 1)},
+					},
 					Address:   test.address,
 					AddressID: test.addressID,
 					Callback:  callback,
@@ -214,19 +233,44 @@ func TestAOPPSuccess(t *testing.T) {
 		})
 	}
 
-	// If a keystore is already registered, the user is first asked for approval to continue.
-	t.Run("user-approve", func(t *testing.T) {
+	// There is only one account, so the choosing-account step is skipped.
+	t.Run("one-account", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		}))
+		defer server.Close()
+
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 		params := defaultParams()
+		params.Set("callback", server.URL)
+		b.HandleURI("aopp:?" + params.Encode())
+		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
+		b.AOPPApprove()
+		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
+		b.registerKeystore(&ks)
+		require.Equal(t, aoppStateSuccess, b.AOPP().State)
+	})
+
+	// Keystore is already registered before the AOPP request.
+	t.Run("user-approve", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		}))
+		defer server.Close()
+
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		params := defaultParams()
+		params.Set("callback", server.URL)
 		b.registerKeystore(&ks)
 		b.HandleURI("aopp:?" + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.AOPPApprove()
-		require.Equal(t, aoppStateChoosingAccount, b.AOPP().State)
+		require.Equal(t, aoppStateSuccess, b.AOPP().State)
 	})
-	// If a keystore is already registered, the user is first asked for approval to continue. Edge
-	// case: keystore is disconnected during approval.
+	// Keystore is already registered before the AOPP request. Edge case: keystore is disconnected
+	// during approval.
 	t.Run("user-approve-2", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
