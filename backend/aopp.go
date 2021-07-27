@@ -180,6 +180,14 @@ func (backend *Backend) aoppKeystoreRegistered() {
 
 	backend.aopp.Accounts = accounts
 	backend.aopp.State = aoppStateChoosingAccount
+
+	// Automatically use the account if there is only one, skipping the step where the user has to
+	// select it manually.
+	if len(accounts) == 1 {
+		backend.aoppChooseAccount(accounts[0].Code)
+		return
+	}
+
 	backend.notifyAOPP()
 }
 
@@ -251,10 +259,9 @@ func (backend *Backend) AOPPApprove() {
 	backend.aoppKeystoreRegistered()
 }
 
-// AOPPChooseAccount is called when an AOPP request is being processed and the user has chosen an
-// account.
-func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
-	defer backend.accountsAndKeystoreLock.Lock()()
+// aoppChooseAccount is called when an AOPP request is being processed and an account should be
+// selected. `accountsAndKeystoreLock` must be held when calling this function.
+func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 	if backend.aopp.State != aoppStateChoosingAccount {
 		return
 	}
@@ -379,4 +386,11 @@ func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
 
 	backend.aopp.State = aoppStateSuccess
 	backend.notifyAOPP()
+}
+
+// AOPPChooseAccount is called when an AOPP request is being processed and the user has chosen an
+// account.
+func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
+	defer backend.accountsAndKeystoreLock.Lock()()
+	backend.aoppChooseAccount(code)
 }
