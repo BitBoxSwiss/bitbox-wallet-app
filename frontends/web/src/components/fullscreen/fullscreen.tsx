@@ -21,16 +21,19 @@ import { SwissMadeOpenSource } from '../icon/logo';
 import * as style from './fullscreen.css';
 
 interface Props {
+    width?: string;
     withBottomBar?: boolean;
 }
 
 export function Fullscreen({
     children,
+    width,
     withBottomBar,
 }: RenderableProps<Props>) {
+    const styles = width ? { style: `width: ${width}` } : undefined;
     return (
         <div className={style.fullscreen}>
-            <div className={style.inner}>
+            <div className={style.inner} {...styles}>
                 {children}
             </div>
             {withBottomBar && (
@@ -44,9 +47,17 @@ export function Fullscreen({
     );
 }
 
-export function FullscreenContent({ children }: RenderableProps<{}>) {
+interface FullscreenContentProps {
+    fullWidth?: boolean;
+}
+
+export function FullscreenContent({
+    children,
+    fullWidth,
+}: RenderableProps<FullscreenContentProps>) {
+    const classes = fullWidth ? `${style.content} ${style.fullWidth}` : style.content;
     return (
-        <div className={style.content}>{children}</div>
+        <div className={classes}>{children}</div>
     );
 }
 

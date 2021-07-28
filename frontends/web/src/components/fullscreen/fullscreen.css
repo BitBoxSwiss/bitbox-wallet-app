@@ -17,13 +17,14 @@
 .inner {
     margin: auto;
     max-width: 100%;
-    padding-bottom: 22px;
-    padding-top: 22px;
+    padding-bottom: var(--space-half);
+    padding-top: var(--space-half);
     text-align: center;
     width: 480px;
 }
 @media (max-width: 768px) {
     .inner {
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
         margin: 0 auto;
@@ -76,6 +77,10 @@
         flex-grow: 1;
         flex-basis: auto;
         flex-shrink: 0;
+        padding: 0 22px;
+    }
+    .content.fullWidth {
+        padding: 0;
     }
 }
 @media (min-width: 1200px) {
@@ -89,7 +94,7 @@
     flex-direction: row-reverse;
     justify-content: space-between;
     margin-top: var(--space-default);
-    padding-bottom: var(--space-default);
+    padding-bottom: var(--space-half);
 }
 @media (max-width: 768px) and (orientation: portrait) {
     .buttons {
@@ -98,7 +103,7 @@
         flex-grow: 0;
         justify-content: flex-end;
         margin-top: var(--space-half);
-        padding-bottom: var(--space-half);
+        padding: 0 var(--space-half);
     }
     .buttons > *:not(:last-child) {
         margin-bottom: var(--space-half);

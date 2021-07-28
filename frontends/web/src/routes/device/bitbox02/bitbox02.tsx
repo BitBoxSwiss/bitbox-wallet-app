@@ -439,10 +439,15 @@ class BitBox02 extends Component<Props, State> {
                     <div className="flex flex-1 scrollableContainer">
                         <Steps>
                             { (status === 'connected') ? (
-                                <Fullscreen withBottomBar>
-                                    <FullscreenHeader title={t('button.unlock')} />
-                                    <FullscreenContent>
+                                <Fullscreen withBottomBar width="600px">
+                                    <FullscreenHeader title={t('button.unlock')}>
                                         <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
+                                    </FullscreenHeader>
+                                    <FullscreenContent fullWidth>
+                                    {/* the fullscreen component covers all other banners
+                                        i.e. the attestation warning at the top,
+                                        that is why added it there as well instead of
+                                        the password guesture. */}
                                         {attestationResult === false ? (
                                             <Status>
                                                 {t('bitbox02Wizard.attestationFailed')}
