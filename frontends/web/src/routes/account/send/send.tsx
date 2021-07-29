@@ -354,6 +354,9 @@ class Send extends Component<Props, State> {
                 case 'feeTooLow':
                     this.setState({ feeError: this.props.t('send.error.feeTooLow') });
                     break;
+                case 'feesNotAvailable':
+                    this.setState({ feeError: this.props.t('send.error.feesNotAvailable') });
+                    break;
                 default:
                     this.setState({ proposedFee: undefined });
                     if (errorCode) {

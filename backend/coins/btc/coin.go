@@ -158,9 +158,8 @@ func (coin *Coin) Decimals(isFee bool) uint {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
-	return strings.TrimRight(strings.TrimRight(
-		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
-		"0"), ".")
+	s := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
+	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 }
 
 // ToUnit implements coin.Coin.

@@ -26,6 +26,8 @@ func (err TxValidationError) Error() string {
 }
 
 var (
+	// ErrFeesNotAvailable is returned when there was an error estimating fees.
+	ErrFeesNotAvailable = TxValidationError("feesNotAvailable")
 	// ErrInvalidAddress is used when the recipient address is invalid or does not match the correct
 	// network.
 	ErrInvalidAddress = TxValidationError("invalidAddress")
