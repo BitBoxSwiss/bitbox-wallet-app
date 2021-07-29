@@ -271,7 +271,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
 		// Provided in Sat/vByte, will be converted to Sat/vKb.
-		FeePerByte    string   `json:"feePerByte"`
+		CustomFee     string   `json:"customFee"`
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
 		Data          string   `json:"data"`
@@ -288,7 +288,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if input.FeeTargetCode == accounts.FeeTargetCodeCustom {
-		feePerKb, err := strconv.ParseFloat(jsonBody.FeePerByte, 64)
+		feePerKb, err := strconv.ParseFloat(jsonBody.CustomFee, 64)
 		if err != nil {
 			return err
 		}

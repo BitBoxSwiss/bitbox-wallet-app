@@ -71,7 +71,7 @@ interface State {
     fiatUnit: accountApi.Fiat;
     sendAll: boolean;
     feeTarget?: accountApi.FeeTargetCode;
-    feePerByte: string;
+    customFee: string;
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
@@ -121,7 +121,7 @@ class Send extends Component<Props, State> {
         activeScanQR: false,
         videoLoading: false,
         note: '',
-        feePerByte: '',
+        customFee: '',
     };
 
     private coinSupportsCoinControl = () => {
@@ -234,7 +234,7 @@ class Send extends Component<Props, State> {
                     amount: undefined,
                     data: undefined,
                     note: '',
-                    feePerByte: '',
+                    customFee: '',
                 });
                 if (this.utxos) {
                     (this.utxos as any).getWrappedInstance().clear();
@@ -262,7 +262,7 @@ class Send extends Component<Props, State> {
         address: this.state.recipientAddress,
         amount: this.state.amount,
         feeTarget: this.state.feeTarget || '',
-        feePerByte: this.state.feePerByte,
+        customFee: this.state.customFee,
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
         data: this.state.data,
@@ -270,7 +270,7 @@ class Send extends Component<Props, State> {
 
     private sendDisabled = () => {
         const txInput = this.txInput();
-        return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount) || (this.state.feeTarget === 'custom' && !this.state.feePerByte);
+        return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount) || (this.state.feeTarget === 'custom' && !this.state.customFee);
     }
 
     private validateAndDisplayFee = (updateFiat: boolean = true) => {
@@ -439,7 +439,7 @@ class Send extends Component<Props, State> {
 
     private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
         this.setState(
-            { feeTarget, feePerByte: '' },
+            { feeTarget, customFee: '' },
             () => this.validateAndDisplayFee(this.state.sendAll),
         );
     }
@@ -551,7 +551,7 @@ class Send extends Component<Props, State> {
             fiatUnit,
             sendAll,
             feeTarget,
-            feePerByte,
+            customFee,
             isConfirming,
             isSent,
             isAborted,
@@ -691,10 +691,10 @@ class Send extends Component<Props, State> {
                                                 disabled={!amount && !sendAll}
                                                 fiatUnit={fiatUnit}
                                                 proposedFee={proposedFee}
-                                                feePerByte={feePerByte}
+                                                customFee={customFee}
                                                 showCalculatingFeeLabel={isUpdatingProposal}
                                                 onFeeTargetChange={this.feeTargetChange}
-                                                onFeePerByte={fee => this.setState({ feePerByte: fee }, this.validateAndDisplayFee)}
+                                                onCustomFee={customFee => this.setState({ customFee }, this.validateAndDisplayFee)}
                                                 error={feeError}/>
                                         </div>
                                         <div className="column column-1-2">
@@ -782,8 +782,8 @@ class Send extends Component<Props, State> {
                                                 {proposedFee.conversions[fiatUnit]} <small>{fiatUnit}</small>
                                             </span>
                                         )}
-                                        {feePerByte ? (
-                                            <span key="feeperbyte"><br/><small>({feePerByte} sat/vB)</small></span>
+                                        {customFee ? (
+                                            <span key="customFee"><br/><small>({customFee} sat/vB)</small></span>
                                         ) : null}
                                     </p>
                                 </div>
