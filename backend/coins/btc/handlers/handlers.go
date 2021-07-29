@@ -22,7 +22,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -270,7 +269,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		Address   string `json:"address"`
 		SendAll   string `json:"sendAll"`
 		FeeTarget string `json:"feeTarget"`
-		// Provided in Sat/vByte, will be converted to Sat/vKb.
+		// Provided in Sat/vByte for BTC/LTC and in Gwei for ETH.
 		CustomFee     string   `json:"customFee"`
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
@@ -288,11 +287,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if input.FeeTargetCode == accounts.FeeTargetCodeCustom {
-		feePerKb, err := strconv.ParseFloat(jsonBody.CustomFee, 64)
-		if err != nil {
-			return err
-		}
-		input.FeePerKb = btcutil.Amount(feePerKb * 1000)
+		input.CustomFee = jsonBody.CustomFee
 	}
 	if jsonBody.SendAll == "yes" {
 		input.Amount = coin.NewSendAmountAll()
