@@ -12,6 +12,7 @@
 .status {
     font-size: var(--size-subheader);
     max-width: 90%;
+    text-align: left;
 }
 
 .success {

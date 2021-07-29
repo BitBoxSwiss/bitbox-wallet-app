@@ -24,6 +24,7 @@ import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Checkbox, Input  } from '../../../components/forms';
 import { Step, Steps } from '../../../components/steps';
+import { Fullscreen, FullscreenContent, FullscreenHeader } from '../../../components/fullscreen/fullscreen';
 import * as style from '../../../components/steps/steps.css';
 import Toast from '../../../components/toast/Toast';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -33,8 +34,6 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../../components/alert/Alert';
 import { store as panelStore } from '../../../components/guide/guide';
 import { SwissMadeOpenSource } from '../../../components/icon/logo';
-import { LanguageSwitch } from '../../../components/language/language';
-import { Header } from '../../../components/layout/header';
 import { setSidebarStatus } from '../../../components/sidebar/sidebar';
 import Status from '../../../components/status/status';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
@@ -176,7 +175,7 @@ class BitBox02 extends Component<Props, State> {
         const { sidebarStatus } = panelStore.state;
         apiGet(this.apiPrefix() + '/status').then(status => {
             const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
-            if (restoreSidebar || status === 'connected') {
+            if (restoreSidebar) {
                 setSidebarStatus('');
             } else if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
                 setSidebarStatus('forceHidden');
@@ -434,22 +433,33 @@ class BitBox02 extends Component<Props, State> {
                     )
                 }
                 <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>}>
-                        <LanguageSwitch />
-                    </Header>
+                    <Status hidden={attestationResult !== false}>
+                        {t('bitbox02Wizard.attestationFailed')}
+                    </Status>
                     <div className="flex flex-1 scrollableContainer">
                         <Steps>
-                            <Step active={status === 'connected'} title={t('button.unlock')} width={700}>
-                                <div className={style.stepContext}>
-                                    <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
-                                    <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
-                                    </div>
-                                </div>
-                                <div className="text-center m-top-large">
-                                    <SwissMadeOpenSource large />
-                                </div>
-                            </Step>
+                            { (status === 'connected') ? (
+                                <Fullscreen withBottomBar width="600px">
+                                    <FullscreenHeader title={t('button.unlock')}>
+                                        <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
+                                    </FullscreenHeader>
+                                    <FullscreenContent fullWidth>
+                                    {/* the fullscreen component covers all other banners
+                                        i.e. the attestation warning at the top,
+                                        that is why added it there as well instead of
+                                        the password guesture. */}
+                                        {attestationResult === false ? (
+                                            <Status>
+                                                {t('bitbox02Wizard.attestationFailed')}
+                                            </Status>
+                                        ) : (
+                                            <div className={style.passwordGesturesGifWrapper}>
+                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
+                                            </div>
+                                        )}
+                                    </FullscreenContent>
+                                </Fullscreen>
+                            ) : null }
 
                             <Step
                                 active={status === 'unpaired' || status === 'pairingFailed'}
@@ -795,9 +805,6 @@ class BitBox02 extends Component<Props, State> {
                             }
                         </Steps>
                     </div>
-                    <Status hidden={attestationResult !== false}>
-                        {t('bitbox02Wizard.attestationFailed')}
-                    </Status>
                 </div>
             </div>
         );
