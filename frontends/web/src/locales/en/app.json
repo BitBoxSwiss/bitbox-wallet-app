@@ -1121,6 +1121,7 @@
     },
     "error": {
       "feeTooLow": "fee too low",
+      "feesNotAvailable": "Could not estimate fees",
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
       "invalidAmount": "invalid amount",
@@ -1134,12 +1135,16 @@
     "feeTarget": {
       "description": {
         "economy": "4 hours (24 blocks)",
+        "economy_eth": "30 minutes or less",
         "economy_ltc": "1 hour (24 blocks)",
         "high": "20 minutes (2 blocks)",
+        "high_eth": "30 seconds or less",
         "high_ltc": "5 minutes (2 blocks)",
         "low": "2 hours (12 blocks)",
+        "low_eth": "5 minutes or less",
         "low_ltc": "30 minutes (12 blocks)",
         "normal": "1 hour (6 blocks)",
+        "normal_eth": "2 minutes or less",
         "normal_ltc": "15 minutes (6 blocks)"
       },
       "estimate": "Estimated confirmation time:",

@@ -32,8 +32,7 @@ type AddressList []Address
 type TxProposalArgs struct {
 	RecipientAddress string
 	Amount           coin.SendAmount
-	// Only applies to BTC/LTC.
-	FeeTargetCode FeeTargetCode
+	FeeTargetCode    FeeTargetCode
 	// Only applies to BTC/LTC and if FeeTargetCode == Custom. Technically it is vKb (virtual Kb)
 	// since fees are computed from a transaction's weight (measured in weight units or virtual
 	// bytes), but we keep the `Kb` unit to be consistent with the rest of the codebase and Bitcoin
