@@ -38,7 +38,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import { isBitcoinBased } from '../utils';
+import { isBitcoinBased, customFeeUnit } from '../utils';
 import { FeeTargets } from './feetargets';
 import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
@@ -449,7 +449,7 @@ class Send extends Component<Props, State> {
         this.validateAndDisplayFee(true);
     }
 
-    private getAccount = () => {
+    private getAccount = (): accountApi.IAccount | undefined => {
         if (!this.props.accounts) {
             return undefined;
         }
@@ -783,7 +783,7 @@ class Send extends Component<Props, State> {
                                             </span>
                                         )}
                                         {customFee ? (
-                                            <span key="customFee"><br/><small>({customFee} sat/vB)</small></span>
+                                            <span key="customFee"><br/><small>({customFee} { customFeeUnit(account.coinCode) } )</small></span>
                                         ) : null}
                                     </p>
                                 </div>

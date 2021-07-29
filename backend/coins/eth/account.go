@@ -441,8 +441,12 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 
-	suggestedGasPrice, err := account.suggestedGasPrice(args.FeeTargetCode)
+	suggestedGasPrice, err := account.gasPrice(args)
 	if err != nil {
+		if _, ok := errp.Cause(err).(errors.TxValidationError); ok {
+			return nil, err
+		}
+		account.log.WithError(err).Error("error getting the gas price")
 		return nil, errp.WithStack(errors.ErrFeesNotAvailable)
 	}
 
@@ -655,7 +659,6 @@ func (account *Account) feeTargets() []*feeTarget {
 		return ethGasStationTargets
 	}
 	account.log.WithError(err).Error("Could not get fee targets from eth gas station, falling back to RPC eth_gasPrice")
-
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
 	if err != nil {
 		account.log.WithError(err).Error("Fallback to RPC eth_gasPrice failed")
@@ -678,14 +681,30 @@ func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCo
 	return feeTargets, accounts.DefaultFeeTarget
 }
 
-// suggestedGasPrice returns the currently suggested gas price for the given fee target.
-func (account *Account) suggestedGasPrice(feeTargetCode accounts.FeeTargetCode) (*big.Int, error) {
+// gasPrice returns the currently suggested gas price for the given fee target, or a custom gas
+// price if the fee target is `FeeTargetCodeCustom`.
+func (account *Account) gasPrice(args *accounts.TxProposalArgs) (*big.Int, error) {
+	if args.FeeTargetCode == accounts.FeeTargetCodeCustom {
+		// Convert from Gwei to Wei.
+		amount, err := coin.NewAmountFromString(args.CustomFee, big.NewInt(1e9))
+		if err != nil {
+			return nil, err
+		}
+		gasPrice := amount.BigInt()
+		if gasPrice.Cmp(big.NewInt(0)) <= 0 {
+			return nil, errors.ErrFeeTooLow
+		}
+		return gasPrice, nil
+	}
 	for _, t := range account.feeTargets() {
-		if t.code == feeTargetCode {
+		if t.code == args.FeeTargetCode {
+			if t.gasPrice.Cmp(big.NewInt(0)) <= 0 {
+				return nil, errors.ErrFeeTooLow
+			}
 			return t.gasPrice, nil
 		}
 	}
-	return nil, errp.Newf("Could not find fee target %s", feeTargetCode)
+	return nil, errp.Newf("Could not find fee target %s", args.FeeTargetCode)
 }
 
 // TxProposal implements accounts.Interface.

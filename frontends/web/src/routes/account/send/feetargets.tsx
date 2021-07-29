@@ -20,7 +20,7 @@ import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { getCoinCode, isBitcoinBased } from '../utils';
+import { getCoinCode, customFeeUnit } from '../utils';
 import * as style from './feetargets.css';
 
 interface LoadedProps {
@@ -76,7 +76,7 @@ class FeeTargets extends Component<Props, State> {
                     value: code,
                     text: this.props.t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
                 }));
-                if (expert && isBitcoinBased(this.props.coinCode)) {
+                if (expert) {
                     options.push({
                         value: 'custom',
                         text: this.props.t('send.feeTarget.label.custom'),
@@ -197,7 +197,9 @@ class FeeTargets extends Component<Props, State> {
                                     }}
                                     value={customFee}
                                 >
-                                    <span className={style.customFeeUnit}>sat/vB</span>
+                                    <span className={style.customFeeUnit}>
+                                        { customFeeUnit(this.props.coinCode) }
+                                    </span>
                                 </Input>
                             </div>
                         </div>

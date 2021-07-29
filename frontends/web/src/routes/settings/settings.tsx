@@ -224,10 +224,6 @@ class Settings extends Component<Props, State> {
                                                         <div className={style.setting}>
                                                             <div>
                                                                 <p className="m-none">{t('settings.expert.fee')}</p>
-                                                                <p className="m-none">
-                                                                    <Badge type="generic">BTC</Badge>
-                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
-                                                                </p>
                                                             </div>
                                                             <Toggle
                                                                 checked={config.frontend.expertFee}

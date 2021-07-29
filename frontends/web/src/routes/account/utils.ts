@@ -69,3 +69,13 @@ export function getScriptName(scriptType: ScriptType): string {
             return 'Native segwit (bech32)';
     }
 }
+
+export function customFeeUnit(coinCode: CoinCode): string {
+    if (isBitcoinBased(coinCode)) {
+        return 'sat/vB';
+    }
+    if (isEthereumBased(coinCode)) {
+        return 'Gwei';
+    }
+    return '';
+}
