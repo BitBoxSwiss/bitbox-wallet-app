@@ -132,9 +132,8 @@ func (coin *Coin) unitFactor(isFee bool) *big.Int {
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
 	factor := coin.unitFactor(isFee)
-	return strings.TrimRight(strings.TrimRight(
-		new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18),
-		"0"), ".")
+	s := new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18)
+	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 }
 
 // ToUnit implements coin.Coin.

@@ -41,7 +41,6 @@ func (f *feeTarget) FormattedFeeRate() string {
 		return ""
 	}
 	factor := big.NewInt(1e9)
-	return strings.TrimRight(strings.TrimRight(
-		new(big.Rat).SetFrac(f.gasPrice, factor).FloatString(9),
-		"0"), ".") + " Gwei"
+	s := new(big.Rat).SetFrac(f.gasPrice, factor).FloatString(9)
+	return strings.TrimRight(strings.TrimRight(s, "0"), ".") + " Gwei"
 }

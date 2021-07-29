@@ -48,7 +48,7 @@ var pollInterval = 60 * time.Second
 
 // ethGasStationAPIKey is used to access the API of https://ethgasstation.info.
 // See https://docs.ethgasstation.info/.
-const ethGasStationAPIKey = "289ea7884cb5903dcb50af9a81cd9518ae000ff9088af5182b5bc8b87385"
+const ethGasStationAPIKey = "3a61bee56f554cc14db4f49e2ace053b3086d3c323aefec83e5ff25ca485"
 
 // Account is an Ethereum account, with one address.
 type Account struct {
