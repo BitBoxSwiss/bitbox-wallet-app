@@ -16,19 +16,30 @@
 
 import { h, RenderableProps } from 'preact';
 import { AppLogo } from '../icon';
+import { Footer } from '../layout';
+import { SwissMadeOpenSource } from '../icon/logo';
 import * as style from './fullscreen.css';
 
 interface Props {
+    withBottomBar?: boolean;
 }
 
 export function Fullscreen({
     children,
+    withBottomBar,
 }: RenderableProps<Props>) {
     return (
         <div className={style.fullscreen}>
             <div className={style.inner}>
                 {children}
             </div>
+            {withBottomBar && (
+                <div style="margin-top: auto;">
+                    <Footer>
+                        <SwissMadeOpenSource />
+                    </Footer>
+                </div>
+            )}
         </div>
     );
 }

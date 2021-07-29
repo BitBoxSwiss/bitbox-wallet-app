@@ -7,23 +7,18 @@
     left: 0;
     overflow-x: inherit;
     overflow-y: auto;
-    padding: 22px;
     position: absolute;
     right: 0;
     top: 0;
     /* z-index between sidebar (~4000) and wait-dialog (~10000) */
     z-index: 5100;
 }
-@media (max-width: 768px) {
-    .fullscreen {
-        padding-bottom: 0;
-        padding-top: 0;
-    }
-}
 
 .inner {
     margin: auto;
     max-width: 100%;
+    padding-bottom: 22px;
+    padding-top: 22px;
     text-align: center;
     width: 480px;
 }
@@ -31,7 +26,6 @@
     .inner {
         display: flex;
         flex-direction: column;
-        min-height: 100vh;
         margin: 0 auto;
     }
 }
@@ -129,5 +123,8 @@
     .content textarea,
     .buttons button {
         --size-default: 18px;
+    }
+    .fullscreen footer p {
+        --size-default: 14px;
     }
 }
