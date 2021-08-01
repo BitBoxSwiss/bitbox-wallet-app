@@ -20,7 +20,7 @@ import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { getCoinCode, isBitcoinBased } from '../utils';
+import { getCoinCode, customFeeUnit } from '../utils';
 import * as style from './feetargets.css';
 
 interface LoadedProps {
@@ -33,10 +33,10 @@ interface FeeTargetsProps {
     disabled: boolean;
     fiatUnit: accountApi.Fiat;
     proposedFee?: accountApi.IAmount;
-    feePerByte: string;
+    customFee: string;
     showCalculatingFeeLabel?: boolean;
     onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
-    onFeePerByte: (feePerByte: string) => void;
+    onCustomFee: (customFee: string) => void;
     error?: string;
 }
 
@@ -76,7 +76,7 @@ class FeeTargets extends Component<Props, State> {
                     value: code,
                     text: this.props.t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
                 }));
-                if (expert && isBitcoinBased(this.props.coinCode)) {
+                if (expert) {
                     options.push({
                         value: 'custom',
                         text: this.props.t('send.feeTarget.label.custom'),
@@ -93,9 +93,9 @@ class FeeTargets extends Component<Props, State> {
         this.setFeeTarget(target.options[target.selectedIndex].value as accountApi.FeeTargetCode);
     }
 
-    private handleFeePerByte = (event: Event) => {
+    private handleCustomFee = (event: Event) => {
         const target = event.target as HTMLInputElement;
-        this.props.onFeePerByte(target.value);
+        this.props.onCustomFee(target.value);
     }
 
     private setFeeTarget = (feeTarget: accountApi.FeeTargetCode) => {
@@ -119,7 +119,7 @@ class FeeTargets extends Component<Props, State> {
         disabled,
         error,
         showCalculatingFeeLabel = false,
-        feePerByte,
+        customFee,
     }: RenderableProps<Props>,
     {
         feeTarget,
@@ -187,7 +187,7 @@ class FeeTargets extends Component<Props, State> {
                                     placeholder={t('send.fee.customPlaceholder')}
                                     error={error}
                                     transparent
-                                    onInput={this.handleFeePerByte}
+                                    onInput={this.handleCustomFee}
                                     getRef={input => {
                                         setTimeout(() => {
                                             if (!disabled && input && input.autofocus) {
@@ -195,9 +195,11 @@ class FeeTargets extends Component<Props, State> {
                                             }
                                         });
                                     }}
-                                    value={feePerByte}
+                                    value={customFee}
                                 >
-                                    <span className={style.customFeeUnit}>sat/vB</span>
+                                    <span className={style.customFeeUnit}>
+                                        { customFeeUnit(this.props.coinCode) }
+                                    </span>
                                 </Input>
                             </div>
                         </div>

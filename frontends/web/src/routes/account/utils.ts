@@ -40,7 +40,7 @@ export function isBitcoinBased(coinCode: CoinCode): boolean {
 }
 
 export function isEthereumBased(coinCode: CoinCode): boolean {
-    return coinCode === 'eth' || coinCode.startsWith('eth-erc20-');
+    return coinCode === 'eth' || coinCode === 'teth' || coinCode === 'reth' || coinCode.startsWith('eth-erc20-');
 }
 
 export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
@@ -68,4 +68,14 @@ export function getScriptName(scriptType: ScriptType): string {
         case 'p2wpkh':
             return 'Native segwit (bech32)';
     }
+}
+
+export function customFeeUnit(coinCode: CoinCode): string {
+    if (isBitcoinBased(coinCode)) {
+        return 'sat/vB';
+    }
+    if (isEthereumBased(coinCode)) {
+        return 'Gwei';
+    }
+    return '';
 }

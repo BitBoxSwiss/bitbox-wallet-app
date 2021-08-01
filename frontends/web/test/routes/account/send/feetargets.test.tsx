@@ -80,8 +80,8 @@ describe('routes/account/send/feetargets', () => {
                         BTC: '0.02',
                     },
                 }}
-                feePerByte=""
-                onFeePerByte={jest.fn()}
+                customFee=""
+                onCustomFee={jest.fn()}
                 onFeeTargetChange={jest.fn()} />,
         );
         expect(fee).toMatchSnapshot();
@@ -99,8 +99,8 @@ describe('routes/account/send/feetargets', () => {
                 coinCode="eth"
                 disabled={false}
                 fiatUnit="EUR"
-                feePerByte=""
-                onFeePerByte={jest.fn()}
+                customFee=""
+                onCustomFee={jest.fn()}
                 onFeeTargetChange={jest.fn()} />,
         );
         expect(fee).toMatchSnapshot();
@@ -126,8 +126,8 @@ describe('routes/account/send/feetargets', () => {
                 coinCode="btc"
                 disabled={false}
                 fiatUnit="USD"
-                feePerByte=""
-                onFeePerByte={jest.fn()}
+                customFee=""
+                onCustomFee={jest.fn()}
                 onFeeTargetChange={onFeeTargetChangeCB} />,
         );
         expect(apiGetMock).toHaveBeenCalled();
