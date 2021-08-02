@@ -1,5 +1,5 @@
 import { Component, h, RenderableProps } from 'preact';
-import { animate } from '../../utils/animation';
+import { animate } from '../../../../../utils/animation';
 import * as style from './steps.css';
 
 interface StepProps {

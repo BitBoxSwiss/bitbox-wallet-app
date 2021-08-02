@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import * as style from '../../../components/steps/steps.css';
 import Toast from '../../../components/toast/Toast';
 import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -101,7 +100,7 @@ class Backups extends Component<Props, State> {
         }
         return (
             <div>
-                <div className={style.stepContext}>
+                <div className={backupStyle.stepContext}>
                     {
                         errorText && (
                             <Toast theme="warning">
