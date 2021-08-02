@@ -33,7 +33,7 @@
     "fiatBalance": "Stanje v fiat valuti",
     "name": "Ime računa",
     "noAccount": "Ni računov za prikaz.",
-    "title": "Povzetek računov",
+    "title": "Portfolio",
     "total": "Skupaj",
     "transactionHistory": "Zgodovina transakcij"
   },

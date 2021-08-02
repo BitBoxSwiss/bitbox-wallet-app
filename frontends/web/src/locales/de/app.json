@@ -24,7 +24,13 @@
     "extendedPublicKey": "Erweiterter Public Key",
     "label": "Konto Informationen",
     "title": "Konto Informationen",
-    "verify": "Auf Gerät bestätigen"
+    "verify": "Auf Gerät bestätigen",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "Legacy-P2PKH erweiterter Public Key anzeigen",
+      "p2wpkh": "Native Segwit anzeigen",
+      "p2wpkh-p2sh": "Älteren Segwit erweiterte Public Key anzeigen"
+    },
+    "xpubTypeInfo": "Derzeit wird der {{scriptType}} erweiterte Public Key angezeigt ({{current}} von {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Kontostand",
@@ -71,6 +77,22 @@
     "warning": {
       "xpubWrongNet": "Warnung: Das Format des erweiterten Public Keys entspricht nicht dem ausgewählten Kontotyp. Sollten die erwarteten Transaktionen nicht angezeigt werden versuchen Sie, den erweiterten Public Key mit einem anderen Kontotyp zu importieren."
     }
+  },
+  "aopp": {
+    "addressRequest": "{{host}} fordert eine Empfangsadresse an.",
+    "addressRequestWithLogo": "fordert eine Empfangsadresse an",
+    "banner": "Adressanfrage in Bearbeitung.",
+    "errorTitle": "Fehler während Adressanfrage",
+    "labelAddress": "Adresse",
+    "labelMessage": "Nachricht",
+    "reverifyInfoText": "Adresse überprüfen",
+    "signing": "Signiere die Nachricht auf Ihrer BitBox um fortzufahren",
+    "success": {
+      "message": "Weiter auf {{host}}",
+      "title": "Adresse erfolgreich übermittelt"
+    },
+    "syncing": "Konto wird synchronisiert, bitte warten.",
+    "title": "Adressanfrage"
   },
   "app": {
     "upgrade": "Eine neue Version der App ist verfügbar! Bitte aktualisieren Sie von {{current}} auf {{version}}."
@@ -133,13 +155,15 @@
   },
   "bb02Bootloader": {
     "abort": "Nicht upgraden - Zurück!",
+    "abort_noUpgrade": "Zurück",
     "advanced": {
       "label": "Erweiterte Einstellungen",
       "toggleShowFirmwareHash": "Zeig mir den Hash der Firmware bei jedem Anstecken der BitBox"
     },
     "flipscreen": "Bildschirm spiegeln",
     "orientation": "Ist der Bildschirm kopfüber?",
-    "success": "Upgrade erfolgreich. In {{rebootSeconds}}  geht es weiter...."
+    "success": "Upgrade erfolgreich. In {{rebootSeconds}}  geht es weiter....",
+    "success_install": "Installation erfolgreich! Es geht weiter in {{rebootSeconds}} Sekunden..."
   },
   "bitbox": {
     "error": {
@@ -162,6 +186,10 @@
       "input": "BitBox02 Name",
       "placeholder": "Neuer Gerätename",
       "title": "BitBox02 Namen einstellen"
+    },
+    "gotoStartupSettings": {
+      "description": "Dadurch wird Ihre BitBox02 neu gestartet und die Starteinstellungen angezeigt.",
+      "title": "Gehe zu den Starteinstellungen"
     },
     "mnemonicPassphrase": {
       "description": "Dies erlaubt Ihnen, nach dem Entsperren Ihrer BitBox02 eine optionale Passphrase einzugeben \n\n<strong>HINWEIS:</strong> Jede Passphrase leitet eine neue separate Wallet ab.\nBewahren Sie Ihre Passphrase <strong>sicher</strong> auf.\n<strong>Der Verlust der Passphrase ist NICHT WIEDER HERSTELLBAR.</strong>",
@@ -457,7 +485,9 @@
   },
   "bootloader": {
     "button": "Firmware jetzt aktualisieren",
+    "button_install": "Firmware jetzt installieren",
     "progress": "Aktualisiere: {{progress}}%",
+    "progress_install": "Installation: {{progress}}%",
     "success": "Aktualisierung erfolgreich! Bitte ziehen Sie das Gerät ab und stecken es dann wieder ein. Dieses mal brauchen Sie den Knopf nicht zu berühren. "
   },
   "button": {
@@ -469,6 +499,8 @@
     "continue": "Weiter",
     "copy": "Kopieren",
     "create": "Erstellen",
+    "dismiss": "Ausblenden",
+    "done": "Fertig",
     "download": "Herunterladen",
     "hiddenwallet": "Verstecktes Wallet erstellen",
     "next": "Weiter",
@@ -617,7 +649,16 @@
   "error": {
     "accountAlreadyExists": "Dieses Konto existiert bereits.",
     "accountLimitReached": "Konto kann nicht hinzugefügt werden. Die maximale Kontenanzahl für diese Währung wurde erreicht.",
-    "accountNameAlreadyExists": "Ein Konto mit diesem Namen existiert bereits."
+    "accountNameAlreadyExists": "Ein Konto mit diesem Namen existiert bereits.",
+    "aoppCallback": "Beim Übermitteln der Adresse an {{host}} ist ein Fehler aufgetreten.",
+    "aoppInvalidRequest": "Ungültige Anfrage.",
+    "aoppNoAccounts": "Es sind keine Konten verfügbar.",
+    "aoppSigningAborted": "Adressinhaberanfrage wurde abgebrochen.",
+    "aoppUnknown": "Ein unbekannter Fehler ist aufgetreten.",
+    "aoppUnsupportedAsset": "Diese Kryptowährung wird nicht unterstützt.",
+    "aoppUnsupportedFormat": "Es sind keine Konten verfügbar, die das angeforderte Adressformat unterstützen.",
+    "aoppUnsupportedKeystore": "Das verbundene Gerät kann keine Nachrichten für diese Kryptowährung signieren.",
+    "aoppVersion": "Unbekannte Version."
   },
   "exchanges": {
     "method": "Zahlungsmethode wählen",
@@ -702,6 +743,18 @@
       "title": "Was bedeutet \"Eingehend\"?"
     },
     "accountInfo": {
+      "multipleXPubs": {
+        "text": "Jeder xpub ist an den angezeigten \"Typ\" gebunden: entweder \"Native segwit (bech32)\" oder \"Wrapped segwit\". Dies sind Skripttypen, die von {{coinName}} verwendet werden. Die BitBoxApp kombiniert sie und unterstützt mehrere Skripttypen im selben Konto. Da jeder Skripttyp einen anderen xpub verwendet, gibt es mehrere xpubs pro Konto.\n\nWenn Sie nur auf den Standardadresseb empfangen, benötigen Sie nur den \"bech32\" xpub. Wenn Sie jedoch auch Coins auf \"kompatible Adresse\" erhalten, werden diese auf dem xpub \"älteres segwit\" angezeigt.",
+        "title": "Warum gibt es mehrere xpubs?"
+      },
+      "privacy": {
+        "text": "Für dieses Konto zeigt der erweiterte öffentliche Schlüssel die gesamte Transaktionshistorie, Ihren Kontostand und alle zukünftigen Transaktionen an. Aber der xpub erlaubt niemandem, Ihre Coins auszugeben.\n\nWenn Sie jemandem ein xpub geben, sollten Sie sich bewusst sein, dass diese Person oder Firma alle anderen Transaktionen desselben Kontos sehen kann. Daher ist es eine gute Idee, dieses Konto nur für diesen Zweck zu verwenden und andere Coins in anderen Konten zu halten.",
+        "title": "Muss ich mein xpub geheim halten?"
+      },
+      "verify": {
+        "text": "Ja, es ist immer eine gute Idee, Ihren xpub zu überprüfen. Wenn jemand anderes Empfangsadressen von diesem xpub generiert, um Ihnen Coins zu senden, ist dies besonders wichtig. Sie müssen ihn auf Ihrer BitBox überprüfen, um sicherzustellen, dass dieser xpub Ihnen gehört. Andernfalls könnten alle Coins an die falschen Adressen gehen.",
+        "title": "Muss ich den xpub auf dem Gerät überprüfen?"
+      },
       "xpub": {
         "text": "Ein erweiterter Public Key ist ein übergeordneter Key, aus dem alle Empfangsadressen abgeleitet werden.",
         "title": "Was ist ein erweiterter Public Key?"
@@ -869,6 +922,10 @@
         "text": "",
         "title": ""
       }
+    },
+    "cointracking": {
+      "text": "Klicken Sie auf \"Exportieren\" und öffnen Sie den Download-Ordner. Dort finden Sie die exportierte CSV Datei. Klicken Sie dann auf den untenstehenden Link, laden Sie Ihre BitBox-CSV-Datei hoch und importieren Sie die Daten, um sie für Ihren CoinTracking-Portfoliomanager zu verwenden und Ihre Steuerberichte zu erstellen.",
+      "title": "Wie importiere ich meine Transaktionen in CoinTracking?"
     },
     "exchanges": {
       "commission": {
@@ -1288,6 +1345,7 @@
     },
     "error": {
       "feeTooLow": "Gebühr zu niedrig",
+      "feesNotAvailable": "Gebühren konnten nicht geschätzt werden",
       "insufficientFunds": "Unzureichende Mittel",
       "invalidAddress": "ungültige Adresse",
       "invalidAmount": "ungültige Menge",
@@ -1301,12 +1359,16 @@
     "feeTarget": {
       "description": {
         "economy": "4 Stunden (24 Blöcke)",
+        "economy_eth": "30 Minuten oder weniger",
         "economy_ltc": "1 Stunde (24 Blöcke)",
         "high": "20 Minuten (2 Blöcke)",
+        "high_eth": "30 Sekunden oder weniger",
         "high_ltc": "5 Minuten (2 Blöcke)",
         "low": "2 Stunden (12 Blöcke)",
+        "low_eth": "5 Minuten oder weniger",
         "low_ltc": "30 Minuten (12 Blöcke)",
         "normal": "1 Stunde (6 Blöcke)",
+        "normal_eth": "2 Minuten oder weniger",
         "normal_ltc": "15 Minuten (6 Blöcke)"
       },
       "estimate": "Geschätzte Wartezeit:",
@@ -1479,6 +1541,7 @@
     "sendPairing": "Bitte koppeln Sie Ihre BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
   },
   "welcome": {
+    "getStarted": "Beginnen wir mit der Installation der Firmware auf Ihrer BitBox02.",
     "insertBitBox02": "Tippen Sie dann auf die BitBox02 zum weiter machen. ",
     "insertDevice": "Bitte verbinden Sie Ihr Gerät, um loszulegen",
     "title": "Willkommen"
