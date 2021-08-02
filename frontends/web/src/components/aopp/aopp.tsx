@@ -177,6 +177,9 @@ class Aopp extends Component<Props, State> {
                         <FullscreenContent>
                             <p>{t('aopp.syncing')}</p>
                         </FullscreenContent>
+                        <FullscreenButtons>
+                            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+                        </FullscreenButtons>
                     </Fullscreen>
                 );
             case 'signing':
