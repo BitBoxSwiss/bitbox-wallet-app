@@ -224,16 +224,10 @@ class Aopp extends Component<Props, State> {
                         </FullscreenContent>
                         <FullscreenButtons>
                             <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
-                            <div className={styles.buttonWithInfo}>
-                                <VerifyAddress
-                                    accountCode={accountCode}
-                                    address={aopp.address}
-                                    addressID={aopp.addressID}
-                                />
-                                <div className={styles.buttonInfoText}>
-                                    {t('aopp.reverifyInfoText')}
-                                </div>
-                            </div>
+                            <VerifyAddress
+                                accountCode={accountCode}
+                                address={aopp.address}
+                                addressID={aopp.addressID} />
                         </FullscreenButtons>
                     </Fullscreen>
                 );
