@@ -68,23 +68,8 @@
     width: 100%;
     white-space: pre-line;
 }
-
-.buttonWithInfo {
-    display: flex;
-    flex-direction: column;
-}
-
-.buttonInfoText {
-    font-size: var(--size-small);
-    margin-top: var(--space-quarter);
-    text-align: center;
-}
-
 @media (min-width: 1200px) {
     .message {
         --size-default: 18px;
-    }
-    .buttonInfoText {
-        --size-small: 14px;
     }
 }
