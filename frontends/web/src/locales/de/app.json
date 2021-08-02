@@ -744,7 +744,7 @@
     },
     "accountInfo": {
       "multipleXPubs": {
-        "text": "Jeder xpub ist an den angezeigten \"Typ\" gebunden: entweder \"Native segwit (bech32)\" oder \"Wrapped segwit\". Dies sind Skripttypen, die von {{coinName}} verwendet werden. Die BitBoxApp kombiniert sie und unterstützt mehrere Skripttypen im selben Konto. Da jeder Skripttyp einen anderen xpub verwendet, gibt es mehrere xpubs pro Konto.\n\nWenn Sie nur auf den Standardadresseb empfangen, benötigen Sie nur den \"bech32\" xpub. Wenn Sie jedoch auch Coins auf \"kompatible Adresse\" erhalten, werden diese auf dem xpub \"älteres segwit\" angezeigt.",
+        "text": "Jeder xpub ist an den angezeigten \"Typ\" gebunden: entweder \"Native segwit (bech32)\" oder \"Wrapped segwit\". Dies sind Skripttypen, die von {{coinName}} verwendet werden. Die BitBoxApp kombiniert sie und unterstützt mehrere Skripttypen im selben Konto. Da jeder Skripttyp einen anderen xpub verwendet, gibt es mehrere xpubs pro Konto.\n\nWenn Sie nur auf den Standardadressen empfangen, benötigen Sie nur den \"bech32\" xpub. Wenn Sie jedoch auch Coins auf \"kompatible Adresse\" erhalten, werden diese auf dem xpub \"älteres segwit\" angezeigt.",
         "title": "Warum gibt es mehrere xpubs?"
       },
       "privacy": {
