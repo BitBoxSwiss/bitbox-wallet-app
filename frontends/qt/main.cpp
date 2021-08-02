@@ -162,6 +162,7 @@ int main(int argc, char *argv[])
     qputenv("QV4_FORCE_INTERPRETER", "1");
     qputenv("DRAW_USE_LLVM", "0");
 #endif
+    qputenv("QSG_RHI", "1");
 
 
     BitBoxApp a(argc, argv);
