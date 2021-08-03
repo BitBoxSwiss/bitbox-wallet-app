@@ -7,16 +7,13 @@ import goserver.GoAPIInterface;
 import goserver.Goserver;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.os.Handler;
 import android.app.Application;
-import android.content.Context;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -26,8 +23,6 @@ import android.hardware.usb.UsbManager;
 
 import androidx.lifecycle.AndroidViewModel;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 public class GoViewModel extends AndroidViewModel {
@@ -110,27 +105,8 @@ public class GoViewModel extends AndroidViewModel {
 
         private GoDeviceInfoInterface device;
 
-        // Triggered by usb device attached intent and usb device detached broadcast events from
-        // MainActivity.
-        public void updateDeviceList() {
-            this.device = null;
-            UsbManager manager = (UsbManager) getApplication().getSystemService(Context.USB_SERVICE);
-            HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
-            Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-            while (deviceIterator.hasNext()){
-                UsbDevice device = deviceIterator.next();
-                // One other instance where we filter vendor/product IDs is in
-                // @xml/device_filter resource, which is used for USB_DEVICE_ATTACHED
-                // intent to launch the app when a device is plugged and the app is still
-                // closed. This filter, on the other hand, makes sure we feed only valid
-                // devices to the Go backend once the app is launched or opened.
-                //
-                // BitBox02 Vendor ID: 0x03eb, Product ID: 0x2403.
-                if (device.getVendorId() == 1003 && device.getProductId() == 9219) {
-                    this.device = new GoDeviceInfo(device);
-                    break; // only one device supported for now
-                }
-            }
+        public void setDevice(GoDeviceInfo device) {
+            this.device = device;
         }
 
         public GoDeviceInfoInterface deviceInfo() {
@@ -219,7 +195,11 @@ public class GoViewModel extends AndroidViewModel {
         this.goAPI.setMessageHandlers(callResponseHandler, pushNotificationHandler);
     }
 
-    public void updateDeviceList() {
-        this.goEnvironment.updateDeviceList();
+    public void setDevice(UsbDevice device) {
+        if (device == null) {
+            this.goEnvironment.setDevice(null);
+            return;
+        }
+        this.goEnvironment.setDevice(new GoDeviceInfo(device));
     }
 }

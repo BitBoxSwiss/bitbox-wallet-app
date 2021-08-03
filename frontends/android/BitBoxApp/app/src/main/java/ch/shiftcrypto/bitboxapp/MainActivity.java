@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Process;
@@ -32,9 +33,10 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import goserver.Goserver;
@@ -245,12 +247,12 @@ public class MainActivity extends AppCompatActivity {
         // DETACHED intent is a broadcast intent which we register here.
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        filter.addAction("ch.shiftcrypto.bitboxapp.USB_PERMISSION");
         registerReceiver(this.usbStateReceiver, filter);
 
-        // We call updateDeviceList() here in case the app was started while the device was already connected.
+        // We call maybeSetDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
-        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
-        goViewModel.updateDeviceList();
+        this.updateDevice();
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
@@ -277,14 +279,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
             log("usb: attached");
-            goViewModel.updateDeviceList();
+            this.updateDevice();
         }
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
             log("usb: detached");
-            goViewModel.updateDeviceList();
+            this.updateDevice();
+        }
+    }
+
+    private void updateDevice() {
+        // Triggered by usb device attached intent and usb device detached broadcast events.
+        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+        goViewModel.setDevice(null);
+        UsbManager manager = (UsbManager) getApplication().getSystemService(Context.USB_SERVICE);
+        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+        while (deviceIterator.hasNext()){
+            UsbDevice device = deviceIterator.next();
+            // One other instance where we filter vendor/product IDs is in
+            // @xml/device_filter resource, which is used for USB_DEVICE_ATTACHED
+            // intent to launch the app when a device is plugged and the app is still
+            // closed. This filter, on the other hand, makes sure we feed only valid
+            // devices to the Go backend once the app is launched or opened.
+            //
+            // BitBox02 Vendor ID: 0x03eb, Product ID: 0x2403.
+            if (device.getVendorId() == 1003 && device.getProductId() == 9219) {
+                goViewModel.setDevice(device);
+                break; // only one device supported for now
+            }
         }
     }
 
