@@ -107,8 +107,8 @@ class ManageAccounts extends Component<Props, State> {
             return (
                 <div key={account.code} className={style.setting}>
                     <div
-                        className={`${style.acccountLink} ${style.accountActive}`}
-                        onClick={() => route(`/account/${account.code}`)}>
+                        className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+                        onClick={() => active && route(`/account/${account.code}`)}>
                         <Logo className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
                         <span className={style.accountName}>
                             {account.name}
