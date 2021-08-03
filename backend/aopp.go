@@ -86,6 +86,9 @@ type AOPP struct {
 	ErrorCode ErrorCode `json:"errorCode"`
 	// Accounts is the list of accounts the user can choose from. Only applies if State == aoppStateChoosingAccount.
 	Accounts []account `json:"accounts"`
+	// AccountCode is the code of the chosen account from which an address will be taken. Only
+	// applies for states after (and excluding) `aoppStateChoosingAccount`.
+	AccountCode accounts.Code `json:"accountCode"`
 	// Address that will be delivered to the requesting party via the callback. Only applies if
 	// State == aoppStateSigning or aoppStateSuccess.
 	Address string `json:"address"`
@@ -266,6 +269,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 		return
 	}
 
+	backend.aopp.AccountCode = code
 	backend.aopp.State = aoppStateSyncing
 	backend.notifyAOPP()
 

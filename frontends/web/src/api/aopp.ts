@@ -47,6 +47,7 @@ export type Aopp = {
     addressID: string;
     message: string;
     callback: string;
+    accountCode: AccountCode;
 };
 
 export const cancel = (): Promise<null> => {
