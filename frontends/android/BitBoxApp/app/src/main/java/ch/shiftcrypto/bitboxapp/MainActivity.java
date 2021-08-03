@@ -260,18 +260,8 @@ public class MainActivity extends AppCompatActivity {
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
-        // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
-        // running and brought to the foreground.
         Intent intent = getIntent();
         handleIntent(intent);
-        if(Intent.ACTION_VIEW.equals(intent.getAction())) {
-            Uri uri = intent.getData();
-            if (uri != null) {
-                if (uri.getScheme().equals("aopp")) {
-                    Goserver.handleURI(uri.toString());
-                }
-            }
-        }
     }
 
     @Override
@@ -305,6 +295,16 @@ public class MainActivity extends AppCompatActivity {
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
             log("usb: detached");
             this.updateDevice();
+        }
+        // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
+        // running and brought to the foreground.
+        if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                if (uri.getScheme().equals("aopp")) {
+                    Goserver.handleURI(uri.toString());
+                }
+            }
         }
     }
 
