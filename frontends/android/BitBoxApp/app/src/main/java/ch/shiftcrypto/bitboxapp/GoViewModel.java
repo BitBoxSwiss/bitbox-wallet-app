@@ -55,6 +55,10 @@ public class GoViewModel extends AndroidViewModel {
                 }
                 UsbManager usbManager = (UsbManager) getApplication().getSystemService(Context.USB_SERVICE);
                 final UsbDeviceConnection connection = usbManager.openDevice(device);
+                if (connection == null) {
+                    Util.log("could not open device");
+                    return null;
+                }
                 connection.claimInterface(intf, true);
 
                 return new GoReadWriteCloserInterface(){

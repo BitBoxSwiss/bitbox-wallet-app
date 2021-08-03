@@ -33,7 +33,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
-import android.util.Log;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        log("lifecycle: onCreate");
+        Util.log("lifecycle: onCreate");
 
         getSupportActionBar().hide(); // hide title bar with app name.
         setContentView(R.layout.activity_main);
@@ -155,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     if (mimeType != null) {
                         return new WebResourceResponse(mimeType, "UTF-8", inputStream);
                     }
-                    log("Unknown MimeType: " + url);
+                    Util.log("Unknown MimeType: " + url);
                 } catch(Exception e) {
                 }
                 return super.shouldInterceptRequest(view, request);
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch(Exception e) {
                 }
-                log("Blocked: " + url);
+                Util.log("Blocked: " + url);
                 return true;
             }
         });
@@ -183,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         vw.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                log(consoleMessage.message() + " -- From line "
+                Util.log(consoleMessage.message() + " -- From line "
                         + consoleMessage.lineNumber() + " of "
                         + consoleMessage.sourceId());
                 return super.onConsoleMessage(consoleMessage);
@@ -222,10 +221,6 @@ public class MainActivity extends AppCompatActivity {
         this.updateDevice();
     }
 
-    private void log(String msg) {
-        Log.d("ch.shiftcrypto.bitboxapp", "XYZ: " + msg);
-    }
-
     @Override
     protected void onNewIntent(Intent intent) {
         // This is only called reliably when intents are received (e.g. USB is attached or when
@@ -238,13 +233,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        log("lifecycle: onStart");
+        Util.log("lifecycle: onStart");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        log("lifecycle: onResume");
+        Util.log("lifecycle: onResume");
         // This is only called reliably when USB is attached with android:launchMode="singleTop"
 
         // Usb device list is updated on ATTACHED / DETACHED intents.
@@ -267,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        log("lifecycle: onPause");
+        Util.log("lifecycle: onPause");
         unregisterReceiver(this.usbStateReceiver);
         unregisterReceiver(this.networkStateReceiver);
     }
@@ -279,21 +274,21 @@ public class MainActivity extends AppCompatActivity {
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                     if (device != null) {
-                        log("usb: permission granted");
+                        Util.log("usb: permission granted");
                         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
                         goViewModel.setDevice(device);
                     }
                 } else {
-                    log("usb: permission denied");
+                    Util.log("usb: permission denied");
                 }
             }
         }
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-            log("usb: attached");
+            Util.log("usb: attached");
             this.updateDevice();
         }
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
-            log("usb: detached");
+            Util.log("usb: detached");
             this.updateDevice();
         }
         // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
@@ -339,13 +334,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        log("lifecycle: onStop");
+        Util.log("lifecycle: onStop");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        log("lifecycle: onDestroy");
+        Util.log("lifecycle: onDestroy");
     }
 
     @Override
