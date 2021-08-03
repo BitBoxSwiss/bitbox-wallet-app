@@ -21,10 +21,12 @@ import { Check, Copy } from '../icon/icon';
 import * as style from './Copy.css';
 
 interface CopyableInputProps {
+    alignLeft?: boolean;
+    alignRight?: boolean;
+    borderLess?: boolean;
     className?: string;
     disabled?: boolean;
     flexibleHeight?: boolean;
-    alignLeft?: boolean;
     value: string;
 }
 
@@ -78,7 +80,7 @@ class CopyableInput extends Component<Props, State> {
     }
 
     public render(
-        { alignLeft, t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
+        { alignLeft, alignRight, borderLess, t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
         { success }: State,
     ) {
         const copyButton = disabled ? null : (
@@ -90,7 +92,11 @@ class CopyableInput extends Component<Props, State> {
             </button>
         );
         return (
-            <div class={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
+            <div class={[
+                'flex flex-row flex-start flex-items-start',
+                style.container,
+                className ? className : ''
+            ].join(' ')}>
                 <textarea
                     disabled={disabled}
                     readOnly
@@ -101,7 +107,9 @@ class CopyableInput extends Component<Props, State> {
                     className={[
                         style.inputField,
                         flexibleHeight && style.flexibleHeight,
-                        alignLeft && style.alignLeft
+                        alignLeft && style.alignLeft,
+                        alignRight && style.alignRight,
+                        borderLess && style.borderLess,
                     ].join(' ')} />
                 {copyButton}
             </div>

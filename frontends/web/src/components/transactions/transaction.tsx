@@ -21,6 +21,7 @@ import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
+import { CopyableInput } from '../copy/Copy';
 import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
@@ -315,13 +316,17 @@ class Transaction extends Component<Props, State> {
                             </div>
                             <div className={[style.detail, style.addresses].join(' ')}>
                                 <label>{t('transaction.details.address')}</label>
-                                <span>
-                                    {
-                                        addresses.map(address => (
-                                            <p key={address} className="text-break">{address}</p>
-                                        ))
-                                    }
-                                </span>
+                                <div className={style.detailAddresses}>
+                                    { addresses.map((address) => (
+                                        <CopyableInput
+                                            key={address}
+                                            alignRight
+                                            borderLess
+                                            flexibleHeight
+                                            className={style.detailAddress}
+                                            value={address} />
+                                    )) }
+                                </div>
                             </div>
                             {
                                 gas ? (
