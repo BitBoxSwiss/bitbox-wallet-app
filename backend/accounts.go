@@ -736,6 +736,7 @@ func (backend *Backend) uninitAccounts() {
 		if backend.onAccountUninit != nil {
 			backend.onAccountUninit(account)
 		}
+		account.Close()
 	}
 	backend.accounts = []accounts.Interface{}
 }
