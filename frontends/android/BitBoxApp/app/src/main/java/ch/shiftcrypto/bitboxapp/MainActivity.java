@@ -3,6 +3,7 @@ package ch.shiftcrypto.bitboxapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,6 +44,8 @@ import goserver.Goserver;
 
 public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
+    private static final String ACTION_USB_PERMISSION = "ch.shiftcrypto.bitboxapp.USB_PERMISSION";
+
     // stores the request from onPermissionRequest until the user has granted or denied the permission.
     private PermissionRequest webViewpermissionRequest;
 
@@ -213,6 +216,10 @@ public class MainActivity extends AppCompatActivity {
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
         vw.loadUrl("file:///android_asset/web/index.html");
+
+        // We call updateDevice() here in case the app was started while the device was already connected.
+        // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
+        this.updateDevice();
     }
 
     private void log(String msg) {
@@ -247,12 +254,8 @@ public class MainActivity extends AppCompatActivity {
         // DETACHED intent is a broadcast intent which we register here.
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        filter.addAction("ch.shiftcrypto.bitboxapp.USB_PERMISSION");
+        filter.addAction(ACTION_USB_PERMISSION);
         registerReceiver(this.usbStateReceiver, filter);
-
-        // We call maybeSetDevice() here in case the app was started while the device was already connected.
-        // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
-        this.updateDevice();
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
@@ -260,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
         // running and brought to the foreground.
         Intent intent = getIntent();
+        handleIntent(intent);
         if(Intent.ACTION_VIEW.equals(intent.getAction())) {
             Uri uri = intent.getData();
             if (uri != null) {
@@ -279,6 +283,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
+        if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
+            // See https://developer.android.com/guide/topics/connectivity/usb/host#permission-d
+            synchronized (this) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                    if (device != null) {
+                        log("usb: permission granted");
+                        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+                        goViewModel.setDevice(device);
+                    }
+                } else {
+                    log("usb: permission denied");
+                }
+            }
+        }
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
             log("usb: attached");
             this.updateDevice();
@@ -306,7 +325,12 @@ public class MainActivity extends AppCompatActivity {
             //
             // BitBox02 Vendor ID: 0x03eb, Product ID: 0x2403.
             if (device.getVendorId() == 1003 && device.getProductId() == 9219) {
-                goViewModel.setDevice(device);
+                if (manager.hasPermission(device)) {
+                    goViewModel.setDevice(device);
+                } else {
+                    PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                    manager.requestPermission(device, permissionIntent);
+                }
                 break; // only one device supported for now
             }
         }
