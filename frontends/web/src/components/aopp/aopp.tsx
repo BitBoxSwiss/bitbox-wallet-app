@@ -228,7 +228,7 @@ class Aopp extends Component<Props, State> {
                         <FullscreenButtons>
                             <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
                             <VerifyAddress
-                                accountCode={accountCode}
+                                accountCode={aopp.accountCode}
                                 address={aopp.address}
                                 addressID={aopp.addressID} />
                         </FullscreenButtons>
