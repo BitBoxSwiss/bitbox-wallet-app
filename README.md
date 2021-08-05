@@ -77,9 +77,9 @@ The servers used are configurable in the app settings. Currently, when running t
 (`make servewallet`), the config is ignored and servers on Shift's devserver are used. The
 hosts/ports/certs of those are currently hardcoded.
 
-Currently, [Electrs](https://github.com/romanz/electrs) is the recommended way to connect your own
-full node. ElectrumX is currently not supported, see [this
-issue](https://github.com/digitalbitbox/bitbox-wallet-app/issues/499).
+Currently, [Electrs](https://github.com/romanz/electrs) and
+[ElectrumX](https://github.com/spesmilo/electrumx/) are the recommended ways to connect your own
+full node.
 
 ## Development workflow
 
