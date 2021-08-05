@@ -15,12 +15,16 @@
 package bitbox
 
 import (
-	"fmt"
+	"bytes"
+	"compress/gzip"
+	_ "embed" // Needed for the go:embed directives below.
+	"io/ioutil"
 
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
-//go:generate go-bindata -pkg $GOPACKAGE -o assets.go assets
+//go:embed assets/firmware.deterministic.7.1.0.signed.bin.gz
+var firmwareBinary []byte
 
 var bundledFirmwareVersion = semver.NewSemVer(7, 1, 0)
 
@@ -30,12 +34,10 @@ func BundledFirmwareVersion() *semver.SemVer {
 }
 
 // BundledFirmware returns the binary of the bundled firmware.
-func BundledFirmware() []byte {
-	binary, err := Asset(fmt.Sprintf(
-		"assets/firmware.deterministic.%s.signed.bin",
-		bundledFirmwareVersion.String()))
+func BundledFirmware() ([]byte, error) {
+	gz, err := gzip.NewReader(bytes.NewBuffer(firmwareBinary))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return binary
+	return ioutil.ReadAll(gz)
 }
