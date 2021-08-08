@@ -16,8 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import * as dialogStyle from '../../../components/dialog/dialog.css';
-import { Dialog } from '../../../components/dialog/dialog';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { apiGet } from '../../../utils/request';
 import { Button, ButtonLink } from '../../../components/forms';
 
@@ -61,7 +60,7 @@ class SDCardCheck extends Component<Props, State> {
                             </div>
                         </div>
                     </div>
-                    <div className={dialogStyle.actions}>
+                    <DialogButtons>
                         <Button
                             primary
                             onClick={this.check}>
@@ -72,7 +71,7 @@ class SDCardCheck extends Component<Props, State> {
                             href={`/device/${deviceID}`}>
                             {t('button.back')}
                         </ButtonLink>
-                    </div>
+                    </DialogButtons>
                 </Dialog>
             );
         }

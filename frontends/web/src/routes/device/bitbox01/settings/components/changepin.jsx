@@ -19,13 +19,11 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { Dialog } from '../../../../../components/dialog/dialog';
+import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput, PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
-import * as dialogStyle from '../../../../../components/dialog/dialog.css';
-
 
 @translate()
 export default class ChangePIN extends Component {
@@ -112,14 +110,14 @@ export default class ChangePIN extends Component {
                                     repeatLabel={t('initialize.input.labelRepeat')}
                                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
                                     onValidPassword={this.setValidNewPIN} />
-                                <div className={dialogStyle.actions}>
+                                <DialogButtons>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                         {t('button.changepin')}
                                     </Button>
                                     <Button transparent onClick={this.abort} disabled={isConfirming}>
                                         {t('button.back')}
                                     </Button>
-                                </div>
+                                </DialogButtons>
                             </form>
                         </Dialog>
                     )

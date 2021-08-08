@@ -18,8 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
-import { Dialog } from '../../../components/dialog/dialog';
-import * as dialogStyle from '../../../components/dialog/dialog.css';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
 
 interface CheckProps {
@@ -107,7 +106,7 @@ class Check extends Component<Props, State> {
                                             }
                                         </div>
                                     </div>
-                                    <div className={dialogStyle.actions}>
+                                    <DialogButtons>
                                         <Button
                                             primary
                                             onClick={this.abort}
@@ -115,7 +114,7 @@ class Check extends Component<Props, State> {
                                         >
                                             { userVerified ? t('button.ok') : t('accountInfo.verify') }
                                         </Button>
-                                    </div>
+                                    </DialogButtons>
                                 </div>
                             }
                         </Dialog>

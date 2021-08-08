@@ -19,9 +19,8 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button, Input } from '../../../components/forms';
 import { apiPost } from '../../../utils/request';
-import { Dialog } from '../../../components/dialog/dialog';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { alertUser } from '../../../components/alert/Alert';
-import * as dialogStyles from '../../../components/dialog/dialog.css';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
@@ -103,14 +102,14 @@ export class SetDeviceName extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <div className={dialogStyles.actions}>
+                            <DialogButtons>
                                 <Button
                                     primary
                                     disabled={!this.validate()}
                                     onClick={this.setName}>
                                     {t('button.ok')}
                                 </Button>
-                            </div>
+                            </DialogButtons>
                         </Dialog>
                     ) : null
                 }

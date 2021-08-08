@@ -19,14 +19,12 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { Dialog } from '../../../../../components/dialog/dialog';
+import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
 import { SimpleMarkup } from '../../../../../utils/simplemarkup';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
-import * as dialogStyle from '../../../../../components/dialog/dialog.css';
-
 
 @translate()
 export default class HiddenWallet extends Component {
@@ -119,14 +117,14 @@ export default class HiddenWallet extends Component {
                                     repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
                                     onValidPassword={this.setValidPassword}
                                 />
-                                <div class={dialogStyle.actions}>
+                                <DialogButtons>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                         {t('button.hiddenwallet')}
                                     </Button>
                                     <Button transparent onClick={this.abort} disabled={isConfirming}>
                                         {t('button.abort')}
                                     </Button>
-                                </div>
+                                </DialogButtons>
                             </form>
                         </Dialog>
                     )

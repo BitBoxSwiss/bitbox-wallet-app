@@ -19,8 +19,7 @@ import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { confirmation } from '../../../../../components/confirm/Confirm';
-import { Dialog } from '../../../../../components/dialog/dialog';
-import * as dialogStyle from '../../../../../components/dialog/dialog.css';
+import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { Button } from '../../../../../components/forms';
 import { QRCode } from '../../../../../components/qrcode/qrcode';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
@@ -235,11 +234,11 @@ class MobilePairing extends Component<Props, State> {
                                     )
                                 }
                             </div>
-                            <div className={dialogStyle.actions}>
+                            <DialogButtons>
                                 <Button transparent onClick={this.abort}>
                                     {t('button.back')}
                                 </Button>
-                            </div>
+                            </DialogButtons>
                         </Dialog>
                     )
                 }

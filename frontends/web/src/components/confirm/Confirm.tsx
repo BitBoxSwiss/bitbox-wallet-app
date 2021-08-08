@@ -17,8 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SimpleMarkup } from '../../utils/simplemarkup';
-import { Dialog } from '../dialog/dialog';
-import * as dialogStyle from '../dialog/dialog.css';
+import { Dialog, DialogButtons } from '../dialog/dialog';
 import { Button } from '../forms';
 
 let confirmation: (message: string, callback: (response: boolean) => void, customButtonText?: string) => void;
@@ -82,10 +81,10 @@ class Confirm extends Component<TranslateProps, State> {
                         </div>
                     </div>
                 </div>
-                <div class={dialogStyle.actions}>
+                <DialogButtons>
                     <Button primary onClick={this.accept}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
                     <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
-                </div>
+                </DialogButtons>
             </Dialog>
         ) : null;
     }
