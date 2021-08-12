@@ -20,6 +20,19 @@ import * as styles from './password-entry.css';
 
 export interface IPasswordEntryProps {}
 
+function isVideoPlaying(video: HTMLVideoElement): boolean {
+    return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2;
+}
+
+function replayVideo(ref: HTMLVideoElement): void {
+    if (ref && !isVideoPlaying(ref)) {
+        // prevent: NotAllowedError: play() failed because the user didn't interact with the document first.
+        // https://goo.gl/xX8pDD
+        ref.muted = true;
+        ref.play();
+    }
+}
+
 export function PasswordEntry({ children }: RenderableProps<IPasswordEntryProps>) {
     return (
         <div className={styles.passwordGesturesWrapper}>
@@ -29,7 +42,7 @@ export function PasswordEntry({ children }: RenderableProps<IPasswordEntryProps>
                 // i.e. when re-plugin the BitBox the video doesn't play anymore
                 // https://github.com/preactjs/preact/issues/747#issuecomment-370905360
                 // looks like this can be removed with Preact10/React
-                ref={ref => ref?.play()}
+                ref={ref => replayVideo(ref)}
                 className={styles.passwordGestures}
                 loop
                 muted
