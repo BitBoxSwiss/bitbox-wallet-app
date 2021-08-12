@@ -17,6 +17,9 @@
 // Allows to import GIF.
 declare module '*.gif';
 
+// Allows to import WEBM.
+declare module '*.webm';
+
 // Allows to import JSON.
 declare module '*.json';
 

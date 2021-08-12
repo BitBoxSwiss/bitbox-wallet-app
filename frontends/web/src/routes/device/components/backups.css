@@ -1,3 +1,9 @@
+.stepContext {
+    background-color: white;
+    padding: var(--space-default);
+    margin: var(--space-default) 0;
+}
+
 .backupsList {
     display: flex;
     flex-direction: column;

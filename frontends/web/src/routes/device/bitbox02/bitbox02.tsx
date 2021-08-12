@@ -17,15 +17,13 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import passwordEntryGif from '../../../assets/device/bb02PwEntry.gif';
-import passwordEntryOldGif from '../../../assets/device/bb02PwEntry_old.gif';
 import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Checkbox, Input  } from '../../../components/forms';
-import { Step, Steps } from '../../../components/steps';
+import { Step, Steps } from './components/steps';
 import { Fullscreen, FullscreenContent, FullscreenHeader } from '../../../components/fullscreen/fullscreen';
-import * as style from '../../../components/steps/steps.css';
+import * as style from './components/steps/steps.css';
 import Toast from '../../../components/toast/Toast';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import '../../../style/animate.css';
@@ -37,6 +35,7 @@ import { SwissMadeOpenSource } from '../../../components/icon/logo';
 import { setSidebarStatus } from '../../../components/sidebar/sidebar';
 import Status from '../../../components/status/status';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
+import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
@@ -420,7 +419,6 @@ class BitBox02 extends Component<Props, State> {
         if (!showWizard) {
             return <Settings deviceID={deviceID}/>;
         }
-        const passwordGif = versionInfo.currentVersion === '1.0.0' || versionInfo.currentVersion === '2.0.0' ? passwordEntryOldGif : passwordEntryGif;
         const readDisclaimers = agreement1 && agreement2 && agreement3 && agreement4 && agreement5;
         // TODO: move to wizard.tsx
         return (
@@ -453,9 +451,7 @@ class BitBox02 extends Component<Props, State> {
                                                 {t('bitbox02Wizard.attestationFailed')}
                                             </Status>
                                         ) : (
-                                            <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
-                                            </div>
+                                            <PasswordEntry />
                                         )}
                                     </FullscreenContent>
                                 </Fullscreen>
@@ -603,9 +599,7 @@ class BitBox02 extends Component<Props, State> {
                                                 )
                                             }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
-                                            <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
-                                            </div>
+                                            <PasswordEntry />
                                         </div>
                                         <div className="text-center m-top-large">
                                             <SwissMadeOpenSource large />
@@ -719,9 +713,7 @@ class BitBox02 extends Component<Props, State> {
                                                 )
                                             }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
-                                            <div className={style.passwordGesturesGifWrapper}>
-                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
-                                            </div>
+                                            <PasswordEntry />
                                         </div>
                                     </Step>
                                 )
