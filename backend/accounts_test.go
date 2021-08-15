@@ -15,6 +15,7 @@
 package backend
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -23,6 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -577,6 +579,41 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t, ErrAccountLimitReached, errp.Cause(err))
 		require.Equal(t, accountsCount, len(b.Config().AccountsConfig().Accounts))
+	})
+
+	// If the keystore cannot retrieve an xpub (e.g. USB communication error), no account should be
+	// added.
+	t.Run("xpub-error", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		expectedErr := errors.New("failed getting xpub")
+		// Keystore has a problem getting the xpub.
+		ks := &keystoremock.KeystoreMock{
+			RootFingerprintFunc: func() ([]byte, error) {
+				return fingerprint, nil
+			},
+			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+				return true
+			},
+			SupportsMultipleAccountsFunc: func() bool {
+				return true
+			},
+			SupportsUnifiedAccountsFunc: func() bool {
+				return true
+			},
+			ExtendedPublicKeyFunc: func(coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
+			) (*hdkeychain.ExtendedKey, error) {
+				return nil, expectedErr
+			},
+		}
+
+		_, err := b.CreateAndPersistAccountConfig(
+			coinpkg.CodeBTC,
+			"bitcoin 1",
+			ks,
+		)
+		require.Equal(t, expectedErr, err)
 	})
 }
 
