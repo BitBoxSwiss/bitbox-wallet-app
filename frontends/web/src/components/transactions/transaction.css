@@ -204,21 +204,23 @@
     line-height: 1;
 }
 
-.detail.addresses > span {
-    margin-left: auto;
-    max-width: 100%;
+.detail.addresses {
+    align-items: baseline;
+    padding-bottom: 0;
+    padding-right: 0;
+    padding-top: 0;
 }
 
-.detail.addresses.multi > div {
-    align-self: flex-end;
+.addresses label {
+    padding: var(--space-half) 0;
 }
 
-.detail.addresses > div > p {
-    word-break: break-all;
+.detailAddresses {
+    flex-grow: 1;
 }
 
-.detail.addresses p:not(:first-child) {
-    margin-top: var(--space-quarter);
+.detailAddress + .detailAddress {
+    margin-top: calc(var(--space-quarter) * -1);
 }
 
 @media (max-width: 1080px), (min-width: 1200px) and (max-width: 1322px) {

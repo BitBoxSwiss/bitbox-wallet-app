@@ -1,21 +1,21 @@
 .button {
+    align-items: center;
     background-color: var(--color-white);
-    position: absolute;
-    top: 10px;
-    right: var(--spacing-default);
     border: none;
-    width: 18px;
-    height: 18px;
-    min-width: 18px !important;
-    padding: 0;
     border-radius: 50%;
+    cursor: pointer;
     display: flex;
     flex-direction: row;
+    height: 18px;
     justify-content: center;
-    align-items: center;
     margin-top: var(--spacing-half);
-    cursor: pointer;
+    min-width: 18px !important;
+    padding: 0;
+    position: absolute;
+    right: var(--spacing-default);
+    top: 10px;
     transition: background-color ease 0.2s;
+    width: 18px;
     will-change: background-color;
 }
 
@@ -40,17 +40,17 @@
 }
 
 .inputField {
+    border: 1px solid var(--color-mediumgray);
+    border-radius: 2px;
     flex: 1;
-    margin-bottom: 0;
     font-size: var(--size-default);
     font-weight: 400;
-    min-width: 200px !important;
-    width: 100%;
-    padding: var(--space-half) calc(var(--space-default) * 1.2) var(--space-half) calc(var(--space-half) * .5);
     height: 52px;
-    border-radius: 2px;
-    border: 1px solid var(--color-mediumgray);
+    margin-bottom: 0;
+    min-width: 200px !important;
+    padding: var(--space-half) calc(var(--space-default) * 1.2) var(--space-half) calc(var(--space-half) * .5);
     resize: none;
+    width: 100%;
 }
 
 @media screen and (min-width: 640px) {
@@ -75,4 +75,15 @@
 
 .alignLeft {
     text-align: left;
+}
+
+.alignRight {
+    text-align: right;
+}
+
+.borderLess,
+.borderLess:focus {
+    border: none;
+    border-radius: 0;
+    outline: none;
 }
