@@ -516,7 +516,7 @@ func (backend *Backend) persistBTCAccountConfig(
 		if err != nil {
 			log.WithError(err).Errorf(
 				"Could not derive xpub at keypath %s", cfg.keypath.Encode())
-			continue
+			return err
 		}
 
 		signingConfiguration := signing.NewBitcoinConfiguration(
