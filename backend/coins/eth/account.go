@@ -50,6 +50,10 @@ var pollInterval = 60 * time.Second
 // See https://docs.ethgasstation.info/.
 const ethGasStationAPIKey = "3a61bee56f554cc14db4f49e2ace053b3086d3c323aefec83e5ff25ca485"
 
+func isMixedCase(s string) bool {
+	return strings.ToLower(s) != s && strings.ToUpper(s) != s
+}
+
 // Account is an Ethereum account, with one address.
 type Account struct {
 	*accounts.BaseAccount
@@ -440,6 +444,11 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	if !ethcommon.IsHexAddress(args.RecipientAddress) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
+	address := ethcommon.HexToAddress(args.RecipientAddress)
+	// Validate checksum if the address is mixed case, see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
+	if isMixedCase(args.RecipientAddress) && args.RecipientAddress != address.Hex() {
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
+	}
 
 	suggestedGasPrice, err := account.gasPrice(args)
 	if err != nil {
@@ -463,7 +472,6 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		value = parsedAmount.BigInt()
 	}
 
-	address := ethcommon.HexToAddress(args.RecipientAddress)
 	var message ethereum.CallMsg
 
 	if account.coin.erc20Token != nil {
