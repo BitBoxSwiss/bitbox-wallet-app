@@ -1,5 +1,6 @@
 #!/bin/bash
 # Copyright 2018 Shift Devices AG
+# Copyright 2021 Shift Crypto AG
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,9 +22,9 @@ go build -mod=vendor ./...
 go test -mod=vendor ./... -count=1 -v
 golangci-lint run
 
-yarn --cwd=frontends/web install # needed to install the eslint dev dep.
+npm --prefix=frontends/web install # needed to install dev dependencies.
 make weblint
-yarn --cwd=frontends/web test --ci --no-color --coverage
+npm --prefix=frontends/web test -- --ci --no-color --coverage
 # check that the i18n files are formatted correctly (avoids noisy diff when
 # pulling from locize)
 if ! locize format frontends/web/src/locales --format json --dry true ; then
