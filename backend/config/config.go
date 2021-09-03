@@ -215,7 +215,7 @@ func NewDefaultAppConfig() AppConfig {
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.
 			FiatList: []string{"USD", "EUR", "CHF"},
-			MainFiat: "CHF",
+			MainFiat: "USD",
 		},
 	}
 }

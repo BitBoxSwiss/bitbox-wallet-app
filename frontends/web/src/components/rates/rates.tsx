@@ -42,7 +42,7 @@ export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GB
 
 export const store = new Store<SharedProps>({
     rates: undefined,
-    active: 'CHF',
+    active: 'USD',
     selected: ['USD', 'EUR', 'CHF'],
 });
 
