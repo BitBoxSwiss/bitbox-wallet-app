@@ -68,9 +68,6 @@
     flex: 1 1 auto;
     min-height: 100vh;
 }
-.app.i18nEditor {
-    margin-right: 605px;
-}
 
 .appContent {
     height: 100vh;

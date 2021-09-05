@@ -19,7 +19,7 @@ import { Component, ComponentChild, h, JSX, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
-import * as style from '../dialog/dialog.css';
+import style from '../dialog/dialog.module.css';
 
 interface WaitDialogProps {
     includeDefault?: boolean;

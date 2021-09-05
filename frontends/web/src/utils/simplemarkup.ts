@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
+import React, { createElement } from 'react';
 
 type SimpleMarkupProps = {
     tagName: keyof JSX.IntrinsicElements;
     markup: string;
-} & JSX.HTMLAttributes;
+} & React.HTMLAttributes<HTMLElement>;
 
 const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
 
@@ -32,7 +32,7 @@ export function SimpleMarkup({ tagName, markup, ...props }: SimpleMarkupProps) {
     }
     const simpleMarkupChunks = captureStrongElement.exec(markup);
     if (simpleMarkupChunks === null || simpleMarkupChunks.length !== 4) {
-        return h(tagName, props, markup);
+        return createElement(tagName, props, markup);
     }
-    return h(tagName, props, simpleMarkupChunks[1], h('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
+    return createElement(tagName, props, simpleMarkupChunks[1], createElement('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
 }

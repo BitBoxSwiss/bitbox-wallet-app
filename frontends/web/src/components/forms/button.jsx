@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +15,8 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
-import { Link } from 'preact-router/match';
+import React from 'react';
+// import { Link } from 'preact-router/match';
 import * as style from './button.css';
 
 export function ButtonLink({
@@ -29,14 +30,14 @@ export function ButtonLink({
     disabled = undefined,
     ...props
 }) {
-    const classNames = [
-        style[primary && 'primary'
-        || secondary && 'secondary'
-        || transparent && 'transparent'
-        || danger && 'danger'
-        || 'button'
-        ], className
-    ].join(' ');
+    // const classNames = [
+    //     style[primary && 'primary'
+    //     || secondary && 'secondary'
+    //     || transparent && 'transparent'
+    //     || danger && 'danger'
+    //     || 'button'
+    //     ], className
+    // ].join(' ');
 
     if (disabled) {
         return (
@@ -51,9 +52,9 @@ export function ButtonLink({
         );
     }
     return (
-        <Link activeClassName="active" className={classNames} tabIndex={tabIndex} {...props}>
-            {children}
-        </Link>
+        // <Link activeClassName="active" className={classNames} tabIndex={tabIndex} {...props}>
+        children
+        // </Link>
     );
 }
 
@@ -68,11 +69,11 @@ export default function Button({
     ...props
 }) {
     const classNames = [
-        style[primary && 'primary'
-        || secondary && 'secondary'
-        || transparent && 'transparent'
-        || danger && 'danger'
-        || 'button'
+        style[(primary && 'primary')
+            || (secondary && 'secondary')
+            || (transparent && 'transparent')
+            || (danger && 'danger')
+            || 'button'
         ], className
     ].join(' ');
 

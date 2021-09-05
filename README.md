@@ -7,7 +7,7 @@ Please see the [contribution guidelines](CONTRIBUTING.md).
 
 ## Tech stack
 
-The wallet UI is a [preact](https://preactjs.com/) single page webapp. It sources its data from the
+The wallet UI is a [React](https://reactjs.org/) single page webapp. It sources its data from the
 backend written in Go.
 
 The Desktop app is a C++ Qt5 program containing only a `WebEngineView`, displaying the UI.
@@ -40,7 +40,7 @@ XCode project.
   talking Electrum using the BitBox for signing, and serve a high level HTTP API to control it.
 - `frontends/qt/`: the C++/Qt5 app which builds the wallet app for the desktop.
 - `frontends/android/`: Android target (EXPERIMENTAL / ALPHA)
-- `frontends/web/`: home of the preact UI.
+- `frontends/web/`: home of the React UI.
 
 ## Set up the development environment
 

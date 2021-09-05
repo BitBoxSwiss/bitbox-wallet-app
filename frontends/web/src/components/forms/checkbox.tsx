@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +15,21 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { FunctionComponent } from 'react';
 import * as style from './checkbox.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
-    className?: string;
-    disabled?: boolean;
     label?: string;
-    id: string;
 }
 
-export default function Checkbox({
+const Checkbox: FunctionComponent<CheckboxProps> = ({
     disabled = false,
     label,
     id,
     className = '',
     children,
     ...props
-}: RenderableProps<CheckboxProps>) {
+}) => {
     return (
         <span className={`${style.checkbox} ${className}`}>
             <input
@@ -40,7 +38,9 @@ export default function Checkbox({
                 disabled={disabled}
                 {...props}
             />
-            <label for={id}>{label} {children}</label>
+            <label htmlFor={id}>{label} {children}</label>
         </span>
     );
 }
+
+export default Checkbox;
