@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import React from 'react';
 import * as styles from './input.module.css';
 
 export interface Props {
@@ -69,7 +69,7 @@ export default function Input({
             {
                 label && (
                     <div className="flex flex-row flex-between">
-                        <label for={id} className={error ? styles.errorText : ''}>
+                        <label htmlFor={id} className={error ? styles.errorText : ''}>
                             {label}
                             {
                                 error && (

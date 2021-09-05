@@ -19,7 +19,8 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
-import * as dialogStyle from '../../../components/dialog/dialog.module.css';
+// TODO: use DialogButtons
+import dialogStyle from '../../../components/dialog/dialog.module.css';
 import { Button } from '../../../components/forms';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 

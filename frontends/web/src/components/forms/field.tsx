@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
+import React from 'react';
 import * as style from './field.module.css';
 
 export function Field({

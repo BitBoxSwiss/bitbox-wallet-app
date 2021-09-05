@@ -15,8 +15,14 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
-import * as style from './radio.module.css';
+import React from 'react';
+import style from './radio.module.css';
+
+interface IRadioProps {
+    label?: string;
+}
+
+type TRadioProps = IRadioProps & JSX.IntrinsicElements['input']
 
 export function Radio({
     disabled = false,
@@ -24,7 +30,7 @@ export function Radio({
     id,
     children,
     ...props
-}: JSX.IntrinsicElements['input']) {
+}: TRadioProps) {
     return (
         <span className={style.radio}>
             <input
@@ -34,7 +40,7 @@ export function Radio({
                 disabled={disabled}
                 {...props}
             />
-            <label for={id}>
+            <label htmlFor={id}>
                 {label}
                 {children}
             </label>

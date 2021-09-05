@@ -22,7 +22,8 @@ import { Dialog } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../../utils/request';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
-import * as style from '../../../../../components/dialog/dialog.module.css';
+// TODO: use DialogButtons
+import style from '../../../../../components/dialog/dialog.module.css';
 
 class DeviceLock extends Component {
     state = {
