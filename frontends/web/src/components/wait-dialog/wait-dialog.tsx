@@ -19,7 +19,6 @@ import { Component, ComponentChild, h, JSX, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
-import { animate } from '../../utils/animation';
 import * as style from '../dialog/dialog.css';
 
 interface WaitDialogProps {
@@ -78,18 +77,8 @@ class WaitDialog extends Component<Props, State> {
             if (!this.overlay || !this.modal) {
                 return;
             }
-            animate(this.overlay, 'fadeIn', () => {
-                if (!this.overlay) {
-                    return;
-                }
-                this.overlay.classList.add(style.activeOverlay);
-            });
-            animate(this.modal, 'fadeInUp', () => {
-                if (!this.modal) {
-                    return;
-                }
-                this.modal.classList.add(style.activeModal);
-            });
+            this.overlay.classList.add(style.activeOverlay);
+            this.modal.classList.add(style.activeModal);
         });
     }
 

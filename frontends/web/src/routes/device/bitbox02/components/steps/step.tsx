@@ -1,5 +1,4 @@
 import { Component, h, RenderableProps } from 'preact';
-import { animate } from '../../../../../utils/animation';
 import * as style from './steps.css';
 
 interface StepProps {
@@ -18,21 +17,12 @@ interface State {
 }
 
 class Step extends Component<StepProps, State> {
-    private container!: Element;
-
     constructor(props) {
         super(props);
         this.state = {
             isComplete: this.isComplete(),
             visible: this.isVisible(),
         };
-    }
-
-    public componentDidUpdate(prevProps) {
-        const { active } = this.props;
-        if ((prevProps.active && !active) || (!prevProps.active && active)) {
-            animate(this.container, 'fadeIn');
-        }
     }
 
     public componentWillReceiveProps(nextProps) {
@@ -52,10 +42,6 @@ class Step extends Component<StepProps, State> {
         return [this.props.activeStep].includes(this.props.order);
     }
 
-    private setRef = (ref: Element) => {
-        this.container = ref;
-    }
-
     public render(
         { active, empty, title, large, width, children }: RenderableProps<StepProps>,
         { isComplete, visible }: State,
@@ -70,7 +56,7 @@ class Step extends Component<StepProps, State> {
                     large ? style.large : '',
                 ].join(' ')}
                 style={width ? `max-width: ${width}px` : ''}
-                ref={this.setRef}>
+                >
                 <div className={style.stepContentContainer}>
                     <div className={style.stepContent}>
                         <div className={style.stepTitle}>

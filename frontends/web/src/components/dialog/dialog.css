@@ -11,7 +11,6 @@
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 4010;
     opacity: 0;
-    animation-duration: .3s !important;
 }
 
 .overlay.activeOverlay {
@@ -28,7 +27,6 @@
     max-height: 100vh;
     overflow: auto;
     opacity: 0;
-    animation-duration: .3s !important;
 }
 
 .modal.activeModal {
@@ -106,10 +104,6 @@
 
 .contentContainer.padded {
     padding: var(--space-default);
-}
-
-.content {
-    
 }
 
 .content p {
@@ -249,18 +243,5 @@
 
     .contentContainer.padded {
         padding: var(--space-half);
-    }
-}
-
-/**
- * Turn off animations when requested.
- * On an Android phone, this is typically a "Remove animations" switch
- * in Accessibility section.
- */
-@media (prefers-reduced-motion) {
-    .overlay,
-    .modal {
-        animation: none;
-        opacity: 1;
     }
 }

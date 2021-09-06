@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { animate } from '../../utils/animation';
 import * as style from './dialog.css';
 
 interface Props {
@@ -119,25 +118,14 @@ class Dialog extends Component<Props, State> {
         if (!this.modal || !this.overlay) {
             return;
         }
-        animate(this.modal, 'fadeOutUp', () => {
-            if (!this.modal) {
-                return;
+        this.modal.classList.remove(style.activeModal);
+        this.setState({ active: false, currentTab: 0 }, () => {
+            document.removeEventListener('keydown', this.handleKeyDown);
+            if (this.props.onClose) {
+                this.props.onClose();
             }
-            this.modal.classList.remove(style.activeModal);
-            this.setState({ active: false, currentTab: 0 }, () => {
-                document.removeEventListener('keydown', this.handleKeyDown);
-                if (this.props.onClose) {
-                    this.props.onClose();
-                }
-            });
         });
-        animate(this.overlay, 'fadeOut', () => {
-            if (!this.overlay) {
-                return;
-            }
-            this.overlay.classList.remove(style.activeOverlay);
-        });
-
+        this.overlay.classList.remove(style.activeOverlay);
     }
 
     private activate = () => {
@@ -145,20 +133,10 @@ class Dialog extends Component<Props, State> {
             if (!this.modal || !this.overlay) {
                 return;
             }
-            animate(this.overlay, 'fadeIn', () => {
-                if (!this.overlay) {
-                    return;
-                }
-                this.overlay.classList.add(style.activeOverlay);
-            });
-            animate(this.modal, 'fadeInUp', () => {
-                if (!this.modal) {
-                    return;
-                }
-                this.modal.classList.add(style.activeModal);
-                this.focusWithin();
-                this.focusFirst();
-            });
+            this.overlay.classList.add(style.activeOverlay);
+            this.modal.classList.add(style.activeModal);
+            this.focusWithin();
+            this.focusFirst();
         });
     }
 
