@@ -958,6 +958,10 @@
         "text": "BitBox01: Klicken Sie auf das BitBox-Symbol in der Seitenleiste links und sehen Sie den Abschnitt \"Zwei-Faktor Autorisierung\". Die Anleitung wird aktualisiert und Sie können von dort aus den Anweisungen folgen.\n\nBitBox02: Dank des eingebauten Displays können Sie die Adresse direkt auf dem Gerät während des Send-/Empfangsprozesses verifizieren. ",
         "title": "Wie kann ich die Adresse sicher verifizieren?"
       },
+      "plugout": {
+        "text": "Nein, sobald du die Adresse auf dem Display bestätigt und kopiert hast, musst du deine BitBox nicht mehr eingesteckt haben. Du kannst die BitBox problemlos vom Computer trennen.",
+        "title": "Muss ich meine BitBox während des Empfangs eingesteckt lassen?"
+      },
       "why20": {
         "text": "Die BitBoxApp generiert automatisch eine gewisse Anzahl an Adressen, die von Ihrem Seed abgeleitet werden. Sie überprüft dann, ob diese Adressen schon Coins erhalten haben. Die App kann theoretisch eine nahezu unbegrenzte Anzahl von Adressen generieren, wodurch es Jahre dauern würde, bis Ihr Kontostand ermittelt ist. Um diese Suche einzuschränken stoppt die App diesen Prozess, nachdem sie 20 Adressen generiert hat, die noch nie Coins erhalten haben. Dies wird \"gap-limit\" genannt und 20 ist ein der de-facto-Standard. Deswegen sehen sie immer nur 20 Adressen, aus denen Sie auswählen können. ",
         "title": "Warum werden nur 20 Adressen angezeigt?"
@@ -975,6 +979,10 @@
       "fee": {
         "text": "Die Gebühr basiert auf der Transaktionsdatengröße und nicht auf dem Transaktionsbetrag. Die Gebühren werden durch den Gebührenschätzungsalgorithmus von Bitcoin Core für jede von Ihnen gewählte Netzwerkpriorität berechnet. Sie werden explizit angezeigt, wenn sie einen anderen Wert als die unten stehenden Ziele haben.\nEconomy: 24 Blöcke (ca. 4 Stunden für Bitcoin, 1 Stunde für Litecoin)\nNiedrig: 12 Blöcke (etwa 2 Stunden für Bitcoin, 30 Minuten für Litecoin)\nNormal: 6 Blöcke (ca. 1 Stunde für Bitcoin, 15 Minuten für Litecoin)\nHoch: 2 Blöcke (ca. 20 Minuten für Bitcoin, 5 Minuten für Litecoin)\n(Ein Block benötigt durchschnittlich zehn Minuten für Bitcoin (2,5 Minuten für Litecoin)), und die Netzwerklast kann in den oben genannten Zeiträumen erheblich variieren.)",
         "title": "Wie wird die Gebühr ermittelt?"
+      },
+      "plugout": {
+        "text": "Nein, nachdem du eine Transaktion durchgeführt hast, musst du deine BitBox nicht eingesteckt lassen. Du kannst die BitBox problemlos vom Computer trennen.",
+        "title": "Muss ich meine BitBox beim Senden eingesteckt lassen?"
       },
       "priority": {
         "text": "Je höher die Gebühr ist, die Sie bereit sind zu zahlen, desto schneller wird Ihre Transaktion vom Netzwerk bestätigt. ",
