@@ -163,6 +163,11 @@ int main(int argc, char *argv[])
     qputenv("DRAW_USE_LLVM", "0");
 #endif
 
+    // Force software rendering over GPU-accelerated rendering as various rendering artefact issues
+    // were observed on Windows and the app crashes on some Linux systems.
+    qputenv("QMLSCENE_DEVICE", "softwarecontext");
+    qputenv("QT_QUICK_BACKEND", "software");
+
 
     BitBoxApp a(argc, argv);
     // These three are part of the SingleApplication instance ID - if changed, the user should close

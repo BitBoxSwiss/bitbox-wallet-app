@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
+- Disable GPU acceleration introduced in v4.29.0 due to rendering artefacts on Windows
 
 ## 4.29.0 [released 2021-08-03]
 - Add support for the Address Ownership Proof Protocol (AOPP), i.e.: handle 'aopp:?...' URIs. See https://aopp.group/.
@@ -13,6 +14,7 @@
 - Prevent screen from turning off while the app is in foreground on Android
 - Allow entering the BitBox02 startup settings in 'Manage device' to toggle showing the firmware hash at any time
 - More user-friendly messages for first BitBox02 firmware install
+- Use hardware accelerated rendering in Qt if available
 
 ## 4.28.2 [released 2021-06-03]
 - Fix a conversion rates updater bug
