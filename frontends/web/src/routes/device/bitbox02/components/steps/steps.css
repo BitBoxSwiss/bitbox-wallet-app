@@ -118,8 +118,6 @@
 .step {
     max-width: var(--content-width-small);
     padding: var(--space-default);
-    transition: all ease 0.2s;
-    animation-duration: 0.2s;
     width: 100%;
 }
 
@@ -391,17 +389,5 @@
     .stepTitle h3 {
         margin-top: var(--space-half) !important;
         margin-bottom: var(--space-default) !important;
-    }
-}
-
-/**
- * Turn off animations when requested.
- * On an Android phone, this is typically a "Remove animations" switch
- * in Accessibility section.
- */
-@media (prefers-reduced-motion) {
-    .step {
-        animation: none;
-        transition: none;
     }
 }

@@ -26,7 +26,6 @@ import { Fullscreen, FullscreenContent, FullscreenHeader } from '../../../compon
 import * as style from './components/steps/steps.css';
 import Toast from '../../../components/toast/Toast';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import '../../../style/animate.css';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../../components/alert/Alert';
