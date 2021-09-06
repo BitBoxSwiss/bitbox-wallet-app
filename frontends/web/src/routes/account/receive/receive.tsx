@@ -338,6 +338,7 @@ class Receive extends Component<Props, State> {
                     <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
                     <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
                     <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
+                    <Entry key="guide.receive.plugout" entry={t('guide.receive.plugout')} />
                     {currentAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
                     {currentAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
                     {currentAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}

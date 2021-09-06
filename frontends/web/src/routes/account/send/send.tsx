@@ -865,6 +865,7 @@ class Send extends Component<Props, State> {
                         )
                     }
                     <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
+                    <Entry key="guide.send.plugout" entry={t('guide.send.plugout')} />
                 </Guide>
             </div>
         );
