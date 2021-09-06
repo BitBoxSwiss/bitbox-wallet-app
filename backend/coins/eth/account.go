@@ -459,6 +459,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		return nil, errp.WithStack(errors.ErrFeesNotAvailable)
 	}
 
+	// Make sure account.balance is up to date for calculations below.
+	account.Synchronizer.WaitSynchronized()
+
 	var value *big.Int
 	if args.Amount.SendAll() {
 		value = account.balance.BigInt() // set here only temporarily to estimate the gas
