@@ -20,7 +20,7 @@ import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { getCoinCode, customFeeUnit } from '../utils';
+import { customFeeUnit, getCoinCode, isEthereumBased } from '../utils';
 import * as style from './feetargets.css';
 
 interface LoadedProps {
@@ -182,7 +182,9 @@ class FeeTargets extends Component<Props, State> {
                                     align="right"
                                     className={`${style.fee} ${style.feeCustom}`}
                                     disabled={disabled}
-                                    label={t('send.fee.label')}
+                                    label={t('send.feeTarget.customLabel', {
+                                        context: isEthereumBased(coinCode) ? 'eth' : ''
+                                    })}
                                     id="proposedFee"
                                     placeholder={t('send.fee.customPlaceholder')}
                                     error={error}
