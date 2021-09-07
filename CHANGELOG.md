@@ -4,6 +4,7 @@
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
 - Disable GPU acceleration introduced in v4.29.0 due to rendering artefacts on Windows
 - Changed default currency to USD
+- Support copying address from transaction details
 
 ## 4.29.0 [released 2021-08-03]
 - Add support for the Address Ownership Proof Protocol (AOPP), i.e.: handle 'aopp:?...' URIs. See https://aopp.group/.
