@@ -1119,10 +1119,6 @@
       "title": "Confirm and send transaction",
       "total": "Total"
     },
-    "customFee": {
-      "label": "Converted fee",
-      "placeholder": "Converted fee"
-    },
     "data": {
       "label": "Optional data",
       "placeholder": "Enter hexadecimal data"
