@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import 'jest';
-import '../matchmediastub';
-jest.mock('../../src/i18n/i18n');
-jest.mock('../../src/utils/request');
+import './matchmedia.mock';
+jest.mock('./i18n');
+jest.mock('../utils/request');
 
-import { apiGet } from '../../src/utils/request';
-import i18nconfig from '../../src/i18n/config';
+import { apiGet } from '../utils/request';
+import { languageFromConfig } from './config';
 
 describe('language detector', () => {
     it('defaults to english', done => {
         (apiGet as jest.Mock).mockResolvedValue({});
-        i18nconfig.detect((lang) => {
+        languageFromConfig.detect((lang) => {
             expect(lang).toEqual('en');
             done();
         });
@@ -39,7 +38,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        i18nconfig.detect((lang) => {
+        languageFromConfig.detect((lang) => {
             expect(lang).toEqual('it');
             done();
         });
@@ -53,7 +52,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        i18nconfig.detect((lang) => {
+        languageFromConfig.detect((lang) => {
             expect(lang).toEqual('de');
             done();
         });
@@ -67,7 +66,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        i18nconfig.detect((lang) => {
+        languageFromConfig.detect((lang) => {
             expect(lang).toEqual('en');
             done();
         });
@@ -81,7 +80,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        i18nconfig.detect((lang) => {
+        languageFromConfig.detect((lang) => {
             expect(lang).toEqual('de');
             done();
         });
@@ -95,7 +94,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        i18nconfig.detect((lang) => {
+        languageFromConfig.detect((lang) => {
             expect(lang).toEqual('pt-BR');
             done();
         });
