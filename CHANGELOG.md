@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## 4.29.1 [tagged 2021-09-07, released 2021-09-08]
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
 - Disable GPU acceleration introduced in v4.29.0 due to rendering artefacts on Windows
 - Changed default currency to USD
