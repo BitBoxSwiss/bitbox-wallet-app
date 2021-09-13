@@ -3,6 +3,7 @@ package ch.shiftcrypto.bitboxapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Process;
@@ -31,16 +33,18 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import goserver.Goserver;
 
 public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
+    private static final String ACTION_USB_PERMISSION = "ch.shiftcrypto.bitboxapp.USB_PERMISSION";
+
     // stores the request from onPermissionRequest until the user has granted or denied the permission.
     private PermissionRequest webViewpermissionRequest;
 
@@ -96,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        log("lifecycle: onCreate");
+        Util.log("lifecycle: onCreate");
 
         getSupportActionBar().hide(); // hide title bar with app name.
         setContentView(R.layout.activity_main);
@@ -150,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     if (mimeType != null) {
                         return new WebResourceResponse(mimeType, "UTF-8", inputStream);
                     }
-                    log("Unknown MimeType: " + url);
+                    Util.log("Unknown MimeType: " + url);
                 } catch(Exception e) {
                 }
                 return super.shouldInterceptRequest(view, request);
@@ -169,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch(Exception e) {
                 }
-                log("Blocked: " + url);
+                Util.log("Blocked: " + url);
                 return true;
             }
         });
@@ -178,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         vw.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                log(consoleMessage.message() + " -- From line "
+                Util.log(consoleMessage.message() + " -- From line "
                         + consoleMessage.lineNumber() + " of "
                         + consoleMessage.sourceId());
                 return super.onConsoleMessage(consoleMessage);
@@ -211,10 +215,10 @@ public class MainActivity extends AppCompatActivity {
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
         vw.loadUrl("file:///android_asset/web/index.html");
-    }
 
-    private void log(String msg) {
-        Log.d("ch.shiftcrypto.bitboxapp", "XYZ: " + msg);
+        // We call updateDevice() here in case the app was started while the device was already connected.
+        // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
+        this.updateDevice();
     }
 
     @Override
@@ -229,13 +233,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        log("lifecycle: onStart");
+        Util.log("lifecycle: onStart");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        log("lifecycle: onResume");
+        Util.log("lifecycle: onResume");
         // This is only called reliably when USB is attached with android:launchMode="singleTop"
 
         // Usb device list is updated on ATTACHED / DETACHED intents.
@@ -245,20 +249,51 @@ public class MainActivity extends AppCompatActivity {
         // DETACHED intent is a broadcast intent which we register here.
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        filter.addAction(ACTION_USB_PERMISSION);
         registerReceiver(this.usbStateReceiver, filter);
-
-        // We call updateDeviceList() here in case the app was started while the device was already connected.
-        // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
-        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
-        goViewModel.updateDeviceList();
 
         // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
         registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
+        Intent intent = getIntent();
+        handleIntent(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Util.log("lifecycle: onPause");
+        unregisterReceiver(this.usbStateReceiver);
+        unregisterReceiver(this.networkStateReceiver);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
+            // See https://developer.android.com/guide/topics/connectivity/usb/host#permission-d
+            synchronized (this) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                    if (device != null) {
+                        Util.log("usb: permission granted");
+                        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+                        goViewModel.setDevice(device);
+                    }
+                } else {
+                    Util.log("usb: permission denied");
+                }
+            }
+        }
+        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+            Util.log("usb: attached");
+            this.updateDevice();
+        }
+        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
+            Util.log("usb: detached");
+            this.updateDevice();
+        }
         // Handle 'aopp:' URIs. This is called when the app is launched and also if it is already
         // running and brought to the foreground.
-        Intent intent = getIntent();
-        if(Intent.ACTION_VIEW.equals(intent.getAction())) {
+        if (intent.getAction().equals(Intent.ACTION_VIEW)) {
             Uri uri = intent.getData();
             if (uri != null) {
                 if (uri.getScheme().equals("aopp")) {
@@ -268,36 +303,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        log("lifecycle: onPause");
-        unregisterReceiver(this.usbStateReceiver);
-        unregisterReceiver(this.networkStateReceiver);
-    }
-
-    private void handleIntent(Intent intent) {
+    private void updateDevice() {
+        // Triggered by usb device attached intent and usb device detached broadcast events.
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
-        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-            log("usb: attached");
-            goViewModel.updateDeviceList();
-        }
-        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
-            log("usb: detached");
-            goViewModel.updateDeviceList();
+        goViewModel.setDevice(null);
+        UsbManager manager = (UsbManager) getApplication().getSystemService(Context.USB_SERVICE);
+        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+        while (deviceIterator.hasNext()){
+            UsbDevice device = deviceIterator.next();
+            // One other instance where we filter vendor/product IDs is in
+            // @xml/device_filter resource, which is used for USB_DEVICE_ATTACHED
+            // intent to launch the app when a device is plugged and the app is still
+            // closed. This filter, on the other hand, makes sure we feed only valid
+            // devices to the Go backend once the app is launched or opened.
+            //
+            // BitBox02 Vendor ID: 0x03eb, Product ID: 0x2403.
+            if (device.getVendorId() == 1003 && device.getProductId() == 9219) {
+                if (manager.hasPermission(device)) {
+                    goViewModel.setDevice(device);
+                } else {
+                    PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                    manager.requestPermission(device, permissionIntent);
+                }
+                break; // only one device supported for now
+            }
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        log("lifecycle: onStop");
+        Util.log("lifecycle: onStop");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        log("lifecycle: onDestroy");
+        Util.log("lifecycle: onDestroy");
     }
 
     @Override

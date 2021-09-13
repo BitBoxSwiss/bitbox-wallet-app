@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Fix an Android app crash when opening the app after first rejecting the USB permissions
 
 ## 4.29.1 [tagged 2021-09-07, released 2021-09-08]
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
