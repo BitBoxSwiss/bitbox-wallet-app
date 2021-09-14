@@ -783,7 +783,10 @@ class Send extends Component<Props, State> {
                                             </span>
                                         )}
                                         {customFee ? (
-                                            <span key="customFee"><br/><small>({customFee} { customFeeUnit(account.coinCode) } )</small></span>
+                                            <span key="customFee">
+                                                <br/>
+                                                <small>({customFee} {customFeeUnit(account.coinCode)})</small>
+                                            </span>
                                         ) : null}
                                     </p>
                                 </div>
