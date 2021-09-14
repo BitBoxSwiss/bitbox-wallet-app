@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +15,27 @@
  * limitations under the License.
  */
 
-import 'jest';
-import { h } from 'preact';
-import { deep, shallow } from 'preact-render-spy';
-
-import Input, { Props } from '../../../src/components/forms/input';
+import { render, screen } from '@testing-library/react';
+import Input from '../../../src/components/forms/input';
 
 describe('components/forms/input', () => {
-    it('should preserve style attribute', () => {
-        const input = deep<Props, {}>(<Input type="password" style="width:100%">content</Input>);
-        expect(input.first<Props, {}>().attr('style')).toBe('width:100%');
-        expect(input.first<Props, {}>().attr('type')).toBe('password');
+    it('should preserve type attribute', () => {
+        const { container } = render(<Input type="password" />);
+        expect(container.querySelector('[type="password"')).toBeTruthy();
     });
 
-    it('should have child nodes', () => {
-        const input = shallow(<Input><span>label</span></Input>);
-        expect(input.children()[0]).toEqual(<span>label</span>);
+    it('should have children', () => {
+        render(<Input><span>label</span></Input>);
+        expect(screen.getByText('label')).toBeTruthy();
     });
 
-    it('should return the input node with getRef', () => {
-        shallow(<Input getRef={node => {
-            expect(node.nodeName).toEqual('INPUT');
-        }} />);
+    it('should have a label', () => {
+        render(<Input id="myInput" label="Label" />);
+        expect(screen.getByLabelText('Label')).toBeTruthy();
     });
 
     it('should preserve text', () => {
-        const input = shallow(<Input label="Label" error="text too short" />);
-        expect(input.text()).toBe('Label:text too short');
+        render(<Input label="Label" error="text too short" />);
+        expect(screen.getByText('text too short')).toBeTruthy();
     });
 });

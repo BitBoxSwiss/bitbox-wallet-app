@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +15,16 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import * as styles from './input.module.css';
+import { forwardRef } from 'react';
+import styles from './input.module.css';
 
 export interface Props {
     align?: 'left' | 'right';
-    autoComplete?: boolean | 'on' | 'off';
-    autoFocus?: boolean | 'false' | 'true';
+    autoFocus?: boolean;
+    children?: React.ReactNode;
     className?: string;
     disabled?: boolean;
     error?: string | object;
-    getRef?: (node: HTMLInputElement) => void;
     id?: string;
     label?: string;
     min?: string;
@@ -35,62 +35,54 @@ export interface Props {
     placeholder?: string;
     readOnly?: boolean;
     step?: string;
-    style?: string;
     title?: string;
     transparent?: boolean;
     type?: 'text' | 'password' | 'number';
     value?: string | number;
     maxLength?: number;
     labelSection?: JSX.Element | undefined;
-    // [property: string]: any;
 }
 
-export default function Input({
+export default forwardRef<HTMLInputElement, Props>(function Input({
     id,
     label = '',
     error,
     align = 'left',
     className = '',
-    style = '',
     children,
-    getRef,
     transparent = false,
     type = 'text',
     labelSection,
     ...props
-}: RenderableProps<Props>): JSX.Element {
+}, ref) {
     return (
         <div className={[
             styles.input,
             styles[`align-${align}`],
             className,
             transparent ? styles.isTransparent : '',
-        ].join(' ')} style={style}>
-            {
-                label && (
-                    <div className="flex flex-row flex-between">
-                        <label htmlFor={id} className={error ? styles.errorText : ''}>
-                            {label}
-                            {
-                                error && (
-                                    <span>:<span>{error}</span></span>
-                                )
-                            }
-                        </label>
-                        {labelSection && labelSection}
-                    </div>
-                )
-            }
+        ].join(' ')}>
+            { label ? (
+                <div className="flex flex-row flex-between">
+                    <label htmlFor={id} className={error ? styles.errorText : ''}>
+                        {label}
+                        { error ? (
+                            <span>:<span>{error}</span></span>
+                        ) : null }
+                    </label>
+                    {labelSection && labelSection}
+                </div>
+            ) : null }
             <input
-                autocomplete="off"
-                autocorrect="off"
-                spellcheck={false}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
                 type={type}
                 id={id}
-                ref={getRef}
+                ref={ref}
                 {...props}
             />
             {children}
         </div>
     );
-}
+});
