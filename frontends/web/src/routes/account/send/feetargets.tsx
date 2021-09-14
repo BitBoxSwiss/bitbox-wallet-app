@@ -192,7 +192,7 @@ class FeeTargets extends Component<Props, State> {
                                     onInput={this.handleCustomFee}
                                     getRef={input => {
                                         setTimeout(() => {
-                                            if (!disabled && input && input.autofocus) {
+                                            if (!disabled && input && input.getAttribute('autofocus')) {
                                                 input.focus();
                                             }
                                         });
