@@ -1137,6 +1137,8 @@
       "placeholder": "Not available"
     },
     "feeTarget": {
+      "customLabel": "Fee rate",
+      "customLabel_eth": "Gas price",
       "description": {
         "economy": "4 hours (24 blocks)",
         "economy_eth": "30 minutes or less",
