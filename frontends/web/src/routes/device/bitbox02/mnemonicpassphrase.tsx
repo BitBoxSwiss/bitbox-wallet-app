@@ -16,78 +16,89 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { getDeviceInfo, setMnemonicPassphraseEnabled, TDeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/simplemarkup';
 import { alertUser } from '../../../components/alert/Alert';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
-    apiPrefix: string;
-    getInfo: () => void;
-    mnemonicPassphraseEnabled: boolean;
+    deviceID: string;
+    deviceInfo: TDeviceInfo;
 }
 
 interface State {
     inProgress: boolean;
+    deviceInfo: TDeviceInfo;
 }
 
 type Props = MnemonicPassphraseButtonProps & TranslateProps;
 
 class MnemonicPassphraseButton  extends Component<Props, State> {
-    private toggle = () => {
-        const enable = !this.props.mnemonicPassphraseEnabled;
-        this.setState({ inProgress: true });
-        apiPost(this.props.apiPrefix + '/set-mnemonic-passphrase-enabled',
-                enable).then(({ success }) => {
-                    this.setState({ inProgress: false });
-                    if (success) {
-                        if (enable) {
-                            alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successEnable'));
-                        } else {
-                            alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successDisable'));
-                        }
-                        this.props.getInfo();
-                    }
-                });
+    public readonly state: State = {
+        inProgress: false,
+        deviceInfo: this.props.deviceInfo,
     }
 
+    private getDeviceInfo = () => {
+        getDeviceInfo(this.props.deviceID).then(response => {
+            if (response.success) {
+                this.setState({ deviceInfo: response.deviceInfo });
+            }
+        });
+    }
+
+    private toggle = () => {
+        const enable = !this.state.deviceInfo.mnemonicPassphraseEnabled;
+        this.setState({ inProgress: true });
+        setMnemonicPassphraseEnabled(this.props.deviceID, enable)
+            .then(response => {
+                this.setState({ inProgress: false });
+                if (response.success) {
+                    const { t } = this.props;
+                    if (enable) {
+                        alertUser(t('bitbox02Settings.mnemonicPassphrase.successEnable'));
+                    } else {
+                        alertUser(t('bitbox02Settings.mnemonicPassphrase.successDisable'));
+                    }
+                    this.getDeviceInfo();
+                }
+            });
+    }
+
+    private renderLine = (line: string, i: number) => (
+        <span key={`${line}-${i}`}>
+            <SimpleMarkup tagName="span" markup={line} /><br/>
+        </span>
+    )
+
     public render(
-        { t,
-          mnemonicPassphraseEnabled,
-        }: RenderableProps<Props>,
-        { inProgress }: State,
+        { t }: RenderableProps<Props>,
+        { deviceInfo, inProgress }: State,
     ) {
-        const title = mnemonicPassphraseEnabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable');
+        const enabled = deviceInfo.mnemonicPassphraseEnabled;
+        const title = enabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable');
         const message = t('bitbox02Settings.mnemonicPassphrase.description');
         return (
             <div>
                 <SettingsButton onClick={this.toggle}>{title}</SettingsButton>
-                {
-                    inProgress && (
-                        <WaitDialog title={title}>
-                            <div className="columnsContainer half">
-                                <div className="columns">
-                                    <div className="column">
-                                        {
-                                            !mnemonicPassphraseEnabled && message && (
-                                                <p>
-                                                    { message.split('\n').map((line, i) => (
-                                                        <span key={`${line}-${i}`}>
-                                                            <SimpleMarkup tagName="span" markup={line} /><br/>
-                                                        </span>
-                                                    )) }
-                                                </p>
-                                            )
-                                        }
-                                        <p>{t('bitbox02Interact.followInstructions')}</p>
-                                    </div>
+                { inProgress && (
+                    <WaitDialog title={title}>
+                        <div className="columnsContainer half">
+                            <div className="columns">
+                                <div className="column">
+                                    { !enabled && message && (
+                                        <p>
+                                            { message.split('\n').map(this.renderLine) }
+                                        </p>
+                                    ) }
+                                    <p>{t('bitbox02Interact.followInstructions')}</p>
                                 </div>
                             </div>
-                        </WaitDialog>
-                    )
-                }
+                        </div>
+                    </WaitDialog>
+                ) }
             </div>
         );
     }

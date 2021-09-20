@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiGet } from '../utils/request';
+import { apiGet, apiPost } from '../utils/request';
 import { TSuccess, TFail } from './response';
 
 export type TDeviceInfo = {
@@ -33,4 +33,11 @@ export const getDeviceInfo = (
     deviceID: string
 ): Promise<IDeviceInfo | TFail> => {
     return apiGet(`devices/bitbox02/${deviceID}/info`);
+};
+
+export const setMnemonicPassphraseEnabled = (
+    deviceID: string,
+    enabled: boolean,
+): Promise<TSuccess | TFail> => {
+    return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled);
 };
