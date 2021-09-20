@@ -16,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { getDeviceInfo, TDeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SwissMadeOpenSource } from '../../../components/icon/logo';
@@ -36,13 +37,7 @@ interface SettingsProps {
 
 interface State {
     versionInfo?: VersionInfo;
-    deviceInfo?: {
-        name: string;
-        initialized: boolean;
-        version: string;
-        mnemonicPassphraseEnabled: boolean;
-        securechipModel: string;
-    };
+    deviceInfo?: TDeviceInfo;
 }
 
 type Props = SettingsProps & TranslateProps;
@@ -53,8 +48,10 @@ class Settings extends Component<Props, State> {
     }
 
     private getInfo = () => {
-        apiGet(this.apiPrefix() + '/info').then(response => {
-            this.setState({ deviceInfo: response.deviceInfo });
+        getDeviceInfo(this.props.deviceID).then(response => {
+            if (response.success) {
+                this.setState({ deviceInfo: response.deviceInfo });
+            }
         });
     }
 
