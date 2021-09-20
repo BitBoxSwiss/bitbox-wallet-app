@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +53,8 @@ class Settings extends Component<Props, State> {
     }
 
     private getInfo = () => {
-        apiGet(this.apiPrefix() + '/info').then(deviceInfo => {
-            this.setState({ deviceInfo });
+        apiGet(this.apiPrefix() + '/info').then(response => {
+            this.setState({ deviceInfo: response.deviceInfo });
         });
     }
 
