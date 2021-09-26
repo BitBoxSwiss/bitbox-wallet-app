@@ -48,13 +48,13 @@ interface Options {
 }
 
 interface State {
-    feeTarget?: string | null;
+    feeTarget?: string;
     options: Options[] | null;
 }
 
 class FeeTargets extends Component<Props, State> {
     public readonly state: State = {
-        feeTarget: null,
+        feeTarget: undefined,
         options: null,
     };
 
@@ -156,7 +156,7 @@ class FeeTargets extends Component<Props, State> {
                                 id="feeTarget"
                                 disabled={disabled}
                                 onChange={this.handleFeeTargetChange}
-                                selected={feeTarget}
+                                selectedOption={feeTarget}
                                 value={feeTarget}
                                 options={options} />
                         )
@@ -169,7 +169,7 @@ class FeeTargets extends Component<Props, State> {
                                     id="feeTarget"
                                     disabled={disabled}
                                     onChange={this.handleFeeTargetChange}
-                                    selected={feeTarget}
+                                    selectedOption={feeTarget}
                                     value={feeTarget}
                                     options={options} />
                             </div>

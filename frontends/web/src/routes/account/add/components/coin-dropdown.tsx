@@ -35,7 +35,7 @@ function CoinDropDown({
 }: RenderableProps<Props>) {
     return (
         <Select
-            autoFocus
+            autofocus
             options={[
                 {
                     text: t('buy.info.selectPlaceholder'),
@@ -49,7 +49,7 @@ function CoinDropDown({
                 }))
             ]}
             onInput={e => onChange(supportedCoins.find(c => {
-                return c.coinCode === e.target.value;
+                return c.coinCode === (e.target as HTMLSelectElement).value;
             }) as backendAPI.ICoin)}
             defaultValue={'choose'}
             placeholder={t('buy.info.selectPlaceholder')}

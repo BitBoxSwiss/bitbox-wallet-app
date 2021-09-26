@@ -157,7 +157,7 @@ class Aopp extends Component<Props, State> {
                                     options={options}
                                     defaultValue={options[0].value}
                                     value={accountCode}
-                                    onChange={e => this.setState({ accountCode: e.target.value })}
+                                    onChange={e => this.setState({ accountCode: (e.target as HTMLSelectElement)?.value })}
                                     id="account" />
                             </FullscreenContent>
                             <FullscreenButtons>

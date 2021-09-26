@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +15,41 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, JSX } from 'preact';
 import { select } from './select.css';
 
-export default function Select({
+type TOptionTextContent = {
+    text: string;
+}
+
+type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent
+
+type TSelectProps = {
+    // Temp add defaultValue, see https://github.com/preactjs/preact/issues/2668
+    defaultValue?: string;
+    id: string;
+    label?: string;
+    options: TOption[];
+    selectedOption?: string;
+} & JSX.IntrinsicElements['select']
+
+export function Select({
     id,
-    label = null,
+    label,
     options = [],
-    selected = null,
+    selectedOption,
     ...props
-}) {
+}: TSelectProps) {
     return (
         <div className={select}>
             {label && <label for={id}>{label}</label>}
             <select id={id} {...props}>
                 {options.map(({ value, text, disabled = false }) => (
                     <option
-                        key={value}
+                        key={`${value}`}
                         value={value}
                         disabled={disabled}
-                        selected={selected === value}>
+                        selected={selectedOption === value}>
                         {text}
                     </option>
                 ))}
