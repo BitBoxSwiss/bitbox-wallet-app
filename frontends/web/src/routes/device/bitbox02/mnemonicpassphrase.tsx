@@ -42,11 +42,8 @@ class MnemonicPassphraseButton extends Component<Props, State> {
     }
 
     private getDeviceInfo = () => {
-        getDeviceInfo(this.props.deviceID).then(response => {
-            if (response.success) {
-                this.setState({ deviceInfo: response.deviceInfo });
-            }
-        });
+        getDeviceInfo(this.props.deviceID)
+            .then(deviceInfo => this.setState({ deviceInfo }));
     }
 
     private toggle = () => {

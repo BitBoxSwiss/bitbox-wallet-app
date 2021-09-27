@@ -31,9 +31,16 @@ type DeviceInfoResponse = SuccessResponse & {
 
 export const getDeviceInfo = (
     deviceID: string
-): Promise<DeviceInfoResponse | FailResponse> => {
-    return apiGet(`devices/bitbox02/${deviceID}/info`);
+): Promise<DeviceInfo> => {
+    return apiGet(`devices/bitbox02/${deviceID}/info`)
+        .then((response: DeviceInfoResponse | FailResponse) => {
+            if (!response.success) {
+                return Promise.reject(response);
+            }
+            return Promise.resolve(response.deviceInfo);
+        });
 };
+
 
 export const setMnemonicPassphraseEnabled = (
     deviceID: string,

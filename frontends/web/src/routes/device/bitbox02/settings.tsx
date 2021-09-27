@@ -48,11 +48,8 @@ class Settings extends Component<Props, State> {
     }
 
     private getInfo = () => {
-        getDeviceInfo(this.props.deviceID).then(response => {
-            if (response.success) {
-                this.setState({ deviceInfo: response.deviceInfo });
-            }
-        });
+        getDeviceInfo(this.props.deviceID)
+            .then(deviceInfo => this.setState({ deviceInfo }));
     }
 
     public componentDidMount() {
