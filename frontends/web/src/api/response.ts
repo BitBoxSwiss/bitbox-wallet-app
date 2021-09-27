@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-export type TSuccess = {
+export type SuccessResponse = {
     success: true;
 }
 
 // if the backend uses maybeBB02Err
-export type TFail = {
+export type FailResponse = {
     code?: number;
     message?: string;
     success: false;

@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getDeviceInfo, TDeviceInfo } from '../../../api/bitbox02';
+import { getDeviceInfo, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SwissMadeOpenSource } from '../../../components/icon/logo';
@@ -37,7 +37,7 @@ interface SettingsProps {
 
 interface State {
     versionInfo?: VersionInfo;
-    deviceInfo?: TDeviceInfo;
+    deviceInfo?: DeviceInfo;
 }
 
 type Props = SettingsProps & TranslateProps;

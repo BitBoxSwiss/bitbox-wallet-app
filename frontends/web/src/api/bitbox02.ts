@@ -15,9 +15,9 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
-import { TSuccess, TFail } from './response';
+import { SuccessResponse, FailResponse } from './response';
 
-export type TDeviceInfo = {
+export type DeviceInfo = {
     initialized: boolean;
     mnemonicPassphraseEnabled: boolean;
     name: string;
@@ -25,19 +25,19 @@ export type TDeviceInfo = {
     version: string;
 }
 
-interface IDeviceInfo extends TSuccess {
-    deviceInfo: TDeviceInfo;
-}
+type DeviceInfoResponse = SuccessResponse & {
+    deviceInfo: DeviceInfo;
+};
 
 export const getDeviceInfo = (
     deviceID: string
-): Promise<IDeviceInfo | TFail> => {
+): Promise<DeviceInfoResponse | FailResponse> => {
     return apiGet(`devices/bitbox02/${deviceID}/info`);
 };
 
 export const setMnemonicPassphraseEnabled = (
     deviceID: string,
     enabled: boolean,
-): Promise<TSuccess | TFail> => {
+): Promise<SuccessResponse | FailResponse> => {
     return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled);
 };

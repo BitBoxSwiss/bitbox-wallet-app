@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getDeviceInfo, setMnemonicPassphraseEnabled, TDeviceInfo } from '../../../api/bitbox02';
+import { getDeviceInfo, setMnemonicPassphraseEnabled, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { SimpleMarkup } from '../../../utils/simplemarkup';
 import { alertUser } from '../../../components/alert/Alert';
@@ -25,17 +25,17 @@ import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
     deviceID: string;
-    deviceInfo: TDeviceInfo;
+    deviceInfo: DeviceInfo;
 }
 
 interface State {
     inProgress: boolean;
-    deviceInfo: TDeviceInfo;
+    deviceInfo: DeviceInfo;
 }
 
 type Props = MnemonicPassphraseButtonProps & TranslateProps;
 
-class MnemonicPassphraseButton  extends Component<Props, State> {
+class MnemonicPassphraseButton extends Component<Props, State> {
     public readonly state: State = {
         inProgress: false,
         deviceInfo: this.props.deviceInfo,
