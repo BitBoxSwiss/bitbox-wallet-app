@@ -939,6 +939,11 @@
     "settingsButtonDescription": "Add and show/hide accounts",
     "title": "Manage accounts"
   },
+  "mnemonicPassphrase": {
+    "error": {
+      "e104": "Changing the passphrase setting was aborted."
+    }
+  },
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
   },

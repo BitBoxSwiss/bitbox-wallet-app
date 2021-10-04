@@ -47,20 +47,24 @@ class MnemonicPassphraseButton extends Component<Props, State> {
     }
 
     private toggle = () => {
+        const { t } = this.props;
         const enable = !this.state.deviceInfo.mnemonicPassphraseEnabled;
         this.setState({ inProgress: true });
         setMnemonicPassphraseEnabled(this.props.deviceID, enable)
-            .then(response => {
+            .then(() => {
                 this.setState({ inProgress: false });
-                if (response.success) {
-                    const { t } = this.props;
-                    if (enable) {
-                        alertUser(t('bitbox02Settings.mnemonicPassphrase.successEnable'));
-                    } else {
-                        alertUser(t('bitbox02Settings.mnemonicPassphrase.successDisable'));
-                    }
-                    this.getDeviceInfo();
+                if (enable) {
+                    alertUser(t('bitbox02Settings.mnemonicPassphrase.successEnable'));
+                } else {
+                    alertUser(t('bitbox02Settings.mnemonicPassphrase.successDisable'));
                 }
+                this.getDeviceInfo();
+            })
+            .catch((e) => {
+                this.setState({ inProgress: false });
+                alertUser(t(`mnemonicPassphrase.error.e${e.code}`, {
+                    defaultValue: e.message || t('genericError'),
+                }));
             });
     }
 

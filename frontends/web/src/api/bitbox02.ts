@@ -41,10 +41,15 @@ export const getDeviceInfo = (
         });
 };
 
-
 export const setMnemonicPassphraseEnabled = (
     deviceID: string,
     enabled: boolean,
-): Promise<SuccessResponse | FailResponse> => {
-    return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled);
+): Promise<void | FailResponse> => {
+    return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled)
+        .then((response: SuccessResponse | FailResponse) => {
+            if (!response.success) {
+                return Promise.reject(response);
+            }
+            return Promise.resolve();
+        });
 };
