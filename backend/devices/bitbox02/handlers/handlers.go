@@ -134,7 +134,10 @@ func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
 	if err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}
-	return deviceInfo, nil
+	return map[string]interface{}{
+		"success":    true,
+		"deviceInfo": deviceInfo,
+	}, nil
 }
 
 func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error) {

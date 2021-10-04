@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { getDeviceInfo, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SwissMadeOpenSource } from '../../../components/icon/logo';
@@ -35,13 +37,7 @@ interface SettingsProps {
 
 interface State {
     versionInfo?: VersionInfo;
-    deviceInfo?: {
-        name: string;
-        initialized: boolean;
-        version: string;
-        mnemonicPassphraseEnabled: boolean;
-        securechipModel: string;
-    };
+    deviceInfo?: DeviceInfo;
 }
 
 type Props = SettingsProps & TranslateProps;
@@ -52,9 +48,8 @@ class Settings extends Component<Props, State> {
     }
 
     private getInfo = () => {
-        apiGet(this.apiPrefix() + '/info').then(deviceInfo => {
-            this.setState({ deviceInfo });
-        });
+        getDeviceInfo(this.props.deviceID)
+            .then(deviceInfo => this.setState({ deviceInfo }));
     }
 
     public componentDidMount() {
@@ -147,9 +142,8 @@ class Settings extends Component<Props, State> {
                                         </div>
                                         <div className="box slim divide">
                                             <MnemonicPassphraseButton
-                                                apiPrefix={this.apiPrefix()}
-                                                mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
-                                                getInfo={this.getInfo} />
+                                                deviceID={this.props.deviceID}
+                                                deviceInfo={deviceInfo} />
                                             { versionInfo && versionInfo.canGotoStartupSettings ? (
                                                   <GotoStartupSettings apiPrefix={this.apiPrefix()} />
                                             ) : null
