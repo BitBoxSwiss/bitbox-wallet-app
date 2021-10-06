@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getDeviceInfo, setMnemonicPassphraseEnabled, DeviceInfo } from '../../../api/bitbox02';
+import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { SimpleMarkup } from '../../../utils/simplemarkup';
 import { alertUser } from '../../../components/alert/Alert';
@@ -25,12 +25,12 @@ import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
     deviceID: string;
-    deviceInfo: DeviceInfo;
+    mnemonicPassphraseEnabled: boolean;
 }
 
 interface State {
     inProgress: boolean;
-    deviceInfo: DeviceInfo;
+    mnemonicPassphraseEnabled: boolean;
 }
 
 type Props = MnemonicPassphraseButtonProps & TranslateProps;
@@ -38,17 +38,17 @@ type Props = MnemonicPassphraseButtonProps & TranslateProps;
 class MnemonicPassphraseButton extends Component<Props, State> {
     public readonly state: State = {
         inProgress: false,
-        deviceInfo: this.props.deviceInfo,
+        mnemonicPassphraseEnabled: this.props.mnemonicPassphraseEnabled,
     }
 
     private getDeviceInfo = () => {
         getDeviceInfo(this.props.deviceID)
-            .then(deviceInfo => this.setState({ deviceInfo }));
+            .then(({ mnemonicPassphraseEnabled }) => this.setState({ mnemonicPassphraseEnabled }));
     }
 
     private toggle = () => {
         const { t } = this.props;
-        const enable = !this.state.deviceInfo.mnemonicPassphraseEnabled;
+        const enable = !this.state.mnemonicPassphraseEnabled;
         this.setState({ inProgress: true });
         setMnemonicPassphraseEnabled(this.props.deviceID, enable)
             .then(() => {
@@ -76,10 +76,9 @@ class MnemonicPassphraseButton extends Component<Props, State> {
 
     public render(
         { t }: RenderableProps<Props>,
-        { deviceInfo, inProgress }: State,
+        { mnemonicPassphraseEnabled, inProgress }: State,
     ) {
-        const enabled = deviceInfo.mnemonicPassphraseEnabled;
-        const title = enabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable');
+        const title = mnemonicPassphraseEnabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable');
         const message = t('bitbox02Settings.mnemonicPassphrase.description');
         return (
             <div>
@@ -89,7 +88,7 @@ class MnemonicPassphraseButton extends Component<Props, State> {
                         <div className="columnsContainer half">
                             <div className="columns">
                                 <div className="column">
-                                    { !enabled && message && (
+                                    { !mnemonicPassphraseEnabled && message && (
                                         <p>
                                             { message.split('\n').map(this.renderLine) }
                                         </p>
