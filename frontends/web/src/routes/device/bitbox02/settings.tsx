@@ -30,6 +30,7 @@ import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
 import { ShowMnemonic } from './showmnemonic';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
+import { alertUser } from '../../../components/alert/Alert';
 
 interface SettingsProps {
     deviceID: string;
@@ -49,7 +50,11 @@ class Settings extends Component<Props, State> {
 
     private getInfo = () => {
         getDeviceInfo(this.props.deviceID)
-            .then(deviceInfo => this.setState({ deviceInfo }));
+            .then(deviceInfo => this.setState({ deviceInfo }))
+            .catch(error => {
+                console.error(error);
+                alertUser(this.props.t('genericError'));
+            });
     }
 
     public componentDidMount() {
@@ -143,7 +148,7 @@ class Settings extends Component<Props, State> {
                                         <div className="box slim divide">
                                             <MnemonicPassphraseButton
                                                 deviceID={this.props.deviceID}
-                                                mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled} />
+                                                passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled} />
                                             { versionInfo && versionInfo.canGotoStartupSettings ? (
                                                   <GotoStartupSettings apiPrefix={this.apiPrefix()} />
                                             ) : null
