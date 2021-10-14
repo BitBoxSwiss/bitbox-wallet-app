@@ -143,7 +143,7 @@ class Settings extends Component<Props, State> {
                                         <div className="box slim divide">
                                             <MnemonicPassphraseButton
                                                 deviceID={this.props.deviceID}
-                                                deviceInfo={deviceInfo} />
+                                                mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled} />
                                             { versionInfo && versionInfo.canGotoStartupSettings ? (
                                                   <GotoStartupSettings apiPrefix={this.apiPrefix()} />
                                             ) : null
