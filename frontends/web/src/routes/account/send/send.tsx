@@ -449,6 +449,10 @@ class Send extends Component<Props, State> {
         this.validateAndDisplayFee(true);
     }
 
+    private hasSelectedUTXOs = (): boolean => {
+        return Object.keys(this.selectedUTXOs).length !== 0;
+    }
+
     private getAccount = (): accountApi.IAccount | undefined => {
         if (!this.props.accounts) {
             return undefined;
@@ -662,7 +666,7 @@ class Send extends Component<Props, State> {
                                                 placeholder={t('send.amount.placeholder')}
                                                 labelSection={
                                                     <Checkbox
-                                                        label={t('send.maximum')}
+                                                        label={t(this.hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
                                                         id="sendAll"
                                                         onChange={this.handleFormChange}
                                                         checked={sendAll}
@@ -791,7 +795,7 @@ class Send extends Component<Props, State> {
                                     </p>
                                 </div>
                                 {
-                                    Object.keys(this.selectedUTXOs).length !== 0 && (
+                                    this.hasSelectedUTXOs() && (
                                         <div className={[style.confirmItem].join(' ')}>
                                             <label>{t('send.confirm.selected-coins')}</label>
                                             {

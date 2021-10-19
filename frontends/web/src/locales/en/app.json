@@ -1169,6 +1169,7 @@
       "placeholder": "Calculating fee…"
     },
     "maximum": "Send all",
+    "maximumSelectedCoins": "Send selected coins",
     "priority": "Priority",
     "scanQR": "Scan QR code",
     "signprogress": {
