@@ -3,6 +3,7 @@
 ## [Unreleased]
 - Fix an Android app crash when opening the app after first rejecting the USB permissions
 - Change label to show 'Fee rate' or 'Gas price' for custom fees
+- Change label 'Send all' label to 'Send selected coins' if there is a coin selection
 
 ## 4.29.1 [tagged 2021-09-07, released 2021-09-08]
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
