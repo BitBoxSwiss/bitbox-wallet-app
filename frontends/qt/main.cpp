@@ -163,6 +163,22 @@ int main(int argc, char *argv[])
     qputenv("DRAW_USE_LLVM", "0");
 #endif
 
+// The QtWebEngine may make a clone3 syscall introduced in glibc v2.34.
+// The syscall is missing from the Chromium sandbox whitelist in Qt versions 5.15.2
+// and earlier which visually results in a blank app screen.
+// Disabling the sandbox allows all syscalls.
+//
+// See the following for more details.
+// https://github.com/digitalbitbox/bitbox-wallet-app/issues/1447
+// https://bugreports.qt.io/browse/QTBUG-96214
+// https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/1944468
+#if defined(Q_OS_LINUX)
+    const static char* kDisableWebSandbox = "QTWEBENGINE_DISABLE_SANDBOX";
+    if (!qEnvironmentVariableIsSet(kDisableWebSandbox)) {
+        qputenv(kDisableWebSandbox, "1");
+    }
+#endif
+
     // Force software rendering over GPU-accelerated rendering as various rendering artefact issues
     // were observed on Windows and the app crashes on some Linux systems.
     qputenv("QMLSCENE_DEVICE", "softwarecontext");
