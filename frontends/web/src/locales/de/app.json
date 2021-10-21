@@ -101,8 +101,8 @@
     "check": {
       "checking": "Backup wird geprüft…",
       "confirmTitle": "Backup überprüfen",
-      "notOK": "Ihr Backup entspricht NICHT ihrem aktuellen Wallet.",
-      "ok": "Erfolg! Ihr Backup entspricht Ihrem aktuellen Wallet.",
+      "notOK": "Ihr Backup entspricht NICHT ihrer aktuellen Wallet.",
+      "ok": "Erfolg! Ihr Backup entspricht Ihrer aktuellen Wallet.",
       "password": {
         "label": "Wiederherstellungspasswort",
         "placeholder": "Wiederherstellungspasswort",
@@ -114,7 +114,7 @@
     "create": {
       "alreadyExists": "Sie haben schon ein gültiges Backup. Wollen Sie es trotzdem ein weiters Backup erstellen?",
       "fail": "Erstellung des Backups FEHLGESCHLAGEN!",
-      "info": "Bitte geben Sie Ihr Wiederherstellungspasswort ein, um Ihr aktuelles Wallet zu verifizieren.",
+      "info": "Bitte geben Sie Ihr Wiederherstellungspasswort ein, um Ihre aktuelle Wallet zu verifizieren.",
       "name": {
         "label": "Backup Name",
         "placeholder": "Bitte benennen Sie Ihr Backup."
@@ -124,7 +124,7 @@
         "placeholder": "Bitte geben Sie Ihr Wiederherstellungspasswort ein."
       },
       "title": "Backup erstellen",
-      "verificationFailed": "Das Wiederherstellungspasswort entspricht NICHT dem aktuellen Wallet. Das Backup wurde erstellt. Bitte nutzen Sie „Backup prüfen“ um Ihr Wiederherstellungspasswort erneut zu überprüfen. "
+      "verificationFailed": "Das Wiederherstellungspasswort entspricht NICHT der aktuellen Wallet. Das Backup wurde erstellt. Bitte nutzen Sie „Backup prüfen“ um Ihr Wiederherstellungspasswort erneut zu überprüfen. "
     },
     "description": "Wähle eine  <strong>Wallet Backup</strong> Datei aus.",
     "insert": "Bitte stecken Sie die Micro-SD-Karte ein um Ihre Backups zu verwalten.",
@@ -145,10 +145,10 @@
       },
       "restoring": "Wiederherstellen des Backups…",
       "title": "Wiederherstellen",
-      "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort ein neues/anderes Wallet erstellt."
+      "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort eine neue/andere Wallet erstellt."
     },
     "showMnemonic": {
-      "description": "Dir werden 24 Recovery-Wörter angezeigt, die ein Backup deines Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt. Wenn jemand das Papier  mit den 24 Recovery-Wörtern findet hat er Zugang zu deinem Wallet.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du sie nochmals bestätigen. \n",
+      "description": "Dir werden 24 Recovery-Wörter angezeigt, die ein Backup deiner Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt. Wenn jemand das Papier mit den 24 Recovery-Wörtern findet hat er Zugang zu deiner Wallet.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du sie nochmals bestätigen. \n",
       "title": "Recovery-Wörter anzeigen"
     },
     "title": "Backups verwalten"
@@ -178,7 +178,7 @@
     "confirmDateText": "Dieses Datum wird mit deinem Backup gespeichert. ",
     "confirmName": "Bestätige den Namen auf deiner BitBox02",
     "followInstructions": "Bitte folge den Anweisungen auf deiner BitBox02.",
-    "followInstructionsMnemonic": "Bitte folge den Anweisungen auf deiner BitBox02 um dein Wallet von deinen Recovery-Wörtern wieder herzustellen."
+    "followInstructionsMnemonic": "Bitte folge den Anweisungen auf deiner BitBox02 um deine Wallet von deinen Recovery-Wörtern wieder herzustellen."
   },
   "bitbox02Settings": {
     "deviceName": {
@@ -196,7 +196,7 @@
       "disable": "Optionale Passphrase deaktivieren",
       "enable": "Optionale Passphrase aktivieren",
       "successDisable": "Optionale Passphrase erfolgreich deaktiviert.",
-      "successEnable": "Optionale Passphrase erfolgreich aktiviert.\n\nAb jetzt können Sie nach dem Entsperren der BitBox02 eine Passphrase eingeben. \n\nFalls Sie nicht wissen, was eine Passphrase ist, deaktivieren Sie diese Option bitte wieder. Dies ist eine Option für erfahrene Nutzer.\n\n<strong>Achtung:</strong> jede Passphrase generiert ein seperates Wallet. \nSie müssen Ihre Passphrase  <strong>sicher aufbewahren</strong>.\n<strong>Bei Verlust der Passphrase lässt sich das Wallet mit Ihren Coins NICHT wieder herstellen. Das heißt, der Zugang zu Ihren Coins ist verloren.</strong>"
+      "successEnable": "Optionale Passphrase erfolgreich aktiviert.\n\nAb jetzt können Sie nach dem Entsperren der BitBox02 eine Passphrase eingeben. \n\nFalls Sie nicht wissen, was eine Passphrase ist, deaktivieren Sie diese Option bitte wieder. Dies ist eine Option für erfahrene Nutzer.\n\n<strong>Achtung:</strong> jede Passphrase generiert eine seperate Wallet. \nSie müssen Ihre Passphrase  <strong>sicher aufbewahren</strong>.\n<strong>Bei Verlust der Passphrase lässt sich die Wallet mit Ihren Coins NICHT wieder herstellen. Das heißt, der Zugang zu Ihren Coins ist verloren.</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -204,8 +204,8 @@
     "backup": {
       "point1": "Wähle ein Backup von der microSD Karte aus",
       "point2": "Setze ein Passwort für dein Gerät",
-      "restoreText": "Ok, lass uns dein Wallet von deinem Backup wiederherstellen!",
-      "text1": "Perfekt, Ihr BitBox02 Passwort ist jetzt festgelegt und Ihr Wallet wurde erstellt. Jetzt ist es Zeit ein Backup des Wallets zu erstellen. Bitte stelle dazu sicher, dass die microSD Karte eingesteckt ist. ",
+      "restoreText": "Ok, lass uns deine Wallet von deinem Backup wiederherstellen!",
+      "text1": "Perfekt, Ihr BitBox02 Passwort ist jetzt festgelegt und Ihre Wallet wurde erstellt. Jetzt ist es Zeit ein Backup der Wallet zu erstellen. Bitte stelle dazu sicher, dass die microSD Karte eingesteckt ist. ",
       "text2": "Sobald Sie \"Backup erstellen\" geklickt haben folgen Sie bitte den Anweisungen auf Ihrer BitBox um ein Backup zu erstellen. ",
       "text3": "Nachdem das Backup erstellt wurde, bewahren Sie die microSD Karte bitte an einem <strong>sicheren Ort auf und stecken Sie die microSD Karte niemals in ein anderes Gerät, das nicht eine BitBox ist. </strong> Das Backup auf der microSD Karte ist nicht passwort-geschützt!",
       "userConfirmation1": "Ich muss mein Backup an einem sicheren Ort aufbewahren.",
@@ -221,13 +221,13 @@
       "point1": "Gerät benennen",
       "point2": "Gerätepasswort einstellen",
       "point3": "Backup erstellen",
-      "text": "Ok, lass uns ein neues Wallet erstellen!"
+      "text": "Ok, lass uns eine neue Wallet erstellen!"
     },
     "createBackupFailed": "Erstellung des Backups fehlgeschlagen, erneut versuchen.",
     "initialize": {
       "passwordText": "Lass uns nun ein Passwort für deine BitBox festlegen. Schaue dir die Animation unten an und benutze dann die Touch Slider auf den Seiten deiner BitBox, um ein Passwort einzugeben. ",
       "passwordTitle": "Setze ein Passwort für deine BitBox",
-      "text": "Jetzt initaliseren wir deine BitBox02. Wähle zuerst aus, ob du ein neues Wallet erstellen oder von einem Backup wieder herstellen möchtest.  <strong>Wenn du von einem Backup wieder herstellen möchtest, stelle sicher, dass deine microSD Karte eingesteckt ist.</strong>",
+      "text": "Jetzt initaliseren wir deine BitBox02. Wähle zuerst aus, ob du eine neue Wallet erstellen oder von einem Backup wieder herstellen möchtest.  <strong>Wenn du von einem Backup wieder herstellen möchtest, stelle sicher, dass deine microSD Karte eingesteckt ist.</strong>",
       "tip": "Bitte fahren Sie in einer sichern Umgebung fort. ",
       "title": "Initialisiere deine BitBox"
     },
@@ -276,7 +276,7 @@
     },
     "stepUninitialized": {
       "create": "Ich möchte eine neue BitBox02 einrichten.",
-      "restore": "Ich möchte mein Wallet von einem Backup wiederherstellen.",
+      "restore": "Ich möchte meine Wallet von einem Backup wiederherstellen.",
       "restoreMicroSD": "Von microSD Karte wiederherstellen",
       "restoreMnemonic": "Von Recovery-Wörtern wiederherstellen",
       "title": "BitBox02 einrichten"
@@ -382,8 +382,6 @@
     "backups": {
       "created": "Ihr Backup wurde auf dem <strong>das USB-Stick</strong> erstellt.",
       "createdTitle": "Konfiguration anwenden",
-      "finalizing": "Die BitBoxBase schließt jetzt das Setup ab. Dies dauert nur wenige Sekunden.",
-      "insert": "Stecken Sie einen USB-Stick in die BitBoxBase ein, um ein Backup Ihres Wallets zu erstellen.",
       "list": {
         "point1": "Diese Backup enthält vertrauliche Informationen.",
         "point2": "Erlaubt Ihnen das BitBoxBase-Verwaltungspasswort zurücksetzen.",
@@ -432,16 +430,13 @@
         "title": "Clearnet"
       },
       "clearnetThenTor": {
-        "con1": "Belastet das Tor-Netzwerk",
         "label": "Clearnet für den initialen Block-Download (IBD) verwenden, dann zu Tor wechseln",
         "pro1": "Schnellerer initialer Block Download ",
-        "pro2": "Belastet das Tor-Netzwerk während des IBD nicht",
         "select": "Clearnet + Tor auswählen",
         "title": "Clearnet dann Tor"
       },
       "title": "Netzwerkeinstellungen wählen",
       "tor": {
-        "con1": "Belastet das Tor-Netzwerk",
         "con2": "Möglicherweise verdächtig in totalitären Rechtssystemen",
         "label1": "Tor für alle Verbindungen verwenden. Unsere empfohlene Option.",
         "label2": "Tor für alle Verbindungen verwenden",
@@ -475,7 +470,6 @@
     },
     "success": {
       "button": "Zum Dashboard",
-      "text": "Es kann ein oder zwei Minuten dauern, bis alle Dashboard-Informationen auf dem neuesten Stand sind.",
       "title": "Es kann los gehen!"
     },
     "welcome": "Willkommen bei deiner BitBoxBase"
@@ -502,7 +496,7 @@
     "dismiss": "Ausblenden",
     "done": "Fertig",
     "download": "Herunterladen",
-    "hiddenwallet": "Verstecktes Wallet erstellen",
+    "hiddenwallet": "Versteckte Wallet erstellen",
     "next": "Weiter",
     "ok": "OK",
     "previous": "Zurück",
@@ -592,7 +586,7 @@
     "button": "Zwei-Faktor-Autorisierung (2FA) aktivieren",
     "condition1": "Haben Sie ein Backup?",
     "condition2": "Funktioniert die Verifikation auf Ihrem Smartphone?",
-    "condition3": "Wenn Sie 2FA aktivieren wird \"Backups verwalten\", \"Verstecktes Wallet erstellen\" und \"Mit Smartphone App\" koppeln deaktiviert. Um 2FA zu deaktivieren muss das Gerät auf Werkseinstellungen zurück gesetzt werden.   ",
+    "condition3": "Wenn Sie 2FA aktivieren wird \"Backups verwalten\", \"Versteckte Wallet erstellen\" und \"Mit Smartphone App\" koppeln deaktiviert. Um 2FA zu deaktivieren muss das Gerät auf Werkseinstellungen zurück gesetzt werden.   ",
     "confirm": "Zwei-Faktor Authentifizierung (2FA) aktivieren\n",
     "title": "Zwei-Faktor-Autorisierung (2FA) aktivieren"
   },
@@ -701,7 +695,7 @@
   "genericError": "Ein Fehler ist aufgetreten. Falls Sie Probleme bemerken, starten Sie die Applikation bitte neu.",
   "goal": {
     "buttons": {
-      "create": "Neues Wallet erstellen",
+      "create": "Neue Wallet erstellen",
       "restore": "Wallet von Backup wiederherstellen "
     },
     "paragraph": "Bitte wählen Sie eine der folgenden Optionen:",
@@ -714,7 +708,7 @@
         "title": "Gerät"
       },
       "3-create": {
-        "description": "Neues Wallet erstellen",
+        "description": "Neue Wallet erstellen",
         "title": "Wallet"
       },
       "3-restore": {
@@ -830,7 +824,7 @@
         "title": "Kann ich meine Konten in anderen Wallets wiederherstellen?"
       },
       "whatAreAccounts": {
-        "text": "Ihr Wallet kann mehrere Konten derselben Währung verwalten. Konten machen es einfach, Coins separiert zu halten.",
+        "text": "Ihre Wallet kann mehrere Konten derselben Währung verwalten. Konten machen es einfach, Coins separiert zu halten.",
         "title": "Was sind Konten?"
       },
       "whyIsThisUseful": {
@@ -845,29 +839,29 @@
     },
     "backups": {
       "check": {
-        "text": "Mit \"Check Backup\" können Sie überprüfen, ob Sie über ein gültiges Backup für Ihr aktuelles Wallet verfügen. Es kann auch verwendet werden, um zu überprüfen, ob Sie das korrekte Wiederherstellungspasswort kennen.",
+        "text": "Mit \"Check Backup\" können Sie überprüfen, ob Sie über ein gültiges Backup für Ihre aktuelle Wallet verfügen. Es kann auch verwendet werden, um zu überprüfen, ob Sie das korrekte Wiederherstellungspasswort kennen.",
         "title": "Was bedeutet \"Check Backup\"?"
       },
       "encrypt": {
-        "text": "Nein, aber Ihr Wiederherstellungspasswort wird benötigt, um Ihr Wallet aus dem gespeicherten Seed zu erzeugen.",
+        "text": "Nein, aber Ihr Wiederherstellungspasswort wird benötigt, um Ihre Wallet aus dem gespeicherten Seed zu erzeugen.",
         "title": "Kann ich mein Backup verschlüsseln?"
       },
       "howOften": {
-        "text": "Das Backup wird automatisch erstellt, wenn eine neues Wallet erstellt wird. Sie müssen nur dann ein neues Backup erstellen, wenn Ihre microSD-Karte verloren ist, beschädigt wurde oder wenn Sie ihr Backup auf mehreren microSD Karten speichern wollen.\nSie müssen nach der Transaktionsaktivität keine neuen Backups erstellen. Alle Ihre Transaktionsdaten können durch ein einzelnes Backup, das automatisch für Sie erstellt wurde, wiederhergestellt werden.",
+        "text": "Das Backup wird automatisch erstellt, wenn eine neue Wallet erstellt wird. Sie müssen nur dann ein neues Backup erstellen, wenn Ihre microSD-Karte verloren ist, beschädigt wurde oder wenn Sie ihr Backup auf mehreren microSD Karten speichern wollen.\nSie müssen nach der Transaktionsaktivität keine neuen Backups erstellen. Alle Ihre Transaktionsdaten können durch ein einzelnes Backup, das automatisch für Sie erstellt wurde, wiederhergestellt werden.",
         "title": "Wie oft muss ich ein Backup erstellen?"
       },
       "whatIsABackup": {
-        "text": "Es ist eine Kopie des Seed auf einer microSD-Karte. Der Seed zusammen mit Ihrem Wiederherstellungspasswort stellen ihr Wallet wieder her.",
+        "text": "Es ist eine Kopie des Seed auf einer microSD-Karte. Der Seed zusammen mit Ihrem Wiederherstellungspasswort stellen ihre Wallet wieder her.",
         "title": "Was ist ein Backup?"
       }
     },
     "backupsBB02": {
       "check": {
-        "text": "\"Backup überprüfen\" checkt, dass sich auf Ihrer microSD Karte ein gütiges Backup zu Ihrem aktuell verwendeten Wallet befindet. ",
+        "text": "\"Backup überprüfen\" checkt, dass sich auf Ihrer microSD Karte ein gütiges Backup zu Ihrer aktuell verwendeten Wallet befindet.",
         "title": "Was bedeutet \"Backup überprüfen\"?"
       },
       "encrypt": {
-        "text": "Nein. Bitte bewahren Sie Ihre microSD Karte sicher auf, da sie den unverschlüsseltes Seed enthält, der zur Wiederherstellung Ihres Wallets benötigt wird. Falls Sie Ihr Backup mit einem Passwort schützen wollen, aktivieren Sie \"Optionale Passphrase\" in den Geräteeinstellungen.",
+        "text": "Nein. Bitte bewahren Sie Ihre microSD Karte sicher auf, da sie den unverschlüsseltes Seed enthält, der zur Wiederherstellung Ihrer Wallet benötigt wird. Falls Sie Ihr Backup mit einem Passwort schützen wollen, aktivieren Sie \"Optionale Passphrase\" in den Geräteeinstellungen.",
         "title": "Kann ich das Backup verschlüsseln?"
       },
       "whatIsABackup": {
@@ -877,11 +871,11 @@
     },
     "bitbox": {
       "2FA": {
-        "text": "Wenn 2FA aktiviert ist, müssen alle Transaktionen auf dem gekoppelten Mobiltelefon genehmigt werden, um Coins zu versenden. Unter der Haube: Eine verschlüsselte XXX an die App gesendet, dort wird sie entschlüsselt und beim Drücken der Schaltfläche \"Akzeptieren\" zur BitBox zurückgegeben. Diese Kommunikation mit der BitBox erfolgt über den Kanal zwischen dem Mobiltelefon und dieser Desktop-App, der während des Pairings eingerichtet wurde.  \n\nStellen Sie sicher, dass Sie ein Backup Ihres Wallets erstellen und die App verbinden, bevor Sie 2FA aktivieren. Nach der Aktivierung werden der Mikro-SD Kartenslot und das Mobile-App-Pairing deaktiviert. Sie können es nur erneut aktivieren, indem Sie die BitBox zurücksetzen, wodurch das Gerät gelöscht wird.",
+        "text": "Wenn 2FA aktiviert ist, müssen alle Transaktionen auf dem gekoppelten Mobiltelefon genehmigt werden, um Coins zu versenden. Unter der Haube: Eine verschlüsselte XXX an die App gesendet, dort wird sie entschlüsselt und beim Drücken der Schaltfläche \"Akzeptieren\" zur BitBox zurückgegeben. Diese Kommunikation mit der BitBox erfolgt über den Kanal zwischen dem Mobiltelefon und dieser Desktop-App, der während des Pairings eingerichtet wurde.  \n\nStellen Sie sicher, dass Sie ein Backup Ihrer Wallet erstellen und die App verbinden, bevor Sie 2FA aktivieren. Nach der Aktivierung werden der Mikro-SD Kartenslot und das Mobile-App-Pairing deaktiviert. Sie können es nur erneut aktivieren, indem Sie die BitBox zurücksetzen, wodurch das Gerät gelöscht wird.",
         "title": "Wie funktioniert die Zwei-Faktor-Autorisierung (2FA)?"
       },
       "disable2FA": {
-        "text": "Um 2FA zu deaktivieren, müssen Sie Ihre BitBox zurücksetzen und anschließend Ihr Wallet von Ihrem Backup wiederherstellen. Stellen Sie sicher, dass Sie Ihre microSD-Karte mit Ihrem Backup haben und Sie das Wiederherstellungspasswort kennen. Dann drücken Sie 'Reset Device'. Legen Sie ein neues Gerätekennwort fest und wählen Sie \"Backup wiederherstellen\". Wählen Sie Ihr Backup aus und klicken  Sie auf \"Wiederherstellen\". Dann geben Sie ihr Wiederherstellungskennwort ein, das Sie beim Erstellen des Wallets verwendet haben.",
+        "text": "Um 2FA zu deaktivieren, müssen Sie Ihre BitBox zurücksetzen und anschließend Ihre Wallet von Ihrem Backup wiederherstellen. Stellen Sie sicher, dass Sie Ihre microSD-Karte mit Ihrem Backup haben und Sie das Wiederherstellungspasswort kennen. Dann drücken Sie 'Reset Device'. Legen Sie ein neues Gerätekennwort fest und wählen Sie \"Backup wiederherstellen\". Wählen Sie Ihr Backup aus und klicken  Sie auf \"Wiederherstellen\". Dann geben Sie ihr Wiederherstellungskennwort ein, das Sie beim Erstellen der Wallet verwendet haben.",
         "title": "Wie schalte ich die Zwei-Faktor-Autorisierung (2FA) aus?"
       },
       "ejectBitbox": {
@@ -893,12 +887,12 @@
         "title": "Wie kann ich die Micro-SD-Karte auswerfen?"
       },
       "hiddenWallet": {
-        "text": "Es ist ein sekundäres Wallet, auf der selben BitBox, das mit einem anderen Passwort geschützt ist. Dies erlaubt Ihnen, einem Erpresser ein anderes Wallet zu öffnen, in welchem sich nur eine geringe Menge Coins befindet. Info: Für beide Wallets, normal und versteckt, wird der selbe Seed verwendet, somit muss kein weiteres Backup erzeugt werden",
-        "title": "Was ist ein verstecktes Wallet?"
+        "text": "Es ist eine sekundäre Wallet, auf der selben BitBox, das mit einem anderen Passwort geschützt ist. Dies erlaubt Ihnen, einem Erpresser ein anderes Wallet zu öffnen, in welchem sich nur eine geringe Menge Coins befindet. Info: Für beide Wallets, normal und versteckt, wird der selbe Seed verwendet, somit muss kein weiteres Backup erzeugt werden",
+        "title": "Was ist eine versteckte Wallet?"
       },
       "legacyHiddenWallet": {
         "text": "Klicken Sie zunächst auf den Knopf unten (dazu muss die BitBox mit dem Hauptgerätekennwort entsperrt sein und 2FA deaktiviert sein), schließen Sie dann Ihre Bitbox an und entsperren Sie diese mit Ihrem versteckten Gerätekennwort.",
-        "title": "Wie greife ich auf das versteckte Wallet des Legacy Kontos zu?"
+        "title": "Wie greife ich auf die versteckte Wallet des Legacy Kontos zu?"
       },
       "pairing": {
         "text": "Nachdem Sie unsere mobile App für iOS oder Android heruntergeladen haben, scannen Sie den angezeigten QR-Code. Dadurch wird ein sicherer Kanal zwischen der mobilen App und dieser Anwendung eingerichtet. Befolgen Sie nach dem Scannen die Anweisungen in der Smartphone App.",
@@ -971,7 +965,7 @@
         "title": "Warum gibt es mehrere Adressen?"
       },
       "whyVerify": {
-        "text": "Einer der Gründe für den Kauf eines Hardwarewallets, ist dass Sie Ihrem Computer aufgrund der großen Angriffsfläche nicht vertrauen sollten. Daher sollten Sie nicht darauf vertrauen, dass Ihr Computer authentische Adressen generiert und anzeigt. \nBitbox01: Mit dem Knopf zur sicheren Überprüfung der Adresse sendet die BitBox01 die Adresse an ein gekoppeltes Mobiltelefon, auf welchem Sie die Adresse  überprüfen können. \nBitBox02: Die BitBox02 hat eingebautes Display, auf dem die Adresse sicher angezeigt werden kann. ",
+        "text": "Einer der Gründe für den Kauf einer Hardwarewallet, ist dass Sie Ihrem Computer aufgrund der großen Angriffsfläche nicht vertrauen sollten. Daher sollten Sie nicht darauf vertrauen, dass Ihr Computer authentische Adressen generiert und anzeigt. \nBitbox01: Mit dem Knopf zur sicheren Überprüfung der Adresse sendet die BitBox01 die Adresse an ein gekoppeltes Mobiltelefon, auf welchem Sie die Adresse  überprüfen können. \nBitBox02: Die BitBox02 hat eingebautes Display, auf dem die Adresse sicher angezeigt werden kann. ",
         "title": "Warum sollte ich die Adresse verifizieren?"
       }
     },
@@ -1019,7 +1013,7 @@
         "title": "Was ist Tor, Tor-Proxy und welchen Port soll ich verwenden?"
       },
       "what": {
-        "text": "Es ist möglich, Ihr Wallet mit einem eigenen Fullnode zu betreiben, anstatt den Shift-Server zu verwenden.",
+        "text": "Es ist möglich, Ihre Wallet mit einem eigenen Fullnode zu betreiben, anstatt den Shift-Server zu verwenden.",
         "title": "Was ist das?"
       },
       "why": {
@@ -1064,7 +1058,7 @@
     },
     "unlock": {
       "forgotDevicePassword": {
-        "text": "Sie müssen das Gerät zurücksetzen und das Wallet mithilfe des Wiederherstellungskennworts aus Ihrem Backup wiederherstellen.",
+        "text": "Sie müssen das Gerät zurücksetzen und die Wallet mithilfe des Wiederherstellungskennworts aus Ihrem Backup wiederherstellen.",
         "title": "Was mache ich, wenn ich mein Passwort vergessen habe?"
       },
       "reset": {
@@ -1086,7 +1080,7 @@
         "title": "Wie bekomme ich ein Gerät?"
       },
       "internet": {
-        "text": "Ja, eine Internetverbindung ist erforderlich, um das Wallet zu synchronisieren, Transaktionen zu senden und die neuesten Wechselkurse abzurufen.",
+        "text": "Ja, eine Internetverbindung ist erforderlich, um die Wallet zu synchronisieren, Transaktionen zu senden und die neuesten Wechselkurse abzurufen.",
         "title": "Braucht diese Applikation eine Internet Verbindung?"
       },
       "lostDevice": {
@@ -1111,14 +1105,14 @@
     "blocksSynced": "{{blocks}} Blöcke synchronisiert\n"
   },
   "hiddenWallet": {
-    "info1HTML": "Zur glaubhaften Abstreitbarkeit kann ein verstecktes Wallet erstellt werden, dass auf einer <strong> anderen </strong> Geräte- und Wiederherstellungspasswort Kombination basiert.",
-    "info2HTML": "Geben Sie das Gerätepasswort und das Wiederherstellungspasswort ein, die Sie für Ihr verstecktes Wallet verwenden möchten. Das Gerätepasswort und das Wiederherstellungspasswort müssen sich von <strong> denen unterscheiden </strong> , die Sie für Ihr primäres Wallet verwenden.",
-    "passwordLabel": "Verstecktes Wallet Passwort",
+    "info1HTML": "Zur glaubhaften Abstreitbarkeit kann eine versteckte Wallet erstellt werden, dass auf einer <strong> anderen </strong> Geräte- und Wiederherstellungspasswort Kombination basiert.",
+    "info2HTML": "Geben Sie das Gerätepasswort und das Wiederherstellungspasswort ein, die Sie für Ihre versteckte Wallet verwenden möchten. Das Gerätepasswort und das Wiederherstellungspasswort müssen sich von <strong> denen unterscheiden </strong> , die Sie für Ihr primäres Wallet verwenden.",
+    "passwordLabel": "Versteckte Wallet Passwort",
     "passwordPlaceholder": "Bitte bestätigen Sie das versteckte Wiederherstellungspasswort",
     "pinLabel": "Verstecktes Gerätepasswort",
     "pinRepeatLabel": "Wiederholen Sie das versteckte Gerätepasswort",
     "pinRepeatPlaceholder": "Bitte bestätigen Sie das versteckte Gerätepasswort",
-    "success": "Verstecktes Wallet erfolgreich erstellt. Stecken Sie die BitBox neu ein und geben Sie das versteckete Gerätepasswort ein, um dieses zu entsperren."
+    "success": "Versteckte Wallet erfolgreich erstellt. Stecken Sie die BitBox neu ein und geben Sie das versteckete Gerätepasswort ein, um diese zu entsperren."
   },
   "initialize": {
     "create": "Gerätepasswort speichern",
@@ -1130,7 +1124,7 @@
       "button": "Weiter",
       "description1": "Wählen Sie Ihr Gerätekennwort. Dieses wird zum Entsperren Ihrer BitBox verwendet.",
       "description2": "Sie können Zahlen und Buchstaben verwenden. Längere Passwörter sind in der Regel sicherer.",
-      "description3": "Wenn Sie das Gerätekepasswort vergessen, müssen Sie Ihr Gerät zurücksetzen und Ihre Wallets von Ihrem Backup wiederherstellen.",
+      "description3": "Wenn Sie das Gerätekepasswort vergessen, müssen Sie Ihr Gerät zurücksetzen und Ihre Wallet von Ihrem Backup wiederherstellen.",
       "subtitle": "Jetzt legen Sie Ihr Gerätepasswort fest",
       "title": "Initialisierung Ihres Gerätes"
     },
@@ -1145,10 +1139,10 @@
     "title": "Sprache auswählen"
   },
   "legacyhiddenwallet": {
-    "disable": "Verstecktes Legacy Wallet deaktivieren",
-    "enable": "Verstecktes Legacy Wallet aktivieren",
-    "successDisable": "Verstecktes Legacy Wallet erfolgreich deaktivie",
-    "successEnable": "Das versteckte legacy Wallet wurde erfolgreich aktiviert. Stecken Sie Ihre BitBox erneut ein und geben Sie das versteckte Gerätepasswort ein, um auf das versteckte Wallet zuzugreifen."
+    "disable": "Versteckte Legacy Wallet deaktivieren",
+    "enable": "Versteckte Legacy Wallet aktivieren",
+    "successDisable": "Versteckte Legacy Wallet erfolgreich deaktiviert",
+    "successEnable": "Die versteckte legacy Wallet wurde erfolgreich aktiviert. Stecken Sie Ihre BitBox erneut ein und geben Sie das versteckte Gerätepasswort ein, um auf die versteckte Wallet zuzugreifen."
   },
   "loading": "laden...",
   "manageAccounts": {
@@ -1267,15 +1261,15 @@
       "description1": "Bitte richten Sie Ihr Gerät in einer sicheren Umgebung ein, sodass niemand sehen kann, welches Passwort Sie wählen.",
       "description2": "Während der Einrichtung werden Sie aufgefordert, zwei verschiendene Passworter zu erstellen. ",
       "description3": "Das erste Passwort ist das <strong> Gerätepasswort </strong>, welches Ihre BitBox entsperrt und später geändert werden kann.",
-      "description4": "Das zweite ist das <strong> Wiederherstellungspasswort </strong>, mit dem Ihr Wallet gesichert wird. Dieses Passwort kann später nicht geändert werden!",
-      "description5": "Das von Ihnen erstellte Wallet wird in einer Datei auf der mitgelieferten microSD Karte gespeichert. Dieses Backup kann im Notfall verwendet werden, um den Zugriff auf Ihre Coins mithilfe Ihres <strong> Wiederherstellungskennworts </strong> wieder herzustellen.",
+      "description4": "Das zweite ist das <strong> Wiederherstellungspasswort </strong>, mit dem Ihre Wallet gesichert wird. Dieses Passwort kann später nicht geändert werden!",
+      "description5": "Die von Ihnen erstellte Wallet wird in einer Datei auf der mitgelieferten microSD Karte gespeichert. Dieses Backup kann im Notfall verwendet werden, um den Zugriff auf Ihre Coins mithilfe Ihres <strong> Wiederherstellungskennworts </strong> wieder herzustellen.",
       "title": "Sicherheitsinformationen"
     },
     "restore": {
       "button": "Weiter",
       "description1": "Sie werden aufgefordert, die Micro-SD-Karte einzustecken, die Sie zum Speichern Ihres Backups verwendet haben.",
       "description2": "Um Ihr Gerät wiederherzustellen, benötigen Sie Ihr Wiederherstellungskennwort.",
-      "description3": "Bitte seien Sie bei der Eingabe des Wiederherstellungskennworts aufmerksam. Jedes von Ihnen eingegebene Passwort erstellt ein gültiges Wallet, welche dann aber leer sind. Geben Sie also ein falsches Kennwort ein, wird Ihnen nicht das erwartete Wallet, sondern ein anderes Wallet angezeigt.",
+      "description3": "Bitte seien Sie bei der Eingabe des Wiederherstellungskennworts aufmerksam. Jedes von Ihnen eingegebene Passwort erstellt eine gültige Wallet, welche dann aber leer sind. Geben Sie also ein falsches Kennwort ein, wird Ihnen nicht die erwartete Wallet, sondern eine andere Wallet angezeigt.",
       "title": "Sicherheitsinformationen"
     }
   },
@@ -1283,22 +1277,22 @@
     "agreements": {
       "funds-access": "Ich kann NICHT auf mein Geld zugreifen, wenn ich mein Wiederherstellungspasswort vergessen habe.",
       "password-change": "Ich kann das Wiederherstellungspasswort später NICHT ändern.",
-      "password-required": "Ich brauche mein Wiederherstellungspasswort, um mein Wallet von meinem Backup wiederherzustellen."
+      "password-required": "Ich brauche mein Wiederherstellungspasswort, um meine Wallet von meinem Backup wiederherzustellen."
     },
-    "create": "Neues Wallet erstellen",
+    "create": "Neue Wallet erstellen",
     "creating": "Wallet wird erstellt",
     "description": "Ich bestätige, dass ich folgendes zu Kenntnis genommen habe:",
     "error": {
       "e102": "Das Passwort muss aus mindestens 4 Zeichen bestehen.",
-      "e200": "Sie müssen eine microSD Karte in Ihre BitBox einsetzen, damit ein Backup Ihres Wallets erstellt und auf der Mikro-SD Karte gespeichert werden kann."
+      "e200": "Sie müssen eine microSD Karte in Ihre BitBox einsetzen, damit ein Backup Ihrer Wallet erstellt und auf der Mikro-SD Karte gespeichert werden kann."
     },
     "info": {
       "button": " Wiederherstellungspasswort eingeben",
       "description1": "Stecken Sie die microSD Karte in die BitBox ein.",
-      "description2": "Wählen Sie ein Wiederherstellungspasswort für das Wallet und klicken Sie \"Wiederherstellungspasswort speichern\".",
-      "description3": "Das Backup auf der microSD Karte, zusammen mit Ihrem Wiederherstellungspasswort, ist die einzige Methode, wie Ihr Wallet (= der Zugang zu Ihren Coins) wieder hergestellt werden kann, falls ihre BitBox gestohlen wird oder Sie ihr Gerätepasswort vergessen!",
+      "description2": "Wählen Sie ein Wiederherstellungspasswort für die Wallet und klicken Sie \"Wiederherstellungspasswort speichern\".",
+      "description3": "Das Backup auf der microSD Karte, zusammen mit Ihrem Wiederherstellungspasswort, ist die einzige Methode, wie Ihre Wallet (= der Zugang zu Ihren Coins) wieder hergestellt werden kann, falls ihre BitBox gestohlen wird oder Sie ihr Gerätepasswort vergessen!",
       "description4": "Das Wiederherstellungspasswort lässt sich später nicht ohne Weiteres ändern. Dazu  müssten Sie Ihre Coins auf ein neues Konto zu transferieren. Deswegen sollten Sie von Anfang an ein gutes Passwort wählen.",
-      "title": "Neues Wallet erstellen "
+      "title": "Neue Wallet erstellen "
     },
     "password": {
       "label": "Wiederherstellungspasswort",
@@ -1310,15 +1304,15 @@
   },
   "seedRestore": {
     "error": {
-      "e200": "Um ein Wallet von einem Backup wieder herzustellen wird Ihre microSD Karte benötigt."
+      "e200": "Um eine Wallet von einem Backup wieder herzustellen wird Ihre microSD Karte benötigt."
     },
     "info": {
       "button": "Weiter",
       "description1": "Stecken Sie die microSD-Karte in die BitBox ein und klicken Sie auf \"Weiter\".",
       "description2": "Wählen Sie ein Backup aus und klicken Sie \"Wiederherstellen\"",
       "description3": "Geben Sie das Wiederherstellungspasswort ein",
-      "description4": "Sie müssen bestätigen, dass Sie zu Kenntnis genommen haben, dass ein falsches Passwort ein anderes Wallet erstellt/öffnet.",
-      "title": "Wie wird ein Wallet von einem Backup wieder hergestellt?"
+      "description4": "Sie müssen bestätigen, dass Sie zu Kenntnis genommen haben, dass ein falsches Passwort eine andere Wallet erstellt/öffnet.",
+      "title": "Wie wird eine Wallet von einem Backup wieder hergestellt?"
     }
   },
   "send": {
@@ -1468,15 +1462,15 @@
   },
   "success": {
     "create": {
-      "info1": "Ein Backup Ihres Wallets wurde sicher auf der microSD Karte gesichert. Entfernen Sie die Karte und bewahren Sie diese an einem sicheren Ort auf.",
+      "info1": "Ein Backup Ihrer Wallet wurde sicher auf der microSD Karte gesichert. Entfernen Sie die Karte und bewahren Sie diese an einem sicheren Ort auf.",
       "info2": "Sie haben ein Gerätepasswort erstellt, mit dem die BitBox entsperrt wird.",
-      "info3": "Sie haben ein Wiederherstellungspasswort für Ihr Wallet erstellt, das Ihr Coins freigibt und Ihr Backup wiederherstellt.",
+      "info3": "Sie haben ein Wiederherstellungspasswort für Ihre Wallet erstellt, das Ihr Coins freigibt und Ihr Backup wiederherstellt.",
       "summary": "Hier ist eine Zusammenfassung von dem, was Sie getan haben:",
       "title": "Erfolg"
     },
     "getstarted": "Loslegen",
     "restore": {
-      "summary": "Sie haben erfolgreich Ihr Wallet aus einem Backup wiederhergestellt.",
+      "summary": "Sie haben erfolgreich Ihre Wallet aus einem Backup wiederhergestellt.",
       "title": "Erfolg"
     }
   },
