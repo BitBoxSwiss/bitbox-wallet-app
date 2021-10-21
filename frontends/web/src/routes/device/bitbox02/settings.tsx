@@ -25,7 +25,7 @@ import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../components/settingsButton/settingsItem';
 import { GotoStartupSettings } from './gotostartupsettings';
-import { MnemonicPassphraseButton } from './mnemonicpassphrase';
+import { MnemonicPassphraseButton } from './passphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
 import { ShowMnemonic } from './showmnemonic';
