@@ -16,6 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { route } from 'preact-router';
 import { getDeviceInfo, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
@@ -25,7 +26,6 @@ import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../components/settingsButton/settingsItem';
 import { GotoStartupSettings } from './gotostartupsettings';
-import { MnemonicPassphraseButton } from './passphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
 import { ShowMnemonic } from './showmnemonic';
@@ -55,6 +55,15 @@ class Settings extends Component<Props, State> {
                 console.error(error);
                 alertUser(this.props.t('genericError'));
             });
+    }
+
+    private routeToPassphrase = () => {
+        const { deviceInfo } = this.state;
+        if (deviceInfo === undefined) {
+            return;
+        }
+        const passphrase = deviceInfo.mnemonicPassphraseEnabled ? 'enabled' : 'disabled';
+        route(`/passphrase/${passphrase}/${this.props.deviceID}`);
     }
 
     public componentDidMount() {
@@ -130,9 +139,11 @@ class Settings extends Component<Props, State> {
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('settings.expert.title')}</h3>
                                         <div className="box slim divide">
-                                            <MnemonicPassphraseButton
-                                                deviceID={this.props.deviceID}
-                                                passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled} />
+                                            <SettingsButton onClick={this.routeToPassphrase}>
+                                                { deviceInfo.mnemonicPassphraseEnabled
+                                                    ? t('passphrase.disable')
+                                                    : t('passphrase.enable')}
+                                            </SettingsButton>
                                             { versionInfo && versionInfo.canGotoStartupSettings ? (
                                                   <GotoStartupSettings apiPrefix={this.apiPrefix()} />
                                             ) : null

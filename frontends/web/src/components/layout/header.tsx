@@ -24,7 +24,7 @@ import * as style from './header.css';
 
 interface HeaderProps {
     toggleSidebar?: () => void;
-    title?: JSX.Element | JSX.Element[];
+    title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;
 }
 type Props = HeaderProps & SharedPanelProps & TranslateProps;

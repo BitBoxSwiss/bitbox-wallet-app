@@ -16,44 +16,50 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { route } from 'preact-router';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { SimpleMarkup } from '../../../utils/simplemarkup';
+import { Header } from '../../../components/layout';
 import { Button, Checkbox } from '../../../components/forms';
 import { alertUser } from '../../../components/alert/Alert';
-import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { Message } from '../../../components/message/message';
 
 interface MnemonicPassphraseButtonProps {
     deviceID: string;
-    passphraseEnabled: boolean;
+    passphrase: 'enabled' | 'disabled';
 }
 
 interface State {
     infoStep: number;
     passphraseEnabled: boolean;
-    status: 'idle' | 'info' | 'progress' | 'success';
+    status: 'info' | 'progress' | 'success';
     understood: boolean;
 }
 
 type Props = MnemonicPassphraseButtonProps & TranslateProps;
 
-class MnemonicPassphraseButton extends Component<Props, State> {
+class Passphrase extends Component<Props, State> {
     public readonly state: State = {
-        infoStep: 5,
-        status: 'idle',
-        passphraseEnabled: this.props.passphraseEnabled,
+        // before enabling/disabling we show 1 or more pages to inform about the feature
+        // each page has a continue button that jumps to the next or finally toggles passphrase
+        // infoStep counts down in decreasing order
+        infoStep: this.props.passphrase === 'enabled'
+            ? 0 // disabling passphrase shows only 1 info dialog
+            : 5, // enabling has 6 dialogs with information,
+        status: 'info',
+        passphraseEnabled: this.props.passphrase === 'enabled',
         understood: false,
     }
 
     private togglePassphrase = () => {
-        const { t } = this.props;
+        const { deviceID, t } = this.props;
         const enable = !this.state.passphraseEnabled;
         this.setState({ status: 'progress' });
-        setMnemonicPassphraseEnabled(this.props.deviceID, enable)
-            .then(() => getDeviceInfo(this.props.deviceID))
+        setMnemonicPassphraseEnabled(deviceID, enable)
+            .then(() => getDeviceInfo(deviceID))
             .then(({ mnemonicPassphraseEnabled }) => {
                 this.setState({
                     passphraseEnabled: mnemonicPassphraseEnabled,
@@ -61,28 +67,14 @@ class MnemonicPassphraseButton extends Component<Props, State> {
                 });
             })
             .catch((e) => {
-                this.setState({ status: 'idle' });
+                route(`/device/${deviceID}`);
                 alertUser(t(`passphrase.error.e${e.code}`, {
                     defaultValue: e.message || t('genericError'),
                 }));
             });
     }
 
-    private startInfo = () => {
-        const { passphraseEnabled } = this.state;
-        this.setState({
-            // before enabling/disabling we show 1 or more pages to inform about the feature
-            // each page has a continue button that jumps to the next or finally toggles passphrase
-            // infoStep counts down in decreasing order
-            infoStep: passphraseEnabled
-                ? 0 // disabling passphrase shows only 1 info dialog
-                : 5, // enabling has 6 dialogs with information
-            status: 'info',
-            understood: false,
-        });
-    }
-
-    private stopInfo = () => this.setState({ status: 'idle' })
+    private stopInfo = () => route(`/device/${this.props.deviceID}`)
 
     private continueInfo = () => {
         if (this.state.infoStep === 0) {
@@ -224,50 +216,49 @@ class MnemonicPassphraseButton extends Component<Props, State> {
         { passphraseEnabled, status }: State,
     ) {
         return (
-            <div>
-                <SettingsButton onClick={this.startInfo}>
-                    {passphraseEnabled
-                        ? t('passphrase.disable')
-                        : t('passphrase.enable')}
-                </SettingsButton>
-                {status === 'info' && (
-                    passphraseEnabled
-                        ? this.renderDisableInfo()
-                        : this.renderEnableInfo()
-                )}
-                {status === 'progress' && (
-                    <WaitDialog
-                        title={t(passphraseEnabled
-                            ? 'passphrase.progressDisable.title'
-                            : 'passphrase.progressEnable.title')}>
-                        {t(passphraseEnabled
-                            ? 'passphrase.progressDisable.message'
-                            : 'passphrase.progressEnable.message')}
-                    </WaitDialog>
-                )}
-                {status === 'success' && (
-                    <WaitDialog
-                        title={t(passphraseEnabled
-                            ? 'passphrase.successDisabled.title'
-                            : 'passphrase.successEnabled.title')} >
-                        {this.renderMultiLine(
-                            t(passphraseEnabled
-                                ? 'passphrase.successDisabled.message'
-                                : 'passphrase.successEnabled.message')
-                        )}
-                        {passphraseEnabled && (
-                            <ul style="padding-left: var(--space-default);">
-                                <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
-                                <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
-                            </ul>
-                        )}
-                        <SimpleMarkup tagName="p" markup={t('passphrase.successEnabled.messageEnd')} />
-                    </WaitDialog>
-                )}
+            <div class="container">
+                <Header title="Passphrase" />
+                <div className="innerContainer scrollableContainer">
+                    <div className="content padded">
+                    {status === 'info' && (
+                        passphraseEnabled
+                            ? this.renderDisableInfo()
+                            : this.renderEnableInfo()
+                    )}
+                    {status === 'progress' && (
+                        <WaitDialog
+                            title={t(passphraseEnabled
+                                ? 'passphrase.progressDisable.title'
+                                : 'passphrase.progressEnable.title')}>
+                            {t(passphraseEnabled
+                                ? 'passphrase.progressDisable.message'
+                                : 'passphrase.progressEnable.message')}
+                        </WaitDialog>
+                    )}
+                    {status === 'success' && (
+                        <WaitDialog
+                            title={t(passphraseEnabled
+                                ? 'passphrase.successDisabled.title'
+                                : 'passphrase.successEnabled.title')} >
+                            {this.renderMultiLine(
+                                t(passphraseEnabled
+                                    ? 'passphrase.successDisabled.message'
+                                    : 'passphrase.successEnabled.message')
+                            )}
+                            {passphraseEnabled && (
+                                <ul style="padding-left: var(--space-default);">
+                                    <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
+                                    <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
+                                </ul>
+                            )}
+                        </WaitDialog>
+                    )}
+                    </div>
+                </div>
             </div>
         );
     }
 }
 
-const HOC = translate<MnemonicPassphraseButtonProps>()(MnemonicPassphraseButton );
-export { HOC as MnemonicPassphraseButton  };
+const HOC = translate<MnemonicPassphraseButtonProps>()(Passphrase);
+export { HOC as Passphrase };
