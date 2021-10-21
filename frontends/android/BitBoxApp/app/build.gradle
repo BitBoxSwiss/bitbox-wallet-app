@@ -7,8 +7,8 @@ android {
         applicationId "ch.shiftcrypto.bitboxapp"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 31
-        versionName "android-4.29.1"
+        versionCode 32
+        versionName "android-4.30.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
