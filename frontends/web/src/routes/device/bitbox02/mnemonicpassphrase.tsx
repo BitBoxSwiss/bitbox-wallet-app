@@ -176,7 +176,7 @@ class MnemonicPassphraseButton extends Component<Props, State> {
                         </ul>
                         <Message type="message">
                             <Checkbox
-                                onChange={e => this.setState({ understood: e.target?.checked })}
+                                onChange={e => this.setState({ understood: (e.target as HTMLInputElement)?.checked })}
                                 id="understood"
                                 checked={understood}
                                 label={t('passphrase.summary.understand')} />
