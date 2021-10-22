@@ -127,40 +127,11 @@
     overflow-y: scroll;
 }
 
-.subHeaderContainer {
-    margin: calc(var(--space-half) * 1.5) 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.subHeaderContainer.withToggler {
-    position: relative;
-}
-
-.subHeaderContainer.first {
-    margin-top: 0;
-}
-
-.subHeaderContainer .subHeader h3 {
-    display: inline-block;
-    margin: 0;
+.subTitle {
     font-size: var(--size-subheader);
     font-weight: 400;
     line-height: 1;
-    user-select: none;
-}
-
-.subHeaderContainer .subHeader h3.inline {
-    display: inline-block;
-}
-
-.subHeaderContainer .subHeaderToggler {
-    display: inherit;
-    position: absolute;
-    right: 0;
-    top: -3px;
+    margin: 0 0 calc(var(--space-half) * 1.5) 0;
 }
 
 .content {
@@ -187,41 +158,9 @@
     padding-top: var(--space-default);
 }
 
-.content.padded-lgscreen {
-    padding-top: var(--space-default);
-}
-
 @media (max-width: 768px) {
     .content {
         padding: 0 var(--space-half);
-    }
-
-    .content.padded-lgscreen {
-        padding: 0;
-    }
-
-    .subHeaderContainer {
-        margin: var(--space-half) 0;
-    }
-
-    .padded-lgscreen .columns .column {
-        /* can't overwrite width here, because the width 
-        defined in grid.css uses !important */
-        min-width: 100%;
-    }
-
-    .padded-lgscreen .columns,
-    .padded-lgscreen .columns > * {
-        margin-right: 0;
-    }
-
-    .padded-lgscreen .columns .subHeaderContainer {
-        margin: var(--space-half);
-        margin-top: var(--space-half) !important;
-    }
-
-    .padded-lgscreen .text-small {
-        margin: var(--space-quarter) var(--space-half);
     }
 }
 

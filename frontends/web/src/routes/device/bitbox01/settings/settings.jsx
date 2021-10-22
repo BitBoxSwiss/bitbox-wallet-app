@@ -130,11 +130,7 @@ export default class Settings extends Component {
                             <div className="columnsContainer">
                                 <div className="columns">
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer first">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.secrets.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
                                         <div className="box slim divide">
                                             <SettingsButton href={`/manage-backups/${deviceID}`} link>
                                                 {t('deviceSettings.secrets.manageBackups')}
@@ -156,11 +152,7 @@ export default class Settings extends Component {
                                         </div>
                                     </div>
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.pairing.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.pairing.title')}</h3>
                                         <div className="box slim divide">
                                             <SettingsItem optionalText={t(`deviceSettings.pairing.mobile.${connected}`)}>
                                                 {t('deviceSettings.pairing.mobile.label')}
@@ -182,11 +174,7 @@ export default class Settings extends Component {
                                 </div>
                                 <div className="columns">
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.firmware.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
                                         <div className="box slim divide">
                                             {
                                                 canUpgrade ? (
@@ -200,11 +188,7 @@ export default class Settings extends Component {
                                         </div>
                                     </div>
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.hardware.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
                                         <div className="box slim divide">
                                             <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard}`)}>
                                                 {t('deviceSettings.hardware.sdcard.label')}

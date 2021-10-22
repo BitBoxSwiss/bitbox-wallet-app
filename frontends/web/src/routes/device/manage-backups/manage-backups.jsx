@@ -110,11 +110,7 @@ export default class ManageBackups extends Component {
                     <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            <div className="subHeaderContainer" style="justify-content: center; margin: 0;">
-                                <div className="subHeader">
-                                    <h3 className="text-center">{t('backup.list')}</h3>
-                                </div>
-                            </div>
+                            <h3 className="subTitle">{t('backup.list')}</h3>
                             {this.listBackups()}
                         </div>
                     </div>

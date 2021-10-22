@@ -187,7 +187,7 @@ class Settings extends Component<Props, State> {
                         }
                     </Header>
                     <div class="innerContainer scrollableContainer">
-                        <div class="content padded-lgscreen">
+                        <div class="content padded">
                             {
                                 config && (
                                     <div class="flex-1">
@@ -199,11 +199,7 @@ class Settings extends Component<Props, State> {
                                                 <div className="column column-2-3">
                                                     { manageAccountsLen ? (
                                                         <div>
-                                                            <div class="subHeaderContainer">
-                                                                <div class="subHeader">
-                                                                    <h3>Accounts</h3>
-                                                                </div>
-                                                            </div>
+                                                            <h3 className="subTitle">Accounts</h3>
                                                             <div className="box slim divide m-bottom-large">
                                                                 <SettingsButton
                                                                     onClick={() => route('/settings/manage-accounts', true)}
@@ -214,11 +210,7 @@ class Settings extends Component<Props, State> {
                                                             </div>
                                                         </div>
                                                     ) : null}
-                                                    <div class="subHeaderContainer">
-                                                        <div class="subHeader">
-                                                            <h3>{t('settings.expert.title')}</h3>
-                                                        </div>
-                                                    </div>
+                                                    <h3 className="subTitle">{t('settings.expert.title')}</h3>
                                                     <div className="box slim divide">
                                                         <div className={style.setting}>
                                                             <div>
