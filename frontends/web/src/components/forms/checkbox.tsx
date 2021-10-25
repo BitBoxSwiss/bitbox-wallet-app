@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, JSX, RenderableProps } from 'preact';
 import * as style from './checkbox.css';
+
+type CheckboxProps = JSX.IntrinsicElements['input'] & {
+    className?: string;
+    disabled?: boolean;
+    label?: string;
+    id: string;
+}
 
 export default function Checkbox({
     disabled = false,
-    label = undefined,
+    label,
     id,
     className = '',
-    children = undefined,
+    children,
     ...props
-}) {
+}: RenderableProps<CheckboxProps>) {
     return (
-        <span className={[style.checkbox, className].join(' ')}>
+        <span className={`${style.checkbox} ${className}`}>
             <input
                 type="checkbox"
                 id={id}

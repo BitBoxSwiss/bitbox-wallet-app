@@ -356,7 +356,7 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
-    private handleDisclaimerCheck = (event: InputEvent) => {
+    private handleDisclaimerCheck = (event: Event) => {
         const target = event.target as HTMLInputElement;
         const key = target.id as 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
         const obj = {};
