@@ -555,3 +555,8 @@ func (etherScan *EtherScan) SuggestGasPrice(ctx context.Context) (*big.Int, erro
 	}
 	return (*big.Int)(&result), nil
 }
+
+// SuggestGasTipCap implements rpc.Interface.
+func (etherScan *EtherScan) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
+	return nil, errp.New("not implemented")
+}
