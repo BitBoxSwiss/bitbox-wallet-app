@@ -146,11 +146,9 @@ class BitBox02Bootloader extends Component<Props, State> {
             contents = (
                 <div className="box large" style="min-height: 390px">
                     {versionInfo.erased && (
-                        <div class="subHeaderContainer first">
-                            <div class="subHeader">
-                              <h2>{t('welcome.title')}</h2>
-                              <h3>{t('welcome.getStarted')}</h3>
-                            </div>
+                        <div>
+                            <h2>{t('welcome.title')}</h2>
+                            <h3 className="subTitle">{t('welcome.getStarted')}</h3>
                         </div>
                     )}
                     <div className="buttons">

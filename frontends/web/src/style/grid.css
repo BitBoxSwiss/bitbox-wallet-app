@@ -39,10 +39,6 @@
     margin-bottom: var(--space-quarter) !important;
 }
 
-.columns .column .subHeaderContainer {
-    margin-top: 0;
-}
-
 .columnsContainer .columns .column {
     width: calc(100% - var(--space-default));
 }

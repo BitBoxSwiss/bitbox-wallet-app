@@ -54,11 +54,7 @@ function Selection({
 }: RenderableProps<Props>): JSX.Element | null {
     return (
         <div>
-            <div class="subHeaderContainer first">
-                <div class="subHeader">
-                    <h3>{t('fiat.title')}</h3>
-                </div>
-            </div>
+            <h3 className="subTitle">{t('fiat.title')}</h3>
             <div className="box slim">
                 {
                     currencies.map((currency, index) => {

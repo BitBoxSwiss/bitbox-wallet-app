@@ -86,11 +86,7 @@ class Settings extends Component<Props, State> {
                             <div className="columnsContainer">
                                 <div className="columns">
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer first">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.secrets.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
                                         <div className="box slim divide">
                                             <SettingsButton link href={`/manage-backups/${deviceID}`}>
                                                 {t('deviceSettings.secrets.manageBackups')}
@@ -100,11 +96,7 @@ class Settings extends Component<Props, State> {
                                         </div>
                                     </div>
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.hardware.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
                                         <div className="box slim divide">
                                             <SetDeviceName
                                                 apiPrefix={this.apiPrefix()}
@@ -120,11 +112,7 @@ class Settings extends Component<Props, State> {
                                 </div>
                                 <div className="columns">
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('deviceSettings.firmware.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
                                         <div class="box slim divide">
                                             {
                                                 versionInfo && versionInfo.canUpgrade ? (
@@ -140,11 +128,7 @@ class Settings extends Component<Props, State> {
                                         </div>
                                     </div>
                                     <div className="column column-1-2">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('settings.expert.title')}</h3>
-                                            </div>
-                                        </div>
+                                        <h3 className="subTitle">{t('settings.expert.title')}</h3>
                                         <div className="box slim divide">
                                             <MnemonicPassphraseButton
                                                 deviceID={this.props.deviceID}
