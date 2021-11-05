@@ -23,6 +23,7 @@ import arrowDownSVG from './assets/icons/arrow-down-active.svg';
 import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
+import closeSVG from './assets/icons/close.svg';
 import * as style from './icon.css';
 
 export const ExpandOpen = (): JSX.Element => (
@@ -96,3 +97,4 @@ export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable
 export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
+export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);

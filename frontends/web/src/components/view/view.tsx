@@ -18,24 +18,38 @@ import { h, RenderableProps } from 'preact';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
-import * as style from './fullscreen.css';
+import { Close } from '../icon/icon';
+import * as style from './view.css';
 
-interface Props {
+type Props = {
+    center?: boolean;
+    onClose?: () => void;
+    position?: 'fill' | 'fullscreen';
     width?: string;
     withBottomBar?: boolean;
 }
 
-export function Fullscreen({
+export function View({
+    center = false,
     children,
+    onClose,
+    position = 'fill',
     width,
     withBottomBar,
 }: RenderableProps<Props>) {
     const styles = width ? { style: `width: ${width}` } : undefined;
     return (
-        <div className={style.fullscreen}>
-            <div className={style.inner} {...styles}>
+        <div className={position === 'fullscreen' ? style.fullscreen : style.fill}>
+            <div
+                className={center ? `${style.inner} ${style.center}` : style.inner}
+                {...styles}>
                 {children}
             </div>
+            {onClose && (
+                <button className={style.closeButton} onClick={onClose}>
+                    <Close />
+                </button>
+            )}
             {withBottomBar && (
                 <div style="margin-top: auto;">
                     <Footer>
@@ -47,27 +61,27 @@ export function Fullscreen({
     );
 }
 
-interface FullscreenContentProps {
+type ViewContentProps = {
     fullWidth?: boolean;
 }
 
-export function FullscreenContent({
+export function ViewContent({
     children,
     fullWidth,
-}: RenderableProps<FullscreenContentProps>) {
-    const classes = fullWidth ? `${style.content} ${style.fullWidth}` : style.content;
+}: RenderableProps<ViewContentProps>) {
+    const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
     return (
         <div className={classes}>{children}</div>
     );
 }
 
-interface HeaderProps {
+type HeaderProps = {
     small?: boolean;
     title: string;
     withAppLogo?: boolean;
 }
 
-export function FullscreenHeader({
+export function ViewHeader({
     children,
     small,
     title,
@@ -83,7 +97,7 @@ export function FullscreenHeader({
     );
 }
 
-export function FullscreenButtons({ children }) {
+export function ViewButtons({ children }) {
     return (
         <div className={style.buttons}>
             {children}

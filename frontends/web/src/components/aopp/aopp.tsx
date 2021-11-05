@@ -21,7 +21,7 @@ import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
 import { SimpleMarkup } from '../../utils/simplemarkup';
-import { Fullscreen, FullscreenHeader, FullscreenContent, FullscreenButtons } from '../fullscreen/fullscreen';
+import { View, ViewHeader, ViewContent, ViewButtons } from '../view/view';
 import { Message } from '../message/message';
 import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
@@ -96,29 +96,29 @@ class Aopp extends Component<Props, State> {
         switch (aopp.state) {
             case 'error':
                 return (
-                    <Fullscreen>
-                        <FullscreenHeader title={t('aopp.errorTitle')}>
+                    <View position="fullscreen">
+                        <ViewHeader title={t('aopp.errorTitle')}>
                             <p>{domain(aopp.callback)}</p>
-                        </FullscreenHeader>
-                        <FullscreenContent>
+                        </ViewHeader>
+                        <ViewContent>
                             <Message type="error">
                                 <Cancel className={styles.smallIcon} />
                                 {t(`error.${aopp.errorCode}`, { host: domain(aopp.callback) })}
                             </Message>
-                        </FullscreenContent>
-                        <FullscreenButtons>
+                        </ViewContent>
+                        <ViewButtons>
                             <Button danger onClick={aoppAPI.cancel}>{t('button.dismiss')}</Button>
-                        </FullscreenButtons>
-                    </Fullscreen>
+                        </ViewButtons>
+                    </View>
                 );
             case 'inactive':
                 // Inactive, waiting for action.
                 return null;
             case 'user-approval':
                 return (
-                    <Fullscreen>
-                        <FullscreenHeader title={t('aopp.title')} withAppLogo />
-                        <FullscreenContent>
+                    <View position="fullscreen">
+                        <ViewHeader title={t('aopp.title')} withAppLogo />
+                        <ViewContent>
                             <Vasp prominent
                                 hostname={domain(aopp.callback)}
                                 fallback={(
@@ -127,12 +127,12 @@ class Aopp extends Component<Props, State> {
                                     })}/>
                                 )}
                                 withLogoText={t('aopp.addressRequestWithLogo')} />
-                        </FullscreenContent>
-                        <FullscreenButtons>
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
                             <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
-                        </FullscreenButtons>
-                    </Fullscreen>
+                        </ViewButtons>
+                    </View>
                 );
             case 'awaiting-keystore':
                 return (
@@ -147,11 +147,11 @@ class Aopp extends Component<Props, State> {
                 });
                 return (
                     <form onSubmit={this.chooseAccount}>
-                        <Fullscreen>
-                            <FullscreenHeader title={t('aopp.title')}>
+                        <View position="fullscreen">
+                            <ViewHeader title={t('aopp.title')}>
                                 <Vasp hostname={domain(aopp.callback)} />
-                            </FullscreenHeader>
-                            <FullscreenContent>
+                            </ViewHeader>
+                            <ViewContent>
                                 <Select
                                     label={t('buy.info.selectLabel')}
                                     options={options}
@@ -159,36 +159,36 @@ class Aopp extends Component<Props, State> {
                                     value={accountCode}
                                     onChange={e => this.setState({ accountCode: (e.target as HTMLSelectElement)?.value })}
                                     id="account" />
-                            </FullscreenContent>
-                            <FullscreenButtons>
+                            </ViewContent>
+                            <ViewButtons>
                                 <Button primary type="submit">{t('button.next')}</Button>
                                 <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
-                            </FullscreenButtons>
-                        </Fullscreen>
+                            </ViewButtons>
+                        </View>
                     </form>
                 );
             }
             case 'syncing':
                 return (
-                    <Fullscreen>
-                        <FullscreenHeader title={t('aopp.title')}>
+                    <View position="fullscreen">
+                        <ViewHeader title={t('aopp.title')}>
                             <Vasp hostname={domain(aopp.callback)} />
-                        </FullscreenHeader>
-                        <FullscreenContent>
+                        </ViewHeader>
+                        <ViewContent>
                             <p>{t('aopp.syncing')}</p>
-                        </FullscreenContent>
-                        <FullscreenButtons>
+                        </ViewContent>
+                        <ViewButtons>
                             <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
-                        </FullscreenButtons>
-                    </Fullscreen>
+                        </ViewButtons>
+                    </View>
                 );
             case 'signing':
                 return (
-                    <Fullscreen>
-                        <FullscreenHeader small title={t('aopp.title')}>
+                    <View position="fullscreen">
+                        <ViewHeader small title={t('aopp.title')}>
                             <Vasp hostname={domain(aopp.callback)} />
-                        </FullscreenHeader>
-                        <FullscreenContent>
+                        </ViewHeader>
+                        <ViewContent>
                             <p>{t('aopp.signing')}</p>
                             <Field>
                                 <Label>{t('aopp.labelAddress')}</Label>
@@ -202,13 +202,13 @@ class Aopp extends Component<Props, State> {
                             </Field>
                             <CaretDown className={styles.caret} />
                             <BitBox02Stylized className={styles.device} />
-                        </FullscreenContent>
-                    </Fullscreen>
+                        </ViewContent>
+                    </View>
                 );
             case 'success':
                 return (
-                    <Fullscreen>
-                        <FullscreenContent>
+                    <View position="fullscreen">
+                        <ViewContent>
                             <Checked className={styles.largeIcon} />
                             <p className={styles.successText}>{t('aopp.success.title')}</p>
                             <p className={styles.proceed}>
@@ -224,15 +224,15 @@ class Aopp extends Component<Props, State> {
                                     {aopp.message}
                                 </div>
                             </Field>
-                        </FullscreenContent>
-                        <FullscreenButtons>
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
                             <VerifyAddress
                                 accountCode={aopp.accountCode}
                                 address={aopp.address}
                                 addressID={aopp.addressID} />
-                        </FullscreenButtons>
-                    </Fullscreen>
+                        </ViewButtons>
+                    </View>
                 );
         }
     }
