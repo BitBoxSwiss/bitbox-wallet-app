@@ -1031,6 +1031,12 @@
     },
     "successEnabled": {
       "message": "Optional passphrase <strong>successfully disabled</strong>!\n\nYou will not be asked to provide a passphrase anymore. Please replug your BitBox02 now.",
+      "messageEnd": "Please replug your BitBox02 now.",
+      "tips": "Tips",
+      "tipsList": [
+        "We suggest sending a small amount to the passphrase wallet first. Then unplug and replug the BitBox02 and enter your password and passphrase. If you entered the passphrase correctly, you should see the coins in your wallet.",
+        "If you want to enter your original wallet without a passphrase, you can still do this by entering nothing when prompted to enter the passphrase. Or you can disable the passphrase feature."
+      ],
       "title": "Passphrase disabled"
     },
     "summary": {
@@ -1040,7 +1046,8 @@
       "understandList": [
         "The passphrase is an additional layer of security on top of your backup.",
         "Entering a different passphrase will always generate a different wallet.",
-        "To restore your wallet you need <strong>both the passphrase and backup</strong>."
+        "To restore your wallet you need <strong>both the passphrase and backup</strong>.",
+        "If you forget your passphrase, you can no longer access your coins."
       ]
     },
     "what": {
