@@ -173,6 +173,7 @@ class MnemonicPassphraseButton extends Component<Props, State> {
                             <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
                             <SimpleMarkup key="info-2" tagName="li" markup={t('passphrase.summary.understandList.1')} />
                             <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
+                            <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
                         </ul>
                         <Message type="message">
                             <Checkbox
@@ -254,6 +255,11 @@ class MnemonicPassphraseButton extends Component<Props, State> {
                                 ? 'passphrase.successDisabled.message'
                                 : 'passphrase.successEnabled.message')
                         )}
+                        <ul style="padding-left: var(--space-default);">
+                            <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
+                            <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
+                        </ul>
+                        <SimpleMarkup tagName="p" markup={t('passphrase.successEnabled.messageEnd')} />
                     </WaitDialog>
                 )}
             </div>
