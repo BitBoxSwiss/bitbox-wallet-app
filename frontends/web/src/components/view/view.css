@@ -15,18 +15,36 @@
 }
 
 :global(.container) .fullscreen {
-    /* fullscreen components within the content are i.e. unlock
+    /* view components within the content are i.e. unlock
     should have lower z-index than outside content are, i.e. AOPP */
     z-index: 5050;
 }
 
+.fill {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-bottom: var(--space-default);
+}
+
 .inner {
-    margin: auto;
+    margin: 0 auto;
     max-width: 100%;
     padding-bottom: var(--space-half);
     padding-top: var(--space-half);
-    text-align: center;
     width: 480px;
+}
+.center {
+    margin-bottom: auto;
+    margin-top: auto;
+    text-align: center;
+}
+.inner:not(.center) {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-height: 100%;
+    min-height: 600px;
 }
 @media (max-width: 768px) {
     .inner {
@@ -34,6 +52,9 @@
         display: flex;
         flex-direction: column;
         margin: 0 auto;
+    }
+    .center {
+        flex-grow: 0;
     }
 }
 @media (min-width: 1200px) {
@@ -49,7 +70,9 @@
 }
 @media (max-width: 768px) {
     .header {
+        padding-left: 22px;
         padding-top: var(--space-default);
+        padding-right: 22px;
     }
 }
 @media (max-width: 768px) and (orientation: portrait) {
@@ -75,6 +98,18 @@
     margin-top: var(--space-quarter);
 }
 
+.closeButton {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    height: var(--header-height);
+    left: 0;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: var(--header-height);
+}
+
 .content {
     min-height: 80px;
 }
@@ -93,6 +128,10 @@
     .content {
         min-height: 130px;
     }
+}
+
+.content ul {
+    line-height: 1.625;
 }
 
 .buttons {
@@ -125,7 +164,7 @@
         --size-subheader: 28px;
     }
     .header,
-    .fullscreen p {
+    .inner p {
         --size-default: 20px;
     }
     .content input,
@@ -135,7 +174,7 @@
     .buttons button {
         --size-default: 18px;
     }
-    .fullscreen footer p {
+    .inner footer p {
         --size-default: 14px;
     }
 }
