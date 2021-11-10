@@ -996,7 +996,7 @@
   "passphrase": {
     "considerations": {
       "button": "Backup considerations",
-      "message": "The passphrase adds a layer of protection to your wallet backup (microSD card or 24 words). If someone has access to your backup they will also need the passphrase to access your wallet.\n\nHowever, this means you will need <strong>both the passphrase + wallet backup</strong> to restore your passphrase-enabled wallet, in case your BitBox02 is lost or broken. If you forget or lose your passphrase, you will lose access to all the coins on that wallet.\n\n\nWhen storing your passphrase, consider putting it in a separate location than your backup. That way if someone finds your backup they don’t find your passphrase as well.\n",
+      "message": "The passphrase adds a layer of protection to your wallet backup (microSD card or 24 words). If someone has access to your backup they will also need the passphrase to access your wallet.\n\nHowever, this means you will need <strong>both the passphrase + wallet backup</strong> to restore your passphrase-enabled wallet, in case your BitBox02 is lost or broken. If you forget or lose your passphrase, you will lose access to all the coins on that wallet.\n\nWhen storing your passphrase, consider putting it in a separate location than your backup. That way if someone finds your backup they don’t find your passphrase as well.",
       "title": "Backup considerations"
     },
     "disable": "Disable passphrase",
@@ -1026,11 +1026,11 @@
       "title": "Confirm on device"
     },
     "successDisabled": {
-      "message": "Optional passphrase <strong>successfully enabled</strong>!\nYou’ll be asked to provide a passphrase from now on.\nPlease replug your BitBox02 now.",
+      "message": "Optional passphrase <strong>successfully enabled</strong>!\nYou’ll be asked to provide a passphrase from now on.",
       "title": "Passphrase enabled"
     },
     "successEnabled": {
-      "message": "Optional passphrase <strong>successfully disabled</strong>!\n\nYou will not be asked to provide a passphrase anymore. Please replug your BitBox02 now.",
+      "message": "Optional passphrase <strong>successfully disabled</strong>!\n\nYou will not be asked to provide a passphrase anymore.",
       "messageEnd": "Please replug your BitBox02 now.",
       "tips": "Tips",
       "tipsList": [
@@ -1042,7 +1042,7 @@
     "summary": {
       "button": "Enable passphrase",
       "title": "Summary",
-      "understand": "",
+      "understand": "I understand how the passphrase works and the risks associated with it.",
       "understandList": [
         "The passphrase is an additional layer of security on top of your backup.",
         "Entering a different passphrase will always generate a different wallet.",
@@ -1057,7 +1057,7 @@
     },
     "why": {
       "button": "Why use a passphrase",
-      "message": "The BitBox02 protects the seed against extraction from the device itself, but the backup (microSD card or 24 words) gives full access to the wallet. That is why it should be stored in a secure location!\n\nSince a passphrase creates a new wallet using your existing seed, the passphrase-wallet requires both your <strong>backup AND passphrase to restore</strong>. The benefit of this is if someone finds your backup, they still need the passphrase to access the passphrase-wallet.\n\nAdditionally, the passphrase feature allows you to create multiple wallets on the same device, or “hidden wallets” in addition to the default one.\n",
+      "message": "The BitBox02 protects the seed against extraction from the device itself, but the backup (microSD card or 24 words) gives full access to the wallet. That is why it should be stored in a secure location!\n\nSince a passphrase creates a new wallet using your existing seed, the passphrase-wallet requires both your <strong>backup AND passphrase to restore</strong>. The benefit of this is if someone finds your backup, they still need the passphrase to access the passphrase-wallet.\n\nAdditionally, the passphrase feature allows you to create multiple wallets on the same device, or “hidden wallets” in addition to the default one.",
       "title": "Why use a passphrase?"
     }
   },
