@@ -21,7 +21,7 @@ import { SwissMadeOpenSource } from '../icon/logo';
 import { Close } from '../icon/icon';
 import * as style from './view.css';
 
-type Props = {
+type ViewProps = {
     center?: boolean;
     onClose?: () => void;
     position?: 'fill' | 'fullscreen';
@@ -36,7 +36,7 @@ export function View({
     position = 'fill',
     width,
     withBottomBar,
-}: RenderableProps<Props>) {
+}: RenderableProps<ViewProps>) {
     const styles = width ? { style: `width: ${width}` } : undefined;
     return (
         <div className={position === 'fullscreen' ? style.fullscreen : style.fill}>
