@@ -27,6 +27,7 @@ import { Button, Checkbox } from '../../../components/forms';
 import { alertUser } from '../../../components/alert/Alert';
 import { Message } from '../../../components/message/message';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
+import { PointToBitBox02 } from '../../../components/icon';
 // keeing as example for using guides in the new main component
 // import { Guide } from '../../../components/guide/guide';
 // import { Entry } from '../../../components/guide/entry';
@@ -258,7 +259,9 @@ class Passphrase extends Component<Props, State> {
                                 ? 'passphrase.progressDisable.message'
                                 : 'passphrase.progressEnable.message')}
                         </ViewHeader>
-                        <ViewContent />
+                        <ViewContent>
+                            <PointToBitBox02 />
+                        </ViewContent>
                     </View>
                 )}
                 {status === 'success' && (

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-export * from './icon';
-export * from './logo';
-export * from './combined';
+import { h } from 'preact';
+import { BitBox02Stylized, CaretDown } from './icon';
+import * as style from './combined.css';
+
+export const PointToBitBox02 = () => (
+    <div className={style.point2bitbox02}>
+        <CaretDown className={style.caret} />
+        <BitBox02Stylized className={style.bitbox02} />
+    </div>
+);
