@@ -95,7 +95,7 @@ class Passphrase extends Component<Props, State> {
         switch (infoStep) {
             case 5:
                 return (
-                    <View key="step-intro" onClose={this.stopInfo}>
+                    <View key="step-intro" position="fullscreen">
                         <ViewHeader title={t('passphrase.intro.title')} />
                         <ViewContent>
                             {this.renderMultiLine(t('passphrase.intro.message'))}
@@ -112,8 +112,8 @@ class Passphrase extends Component<Props, State> {
                 );
             case 4:
                 return (
-                    <View key="step-what" onClose={this.stopInfo}>
-                        <ViewHeader title={t('passphrase.what.title')} />
+                    <View key="step-what" position="fullscreen">
+                        <ViewHeader small title={t('passphrase.what.title')} />
                         <ViewContent>
                             {this.renderMultiLine(t('passphrase.what.message'))}
                         </ViewContent>
@@ -129,8 +129,8 @@ class Passphrase extends Component<Props, State> {
                 );
             case 3:
                 return (
-                    <View key="step-why" onClose={this.stopInfo}>
-                        <ViewHeader title={t('passphrase.why.title')} />
+                    <View key="step-why" position="fullscreen">
+                        <ViewHeader small title={t('passphrase.why.title')} />
                         <ViewContent>
                             {this.renderMultiLine(t('passphrase.why.message'))}
                         </ViewContent>
@@ -146,8 +146,8 @@ class Passphrase extends Component<Props, State> {
                 );
             case 2:
                 return (
-                    <View key="step-considerations" onClose={this.stopInfo}>
-                        <ViewHeader title={t('passphrase.considerations.title')} />
+                    <View key="step-considerations" position="fullscreen">
+                        <ViewHeader small title={t('passphrase.considerations.title')} />
                         <ViewContent>
                             {this.renderMultiLine(t('passphrase.considerations.message'))}
                         </ViewContent>
@@ -163,8 +163,8 @@ class Passphrase extends Component<Props, State> {
                 );
             case 1:
                 return (
-                    <View key="step-how" onClose={this.stopInfo}>
-                        <ViewHeader title={t('passphrase.how.title')} />
+                    <View key="step-how" position="fullscreen">
+                        <ViewHeader small title={t('passphrase.how.title')} />
                         <ViewContent>
                             {this.renderMultiLine(t('passphrase.how.message'))}
                         </ViewContent>
@@ -180,8 +180,8 @@ class Passphrase extends Component<Props, State> {
                 );
             case 0:
                 return (
-                    <View key="step-summary" onClose={this.stopInfo}>
-                        <ViewHeader title={t('passphrase.summary.title')} />
+                    <View key="step-summary" position="fullscreen">
+                        <ViewHeader small title={t('passphrase.summary.title')} />
                         <ViewContent>
                             <ul style="padding-left: var(--space-default);">
                                 <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
@@ -220,8 +220,8 @@ class Passphrase extends Component<Props, State> {
     private renderDisableInfo = () => {
         const { t } = this.props;
         return (
-            <View key="step-disable-info1" onClose={this.stopInfo}>
-                <ViewHeader title={t('passphrase.disable')} />
+            <View key="step-disable-info1" position="fullscreen">
+                <ViewHeader small title={t('passphrase.disable')} />
                 <ViewContent>
                     {this.renderMultiLine(t('passphrase.disableInfo.message'))}
                 </ViewContent>
@@ -286,7 +286,6 @@ class Passphrase extends Component<Props, State> {
                                 </ul>
                             )}
                             <SimpleMarkup tagName="p" markup={t('passphrase.successEnabled.messageEnd')} />
-
                         </ViewContent>
                     </View>
                 )}
