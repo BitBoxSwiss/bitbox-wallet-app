@@ -96,7 +96,7 @@ class Aopp extends Component<Props, State> {
         switch (aopp.state) {
             case 'error':
                 return (
-                    <View position="fullscreen">
+                    <View center position="fullscreen">
                         <ViewHeader title={t('aopp.errorTitle')}>
                             <p>{domain(aopp.callback)}</p>
                         </ViewHeader>
@@ -116,7 +116,7 @@ class Aopp extends Component<Props, State> {
                 return null;
             case 'user-approval':
                 return (
-                    <View position="fullscreen">
+                    <View center position="fullscreen">
                         <ViewHeader title={t('aopp.title')} withAppLogo />
                         <ViewContent>
                             <Vasp prominent
@@ -147,7 +147,7 @@ class Aopp extends Component<Props, State> {
                 });
                 return (
                     <form onSubmit={this.chooseAccount}>
-                        <View position="fullscreen">
+                        <View center position="fullscreen">
                             <ViewHeader title={t('aopp.title')}>
                                 <Vasp hostname={domain(aopp.callback)} />
                             </ViewHeader>
@@ -170,7 +170,7 @@ class Aopp extends Component<Props, State> {
             }
             case 'syncing':
                 return (
-                    <View position="fullscreen">
+                    <View center position="fullscreen">
                         <ViewHeader title={t('aopp.title')}>
                             <Vasp hostname={domain(aopp.callback)} />
                         </ViewHeader>
@@ -184,7 +184,7 @@ class Aopp extends Component<Props, State> {
                 );
             case 'signing':
                 return (
-                    <View position="fullscreen">
+                    <View center position="fullscreen">
                         <ViewHeader small title={t('aopp.title')}>
                             <Vasp hostname={domain(aopp.callback)} />
                         </ViewHeader>
@@ -207,7 +207,7 @@ class Aopp extends Component<Props, State> {
                 );
             case 'success':
                 return (
-                    <View position="fullscreen">
+                    <View center position="fullscreen">
                         <ViewContent>
                             <Checked className={styles.largeIcon} />
                             <p className={styles.successText}>{t('aopp.success.title')}</p>
