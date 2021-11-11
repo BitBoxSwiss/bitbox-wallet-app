@@ -255,9 +255,11 @@ class Passphrase extends Component<Props, State> {
                             title={t(passphraseEnabled
                                 ? 'passphrase.progressDisable.title'
                                 : 'passphrase.progressEnable.title')}>
-                            {t(passphraseEnabled
+                            <SimpleMarkup
+                                tagName="p"
+                                markup={t(passphraseEnabled
                                 ? 'passphrase.progressDisable.message'
-                                : 'passphrase.progressEnable.message')}
+                                : 'passphrase.progressEnable.message')} />
                         </ViewHeader>
                         <ViewContent>
                             <PointToBitBox02 />
