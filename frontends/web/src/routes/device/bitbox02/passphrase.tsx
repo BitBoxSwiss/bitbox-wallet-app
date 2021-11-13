@@ -19,7 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { SimpleMarkup } from '../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../utils/markup';
 // This is the first time we use <View> in a <Main> component
 // keeping guide and header as example in the code
 import { /* Header, */ Main } from '../../../components/layout';

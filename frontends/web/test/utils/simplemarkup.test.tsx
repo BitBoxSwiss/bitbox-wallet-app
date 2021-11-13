@@ -17,7 +17,7 @@
 import 'jest';
 import { h } from 'preact';
 import { shallow } from 'preact-render-spy';
-import { SimpleMarkup } from '../../src/utils/simplemarkup';
+import { SimpleMarkup } from '../../src/utils/markup';
 
 describe('SimpleMarkup', () => {
     it('contains a strong element with the text bar', () => {

@@ -18,7 +18,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
-import { SimpleMarkup } from '../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../utils/markup';
 import { confirmation } from '../../../components/confirm/Confirm';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';

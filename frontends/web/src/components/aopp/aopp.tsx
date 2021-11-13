@@ -20,7 +20,7 @@ import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
-import { SimpleMarkup } from '../../utils/simplemarkup';
+import { SimpleMarkup } from '../../utils/markup';
 import { View, ViewHeader, ViewContent, ViewButtons } from '../view/view';
 import { Message } from '../message/message';
 import { Button, Field, Label, Select } from '../forms';
