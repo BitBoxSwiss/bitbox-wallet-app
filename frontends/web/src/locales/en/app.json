@@ -1018,11 +1018,11 @@
       "title": "Setup passphrase"
     },
     "progressDisable": {
-      "message": "Confirm on your BitBox that you want to disable the optional passphrase",
+      "message": "Confirm on your BitBox that you want to <strong>disable</strong> the optional passphrase.",
       "title": "Confirm on device"
     },
     "progressEnable": {
-      "message": "Confirm on your BitBox that you want to enable the optional passphrase",
+      "message": "Confirm on your BitBox that you want to <strong>enable</strong> the optional passphrase.",
       "title": "Confirm on device"
     },
     "successDisabled": {
