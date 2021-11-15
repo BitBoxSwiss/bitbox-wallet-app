@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCurrentUrl, route, RouterOnChangeArgs } from 'preact-router';
+import { getCurrentUrl, route } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
