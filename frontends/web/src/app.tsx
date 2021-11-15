@@ -72,19 +72,13 @@ class App extends Component<Props, State> {
     /**
      * Gets fired when the route changes.
      */
-    private handleRoute = async (e:RouterOnChangeArgs) => {
+    private handleRoute = async () => {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
 
         await sleep(0); // this must be run async
-        const {accounts} = this.state;
-        const isIndex = e.url === '/' || e.url === '/index.html' || e.url === '/android_asset/web/index.html';
-        
-        if (isIndex && accounts.length > 0 ) {
-            route('/account-summary', true);
-            return;
-        }
+        this.maybeRoute();
     }
 
     public componentDidMount() {
