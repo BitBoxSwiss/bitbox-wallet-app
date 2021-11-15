@@ -15,12 +15,12 @@
  */
 
 import { cloneElement, h, JSX, RenderableProps } from 'preact';
-import { Router } from 'preact-router';
+import { Router, RouterOnChangeArgs } from 'preact-router';
 
 interface Props {
     children: JSX.Element[];
     toggleSidebar: () => void;
-    onChange: () => void;
+    onChange: (args: RouterOnChangeArgs) => void;
 }
 
 const Container = ({

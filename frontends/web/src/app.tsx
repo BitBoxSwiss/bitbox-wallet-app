@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCurrentUrl, route } from 'preact-router';
+import { getCurrentUrl, route, RouterOnChangeArgs } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
@@ -51,6 +51,7 @@ import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
 import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
+import { sleep } from './utils/promises';
 
 interface State {
     accounts: IAccount[];
@@ -71,27 +72,36 @@ class App extends Component<Props, State> {
     /**
      * Gets fired when the route changes.
      */
-    private handleRoute = () => {
+    private handleRoute = async (e:RouterOnChangeArgs) => {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
+        }
+
+        await sleep(0); // this must be run async
+        const {accounts} = this.state;
+        const isIndex = e.url === '/' || e.url === '/index.html' || e.url === '/android_asset/web/index.html';
+        
+        if (isIndex && accounts.length > 0 ) {
+            route('/account-summary', true);
+            return;
         }
     }
 
     public componentDidMount() {
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
-            case 'backend':
-                switch (data) {
-                case 'newTxs':
-                    apiPost('notify-user', {
-                        text: this.props.t('notification.newTxs', {
-                            count: meta.count,
-                            accountName: meta.accountName,
-                        }),
-                    });
+                case 'backend':
+                    switch (data) {
+                        case 'newTxs':
+                            apiPost('notify-user', {
+                                text: this.props.t('notification.newTxs', {
+                                    count: meta.count,
+                                    accountName: meta.accountName,
+                                }),
+                            });
+                            break;
+                    }
                     break;
-                }
-                break;
             }
         });
 
@@ -135,9 +145,8 @@ class App extends Component<Props, State> {
         const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.state.accounts;
-
         // if no accounts are registered on specified views route to /
-        if ( accounts.length === 0 && (
+        if (accounts.length === 0 && (
             currentURL.startsWith('/account-summary')
             || currentURL.startsWith('/add-account')
             || currentURL.startsWith('/settings/manage-accounts')
@@ -177,7 +186,7 @@ class App extends Component<Props, State> {
     }
 
     public render(
-        {  }: RenderableProps<Props>,
+        { }: RenderableProps<Props>,
         { accounts, devices }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
