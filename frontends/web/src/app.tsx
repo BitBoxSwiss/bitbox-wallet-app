@@ -257,10 +257,12 @@ class App extends Component<Props, State> {
                             <DeviceSwitch
                                 path="/device/:deviceID"
                                 key={this.devicesKey('device-switch')}
+                                deviceID={null /* dummy to satisfy TS */}
                                 devices={devices} />
                             <DeviceSwitch
                                 default
                                 key={this.devicesKey('device-switch-default')}
+                                deviceID={null}
                                 devices={devices} />
                         </Container>
                     </div>

@@ -15,7 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { TDevices, TProductName } from '../../api/devices';
+import { TDevices } from '../../api/devices';
 import BitBox01 from './bitbox01/bitbox01';
 import { BitBox02 } from './bitbox02/bitbox02';
 import { BitBox02Bootloader } from '../../components/devices/bitbox02bootloader/bitbox02bootloader';
@@ -23,12 +23,12 @@ import { Waiting } from './waiting';
 
 interface Props {
     devices: TDevices;
-    deviceID?: TProductName;
+    deviceID: string | null;
 }
 
 class DeviceSwitch extends Component<Props, {}> {
     public render({ deviceID, devices }: RenderableProps<Props>) {
-        if (this.props.default || deviceID === undefined || !Object.keys(devices).includes(deviceID)) {
+        if (this.props.default || deviceID === null || !Object.keys(devices).includes(deviceID)) {
             return <Waiting />;
         }
         switch (devices[deviceID]) {
