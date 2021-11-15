@@ -19,7 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { SimpleMarkup } from '../../../utils/markup';
+import { multilineMarkup, SimpleMarkup } from '../../../utils/markup';
 // This is the first time we use <View> in a <Main> component
 // keeping guide and header as example in the code
 import { /* Header, */ Main } from '../../../components/layout';
@@ -137,7 +137,10 @@ class Passphrase extends Component<Props, State> {
                         width={CONTENT_WIDTH}>
                         <ViewHeader title={t('passphrase.intro.title')} />
                         <ViewContent>
-                            {this.renderMultiLine(t('passphrase.intro.message'))}
+                            {multilineMarkup({
+                                tagName: 'p',
+                                markup: t('passphrase.intro.message'),
+                            })}
                         </ViewContent>
                         <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
@@ -159,7 +162,10 @@ class Passphrase extends Component<Props, State> {
                         width={CONTENT_WIDTH}>
                         <ViewHeader title={t('passphrase.what.title')} />
                         <ViewContent>
-                            {this.renderMultiLine(t('passphrase.what.message'))}
+                            {multilineMarkup({
+                                tagName: 'p',
+                                markup: t('passphrase.what.message'),
+                            })}
                         </ViewContent>
                         <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
@@ -181,7 +187,10 @@ class Passphrase extends Component<Props, State> {
                         width={CONTENT_WIDTH}>
                         <ViewHeader title={t('passphrase.why.title')} />
                         <ViewContent>
-                            {this.renderMultiLine(t('passphrase.why.message'))}
+                            {multilineMarkup({
+                                tagName: 'p',
+                                markup: t('passphrase.why.message'),
+                            })}
                         </ViewContent>
                         <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
@@ -203,7 +212,10 @@ class Passphrase extends Component<Props, State> {
                         width={CONTENT_WIDTH}>
                         <ViewHeader title={t('passphrase.considerations.title')} />
                         <ViewContent>
-                            {this.renderMultiLine(t('passphrase.considerations.message'))}
+                            {multilineMarkup({
+                                tagName: 'p',
+                                markup: t('passphrase.considerations.message'),
+                            })}
                         </ViewContent>
                         <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
@@ -225,7 +237,10 @@ class Passphrase extends Component<Props, State> {
                         width={CONTENT_WIDTH}>
                         <ViewHeader title={t('passphrase.how.title')} />
                         <ViewContent>
-                            {this.renderMultiLine(t('passphrase.how.message'))}
+                            {multilineMarkup({
+                                tagName: 'p',
+                                markup: t('passphrase.how.message'),
+                            })}
                         </ViewContent>
                         <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
@@ -278,10 +293,6 @@ class Passphrase extends Component<Props, State> {
         }
     }
 
-    private renderMultiLine = text => text.split('\n').map((line: string, i: number) => (
-        <SimpleMarkup key={`${line}-${i}`} tagName="p" markup={line} />
-    ))
-
     private renderDisableInfo = () => {
         const { t } = this.props;
         return (
@@ -293,7 +304,10 @@ class Passphrase extends Component<Props, State> {
                 width={CONTENT_WIDTH}>
                 <ViewHeader title={t('passphrase.disable')} />
                 <ViewContent>
-                    {this.renderMultiLine(t('passphrase.disableInfo.message'))}
+                    {multilineMarkup({
+                        tagName: 'p',
+                        markup: t('passphrase.disableInfo.message'),
+                    })}
                 </ViewContent>
                 <ViewButtons>
                     <Button primary onClick={this.continueInfo}>
@@ -356,11 +370,12 @@ class Passphrase extends Component<Props, State> {
                                 : 'passphrase.successEnabled.title')} >
                         </ViewHeader>
                         <ViewContent>
-                            {this.renderMultiLine(
-                                t(passphraseEnabled
+                            {multilineMarkup({
+                                tagName: 'p',
+                                markup: t(passphraseEnabled
                                     ? 'passphrase.successDisabled.message'
-                                    : 'passphrase.successEnabled.message')
-                            )}
+                                    : 'passphrase.successEnabled.message'),
+                            })}
                             {passphraseEnabled && (
                                 <ul style="padding-left: var(--space-default);">
                                     <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />

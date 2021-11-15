@@ -16,8 +16,8 @@
 
 import 'jest';
 import { h } from 'preact';
-import { shallow } from 'preact-render-spy';
-import { SimpleMarkup } from '../../src/utils/markup';
+import { deep, shallow } from 'preact-render-spy';
+import { multilineMarkup, SimpleMarkup } from '../../src/utils/markup';
 
 describe('SimpleMarkup', () => {
     it('contains a strong element with the text bar', () => {
@@ -32,5 +32,25 @@ describe('SimpleMarkup', () => {
         // Only the last strong element is currently supported :/
         expect(span.output().children[0]).toEqual('<strong>foo</strong> <strong>bar</strong> ');
         expect(span.output().children[1]).toEqual(<strong>baz</strong>)
+    });
+});
+
+describe('multilineMarkup', () => {
+    it('contains multiple lines with a strong element each', () => {
+        const multiline = deep(
+            <div>
+                {multilineMarkup({
+                    tagName: 'p', markup: 'foo <strong>bar</strong> baz\n<strong>booz</strong>'
+                })}
+            </div>
+        );
+        const paragaphs = multiline.first().find('p');
+        expect(paragaphs.length).toEqual(2);
+        const first = paragaphs.first();
+        const last = paragaphs.last();
+        expect(first.text()).toEqual('foo bar baz');
+        expect(first.find('strong').text()).toEqual('bar');
+        expect(last.text()).toEqual('booz');
+        expect(last.find('strong').text()).toEqual('booz');
     });
 });

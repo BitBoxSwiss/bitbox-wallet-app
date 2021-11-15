@@ -17,16 +17,24 @@
 
 import { h, JSX } from 'preact';
 
-type SimpleMarkupProps = {
+type MarkupProps = {
     tagName: keyof JSX.IntrinsicElements;
     markup: string;
 } & JSX.HTMLAttributes;
 
 const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
 
-// SimpleMarkup renders `foo <strong>bar</strong> baz` safely as `foo <strong>bar</strong> baz`. Anything else is rendered as sanitized text.
-// Only <strong> is supported to keep it simple.
-export function SimpleMarkup({ tagName, markup, ...props }: SimpleMarkupProps) {
+/**
+ * **SimpleMarkup** renders `foo <strong>bar</strong> baz` safely as
+ * `foo <strong>bar</strong> baz`. Anything else is rendered as
+ * sanitized text.
+ * Only one occurence of <strong> is supported to keep it simple.
+ * ### Example:
+ * ```jsx
+    <SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />
+ * ```
+ */
+export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
     if (typeof markup !== 'string') {
         return null;
     }
@@ -35,4 +43,27 @@ export function SimpleMarkup({ tagName, markup, ...props }: SimpleMarkupProps) {
         return h(tagName, props, markup);
     }
     return h(tagName, props, simpleMarkupChunks[1], h('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
+}
+
+/**
+ * **multilineMarkup** splits a text by newline and renders each
+ * line with the `<SimmpleMarkup>` component.
+ * **Note**: With current Preact 8 document fragments are not
+ * supported so this has to be used as function, but once we move
+ * to modern Preact/React we can use it as a normal component.
+ * ### Example:
+ * ```jsx
+    {multilineMarkup({ tagName: 'p', markup: 'messages\n\nwith <strong>newlines</strong>'})}
+ * ```
+ */
+export function multilineMarkup({ tagName, markup, ...props }: MarkupProps) {
+    return markup.split('\n').map((line: string, i: number) => (
+        // eslint-disable-next-line new-cap
+        SimpleMarkup({
+            key: `${line}-${i}`,
+            tagName,
+            markup: line,
+            ...props
+        })
+    ));
 }
