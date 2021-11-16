@@ -255,10 +255,12 @@ class MnemonicPassphraseButton extends Component<Props, State> {
                                 ? 'passphrase.successDisabled.message'
                                 : 'passphrase.successEnabled.message')
                         )}
-                        <ul style="padding-left: var(--space-default);">
-                            <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
-                            <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
-                        </ul>
+                        {passphraseEnabled && (
+                            <ul style="padding-left: var(--space-default);">
+                                <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
+                                <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
+                            </ul>
+                        )}
                         <SimpleMarkup tagName="p" markup={t('passphrase.successEnabled.messageEnd')} />
                     </WaitDialog>
                 )}
