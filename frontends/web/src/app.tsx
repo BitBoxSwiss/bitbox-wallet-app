@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { geturl } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
