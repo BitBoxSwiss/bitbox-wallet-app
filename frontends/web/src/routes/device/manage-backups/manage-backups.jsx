@@ -15,7 +15,6 @@
  */
 
 import { Component, h } from 'preact';
-import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
@@ -24,6 +23,7 @@ import { Header } from '../../../components/layout';
 import { Backups } from '../bitbox01/backups';
 import { BackupsV2 } from '../bitbox02/backups';
 import { SDCardCheck } from '../bitbox02/sdcardcheck';
+import { localRoute } from '../../../utils/router';
 
 @translate()
 export default class ManageBackups extends Component {
@@ -33,7 +33,7 @@ export default class ManageBackups extends Component {
 
     componentWillMount() {
         if (!this.hasDevice()) {
-            route('/', true);
+            localRoute('/', true);
         }
     }
 

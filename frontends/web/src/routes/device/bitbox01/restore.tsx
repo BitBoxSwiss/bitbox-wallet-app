@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -25,6 +24,7 @@ import { Button, Checkbox } from '../../../components/forms';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
+import { localRoute } from '../../../utils/router';
 import * as style from '../components/backups.css';
 
 interface RestoreProps {
@@ -93,7 +93,7 @@ class Restore extends Component<Props, State> {
                         return this.props.onRestore();
                     }
                     console.info('restore.jsx route to /');
-                    route('/', true);
+                    localRoute('/', true);
                 }
             } else {
                 alertUser(this.props.t(`backup.restore.error.e${code}`, {

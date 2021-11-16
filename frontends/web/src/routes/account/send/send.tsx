@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
@@ -40,6 +39,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, customFeeUnit } from '../utils';
 import { FeeTargets } from './feetargets';
+import { localRoute } from '../../../utils/router';
 import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
@@ -209,7 +209,7 @@ class Send extends Component<Props, State> {
             if (this.state.activeScanQR) {
                 this.toggleScanQR();
             } else {
-                route(`/account/${this.props.code}`);
+                localRoute(`/account/${this.props.code}`);
             }
         }
     }

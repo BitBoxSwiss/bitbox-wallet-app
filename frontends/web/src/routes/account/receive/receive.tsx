@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { alertUser } from '../../../components/alert/Alert';
@@ -29,6 +28,7 @@ import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import Status from '../../../components/status/status';
 import { load } from '../../../decorators/load';
+import { localRoute } from '../../../utils/router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { isEthereumBased } from '../utils';
@@ -94,7 +94,7 @@ class Receive extends Component<Props, State> {
     private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
             if (!this.state.verifying) {
-                route(`/account/${this.props.code}`);
+                localRoute(`/account/${this.props.code}`);
             }
         }
     }

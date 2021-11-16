@@ -16,12 +16,12 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/account';
 import { isBitcoinBased } from '../utils';
 import { ButtonLink } from '../../../components/forms';
 import { Header } from '../../../components/layout';
+import { localRoute } from '../../../utils/router';
 import * as style from './info.css';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
@@ -58,7 +58,7 @@ class Info extends Component<Props, State> {
 
     private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
-            route(`/account/${this.props.code}`);
+            localRoute(`/account/${this.props.code}`);
         }
     }
 

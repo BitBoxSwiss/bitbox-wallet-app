@@ -16,7 +16,7 @@
  */
 
 import { Component, h, JSX, RenderableProps } from 'preact';
-import { Link, Match } from 'preact-router/match';
+import { Match } from 'preact-router/match';
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
@@ -30,6 +30,7 @@ import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
+import { LocalLink } from '../../utils/router';
 import Logo, { AppLogoInverted } from '../icon/logo';
 
 interface SidebarProps {
@@ -134,7 +135,7 @@ class Sidebar extends Component<Props> {
 
     private getBackLink = (coinCode: string, code: string, name: string, active: boolean): JSX.Element => {
         return (
-            <Link
+            <LocalLink
                 activeClassName="sidebar-active"
                 className={active ? 'sidebar-active' : ''}
                 href={`/account/${code}`}
@@ -142,7 +143,7 @@ class Sidebar extends Component<Props> {
                 title={name}>
                 <Logo stacked coinCode={coinCode} className="sidebar_icon" alt={name} />
                 <span className="sidebar_label">{name}</span>
-            </Link>
+            </LocalLink>
         );
     }
 
@@ -162,14 +163,14 @@ class Sidebar extends Component<Props> {
             <div className={['sidebarContainer', hidden ? 'forceHide' : ''].join(' ')}>
                 <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
                 <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
-                    <Link
+                    <LocalLink
                         activeClassName=""
                         href="/"
                         onClick={this.handleSidebarItemClick}>
                         <div className="sidebarLogoContainer">
                             <AppLogoInverted className="sidebarLogo" />
                         </div>
-                    </Link>
+                    </LocalLink>
                     <div className="sidebarHeaderContainer">
                         <span className="sidebarHeader" hidden={!keystores.length}>
                             {t('sidebar.accounts')}
@@ -204,7 +205,7 @@ class Sidebar extends Component<Props> {
                     </div> */}
                     { accounts.length ? (
                         <div className="sidebarItem">
-                            <Link
+                            <LocalLink
                                 activeClassName="sidebar-active"
                                 href={`/account-summary`}
                                 title={t('accountSummary.title')}
@@ -213,14 +214,14 @@ class Sidebar extends Component<Props> {
                                     <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
                                 </div>
                                 <span className="sidebar_label">{t('accountSummary.title')}</span>
-                            </Link>
+                            </LocalLink>
                         </div>
                     ) : null }
                     { accounts && accounts.map(this.getAccountLink) }
                     <div className="sidebarHeaderContainer end"></div>
                     { accounts.length ? (
                     <div key="buy" className="sidebarItem">
-                        <Link
+                        <LocalLink
                             activeClassName="sidebar-active"
                             href="/buy/info"
                         >
@@ -230,12 +231,12 @@ class Sidebar extends Component<Props> {
                             <span className="sidebar_label">
                                 {t('sidebar.buy')}
                             </span>
-                        </Link>
+                        </LocalLink>
                     </div>
                     ) : null }
                     { deviceIDs.map(deviceID => (
                         <div key={deviceID} className="sidebarItem">
-                            <Link
+                            <LocalLink
                                 href={`/device/${deviceID}`}
                                 activeClassName="sidebar-active"
                                 title={t('sidebar.device')}
@@ -244,11 +245,11 @@ class Sidebar extends Component<Props> {
                                     <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
                                 </div>
                                 <span className="sidebar_label">{t('sidebar.device')}</span>
-                            </Link>
+                            </LocalLink>
                         </div>
                     )) }
                     <div key="settings" className="sidebarItem">
-                        <Link
+                        <LocalLink
                             activeClassName="sidebar-active"
                             href={`/settings`}
                             title={t('sidebar.settings')}
@@ -258,7 +259,7 @@ class Sidebar extends Component<Props> {
                                 <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
                             </div>
                             <span className="sidebar_label">{t('sidebar.settings')}</span>
-                        </Link>
+                        </LocalLink>
                     </div>
                     {(debug && keystores.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
                         <div key="eject" className="sidebarItem">

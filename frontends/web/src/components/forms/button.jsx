@@ -15,7 +15,7 @@
  */
 
 import { h } from 'preact';
-import { Link } from 'preact-router/match';
+import { LocalLink } from '../../utils/router';
 import * as style from './button.css';
 
 export function ButtonLink({
@@ -51,9 +51,9 @@ export function ButtonLink({
         );
     }
     return (
-        <Link activeClassName="active" className={classNames} tabIndex={tabIndex} {...props}>
+        <LocalLink activeClassName="active" className={classNames} tabIndex={tabIndex} {...props}>
             {children}
-        </Link>
+        </LocalLink>
     );
 }
 

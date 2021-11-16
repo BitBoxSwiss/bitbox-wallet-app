@@ -16,13 +16,13 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { getCanVerifyXPub, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
 import { getScriptName, isBitcoinBased } from '../utils';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
+import { localRoute } from '../../../utils/router';
 import * as style from './info.css';
 
 interface ProvidedProps {
@@ -134,7 +134,7 @@ class SigningConfiguration extends Component<Props, State> {
                             {t('accountInfo.verify')}
                         </Button>
                     ) : bitcoinBased ? null : (
-                        <Button className={style.verifyButton} primary onClick={() => route(`/account/${code}/receive`)}>
+                        <Button className={style.verifyButton} primary onClick={() => localRoute(`/account/${code}/receive`)}>
                             {t('receive.verify')}
                         </Button>
                     ) }

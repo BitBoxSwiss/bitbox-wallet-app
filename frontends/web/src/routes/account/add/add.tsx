@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import * as backendAPI from '../../../api/backend';
 import { SimpleMarkup } from '../../../utils/simplemarkup';
@@ -28,6 +27,7 @@ import { CoinDropDown } from './components/coin-dropdown';
 import * as styles from './add.css';
 import { Check } from '../../../components/icon/icon';
 import { apiPost } from '../../../utils/request';
+import { localRoute } from '../../../utils/router';
 import Guide from '../../settings/manage-account-guide';
 
 interface AddAccountProps {
@@ -129,7 +129,7 @@ class AddAccount extends Component<Props, State> {
                 break;
             case 'success':
                 if (accountCode) {
-                    route(`/account/${accountCode}`);
+                    localRoute(`/account/${accountCode}`);
                 }
                 break;
 

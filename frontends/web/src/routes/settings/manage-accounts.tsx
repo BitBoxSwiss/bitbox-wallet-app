@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { apiGet } from '../../utils/request';
@@ -28,6 +27,7 @@ import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
 import Guide from './manage-account-guide';
+import { localRoute } from '../../utils/router';
 import * as style from './manage-accounts.css';
 
 interface ManageAccountsProps {
@@ -107,7 +107,7 @@ class ManageAccounts extends Component<Props, State> {
                 <div key={account.code} className={style.setting}>
                     <div
                         className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
-                        onClick={() => active && route(`/account/${account.code}`)}>
+                        onClick={() => active && localRoute(`/account/${account.code}`)}>
                         <Logo className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
                         <span className={style.accountName}>
                             {account.name}
@@ -190,7 +190,7 @@ class ManageAccounts extends Component<Props, State> {
                         className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
                         <div
                             className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
-                            onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
+                            onClick={() => activeToken !== undefined && localRoute(`/account/${activeToken.accountCode}`)}>
                             <Logo
                                 active={active}
                                 alt={name}
@@ -259,7 +259,7 @@ class ManageAccounts extends Component<Props, State> {
                                 <div class="buttons m-bottom-large m-top-large">
                                     <Button
                                         primary
-                                        onClick={() => route('/add-account', true)}>
+                                        onClick={() => localRoute('/add-account', true)}>
                                         {t('manageAccounts.addAccount')}
                                     </Button>
                                 </div>

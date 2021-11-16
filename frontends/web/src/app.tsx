@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCurrentUrl, route } from 'preact-router';
+import { geturl } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
@@ -51,7 +51,7 @@ import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
 import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
-import { sleep } from './utils/promises';
+import { localRoute, setRedirect } from './utils/router';
 
 interface State {
     accounts: IAccount[];
@@ -72,13 +72,10 @@ class App extends Component<Props, State> {
     /**
      * Gets fired when the route changes.
      */
-    private handleRoute = async () => {
+    private handleRoute = () => {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
-
-        await sleep(0); // this must be run async
-        this.maybeRoute();
     }
 
     public componentDidMount() {
@@ -108,25 +105,27 @@ class App extends Component<Props, State> {
                     && (oldDeviceIDList.length === 0 || newDeviceIDList[0] !== oldDeviceIDList[0])
                 ) {
                     // route to the first device for unlock, create, restore etc.
-                    route(`/device/${newDeviceIDList[0]}`, true);
+                    localRoute(`/device/${newDeviceIDList[0]}`, true);
                 }
             });
         };
 
         Promise.all([getDeviceList(), getAccounts()])
             .then(([devices, accounts]) => {
-                this.setState({ accounts }, this.maybeRoute);
+                this.setState({ accounts }, () => localRoute('/', true));
                 setDevices(devices);
             })
             .catch(console.error);
 
         this.unsubscribeList.push(
             syncAccountsList(accounts => {
-                this.setState({ accounts }, this.maybeRoute);
+                this.setState({ accounts }, () => localRoute('/', true));
             }),
             syncDeviceList(setDevices),
             // TODO: add syncBackendNewTX
         );
+
+        setRedirect(this.redirectDigest);
     }
 
     public componentWillUnmount() {
@@ -134,35 +133,31 @@ class App extends Component<Props, State> {
         unsubscribe(this.unsubscribeList);
     }
 
-    private maybeRoute = () => {
-        const currentURL = getCurrentUrl();
-        const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
-        const inAccounts = currentURL.startsWith('/account/');
+    private redirectDigest = (url: string): string => {
+        const isIndex = url === '/' || url === '/index.html' || url === '/android_asset/web/index.html';
+        const inAccounts = url.startsWith('/account/');
         const accounts = this.state.accounts;
         // if no accounts are registered on specified views route to /
         if (accounts.length === 0 && (
-            currentURL.startsWith('/account-summary')
-            || currentURL.startsWith('/add-account')
-            || currentURL.startsWith('/settings/manage-accounts')
+            url.startsWith('/account-summary')
+            || url.startsWith('/add-account')
+            || url.startsWith('/settings/manage-accounts')
         )) {
-            route('/', true);
-            return;
+            return '/';
         }
         // if on an account that isnt registered route to /
-        if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
-            route('/', true);
-            return;
+        if (inAccounts && !accounts.some(account => url.startsWith('/account/' + account.code))) {
+            return '/';
         }
         // if on index page and there is at least 1 account route to /account-summary
         if (isIndex && accounts && accounts.length) {
-            route('/account-summary', true);
-            return;
+            return '/account-summary';
         }
         // if on the /buy/ view and there are no accounts view route to /
-        if (accounts.length === 0 && currentURL.startsWith('/buy/')) {
-            route('/', true);
-            return;
+        if (accounts.length === 0 && url.startsWith('/buy/')) {
+            return '/';
         }
+        return url;
     }
 
     // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.

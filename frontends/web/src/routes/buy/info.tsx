@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { AccountCode, IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
@@ -28,6 +27,7 @@ import { Button, Checkbox, Select } from '../../components/forms';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import { isBitcoinOnly } from '../account/utils';
+import { localRoute } from '../../utils/router';
 import * as style from './info.css';
 
 interface BuyInfoProps {
@@ -66,7 +66,7 @@ class BuyInfo extends Component<Props, State> {
     private handleProceed = () => {
         const { status, selected } = this.state;
         if (selected && (status === 'choose' || this.props.config.frontend.skipBuyDisclaimer)) {
-            route(`/buy/moonpay/${selected}`);
+            localRoute(`/buy/moonpay/${selected}`);
         } else {
             this.setState({ status: 'choose' }, this.maybeProceed);
         }
@@ -74,7 +74,7 @@ class BuyInfo extends Component<Props, State> {
 
     private maybeProceed = () => {
         if (this.state.status === 'choose' && this.state.options !== undefined && this.state.options.length === 1) {
-            route(`/buy/moonpay/${this.state.options[0].value}`);
+            localRoute(`/buy/moonpay/${this.state.options[0].value}`);
         }
     }
 

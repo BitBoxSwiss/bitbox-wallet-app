@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
@@ -38,6 +37,7 @@ import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
+import { localRoute } from '../../../utils/router';
 
 interface BitBox02Props {
     deviceID: string;
@@ -159,7 +159,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private handleGetStarted = () => {
-        route('/account-summary', true);
+        localRoute('/account-summary', true);
     }
 
     private onChannelHashChanged = () => {
@@ -193,7 +193,7 @@ class BitBox02 extends Component<Props, State> {
             });
             if (status === 'initialized' && unlockOnly && showWizard) {
                 // bitbox is unlocked, now route to / and wait for incoming accounts
-                route('/', true);
+                localRoute('/', true);
             }
         });
     }

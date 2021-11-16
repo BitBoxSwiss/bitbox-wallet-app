@@ -16,7 +16,6 @@
  */
 
 import { Component, h } from 'preact';
-import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../../../../../components/forms';
 import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
@@ -25,6 +24,7 @@ import { PasswordInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
 import { alertUser } from '../../../../../components/alert/Alert';
 import * as style from '../../bitbox01.css';
+import { localRoute } from '../../../../../utils/router';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
 @translate()
@@ -49,7 +49,7 @@ export default class Reset extends Component {
             this.abort();
             if (data.success) {
                 if (data.didReset) {
-                    route('/', true);
+                    localRoute('/', true);
                 }
             } else if (data.errorMessage) {
                 alertUser(this.props.t(`bitbox.error.e${data.code}`, {

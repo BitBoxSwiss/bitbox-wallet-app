@@ -16,7 +16,6 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { route } from 'preact-router';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
@@ -25,6 +24,7 @@ import { AppLogo, SwissMadeOpenSource } from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header, Footer } from '../../../components/layout';
+import { localRoute } from '../../../utils/router';
 import { Spinner } from '../../../components/spinner/Spinner';
 
 const stateEnum = Object.freeze({
@@ -79,7 +79,7 @@ export default class Unlock extends Component {
                 apiGet('devices/' + this.props.deviceID + '/status').then(status => {
                     if (status === 'seeded') {
                         console.info('unlock.jsx route to /account-summary');
-                        route('/account-summary', true);
+                        localRoute('/account-summary', true);
                     }
                 });
             }

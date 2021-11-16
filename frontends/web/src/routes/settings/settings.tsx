@@ -16,7 +16,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { Link, route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
@@ -31,6 +30,7 @@ import { Toggle } from '../../components/toggle/toggle';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet, apiPost } from '../../utils/request';
+import { LocalLink, localRoute } from '../../utils/router';
 import { FiatSelection } from './components/fiat/fiat';
 import * as style from './settings.css';
 
@@ -67,7 +67,7 @@ class Settings extends Component<Props, State> {
 
     public componentDidUpdate(prevProps) {
         if (prevProps.deviceIDs.length && !this.props.deviceIDs.length) {
-            route('/', true);
+            localRoute('/', true);
         }
     }
 
@@ -144,7 +144,7 @@ class Settings extends Component<Props, State> {
     }
 
     private backHome = () => {
-        route('/', true);
+        localRoute('/', true);
     }
 
     public render({
@@ -168,7 +168,7 @@ class Settings extends Component<Props, State> {
                     <Header title={<h2>{t('settings.title')}</h2>}>
                         {
                             !deviceIDs.length && (
-                                <Link onClick={this.backHome} className="flex flex-row flex-items-center">
+                                <LocalLink onClick={this.backHome} className="flex flex-row flex-items-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 24 24"
@@ -182,7 +182,7 @@ class Settings extends Component<Props, State> {
                                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                                     </svg>
                                     {t('settings.header.home')}
-                                </Link>
+                                </LocalLink>
                             )
                         }
                     </Header>
@@ -202,7 +202,7 @@ class Settings extends Component<Props, State> {
                                                             <h3 className="subTitle">Accounts</h3>
                                                             <div className="box slim divide m-bottom-large">
                                                                 <SettingsButton
-                                                                    onClick={() => route('/settings/manage-accounts', true)}
+                                                                    onClick={() => localRoute('/settings/manage-accounts', true)}
                                                                     secondaryText={t('manageAccounts.settingsButtonDescription')}
                                                                     optionalText={manageAccountsLen.toString()}>
                                                                     {t('manageAccounts.title')}

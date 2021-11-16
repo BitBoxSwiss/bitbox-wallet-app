@@ -15,10 +15,10 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
+import { localRoute } from '../../utils/router';
 import * as style from './anchor.css';
 
 interface Props {
@@ -33,7 +33,7 @@ export default function A({ href, icon, children, ...props }: RenderableProps<Pr
             const { hostname, origin } = new URL(href, location.href);
             if (origin === 'qrc:' || (debug && hostname === location.hostname)) {
                 hide();
-                route(href);
+                localRoute(href);
             } else {
                 apiPost('open', href);
             }
