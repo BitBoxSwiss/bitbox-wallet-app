@@ -49,6 +49,7 @@ import { ManageAccounts } from './routes/settings/manage-accounts';
 import { Exchanges } from './routes/exchanges/exchanges';
 import ElectrumSettings from './routes/settings/electrum';
 import { Settings } from './routes/settings/settings';
+import { Passphrase } from './routes/device/bitbox02/passphrase';
 import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
@@ -235,6 +236,10 @@ class App extends Component<Props, State> {
                                 manageAccountsLen={accounts.length}
                                 deviceIDs={deviceIDs}
                                 path="/settings" />
+                            <Passphrase
+                                deviceID={'' /* dummy to satisfy TS */}
+                                passphrase={'disabled' /* default to satisfy TS */}
+                                path="/passphrase/:passphrase/:deviceID" />
                             <ManageAccounts
                                 key={'manage-accounts'}
                                 path="/settings/manage-accounts" />
