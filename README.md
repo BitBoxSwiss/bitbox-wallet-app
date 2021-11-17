@@ -2,6 +2,9 @@
 
 This repo contains the source code for the BitBoxApp and related tools.
 
+Contributions are very welcome.
+Please see the [contribution guidelines](CONTRIBUTING.md).
+
 ## Tech stack
 
 The wallet UI is a [preact](https://preactjs.com/) single page webapp. It sources its data from the
