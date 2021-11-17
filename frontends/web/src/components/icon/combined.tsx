@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,13 @@
  * limitations under the License.
  */
 
-export { Header } from './header';
-export { Main } from './main';
-export { Footer } from './footer';
+import { h } from 'preact';
+import { BitBox02Stylized, CaretDown } from './icon';
+import * as style from './combined.css';
+
+export const PointToBitBox02 = () => (
+    <div className={style.point2bitbox02}>
+        <CaretDown className={style.caret} />
+        <BitBox02Stylized className={style.bitbox02} />
+    </div>
+);
