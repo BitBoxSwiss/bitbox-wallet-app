@@ -1027,6 +1027,7 @@
     },
     "successDisabled": {
       "message": "Optional passphrase <strong>successfully enabled</strong>!\nYou’ll be asked to provide a passphrase from now on.",
+      "messageEnd": "Please replug your BitBox02 now.",
       "title": "Passphrase enabled"
     },
     "successEnabled": {

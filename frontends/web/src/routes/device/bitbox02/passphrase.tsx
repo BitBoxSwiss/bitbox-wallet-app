@@ -280,6 +280,7 @@ class Passphrase extends Component<Props, State> {
                                     <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
                                 </ul>
                             )}
+                            <SimpleMarkup tagName="p" markup={t('passphrase.successEnabled.messageEnd')} />
                         </ViewContent>
                     </View>
                 )}
