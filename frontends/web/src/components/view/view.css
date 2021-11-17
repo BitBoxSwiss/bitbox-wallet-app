@@ -7,7 +7,7 @@
     left: 0;
     overflow-x: inherit;
     overflow-y: auto;
-    position: absolute;
+    position: fixed;
     right: 0;
     top: 0;
     /* z-index between sidebar (~4000) and wait-dialog (~10000) */
@@ -42,9 +42,10 @@
 .inner:not(.center) {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     max-height: 100%;
-    min-height: 600px;
+    flex-shrink: 0;
+    padding-top: 17vh;
+    padding-bottom: var(--space-large);
 }
 @media (max-width: 768px) {
     .inner {
@@ -91,7 +92,7 @@
     color: var(--color-default);
     font-size: var(--size-subheader);
     font-weight: 400;
-    margin-bottom: var(--space-quarter);
+    margin-bottom: var(--space-half);
 }
 
 .header p {

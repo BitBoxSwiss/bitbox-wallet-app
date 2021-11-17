@@ -20,12 +20,16 @@ import { route } from 'preact-router';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { SimpleMarkup } from '../../../utils/simplemarkup';
-import { Header } from '../../../components/layout';
+// This is the first time we use <View> in a <Main> component
+// keeping guide and header as example in the code
+import { /* Header, */ Main } from '../../../components/layout';
 import { Button, Checkbox } from '../../../components/forms';
 import { alertUser } from '../../../components/alert/Alert';
-import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
-import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { Message } from '../../../components/message/message';
+import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
+// keeing as example for using guides in the new main component
+// import { Guide } from '../../../components/guide/guide';
+// import { Entry } from '../../../components/guide/entry';
 
 interface MnemonicPassphraseButtonProps {
     deviceID: string;
@@ -90,99 +94,117 @@ class Passphrase extends Component<Props, State> {
         switch (infoStep) {
             case 5:
                 return (
-                    <Dialog key="step-intro" medium title={t('passphrase.intro.title')} onClose={this.stopInfo}>
-                        {this.renderMultiLine(t('passphrase.intro.message'))}
-                        <DialogButtons>
+                    <View key="step-intro" onClose={this.stopInfo}>
+                        <ViewHeader title={t('passphrase.intro.title')} />
+                        <ViewContent>
+                            {this.renderMultiLine(t('passphrase.intro.message'))}
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
                                 {t('passphrase.what.button')}
                             </Button>
                             <Button transparent onClick={this.stopInfo}>
                                 {t('button.back')}
                             </Button>
-                        </DialogButtons>
-                    </Dialog>
+                        </ViewButtons>
+                    </View>
                 );
             case 4:
                 return (
-                    <Dialog key="step-what" medium title={t('passphrase.what.title')} onClose={this.stopInfo}>
-                        {this.renderMultiLine(t('passphrase.what.message'))}
-                        <DialogButtons>
+                    <View key="step-what" onClose={this.stopInfo}>
+                        <ViewHeader title={t('passphrase.what.title')} />
+                        <ViewContent>
+                            {this.renderMultiLine(t('passphrase.what.message'))}
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
                                 {t('passphrase.why.button')}
                             </Button>
                             <Button transparent onClick={this.stopInfo}>
                                 {t('button.back')}
                             </Button>
-                        </DialogButtons>
-                    </Dialog>
+                        </ViewButtons>
+                    </View>
                 );
             case 3:
                 return (
-                    <Dialog key="step-why" medium title={t('passphrase.why.title')} onClose={this.stopInfo}>
-                        {this.renderMultiLine(t('passphrase.why.message'))}
-                        <DialogButtons>
+                    <View key="step-why" onClose={this.stopInfo}>
+                        <ViewHeader title={t('passphrase.why.title')} />
+                        <ViewContent>
+                            {this.renderMultiLine(t('passphrase.why.message'))}
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
                                 {t('passphrase.considerations.button')}
                             </Button>
                             <Button transparent onClick={this.stopInfo}>
                                 {t('button.back')}
                             </Button>
-                        </DialogButtons>
-                    </Dialog>
+                        </ViewButtons>
+                    </View>
                 );
             case 2:
                 return (
-                    <Dialog key="step-considerations" medium title={t('passphrase.considerations.title')} onClose={this.stopInfo}>
-                        {this.renderMultiLine(t('passphrase.considerations.message'))}
-                        <DialogButtons>
+                    <View key="step-considerations" onClose={this.stopInfo}>
+                        <ViewHeader title={t('passphrase.considerations.title')} />
+                        <ViewContent>
+                            {this.renderMultiLine(t('passphrase.considerations.message'))}
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
                                 {t('passphrase.how.button')}
                             </Button>
                             <Button transparent onClick={this.stopInfo}>
                                 {t('button.back')}
                             </Button>
-                        </DialogButtons>
-                    </Dialog>
+                        </ViewButtons>
+                    </View>
                 );
             case 1:
                 return (
-                    <Dialog key="step-how" medium title={t('passphrase.how.title')} onClose={this.stopInfo}>
-                        {this.renderMultiLine(t('passphrase.how.message'))}
-                        <DialogButtons>
+                    <View key="step-how" onClose={this.stopInfo}>
+                        <ViewHeader title={t('passphrase.how.title')} />
+                        <ViewContent>
+                            {this.renderMultiLine(t('passphrase.how.message'))}
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={this.continueInfo}>
                                 {t('passphrase.summary.button')}
                             </Button>
                             <Button transparent onClick={this.stopInfo}>
                                 {t('button.back')}
                             </Button>
-                        </DialogButtons>
-                    </Dialog>
+                        </ViewButtons>
+                    </View>
                 );
             case 0:
                 return (
-                    <Dialog key="step-summary" medium title={t('passphrase.summary.title')} onClose={this.stopInfo}>
-                        <ul style="padding-left: var(--space-default);">
-                            <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
-                            <SimpleMarkup key="info-2" tagName="li" markup={t('passphrase.summary.understandList.1')} />
-                            <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
-                            <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
-                        </ul>
-                        <Message type="message">
-                            <Checkbox
-                                onChange={e => this.setState({ understood: (e.target as HTMLInputElement)?.checked })}
-                                id="understood"
-                                checked={understood}
-                                label={t('passphrase.summary.understand')} />
-                        </Message>
-                        <DialogButtons>
+                    <View key="step-summary" onClose={this.stopInfo}>
+                        <ViewHeader title={t('passphrase.summary.title')} />
+                        <ViewContent>
+                            <ul style="padding-left: var(--space-default);">
+                                <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
+                                <SimpleMarkup key="info-2" tagName="li" markup={t('passphrase.summary.understandList.1')} />
+                                <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
+                                <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
+                            </ul>
+                            <Message type="message">
+                                <Checkbox
+                                    onChange={e => this.setState({ understood: (e.target as HTMLInputElement)?.checked })}
+                                    id="understood"
+                                    checked={understood}
+                                    label={t('passphrase.summary.understand')} />
+                            </Message>
+                        </ViewContent>
+                        <ViewButtons>
                             <Button primary onClick={this.continueInfo} disabled={!understood}>
                                 {t('passphrase.enable')}
                             </Button>
                             <Button transparent onClick={this.stopInfo}>
                                 {t('button.back')}
                             </Button>
-                        </DialogButtons>
-                    </Dialog>
+                        </ViewButtons>
+                    </View>
                 );
             default:
                 console.error(`invalid infoStep ${infoStep}`);
@@ -197,17 +219,20 @@ class Passphrase extends Component<Props, State> {
     private renderDisableInfo = () => {
         const { t } = this.props;
         return (
-            <Dialog key="step-disable-info1" medium title={t('passphrase.disable')} onClose={this.stopInfo}>
-                {this.renderMultiLine(t('passphrase.disableInfo.message'))}
-                <DialogButtons>
+            <View key="step-disable-info1" onClose={this.stopInfo}>
+                <ViewHeader title={t('passphrase.disable')} />
+                <ViewContent>
+                    {this.renderMultiLine(t('passphrase.disableInfo.message'))}
+                </ViewContent>
+                <ViewButtons>
                     <Button primary onClick={this.continueInfo}>
                         {t('passphrase.disableInfo.button')}
                     </Button>
                     <Button transparent onClick={this.stopInfo}>
                         {t('button.back')}
                     </Button>
-                </DialogButtons>
-            </Dialog>
+                </ViewButtons>
+            </View>
         );
     }
 
@@ -216,30 +241,34 @@ class Passphrase extends Component<Props, State> {
         { passphraseEnabled, status }: State,
     ) {
         return (
-            <div class="container">
-                <Header title="Passphrase" />
-                <div className="innerContainer scrollableContainer">
-                    <div className="content padded">
-                    {status === 'info' && (
-                        passphraseEnabled
-                            ? this.renderDisableInfo()
-                            : this.renderEnableInfo()
-                    )}
-                    {status === 'progress' && (
-                        <WaitDialog
+            <Main>
+                {/* <Header /> */}
+                {status === 'info' && (
+                    passphraseEnabled
+                        ? this.renderDisableInfo()
+                        : this.renderEnableInfo()
+                )}
+                {status === 'progress' && (
+                    <View key="progress" position="fullscreen">
+                        <ViewHeader
                             title={t(passphraseEnabled
                                 ? 'passphrase.progressDisable.title'
                                 : 'passphrase.progressEnable.title')}>
                             {t(passphraseEnabled
                                 ? 'passphrase.progressDisable.message'
                                 : 'passphrase.progressEnable.message')}
-                        </WaitDialog>
-                    )}
-                    {status === 'success' && (
-                        <WaitDialog
+                        </ViewHeader>
+                        <ViewContent />
+                    </View>
+                )}
+                {status === 'success' && (
+                    <View key="progress" position="fullscreen">
+                        <ViewHeader
                             title={t(passphraseEnabled
                                 ? 'passphrase.successDisabled.title'
                                 : 'passphrase.successEnabled.title')} >
+                        </ViewHeader>
+                        <ViewContent>
                             {this.renderMultiLine(
                                 t(passphraseEnabled
                                     ? 'passphrase.successDisabled.message'
@@ -251,11 +280,13 @@ class Passphrase extends Component<Props, State> {
                                     <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
                                 </ul>
                             )}
-                        </WaitDialog>
-                    )}
-                    </div>
-                </div>
-            </div>
+                        </ViewContent>
+                    </View>
+                )}
+                {/* <Guide>
+                    <Entry key="whatisapassphrase" entry={t('guide.passphrase.whatisapassphrase')} />
+                </Guide> */}
+            </Main>
         );
     }
 }
