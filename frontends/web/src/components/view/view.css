@@ -7,7 +7,7 @@
     left: 0;
     overflow-x: inherit;
     overflow-y: auto;
-    position: absolute;
+    position: fixed;
     right: 0;
     top: 0;
     /* z-index between sidebar (~4000) and wait-dialog (~10000) */
@@ -42,9 +42,10 @@
 .inner:not(.center) {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     max-height: 100%;
-    min-height: 600px;
+    flex-shrink: 0;
+    padding-bottom: var(--space-large);
+    padding-top: 17vh;
 }
 @media (max-width: 768px) {
     .inner {
@@ -55,6 +56,10 @@
     }
     .center {
         flex-grow: 0;
+    }
+    .inner:not(.center) {
+        padding-bottom: var(--space-half);
+        padding-top: 2vh;
     }
 }
 @media (min-width: 1200px) {
@@ -91,7 +96,7 @@
     color: var(--color-default);
     font-size: var(--size-subheader);
     font-weight: 400;
-    margin-bottom: var(--space-quarter);
+    margin-bottom: var(--space-half);
 }
 
 .header p {
