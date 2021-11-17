@@ -97,7 +97,9 @@ export function ViewHeader({
     );
 }
 
-export function ViewButtons({ children }) {
+type ViewButtonsProps = {}
+
+export function ViewButtons({ children }: RenderableProps<ViewButtonsProps>) {
     return (
         <div className={style.buttons}>
             {children}
