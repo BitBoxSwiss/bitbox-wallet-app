@@ -9,7 +9,7 @@ github.com/allegro/bigcache/queue
 github.com/aristanetworks/goarista/monotime
 # github.com/boltdb/bolt v1.3.1
 ## explicit
-# github.com/btcsuite/btcd v0.21.0-beta
+# github.com/btcsuite/btcd v0.22.0-beta
 ## explicit
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
@@ -24,7 +24,7 @@ github.com/btcsuite/btcd/txscript
 github.com/btcsuite/btcd/wire
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
 github.com/btcsuite/btclog
-# github.com/btcsuite/btcutil v1.0.2
+# github.com/btcsuite/btcutil v1.0.3-0.20210929233259-9cdf59f60c51
 ## explicit
 github.com/btcsuite/btcutil
 github.com/btcsuite/btcutil/base58
