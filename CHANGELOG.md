@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- Support sending to Bitcoin taproot addresses
+
+## 4.30.0 [released 2021-11-17]
 - Add Buy CTA on empty Account overview and summary views
 - Fix an Android app crash when opening the app after first rejecting the USB permissions
 - Change label to show 'Fee rate' or 'Gas price' for custom fees

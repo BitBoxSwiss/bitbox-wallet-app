@@ -366,6 +366,8 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			msgOutputType = messages.BTCOutputType_P2WPKH
 		case *btcutil.AddressWitnessScriptHash:
 			msgOutputType = messages.BTCOutputType_P2WSH
+		case *btcutil.AddressTaproot:
+			msgOutputType = messages.BTCOutputType_P2TR
 		default:
 			return errp.Newf("unsupported output type: %v", address)
 		}

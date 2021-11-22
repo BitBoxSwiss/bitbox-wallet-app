@@ -46,6 +46,16 @@ func ParseOutPoint(outPointBytes []byte) (*wire.OutPoint, error) {
 // PkScriptFromAddress decodes an address into the pubKeyScript that can be used in a transaction
 // output.
 func PkScriptFromAddress(address btcutil.Address) ([]byte, error) {
+	// Convert taproot addresses. Drop this once `PayToAddrsScript` does this upstream.
+	if addrTaproot, ok := address.(*btcutil.AddressTaproot); ok {
+		// OP_1: segwit v1. 0x20 = data push of 32 bytes.
+		// https://github.com/bitcoin/bips/blob/4c6389f8431f677847b115538a47ce8c826c6be8/bip-0341.mediawiki#script-validation-rules
+		pubkey := addrTaproot.ScriptAddress()
+		if len(pubkey) != 32 {
+			return nil, errp.Newf("unexpected pubkey size, got %d bytes, expected 32 bytes", len(pubkey))
+		}
+		return append([]byte{txscript.OP_1, 0x20}, pubkey...), nil
+	}
 	pkScript, err := txscript.PayToAddrScript(address)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -55,6 +65,14 @@ func PkScriptFromAddress(address btcutil.Address) ([]byte, error) {
 
 // AddressFromPkScript decodes a pkScript into an Address instance.
 func AddressFromPkScript(pkScript []byte, net *chaincfg.Params) (btcutil.Address, error) {
+	// Parse taproot scripts. Drop this check once `ExtractPkScriptAddrs` does this upstream.
+	// https://github.com/bitcoin/bips/blob/4c6389f8431f677847b115538a47ce8c826c6be8/bip-0341.mediawiki#script-validation-rules.
+	switch net.Net {
+	case wire.MainNet, wire.TestNet3: // enable Taproot for Bitcoin mainnet/testnet.
+		if len(pkScript) == 34 && pkScript[0] == txscript.OP_1 && pkScript[1] == 0x20 {
+			return btcutil.NewAddressTaproot(pkScript[2:], net)
+		}
+	}
 	_, addresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, net)
 	if err != nil {
 		return nil, errp.WithStack(err)

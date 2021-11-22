@@ -114,14 +114,16 @@ func (s *testSuite) TestToUnit() {
 
 func (s *testSuite) TestDecodeAddress() {
 	tbtcValidAddresses := []string{
-		"myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",         // p2pkh legacy
-		"2NBecb6J3HmBBC8RDB9PC2h7EgT9iyza1N3",        // p2sh
-		"tb1qp4p8rtxsg3ddz62pntl64s2ddctgtjudkdsg27", // p2wpkh native segwit
+		"myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",                             // p2pkh legacy
+		"2NBecb6J3HmBBC8RDB9PC2h7EgT9iyza1N3",                            // p2sh
+		"tb1qp4p8rtxsg3ddz62pntl64s2ddctgtjudkdsg27",                     // p2wpkh native segwit
+		"tb1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqp3mvzv", // p2tr
 	}
 	btcValidAddresses := []string{
 		"1GM1Wp6t3hJf6U5aq6dG62Pg3c9ePbiUQ9",                             // p2pkh legacy
 		"3GZFjFASPoYh3zuLoJLapYpKHw7ikiH63z",                             // p2sh
 		"bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej", // p2wpkh native segwit
+		"bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr", // p2tr
 	}
 	tltcValidAddresses := []string{
 		"mjWrpYaAg7jg5fSXo7Mjt7xwbzRzuEBA39",           // p2pkh legacy

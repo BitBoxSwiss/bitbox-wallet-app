@@ -20,6 +20,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/stretchr/testify/require"
 )
 
@@ -69,6 +70,16 @@ func TestPkScriptFromAddress(t *testing.T) {
 	require.Equal(t,
 		mustBytesFromHex("00204af2e4549a5cbb736e77cef52fe30b9df8121d7356ab2005463ecb089723458d"),
 		pkScript)
+
+	// Taproot: test vector #1 from https://github.com/bitcoin/bips/blob/d7cc20992724ea484087c07d2ed53fb3bc3a108b/bip-0086.mediawiki#test-vectors
+	pubkey := mustBytesFromHex("a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c")
+	address, err = btcutil.NewAddressTaproot(pubkey, net)
+	require.NoError(t, err)
+	pkScript, err = PkScriptFromAddress(address)
+	require.NoError(t, err)
+	require.Equal(t,
+		mustBytesFromHex("5120a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c"),
+		pkScript)
 }
 
 func TestAddressFromPkScript(t *testing.T) {
@@ -109,4 +120,16 @@ func TestAddressFromPkScript(t *testing.T) {
 	recoveredAddres, err = AddressFromPkScript(pkScript, &chaincfg.MainNetParams)
 	require.NoError(t, err)
 	require.Equal(t, address.ScriptAddress(), recoveredAddres.ScriptAddress())
+
+	pubkey := mustBytesFromHex("a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c")
+	address, err = btcutil.NewAddressTaproot(pubkey, net)
+	require.NoError(t, err)
+	pkScript, err = PkScriptFromAddress(address)
+	require.NoError(t, err)
+	recoveredAddres, err = AddressFromPkScript(pkScript, &chaincfg.MainNetParams)
+	require.NoError(t, err)
+	require.Equal(t, address.ScriptAddress(), recoveredAddres.ScriptAddress())
+	// Taproot is not activated on Litecoin.
+	_, err = AddressFromPkScript(pkScript, &ltc.MainNetParams)
+	require.Error(t, err)
 }
