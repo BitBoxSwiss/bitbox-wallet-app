@@ -18,8 +18,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -38,4 +41,26 @@ func ParseOutPoint(outPointBytes []byte) (*wire.OutPoint, error) {
 		return nil, errp.WithStack(err)
 	}
 	return wire.NewOutPoint(txHash, uint32(index)), nil
+}
+
+// PkScriptFromAddress decodes an address into the pubKeyScript that can be used in a transaction
+// output.
+func PkScriptFromAddress(address btcutil.Address) ([]byte, error) {
+	pkScript, err := txscript.PayToAddrScript(address)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return pkScript, nil
+}
+
+// AddressFromPkScript decodes a pkScript into an Address instance.
+func AddressFromPkScript(pkScript []byte, net *chaincfg.Params) (btcutil.Address, error) {
+	_, addresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, net)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if len(addresses) != 1 {
+		return nil, errp.New("couldn't parse pkScript")
+	}
+	return addresses[0], nil
 }

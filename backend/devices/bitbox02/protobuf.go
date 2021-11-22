@@ -16,7 +16,6 @@
 package bitbox02
 
 import (
-	"github.com/btcsuite/btcd/txscript"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
@@ -34,13 +33,6 @@ var btcMsgCoinMap = map[coin.Code]messages.BTCCoin{
 var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_SimpleType{
 	signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptConfig_P2WPKH_P2SH,
 	signing.ScriptTypeP2WPKH:     messages.BTCScriptConfig_P2WPKH,
-}
-
-var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
-	txscript.PubKeyHashTy:          messages.BTCOutputType_P2PKH,
-	txscript.ScriptHashTy:          messages.BTCOutputType_P2SH,
-	txscript.WitnessV0PubKeyHashTy: messages.BTCOutputType_P2WPKH,
-	txscript.WitnessV0ScriptHashTy: messages.BTCOutputType_P2WSH,
 }
 
 var ethMsgCoinMap = map[coin.Code]messages.ETHCoin{

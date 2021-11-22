@@ -20,7 +20,6 @@ import (
 	"strconv"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -29,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -80,9 +80,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if err != nil {
 		return nil, nil, err
 	}
-	pkScript, err := txscript.PayToAddrScript(address)
+	pkScript, err := util.PkScriptFromAddress(address)
 	if err != nil {
-		return nil, nil, errp.WithStack(err)
+		return nil, nil, err
 	}
 	utxo := account.transactions.SpendableOutputs()
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
