@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +45,7 @@ function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
             })}
             {file.description}
             {' '}
-            <A href="https://shiftcrypto.ch/start">
+            <A href="https://shiftcrypto.ch/download/?source=bitboxapp">
                 {t('button.download')}
             </A>
         </Status>

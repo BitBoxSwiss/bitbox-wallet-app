@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ function AppUpgradeRequired({ t }: RenderableProps<Props>): JSX.Element {
                         <div className="box large">
                             <p className="m-top-none">{t('device.appUpradeRequired')}</p>
                             <div className="buttons m-top-half">
-                                <A href="https://shiftcrypto.ch/start" className="text-medium text-blue">
+                                <A href="https://shiftcrypto.ch/download/?source=bitboxapp" className="text-medium text-blue">
                                     {t('button.download')}
                                 </A>
                             </div>
