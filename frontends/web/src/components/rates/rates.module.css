@@ -1,8 +1,11 @@
 .rates {
     cursor: default;
     margin: 0;
-    /*font-size: 14px;*/
     line-height: 1;
+}
+
+.unit {
+    font-weight: 400;
 }
 
 .unit,

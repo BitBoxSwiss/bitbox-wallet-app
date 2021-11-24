@@ -51,6 +51,14 @@ export const getAccounts = (): Promise<IAccount[]> => {
     return apiGet('accounts');
 };
 
+export interface ITotalBalance {
+    [key: string]: string;
+}
+
+export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
+    return apiGet('accounts/total-balance');
+}
+
 export interface IStatus {
     disabled: boolean;
     synced: boolean;

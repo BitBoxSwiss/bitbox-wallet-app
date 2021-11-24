@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Show coin subtotals in 'My portfolio'
 
 ## 4.31.1 [2022-02-07]
 - Bundle BitBox02 Multi firmware version v9.9.1

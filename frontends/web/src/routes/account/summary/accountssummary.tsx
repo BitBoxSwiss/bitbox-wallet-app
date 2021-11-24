@@ -32,6 +32,7 @@ import { Chart } from './chart';
 import { AddBuyOnEmptyBalances } from '../info/buyCTA';
 import { apiPost } from '../../../utils/request';
 import style from './accountssummary.module.css';
+import { route } from '../../../utils/route';
 
 interface AccountSummaryProps {
     accounts: accountApi.IAccount[];
@@ -50,16 +51,18 @@ interface State {
     exported: string;
     balances?: Balances;
     syncStatus?: SyncStatus;
+    totalBalancePerCoin?: accountApi.ITotalBalance;
 }
 
 type Props = WithTranslation & AccountSummaryProps;
 
 interface BalanceRowProps {
-    code: string;
+    code: accountApi.AccountCode;
     name: string;
-    balance?: accountApi.IBalance;
+    balance?: string;
     coinUnit: string;
     coinCode: accountApi.CoinCode;
+    coinName: string;
 }
 
 class AccountsSummary extends Component<Props, State> {
@@ -67,16 +70,29 @@ class AccountsSummary extends Component<Props, State> {
     public readonly state: State = {
         data: undefined,
         exported: '',
+        totalBalancePerCoin: undefined,
     };
     private unsubscribe!: () => void;
 
-    public componentDidMount() {
-        this.getAccountSummary();
+    private accountsPerCoin: {
+        [code: string]: accountApi.IAccount[],
+    } = {};
+
+    public async componentDidMount() {
+        const { accounts } = this.props;
         this.unsubscribe = apiWebsocket(this.onEvent);
 
-        this.props.accounts.forEach((account) => {
-            this.onStatusChanged(account.code);
-        });
+        this.accountsPerCoin = accounts.reduce((accountPerCoin, account) => {
+            accountPerCoin[account.coinCode]
+                ? accountPerCoin[account.coinCode].push(account)
+                : accountPerCoin[account.coinCode] = [account];
+            return accountPerCoin;
+        }, {});
+
+        const summaryPromise = this.getAccountSummary();
+        const promises = accounts.map(account => this.onStatusChanged(account.code, true));
+        const totalBalancePerCoinPromise = this.getAccountsTotalBalance();
+        await Promise.all([...promises, totalBalancePerCoinPromise, summaryPromise]);
     }
 
     public componentWillUnmount() {
@@ -85,7 +101,7 @@ class AccountsSummary extends Component<Props, State> {
     }
 
     private getAccountSummary = () => {
-        accountApi.getSummary().then(data => {
+        return accountApi.getSummary().then(data => {
             this.setState({ data }, () => {
                 if (this.summaryReqTimerID) {
                     return;
@@ -94,6 +110,15 @@ class AccountsSummary extends Component<Props, State> {
                 this.summaryReqTimerID = window.setTimeout(this.getAccountSummary, delay);
             });
         }).catch(console.error);
+    }
+
+    private async getAccountsTotalBalance() {
+        try {
+            const totalBalancePerCoin = await accountApi.getAccountsTotalBalance();
+            this.setState({ totalBalancePerCoin });
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     private onEvent = (data: any) => {
@@ -120,23 +145,25 @@ class AccountsSummary extends Component<Props, State> {
         }
     }
 
-    private onStatusChanged(code: string) {
-        accountApi.getStatus(code).then(status => {
-            if (status.disabled) {
-                return;
+    private async onStatusChanged(code: string, initial: boolean = false) {
+        const status = await accountApi.getStatus(code);
+        if (status.disabled) {
+            return;
+        }
+        if (!status.synced) {
+            return accountApi.init(code);
+        }
+
+        const balance = await accountApi.getBalance(code);
+        this.setState(({ balances }) => ({
+            balances: {
+                ...balances,
+                [code]: balance
             }
-            if (!status.synced) {
-                return accountApi.init(code);
-            }
-            return accountApi.getBalance(code).then(balance => {
-                this.setState(state => {
-                    const balances = {...state.balances};
-                    balances[code] = balance;
-                    return { balances };
-                });
-            });
-        })
-        .catch(console.error);
+        }));
+
+        if (initial) return;
+        return await this.getAccountsTotalBalance();
     }
 
     private export = () => {
@@ -150,7 +177,10 @@ class AccountsSummary extends Component<Props, State> {
         const { t } = this.props;
         const balance = this.state.balances ? this.state.balances[code] : undefined;
         const nameCol = (
-            <td data-label={t('accountSummary.name')}>
+            <td
+                className={style.clickable}
+                data-label={t('accountSummary.name')}
+                onClick={() => route(`/account/${code}`)}>
                 <div className={style.coinName}>
                     <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
                     {name}
@@ -186,6 +216,60 @@ class AccountsSummary extends Component<Props, State> {
                 </td>
             </tr>
         );
+    }
+
+    private subTotalRow({ coinCode, coinName, coinUnit, balance }: PropsWithChildren<BalanceRowProps>) {
+        const { t } = this.props;
+        const nameCol = (
+            <td data-label={t('accountSummary.total')}>
+                <div className={style.coinName}>
+                    <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
+                    <strong className={style.showOnTableView}>
+                        {t('accountSummary.subtotalWithCoinName', { coinName })}
+                    </strong>
+                    <strong className={style.showInCollapsedView}>
+                        { coinName }
+                    </strong>
+                </div>
+            </td>
+        );
+        if (!balance) {
+            return null;
+        }
+        return (
+            <tr key={`${coinCode}_subtotal`} className={style.subTotal}>
+                { nameCol }
+                <td data-label={t('accountSummary.balance')}>
+                    <span className={style.summaryTableBalance}>
+                        <strong>{balance}</strong>
+                        {' '}
+                        <span className={style.coinUnit}>{coinUnit}</span>
+                    </span>
+                </td>
+                <td data-label={t('accountSummary.fiatBalance')}>
+                    <strong>
+                        <FiatConversion amount={{ amount: balance, unit: coinUnit as accountApi.Coin }} noAction={true} />
+                    </strong>
+                </td>
+            </tr>
+        );
+    }
+
+    private renderAccountSummary() {
+        const { accountsPerCoin } = this;
+        const { totalBalancePerCoin } = this.state;
+        return Object.keys(accountsPerCoin).map(coinCode => {
+            if (accountsPerCoin[coinCode]?.length > 1) {
+                return [
+                    ...accountsPerCoin[coinCode].map(account => this.balanceRow(account)),
+                    this.subTotalRow({
+                        ...accountsPerCoin[coinCode][0],
+                        balance: totalBalancePerCoin && totalBalancePerCoin[coinCode],
+                    }),
+                ];
+            }
+            return accountsPerCoin[coinCode].map(account => this.balanceRow(account));
+        });
     }
 
     public render() {
@@ -243,7 +327,7 @@ class AccountsSummary extends Component<Props, State> {
                                     </thead>
                                     <tbody>
                                         { accounts.length > 0 ? (
-                                            accounts.map(account => this.balanceRow(account))
+                                            this.renderAccountSummary()
                                         ) : (
                                             <tr><td rowSpan={2}>{t('accountSummary.noAccount')}</td></tr>
                                         )}
