@@ -7,17 +7,6 @@
     text-align: center;
 }
 
-.caret {
-    display: block;
-    margin: 0 auto;
-}
-
-.device {
-    max-width: 264px;
-    position: relative;
-    right: -16px;
-}
-
 .largeIcon {
     margin: 0 0 var(--space-default) 0;
     width: 50%;

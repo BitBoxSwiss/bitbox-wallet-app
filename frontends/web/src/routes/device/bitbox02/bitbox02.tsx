@@ -437,8 +437,8 @@ class BitBox02 extends Component<Props, State> {
                         <Steps>
                             { (status === 'connected') ? (
                                 <View
-                                    center
-                                    position="fullscreen"
+                                    fullscreen
+                                    textCenter
                                     withBottomBar
                                     width="600px">
                                     <ViewHeader title={t('button.unlock')}>

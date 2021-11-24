@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,6 @@
  * limitations under the License.
  */
 
-export { Header } from './header';
-export { Main } from './main';
-export { Footer } from './footer';
+export * from './icon';
+export * from './logo';
+export * from './combined';
