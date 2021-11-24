@@ -14,7 +14,6 @@ addons:
       - make
 
 cache:
-  yarn: true
   directories:
     - ./frontends/web/node_modules
     - $HOME/.gradle/caches

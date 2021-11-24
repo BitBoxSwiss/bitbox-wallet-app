@@ -1,7 +1,6 @@
 image: Visual Studio 2019
 
 environment:
-  nodejs_version: "12"
   matrix:
     - QT: C:\Qt\5.15.2\msvc2019_64
       GOROOT: C:\go116

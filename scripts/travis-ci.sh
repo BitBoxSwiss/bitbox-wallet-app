@@ -36,7 +36,6 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew install nvm
     source /usr/local/opt/nvm/nvm.sh
     nvm install 14.15.4 # install this node version
-    npm install -g yarn
     export PATH="/usr/local/opt/qt@5/bin:$PATH"
     export LDFLAGS="-L/usr/local/opt/qt@5/lib"
     export CPPFLAGS="-I/usr/local/opt/qt@5/include"

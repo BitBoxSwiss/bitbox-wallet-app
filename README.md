@@ -51,7 +51,7 @@ The below instructions assume a unix environment.
 The following dependencies need to be installed:
 
 - [Go](https://golang.org/doc/install) version 1.16
-- [Yarn](https://yarnpkg.com/en/) for managing the web UI deps
+- [Node.js](https://nodejs.org/) for managing the web UI deps
 - [Qt5](https://www.qt.io) version 5.15.2
   - install Qt for your platform, including the WebEngine component
 
@@ -135,10 +135,15 @@ so that
 - less reliance on remote systems
 - because `gomobile bind` does not support Go modules yet
 
-#### Update npm dependencies
+#### NPM dependencies
 
-Check outdated dependencies `cd frontends/web && yarn outdated` and `yarn upgrade
-modulename@specificversion`.
+All dependencies are locked in `package-lock.json` so that subsequent installs and different installations get the exact same dependency tree. To run any of the following npm commands run `cd frontends/web` first.
+
+**Note:** Some devDependencies in `package.json` are specified with a semver range operator i.e. `"typescript": "^4.4.2"`. The main reason is that those dependencies can be **updated** anytime within the range by running `npm update`.
+
+Check **outdated** dependencies: `npm outdated`.
+
+**Update a specific dependency** with a fixed semver `npm install modulename@specificversion --save-exact`, and with `--save-dev` for devDependencies.
 
 ### CI
 

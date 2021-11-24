@@ -1,4 +1,5 @@
 # Copyright 2018 Shift Devices AG
+# Copyright 2021 Shift Crypto AG
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +14,17 @@
 # limitations under the License.
 
 dev:
-	yarn run dev
+	npm start
 lint:
-	yarn run lint
+	npm run lint
 fix:
-	yarn run fix
+	npm run fix
 jstest:
-	yarn run test
+	npm test
 jstest-watch:
-	yarn run test --watch
+	npm test -- --watch
 jstest-cover:
-	yarn run test --coverage
+	npm test -- --coverage
 listdeps:
-	@echo "Listing javascript production dependencies. Be careful to not pull in many deps accidentally."
-	NODE_ENV=production yarn list
+	@echo "Listing JavaScript production dependencies. Be careful to not pull in many deps accidentally."
+	npm list -prod -long
