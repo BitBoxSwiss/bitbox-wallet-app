@@ -52,7 +52,7 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export interface ITotalBalance {
-    [key: string]: number;
+    [key: string]: string;
 }
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
