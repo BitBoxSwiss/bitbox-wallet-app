@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,6 +35,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -179,6 +181,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalanceHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
@@ -486,6 +489,33 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}
 	return accounts, nil
+}
+
+func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
+	totalPerCoin := make(map[coin.Code]*big.Int)
+	for _, account := range handlers.backend.Accounts() {
+		coinCode := account.Coin().Code()
+		b, err := account.Balance()
+		if err != nil {
+			return nil, err
+		}
+		amount := b.Available()
+		if _, ok := totalPerCoin[coinCode]; !ok {
+			totalPerCoin[coinCode] = amount.BigInt()
+		} else {
+			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
+		}
+	}
+
+	formattedTotalPerCoint := make(map[coin.Code]string)
+	for k, v := range totalPerCoin {
+		currentCoin, err := handlers.backend.Coin(k)
+		if err != nil {
+			return nil, err
+		}
+		formattedTotalPerCoint[k] = currentCoin.FormatAmount(coin.NewAmount(v), false)
+	}
+	return formattedTotalPerCoint, nil
 }
 
 func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interface{}, error) {
