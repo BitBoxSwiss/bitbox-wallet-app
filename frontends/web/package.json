@@ -8,8 +8,8 @@
     "build": "npm run gen-ts-css && preact build --no-sw --no-esm --no-inline-css --no-prerender --no-prerenderUrls --no-json --verbose",
     "dev": "npm run gen-ts-css && preact watch --no-sw --no-esm --no-prerender --no-prerenderUrls --no-json --refresh",
     "prelint": "npm run gen-ts-css",
-    "lint": "eslint --max-warnings 0 --cache --format unix --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
-    "fix": "eslint --fix --no-cache --ignore-path ../../.gitignore 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint": "eslint --max-warnings 0 --cache --format unix --ignore-path .gitignore 'src/**/*.{js,jsx,ts,tsx}'",
+    "fix": "eslint --fix --no-cache --ignore-path .gitignore 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "npm run gen-ts-css && jest",
     "browserlist": "browserslist"
   },
