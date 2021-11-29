@@ -239,8 +239,7 @@ class App extends Component<Props, State> {
                                 path="/settings" />
                             <Passphrase
                                 deviceID={'' /* dummy to satisfy TS */}
-                                passphrase={'disabled' /* default to satisfy TS */}
-                                path="/passphrase/:passphrase/:deviceID" />
+                                path="/passphrase/:deviceID" />
                             <ManageAccounts
                                 key={'manage-accounts'}
                                 path="/settings/manage-accounts" />
