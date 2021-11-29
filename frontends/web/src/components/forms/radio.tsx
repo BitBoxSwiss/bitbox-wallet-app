@@ -16,7 +16,7 @@
  */
 
 import { h, JSX } from 'preact';
-import * as style from './radio.css';
+import * as style from './radio.module.css';
 
 export function Radio({
     disabled = false,

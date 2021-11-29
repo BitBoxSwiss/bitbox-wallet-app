@@ -6,8 +6,8 @@ require (
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20190607111240-52c2a7864a08 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
-	github.com/btcsuite/btcd v0.21.0-beta
-	github.com/btcsuite/btcutil v1.0.2
+	github.com/btcsuite/btcd v0.22.0-beta
+	github.com/btcsuite/btcutil v1.0.3-0.20210929233259-9cdf59f60c51
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/coreos/bbolt v1.3.0
 	github.com/deckarep/golang-set v1.7.1 // indirect

@@ -25,8 +25,7 @@ import { Backups } from '../bitbox01/backups';
 import { BackupsV2 } from '../bitbox02/backups';
 import { SDCardCheck } from '../bitbox02/sdcardcheck';
 
-@translate()
-export default class ManageBackups extends Component {
+class ManageBackups extends Component {
     hasDevice = () => {
         return !!this.props.devices[this.props.deviceID];
     }
@@ -120,3 +119,5 @@ export default class ManageBackups extends Component {
         );
     }
 }
+
+export default translate()(ManageBackups);

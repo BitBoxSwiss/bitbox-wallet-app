@@ -25,7 +25,7 @@ import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import warning from '../../../../assets/icons/warning.png';
 import { LanguageSwitch } from '../../../../components/language/language';
-import * as style from '../bitbox01.css';
+import * as style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',
@@ -34,8 +34,7 @@ const STATUS = Object.freeze({
     ERROR: 'error',
 });
 
-@translate()
-export default class SeedCreateNew extends Component {
+class SeedCreateNew extends Component {
     state = {
         showInfo: true,
         status: STATUS.CHECKING,
@@ -255,3 +254,5 @@ export default class SeedCreateNew extends Component {
         );
     }
 }
+
+export default translate()(SeedCreateNew);

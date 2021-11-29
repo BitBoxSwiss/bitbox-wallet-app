@@ -1,5 +1,5 @@
 import { Component, h, RenderableProps } from 'preact';
-import * as style from './badge.css';
+import * as style from './badge.module.css';
 
 interface BadgeProps {
     type: string;

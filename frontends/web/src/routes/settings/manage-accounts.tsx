@@ -28,7 +28,7 @@ import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
 import Guide from './manage-account-guide';
-import * as style from './manage-accounts.css';
+import * as style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
 }

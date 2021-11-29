@@ -97,7 +97,7 @@ func (path keypath) toUInt32() []uint32 {
 func (path keypath) derive(extendedKey *hdkeychain.ExtendedKey) (*hdkeychain.ExtendedKey, error) {
 	for _, child := range path.toUInt32() {
 		var err error
-		extendedKey, err = extendedKey.Child(child)
+		extendedKey, err = extendedKey.Derive(child)
 		if err != nil {
 			return nil, err
 		}

@@ -19,8 +19,7 @@ import { translate } from 'react-i18next';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 import { apiPost } from '../../../../../utils/request';
 
-@translate()
-export default class Blink extends Component {
+class Blink extends Component {
     blinkDevice = () => {
         apiPost('devices/' + this.props.deviceID + '/blink');
     };
@@ -31,3 +30,5 @@ export default class Blink extends Component {
         );
     }
 }
+
+export default translate()(Blink);

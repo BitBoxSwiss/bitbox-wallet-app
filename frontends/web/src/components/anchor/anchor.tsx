@@ -19,7 +19,7 @@ import { route } from 'preact-router';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
-import * as style from './anchor.css';
+import * as style from './anchor.module.css';
 
 interface Props {
     href: string;

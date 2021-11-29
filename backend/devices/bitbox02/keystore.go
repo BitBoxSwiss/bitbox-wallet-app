@@ -265,7 +265,7 @@ func (keystore *keystore) ExtendedPublicKey(
 			if err != nil {
 				return nil, err
 			}
-			return xpub.Child(keypathUint32[4])
+			return xpub.Derive(keypathUint32[4])
 		}
 		xpubStr, err := keystore.device.ETHPub(
 			msgCoin, keypathUint32, messages.ETHPubRequest_XPUB, false, []byte{})

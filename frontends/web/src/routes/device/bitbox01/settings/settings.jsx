@@ -34,8 +34,7 @@ import UpgradeFirmware from '../components/upgradefirmware';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../../components/settingsButton/settingsItem';
 
-@translate()
-export default class Settings extends Component {
+class Settings extends Component {
     state = {
         firmwareVersion: null,
         newVersion: null,
@@ -226,3 +225,5 @@ export default class Settings extends Component {
         );
     }
 }
+
+export default translate()(Settings);

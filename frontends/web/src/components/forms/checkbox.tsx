@@ -15,7 +15,7 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
-import * as styles from './checkbox.css';
+import * as styles from './checkbox.module.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
     className?: string;

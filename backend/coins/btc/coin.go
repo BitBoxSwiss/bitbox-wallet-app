@@ -207,6 +207,9 @@ func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
 	if !btcAddress.IsForNet(coin.Net()) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
+	if _, ok := btcAddress.(*btcutil.AddressTaproot); ok {
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
+	}
 	return btcAddress, nil
 }
 

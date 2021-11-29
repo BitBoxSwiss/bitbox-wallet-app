@@ -1,5 +1,5 @@
 import { Component, h, RenderableProps } from 'preact';
-import * as style from './toggle.css';
+import * as style from './toggle.module.css';
 
 interface ToggleProps {
     checked: boolean;

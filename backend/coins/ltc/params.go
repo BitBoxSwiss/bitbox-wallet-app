@@ -24,31 +24,6 @@ var (
 	testNet4PowLimit, _ = new(big.Int).SetString("0x0fffff000000000000000000000000000000000000000000000000000000", 0)
 )
 
-// Constants that define the deployment offset in the deployments field of the
-// parameters for each deployment.  This is useful to be able to get the details
-// of a specific deployment by name.
-const (
-	// DeploymentTestDummy defines the rule change deployment ID for testing
-	// purposes.
-	DeploymentTestDummy = iota
-
-	// DeploymentCSV defines the rule change deployment ID for the CSV
-	// soft-fork package. The CSV package includes the deployment of BIPS
-	// 68, 112, and 113.
-	DeploymentCSV
-
-	// DeploymentSegwit defines the rule change deployment ID for the
-	// Segregated Witness (segwit) soft-fork package. The segwit package
-	// includes the deployment of BIPS 141, 142, 144, 145, 147 and 173.
-	DeploymentSegwit
-
-	// NOTE: DefinedDeployments must always come last since it is used to
-	// determine how many defined deployments there currently are.
-
-	// DefinedDeployments is the number of currently defined deployments.
-	DefinedDeployments
-)
-
 // MainNetParams defines the network parameters for the main Litecoin network.
 var MainNetParams = chaincfg.Params{
 	Name:        "mainnet",
@@ -106,18 +81,18 @@ var MainNetParams = chaincfg.Params{
 	//   target proof of work timespan / target proof of work spacing
 	RuleChangeActivationThreshold: 6048, // 75% of MinerConfirmationWindow
 	MinerConfirmationWindow:       8064, //
-	Deployments: [DefinedDeployments]chaincfg.ConsensusDeployment{
-		DeploymentTestDummy: {
+	Deployments: [chaincfg.DefinedDeployments]chaincfg.ConsensusDeployment{
+		chaincfg.DeploymentTestDummy: {
 			BitNumber:  28,
 			StartTime:  1199145601, // January 1, 2008 UTC
 			ExpireTime: 1230767999, // December 31, 2008 UTC
 		},
-		DeploymentCSV: {
+		chaincfg.DeploymentCSV: {
 			BitNumber:  0,
 			StartTime:  1485561600, // January 28, 2017 UTC
 			ExpireTime: 1517356801, // January 31st, 2018 UTC
 		},
-		DeploymentSegwit: {
+		chaincfg.DeploymentSegwit: {
 			BitNumber:  1,
 			StartTime:  1485561600, // January 28, 2017 UTC
 			ExpireTime: 1517356801, // January 31st, 2018 UTC.
@@ -192,18 +167,18 @@ var TestNet4Params = chaincfg.Params{
 	//   target proof of work timespan / target proof of work spacing
 	RuleChangeActivationThreshold: 1512, // 75% of MinerConfirmationWindow
 	MinerConfirmationWindow:       2016,
-	Deployments: [DefinedDeployments]chaincfg.ConsensusDeployment{
-		DeploymentTestDummy: {
+	Deployments: [chaincfg.DefinedDeployments]chaincfg.ConsensusDeployment{
+		chaincfg.DeploymentTestDummy: {
 			BitNumber:  28,
 			StartTime:  1199145601, // January 1, 2008 UTC
 			ExpireTime: 1230767999, // December 31, 2008 UTC
 		},
-		DeploymentCSV: {
+		chaincfg.DeploymentCSV: {
 			BitNumber:  0,
 			StartTime:  1483228800, // January 1, 2017
 			ExpireTime: 1517356801, // January 31st, 2018
 		},
-		DeploymentSegwit: {
+		chaincfg.DeploymentSegwit: {
 			BitNumber:  1,
 			StartTime:  1483228800, // January 1, 2017
 			ExpireTime: 1517356801, // January 31st, 2018

@@ -28,7 +28,7 @@ import { Button, Checkbox, Select } from '../../components/forms';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import { isBitcoinOnly } from '../account/utils';
-import * as style from './info.css';
+import * as style from './info.module.css';
 
 interface BuyInfoProps {
     accounts: IAccount[];

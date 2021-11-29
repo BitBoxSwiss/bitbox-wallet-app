@@ -15,7 +15,7 @@
  */
 
 import { Component, h } from 'preact';
-import * as style from './Toast.css';
+import * as style from './Toast.module.css';
 
 export default class Toast extends Component {
     state = {

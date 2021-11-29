@@ -24,7 +24,7 @@ import { SwissMadeOpenSource, Alert } from '../../../../components/icon';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { LanguageSwitch } from '../../../../components/language/language';
-import * as style from '../bitbox01.css';
+import * as style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',
@@ -33,8 +33,7 @@ const STATUS = Object.freeze({
     ERROR: 'error',
 });
 
-@translate()
-export default class SeedRestore extends Component {
+class SeedRestore extends Component {
     state = {
         showInfo: true,
         status: STATUS.CHECKING,
@@ -158,3 +157,5 @@ export default class SeedRestore extends Component {
         );
     }
 }
+
+export default translate()(SeedRestore);

@@ -16,7 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import A from '../anchor/anchor';
-import * as style from './guide.css';
+import * as style from './guide.module.css';
 
 export interface EntryProp {
     title: string;

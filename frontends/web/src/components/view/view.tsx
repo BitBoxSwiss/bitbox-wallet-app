@@ -19,7 +19,7 @@ import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
 import { Close } from '../icon/icon';
-import * as style from './view.css';
+import * as style from './view.module.css';
 
 type ViewProps = {
     fullscreen?: boolean;

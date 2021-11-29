@@ -104,11 +104,11 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 	require.Len(s.T(), newAddresses, s.gapLimit)
 	// Check that the pubkeys behind the new addresses are derived in sequence from the root xpub.
 	getPubKey := func(index int) *btcec.PublicKey {
-		chain, err := s.xpub.Child(s.chainIndex)
+		chain, err := s.xpub.Derive(s.chainIndex)
 		if err != nil {
 			panic(err)
 		}
-		childXPub, err := chain.Child(uint32(index))
+		childXPub, err := chain.Derive(uint32(index))
 		if err != nil {
 			panic(err)
 		}

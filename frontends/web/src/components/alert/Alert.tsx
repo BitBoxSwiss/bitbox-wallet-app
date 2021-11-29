@@ -19,7 +19,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SimpleMarkup } from '../../utils/simplemarkup';
 import { Dialog } from '../dialog/dialog';
-import * as style from '../dialog/dialog.css';
+import * as style from '../dialog/dialog.module.css';
 import { Button } from '../forms';
 
 let alertUser: (message: string, callback?: () => void) => void;

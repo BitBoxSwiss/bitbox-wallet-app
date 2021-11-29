@@ -20,7 +20,7 @@ import { /* i18nEditorActive, */ extraLanguages } from '../../i18n/i18n';
 
 import { translate as translateDecorator, TranslateProps } from '../../decorators/translate';
 import { Dialog } from '../dialog/dialog';
-import * as style from './language.css';
+import * as style from './language.module.css';
 
 type TActiveLanguageCodes = 'bg' | 'de' | 'en' | 'es'
     | 'fr' | 'hi' | 'it' | 'ja' | 'ms' | 'pt'

@@ -18,7 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
-import * as style from './password.css';
+import * as style from './password.module.css';
 
 export function PasswordInput (props) {
     const { seePlaintext, ...rest } = props;
@@ -30,8 +30,7 @@ export function PasswordInput (props) {
     );
 }
 
-@translate(null, { withRef: true })
-export class PasswordSingleInput extends Component {
+class PasswordSingleInputClass extends Component {
     state = {
         password: '',
         seePlaintext: false,
@@ -147,8 +146,10 @@ export class PasswordSingleInput extends Component {
 
 }
 
-@translate(null, { withRef: true })
-export class PasswordRepeatInput extends Component {
+export const PasswordSingleInput = translate(null, { withRef: true })(PasswordSingleInputClass);
+
+
+class PasswordRepeatInputClass extends Component {
     state = {
         password: '',
         passwordRepeat: '',
@@ -294,6 +295,8 @@ export class PasswordRepeatInput extends Component {
         );
     }
 }
+
+export const PasswordRepeatInput = translate(null, { withRef: true })(PasswordRepeatInputClass);
 
 function MatchesPattern({ regex, value = '', text }) {
     if (!regex || !value.length || regex.test(value)) {

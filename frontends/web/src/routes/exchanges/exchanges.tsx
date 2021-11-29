@@ -25,7 +25,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 
 import externalIcon from './assets/external-link.svg';
 import { data, ExchangeData, Method, Region } from './exchanges-data';
-import * as styles from './exchanges.css';
+import * as styles from './exchanges.module.css';
 
 interface ExchangesProps {
 }

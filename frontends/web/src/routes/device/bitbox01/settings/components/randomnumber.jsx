@@ -22,8 +22,7 @@ import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { CopyableInput } from '../../../../../components/copy/Copy';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
-@translate()
-export default class RandomNumber extends Component {
+class RandomNumber extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -75,3 +74,5 @@ export default class RandomNumber extends Component {
         );
     }
 }
+
+export default translate()(RandomNumber);

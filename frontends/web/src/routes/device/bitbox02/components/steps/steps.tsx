@@ -1,5 +1,5 @@
 import { cloneElement, Component, h, JSX, RenderableProps } from 'preact';
-import * as style from './steps.css';
+import * as style from './steps.module.css';
 
 interface State {
     activeStep: number;

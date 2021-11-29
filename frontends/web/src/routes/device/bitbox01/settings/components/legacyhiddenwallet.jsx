@@ -20,8 +20,7 @@ import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { apiPost } from '../../../../../utils/request';
 
-@translate()
-export default class LegacyHiddenWallet extends Component {
+class LegacyHiddenWallet extends Component {
     toggle = () => {
         const newValue = !this.props.newHiddenWallet;
         apiPost('devices/' + this.props.deviceID + '/feature-set', {
@@ -54,3 +53,5 @@ export default class LegacyHiddenWallet extends Component {
         );
     }
 }
+
+export default translate()(LegacyHiddenWallet);

@@ -42,7 +42,6 @@ apt-get install -y --no-install-recommends \
         libxkbcommon-x11-dev \
         libxrandr-dev
 
-npm install -g yarn
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
