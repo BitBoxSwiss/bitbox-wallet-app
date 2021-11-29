@@ -43,12 +43,11 @@ const CONTENT_WIDTH = '740px';
 
 interface MnemonicPassphraseButtonProps {
     deviceID: string;
-    passphrase: 'enabled' | 'disabled';
 }
 
 interface State {
     infoStep: number;
-    passphraseEnabled: boolean;
+    passphraseEnabled?: boolean;
     status: 'info' | 'progress' | 'success';
     understood: boolean;
 }
@@ -57,15 +56,26 @@ type Props = MnemonicPassphraseButtonProps & TranslateProps;
 
 class Passphrase extends Component<Props, State> {
     public readonly state: State = {
-        // before enabling/disabling we show 1 or more pages to inform about the feature
-        // each page has a continue button that jumps to the next or finally toggles passphrase
-        // infoStep counts down in decreasing order
-        infoStep: this.props.passphrase === 'enabled'
-            ? INFO_STEPS_DISABLE
-            : INFO_STEPS_ENABLE,
+        infoStep: 0,
         status: 'info',
-        passphraseEnabled: this.props.passphrase === 'enabled',
         understood: false,
+    }
+
+    public componentDidMount() {
+        getDeviceInfo(this.props.deviceID)
+            .then(({mnemonicPassphraseEnabled}) => this.setState({
+                // before enabling/disabling we show 1 or more pages to inform about the feature
+                // each page has a continue button that jumps to the next or finally toggles passphrase
+                // infoStep counts down in decreasing order
+                infoStep: mnemonicPassphraseEnabled
+                    ? INFO_STEPS_DISABLE
+                    : INFO_STEPS_ENABLE,
+                passphraseEnabled: mnemonicPassphraseEnabled,
+            }))
+            .catch(error => {
+                console.error(error);
+                alertUser(this.props.t('genericError'));
+            });
     }
 
     private togglePassphrase = () => {
@@ -99,6 +109,9 @@ class Passphrase extends Component<Props, State> {
     }
 
     private backInfo = () => {
+        if (this.state.infoStep === undefined) {
+            return;
+        }
         const enabled = this.state.passphraseEnabled;
         if (
             (!enabled && this.state.infoStep >= INFO_STEPS_ENABLE)
@@ -298,6 +311,9 @@ class Passphrase extends Component<Props, State> {
         { t }: RenderableProps<Props>,
         { passphraseEnabled, status }: State,
     ) {
+        if (passphraseEnabled === undefined) {
+            return null;
+        }
         return (
             <Main>
                 {/* <Header /> */}

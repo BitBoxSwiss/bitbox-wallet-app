@@ -58,12 +58,7 @@ class Settings extends Component<Props, State> {
     }
 
     private routeToPassphrase = () => {
-        const { deviceInfo } = this.state;
-        if (deviceInfo === undefined) {
-            return;
-        }
-        const passphrase = deviceInfo.mnemonicPassphraseEnabled ? 'enabled' : 'disabled';
-        route(`/passphrase/${passphrase}/${this.props.deviceID}`);
+        route(`/passphrase/${this.props.deviceID}`);
     }
 
     public componentDidMount() {
