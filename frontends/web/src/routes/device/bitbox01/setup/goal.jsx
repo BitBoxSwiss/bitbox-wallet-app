@@ -21,8 +21,7 @@ import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { Header } from '../../../../components/layout';
 import { LanguageSwitch } from '../../../../components/language/language';
 
-@translate()
-export default class Goal extends Component {
+class Goal extends Component {
     render({
         t,
         onCreate,
@@ -57,3 +56,5 @@ export default class Goal extends Component {
         );
     }
 }
+
+export default translate()(Goal);

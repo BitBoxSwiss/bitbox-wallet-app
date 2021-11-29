@@ -34,8 +34,7 @@ const STATUS = Object.freeze({
     ERROR: 'error',
 });
 
-@translate()
-export default class SeedCreateNew extends Component {
+class SeedCreateNew extends Component {
     state = {
         showInfo: true,
         status: STATUS.CHECKING,
@@ -255,3 +254,5 @@ export default class SeedCreateNew extends Component {
         );
     }
 }
+
+export default translate()(SeedCreateNew);

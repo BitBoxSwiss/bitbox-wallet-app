@@ -25,8 +25,7 @@ import { PasswordInput, PasswordRepeatInput } from '../../../../../components/pa
 import { apiPost } from '../../../../../utils/request';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
-@translate()
-export default class ChangePIN extends Component {
+class ChangePIN extends Component {
     state = {
         oldPIN: null,
         newPIN: null,
@@ -131,3 +130,5 @@ export default class ChangePIN extends Component {
         );
     }
 }
+
+export default translate()(ChangePIN);

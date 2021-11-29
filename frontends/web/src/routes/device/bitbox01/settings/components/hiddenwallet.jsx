@@ -26,8 +26,7 @@ import { apiPost } from '../../../../../utils/request';
 import { SimpleMarkup } from '../../../../../utils/simplemarkup';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
-@translate()
-export default class HiddenWallet extends Component {
+class HiddenWallet extends Component {
     state = {
         password: null,
         pin: null,
@@ -138,3 +137,5 @@ export default class HiddenWallet extends Component {
         );
     }
 }
+
+export default translate()(HiddenWallet);

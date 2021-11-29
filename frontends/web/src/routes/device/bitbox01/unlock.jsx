@@ -33,8 +33,7 @@ const stateEnum = Object.freeze({
     ERROR: 'error'
 });
 
-@translate()
-export default class Unlock extends Component {
+class Unlock extends Component {
     state = {
         status: stateEnum.DEFAULT,
         errorMessage: '',
@@ -179,3 +178,5 @@ export default class Unlock extends Component {
         );
     }
 }
+
+export default translate()(Unlock);
