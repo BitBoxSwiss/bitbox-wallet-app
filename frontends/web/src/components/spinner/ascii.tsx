@@ -15,7 +15,7 @@
  */
 
 import { h } from 'preact';
-import * as style from './ascii.css';
+import * as style from './ascii.module.css';
 
 export default function AsciiSpinner() {
     return (

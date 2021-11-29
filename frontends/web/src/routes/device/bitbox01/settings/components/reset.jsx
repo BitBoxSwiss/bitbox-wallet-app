@@ -24,7 +24,7 @@ import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
 import { alertUser } from '../../../../../components/alert/Alert';
-import * as style from '../../bitbox01.css';
+import * as style from '../../bitbox01.module.css';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
 @translate()

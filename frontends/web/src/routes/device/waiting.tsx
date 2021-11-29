@@ -23,7 +23,7 @@ import { setSidebarStatus } from '../../components/sidebar/sidebar';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
-import * as style from './bitbox01/bitbox01.css';
+import * as style from './bitbox01/bitbox01.module.css';
 import { SkipForTesting } from './components/skipfortesting';
 
 interface TestingProps {

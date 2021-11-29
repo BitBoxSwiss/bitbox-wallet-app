@@ -15,7 +15,7 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
-import * as styles from './input.css';
+import * as styles from './input.module.css';
 
 export interface Props {
     align?: 'left' | 'right';

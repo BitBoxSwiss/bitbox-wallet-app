@@ -15,7 +15,7 @@
  */
 
 import { Component, h } from 'preact';
-import * as style from './InlineMessage.css';
+import * as style from './InlineMessage.module.css';
 
 export default class InlineMessage extends Component {
     deactivate = () => {

@@ -18,7 +18,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Check, Copy } from '../icon/icon';
-import * as style from './Copy.css';
+import * as style from './Copy.module.css';
 
 interface CopyableInputProps {
     alignLeft?: boolean;

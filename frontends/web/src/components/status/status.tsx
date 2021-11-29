@@ -17,7 +17,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { apiGet, apiPost } from '../../utils/request';
-import * as style from './status.css';
+import * as style from './status.module.css';
 
 interface State {
     show: boolean;

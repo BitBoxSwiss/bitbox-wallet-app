@@ -22,7 +22,7 @@ import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/accou
 import { isBitcoinBased } from '../utils';
 import { ButtonLink } from '../../../components/forms';
 import { Header } from '../../../components/layout';
-import * as style from './info.css';
+import * as style from './info.module.css';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
 

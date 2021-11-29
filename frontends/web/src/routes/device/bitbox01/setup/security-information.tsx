@@ -22,7 +22,7 @@ import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
 import { translate,  TranslateProps } from '../../../../decorators/translate';
 import { SimpleMarkup } from '../../../../utils/simplemarkup';
-import * as style from '../bitbox01.css';
+import * as style from '../bitbox01.module.css';
 
 interface SecurityInformationProps {
     goBack: () => void;

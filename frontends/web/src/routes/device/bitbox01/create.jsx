@@ -21,7 +21,7 @@ import { PasswordInput } from '../../../components/password';
 import { alertUser } from '../../../components/alert/Alert';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
-import * as style from '../../../components/dialog/dialog.css';
+import * as style from '../../../components/dialog/dialog.module.css';
 
 @translate()
 export default class Create extends Component {

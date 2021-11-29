@@ -20,7 +20,7 @@ import { apiGet, apiPost } from '../../../../utils/request';
 import { apiWebsocket } from '../../../../utils/websocket';
 import { BitBox } from '../../../../components/icon/logo';
 import { Button } from '../../../../components/forms';
-import * as style from '../bitbox01.css';
+import * as style from '../bitbox01.module.css';
 
 @translate()
 export default class Bootloader extends Component {

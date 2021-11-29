@@ -1,5 +1,5 @@
 import { Component, h, RenderableProps } from 'preact';
-import * as style from './steps.css';
+import * as style from './steps.module.css';
 
 interface StepProps {
   active: boolean;

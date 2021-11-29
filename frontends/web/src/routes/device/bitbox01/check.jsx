@@ -20,7 +20,7 @@ import { Button } from '../../../components/forms';
 import { Dialog } from '../../../components/dialog/dialog';
 import { PasswordSingleInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
-import * as style from '../../../components/dialog/dialog.css';
+import * as style from '../../../components/dialog/dialog.module.css';
 
 @translate()
 export default class Check extends Component {

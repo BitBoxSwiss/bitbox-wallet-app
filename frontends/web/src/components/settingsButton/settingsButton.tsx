@@ -1,5 +1,5 @@
 import { Component, h, RenderableProps } from 'preact';
-import * as style from './settingsButton.css';
+import * as style from './settingsButton.module.css';
 
 interface SettingsButtonProps {
     onClick?: () => void;

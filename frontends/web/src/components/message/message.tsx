@@ -15,7 +15,7 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import * as styles from './message.css';
+import * as styles from './message.module.css';
 
 export interface Props {
     hidden?: boolean;

@@ -30,7 +30,7 @@ import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Chart } from './chart';
-import * as style from './accountssummary.css';
+import * as style from './accountssummary.module.css';
 
 interface AccountSummaryProps {
     accounts: accountApi.IAccount[];

@@ -33,7 +33,7 @@ import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
-import * as style from './account.css';
+import * as style from './account.module.css';
 import { isBitcoinBased } from './utils';
 
 // Show some additional info for the following coin types, if legacy split acocunts is enabled.

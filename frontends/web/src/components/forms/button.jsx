@@ -16,7 +16,7 @@
 
 import { h } from 'preact';
 import { Link } from 'preact-router/match';
-import * as style from './button.css';
+import * as style from './button.module.css';
 
 export function ButtonLink({
     primary = false,

@@ -20,7 +20,7 @@ import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
-import * as style from './header.css';
+import * as style from './header.module.css';
 
 interface HeaderProps {
     toggleSidebar?: () => void;

@@ -23,7 +23,7 @@ import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import * as style from './info.css';
+import * as style from './info.module.css';
 
 interface ProvidedProps {
     account: IAccount;
