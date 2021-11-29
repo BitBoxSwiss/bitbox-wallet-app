@@ -23,7 +23,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import { Header } from '../../components/layout';
 import { confirmation } from '../../components/confirm/Confirm';
 import { alertUser } from '../../components/alert/Alert';
-import * as style from './electrum.css';
+import * as style from './electrum.module.css';
 import A from '../../components/anchor/anchor';
 
 @translate()

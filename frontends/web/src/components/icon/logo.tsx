@@ -54,7 +54,7 @@ import PAXG from './assets/paxg-color.svg';
 import PAXG_GREY from './assets/paxg-white.svg';
 
 import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
-import * as style from './logo.css';
+import * as style from './logo.module.css';
 
 interface GenericProps {
     [property: string]: any;

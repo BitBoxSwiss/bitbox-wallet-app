@@ -17,7 +17,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { apiGet } from '../../utils/request';
-import * as style from './qrcode.css';
+import * as style from './qrcode.module.css';
 
 interface Props {
     data?: string;

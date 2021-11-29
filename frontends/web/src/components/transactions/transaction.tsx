@@ -26,8 +26,8 @@ import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { ArrowIn, ArrowOut, ArrowSelf, Edit, Save } from './components/icons';
-import * as style from './transaction.css';
-import * as parentStyle from './transactions.css';
+import * as style from './transaction.module.css';
+import * as parentStyle from './transactions.module.css';
 
 interface State {
     transactionDialog: boolean;

@@ -1,5 +1,5 @@
 import { h, JSX } from 'preact';
-import * as style from './icons.css';
+import * as style from './icons.module.css';
 
 export const ArrowIn = (): JSX.Element => (
     <svg

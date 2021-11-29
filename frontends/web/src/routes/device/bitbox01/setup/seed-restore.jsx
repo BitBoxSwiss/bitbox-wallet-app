@@ -24,7 +24,7 @@ import { SwissMadeOpenSource, Alert } from '../../../../components/icon';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { LanguageSwitch } from '../../../../components/language/language';
-import * as style from '../bitbox01.css';
+import * as style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',

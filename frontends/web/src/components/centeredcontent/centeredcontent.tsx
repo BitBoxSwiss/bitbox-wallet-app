@@ -15,7 +15,7 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
-import * as style from './style.css';
+import * as style from './style.module.css';
 
 export function CenteredContent({ children }: RenderableProps<{}>): JSX.Element {
     return (

@@ -24,7 +24,7 @@ import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoinOnly } from '../account/utils';
-import * as style from './moonpay.css';
+import * as style from './moonpay.module.css';
 
 interface BuyProps {
     accounts: IAccount[];

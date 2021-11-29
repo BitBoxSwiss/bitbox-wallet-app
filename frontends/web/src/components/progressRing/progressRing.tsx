@@ -15,7 +15,7 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import * as style from './progressRing.css';
+import * as style from './progressRing.module.css';
 
 interface ProgressRingProps {
     width: number;

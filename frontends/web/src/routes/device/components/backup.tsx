@@ -18,7 +18,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Radio } from '../../../components/forms';
-import * as style from './backups.css';
+import * as style from './backups.module.css';
 
 interface BackupsListItemProps {
     disabled?: boolean;

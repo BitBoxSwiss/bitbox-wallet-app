@@ -28,7 +28,7 @@ import { CopyableInput } from '../copy/Copy';
 import { BitBox02Stylized, Cancel, CaretDown, Checked } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
-import * as styles from './aopp.css';
+import * as styles from './aopp.module.css';
 
 const Banner = ({ children }: RenderableProps<{}>) => (
     <div className={styles.banner}>{children}</div>

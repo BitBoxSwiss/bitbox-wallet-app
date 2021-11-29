@@ -16,7 +16,7 @@
 
 import { h, RenderableProps} from 'preact';
 import PasswordGestureVideo from './assets/password-gestures.webm';
-import * as styles from './password-entry.css';
+import * as styles from './password-entry.module.css';
 
 export interface IPasswordEntryProps {}
 

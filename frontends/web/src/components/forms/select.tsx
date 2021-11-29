@@ -16,7 +16,7 @@
  */
 
 import { h, JSX } from 'preact';
-import { select } from './select.css';
+import { select } from './select.module.css';
 
 type TOptionTextContent = {
     text: string;

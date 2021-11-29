@@ -15,7 +15,7 @@
  */
 
 import { h, cloneElement, JSX, RenderableProps } from 'preact';
-import * as style from './steps.css';
+import * as style from './steps.module.css';
 
 interface Props {
     current: number;

@@ -32,7 +32,7 @@ import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { isEthereumBased } from '../utils';
-import * as style from './receive.css';
+import * as style from './receive.module.css';
 
 interface ReceiveProps {
     code?: string;

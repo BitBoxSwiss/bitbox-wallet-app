@@ -20,7 +20,7 @@ import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SharedProps, store, toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
-import * as style from './Spinner.css';
+import * as style from './Spinner.module.css';
 
 interface SpinnerProps {
     text?: string;

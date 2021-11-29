@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import * as style from './dialog.css';
+import * as style from './dialog.module.css';
 
 interface Props {
     title?: string;

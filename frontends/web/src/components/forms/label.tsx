@@ -16,7 +16,7 @@
  */
 
 import { h, JSX } from 'preact';
-import * as style from './label.css';
+import * as style from './label.module.css';
 
 export function Label({
     className,

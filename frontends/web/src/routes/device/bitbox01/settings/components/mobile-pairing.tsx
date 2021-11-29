@@ -26,7 +26,7 @@ import { SettingsButton } from '../../../../../components/settingsButton/setting
 import { translate, TranslateProps } from '../../../../../decorators/translate';
 import { apiPost } from '../../../../../utils/request';
 import { apiWebsocket } from '../../../../../utils/websocket';
-import * as style from '../../bitbox01.css';
+import * as style from '../../bitbox01.module.css';
 
 interface PairingProps {
     deviceID: string;
