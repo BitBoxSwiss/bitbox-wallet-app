@@ -26,8 +26,7 @@ import { alertUser } from '../../components/alert/Alert';
 import * as style from './electrum.module.css';
 import A from '../../components/anchor/anchor';
 
-@translate()
-class ElectrumServer extends Component {
+class ElectrumServerClass extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -214,8 +213,9 @@ class ElectrumServer extends Component {
     }
 }
 
-@translate()
-class ElectrumServers extends Component {
+export const ElectrumServer = translate()(ElectrumServerClass);
+
+class ElectrumServersClass extends Component {
     state = {
         electrumServers: [],
     }
@@ -299,8 +299,9 @@ class ElectrumServers extends Component {
     }
 }
 
-@translate()
-export default class ElectrumSettings extends Component {
+const ElectrumServers = translate()(ElectrumServersClass);
+
+class ElectrumSettings extends Component {
     state = {
         testing: false,
         activeTab: 'btc',
@@ -373,3 +374,5 @@ export default class ElectrumSettings extends Component {
         );
     }
 }
+
+export default translate()(ElectrumSettings);

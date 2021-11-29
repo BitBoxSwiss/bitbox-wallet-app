@@ -46,8 +46,7 @@ const GOAL = Object.freeze({
     RESTORE: 'restore'
 });
 
-@translate()
-export default class Device extends Component {
+class Device extends Component {
     state = {
         firmwareVersion: null,
         deviceRegistered: false,
@@ -191,3 +190,5 @@ export default class Device extends Component {
         }
     }
 }
+
+export default translate()(Device);

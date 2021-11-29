@@ -23,8 +23,7 @@ import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
 import * as style from '../../../components/dialog/dialog.module.css';
 
-@translate()
-export default class Create extends Component {
+class Create extends Component {
     state = {
         waiting: false,
         backupName: '',
@@ -119,3 +118,5 @@ export default class Create extends Component {
         );
     }
 }
+
+export default translate()(Create);

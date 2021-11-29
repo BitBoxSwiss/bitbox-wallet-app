@@ -27,8 +27,7 @@ import { alertUser } from '../../../../../components/alert/Alert';
 import * as style from '../../bitbox01.module.css';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
-@translate()
-export default class Reset extends Component {
+class Reset extends Component {
     state = {
         pin: null,
         isConfirming: false,
@@ -123,3 +122,5 @@ export default class Reset extends Component {
         );
     }
 }
+
+export default translate()(Reset);

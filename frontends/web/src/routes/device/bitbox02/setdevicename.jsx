@@ -24,8 +24,7 @@ import { alertUser } from '../../../components/alert/Alert';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
-@translate()
-export class SetDeviceName extends Component {
+class SetDeviceNameClass extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -122,3 +121,5 @@ export class SetDeviceName extends Component {
         );
     }
 }
+
+export const SetDeviceName = translate()(SetDeviceNameClass);

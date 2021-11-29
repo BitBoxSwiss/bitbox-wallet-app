@@ -23,8 +23,7 @@ import { Header } from '../../../../components/layout';
 import { Button } from '../../../../components/forms';
 import * as style from '../bitbox01.module.css';
 
-@translate()
-export default class Success extends Component {
+class Success extends Component {
 
     handleGetStarted = () => {
         route('/account-summary', true);
@@ -75,3 +74,5 @@ export default class Success extends Component {
         );
     }
 }
+
+export default translate()(Success);
