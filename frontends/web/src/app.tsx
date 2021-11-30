@@ -16,7 +16,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { getCurrentUrl, route } from 'preact-router';
+import Router, { getCurrentUrl, route } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
@@ -27,7 +27,6 @@ import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
-import { Container } from './components/container/container';
 import { store as panelStore } from './components/guide/guide';
 import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
@@ -168,10 +167,6 @@ class App extends Component<Props, State> {
         return prefix + ':' + JSON.stringify(this.state.devices, Object.keys(this.state.devices).sort());
     }
 
-    private toggleSidebar = () => {
-        panelStore.setState({ activeSidebar: !panelStore.state.activeSidebar });
-    }
-
     private activeAccounts = (): IAccount[] => {
         return this.state.accounts.filter(acct => acct.active);
     }
@@ -194,7 +189,7 @@ class App extends Component<Props, State> {
                         <Banner msgKey="bitbox01" />
                         <MobileDataWarning />
                         <Aopp />
-                        <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
+                        <Router onChange={this.handleRoute}>
                             <Send
                                 path="/account/:code/send"
                                 devices={devices}
@@ -255,7 +250,7 @@ class App extends Component<Props, State> {
                                 key={this.devicesKey('device-switch-default')}
                                 deviceID={null}
                                 devices={devices} />
-                        </Container>
+                        </Router>
                     </div>
                     <Alert />
                     <Confirm />

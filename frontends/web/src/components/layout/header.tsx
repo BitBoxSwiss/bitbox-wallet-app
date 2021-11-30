@@ -23,7 +23,6 @@ import { toggleSidebar } from '../sidebar/sidebar';
 import * as style from './header.module.css';
 
 interface HeaderProps {
-    toggleSidebar?: () => void;
     title?: JSX.Element | JSX.Element[];
     narrow?: boolean;
 }
