@@ -1,0 +1,4 @@
+/build/
+/config/
+/server/libserver.h
+/server/libserver.so
