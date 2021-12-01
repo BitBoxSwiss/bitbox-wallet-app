@@ -58,17 +58,19 @@ class UpgradeFirmware extends Component {
         this.setState({ activeDialog: false });
     }
 
-    render({
-        t,
-        currentVersion,
-        disabled,
-        asButton,
-    }, {
-        unlocked,
-        newVersion,
-        isConfirming,
-        activeDialog,
-    }) {
+    render() {
+        const {
+            t,
+            currentVersion,
+            disabled,
+            asButton,
+        } = this.props;
+        const {
+            unlocked,
+            newVersion,
+            isConfirming,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 {

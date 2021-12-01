@@ -137,16 +137,18 @@ class SeedCreateNew extends Component {
         }
     }
 
-    render({
-        t,
-        goBack,
-    }, {
-        showInfo,
-        status,
-        walletName,
-        error,
-        agreements,
-    }) {
+    render() {
+        const {
+            t,
+            goBack,
+        } = this.props;
+        const {
+            showInfo,
+            status,
+            walletName,
+            error,
+            agreements,
+        } = this.state;
         const content = showInfo ? (
             <div class="box large">
                 <ol class="first">

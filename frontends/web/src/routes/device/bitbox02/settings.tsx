@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { getDeviceInfo, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -68,16 +68,15 @@ class Settings extends Component<Props, State> {
         });
     }
 
-    public render(
-        {
+    public render() {
+        const {
             deviceID,
             t,
-        }: RenderableProps<Props>,
-        {
+        } = this.props;
+        const {
             versionInfo,
             deviceInfo,
-        }: State,
-    ) {
+        } = this.state;
         if (deviceInfo === undefined) {
             return null;
         }

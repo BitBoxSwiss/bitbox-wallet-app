@@ -98,16 +98,16 @@ class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({
-        t,
-    }, {
-        status,
-        password,
-        errorCode,
-        errorMessage,
-        remainingAttempts,
-        needsLongTouch,
-    }) {
+    render() {
+        const { t } = this.props;
+        const {
+            status,
+            password,
+            errorCode,
+            errorMessage,
+            remainingAttempts,
+            needsLongTouch,
+        } = this.state;
         let submissionState = null;
         switch (status) {
         case stateEnum.DEFAULT:

@@ -99,19 +99,21 @@ class PasswordSingleInputClass extends Component {
         }
     }
 
-    render({
-        t,
-        disabled,
-        label,
-        placeholder,
-        pattern,
-        title,
-        showLabel,
-    }, {
-        password,
-        seePlaintext,
-        capsLock,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+            label,
+            placeholder,
+            pattern,
+            title,
+            showLabel,
+        } = this.props;
+        const {
+            password,
+            seePlaintext,
+            capsLock,
+        } = this.state;
         const warning = (capsLock && !seePlaintext) && (
             <span className={style.capsWarning}
                 title={t('password.warning.caps')}>⇪</span>
@@ -223,22 +225,24 @@ class PasswordRepeatInputClass extends Component {
         }
     }
 
-    render({
-        t,
-        disabled,
-        label,
-        placeholder,
-        pattern,
-        title,
-        repeatLabel,
-        repeatPlaceholder,
-        showLabel,
-    }, {
-        password,
-        passwordRepeat,
-        seePlaintext,
-        capsLock,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+            label,
+            placeholder,
+            pattern,
+            title,
+            repeatLabel,
+            repeatPlaceholder,
+            showLabel,
+        } = this.props;
+        const {
+            password,
+            passwordRepeat,
+            seePlaintext,
+            capsLock,
+        } = this.state;
         const warning = (capsLock && !seePlaintext) && (
             <span className={style.capsWarning}
                 title={t('password.warning.caps')}>⇪</span>

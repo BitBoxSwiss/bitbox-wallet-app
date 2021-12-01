@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as accountAPI from '../../api/account';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button } from '../forms';
@@ -40,10 +40,9 @@ class VerifyAddress extends Component<Props, State> {
         });
     }
 
-    public render(
-        { t, address }: RenderableProps<Props>,
-        { verifying }: State,
-    ) {
+    public render() {
+        const { t, address } = this.props;
+        const { verifying } = this.state;
         return (
             <div className="flex flex-column">
                 <Button secondary onClick={this.verifyAddress}>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
@@ -364,9 +364,9 @@ class BitBox02 extends Component<Props, State> {
         this.setState(obj);
     }
 
-    public render(
-        { t, deviceID }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t, deviceID } = this.props;
+        const {
             attestationResult,
             versionInfo,
             hash,
@@ -388,8 +388,7 @@ class BitBox02 extends Component<Props, State> {
             agreement4,
             agreement5,
             waitDialog,
-        }: State,
-    ) {
+        } = this.state;
         if (status === '') {
             return null;
         }

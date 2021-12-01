@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Link, route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
@@ -147,17 +147,18 @@ class Settings extends Component<Props, State> {
         route('/', true);
     }
 
-    public render({
-        manageAccountsLen,
-        deviceIDs,
-        t,
-    }: RenderableProps<Props>,
-    {
-        config,
-        restart,
-        proxyAddress,
-        activeProxyDialog }: State,
-    ) {
+    public render() {
+        const {
+            manageAccountsLen,
+            deviceIDs,
+            t,
+        } = this.props;
+        const {
+            config,
+            restart,
+            proxyAddress,
+            activeProxyDialog
+        } = this.state;
         if (proxyAddress === undefined) {
             return null;
         }

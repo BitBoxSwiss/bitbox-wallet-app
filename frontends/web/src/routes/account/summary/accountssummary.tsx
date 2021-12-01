@@ -187,10 +187,9 @@ class AccountsSummary extends Component<Props, State> {
         );
     }
 
-    public render(
-        { t, accounts }: RenderableProps<Props>,
-        { exported, data }: State,
-    ) {
+    public render() {
+        const { t, accounts } = this.props;
+        const { exported, data } = this.state;
         return (
             <div className="contentWithGuide">
                 <div className="container">

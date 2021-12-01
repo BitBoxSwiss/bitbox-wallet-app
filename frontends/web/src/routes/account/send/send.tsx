@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
@@ -540,9 +540,9 @@ class Send extends Component<Props, State> {
         this.setState({ videoLoading: false });
     }
 
-    public render(
-        { t, code }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t, code } = this.props;
+        const {
             balance,
             proposedFee,
             proposedTotal,
@@ -573,8 +573,7 @@ class Send extends Component<Props, State> {
             activeScanQR,
             videoLoading,
             note,
-        }: State,
-    ) {
+        } = this.state;
         const account = this.getAccount();
         if (!account) {
             return null;

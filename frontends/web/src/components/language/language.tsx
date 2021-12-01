@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { /* i18nEditorActive, */ extraLanguages } from '../../i18n/i18n';
 
 import { translate as translateDecorator, TranslateProps } from '../../decorators/translate';
@@ -145,13 +145,13 @@ class LanguageSwitch extends Component<Props, State> {
         this.context.i18n.changeLanguage(langCode);
     }
 
-    render({
-        t,
-    }: RenderableProps<Props>, {
-        selectedIndex,
-        activeDialog,
-        languages,
-    }: State) {
+    render() {
+        const { t } = this.props;
+        const {
+            selectedIndex,
+            activeDialog,
+            languages,
+        } = this.state;
         if (languages.length === 1) {
             return null;
         }

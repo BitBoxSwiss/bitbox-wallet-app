@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as style from './badge.module.css';
 
 interface BadgeProps {
@@ -7,9 +7,8 @@ interface BadgeProps {
 }
 
 class Badge extends Component<BadgeProps> {
-    public render(
-        { type, className, children }: RenderableProps<BadgeProps>,
-    ) {
+    public render() {
+        const { type, className, children } = this.props;
         return (
             <span className={[style.container, style[type], className].join(' ')}>
                 {children}

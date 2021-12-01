@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, JSX, RenderableProps } from 'preact';
+import { Component, h, JSX } from 'preact';
 import { Link, Match } from 'preact-router/match';
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
@@ -146,8 +146,8 @@ class Sidebar extends Component<Props> {
         );
     }
 
-    public render(
-        {
+    public render() {
+        const {
             t,
             deviceIDs,
             accounts,
@@ -155,8 +155,7 @@ class Sidebar extends Component<Props> {
             shown,
             activeSidebar,
             sidebarStatus,
-        }: RenderableProps<Props>,
-    ) {
+        } = this.props;
         const hidden = ['forceHidden', 'forceCollapsed'].includes(sidebarStatus);
         return (
             <div className={['sidebarContainer', hidden ? 'forceHide' : ''].join(' ')}>

@@ -15,7 +15,7 @@
  */
 
 import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
-import { Component, createRef, h, RenderableProps } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { Fiat } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { formatCurrency, formatNumber } from '../../../components/rates/rates';
@@ -355,9 +355,9 @@ class Chart extends Component<Props, State> {
         );
     }
 
-    public render(
-        { t, dataDaily, fiatUnit, isUpToDate, total }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t, dataDaily, fiatUnit, isUpToDate, total } = this.props;
+        const {
             difference,
             diffSince,
             display,
@@ -366,8 +366,7 @@ class Chart extends Component<Props, State> {
             toolTipTop,
             toolTipLeft,
             toolTipTime,
-        }: State,
-    ) {
+        } = this.state;
         if (dataDaily === undefined) {
             return (
                 <p className={styles.chartUpdatingMessage}>

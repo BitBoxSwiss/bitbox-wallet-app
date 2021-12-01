@@ -27,7 +27,7 @@ class RandomNumber extends Component {
         super(props);
         this.state = {
             active: false,
-            number: undefined,
+            number: '',
         };
     }
 
@@ -47,19 +47,25 @@ class RandomNumber extends Component {
         });
     }
 
-    render({ t }, { number, active }) {
+    render() {
+        const { t } = this.props;
+        const { number, active } = this.state;
         return (
             <div>
                 <SettingsButton onClick={this.getRandomNumber}>
                     {t('random.button')}
                 </SettingsButton>
                 {
+                    // @ts-ignore Object is possibly 'undefined'.
                     active && number ? (
                         <Dialog title="Generate Random Number" onClose={this.abort}>
                             <div className="columnsContainer half">
                                 <div className="columns">
                                     <div className="column">
-                                        <p>{t('random.description', { bits: number.length * 4 })}</p>
+                                        <p>{t('random.description', {
+                                            // @ts-ignore
+                                            bits: number.length * 4
+                                        })}</p>
                                         <CopyableInput value={number} flexibleHeight />
                                     </div>
                                 </div>

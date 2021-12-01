@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentFactory, h, JSX, RenderableProps } from 'preact';
+import { Component, ComponentFactory, h, JSX } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { apiGet } from '../utils/request';
 import { KeysOf, ObjectButNotFunction } from '../utils/types';
@@ -107,7 +107,9 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
                 return true;
             }
 
-            public render(props: RenderableProps<ProvidedProps & Partial<LoadedProps>>, state: LoadedProps): JSX.Element | null {
+            public render(): JSX.Element | null {
+                const props = this.props;
+                const state = this.state;
                 if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) { return null; }
                 return <WrappedComponent {...state} {...props as any} />; // This order allows the subscribe decorator (and others) to override the loaded endpoints with properties.
             }

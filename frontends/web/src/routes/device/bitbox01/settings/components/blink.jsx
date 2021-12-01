@@ -24,7 +24,8 @@ class Blink extends Component {
         apiPost('devices/' + this.props.deviceID + '/blink');
     };
 
-    render({ t }, {}) {
+    render() {
+        const { t } = this.props;
         return (
             <SettingsButton onClick={this.blinkDevice}>{t('blink.button')}</SettingsButton>
         );

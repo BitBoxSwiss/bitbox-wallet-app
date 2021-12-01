@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import A from '../anchor/anchor';
 import * as style from './guide.module.css';
 
@@ -56,10 +56,12 @@ export class Entry extends Component<Props, State> {
         }));
     }
 
-    public render(props: RenderableProps<Props>, {
-        shown,
-        highlighted,
-    }: Readonly<State>) {
+    public render() {
+        const props = this.props;
+        const {
+            shown,
+            highlighted,
+        } = this.state;
         let entry: EntryProp;
         if (typeof props.entry === 'string') {
             entry = {

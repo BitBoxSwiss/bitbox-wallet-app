@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as style from './steps.module.css';
 
 interface StepProps {
@@ -42,10 +42,9 @@ class Step extends Component<StepProps, State> {
         return [this.props.activeStep].includes(this.props.order);
     }
 
-    public render(
-        { active, empty, title, large, width, children }: RenderableProps<StepProps>,
-        { isComplete, visible }: State,
-    ) {
+    public render() {
+        const { active, empty, title, large, width, children } = this.props;
+        const { isComplete, visible } = this.state;
         return (
             <div
                 className={[

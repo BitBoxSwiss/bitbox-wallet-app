@@ -82,13 +82,15 @@ class HiddenWallet extends Component {
         this.setState({ pin });
     }
 
-    render({
-        t,
-        disabled,
-    }, {
-        isConfirming,
-        activeDialog,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+        } = this.props;
+        const {
+            isConfirming,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 <SettingsButton

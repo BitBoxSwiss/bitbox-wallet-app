@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, JSX, RenderableProps } from 'preact';
+import { Component, h, JSX } from 'preact';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -37,9 +37,8 @@ class Header extends Component<Props> {
         return false;
     }
 
-    public render(
-        { t, title, narrow, children, guideExists, shown, sidebarStatus }: RenderableProps<Props>,
-    ) {
+    public render() {
+        const { t, title, narrow, children, guideExists, shown, sidebarStatus } = this.props;
         const hasChildren = Array.isArray(children) && children.length > 0;
         return (
             <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>

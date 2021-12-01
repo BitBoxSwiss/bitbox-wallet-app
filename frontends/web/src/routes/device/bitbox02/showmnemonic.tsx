@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -54,10 +54,9 @@ class ShowMnemonic extends Component<Props, State> {
 
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        { inProgress,
-        }: State) {
+    public render() {
+        const { t } = this.props;
+        const { inProgress } = this.state;
         return (
             <div>
                 <SettingsButton

@@ -71,14 +71,14 @@ class Bootloader extends Component {
         apiPost('devices/' + this.props.deviceID + '/bootloader/upgrade-firmware');
     }
 
-    render({
-        t
-    }, {
-        upgrading,
-        progress,
-        upgradeSuccessful,
-        errMsg,
-    }) {
+    render() {
+        const { t } = this.props;
+        const {
+            upgrading,
+            progress,
+            upgradeSuccessful,
+            errMsg,
+        } = this.state;
         let UpgradeOrStatus;
 
         if (upgrading) {

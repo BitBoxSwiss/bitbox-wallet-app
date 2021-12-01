@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as style from './settingsButton.module.css';
 
 interface SettingsItemProps {
@@ -6,7 +6,8 @@ interface SettingsItemProps {
 }
 
 class SettingsItem extends Component<SettingsItemProps> {
-    public render({ optionalText, children }: RenderableProps<SettingsItemProps>) {
+    public render() {
+        const { optionalText, children } = this.props;
         return (
             <div className={[style.container, style.item].join(' ')}>
                 {children}

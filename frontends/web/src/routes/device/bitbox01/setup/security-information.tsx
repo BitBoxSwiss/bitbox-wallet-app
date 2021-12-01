@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../../../../components/forms';
 import { Alert, SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -47,10 +47,9 @@ class SecurityInformation extends Component<Props, State> {
         this.setState({ showInfo: false });
     }
 
-    public render(
-        { t, goBack, goal, children }: RenderableProps<Props>,
-        { showInfo }: State,
-    ) {
+    public render() {
+        const { t, goBack, goal, children } = this.props;
+        const { showInfo } = this.state;
         if (!showInfo) {
             return children![0];
         }

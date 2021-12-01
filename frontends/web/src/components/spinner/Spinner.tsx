@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -44,11 +44,12 @@ class Spinner extends Component<Props> {
         document.activeElement.blur();
     }
 
-    public render({
-        t,
-        text,
-        guideExists,
-    }: RenderableProps<Props>) {
+    public render() {
+        const {
+            t,
+            text,
+            guideExists,
+        } = this.props;
         return (
             <div className={style.spinnerContainer}>
                 <div className={style.togglersContainer}>

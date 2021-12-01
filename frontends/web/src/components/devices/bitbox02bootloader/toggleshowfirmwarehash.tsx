@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -38,12 +38,8 @@ class ToggleFWHash extends Component<Props, {}> {
         );
     }
 
-    public render(
-        { t,
-          enabled,
-        }: RenderableProps<Props>,
-        {}: {},
-    ) {
+    public render() {
+        const { t, enabled } = this.props;
         return (
             <div className="box slim divide">
                 <div class="flex flex-row flex-between flex-items-center">

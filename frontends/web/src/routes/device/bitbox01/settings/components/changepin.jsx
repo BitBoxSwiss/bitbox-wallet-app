@@ -75,14 +75,16 @@ class ChangePIN extends Component {
         this.setState({ newPIN });
     }
 
-    render({
-        t,
-        disabled,
-    }, {
-        oldPIN,
-        isConfirming,
-        activeDialog,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+        } = this.props;
+        const {
+            oldPIN,
+            isConfirming,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 <SettingsButton

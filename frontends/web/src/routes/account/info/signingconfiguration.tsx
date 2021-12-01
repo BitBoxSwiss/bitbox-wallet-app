@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { getCanVerifyXPub, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
 import { getScriptName, isBitcoinBased } from '../utils';
@@ -66,15 +66,15 @@ class SigningConfiguration extends Component<Props, State> {
         return info.ethereumSimple;
     }
 
-    public render(
-        { children,
-          account,
-          code,
-          t,
-          signingConfigIndex,
-        }: RenderableProps<Props>,
-        { canVerifyExtendedPublicKey }: State
-    ) {
+    public render() {
+        const {
+            children,
+            account,
+            code,
+            t,
+            signingConfigIndex,
+        } = this.props;
+        const { canVerifyExtendedPublicKey } = this.state;
         const config = this.getSimpleInfo();
         const bitcoinBased = isBitcoinBased(account.coinCode);
         return (

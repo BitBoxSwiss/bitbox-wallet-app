@@ -37,5 +37,5 @@ export default class TranslationHelper extends Component<{}, {}> {
         document.removeEventListener('keydown', this.keydownHandler);
     }
 
-    public render({}, {}) { return null; }
+    public render() { return null; }
 }

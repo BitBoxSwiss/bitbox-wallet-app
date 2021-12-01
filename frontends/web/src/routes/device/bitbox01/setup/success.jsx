@@ -29,12 +29,12 @@ class Success extends Component {
         route('/account-summary', true);
     }
 
-    render({
-        t,
-        handleHideSuccess,
-        goal,
-    }, {
-    }) {
+    render() {
+        const {
+            t,
+            handleHideSuccess,
+            goal,
+        } = this.props;
         return (
             <div class="contentWithGuide">
                 <div className="container">

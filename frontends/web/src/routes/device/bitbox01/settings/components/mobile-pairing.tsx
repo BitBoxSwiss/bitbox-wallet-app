@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
@@ -153,10 +153,9 @@ class MobilePairing extends Component<Props, State> {
         this.setState({ showQRCode: !this.state.showQRCode });
     }
 
-    public render(
-        { t, deviceLocked, paired, hasMobileChannel }: RenderableProps<Props>,
-        { channel, status, showQRCode }: State,
-    ) {
+    public render() {
+        const { t, deviceLocked, paired, hasMobileChannel } = this.props;
+        const { channel, status, showQRCode } = this.state;
         let content;
         if (status === 'start') {
             content = (

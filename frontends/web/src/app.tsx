@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import Router, { getCurrentUrl, route } from 'preact-router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
@@ -173,10 +173,8 @@ class App extends Component<Props, State> {
         return this.state.accounts.filter(acct => acct.active);
     }
 
-    public render(
-        {  }: RenderableProps<Props>,
-        { accounts, devices }: State,
-    ) {
+    public render() {
+        const { accounts, devices } = this.state;
         const deviceIDs: string[] = Object.keys(devices);
         const activeAccounts = this.activeAccounts();
         return (

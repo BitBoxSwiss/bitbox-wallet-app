@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
@@ -155,16 +155,19 @@ class Receive extends Component<Props, State> {
         }));
     }
 
-    public render(
-        { t,
-          code,
-          receiveAddresses,
-          secureOutput }: RenderableProps<Props>,
-        { verifying,
-          activeIndex,
-          paired,
-          addressType }: State,
-    ) {
+    public render() {
+        const {
+             t,
+            code,
+            receiveAddresses,
+            secureOutput
+        } = this.props;
+        const {
+            verifying,
+            activeIndex,
+            paired,
+            addressType
+        } = this.state;
         const account = this.getAccount();
         if (account === undefined) {
             return null;

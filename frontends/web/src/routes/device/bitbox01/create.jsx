@@ -68,12 +68,14 @@ class Create extends Component {
         });
     }
 
-    render({ t }, {
-        waiting,
-        recoveryPassword,
-        backupName,
-        activeDialog,
-    }) {
+    render() {
+        const { t } = this.props;
+        const {
+            waiting,
+            recoveryPassword,
+            backupName,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 <Button
