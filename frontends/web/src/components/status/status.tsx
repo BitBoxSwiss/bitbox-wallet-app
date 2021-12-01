@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { apiGet, apiPost } from '../../utils/request';
 import * as style from './status.module.css';
 
@@ -82,16 +82,15 @@ export default class Status extends Component<Props, State> {
         });
     }
 
-    public render({
-        children,
-        className,
-        dismissable,
-        hidden,
-        type = 'warning',
-    }: RenderableProps<Props>,
-    {
-        show,
-    }: State) {
+    public render() {
+        const {
+            children,
+            className,
+            dismissable,
+            hidden,
+            type = 'warning',
+        } = this.props;
+        const { show } = this.state;
         if (hidden || !show) {
             return null;
         }

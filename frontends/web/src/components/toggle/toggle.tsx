@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as style from './toggle.module.css';
 
 interface ToggleProps {
@@ -12,7 +12,8 @@ interface ToggleProps {
 }
 
 class Toggle extends Component<ToggleProps> {
-    public render(props: RenderableProps<ToggleProps>) {
+    public render() {
+        const props = this.props;
         return (
             <label className={style.container}>
                 <input

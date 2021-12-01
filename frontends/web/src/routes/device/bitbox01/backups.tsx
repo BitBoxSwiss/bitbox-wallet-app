@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -97,8 +97,8 @@ class Backups extends Component<Props, State> {
         this.scrollableContainer = ref;
     }
 
-    public render(
-        {
+    public render() {
+        const {
             t,
             children,
             showCreate = false,
@@ -106,9 +106,8 @@ class Backups extends Component<Props, State> {
             deviceID,
             requireConfirmation = true,
             onRestore,
-        }: RenderableProps<Props>,
-        { backupList, selectedBackup, sdCardInserted, lock }: State,
-    ) {
+        } = this.props;
+        const { backupList, selectedBackup, sdCardInserted, lock } = this.state;
         if (lock === undefined) {
             return null;
         }

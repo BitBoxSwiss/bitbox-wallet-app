@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Check, Copy } from '../icon/icon';
 import * as style from './Copy.module.css';
@@ -79,10 +79,9 @@ class CopyableInput extends Component<Props, State> {
         }
     }
 
-    public render(
-        { alignLeft, alignRight, borderLess, t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
-        { success }: State,
-    ) {
+    public render() {
+        const { alignLeft, alignRight, borderLess, t, value, className, disabled, flexibleHeight } = this.props;
+        const { success } = this.state;
         const copyButton = disabled ? null : (
             <button
                 onClick={this.copy}

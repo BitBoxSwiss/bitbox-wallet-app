@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { CoinCode } from '../../api/account';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -60,12 +60,12 @@ class HeadersSync extends Component<Props, IState> {
         }
     }
 
-    render({
-        t,
-        status,
-    }: RenderableProps<Props>, {
-        show,
-    }: IState) {
+    render() {
+        const {
+            t,
+            status,
+        } = this.props;
+        const { show } = this.state;
         if (!status || !show) {
             return null;
         }

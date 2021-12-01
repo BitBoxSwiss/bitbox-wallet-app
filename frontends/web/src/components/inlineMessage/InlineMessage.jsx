@@ -22,11 +22,12 @@ export default class InlineMessage extends Component {
         this.props.onEnd();
     }
 
-    render({
-        type,
-        message,
-        align,
-    }, {}) {
+    render() {
+        const {
+            type,
+            message,
+            align,
+        } = this.props;
         return (
             <div class={[style.inlineMessage, style[type], align ? style[align] : ''].join(' ')}>
                 {message}

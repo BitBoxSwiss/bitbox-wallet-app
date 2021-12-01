@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentChild, h, JSX, RenderableProps } from 'preact';
+import { Component, ComponentChild, h, JSX } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
@@ -82,16 +82,16 @@ class WaitDialog extends Component<Props, State> {
         });
     }
 
-    public render({
-        t,
-        includeDefault,
-        prequel,
-        title,
-        paired = false,
-        touchConfirm = true,
-        children,
-    }: RenderableProps<Props>,
-    {}: State) {
+    public render() {
+        const {
+            t,
+            includeDefault,
+            prequel,
+            title,
+            paired = false,
+            touchConfirm = true,
+            children,
+        } = this.props;
         const defaultContent = (
             <div>
                 {

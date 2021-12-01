@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SimpleMarkup } from '../../utils/markup';
 import { Dialog } from '../dialog/dialog';
@@ -57,7 +57,9 @@ class Alert extends Component<TranslateProps, State> {
         });
     }
 
-    public render({ t }: RenderableProps<TranslateProps>, { message, active }: State) {
+    public render() {
+        const { t } = this.props;
+        const { message, active } = this.state;
         return active ? (
             <Dialog
                 onClose={this.handleClose}

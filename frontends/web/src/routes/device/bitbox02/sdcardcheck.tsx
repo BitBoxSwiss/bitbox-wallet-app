@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { apiGet } from '../../../utils/request';
@@ -41,12 +41,13 @@ class SDCardCheck extends Component<Props, State> {
             .then(inserted => this.setState({ sdCardInserted: inserted }));
     }
 
-    public render(
-        { t,
-          children,
-          deviceID,
-        }: RenderableProps<Props>,
-        { sdCardInserted }: State) {
+    public render() {
+        const {
+            t,
+            children,
+            deviceID,
+        } = this.props;
+        const { sdCardInserted } = this.state;
         if (sdCardInserted === undefined) {
             return null;
         }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Radio } from '../../../components/forms';
 import * as style from './backups.module.css';
@@ -38,9 +38,8 @@ export interface Backup {
 type Props = BackupsListItemProps & TranslateProps;
 
 class BackupsListItem extends Component<Props> {
-    public render(
-        { disabled, backup, selectedBackup, handleChange, onFocus, radio }: RenderableProps<Props>,
-    ) {
+    public render() {
+        const { disabled, backup, selectedBackup, handleChange, onFocus, radio } = this.props;
         let date = '';
         if (backup.date && backup.date !== '') {
             date = new Date(backup.date).toLocaleString(this.context.i18n.language, {

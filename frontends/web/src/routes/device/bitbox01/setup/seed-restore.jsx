@@ -80,16 +80,18 @@ class SeedRestore extends Component {
         }
     }
 
-    render({
-        t,
-        deviceID,
-        goBack,
-        onSuccess,
-    }, {
-        showInfo,
-        status,
-        error,
-    }) {
+    render() {
+        const {
+            t,
+            deviceID,
+            goBack,
+            onSuccess,
+        } = this.props;
+        const {
+            showInfo,
+            status,
+            error,
+        } = this.state;
         return (
             <div class="contentWithGuide">
                 <div className="container">

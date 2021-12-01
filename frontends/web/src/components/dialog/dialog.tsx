@@ -140,8 +140,8 @@ class Dialog extends Component<Props, State> {
         });
     }
 
-    public render(
-        {
+    public render() {
+        const {
             title,
             small,
             medium,
@@ -151,9 +151,7 @@ class Dialog extends Component<Props, State> {
             onClose,
             disabledClose,
             children,
-        }: RenderableProps<Props>,
-        {}: State,
-    ) {
+        } = this.props;
         const isSmall = small ? style.small : '';
         const isMedium = medium ? style.medium : '';
         const isLarge = large ? style.large : '';

@@ -71,14 +71,14 @@ class Reset extends Component {
         });
     }
 
-    render({
-        t
-    }, {
-        isConfirming,
-        activeDialog,
-        understand,
-        pin,
-    }) {
+    render() {
+        const { t } = this.props;
+        const {
+            isConfirming,
+            activeDialog,
+            understand,
+            pin,
+        } = this.state;
         return (
             <div>
                 <SettingsButton danger onClick={() => this.setState({ activeDialog: true })}>

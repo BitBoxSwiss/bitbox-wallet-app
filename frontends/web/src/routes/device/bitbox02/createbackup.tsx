@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -69,12 +69,12 @@ class Create extends Component<Props, State> {
         });
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t } = this.props;
+        const {
             creatingBackup,
             disabled,
-        }: State) {
+        } = this.state;
         return (
             <span>
                 <Button

@@ -1,4 +1,4 @@
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as style from './settingsButton.module.css';
 
 interface SettingsButtonProps {
@@ -18,8 +18,8 @@ class SettingsButton extends Component<SettingsButtonProps> {
         }
     }
 
-    public render(
-        {
+    public render() {
+        const {
             onClick,
             link,
             href,
@@ -28,8 +28,7 @@ class SettingsButton extends Component<SettingsButtonProps> {
             secondaryText,
             disabled,
             children,
-        }: RenderableProps<SettingsButtonProps>,
-    ) {
+        } = this.props;
         if (link) {
             return (
                 <a className={[style.container, danger ? style.danger : '', disabled ? style.disabled : ''].join(' ')} href={disabled ? '#' : href} onClick={this.handleLink}>

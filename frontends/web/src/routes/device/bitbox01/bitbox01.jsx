@@ -50,8 +50,8 @@ class Device extends Component {
     state = {
         firmwareVersion: null,
         deviceRegistered: false,
-        deviceStatus: null,
-        goal: null,
+        deviceStatus: '',
+        goal: '',
         success: null,
     }
 
@@ -130,14 +130,16 @@ class Device extends Component {
         this.setState({ success: true });
     }
 
-    render({
-        deviceID,
-    }, {
-        deviceRegistered,
-        deviceStatus,
-        goal,
-        success,
-    }) {
+    render() {
+        const {
+            deviceID,
+        } = this.props;
+        const {
+            deviceRegistered,
+            deviceStatus,
+            goal,
+            success,
+        } = this.state;
         if (!deviceRegistered || !deviceStatus) {
             return null;
         }

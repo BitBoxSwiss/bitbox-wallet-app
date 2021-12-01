@@ -74,7 +74,9 @@ class SetDeviceNameClass extends Component {
         return true;
     }
 
-    render({ t, name }, { deviceName, active, inProgress }) {
+    render() {
+        const { t, name } = this.props;
+        const { deviceName, active, inProgress } = this.state;
         return (
             <div>
                 <SettingsButton onClick={this.setNameDialog} optionalText={name}>

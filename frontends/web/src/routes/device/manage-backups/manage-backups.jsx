@@ -99,7 +99,8 @@ class ManageBackups extends Component {
         }
     }
 
-    render({ t }, { }) {
+    render() {
+        const { t } = this.props;
         if (!this.hasDevice()) {
             return null;
         }

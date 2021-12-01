@@ -34,7 +34,9 @@ class RequireUpgrade extends Component {
         });
     }
 
-    render({ t, deviceID }, { firmwareVersion }) {
+    render() {
+        const { t, deviceID } = this.props;
+        const { firmwareVersion } = this.state;
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>

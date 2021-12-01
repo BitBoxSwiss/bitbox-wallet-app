@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -68,12 +68,13 @@ class Reset extends Component<Props, State> {
         });
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        { understand,
-          isConfirming,
-          activeDialog,
-        }: State) {
+    public render() {
+        const { t } = this.props;
+        const {
+            understand,
+            isConfirming,
+            activeDialog,
+          } = this.state;
         return (
             <div>
                 <SettingsButton

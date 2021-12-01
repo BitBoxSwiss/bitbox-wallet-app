@@ -49,14 +49,16 @@ class DeviceLock extends Component {
         this.setState({ activeDialog: false });
     }
 
-    render({
-        t,
-        disabled,
-        lock,
-    }, {
-        isConfirming,
-        activeDialog,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+            lock,
+        } = this.props;
+        const {
+            isConfirming,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 <SettingsButton

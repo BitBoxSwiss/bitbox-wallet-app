@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -73,9 +73,8 @@ class Guide extends Component<Props> {
         store.setState({ guideExists: false });
     }
 
-    public render(
-        { shown, t, children }: RenderableProps<Props>,
-    ) {
+    public render() {
+        const { shown, t, children } = this.props;
         return (
             <div className={style.wrapper}>
                 <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>

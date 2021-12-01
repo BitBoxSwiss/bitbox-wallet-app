@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
@@ -243,10 +243,9 @@ class ManageAccounts extends Component<Props, State> {
             });
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        { editAccountCode, editAccountNewName, editErrorMessage, favorites }: State,
-    ) {
+    public render() {
+        const { t } = this.props;
+        const { editAccountCode, editAccountNewName, editErrorMessage, favorites } = this.state;
         const accountList = this.renderAccounts();
         return (
             <div class="contentWithGuide">

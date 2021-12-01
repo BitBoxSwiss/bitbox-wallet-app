@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -107,14 +107,12 @@ class BitBox02Bootloader extends Component<Props, State> {
         apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/screen-rotate');
     }
 
-    public render(
-        { t,
-          deviceID,
-          versionInfo,
-        }: RenderableProps<Props>,
-        { status,
-        }: State,
-    ) {
+    public render() {
+        const { t,
+            deviceID,
+            versionInfo,
+        } = this.props;
+        const { status } = this.state;
         let contents;
         if (status.upgrading) {
             if (status.upgradeSuccessful) {

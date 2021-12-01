@@ -72,13 +72,15 @@ class Check extends Component {
         this.setState({ password });
     }
 
-    render({
-        t,
-        selectedBackup,
-    }, {
-        activeDialog,
-        message,
-    }) {
+    render() {
+        const {
+            t,
+            selectedBackup,
+        } = this.props;
+        const {
+            activeDialog,
+            message,
+        } = this.state;
         return (
             <div>
                 <Button

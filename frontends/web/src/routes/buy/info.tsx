@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { AccountCode, IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
@@ -111,14 +111,13 @@ class BuyInfo extends Component<Props, State> {
         return t('buy.info.crypto');
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t } = this.props;
+        const {
             status,
             selected,
             options,
-        }: State
-    ) {
+        } = this.state;
         if (options === undefined) {
             return <Spinner text={t('loading')} />;
         }

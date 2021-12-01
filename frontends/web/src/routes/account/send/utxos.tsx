@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Coin } from '../../../api/account';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -102,10 +102,9 @@ class UTXOs extends Component<Props, State> {
         });
     }
 
-    public render(
-        { t, active, explorerURL, onClose }: RenderableProps<Props>,
-        { utxos, selectedUTXOs }: State,
-    ) {
+    public render() {
+        const { t, active, explorerURL, onClose } = this.props;
+        const { utxos, selectedUTXOs } = this.state;
         if (!active) {
             return null;
         }

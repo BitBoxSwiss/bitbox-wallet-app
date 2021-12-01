@@ -22,11 +22,12 @@ import { Header } from '../../../../components/layout';
 import { LanguageSwitch } from '../../../../components/language/language';
 
 class Goal extends Component {
-    render({
-        t,
-        onCreate,
-        onRestore,
-    }) {
+    render() {
+        const {
+            t,
+            onCreate,
+            onRestore,
+        } = this.props;
         return (
             <div class="contentWithGuide">
                 <div className="container">

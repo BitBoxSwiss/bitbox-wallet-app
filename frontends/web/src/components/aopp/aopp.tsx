@@ -86,10 +86,9 @@ class Aopp extends Component<Props, State> {
         e.preventDefault();
     }
 
-    public render(
-        { t, aopp }: RenderableProps<Props>,
-        { accountCode }: State,
-    ) {
+    public render() {
+        const { t, aopp } = this.props;
+        const { accountCode } = this.state;
         if (!aopp) {
             return null;
         }

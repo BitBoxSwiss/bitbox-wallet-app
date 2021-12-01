@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Entry } from '../../components/guide/entry';
 import { Guide, store as panelStore } from '../../components/guide/guide';
 import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
@@ -40,9 +40,8 @@ class Waiting extends Component<WaitingProps> {
         }
     }
 
-    public render(
-        { t, testing }: RenderableProps<WaitingProps>,
-    ) {
+    public render() {
+        const { t, testing } = this.props;
         return (
             <div class="contentWithGuide">
                 <div className="container">

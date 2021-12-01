@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/account';
@@ -79,10 +79,9 @@ class Info extends Component<Props, State> {
         }));
     }
 
-    public render(
-        { t, code }: RenderableProps<Props>,
-        { info, viewXPub }: State
-    ) {
+    public render() {
+        const { t, code } = this.props;
+        const { info, viewXPub } = this.state;
         const account = this.getAccount();
         if (!account || !info) return null;
         const config = info.signingConfigurations[viewXPub];

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as accountApi from '../../api/account';
 import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -113,32 +113,33 @@ class Transaction extends Component<Props, State> {
         this.editButton = button;
     }
 
-    public render({
-        t,
-        index,
-        explorerURL,
-        type,
-        txID,
-        amount,
-        fee,
-        feeRatePerKb,
-        gas,
-        nonce,
-        vsize,
-        size,
-        weight,
-        numConfirmations,
-        numConfirmationsComplete,
-        time,
-        addresses,
-        status,
-        note = '',
-    }: RenderableProps<Props>,
-                  {
-        transactionDialog,
-        newNote,
-        editMode,
-    }: State) {
+    public render() {
+        const {
+            t,
+            index,
+            explorerURL,
+            type,
+            txID,
+            amount,
+            fee,
+            feeRatePerKb,
+            gas,
+            nonce,
+            vsize,
+            size,
+            weight,
+            numConfirmations,
+            numConfirmationsComplete,
+            time,
+            addresses,
+            status,
+            note = '',
+        } = this.props;
+        const {
+            transactionDialog,
+            newNote,
+            editMode,
+        } = this.state;
         const arrow = type === 'receive' ? (
             <ArrowIn />
         ) : type === 'send' ? (

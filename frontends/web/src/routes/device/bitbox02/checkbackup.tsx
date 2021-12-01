@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
@@ -74,7 +74,9 @@ class Check extends Component<Props, State> {
         this.setState({ activeDialog: false, userVerified: false });
     }
 
-    public render({ t, backups }: RenderableProps<Props>, { activeDialog, message, foundBackup, userVerified }: State) {
+    public render() {
+        const { t, backups } = this.props;
+        const { activeDialog, message, foundBackup, userVerified } = this.state;
         return (
             <div>
                 <Button

@@ -41,13 +41,13 @@ export default class Toast extends Component {
         this.toast = ref;
     }
 
-    render({
-        theme,
-        children,
-        withGuide,
-    }, {
-        active,
-    }) {
+    render() {
+        const {
+            theme,
+            children,
+            withGuide,
+        } = this.props;
+        const { active } = this.state;
         return (
             <div
                 ref={this.setRef}

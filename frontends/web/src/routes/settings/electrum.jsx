@@ -103,18 +103,20 @@ class ElectrumServerClass extends Component {
         });
     }
 
-    render({
-        t,
-        onAdd,
-        onRemove,
-    }, {
-        valid,
-        electrumServer,
-        electrumCert,
-        tls,
-        loadingCheck,
-        loadingCert,
-    }) {
+    render() {
+        const {
+            t,
+            onAdd,
+            onRemove,
+        } = this.props;
+        const {
+            valid,
+            electrumServer,
+            electrumCert,
+            tls,
+            loadingCheck,
+            loadingCert,
+        } = this.state;
         if (!onAdd) {
             return (
                 <li>
@@ -260,11 +262,9 @@ class ElectrumServersClass extends Component {
         });
     }
 
-    render({
-        t,
-    }, {
-        electrumServers,
-    }) {
+    render() {
+        const { t } = this.props;
+        const { electrumServers } = this.state;
         let onRemove = (server, index) => (() => {
             confirmation(t('settings.electrum.removeConfirm', { server: server.server }), confirmed => {
                 if (confirmed) this.onRemove(index);
@@ -281,6 +281,7 @@ class ElectrumServersClass extends Component {
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
+                                    // @ts-ignore
                                     key={server.server + server.tls.toString()}
                                     server={server}
                                     onRemove={onRemove(server, index)}
@@ -316,12 +317,9 @@ class ElectrumSettings extends Component {
         this.setState({ activeTab: target });
     }
 
-    render({
-        t,
-    }, {
-        testing,
-        activeTab,
-    }) {
+    render() {
+        const { t } = this.props;
+        const { testing, activeTab } = this.state;
         return (
             <div class="contentWithGuide">
                 <div class="container">

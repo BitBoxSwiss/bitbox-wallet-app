@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import * as backendAPI from '../../../api/backend';
@@ -210,17 +210,16 @@ class AddAccount extends Component<Props, State> {
         }
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t } = this.props;
+        const {
             accountName,
             coinCode,
             errorMessage,
             step,
             supportedCoins,
             adding,
-        }: Readonly<State>
-    ) {
+        } = this.state;
         if (supportedCoins.length === 0) {
             return null;
         }
