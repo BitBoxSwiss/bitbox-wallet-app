@@ -186,7 +186,7 @@ class LanguageSwitch extends Component<Props, State> {
                                     return (
                                         <button
                                             key={language.code}
-                                            class={[style.language, selected ? style.selected : ''].join(' ')}
+                                            className={[style.language, selected ? style.selected : ''].join(' ')}
                                             onClick={this.changeLanguage}
                                             data-index={i}
                                             data-code={language.code}>

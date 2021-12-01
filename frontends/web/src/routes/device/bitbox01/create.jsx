@@ -104,7 +104,7 @@ class Create extends Component {
                                     placeholder={t('backup.create.password.placeholder')}
                                     onInput={this.handleFormChange}
                                     value={recoveryPassword} />
-                                <div class={style.actions}>
+                                <div className={style.actions}>
                                     <Button type="submit" primary disabled={waiting || !this.validate()}>
                                         {t('button.create')}
                                     </Button>

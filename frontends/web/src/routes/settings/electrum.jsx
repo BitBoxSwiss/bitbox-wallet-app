@@ -120,34 +120,34 @@ class ElectrumServerClass extends Component {
         if (!onAdd) {
             return (
                 <li>
-                    <div class={style.server}>
-                        <div class={style.serverLabel}>
+                    <div className={style.server}>
+                        <div className={style.serverLabel}>
                             {electrumServer}
                             {' '}
                             <strong>{tls ? 'TLS' : 'TCP' }</strong>
                         </div>
                         <div>
-                            <button class={style.primary} disabled={electrumServer === '' || (tls && electrumCert === '') || loadingCheck} onClick={this.check}>
+                            <button className={style.primary} disabled={electrumServer === '' || (tls && electrumCert === '') || loadingCheck} onClick={this.check}>
                                 {
                                     loadingCheck && (
-                                        <div class={style.miniSpinnerContainer}>
-                                            <div class={style.miniSpinner}></div>
+                                        <div className={style.miniSpinnerContainer}>
+                                            <div className={style.miniSpinner}></div>
                                         </div>
                                     )
                                 }
                                 { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
                             </button>
-                            <button class={style.warning} onClick={onRemove}>{t('settings.electrum.remove-server')}</button>
+                            <button className={style.warning} onClick={onRemove}>{t('settings.electrum.remove-server')}</button>
                         </div>
                     </div>
                 </li>
             );
         }
         return (
-            <div class={style.addServer}>
-                <div class="flex flex-row flex-start flex-wrap">
-                    <p class={style.badge}>{t('settings.electrum.step1')}</p>
-                    <div class="flex-1">
+            <div className={style.addServer}>
+                <div className="flex flex-row flex-start flex-wrap">
+                    <p className={style.badge}>{t('settings.electrum.step1')}</p>
+                    <div className="flex-1">
                         <p>{t('settings.electrum.step1-text')}</p>
                     </div>
                 </div>
@@ -157,15 +157,15 @@ class ElectrumServerClass extends Component {
                     value={electrumServer}
                     placeholder="host:port"
                 />
-                <div class="flex flex-row flex-start flex-wrap">
-                    <p class={style.badge}>{t('settings.electrum.step2')}</p>
-                    <div class="flex-1">
+                <div className="flex flex-row flex-start flex-wrap">
+                    <p className={style.badge}>{t('settings.electrum.step2')}</p>
+                    <div className="flex-1">
                         <p>{t('settings.electrum.step2-text')}</p>
                         <p>{t('settings.electrum.step2-text-tcp')}</p>
                     </div>
                 </div>
                 <textarea
-                    class={style.textarea}
+                    className={style.textarea}
                     rows={10}
                     cols={80}
                     name="electrumCert"
@@ -173,30 +173,30 @@ class ElectrumServerClass extends Component {
                     value={electrumCert}
                     placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'}
                 />
-                <div class={[style.block, 'flex flex-row flex-end'].join(' ')}>
+                <div className={[style.block, 'flex flex-row flex-end'].join(' ')}>
                     <Button primary disabled={loadingCert || electrumCert !== ''} onClick={this.downloadCert}>
                         {
                             loadingCert && (
-                                <div class={style.miniSpinnerContainer}>
-                                    <div class={style.miniSpinner}></div>
+                                <div className={style.miniSpinnerContainer}>
+                                    <div className={style.miniSpinner}></div>
                                 </div>
                             )
                         }
                         {t('settings.electrum.download-cert')}
                     </Button>
                 </div>
-                <div class="flex flex-row flex-start flex-wrap">
-                    <p class={style.badge}>{t('settings.electrum.step3')}</p>
-                    <div class="flex-1">
+                <div className="flex flex-row flex-start flex-wrap">
+                    <p className={style.badge}>{t('settings.electrum.step3')}</p>
+                    <div className="flex-1">
                         <p>{t('settings.electrum.step3-text')}</p>
                     </div>
                 </div>
-                <div class={['flex flex-row flex-end spaced', style.block].join(' ')}>
+                <div className={['flex flex-row flex-end spaced', style.block].join(' ')}>
                     <Button primary disabled={electrumServer === '' || loadingCheck} onClick={this.check}>
                         {
                             loadingCheck && (
-                                <div class={style.miniSpinnerContainer}>
-                                    <div class={style.miniSpinner}></div>
+                                <div className={style.miniSpinnerContainer}>
+                                    <div className={style.miniSpinner}></div>
                                 </div>
                             )
                         }
@@ -204,9 +204,9 @@ class ElectrumServerClass extends Component {
                     </Button>
                     <Button primary disabled={!valid} onClick={this.add}>{t('settings.electrum.add-server')}</Button>
                 </div>
-                <div class="flex flex-row flex-start flex-wrap">
-                    <p class={style.badge}>{t('settings.electrum.step4')}</p>
-                    <div class="flex-1">
+                <div className="flex flex-row flex-start flex-wrap">
+                    <p className={style.badge}>{t('settings.electrum.step4')}</p>
+                    <div className="flex-1">
                         <p>{t('settings.electrum.step4-text')}</p>
                     </div>
                 </div>
@@ -271,13 +271,13 @@ class ElectrumServersClass extends Component {
             });
         });
         return (
-            <div class={style.serversContainer}>
-                <div class="row">
+            <div className={style.serversContainer}>
+                <div className="row">
                     <div className={['flex flex-row flex-between flex-items-center', style.titleContainer].join(' ')}>
-                        <h4 class={style.title}>{t('settings.electrum.servers')}</h4>
+                        <h4 className={style.title}>{t('settings.electrum.servers')}</h4>
                         <A href="#" className={['labelLarge labelLink', style.resetLink].join(' ')} onClick={this.resetToDefault}>{t('settings.electrum.reset')}</A>
                     </div>
-                    <ul class={style.servers}>
+                    <ul className={style.servers}>
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
@@ -291,8 +291,8 @@ class ElectrumServersClass extends Component {
                     </ul>
                 </div>
                 <hr />
-                <div class="row">
-                    <h4 class={style.title}>{t('settings.electrum.add')}</h4>
+                <div className="row">
+                    <h4 className={style.title}>{t('settings.electrum.add')}</h4>
                     <ElectrumServer server={null} onAdd={this.onAdd} />
                 </div>
             </div>
@@ -321,16 +321,16 @@ class ElectrumSettings extends Component {
         const { t } = this.props;
         const { testing, activeTab } = this.state;
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
-                            <div class="flex flex-row flex-between flex-items-center tabs">
-                                <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
+                            <div className="flex flex-row flex-between flex-items-center tabs">
+                                <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
                                     <a href="#" onClick={this.handleTab} data-tab="btc">{t(`settings.electrum.title-${testing ? 'tbtc' : 'btc'}`)}</a>
                                 </div>
-                                <div class={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
+                                <div className={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
                                     <a href="#" onClick={this.handleTab} data-tab="ltc">{t(`settings.electrum.title-${testing ? 'tltc' : 'ltc'}`)}</a>
                                 </div>
                             </div>

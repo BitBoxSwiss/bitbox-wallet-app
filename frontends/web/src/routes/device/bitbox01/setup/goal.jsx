@@ -29,7 +29,7 @@ class Goal extends Component {
             onRestore,
         } = this.props;
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />

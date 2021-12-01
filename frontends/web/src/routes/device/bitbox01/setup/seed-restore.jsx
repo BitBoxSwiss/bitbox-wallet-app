@@ -93,7 +93,7 @@ class SeedRestore extends Component {
             error,
         } = this.state;
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />
@@ -111,8 +111,8 @@ class SeedRestore extends Component {
                             }
                             {
                                 showInfo ? (
-                                    <div class="box large">
-                                        <ol class="first">
+                                    <div className="box large">
+                                        <ol className="first">
                                             <li>{t('seedRestore.info.description1')}</li>
                                             <li>{t('seedRestore.info.description2')}</li>
                                             <li>{t('seedRestore.info.description3')}</li>

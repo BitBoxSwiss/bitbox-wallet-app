@@ -92,13 +92,13 @@ class Moonpay extends Component<Props, State> {
         }
         const name = this.getCryptoName();
         return (
-            <div class="contentWithGuide">
-                <div class="container">
-                    <div class={style.header}>
+            <div className="contentWithGuide">
+                <div className="container">
+                    <div className={style.header}>
                         <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
                     </div>
-                    <div ref={this.ref} class="innerContainer">
-                        <div class="noSpace" style={{ height }}>
+                    <div ref={this.ref} className="innerContainer">
+                        <div className="noSpace" style={{ height }}>
                             <Spinner text={t('loading')} />
                             <iframe
                                 width="100%"

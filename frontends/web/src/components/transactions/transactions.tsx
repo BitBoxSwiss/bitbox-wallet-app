@@ -78,7 +78,7 @@ class Transactions extends Component<Props> {
                             index={index}
                             {...props} />
                     )) : (
-                        <div class={['flex flex-row flex-center', style.empty].join(' ')}>
+                        <div className={['flex flex-row flex-center', style.empty].join(' ')}>
                             <p>{t('transactions.placeholder')}</p>
                         </div>
                     )

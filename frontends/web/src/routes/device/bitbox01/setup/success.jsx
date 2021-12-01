@@ -36,7 +36,7 @@ class Success extends Component {
             goal,
         } = this.props;
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />
@@ -49,13 +49,13 @@ class Success extends Component {
                                     {t(`success.${goal}.summary`)}
                                 </p>
                                 { goal === 'create' ? (
-                                    <ul class={style.summary}>
+                                    <ul className={style.summary}>
                                         <li>{t('success.create.info1')}</li>
                                         <li>{t('success.create.info2')}</li>
                                         <li>{t('success.create.info3')}</li>
                                     </ul>
                                 ) : null}
-                                <div class="buttons">
+                                <div className="buttons">
                                     <Button primary onClick={this.handleGetStarted}>
                                         {t('success.getstarted')}
                                     </Button>

@@ -102,36 +102,36 @@ class WaitDialog extends Component<Props, State> {
                 {
                     paired ? (
                         <div>
-                            <p class={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
-                                <span class={style.confirmationLabelNumber}>1.</span>
+                            <p className={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
+                                <span className={style.confirmationLabelNumber}>1.</span>
                                 {t('confirm.infoWhenPaired')}
                             </p>
-                            <p class={[style.confirmationLabel, !touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
-                                <span class={style.confirmationLabelNumber}>2.</span>
+                            <p className={[style.confirmationLabel, !touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
+                                <span className={style.confirmationLabelNumber}>2.</span>
                                 {t('confirm.info')}
                             </p>
                         </div>
                     ) : (
-                        <p class={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
+                        <p className={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
                             {t('confirm.info')}
                         </p>
                     )
                 }
                 {
                     touchConfirm && (
-                        <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
-                            <div class="flex flex-column flex-center flex-items-center">
-                                <img class={style.image} src={reject} alt="Reject" />
+                        <div className={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
+                            <div className="flex flex-column flex-center flex-items-center">
+                                <img className={style.image} src={reject} alt="Reject" />
                                 <p>
                                     {t('confirm.abortInfo')}
-                                    <span class="text-red">{t('confirm.abortInfoRedText')}</span>
+                                    <span className="text-red">{t('confirm.abortInfoRedText')}</span>
                                 </p>
                             </div>
-                            <div class="flex flex-column flex-center flex-items-center">
-                                <img class={style.image} src={approve} alt="Approve" />
+                            <div className="flex flex-column flex-center flex-items-center">
+                                <img className={style.image} src={approve} alt="Approve" />
                                 <p>
                                     {t('confirm.approveInfo')}
-                                    <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
+                                    <span className="text-green">{t('confirm.approveInfoGreenText')}</span>
                                 </p>
                             </div>
                         </div>
@@ -158,7 +158,7 @@ class WaitDialog extends Component<Props, State> {
                         <div className={style.content}>
                             { (hasChildren && includeDefault) ? defaultContent : null }
                             { hasChildren ? (
-                                <div class="flex flex-column flex-start">
+                                <div className="flex flex-column flex-start">
                                     {children}
                                 </div>
                             ) : defaultContent }

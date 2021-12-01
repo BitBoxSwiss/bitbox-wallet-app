@@ -165,7 +165,7 @@ class Dialog extends Component<Props, State> {
                     {
                         title && (
                             <div className={[style.header, isCentered].join(' ')}>
-                                <h3 class={style.title}>{title}</h3>
+                                <h3 className={style.title}>{title}</h3>
                                 { onClose ? (
                                     <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -211,7 +211,7 @@ class Dialog extends Component<Props, State> {
 
 function DialogButtons({ children }: RenderableProps<{}>) {
     return (
-        <div class={style.dialogButtons}>{children}</div>
+        <div className={style.dialogButtons}>{children}</div>
     );
 }
 

@@ -495,7 +495,7 @@ class BitBox02 extends Component<Props, State> {
                                         title={t('bitbox02Wizard.stepUninitialized.title')}
                                         large>
                                         <Toast theme="info">
-                                            <div class="flex flex-items-center">
+                                            <div className="flex flex-items-center">
                                                 <img src={warning} style="width: 18px; margin-right: 10px" />
                                                 {t('bitbox02Wizard.initialize.tip')}
                                             </div>

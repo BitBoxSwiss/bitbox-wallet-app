@@ -198,10 +198,10 @@ class Receive extends Component<Props, State> {
         }
         const content = (
             <div style="position: relative;">
-                <div class={style.qrCodeContainer}>
+                <div className={style.qrCodeContainer}>
                     <QRCode data={enableCopy ? uriPrefix + address : undefined} />
                 </div>
-                <div class={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
+                <div className={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
                     {
                         currentAddresses.length > 1 && (
                             <a
@@ -227,7 +227,7 @@ class Receive extends Component<Props, State> {
                             </a>
                         )
                     }
-                    <p class={style.label}>{t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}</p>
+                    <p className={style.label}>{t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}</p>
                     {
                         currentAddresses.length > 1 && (
                             <a
@@ -323,15 +323,15 @@ class Receive extends Component<Props, State> {
         );
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Status type="warning" hidden={paired !== false}>
                         {t('warning.receivePairing')}
                     </Status>
                     <Header title={<h2>{t('receive.title', { accountName: account.coinName })}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content narrow isVerticallyCentered">
-                            <div class="box large text-center">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content narrow isVerticallyCentered">
+                            <div className="box large text-center">
                                 {content}
                             </div>
                         </div>

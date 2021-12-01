@@ -110,7 +110,7 @@ class Bootloader extends Component {
             <div className="contentWithGuide">
                 <div className="container">
                     <div className="innerContainer">
-                        <div class="content narrow isVerticallyCentered">
+                        <div className="content narrow isVerticallyCentered">
                             <div className={[style.container, style.scrollable].join(' ')}>
                                 <BitBox />
                                 <div className="box large">

@@ -109,7 +109,7 @@ class Backups extends Component<Props, State> {
                             </Toast>
                         )
                     }
-                    <div class={backupStyle.backupsList}>
+                    <div className={backupStyle.backupsList}>
                         {
                             backups.backups!.length ? (
                                 <div className={backupStyle.listContainer}>

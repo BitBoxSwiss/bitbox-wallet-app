@@ -84,8 +84,8 @@ class Settings extends Component<Props, State> {
             <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('sidebar.device')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             <div className="columnsContainer">
                                 <div className="columns">
                                     <div className="column column-1-2">
@@ -116,7 +116,7 @@ class Settings extends Component<Props, State> {
                                 <div className="columns">
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
-                                        <div class="box slim divide">
+                                        <div className="box slim divide">
                                             {
                                                 versionInfo && versionInfo.canUpgrade ? (
                                                     <UpgradeButton
