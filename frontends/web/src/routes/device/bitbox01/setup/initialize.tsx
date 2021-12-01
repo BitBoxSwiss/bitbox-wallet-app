@@ -143,7 +143,7 @@ class Initialize extends Component<Props, State> {
                 </div>
             </div>
         ) : (
-            <form onSubmit={this.handleSubmit} class="box large">
+            <form onSubmit={this.handleSubmit} className="box large">
                 <PasswordRepeatInput
                     pattern="^.{4,}$"
                     label={t('initialize.input.label')}
@@ -169,7 +169,7 @@ class Initialize extends Component<Props, State> {
         );
 
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />

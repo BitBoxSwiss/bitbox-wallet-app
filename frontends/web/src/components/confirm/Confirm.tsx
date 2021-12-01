@@ -75,7 +75,7 @@ class Confirm extends Component<TranslateProps, State> {
                                 message ? message.split('\n').map((line, i) => (
                                     <p
                                         key={i}
-                                        class={ i === 0 ? 'first' : '' }>
+                                        className={ i === 0 ? 'first' : '' }>
                                         <SimpleMarkup tagName="span" markup={line} />
                                     </p>
                                 )) : null

@@ -150,7 +150,7 @@ class AccountsSummary extends Component<Props, State> {
         const balance = this.state.balances ? this.state.balances[code] : undefined;
         const nameCol = (
             <td data-label={t('accountSummary.name')}>
-                <div class={style.coinName}>
+                <div className={style.coinName}>
                     <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
                     {name}
                 </div>

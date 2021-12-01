@@ -89,12 +89,12 @@ class Info extends Component<Props, State> {
         const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
-                            <div class="box larger">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
+                            <div className="box larger">
                                 { isBitcoinBased(account.coinCode) ? (
                                     <h2 className={style.title}>
                                         {t('accountInfo.extendedPublicKey')}
@@ -107,7 +107,7 @@ class Info extends Component<Props, State> {
                                             numberOfXPubs: numberOfXPubs.toString(),
                                             scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
                                         })}<br />
-                                        <button class={style.nextButton} onClick={this.showNextXPub}>
+                                        <button className={style.nextButton} onClick={this.showNextXPub}>
                                             {t(`accountInfo.xpubTypeChangeBtn.${xpubTypes[(viewXPub + 1) % numberOfXPubs]}`)}
                                         </button>
                                     </p>

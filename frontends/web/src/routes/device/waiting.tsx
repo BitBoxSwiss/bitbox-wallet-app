@@ -43,7 +43,7 @@ class Waiting extends Component<WaitingProps> {
     public render() {
         const { t, testing } = this.props;
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className="content padded narrow isVerticallyCentered">

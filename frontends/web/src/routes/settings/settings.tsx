@@ -164,8 +164,8 @@ class Settings extends Component<Props, State> {
         }
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('settings.title')}</h2>}>
                         {
                             !deviceIDs.length && (
@@ -187,11 +187,11 @@ class Settings extends Component<Props, State> {
                             )
                         }
                     </Header>
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             {
                                 config && (
-                                    <div class="flex-1">
+                                    <div className="flex-1">
                                         <div className="columnsContainer">
                                             <div className="columns">
                                                 <div className="column column-1-3">
@@ -277,7 +277,7 @@ class Settings extends Component<Props, State> {
                                             </div>
                                             {
                                                 restart && (
-                                                    <div class="row">
+                                                    <div className="row">
                                                         <InlineMessage
                                                             type="success"
                                                             align="left"

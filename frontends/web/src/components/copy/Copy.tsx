@@ -91,7 +91,7 @@ class CopyableInput extends Component<Props, State> {
             </button>
         );
         return (
-            <div class={[
+            <div className={[
                 'flex flex-row flex-start flex-items-start',
                 style.container,
                 className ? className : ''

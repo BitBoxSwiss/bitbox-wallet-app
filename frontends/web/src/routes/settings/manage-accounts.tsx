@@ -248,14 +248,14 @@ class ManageAccounts extends Component<Props, State> {
         const { editAccountCode, editAccountNewName, editErrorMessage, favorites } = this.state;
         const accountList = this.renderAccounts();
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-                    <div class="innerContainer scrollContainer">
-                        <div class="content">
+                    <div className="innerContainer scrollContainer">
+                        <div className="content">
                         { favorites ? (
                             <div className="columnsContainer">
-                                <div class="buttons m-bottom-large m-top-large">
+                                <div className="buttons m-bottom-large m-top-large">
                                     <Button
                                         primary
                                         onClick={() => route('/add-account', true)}>

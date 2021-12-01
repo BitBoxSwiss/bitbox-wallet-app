@@ -38,7 +38,7 @@ class RequireUpgrade extends Component {
         const { t, deviceID } = this.props;
         const { firmwareVersion } = this.state;
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className={style.container}>
                     <BitBox />
                     <div className="box">

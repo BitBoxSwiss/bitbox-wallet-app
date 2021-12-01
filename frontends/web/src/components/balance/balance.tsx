@@ -47,7 +47,7 @@ function Balance({
             </table>
             {
                 balance.hasIncoming && (
-                    <p class={style.pendingBalance}>
+                    <p className={style.pendingBalance}>
                         {t('account.incoming')} +{balance.incoming.amount} {balance.incoming.unit} /
                         <span className={style.incomingConversion}>
                             {' '}
