@@ -25,6 +25,7 @@ var (
 	lockInterfaceMockSendTransaction                   sync.RWMutex
 	lockInterfaceMockSubscribeFilterLogs               sync.RWMutex
 	lockInterfaceMockSuggestGasPrice                   sync.RWMutex
+	lockInterfaceMockSuggestGasTipCap                  sync.RWMutex
 	lockInterfaceMockTransactionByHash                 sync.RWMutex
 	lockInterfaceMockTransactionReceiptWithBlockNumber sync.RWMutex
 )
@@ -72,6 +73,9 @@ var _ rpcclient.Interface = &InterfaceMock{}
 //             SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
 // 	               panic("mock out the SuggestGasPrice method")
 //             },
+//             SuggestGasTipCapFunc: func(ctx context.Context) (*big.Int, error) {
+// 	               panic("mock out the SuggestGasTipCap method")
+//             },
 //             TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 // 	               panic("mock out the TransactionByHash method")
 //             },
@@ -117,6 +121,9 @@ type InterfaceMock struct {
 
 	// SuggestGasPriceFunc mocks the SuggestGasPrice method.
 	SuggestGasPriceFunc func(ctx context.Context) (*big.Int, error)
+
+	// SuggestGasTipCapFunc mocks the SuggestGasTipCap method.
+	SuggestGasTipCapFunc func(ctx context.Context) (*big.Int, error)
 
 	// TransactionByHashFunc mocks the TransactionByHash method.
 	TransactionByHashFunc func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error)
@@ -206,6 +213,11 @@ type InterfaceMock struct {
 		}
 		// SuggestGasPrice holds details about calls to the SuggestGasPrice method.
 		SuggestGasPrice []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
+		// SuggestGasTipCap holds details about calls to the SuggestGasTipCap method.
+		SuggestGasTipCap []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
@@ -620,6 +632,37 @@ func (mock *InterfaceMock) SuggestGasPriceCalls() []struct {
 	lockInterfaceMockSuggestGasPrice.RLock()
 	calls = mock.calls.SuggestGasPrice
 	lockInterfaceMockSuggestGasPrice.RUnlock()
+	return calls
+}
+
+// SuggestGasTipCap calls SuggestGasTipCapFunc.
+func (mock *InterfaceMock) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
+	if mock.SuggestGasTipCapFunc == nil {
+		panic("InterfaceMock.SuggestGasTipCapFunc: method is nil but Interface.SuggestGasTipCap was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	lockInterfaceMockSuggestGasTipCap.Lock()
+	mock.calls.SuggestGasTipCap = append(mock.calls.SuggestGasTipCap, callInfo)
+	lockInterfaceMockSuggestGasTipCap.Unlock()
+	return mock.SuggestGasTipCapFunc(ctx)
+}
+
+// SuggestGasTipCapCalls gets all the calls that were made to SuggestGasTipCap.
+// Check the length with:
+//     len(mockedInterface.SuggestGasTipCapCalls())
+func (mock *InterfaceMock) SuggestGasTipCapCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	lockInterfaceMockSuggestGasTipCap.RLock()
+	calls = mock.calls.SuggestGasTipCap
+	lockInterfaceMockSuggestGasTipCap.RUnlock()
 	return calls
 }
 

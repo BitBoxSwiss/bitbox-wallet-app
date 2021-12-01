@@ -78,7 +78,7 @@ func newAccount(t *testing.T) *Account {
 			return 0, nil
 		},
 	}
-	coin := NewCoin(client, coin.CodeTETH, "Ropsten", "TETH", "TETH", params.TestnetChainConfig, "", nil, nil)
+	coin := NewCoin(client, coin.CodeTETH, "Ropsten", "TETH", "TETH", params.RopstenChainConfig, "", nil, nil)
 	acct := NewAccount(
 		&accounts.AccountConfig{
 			Code:                  "accountcode",

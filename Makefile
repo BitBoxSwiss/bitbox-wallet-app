@@ -25,7 +25,6 @@ envinit:
 	GO111MODULE=off go get -u github.com/stretchr/testify # needed for mockery
 	GO111MODULE=on go get -u github.com/vektra/mockery/...
 	GO111MODULE=off go get -u github.com/matryer/moq
-	GO111MODULE=off go get -u github.com/goware/modvendor
 	GO111MODULE=off go get golang.org/x/tools/cmd/goimports
 	GO111MODULE=off go get -u golang.org/x/mobile/cmd/gomobile
 	GO111MODULE=off gomobile init
@@ -95,4 +94,3 @@ locize-fix:
 	locize format ${WEBROOT}/src/locales --format json
 go-vendor:
 	go mod vendor
-	modvendor -copy="**/*.c **/*.h **/*.proto" -v
