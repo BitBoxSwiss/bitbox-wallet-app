@@ -16,7 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { SimpleMarkup } from '../../utils/simplemarkup';
+import { SimpleMarkup } from '../../utils/markup';
 import { Dialog, DialogButtons } from '../dialog/dialog';
 import { Button } from '../forms';
 

@@ -11,22 +11,28 @@
 
 .status {
     font-size: var(--size-subheader);
-    max-width: 90%;
+    max-width: 800px;
     text-align: left;
 }
 
 .success {
     background-color: var(--color-success);
-    color: var(--color-white);
 }
 
 .warning {
     background-color: var(--color-warning);
-    color: var(--color-white);
 }
 
 .info {
     background-color: var(--color-info);
+}
+
+.success,
+.warning,
+.info,
+.success label, /* also force label elements to use color white */
+.warning label,
+.info label {
     color: var(--color-white);
 }
 
@@ -58,11 +64,13 @@
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: calc(var(--space-half) * 1.5);
-    }
-
     .status {
         font-size: var(--size-subheader-mobile);
+    }
+}
+
+@media (max-width: 1199px) {
+    .container {
+        padding: calc(var(--space-half) * 1.5);
     }
 }

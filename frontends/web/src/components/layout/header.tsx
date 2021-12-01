@@ -23,7 +23,7 @@ import { toggleSidebar } from '../sidebar/sidebar';
 import * as style from './header.module.css';
 
 interface HeaderProps {
-    title?: JSX.Element | JSX.Element[];
+    title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;
 }
 type Props = HeaderProps & SharedPanelProps & TranslateProps;

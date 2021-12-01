@@ -15,13 +15,14 @@
  */
 
 import { h, JSX, RenderableProps } from 'preact';
-import * as style from './checkbox.module.css';
+import * as styles from './checkbox.module.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
     className?: string;
     disabled?: boolean;
     label?: string;
     id: string;
+    style?: 'default' | 'info' | 'warning' | 'success';
 }
 
 export default function Checkbox({
@@ -30,10 +31,11 @@ export default function Checkbox({
     id,
     className = '',
     children,
+    style = 'default',
     ...props
 }: RenderableProps<CheckboxProps>) {
     return (
-        <span className={`${style.checkbox} ${className}`}>
+        <span className={`${styles.checkbox} ${className} ${styles[style] || ''}`}>
             <input
                 type="checkbox"
                 id={id}

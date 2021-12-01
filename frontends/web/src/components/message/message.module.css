@@ -28,8 +28,8 @@
 
 .info {
     composes: message;
-    color: var(--color-default);
-    border-color: var(--color-default);
+    color: var(--color-blue);
+    border-color: var(--color-blue);
 }
 
 .warning {

@@ -23,7 +23,7 @@ import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
-import { SimpleMarkup } from '../../../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../../../utils/markup';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
 class HiddenWallet extends Component {
