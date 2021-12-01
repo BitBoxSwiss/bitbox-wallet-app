@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import Toast from '../../../components/toast/Toast';
 import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -82,19 +82,20 @@ class Backups extends Component<Props, State> {
         );
     }
 
-    public render(
-        { t,
-          children,
-          backups,
-          showRestore,
-          showCreate,
-          showRadio,
-          deviceID,
-        }: RenderableProps<Props>,
-        { selectedBackup,
-          restoring,
-          errorText,
-        }: State) {
+    public render() {
+        const {
+            t,
+            children,
+            backups,
+            showRestore,
+            showCreate,
+            showRadio,
+            deviceID,
+        } = this.props;
+        const { selectedBackup,
+            restoring,
+            errorText,
+        } = this.state;
         if (!backups.success) {
             return <div>Error fetching backups</div>;
         }
@@ -108,7 +109,7 @@ class Backups extends Component<Props, State> {
                             </Toast>
                         )
                     }
-                    <div class={backupStyle.backupsList}>
+                    <div className={backupStyle.backupsList}>
                         {
                             backups.backups!.length ? (
                                 <div className={backupStyle.listContainer}>

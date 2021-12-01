@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { SimpleMarkup } from '../../utils/simplemarkup';
+import { SimpleMarkup } from '../../utils/markup';
 import { Dialog, DialogButtons } from '../dialog/dialog';
 import { Button } from '../forms';
 
@@ -63,7 +63,9 @@ class Confirm extends Component<TranslateProps, State> {
         this.respond(true);
     }
 
-    public render({ t }: RenderableProps<TranslateProps>, { message, active, customButtonText }: State) {
+    public render() {
+        const { t } = this.props;
+        const { message, active, customButtonText } = this.state;
         return active ? (
             <Dialog title={t('dialog.confirmTitle')} onClose={this.decline}>
                 <div className="columnsContainer half">
@@ -73,7 +75,7 @@ class Confirm extends Component<TranslateProps, State> {
                                 message ? message.split('\n').map((line, i) => (
                                     <p
                                         key={i}
-                                        class={ i === 0 ? 'first' : '' }>
+                                        className={ i === 0 ? 'first' : '' }>
                                         <SimpleMarkup tagName="span" markup={line} />
                                     </p>
                                 )) : null

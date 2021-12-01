@@ -48,6 +48,7 @@ import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 // import { Exchanges } from './routes/exchanges/exchanges';
 // import ElectrumSettings from './routes/settings/electrum';
 // import { Settings } from './routes/settings/settings';
+// import { Passphrase } from './routes/device/bitbox02/passphrase';
 import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
@@ -145,6 +146,7 @@ class App extends Component<WithTranslation, State> {
         //     currentURL.startsWith('/account-summary')
         //     || currentURL.startsWith('/add-account')
         //     || currentURL.startsWith('/settings/manage-accounts')
+        //     || currentURL.startsWith('/passphrase')
         // )) {
         //     route('/', true);
         //     return;
@@ -239,6 +241,9 @@ class App extends Component<WithTranslation, State> {
             //                     manageAccountsLen={accounts.length}
             //                     deviceIDs={deviceIDs}
             //                     path="/settings" />
+            //                 <Passphrase
+            //                     deviceID={'' /* dummy to satisfy TS */}
+            //                     path="/passphrase/:deviceID" />
             //                 <ManageAccounts
             //                     key={'manage-accounts'}
             //                     path="/settings/manage-accounts" />

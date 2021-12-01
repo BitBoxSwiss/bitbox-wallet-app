@@ -99,13 +99,14 @@ class ManageBackups extends Component {
         }
     }
 
-    render({ t }, { }) {
+    render() {
+        const { t } = this.props;
         if (!this.hasDevice()) {
             return null;
         }
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">

@@ -374,13 +374,13 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 			nil)
 	case code == coinpkg.CodeTETH:
 		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "Ethereum Ropsten", "TETH", "TETH", params.TestnetChainConfig,
+		coin = eth.NewCoin(etherScan, code, "Ethereum Ropsten", "TETH", "TETH", params.RopstenChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeERC20TEST:
 		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "ERC20 TEST", "TEST", "TETH", params.TestnetChainConfig,
+		coin = eth.NewCoin(etherScan, code, "ERC20 TEST", "TEST", "TETH", params.RopstenChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			etherScan,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),

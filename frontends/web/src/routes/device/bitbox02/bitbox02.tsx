@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
@@ -364,9 +364,9 @@ class BitBox02 extends Component<Props, State> {
         this.setState(obj);
     }
 
-    public render(
-        { t, deviceID }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t, deviceID } = this.props;
+        const {
             attestationResult,
             versionInfo,
             hash,
@@ -388,8 +388,7 @@ class BitBox02 extends Component<Props, State> {
             agreement4,
             agreement5,
             waitDialog,
-        }: State,
-    ) {
+        } = this.state;
         if (status === '') {
             return null;
         }
@@ -437,8 +436,8 @@ class BitBox02 extends Component<Props, State> {
                         <Steps>
                             { (status === 'connected') ? (
                                 <View
-                                    center
-                                    position="fullscreen"
+                                    fullscreen
+                                    textCenter
                                     withBottomBar
                                     width="600px">
                                     <ViewHeader title={t('button.unlock')}>
@@ -496,7 +495,7 @@ class BitBox02 extends Component<Props, State> {
                                         title={t('bitbox02Wizard.stepUninitialized.title')}
                                         large>
                                         <Toast theme="info">
-                                            <div class="flex flex-items-center">
+                                            <div className="flex flex-items-center">
                                                 <img src={warning} style="width: 18px; margin-right: 10px" />
                                                 {t('bitbox02Wizard.initialize.tip')}
                                             </div>

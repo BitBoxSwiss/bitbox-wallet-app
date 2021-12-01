@@ -22,15 +22,16 @@ export default class InlineMessage extends Component {
         this.props.onEnd();
     }
 
-    render({
-        type,
-        message,
-        align,
-    }, {}) {
+    render() {
+        const {
+            type,
+            message,
+            align,
+        } = this.props;
         return (
-            <div class={[style.inlineMessage, style[type], align ? style[align] : ''].join(' ')}>
+            <div className={[style.inlineMessage, style[type], align ? style[align] : ''].join(' ')}>
                 {message}
-                <div class={style.close} onClick={this.deactivate}>✕</div>
+                <div className={style.close} onClick={this.deactivate}>✕</div>
             </div>
         );
     }

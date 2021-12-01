@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -57,15 +57,16 @@ class UpgradeButton extends Component<Props, State> {
         this.setState({ activeDialog: false });
     }
 
-    public render(
-        { t,
-          versionInfo,
-          asButton,
-        }: RenderableProps<Props>,
-        { activeDialog,
-          confirming,
-        }: State,
-    ) {
+    public render() {
+        const {
+            t,
+            versionInfo,
+            asButton,
+        } = this.props;
+        const {
+            activeDialog,
+            confirming,
+        } = this.state;
         if (!versionInfo || !versionInfo.canUpgrade) {
             return null;
         }

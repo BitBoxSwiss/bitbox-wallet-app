@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
@@ -42,9 +42,9 @@ class GotoStartupSettings extends Component<Props, State> {
         });
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        { isConfirming }: State) {
+    public render() {
+        const { t } = this.props;
+        const { isConfirming } = this.state;
         return (
             <div>
                 <SettingsButton

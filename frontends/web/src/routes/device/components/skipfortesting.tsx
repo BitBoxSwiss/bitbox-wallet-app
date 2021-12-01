@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
@@ -41,7 +41,9 @@ export class SkipForTesting extends Component<SkipForTestingProps, SkipForTestin
         this.setState({ testPIN: value });
     }
 
-    public render({ show }: RenderableProps<SkipForTestingProps>, { testPIN }: SkipForTestingState) {
+    public render() {
+        const { show } = this.props;
+        const { testPIN } = this.state;
         if (!show) {
             return null;
         }

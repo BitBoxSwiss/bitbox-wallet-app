@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentFactory, h, JSX, RenderableProps } from 'preact';
+import { Component, ComponentFactory, h, JSX } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { ObjectButNotFunction } from '../utils/types';
 import { Store } from './store';
@@ -65,7 +65,8 @@ export function share<SharedProps extends ObjectButNotFunction, ProvidedProps ex
                 store.unsubscribe(this);
             }
 
-            public render(props: RenderableProps<ProvidedProps & Partial<SharedProps>>): JSX.Element {
+            public render(): JSX.Element {
+                const props = this.props;
                 return <WrappedComponent {...store.state} {...props as any} />; // This order allows the parent component to override the shared store with properties.
             }
         };

@@ -41,17 +41,17 @@ export default class Toast extends Component {
         this.toast = ref;
     }
 
-    render({
-        theme,
-        children,
-        withGuide,
-    }, {
-        active,
-    }) {
+    render() {
+        const {
+            theme,
+            children,
+            withGuide,
+        } = this.props;
+        const { active } = this.state;
         return (
             <div
                 ref={this.setRef}
-                class={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
+                className={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
                 <p>{children}</p>
             </div>
         );

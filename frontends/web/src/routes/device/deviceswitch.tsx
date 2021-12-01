@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { TDevices } from '../../api/devices';
 import BitBox01 from './bitbox01/bitbox01';
 import { BitBox02 } from './bitbox02/bitbox02';
@@ -27,7 +27,8 @@ interface Props {
 }
 
 class DeviceSwitch extends Component<Props, {}> {
-    public render({ deviceID, devices }: RenderableProps<Props>) {
+    public render() {
+        const { deviceID, devices } = this.props;
         if (this.props.default || deviceID === null || !Object.keys(devices).includes(deviceID)) {
             return <Waiting />;
         }

@@ -50,14 +50,16 @@ class DeviceLock extends Component {
         this.setState({ activeDialog: false });
     }
 
-    render({
-        t,
-        disabled,
-        lock,
-    }, {
-        isConfirming,
-        activeDialog,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+            lock,
+        } = this.props;
+        const {
+            isConfirming,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 <SettingsButton
@@ -75,7 +77,7 @@ class DeviceLock extends Component {
                             <p>{t('deviceLock.condition1')}</p>
                             <p>{t('deviceLock.condition2')}</p>
                             <p>{t('deviceLock.condition3')}</p>
-                            <div class={style.actions}>
+                            <div className={style.actions}>
                                 <Button danger onClick={this.resetDevice}>
                                     {t('deviceLock.confirm')}
                                 </Button>

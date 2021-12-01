@@ -23,7 +23,7 @@ import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
-import { SimpleMarkup } from '../../../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../../../utils/markup';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
 class HiddenWallet extends Component {
@@ -82,13 +82,15 @@ class HiddenWallet extends Component {
         this.setState({ pin });
     }
 
-    render({
-        t,
-        disabled,
-    }, {
-        isConfirming,
-        activeDialog,
-    }) {
+    render() {
+        const {
+            t,
+            disabled,
+        } = this.props;
+        const {
+            isConfirming,
+            activeDialog,
+        } = this.state;
         return (
             <div>
                 <SettingsButton

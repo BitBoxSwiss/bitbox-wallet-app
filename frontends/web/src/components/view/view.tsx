@@ -21,28 +21,43 @@ import { SwissMadeOpenSource } from '../icon/logo';
 import { Close } from '../icon/icon';
 import * as style from './view.module.css';
 
-type Props = {
-    center?: boolean;
+type ViewProps = {
+    fullscreen?: boolean;
+    minHeight?: string;
+    top?: boolean;
     onClose?: () => void;
-    position?: 'fill' | 'fullscreen';
+    position?: 'fill' | '';
+    textCenter?: boolean;
     width?: string;
     withBottomBar?: boolean;
 }
 
 export function View({
-    center = false,
+    fullscreen,
+    top = false,
     children,
+    minHeight,
     onClose,
-    position = 'fill',
+    textCenter,
     width,
     withBottomBar,
-}: RenderableProps<Props>) {
-    const styles = width ? { style: `width: ${width}` } : undefined;
+}: RenderableProps<ViewProps>) {
+    let classNames = style.inner;
+    if (!top) {
+        classNames += ` ${style.center}`;
+    }
+    if (textCenter) {
+        classNames += ` ${style.textCenter}`;
+    }
+    const inlineStyles = {
+        ...(minHeight && { minHeight }),
+        ...(width && { width }),
+    };
     return (
-        <div className={position === 'fullscreen' ? style.fullscreen : style.fill}>
+        <div className={fullscreen ? style.fullscreen : style.fill}>
             <div
-                className={center ? `${style.inner} ${style.center}` : style.inner}
-                {...styles}>
+                className={classNames}
+                style={inlineStyles}>
                 {children}
             </div>
             {onClose && (
@@ -68,10 +83,11 @@ type ViewContentProps = {
 export function ViewContent({
     children,
     fullWidth,
+    ...props
 }: RenderableProps<ViewContentProps>) {
     const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
     return (
-        <div className={classes}>{children}</div>
+        <div className={classes} {...props}>{children}</div>
     );
 }
 
@@ -97,7 +113,9 @@ export function ViewHeader({
     );
 }
 
-export function ViewButtons({ children }) {
+type ViewButtonsProps = {}
+
+export function ViewButtons({ children }: RenderableProps<ViewButtonsProps>) {
     return (
         <div className={style.buttons}>
             {children}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -111,18 +111,18 @@ class Restore extends Component<Props, State> {
         this.setState({ password });
     }
 
-    public render(
-        {
+    public render() {
+        const {
             t,
             selectedBackup,
             requireConfirmation,
-        }: RenderableProps<Props>,
-        {
+        } = this.props;
+        const {
             isConfirming,
             activeDialog,
             isLoading,
             understand,
-        }: State) {
+        } = this.state;
         return (
             <span>
                 <Button

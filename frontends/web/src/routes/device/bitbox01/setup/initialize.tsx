@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../../../../components/forms';
 import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -102,10 +102,9 @@ class Initialize extends Component<Props, State> {
         this.setState({ showInfo: false });
     }
 
-    public render(
-        { t, goBack }: RenderableProps<Props>,
-        { showInfo, password, status, errorCode, errorMessage }: State,
-    ) {
+    public render() {
+        const { t, goBack } = this.props;
+        const { showInfo, password, status, errorCode, errorMessage } = this.state;
         let formSubmissionState;
         switch (status) {
         case stateEnum.DEFAULT:
@@ -144,7 +143,7 @@ class Initialize extends Component<Props, State> {
                 </div>
             </div>
         ) : (
-            <form onSubmit={this.handleSubmit} class="box large">
+            <form onSubmit={this.handleSubmit} className="box large">
                 <PasswordRepeatInput
                     pattern="^.{4,}$"
                     label={t('initialize.input.label')}
@@ -170,7 +169,7 @@ class Initialize extends Component<Props, State> {
         );
 
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />

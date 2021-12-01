@@ -71,14 +71,14 @@ class Bootloader extends Component {
         apiPost('devices/' + this.props.deviceID + '/bootloader/upgrade-firmware');
     }
 
-    render({
-        t
-    }, {
-        upgrading,
-        progress,
-        upgradeSuccessful,
-        errMsg,
-    }) {
+    render() {
+        const { t } = this.props;
+        const {
+            upgrading,
+            progress,
+            upgradeSuccessful,
+            errMsg,
+        } = this.state;
         let UpgradeOrStatus;
 
         if (upgrading) {
@@ -110,7 +110,7 @@ class Bootloader extends Component {
             <div className="contentWithGuide">
                 <div className="container">
                     <div className="innerContainer">
-                        <div class="content narrow isVerticallyCentered">
+                        <div className="content narrow isVerticallyCentered">
                             <div className={[style.container, style.scrollable].join(' ')}>
                                 <BitBox />
                                 <div className="box large">

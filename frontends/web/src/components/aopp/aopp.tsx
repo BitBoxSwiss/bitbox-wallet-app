@@ -20,12 +20,12 @@ import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { equal } from '../../utils/equal';
-import { SimpleMarkup } from '../../utils/simplemarkup';
+import { SimpleMarkup } from '../../utils/markup';
 import { View, ViewHeader, ViewContent, ViewButtons } from '../view/view';
 import { Message } from '../message/message';
 import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { BitBox02Stylized, Cancel, CaretDown, Checked } from '../icon';
+import { Cancel, Checked, PointToBitBox02 } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
 import * as styles from './aopp.module.css';
@@ -86,17 +86,16 @@ class Aopp extends Component<Props, State> {
         e.preventDefault();
     }
 
-    public render(
-        { t, aopp }: RenderableProps<Props>,
-        { accountCode }: State,
-    ) {
+    public render() {
+        const { t, aopp } = this.props;
+        const { accountCode } = this.state;
         if (!aopp) {
             return null;
         }
         switch (aopp.state) {
             case 'error':
                 return (
-                    <View center position="fullscreen">
+                    <View fullscreen textCenter>
                         <ViewHeader title={t('aopp.errorTitle')}>
                             <p>{domain(aopp.callback)}</p>
                         </ViewHeader>
@@ -116,7 +115,7 @@ class Aopp extends Component<Props, State> {
                 return null;
             case 'user-approval':
                 return (
-                    <View center position="fullscreen">
+                    <View fullscreen textCenter>
                         <ViewHeader title={t('aopp.title')} withAppLogo />
                         <ViewContent>
                             <Vasp prominent
@@ -147,7 +146,7 @@ class Aopp extends Component<Props, State> {
                 });
                 return (
                     <form onSubmit={this.chooseAccount}>
-                        <View center position="fullscreen">
+                        <View fullscreen textCenter>
                             <ViewHeader title={t('aopp.title')}>
                                 <Vasp hostname={domain(aopp.callback)} />
                             </ViewHeader>
@@ -170,7 +169,7 @@ class Aopp extends Component<Props, State> {
             }
             case 'syncing':
                 return (
-                    <View center position="fullscreen">
+                    <View fullscreen textCenter>
                         <ViewHeader title={t('aopp.title')}>
                             <Vasp hostname={domain(aopp.callback)} />
                         </ViewHeader>
@@ -184,7 +183,7 @@ class Aopp extends Component<Props, State> {
                 );
             case 'signing':
                 return (
-                    <View center position="fullscreen">
+                    <View fullscreen textCenter>
                         <ViewHeader small title={t('aopp.title')}>
                             <Vasp hostname={domain(aopp.callback)} />
                         </ViewHeader>
@@ -200,14 +199,13 @@ class Aopp extends Component<Props, State> {
                                     {aopp.message}
                                 </div>
                             </Field>
-                            <CaretDown className={styles.caret} />
-                            <BitBox02Stylized className={styles.device} />
+                            <PointToBitBox02 />
                         </ViewContent>
                     </View>
                 );
             case 'success':
                 return (
-                    <View center position="fullscreen">
+                    <View fullscreen textCenter>
                         <ViewContent>
                             <Checked className={styles.largeIcon} />
                             <p className={styles.successText}>{t('aopp.success.title')}</p>

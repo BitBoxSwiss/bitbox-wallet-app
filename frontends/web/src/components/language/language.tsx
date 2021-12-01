@@ -111,8 +111,12 @@ class LanguageSwitch extends Component<Props, State> {
     }
 
     render() {
-        const { activeDialog, languages, selectedIndex } = this.state;
         const { t } = this.props;
+        const {
+            selectedIndex,
+            activeDialog,
+            languages,
+        } = this.state;
         if (languages.length === 1) {
             return null;
         }

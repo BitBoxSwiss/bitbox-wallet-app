@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { ITransaction } from '../../api/account';
 import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -34,14 +34,15 @@ interface TransactionsProps {
 type Props = TransactionsProps & TranslateProps;
 
 class Transactions extends Component<Props> {
-    public render({
-        t,
-        accountCode,
-        explorerURL,
-        transactions,
-        exported,
-        handleExport,
-    }: RenderableProps<Props>) {
+    public render() {
+        const {
+            t,
+            accountCode,
+            explorerURL,
+            transactions,
+            exported,
+            handleExport,
+        } = this.props;
         // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
         // folder and permissions.
         const csvExportDisabled = runningInAndroid();
@@ -77,7 +78,7 @@ class Transactions extends Component<Props> {
                             index={index}
                             {...props} />
                     )) : (
-                        <div class={['flex flex-row flex-center', style.empty].join(' ')}>
+                        <div className={['flex flex-row flex-center', style.empty].join(' ')}>
                             <p>{t('transactions.placeholder')}</p>
                         </div>
                     )

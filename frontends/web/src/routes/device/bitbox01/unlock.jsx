@@ -98,16 +98,16 @@ class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({
-        t,
-    }, {
-        status,
-        password,
-        errorCode,
-        errorMessage,
-        remainingAttempts,
-        needsLongTouch,
-    }) {
+    render() {
+        const { t } = this.props;
+        const {
+            status,
+            password,
+            errorCode,
+            errorMessage,
+            remainingAttempts,
+            needsLongTouch,
+        } = this.state;
         let submissionState = null;
         switch (status) {
         case stateEnum.DEFAULT:
@@ -129,13 +129,13 @@ class Unlock extends Component {
         }
 
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className="innerContainer scrollableContainer">
                         <div className="content narrow padded isVerticallyCentered">
                             <AppLogo />
-                            <div class="box large">
+                            <div className="box large">
                                 {submissionState}
                                 {
                                     status !== stateEnum.WAITING && (

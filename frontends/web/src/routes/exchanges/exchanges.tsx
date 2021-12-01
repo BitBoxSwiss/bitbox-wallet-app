@@ -66,12 +66,9 @@ class Exchanges extends Component<Props, State> {
         this.setState(({ method }) => ({ method: method !== code ? code : null }));
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        {
-        method,
-        region,
-    }) {
+    public render() {
+        const { t } = this.props;
+        const { method, region } = this.state;
         const results = this.data
             .filter(({ regions }) => !region || regions.includes(region))
             .filter(({ payment }) => !method || payment.includes(method))

@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
+import { route } from 'preact-router';
 import { getDeviceInfo, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
@@ -25,7 +26,6 @@ import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../components/settingsButton/settingsItem';
 import { GotoStartupSettings } from './gotostartupsettings';
-import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
 import { ShowMnemonic } from './showmnemonic';
@@ -57,6 +57,10 @@ class Settings extends Component<Props, State> {
             });
     }
 
+    private routeToPassphrase = () => {
+        route(`/passphrase/${this.props.deviceID}`);
+    }
+
     public componentDidMount() {
         this.getInfo();
         apiGet(this.apiPrefix() + '/version').then(versionInfo => {
@@ -64,16 +68,15 @@ class Settings extends Component<Props, State> {
         });
     }
 
-    public render(
-        {
+    public render() {
+        const {
             deviceID,
             t,
-        }: RenderableProps<Props>,
-        {
+        } = this.props;
+        const {
             versionInfo,
             deviceInfo,
-        }: State,
-    ) {
+        } = this.state;
         if (deviceInfo === undefined) {
             return null;
         }
@@ -81,8 +84,8 @@ class Settings extends Component<Props, State> {
             <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('sidebar.device')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             <div className="columnsContainer">
                                 <div className="columns">
                                     <div className="column column-1-2">
@@ -113,7 +116,7 @@ class Settings extends Component<Props, State> {
                                 <div className="columns">
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
-                                        <div class="box slim divide">
+                                        <div className="box slim divide">
                                             {
                                                 versionInfo && versionInfo.canUpgrade ? (
                                                     <UpgradeButton
@@ -130,9 +133,11 @@ class Settings extends Component<Props, State> {
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('settings.expert.title')}</h3>
                                         <div className="box slim divide">
-                                            <MnemonicPassphraseButton
-                                                deviceID={this.props.deviceID}
-                                                passphraseEnabled={deviceInfo.mnemonicPassphraseEnabled} />
+                                            <SettingsButton onClick={this.routeToPassphrase}>
+                                                { deviceInfo.mnemonicPassphraseEnabled
+                                                    ? t('passphrase.disable')
+                                                    : t('passphrase.enable')}
+                                            </SettingsButton>
                                             { versionInfo && versionInfo.canGotoStartupSettings ? (
                                                   <GotoStartupSettings apiPrefix={this.apiPrefix()} />
                                             ) : null

@@ -150,7 +150,7 @@ class AccountsSummary extends Component<Props, State> {
         const balance = this.state.balances ? this.state.balances[code] : undefined;
         const nameCol = (
             <td data-label={t('accountSummary.name')}>
-                <div class={style.coinName}>
+                <div className={style.coinName}>
                     <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
                     {name}
                 </div>
@@ -187,10 +187,9 @@ class AccountsSummary extends Component<Props, State> {
         );
     }
 
-    public render(
-        { t, accounts }: RenderableProps<Props>,
-        { exported, data }: State,
-    ) {
+    public render() {
+        const { t, accounts } = this.props;
+        const { exported, data } = this.state;
         return (
             <div className="contentWithGuide">
                 <div className="container">

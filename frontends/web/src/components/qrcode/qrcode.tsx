@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { apiGet } from '../../utils/request';
 import * as style from './qrcode.module.css';
 
@@ -54,10 +54,9 @@ class QRCode extends Component<Props, State> {
         }
     }
 
-    public render(
-        { data, size }: RenderableProps<Props>,
-        { src }: State,
-    ) {
+    public render() {
+        const { data, size } = this.props;
+        const { src } = this.state;
         if (!src) {
             if (data !== undefined) {
                 return <div className={style.empty}></div>;

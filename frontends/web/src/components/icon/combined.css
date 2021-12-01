@@ -1,0 +1,15 @@
+.point2bitbox02 {
+    text-align: center;
+}
+
+.caret {
+    display: block;
+    margin: 0 auto;
+}
+
+.bitbox02 {
+    display: inline-block;
+    max-width: 264px;
+    position: relative;
+    right: -16px;
+}

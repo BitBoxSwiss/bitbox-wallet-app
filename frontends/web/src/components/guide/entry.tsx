@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import A from '../anchor/anchor';
 import * as style from './guide.module.css';
 
@@ -56,10 +56,12 @@ export class Entry extends Component<Props, State> {
         }));
     }
 
-    public render(props: RenderableProps<Props>, {
-        shown,
-        highlighted,
-    }: Readonly<State>) {
+    public render() {
+        const props = this.props;
+        const {
+            shown,
+            highlighted,
+        } = this.state;
         let entry: EntryProp;
         if (typeof props.entry === 'string') {
             entry = {
@@ -75,15 +77,15 @@ export class Entry extends Component<Props, State> {
         }
         return (
             <div className={highlighted ? style.highlighted : style.entry}>
-                <div class={style.entryTitle} onClick={this.toggle}>
-                    <div class={style.entryToggle}>{shown ? '–' : '+'}</div>
-                    <div class={style.entryTitleText}>
+                <div className={style.entryTitle} onClick={this.toggle}>
+                    <div className={style.entryToggle}>{shown ? '–' : '+'}</div>
+                    <div className={style.entryTitleText}>
                         <h2>{entry.title}</h2>
                     </div>
                 </div>
-                <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
+                <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
                     {shown ? (
-                        <div class="flex-1">
+                        <div className="flex-1">
                             {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
                             {entry.link && (
                                 <p><A href={entry.link.url}>{entry.link.text}</A></p>

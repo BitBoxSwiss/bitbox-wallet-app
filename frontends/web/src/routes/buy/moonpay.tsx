@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h, RenderableProps } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
@@ -83,23 +83,22 @@ class Moonpay extends Component<Props, State> {
         return t('buy.info.crypto');
     }
 
-    public render(
-        { moonpay, t }: RenderableProps<Props>,
-        { height }: State,
-    ) {
+    public render() {
+        const { moonpay, t } = this.props;
+        const { height } = this.state;
         const account = this.getAccount();
         if (!account || moonpay.url === '') {
             return null;
         }
         const name = this.getCryptoName();
         return (
-            <div class="contentWithGuide">
-                <div class="container">
-                    <div class={style.header}>
+            <div className="contentWithGuide">
+                <div className="container">
+                    <div className={style.header}>
                         <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
                     </div>
-                    <div ref={this.ref} class="innerContainer">
-                        <div class="noSpace" style={{ height }}>
+                    <div ref={this.ref} className="innerContainer">
+                        <div className="noSpace" style={{ height }}>
                             <Spinner text={t('loading')} />
                             <iframe
                                 width="100%"

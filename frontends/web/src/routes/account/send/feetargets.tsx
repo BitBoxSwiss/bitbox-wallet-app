@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
@@ -112,19 +112,19 @@ class FeeTargets extends Component<Props, State> {
         return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
     }
 
-    public render(
-    {
-        t,
-        coinCode,
-        disabled,
-        error,
-        showCalculatingFeeLabel = false,
-        customFee,
-    }: RenderableProps<Props>,
-    {
-        feeTarget,
-        options,
-    }: State) {
+    public render() {
+        const {
+            t,
+            coinCode,
+            disabled,
+            error,
+            showCalculatingFeeLabel = false,
+            customFee,
+        } = this.props;
+        const {
+            feeTarget,
+            options,
+        } = this.state;
         if (options === null) {
             return (
                 <Input
@@ -209,14 +209,14 @@ class FeeTargets extends Component<Props, State> {
                     { feeTarget && (
                         <div>
                             {(showCalculatingFeeLabel || proposeFeeText ? (
-                                <p class={style.feeProposed}>
+                                <p className={style.feeProposed}>
                                     {t('send.fee.label')}:
                                     {' '}
                                     {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
                                 </p>
                             ) : null)}
                             { !isCustom ? (
-                                <p class={style.feeDescription}>
+                                <p className={style.feeDescription}>
                                     {t('send.feeTarget.estimate')}
                                     {' '}
                                     {t(`send.feeTarget.description.${feeTarget}`, {

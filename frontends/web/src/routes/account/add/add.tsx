@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import * as backendAPI from '../../../api/backend';
-import { SimpleMarkup } from '../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../utils/markup';
 import { Message } from '../../../components/message/message';
 import { Button, Input } from '../../../components/forms';
 import { Header } from '../../../components/layout';
@@ -210,17 +210,16 @@ class AddAccount extends Component<Props, State> {
         }
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        {
+    public render() {
+        const { t } = this.props;
+        const {
             accountName,
             coinCode,
             errorMessage,
             step,
             supportedCoins,
             adding,
-        }: Readonly<State>
-    ) {
+        } = this.state;
         if (supportedCoins.length === 0) {
             return null;
         }
@@ -231,25 +230,25 @@ class AddAccount extends Component<Props, State> {
         ].indexOf(step);
         const { titleText, nextButtonText } = this.getTextFor(step);
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content larger isVerticallyCentered">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content larger isVerticallyCentered">
                         <form
                             className={`${styles.manageContainer} box larger flex flex-column flex-between`}
                             onSubmit={this.next}>
                             <div className="text-center">
                                 {t('addAccount.title')}
-                                <h1 class={styles.title}>{titleText}</h1>
+                                <h1 className={styles.title}>{titleText}</h1>
                             </div>
-                            <div class="row" hidden={!errorMessage}>
+                            <div className="row" hidden={!errorMessage}>
                                 <Message type="warning">{errorMessage}</Message>
                             </div>
-                            <div class="row">
+                            <div className="row">
                                 {this.renderContent()}
                             </div>
-                            <div class="row">
+                            <div className="row">
                                 <Steps current={currentStep}>
                                     <Step key="select-coin" hidden={this.onlyOneSupportedCoin()}>
                                         {t('addAccount.selectCoin.step')}
@@ -262,7 +261,7 @@ class AddAccount extends Component<Props, State> {
                                     </Step>
                                 </Steps>
                             </div>
-                            <div class="row flex flex-row flex-between m-bottom" style="flex-direction: row-reverse;">
+                            <div className="row flex flex-row flex-between m-bottom" style="flex-direction: row-reverse;">
                                 <Button
                                     disabled={
                                         (step === 'select-coin' && coinCode === 'choose')

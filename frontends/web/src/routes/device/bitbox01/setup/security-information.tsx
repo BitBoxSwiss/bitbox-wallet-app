@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../../../../components/forms';
 import { Alert, SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
 import { translate,  TranslateProps } from '../../../../decorators/translate';
-import { SimpleMarkup } from '../../../../utils/simplemarkup';
+import { SimpleMarkup } from '../../../../utils/markup';
 import * as style from '../bitbox01.module.css';
 
 interface SecurityInformationProps {
@@ -47,28 +47,27 @@ class SecurityInformation extends Component<Props, State> {
         this.setState({ showInfo: false });
     }
 
-    public render(
-        { t, goBack, goal, children }: RenderableProps<Props>,
-        { showInfo }: State,
-    ) {
+    public render() {
+        const { t, goBack, goal, children } = this.props;
+        const { showInfo } = this.state;
         if (!showInfo) {
             return children![0];
         }
         return (
-            <div class="contentWithGuide">
+            <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>}>
                         <LanguageSwitch />
                     </Header>
                     <div className="innerContainer">
                         <div className="content padded narrow isVerticallyCentered">
-                            <h1 class={[style.title, 'text-center'].join(' ')}>{t(`securityInformation.${goal}.title`)}</h1>
+                            <h1 className={[style.title, 'text-center'].join(' ')}>{t(`securityInformation.${goal}.title`)}</h1>
                             {
                                 goal === 'create' ? (
-                                    <div class="box large">
+                                    <div className="box large">
                                         <SimpleMarkup tagName="p" markup={t('securityInformation.create.description1')} />
                                         <SimpleMarkup tagName="p" markup={t('securityInformation.create.description2')} />
-                                        <ul class={[style.list, 'first'].join(' ')}>
+                                        <ul className={[style.list, 'first'].join(' ')}>
                                             <SimpleMarkup tagName="li" markup={t('securityInformation.create.description3')} />
                                             <SimpleMarkup tagName="li" markup={t('securityInformation.create.description4')} />
                                         </ul>
@@ -85,15 +84,15 @@ class SecurityInformation extends Component<Props, State> {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div class="box large">
-                                        <ul class={[style.list, 'first'].join(' ')}>
+                                    <div className="box large">
+                                        <ul className={[style.list, 'first'].join(' ')}>
                                             <li>{t('securityInformation.restore.description1')}</li>
                                             <li>{t('securityInformation.restore.description2')}</li>
                                         </ul>
                                         <p>{t('securityInformation.restore.description3')}</p>
                                         <Message type="warning">
                                             <Alert />
-                                            <p class="first">{t('deviceTampered')}</p>
+                                            <p className="first">{t('deviceTampered')}</p>
                                         </Message>
                                         <div className="buttons">
                                             <Button primary onClick={this.handleStart}>

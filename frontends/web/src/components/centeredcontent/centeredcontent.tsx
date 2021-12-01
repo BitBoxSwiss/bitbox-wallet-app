@@ -19,7 +19,7 @@ import * as style from './style.module.css';
 
 export function CenteredContent({ children }: RenderableProps<{}>): JSX.Element {
     return (
-        <div class="contentWithGuide">
+        <div className="contentWithGuide">
             <div className={style.container}>
                 {children}
             </div>

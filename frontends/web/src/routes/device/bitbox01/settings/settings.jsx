@@ -103,29 +103,31 @@ class Settings extends Component {
         }
     }
 
-    render({
-        t,
-        deviceID,
-    }, {
-        firmwareVersion,
-        newVersion,
-        lock,
-        name,
-        spinner,
-        sdcard,
-        pairing,
-        mobileChannel,
-        connected,
-        newHiddenWallet,
-    }) {
+    render() {
+        const {
+            t,
+            deviceID,
+        } = this.props;
+        const {
+            firmwareVersion,
+            newVersion,
+            lock,
+            name,
+            spinner,
+            sdcard,
+            pairing,
+            mobileChannel,
+            connected,
+            newHiddenWallet,
+        } = this.state;
         const canUpgrade = firmwareVersion && newVersion !== firmwareVersion;
         const paired = pairing && mobileChannel;
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded">
                             <div className="columnsContainer">
                                 <div className="columns">
                                     <div className="column column-1-2">

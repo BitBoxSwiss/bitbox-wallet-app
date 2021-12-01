@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
@@ -253,14 +253,14 @@ class Account extends Component<Props, State> {
         return this.props.moonpayBuySupported;
     }
 
-    public render(
-        {
+    public render() {
+        const {
             t,
             code,
             accounts,
             config,
-        }: RenderableProps<Props>,
-        {
+        } = this.props;
+        const {
             status,
             transactions,
             balance,
@@ -268,7 +268,7 @@ class Account extends Component<Props, State> {
             exported,
             accountInfo,
             syncedAddressesCount,
-        }: State) {
+        } = this.state;
         const account = accounts &&
                         accounts.find(acct => acct.code === code);
         if (!account || status === undefined) {
@@ -295,8 +295,8 @@ class Account extends Component<Props, State> {
         }
 
         return (
-            <div class="contentWithGuide">
-                <div class="container">
+            <div className="contentWithGuide">
+                <div className="container">
                     <Status hidden={!hasCard} type="warning">
                         {t('warning.sdcard')}
                     </Status>
@@ -317,7 +317,7 @@ class Account extends Component<Props, State> {
                                 type="info">
                                 {t(`account.info.${code}`)}
                             </Status>
-                            <div class="flex flex-row flex-between flex-items-center flex-column-mobile flex-reverse-mobile">
+                            <div className="flex flex-row flex-between flex-items-center flex-column-mobile flex-reverse-mobile">
                                 <label className="labelXLarge flex-self-start-mobile">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     {canSend ? (
