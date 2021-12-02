@@ -76,13 +76,14 @@ class App extends Component<WithTranslation, State> {
     /**
      * Gets fired when the route changes.
      */
-    private handleRoute = () => {
+    // private handleRoute = () => {
         // if (panelStore.state.activeSidebar) {
         //     toggleSidebar();
         // }
-    }
+    // }
 
     public componentDidMount() {
+        // @ts-ignore
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
             case 'backend':
@@ -170,13 +171,13 @@ class App extends Component<WithTranslation, State> {
 
     // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
     // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
-    private devicesKey = (prefix: string): string => {
-        return prefix + ':' + JSON.stringify(this.state.devices, Object.keys(this.state.devices).sort());
-    }
+    // private devicesKey = (prefix: string): string => {
+    //     return prefix + ':' + JSON.stringify(this.state.devices, Object.keys(this.state.devices).sort());
+    // }
 
-    private activeAccounts = (): IAccount[] => {
-        return this.state.accounts.filter(acct => acct.active);
-    }
+    // private activeAccounts = (): IAccount[] => {
+    //     return this.state.accounts.filter(acct => acct.active);
+    // }
 
     public render() {
         const { t } = this.props;
