@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { h, JSX, Ref, RenderableProps,  } from 'preact';
 import * as styles from './input.module.css';
 
 export interface Props {
@@ -24,7 +24,7 @@ export interface Props {
     className?: string;
     disabled?: boolean;
     error?: string | object;
-    getRef?: (node: HTMLInputElement) => void;
+    inputRef?: Ref<HTMLInputElement>;
     id?: string;
     label?: string;
     min?: string;
@@ -53,7 +53,7 @@ export default function Input({
     className = '',
     style = '',
     children,
-    getRef,
+    inputRef,
     transparent = false,
     type = 'text',
     labelSection,
@@ -87,7 +87,7 @@ export default function Input({
                 spellcheck={false}
                 type={type}
                 id={id}
-                ref={getRef}
+                ref={inputRef}
                 {...props}
             />
             {children}

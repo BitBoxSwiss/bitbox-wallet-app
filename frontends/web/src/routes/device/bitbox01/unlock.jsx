@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { translate } from 'react-i18next';
 import { route } from 'preact-router';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -43,6 +43,8 @@ class Unlock extends Component {
         password: '',
     }
 
+    passwordInput = createRef();
+
     componentDidMount() {
         this.focus();
     }
@@ -52,8 +54,8 @@ class Unlock extends Component {
     }
 
     focus() {
-        if (this.passwordInput) {
-            this.passwordInput.focus();
+        if (this.passwordInput.current) {
+            this.passwordInput.current.focus();
         }
     }
 
@@ -143,7 +145,7 @@ class Unlock extends Component {
                                             <div className="m-top-default">
                                                 <PasswordSingleInput
                                                     autoFocus
-                                                    getRef={ref => this.passwordInput = ref}
+                                                    ref={this.passwordInput}
                                                     id="password"
                                                     type="password"
                                                     label={t('unlock.input.label')}

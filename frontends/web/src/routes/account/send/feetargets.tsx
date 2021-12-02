@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
@@ -58,8 +58,11 @@ class FeeTargets extends Component<Props, State> {
         options: null,
     };
 
+    private input = createRef<HTMLInputElement & {autofocus: boolean}>();
+
     public componentDidMount() {
         this.updateFeeTargets(this.props.accountCode);
+        this.focusInput();
     }
 
     public componentWillReceiveProps({ accountCode }) {
@@ -110,6 +113,12 @@ class FeeTargets extends Component<Props, State> {
         const { amount, unit, conversions } = this.props.proposedFee;
         const fiatUnit = this.props.fiatUnit;
         return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
+    }
+
+    private focusInput = () => {
+        if (!this.props.disabled && this.input.current && this.input.current.autofocus) {
+            this.input.current.focus();
+        }
     }
 
     public render() {
@@ -190,13 +199,7 @@ class FeeTargets extends Component<Props, State> {
                                     error={error}
                                     transparent
                                     onInput={this.handleCustomFee}
-                                    getRef={input => {
-                                        setTimeout(() => {
-                                            if (!disabled && input && input.autofocus) {
-                                                input.focus();
-                                            }
-                                        });
-                                    }}
+                                    inputRef={this.input}
                                     value={customFee}
                                 >
                                     <span className={style.customFeeUnit}>

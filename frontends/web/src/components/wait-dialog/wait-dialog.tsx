@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentChild, h, JSX } from 'preact';
+import { Component, ComponentChild, createRef, h, JSX } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
@@ -36,8 +36,8 @@ interface State {
 }
 
 class WaitDialog extends Component<Props, State> {
-    private overlay?: HTMLDivElement;
-    private modal?: HTMLDivElement;
+    private overlay = createRef<HTMLDivElement>();
+    private modal = createRef<HTMLDivElement>();
 
     public readonly state: State = {
         active: false,
@@ -64,21 +64,13 @@ class WaitDialog extends Component<Props, State> {
         e.stopPropagation();
     }
 
-    private setOverlay = ref => {
-        this.overlay = ref;
-    }
-
-    private setModal = ref => {
-        this.modal = ref;
-    }
-
     private activate = () => {
         this.setState({ active: true }, () => {
-            if (!this.overlay || !this.modal) {
+            if (!this.overlay.current || !this.modal.current) {
                 return;
             }
-            this.overlay.classList.add(style.activeOverlay);
-            this.modal.classList.add(style.activeModal);
+            this.overlay.current.classList.add(style.activeOverlay);
+            this.modal.current.classList.add(style.activeModal);
         });
     }
 
@@ -144,9 +136,9 @@ class WaitDialog extends Component<Props, State> {
         return (
             <div
                 className={style.overlay}
-                ref={this.setOverlay}
+                ref={this.overlay}
                 style="z-index: 10001;">
-                <div className={style.modal} ref={this.setModal}>
+                <div className={style.modal} ref={this.modal}>
                     {
                         title && (
                             <div className={style.header}>

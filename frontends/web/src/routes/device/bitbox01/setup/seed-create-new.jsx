@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../../utils/request';
 import { PasswordRepeatInput } from '../../../../components/password';
@@ -48,13 +48,15 @@ class SeedCreateNew extends Component {
         },
     }
 
+    walletNameInput = createRef();
+    backupPasswordInput = createRef();
+
     componentDidMount () {
         this.checkSDcard();
     }
 
     validate = () => {
-        // @ts-ignore
-        if (!this.walletNameInput || !this.walletNameInput.validity.valid || !this.validAgreements()) {
+        if (!this.walletNameInput.current || !this.walletNameInput.current.validity.valid || !this.validAgreements()) {
             return false;
         }
         return this.state.backupPassword && this.state.walletName !== '';
@@ -84,8 +86,8 @@ class SeedCreateNew extends Component {
             } else {
                 this.props.onSuccess();
             }
-            if (this.backupPasswordInput) {
-                this.backupPasswordInput.getWrappedInstance().clear();
+            if (this.backupPasswordInput.current) {
+                this.backupPasswordInput.current.getWrappedInstance().clear();
             }
             this.setState({ backupPassword: '' });
         });
@@ -181,12 +183,12 @@ class SeedCreateNew extends Component {
                         label={t('seed.walletName.label')}
                         disabled={status === STATUS.CREATING}
                         onInput={this.handleFormChange}
-                        getRef={ref => this.walletNameInput = ref}
+                        inputRef={this.walletNameInput}
                         value={walletName} />
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
                         repeatPlaceholder={t('seed.password.repeatPlaceholder')}
-                        ref={ref => this.backupPasswordInput = ref}
+                        ref={this.backupPasswordInput}
                         disabled={status === STATUS.CREATING}
                         onValidPassword={this.setValidBackupPassword} />
                 </div>

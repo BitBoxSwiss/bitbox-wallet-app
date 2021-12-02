@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, createRef, h, RenderableProps } from 'preact';
 import * as style from './dialog.module.css';
 
 interface Props {
@@ -36,9 +36,9 @@ interface State {
 }
 
 class Dialog extends Component<Props, State> {
-    private overlay?: HTMLDivElement | null;
-    private modal?: HTMLDivElement | null;
-    private modalContent?: HTMLDivElement | null;
+    private overlay = createRef<HTMLDivElement>();
+    private modal = createRef<HTMLDivElement>();
+    private modalContent = createRef<HTMLDivElement>();
     private focusableChildren!: NodeListOf<HTMLElement>;
 
     public readonly state: State = {
@@ -61,8 +61,8 @@ class Dialog extends Component<Props, State> {
     }
 
     private focusWithin = () => {
-        if (this.modalContent) {
-            this.focusableChildren = this.modalContent.querySelectorAll('a, button, input, textarea');
+        if (this.modalContent.current) {
+            this.focusableChildren = this.modalContent.current.querySelectorAll('a, button, input, textarea');
             const focusables = Array.from(this.focusableChildren);
             for (const c of focusables) {
                 c.classList.add('tabbable');
@@ -115,26 +115,26 @@ class Dialog extends Component<Props, State> {
     }
 
     private deactivate = () => {
-        if (!this.modal || !this.overlay) {
+        if (!this.modal.current || !this.overlay.current) {
             return;
         }
-        this.modal.classList.remove(style.activeModal);
+        this.modal.current.classList.remove(style.activeModal);
         this.setState({ active: false, currentTab: 0 }, () => {
             document.removeEventListener('keydown', this.handleKeyDown);
             if (this.props.onClose) {
                 this.props.onClose();
             }
         });
-        this.overlay.classList.remove(style.activeOverlay);
+        this.overlay.current.classList.remove(style.activeOverlay);
     }
 
     private activate = () => {
         this.setState({ active: true }, () => {
-            if (!this.modal || !this.overlay) {
+            if (!this.modal.current || !this.overlay.current) {
                 return;
             }
-            this.overlay.classList.add(style.activeOverlay);
-            this.modal.classList.add(style.activeModal);
+            this.overlay.current.classList.add(style.activeOverlay);
+            this.modal.current.classList.add(style.activeModal);
             this.focusWithin();
             this.focusFirst();
         });
@@ -158,10 +158,10 @@ class Dialog extends Component<Props, State> {
         const isSlim = slim ? style.slim : '';
         const isCentered = centered && !onClose ? style.centered : '';
         return (
-            <div className={style.overlay} ref={element => this.overlay = element}>
+            <div className={style.overlay} ref={this.overlay}>
                 <div
                     className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
-                    ref={element => this.modal = element}>
+                    ref={this.modal}>
                     {
                         title && (
                             <div className={[style.header, isCentered].join(' ')}>
@@ -179,7 +179,7 @@ class Dialog extends Component<Props, State> {
                     }
                     <div
                         className={[style.contentContainer, isSlim].join(' ')}
-                        ref={element => this.modalContent = element}>
+                        ref={this.modalContent}>
                         <div className={style.content}>
                             {children}
                         </div>

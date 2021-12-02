@@ -15,7 +15,7 @@
  */
 
 import 'jest';
-import { h } from 'preact';
+import { h, createRef } from 'preact';
 import { deep, shallow } from 'preact-render-spy';
 
 import Input, { Props } from '../../../src/components/forms/input';
@@ -32,10 +32,10 @@ describe('components/forms/input', () => {
         expect(input.children()[0]).toEqual(<span>label</span>);
     });
 
-    it('should return the input node with getRef', () => {
-        shallow(<Input getRef={node => {
-            expect(node.nodeName).toEqual('INPUT');
-        }} />);
+    it('should set the input ref with inputRef', () => {
+        let inputRef = createRef<HTMLInputElement>();
+        shallow(<Input inputRef={inputRef} />);
+        expect(inputRef.current!.nodeName).toEqual('INPUT');
     });
 
     it('should preserve text', () => {

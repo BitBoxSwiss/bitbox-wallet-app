@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { route } from 'preact-router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
@@ -94,7 +94,7 @@ interface State {
 }
 
 class Send extends Component<Props, State> {
-    private utxos!: Component<UTXOsProps>;
+    private utxos = createRef<Component<UTXOsProps>>();
     private selectedUTXOs: SelectedUTXO = {};
     private unsubscribe!: () => void;
     private qrCodeReader?: BrowserQRCodeReader;
@@ -236,8 +236,12 @@ class Send extends Component<Props, State> {
                     note: '',
                     customFee: '',
                 });
-                if (this.utxos) {
-                    (this.utxos as any).getWrappedInstance().clear();
+                if (this.utxos.current) {
+                    try {
+                        (this.utxos.current as any).getWrappedInstance().clear();
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
                 setTimeout(() => this.setState({
                     isSent: false,
@@ -462,15 +466,15 @@ class Send extends Component<Props, State> {
 
     private toggleCoinControl = () => {
         this.setState(({ activeCoinControl }) => {
-            if (activeCoinControl && this.utxos) {
-                (this.utxos as any).getWrappedInstance().clear();
+            if (activeCoinControl && this.utxos.current) {
+                try {
+                    (this.utxos.current as any).getWrappedInstance().clear();
+                } catch (e) {
+                    console.error(e);
+                }
             }
             return { activeCoinControl: !activeCoinControl };
         });
-    }
-
-    private setUTXOsRef = (ref: Component<UTXOsProps>) => {
-        this.utxos = ref;
     }
 
     private parseQRResult = uri => {
@@ -612,7 +616,7 @@ class Send extends Component<Props, State> {
                                         explorerURL={account.blockExplorerTxPrefix}
                                         onClose={this.deactivateCoinControl}
                                         onChange={this.onSelectedUTXOsChange}
-                                        ref={this.setUTXOsRef}
+                                        ref={this.utxos}
                                     />
                                 )
                             }

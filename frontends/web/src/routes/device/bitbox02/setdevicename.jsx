@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button, Input } from '../../../components/forms';
 import { apiPost } from '../../../utils/request';
@@ -33,6 +33,8 @@ class SetDeviceNameClass extends Component {
             inProgress: false,
         };
     }
+
+    nameInput = createRef();
 
     setName = () => {
         this.setState({ inProgress: true });
@@ -67,8 +69,7 @@ class SetDeviceNameClass extends Component {
     }
 
     validate = () => {
-        // @ts-ignore
-        if (!this.nameInput || !this.nameInput.validity.valid || !this.state.deviceName) {
+        if (!this.nameInput.current || !this.nameInput.current.validity.valid || !this.state.deviceName) {
             return false;
         }
         return true;
@@ -96,7 +97,7 @@ class SetDeviceNameClass extends Component {
                                             pattern="^.{0,63}$"
                                             label={t('bitbox02Settings.deviceName.input')}
                                             onInput={this.handleChange}
-                                            getRef={ref => this.nameInput = ref}
+                                            inputRef={this.nameInput}
                                             placeholder={t('bitbox02Settings.deviceName.placeholder')}
                                             value={deviceName}
                                             id="deviceName" />
