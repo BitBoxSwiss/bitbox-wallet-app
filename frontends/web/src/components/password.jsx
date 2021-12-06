@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, createRef } from 'preact';
 import { translate } from 'react-i18next';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
@@ -36,6 +36,8 @@ class PasswordSingleInputClass extends Component {
         seePlaintext: false,
         capsLock: false
     }
+
+    password = createRef();
 
     idPrefix = () => {
         return this.props.idPrefix || '';
@@ -73,7 +75,7 @@ class PasswordSingleInputClass extends Component {
     }
 
     validate = () => {
-        if (this.regex && this.password && !this.password.validity.valid) {
+        if (this.regex && this.password.current && !this.password.current.validity.valid) {
             return this.props.onValidPassword(null);
         }
         if (this.state.password) {
@@ -130,7 +132,7 @@ class PasswordSingleInputClass extends Component {
                 placeholder={placeholder}
                 onInput={this.handleFormChange}
                 onPaste={this.tryPaste}
-                getRef={ref => this.password = ref}
+                inputRef={this.password}
                 value={password}
                 labelSection={
                     <Checkbox
@@ -158,6 +160,9 @@ class PasswordRepeatInputClass extends Component {
         seePlaintext: false,
         capsLock: false
     }
+
+    password = createRef();
+    passwordRepeat = createRef();
 
     idPrefix = () => {
         return this.props.idPrefix || '';
@@ -197,8 +202,8 @@ class PasswordRepeatInputClass extends Component {
 
     validate = () => {
         if (
-            this.regex && this.password && this.passwordRepeat
-            && (!this.password.validity.valid || !this.passwordRepeat.validity.valid)
+            this.regex && this.password.current && this.passwordRepeat.current
+            && (!this.password.current.validity.valid || !this.passwordRepeat.current.validity.valid)
         ) {
             return this.props.onValidPassword(null);
         }
@@ -260,7 +265,7 @@ class PasswordRepeatInputClass extends Component {
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    getRef={ref => this.password = ref}
+                    inputRef={this.password}
                     value={password}>
                     {warning}
                 </Input>
@@ -278,7 +283,7 @@ class PasswordRepeatInputClass extends Component {
                     placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    getRef={ref => this.passwordRepeat = ref}
+                    inputRef={this.password}
                     value={passwordRepeat}>
                     {warning}
                 </Input>

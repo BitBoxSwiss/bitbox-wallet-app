@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { route } from 'preact-router';
 import * as accountApi from '../../../api/account';
 import * as backendAPI from '../../../api/backend';
@@ -58,6 +58,8 @@ class AddAccount extends Component<Props, State> {
         adding: false,
     };
 
+    private ref = createRef<HTMLInputElement>();
+
     private onlyOneSupportedCoin = (): boolean => {
         return this.state.supportedCoins.length === 1;
     }
@@ -75,6 +77,13 @@ class AddAccount extends Component<Props, State> {
                     this.setState({ accountName: coins[0].suggestedAccountName });
                 }
             });
+        this.ref.current?.focus();
+    }
+
+    public componentDidUpdate(_prevProps, prevState: State) {
+        if ((prevState.step !== this.state.step) && (this.state.step === 'choose-name')){
+            this.ref.current?.focus();
+        }
     }
 
     private back = () => {
@@ -147,15 +156,6 @@ class AddAccount extends Component<Props, State> {
         }
     }
 
-    private focusRef = (ref) => {
-        setTimeout(() => {
-            if (ref === document.activeElement) {
-                return;
-            }
-            ref?.focus();
-        }, 0);
-    }
-
     private renderContent = () => {
         const { t } = this.props;
         const { accountName, coinCode, step, supportedCoins} = this.state;
@@ -171,7 +171,7 @@ class AddAccount extends Component<Props, State> {
                 return (
                     <Input
                         autoFocus
-                        getRef={this.focusRef}
+                        inputRef={this.ref}
                         id="accountName"
                         onInput={e => this.setState({ accountName: e.target.value })}
                         value={accountName} />

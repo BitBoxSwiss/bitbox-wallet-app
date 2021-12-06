@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { Button } from '../../../../components/forms';
 import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -49,7 +49,7 @@ interface State {
 }
 
 class Initialize extends Component<Props, State> {
-    private passwordInput!: HTMLInputElement;
+    private passwordInput = createRef<HTMLInputElement>();
 
     constructor(props) {
         super(props);
@@ -84,14 +84,14 @@ class Initialize extends Component<Props, State> {
                     errorMessage: data.errorMessage,
                 });
             }
-            if (this.passwordInput) {
-                (this.passwordInput as any).getWrappedInstance().clear();
+            if (this.passwordInput.current) {
+                try {
+                    (this.passwordInput.current as any).getWrappedInstance().clear();
+                } catch (e) {
+                    console.error(e);
+                }
             }
         });
-    }
-
-    private setPasswordInputRef = (ref: HTMLInputElement) => {
-        this.passwordInput = ref;
     }
 
     private setValidPassword = password => {
@@ -149,7 +149,7 @@ class Initialize extends Component<Props, State> {
                     label={t('initialize.input.label')}
                     repeatLabel={t('initialize.input.labelRepeat')}
                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                    ref={this.setPasswordInputRef}
+                    ref={this.passwordInput}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
                 <div className="buttons">
