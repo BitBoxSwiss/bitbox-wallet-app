@@ -49,7 +49,6 @@ class SeedCreateNew extends Component {
     }
 
     walletNameInput = createRef();
-    backupPasswordInput = createRef();
 
     componentDidMount () {
         this.checkSDcard();
@@ -85,9 +84,6 @@ class SeedCreateNew extends Component {
                 });
             } else {
                 this.props.onSuccess();
-            }
-            if (this.backupPasswordInput.current) {
-                this.backupPasswordInput.current.getWrappedInstance().clear();
             }
             this.setState({ backupPassword: '' });
         });
@@ -188,7 +184,6 @@ class SeedCreateNew extends Component {
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
                         repeatPlaceholder={t('seed.password.repeatPlaceholder')}
-                        ref={this.backupPasswordInput}
                         disabled={status === STATUS.CREATING}
                         onValidPassword={this.setValidBackupPassword} />
                 </div>

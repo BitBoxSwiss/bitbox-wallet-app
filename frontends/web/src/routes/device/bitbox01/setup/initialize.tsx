@@ -49,8 +49,6 @@ interface State {
 }
 
 class Initialize extends Component<Props, State> {
-    private passwordInput = createRef<HTMLInputElement>();
-
     constructor(props) {
         super(props);
         this.state = {
@@ -83,13 +81,6 @@ class Initialize extends Component<Props, State> {
                     status: stateEnum.ERROR,
                     errorMessage: data.errorMessage,
                 });
-            }
-            if (this.passwordInput.current) {
-                try {
-                    (this.passwordInput.current as any).getWrappedInstance().clear();
-                } catch (e) {
-                    console.error(e);
-                }
             }
         });
     }
@@ -149,7 +140,6 @@ class Initialize extends Component<Props, State> {
                     label={t('initialize.input.label')}
                     repeatLabel={t('initialize.input.labelRepeat')}
                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                    ref={this.passwordInput}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
                 <div className="buttons">
