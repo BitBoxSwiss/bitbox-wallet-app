@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef } from 'react';
+import { Component } from 'react';
 import { route } from '../../../utils/route';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button } from '../../../components/forms';
@@ -41,22 +41,6 @@ class Unlock extends Component {
         remainingAttempts: null,
         needsLongTouch: false,
         password: '',
-    }
-
-    passwordInput = createRef();
-
-    componentDidMount() {
-        this.focus();
-    }
-
-    componentDidUpdate() {
-        this.focus();
-    }
-
-    focus() {
-        if (this.passwordInput.current) {
-            this.passwordInput.current.focus();
-        }
     }
 
     handleFormChange = password => {
@@ -148,7 +132,6 @@ class Unlock extends Component {
                                             <div className="m-top-default">
                                                 <PasswordSingleInput
                                                     autoFocus
-                                                    ref={this.passwordInput}
                                                     id="password"
                                                     type="password"
                                                     label={t('unlock.input.label')}

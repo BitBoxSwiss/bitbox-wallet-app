@@ -51,6 +51,9 @@ class PasswordSingleInputClass extends Component {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
         }
+        if (this.props.autoFocus && this.password?.current) {
+            this.password.current.focus();
+        }
     }
 
     componentWillUnmount() {
@@ -175,6 +178,9 @@ class PasswordRepeatInputClass extends Component {
     componentDidMount() {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
+        }
+        if (this.props.autoFocus && this.password?.current) {
+            this.password.current.focus();
         }
     }
 
