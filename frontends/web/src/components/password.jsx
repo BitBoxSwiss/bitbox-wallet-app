@@ -197,15 +197,6 @@ class PasswordRepeatInputClass extends Component {
         }
     }
 
-    clear = () => {
-        this.setState({
-            password: '',
-            passwordRepeat: '',
-            seePlaintext: false,
-            capsLock: false
-        });
-    }
-
     validate = () => {
         if (
             this.regex && this.password.current && this.passwordRepeat.current
