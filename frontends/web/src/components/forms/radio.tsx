@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import React from 'react';
 import style from './radio.module.css';
 
 interface IRadioProps {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import React, { Component, createRef} from 'react';
 import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
@@ -91,7 +91,7 @@ class FeeTargets extends Component<Props, State> {
             .catch(console.error);
     }
 
-    private handleFeeTargetChange = (event: Event) => {
+    private handleFeeTargetChange = (event: React.SyntheticEvent) => {
         const target = event.target as HTMLSelectElement;
         this.setFeeTarget(target.options[target.selectedIndex].value as accountApi.FeeTargetCode);
     }
@@ -248,5 +248,5 @@ class FeeTargets extends Component<Props, State> {
 const loadedHOC = load<LoadedProps, FeeTargetsProps & TranslateProps>(
     { config: 'config' },
 )(FeeTargets);
-const TranslatedFeeTargets = translate<FeeTargetsProps>()(loadedHOC);
+const TranslatedFeeTargets = translate()(loadedHOC);
 export { TranslatedFeeTargets as FeeTargets };

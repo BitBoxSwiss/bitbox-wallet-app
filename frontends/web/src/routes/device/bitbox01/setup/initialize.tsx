@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import { Component, createRef } from 'react';
 import { Button } from '../../../../components/forms';
 import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -195,5 +195,5 @@ class Initialize extends Component<Props, State> {
     }
 }
 
-const TranslatedInitialize = translate<InitializeProps>()(Initialize);
+const TranslatedInitialize = translate()(Initialize);
 export { TranslatedInitialize as Initialize };

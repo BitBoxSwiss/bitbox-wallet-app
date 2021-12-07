@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, createRef } from 'react';
+import { withTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../../../../utils/request';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { Button, Input, Checkbox } from '../../../../components/forms';
@@ -194,7 +194,7 @@ class SeedCreateNew extends Component {
                 </div>
                 <div className={style.agreements}>
                     <div className="flex flex-row flex-start flex-items-center">
-                        <img src={warning} style="width: 18px; margin-right: 10px; position: relative; bottom: 1px;" />
+                        <img src={warning} style={{width: 18, marginRight: 10, position: 'relative', bottom: 1}} />
                         <p className={style.agreementsLabel}>{t('seed.description')}</p>
                     </div>
                     <Checkbox
@@ -259,4 +259,4 @@ class SeedCreateNew extends Component {
     }
 }
 
-export default translate()(SeedCreateNew);
+export default withTranslation()(SeedCreateNew);

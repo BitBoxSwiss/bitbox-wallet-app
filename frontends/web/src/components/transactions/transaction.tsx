@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import React, { Component, createRef} from 'react';
 import * as accountApi from '../../api/account';
 import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -59,7 +59,7 @@ class Transaction extends Component<Props, State> {
             month: 'numeric',
             day: 'numeric',
         } as Intl.DateTimeFormatOptions;
-        return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
+        return new Date(Date.parse(time)).toLocaleString(this.props.i18n.language, options);
     }
 
     private showDetails = () => {
@@ -79,7 +79,7 @@ class Transaction extends Component<Props, State> {
         this.setState({ newNote: target.value });
     }
 
-    private handleEdit = (e: Event) => {
+    private handleEdit = (e: React.SyntheticEvent) => {
         e.preventDefault();
         if (this.state.editMode && this.props.note !== this.state.newNote) {
             accountApi.postNotesTx(this.props.accountCode, {
@@ -387,6 +387,6 @@ class Transaction extends Component<Props, State> {
     }
 }
 
-const HOC = translate<TransactionProps>()(Transaction);
+const HOC = translate()(Transaction);
 
 export { HOC as Transaction };

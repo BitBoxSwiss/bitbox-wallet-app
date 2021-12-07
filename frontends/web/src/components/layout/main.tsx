@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { FunctionComponent } from 'react';
 import * as style from './main.css';
 
 type MainProps = {}
 
-export function Main({ children }: RenderableProps<MainProps>) {
+export const Main: FunctionComponent<MainProps> = ({ children }) => {
     return (
         <main className={style.main}>
             {children}

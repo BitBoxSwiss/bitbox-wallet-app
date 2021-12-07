@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import { Component} from 'react';
+import { route } from '../../../utils/route';
 import { getDeviceInfo, DeviceInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
@@ -73,6 +73,9 @@ class Settings extends Component<Props, State> {
             deviceID,
             t,
         } = this.props;
+        if(this.state === null) {
+            return null
+        }
         const {
             versionInfo,
             deviceInfo,
@@ -91,7 +94,7 @@ class Settings extends Component<Props, State> {
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
                                         <div className="box slim divide">
-                                            <SettingsButton link href={`/manage-backups/${deviceID}`}>
+                                            <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
                                                 {t('deviceSettings.secrets.manageBackups')}
                                             </SettingsButton>
                                             <ShowMnemonic apiPrefix={this.apiPrefix()} />
@@ -157,5 +160,5 @@ class Settings extends Component<Props, State> {
     }
 }
 
-const HOC = translate<SettingsProps>()(Settings);
+const HOC = translate()(Settings);
 export { HOC as Settings };

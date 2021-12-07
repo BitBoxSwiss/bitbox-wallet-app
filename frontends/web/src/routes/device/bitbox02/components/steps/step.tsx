@@ -1,4 +1,4 @@
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import * as style from './steps.module.css';
 
 interface StepProps {
@@ -54,7 +54,7 @@ class Step extends Component<StepProps, State> {
                     visible ? '' : style.hide,
                     large ? style.large : '',
                 ].join(' ')}
-                style={width ? `max-width: ${width}px` : ''}
+                style={width ? {maxWidth: width} : {}}
                 >
                 <div className={style.stepContentContainer}>
                     <div className={style.stepContent}>

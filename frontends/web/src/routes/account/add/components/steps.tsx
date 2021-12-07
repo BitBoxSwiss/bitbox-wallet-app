@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-import { h, cloneElement, JSX, RenderableProps } from 'preact';
+import React from 'react';
+import { cloneElement, FunctionComponent, PropsWithChildren } from 'react';
 import * as style from './steps.module.css';
 
 interface Props {
     current: number;
 }
 
-export function Steps({
+export const Steps: FunctionComponent<Props> = ({
     current,
     children
-}: RenderableProps<Props>) {
+}) => {
+    let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[]
     return (
         <div className={style.steps}>
-            { (children as JSX.Element[])
-            .filter((child) => !child.attributes.hidden)
+            { childrens
+            .filter((child) => !child.props.hidden)
             .map((child, step) => {
                 if (!child) return null;
                 const status = step === current ? 'process' : (
@@ -57,7 +59,7 @@ export function Step({
     hidden = false,
     line,
     status = 'wait',
-}: RenderableProps<StepProps>) {
+}: PropsWithChildren<StepProps>) {
     if (hidden) {
         return null;
     }

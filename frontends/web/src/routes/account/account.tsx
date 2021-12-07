@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-operators */
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
@@ -15,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
@@ -35,6 +36,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
 import * as style from './account.module.css';
 import { isBitcoinBased } from './utils';
+import { Link } from 'react-router-dom';
 
 // Show some additional info for the following coin types, if legacy split acocunts is enabled.
 const WithCoinTypeInfo = [
@@ -148,7 +150,7 @@ class Account extends Component<Props, State> {
                     return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
                         .then(sdcard => sdcard);
                 default:
-                    return;
+                    return [];
             }
         }))
             .then(sdcards => sdcards.some(sdcard => sdcard))
@@ -282,7 +284,7 @@ class Account extends Component<Props, State> {
                 '\n' + t('account.syncedAddressesCount', {
                     count: syncedAddressesCount.toString(),
                     defaultValue: 0,
-                })
+                } as any)
             ) : '';
 
         const offlineErrorTextLines: string[] = [];
@@ -325,9 +327,9 @@ class Account extends Component<Props, State> {
                                     ) : (
                                         <span className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
                                     )}
-                                    <a href={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></a>
+                                    <Link to={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></Link>
                                     { this.supportsBuy() && (
-                                        <a href={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></a>
+                                        <Link to={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></Link>
                                     )}
                                 </div>
                             </div>
@@ -415,5 +417,5 @@ const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code 
     config: 'config',
 }))(Account);
 
-const HOC = translate<AccountProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as Account };

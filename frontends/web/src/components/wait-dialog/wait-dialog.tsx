@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-import { Component, ComponentChild, createRef, h, JSX } from 'preact';
+import { Component, createRef } from 'react';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
 import style from '../dialog/dialog.module.css';
+import React from 'react';
 
 interface WaitDialogProps {
     includeDefault?: boolean;
@@ -132,12 +133,12 @@ class WaitDialog extends Component<Props, State> {
             </div>
         );
 
-        const hasChildren = children && (children as ComponentChild[]).length > 0;
+        const hasChildren = React.Children.toArray(children).filter(React.isValidElement).length > 0;
         return (
             <div
                 className={style.overlay}
                 ref={this.overlay}
-                style="z-index: 10001;">
+                style={{zIndex: 10001}}>
                 <div className={style.modal} ref={this.modal}>
                     {
                         title && (
@@ -162,5 +163,5 @@ class WaitDialog extends Component<Props, State> {
     }
 }
 
-const TranslatedWaitDialog = translate<WaitDialogProps>()(WaitDialog);
+const TranslatedWaitDialog = translate()(WaitDialog);
 export { TranslatedWaitDialog as WaitDialog };

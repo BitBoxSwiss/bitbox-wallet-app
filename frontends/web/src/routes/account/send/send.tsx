@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-operators */
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
@@ -15,8 +16,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component, createRef} from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
@@ -42,6 +42,7 @@ import { isBitcoinBased, customFeeUnit } from '../utils';
 import { FeeTargets } from './feetargets';
 import * as style from './send.module.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
+import { route } from '../../../utils/route';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -372,7 +373,7 @@ class Send extends Component<Props, State> {
         }
     }
 
-    private handleFormChange = (event: Event) => {
+    private handleFormChange = (event: React.SyntheticEvent) => {
         const target = (event.target as HTMLInputElement);
         let value: string | boolean = target.value;
         if (target.type === 'checkbox') {
@@ -432,7 +433,7 @@ class Send extends Component<Props, State> {
         }
     }
 
-    private sendToSelf = (event: Event) => {
+    private sendToSelf = (event: React.SyntheticEvent) => {
         accountApi.getReceiveAddressList(this.getAccount()!.code)
             .then(receiveAddresses => {
                 this.setState({ recipientAddress: receiveAddresses[0][0].address });
@@ -743,7 +744,7 @@ class Send extends Component<Props, State> {
                                     </Button>
                                     <ButtonLink
                                         transparent
-                                        href={`/account/${code}`}>
+                                        to={`/account/${code}`}>
                                         {t('button.back')}
                                     </ButtonLink>
                                 </div>
@@ -825,7 +826,7 @@ class Send extends Component<Props, State> {
                         isSent && (
                             <WaitDialog>
                                 <div className="flex flex-row flex-center flex-items-center">
-                                    <Checked alt="Success" style="height: 18px; margin-right: 1rem;" />{t('send.success')}
+                                    <Checked style={{height: 18, marginRight: '1rem'}} />{t('send.success')}
                                 </div>
                             </WaitDialog>
                         )
@@ -834,7 +835,7 @@ class Send extends Component<Props, State> {
                         isAborted && (
                             <WaitDialog>
                                 <div className="flex flex-row flex-center flex-items-center">
-                                    <Cancel alt="Abort" style="height: 18px; margin-right: 1rem;" />{t('send.abort')}
+                                    <Cancel alt="Abort" style={{height: 18, marginRight: '1rem'}} />{t('send.abort')}
                                 </div>
                             </WaitDialog>
                         )
@@ -882,5 +883,5 @@ class Send extends Component<Props, State> {
     }
 }
 
-const TranslatedSend = translate<SendProps>()(Send);
+const TranslatedSend = translate()(Send);
 export { TranslatedSend as Send };

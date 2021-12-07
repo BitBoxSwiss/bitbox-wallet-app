@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { Coin, Fiat, MainnetCoin } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
@@ -140,7 +140,7 @@ function Conversion({
     active,
     noAction,
     children,
-}: RenderableProps<Props>): JSX.Element | null {
+}: PropsWithChildren<Props>): JSX.Element | null {
     if (!rates) {
         return null;
     }

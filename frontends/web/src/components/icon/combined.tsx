@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
 import { BitBox02Stylized, CaretDown } from './icon';
 import * as style from './combined.css';
 

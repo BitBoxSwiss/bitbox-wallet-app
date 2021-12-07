@@ -15,7 +15,7 @@
  */
 
 import { FunctionComponent, SyntheticEvent} from 'react';
-// import { route } from 'preact-router';
+import { route } from '../../utils/route';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
@@ -33,9 +33,7 @@ const A:FunctionComponent<Props> =({ href, icon, children, ...props }) => {
             const { hostname, origin } = new URL(href, window.location.href);
             if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
                 hide();
-                // TODO: navigate
-                console.log(`navigate to ${href}`);
-                // route(href);
+                route(href);
             } else {
                 apiPost('open', href);
             }

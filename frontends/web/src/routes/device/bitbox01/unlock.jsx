@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
-import { translate } from 'react-i18next';
-import { route } from 'preact-router';
+import { Component, createRef } from 'react';
+import { route } from '../../../utils/route';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
@@ -26,6 +25,7 @@ import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header, Footer } from '../../../components/layout';
 import { Spinner } from '../../../components/spinner/Spinner';
+import { withTranslation } from 'react-i18next';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
@@ -128,6 +128,9 @@ class Unlock extends Component {
                     })}
                 </Message>
             );
+            break;
+        default:
+            break;
         }
 
         return (
@@ -181,4 +184,4 @@ class Unlock extends Component {
     }
 }
 
-export default translate()(Unlock);
+export default withTranslation()(Unlock);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import * as styles from './vasp.module.css';
 import AOPPGroupLogo from '../../assets/exchanges/logos/aoppgroup.svg';
 import BitcoinSuisseLogo from '../../assets/exchanges/logos/bitcoin_suisse.png';
@@ -48,7 +48,7 @@ export function Vasp({
     hostname,
     prominent,
     withLogoText,
-}: RenderableProps<VASPProps>) {
+}: PropsWithChildren<VASPProps>) {
     const hasLogo = hostname in VASPLogoMap;
     if (!hasLogo) {
         return fallback || (<div className={styles.hostname}>{hostname}</div>);

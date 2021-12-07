@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { ITransaction } from '../../api/account';
 import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -88,6 +88,6 @@ class Transactions extends Component<Props> {
     }
 }
 
-const HOC = translate<TransactionsProps>()(Transactions);
+const HOC = translate()(Transactions);
 
 export { HOC as Transactions };

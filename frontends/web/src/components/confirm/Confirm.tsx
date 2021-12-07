@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SimpleMarkup } from '../../utils/markup';
 import { Dialog, DialogButtons } from '../dialog/dialog';

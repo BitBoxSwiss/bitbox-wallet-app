@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component, createRef} from 'react';
 import * as accountApi from '../../../api/account';
 import * as backendAPI from '../../../api/backend';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -29,6 +28,7 @@ import * as styles from './add.module.css';
 import { Check } from '../../../components/icon/icon';
 import { apiPost } from '../../../utils/request';
 import Guide from '../../settings/manage-account-guide';
+import { route } from '../../../utils/route';
 
 interface AddAccountProps {
 }
@@ -97,7 +97,7 @@ class AddAccount extends Component<Props, State> {
         }
     }
 
-    private next = (e: Event) => {
+    private next = (e: React.SyntheticEvent) => {
         e.preventDefault();
         const { accountName, accountCode, coinCode, step } = this.state;
         const { t } = this.props;
@@ -261,7 +261,7 @@ class AddAccount extends Component<Props, State> {
                                     </Step>
                                 </Steps>
                             </div>
-                            <div className="row flex flex-row flex-between m-bottom" style="flex-direction: row-reverse;">
+                            <div className="row flex flex-row flex-between m-bottom" style={{flexDirection: 'row-reverse'}}>
                                 <Button
                                     disabled={
                                         (step === 'select-coin' && coinCode === 'choose')
@@ -289,6 +289,6 @@ class AddAccount extends Component<Props, State> {
     }
 }
 
-const HOC = translate<AddAccountProps>()(AddAccount);
+const HOC = translate()(AddAccount);
 
 export { HOC as AddAccount };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, JSX, RenderableProps } from 'preact';
+import { Component, PropsWithChildren } from 'react';
 import A from '../../components/anchor/anchor';
 import Button from '../../components/forms/button';
 import { Entry } from '../../components/guide/entry';
@@ -167,7 +167,7 @@ function FilterButton({
     active = false,
     onClick,
     children,
-}: RenderableProps<FilterButtonProps>): JSX.Element {
+}: PropsWithChildren<FilterButtonProps>): JSX.Element {
     return (
         <Button
             primary={active}
@@ -182,7 +182,7 @@ function Row({
     key,
     description,
     hostname,
-}: RenderableProps<Exchange>): JSX.Element {
+}: PropsWithChildren<Exchange>): JSX.Element {
     return (
         <A
             key={key}
@@ -205,5 +205,5 @@ function Row({
     );
 }
 
-const HOC = translate<ExchangesProps>()(Exchanges);
+const HOC = translate()(Exchanges);
 export { HOC as Exchanges };

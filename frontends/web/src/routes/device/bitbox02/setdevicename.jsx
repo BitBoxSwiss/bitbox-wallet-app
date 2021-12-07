@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, createRef } from 'react';
 import { Button, Input } from '../../../components/forms';
 import { apiPost } from '../../../utils/request';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { alertUser } from '../../../components/alert/Alert';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
+import { withTranslation } from 'react-i18next';
 
 class SetDeviceNameClass extends Component {
     constructor(props) {
@@ -125,4 +125,4 @@ class SetDeviceNameClass extends Component {
     }
 }
 
-export const SetDeviceName = translate()(SetDeviceNameClass);
+export const SetDeviceName = withTranslation()(SetDeviceNameClass);

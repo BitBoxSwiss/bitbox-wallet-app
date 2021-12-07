@@ -15,17 +15,16 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import React, { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Radio } from '../../../components/forms';
 import * as style from './backups.module.css';
-
 interface BackupsListItemProps {
     disabled?: boolean;
     backup: Backup;
     selectedBackup?: string;
     handleChange: (value: string) => void;
-    onFocus: (event: Event) => void;
+    onFocus: (event: React.SyntheticEvent) => void;
     radio: boolean;
 }
 
@@ -42,7 +41,7 @@ class BackupsListItem extends Component<Props> {
         const { disabled, backup, selectedBackup, handleChange, onFocus, radio } = this.props;
         let date = '';
         if (backup.date && backup.date !== '') {
-            date = new Date(backup.date).toLocaleString(this.context.i18n.language, {
+            date = new Date(backup.date).toLocaleString(this.props.i18n.language, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -58,7 +57,7 @@ class BackupsListItem extends Component<Props> {
             <Radio
                 disabled={!!disabled}
                 checked={selectedBackup === backup.id}
-                onChange={(event: Event) => handleChange((event.target as HTMLInputElement).value)}
+                onChange={(event: React.SyntheticEvent) => handleChange((event.target as HTMLInputElement).value)}
                 id={backup.id}
                 label={backup.name && backup.name !== '' ? backup.name : backup.id}
                 value={backup.id}
@@ -75,5 +74,5 @@ class BackupsListItem extends Component<Props> {
     }
 }
 
-const TranslatedBackupsListItem = translate<BackupsListItemProps>()(BackupsListItem);
+const TranslatedBackupsListItem = translate()(BackupsListItem);
 export { TranslatedBackupsListItem as BackupsListItem };

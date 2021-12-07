@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import { Component, createRef} from 'react';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Check, Copy } from '../icon/icon';
 import * as style from './Copy.module.css';
@@ -62,11 +62,8 @@ class CopyableInput extends Component<Props, State> {
         textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
     }
 
-    private onFocus = (e: FocusEvent) => {
-        const textarea = e.target as HTMLTextAreaElement;
-        if (textarea) {
-            textarea.focus();
-        }
+    private onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
+        e.currentTarget.focus();
     }
 
     private copy = () => {
@@ -115,5 +112,5 @@ class CopyableInput extends Component<Props, State> {
     }
 }
 
-const TranslatedCopyableInput = translate<CopyableInputProps>()(CopyableInput);
+const TranslatedCopyableInput = translate()(CopyableInput);
 export { TranslatedCopyableInput as CopyableInput };

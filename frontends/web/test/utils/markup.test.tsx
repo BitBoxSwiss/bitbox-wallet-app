@@ -15,7 +15,6 @@
  */
 
 import 'jest';
-import { h } from 'preact';
 import { deep, shallow } from 'preact-render-spy';
 import { multilineMarkup, SimpleMarkup } from '../../src/utils/markup';
 

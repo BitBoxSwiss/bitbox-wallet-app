@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button, Input } from '../../../components/forms';
 import { PasswordInput } from '../../../components/password';
 import { alertUser } from '../../../components/alert/Alert';
@@ -121,4 +121,4 @@ class Create extends Component {
     }
 }
 
-export default translate()(Create);
+export default withTranslation()(Create);

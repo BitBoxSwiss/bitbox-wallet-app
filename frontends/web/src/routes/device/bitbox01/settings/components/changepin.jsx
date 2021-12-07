@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
@@ -133,4 +133,4 @@ class ChangePIN extends Component {
     }
 }
 
-export default translate()(ChangePIN);
+export default withTranslation()(ChangePIN);

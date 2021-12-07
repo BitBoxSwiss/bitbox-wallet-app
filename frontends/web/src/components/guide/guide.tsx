@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';

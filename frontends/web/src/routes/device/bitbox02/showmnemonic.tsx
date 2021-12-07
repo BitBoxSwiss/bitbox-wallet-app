@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -82,5 +82,5 @@ class ShowMnemonic extends Component<Props, State> {
     }
 }
 
-const HOC = translate<ShowMnemonicProps>()(ShowMnemonic);
+const HOC = translate()(ShowMnemonic);
 export { HOC as ShowMnemonic };

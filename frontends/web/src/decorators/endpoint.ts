@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { ObjectButNotFunction } from '../utils/types';
 
 /**
@@ -36,4 +36,4 @@ export type EndpointsObject<LoadedProps extends ObjectButNotFunction> = {
  *
  * Example: `props => 'subject/' + props.id + '/attribute`
  */
-export type EndpointsFunction<ProvidedProps extends ObjectButNotFunction, LoadedProps extends ObjectButNotFunction> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;
+export type EndpointsFunction<ProvidedProps extends ObjectButNotFunction, LoadedProps extends ObjectButNotFunction> = (props: PropsWithChildren<ProvidedProps>) => EndpointsObject<LoadedProps>;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
@@ -36,7 +36,7 @@ interface LoadedProps {
 
 type Props = LoadedProps & TranslateProps;
 
-function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
+function Update({ file, t }: PropsWithChildren<Props>): JSX.Element | null {
     return file && (
         <Status dismissable={`update-${file.version}`} type="info">
             {t('app.upgrade', {

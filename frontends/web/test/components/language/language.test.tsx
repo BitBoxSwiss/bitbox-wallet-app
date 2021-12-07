@@ -19,7 +19,6 @@ import { deep } from 'preact-render-spy';
 import '../../matchmediastub';
 jest.mock('../../../src/i18n/i18n');
 
-import { h } from 'preact';
 
 import i18n from '../../../src/i18n/i18n';
 import { LanguageSwitch } from '../../../src/components/language/language';

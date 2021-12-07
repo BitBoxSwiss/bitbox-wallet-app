@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import React, { Component, createRef} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -46,7 +46,7 @@ interface State {
 }
 
 class Backups extends Component<Props, State> {
-    private scrollableContainer = createRef<HTMLElement>();
+    private scrollableContainer = createRef<HTMLDivElement>();
 
     constructor(props) {
         super(props);
@@ -82,8 +82,8 @@ class Backups extends Component<Props, State> {
         this.setState({ selectedBackup: backupID });
     }
 
-    private scrollIntoView = (event: Event) => {
-        if (!this.scrollableContainer.current){
+    private scrollIntoView = (event: React.SyntheticEvent) => {
+        if(!this.scrollableContainer.current){
             return;
         }
         const target = event.target as HTMLInputElement;
@@ -187,5 +187,5 @@ class Backups extends Component<Props, State> {
     }
 }
 
-const TranslatedBackups = translate<BackupsProps>()(Backups);
+const TranslatedBackups = translate()(Backups);
 export { TranslatedBackups as Backups };

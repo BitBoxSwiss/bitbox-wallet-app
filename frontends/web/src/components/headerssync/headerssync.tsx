@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { CoinCode } from '../../api/account';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -100,5 +100,5 @@ const subscribeHOC = subscribe<ISubscribedHeadersSyncProps, IHeadersSyncProps & 
     status: `coins/${coinCode}/headers/status`,
 }), false, true)(HeadersSync);
 
-const HOC = translate<IHeadersSyncProps>()(subscribeHOC);
+const HOC = translate()(subscribeHOC);
 export { HOC as HeadersSync };

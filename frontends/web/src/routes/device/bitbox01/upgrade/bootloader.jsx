@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component } from 'react';
+import { withTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../../../../utils/request';
 import { apiWebsocket } from '../../../../utils/websocket';
 import { BitBox } from '../../../../components/icon/logo';
@@ -51,6 +51,8 @@ class Bootloader extends Component {
         switch (data.data) {
         case 'bootloaderStatusChanged':
             this.onStatusChanged();
+            break;
+        default: 
             break;
         }
     }
@@ -130,4 +132,4 @@ class Bootloader extends Component {
     }
 }
 
-export default translate()(Bootloader);
+export default withTranslation()(Bootloader);

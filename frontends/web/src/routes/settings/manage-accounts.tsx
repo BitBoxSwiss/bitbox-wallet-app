@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component} from 'react';
+import { route } from '../../utils/route';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { apiGet } from '../../utils/request';
@@ -220,7 +220,7 @@ class ManageAccounts extends Component<Props, State> {
         });
     }
 
-    private updateAccountName = (event: Event) => {
+    private updateAccountName = (event: React.SyntheticEvent) => {
         event.preventDefault();
         const { editAccountCode, editAccountNewName } = this.state;
 
@@ -298,5 +298,5 @@ class ManageAccounts extends Component<Props, State> {
     }
 }
 
-const HOC = translate<ManageAccountsProps>()(ManageAccounts);
+const HOC = translate()(ManageAccounts);
 export { HOC as ManageAccounts };

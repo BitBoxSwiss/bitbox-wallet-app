@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, PropsWithChildren } from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { FiatConversion, formatCurrency } from '../../../components/rates/rates';
-import { TranslateProps } from '../../../decorators/translate';
 import { Check } from '../../../components/icon/icon';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
@@ -51,7 +50,7 @@ interface State {
     syncStatus?: SyncStatus;
 }
 
-type Props = TranslateProps & AccountSummaryProps;
+type Props = WithTranslation & AccountSummaryProps;
 
 interface BalanceRowProps {
     code: string;
@@ -73,7 +72,7 @@ class AccountsSummary extends Component<Props, State> {
         this.getAccountSummary();
         this.unsubscribe = apiWebsocket(this.onEvent);
 
-        this.props.accounts.map((account) => {
+        this.props.accounts.forEach((account) => {
             this.onStatusChanged(account.code);
         });
     }
@@ -145,7 +144,7 @@ class AccountsSummary extends Component<Props, State> {
         .catch(console.error);
     }
 
-    private balanceRow = ({ code, name, coinCode, coinUnit }: RenderableProps<BalanceRowProps>) => {
+    private balanceRow = ({ code, name, coinCode, coinUnit }: PropsWithChildren<BalanceRowProps>) => {
         const { t } = this.props;
         const balance = this.state.balances ? this.state.balances[code] : undefined;
         const nameCol = (
@@ -180,7 +179,7 @@ class AccountsSummary extends Component<Props, State> {
                     { t('account.syncedAddressesCount', {
                         count: syncStatus?.toString(),
                         defaultValue: 0,
-                    }) }
+                    } as any) }
                     <Spinner />
                 </td>
             </tr>
@@ -198,7 +197,7 @@ class AccountsSummary extends Component<Props, State> {
                             exported ? (
                                 <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
                                     <span>
-                                        <Check style="margin-right: 5px !important;" />
+                                        <Check style={{marginRight: '5px !important'}} />
                                         <span>{t('account.openFile')}</span>
                                     </span>
                                 </A>
@@ -243,7 +242,7 @@ class AccountsSummary extends Component<Props, State> {
                                         { accounts.length > 0 ? (
                                             accounts.map(account => this.balanceRow(account))
                                         ) : (
-                                            <p>{t('accountSummary.noAccount')}</p>
+                                            <tr><td rowSpan={2}>{t('accountSummary.noAccount')}</td></tr>
                                         )}
                                     </tbody>
                                     {(data && data.chartTotal) ? (
@@ -278,5 +277,5 @@ class AccountsSummary extends Component<Props, State> {
     }
 }
 
-const HOC = translate()(AccountsSummary);
+const HOC = withTranslation()(AccountsSummary);
 export { HOC as AccountsSummary };

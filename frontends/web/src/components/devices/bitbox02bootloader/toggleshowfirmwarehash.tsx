@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -56,5 +56,5 @@ class ToggleFWHash extends Component<Props, {}> {
 }
 
 const loadHOC = load<LoadedProps, ToggleProps & TranslateProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
-const HOC = translate<ToggleProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as ToggleShowFirmwareHash };

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import React from 'react';
 import * as style from './field.module.css';
 
 export function Field({
