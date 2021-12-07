@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
@@ -176,14 +176,14 @@ class MobilePairing extends Component<Props, State> {
                                                 <label className="text-center">Apple App Store</label>
                                                 <div className="flex flex-column flex-center flex-items-center">
                                                     <QRCode data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={148} />
-                                                    <a target="_blank" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} className={style.badge} /></a>
+                                                    <a target="_blank" rel="noreferrer" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} className={style.badge} /></a>
                                                 </div>
                                             </div>
                                             <div className="column column-1-2">
                                                 <label className="text-center">Google Play Store</label>
                                                 <div className="flex flex-column flex-center flex-items-center">
                                                     <QRCode data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={148} />
-                                                    <a target="_blank" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} className={style.badge} /></a>
+                                                    <a target="_blank" rel="noreferrer" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} className={style.badge} /></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -246,5 +246,5 @@ class MobilePairing extends Component<Props, State> {
     }
 }
 
-const translatedMobilePairing = translate<PairingProps>()(MobilePairing);
+const translatedMobilePairing = translate()(MobilePairing);
 export { translatedMobilePairing as MobilePairing };

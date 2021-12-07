@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import Toast from '../../../components/toast/Toast';
 import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -166,5 +166,5 @@ class Backups extends Component<Props, State> {
 }
 
 const subscribeHOC = subscribe<SubscribedBackupsProps, BackupsProps & TranslateProps>(({ deviceID }) => ({ backups: 'devices/bitbox02/' + deviceID + '/backups/list' }))(Backups);
-const HOC = translate<BackupsProps>()(subscribeHOC);
+const HOC = translate()(subscribeHOC);
 export { HOC as BackupsV2 };

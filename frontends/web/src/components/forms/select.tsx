@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
 import { select } from './select.module.css';
 
 type TOptionTextContent = {
@@ -42,14 +41,15 @@ export function Select({
 }: TSelectProps) {
     return (
         <div className={select}>
-            {label && <label for={id}>{label}</label>}
+            {label && <label htmlFor={id}>{label}</label>}
             <select id={id} {...props}>
                 {options.map(({ value, text, disabled = false }) => (
                     <option
+                        defaultValue={selectedOption}
                         key={`${value}`}
                         value={value}
                         disabled={disabled}
-                        selected={selectedOption === value}>
+                    >
                         {text}
                     </option>
                 ))}

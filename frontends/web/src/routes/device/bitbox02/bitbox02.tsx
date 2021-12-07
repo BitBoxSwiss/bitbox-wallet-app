@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component} from 'react';
+import { route } from '../../../utils/route';
 import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
@@ -356,7 +356,7 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
-    private handleDisclaimerCheck = (event: Event) => {
+    private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
         const target = event.target as HTMLInputElement;
         const key = target.id as 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
         const obj = {};
@@ -436,6 +436,7 @@ class BitBox02 extends Component<Props, State> {
                         <Steps>
                             { (status === 'connected') ? (
                                 <View
+                                    key="connection"
                                     fullscreen
                                     textCenter
                                     withBottomBar
@@ -460,6 +461,7 @@ class BitBox02 extends Component<Props, State> {
                             ) : null }
 
                             <Step
+                                key="failed-pairing"
                                 active={status === 'unpaired' || status === 'pairingFailed'}
                                 title={t('bitbox02Wizard.pairing.title')}>
                                 {
@@ -491,19 +493,20 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 !unlockOnly && (
                                     <Step
+                                        key="uninitialized-pairing"
                                         active={status === 'uninitialized' && appStatus === ''}
                                         title={t('bitbox02Wizard.stepUninitialized.title')}
                                         large>
                                         <Toast theme="info">
                                             <div className="flex flex-items-center">
-                                                <img src={warning} style="width: 18px; margin-right: 10px" />
+                                                <img src={warning} style={{width: 18, marginRight: 10}} />
                                                 {t('bitbox02Wizard.initialize.tip')}
                                             </div>
                                         </Toast>
                                         <div className="columnsContainer m-top-default">
                                             <div className="columns">
                                                 <div className="column column-1-2">
-                                                    <div className={style.stepContext} style="min-height: 330px">
+                                                    <div className={style.stepContext} style={{minHeight: 330}}>
                                                         <h3 className={style.stepSubHeader}>{t('button.create')}</h3>
                                                         <p className="text-center">{t('bitbox02Wizard.stepUninitialized.create')}</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
@@ -517,7 +520,7 @@ class BitBox02 extends Component<Props, State> {
                                                     </div>
                                                 </div>
                                                 <div className="column column-1-2">
-                                                    <div className={style.stepContext} style="min-height: 330px">
+                                                    <div className={style.stepContext} style={{minHeight: 330}}>
                                                         <h3 className={style.stepSubHeader}>{t('button.restore')}</h3>
                                                         <p className="text-center">{t('bitbox02Wizard.stepUninitialized.restore')}</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
@@ -546,6 +549,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 !unlockOnly && appStatus === 'createWallet' && (
                                     <Step
+                                        key="intro-pairing"
                                         active={createWalletStatus === 'intro'}
                                         title={t('bitbox02Wizard.stepCreate.title')}>
                                         {
@@ -589,6 +593,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'createWallet') && (
                                     <Step
+                                        key="create-wallet"
                                         width={700}
                                         active={createWalletStatus === 'setPassword'}
                                         title={t('bitbox02Wizard.stepPassword.title')}>
@@ -613,6 +618,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'createWallet') && (
                                     <Step
+                                        key="create-backup"
                                         width={700}
                                         active={status === 'seeded' && createWalletStatus === 'createBackup'}
                                         title={t('backup.create.title')}>
@@ -680,6 +686,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'restoreBackup') && (
                                     <Step
+                                        key="restore"
                                         width={700}
                                         active={status !== 'initialized' && restoreBackupStatus === 'restore'}
                                         title={t('backup.restore.confirmTitle')}>
@@ -703,6 +710,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'restoreBackup') && (
                                     <Step
+                                        key="set-password"
                                         width={700}
                                         active={status !== 'initialized' && restoreBackupStatus === 'setPassword'}
                                         title={t('bitbox02Wizard.stepPassword.title')}>
@@ -724,6 +732,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 appStatus === 'createWallet' && (
                                     <Step
+                                        key="success"
                                         active={status === 'initialized'}
                                         title={t('bitbox02Wizard.success.title')}>
                                         <div className={style.stepContext}>
@@ -745,6 +754,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 appStatus === 'restoreBackup' && (
                                     <Step
+                                        key="backup-success"
                                         width={700}
                                         active={status === 'initialized'}
                                         title={t('bitbox02Wizard.stepBackupSuccess.title')}>
@@ -774,6 +784,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 appStatus === 'restoreFromMnemonic' && (
                                     <Step
+                                    key="backup-success2"
                                         width={700}
                                         active={status === 'initialized'}
                                         title={t('bitbox02Wizard.stepBackupSuccess.title')}>
@@ -805,5 +816,5 @@ class BitBox02 extends Component<Props, State> {
     }
 }
 
-const HOC = translate<BitBox02Props>()(BitBox02);
+const HOC = translate()(BitBox02);
 export { HOC as BitBox02 };

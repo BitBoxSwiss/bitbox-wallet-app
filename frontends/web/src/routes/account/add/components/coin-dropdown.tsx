@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import * as backendAPI from '../../../../api/backend';
 import { Select } from '../../../../components/forms';
 import { translate, TranslateProps } from '../../../../decorators/translate';
@@ -32,10 +32,10 @@ function CoinDropDown({
     supportedCoins,
     t,
     value,
-}: RenderableProps<Props>) {
+}: PropsWithChildren<Props>) {
     return (
         <Select
-            autofocus
+            autoFocus
             options={[
                 {
                     text: t('buy.info.selectPlaceholder'),
@@ -58,6 +58,6 @@ function CoinDropDown({
     );
 }
 
-const HOC = translate<CoinDropDownProps>()(CoinDropDown);
+const HOC = translate()(CoinDropDown);
 
 export { HOC as CoinDropDown };

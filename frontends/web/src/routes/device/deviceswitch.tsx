@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { TDevices } from '../../api/devices';
 import BitBox01 from './bitbox01/bitbox01';
 import { BitBox02 } from './bitbox02/bitbox02';
@@ -24,6 +24,7 @@ import { Waiting } from './waiting';
 interface Props {
     devices: TDevices;
     deviceID: string | null;
+    default?: boolean
 }
 
 class DeviceSwitch extends Component<Props, {}> {

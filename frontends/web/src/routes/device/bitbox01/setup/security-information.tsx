@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { Button } from '../../../../components/forms';
 import { Alert, SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -118,5 +118,5 @@ class SecurityInformation extends Component<Props, State> {
     }
 }
 
-const translatedSecutiryInformation = translate<SecurityInformationProps>()(SecurityInformation);
+const translatedSecutiryInformation = translate()(SecurityInformation);
 export { translatedSecutiryInformation as  SecurityInformation };

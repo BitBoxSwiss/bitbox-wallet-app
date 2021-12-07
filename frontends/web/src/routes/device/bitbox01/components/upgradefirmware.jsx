@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
@@ -115,7 +115,7 @@ class UpgradeFirmware extends Component {
                                 unlocked ? (
                                     <div>
                                         <p className="m-top-none">{t('upgradeFirmware.unlocked')}</p>
-                                        <ol style="line-height: 1.5;">
+                                        <ol style={{lineHeight: '1.5'}}>
                                             <li>{t('upgradeFirmware.unlocked1')}</li>
                                             <li>{t('upgradeFirmware.unlocked2')}</li>
                                             <li>{t('upgradeFirmware.unlocked3')}</li>
@@ -135,4 +135,4 @@ class UpgradeFirmware extends Component {
     }
 }
 
-export default translate()(UpgradeFirmware);
+export default withTranslation()(UpgradeFirmware);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import * as accountAPI from '../../api/account';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button } from '../forms';
@@ -58,5 +58,5 @@ class VerifyAddress extends Component<Props, State> {
     }
 }
 
-const translateHOC = translate<VerifyAddressProps>()(VerifyAddress);
+const translateHOC = translate()(VerifyAddress);
 export { translateHOC as VerifyAddress };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import * as style from './Toast.module.css';
 
 export default class Toast extends Component {
@@ -37,10 +37,6 @@ export default class Toast extends Component {
         }
     }
 
-    setRef = ref => {
-        this.toast = ref;
-    }
-
     render() {
         const {
             theme,
@@ -50,7 +46,6 @@ export default class Toast extends Component {
         const { active } = this.state;
         return (
             <div
-                ref={this.setRef}
                 className={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
                 <p>{children}</p>
             </div>

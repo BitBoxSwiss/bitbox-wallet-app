@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { Entry } from '../../components/guide/entry';
 import { Guide, store as panelStore } from '../../components/guide/guide';
 import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';

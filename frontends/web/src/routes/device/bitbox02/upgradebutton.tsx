@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -114,5 +114,5 @@ class UpgradeButton extends Component<Props, State> {
     }
 }
 
-const HOC = translate<UpgradeButtonProps>()(UpgradeButton);
+const HOC = translate()(UpgradeButton);
 export { HOC as UpgradeButton };

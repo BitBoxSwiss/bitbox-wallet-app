@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { ButtonLink, Button, Input } from '../../components/forms';
@@ -215,7 +215,7 @@ class ElectrumServerClass extends Component {
     }
 }
 
-export const ElectrumServer = translate()(ElectrumServerClass);
+export const ElectrumServer = withTranslation()(ElectrumServerClass);
 
 class ElectrumServersClass extends Component {
     state = {
@@ -300,7 +300,7 @@ class ElectrumServersClass extends Component {
     }
 }
 
-const ElectrumServers = translate()(ElectrumServersClass);
+const ElectrumServers = withTranslation()(ElectrumServersClass);
 
 class ElectrumSettings extends Component {
     state = {
@@ -350,10 +350,10 @@ class ElectrumSettings extends Component {
                                     />
                                 )
                             }
-                            <div style="margin-bottom: 20px;">
+                            <div style={{marginBottom: 20}}>
                                 <ButtonLink
                                     secondary
-                                    href={`/settings`}>
+                                    to={`/settings`}>
                                     {t('button.back')}
                                 </ButtonLink>
                             </div>
@@ -373,4 +373,4 @@ class ElectrumSettings extends Component {
     }
 }
 
-export default translate()(ElectrumSettings);
+export default withTranslation()(ElectrumSettings);

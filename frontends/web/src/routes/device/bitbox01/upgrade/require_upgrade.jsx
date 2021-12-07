@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { apiGet } from '../../../../utils/request';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { BitBox } from '../../../../components/icon/logo';
@@ -53,4 +53,4 @@ class RequireUpgrade extends Component {
     }
 }
 
-export default translate()(RequireUpgrade);
+export default withTranslation()(RequireUpgrade);

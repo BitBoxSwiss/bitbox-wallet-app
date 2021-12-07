@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, createRef} from 'react';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Check, Copy } from '../icon/icon';
 import * as style from './Copy.module.css';
@@ -41,7 +41,7 @@ class CopyableInput extends Component<Props, State> {
         success: false,
     }
 
-    private textArea!: HTMLTextAreaElement;
+    private textArea = createRef<HTMLTextAreaElement>();
 
     public componentDidMount() {
         this.setHeight();
@@ -52,26 +52,22 @@ class CopyableInput extends Component<Props, State> {
     }
 
     private setHeight() {
-        const textarea = this.textArea;
+        const textarea = this.textArea.current;
+        if (!textarea) {
+            return;
+        }
         const fontSize = window.getComputedStyle(textarea, null).getPropertyValue('font-size');
         const units = Number(fontSize.replace('px', '')) + 2;
         textarea.setAttribute('rows', '1');
         textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
     }
 
-    private setRef = (textarea: HTMLTextAreaElement) => {
-        this.textArea = textarea;
-    }
-
-    private onFocus = (e: FocusEvent) => {
-        const textarea = e.target as HTMLTextAreaElement;
-        if (textarea) {
-            textarea.focus();
-        }
+    private onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
+        e.currentTarget.focus();
     }
 
     private copy = () => {
-        this.textArea.select();
+        this.textArea.current?.select();
         if (document.execCommand('copy')) {
             this.setState({ success: true }, () => {
                 setTimeout(() => this.setState({ success: false }), 1500);
@@ -101,7 +97,7 @@ class CopyableInput extends Component<Props, State> {
                     readOnly
                     onFocus={this.onFocus}
                     value={value}
-                    ref={this.setRef}
+                    ref={this.textArea}
                     rows={1}
                     className={[
                         style.inputField,
@@ -116,5 +112,5 @@ class CopyableInput extends Component<Props, State> {
     }
 }
 
-const TranslatedCopyableInput = translate<CopyableInputProps>()(CopyableInput);
+const TranslatedCopyableInput = translate()(CopyableInput);
 export { TranslatedCopyableInput as CopyableInput };

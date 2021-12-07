@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import React from 'react';
 import * as style from './label.module.css';
 
 export function Label({

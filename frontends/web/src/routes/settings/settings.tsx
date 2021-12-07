@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { Link, route } from 'preact-router';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { route } from '../../utils/route';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
@@ -49,7 +50,7 @@ interface State {
 }
 
 class Settings extends Component<Props, State> {
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             restart: false,
@@ -65,13 +66,13 @@ class Settings extends Component<Props, State> {
         });
     }
 
-    public componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps: Props) {
         if (prevProps.deviceIDs.length && !this.props.deviceIDs.length) {
             route('/', true);
         }
     }
 
-    private handleToggleFrontendSetting = (event: Event) => {
+    private handleToggleFrontendSetting = (event: React.SyntheticEvent) => {
         const target = (event.target as HTMLInputElement);
         setConfig({
             frontend: {
@@ -81,7 +82,7 @@ class Settings extends Component<Props, State> {
             .then(config => this.setState({ config }));
     }
 
-    private handleFormChange = (event: Event) => {
+    private handleFormChange = (event: React.SyntheticEvent) => {
         const target = (event.target as HTMLInputElement);
         if (target.name !== 'proxyAddress') {
             return;
@@ -104,7 +105,7 @@ class Settings extends Component<Props, State> {
         });
     }
 
-    private handleToggleProxy = (event: Event) => {
+    private handleToggleProxy = (event: React.SyntheticEvent) => {
         const config = this.state.config;
         if (!config) {
             return;
@@ -143,10 +144,6 @@ class Settings extends Component<Props, State> {
         this.setState({ restart: false });
     }
 
-    private backHome = () => {
-        route('/', true);
-    }
-
     public render() {
         const {
             manageAccountsLen,
@@ -169,7 +166,7 @@ class Settings extends Component<Props, State> {
                     <Header title={<h2>{t('settings.title')}</h2>}>
                         {
                             !deviceIDs.length && (
-                                <Link onClick={this.backHome} className="flex flex-row flex-items-center">
+                                <Link to='/' className="flex flex-row flex-items-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 24 24"
@@ -307,5 +304,5 @@ class Settings extends Component<Props, State> {
     }
 }
 
-const HOC = translate<SettingsProps>()(Settings);
+const HOC = translate()(Settings);
 export { HOC as Settings };

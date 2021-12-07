@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component} from 'react';
+import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
@@ -215,7 +215,7 @@ class BuyInfo extends Component<Props, State> {
                                             },
                                             ...options]
                                         }
-                                        onChange={(e: Event) => this.setState({ selected: (e.target as HTMLSelectElement).value})}
+                                        onChange={(e: React.SyntheticEvent) => this.setState({ selected: (e.target as HTMLSelectElement).value})}
                                         value={selected}
                                         defaultValue={'choose'}
                                         id="coinAndAccountCode"
@@ -243,5 +243,5 @@ const loadHOC = load<LoadedBuyInfoProps, BuyInfoProps & TranslateProps>({
     config: 'config'
 })(BuyInfo);
 
-const HOC = translate<BuyInfoProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as BuyInfo };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentFactory, h, JSX } from 'preact';
+import { Component, ComponentType } from 'react';
 import { getDisplayName } from '../utils/component';
 import { apiGet } from '../utils/request';
 import { KeysOf, ObjectButNotFunction } from '../utils/types';
@@ -38,10 +38,10 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {
     return function decorator(
-        WrappedComponent: ComponentFactory<LoadedProps & ProvidedProps>,
+        WrappedComponent: ComponentType<LoadedProps & ProvidedProps>,
     ) {
         return class Load extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
-            public static displayName = `Load(${getDisplayName(WrappedComponent)})`;
+            public static displayName = `Load(${getDisplayName(WrappedComponent as any)})`;
 
             private determineEndpoints(): EndpointsObject<LoadedProps> {
                 if (typeof endpointsObjectOrFunction === 'function') {
@@ -100,7 +100,7 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
             private allEndpointsLoaded(): boolean {
                 if (this.endpoints === undefined) { return false; }
                 for (const key of Object.keys(this.endpoints) as KeysOf<LoadedProps>) {
-                    if (this.state[key] === undefined) {
+                    if ((this.state === null) || (this.state[key] === undefined)) {
                         return false;
                     }
                 }

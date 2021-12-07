@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component } from 'react';
 import { ObjectButNotFunction } from '../utils/types';
 
 /**

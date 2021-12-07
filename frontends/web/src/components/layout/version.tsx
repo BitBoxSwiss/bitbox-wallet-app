@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 
@@ -24,7 +24,7 @@ interface VersionProps {
 
 type Props = VersionProps & TranslateProps;
 
-function Version({ t, version }: RenderableProps<Props>) {
+function Version({ t, version }: PropsWithChildren<Props>) {
     return <p>{t('footer.appVersion')} {version}</p>;
 }
 

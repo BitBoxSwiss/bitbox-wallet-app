@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { apiGet } from '../../../../utils/request';
 import { Button } from '../../../../components/forms';
 import { Backups } from '../backups';
@@ -160,4 +160,4 @@ class SeedRestore extends Component {
     }
 }
 
-export default translate()(SeedRestore);
+export default withTranslation()(SeedRestore);

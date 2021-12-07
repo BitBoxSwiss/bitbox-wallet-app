@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { LanguageSwitch } from '../language/language';
 import * as style from './footer.module.css';
 import { Version } from './version';
 
-export function Footer({ children }: RenderableProps<{}>) {
+export function Footer({ children }: PropsWithChildren<{}>) {
     return (
         <footer className={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
             {children}

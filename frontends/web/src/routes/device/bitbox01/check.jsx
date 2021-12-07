@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../components/forms';
 import { Dialog } from '../../../components/dialog/dialog';
 import { PasswordSingleInput } from '../../../components/password';
@@ -97,7 +97,7 @@ class Check extends Component {
                             onClose={this.abort}>
                             { message ? (
                                 <div>
-                                    <p style="min-height: 3rem;">{message}</p>
+                                    <p style={{minHeight: '3rem'}}>{message}</p>
                                     <div className={style.actions}>
                                         <Button transparent onClick={this.abort}>
                                             {t('button.back')}
@@ -129,4 +129,4 @@ class Check extends Component {
     }
 }
 
-export default translate()(Check);
+export default withTranslation()(Check);

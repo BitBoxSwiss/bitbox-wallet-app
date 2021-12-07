@@ -15,7 +15,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { SimpleMarkup } from '../../src/utils/simplemarkup';
+import { SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
     it('contains a strong element with the text bar', () => {

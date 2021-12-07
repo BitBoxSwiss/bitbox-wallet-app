@@ -1,4 +1,4 @@
-import { Component, h } from 'preact';
+import React, { Component} from 'react';
 import * as style from './settingsButton.module.css';
 
 interface SettingsButtonProps {
@@ -12,7 +12,7 @@ interface SettingsButtonProps {
 }
 
 class SettingsButton extends Component<SettingsButtonProps> {
-    private handleLink = (e: Event) => {
+    private handleLink = (e: React.SyntheticEvent) => {
         if (this.props.disabled) {
             e.preventDefault();
         }
@@ -42,7 +42,7 @@ class SettingsButton extends Component<SettingsButtonProps> {
                         <span className={style.optionalText}>{optionalText}</span>
                     ) : null }
                     <svg
-                        style={secondaryText ? 'margin-left: auto;' : ''}
+                        style={secondaryText ? {marginLeft: 'auto'} : {}}
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="none"

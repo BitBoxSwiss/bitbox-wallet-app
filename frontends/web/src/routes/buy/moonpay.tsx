@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import { Component, createRef} from 'react';
 import { IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
@@ -43,7 +43,7 @@ interface State {
 type Props = LoadedBuyProps & BuyProps & TranslateProps;
 
 class Moonpay extends Component<Props, State> {
-    private ref = createRef();
+    private ref = createRef<HTMLDivElement>();
     private resizeTimerID?: any;
 
     public componentDidMount() {
@@ -85,7 +85,7 @@ class Moonpay extends Component<Props, State> {
 
     public render() {
         const { moonpay, t } = this.props;
-        const { height } = this.state;
+        const { height } = this.state || { height: 500 }; //Check why state is null (Load HOC?)
         const account = this.getAccount();
         if (!account || moonpay.url === '') {
             return null;
@@ -101,6 +101,7 @@ class Moonpay extends Component<Props, State> {
                         <div className="noSpace" style={{ height }}>
                             <Spinner text={t('loading')} />
                             <iframe
+                                title="Moonpay"
                                 width="100%"
                                 height={height}
                                 frameBorder="0"
@@ -120,5 +121,5 @@ class Moonpay extends Component<Props, State> {
 const loadHOC = load<LoadedBuyProps, BuyProps & TranslateProps>(({ code }) => ({
     moonpay: `exchange/moonpay/buy/${code}`,
 }))(Moonpay);
-const HOC = translate<BuyProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as Moonpay };

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { TFunction } from 'react-i18next';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { Translate } from '../../../decorators/translate';
 
 interface BitcoinBasedAccountInfoGuideProps {
     coinName: string;
-    t: Translate;
+    t: TFunction;
 }
 
 export function BitcoinBasedAccountInfoGuide({

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import React, { PropsWithChildren } from 'react';
 import { Fiat } from '../../../../api/account';
 import {
     currencies,
@@ -30,7 +30,7 @@ import { translate, TranslateProps } from '../../../../decorators/translate';
 import * as parentStyle from '../../settings.module.css';
 import * as style from './fiat.module.css';
 
-function changeSelected(event: Event): void {
+function changeSelected(event: React.SyntheticEvent): void {
     const target = event.target as HTMLInputElement;
     if (target.checked) {
         selectFiat(target.value as Fiat);
@@ -39,7 +39,7 @@ function changeSelected(event: Event): void {
     }
 }
 
-function setDefault(event: Event): void {
+function setDefault(event: React.SyntheticEvent): void {
     const target = event.currentTarget as HTMLElement;
     setActiveFiat(target!.dataset.code as Fiat);
     event.preventDefault();
@@ -51,7 +51,7 @@ function Selection({
     t,
     active,
     selected,
-}: RenderableProps<Props>): JSX.Element | null {
+}: PropsWithChildren<Props>): JSX.Element | null {
     return (
         <div>
             <h3 className="subTitle">{t('fiat.title')}</h3>

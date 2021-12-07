@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-operators */
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
@@ -16,7 +17,7 @@
  */
 
 import React from 'react';
-// import { Link } from 'preact-router/match';
+import { Link } from 'react-router-dom';
 import * as style from './button.module.css';
 
 export function ButtonLink({
@@ -30,14 +31,14 @@ export function ButtonLink({
     disabled = undefined,
     ...props
 }) {
-    // const classNames = [
-    //     style[primary && 'primary'
-    //     || secondary && 'secondary'
-    //     || transparent && 'transparent'
-    //     || danger && 'danger'
-    //     || 'button'
-    //     ], className
-    // ].join(' ');
+    const classNames = [
+        style[primary && 'primary'
+        || secondary && 'secondary'
+        || transparent && 'transparent'
+        || danger && 'danger'
+        || 'button'
+        ], className
+    ].join(' ');
 
     if (disabled) {
         return (
@@ -52,9 +53,9 @@ export function ButtonLink({
         );
     }
     return (
-        // <Link activeClassName="active" className={classNames} tabIndex={tabIndex} {...props}>
-        children
-        // </Link>
+        <Link className={classNames} {...props}>
+            {children}
+        </Link>
     );
 }
 

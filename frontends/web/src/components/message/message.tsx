@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import React, { PropsWithChildren } from 'react';
 import * as styles from './message.module.css';
 
 export interface Props {
     hidden?: boolean;
     type?: 'message' | 'success' | 'info' | 'warning' | 'error';
-    style?: string;
+    style?: React.CSSProperties;
 }
 
 export function Message({
     hidden,
     type = 'message',
-    style = '',
+    style,
     children,
-}: RenderableProps<Props>) {
+}: PropsWithChildren<Props>) {
     if (hidden) {
         return null;
     }

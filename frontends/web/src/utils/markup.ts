@@ -20,6 +20,7 @@ import React, { createElement } from 'react';
 type MarkupProps = {
     tagName: keyof JSX.IntrinsicElements;
     markup: string;
+    key?: string;
 } & React.HTMLAttributes<HTMLElement>;
 
 const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
@@ -58,7 +59,6 @@ export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
  */
 export function multilineMarkup({ tagName, markup, ...props }: MarkupProps) {
     return markup.split('\n').map((line: string, i: number) => (
-        // eslint-disable-next-line new-cap
         SimpleMarkup({
             key: `${line}-${i}`,
             tagName,

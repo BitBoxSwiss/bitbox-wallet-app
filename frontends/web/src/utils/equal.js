@@ -52,5 +52,5 @@ export function equal(a, b) {
         return true;
     }
 
-    return a !== a && b !== b;
+    return false;
 }

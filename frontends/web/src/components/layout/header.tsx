@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, JSX } from 'preact';
+import React, { Component } from 'react';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -29,7 +29,7 @@ interface HeaderProps {
 type Props = HeaderProps & SharedPanelProps & TranslateProps;
 
 class Header extends Component<Props> {
-    private toggle = (e: Event) => {
+    private toggle = (e: React.SyntheticEvent) => {
         e.preventDefault();
         if (!this.props.shown) {
             toggleGuide();
@@ -82,5 +82,5 @@ class Header extends Component<Props> {
 }
 
 const SharedHeader = share<SharedPanelProps, HeaderProps & TranslateProps>(panelStore)(Header);
-const TranslatedHeader = translate<HeaderProps>()(SharedHeader);
+const TranslatedHeader = translate()(SharedHeader);
 export { TranslatedHeader as Header };

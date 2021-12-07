@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
@@ -64,5 +64,5 @@ class GotoStartupSettings extends Component<Props, State> {
     }
 }
 
-const HOC = translate<GotoStartupSettingsProps>()(GotoStartupSettings);
+const HOC = translate()(GotoStartupSettings);
 export { HOC as GotoStartupSettings };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
@@ -39,7 +39,7 @@ interface BannerProps {
 
 type Props = LoadedProps & BannerProps & TranslateProps;
 
-function Banner({ banner, i18n, t }: RenderableProps<Props>): JSX.Element | null {
+function Banner({ banner, i18n, t }: PropsWithChildren<Props>): JSX.Element | null {
     if (!i18n.options.fallbackLng) {
         return null;
     }
@@ -55,7 +55,7 @@ function Banner({ banner, i18n, t }: RenderableProps<Props>): JSX.Element | null
     );
 }
 
-const HOC = translate<BannerProps>()(
+const HOC = translate()(
     subscribe<LoadedProps, BannerProps & TranslateProps>(
         ({ msgKey }) => ({ banner: 'banners/' + msgKey }),
         true,

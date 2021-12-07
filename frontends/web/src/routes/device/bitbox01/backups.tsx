@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import React, { Component, createRef} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -46,7 +46,7 @@ interface State {
 }
 
 class Backups extends Component<Props, State> {
-    private scrollableContainer!: HTMLElement;
+    private scrollableContainer = createRef<HTMLDivElement>();
 
     constructor(props) {
         super(props);
@@ -82,19 +82,18 @@ class Backups extends Component<Props, State> {
         this.setState({ selectedBackup: backupID });
     }
 
-    private scrollIntoView = (event: Event) => {
+    private scrollIntoView = (event: React.SyntheticEvent) => {
+        if(!this.scrollableContainer.current){
+            return;
+        }
         const target = event.target as HTMLInputElement;
         const offsetTop = target.offsetTop;
         const offsetHeight = (target.parentNode as HTMLElement).offsetHeight;
-        if (offsetTop > this.scrollableContainer.scrollTop + offsetHeight) {
+        if (offsetTop > this.scrollableContainer.current.scrollTop + offsetHeight) {
             return;
         }
-        const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.offsetHeight, 0);
-        this.scrollableContainer.scroll({ top, behavior: 'smooth' });
-    }
-
-    private setScrollableContainerRef = (ref: HTMLElement) => {
-        this.scrollableContainer = ref;
+        const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.current.offsetHeight, 0);
+        this.scrollableContainer.current.scroll({ top, behavior: 'smooth' });
     }
 
     public render() {
@@ -130,7 +129,7 @@ class Backups extends Component<Props, State> {
         return (
             <div className="box large m-top-default">
                 <SimpleMarkup tagName="p" markup={t('backup.description')} />
-                <div className={style.backupsList} ref={this.setScrollableContainerRef}>
+                <div className={style.backupsList} ref={this.scrollableContainer}>
                     <div className={style.listContainer}>
                         {
                             backupList.length ? backupList.map(backup => (
@@ -188,5 +187,5 @@ class Backups extends Component<Props, State> {
     }
 }
 
-const TranslatedBackups = translate<BackupsProps>()(Backups);
+const TranslatedBackups = translate()(Backups);
 export { TranslatedBackups as Backups };

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { apiPost } from '../../../../../utils/request';
@@ -54,4 +54,4 @@ class LegacyHiddenWallet extends Component {
     }
 }
 
-export default translate()(LegacyHiddenWallet);
+export default withTranslation()(LegacyHiddenWallet);

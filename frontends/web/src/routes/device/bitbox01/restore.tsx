@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component} from 'react';
+import { route } from '../../../utils/route';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -67,7 +67,7 @@ class Restore extends Component<Props, State> {
         return this.props.selectedBackup && this.state.password;
     }
 
-    private restore = (event: Event) => {
+    private restore = (event: React.SyntheticEvent) => {
         event.preventDefault();
         if (!this.validate()) { return; }
         if (this.props.requireConfirmation) {
@@ -103,7 +103,7 @@ class Restore extends Component<Props, State> {
         });
     }
 
-    private handleUnderstandChange = (e: Event) => {
+    private handleUnderstandChange = (e: React.SyntheticEvent) => {
         this.setState({ understand: (e.target as HTMLInputElement).checked });
     }
 
@@ -186,5 +186,5 @@ class Restore extends Component<Props, State> {
     }
 }
 
-const TranslatedRestore = translate<RestoreProps>()(Restore);
+const TranslatedRestore = translate()(Restore);
 export { TranslatedRestore as Restore };

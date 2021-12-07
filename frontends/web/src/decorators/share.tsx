@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentFactory, h, JSX } from 'preact';
+import { Component, ComponentType } from 'react';
 import { getDisplayName } from '../utils/component';
 import { ObjectButNotFunction } from '../utils/types';
 import { Store } from './store';
@@ -38,7 +38,7 @@ import { Store } from './store';
  * }
  *
  * class Counter extends Component<SharedProps> {
- *     public render({ value }: RenderableProps<SharedProps>): JSX.Element {
+ *     public render({ value }: PropsWithChildren<SharedProps>): JSX.Element {
  *         return <div onClick={incrementValue}>Value: { value }</div>;
  *     }
  * }
@@ -52,10 +52,10 @@ export function share<SharedProps extends ObjectButNotFunction, ProvidedProps ex
     store: Store<SharedProps>,
 ) {
     return function decorator(
-        WrappedComponent: ComponentFactory<SharedProps & ProvidedProps>,
+        WrappedComponent: ComponentType<SharedProps & ProvidedProps>,
     ) {
         return class Share extends Component<ProvidedProps & Partial<SharedProps>> {
-            public static displayName = `Share(${getDisplayName(WrappedComponent)})`;
+            public static displayName = `Share(${getDisplayName(WrappedComponent as any)})`;
 
             public componentDidMount(): void {
                 store.subscribe(this);

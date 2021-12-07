@@ -17,7 +17,7 @@
 
 import { Component } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { SimpleMarkup } from '../../utils/simplemarkup';
+import { SimpleMarkup } from '../../utils/markup';
 import { Dialog } from '../dialog/dialog';
 // TODO: use DialogButtons
 import style from '../dialog/dialog.module.css';
