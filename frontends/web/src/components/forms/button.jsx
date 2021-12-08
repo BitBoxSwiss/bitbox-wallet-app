@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-operators */
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
@@ -32,11 +31,12 @@ export function ButtonLink({
     ...props
 }) {
     const classNames = [
-        style[primary && 'primary'
-        || secondary && 'secondary'
-        || transparent && 'transparent'
-        || danger && 'danger'
-        || 'button'
+        style[
+            (primary && 'primary')
+            || (secondary && 'secondary')
+            || (transparent && 'transparent')
+            || (danger && 'danger')
+            || 'button'
         ], className
     ].join(' ');
 

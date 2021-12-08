@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-operators */
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
@@ -339,12 +338,13 @@ class Account extends Component<Props, State> {
                             {
                                 !status.synced || offlineErrorTextLines.length || !this.dataLoaded() || status.fatalError ? (
                                     <Spinner text={
-                                        status.fatalError && t('account.fatalError') ||
-                                        offlineErrorTextLines.join('\n') ||
-                                        !status.synced && (
+                                        (status.fatalError && t('account.fatalError'))
+                                        || offlineErrorTextLines.join('\n')
+                                        || (!status.synced &&
                                             t('account.initializing')
                                             + initializingSpinnerText
-                                        ) || ''
+                                        )
+                                        || ''
                                     } />
                                 ) : (
                                     <Transactions

@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-operators */
 /**
  * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
@@ -766,7 +765,10 @@ class Send extends Component<Props, State> {
                                 <div className={style.confirmItem}>
                                     <label>{t('send.amount.label')}</label>
                                     <p>
-                                        <span>{proposedAmount && proposedAmount.amount || 'N/A'} <small>{proposedAmount && proposedAmount.unit || 'N/A'}</small></span>
+                                        <span key="proposedAmount">
+                                            {(proposedAmount && proposedAmount.amount) || 'N/A'}
+                                            <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
+                                        </span>
                                         {
                                             proposedAmount && proposedAmount.conversions && (
                                                 <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} <small>{fiatUnit}</small></span>
@@ -783,7 +785,10 @@ class Send extends Component<Props, State> {
                                 <div className={style.confirmItem}>
                                     <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
                                     <p>
-                                        <span key="amount">{proposedFee && proposedFee.amount || 'N/A'} <small>{proposedFee && proposedFee.unit || 'N/A'}</small></span>
+                                        <span key="amount">
+                                            {(proposedFee && proposedFee.amount) || 'N/A'}
+                                            <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
+                                        </span>
                                         {proposedFee && proposedFee.conversions && (
                                             <span key="conversation">
                                                 <span className="text-gray"> / </span>
@@ -813,7 +818,10 @@ class Send extends Component<Props, State> {
                                 <div className={[style.confirmItem, style.total].join(' ')}>
                                     <label>{t('send.confirm.total')}</label>
                                     <p>
-                                        <span><strong>{proposedTotal && proposedTotal.amount || 'N/A'}</strong> <small>{proposedTotal && proposedTotal.unit || 'N/A'}</small></span>
+                                        <span>
+                                            <strong>{(proposedTotal && proposedTotal.amount) || 'N/A'}</strong>
+                                            <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
+                                        </span>
                                         {(proposedTotal && proposedTotal.conversions) && (
                                             <span> <span className="text-gray">/</span> <strong>{proposedTotal.conversions[fiatUnit]}</strong> <small>{fiatUnit}</small></span>
                                         )}
