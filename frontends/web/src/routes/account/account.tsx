@@ -323,13 +323,13 @@ class Account extends Component<Props, State> {
                                 <label className="labelXLarge flex-self-start-mobile">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     {canSend ? (
-                                        <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                        <Link key="sendLink" to={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></Link>
                                     ) : (
-                                        <span className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
+                                        <span key="sendDisabled" className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
                                     )}
-                                    <Link to={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></Link>
+                                    <Link key="receive" to={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></Link>
                                     { this.supportsBuy() && (
-                                        <Link to={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></Link>
+                                        <Link key="buy" to={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></Link>
                                     )}
                                 </div>
                             </div>
