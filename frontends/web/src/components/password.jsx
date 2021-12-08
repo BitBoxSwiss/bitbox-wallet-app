@@ -51,6 +51,9 @@ class PasswordSingleInputClass extends Component {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
         }
+        if (this.props.autoFocus && this.password?.current) {
+            this.password.current.focus();
+        }
     }
 
     componentWillUnmount() {
@@ -176,6 +179,9 @@ class PasswordRepeatInputClass extends Component {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
         }
+        if (this.props.autoFocus && this.password?.current) {
+            this.password.current.focus();
+        }
     }
 
     componentWillUnmount() {
@@ -189,15 +195,6 @@ class PasswordRepeatInputClass extends Component {
                 label: this.props.label
             }));
         }
-    }
-
-    clear = () => {
-        this.setState({
-            password: '',
-            passwordRepeat: '',
-            seePlaintext: false,
-            capsLock: false
-        });
     }
 
     validate = () => {
