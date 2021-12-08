@@ -37,12 +37,14 @@ interface LoadedBuyProps {
 }
 
 interface State {
-    height: number;
+    height?: number;
 }
 
 type Props = LoadedBuyProps & BuyProps & TranslateProps;
 
 class Moonpay extends Component<Props, State> {
+    public readonly state: State = {};
+
     private ref = createRef<HTMLDivElement>();
     private resizeTimerID?: any;
 
@@ -85,7 +87,7 @@ class Moonpay extends Component<Props, State> {
 
     public render() {
         const { moonpay, t } = this.props;
-        const { height } = this.state || { height: 500 }; //Check why state is null (Load HOC?)
+        const { height } = this.state;
         const account = this.getAccount();
         if (!account || moonpay.url === '') {
             return null;

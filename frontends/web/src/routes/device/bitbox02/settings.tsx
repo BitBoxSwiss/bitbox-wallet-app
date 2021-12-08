@@ -44,6 +44,8 @@ interface State {
 type Props = SettingsProps & TranslateProps;
 
 class Settings extends Component<Props, State> {
+    public readonly state: State = {};
+
     private apiPrefix = () => {
         return 'devices/bitbox02/' + this.props.deviceID;
     }
@@ -73,9 +75,6 @@ class Settings extends Component<Props, State> {
             deviceID,
             t,
         } = this.props;
-        if(this.state === null) {
-            return null
-        }
         const {
             versionInfo,
             deviceInfo,
