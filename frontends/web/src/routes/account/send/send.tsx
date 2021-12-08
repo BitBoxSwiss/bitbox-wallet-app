@@ -408,7 +408,7 @@ class Send extends Component<Props, State> {
                     if (data.success) {
                         this.setState({ fiatAmount: data.fiatAmount });
                     } else {
-                        this.setState({ amountError: this.props.t(`send.error.invalidAmount`) });
+                        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
                     }
                 });
         } else {
@@ -425,7 +425,7 @@ class Send extends Component<Props, State> {
                         this.setState({ amount: data.amount });
                         this.validateAndDisplayFee(false);
                     } else {
-                        this.setState({ amountError: this.props.t(`send.error.invalidAmount`) });
+                        this.setState({ amountError: this.props.t('send.error.invalidAmount') });
                     }
                 });
         } else {

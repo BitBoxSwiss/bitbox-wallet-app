@@ -48,7 +48,7 @@ export interface IAccount {
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {
-    return apiGet(`accounts`);
+    return apiGet('accounts');
 };
 
 export interface IStatus {

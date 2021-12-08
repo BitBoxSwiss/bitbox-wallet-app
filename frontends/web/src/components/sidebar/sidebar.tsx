@@ -199,7 +199,7 @@ class Sidebar extends Component<Props> {
                         <div className="sidebarItem">
                             <NavLink
                                 className={({isActive}) => isActive ? 'sidebar-active' : ''}
-                                to={`/account-summary`}
+                                to={'/account-summary'}
                                 title={t('accountSummary.title')}
                                 onClick={this.handleSidebarItemClick}>
                                 <div className="single">
@@ -243,7 +243,7 @@ class Sidebar extends Component<Props> {
                     <div key="settings" className="sidebarItem">
                         <NavLink
                             className={({isActive}) => isActive ? 'sidebar-active' : ''}
-                            to={`/settings`}
+                            to={'/settings'}
                             title={t('sidebar.settings')}
                             onClick={this.handleSidebarItemClick}>
                             <div className="stacked">

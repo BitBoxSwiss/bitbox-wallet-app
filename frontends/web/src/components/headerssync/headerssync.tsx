@@ -75,7 +75,7 @@ class HeadersSync extends Component<Props, IState> {
         let formatted = status.tip.toString();
         let position = formatted.length - 3;
         while (position > 0) {
-            formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
+            formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
             position = position - 3;
         }
 

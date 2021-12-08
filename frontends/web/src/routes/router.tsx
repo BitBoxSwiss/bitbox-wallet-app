@@ -1,5 +1,5 @@
-import React, { FunctionComponent } from "react";
-import { Route, Routes, useParams } from "react-router";
+import React, { FunctionComponent } from 'react';
+import { Route, Routes, useParams } from 'react-router';
 import { IAccount } from '../api/account';
 import { TDevices } from '../api/devices';
 import { AddAccount } from './account/add/add';
@@ -16,7 +16,7 @@ import { Exchanges } from './exchanges/exchanges';
 import ElectrumSettings from './settings/electrum';
 import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
-import { Account } from "./account/account";
+import { Account } from './account/account';
 
 interface Props {
     devices: TDevices;
