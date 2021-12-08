@@ -213,9 +213,9 @@ class MobilePairing extends Component<Props, State> {
                     onClick={hasMobileChannel && !paired ? this.reconnectUnpaired : this.startPairing}
                     optionalText={t(`deviceSettings.pairing.status.${paired}`)}>
                     { deviceLocked ? (
-                          hasMobileChannel ? t(`pairing.reconnectOnly.button`) : t(`pairing.connectOnly.button`)
+                          hasMobileChannel ? t('pairing.reconnectOnly.button') : t('pairing.connectOnly.button')
                     ) : (
-                          (hasMobileChannel && !paired) ? t(`pairing.reconnectOnly.button`) : t('pairing.button')
+                          (hasMobileChannel && !paired) ? t('pairing.reconnectOnly.button') : t('pairing.button')
                     )}
                 </SettingsButton>
                 {

@@ -353,7 +353,7 @@ class ElectrumSettings extends Component {
                             <div style={{marginBottom: 20}}>
                                 <ButtonLink
                                     secondary
-                                    to={`/settings`}>
+                                    to={'/settings'}>
                                     {t('button.back')}
                                 </ButtonLink>
                             </div>

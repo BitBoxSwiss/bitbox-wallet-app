@@ -99,7 +99,7 @@ export function formatNumber(amount: number, maxDigits: number): string {
     let formatted = amount.toFixed(maxDigits);
     let position = formatted.indexOf('.') - 3;
     while (position > 0) {
-        formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
+        formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
         position = position - 3;
     }
     return formatted;

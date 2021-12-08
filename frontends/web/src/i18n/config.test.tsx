@@ -76,7 +76,7 @@ describe('language detector', () => {
     it('uses native-locale if userLanguage is empty', done => {
         (apiGet as jest.Mock).mockImplementation(endpoint => {
             switch (endpoint) {
-                case 'config': { return Promise.resolve({backend: {userLanguage: ""}}); }
+                case 'config': { return Promise.resolve({backend: {userLanguage: ''}}); }
                 case 'native-locale': { return Promise.resolve('de'); }
                 default: { return Promise.resolve(); }
             }

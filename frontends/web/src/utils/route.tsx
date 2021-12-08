@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect } from "react";
-import { NavigateFunction, useLocation, useNavigate } from "react-router";
+import { FunctionComponent, useEffect } from 'react';
+import { NavigateFunction, useLocation, useNavigate } from 'react-router';
 
 let navigate: NavigateFunction | undefined
 
