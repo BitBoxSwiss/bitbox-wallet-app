@@ -171,7 +171,7 @@ class AddAccount extends Component<Props, State> {
                 return (
                     <Input
                         autoFocus
-                        inputRef={this.ref}
+                        ref={this.ref}
                         id="accountName"
                         onInput={e => this.setState({ accountName: e.target.value })}
                         value={accountName} />

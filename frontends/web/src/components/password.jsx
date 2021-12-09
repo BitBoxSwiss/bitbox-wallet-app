@@ -135,7 +135,7 @@ class PasswordSingleInputClass extends Component {
                 placeholder={placeholder}
                 onInput={this.handleFormChange}
                 onPaste={this.tryPaste}
-                inputRef={this.password}
+                ref={this.password}
                 value={password}
                 labelSection={
                     <Checkbox
@@ -262,7 +262,7 @@ class PasswordRepeatInputClass extends Component {
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    inputRef={this.password}
+                    ref={this.password}
                     value={password}>
                     {warning}
                 </Input>
@@ -280,7 +280,7 @@ class PasswordRepeatInputClass extends Component {
                     placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    inputRef={this.password}
+                    ref={this.password}
                     value={passwordRepeat}>
                     {warning}
                 </Input>

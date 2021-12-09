@@ -179,7 +179,7 @@ class SeedCreateNew extends Component {
                         label={t('seed.walletName.label')}
                         disabled={status === STATUS.CREATING}
                         onInput={this.handleFormChange}
-                        inputRef={this.walletNameInput}
+                        ref={this.walletNameInput}
                         value={walletName} />
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
