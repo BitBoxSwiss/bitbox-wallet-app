@@ -97,7 +97,7 @@ class SetDeviceNameClass extends Component {
                                             pattern="^.{0,63}$"
                                             label={t('bitbox02Settings.deviceName.input')}
                                             onInput={this.handleChange}
-                                            inputRef={this.nameInput}
+                                            ref={this.nameInput}
                                             placeholder={t('bitbox02Settings.deviceName.placeholder')}
                                             value={deviceName}
                                             id="deviceName" />

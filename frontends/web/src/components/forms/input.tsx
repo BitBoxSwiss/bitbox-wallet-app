@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { forwardRef, Ref } from 'react';
+import { forwardRef } from 'react';
 import styles from './input.module.css';
 
 export interface Props {
@@ -25,7 +25,6 @@ export interface Props {
     className?: string;
     disabled?: boolean;
     error?: string | object;
-    inputRef?: Ref<HTMLInputElement>;
     id?: string;
     label?: string;
     min?: string;
@@ -51,7 +50,6 @@ export default forwardRef<HTMLInputElement, Props>(function Input({
     align = 'left',
     className = '',
     children,
-    inputRef,
     transparent = false,
     type = 'text',
     labelSection,
@@ -81,7 +79,7 @@ export default forwardRef<HTMLInputElement, Props>(function Input({
                 spellCheck={false}
                 type={type}
                 id={id}
-                ref={ref || inputRef}
+                ref={ref}
                 {...props}
             />
             {children}
