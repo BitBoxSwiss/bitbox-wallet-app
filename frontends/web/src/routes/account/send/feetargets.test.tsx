@@ -15,16 +15,12 @@
  */
 
 import 'jest';
-import '../../../matchmediastub';
 
-import { deep, shallow } from 'preact-render-spy';
+jest.mock('../../../utils/request');
+import { apiGet } from '../../../utils/request';
 
-jest.mock('../../../../src/utils/request');
-import { apiGet } from '../../../../src/utils/request';
-
-jest.mock('../../../../src/i18n/i18n');
-
-jest.mock('../../../../src/decorators/translate', () => ({
+jest.mock('../../../i18n/i18n');
+jest.mock('../../../decorators/translate', () => ({
     // this mock makes sure any components using the translate HoC receive the t function as a prop
     translate: () => Component => {
         Component.defaultProps = { ...Component.defaultProps, t: k => k };
@@ -39,7 +35,8 @@ jest.mock('../../../../src/decorators/load', () => ({
     },
 }));
 
-import { FeeTargets } from '../../../../src/routes/account/send/feetargets';
+import { FeeTargets } from '../../../routes/account/send/feetargets';
+import { mount, shallow } from 'enzyme';
 
 describe('routes/account/send/feetargets', () => {
 
@@ -52,7 +49,7 @@ describe('routes/account/send/feetargets', () => {
             ],
         });
 
-        const fee = deep(
+        const fee = shallow(
             <FeeTargets
                 accountCode="btc"
                 coinCode="btc"
@@ -92,7 +89,7 @@ describe('routes/account/send/feetargets', () => {
             feeTargets: [],
         });
 
-        const fee = deep(
+        const fee = mount(
             <FeeTargets
                 accountCode="eth"
                 coinCode="eth"
