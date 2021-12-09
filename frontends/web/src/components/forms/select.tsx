@@ -29,14 +29,12 @@ type TSelectProps = {
     id: string;
     label?: string;
     options: TOption[];
-    selectedOption?: string;
 } & JSX.IntrinsicElements['select']
 
 export function Select({
     id,
     label,
     options = [],
-    selectedOption,
     ...props
 }: TSelectProps) {
     return (
@@ -45,7 +43,6 @@ export function Select({
             <select id={id} {...props}>
                 {options.map(({ value, text, disabled = false }) => (
                     <option
-                        defaultValue={selectedOption}
                         key={`${value}`}
                         value={value}
                         disabled={disabled}
