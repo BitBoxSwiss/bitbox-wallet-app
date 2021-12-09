@@ -1,0 +1,44 @@
+import { FunctionalComponent, h } from 'preact';
+import { route } from 'preact-router';
+import { Coin } from '../../../api/account';
+import { Button } from '../../../components/forms';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { Balances } from '../summary/accountssummary';
+import * as styles from './buyCTA.module.css';
+
+interface BuyCTAProps {
+    code?: string;
+    unit?: string;
+}
+
+type Props = BuyCTAProps & TranslateProps;
+
+const BuyCTAComponent: FunctionalComponent<Props> = ({code, unit, t}) => {
+    const onCTA = () => route(code ? `/buy/info/${code}` : `/buy/info`);
+    return (
+    <div className={`${styles.main} columns-container`}>
+        <h3 className="column">{t('accountInfo.buyCTA.information.looksEmpty')}</h3>
+        <h3 className="column">{t('accountInfo.buyCTA.information.start')}</h3>
+        <div className="column">
+            <Button primary onClick={onCTA}>{unit ? t('accountInfo.buyCTA.buy', {unit}) : t('accountInfo.buyCTA.buyCrypto')}</Button>
+        </div>
+    </div>);
+};
+
+export const BuyCTA = translate<BuyCTAProps>()(BuyCTAComponent);
+
+const isBitcoinCoin = (coin: Coin) => (coin === 'BTC') || (coin === 'TBTC');
+
+export const AddBuyOnEmptyBalances: FunctionalComponent<{balances?: Balances}> = ({balances}) => {
+    if (balances === undefined) {
+        return null;
+    }
+    const balanceList = Object.entries(balances);
+    if (balanceList.some(entry => entry[1].available.amount !== '0')) {
+        return null;
+    }
+    if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
+        return <BuyCTA code={balanceList[0][0]} unit={'BTC'} />;
+    }
+    return <BuyCTA />;
+};

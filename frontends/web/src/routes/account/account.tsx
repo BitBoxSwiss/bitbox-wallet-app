@@ -33,6 +33,7 @@ import { Transactions } from '../../components/transactions/transactions';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
+import { BuyCTA } from './info/buyCTA';
 import * as style from './account.module.css';
 import { isBitcoinBased } from './utils';
 
@@ -310,6 +311,7 @@ class Account extends Component<Props, State> {
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
+                            { this.supportsBuy() && balance && (balance.available.amount === '0') && <BuyCTA code={code} unit={balance.available.unit} /> }
                             <Status
                                 className="m-bottom-default"
                                 hidden={!WithCoinTypeInfo.includes(code)}

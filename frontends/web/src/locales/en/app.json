@@ -21,6 +21,14 @@
   },
   "accountInfo": {
     "address": "Address",
+    "buyCTA": {
+      "buy": "Buy {{unit}}",
+      "buyCrypto": "Buy Crypto",
+      "information": {
+        "looksEmpty": "Looks like this wallet is empty.",
+        "start": "Get started by depositing some coins to the wallet or buying directly in the BitBoxApp."
+      }
+    },
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
     "title": "Account information",

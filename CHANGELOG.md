@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Add Buy CTA on empty Account overview and summary views
 - Fix an Android app crash when opening the app after first rejecting the USB permissions
 - Change label to show 'Fee rate' or 'Gas price' for custom fees
 - Change label 'Send all' label to 'Send selected coins' if there is a coin selection
