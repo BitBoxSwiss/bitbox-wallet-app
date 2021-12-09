@@ -134,14 +134,14 @@ class AccountsSummary extends Component<Props, State> {
                 });
             });
         })
-        .catch(console.error);
+            .catch(console.error);
     }
 
     private export = () => {
         accountApi.exportSummary().then(exported => {
             this.setState({ exported });
         })
-        .catch(console.error);
+            .catch(console.error);
     }
 
     private balanceRow = ({ code, name, coinCode, coinUnit }: PropsWithChildren<BalanceRowProps>) => {

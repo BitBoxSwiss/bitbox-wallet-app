@@ -3,7 +3,10 @@
   "rules": {
     "jsx-a11y/anchor-is-valid": 0,
     "jsx-a11y/alt-text" : 0,
-    "quotes": ["error", "single"]
+    "quotes": ["error", "single"],
+    "indent": ["error", 4, {
+      "SwitchCase": 1
+    }]
   },
   "overrides": [
     {

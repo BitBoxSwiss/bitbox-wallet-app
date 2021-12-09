@@ -212,19 +212,19 @@ class Sidebar extends Component<Props> {
                     { accounts && accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
                     <div className="sidebarHeaderContainer end"></div>
                     { accounts.length ? (
-                    <div key="buy" className="sidebarItem">
-                        <NavLink
-                            className={({isActive}) => isActive ? 'sidebar-active' : ''}
-                            to="/buy/info"
-                        >
-                            <div className="single">
-                                <img draggable={false} className="sidebar_settings" src={coins} alt={t('sidebar.exchanges')} />
-                            </div>
-                            <span className="sidebar_label">
-                                {t('sidebar.buy')}
-                            </span>
-                        </NavLink>
-                    </div>
+                        <div key="buy" className="sidebarItem">
+                            <NavLink
+                                className={({isActive}) => isActive ? 'sidebar-active' : ''}
+                                to="/buy/info"
+                            >
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={coins} alt={t('sidebar.exchanges')} />
+                                </div>
+                                <span className="sidebar_label">
+                                    {t('sidebar.buy')}
+                                </span>
+                            </NavLink>
+                        </div>
                     ) : null }
                     { deviceIDs.map(deviceID => (
                         <div key={deviceID} className="sidebarItem">
