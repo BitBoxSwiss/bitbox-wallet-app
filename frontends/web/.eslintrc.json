@@ -9,6 +9,12 @@
     {
       "files": ["**/*.ts?(x)"],
       "rules": { }
+    },
+    {
+      "files": ["**/*.test.ts?(x)"],
+      "rules": {
+        "import/first": 0
+      }
     }
   ]
 }

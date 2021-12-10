@@ -1,4 +1,3 @@
-/* eslint-disable import/first */
 /**
  * Copyright 2020 Shift Crypto AG
  *

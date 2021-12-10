@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`routes/account/send/feetargets should match the snapshot 1`] = `
+<ForwardRef(Input)
+  disabled={true}
+  id="feetarget"
+  label="send.priority"
+  placeholder="send.feeTarget.placeholder"
+  transparent={true}
+/>
+`;
+
+exports[`routes/account/send/feetargets should match the snapshot with empty feetargets 1`] = `
+<FeeTargets
+  accountCode="eth"
+  coinCode="eth"
+  config={
+    Object {
+      "frontend": Object {},
+    }
+  }
+  customFee=""
+  disabled={false}
+  fiatUnit="EUR"
+  onCustomFee={[MockFunction]}
+  onFeeTargetChange={[MockFunction]}
+  t={[Function]}
+>
+  <ForwardRef(Input)
+    disabled={true}
+    id="feetarget"
+    label="send.priority"
+    placeholder="send.feeTarget.placeholder"
+    transparent={true}
+  >
+    <div
+      className="input align-left  isTransparent"
+    >
+      <div
+        className="flex flex-row flex-between"
+      >
+        <label
+          className=""
+          htmlFor="feetarget"
+        >
+          send.priority
+        </label>
+      </div>
+      <input
+        autoComplete="off"
+        autoCorrect="off"
+        disabled={true}
+        id="feetarget"
+        placeholder="send.feeTarget.placeholder"
+        spellCheck={false}
+        type="text"
+      />
+    </div>
+  </ForwardRef(Input)>
+</FeeTargets>
+`;

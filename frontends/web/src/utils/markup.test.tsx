@@ -15,28 +15,25 @@
  */
 
 import 'jest';
-import { deep, shallow } from 'preact-render-spy';
-import { multilineMarkup, SimpleMarkup } from '../../src/utils/markup';
+import { mount } from 'enzyme';
+import { multilineMarkup, SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
     it('contains a strong element with the text bar', () => {
-        const paragaph = shallow(<SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />);
-        expect(paragaph.output().nodeName).toEqual('p');
+        const paragaph = mount(<SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />);
+        expect(paragaph.getDOMNode().nodeName).toEqual('P');
         expect(paragaph.find('strong').text()).toEqual('bar');
     });
     it('should but doesnt support multiple strong elements', () => {
-        const span = shallow(<SimpleMarkup tagName="span" markup="<strong>foo</strong> <strong>bar</strong> <strong>baz</strong>" />);
-        expect(span.output().nodeName).toEqual('span');
+        const span = mount(<SimpleMarkup tagName="span" markup="<strong>foo</strong> <strong>bar</strong> <strong>baz</strong>" />);
+        expect(span.getDOMNode().nodeName).toEqual('SPAN');
         expect(span.text()).toEqual('<strong>foo</strong> <strong>bar</strong> baz');
-        // Only the last strong element is currently supported :/
-        expect(span.output().children[0]).toEqual('<strong>foo</strong> <strong>bar</strong> ');
-        expect(span.output().children[1]).toEqual(<strong>baz</strong>)
     });
 });
 
 describe('multilineMarkup', () => {
     it('contains multiple lines with a strong element each', () => {
-        const multiline = deep(
+        const multiline = mount(
             <div>
                 {multilineMarkup({
                     tagName: 'p', markup: 'foo <strong>bar</strong> baz\n<strong>booz</strong>'

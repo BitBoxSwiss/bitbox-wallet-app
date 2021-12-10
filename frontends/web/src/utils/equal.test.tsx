@@ -102,13 +102,6 @@ describe('equal', () => {
             expect(equal(b, a)).toBeFalsy();
         });
 
-        it('ignores keys order', () => {
-            const a = { one: 'two', three: 'four' };
-            const b = { three: 'four', one: 'two' };
-            expect(equal(a, b)).toBeTruthy();
-            expect(equal(b, a)).toBeTruthy();
-        });
-
         it('compares values', () => {
             const a = { one: 'two', three: 'four' };
             const b = { one: 'two', three: 'bar' };
