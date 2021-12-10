@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,22 +14,8 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { getVersion } from '../../api/version';
+import { apiGet } from '../utils/request';
 
-const Version: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const [version, setVersion] = useState<string>('');
-
-    useEffect(() => {
-        getVersion().then(setVersion);
-    }, []);
-
-    if (!version) {
-        return null;
-    }
-    return <p>{t('footer.appVersion')} {version}</p>;
-}
-
-export { Version };
+export const getVersion = (): Promise<string> => {
+    return apiGet('version');
+};
