@@ -45,6 +45,11 @@ interface State {
 }
 
 class UpgradeButton extends Component<Props, State> {
+    public readonly state: State = {
+        activeDialog: false,
+        confirming: false,
+    };
+
     private upgradeFirmware = () => {
         this.setState({ confirming: true });
         apiPost(this.props.apiPrefix + '/upgrade-firmware').then(() => {

@@ -33,6 +33,10 @@ interface VerifyAddressProps {
 type Props = VerifyAddressProps & TranslateProps;
 
 class VerifyAddress extends Component<Props, State> {
+    public readonly state: State = {
+        verifying: false,
+    };
+
     private verifyAddress = () => {
         this.setState({ verifying: true });
         accountAPI.verifyAddress(this.props.accountCode, this.props.addressID).then(() => {
