@@ -7,6 +7,7 @@ exports[`routes/account/send/feetargets should match the snapshot 1`] = `
   label="send.priority"
   placeholder="send.feeTarget.placeholder"
   transparent={true}
+  value=""
 />
 `;
 
@@ -32,6 +33,7 @@ exports[`routes/account/send/feetargets should match the snapshot with empty fee
     label="send.priority"
     placeholder="send.feeTarget.placeholder"
     transparent={true}
+    value=""
   >
     <div
       className="input align-left  isTransparent"
@@ -54,6 +56,7 @@ exports[`routes/account/send/feetargets should match the snapshot with empty fee
         placeholder="send.feeTarget.placeholder"
         spellCheck={false}
         type="text"
+        value=""
       />
     </div>
   </ForwardRef(Input)>

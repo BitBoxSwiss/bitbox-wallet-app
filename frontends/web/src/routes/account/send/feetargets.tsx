@@ -141,6 +141,7 @@ class FeeTargets extends Component<Props, State> {
                     id="feetarget"
                     placeholder={t('send.feeTarget.placeholder')}
                     disabled
+                    value=""
                     transparent />
             );
         }
@@ -199,7 +200,7 @@ class FeeTargets extends Component<Props, State> {
                                     error={error}
                                     transparent
                                     onInput={this.handleCustomFee}
-                                    inputRef={this.input}
+                                    ref={this.input}
                                     value={customFee}
                                 >
                                     <span className={style.customFeeUnit}>
