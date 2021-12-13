@@ -24,19 +24,15 @@ type TOptionTextContent = {
 type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent
 
 type TSelectProps = {
-    // Temp add defaultValue, see https://github.com/preactjs/preact/issues/2668
-    defaultValue?: string;
     id: string;
     label?: string;
     options: TOption[];
-    selectedOption?: string;
 } & JSX.IntrinsicElements['select']
 
 export function Select({
     id,
     label,
     options = [],
-    selectedOption,
     ...props
 }: TSelectProps) {
     return (
@@ -45,7 +41,6 @@ export function Select({
             <select id={id} {...props}>
                 {options.map(({ value, text, disabled = false }) => (
                     <option
-                        defaultValue={selectedOption}
                         key={`${value}`}
                         value={value}
                         disabled={disabled}

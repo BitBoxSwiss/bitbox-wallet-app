@@ -165,7 +165,6 @@ class FeeTargets extends Component<Props, State> {
                                 id="feeTarget"
                                 disabled={disabled}
                                 onChange={this.handleFeeTargetChange}
-                                selectedOption={feeTarget}
                                 value={feeTarget}
                                 options={options} />
                         )
@@ -178,7 +177,6 @@ class FeeTargets extends Component<Props, State> {
                                     id="feeTarget"
                                     disabled={disabled}
                                     onChange={this.handleFeeTargetChange}
-                                    selectedOption={feeTarget}
                                     value={feeTarget}
                                     options={options} />
                             </div>
