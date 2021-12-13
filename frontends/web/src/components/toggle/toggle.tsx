@@ -1,10 +1,10 @@
-import React, { Component} from 'react';
+import { ChangeEvent, Component} from 'react';
 import * as style from './toggle.module.css';
 
 interface ToggleProps {
     checked: boolean;
     disabled?: boolean;
-    onChange: (event: React.SyntheticEvent) => void;
+    onChange: (event: ChangeEvent<HTMLInputElement>) => void;
     id?: string;
     value?: string;
     name?: string;
