@@ -635,6 +635,7 @@ func (backend *Backend) NotifyUser(text string) {
 // If none matched, an ad-hoc URL construction failed or opening a URL failed,
 // an error is returned.
 func (backend *Backend) SystemOpen(url string) error {
+	backend.log.Infof("SystemOpen: attempting to open url: %v", url)
 	for _, whitelisted := range fixedURLWhitelist {
 		if strings.HasPrefix(url, whitelisted) {
 			return backend.environment.SystemOpen(url)
