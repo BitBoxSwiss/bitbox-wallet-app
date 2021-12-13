@@ -29,13 +29,14 @@ import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Chart } from './chart';
+import { AddBuyOnEmptyBalances } from '../info/buyCTA';
 import * as style from './accountssummary.module.css';
 
 interface AccountSummaryProps {
     accounts: accountApi.IAccount[];
 }
 
-interface Balances {
+export interface Balances {
     [code: string]: accountApi.IBalance;
 }
 
@@ -188,7 +189,7 @@ class AccountsSummary extends Component<Props, State> {
 
     public render() {
         const { t, accounts } = this.props;
-        const { exported, data } = this.state;
+        const { exported, data, balances } = this.state;
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -214,6 +215,7 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
+                            { ( accounts.length === Object.keys(balances || {}).length ) && <AddBuyOnEmptyBalances balances={balances} /> }
                             {data ? (
                                 <Chart
                                     dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
