@@ -133,7 +133,7 @@ class WaitDialog extends Component<Props, State> {
             </div>
         );
 
-        const hasChildren = React.Children.toArray(children).filter(React.isValidElement).length > 0;
+        const hasChildren = React.Children.toArray(children).length > 0;
         return (
             <div
                 className={style.overlay}
