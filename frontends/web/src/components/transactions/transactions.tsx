@@ -21,6 +21,7 @@ import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
+import { apiPost } from '../../utils/request';
 import * as style from './transactions.module.css';
 
 interface TransactionsProps {
@@ -52,9 +53,11 @@ class Transactions extends Component<Props> {
                     <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
                     { !csvExportDisabled && (
                         exported ? (
-                            <A href={exported} className="labelXLarge labelLink">{t('account.openFile')}</A>
+                            <A key="open" href="#" onClick={() => apiPost('open', exported)} className="labelXLarge labelLink">
+                                {t('account.openFile')}
+                            </A>
                         ) : (
-                            <A href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
+                            <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
                         )
                     )
                     }

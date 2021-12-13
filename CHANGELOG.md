@@ -7,6 +7,7 @@
 - Change label 'Send all' label to 'Send selected coins' if there is a coin selection
 - Improve information about using the passphrase feature
 - Temporary disable Chromium sandbox on linux due to #1447
+- Fix opening 'transactions export' CSV file
 
 ## 4.29.1 [tagged 2021-09-07, released 2021-09-08]
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
