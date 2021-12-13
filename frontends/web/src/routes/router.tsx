@@ -33,7 +33,6 @@ const InjectParams: FunctionComponent = ({ children }) => {
 
 export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }) => {
     const Homepage = <DeviceSwitch
-        default
         key={devicesKey('device-switch-default')}
         deviceID={null}
         devices={devices}
