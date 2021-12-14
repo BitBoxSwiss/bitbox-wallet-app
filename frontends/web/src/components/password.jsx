@@ -43,7 +43,7 @@ class PasswordSingleInputClass extends Component {
         return this.props.idPrefix || '';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         window.addEventListener('keydown', this.handleCheckCaps);
     }
 
@@ -171,7 +171,7 @@ class PasswordRepeatInputClass extends Component {
         return this.props.idPrefix || '';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         window.addEventListener('keydown', this.handleCheckCaps);
     }
 

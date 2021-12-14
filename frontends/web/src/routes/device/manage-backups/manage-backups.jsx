@@ -30,7 +30,7 @@ class ManageBackups extends Component {
         return !!this.props.devices[this.props.deviceID];
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if (!this.hasDevice()) {
             route('/', true);
         }

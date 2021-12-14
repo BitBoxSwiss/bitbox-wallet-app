@@ -25,7 +25,7 @@ class Step extends Component<StepProps, State> {
         };
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps) {
         const { empty, order, activeStep } = nextProps;
         this.setState({
             isComplete: empty || order < activeStep,

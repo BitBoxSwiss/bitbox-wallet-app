@@ -109,7 +109,7 @@ class BitBox02 extends Component<Props, State> {
 
     private unsubscribe!: () => void;
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         const { sidebarStatus } = panelStore.state;
         if (['', 'forceCollapsed'].includes(sidebarStatus)) {
             setSidebarStatus('forceHidden');

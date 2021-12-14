@@ -65,7 +65,7 @@ class FeeTargets extends Component<Props, State> {
         this.focusInput();
     }
 
-    public componentWillReceiveProps({ accountCode }) {
+    public UNSAFE_componentWillReceiveProps({ accountCode }) {
         if (this.props.accountCode !== accountCode) {
             this.updateFeeTargets(accountCode);
         }

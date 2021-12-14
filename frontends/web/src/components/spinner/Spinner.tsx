@@ -30,7 +30,7 @@ type Props = SpinnerProps & TranslateProps & SharedProps;
 
 class Spinner extends Component<Props> {
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 

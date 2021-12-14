@@ -44,7 +44,7 @@ class WaitDialog extends Component<Props, State> {
         active: false,
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         document.body.addEventListener('keydown', this.handleKeyDown);
     }
 

@@ -33,7 +33,7 @@ interface TestingProps {
 type WaitingProps = TestingProps & TranslateProps;
 
 class Waiting extends Component<WaitingProps> {
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         const { sidebarStatus } = panelStore.state;
         if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
             setSidebarStatus('');
