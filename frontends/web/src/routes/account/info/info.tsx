@@ -48,7 +48,7 @@ class Info extends Component<Props, State> {
         getInfo(this.props.code).then(info => this.setState({ info }));
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 

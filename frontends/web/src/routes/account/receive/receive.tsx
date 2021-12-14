@@ -75,7 +75,7 @@ class Receive extends Component<Props, State> {
         }
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         this.registerEvents();
     }
 

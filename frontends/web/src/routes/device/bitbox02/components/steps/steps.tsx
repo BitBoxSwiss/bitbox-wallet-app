@@ -13,7 +13,7 @@ class Steps extends Component<{}, State> {
         };
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps) {
         const step = this.getActiveStep(nextProps.children);
         if (this.state.activeStep !== step) {
             this.setState({ activeStep: step });

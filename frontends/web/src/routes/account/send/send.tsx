@@ -167,7 +167,7 @@ class Send extends Component<Props, State> {
         });
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         this.registerEvents();
         const account = this.getAccount();
         if (account && !account.coinCode.startsWith('eth-erc20-') && account.coinCode !== 'eth') {
