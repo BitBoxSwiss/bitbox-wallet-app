@@ -50,6 +50,11 @@ class SDCardCheck extends Component<Props, State> {
             deviceID,
         } = this.props;
         const { sdCardInserted } = this.state;
+
+        // pending check-sdcard request
+        if (sdCardInserted === undefined) {
+            return null;
+        }
         if (!sdCardInserted) {
             return (
                 <Dialog title="Check your device" small>
