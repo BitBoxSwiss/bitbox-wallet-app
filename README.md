@@ -145,6 +145,17 @@ Check **outdated** dependencies: `npm outdated`.
 
 **Update a specific dependency** with a fixed semver `npm install modulename@specificversion --save-exact`, and with `--save-dev` for devDependencies.
 
+#### Qt WebEngine Debugging
+
+Set the following environment variable to debug the Qt WebEngine with Chrome developer tools,
+use a port_number of your choice, launch the following command and go to `http://localhost:<port_number>`.
+
+```
+QTWEBENGINE_REMOTE_DEBUGGING=<port_number> ./frontends/qt/build/osx/BitBox.app/Contents/MacOS/BitBox
+```
+
+see also https://doc.qt.io/qt-5/qtwebengine-debugging.html
+
 ### CI
 
 Run `make ci` to run all static analysis tools and tests.
@@ -153,10 +164,6 @@ Run `make ci` to run all static analysis tools and tests.
 
 To statically compile the UI, run `make buildweb` again, which compiles the web ui into a compact
 bundle.
-
-### Base integration
-To test the BitBox Base integration, run the base-middleware on your local
-machine. Make sure you have bitcoind and c-lightning running as well.
 
 ## Develop using Docker
 
