@@ -268,7 +268,9 @@ class Settings extends Component<Props, State> {
                                                                 </Dialog>
                                                             )
                                                         }
-                                                        <SettingsButton link href="/settings/electrum">{t('settings.expert.electrum.title')}</SettingsButton>
+                                                        <SettingsButton onClick={() => route('/settings/electrum', true)}>
+                                                            {t('settings.expert.electrum.title')}
+                                                        </SettingsButton>
                                                     </div>
                                                 </div>
                                             </div>
