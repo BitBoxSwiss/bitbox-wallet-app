@@ -121,6 +121,12 @@ import { route, RouterWatcher } from './utils/route';
          const inAccounts = currentURL.startsWith('/account/');
          const accounts = this.state.accounts;
  
+         // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
+         // This re-routes them to '/' so we have a simpler uri structure
+         if (isIndex && currentURL !== '/' && (!accounts || accounts.length === 0)) {
+             route('/', true);
+             return;
+         }
          // if no accounts are registered on specified views route to /
          if ( accounts.length === 0 && (
              currentURL.startsWith('/account-summary')
