@@ -137,7 +137,7 @@ class Settings extends Component {
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
                                         <div className="box slim divide">
-                                            <SettingsButton href={() => route(`/manage-backups/${deviceID}`)}>
+                                            <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
                                                 {t('deviceSettings.secrets.manageBackups')}
                                             </SettingsButton>
                                             <ChangePIN deviceID={deviceID} />
