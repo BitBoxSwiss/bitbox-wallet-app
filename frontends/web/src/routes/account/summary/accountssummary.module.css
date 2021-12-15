@@ -21,6 +21,12 @@
     text-align: center;
 }
 
+.openFileText {
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: var(--size-small);
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;
