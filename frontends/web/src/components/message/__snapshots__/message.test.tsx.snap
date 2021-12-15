@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`components/message/message should have child nodes 1`] = `
-<div>
+<div
+  class="message"
+>
   <span>
     hello
   </span>
@@ -10,6 +12,7 @@ exports[`components/message/message should have child nodes 1`] = `
 
 exports[`components/message/message should match the snapshot 1`] = `
 <div
+  class="success"
   style="width: 100%;"
 >
   <span>
