@@ -15,7 +15,7 @@
  */
 
 import { Component} from 'react';
-import * as style from './Toast.module.css';
+import style from './Toast.module.css';
 
 export default class Toast extends Component {
     state = {

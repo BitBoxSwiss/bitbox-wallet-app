@@ -15,7 +15,7 @@
  */
 
 import { FunctionComponent } from 'react';
-import * as style from './main.css';
+import style from './main.module.css';
 
 type MainProps = {}
 

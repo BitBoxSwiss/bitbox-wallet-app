@@ -4,7 +4,7 @@ import { Coin } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Balances } from '../summary/accountssummary';
-import * as styles from './buyCTA.module.css';
+import styles from './buyCTA.module.css';
 
 interface BuyCTAProps {
     code?: string;

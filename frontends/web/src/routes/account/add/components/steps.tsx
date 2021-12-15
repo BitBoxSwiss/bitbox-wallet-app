@@ -16,7 +16,7 @@
 
 import React from 'react';
 import { cloneElement, FunctionComponent, PropsWithChildren } from 'react';
-import * as style from './steps.module.css';
+import style from './steps.module.css';
 
 interface Props {
     current: number;

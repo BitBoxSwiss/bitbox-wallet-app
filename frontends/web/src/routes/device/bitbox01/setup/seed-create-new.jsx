@@ -25,7 +25,7 @@ import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import warning from '../../../../assets/icons/warning.png';
 import { LanguageSwitch } from '../../../../components/language/language';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',

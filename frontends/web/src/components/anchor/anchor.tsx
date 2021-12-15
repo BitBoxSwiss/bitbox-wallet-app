@@ -19,7 +19,7 @@ import { route } from '../../utils/route';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
-import * as style from './anchor.module.css';
+import style from './anchor.module.css';
 
 interface Props {
     href: string;

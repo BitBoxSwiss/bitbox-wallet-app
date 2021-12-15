@@ -16,7 +16,7 @@
  */
 
 import { FunctionComponent } from 'react';
-import * as styles from './checkbox.module.css';
+import styles from './checkbox.module.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
     label?: string;

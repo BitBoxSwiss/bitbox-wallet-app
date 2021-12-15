@@ -21,7 +21,7 @@ import { CoinCode } from '../../api/account';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import Spinner from '../spinner/ascii';
-import * as style from './headerssync.module.css';
+import style from './headerssync.module.css';
 
 interface IHeadersSyncProps {
     coinCode: CoinCode;

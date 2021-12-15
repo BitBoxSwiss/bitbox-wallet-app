@@ -21,7 +21,7 @@ import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '../utils';
-import * as style from './feetargets.module.css';
+import style from './feetargets.module.css';
 
 interface LoadedProps {
     config: any;

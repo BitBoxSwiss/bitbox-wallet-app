@@ -24,8 +24,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-i18next": "11.11.4",
-    "react-router-dom": "6.0.2",
-    "typed-css-modules": "0.3.5"
+    "react-router-dom": "6.0.2"
   },
   "eslintConfig": {
     "extends": [
@@ -49,12 +48,11 @@
     ]
   },
   "scripts": {
-    "gen-ts-css": "tcm src --camelCase dashes",
-    "dev": "npm run gen-ts-css && npm run start",
-    "start": "npm run gen-ts-css && PORT=8080 react-scripts start",
-    "startwindows": "npm run gen-ts-css && set PORT=8080 && react-scripts start",
-    "build": "npm run gen-ts-css && react-scripts build",
-    "lint": "npm run gen-ts-css && eslint src",
+    "dev": "npm run start",
+    "start": "PORT=8080 react-scripts start",
+    "startwindows": "set PORT=8080 && react-scripts start",
+    "build": "react-scripts build",
+    "lint": "eslint src",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   }

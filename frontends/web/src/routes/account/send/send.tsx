@@ -39,7 +39,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, customFeeUnit } from '../utils';
 import { FeeTargets } from './feetargets';
-import * as style from './send.module.css';
+import style from './send.module.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
 

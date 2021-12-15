@@ -20,7 +20,7 @@ import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
-import * as backupStyle from '../components/backups.module.css';
+import backupStyle from '../components/backups.module.css';
 import { Button } from '../../../components/forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';

@@ -34,7 +34,7 @@ import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
 import { BuyCTA } from './info/buyCTA';
-import * as style from './account.module.css';
+import style from './account.module.css';
 import { isBitcoinBased } from './utils';
 import { Link } from 'react-router-dom';
 

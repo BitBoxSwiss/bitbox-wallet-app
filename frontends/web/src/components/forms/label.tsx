@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as style from './label.module.css';
+import style from './label.module.css';
 
 export function Label({
     className,

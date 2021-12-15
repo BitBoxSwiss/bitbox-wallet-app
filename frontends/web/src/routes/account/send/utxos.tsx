@@ -23,7 +23,7 @@ import { ExpandOpen } from '../../../components/icon/icon';
 import { FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
-import * as style from './utxos.module.css';
+import style from './utxos.module.css';
 
 interface UTXOsProps {
     accountCode: string;

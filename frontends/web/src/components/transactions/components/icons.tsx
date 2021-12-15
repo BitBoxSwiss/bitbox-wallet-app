@@ -1,4 +1,4 @@
-import * as style from './icons.module.css';
+import style from './icons.module.css';
 
 export const ArrowIn = (): JSX.Element => (
     <svg

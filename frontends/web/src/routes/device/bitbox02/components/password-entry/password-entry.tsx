@@ -16,7 +16,7 @@
 
 import { createRef, PropsWithChildren, useEffect} from 'react';
 import PasswordGestureVideo from './assets/password-gestures.webm';
-import * as styles from './password-entry.module.css';
+import styles from './password-entry.module.css';
 
 export interface IPasswordEntryProps {}
 

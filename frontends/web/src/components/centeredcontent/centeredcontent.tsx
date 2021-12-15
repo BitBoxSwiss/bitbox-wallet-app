@@ -15,7 +15,7 @@
  */
 
 import { PropsWithChildren } from 'react';
-import * as style from './style.module.css';
+import style from './style.module.css';
 
 export function CenteredContent({ children }: PropsWithChildren<{}>): JSX.Element {
     return (

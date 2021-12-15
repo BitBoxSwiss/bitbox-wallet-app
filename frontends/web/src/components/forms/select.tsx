@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { select } from './select.module.css';
+import styles from './select.module.css';
 
 type TOptionTextContent = {
     text: string;
@@ -36,7 +36,7 @@ export function Select({
     ...props
 }: TSelectProps) {
     return (
-        <div className={select}>
+        <div className={styles.select}>
             {label && <label htmlFor={id}>{label}</label>}
             <select id={id} {...props}>
                 {options.map(({ value, text, disabled = false }) => (

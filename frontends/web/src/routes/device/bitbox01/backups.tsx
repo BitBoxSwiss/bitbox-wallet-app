@@ -21,7 +21,7 @@ import { SimpleMarkup } from '../../../utils/markup';
 import { alertUser } from '../../../components/alert/Alert';
 import { Button } from '../../../components/forms';
 import { Backup, BackupsListItem } from '../components/backup';
-import * as style from '../components/backups.module.css';
+import style from '../components/backups.module.css';
 import Check from './check';
 import Create from './create';
 import { Restore } from './restore';
