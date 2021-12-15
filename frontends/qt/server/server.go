@@ -148,8 +148,10 @@ func serve(
 
 //export systemOpen
 func systemOpen(url *C.char) {
-	_ = system.Open(C.GoString(url))
-	// Not much we can do at this point in case of error.
+	goURL := C.GoString(url)
+	if err := system.Open(goURL); err != nil {
+		logging.Get().WithGroup("server").WithError(err).Errorf("systemOpen: error opening %v", goURL)
+	}
 }
 
 // Don't remove - needed for the C compilation.
