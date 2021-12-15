@@ -375,7 +375,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			Ours:    isChange,
 			Type:    msgOutputType,
 			Value:   uint64(txOut.Value),
-			Hash:    addresses[0].ScriptAddress(),
+			Payload: addresses[0].ScriptAddress(),
 			Keypath: keypath,
 		}
 	}

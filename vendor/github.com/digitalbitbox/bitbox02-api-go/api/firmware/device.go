@@ -300,27 +300,6 @@ func (device *Device) Close() {
 	device.communication.Close()
 }
 
-// Random requests a random number from the device using protobuf messages.
-func (device *Device) Random() ([]byte, error) {
-	request := &messages.Request{
-		Request: &messages.Request_RandomNumber{
-			RandomNumber: &messages.RandomNumberRequest{},
-		},
-	}
-
-	response, err := device.query(request)
-	if err != nil {
-		return nil, err
-	}
-
-	randomResponse, ok := response.Response.(*messages.Response_RandomNumber)
-	if !ok {
-		return nil, errp.New("expected RandomNumberResponse response")
-	}
-
-	return randomResponse.RandomNumber.Number, nil
-}
-
 // RootFingerprint returns the keystore's root fingerprint, which is the first 32 bits of the
 // hash160 of the pubkey at the keypath m/.
 //

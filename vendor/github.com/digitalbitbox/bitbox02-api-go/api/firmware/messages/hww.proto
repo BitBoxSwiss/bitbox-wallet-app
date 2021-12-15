@@ -19,12 +19,11 @@ import "common.proto";
 
 import "backup_commands.proto";
 import "bitbox02_system.proto";
-import "bitboxbase.proto";
 import "btc.proto";
+import "cardano.proto";
 import "eth.proto";
 import "keystore.proto";
 import "mnemonic.proto";
-import "random_number.proto";
 import "system.proto";
 
 import "perform_attestation.proto";
@@ -38,8 +37,9 @@ message Success {
 }
 
 message Request {
+    reserved 1, 23;
     oneof request {
-        RandomNumberRequest random_number = 1;
+        // removed: RandomNumberRequest random_number = 1;
         SetDeviceNameRequest device_name = 2;
         SetDeviceLanguageRequest device_language = 3;
         DeviceInfoRequest device_info = 4;
@@ -61,18 +61,20 @@ message Request {
         ETHRequest eth = 20;
         ResetRequest reset = 21;
         RestoreFromMnemonicRequest restore_from_mnemonic = 22;
-        BitBoxBaseRequest bitboxbase = 23;
+        // removed: BitBoxBaseRequest bitboxbase = 23;
         RootFingerprintRequest fingerprint = 24;
         BTCRequest btc = 25;
         ElectrumEncryptionKeyRequest electrum_encryption_key = 26;
+        CardanoRequest cardano = 27;
     }
 }
 
 message Response {
+    reserved 3;
     oneof response {
         Success success = 1;
         Error error = 2;
-        RandomNumberResponse random_number = 3;
+        // removed: RandomNumberResponse random_number = 3;
         DeviceInfoResponse device_info = 4;
         PubResponse pub = 5;
         BTCSignNextResponse btc_sign_next = 6;
@@ -84,5 +86,6 @@ message Response {
         RootFingerprintResponse fingerprint = 12;
         BTCResponse btc = 13;
         ElectrumEncryptionKeyResponse electrum_encryption_key = 14;
+        CardanoResponse cardano = 15;
     }
 }
