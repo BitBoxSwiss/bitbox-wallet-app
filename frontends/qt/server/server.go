@@ -88,9 +88,6 @@ func serve(
 ) {
 	log := logging.Get().WithGroup("server")
 	log.WithField("args", os.Args).Info("Started Qt application")
-	// workaround: this flag is parsed by qtwebengine, but flag.Parse() quits the app on
-	// unrecognized flags
-	// _ = flag.Int("remote-debugging-port", 0, "")
 	testnet := flag.Bool("testnet", false, "activate testnets")
 
 	if runtime.GOOS == "darwin" {
