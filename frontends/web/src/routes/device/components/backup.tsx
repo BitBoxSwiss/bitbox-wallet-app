@@ -18,7 +18,8 @@
 import React, { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Radio } from '../../../components/forms';
-import * as style from './backups.module.css';
+import style from './backups.module.css';
+
 interface BackupsListItemProps {
     disabled?: boolean;
     backup: Backup;

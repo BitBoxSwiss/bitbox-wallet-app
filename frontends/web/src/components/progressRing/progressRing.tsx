@@ -15,7 +15,7 @@
  */
 
 import { PropsWithChildren } from 'react';
-import * as style from './progressRing.module.css';
+import style from './progressRing.module.css';
 
 interface ProgressRingProps {
     width: number;

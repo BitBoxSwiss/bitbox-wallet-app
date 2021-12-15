@@ -1,5 +1,5 @@
 import { Component} from 'react';
-import * as style from './settingsButton.module.css';
+import style from './settingsButton.module.css';
 
 interface SettingsItemProps {
     optionalText?: string | null;

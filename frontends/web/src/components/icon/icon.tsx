@@ -23,7 +23,7 @@ import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
-import * as style from './icon.module.css';
+import style from './icon.module.css';
 
 export const ExpandOpen = (): JSX.Element => (
     <svg

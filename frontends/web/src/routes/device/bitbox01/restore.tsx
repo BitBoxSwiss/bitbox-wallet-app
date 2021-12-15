@@ -25,7 +25,7 @@ import { Button, Checkbox } from '../../../components/forms';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
-import * as style from '../components/backups.module.css';
+import style from '../components/backups.module.css';
 
 interface RestoreProps {
     selectedBackup?: string;

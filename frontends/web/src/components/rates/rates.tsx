@@ -23,7 +23,7 @@ import { setConfig } from '../../utils/config';
 import { equal } from '../../utils/equal';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
-import * as style from './rates.module.css';
+import style from './rates.module.css';
 
 
 export type Rates = {

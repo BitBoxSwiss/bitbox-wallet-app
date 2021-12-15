@@ -1,5 +1,5 @@
 import { FunctionComponent} from 'react';
-import * as style from './settingsButton.module.css';
+import style from './settingsButton.module.css';
 
 interface SettingsButtonProps {
     onClick?: () => void;

@@ -21,7 +21,7 @@ import { SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Button } from '../../../../components/forms';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 class Success extends Component {
 

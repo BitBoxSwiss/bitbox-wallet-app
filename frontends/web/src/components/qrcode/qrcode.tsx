@@ -17,7 +17,7 @@
 
 import { Component} from 'react';
 import { apiGet } from '../../utils/request';
-import * as style from './qrcode.module.css';
+import style from './qrcode.module.css';
 
 interface Props {
     data?: string;

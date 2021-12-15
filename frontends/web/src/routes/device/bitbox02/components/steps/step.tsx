@@ -1,5 +1,5 @@
 import { Component} from 'react';
-import * as style from './steps.module.css';
+import style from './steps.module.css';
 
 interface StepProps {
   active: boolean;

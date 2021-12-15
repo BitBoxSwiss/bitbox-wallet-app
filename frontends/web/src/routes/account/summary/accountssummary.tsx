@@ -30,7 +30,7 @@ import { debug } from '../../../utils/env';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Chart } from './chart';
 import { AddBuyOnEmptyBalances } from '../info/buyCTA';
-import * as style from './accountssummary.module.css';
+import style from './accountssummary.module.css';
 
 interface AccountSummaryProps {
     accounts: accountApi.IAccount[];

@@ -24,11 +24,11 @@ import { Header } from '../../../components/layout';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
-import * as styles from './add.module.css';
 import { Check } from '../../../components/icon/icon';
 import { apiPost } from '../../../utils/request';
 import Guide from '../../settings/manage-account-guide';
 import { route } from '../../../utils/route';
+import styles from './add.module.css';
 
 interface AddAccountProps {
 }

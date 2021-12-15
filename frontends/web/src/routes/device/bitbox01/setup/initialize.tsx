@@ -24,7 +24,7 @@ import { PasswordRepeatInput } from '../../../../components/password';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 import { apiPost } from '../../../../utils/request';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',

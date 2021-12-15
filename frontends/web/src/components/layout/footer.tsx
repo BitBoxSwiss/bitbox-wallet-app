@@ -16,7 +16,7 @@
 
 import { PropsWithChildren } from 'react';
 import { LanguageSwitch } from '../language/language';
-import * as style from './footer.module.css';
+import style from './footer.module.css';
 import { Version } from './version';
 
 export function Footer({ children }: PropsWithChildren<{}>) {
