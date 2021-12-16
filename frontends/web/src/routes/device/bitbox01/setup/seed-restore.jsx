@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { apiGet } from '../../../../utils/request';
 import { Button } from '../../../../components/forms';
 import { Backups } from '../backups';
@@ -24,7 +24,7 @@ import { SwissMadeOpenSource, Alert } from '../../../../components/icon';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { LanguageSwitch } from '../../../../components/language/language';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',
@@ -160,4 +160,4 @@ class SeedRestore extends Component {
     }
 }
 
-export default translate()(SeedRestore);
+export default withTranslation()(SeedRestore);

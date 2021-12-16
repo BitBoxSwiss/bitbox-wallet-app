@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +15,23 @@
  * limitations under the License.
  */
 
-// This file is the entry point used by 'preact-cli' to start the application.
-// It is recommended to leave this file as 'index.js' and not rename it to 'index.jsx', 'index.ts'
-// or 'index.tsx' (see https://github.com/wub/preact-cli-plugin-typescript#changing-the-entrypoint).
-
-import { h } from 'preact';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { I18nextProvider } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 import { App } from './app';
 import i18n from './i18n/i18n';
-import './style';
+import './style/index.css';
 
-export default function Index() {
-    return (
-        <I18nextProvider i18n={i18n}><App /></I18nextProvider>
-    );
-}
+ReactDOM.render(
+  <React.StrictMode>
+    <I18nextProvider i18n={i18n}>
+      <React.Suspense fallback={<div>loading</div>}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </React.Suspense>
+    </I18nextProvider>
+  </React.StrictMode>,
+  document.getElementById('root')
+);

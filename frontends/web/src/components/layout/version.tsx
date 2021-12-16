@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +15,22 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
-import { load } from '../../decorators/load';
-import { translate, TranslateProps } from '../../decorators/translate';
+import { FunctionComponent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getVersion } from '../../api/version';
 
-interface VersionProps {
-    version: string;
-}
+const Version: FunctionComponent = () => {
+    const { t } = useTranslation();
+    const [version, setVersion] = useState<string>('');
 
-type Props = VersionProps & TranslateProps;
+    useEffect(() => {
+        getVersion().then(setVersion);
+    }, []);
 
-function Version({ t, version }: RenderableProps<Props>) {
+    if (!version) {
+        return null;
+    }
     return <p>{t('footer.appVersion')} {version}</p>;
 }
 
-const HOC = translate()(load<VersionProps, TranslateProps>({ version: 'version' })(Version));
-export { HOC as Version };
+export { Version };

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { apiPost } from '../../../../../utils/request';
 import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
@@ -81,4 +81,4 @@ class RandomNumber extends Component {
     }
 }
 
-export default translate()(RandomNumber);
+export default withTranslation()(RandomNumber);

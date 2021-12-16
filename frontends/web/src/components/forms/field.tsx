@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
-import * as style from './field.module.css';
+import style from './field.module.css';
 
 export function Field({
     children, ...props

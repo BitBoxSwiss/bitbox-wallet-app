@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { ChangeEvent, FunctionComponent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { load } from '../../../decorators/load';
-import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Toggle } from '../../toggle/toggle';
 
@@ -28,33 +28,34 @@ interface LoadedProps {
     enabled: boolean;
 }
 
-type Props = ToggleProps & LoadedProps & TranslateProps;
+type Props = ToggleProps & LoadedProps;
 
-class ToggleFWHash extends Component<Props, {}> {
-    private handleToggle = event => {
+const ToggleFWHash: FunctionComponent<Props> = ({ enabled, deviceID }) => {
+    const { t } = useTranslation();
+    const [enabledState, setEnabledState] = useState<boolean>(enabled);
+
+    const handleToggle = (event: ChangeEvent<HTMLInputElement>) => {
+        const enabled: boolean = event.target.checked;
         apiPost(
-            'devices/bitbox02-bootloader/' + this.props.deviceID + '/set-firmware-hash-enabled',
-            event.target.checked,
+            'devices/bitbox02-bootloader/' + deviceID + '/set-firmware-hash-enabled',
+            enabled,
         );
+        setEnabledState(enabled)
     }
 
-    public render() {
-        const { t, enabled } = this.props;
-        return (
-            <div className="box slim divide">
-                <div className="flex flex-row flex-between flex-items-center">
-                    <p className="m-none">{t('bb02Bootloader.advanced.toggleShowFirmwareHash')}</p>
-                    <Toggle
-                        checked={enabled}
-                        id="togggle-show-firmware-hash"
-                        onChange={this.handleToggle}
-                        className="text-medium" />
-                </div>
+    return (
+        <div className="box slim divide">
+            <div className="flex flex-row flex-between flex-items-center">
+                <p className="m-none">{t('bb02Bootloader.advanced.toggleShowFirmwareHash')}</p>
+                <Toggle
+                    checked={enabledState}
+                    id="togggle-show-firmware-hash"
+                    onChange={handleToggle}
+                    className="text-medium" />
             </div>
-        );
-    }
+        </div>
+    );
 }
 
-const loadHOC = load<LoadedProps, ToggleProps & TranslateProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
-const HOC = translate<ToggleProps>()(loadHOC);
+const HOC = load<LoadedProps, ToggleProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
 export { HOC as ToggleShowFirmwareHash };

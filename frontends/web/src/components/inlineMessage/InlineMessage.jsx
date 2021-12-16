@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import * as style from './InlineMessage.module.css';
+import { Component} from 'react';
+import style from './InlineMessage.module.css';
 
 export default class InlineMessage extends Component {
     deactivate = () => {

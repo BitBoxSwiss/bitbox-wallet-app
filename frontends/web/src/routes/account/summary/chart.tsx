@@ -15,11 +15,11 @@
  */
 
 import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
-import { Component, createRef, h } from 'preact';
+import { Component, createRef} from 'react';
 import { Fiat } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { formatCurrency, formatNumber } from '../../../components/rates/rates';
-import * as styles from './chart.module.css';
+import styles from './chart.module.css';
 
 export type ChartData = LineData[];
 
@@ -47,8 +47,8 @@ interface State {
 type Props = ChartProps & TranslateProps;
 
 class Chart extends Component<Props, State> {
-    private ref = createRef();
-    private refToolTip = createRef();
+    private ref = createRef<HTMLDivElement>();
+    private refToolTip = createRef<HTMLSpanElement>();
     private chart?: IChartApi;
     private lineSeries?: ISeriesApi<'Area'>;
     private resizeTimerID?: any;
@@ -309,11 +309,11 @@ class Chart extends Component<Props, State> {
     }
 
     private handleCrosshair = ({ point, time, seriesPrices }) => {
-        if (!this.refToolTip) {
+        if (!this.refToolTip.current) {
             return;
         }
         const tooltip = this.refToolTip.current;
-        const parent = tooltip.parentNode;
+        const parent = tooltip.parentNode as HTMLDivElement;
         if (
             !this.lineSeries || !point || !time
             || point.x < 0 || point.x > parent.clientWidth
@@ -423,7 +423,7 @@ class Chart extends Component<Props, State> {
                     <span
                         ref={this.refToolTip}
                         className={styles.tooltip}
-                        style={`left: ${toolTipLeft}px; top: ${toolTipTop}px;`}
+                        style={{'left': toolTipLeft, top: toolTipTop}}
                         hidden={!toolTipVisible}>
                         {toolTipValue !== undefined ? (
                             <span>
@@ -443,7 +443,7 @@ class Chart extends Component<Props, State> {
     }
 }
 
-const HOC = translate<ChartProps>()(Chart);
+const HOC = translate()(Chart);
 
 export { HOC as Chart };
 

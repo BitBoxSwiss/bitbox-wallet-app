@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 import { apiPost } from '../../../../../utils/request';
 
@@ -32,4 +32,4 @@ class Blink extends Component {
     }
 }
 
-export default translate()(Blink);
+export default withTranslation()(Blink);

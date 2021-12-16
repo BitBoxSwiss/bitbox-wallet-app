@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component } from 'react';
 import { Button } from '../../../../components/forms';
 import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -24,7 +24,7 @@ import { PasswordRepeatInput } from '../../../../components/password';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 import { apiPost } from '../../../../utils/request';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
@@ -49,8 +49,6 @@ interface State {
 }
 
 class Initialize extends Component<Props, State> {
-    private passwordInput!: HTMLInputElement;
-
     constructor(props) {
         super(props);
         this.state = {
@@ -84,14 +82,7 @@ class Initialize extends Component<Props, State> {
                     errorMessage: data.errorMessage,
                 });
             }
-            if (this.passwordInput) {
-                (this.passwordInput as any).getWrappedInstance().clear();
-            }
         });
-    }
-
-    private setPasswordInputRef = (ref: HTMLInputElement) => {
-        this.passwordInput = ref;
     }
 
     private setValidPassword = password => {
@@ -149,7 +140,6 @@ class Initialize extends Component<Props, State> {
                     label={t('initialize.input.label')}
                     repeatLabel={t('initialize.input.labelRepeat')}
                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                    ref={this.setPasswordInputRef}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
                 <div className="buttons">
@@ -195,5 +185,5 @@ class Initialize extends Component<Props, State> {
     }
 }
 
-const TranslatedInitialize = translate<InitializeProps>()(Initialize);
+const TranslatedInitialize = translate()(Initialize);
 export { TranslatedInitialize as Initialize };

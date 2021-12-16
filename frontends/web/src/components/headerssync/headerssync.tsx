@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { CoinCode } from '../../api/account';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import Spinner from '../spinner/ascii';
-import * as style from './headerssync.module.css';
+import style from './headerssync.module.css';
 
 interface IHeadersSyncProps {
     coinCode: CoinCode;
@@ -75,7 +75,7 @@ class HeadersSync extends Component<Props, IState> {
         let formatted = status.tip.toString();
         let position = formatted.length - 3;
         while (position > 0) {
-            formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
+            formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
             position = position - 3;
         }
 
@@ -100,5 +100,5 @@ const subscribeHOC = subscribe<ISubscribedHeadersSyncProps, IHeadersSyncProps & 
     status: `coins/${coinCode}/headers/status`,
 }), false, true)(HeadersSync);
 
-const HOC = translate<IHeadersSyncProps>()(subscribeHOC);
+const HOC = translate()(subscribeHOC);
 export { HOC as HeadersSync };

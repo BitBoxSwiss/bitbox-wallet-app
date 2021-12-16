@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import React, { Component} from 'react';
 import { Coin } from '../../../api/account';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -23,7 +23,7 @@ import { ExpandOpen } from '../../../components/icon/icon';
 import { FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
-import * as style from './utxos.module.css';
+import style from './utxos.module.css';
 
 interface UTXOsProps {
     accountCode: string;
@@ -31,6 +31,7 @@ interface UTXOsProps {
     explorerURL: string;
     onChange: (SelectedUTXO) => void;
     onClose: () => void;
+    ref?: React.RefObject<any> // WithTranslation doesn't add ref prop correctly
 }
 
 interface UTXO {
@@ -88,7 +89,7 @@ class UTXOs extends Component<Props, State> {
         });
     }
 
-    private handleUTXOChange = (event: Event) => {
+    private handleUTXOChange = (event: React.SyntheticEvent) => {
         const target = event.target as HTMLInputElement;
         const outPoint = target.dataset.outpoint as string;
         const selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
@@ -171,5 +172,5 @@ class UTXOs extends Component<Props, State> {
     }
 }
 
-const TranslatedUTXOs = translate<UTXOsProps>(undefined, { withRef: true })(UTXOs);
+const TranslatedUTXOs = translate(undefined, { withRef: true })(UTXOs);
 export { TranslatedUTXOs as UTXOs };

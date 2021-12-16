@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -93,5 +93,5 @@ class Create extends Component<Props, State> {
     }
 }
 
-const HOC = translate<CreateProps>()(Create);
+const HOC = translate()(Create);
 export { HOC as Create };

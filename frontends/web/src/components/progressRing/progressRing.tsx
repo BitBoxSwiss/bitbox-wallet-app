@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
-import * as style from './progressRing.module.css';
+import { PropsWithChildren } from 'react';
+import style from './progressRing.module.css';
 
 interface ProgressRingProps {
     width: number;
@@ -33,7 +33,7 @@ const ProgressRing = ({
     isError,
     value,
     width,
-}: RenderableProps<ProgressRingProps>) => {
+}: PropsWithChildren<ProgressRingProps>) => {
     const radius = (width - 3) / 2;
     const circumference = radius * 2 * Math.PI;
     const progress = isError ? 100 : value / 100;

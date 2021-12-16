@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import { route } from 'preact-router';
+import { Component } from 'react';
+import { route } from '../../../utils/route';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
@@ -26,6 +25,7 @@ import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header, Footer } from '../../../components/layout';
 import { Spinner } from '../../../components/spinner/Spinner';
+import { withTranslation } from 'react-i18next';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
@@ -41,20 +41,6 @@ class Unlock extends Component {
         remainingAttempts: null,
         needsLongTouch: false,
         password: '',
-    }
-
-    componentDidMount() {
-        this.focus();
-    }
-
-    componentDidUpdate() {
-        this.focus();
-    }
-
-    focus() {
-        if (this.passwordInput) {
-            this.passwordInput.focus();
-        }
     }
 
     handleFormChange = password => {
@@ -126,6 +112,9 @@ class Unlock extends Component {
                     })}
                 </Message>
             );
+            break;
+        default:
+            break;
         }
 
         return (
@@ -143,7 +132,6 @@ class Unlock extends Component {
                                             <div className="m-top-default">
                                                 <PasswordSingleInput
                                                     autoFocus
-                                                    getRef={ref => this.passwordInput = ref}
                                                     id="password"
                                                     type="password"
                                                     label={t('unlock.input.label')}
@@ -179,4 +167,4 @@ class Unlock extends Component {
     }
 }
 
-export default translate()(Unlock);
+export default withTranslation()(Unlock);

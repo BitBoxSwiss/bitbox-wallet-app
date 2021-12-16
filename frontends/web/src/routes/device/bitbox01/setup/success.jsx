@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { route } from '../../../../utils/route';
+import { withTranslation } from 'react-i18next';
 import { SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Button } from '../../../../components/forms';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 class Success extends Component {
 
@@ -45,7 +45,7 @@ class Success extends Component {
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 className={[style.title, 'text-center'].join(' ')}>{t(`success.${goal}.title`)}</h1>
                             <div className="box large">
-                                <p style="text-align: center;">
+                                <p style={{textAlign: 'center'}}>
                                     {t(`success.${goal}.summary`)}
                                 </p>
                                 { goal === 'create' ? (
@@ -75,4 +75,4 @@ class Success extends Component {
     }
 }
 
-export default translate()(Success);
+export default withTranslation()(Success);

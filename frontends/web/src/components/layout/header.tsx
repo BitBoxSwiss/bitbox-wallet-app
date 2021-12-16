@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { Component, h, JSX } from 'preact';
+import React, { Component } from 'react';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
-import * as style from './header.module.css';
+import style from './header.module.css';
 
 interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
@@ -29,7 +29,7 @@ interface HeaderProps {
 type Props = HeaderProps & SharedPanelProps & TranslateProps;
 
 class Header extends Component<Props> {
-    private toggle = (e: Event) => {
+    private toggle = (e: React.SyntheticEvent) => {
         e.preventDefault();
         if (!this.props.shown) {
             toggleGuide();
@@ -39,7 +39,6 @@ class Header extends Component<Props> {
 
     public render() {
         const { t, title, narrow, children, guideExists, shown, sidebarStatus } = this.props;
-        const hasChildren = Array.isArray(children) && children.length > 0;
         return (
             <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
                 <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
@@ -48,7 +47,7 @@ class Header extends Component<Props> {
                     </div>
                     <div className={style.title}>{title}</div>
                     <div className={style.children}>
-                        {hasChildren && children}
+                        {children}
                         {
                             guideExists && (
                                 <span className={style.guideIconContainer}>
@@ -82,5 +81,5 @@ class Header extends Component<Props> {
 }
 
 const SharedHeader = share<SharedPanelProps, HeaderProps & TranslateProps>(panelStore)(Header);
-const TranslatedHeader = translate<HeaderProps>()(SharedHeader);
+const TranslatedHeader = translate()(SharedHeader);
 export { TranslatedHeader as Header };

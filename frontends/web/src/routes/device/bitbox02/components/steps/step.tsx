@@ -1,5 +1,5 @@
-import { Component, h } from 'preact';
-import * as style from './steps.module.css';
+import { Component} from 'react';
+import style from './steps.module.css';
 
 interface StepProps {
   active: boolean;
@@ -25,7 +25,7 @@ class Step extends Component<StepProps, State> {
         };
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps) {
         const { empty, order, activeStep } = nextProps;
         this.setState({
             isComplete: empty || order < activeStep,
@@ -54,7 +54,7 @@ class Step extends Component<StepProps, State> {
                     visible ? '' : style.hide,
                     large ? style.large : '',
                 ].join(' ')}
-                style={width ? `max-width: ${width}px` : ''}
+                style={width ? {maxWidth: width} : {}}
                 >
                 <div className={style.stepContentContainer}>
                     <div className={style.stepContent}>

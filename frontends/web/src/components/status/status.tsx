@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { apiGet, apiPost } from '../../utils/request';
-import * as style from './status.module.css';
+import style from './status.module.css';
 
 interface State {
     show: boolean;

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { TFunction } from 'react-i18next';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { Translate } from '../../decorators/translate';
 
 interface BuyGuideProps {
-  t: Translate;
+  t: TFunction;
   name: string;
 }
 

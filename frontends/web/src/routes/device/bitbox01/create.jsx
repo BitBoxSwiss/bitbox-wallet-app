@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button, Input } from '../../../components/forms';
 import { PasswordInput } from '../../../components/password';
 import { alertUser } from '../../../components/alert/Alert';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
-import * as style from '../../../components/dialog/dialog.module.css';
+// TODO: use DialogButtons
+import style from '../../../components/dialog/dialog.module.css';
 
 class Create extends Component {
     state = {
@@ -91,7 +92,6 @@ class Create extends Component {
                             <form onSubmit={this.create}>
                                 <Input
                                     autoFocus
-                                    autoComplete="off"
                                     id="backupName"
                                     label={t('backup.create.name.label')}
                                     placeholder={t('backup.create.name.placeholder')}
@@ -121,4 +121,4 @@ class Create extends Component {
     }
 }
 
-export default translate()(Create);
+export default withTranslation()(Create);

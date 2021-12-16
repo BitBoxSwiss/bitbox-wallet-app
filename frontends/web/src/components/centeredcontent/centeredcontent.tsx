@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
-import * as style from './style.module.css';
+import { PropsWithChildren } from 'react';
+import style from './style.module.css';
 
-export function CenteredContent({ children }: RenderableProps<{}>): JSX.Element {
+export function CenteredContent({ children }: PropsWithChildren<{}>): JSX.Element {
     return (
         <div className="contentWithGuide">
             <div className={style.container}>

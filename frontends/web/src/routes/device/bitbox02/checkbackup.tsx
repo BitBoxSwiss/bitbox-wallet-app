@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
@@ -127,5 +127,5 @@ class Check extends Component<Props, State> {
     }
 }
 
-const HOC = translate<CheckProps>()(Check);
+const HOC = translate()(Check);
 export { HOC as Check };

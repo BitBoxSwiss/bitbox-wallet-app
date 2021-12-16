@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import * as accountAPI from '../../api/account';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button } from '../forms';
@@ -33,6 +33,10 @@ interface VerifyAddressProps {
 type Props = VerifyAddressProps & TranslateProps;
 
 class VerifyAddress extends Component<Props, State> {
+    public readonly state: State = {
+        verifying: false,
+    };
+
     private verifyAddress = () => {
         this.setState({ verifying: true });
         accountAPI.verifyAddress(this.props.accountCode, this.props.addressID).then(() => {
@@ -58,5 +62,5 @@ class VerifyAddress extends Component<Props, State> {
     }
 }
 
-const translateHOC = translate<VerifyAddressProps>()(VerifyAddress);
+const translateHOC = translate()(VerifyAddress);
 export { translateHOC as VerifyAddress };

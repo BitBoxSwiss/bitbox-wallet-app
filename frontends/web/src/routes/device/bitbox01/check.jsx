@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../components/forms';
 import { Dialog } from '../../../components/dialog/dialog';
 import { PasswordSingleInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
-import * as style from '../../../components/dialog/dialog.module.css';
+// TODO: use DialogButtons
+import style from '../../../components/dialog/dialog.module.css';
 
 class Check extends Component {
     state = {
@@ -96,7 +97,7 @@ class Check extends Component {
                             onClose={this.abort}>
                             { message ? (
                                 <div>
-                                    <p style="min-height: 3rem;">{message}</p>
+                                    <p style={{minHeight: '3rem'}}>{message}</p>
                                     <div className={style.actions}>
                                         <Button transparent onClick={this.abort}>
                                             {t('button.back')}
@@ -128,4 +129,4 @@ class Check extends Component {
     }
 }
 
-export default translate()(Check);
+export default withTranslation()(Check);

@@ -1,5 +1,5 @@
-import { Component, h } from 'preact';
-import * as style from './settingsButton.module.css';
+import { Component} from 'react';
+import style from './settingsButton.module.css';
 
 interface SettingsItemProps {
     optionalText?: string | null;

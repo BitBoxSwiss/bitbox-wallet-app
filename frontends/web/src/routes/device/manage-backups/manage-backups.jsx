@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { route } from '../../../utils/route';
+import { withTranslation } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
@@ -30,7 +30,7 @@ class ManageBackups extends Component {
         return !!this.props.devices[this.props.deviceID];
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if (!this.hasDevice()) {
             route('/', true);
         }
@@ -40,7 +40,7 @@ class ManageBackups extends Component {
         return (
             <ButtonLink
                 transparent
-                href={`/device/${this.props.deviceID}`}>
+                to={`/device/${this.props.deviceID}`}>
                 {this.props.t('button.back')}
             </ButtonLink>
         );
@@ -121,4 +121,4 @@ class ManageBackups extends Component {
     }
 }
 
-export default translate()(ManageBackups);
+export default withTranslation()(ManageBackups);

@@ -1,10 +1,10 @@
-import { Component, h } from 'preact';
-import * as style from './toggle.module.css';
+import { ChangeEvent, Component} from 'react';
+import style from './toggle.module.css';
 
 interface ToggleProps {
     checked: boolean;
     disabled?: boolean;
-    onChange: (event: Event) => void;
+    onChange: (event: ChangeEvent<HTMLInputElement>) => void;
     id?: string;
     value?: string;
     name?: string;

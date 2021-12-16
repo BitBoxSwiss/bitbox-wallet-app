@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
@@ -34,8 +34,9 @@ import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
 import { BuyCTA } from './info/buyCTA';
-import * as style from './account.module.css';
+import style from './account.module.css';
 import { isBitcoinBased } from './utils';
+import { Link } from 'react-router-dom';
 
 // Show some additional info for the following coin types, if legacy split acocunts is enabled.
 const WithCoinTypeInfo = [
@@ -96,7 +97,7 @@ class Account extends Component<Props, State> {
         unsubscribe(this.subscribtions);
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.code && nextProps.code !== this.props.code) {
             this.setState({
                 status: undefined,
@@ -149,7 +150,7 @@ class Account extends Component<Props, State> {
                     return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
                         .then(sdcard => sdcard);
                 default:
-                    return;
+                    return [];
             }
         }))
             .then(sdcards => sdcards.some(sdcard => sdcard))
@@ -283,7 +284,7 @@ class Account extends Component<Props, State> {
                 '\n' + t('account.syncedAddressesCount', {
                     count: syncedAddressesCount.toString(),
                     defaultValue: 0,
-                })
+                } as any)
             ) : '';
 
         const offlineErrorTextLines: string[] = [];
@@ -303,10 +304,10 @@ class Account extends Component<Props, State> {
                     </Status>
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
-                        <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+                        <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
                             <Info className={style.accountIcon} />
                             <span>{t('accountInfo.label')}</span>
-                        </a>
+                        </Link>
                     </Header>
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
@@ -323,13 +324,13 @@ class Account extends Component<Props, State> {
                                 <label className="labelXLarge flex-self-start-mobile">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     {canSend ? (
-                                        <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                        <Link key="sendLink" to={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></Link>
                                     ) : (
-                                        <span className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
+                                        <span key="sendDisabled" className={`${style.send} ${style.disabled}`}>{t('button.send')}</span>
                                     )}
-                                    <a href={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></a>
+                                    <Link key="receive" to={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></Link>
                                     { this.supportsBuy() && (
-                                        <a href={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></a>
+                                        <Link key="buy" to={`/buy/info/${code}`} className={style.buy}><span>{t('button.buy')}</span></Link>
                                     )}
                                 </div>
                             </div>
@@ -339,12 +340,13 @@ class Account extends Component<Props, State> {
                             {
                                 !status.synced || offlineErrorTextLines.length || !this.dataLoaded() || status.fatalError ? (
                                     <Spinner text={
-                                        status.fatalError && t('account.fatalError') ||
-                                        offlineErrorTextLines.join('\n') ||
-                                        !status.synced && (
+                                        (status.fatalError && t('account.fatalError'))
+                                        || offlineErrorTextLines.join('\n')
+                                        || (!status.synced &&
                                             t('account.initializing')
                                             + initializingSpinnerText
-                                        ) || ''
+                                        )
+                                        || ''
                                     } />
                                 ) : (
                                     <Transactions
@@ -417,5 +419,5 @@ const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code 
     config: 'config',
 }))(Account);
 
-const HOC = translate<AccountProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as Account };

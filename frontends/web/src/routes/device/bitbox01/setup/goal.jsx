@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { Header } from '../../../../components/layout';
@@ -58,4 +58,4 @@ class Goal extends Component {
     }
 }
 
-export default translate()(Goal);
+export default withTranslation()(Goal);

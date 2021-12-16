@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { backendConnected } from './api/subscribe';
 
 interface State {
@@ -43,7 +43,7 @@ class ConnectedApp extends Component<Props, State> {
         const { connected } = this.state;
         if (!connected) {
             return (
-                <div className="app" style="padding: 40px">
+                <div className="app" style={{padding: 40}}>
                     The WebSocket closed. Please restart the backend and reload this page.
                 </div>
             );

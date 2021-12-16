@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { Button } from '../../../../components/forms';
 import { Alert, SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -22,7 +22,7 @@ import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
 import { translate,  TranslateProps } from '../../../../decorators/translate';
 import { SimpleMarkup } from '../../../../utils/markup';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 interface SecurityInformationProps {
     goBack: () => void;
@@ -118,5 +118,5 @@ class SecurityInformation extends Component<Props, State> {
     }
 }
 
-const translatedSecutiryInformation = translate<SecurityInformationProps>()(SecurityInformation);
+const translatedSecutiryInformation = translate()(SecurityInformation);
 export { translatedSecutiryInformation as  SecurityInformation };

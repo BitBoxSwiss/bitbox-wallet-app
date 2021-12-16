@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
-import * as style from './label.module.css';
+import style from './label.module.css';
 
 export function Label({
     className,
@@ -26,7 +25,7 @@ export function Label({
 }: JSX.IntrinsicElements['label']) {
     const classes = [style.label, className].join(' ');
     return (
-        <label for={id} className={classes} {...props}>
+        <label htmlFor={id} className={classes} {...props}>
             {children}
         </label>
     );

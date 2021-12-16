@@ -23,7 +23,11 @@ import { apiGet } from '../utils/request';
  * Note there is a subscibe-legacy.ts module that supports older events.
  */
 
-export function subscribeEndpoint(endpoint: string, cb): Unsubscribe {
+export function subscribeEndpoint(
+    endpoint: string,
+    // TODO: double check any type
+    cb: (eventObject: any) => any,
+): Unsubscribe {
     return apiSubscribe(endpoint, (event: Event) => {
         switch (event.action) {
         case 'replace':

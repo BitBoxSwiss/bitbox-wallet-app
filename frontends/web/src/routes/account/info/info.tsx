@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import { Component} from 'react';
+import { route } from '../../../utils/route';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { getInfo, IAccount, ISigningConfigurationList } from '../../../api/account';
 import { isBitcoinBased } from '../utils';
 import { ButtonLink } from '../../../components/forms';
 import { Header } from '../../../components/layout';
-import * as style from './info.module.css';
+import style from './info.module.css';
 import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
 
@@ -48,7 +48,7 @@ class Info extends Component<Props, State> {
         getInfo(this.props.code).then(info => this.setState({ info }));
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
@@ -120,7 +120,7 @@ class Info extends Component<Props, State> {
                                     signingConfigIndex={viewXPub}>
                                     <ButtonLink
                                         transparent
-                                        href={`/account/${code}`}>
+                                        to={`/account/${code}`}>
                                         {t('button.back')}
                                     </ButtonLink>
                                 </SigningConfiguration>
@@ -136,5 +136,5 @@ class Info extends Component<Props, State> {
     }
 }
 
-const HOC = translate<InfoProps>()(Info);
+const HOC = translate()(Info);
 export { HOC as Info };

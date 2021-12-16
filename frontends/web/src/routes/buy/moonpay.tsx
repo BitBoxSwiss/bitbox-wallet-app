@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef, h } from 'preact';
+import { Component, createRef} from 'react';
 import { IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
@@ -24,7 +24,7 @@ import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoinOnly } from '../account/utils';
-import * as style from './moonpay.module.css';
+import style from './moonpay.module.css';
 
 interface BuyProps {
     accounts: IAccount[];
@@ -37,13 +37,15 @@ interface LoadedBuyProps {
 }
 
 interface State {
-    height: number;
+    height?: number;
 }
 
 type Props = LoadedBuyProps & BuyProps & TranslateProps;
 
 class Moonpay extends Component<Props, State> {
-    private ref = createRef();
+    public readonly state: State = {};
+
+    private ref = createRef<HTMLDivElement>();
     private resizeTimerID?: any;
 
     public componentDidMount() {
@@ -101,6 +103,7 @@ class Moonpay extends Component<Props, State> {
                         <div className="noSpace" style={{ height }}>
                             <Spinner text={t('loading')} />
                             <iframe
+                                title="Moonpay"
                                 width="100%"
                                 height={height}
                                 frameBorder="0"
@@ -120,5 +123,5 @@ class Moonpay extends Component<Props, State> {
 const loadHOC = load<LoadedBuyProps, BuyProps & TranslateProps>(({ code }) => ({
     moonpay: `exchange/moonpay/buy/${code}`,
 }))(Moonpay);
-const HOC = translate<BuyProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as Moonpay };

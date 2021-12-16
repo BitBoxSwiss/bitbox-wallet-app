@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
-import { select } from './select.module.css';
+import styles from './select.module.css';
 
 type TOptionTextContent = {
     text: string;
@@ -25,31 +24,27 @@ type TOptionTextContent = {
 type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent
 
 type TSelectProps = {
-    // Temp add defaultValue, see https://github.com/preactjs/preact/issues/2668
-    defaultValue?: string;
     id: string;
     label?: string;
     options: TOption[];
-    selectedOption?: string;
 } & JSX.IntrinsicElements['select']
 
 export function Select({
     id,
     label,
     options = [],
-    selectedOption,
     ...props
 }: TSelectProps) {
     return (
-        <div className={select}>
-            {label && <label for={id}>{label}</label>}
+        <div className={styles.select}>
+            {label && <label htmlFor={id}>{label}</label>}
             <select id={id} {...props}>
                 {options.map(({ value, text, disabled = false }) => (
                     <option
                         key={`${value}`}
                         value={value}
                         disabled={disabled}
-                        selected={selectedOption === value}>
+                    >
                         {text}
                     </option>
                 ))}

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
 import { Close } from '../icon/icon';
-import * as style from './view.module.css';
+import style from './view.module.css';
 
 type ViewProps = {
     fullscreen?: boolean;
@@ -41,7 +41,7 @@ export function View({
     textCenter,
     width,
     withBottomBar,
-}: RenderableProps<ViewProps>) {
+}: PropsWithChildren<ViewProps>) {
     let classNames = style.inner;
     if (!top) {
         classNames += ` ${style.center}`;
@@ -66,7 +66,7 @@ export function View({
                 </button>
             )}
             {withBottomBar && (
-                <div style="margin-top: auto;">
+                <div style={{marginTop: 'auto'}}>
                     <Footer>
                         <SwissMadeOpenSource />
                     </Footer>
@@ -84,7 +84,7 @@ export function ViewContent({
     children,
     fullWidth,
     ...props
-}: RenderableProps<ViewContentProps>) {
+}: PropsWithChildren<ViewContentProps>) {
     const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
     return (
         <div className={classes} {...props}>{children}</div>
@@ -102,7 +102,7 @@ export function ViewHeader({
     small,
     title,
     withAppLogo,
-}: RenderableProps<HeaderProps>) {
+}: PropsWithChildren<HeaderProps>) {
     const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
     return (
         <header className={headerStyles}>
@@ -115,7 +115,7 @@ export function ViewHeader({
 
 type ViewButtonsProps = {}
 
-export function ViewButtons({ children }: RenderableProps<ViewButtonsProps>) {
+export function ViewButtons({ children }: PropsWithChildren<ViewButtonsProps>) {
     return (
         <div className={style.buttons}>
             {children}

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
+import { Component } from 'react';
+import { route } from '../../../utils/route';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { multilineMarkup, SimpleMarkup } from '../../../utils/markup';
@@ -274,7 +274,7 @@ class Passphrase extends Component<Props, State> {
                                     id="understood"
                                     checked={understood}
                                     label={t('passphrase.summary.understand')}
-                                    style={understood ? 'success' : 'warning'} />
+                                    checkboxStyle={understood ? 'success' : 'warning'} />
                             </Status>
                         </ViewContent>
                         <ViewButtons>
@@ -321,10 +321,9 @@ class Passphrase extends Component<Props, State> {
         );
     }
 
-    public render(
-        { t }: RenderableProps<Props>,
-        { passphraseEnabled, status }: State,
-    ) {
+    public render() {
+        const { t } = this.props;
+        const { passphraseEnabled, status } = this.state;
         if (passphraseEnabled === undefined) {
             return null;
         }
@@ -377,7 +376,7 @@ class Passphrase extends Component<Props, State> {
                                     : 'passphrase.successEnabled.message'),
                             })}
                             {passphraseEnabled && (
-                                <ul style="padding-left: var(--space-default);">
+                                <ul style={{paddingLeft: 'var(--space-default)'}}>
                                     <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
                                     <SimpleMarkup key="tip-2" tagName="li" markup={t('passphrase.successEnabled.tipsList.1')} />
                                 </ul>
@@ -397,5 +396,5 @@ class Passphrase extends Component<Props, State> {
     }
 }
 
-const HOC = translate<MnemonicPassphraseButtonProps>()(Passphrase);
+const HOC = translate()(Passphrase);
 export { HOC as Passphrase };

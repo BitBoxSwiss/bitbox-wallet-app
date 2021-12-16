@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
+import { route } from '../../../../utils/route';
 import { apiGet } from '../../../../utils/request';
 import { apiWebsocket } from '../../../../utils/websocket';
 import { Guide } from '../../../../components/guide/guide';
@@ -92,7 +93,10 @@ class Settings extends Component {
                 case 'pairingFalse':
                     this.setState({ mobileChannel: false });
                     break;
+                default:
+                    break;
                 }
+
             }
         });
     }
@@ -133,7 +137,7 @@ class Settings extends Component {
                                     <div className="column column-1-2">
                                         <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
                                         <div className="box slim divide">
-                                            <SettingsButton href={`/manage-backups/${deviceID}`} link>
+                                            <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
                                                 {t('deviceSettings.secrets.manageBackups')}
                                             </SettingsButton>
                                             <ChangePIN deviceID={deviceID} />
@@ -228,4 +232,4 @@ class Settings extends Component {
     }
 }
 
-export default translate()(Settings);
+export default withTranslation()(Settings);

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { h, JSX } from 'preact';
 import alert from './assets/icons/alert-triangle.svg';
 import BB02Stylized from '../../assets/device/bitbox02-stylized-reflection.png';
 import info from './assets/icons/info.svg';
@@ -24,7 +23,7 @@ import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
-import * as style from './icon.module.css';
+import style from './icon.module.css';
 
 export const ExpandOpen = (): JSX.Element => (
     <svg
@@ -66,14 +65,14 @@ export const ExpandClose = (): JSX.Element => (
 type SVGProps = JSX.IntrinsicElements['svg'];
 
 export const Checked = ({className, ...props}: SVGProps) => (
-    <svg className={`checked ${className || ''}`} viewBox="0 0 52 52" draggable={false} {...props}>
+    <svg className={`checked ${className || ''}`} viewBox="0 0 52 52" {...props}>
         <circle className="checked-circle" cx="26" cy="26" r="25" fill="none"/>
         <path className="checked-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
     </svg>
 );
 
 export const CaretDown = ({className, ...props}: SVGProps) => (
-    <svg className={`caretDown ${className || ''}`} viewBox="0 0 1024 1024" draggable={false} {...props}>
+    <svg className={`caretDown ${className || ''}`} viewBox="0 0 1024 1024" {...props}>
         <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"></path>
     </svg>
 );

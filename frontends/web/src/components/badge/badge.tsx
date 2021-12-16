@@ -1,5 +1,5 @@
-import { Component, h } from 'preact';
-import * as style from './badge.module.css';
+import { Component} from 'react';
+import style from './badge.module.css';
 
 interface BadgeProps {
     type: string;

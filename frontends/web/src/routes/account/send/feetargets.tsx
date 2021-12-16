@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import React, { Component, createRef} from 'react';
 import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '../utils';
-import * as style from './feetargets.module.css';
+import style from './feetargets.module.css';
 
 interface LoadedProps {
     config: any;
@@ -58,11 +58,14 @@ class FeeTargets extends Component<Props, State> {
         options: null,
     };
 
+    private input = createRef<HTMLInputElement & {autofocus: boolean}>();
+
     public componentDidMount() {
         this.updateFeeTargets(this.props.accountCode);
+        this.focusInput();
     }
 
-    public componentWillReceiveProps({ accountCode }) {
+    public UNSAFE_componentWillReceiveProps({ accountCode }) {
         if (this.props.accountCode !== accountCode) {
             this.updateFeeTargets(accountCode);
         }
@@ -88,7 +91,7 @@ class FeeTargets extends Component<Props, State> {
             .catch(console.error);
     }
 
-    private handleFeeTargetChange = (event: Event) => {
+    private handleFeeTargetChange = (event: React.SyntheticEvent) => {
         const target = event.target as HTMLSelectElement;
         this.setFeeTarget(target.options[target.selectedIndex].value as accountApi.FeeTargetCode);
     }
@@ -112,6 +115,12 @@ class FeeTargets extends Component<Props, State> {
         return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
     }
 
+    private focusInput = () => {
+        if (!this.props.disabled && this.input.current && this.input.current.autofocus) {
+            this.input.current.focus();
+        }
+    }
+
     public render() {
         const {
             t,
@@ -132,6 +141,7 @@ class FeeTargets extends Component<Props, State> {
                     id="feetarget"
                     placeholder={t('send.feeTarget.placeholder')}
                     disabled
+                    value=""
                     transparent />
             );
         }
@@ -156,7 +166,6 @@ class FeeTargets extends Component<Props, State> {
                                 id="feeTarget"
                                 disabled={disabled}
                                 onChange={this.handleFeeTargetChange}
-                                selectedOption={feeTarget}
                                 value={feeTarget}
                                 options={options} />
                         )
@@ -169,7 +178,6 @@ class FeeTargets extends Component<Props, State> {
                                     id="feeTarget"
                                     disabled={disabled}
                                     onChange={this.handleFeeTargetChange}
-                                    selectedOption={feeTarget}
                                     value={feeTarget}
                                     options={options} />
                             </div>
@@ -190,13 +198,7 @@ class FeeTargets extends Component<Props, State> {
                                     error={error}
                                     transparent
                                     onInput={this.handleCustomFee}
-                                    getRef={input => {
-                                        setTimeout(() => {
-                                            if (!disabled && input && input.autofocus) {
-                                                input.focus();
-                                            }
-                                        });
-                                    }}
+                                    ref={this.input}
                                     value={customFee}
                                 >
                                     <span className={style.customFeeUnit}>
@@ -245,5 +247,5 @@ class FeeTargets extends Component<Props, State> {
 const loadedHOC = load<LoadedProps, FeeTargetsProps & TranslateProps>(
     { config: 'config' },
 )(FeeTargets);
-const TranslatedFeeTargets = translate<FeeTargetsProps>()(loadedHOC);
+const TranslatedFeeTargets = translate()(loadedHOC);
 export { TranslatedFeeTargets as FeeTargets };

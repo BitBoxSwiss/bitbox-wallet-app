@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { Entry } from '../../components/guide/entry';
 import { Guide, store as panelStore } from '../../components/guide/guide';
 import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
@@ -23,7 +23,7 @@ import { setSidebarStatus } from '../../components/sidebar/sidebar';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
-import * as style from './bitbox01/bitbox01.module.css';
+import style from './bitbox01/bitbox01.module.css';
 import { SkipForTesting } from './components/skipfortesting';
 
 interface TestingProps {
@@ -33,7 +33,7 @@ interface TestingProps {
 type WaitingProps = TestingProps & TranslateProps;
 
 class Waiting extends Component<WaitingProps> {
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         const { sidebarStatus } = panelStore.state;
         if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
             setSidebarStatus('');

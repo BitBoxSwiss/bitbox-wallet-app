@@ -1,0 +1,20 @@
+{
+  "extends": ["react-app"],
+  "rules": {
+    "jsx-a11y/anchor-is-valid": 0,
+    "jsx-a11y/alt-text" : 0,
+    "quotes": ["error", "single"]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts?(x)"],
+      "rules": { }
+    },
+    {
+      "files": ["**/*.test.ts?(x)"],
+      "rules": {
+        "import/first": 0
+      }
+    }
+  ]
+}

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import React, { Component} from 'react';
+import { route } from '../../../utils/route';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { alertUser } from '../../../components/alert/Alert';
@@ -32,7 +32,7 @@ import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { isEthereumBased } from '../utils';
-import * as style from './receive.module.css';
+import style from './receive.module.css';
 
 interface ReceiveProps {
     code?: string;
@@ -75,7 +75,7 @@ class Receive extends Component<Props, State> {
         }
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         this.registerEvents();
     }
 
@@ -118,7 +118,7 @@ class Receive extends Component<Props, State> {
             });
     }
 
-    private previous = (e: Event) => {
+    private previous = (e: React.SyntheticEvent) => {
         e.preventDefault();
         const activeIndex = this.state.activeIndex;
         if (!this.state.verifying && activeIndex > 0) {
@@ -128,7 +128,7 @@ class Receive extends Component<Props, State> {
         }
     }
 
-    private next = (e: Event, numAddresses: number) => {
+    private next = (e: React.SyntheticEvent, numAddresses: number) => {
         e.preventDefault();
         const { verifying, activeIndex } = this.state;
         if (!verifying && activeIndex < numAddresses - 1) {
@@ -197,7 +197,7 @@ class Receive extends Component<Props, State> {
             verifyLabel = t('receive.verifyBitBox02');
         }
         const content = (
-            <div style="position: relative;">
+            <div style={{position: 'relative'}}>
                 <div className={style.qrCodeContainer}>
                     <QRCode data={enableCopy ? uriPrefix + address : undefined} />
                 </div>
@@ -283,7 +283,7 @@ class Receive extends Component<Props, State> {
                     }
                     <ButtonLink
                         transparent
-                        href={`/account/${code}`}>
+                        to={`/account/${code}`}>
                         {t('button.back')}
                     </ButtonLink>
                 </div>
@@ -356,5 +356,5 @@ const loadHOC = load<LoadedReceiveProps, ReceiveProps & TranslateProps>(({ code 
     secureOutput: `account/${code}/has-secure-output`,
     receiveAddresses: `account/${code}/receive-addresses`,
 }))(Receive);
-const HOC = translate<ReceiveProps>()(loadHOC);
+const HOC = translate()(loadHOC);
 export { HOC as Receive };

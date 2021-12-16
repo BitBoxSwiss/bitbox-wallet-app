@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import './polyfill';
 import { apiGet, apiPost } from './request';
 
 // extConfig is a way to set config values which are inserted

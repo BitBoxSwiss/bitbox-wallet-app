@@ -17,7 +17,6 @@
 
  /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
-import { h } from 'preact';
 import AppLogoInvertedImg from './assets/app-logo-inverted.svg';
 import AppLogoImg from './assets/app-logo.svg';
 import BitBoxLogo from './assets/bitbox-logo.svg';
@@ -54,7 +53,7 @@ import PAXG from './assets/paxg-color.svg';
 import PAXG_GREY from './assets/paxg-white.svg';
 
 import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
-import * as style from './logo.module.css';
+import style from './logo.module.css';
 
 interface GenericProps {
     [property: string]: any;
@@ -67,7 +66,7 @@ export const AppLogoInverted = (props: GenericProps) => <img {...props} draggabl
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = (props: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
+export const SwissMadeOpenSource = ({large: boolean, ...props}: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
 
 const logoMap = {
     'btc': [BTC, BTC_GREY],

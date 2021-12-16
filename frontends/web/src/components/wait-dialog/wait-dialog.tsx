@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-import { Component, ComponentChild, h, JSX } from 'preact';
+import { Component, createRef } from 'react';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
-import * as style from '../dialog/dialog.module.css';
+import style from '../dialog/dialog.module.css';
+import React from 'react';
 
 interface WaitDialogProps {
     includeDefault?: boolean;
@@ -36,14 +37,14 @@ interface State {
 }
 
 class WaitDialog extends Component<Props, State> {
-    private overlay?: HTMLDivElement;
-    private modal?: HTMLDivElement;
+    private overlay = createRef<HTMLDivElement>();
+    private modal = createRef<HTMLDivElement>();
 
     public readonly state: State = {
         active: false,
     }
 
-    public componentWillMount() {
+    public UNSAFE_componentWillMount() {
         document.body.addEventListener('keydown', this.handleKeyDown);
     }
 
@@ -64,21 +65,13 @@ class WaitDialog extends Component<Props, State> {
         e.stopPropagation();
     }
 
-    private setOverlay = ref => {
-        this.overlay = ref;
-    }
-
-    private setModal = ref => {
-        this.modal = ref;
-    }
-
     private activate = () => {
         this.setState({ active: true }, () => {
-            if (!this.overlay || !this.modal) {
+            if (!this.overlay.current || !this.modal.current) {
                 return;
             }
-            this.overlay.classList.add(style.activeOverlay);
-            this.modal.classList.add(style.activeModal);
+            this.overlay.current.classList.add(style.activeOverlay);
+            this.modal.current.classList.add(style.activeModal);
         });
     }
 
@@ -140,13 +133,13 @@ class WaitDialog extends Component<Props, State> {
             </div>
         );
 
-        const hasChildren = children && (children as ComponentChild[]).length > 0;
+        const hasChildren = React.Children.toArray(children).length > 0;
         return (
             <div
                 className={style.overlay}
-                ref={this.setOverlay}
-                style="z-index: 10001;">
-                <div className={style.modal} ref={this.setModal}>
+                ref={this.overlay}
+                style={{zIndex: 10001}}>
+                <div className={style.modal} ref={this.modal}>
                     {
                         title && (
                             <div className={style.header}>
@@ -170,5 +163,5 @@ class WaitDialog extends Component<Props, State> {
     }
 }
 
-const TranslatedWaitDialog = translate<WaitDialogProps>()(WaitDialog);
+const TranslatedWaitDialog = translate()(WaitDialog);
 export { TranslatedWaitDialog as WaitDialog };

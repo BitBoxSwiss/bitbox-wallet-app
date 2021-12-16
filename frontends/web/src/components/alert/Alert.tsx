@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate, TranslateProps } from '../../decorators/translate';
+import { Component } from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import { SimpleMarkup } from '../../utils/markup';
 import { Dialog } from '../dialog/dialog';
-import * as style from '../dialog/dialog.module.css';
+// TODO: use DialogButtons
+import style from '../dialog/dialog.module.css';
 import { Button } from '../forms';
 
 let alertUser: (message: string, callback?: () => void) => void;
@@ -29,10 +30,10 @@ interface State {
     message?: string;
 }
 
-class Alert extends Component<TranslateProps, State> {
+class Alert extends Component<WithTranslation, State> {
     private callback?: () => void; // Assigned when alertUser is called / Called before close.
 
-    constructor(props: TranslateProps) {
+    constructor(props: WithTranslation) {
         super(props);
         alertUser = this.alertUser;
         this.state = {
@@ -85,7 +86,7 @@ class Alert extends Component<TranslateProps, State> {
     }
 }
 
-const TranslatedAlert = translate()(Alert);
+const TranslatedAlert = withTranslation()(Alert);
 
 export { alertUser };
 export { TranslatedAlert as Alert };

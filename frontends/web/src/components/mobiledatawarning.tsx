@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { subscribe } from '../decorators/subscribe';
 import { translate, TranslateProps } from '../decorators/translate';
 import Status from './status/status';
@@ -26,7 +26,7 @@ interface LoadedProps {
 
 type Props = LoadedProps & TranslateProps;
 
-function MobileDataWarning({ usingMobileData, t }: RenderableProps<Props>) {
+function MobileDataWarning({ usingMobileData, t }: PropsWithChildren<Props>) {
     return (
         <Status dismissable="mobile-data-warning" type="warning" hidden={!usingMobileData}>
             {t('mobile.usingMobileDataWarning')}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { Coin, Fiat, MainnetCoin } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
@@ -23,7 +23,7 @@ import { setConfig } from '../../utils/config';
 import { equal } from '../../utils/equal';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
-import * as style from './rates.module.css';
+import style from './rates.module.css';
 
 
 export type Rates = {
@@ -99,7 +99,7 @@ export function formatNumber(amount: number, maxDigits: number): string {
     let formatted = amount.toFixed(maxDigits);
     let position = formatted.indexOf('.') - 3;
     while (position > 0) {
-        formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
+        formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
         position = position - 3;
     }
     return formatted;
@@ -140,7 +140,7 @@ function Conversion({
     active,
     noAction,
     children,
-}: RenderableProps<Props>): JSX.Element | null {
+}: PropsWithChildren<Props>): JSX.Element | null {
     if (!rates) {
         return null;
     }

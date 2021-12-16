@@ -19,7 +19,7 @@ const keyList = Object.keys;
 const hasProp = Object.prototype.hasOwnProperty;
 
 export function equal(a, b) {
-    if (a === b) return true;
+    if (Object.is(a, b)) return true;
 
     if (a && b && typeof a === 'object' && typeof b === 'object') {
         let arrA = isArray(a), arrB = isArray(b), i, length, key;
@@ -52,5 +52,5 @@ export function equal(a, b) {
         return true;
     }
 
-    return a !== a && b !== b;
+    return false;
 }

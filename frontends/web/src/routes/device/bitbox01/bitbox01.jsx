@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
@@ -30,6 +29,7 @@ import { Initialize } from './setup/initialize';
 import Success from './setup/success';
 import Settings from './settings/settings';
 import { setSidebarStatus } from '../../../components/sidebar/sidebar';
+import { withTranslation } from 'react-i18next';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',
@@ -193,4 +193,4 @@ class Device extends Component {
     }
 }
 
-export default translate()(Device);
+export default withTranslation()(Device);

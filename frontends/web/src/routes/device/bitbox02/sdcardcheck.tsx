@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { apiGet } from '../../../utils/request';
@@ -32,6 +32,8 @@ interface State {
 type Props = SDCardCheckProps & TranslateProps;
 
 class SDCardCheck extends Component<Props, State> {
+    state = {} as State;
+
     public componentDidMount() {
         this.check();
     }
@@ -48,6 +50,8 @@ class SDCardCheck extends Component<Props, State> {
             deviceID,
         } = this.props;
         const { sdCardInserted } = this.state;
+
+        // pending check-sdcard request
         if (sdCardInserted === undefined) {
             return null;
         }
@@ -69,7 +73,7 @@ class SDCardCheck extends Component<Props, State> {
                         </Button>
                         <ButtonLink
                             transparent
-                            href={`/device/${deviceID}`}>
+                            to={`/device/${deviceID}`}>
                             {t('button.back')}
                         </ButtonLink>
                     </DialogButtons>
@@ -85,5 +89,5 @@ class SDCardCheck extends Component<Props, State> {
 
 }
 
-const HOC = translate<SDCardCheckProps>()(SDCardCheck);
+const HOC = translate()(SDCardCheck);
 export { HOC as SDCardCheck };

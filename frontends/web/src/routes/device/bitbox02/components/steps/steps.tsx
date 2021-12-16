@@ -1,5 +1,5 @@
-import { cloneElement, Component, h, JSX } from 'preact';
-import * as style from './steps.module.css';
+import { cloneElement, Component } from 'react';
+import style from './steps.module.css';
 
 interface State {
     activeStep: number;
@@ -13,7 +13,7 @@ class Steps extends Component<{}, State> {
         };
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps) {
         const step = this.getActiveStep(nextProps.children);
         if (this.state.activeStep !== step) {
             this.setState({ activeStep: step });
@@ -21,7 +21,7 @@ class Steps extends Component<{}, State> {
     }
 
     private getActiveStep = (children: JSX.Element[]) => {
-        return children.filter(child => child).findIndex(child => child.attributes.active) + 1;
+        return children.filter(child => child).findIndex(child => child.props.active) + 1;
     }
 
     public render() {

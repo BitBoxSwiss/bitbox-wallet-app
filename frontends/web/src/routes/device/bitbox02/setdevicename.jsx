@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, createRef } from 'react';
 import { Button, Input } from '../../../components/forms';
 import { apiPost } from '../../../utils/request';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { alertUser } from '../../../components/alert/Alert';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
+import { withTranslation } from 'react-i18next';
 
 class SetDeviceNameClass extends Component {
     constructor(props) {
@@ -33,6 +33,8 @@ class SetDeviceNameClass extends Component {
             inProgress: false,
         };
     }
+
+    nameInput = createRef();
 
     setName = () => {
         this.setState({ inProgress: true });
@@ -67,8 +69,7 @@ class SetDeviceNameClass extends Component {
     }
 
     validate = () => {
-        // @ts-ignore
-        if (!this.nameInput || !this.nameInput.validity.valid || !this.state.deviceName) {
+        if (!this.nameInput.current || !this.nameInput.current.validity.valid || !this.state.deviceName) {
             return false;
         }
         return true;
@@ -96,7 +97,7 @@ class SetDeviceNameClass extends Component {
                                             pattern="^.{0,63}$"
                                             label={t('bitbox02Settings.deviceName.input')}
                                             onInput={this.handleChange}
-                                            getRef={ref => this.nameInput = ref}
+                                            ref={this.nameInput}
                                             placeholder={t('bitbox02Settings.deviceName.placeholder')}
                                             value={deviceName}
                                             id="deviceName" />
@@ -124,4 +125,4 @@ class SetDeviceNameClass extends Component {
     }
 }
 
-export const SetDeviceName = translate()(SetDeviceNameClass);
+export const SetDeviceName = withTranslation()(SetDeviceNameClass);

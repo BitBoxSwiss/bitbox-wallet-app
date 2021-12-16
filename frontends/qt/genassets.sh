@@ -18,7 +18,7 @@ if [ ! -d ../web/build ]; then
 fi
 
 echo '<!DOCTYPE RCC><RCC version="1.0"><qresource>' > assets.qrc
-/usr/bin/find ../web/build/ -maxdepth 1 -type f | sed -e "s|../web/build/||" | awk '{ print "<file alias=\"" $1 "\">../web/build/" $1 "</file>" '} >> assets.qrc
+/usr/bin/find ../web/build/ -maxdepth 3 -type f | sed -e "s|../web/build/||" | awk '{ print "<file alias=\"" $1 "\">../web/build/" $1 "</file>" '} >> assets.qrc
 
 echo '<file alias="trayicon.png">resources/trayicon.png</file>' >> assets.qrc
 echo '</qresource></RCC>' >> assets.qrc

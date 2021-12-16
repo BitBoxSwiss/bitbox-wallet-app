@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { Dialog } from '../../../../../components/dialog/dialog';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../../utils/request';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
-import * as style from '../../../../../components/dialog/dialog.module.css';
+// TODO: use DialogButtons
+import style from '../../../../../components/dialog/dialog.module.css';
 
 class DeviceLock extends Component {
     state = {
@@ -97,4 +98,4 @@ class DeviceLock extends Component {
     }
 }
 
-export default translate()(DeviceLock);
+export default withTranslation()(DeviceLock);

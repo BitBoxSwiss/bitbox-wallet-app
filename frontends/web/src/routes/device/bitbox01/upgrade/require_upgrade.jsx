@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component} from 'react';
+import { withTranslation } from 'react-i18next';
 import { apiGet } from '../../../../utils/request';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { BitBox } from '../../../../components/icon/logo';
-import * as style from '../bitbox01.module.css';
+import style from '../bitbox01.module.css';
 
 class RequireUpgrade extends Component {
     state = {
@@ -53,4 +53,4 @@ class RequireUpgrade extends Component {
     }
 }
 
-export default translate()(RequireUpgrade);
+export default withTranslation()(RequireUpgrade);

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -124,5 +124,5 @@ class Reset extends Component<Props, State> {
     }
 }
 
-const HOC = translate<ResetProps>()(Reset);
+const HOC = translate()(Reset);
 export { HOC as Reset };

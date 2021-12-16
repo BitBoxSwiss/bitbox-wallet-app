@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import React, { Component, createRef} from 'react';
 import * as accountApi from '../../api/account';
 import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -26,8 +26,8 @@ import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { ArrowIn, ArrowOut, ArrowSelf, Edit, Save } from './components/icons';
-import * as style from './transaction.module.css';
-import * as parentStyle from './transactions.module.css';
+import style from './transaction.module.css';
+import parentStyle from './transactions.module.css';
 
 interface State {
     transactionDialog: boolean;
@@ -44,8 +44,8 @@ interface TransactionProps extends accountApi.ITransaction {
 type Props = TransactionProps & TranslateProps;
 
 class Transaction extends Component<Props, State> {
-    private input!: HTMLInputElement;
-    private editButton!: HTMLButtonElement;
+    private input = createRef<HTMLInputElement>();
+    private editButton = createRef<HTMLButtonElement>();
 
     public readonly state: State = {
         transactionDialog: false,
@@ -58,8 +58,8 @@ class Transaction extends Component<Props, State> {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
-        };
-        return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
+        } as Intl.DateTimeFormatOptions;
+        return new Date(Date.parse(time)).toLocaleString(this.props.i18n.language, options);
     }
 
     private showDetails = () => {
@@ -79,7 +79,7 @@ class Transaction extends Component<Props, State> {
         this.setState({ newNote: target.value });
     }
 
-    private handleEdit = (e: Event) => {
+    private handleEdit = (e: React.SyntheticEvent) => {
         e.preventDefault();
         if (this.state.editMode && this.props.note !== this.state.newNote) {
             accountApi.postNotesTx(this.props.accountCode, {
@@ -96,21 +96,13 @@ class Transaction extends Component<Props, State> {
     }
 
     private focusEdit = () => {
-        if (this.editButton) {
-            this.editButton.blur();
+        if (this.editButton.current) {
+            this.editButton.current.blur();
         }
-        if (this.state.editMode && this.input) {
-            this.input.scrollLeft = this.input.scrollWidth;
-            this.input.focus();
+        if (this.state.editMode && this.input.current) {
+            this.input.current.scrollLeft = this.input.current.scrollWidth;
+            this.input.current.focus();
         }
-    }
-
-    private setInputRef = input => {
-        this.input = input;
-    }
-
-    private setEditButtonRef = button => {
-        this.editButton = button;
     }
 
     public render() {
@@ -230,10 +222,10 @@ class Transaction extends Component<Props, State> {
                     transactionDialog && (
                         <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
                             <form onSubmit={this.handleEdit} className={style.detailInput}>
-                                <label for="note">{t('note.title')}</label>
+                                <label htmlFor="note">{t('note.title')}</label>
                                 <Input
                                     align="right"
-                                    autoFocus={!editMode ? 'false' : 'true'}
+                                    autoFocus={editMode}
                                     className={style.textOnlyInput}
                                     readOnly={!editMode}
                                     type="text"
@@ -243,13 +235,13 @@ class Transaction extends Component<Props, State> {
                                     value={newNote}
                                     maxLength={256}
                                     onInput={this.handleNoteInput}
-                                    getRef={this.setInputRef}/>
+                                    ref={this.input}/>
                                 <button
                                     className={style.editButton}
                                     onClick={this.handleEdit}
                                     title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
                                     type="button"
-                                    ref={this.setEditButtonRef}>
+                                    ref={this.editButton}>
                                         {editMode ? <Save /> : <Edit />}
                                 </button>
                             </form>
@@ -395,6 +387,6 @@ class Transaction extends Component<Props, State> {
     }
 }
 
-const HOC = translate<TransactionProps>()(Transaction);
+const HOC = translate()(Transaction);
 
 export { HOC as Transaction };

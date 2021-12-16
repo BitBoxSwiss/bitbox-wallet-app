@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import 'jest';
-import '../matchmediastub';
-jest.mock('../../src/utils/request');
+import './matchmedia.mock';
+jest.mock('../utils/request');
 
 // See i18next API docs this mock models after:
 // https://www.i18next.com/overview/api
@@ -40,8 +39,8 @@ jest.mock('i18next', () => {
     };
 });
 
-import i18n from '../../src/i18n/i18n';
-import { apiGet, apiPost } from '../../src/utils/request';
+import i18n from './i18n';
+import { apiGet, apiPost } from '../utils/request';
 
 describe('i18n', () => {
     describe('languageChanged', () => {

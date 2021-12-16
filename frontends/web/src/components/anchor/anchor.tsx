@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
-import { route } from 'preact-router';
+import { FunctionComponent, SyntheticEvent} from 'react';
+import { route } from '../../utils/route';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
-import * as style from './anchor.module.css';
+import style from './anchor.module.css';
 
 interface Props {
     href: string;
     [property: string]: any;
 }
 
-export default function A({ href, icon, children, ...props }: RenderableProps<Props>): JSX.Element {
+const A:FunctionComponent<Props> =({ href, icon, children, ...props }) => {
     return (
-        <span className={style.link} onClick={(e: Event) => {
+        <span className={style.link} onClick={(e: SyntheticEvent) => {
             e.preventDefault();
-            const { hostname, origin } = new URL(href, location.href);
-            if (origin === 'qrc:' || (debug && hostname === location.hostname)) {
+            const { hostname, origin } = new URL(href, window.location.href);
+            if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
                 hide();
                 route(href);
             } else {
@@ -43,3 +43,5 @@ export default function A({ href, icon, children, ...props }: RenderableProps<Pr
         </span>
     );
 }
+
+export default A;

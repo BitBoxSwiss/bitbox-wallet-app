@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +15,35 @@
  * limitations under the License.
  */
 
-import { h, JSX, RenderableProps } from 'preact';
-import * as styles from './checkbox.module.css';
+import { FunctionComponent } from 'react';
+import styles from './checkbox.module.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
-    className?: string;
-    disabled?: boolean;
     label?: string;
     id: string;
-    style?: 'default' | 'info' | 'warning' | 'success';
+    checkboxStyle?: 'default' | 'info' | 'warning' | 'success';
 }
 
-export default function Checkbox({
+const Checkbox: FunctionComponent<CheckboxProps> = ({
     disabled = false,
     label,
     id,
     className = '',
     children,
-    style = 'default',
+    checkboxStyle = 'default',
     ...props
-}: RenderableProps<CheckboxProps>) {
+}) => {
     return (
-        <span className={`${styles.checkbox} ${className} ${styles[style] || ''}`}>
+        <span className={`${styles.checkbox} ${className} ${styles[checkboxStyle] || ''}`}>
             <input
                 type="checkbox"
                 id={id}
                 disabled={disabled}
                 {...props}
             />
-            <label for={id}>{label} {children}</label>
+            <label htmlFor={id}>{label} {children}</label>
         </span>
     );
 }
+
+export default Checkbox;

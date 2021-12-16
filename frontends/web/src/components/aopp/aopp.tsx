@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import React, { Component, PropsWithChildren } from 'react';
 import * as accountAPI from '../../api/account';
 import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
@@ -28,9 +28,9 @@ import { CopyableInput } from '../copy/Copy';
 import { Cancel, Checked, PointToBitBox02 } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
-import * as styles from './aopp.module.css';
+import styles from './aopp.module.css';
 
-const Banner = ({ children }: RenderableProps<{}>) => (
+const Banner = ({ children }: PropsWithChildren<{}>) => (
     <div className={styles.banner}>{children}</div>
 );
 
@@ -79,7 +79,7 @@ class Aopp extends Component<Props, State> {
         }
     }
 
-    private chooseAccount = (e: Event) => {
+    private chooseAccount = (e: React.SyntheticEvent) => {
         if (this.state.accountCode) {
             aoppAPI.chooseAccount(this.state.accountCode);
         }
@@ -216,7 +216,7 @@ class Aopp extends Component<Props, State> {
                                 <Label>{t('aopp.labelAddress')}</Label>
                                 <CopyableInput alignLeft flexibleHeight value={aopp.address} />
                             </Field>
-                            <Field style="margin-bottom: 0;">
+                            <Field style={{marginBottom: 0}}>
                                 <Label>{t('aopp.labelMessage')}</Label>
                                 <div className={styles.message}>
                                     {aopp.message}
@@ -242,5 +242,5 @@ const subscribeHOC = subscribe<SubscribedProps, AoppProps & TranslateProps>(
     false,
 )(Aopp);
 
-const translateHOC = translate<AoppProps>()(subscribeHOC);
+const translateHOC = translate()(subscribeHOC);
 export { translateHOC as Aopp };

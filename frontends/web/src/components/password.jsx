@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, createRef } from 'react';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
-import * as style from './password.module.css';
+import style from './password.module.css';
+import { withTranslation } from 'react-i18next';
 
 export function PasswordInput (props) {
     const { seePlaintext, ...rest } = props;
@@ -37,17 +37,22 @@ class PasswordSingleInputClass extends Component {
         capsLock: false
     }
 
+    password = createRef();
+
     idPrefix = () => {
         return this.props.idPrefix || '';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         window.addEventListener('keydown', this.handleCheckCaps);
     }
 
     componentDidMount() {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
+        }
+        if (this.props.autoFocus && this.password?.current) {
+            this.password.current.focus();
         }
     }
 
@@ -73,7 +78,7 @@ class PasswordSingleInputClass extends Component {
     }
 
     validate = () => {
-        if (this.regex && this.password && !this.password.validity.valid) {
+        if (this.regex && this.password.current && !this.password.current.validity.valid) {
             return this.props.onValidPassword(null);
         }
         if (this.state.password) {
@@ -130,7 +135,7 @@ class PasswordSingleInputClass extends Component {
                 placeholder={placeholder}
                 onInput={this.handleFormChange}
                 onPaste={this.tryPaste}
-                getRef={ref => this.password = ref}
+                ref={this.password}
                 value={password}
                 labelSection={
                     <Checkbox
@@ -148,7 +153,7 @@ class PasswordSingleInputClass extends Component {
 
 }
 
-export const PasswordSingleInput = translate(null, { withRef: true })(PasswordSingleInputClass);
+export const PasswordSingleInput = withTranslation(null, { withRef: true })(PasswordSingleInputClass);
 
 
 class PasswordRepeatInputClass extends Component {
@@ -159,17 +164,23 @@ class PasswordRepeatInputClass extends Component {
         capsLock: false
     }
 
+    password = createRef();
+    passwordRepeat = createRef();
+
     idPrefix = () => {
         return this.props.idPrefix || '';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         window.addEventListener('keydown', this.handleCheckCaps);
     }
 
     componentDidMount() {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
+        }
+        if (this.props.autoFocus && this.password?.current) {
+            this.password.current.focus();
         }
     }
 
@@ -186,19 +197,10 @@ class PasswordRepeatInputClass extends Component {
         }
     }
 
-    clear = () => {
-        this.setState({
-            password: '',
-            passwordRepeat: '',
-            seePlaintext: false,
-            capsLock: false
-        });
-    }
-
     validate = () => {
         if (
-            this.regex && this.password && this.passwordRepeat
-            && (!this.password.validity.valid || !this.passwordRepeat.validity.valid)
+            this.regex && this.password.current && this.passwordRepeat.current
+            && (!this.password.current.validity.valid || !this.passwordRepeat.current.validity.valid)
         ) {
             return this.props.onValidPassword(null);
         }
@@ -260,7 +262,7 @@ class PasswordRepeatInputClass extends Component {
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    getRef={ref => this.password = ref}
+                    ref={this.password}
                     value={password}>
                     {warning}
                 </Input>
@@ -278,7 +280,7 @@ class PasswordRepeatInputClass extends Component {
                     placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    getRef={ref => this.passwordRepeat = ref}
+                    ref={this.password}
                     value={passwordRepeat}>
                     {warning}
                 </Input>
@@ -300,7 +302,7 @@ class PasswordRepeatInputClass extends Component {
     }
 }
 
-export const PasswordRepeatInput = translate(null, { withRef: true })(PasswordRepeatInputClass);
+export const PasswordRepeatInput = withTranslation(null, { withRef: true })(PasswordRepeatInputClass);
 
 function MatchesPattern({ regex, value = '', text }) {
     if (!regex || !value.length || regex.test(value)) {
@@ -308,7 +310,7 @@ function MatchesPattern({ regex, value = '', text }) {
     }
 
     return (
-        <p style="color: var(--color-error);">{text}</p>
+        <p style={{color: 'var(--color-error)'}}>{text}</p>
     );
 }
 
@@ -321,5 +323,6 @@ function hasCaps({ key }) {
     }
     // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
     // @ts-ignore (event can be undefined and shiftKey exists only on MouseEvent but not Event)
+    // eslint-disable-next-line no-restricted-globals
     return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
 }

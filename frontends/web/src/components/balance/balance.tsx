@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { PropsWithChildren } from 'react';
 import { IBalance } from '../../api/account';
 import { FiatConversion } from '../../components/rates/rates';
 import { translate, TranslateProps } from '../../decorators/translate';
-import * as style from './balance.module.css';
+import style from './balance.module.css';
 
 interface BalanceProps {
     balance?: IBalance;
@@ -30,7 +30,7 @@ type Props = BalanceProps & TranslateProps;
 function Balance({
     t,
     balance,
-}: RenderableProps<Props>) {
+}: PropsWithChildren<Props>) {
     if (!balance) {
         return (
             <header className={style.balance}></header>
@@ -39,11 +39,13 @@ function Balance({
     return (
         <header className={style.balance}>
             <table className={style.balanceTable}>
-                <tr>
-                    <td className={style.availableAmount}>{balance.available.amount}</td>
-                    <td className={style.availableUnit}>{balance.available.unit}</td>
-                </tr>
-                <FiatConversion amount={balance.available} tableRow />
+                <tbody>
+                    <tr>
+                        <td className={style.availableAmount}>{balance.available.amount}</td>
+                        <td className={style.availableUnit}>{balance.available.unit}</td>
+                    </tr>
+                    <FiatConversion amount={balance.available} tableRow />
+                </tbody>
             </table>
             {
                 balance.hasIncoming && (
@@ -60,6 +62,6 @@ function Balance({
     );
 }
 
-const TranslatedBalance = translate<BalanceProps>()(Balance);
+const TranslatedBalance = translate()(Balance);
 
 export { TranslatedBalance as Balance };
