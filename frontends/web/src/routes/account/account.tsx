@@ -304,10 +304,10 @@ class Account extends Component<Props, State> {
                     </Status>
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
-                        <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+                        <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
                             <Info className={style.accountIcon} />
                             <span>{t('accountInfo.label')}</span>
-                        </a>
+                        </Link>
                     </Header>
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
