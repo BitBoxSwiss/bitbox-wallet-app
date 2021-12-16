@@ -39,7 +39,6 @@ class Header extends Component<Props> {
 
     public render() {
         const { t, title, narrow, children, guideExists, shown, sidebarStatus } = this.props;
-        const hasChildren = Array.isArray(children) && children.length > 0;
         return (
             <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
                 <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
@@ -48,7 +47,7 @@ class Header extends Component<Props> {
                     </div>
                     <div className={style.title}>{title}</div>
                     <div className={style.children}>
-                        {hasChildren && children}
+                        {children}
                         {
                             guideExists && (
                                 <span className={style.guideIconContainer}>
