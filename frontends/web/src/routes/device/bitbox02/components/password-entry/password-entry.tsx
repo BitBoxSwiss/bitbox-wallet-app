@@ -44,10 +44,6 @@ export function PasswordEntry({ children }: PropsWithChildren<IPasswordEntryProp
         <div className={styles.passwordGesturesWrapper}>
             <video
                 autoPlay
-                // autoPlay+muted only works the first time but after re-render,
-                // i.e. when re-plugin the BitBox the video doesn't play anymore
-                // https://github.com/preactjs/preact/issues/747#issuecomment-370905360
-                // looks like this can be removed with Preact10/React
                 ref={ref}
                 className={styles.passwordGestures}
                 loop
