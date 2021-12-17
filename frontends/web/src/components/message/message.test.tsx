@@ -34,13 +34,4 @@ describe('components/message/message', () => {
         const msg = render(<Message><span>hello world</span></Message>);
         expect(msg.findByText('hello world')).not.toBeNull();
     });
-
-    it('should match the snapshot', () => {
-        const msg = render(
-            <Message type="success" style={{width: '100%'}}>
-                <span>hello</span>
-            </Message>,
-        );
-        expect(msg.container.firstChild).toMatchSnapshot();
-    });
 });

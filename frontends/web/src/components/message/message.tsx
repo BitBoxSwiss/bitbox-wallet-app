@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import styles from './message.module.css';
 
 export interface Props {
     hidden?: boolean;
     type?: 'message' | 'success' | 'info' | 'warning' | 'error';
-    style?: React.CSSProperties;
 }
 
 export function Message({
     hidden,
     type = 'message',
-    style,
     children,
 }: PropsWithChildren<Props>) {
     if (hidden) {
         return null;
     }
     return (
-        <div className={styles[type]} style={style}>
+        <div className={styles[type]}>
             {children}
         </div>
     );
