@@ -8,7 +8,7 @@ require (
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/coreos/bbolt v1.3.0
 	github.com/deckarep/golang-set v1.7.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20210630124228-10b7c78b0c21
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20211215112420-8cbc2cc44567
 	github.com/ethereum/go-ethereum v1.10.13
 	github.com/flynn/noise v1.0.0
 	github.com/gorilla/mux v1.8.0
