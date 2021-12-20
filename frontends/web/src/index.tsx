@@ -26,7 +26,7 @@ import './style/index.css';
 ReactDOM.render(
   <React.StrictMode>
     <I18nextProvider i18n={i18n}>
-      <React.Suspense fallback={<div>loading</div>}>
+      <React.Suspense fallback={null}>
         <BrowserRouter>
           <App />
         </BrowserRouter>
