@@ -1497,6 +1497,7 @@
     "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici."
   },
   "welcome": {
+    "getStarted": "Začnimo z namestitvijo strojne programske opreme (firmware)",
     "insertBitBox02": "Na BitBox02 se dotaknite željene strani zaslona. ",
     "insertDevice": "Za začetek, priključite denarnico",
     "title": "Dobrodošli"
