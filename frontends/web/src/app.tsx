@@ -79,25 +79,10 @@ import { route, RouterWatcher } from './utils/route';
                  break;
              }
          });
- 
-         const setDevices = (devices: TDevices) => {
-             const oldDeviceIDList = Object.keys(this.state.devices);
-             this.setState({ devices }, () => {
-                 const newDeviceIDList: string[] = Object.keys(this.state.devices);
-                 if (
-                     newDeviceIDList.length > 0
-                     && (oldDeviceIDList.length === 0 || newDeviceIDList[0] !== oldDeviceIDList[0])
-                 ) {
-                     // route to the first device for unlock, create, restore etc.
-                     route(`/device/${newDeviceIDList[0]}`, true);
-                 }
-             });
-         };
- 
+
          Promise.all([getDeviceList(), getAccounts()])
              .then(([devices, accounts]) => {
-                 this.setState({ accounts }, this.maybeRoute);
-                 setDevices(devices);
+                 this.setStateWithDeviceList({ accounts, devices });
              })
              .catch(console.error);
  
@@ -105,9 +90,34 @@ import { route, RouterWatcher } from './utils/route';
              syncAccountsList(accounts => {
                  this.setState({ accounts }, this.maybeRoute);
              }),
-             syncDeviceList(setDevices),
+             syncDeviceList((devices) => {
+                 this.setStateWithDeviceList({ devices });
+             }),
              // TODO: add syncBackendNewTX
          );
+     }
+
+     private setStateWithDeviceList(newState: Partial<State>) {
+        const oldDeviceIDList = Object.keys(this.state.devices);
+        this.setState(currentState => ({ ...currentState, ...newState}), () => {
+            const newDeviceIDList: string[] = Object.keys(this.state.devices);
+            // if the first device is new
+            if (
+                newDeviceIDList.length > 0
+                && newDeviceIDList[0] !== oldDeviceIDList[0]
+            ) {
+                // route new unlocked device with accounts
+                if (this.state.accounts.length) {
+                    this.maybeRoute();
+                    return;
+                }
+                // without accounts route to device settings for unlock, pair, create, restore etc.
+                route(`/device/${newDeviceIDList[0]}`, true);
+                return;
+            }
+            // unplugged
+            this.maybeRoute();
+        });
      }
  
      public componentWillUnmount() {
