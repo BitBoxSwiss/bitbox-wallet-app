@@ -24,7 +24,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -628,7 +627,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 			SupportsUnifiedAccountsFunc: func() bool {
 				return true
 			},
-			ExtendedPublicKeyFunc: func(coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
+			ExtendedPublicKeyFunc: func(coin coinpkg.Coin, absoluteKeypath signing.AbsoluteKeypath,
 			) (*hdkeychain.ExtendedKey, error) {
 				return nil, expectedErr
 			},
