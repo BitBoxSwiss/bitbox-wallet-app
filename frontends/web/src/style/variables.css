@@ -48,11 +48,10 @@
     --size-xsmall: 11px;
     --size-label: var(--size-small);
     --size-button: var(--size-default);
+    --size-title: 32px;
 
     /* wizard */
-    --size-wizard-header: 32px;
     --size-wizard-text: 16px;
-    --wizard-item-height: 70px;
 
     /* spacing */
     --spacing-large: 2rem;
@@ -95,12 +94,19 @@
     --guide-width: 350px;
 }
 
+
+@media (max-width: 1199px) {
+    :root {
+        --size-title: 18px;
+    }
+}
+
 @media (max-width: 768px) {
     :root {
         --header-default-font-size: 20px;
         --size-subheader: 16px;
+        --size-title: 16px;
 
-        --size-wizard-header: 24px;
         --size-wizard-text: 14px;
     }
 }

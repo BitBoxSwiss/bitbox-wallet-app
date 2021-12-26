@@ -1,10 +1,10 @@
 .stepContext {
-    background-color: white;
-    padding: var(--space-default);
     margin: var(--space-default) 0;
 }
 
 .backupsList {
+    background: white;
+    border: 1px solid white;
     display: flex;
     flex-direction: column;
     text-align: left;
@@ -12,7 +12,6 @@
 }
 
 .listContainer {
-    border: solid 1px var(--color-lightgray);
     display: flex;
     flex-direction: column;
     max-height: 45vh;

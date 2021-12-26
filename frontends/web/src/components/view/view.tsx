@@ -78,14 +78,18 @@ export function View({
 
 type ViewContentProps = {
     fullWidth?: boolean;
+    textAlign?: 'center' | 'left';
 }
 
 export function ViewContent({
     children,
     fullWidth,
+    textAlign,
     ...props
 }: PropsWithChildren<ViewContentProps>) {
-    const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
+    const align = textAlign ? style[`text-${textAlign}`] : '';
+    const containerWidth = fullWidth ? style.fullWidth : '';
+    const classes = `${style.content} ${containerWidth} ${align}`;
     return (
         <div className={classes} {...props}>{children}</div>
     );

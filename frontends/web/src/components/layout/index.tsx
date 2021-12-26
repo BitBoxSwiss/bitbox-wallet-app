@@ -17,4 +17,5 @@
 
 export { Header } from './header';
 export { Main } from './main';
+export { Column, ColumnButtons, Grid } from './grid';
 export { Footer } from './footer';

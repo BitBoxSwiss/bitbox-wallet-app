@@ -20,10 +20,9 @@ import { apiGet, apiPost } from '../../../../utils/request';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { Button, Input, Checkbox } from '../../../../components/forms';
 import { Message } from '../../../../components/message/message';
-import { SwissMadeOpenSource, Alert } from '../../../../components/icon';
+import { SwissMadeOpenSource, Alert, Warning } from '../../../../components/icon';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
-import warning from '../../../../assets/icons/warning.png';
 import { LanguageSwitch } from '../../../../components/language/language';
 import style from '../bitbox01.module.css';
 
@@ -189,7 +188,7 @@ class SeedCreateNew extends Component {
                 </div>
                 <div className={style.agreements}>
                     <div className="flex flex-row flex-start flex-items-center">
-                        <img src={warning} style={{width: 18, marginRight: 10, position: 'relative', bottom: 1}} />
+                        <Warning style={{width: 18, marginRight: 10, position: 'relative', bottom: 1}} />
                         <p className={style.agreementsLabel}>{t('seed.description')}</p>
                     </div>
                     <Checkbox

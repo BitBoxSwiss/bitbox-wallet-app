@@ -41,8 +41,12 @@
     margin-bottom: auto;
     margin-top: auto;
 }
-.textCenter {
+.textCenter,
+.text-center {
     text-align: center;
+}
+.text-left {
+    text-align: left;
 }
 .inner:not(.center) {
     display: flex;

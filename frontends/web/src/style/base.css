@@ -92,5 +92,11 @@ svg {
 }
 
 pre {
+    background-color: var(--color-white);
+    display: block;
     font-family: monospace;
+    font-size: 20px;
+    margin: 0 0 var(--space-default) 0;
+    padding: var(--space-default);
+    text-align: center;
 }
