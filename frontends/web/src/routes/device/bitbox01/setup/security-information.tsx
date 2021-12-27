@@ -51,7 +51,7 @@ class SecurityInformation extends Component<Props, State> {
         const { t, goBack, goal, children } = this.props;
         const { showInfo } = this.state;
         if (!showInfo) {
-            return children![0];
+            return children;
         }
         return (
             <div className="contentWithGuide">
