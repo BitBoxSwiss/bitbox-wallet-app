@@ -22,7 +22,7 @@ import { Dialog } from '../dialog/dialog';
 import style from './language.module.css';
 
 type TActiveLanguageCodes = 'bg' | 'de' | 'en' | 'es'
-    | 'fr' | 'hi' | 'it' | 'ja' | 'ms' | 'pt'
+    | 'fr' | 'hi' | 'it' | 'ja' | 'ms' | 'nl' | 'pt'
     | 'ru' | 'sl' | 'tr' | 'zh';
 
 type TLanguage = {
@@ -57,6 +57,7 @@ const defaultLanguages = [
     { code: 'it', display: 'Italiano' },
     { code: 'ja', display: '日本語' },
     { code: 'ms', display: 'Bahasa Melayu' },
+    { code: 'nl', display: 'Nederlands' },
     { code: 'pt', display: 'Português' },
     { code: 'ru', display: 'Русский' },
     { code: 'sl', display: 'Slovenščina' },

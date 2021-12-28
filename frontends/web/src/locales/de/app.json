@@ -1243,7 +1243,7 @@
     "verify": "Adresse sicher verifizieren",
     "verifyBitBox01": "Adresse auf Smartphone überprüfen",
     "verifyBitBox02": "Adresse auf BitBox02 überprüfen",
-    "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf Ihrerm Gerät übereinstimmt.",
+    "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf Ihrem Gerät übereinstimmt.",
     "warning": {
       "secureOutput": "Bitte koppeln Sie Ihre BitBox mit Ihrem Smartphone, um eine sichere Adressüberprüfung zu ermöglichen. Klicken Sie in der Seitenleiste auf \"Gerät verwalten\"."
     }

@@ -1022,15 +1022,15 @@
       "title": "How does it work"
     },
     "intro": {
-      "message": "A passphrase provides an additional layer of security on top of your wallet. Let’s learn how it works.",
+      "message": "A passphrase provides an additional layer of security on top of your wallet.\nLet’s learn how it works.",
       "title": "Setup passphrase"
     },
     "progressDisable": {
-      "message": "Confirm on your BitBox that you want to disable the optional passphrase",
+      "message": "Confirm on your BitBox that you want to <strong>disable</strong> the optional passphrase.",
       "title": "Confirm on device"
     },
     "progressEnable": {
-      "message": "Confirm on your BitBox that you want to enable the optional passphrase",
+      "message": "Confirm on your BitBox that you want to <strong>enable</strong> the optional passphrase.",
       "title": "Confirm on device"
     },
     "successDisabled": {
