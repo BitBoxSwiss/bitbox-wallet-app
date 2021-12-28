@@ -23,6 +23,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	ourbtcutil "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
 )
@@ -126,7 +127,7 @@ func (address *AccountAddress) isUsed() bool {
 
 // PubkeyScript returns the pubkey script of this address. Use this in a tx output to receive funds.
 func (address *AccountAddress) PubkeyScript() []byte {
-	script, err := txscript.PayToAddrScript(address.Address)
+	script, err := ourbtcutil.PkScriptFromAddress(address.Address)
 	if err != nil {
 		address.log.WithError(err).Panic("Failed to get the pubkey script for an address.")
 	}

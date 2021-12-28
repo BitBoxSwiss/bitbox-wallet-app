@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -208,7 +209,13 @@ func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 	if _, ok := btcAddress.(*btcutil.AddressTaproot); ok {
-		return nil, errp.WithStack(errors.ErrInvalidAddress)
+		switch coin.code {
+		case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
+			// Taproot activated on Bitcoin.
+		default:
+			// Taproot not activated on other coins.
+			return nil, errp.WithStack(errors.ErrInvalidAddress)
+		}
 	}
 	return btcAddress, nil
 }

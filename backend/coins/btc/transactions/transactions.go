@@ -19,13 +19,13 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/mempool"
-	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
@@ -391,12 +391,12 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 }
 
 func (transactions *Transactions) outputToAddress(pkScript []byte) string {
-	_, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, transactions.net)
+	extractedAddress, err := util.AddressFromPkScript(pkScript, transactions.net)
 	// unknown addresses and multisig scripts ignored.
-	if err != nil || len(extractedAddresses) != 1 {
+	if err != nil {
 		return "<unknown address>"
 	}
-	return extractedAddresses[0].String()
+	return extractedAddress.String()
 }
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
