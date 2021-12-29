@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Support sending to Bitcoin taproot addresses
+- Add support for Norwegian krone (NOK)
 
 ## 4.30.0 [released 2021-11-17]
 - Add Buy CTA on empty Account overview and summary views
