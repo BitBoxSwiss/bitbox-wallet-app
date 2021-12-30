@@ -944,8 +944,8 @@
     "title": "Notitie"
   },
   "notification": {
-    "newTxs": "Nieuwe transactie in: {{accountName}}",
-    "newTxs_plural": "{{count}} nieuwe transacties in: {{accountName}}"
+    "newTxs_one": "Nieuwe transactie in: {{accountName}}",
+    "newTxs_other": "{{count}} nieuwe transacties in: {{accountName}}"
   },
   "pairing": {
     "aborted": {
