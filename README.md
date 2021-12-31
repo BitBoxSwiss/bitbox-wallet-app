@@ -48,18 +48,17 @@ The below instructions assume a unix environment.
 
 ### Requirements
 
-The following dependencies need to be installed:
+To build the app or run the development workflow, the following dependencies need to be installed:
 
 - [Go](https://golang.org/doc/install) version 1.16
-- [Node.js](https://nodejs.org/) for managing the web UI deps
+- [Node.js](https://nodejs.org/) version 14.x
+- [NPM](https://docs.npmjs.com/about-npm-versions) version 7.x or newer
 - [Qt5](https://www.qt.io) version 5.15.2
   - install Qt for your platform, including the WebEngine component
 
-Make sure the following environment variables are set:
-- `$GOPATH`
-- `$PATH`: should include `$GOPATH/bin`, `$GOROOT/bin` and the location of `qmake` and `rcc`
+#### Environment variables
 
-Clone this repository to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`) using `git clone --resursive`.
+Make sure the environment variables for qt, go and node are set, see also [docs/BUILD.md](./docs/BUILD.md) for platform specific instructions
 
 To initialize the build environment and install the required go utilities (linters, ...), call
 * `make envinit`, or
@@ -67,12 +66,13 @@ To initialize the build environment and install the required go utilities (linte
 
 ## Build the BitBoxApp
 
-Please consult `docs/BUILD.md` for platform specific instructions and further
-information.
+Clone this repository using `git clone --resursive`.
+
+Please consult [docs/BUILD.md](./docs/BUILD.md) for platform specific instructions and further information.
 
 ## I18N translation workflow
 
-Please consult `docs/i18n.md`.
+Please consult [docs/i18n.md](./docs/i18n.md).
 
 ## Electrum server backend
 
