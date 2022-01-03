@@ -767,6 +767,7 @@ class Send extends Component<Props, State> {
                                     <p>
                                         <span key="proposedAmount">
                                             {(proposedAmount && proposedAmount.amount) || 'N/A'}
+                                            {' '}
                                             <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
                                         </span>
                                         {
@@ -787,6 +788,7 @@ class Send extends Component<Props, State> {
                                     <p>
                                         <span key="amount">
                                             {(proposedFee && proposedFee.amount) || 'N/A'}
+                                            {' '}
                                             <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
                                         </span>
                                         {proposedFee && proposedFee.conversions && (
@@ -820,6 +822,7 @@ class Send extends Component<Props, State> {
                                     <p>
                                         <span>
                                             <strong>{(proposedTotal && proposedTotal.amount) || 'N/A'}</strong>
+                                            {' '}
                                             <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
                                         </span>
                                         {(proposedTotal && proposedTotal.conversions) && (
