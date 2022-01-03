@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import { FunctionComponent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { load } from '../../decorators/load';
-import { translate, TranslateProps } from '../../decorators/translate';
+import { runningInAndroid } from '../../utils/env';
 import A from '../anchor/anchor';
 import Status from '../status/status';
 
@@ -30,13 +31,14 @@ interface File {
     description: string;
 }
 
-interface LoadedProps {
+interface Props {
     file: File | null;
 }
 
-type Props = LoadedProps & TranslateProps;
-
-function Update({ file, t }: PropsWithChildren<Props>): JSX.Element | null {
+const Update: FunctionComponent<Props> = ({ file }) => {
+    const { t } = useTranslation();
+    const downloadElement = <A href="https://shiftcrypto.ch/download/?source=bitboxapp">{t('button.download')}</A>;
+    
     return file && (
         <Status dismissable={`update-${file.version}`} type="info">
             {t('app.upgrade', {
@@ -45,13 +47,12 @@ function Update({ file, t }: PropsWithChildren<Props>): JSX.Element | null {
             })}
             {file.description}
             {' '}
-            <A href="https://shiftcrypto.ch/download/?source=bitboxapp">
-                {t('button.download')}
-            </A>
+            {/* Don't show download link on Android because they should update from stores */}
+            {!runningInAndroid() && downloadElement}
         </Status>
     );
 }
 
-const HOC = translate()(load<LoadedProps, TranslateProps>({ file: 'update' })(Update));
+const HOC = load<Props>({ file: 'update' })(Update);
 
 export { HOC as Update };
