@@ -16,7 +16,6 @@
  */
 
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
 import appTranslationsDE from '../locales/de/app.json';
 import appTranslationsEN from '../locales/en/app.json';
 import appTranslationsFR from '../locales/fr/app.json';
@@ -41,7 +40,6 @@ import { setConfig } from '../utils/config';
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
 
 let i18Init = i18n
-    .use(initReactI18next)
     .use(languageFromConfig);
 
 i18Init.init({
@@ -59,7 +57,6 @@ i18Init.init({
     },
 
     react: {
-        wait: true,
         useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
     },
 
