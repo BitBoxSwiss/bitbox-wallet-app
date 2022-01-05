@@ -37,7 +37,7 @@ interface BackupsProps {
     showRestore?: boolean;
     showCreate?: boolean;
     showRadio: boolean;
-    backupOnBeforeRestore?: () => void;
+    backupOnBeforeRestore?: (backup: Backup) => void;
     backupOnAfterRestore?: (success: boolean) => void;
 }
 
@@ -61,12 +61,16 @@ class Backups extends Component<Props, State> {
     }
 
     private restore = () => {
-        if (!this.state.selectedBackup) {
+        if (!this.state.selectedBackup || !this.props.backups.backups) {
+            return;
+        }
+        const backup = this.props.backups.backups.find(b => b.id === this.state.selectedBackup);
+        if (!backup) {
             return;
         }
         this.setState({ restoring: true });
         if (this.props.backupOnBeforeRestore) {
-            this.props.backupOnBeforeRestore();
+            this.props.backupOnBeforeRestore(backup);
         }
         apiPost(
             'devices/bitbox02/' + this.props.deviceID + '/backups/restore',

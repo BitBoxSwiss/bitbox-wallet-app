@@ -65,6 +65,7 @@ class BackupsListItem extends Component<Props> {
                 onFocus={onFocus}
                 className={style.backupItem}>
                 <span className="text-small text-gray">{date}</span>
+                <span className="text-small text-gray">ID: {backup.id}</span>
             </Radio> :
             <div>
                 <div className="text-medium m-bottom-quarter">{backup.name}</div>
