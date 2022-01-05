@@ -19,10 +19,10 @@ import (
 	"encoding/json"
 	"sort"
 
-	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"go.etcd.io/bbolt"
 )
 
 const (
