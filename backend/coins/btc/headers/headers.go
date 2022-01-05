@@ -76,7 +76,6 @@ type Headers struct {
 	quitChan      chan struct{}
 
 	eventCallbacks []func(Event)
-	events         chan Event
 
 	closed bool
 
@@ -114,7 +113,6 @@ func NewHeaders(
 		quitChan:        make(chan struct{}),
 
 		eventCallbacks: []func(Event){},
-		events:         make(chan Event),
 	}
 }
 
