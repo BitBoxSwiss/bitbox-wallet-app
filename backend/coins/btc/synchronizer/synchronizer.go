@@ -72,9 +72,10 @@ func (synchronizer *Synchronizer) decRequestsCounter() {
 func (synchronizer *Synchronizer) WaitSynchronized() {
 	unlock := synchronizer.waitLock.RLock()
 	n := synchronizer.requestsCounter
+	wait := synchronizer.wait
 	unlock()
 	if n == 0 {
 		return
 	}
-	<-synchronizer.wait
+	<-wait
 }
