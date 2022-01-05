@@ -57,6 +57,10 @@ func (e environment) NativeLocale() string {
 	return ""
 }
 
+func (e environment) GetSaveFilename(string) string {
+	return ""
+}
+
 // TestServeShutdownServe checks that you can call Serve twice in a row.
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(

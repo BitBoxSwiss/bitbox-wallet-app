@@ -166,6 +166,10 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 			SystemOpenFunc:      environment.SystemOpen,
 			UsingMobileDataFunc: environment.UsingMobileData,
 			NativeLocaleFunc:    environment.NativeLocale,
+			GetSaveFilenameFunc: func(suggestedFilename string) string {
+				// On Android, we don't yet support exporting files. Implement this once needed.
+				return ""
+			},
 		},
 	)
 }

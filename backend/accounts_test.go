@@ -28,6 +28,7 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -202,6 +203,31 @@ const (
 	regtestDisabled = false
 )
 
+type environment struct{}
+
+func (e environment) NotifyUser(msg string) {
+}
+
+func (e environment) DeviceInfos() []usb.DeviceInfo {
+	return []usb.DeviceInfo{}
+}
+
+func (e environment) SystemOpen(url string) error {
+	return nil
+}
+
+func (e environment) UsingMobileData() bool {
+	return false
+}
+
+func (e environment) NativeLocale() string {
+	return ""
+}
+
+func (e environment) GetSaveFilename(string) string {
+	return ""
+}
+
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
 	b, err := NewBackend(
@@ -210,7 +236,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 			testing, regtest,
 			false, false,
 			&types.GapLimits{Receive: 20, Change: 6}),
-		nil,
+		environment{},
 	)
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 	require.NoError(t, err)

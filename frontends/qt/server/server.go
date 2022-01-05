@@ -35,6 +35,12 @@ typedef void (*notifyUserCallback) (const char*);
 static void notifyUser(notifyUserCallback f, const char* msg) {
     f(msg);
 }
+
+typedef char* (*getSaveFilenameCallback) (const char*);
+static char* getSaveFilename(getSaveFilenameCallback f, const char* suggestedfilename) {
+    return f(suggestedfilename);
+}
+
 #endif
 */
 import "C"
@@ -85,6 +91,7 @@ func serve(
 	responseFn C.responseCallback,
 	notifyUserFn C.notifyUserCallback,
 	preferredLocale *C.char,
+	getSaveFilenameFn C.getSaveFilenameCallback,
 ) {
 	log := logging.Get().WithGroup("server")
 	log.WithField("args", os.Args).Info("Started Qt application")
@@ -143,6 +150,17 @@ func serve(
 			SystemOpenFunc:      system.Open,
 			UsingMobileDataFunc: func() bool { return false },
 			NativeLocaleFunc:    func() string { return nativeLocale },
+			GetSaveFilenameFunc: func(suggestedFilename string) string {
+				cSuggestedFilename := C.CString(suggestedFilename)
+				defer C.free(unsafe.Pointer(cSuggestedFilename))
+				cFilename := C.getSaveFilename(getSaveFilenameFn, cSuggestedFilename)
+				if cFilename == nil {
+					return ""
+				}
+				defer C.free(unsafe.Pointer(cFilename))
+				filename := C.GoString(cFilename)
+				return filename
+			},
 		},
 	)
 }

@@ -403,6 +403,7 @@ func (backend *Backend) createAndAddAccount(
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
 			return backend.notifier.ForAccount(code)
 		},
+		GetSaveFilename: backend.environment.GetSaveFilename,
 	}
 
 	switch specificCoin := coin.(type) {

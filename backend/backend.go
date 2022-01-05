@@ -134,6 +134,10 @@ type Environment interface {
 	// to return empty string or unsupported value, in which case the app will use
 	// English by default.
 	NativeLocale() string
+	// Invoke a file picker dialog for the user to select a destination to store a file.
+	// `suggestedFilename` is the proposed/default destination.
+	// The function should return the empty string if the user aborted the process.
+	GetSaveFilename(suggestedFilename string) string
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.

@@ -64,7 +64,8 @@ func TestBaseAccount(t *testing.T) {
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
 		},
-		GetNotifier: nil,
+		GetNotifier:     nil,
+		GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
 	}
 	// The long ID in the filename is the legacy hash of the configurations above (unified and split).
 	// This tests notes migration from v4.27.0 to v4.28.0.

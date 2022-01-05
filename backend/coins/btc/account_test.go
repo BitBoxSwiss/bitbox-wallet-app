@@ -73,6 +73,7 @@ func TestAccount(t *testing.T) {
 			RateUpdater:           nil,
 			SigningConfigurations: signingConfigurations,
 			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
 		},
 		coin, nil,
 		logging.Get().WithGroup("account_test"),

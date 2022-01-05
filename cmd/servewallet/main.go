@@ -93,6 +93,11 @@ func (webdevEnvironment) NativeLocale() string {
 	return strings.Split(v, ".")[0]
 }
 
+// GetSaveFilename implements backend.Environment.
+func (webdevEnvironment) GetSaveFilename(suggestedFilename string) string {
+	return suggestedFilename
+}
+
 func main() {
 	config.SetAppDir("appfolder.dev")
 

@@ -56,6 +56,7 @@ type AccountConfig struct {
 	RateUpdater           *rates.RateUpdater
 	SigningConfigurations signing.Configurations
 	GetNotifier           func(signing.Configurations) Notifier
+	GetSaveFilename       func(suggestedFilename string) string
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.

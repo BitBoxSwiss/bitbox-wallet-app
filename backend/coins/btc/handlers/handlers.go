@@ -199,7 +199,11 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 	if err != nil {
 		return nil, err
 	}
-	path := filepath.Join(downloadsDir, name)
+	suggestedPath := filepath.Join(downloadsDir, name)
+	path := handlers.account.Config().GetSaveFilename(suggestedPath)
+	if path == "" {
+		return nil, nil
+	}
 	handlers.log.Infof("Export transactions to %s.", path)
 
 	transactions, err := handlers.account.Transactions()

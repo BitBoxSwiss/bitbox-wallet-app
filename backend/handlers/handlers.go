@@ -832,7 +832,11 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	if err != nil {
 		return nil, err
 	}
-	path := filepath.Join(downloadsDir, name)
+	suggestedPath := filepath.Join(downloadsDir, name)
+	path := handlers.backend.Environment().GetSaveFilename(suggestedPath)
+	if path == "" {
+		return nil, nil
+	}
 	handlers.log.Infof("Export account summary %s.", path)
 
 	file, err := os.Create(path)

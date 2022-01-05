@@ -1,5 +1,8 @@
 # Changelog
 
+## [Unreleased]
+- Add a file picker dialog to choose where to export a CSV to
+
 ## 4.31.0 [tagged 2022-01-13]
 - Bundle BitBox02 firmware version v9.9.0
 - Support sending to Bitcoin taproot addresses
