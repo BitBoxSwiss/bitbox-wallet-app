@@ -16,6 +16,7 @@
  */
 
 import React, { Component} from 'react';
+import { Backup, BackupsListItem } from '../components/backup';
 import { route } from '../../../utils/route';
 import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
@@ -79,6 +80,7 @@ interface State {
         title: string;
         text?: string;
     };
+    selectedBackup?: Backup;
 }
 
 class BitBox02 extends Component<Props, State> {
@@ -286,9 +288,10 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
-    private backupOnBeforeRestore = () => {
+    private backupOnBeforeRestore = (backup: Backup) => {
         this.setState({
             restoreBackupStatus: 'setPassword',
+            selectedBackup: backup,
         });
     }
 
@@ -296,6 +299,7 @@ class BitBox02 extends Component<Props, State> {
         if (!success) {
             this.restoreBackup();
         }
+        this.setState({ selectedBackup: undefined });
     }
 
     private createBackup = () => {
@@ -713,7 +717,7 @@ class BitBox02 extends Component<Props, State> {
                                         key="set-password"
                                         width={700}
                                         active={status !== 'initialized' && restoreBackupStatus === 'setPassword'}
-                                        title={t('bitbox02Wizard.stepPassword.title')}>
+                                        title={t('backup.restore.confirmTitle')}>
                                         <div className={style.stepContext}>
                                             {
                                                 errorText && (
@@ -722,6 +726,14 @@ class BitBox02 extends Component<Props, State> {
                                                     </Toast>
                                                 )
                                             }
+                                            { this.state.selectedBackup ? (
+
+                                                  <BackupsListItem
+                                                      backup={this.state.selectedBackup}
+                                                      handleChange={() => {}}
+                                                      onFocus={() => {}}
+                                                      radio={false} />
+                                            ) : null }
                                             <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <PasswordEntry />
                                         </div>
