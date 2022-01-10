@@ -1,7 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+- Bundle BitBox02 firmware version v9.9.0
 - Support sending to Bitcoin taproot addresses
+- Fix opening 'transactions export' CSV file
+- Add Dutch translation
+- Add support for Norwegian krone (NOK)
+- Migrated the frontend from preact to React
 
 ## 4.30.0 [released 2021-11-17]
 - Add Buy CTA on empty Account overview and summary views
@@ -10,9 +15,6 @@
 - Change label 'Send all' label to 'Send selected coins' if there is a coin selection
 - Improve information about using the passphrase feature
 - Temporary disable Chromium sandbox on linux due to #1447
-- Fix opening 'transactions export' CSV file
-- Added Dutch translation
-- Add support for Norwegian krone (NOK)
 
 ## 4.29.1 [tagged 2021-09-07, released 2021-09-08]
 - Verify the EIP-55 checksum in mixed-case Ethereum recipient addresses
