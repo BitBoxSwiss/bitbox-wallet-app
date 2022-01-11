@@ -13,34 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import './matchmedia.mock';
+  
 jest.mock('../utils/request');
 
-// See i18next API docs this mock models after:
-// https://www.i18next.com/overview/api
-const i18nextMock:any = {listeners: {}};
-i18nextMock.use = () => i18nextMock;
-i18nextMock.addResourceBundle = () => {};
-i18nextMock.init = (_opts, cb) => {
-    if (cb) {
-        cb(null, (k) => k);
-    }
-    return Promise.resolve((k) => k);
-};
-i18nextMock.on = (eventName, fn) => {
-    i18nextMock.listeners[eventName] = fn;
-};
-
-jest.mock('i18next', () => {
-    return {
-        __esModule: true,
-        default: i18nextMock,
-    };
-});
-
-import i18n from './i18n';
 import { apiGet, apiPost } from '../utils/request';
+import i18n from './i18n';
 
 describe('i18n', () => {
     describe('languageChanged', () => {
@@ -57,7 +34,7 @@ describe('i18n', () => {
             {nativeLocale: 'fr', newLang: 'en', userLang: 'en'},
         ];
         table.forEach((test) => {
-            it(`sets userLanguage to ${test.userLang} if native-locale is ${test.nativeLocale}`, (done) => {
+            it(`sets userLanguage to ${test.userLang} if native-locale is ${test.nativeLocale}`, async () => {
                 (apiGet as jest.Mock).mockImplementation(endpoint => {
                     switch (endpoint) {
                         case 'config': { return Promise.resolve({}); }
@@ -65,12 +42,13 @@ describe('i18n', () => {
                         default: { return Promise.resolve(); }
                     }
                 });
-                i18n.listeners.languageChanged(test.newLang).then(() => {
-                    expect(apiPost).toBeCalledWith('config', {
-                        frontend: {},
-                        backend: {userLanguage: test.userLang},
-                    });
-                    done();
+                let callbackPromise = await i18n.changeLanguage(test.newLang);
+                await callbackPromise; // wait for setConfig to complete
+                
+                expect(apiPost).toHaveBeenCalledTimes(1);
+                expect(apiPost).toHaveBeenCalledWith('config', {
+                    frontend: {},
+                    backend: {userLanguage: test.userLang},
                 });
             });
         });
