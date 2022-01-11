@@ -920,8 +920,8 @@
   },
   "loading": "chargement en cours…",
   "notification": {
-    "newTxs": "Nouvelle transaction dans : {{accountName}}",
-    "newTxs_plural": "{{count}} nouvelles transactions dans : {{accountName}}"
+    "newTxs_one": "Nouvelle transaction dans : {{accountName}}",
+    "newTxs_other": "{{count}} nouvelles transactions dans : {{accountName}}"
   },
   "pairing": {
     "aborted": {

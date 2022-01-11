@@ -880,8 +880,8 @@
   },
   "loading": "Yükleniyor…",
   "notification": {
-    "newTxs": " {{accountName}}'da yeni işlem",
-    "newTxs_plural": "{{count}} Yeni işlem: {{accountName}}"
+    "newTxs_one": " {{accountName}}'da yeni işlem",
+    "newTxs_other": "{{count}} Yeni işlem: {{accountName}}"
   },
   "pairing": {
     "aborted": {
