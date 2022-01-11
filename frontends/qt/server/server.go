@@ -124,16 +124,20 @@ func serve(
 		&nativeCommunication{
 			respond: func(queryID int, response string) {
 				cResponse := C.CString(response)
+				defer C.free(unsafe.Pointer(cResponse))
 				C.respond(responseFn, C.int(queryID), cResponse)
-				C.free(unsafe.Pointer(cResponse))
 			},
 			pushNotify: func(msg string) {
-				C.pushNotify(pushNotificationsFn, C.CString(msg))
+				cMsg := C.CString(msg)
+				defer C.free(unsafe.Pointer(cMsg))
+				C.pushNotify(pushNotificationsFn, cMsg)
 			},
 		},
 		&bridgecommon.BackendEnvironment{
 			NotifyUserFunc: func(text string) {
-				C.notifyUser(notifyUserFn, C.CString(text))
+				cText := C.CString(text)
+				defer C.free(unsafe.Pointer(cText))
+				C.notifyUser(notifyUserFn, cText)
 			},
 			DeviceInfosFunc:     usb.DeviceInfos,
 			SystemOpenFunc:      system.Open,
