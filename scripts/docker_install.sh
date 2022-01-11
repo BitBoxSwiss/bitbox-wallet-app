@@ -42,6 +42,7 @@ apt-get install -y --no-install-recommends \
         libxkbcommon-x11-dev \
         libxrandr-dev
 
+npm install -g npm@8.3.0
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
