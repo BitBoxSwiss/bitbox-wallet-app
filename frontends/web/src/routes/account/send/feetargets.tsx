@@ -48,13 +48,13 @@ interface Options {
 }
 
 interface State {
-    feeTarget?: string;
+    feeTarget: string;
     options: Options[] | null;
 }
 
 class FeeTargets extends Component<Props, State> {
     public readonly state: State = {
-        feeTarget: undefined,
+        feeTarget: '',
         options: null,
     };
 
@@ -158,6 +158,7 @@ class FeeTargets extends Component<Props, State> {
                                 disabled
                                 label={t('send.priority')}
                                 placeholder={t('send.feeTarget.placeholder')}
+                                value=''
                                 transparent />
                         ) : (
                             <Select
