@@ -312,11 +312,11 @@ class Send extends Component<Props, State> {
 
     private handleNoteInput = (event: Event) => {
         const target = (event.target as HTMLInputElement);
-        this.setState(prevState => ({
-            ...prevState,
-            [target.id]: target.value,
-        }));
-        apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
+        this.setState({
+            'note': target.value,
+        }, () => {
+            apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
+        });
     }
 
     private txProposal = (updateFiat, result) => {
@@ -486,19 +486,18 @@ class Send extends Component<Props, State> {
         } catch {
             address = uri;
         }
-        this.setState({
+        let updateState = {
             recipientAddress: address,
             sendAll: false,
             fiatAmount: '',
-        });
+        };
         if (amount) {
-            this.setState({ amount });
+            updateState['amount'] = amount;
         }
-        // TODO: similar to handleFormChange(). Refactor.
-        if (amount !== '') {
-            this.convertToFiat(amount);
-        }
-        this.validateAndDisplayFee(true);
+        this.setState(updateState, () => {
+            this.convertToFiat(this.state.amount);
+            this.validateAndDisplayFee(true);
+        });
     }
 
     private toggleScanQR = () => {
