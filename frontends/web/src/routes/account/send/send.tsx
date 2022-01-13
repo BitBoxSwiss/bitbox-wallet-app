@@ -62,12 +62,12 @@ interface State {
     balance?: accountApi.IBalance;
     proposedFee?: accountApi.IAmount;
     proposedTotal?: accountApi.IAmount;
-    recipientAddress?: string;
+    recipientAddress: string;
     proposedAmount?: accountApi.IAmount;
     valid: boolean;
-    amount?: string;
+    amount: string;
     data?: string;
-    fiatAmount?: string;
+    fiatAmount: string;
     fiatUnit: accountApi.Fiat;
     sendAll: boolean;
     feeTarget?: accountApi.FeeTargetCode;
@@ -106,6 +106,9 @@ class Send extends Component<Props, State> {
     private proposeTimeout: any = null;
 
     public readonly state: State = {
+        recipientAddress: '',
+        amount: '',
+        fiatAmount: '',
         valid: false,
         sendAll: false,
         isConfirming: false,
@@ -226,12 +229,12 @@ class Send extends Component<Props, State> {
                     sendAll: false,
                     isConfirming: false,
                     isSent: true,
-                    recipientAddress: undefined,
+                    recipientAddress: '',
                     proposedAmount: undefined,
                     proposedFee: undefined,
                     proposedTotal: undefined,
-                    fiatAmount: undefined,
-                    amount: undefined,
+                    fiatAmount: '',
+                    amount: '',
                     data: undefined,
                     note: '',
                     customFee: '',
@@ -407,7 +410,7 @@ class Send extends Component<Props, State> {
                     }
                 });
         } else {
-            this.setState({ fiatAmount: undefined });
+            this.setState({ fiatAmount: '' });
         }
     }
 
@@ -424,7 +427,7 @@ class Send extends Component<Props, State> {
                     }
                 });
         } else {
-            this.setState({ amount: undefined });
+            this.setState({ amount: '' });
         }
     }
 
@@ -471,7 +474,7 @@ class Send extends Component<Props, State> {
 
     private parseQRResult = uri => {
         let address;
-        let amount: string | undefined;
+        let amount = '';
         try {
             const url = new URL(uri);
             if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
@@ -479,20 +482,20 @@ class Send extends Component<Props, State> {
                 return;
             }
             address = url.pathname;
-            amount = url.searchParams.get('amount') || undefined;
+            amount = url.searchParams.get('amount') || '';
         } catch {
             address = uri;
         }
         this.setState({
             recipientAddress: address,
             sendAll: false,
-            fiatAmount: undefined,
+            fiatAmount: '',
         });
         if (amount) {
             this.setState({ amount });
         }
         // TODO: similar to handleFormChange(). Refactor.
-        if (amount !== undefined) {
+        if (amount !== '') {
             this.convertToFiat(amount);
         }
         this.validateAndDisplayFee(true);
@@ -657,7 +660,7 @@ class Send extends Component<Props, State> {
                                                 onInput={this.handleFormChange}
                                                 disabled={sendAll}
                                                 error={amountError}
-                                                value={sendAll ? proposedAmount && proposedAmount.amount : amount}
+                                                value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
                                                 placeholder={t('send.amount.placeholder')}
                                                 labelSection={
                                                     <Checkbox
