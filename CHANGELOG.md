@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 4.31.0 [tagged 2022-01-13]
 - Bundle BitBox02 firmware version v9.9.0
 - Support sending to Bitcoin taproot addresses
 - Fix opening 'transactions export' CSV file
