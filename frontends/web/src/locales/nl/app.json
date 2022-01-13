@@ -21,6 +21,14 @@
   },
   "accountInfo": {
     "address": "Adres",
+    "buyCTA": {
+      "buy": "Koop {{unit}}",
+      "buyCrypto": "Koop Crypto",
+      "information": {
+        "looksEmpty": "Het lijkt erop dat deze wallet leeg is.",
+        "start": "Begin door coins naar deze wallet te sturen, of direct vanuit de BitBoxApp te kopen."
+      }
+    },
     "extendedPublicKey": "Uitgebreide publieke sleutel",
     "label": "Accountinformatie",
     "title": "Accountinformatie",
@@ -1027,6 +1035,7 @@
     },
     "successDisabled": {
       "message": "De passphrase <strong>staat nu aan</strong>!\nVanaf nu zul je tijdens het opstarten om een passphrase worden gevraagd.",
+      "messageEnd": "Plug alsjeblieft de BitBox opnieuw in.",
       "title": "Passphrase aangezet"
     },
     "successEnabled": {
