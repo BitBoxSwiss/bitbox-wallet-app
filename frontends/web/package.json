@@ -34,7 +34,7 @@
   },
   "browserslist": {
     "production": [
-      "chrome >= 87"
+      "chrome >= 83"
     ],
     "development": [
       "last 1 chrome version",
