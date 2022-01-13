@@ -312,11 +312,11 @@ class Send extends Component<Props, State> {
 
     private handleNoteInput = (event: Event) => {
         const target = (event.target as HTMLInputElement);
-        this.setState(prevState => ({
-            ...prevState,
-            [target.id]: target.value,
-        }));
-        apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
+        this.setState({
+            'note': target.value,
+        }, () => {
+            apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
+        });
     }
 
     private txProposal = (updateFiat, result) => {
