@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 
     view = new WebEngineView();
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
-    view->setMinimumSize(650, 375);
+    view->setMinimumSize(360, 375);
 
     // Bring the primary instance to the foreground.
     QObject::connect(
