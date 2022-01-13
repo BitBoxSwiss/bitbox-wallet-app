@@ -130,22 +130,22 @@ class BitBox02 extends Component<Props, State> {
     this.onStatusChanged();
     this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
       switch (type) {
-      case 'device':
-        if (deviceID !== this.props.deviceID) {
-          return;
-        }
-        switch (data) {
-        case 'channelHashChanged':
-          this.onChannelHashChanged();
+        case 'device':
+          if (deviceID !== this.props.deviceID) {
+            return;
+          }
+          switch (data) {
+            case 'channelHashChanged':
+              this.onChannelHashChanged();
+              break;
+            case 'statusChanged':
+              this.onStatusChanged();
+              break;
+            case 'attestationCheckDone':
+              this.updateAttestationCheck();
+              break;
+          }
           break;
-        case 'statusChanged':
-          this.onStatusChanged();
-          break;
-        case 'attestationCheckDone':
-          this.updateAttestationCheck();
-          break;
-        }
-        break;
       }
     });
   }

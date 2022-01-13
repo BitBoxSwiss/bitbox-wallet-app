@@ -4,7 +4,7 @@
     "jsx-a11y/anchor-is-valid": 0,
     "jsx-a11y/alt-text" : 0,
     "quotes": ["error", "single"],
-    "indent": ["error", 2]
+    "indent": ["error", 2, { "SwitchCase": 1 }]
   },
   "overrides": [
     {

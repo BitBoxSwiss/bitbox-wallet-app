@@ -98,20 +98,20 @@ class Initialize extends Component<Props, State> {
     const { showInfo, password, status, errorCode, errorMessage } = this.state;
     let formSubmissionState;
     switch (status) {
-    case stateEnum.DEFAULT:
-      formSubmissionState = null;
-      break;
-    case stateEnum.WAITING:
-      formSubmissionState = <Message type="info">{t('initialize.creating')}</Message>;
-      break;
-    case stateEnum.ERROR:
-      formSubmissionState = (
-        <Message type="error">
-          {t(`initialize.error.e${errorCode}`, {
-            defaultValue: errorMessage,
-          })}
-        </Message>
-      );
+      case stateEnum.DEFAULT:
+        formSubmissionState = null;
+        break;
+      case stateEnum.WAITING:
+        formSubmissionState = <Message type="info">{t('initialize.creating')}</Message>;
+        break;
+      case stateEnum.ERROR:
+        formSubmissionState = (
+          <Message type="error">
+            {t(`initialize.error.e${errorCode}`, {
+              defaultValue: errorMessage,
+            })}
+          </Message>
+        );
     }
 
     const content = showInfo ? (

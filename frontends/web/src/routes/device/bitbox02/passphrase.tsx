@@ -127,169 +127,169 @@ class Passphrase extends Component<Props, State> {
     const { infoStep, understood } = this.state;
     const { t } = this.props;
     switch (infoStep) {
-    case 5:
-      return (
-        <View
-          key="step-intro"
-          fullscreen
-          minHeight={CONTENT_MIN_HEIGHT}
-          onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
-          <ViewHeader title={t('passphrase.intro.title')} />
-          <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.intro.message'),
-            })}
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={this.continueInfo}>
-              {t('passphrase.what.button')}
-            </Button>
-            <Button transparent onClick={this.backInfo}>
-              {t('button.back')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    case 4:
-      return (
-        <View
-          key="step-what"
-          fullscreen
-          minHeight={CONTENT_MIN_HEIGHT}
-          onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
-          <ViewHeader title={t('passphrase.what.title')} />
-          <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.what.message'),
-            })}
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={this.continueInfo}>
-              {t('passphrase.why.button')}
-            </Button>
-            <Button transparent onClick={this.backInfo}>
-              {t('button.back')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    case 3:
-      return (
-        <View
-          key="step-why"
-          fullscreen
-          minHeight={CONTENT_MIN_HEIGHT}
-          onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
-          <ViewHeader title={t('passphrase.why.title')} />
-          <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.why.message'),
-            })}
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={this.continueInfo}>
-              {t('passphrase.considerations.button')}
-            </Button>
-            <Button transparent onClick={this.backInfo}>
-              {t('button.back')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    case 2:
-      return (
-        <View
-          key="step-considerations"
-          fullscreen
-          minHeight={CONTENT_MIN_HEIGHT}
-          onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
-          <ViewHeader title={t('passphrase.considerations.title')} />
-          <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.considerations.message'),
-            })}
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={this.continueInfo}>
-              {t('passphrase.how.button')}
-            </Button>
-            <Button transparent onClick={this.backInfo}>
-              {t('button.back')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    case 1:
-      return (
-        <View
-          key="step-how"
-          fullscreen
-          minHeight={CONTENT_MIN_HEIGHT}
-          onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
-          <ViewHeader title={t('passphrase.how.title')} />
-          <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.how.message'),
-            })}
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={this.continueInfo}>
-              {t('passphrase.summary.button')}
-            </Button>
-            <Button transparent onClick={this.backInfo}>
-              {t('button.back')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    case 0:
-      return (
-        <View
-          key="step-summary"
-          fullscreen
-          minHeight={CONTENT_MIN_HEIGHT}
-          onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
-          <ViewHeader title={t('passphrase.summary.title')} />
-          <ViewContent>
-            <ul>
-              <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
-              <SimpleMarkup key="info-2" tagName="li" markup={t('passphrase.summary.understandList.1')} />
-              <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
-              <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
-            </ul>
-            <Status type={understood ? 'success' : 'warning'}>
-              <Checkbox
-                onChange={e => this.setState({ understood: (e.target as HTMLInputElement)?.checked })}
-                id="understood"
-                checked={understood}
-                label={t('passphrase.summary.understand')}
-                checkboxStyle={understood ? 'success' : 'warning'} />
-            </Status>
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={this.continueInfo} disabled={!understood}>
-              {t('passphrase.enable')}
-            </Button>
-            <Button transparent onClick={this.backInfo}>
-              {t('button.back')}
-            </Button>
-          </ViewButtons>
-        </View>
-      );
-    default:
-      console.error(`invalid infoStep ${infoStep}`);
-      return;
+      case 5:
+        return (
+          <View
+            key="step-intro"
+            fullscreen
+            minHeight={CONTENT_MIN_HEIGHT}
+            onClose={this.stopInfo}
+            width={CONTENT_WIDTH}>
+            <ViewHeader title={t('passphrase.intro.title')} />
+            <ViewContent>
+              {multilineMarkup({
+                tagName: 'p',
+                markup: t('passphrase.intro.message'),
+              })}
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={this.continueInfo}>
+                {t('passphrase.what.button')}
+              </Button>
+              <Button transparent onClick={this.backInfo}>
+                {t('button.back')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      case 4:
+        return (
+          <View
+            key="step-what"
+            fullscreen
+            minHeight={CONTENT_MIN_HEIGHT}
+            onClose={this.stopInfo}
+            width={CONTENT_WIDTH}>
+            <ViewHeader title={t('passphrase.what.title')} />
+            <ViewContent>
+              {multilineMarkup({
+                tagName: 'p',
+                markup: t('passphrase.what.message'),
+              })}
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={this.continueInfo}>
+                {t('passphrase.why.button')}
+              </Button>
+              <Button transparent onClick={this.backInfo}>
+                {t('button.back')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      case 3:
+        return (
+          <View
+            key="step-why"
+            fullscreen
+            minHeight={CONTENT_MIN_HEIGHT}
+            onClose={this.stopInfo}
+            width={CONTENT_WIDTH}>
+            <ViewHeader title={t('passphrase.why.title')} />
+            <ViewContent>
+              {multilineMarkup({
+                tagName: 'p',
+                markup: t('passphrase.why.message'),
+              })}
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={this.continueInfo}>
+                {t('passphrase.considerations.button')}
+              </Button>
+              <Button transparent onClick={this.backInfo}>
+                {t('button.back')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      case 2:
+        return (
+          <View
+            key="step-considerations"
+            fullscreen
+            minHeight={CONTENT_MIN_HEIGHT}
+            onClose={this.stopInfo}
+            width={CONTENT_WIDTH}>
+            <ViewHeader title={t('passphrase.considerations.title')} />
+            <ViewContent>
+              {multilineMarkup({
+                tagName: 'p',
+                markup: t('passphrase.considerations.message'),
+              })}
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={this.continueInfo}>
+                {t('passphrase.how.button')}
+              </Button>
+              <Button transparent onClick={this.backInfo}>
+                {t('button.back')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      case 1:
+        return (
+          <View
+            key="step-how"
+            fullscreen
+            minHeight={CONTENT_MIN_HEIGHT}
+            onClose={this.stopInfo}
+            width={CONTENT_WIDTH}>
+            <ViewHeader title={t('passphrase.how.title')} />
+            <ViewContent>
+              {multilineMarkup({
+                tagName: 'p',
+                markup: t('passphrase.how.message'),
+              })}
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={this.continueInfo}>
+                {t('passphrase.summary.button')}
+              </Button>
+              <Button transparent onClick={this.backInfo}>
+                {t('button.back')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      case 0:
+        return (
+          <View
+            key="step-summary"
+            fullscreen
+            minHeight={CONTENT_MIN_HEIGHT}
+            onClose={this.stopInfo}
+            width={CONTENT_WIDTH}>
+            <ViewHeader title={t('passphrase.summary.title')} />
+            <ViewContent>
+              <ul>
+                <SimpleMarkup key="info-1" tagName="li" markup={t('passphrase.summary.understandList.0')} />
+                <SimpleMarkup key="info-2" tagName="li" markup={t('passphrase.summary.understandList.1')} />
+                <SimpleMarkup key="info-3" tagName="li" markup={t('passphrase.summary.understandList.2')} />
+                <SimpleMarkup key="info-4" tagName="li" markup={t('passphrase.summary.understandList.3')} />
+              </ul>
+              <Status type={understood ? 'success' : 'warning'}>
+                <Checkbox
+                  onChange={e => this.setState({ understood: (e.target as HTMLInputElement)?.checked })}
+                  id="understood"
+                  checked={understood}
+                  label={t('passphrase.summary.understand')}
+                  checkboxStyle={understood ? 'success' : 'warning'} />
+              </Status>
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={this.continueInfo} disabled={!understood}>
+                {t('passphrase.enable')}
+              </Button>
+              <Button transparent onClick={this.backInfo}>
+                {t('button.back')}
+              </Button>
+            </ViewButtons>
+          </View>
+        );
+      default:
+        console.error(`invalid infoStep ${infoStep}`);
+        return;
     }
   }
 

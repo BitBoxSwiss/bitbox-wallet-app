@@ -65,18 +65,18 @@ class App extends Component<Props, State> {
   public componentDidMount() {
     this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
       switch (type) {
-      case 'backend':
-        switch (data) {
-        case 'newTxs':
-          apiPost('notify-user', {
-            text: this.props.t('notification.newTxs', {
-              count: meta.count,
-              accountName: meta.accountName,
-            }),
-          });
+        case 'backend':
+          switch (data) {
+            case 'newTxs':
+              apiPost('notify-user', {
+                text: this.props.t('notification.newTxs', {
+                  count: meta.count,
+                  accountName: meta.accountName,
+                }),
+              });
+              break;
+          }
           break;
-        }
-        break;
       }
     });
 

@@ -66,12 +66,12 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
         this.unsubscribeEndpoint(key);
         this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
           switch (event.action) {
-          case 'replace':
-            this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
-            break;
-          case 'reload':
-            apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
-            break;
+            case 'replace':
+              this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
+              break;
+            case 'reload':
+              apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
+              break;
           }
         });
       }

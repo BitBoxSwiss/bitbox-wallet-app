@@ -88,12 +88,12 @@ class AddAccount extends Component<Props, State> {
 
   private back = () => {
     switch (this.state.step) {
-    case 'choose-name':
-      this.setState({ step: 'select-coin', errorMessage: undefined });
-      break;
-    case 'success':
-      this.setState({ step: 'choose-name' });
-      break;
+      case 'choose-name':
+        this.setState({ step: 'select-coin', errorMessage: undefined });
+        break;
+      case 'success':
+        this.setState({ step: 'choose-name' });
+        break;
     }
   }
 
@@ -102,57 +102,57 @@ class AddAccount extends Component<Props, State> {
     const { accountName, accountCode, coinCode, step } = this.state;
     const { t } = this.props;
     switch (step) {
-    case 'select-coin':
-      this.setState({ step: 'choose-name' });
-      break;
-    case 'choose-name':
+      case 'select-coin':
+        this.setState({ step: 'choose-name' });
+        break;
+      case 'choose-name':
                 interface ResponseData {
                     success: boolean;
                     accountCode?: string;
                     errorCode?: 'alreadyExists' | 'limitReached';
                     errorMessage?: string;
                 }
-      this.setState({ adding: true });
-      apiPost('account-add', {
-        coinCode,
-        name: accountName,
-      })
-        .then((data: ResponseData) => {
-          this.setState({ adding: false });
-          if (data.success) {
-            this.setState({
-              accountCode: data.accountCode,
-              errorMessage: undefined,
-              step: 'success'
-            });
-          } else if (data.errorCode) {
-            this.setState({
-              errorMessage: t(`error.${data.errorCode}`)
-            });
-          } else if (data.errorMessage) {
-            this.setState({
-              errorMessage: t('unknownError', { errorMessage: data.errorMessage })
-            });
-          }
-        });
-      break;
-    case 'success':
-      if (accountCode) {
-        route(`/account/${accountCode}`);
-      }
-      break;
+        this.setState({ adding: true });
+        apiPost('account-add', {
+          coinCode,
+          name: accountName,
+        })
+          .then((data: ResponseData) => {
+            this.setState({ adding: false });
+            if (data.success) {
+              this.setState({
+                accountCode: data.accountCode,
+                errorMessage: undefined,
+                step: 'success'
+              });
+            } else if (data.errorCode) {
+              this.setState({
+                errorMessage: t(`error.${data.errorCode}`)
+              });
+            } else if (data.errorMessage) {
+              this.setState({
+                errorMessage: t('unknownError', { errorMessage: data.errorMessage })
+              });
+            }
+          });
+        break;
+      case 'success':
+        if (accountCode) {
+          route(`/account/${accountCode}`);
+        }
+        break;
 
     }
   }
 
   private isFirstStep = () => {
     switch (this.state.step) {
-    case 'select-coin':
-      return true;
-    case 'choose-name':
-      return this.onlyOneSupportedCoin();
-    case 'success':
-      return false;
+      case 'select-coin':
+        return true;
+      case 'choose-name':
+        return this.onlyOneSupportedCoin();
+      case 'success':
+        return false;
     }
   }
 
@@ -160,53 +160,53 @@ class AddAccount extends Component<Props, State> {
     const { t } = this.props;
     const { accountName, coinCode, step, supportedCoins} = this.state;
     switch (step) {
-    case 'select-coin':
-      return (
-        <CoinDropDown
-          onChange={coin => this.setState({ coinCode: coin.coinCode, accountName: coin.suggestedAccountName })}
-          supportedCoins={supportedCoins}
-          value={coinCode} />
-      );
-    case 'choose-name':
-      return (
-        <Input
-          autoFocus
-          ref={this.ref}
-          id="accountName"
-          onInput={e => this.setState({ accountName: e.target.value })}
-          value={accountName} />
-      );
-    case 'success':
-      return (
-        <div className="text-center">
-          <Check className={styles.successCheck} /><br />
-          <SimpleMarkup
-            className={styles.successMessage}
-            markup={t('addAccount.success.message', { accountName })}
-            tagName="p" />
-        </div>
-      );
+      case 'select-coin':
+        return (
+          <CoinDropDown
+            onChange={coin => this.setState({ coinCode: coin.coinCode, accountName: coin.suggestedAccountName })}
+            supportedCoins={supportedCoins}
+            value={coinCode} />
+        );
+      case 'choose-name':
+        return (
+          <Input
+            autoFocus
+            ref={this.ref}
+            id="accountName"
+            onInput={e => this.setState({ accountName: e.target.value })}
+            value={accountName} />
+        );
+      case 'success':
+        return (
+          <div className="text-center">
+            <Check className={styles.successCheck} /><br />
+            <SimpleMarkup
+              className={styles.successMessage}
+              markup={t('addAccount.success.message', { accountName })}
+              tagName="p" />
+          </div>
+        );
     }
   }
 
   private getTextFor = (step: TStep) => {
     const { t } = this.props;
     switch (step) {
-    case 'select-coin':
-      return {
-        titleText: t('addAccount.selectCoin.title'),
-        nextButtonText: t('addAccount.selectCoin.nextButton'),
-      };
-    case 'choose-name':
-      return {
-        titleText: t('addAccount.chooseName.title'),
-        nextButtonText: t('addAccount.chooseName.nextButton'),
-      };
-    case 'success':
-      return {
-        titleText: t('addAccount.success.title'),
-        nextButtonText: t('addAccount.success.nextButton'),
-      };
+      case 'select-coin':
+        return {
+          titleText: t('addAccount.selectCoin.title'),
+          nextButtonText: t('addAccount.selectCoin.nextButton'),
+        };
+      case 'choose-name':
+        return {
+          titleText: t('addAccount.chooseName.title'),
+          nextButtonText: t('addAccount.chooseName.nextButton'),
+        };
+      case 'success':
+        return {
+          titleText: t('addAccount.success.title'),
+          nextButtonText: t('addAccount.success.nextButton'),
+        };
     }
   }
 

@@ -93,145 +93,145 @@ class Aopp extends Component<Props, State> {
       return null;
     }
     switch (aopp.state) {
-    case 'error':
-      return (
-        <View fullscreen textCenter>
-          <ViewHeader title={t('aopp.errorTitle')}>
-            <p>{domain(aopp.callback)}</p>
-          </ViewHeader>
-          <ViewContent>
-            <Message type="error">
-              <Cancel className={styles.smallIcon} />
-              {t(`error.${aopp.errorCode}`, { host: domain(aopp.callback) })}
-            </Message>
-          </ViewContent>
-          <ViewButtons>
-            <Button danger onClick={aoppAPI.cancel}>{t('button.dismiss')}</Button>
-          </ViewButtons>
-        </View>
-      );
-    case 'inactive':
+      case 'error':
+        return (
+          <View fullscreen textCenter>
+            <ViewHeader title={t('aopp.errorTitle')}>
+              <p>{domain(aopp.callback)}</p>
+            </ViewHeader>
+            <ViewContent>
+              <Message type="error">
+                <Cancel className={styles.smallIcon} />
+                {t(`error.${aopp.errorCode}`, { host: domain(aopp.callback) })}
+              </Message>
+            </ViewContent>
+            <ViewButtons>
+              <Button danger onClick={aoppAPI.cancel}>{t('button.dismiss')}</Button>
+            </ViewButtons>
+          </View>
+        );
+      case 'inactive':
       // Inactive, waiting for action.
-      return null;
-    case 'user-approval':
-      return (
-        <View fullscreen textCenter>
-          <ViewHeader title={t('aopp.title')} withAppLogo />
-          <ViewContent>
-            <Vasp prominent
-              hostname={domain(aopp.callback)}
-              fallback={(
-                <SimpleMarkup tagName="p" markup={t('aopp.addressRequest', {
-                  host: `<strong>${domain(aopp.callback)}</strong>`
-                })}/>
-              )}
-              withLogoText={t('aopp.addressRequestWithLogo')} />
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
-            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
-          </ViewButtons>
-        </View>
-      );
-    case 'awaiting-keystore':
-      return (
-        <Banner>{t('aopp.banner')}</Banner>
-      );
-    case 'choosing-account': {
-      const options = aopp.accounts.map(account => {
-        return {
-          text: account.name,
-          value: account.code,
-        };
-      });
-      return (
-        <form onSubmit={this.chooseAccount}>
+        return null;
+      case 'user-approval':
+        return (
+          <View fullscreen textCenter>
+            <ViewHeader title={t('aopp.title')} withAppLogo />
+            <ViewContent>
+              <Vasp prominent
+                hostname={domain(aopp.callback)}
+                fallback={(
+                  <SimpleMarkup tagName="p" markup={t('aopp.addressRequest', {
+                    host: `<strong>${domain(aopp.callback)}</strong>`
+                  })}/>
+                )}
+                withLogoText={t('aopp.addressRequestWithLogo')} />
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={aoppAPI.approve}>{t('button.continue')}</Button>
+              <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+            </ViewButtons>
+          </View>
+        );
+      case 'awaiting-keystore':
+        return (
+          <Banner>{t('aopp.banner')}</Banner>
+        );
+      case 'choosing-account': {
+        const options = aopp.accounts.map(account => {
+          return {
+            text: account.name,
+            value: account.code,
+          };
+        });
+        return (
+          <form onSubmit={this.chooseAccount}>
+            <View fullscreen textCenter>
+              <ViewHeader title={t('aopp.title')}>
+                <Vasp hostname={domain(aopp.callback)} />
+              </ViewHeader>
+              <ViewContent>
+                <Select
+                  label={t('buy.info.selectLabel')}
+                  options={options}
+                  defaultValue={options[0].value}
+                  value={accountCode}
+                  onChange={e => this.setState({ accountCode: (e.target as HTMLSelectElement)?.value })}
+                  id="account" />
+              </ViewContent>
+              <ViewButtons>
+                <Button primary type="submit">{t('button.next')}</Button>
+                <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
+              </ViewButtons>
+            </View>
+          </form>
+        );
+      }
+      case 'syncing':
+        return (
           <View fullscreen textCenter>
             <ViewHeader title={t('aopp.title')}>
               <Vasp hostname={domain(aopp.callback)} />
             </ViewHeader>
             <ViewContent>
-              <Select
-                label={t('buy.info.selectLabel')}
-                options={options}
-                defaultValue={options[0].value}
-                value={accountCode}
-                onChange={e => this.setState({ accountCode: (e.target as HTMLSelectElement)?.value })}
-                id="account" />
+              <p>{t('aopp.syncing')}</p>
             </ViewContent>
             <ViewButtons>
-              <Button primary type="submit">{t('button.next')}</Button>
               <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
             </ViewButtons>
           </View>
-        </form>
-      );
-    }
-    case 'syncing':
-      return (
-        <View fullscreen textCenter>
-          <ViewHeader title={t('aopp.title')}>
-            <Vasp hostname={domain(aopp.callback)} />
-          </ViewHeader>
-          <ViewContent>
-            <p>{t('aopp.syncing')}</p>
-          </ViewContent>
-          <ViewButtons>
-            <Button secondary onClick={aoppAPI.cancel}>{t('dialog.cancel')}</Button>
-          </ViewButtons>
-        </View>
-      );
-    case 'signing':
-      return (
-        <View fullscreen textCenter>
-          <ViewHeader small title={t('aopp.title')}>
-            <Vasp hostname={domain(aopp.callback)} />
-          </ViewHeader>
-          <ViewContent>
-            <p>{t('aopp.signing')}</p>
-            <Field>
-              <Label>{t('aopp.labelAddress')}</Label>
-              <CopyableInput alignLeft flexibleHeight value={aopp.address} />
-            </Field>
-            <Field>
-              <Label>{t('aopp.labelMessage')}</Label>
-              <div className={styles.message}>
-                {aopp.message}
-              </div>
-            </Field>
-            <PointToBitBox02 />
-          </ViewContent>
-        </View>
-      );
-    case 'success':
-      return (
-        <View fullscreen textCenter>
-          <ViewContent>
-            <Checked className={styles.largeIcon} />
-            <p className={styles.successText}>{t('aopp.success.title')}</p>
-            <p className={styles.proceed}>
-              {t('aopp.success.message', { host: domain(aopp.callback) })}
-            </p>
-            <Field>
-              <Label>{t('aopp.labelAddress')}</Label>
-              <CopyableInput alignLeft flexibleHeight value={aopp.address} />
-            </Field>
-            <Field style={{marginBottom: 0}}>
-              <Label>{t('aopp.labelMessage')}</Label>
-              <div className={styles.message}>
-                {aopp.message}
-              </div>
-            </Field>
-          </ViewContent>
-          <ViewButtons>
-            <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
-            <VerifyAddress
-              accountCode={aopp.accountCode}
-              address={aopp.address}
-              addressID={aopp.addressID} />
-          </ViewButtons>
-        </View>
-      );
+        );
+      case 'signing':
+        return (
+          <View fullscreen textCenter>
+            <ViewHeader small title={t('aopp.title')}>
+              <Vasp hostname={domain(aopp.callback)} />
+            </ViewHeader>
+            <ViewContent>
+              <p>{t('aopp.signing')}</p>
+              <Field>
+                <Label>{t('aopp.labelAddress')}</Label>
+                <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+              </Field>
+              <Field>
+                <Label>{t('aopp.labelMessage')}</Label>
+                <div className={styles.message}>
+                  {aopp.message}
+                </div>
+              </Field>
+              <PointToBitBox02 />
+            </ViewContent>
+          </View>
+        );
+      case 'success':
+        return (
+          <View fullscreen textCenter>
+            <ViewContent>
+              <Checked className={styles.largeIcon} />
+              <p className={styles.successText}>{t('aopp.success.title')}</p>
+              <p className={styles.proceed}>
+                {t('aopp.success.message', { host: domain(aopp.callback) })}
+              </p>
+              <Field>
+                <Label>{t('aopp.labelAddress')}</Label>
+                <CopyableInput alignLeft flexibleHeight value={aopp.address} />
+              </Field>
+              <Field style={{marginBottom: 0}}>
+                <Label>{t('aopp.labelMessage')}</Label>
+                <div className={styles.message}>
+                  {aopp.message}
+                </div>
+              </Field>
+            </ViewContent>
+            <ViewButtons>
+              <Button primary onClick={aoppAPI.cancel}>{t('button.done')}</Button>
+              <VerifyAddress
+                accountCode={aopp.accountCode}
+                address={aopp.address}
+                addressID={aopp.addressID} />
+            </ViewButtons>
+          </View>
+        );
     }
   }
 }

@@ -30,17 +30,17 @@ export function subscribeEndpoint(
 ): Unsubscribe {
   return apiSubscribe(endpoint, (event: Event) => {
     switch (event.action) {
-    case 'replace':
-      cb(event.object);
-      break;
-    case 'reload':
+      case 'replace':
+        cb(event.object);
+        break;
+      case 'reload':
       // TODO: backend should push data with "replace" and not use "reload"
-      apiGet(event.subject)
-        .then(object => cb(object))
-        .catch(console.error);
-      break;
-    default:
-      throw new Error(`Event: ${event} not supported`);
+        apiGet(event.subject)
+          .then(object => cb(object))
+          .catch(console.error);
+        break;
+      default:
+        throw new Error(`Event: ${event} not supported`);
     }
   });
 }

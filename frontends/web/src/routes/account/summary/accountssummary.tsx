@@ -108,14 +108,14 @@ class AccountsSummary extends Component<Props, State> {
     }
     if (data.type === 'account') {
       switch (data.data) {
-      case 'statusChanged':
-      case 'syncdone':
-        this.onStatusChanged(data.code);
-        // Force getting account summary now; cancel next scheduled call.
-        window.clearTimeout(this.summaryReqTimerID);
-        this.summaryReqTimerID = undefined;
-        this.getAccountSummary();
-        break;
+        case 'statusChanged':
+        case 'syncdone':
+          this.onStatusChanged(data.code);
+          // Force getting account summary now; cancel next scheduled call.
+          window.clearTimeout(this.summaryReqTimerID);
+          this.summaryReqTimerID = undefined;
+          this.getAccountSummary();
+          break;
       }
     }
   }

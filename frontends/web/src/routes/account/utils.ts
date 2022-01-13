@@ -19,23 +19,23 @@ import { CoinCode, ScriptType } from '../../api/account';
 
 export function isBitcoinOnly(coinCode: CoinCode): boolean {
   switch (coinCode) {
-  case 'btc':
-  case 'tbtc':
-    return true;
-  default:
-    return false;
+    case 'btc':
+    case 'tbtc':
+      return true;
+    default:
+      return false;
   }
 }
 
 export function isBitcoinBased(coinCode: CoinCode): boolean {
   switch (coinCode) {
-  case 'btc':
-  case 'tbtc':
-  case 'ltc':
-  case 'tltc':
-    return true;
-  default:
-    return false;
+    case 'btc':
+    case 'tbtc':
+    case 'ltc':
+    case 'tltc':
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -45,28 +45,28 @@ export function isEthereumBased(coinCode: CoinCode): boolean {
 
 export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
   switch (coinCode) {
-  case 'btc':
-  case 'tbtc':
-    return 'btc';
-  case 'ltc':
-  case 'tltc':
-    return 'ltc';
-  case 'eth':
-  case 'teth':
-  case 'reth':
-    return 'eth';
+    case 'btc':
+    case 'tbtc':
+      return 'btc';
+    case 'ltc':
+    case 'tltc':
+      return 'ltc';
+    case 'eth':
+    case 'teth':
+    case 'reth':
+      return 'eth';
   }
 }
 
 
 export function getScriptName(scriptType: ScriptType): string {
   switch (scriptType) {
-  case 'p2pkh':
-    return 'Legacy';
-  case 'p2wpkh-p2sh':
-    return 'Segwit';
-  case 'p2wpkh':
-    return 'Native segwit (bech32)';
+    case 'p2pkh':
+      return 'Legacy';
+    case 'p2wpkh-p2sh':
+      return 'Segwit';
+    case 'p2wpkh':
+      return 'Native segwit (bech32)';
   }
 }
 

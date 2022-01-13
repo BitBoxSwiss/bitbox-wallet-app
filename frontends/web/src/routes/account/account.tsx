@@ -138,19 +138,19 @@ class Account extends Component<Props, State> {
   private checkSDCards() {
     Promise.all(this.deviceIDs(this.props.devices).map(deviceID => {
       switch (this.props.devices[deviceID]) {
-      case 'bitbox':
-        return apiGet(`devices/${deviceID}/info`)
-          .then(info => {
-            if (!info) {
-              return false;
-            }
-            return info.sdcard;
-          });
-      case 'bitbox02':
-        return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
-          .then(sdcard => sdcard);
-      default:
-        return [];
+        case 'bitbox':
+          return apiGet(`devices/${deviceID}/info`)
+            .then(info => {
+              if (!info) {
+                return false;
+              }
+              return info.sdcard;
+            });
+        case 'bitbox02':
+          return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
+            .then(sdcard => sdcard);
+        default:
+          return [];
       }
     }))
       .then(sdcards => sdcards.some(sdcard => sdcard))

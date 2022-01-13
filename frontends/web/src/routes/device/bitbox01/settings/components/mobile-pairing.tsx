@@ -75,29 +75,29 @@ class MobilePairing extends Component<Props, State> {
   private onDeviceStatus = ({ type, data, deviceID }: OnDeviceStatusProps) => {
     if (type === 'device' && deviceID === this.props.deviceID) {
       switch (data) {
-      case 'pairingStarted':
-        this.setState({ status: 'started' });
-        break;
-      case 'pairingTimedout':
-        if (this.state.status) {
-          this.setState({ status: 'timeout' });
-        }
-        break;
-      case 'pairingPullMessageFailed':
-        this.setState({ status: 'pullFailed' });
-        break;
-      case 'pairingScanningFailed':
-        this.setState({ status: 'scanningFailed' });
-        break;
-      case 'pairingAborted':
-        this.setState({ status: 'aborted' });
-        break;
-      case 'pairingError':
-        this.setState({ status: 'error' });
-        break;
-      case 'pairingSuccess':
-        this.setState({ status: 'success' });
-        break;
+        case 'pairingStarted':
+          this.setState({ status: 'started' });
+          break;
+        case 'pairingTimedout':
+          if (this.state.status) {
+            this.setState({ status: 'timeout' });
+          }
+          break;
+        case 'pairingPullMessageFailed':
+          this.setState({ status: 'pullFailed' });
+          break;
+        case 'pairingScanningFailed':
+          this.setState({ status: 'scanningFailed' });
+          break;
+        case 'pairingAborted':
+          this.setState({ status: 'aborted' });
+          break;
+        case 'pairingError':
+          this.setState({ status: 'error' });
+          break;
+        case 'pairingSuccess':
+          this.setState({ status: 'success' });
+          break;
       }
     }
   }
