@@ -154,7 +154,6 @@ class Aopp extends Component<Props, State> {
                                 <Select
                                     label={t('buy.info.selectLabel')}
                                     options={options}
-                                    defaultValue={options[0].value}
                                     value={accountCode}
                                     onChange={e => this.setState({ accountCode: (e.target as HTMLSelectElement)?.value })}
                                     id="account" />

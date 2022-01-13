@@ -216,8 +216,7 @@ class BuyInfo extends Component<Props, State> {
                                             ...options]
                                         }
                                         onChange={(e: React.SyntheticEvent) => this.setState({ selected: (e.target as HTMLSelectElement).value})}
-                                        value={selected}
-                                        defaultValue={'choose'}
+                                        value={selected || 'choose'}
                                         id="coinAndAccountCode"
                                     />
                                     <div className="buttons text-center m-bottom-xxlarge">
