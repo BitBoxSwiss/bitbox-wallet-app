@@ -18,7 +18,6 @@ import React, { Component} from 'react';
 import { route } from '../../utils/route';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
-import { apiGet } from '../../utils/request';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input } from '../../components/forms';
 import Logo from '../../components/icon/logo';
@@ -35,10 +34,6 @@ interface ManageAccountsProps {
 
 type Props = ManageAccountsProps & TranslateProps;
 
-export type TFavorites = {
-    readonly [key in string]: boolean;
-}
-
 type TShowTokens = {
     readonly [key in string]: boolean;
 }
@@ -47,7 +42,6 @@ interface State {
     editAccountCode?: string;
     editAccountNewName: string;
     editErrorMessage?: string;
-    favorites?: TFavorites;
     accounts: accountAPI.IAccount[];
     showTokens: TShowTokens;
 }
@@ -56,7 +50,6 @@ class ManageAccounts extends Component<Props, State> {
     public readonly state: State = {
         editAccountNewName: '',
         editErrorMessage: undefined,
-        favorites: undefined,
         accounts: [],
         showTokens: {}
     };
@@ -67,39 +60,11 @@ class ManageAccounts extends Component<Props, State> {
 
     public componentDidMount() {
         this.fetchAccounts();
-
-        apiGet('config')
-            .then(({ frontend = {} }) => {
-                this.setState({
-                    favorites: frontend.favorites || {}
-                });
-            })
-            .catch(console.error);
     }
 
-    // TODO: keeping for next release when we enable favorite accounts
-    // private toggleFavorAccount = (e) => {
-    //     const { checked, id } = e.target as HTMLInputElement;
-    //     this.setState(({ favorites }) => ({
-    //         favorites: {
-    //             ...favorites,
-    //             [id]: checked,
-    //         }
-    //     }), () => {
-    //         setConfig({
-    //             frontend: {
-    //                 favorites: this.state.favorites
-    //             }
-    //         }).catch(console.error);
-    //     });
-    // }
-
     private renderAccounts = () => {
-        const { accounts, favorites, showTokens } = this.state;
+        const { accounts, showTokens } = this.state;
         const { t } = this.props;
-        if (!favorites) {
-            return null;
-        }
         return accounts.filter(account => !account.isToken).map(account => {
             const active = account.active;
             const tokensVisible = showTokens[account.code];
@@ -177,10 +142,6 @@ class ManageAccounts extends Component<Props, State> {
     };
 
     private renderTokens = (ethAccountCode: string, activeTokens?: accountAPI.IActiveToken[]) => {
-        const { favorites } = this.state;
-        if (!favorites) {
-            return null;
-        }
         return Object.entries(this.erc20TokenCodes)
             .map(([tokenCode, name]) => {
                 const activeToken = (activeTokens || []).find(t => t.tokenCode === tokenCode);
@@ -245,7 +206,7 @@ class ManageAccounts extends Component<Props, State> {
 
     public render() {
         const { t } = this.props;
-        const { editAccountCode, editAccountNewName, editErrorMessage, favorites } = this.state;
+        const { editAccountCode, editAccountNewName, editErrorMessage } = this.state;
         const accountList = this.renderAccounts();
         return (
             <div className="contentWithGuide">
@@ -253,20 +214,18 @@ class ManageAccounts extends Component<Props, State> {
                     <Header title={<h2>{t('manageAccounts.title')}</h2>} />
                     <div className="innerContainer scrollContainer">
                         <div className="content">
-                        { favorites ? (
-                            <div className="columnsContainer">
-                                <div className="buttons m-bottom-large m-top-large">
-                                    <Button
-                                        primary
-                                        onClick={() => route('/add-account', true)}>
-                                        {t('manageAccounts.addAccount')}
-                                    </Button>
-                                </div>
-                                <div className="box slim divide m-bottom-large">
-                                    { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
-                                </div>
+                        <div className="columnsContainer">
+                            <div className="buttons m-bottom-large m-top-large">
+                                <Button
+                                    primary
+                                    onClick={() => route('/add-account', true)}>
+                                    {t('manageAccounts.addAccount')}
+                                </Button>
                             </div>
-                        ) : null }
+                            <div className="box slim divide m-bottom-large">
+                                { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
+                            </div>
+                        </div>
                         { editAccountCode ? (
                             <Dialog
                                 onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
