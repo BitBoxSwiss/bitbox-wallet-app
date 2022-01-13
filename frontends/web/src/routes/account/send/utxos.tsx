@@ -61,7 +61,7 @@ interface State {
     selectedUTXOs: SelectedUTXO;
 }
 
-class UTXOs extends Component<Props, State> {
+export class UTXOsClass extends Component<Props, State> {
     public readonly state: State = {
         utxos: [],
         selectedUTXOs: {},
@@ -172,5 +172,5 @@ class UTXOs extends Component<Props, State> {
     }
 }
 
-const TranslatedUTXOs = translate(undefined, { withRef: true })(UTXOs);
+const TranslatedUTXOs = translate(undefined, { withRef: true })(UTXOsClass);
 export { TranslatedUTXOs as UTXOs };

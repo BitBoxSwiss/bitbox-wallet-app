@@ -40,7 +40,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, customFeeUnit } from '../utils';
 import { FeeTargets } from './feetargets';
 import style from './send.module.css';
-import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
+import { SelectedUTXO, UTXOs, UTXOsClass } from './utxos';
 import { route } from '../../../utils/route';
 
 interface SendProps {
@@ -94,7 +94,7 @@ interface State {
 }
 
 class Send extends Component<Props, State> {
-    private utxos = createRef<Component<UTXOsProps>>();
+    private utxos = createRef<UTXOsClass>();
     private selectedUTXOs: SelectedUTXO = {};
     private unsubscribe!: () => void;
     private qrCodeReader?: BrowserQRCodeReader;
@@ -237,11 +237,7 @@ class Send extends Component<Props, State> {
                     customFee: '',
                 });
                 if (this.utxos.current) {
-                    try {
-                        (this.utxos.current as any).getWrappedInstance().clear();
-                    } catch (e) {
-                        console.error(e);
-                    }
+                    this.utxos.current.clear();
                 }
                 setTimeout(() => this.setState({
                     isSent: false,
@@ -467,11 +463,7 @@ class Send extends Component<Props, State> {
     private toggleCoinControl = () => {
         this.setState(({ activeCoinControl }) => {
             if (activeCoinControl && this.utxos.current) {
-                try {
-                    (this.utxos.current as any).getWrappedInstance().clear();
-                } catch (e) {
-                    console.error(e);
-                }
+                this.utxos.current.clear();
             }
             return { activeCoinControl: !activeCoinControl };
         });
