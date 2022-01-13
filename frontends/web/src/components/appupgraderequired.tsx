@@ -22,24 +22,24 @@ import A from './anchor/anchor';
 type Props = TranslateProps;
 
 function AppUpgradeRequired({ t }: PropsWithChildren<Props>): JSX.Element {
-    return (
-        <div className="contentWithGuide">
-            <div className="container">
-                <div className="innerContainer">
-                    <div className="content narrow isVerticallyCentered">
-                        <div className="box large">
-                            <p className="m-top-none">{t('device.appUpradeRequired')}</p>
-                            <div className="buttons m-top-half">
-                                <A href="https://shiftcrypto.ch/download/?source=bitboxapp" className="text-medium text-blue">
-                                    {t('button.download')}
-                                </A>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="contentWithGuide">
+      <div className="container">
+        <div className="innerContainer">
+          <div className="content narrow isVerticallyCentered">
+            <div className="box large">
+              <p className="m-top-none">{t('device.appUpradeRequired')}</p>
+              <div className="buttons m-top-half">
+                <A href="https://shiftcrypto.ch/download/?source=bitboxapp" className="text-medium text-blue">
+                  {t('button.download')}
+                </A>
+              </div>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 const HOC = translate()(AppUpgradeRequired);

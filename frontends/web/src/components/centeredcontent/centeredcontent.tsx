@@ -18,11 +18,11 @@ import { PropsWithChildren } from 'react';
 import style from './style.module.css';
 
 export function CenteredContent({ children }: PropsWithChildren<{}>): JSX.Element {
-    return (
-        <div className="contentWithGuide">
-            <div className={style.container}>
-                {children}
-            </div>
-        </div>
-    );
+  return (
+    <div className="contentWithGuide">
+      <div className={style.container}>
+        {children}
+      </div>
+    </div>
+  );
 }

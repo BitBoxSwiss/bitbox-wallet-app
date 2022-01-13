@@ -41,60 +41,60 @@ interface State {
 }
 
 export class Entry extends Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            shown: props.shown || props.highlighted || false,
-            highlighted: props.highlighted || false,
-        };
-    }
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      shown: props.shown || props.highlighted || false,
+      highlighted: props.highlighted || false,
+    };
+  }
 
-    private toggle = () => {
-        this.setState(state => ({
-            shown: !state.shown,
-            highlighted: false,
-        }));
-    }
+  private toggle = () => {
+    this.setState(state => ({
+      shown: !state.shown,
+      highlighted: false,
+    }));
+  }
 
-    public render() {
-        const props = this.props;
-        const {
-            shown,
-            highlighted,
-        } = this.state;
-        let entry: EntryProp;
-        if (typeof props.entry === 'string') {
-            entry = {
-                title: props.entry + '.title',
-                text: props.entry + '.text',
-                link: {
-                    url: props.entry + '.link.url',
-                    text: props.entry + '.link.text',
-                },
-            };
-        } else {
-            entry = props.entry;
-        }
-        return (
-            <div className={highlighted ? style.highlighted : style.entry}>
-                <div className={style.entryTitle} onClick={this.toggle}>
-                    <div className={style.entryToggle}>{shown ? '–' : '+'}</div>
-                    <div className={style.entryTitleText}>
-                        <h2>{entry.title}</h2>
-                    </div>
-                </div>
-                <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
-                    {shown ? (
-                        <div className="flex-1">
-                            {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
-                            {entry.link && (
-                                <p><A href={entry.link.url}>{entry.link.text}</A></p>
-                            )}
-                            {props.children}
-                        </div>
-                    ) : null}
-                </div>
+  public render() {
+    const props = this.props;
+    const {
+      shown,
+      highlighted,
+    } = this.state;
+    let entry: EntryProp;
+    if (typeof props.entry === 'string') {
+      entry = {
+        title: props.entry + '.title',
+        text: props.entry + '.text',
+        link: {
+          url: props.entry + '.link.url',
+          text: props.entry + '.link.text',
+        },
+      };
+    } else {
+      entry = props.entry;
+    }
+    return (
+      <div className={highlighted ? style.highlighted : style.entry}>
+        <div className={style.entryTitle} onClick={this.toggle}>
+          <div className={style.entryToggle}>{shown ? '–' : '+'}</div>
+          <div className={style.entryTitleText}>
+            <h2>{entry.title}</h2>
+          </div>
+        </div>
+        <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
+          {shown ? (
+            <div className="flex-1">
+              {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
+              {entry.link && (
+                <p><A href={entry.link.url}>{entry.link.text}</A></p>
+              )}
+              {props.children}
             </div>
-        );
-    }
+          ) : null}
+        </div>
+      </div>
+    );
+  }
 }

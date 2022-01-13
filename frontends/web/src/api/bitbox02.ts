@@ -30,26 +30,26 @@ type DeviceInfoResponse = SuccessResponse & {
 };
 
 export const getDeviceInfo = (
-    deviceID: string
+  deviceID: string
 ): Promise<DeviceInfo> => {
-    return apiGet(`devices/bitbox02/${deviceID}/info`)
-        .then((response: DeviceInfoResponse | FailResponse) => {
-            if (!response.success) {
-                return Promise.reject(response);
-            }
-            return Promise.resolve(response.deviceInfo);
-        });
+  return apiGet(`devices/bitbox02/${deviceID}/info`)
+    .then((response: DeviceInfoResponse | FailResponse) => {
+      if (!response.success) {
+        return Promise.reject(response);
+      }
+      return Promise.resolve(response.deviceInfo);
+    });
 };
 
 export const setMnemonicPassphraseEnabled = (
-    deviceID: string,
-    enabled: boolean,
+  deviceID: string,
+  enabled: boolean,
 ): Promise<void | FailResponse> => {
-    return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled)
-        .then((response: SuccessResponse | FailResponse) => {
-            if (!response.success) {
-                return Promise.reject(response);
-            }
-            return Promise.resolve();
-        });
+  return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled)
+    .then((response: SuccessResponse | FailResponse) => {
+      if (!response.success) {
+        return Promise.reject(response);
+      }
+      return Promise.resolve();
+    });
 };

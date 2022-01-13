@@ -27,15 +27,15 @@ interface LoadedProps {
 type Props = LoadedProps & TranslateProps;
 
 function MobileDataWarning({ usingMobileData, t }: PropsWithChildren<Props>) {
-    return (
-        <Status dismissable="mobile-data-warning" type="warning" hidden={!usingMobileData}>
-            {t('mobile.usingMobileDataWarning')}
-        </Status>
-    );
+  return (
+    <Status dismissable="mobile-data-warning" type="warning" hidden={!usingMobileData}>
+      {t('mobile.usingMobileDataWarning')}
+    </Status>
+  );
 }
 
 const HOC = translate()(
-    subscribe<LoadedProps, TranslateProps>({ usingMobileData: 'using-mobile-data' })(MobileDataWarning),
+  subscribe<LoadedProps, TranslateProps>({ usingMobileData: 'using-mobile-data' })(MobileDataWarning),
 );
 
 export { HOC as MobileDataWarning };

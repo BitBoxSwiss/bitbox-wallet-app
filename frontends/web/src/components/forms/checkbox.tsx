@@ -25,25 +25,25 @@ type CheckboxProps = JSX.IntrinsicElements['input'] & {
 }
 
 const Checkbox: FunctionComponent<CheckboxProps> = ({
-    disabled = false,
-    label,
-    id,
-    className = '',
-    children,
-    checkboxStyle = 'default',
-    ...props
+  disabled = false,
+  label,
+  id,
+  className = '',
+  children,
+  checkboxStyle = 'default',
+  ...props
 }) => {
-    return (
-        <span className={`${styles.checkbox} ${className} ${styles[checkboxStyle] || ''}`}>
-            <input
-                type="checkbox"
-                id={id}
-                disabled={disabled}
-                {...props}
-            />
-            <label htmlFor={id}>{label} {children}</label>
-        </span>
-    );
+  return (
+    <span className={`${styles.checkbox} ${className} ${styles[checkboxStyle] || ''}`}>
+      <input
+        type="checkbox"
+        id={id}
+        disabled={disabled}
+        {...props}
+      />
+      <label htmlFor={id}>{label} {children}</label>
+    </span>
+  );
 }
 
 export default Checkbox;

@@ -24,25 +24,25 @@ import { apiGet } from '../utils/request';
  */
 
 export function subscribeEndpoint(
-    endpoint: string,
-    // TODO: double check any type
-    cb: (eventObject: any) => any,
+  endpoint: string,
+  // TODO: double check any type
+  cb: (eventObject: any) => any,
 ): Unsubscribe {
-    return apiSubscribe(endpoint, (event: Event) => {
-        switch (event.action) {
-        case 'replace':
-            cb(event.object);
-            break;
-        case 'reload':
-            // TODO: backend should push data with "replace" and not use "reload"
-            apiGet(event.subject)
-                .then(object => cb(object))
-                .catch(console.error);
-            break;
-        default:
-            throw new Error(`Event: ${event} not supported`);
-        }
-    });
+  return apiSubscribe(endpoint, (event: Event) => {
+    switch (event.action) {
+    case 'replace':
+      cb(event.object);
+      break;
+    case 'reload':
+      // TODO: backend should push data with "replace" and not use "reload"
+      apiGet(event.subject)
+        .then(object => cb(object))
+        .catch(console.error);
+      break;
+    default:
+      throw new Error(`Event: ${event} not supported`);
+    }
+  });
 }
 
 /**
@@ -53,7 +53,7 @@ export function subscribeEndpoint(
  */
 
 export const backendConnected = (
-    cb: (connected: boolean) => void
+  cb: (connected: boolean) => void
 ): Unsubscribe => {
-    return subscribeEndpoint('backend/connected', cb);
+  return subscribeEndpoint('backend/connected', cb);
 };

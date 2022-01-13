@@ -18,11 +18,11 @@
 import style from './field.module.css';
 
 export function Field({
-    children, ...props
+  children, ...props
 }: JSX.IntrinsicElements['div']) {
-    return (
-        <div className={style.field} {...props}>
-            {children}
-        </div>
-    );
+  return (
+    <div className={style.field} {...props}>
+      {children}
+    </div>
+  );
 }

@@ -39,101 +39,101 @@ interface State {
 type Props = InfoProps & TranslateProps;
 
 class Info extends Component<Props, State> {
-    public readonly state: State = {
-        info: undefined,
-        viewXPub: 0,
+  public readonly state: State = {
+    info: undefined,
+    viewXPub: 0,
+  }
+
+  public componentDidMount() {
+    getInfo(this.props.code).then(info => this.setState({ info }));
+  }
+
+  public UNSAFE_componentWillMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  public componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    if (e.keyCode === 27) {
+      route(`/account/${this.props.code}`);
     }
+  }
 
-    public componentDidMount() {
-        getInfo(this.props.code).then(info => this.setState({ info }));
+  private getAccount(): IAccount | undefined {
+    if (!this.props.accounts) {
+      return;
     }
+    return this.props.accounts.find(({ code }) => code === this.props.code);
+  }
 
-    public UNSAFE_componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
+  private showNextXPub = (): void => {
+    if (!this.state.info) {
+      return;
     }
+    const numberOfXPubs = this.state.info.signingConfigurations.length;
+    this.setState(({ viewXPub }) => ({
+      viewXPub: (viewXPub + 1) % numberOfXPubs
+    }));
+  }
 
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    }
+  public render() {
+    const { t, code } = this.props;
+    const { info, viewXPub } = this.state;
+    const account = this.getAccount();
+    if (!account || !info) return null;
+    const config = info.signingConfigurations[viewXPub];
+    const numberOfXPubs = info.signingConfigurations.length;
+    const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
 
-    private handleKeyDown = (e: KeyboardEvent) => {
-        if (e.keyCode === 27) {
-            route(`/account/${this.props.code}`);
-        }
-    }
-
-    private getAccount(): IAccount | undefined {
-        if (!this.props.accounts) {
-            return;
-        }
-        return this.props.accounts.find(({ code }) => code === this.props.code);
-    }
-
-    private showNextXPub = (): void => {
-        if (!this.state.info) {
-            return;
-        }
-        const numberOfXPubs = this.state.info.signingConfigurations.length;
-        this.setState(({ viewXPub }) => ({
-            viewXPub: (viewXPub + 1) % numberOfXPubs
-        }));
-    }
-
-    public render() {
-        const { t, code } = this.props;
-        const { info, viewXPub } = this.state;
-        const account = this.getAccount();
-        if (!account || !info) return null;
-        const config = info.signingConfigurations[viewXPub];
-        const numberOfXPubs = info.signingConfigurations.length;
-        const xpubTypes = info.signingConfigurations.map(cfg => cfg.bitcoinSimple?.scriptType);
-
-        return (
-            <div className="contentWithGuide">
-                <div className="container">
-                    <Header title={<h2>{t('accountInfo.title')}</h2>} />
-                    <div className="innerContainer scrollableContainer">
-                        <div className="content padded">
-                            <div className="box larger">
-                                { isBitcoinBased(account.coinCode) ? (
-                                    <h2 className={style.title}>
-                                        {t('accountInfo.extendedPublicKey')}
-                                    </h2>
-                                ) : null }
-                                { (config.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
-                                    <p className={style.xPubInfo}>
-                                        {t('accountInfo.xpubTypeInfo', {
-                                            current: `${viewXPub + 1}`,
-                                            numberOfXPubs: numberOfXPubs.toString(),
-                                            scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
-                                        })}<br />
-                                        <button className={style.nextButton} onClick={this.showNextXPub}>
-                                            {t(`accountInfo.xpubTypeChangeBtn.${xpubTypes[(viewXPub + 1) % numberOfXPubs]}`)}
-                                        </button>
-                                    </p>
-                                ) : null}
-                                <SigningConfiguration
-                                    key={viewXPub}
-                                    account={account}
-                                    code={code}
-                                    info={config}
-                                    signingConfigIndex={viewXPub}>
-                                    <ButtonLink
-                                        transparent
-                                        to={`/account/${code}`}>
-                                        {t('button.back')}
-                                    </ButtonLink>
-                                </SigningConfiguration>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    return (
+      <div className="contentWithGuide">
+        <div className="container">
+          <Header title={<h2>{t('accountInfo.title')}</h2>} />
+          <div className="innerContainer scrollableContainer">
+            <div className="content padded">
+              <div className="box larger">
                 { isBitcoinBased(account.coinCode) ? (
-                    <BitcoinBasedAccountInfoGuide t={t} coinName={account.coinName} />
+                  <h2 className={style.title}>
+                    {t('accountInfo.extendedPublicKey')}
+                  </h2>
                 ) : null }
+                { (config.bitcoinSimple !== undefined && numberOfXPubs > 1) ? (
+                  <p className={style.xPubInfo}>
+                    {t('accountInfo.xpubTypeInfo', {
+                      current: `${viewXPub + 1}`,
+                      numberOfXPubs: numberOfXPubs.toString(),
+                      scriptType: config.bitcoinSimple.scriptType.toUpperCase(),
+                    })}<br />
+                    <button className={style.nextButton} onClick={this.showNextXPub}>
+                      {t(`accountInfo.xpubTypeChangeBtn.${xpubTypes[(viewXPub + 1) % numberOfXPubs]}`)}
+                    </button>
+                  </p>
+                ) : null}
+                <SigningConfiguration
+                  key={viewXPub}
+                  account={account}
+                  code={code}
+                  info={config}
+                  signingConfigIndex={viewXPub}>
+                  <ButtonLink
+                    transparent
+                    to={`/account/${code}`}>
+                    {t('button.back')}
+                  </ButtonLink>
+                </SigningConfiguration>
+              </div>
             </div>
-        );
-    }
+          </div>
+        </div>
+        { isBitcoinBased(account.coinCode) ? (
+          <BitcoinBasedAccountInfoGuide t={t} coinName={account.coinName} />
+        ) : null }
+      </div>
+    );
+  }
 }
 
 const HOC = translate()(Info);

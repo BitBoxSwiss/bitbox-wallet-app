@@ -38,42 +38,42 @@ export interface Backup {
 type Props = BackupsListItemProps & TranslateProps;
 
 class BackupsListItem extends Component<Props> {
-    public render() {
-        const { disabled, backup, selectedBackup, handleChange, onFocus, radio } = this.props;
-        let date = '';
-        if (backup.date && backup.date !== '') {
-            date = new Date(backup.date).toLocaleString(this.props.i18n.language, {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        } else {
-            date = 'unknown';
-        }
-        return (
-            radio ?
-            <Radio
-                disabled={!!disabled}
-                checked={selectedBackup === backup.id}
-                onChange={(event: React.SyntheticEvent) => handleChange((event.target as HTMLInputElement).value)}
-                id={backup.id}
-                label={backup.name && backup.name !== '' ? backup.name : backup.id}
-                value={backup.id}
-                onFocus={onFocus}
-                className={style.backupItem}>
-                <span className="text-small text-gray">{date}</span>
-                <span className="text-small text-gray">ID: {backup.id}</span>
-            </Radio> :
-            <div>
-                <div className="text-medium m-bottom-quarter">{backup.name}</div>
-                <div className={style.backupID}>ID: {backup.id}</div>
-                <div className="text-small text-gray">{date}</div>
-            </div>
-        );
+  public render() {
+    const { disabled, backup, selectedBackup, handleChange, onFocus, radio } = this.props;
+    let date = '';
+    if (backup.date && backup.date !== '') {
+      date = new Date(backup.date).toLocaleString(this.props.i18n.language, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } else {
+      date = 'unknown';
     }
+    return (
+      radio ?
+        <Radio
+          disabled={!!disabled}
+          checked={selectedBackup === backup.id}
+          onChange={(event: React.SyntheticEvent) => handleChange((event.target as HTMLInputElement).value)}
+          id={backup.id}
+          label={backup.name && backup.name !== '' ? backup.name : backup.id}
+          value={backup.id}
+          onFocus={onFocus}
+          className={style.backupItem}>
+          <span className="text-small text-gray">{date}</span>
+          <span className="text-small text-gray">ID: {backup.id}</span>
+        </Radio> :
+        <div>
+          <div className="text-medium m-bottom-quarter">{backup.name}</div>
+          <div className={style.backupID}>ID: {backup.id}</div>
+          <div className="text-small text-gray">{date}</div>
+        </div>
+    );
+  }
 }
 
 const TranslatedBackupsListItem = translate()(BackupsListItem);

@@ -22,10 +22,10 @@ import { apiGet, apiPost } from './request';
 // for convenience when developing. Both key and defaultValue must be
 // strings and converted into the desired type.
 export function extConfig(key, defaultValue) {
-    if (typeof key === 'string' && key.startsWith('{{ ') && key.endsWith(' }}')) {
-        return defaultValue;
-    }
-    return key;
+  if (typeof key === 'string' && key.startsWith('{{ ') && key.endsWith(' }}')) {
+    return defaultValue;
+  }
+  return key;
 }
 
 // expects an object with a backend or frontend key
@@ -33,17 +33,17 @@ export function extConfig(key, defaultValue) {
 // returns a promise and passes the new config
 let pendingConfig = {};
 export function setConfig(object) {
-    return apiGet('config')
-        .then((currentConfig = {}) => {
-            const nextConfig = Object.assign(currentConfig, {
-                backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
-                frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
-            });
-            pendingConfig = nextConfig;
-            return apiPost('config', nextConfig)
-                .then(() => {
-                    pendingConfig = {};
-                    return nextConfig;
-                });
+  return apiGet('config')
+    .then((currentConfig = {}) => {
+      const nextConfig = Object.assign(currentConfig, {
+        backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
+        frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
+      });
+      pendingConfig = nextConfig;
+      return apiPost('config', nextConfig)
+        .then(() => {
+          pendingConfig = {};
+          return nextConfig;
         });
+    });
 }

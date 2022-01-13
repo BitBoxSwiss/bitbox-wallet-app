@@ -31,16 +31,16 @@ export default function BuyGuide({
     <Guide>
       <Entry key="guide.buy.security" entry={{
         link: {
-            text: t('buy.info.disclaimer.security.link'),
-            url: 'https://shiftcrypto.ch/bitbox02/threat-model/',
+          text: t('buy.info.disclaimer.security.link'),
+          url: 'https://shiftcrypto.ch/bitbox02/threat-model/',
         },
         text: t('buy.info.disclaimer.security.description', { name }),
         title: t('buy.info.disclaimer.security.title'),
       }} shown={true} />
       <Entry key="guide.buy.protection" entry={{
         link: {
-            text: t('buy.info.disclaimer.privacyPolicy'),
-            url: 'https://www.moonpay.com/privacy_policy',
+          text: t('buy.info.disclaimer.privacyPolicy'),
+          url: 'https://www.moonpay.com/privacy_policy',
         },
         text: t('buy.info.disclaimer.protection.description', { name }),
         title: t('buy.info.disclaimer.protection.title'),

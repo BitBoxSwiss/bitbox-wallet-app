@@ -45,59 +45,59 @@ interface IState {
 type Props = ISubscribedHeadersSyncProps & IHeadersSyncProps & TranslateProps;
 
 class HeadersSync extends Component<Props, IState> {
-    public readonly state: IState = {
-        show: 0,
+  public readonly state: IState = {
+    show: 0,
+  }
+
+  componentDidUpdate(prevProps) {
+    const { status } = this.props;
+    if (status && prevProps.status && status.tip !== prevProps.status.tip) {
+      this.setState({ show: status.tip });
+      if (status.tip === status.targetHeight) {
+        // hide component after 4s when tip reached targetHeight
+        setTimeout(() => this.setState(state => state.show === status.tip ? { show: 0 } : null), 4000);
+      }
+    }
+  }
+
+  render() {
+    const {
+      t,
+      status,
+    } = this.props;
+    const { show } = this.state;
+    if (!status || !show) {
+      return null;
+    }
+    const total = status.targetHeight - status.tipAtInitTime;
+    const value = 100 * (status.tip - status.tipAtInitTime) / total;
+    const loaded = !total || value >= 100;
+    let formatted = status.tip.toString();
+    let position = formatted.length - 3;
+    while (position > 0) {
+      formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
+      position = position - 3;
     }
 
-    componentDidUpdate(prevProps) {
-        const { status } = this.props;
-        if (status && prevProps.status && status.tip !== prevProps.status.tip) {
-            this.setState({ show: status.tip });
-            if (status.tip === status.targetHeight) {
-                // hide component after 4s when tip reached targetHeight
-                setTimeout(() => this.setState(state => state.show === status.tip ? { show: 0 } : null), 4000);
-            }
-        }
-    }
-
-    render() {
-        const {
-            t,
-            status,
-        } = this.props;
-        const { show } = this.state;
-        if (!status || !show) {
-            return null;
-        }
-        const total = status.targetHeight - status.tipAtInitTime;
-        const value = 100 * (status.tip - status.tipAtInitTime) / total;
-        const loaded = !total || value >= 100;
-        let formatted = status.tip.toString();
-        let position = formatted.length - 3;
-        while (position > 0) {
-            formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
-            position = position - 3;
-        }
-
-        return (
-            <div className={style.syncContainer}>
-                <div className={style.syncMessage}>
-                    <div className={style.syncText}>
-                        {t('headerssync.blocksSynced', { blocks: formatted })}
-                        { !loaded && `(${Math.ceil(value)}%)` }
-                    </div>
-                    { !loaded ? (<Spinner />) : null }
-                </div>
-                <div className={style.progressBar}>
-                    <div className={style.progressValue} style={{ width: `${value}%` }}></div>
-                </div>
-            </div>
-        );
-    }
+    return (
+      <div className={style.syncContainer}>
+        <div className={style.syncMessage}>
+          <div className={style.syncText}>
+            {t('headerssync.blocksSynced', { blocks: formatted })}
+            { !loaded && `(${Math.ceil(value)}%)` }
+          </div>
+          { !loaded ? (<Spinner />) : null }
+        </div>
+        <div className={style.progressBar}>
+          <div className={style.progressValue} style={{ width: `${value}%` }}></div>
+        </div>
+      </div>
+    );
+  }
 }
 
 const subscribeHOC = subscribe<ISubscribedHeadersSyncProps, IHeadersSyncProps & TranslateProps>(({ coinCode }) => ({
-    status: `coins/${coinCode}/headers/status`,
+  status: `coins/${coinCode}/headers/status`,
 }), false, true)(HeadersSync);
 
 const HOC = translate()(subscribeHOC);

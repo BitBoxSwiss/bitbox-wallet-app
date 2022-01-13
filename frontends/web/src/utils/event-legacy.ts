@@ -65,16 +65,16 @@ const subscriptions: ISubscriptions = {};
  */
 
 function handleMessages(payload: IEvent): void {
-    if (
-        payload.data
+  if (
+    payload.data
         && typeof payload.data === 'string'
         && payload.data in subscriptions
         && subscriptions[payload.data].length
-    ) {
-        for (const observer of subscriptions[payload.data]) {
-            observer(payload);
-        }
+  ) {
+    for (const observer of subscriptions[payload.data]) {
+      observer(payload);
     }
+  }
 }
 
 /**
@@ -82,21 +82,21 @@ function handleMessages(payload: IEvent): void {
  */
 
 export function subscribe(subject: Subject, observer: Observer): IUnsubscribe {
-    if (!subscriptions[subject]) {
-        subscriptions[subject] = [];
+  if (!subscriptions[subject]) {
+    subscriptions[subject] = [];
+  }
+  const observers = subscriptions[subject];
+  if (observers.includes(observer)) {
+    console.error(`observer already registered for ${subject}`);
+  }
+  observers.push(observer);
+  return () => {
+    if (!observers.includes(observer)) {
+      console.error('!observers.includes(observer)');
     }
-    const observers = subscriptions[subject];
-    if (observers.includes(observer)) {
-        console.error(`observer already registered for ${subject}`);
-    }
-    observers.push(observer);
-    return () => {
-        if (!observers.includes(observer)) {
-            console.error('!observers.includes(observer)');
-        }
-        const index = observers.indexOf(observer);
-        observers.splice(index, 1);
-    };
+    const index = observers.indexOf(observer);
+    observers.splice(index, 1);
+  };
 }
 
 apiWebsocket(handleMessages);

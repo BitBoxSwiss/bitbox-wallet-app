@@ -23,5 +23,5 @@ export type TDevices = {
 };
 
 export const getDeviceList = (): Promise<TDevices> => {
-    return apiGet('devices/registered');
+  return apiGet('devices/registered');
 };

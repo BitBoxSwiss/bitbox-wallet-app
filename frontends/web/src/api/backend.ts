@@ -31,21 +31,21 @@ export interface ISuccess {
 }
 
 export const getSupportedCoins = (): Promise<ICoin[]> => {
-    return apiGet('supported-coins');
+  return apiGet('supported-coins');
 };
 
 export const setAccountActive = (accountCode: AccountCode, active: boolean): Promise<ISuccess> => {
-    return apiPost('set-account-active', { accountCode, active });
+  return apiPost('set-account-active', { accountCode, active });
 };
 
 export const setTokenActive = (accountCode: AccountCode, tokenCode: string, active: boolean): Promise<ISuccess> => {
-    return apiPost('set-token-active', { accountCode, tokenCode, active });
+  return apiPost('set-token-active', { accountCode, tokenCode, active });
 };
 
 export const renameAccount = (accountCode: AccountCode, name: string): Promise<ISuccess> => {
-    return apiPost('rename-account', { accountCode, name });
+  return apiPost('rename-account', { accountCode, name });
 };
 
 export const reinitializeAccounts = (): Promise<null> => {
-    return apiPost('accounts/reinitialize');
+  return apiPost('accounts/reinitialize');
 };

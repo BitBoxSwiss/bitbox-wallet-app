@@ -20,17 +20,17 @@ import { useTranslation } from 'react-i18next';
 import { getVersion } from '../../api/version';
 
 const Version: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const [version, setVersion] = useState<string>('');
+  const { t } = useTranslation();
+  const [version, setVersion] = useState<string>('');
 
-    useEffect(() => {
-        getVersion().then(setVersion);
-    }, []);
+  useEffect(() => {
+    getVersion().then(setVersion);
+  }, []);
 
-    if (!version) {
-        return null;
-    }
-    return <p>{t('footer.appVersion')} {version}</p>;
+  if (!version) {
+    return null;
+  }
+  return <p>{t('footer.appVersion')} {version}</p>;
 }
 
 export { Version };

@@ -28,34 +28,34 @@ interface CoinDropDownProps {
 type Props = CoinDropDownProps & TranslateProps;
 
 function CoinDropDown({
-    onChange,
-    supportedCoins,
-    t,
-    value,
+  onChange,
+  supportedCoins,
+  t,
+  value,
 }: PropsWithChildren<Props>) {
-    return (
-        <Select
-            autoFocus
-            options={[
-                {
-                    text: t('buy.info.selectPlaceholder'),
-                    disabled: true,
-                    value: 'choose',
-                },
-                ...(supportedCoins).map(({ coinCode, name, canAddAccount }) => ({
-                    value: coinCode,
-                    text: name,
-                    disabled: !canAddAccount,
-                }))
-            ]}
-            onInput={e => onChange(supportedCoins.find(c => {
-                return c.coinCode === (e.target as HTMLSelectElement).value;
-            }) as backendAPI.ICoin)}
-            defaultValue={'choose'}
-            placeholder={t('buy.info.selectPlaceholder')}
-            value={value}
-            id="coinCodeDropDown" />
-    );
+  return (
+    <Select
+      autoFocus
+      options={[
+        {
+          text: t('buy.info.selectPlaceholder'),
+          disabled: true,
+          value: 'choose',
+        },
+        ...(supportedCoins).map(({ coinCode, name, canAddAccount }) => ({
+          value: coinCode,
+          text: name,
+          disabled: !canAddAccount,
+        }))
+      ]}
+      onInput={e => onChange(supportedCoins.find(c => {
+        return c.coinCode === (e.target as HTMLSelectElement).value;
+      }) as backendAPI.ICoin)}
+      defaultValue={'choose'}
+      placeholder={t('buy.info.selectPlaceholder')}
+      value={value}
+      id="coinCodeDropDown" />
+  );
 }
 
 const HOC = translate()(CoinDropDown);

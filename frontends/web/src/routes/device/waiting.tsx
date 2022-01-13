@@ -33,50 +33,50 @@ interface TestingProps {
 type WaitingProps = TestingProps & TranslateProps;
 
 class Waiting extends Component<WaitingProps> {
-    public UNSAFE_componentWillMount() {
-        const { sidebarStatus } = panelStore.state;
-        if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
-            setSidebarStatus('');
-        }
+  public UNSAFE_componentWillMount() {
+    const { sidebarStatus } = panelStore.state;
+    if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
+      setSidebarStatus('');
     }
+  }
 
-    public render() {
-        const { t, testing } = this.props;
-        return (
-            <div className="contentWithGuide">
-                <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className="content padded narrow isVerticallyCentered">
-                        <div>
-                            <AppLogo />
-                            <div className="box large">
-                                <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                                <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
-                            </div>
-                            {
-                                testing && (
-                                    <div className={style.testingContainer}>
-                                        <SkipForTesting show={!!testing} />
-                                    </div>
-                                )
-                            }
-                        </div>
-                    </div>
-                    <Footer>
-                        <SwissMadeOpenSource />
-                    </Footer>
-                </div>
-                <Guide>
-                    <Entry entry={t('guide.waiting.welcome')} shown={true} />
-                    <Entry entry={t('guide.waiting.getDevice')} />
-                    <Entry entry={t('guide.waiting.lostDevice')} />
-                    <Entry entry={t('guide.waiting.internet')} />
-                    <Entry entry={t('guide.waiting.deviceNotRecognized')} />
-                    <Entry entry={t('guide.waiting.useWithoutDevice')} />
-                </Guide>
+  public render() {
+    const { t, testing } = this.props;
+    return (
+      <div className="contentWithGuide">
+        <div className="container">
+          <Header title={<h2>{t('welcome.title')}</h2>} />
+          <div className="content padded narrow isVerticallyCentered">
+            <div>
+              <AppLogo />
+              <div className="box large">
+                <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
+                <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
+              </div>
+              {
+                testing && (
+                  <div className={style.testingContainer}>
+                    <SkipForTesting show={!!testing} />
+                  </div>
+                )
+              }
             </div>
-        );
-    }
+          </div>
+          <Footer>
+            <SwissMadeOpenSource />
+          </Footer>
+        </div>
+        <Guide>
+          <Entry entry={t('guide.waiting.welcome')} shown={true} />
+          <Entry entry={t('guide.waiting.getDevice')} />
+          <Entry entry={t('guide.waiting.lostDevice')} />
+          <Entry entry={t('guide.waiting.internet')} />
+          <Entry entry={t('guide.waiting.deviceNotRecognized')} />
+          <Entry entry={t('guide.waiting.useWithoutDevice')} />
+        </Guide>
+      </div>
+    );
+  }
 }
 
 const loadHOC = load<TestingProps, TranslateProps>(() => debug ? { testing: 'testing' } : {})(Waiting);

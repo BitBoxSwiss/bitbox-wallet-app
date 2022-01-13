@@ -29,67 +29,67 @@ interface State {
 }
 
 class Confirm extends Component<TranslateProps, State> {
-    private callback!: (input: boolean) => void; // Set within confirmation
+  private callback!: (input: boolean) => void; // Set within confirmation
 
-    constructor(props: TranslateProps) {
-        super(props);
-        confirmation = this.confirmation;
-        this.state = {
-            active: false,
-        };
-    }
+  constructor(props: TranslateProps) {
+    super(props);
+    confirmation = this.confirmation;
+    this.state = {
+      active: false,
+    };
+  }
 
-    private confirmation = (message: string, callback: (response: boolean) => void, customButtonText?: string) => {
-        this.callback = callback;
-        this.setState({
-            active: true,
-            message,
-            customButtonText,
-        });
-    }
+  private confirmation = (message: string, callback: (response: boolean) => void, customButtonText?: string) => {
+    this.callback = callback;
+    this.setState({
+      active: true,
+      message,
+      customButtonText,
+    });
+  }
 
-    private respond = (input: boolean) => {
-        this.callback(input);
-        this.setState({
-            active: false,
-        });
-    }
+  private respond = (input: boolean) => {
+    this.callback(input);
+    this.setState({
+      active: false,
+    });
+  }
 
-    private decline = () => {
-        this.respond(false);
-    }
+  private decline = () => {
+    this.respond(false);
+  }
 
-    private accept = () => {
-        this.respond(true);
-    }
+  private accept = () => {
+    this.respond(true);
+  }
 
-    public render() {
-        const { t } = this.props;
-        const { message, active, customButtonText } = this.state;
-        return active ? (
-            <Dialog title={t('dialog.confirmTitle')} onClose={this.decline}>
-                <div className="columnsContainer half">
-                    <div className="columns">
-                        <div className="column">
-                            {
-                                message ? message.split('\n').map((line, i) => (
-                                    <p
-                                        key={i}
-                                        className={ i === 0 ? 'first' : '' }>
-                                        <SimpleMarkup tagName="span" markup={line} />
-                                    </p>
-                                )) : null
-                            }
-                        </div>
-                    </div>
-                </div>
-                <DialogButtons>
-                    <Button primary onClick={this.accept}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
-                    <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
-                </DialogButtons>
-            </Dialog>
-        ) : null;
-    }
+  public render() {
+    const { t } = this.props;
+    const { message, active, customButtonText } = this.state;
+    return active ? (
+      <Dialog title={t('dialog.confirmTitle')} onClose={this.decline}>
+        <div className="columnsContainer half">
+          <div className="columns">
+            <div className="column">
+              {
+                message ? message.split('\n').map((line, i) => (
+                  <p
+                    key={i}
+                    className={ i === 0 ? 'first' : '' }>
+                    <SimpleMarkup tagName="span" markup={line} />
+                  </p>
+                )) : null
+              }
+            </div>
+          </div>
+        </div>
+        <DialogButtons>
+          <Button primary onClick={this.accept}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
+          <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
+        </DialogButtons>
+      </Dialog>
+    ) : null;
+  }
 }
 
 const TranslatedConfirm = translate()(Confirm);

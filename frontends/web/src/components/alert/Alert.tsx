@@ -31,59 +31,59 @@ interface State {
 }
 
 class Alert extends Component<WithTranslation, State> {
-    private callback?: () => void; // Assigned when alertUser is called / Called before close.
+  private callback?: () => void; // Assigned when alertUser is called / Called before close.
 
-    constructor(props: WithTranslation) {
-        super(props);
-        alertUser = this.alertUser;
-        this.state = {
-            active: false,
-        };
+  constructor(props: WithTranslation) {
+    super(props);
+    alertUser = this.alertUser;
+    this.state = {
+      active: false,
+    };
+  }
+
+  private handleClose = () => {
+    if (this.callback) {
+      this.callback();
     }
+    this.setState({
+      active: false,
+    });
+  }
 
-    private handleClose = () => {
-        if (this.callback) {
-            this.callback();
+  private alertUser = (message: string, callback?: () => void) => {
+    this.callback = callback;
+    this.setState({
+      active: true,
+      message,
+    });
+  }
+
+  public render() {
+    const { t } = this.props;
+    const { message, active } = this.state;
+    return active ? (
+      <Dialog
+        onClose={this.handleClose}
+        disableEscape>
+        {
+          message ? message.split('\n').map((line, i) => (
+            <p
+              key={i}
+              className={ i === 0 ? 'first' : '' }>
+              <SimpleMarkup tagName="span" markup={line} />
+            </p>
+          )) : null
         }
-        this.setState({
-            active: false,
-        });
-    }
-
-    private alertUser = (message: string, callback?: () => void) => {
-        this.callback = callback;
-        this.setState({
-            active: true,
-            message,
-        });
-    }
-
-    public render() {
-        const { t } = this.props;
-        const { message, active } = this.state;
-        return active ? (
-            <Dialog
-                onClose={this.handleClose}
-                disableEscape>
-                {
-                    message ? message.split('\n').map((line, i) => (
-                        <p
-                            key={i}
-                            className={ i === 0 ? 'first' : '' }>
-                            <SimpleMarkup tagName="span" markup={line} />
-                        </p>
-                    )) : null
-                }
-                <div className={style.actions}>
-                    <Button
-                        primary
-                        onClick={this.handleClose}>
-                        {t('button.ok')}
-                    </Button>
-                </div>
-            </Dialog>
-        ) : null;
-    }
+        <div className={style.actions}>
+          <Button
+            primary
+            onClick={this.handleClose}>
+            {t('button.ok')}
+          </Button>
+        </div>
+      </Dialog>
+    ) : null;
+  }
 }
 
 const TranslatedAlert = withTranslation()(Alert);

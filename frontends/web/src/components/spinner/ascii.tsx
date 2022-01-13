@@ -17,9 +17,9 @@
 import style from './ascii.module.css';
 
 export default function AsciiSpinner() {
-    return (
-        <div className={style.spinnerContainer}>
-            <div className={style.spinner}></div>
-        </div>
-    );
+  return (
+    <div className={style.spinnerContainer}>
+      <div className={style.spinner}></div>
+    </div>
+  );
 }

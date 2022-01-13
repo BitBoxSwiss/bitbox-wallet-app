@@ -33,47 +33,47 @@ type ViewProps = {
 }
 
 export function View({
-    fullscreen,
-    top = false,
-    children,
-    minHeight,
-    onClose,
-    textCenter,
-    width,
-    withBottomBar,
+  fullscreen,
+  top = false,
+  children,
+  minHeight,
+  onClose,
+  textCenter,
+  width,
+  withBottomBar,
 }: PropsWithChildren<ViewProps>) {
-    let classNames = style.inner;
-    if (!top) {
-        classNames += ` ${style.center}`;
-    }
-    if (textCenter) {
-        classNames += ` ${style.textCenter}`;
-    }
-    const inlineStyles = {
-        ...(minHeight && { minHeight }),
-        ...(width && { width }),
-    };
-    return (
-        <div className={fullscreen ? style.fullscreen : style.fill}>
-            <div
-                className={classNames}
-                style={inlineStyles}>
-                {children}
-            </div>
-            {onClose && (
-                <button className={style.closeButton} onClick={onClose}>
-                    <Close />
-                </button>
-            )}
-            {withBottomBar && (
-                <div style={{marginTop: 'auto'}}>
-                    <Footer>
-                        <SwissMadeOpenSource />
-                    </Footer>
-                </div>
-            )}
+  let classNames = style.inner;
+  if (!top) {
+    classNames += ` ${style.center}`;
+  }
+  if (textCenter) {
+    classNames += ` ${style.textCenter}`;
+  }
+  const inlineStyles = {
+    ...(minHeight && { minHeight }),
+    ...(width && { width }),
+  };
+  return (
+    <div className={fullscreen ? style.fullscreen : style.fill}>
+      <div
+        className={classNames}
+        style={inlineStyles}>
+        {children}
+      </div>
+      {onClose && (
+        <button className={style.closeButton} onClick={onClose}>
+          <Close />
+        </button>
+      )}
+      {withBottomBar && (
+        <div style={{marginTop: 'auto'}}>
+          <Footer>
+            <SwissMadeOpenSource />
+          </Footer>
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 type ViewContentProps = {
@@ -81,14 +81,14 @@ type ViewContentProps = {
 }
 
 export function ViewContent({
-    children,
-    fullWidth,
-    ...props
+  children,
+  fullWidth,
+  ...props
 }: PropsWithChildren<ViewContentProps>) {
-    const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
-    return (
-        <div className={classes} {...props}>{children}</div>
-    );
+  const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
+  return (
+    <div className={classes} {...props}>{children}</div>
+  );
 }
 
 type HeaderProps = {
@@ -98,27 +98,27 @@ type HeaderProps = {
 }
 
 export function ViewHeader({
-    children,
-    small,
-    title,
-    withAppLogo,
+  children,
+  small,
+  title,
+  withAppLogo,
 }: PropsWithChildren<HeaderProps>) {
-    const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
-    return (
-        <header className={headerStyles}>
-            {withAppLogo && <AppLogo />}
-            <h1 className={style.title}>{title}</h1>
-            {children}
-        </header>
-    );
+  const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
+  return (
+    <header className={headerStyles}>
+      {withAppLogo && <AppLogo />}
+      <h1 className={style.title}>{title}</h1>
+      {children}
+    </header>
+  );
 }
 
 type ViewButtonsProps = {}
 
 export function ViewButtons({ children }: PropsWithChildren<ViewButtonsProps>) {
-    return (
-        <div className={style.buttons}>
-            {children}
-        </div>
-    );
+  return (
+    <div className={style.buttons}>
+      {children}
+    </div>
+  );
 }

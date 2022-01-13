@@ -31,37 +31,37 @@ interface State {
 }
 
 class GotoStartupSettings extends Component<Props, State> {
-    public readonly state: State = {
-        isConfirming: false,
-    };
+  public readonly state: State = {
+    isConfirming: false,
+  };
 
-    private gotoStartupSettings = (): void => {
-        this.setState({ isConfirming: true });
-        apiPost(this.props.apiPrefix + '/goto-startup-settings').then(() => {
-            this.setState({ isConfirming: false });
-        });
-    }
+  private gotoStartupSettings = (): void => {
+    this.setState({ isConfirming: true });
+    apiPost(this.props.apiPrefix + '/goto-startup-settings').then(() => {
+      this.setState({ isConfirming: false });
+    });
+  }
 
-    public render() {
-        const { t } = this.props;
-        const { isConfirming } = this.state;
-        return (
-            <div>
-                <SettingsButton
-                    onClick={this.gotoStartupSettings}>
-                    {t('bitbox02Settings.gotoStartupSettings.title')}
-                </SettingsButton>
-                {
-                    isConfirming && (
-                        <WaitDialog
-                            title={t('bitbox02Settings.gotoStartupSettings.title')} >
-                            {t('bitbox02Settings.gotoStartupSettings.description')}
-                        </WaitDialog>
-                    )
-                }
-            </div>
-        );
-    }
+  public render() {
+    const { t } = this.props;
+    const { isConfirming } = this.state;
+    return (
+      <div>
+        <SettingsButton
+          onClick={this.gotoStartupSettings}>
+          {t('bitbox02Settings.gotoStartupSettings.title')}
+        </SettingsButton>
+        {
+          isConfirming && (
+            <WaitDialog
+              title={t('bitbox02Settings.gotoStartupSettings.title')} >
+              {t('bitbox02Settings.gotoStartupSettings.description')}
+            </WaitDialog>
+          )
+        }
+      </div>
+    );
+  }
 }
 
 const HOC = translate()(GotoStartupSettings);

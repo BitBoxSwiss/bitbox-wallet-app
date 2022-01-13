@@ -12,17 +12,17 @@ interface ToggleProps {
 }
 
 class Toggle extends Component<ToggleProps> {
-    public render() {
-        const props = this.props;
-        return (
-            <label className={style.container}>
-                <input
-                    type="checkbox"
-                    {...props} />
-                <span className={style.slider}></span>
-            </label>
-        );
-    }
+  public render() {
+    const props = this.props;
+    return (
+      <label className={style.container}>
+        <input
+          type="checkbox"
+          {...props} />
+        <span className={style.slider}></span>
+      </label>
+    );
+  }
 }
 
 export { Toggle };

@@ -24,18 +24,18 @@ interface BitcoinBasedAccountInfoGuideProps {
 }
 
 export function BitcoinBasedAccountInfoGuide({
-    t,
-    coinName,
+  t,
+  coinName,
 }: BitcoinBasedAccountInfoGuideProps) {
-    return (
-        <Guide>
-            <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} shown={true} />
-            <Entry key="guide.accountInfo.multipleXPubs" entry={{
-                text: t('guide.accountInfo.multipleXPubs.text', { coinName }),
-                title: t('guide.accountInfo.multipleXPubs.title'),
-            }} />
-            <Entry key="guide.accountInfo.privacy" entry={t('guide.accountInfo.privacy')} />
-            <Entry key="guide.accountInfo.verify" entry={t('guide.accountInfo.verify')} />
-        </Guide>
-    );
+  return (
+    <Guide>
+      <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} shown={true} />
+      <Entry key="guide.accountInfo.multipleXPubs" entry={{
+        text: t('guide.accountInfo.multipleXPubs.text', { coinName }),
+        title: t('guide.accountInfo.multipleXPubs.title'),
+      }} />
+      <Entry key="guide.accountInfo.privacy" entry={t('guide.accountInfo.privacy')} />
+      <Entry key="guide.accountInfo.verify" entry={t('guide.accountInfo.verify')} />
+    </Guide>
+  );
 }

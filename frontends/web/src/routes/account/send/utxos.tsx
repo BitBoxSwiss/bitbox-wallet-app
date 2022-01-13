@@ -62,114 +62,114 @@ interface State {
 }
 
 class UTXOs extends Component<Props, State> {
-    public readonly state: State = {
-        utxos: [],
-        selectedUTXOs: {},
-    };
+  public readonly state: State = {
+    utxos: [],
+    selectedUTXOs: {},
+  };
 
-    private splitOutPoint(utxo: UTXO): UTXOwithTX {
-        const [txId, txOutput] = utxo.outPoint.split(':');
-        return Object.assign({
-            txId,
-            txOutput,
-        }, utxo);
+  private splitOutPoint(utxo: UTXO): UTXOwithTX {
+    const [txId, txOutput] = utxo.outPoint.split(':');
+    return Object.assign({
+      txId,
+      txOutput,
+    }, utxo);
+  }
+
+  public componentDidMount() {
+    apiGet(`account/${this.props.accountCode}/utxos`).then((utxos: UTXO[]) => {
+      this.setState({
+        utxos: utxos.map(this.splitOutPoint),
+      });
+    });
+  }
+
+  public clear = () => {
+    this.setState({ selectedUTXOs: {} }, () => {
+      this.props.onChange(this.state.selectedUTXOs);
+    });
+  }
+
+  private handleUTXOChange = (event: React.SyntheticEvent) => {
+    const target = event.target as HTMLInputElement;
+    const outPoint = target.dataset.outpoint as string;
+    const selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
+    if (target.checked) {
+      selectedUTXOs[outPoint] = true;
+    } else {
+      delete selectedUTXOs[outPoint];
     }
+    this.setState({ selectedUTXOs }, () => {
+      this.props.onChange(selectedUTXOs);
+    });
+  }
 
-    public componentDidMount() {
-        apiGet(`account/${this.props.accountCode}/utxos`).then((utxos: UTXO[]) => {
-            this.setState({
-                utxos: utxos.map(this.splitOutPoint),
-            });
-        });
+  public render() {
+    const { t, active, explorerURL, onClose } = this.props;
+    const { utxos, selectedUTXOs } = this.state;
+    if (!active) {
+      return null;
     }
-
-    public clear = () => {
-        this.setState({ selectedUTXOs: {} }, () => {
-            this.props.onChange(this.state.selectedUTXOs);
-        });
-    }
-
-    private handleUTXOChange = (event: React.SyntheticEvent) => {
-        const target = event.target as HTMLInputElement;
-        const outPoint = target.dataset.outpoint as string;
-        const selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
-        if (target.checked) {
-            selectedUTXOs[outPoint] = true;
-        } else {
-            delete selectedUTXOs[outPoint];
-        }
-        this.setState({ selectedUTXOs }, () => {
-            this.props.onChange(selectedUTXOs);
-        });
-    }
-
-    public render() {
-        const { t, active, explorerURL, onClose } = this.props;
-        const { utxos, selectedUTXOs } = this.state;
-        if (!active) {
-            return null;
-        }
-        return (
-            <Dialog title={t('send.coincontrol.title')} large onClose={onClose}>
-                <div>
-                    <ul className={style.utxosList}>
-                    { utxos.map(utxo => (
-                        <li key={'utxo-' + utxo.outPoint} className={style.utxo}>
-                            <Checkbox
-                                checked={!!selectedUTXOs[utxo.outPoint]}
-                                id={'utxo-' + utxo.outPoint}
-                                data-outpoint={utxo.outPoint}
-                                onChange={this.handleUTXOChange}>
-                                <div className={style.utxoContent}>
-                                    <div className={style.utxoData}>
-                                        <div className={style.amounts}>
-                                            <span className={style.amount}>
-                                                {utxo.amount.amount}
-                                                {' '}
-                                                <span className={style.unit}>
-                                                    {utxo.amount.unit}
-                                                </span>
-                                            </span>
-                                            <FiatConversion amount={utxo.amount} unstyled />
-                                        </div>
-                                        <div className={style.address}>
-                                            <span className={style.label}>
-                                                {t('send.coincontrol.address')}:
-                                            </span>
-                                            <span className={style.shrink}>
-                                                {utxo.address}
-                                            </span>
-                                        </div>
-                                        <div className={style.transaction}>
-                                            <span className={style.label}>
-                                                {t('send.coincontrol.outpoint')}:
-                                            </span>
-                                            <span className={style.shrink}>
-                                                {utxo.txId}
-                                            </span>
+    return (
+      <Dialog title={t('send.coincontrol.title')} large onClose={onClose}>
+        <div>
+          <ul className={style.utxosList}>
+            { utxos.map(utxo => (
+              <li key={'utxo-' + utxo.outPoint} className={style.utxo}>
+                <Checkbox
+                  checked={!!selectedUTXOs[utxo.outPoint]}
+                  id={'utxo-' + utxo.outPoint}
+                  data-outpoint={utxo.outPoint}
+                  onChange={this.handleUTXOChange}>
+                  <div className={style.utxoContent}>
+                    <div className={style.utxoData}>
+                      <div className={style.amounts}>
+                        <span className={style.amount}>
+                          {utxo.amount.amount}
+                          {' '}
+                          <span className={style.unit}>
+                            {utxo.amount.unit}
+                          </span>
+                        </span>
+                        <FiatConversion amount={utxo.amount} unstyled />
+                      </div>
+                      <div className={style.address}>
+                        <span className={style.label}>
+                          {t('send.coincontrol.address')}:
+                        </span>
+                        <span className={style.shrink}>
+                          {utxo.address}
+                        </span>
+                      </div>
+                      <div className={style.transaction}>
+                        <span className={style.label}>
+                          {t('send.coincontrol.outpoint')}:
+                        </span>
+                        <span className={style.shrink}>
+                          {utxo.txId}
+                        </span>
                                             :{utxo.txOutput}
-                                        </div>
-                                    </div>
-                                    <A
-                                        className={style.utxoExplorer}
-                                        href={explorerURL + utxo.txId}
-                                        title={t('transaction.explorerTitle')}>
-                                        <ExpandOpen />
-                                    </A>
-                                </div>
-                            </Checkbox>
-                        </li>
-                    ))}
-                    </ul>
-                    <div className="buttons text-center m-top-none m-bottom-half">
-                        <Button primary onClick={onClose}>
-                            {t('button.continue')}
-                        </Button>
+                      </div>
                     </div>
-                </div>
-            </Dialog>
-        );
-    }
+                    <A
+                      className={style.utxoExplorer}
+                      href={explorerURL + utxo.txId}
+                      title={t('transaction.explorerTitle')}>
+                      <ExpandOpen />
+                    </A>
+                  </div>
+                </Checkbox>
+              </li>
+            ))}
+          </ul>
+          <div className="buttons text-center m-top-none m-bottom-half">
+            <Button primary onClick={onClose}>
+              {t('button.continue')}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
 }
 
 const TranslatedUTXOs = translate(undefined, { withRef: true })(UTXOs);

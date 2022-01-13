@@ -18,15 +18,15 @@
 import style from './label.module.css';
 
 export function Label({
-    className,
-    children,
-    id, // TODO: change to htmlFor when mirgated away from preact@8.x
-    ...props
+  className,
+  children,
+  id, // TODO: change to htmlFor when mirgated away from preact@8.x
+  ...props
 }: JSX.IntrinsicElements['label']) {
-    const classes = [style.label, className].join(' ');
-    return (
-        <label htmlFor={id} className={classes} {...props}>
-            {children}
-        </label>
-    );
+  const classes = [style.label, className].join(' ');
+  return (
+    <label htmlFor={id} className={classes} {...props}>
+      {children}
+    </label>
+  );
 }

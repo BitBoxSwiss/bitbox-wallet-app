@@ -28,38 +28,38 @@ interface BalanceProps {
 type Props = BalanceProps & TranslateProps;
 
 function Balance({
-    t,
-    balance,
+  t,
+  balance,
 }: PropsWithChildren<Props>) {
-    if (!balance) {
-        return (
-            <header className={style.balance}></header>
-        );
-    }
+  if (!balance) {
     return (
-        <header className={style.balance}>
-            <table className={style.balanceTable}>
-                <tbody>
-                    <tr>
-                        <td className={style.availableAmount}>{balance.available.amount}</td>
-                        <td className={style.availableUnit}>{balance.available.unit}</td>
-                    </tr>
-                    <FiatConversion amount={balance.available} tableRow />
-                </tbody>
-            </table>
-            {
-                balance.hasIncoming && (
-                    <p className={style.pendingBalance}>
-                        {t('account.incoming')} +{balance.incoming.amount} {balance.incoming.unit} /
-                        <span className={style.incomingConversion}>
-                            {' '}
-                            <FiatConversion amount={balance.incoming} />
-                        </span>
-                    </p>
-                )
-            }
-        </header>
+      <header className={style.balance}></header>
     );
+  }
+  return (
+    <header className={style.balance}>
+      <table className={style.balanceTable}>
+        <tbody>
+          <tr>
+            <td className={style.availableAmount}>{balance.available.amount}</td>
+            <td className={style.availableUnit}>{balance.available.unit}</td>
+          </tr>
+          <FiatConversion amount={balance.available} tableRow />
+        </tbody>
+      </table>
+      {
+        balance.hasIncoming && (
+          <p className={style.pendingBalance}>
+            {t('account.incoming')} +{balance.incoming.amount} {balance.incoming.unit} /
+            <span className={style.incomingConversion}>
+              {' '}
+              <FiatConversion amount={balance.incoming} />
+            </span>
+          </p>
+        )
+      }
+    </header>
+  );
 }
 
 const TranslatedBalance = translate()(Balance);

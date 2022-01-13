@@ -21,41 +21,41 @@ import { ObjectButNotFunction } from '../utils/types';
  * This class allows all instances of a component to share a common state.
  */
 export class Store<State extends ObjectButNotFunction> {
-    private components: Component[] = [];
+  private components: Component[] = [];
 
-    /**
+  /**
      * This method should only be called by the Share HOC.
      */
-    public subscribe(component: Component): void {
-        this.components.push(component);
-    }
+  public subscribe(component: Component): void {
+    this.components.push(component);
+  }
 
-    /**
+  /**
      * This method should only be called by the Share HOC.
      */
-    public unsubscribe(component: Component): void {
-        const index = this.components.indexOf(component);
-        this.components.splice(index, 1);
-    }
+  public unsubscribe(component: Component): void {
+    const index = this.components.indexOf(component);
+    this.components.splice(index, 1);
+  }
 
-    private updateComponents(): void {
-        for (const component of this.components) {
-            component.forceUpdate();
-        }
+  private updateComponents(): void {
+    for (const component of this.components) {
+      component.forceUpdate();
     }
+  }
 
-    /**
+  /**
      * Creates a new store with the given initial state.
      */
-    /* eslint no-useless-constructor: "off" */
-    public constructor(public readonly state: Readonly<State>) {}
+  /* eslint no-useless-constructor: "off" */
+  public constructor(public readonly state: Readonly<State>) {}
 
-    /**
+  /**
      * Sets the state of this store and updates the subscribed components.
      * Please note that you are allowed to pass a partial state just as in React.
      */
-    public setState(partialState: Partial<State>): void {
-        Object.assign(this.state, partialState);
-        this.updateComponents();
-    }
+  public setState(partialState: Partial<State>): void {
+    Object.assign(this.state, partialState);
+    this.updateComponents();
+  }
 }
