@@ -160,6 +160,12 @@ see also https://doc.qt.io/qt-5/qtwebengine-debugging.html
 
 Run `make ci` to run all static analysis tools and tests.
 
+### Git blame configuration
+
+Some commits are recommended to be ignored while using git blame, 
+they are listed on `.git-blame-ignore-revs`.  
+add them to your project running `git config blame.ignoreRevsFile .git-blame-ignore-revs`.  
+
 ### Build the UI
 
 To statically compile the UI, run `make buildweb` again, which compiles the web ui into a compact
