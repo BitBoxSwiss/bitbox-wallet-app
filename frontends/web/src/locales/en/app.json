@@ -1190,10 +1190,6 @@
       "title": "Confirm and send transaction",
       "total": "Total"
     },
-    "data": {
-      "label": "Optional data",
-      "placeholder": "Enter hexadecimal data"
-    },
     "error": {
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",

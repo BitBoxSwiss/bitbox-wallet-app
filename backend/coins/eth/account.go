@@ -504,7 +504,6 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 			Gas:      0,
 			GasPrice: big.NewInt(0),
 			Value:    value,
-			Data:     args.Data,
 		}
 	}
 
