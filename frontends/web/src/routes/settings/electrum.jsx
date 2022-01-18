@@ -27,21 +27,21 @@ import style from './electrum.module.css';
 import A from '../../components/anchor/anchor';
 
 class ElectrumServerClass extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            valid: false,
-            electrumServer: '',
-            electrumCert: '',
-            tls: false,
-            loadingCheck: false,
-            loadingCert: false,
-        };
-        if (props.server !== null) {
+    state = {
+        valid: false,
+        electrumServer: '',
+        electrumCert: '',
+        tls: false,
+        loadingCheck: false,
+        loadingCert: false,
+    }
+
+    componentDidMount() {
+        if (this.props.server !== null) {
             this.setState({
-                electrumServer: props.server.server,
-                electrumCert: props.server.pemCert,
-                tls: props.server.tls,
+                electrumServer: this.props.server.server,
+                electrumCert: this.props.server.pemCert,
+                tls: this.props.server.tls,
             });
         }
     }
