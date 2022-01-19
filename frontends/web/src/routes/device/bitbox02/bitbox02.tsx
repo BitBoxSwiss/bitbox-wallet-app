@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component} from 'react';
+import React, { Component, FunctionComponent, useEffect, useState } from 'react';
 import { Backup, BackupsListItem } from '../components/backup';
 import { route } from '../../../utils/route';
 import warning from '../../../assets/icons/warning.png';
@@ -39,6 +39,57 @@ import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
+import { useTranslation } from 'react-i18next';
+import { DeviceInfo } from '../../../api/bitbox02';
+
+interface UnlockStepProps {
+    attestationResult: boolean | null;
+    deviceID: string;
+}
+
+const getDeviceInfoMock = async (_deviceID: string) => {
+    return ({
+        name: 'placeholderName'
+    } as DeviceInfo);
+}
+
+const UnlockStep: FunctionComponent<UnlockStepProps> = ({ attestationResult, deviceID }) => {
+    const { t } = useTranslation();
+    const [info, setInfo] = useState<DeviceInfo>();
+
+    useEffect(() => {
+        // change to getDeviceInfo on unmmock and remove mock function.
+        getDeviceInfoMock(deviceID).then(setInfo);
+    }, [deviceID]);
+
+    return (
+        <View
+            fullscreen
+            textCenter
+            withBottomBar
+            width="600px">
+            <ViewHeader title={t('button.unlock')}>
+                <p className="text-center">
+                    {t('bitbox02Wizard.stepConnected.unlock')}
+                    {info && info.name && <b> {info.name}</b>}
+                </p>
+            </ViewHeader>
+            <ViewContent fullWidth>
+                {/* the view component covers all other banners
+                i.e. the attestation warning at the top,
+                that is why added it there as well instead of
+                the password guesture. */}
+                {attestationResult === false ? (
+                    <Status>
+                        {t('bitbox02Wizard.attestationFailed')}
+                    </Status>
+                ) : (
+                    <PasswordEntry />
+                )}
+            </ViewContent>
+        </View>
+    )
+}
 
 interface BitBox02Props {
     deviceID: string;
@@ -439,29 +490,10 @@ class BitBox02 extends Component<Props, State> {
                     <div className="flex flex-1 scrollableContainer">
                         <Steps>
                             { (status === 'connected') ? (
-                                <View
-                                    key="connection"
-                                    fullscreen
-                                    textCenter
-                                    withBottomBar
-                                    width="600px">
-                                    <ViewHeader title={t('button.unlock')}>
-                                        <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
-                                    </ViewHeader>
-                                    <ViewContent fullWidth>
-                                    {/* the view component covers all other banners
-                                        i.e. the attestation warning at the top,
-                                        that is why added it there as well instead of
-                                        the password guesture. */}
-                                        {attestationResult === false ? (
-                                            <Status>
-                                                {t('bitbox02Wizard.attestationFailed')}
-                                            </Status>
-                                        ) : (
-                                            <PasswordEntry />
-                                        )}
-                                    </ViewContent>
-                                </View>
+                                <UnlockStep
+                                    attestationResult={attestationResult}
+                                    deviceID={deviceID} 
+                                    key="unlock" />
                             ) : null }
 
                             <Step
