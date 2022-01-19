@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2021 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +14,18 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../hooks/api';
-import { getVersion } from '../../api/version';
+import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
+import { CoinCode } from './account';
 
-const Version: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const version = useLoad(getVersion);
-
-    if (!version) {
-        return null;
-    }
-    return <p>{t('footer.appVersion')} {version}</p>;
+interface Status {
+    targetHeight: number;
+    tip: number;
+    tipAtInitTime: number;
+    tipHashHex: string;
 }
 
-export { Version };
+export const subscribeCoinHeaders = (coinCode: CoinCode) => (
+    (cb: SubscriptionCallback<Status>) => (
+        subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
+    )
+);
