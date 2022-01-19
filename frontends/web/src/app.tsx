@@ -129,6 +129,7 @@ import { route, RouterWatcher } from './utils/route';
          const currentURL = window.location.pathname;
          const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
          const inAccounts = currentURL.startsWith('/account/');
+         const inDevice = currentURL.startsWith('/device');
          const accounts = this.state.accounts;
  
          // QT and Android start their apps in '/index.html' and '/android_asset/web/index.html' respectively
@@ -152,8 +153,8 @@ import { route, RouterWatcher } from './utils/route';
              route('/', true);
              return;
          }
-         // if on index page and there is at least 1 account route to /account-summary
-         if (isIndex && accounts && accounts.length) {
+         // if on index page or device page and there is at least 1 account route to /account-summary
+         if ((isIndex || inDevice) && accounts && accounts.length) {
              route('/account-summary', true);
              return;
          }
