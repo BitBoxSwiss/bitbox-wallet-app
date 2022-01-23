@@ -17,6 +17,11 @@ typedef void (*notifyUserCallback) (const char*);
 static void notifyUser(notifyUserCallback f, const char* msg) {
     f(msg);
 }
+
+typedef char* (*getSaveFilenameCallback) (const char*);
+static char* getSaveFilename(getSaveFilenameCallback f, const char* suggestedfilename) {
+    return f(suggestedfilename);
+}
 #endif
 
 #ifdef __cplusplus
@@ -29,10 +34,11 @@ extern void backendCall(int p0, char* p1);
 extern void handleURI(char* p0);
 
 extern void serve(
-    pushNotificationsCallback p0,
-    responseCallback p1,
-    notifyUserCallback p2,
-    const char* preferredLocale
+    pushNotificationsCallback pushNotificationsFn,
+    responseCallback responseFn,
+    notifyUserCallback notifyUserFn,
+    const char* preferredLocale,
+    getSaveFilenameCallback getSaveFilenameFn
 );
 
 extern void systemOpen(char* p0);

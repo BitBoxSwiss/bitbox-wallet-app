@@ -89,6 +89,7 @@ func newAccount(t *testing.T) *Account {
 			RateUpdater:           nil,
 			SigningConfigurations: signingConfigurations,
 			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
 		},
 		coin,
 		&http.Client{},

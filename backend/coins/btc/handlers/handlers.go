@@ -194,31 +194,45 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
+	type result struct {
+		Success      bool   `json:"success"`
+		Path         string `json:"path"`
+		ErrorMessage string `json:"errorMessage"`
+	}
 	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Code)
 	downloadsDir, err := config.DownloadsDir()
 	if err != nil {
-		return nil, err
+		handlers.log.WithError(err).Error("error exporting account")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	path := filepath.Join(downloadsDir, name)
+	suggestedPath := filepath.Join(downloadsDir, name)
+	path := handlers.account.Config().GetSaveFilename(suggestedPath)
+	if path == "" {
+		return nil, nil
+	}
 	handlers.log.Infof("Export transactions to %s.", path)
 
 	transactions, err := handlers.account.Transactions()
 	if err != nil {
-		return nil, err
+		handlers.log.WithError(err).Error("error exporting account")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
 	file, err := os.Create(path)
 	if err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithError(err).Error("error exporting account")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.account.ExportCSV(file, transactions); err != nil {
 		_ = file.Close()
-		return nil, err
+		handlers.log.WithError(err).Error("error exporting account")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := file.Close(); err != nil {
-		return nil, err
+		handlers.log.WithError(err).Error("error exporting account")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	return path, nil
+	return result{Success: true, Path: path}, nil
 }
 
 func (handlers *Handlers) getAccountInfo(_ *http.Request) (interface{}, error) {

@@ -59,9 +59,10 @@ unix:!macx {
 }
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        filedialog.cpp
 
-HEADERS += libserver.h webclass.h
+HEADERS += libserver.h webclass.h filedialog.h
 
 unix:macx {
     # Those frameworks are needed for Go's http/net packages.

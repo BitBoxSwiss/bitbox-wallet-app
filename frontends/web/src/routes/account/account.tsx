@@ -21,6 +21,7 @@ import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
+import { alertUser } from '../../components/alert/Alert';
 import { Balance } from '../../components/balance/balance';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
@@ -225,7 +226,15 @@ class Account extends Component<Props, State> {
             return;
         }
         accountApi.exportAccount(this.props.code)
-            .then(exported => this.setState({ exported }))
+            .then(result => {
+                if (result !== null) {
+                    if (result.success) {
+                        this.setState({ exported: result.path });
+                    } else {
+                        alertUser(result.errorMessage);
+                    }
+                }
+            })
             .catch(console.error);
     }
 

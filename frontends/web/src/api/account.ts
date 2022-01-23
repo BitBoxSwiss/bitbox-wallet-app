@@ -172,7 +172,14 @@ export const getTransactionList = (code: AccountCode): Promise<ITransaction[]> =
     return apiGet(`account/${code}/transactions`);
 };
 
-export const exportAccount = (code: AccountCode): Promise<string> => {
+
+export interface IExport {
+    success: boolean;
+    path: string;
+    errorMessage: string;
+}
+
+export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
     return apiPost(`account/${code}/export`);
 };
 

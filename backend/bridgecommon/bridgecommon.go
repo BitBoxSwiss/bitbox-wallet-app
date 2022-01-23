@@ -143,7 +143,8 @@ type BackendEnvironment struct {
 	UsingMobileDataFunc func() bool
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
-	NativeLocaleFunc func() string
+	NativeLocaleFunc    func() string
+	GetSaveFilenameFunc func(string) string
 }
 
 // NotifyUser implements backend.Environment.
@@ -181,6 +182,14 @@ func (env *BackendEnvironment) UsingMobileData() bool {
 func (env *BackendEnvironment) NativeLocale() string {
 	if env.NativeLocaleFunc != nil {
 		return env.NativeLocaleFunc()
+	}
+	return ""
+}
+
+// GetSaveFilename implements backend.Environment.
+func (env *BackendEnvironment) GetSaveFilename(suggestedFilename string) string {
+	if env.GetSaveFilenameFunc != nil {
+		return env.GetSaveFilenameFunc(suggestedFilename)
 	}
 	return ""
 }
