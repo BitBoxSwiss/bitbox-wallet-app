@@ -28,13 +28,13 @@ import (
 	"sync"
 	"time"
 
-	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/ratelimit"
 	"github.com/sirupsen/logrus"
+	"go.etcd.io/bbolt"
 )
 
 const (

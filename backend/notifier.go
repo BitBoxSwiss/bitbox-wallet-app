@@ -17,9 +17,9 @@ package backend
 import (
 	"fmt"
 
-	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"go.etcd.io/bbolt"
 )
 
 const (

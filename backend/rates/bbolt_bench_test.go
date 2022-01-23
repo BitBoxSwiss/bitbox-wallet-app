@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.etcd.io/bbolt"
 )
 
 // These benchmarks are independent of the actual rates package code.

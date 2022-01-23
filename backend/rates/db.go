@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	bbolt "github.com/coreos/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 func openRatesDB(dir string) (*bbolt.DB, error) {
