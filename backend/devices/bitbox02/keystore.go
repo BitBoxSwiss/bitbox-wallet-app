@@ -26,7 +26,6 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
@@ -67,7 +66,7 @@ func (keystore *keystore) RootFingerprint() ([]byte, error) {
 }
 
 // SupportsCoin implements keystore.Keystore.
-func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
+func (keystore *keystore) SupportsCoin(coin coinpkg.Coin) bool {
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		if (coin.Code() == coinpkg.CodeLTC || coin.Code() == coinpkg.CodeTLTC) && !keystore.device.SupportsLTC() {
@@ -85,7 +84,7 @@ func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
 }
 
 // SupportsAccount implements keystore.Keystore.
-func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
+func (keystore *keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) bool {
 	if !keystore.SupportsCoin(coin) {
 		return false
 	}
@@ -461,8 +460,8 @@ func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 }
 
 // CanSignMessage implements keystore.Keystore.
-func (keystore *keystore) CanSignMessage(code coin.Code) bool {
-	return code == coin.CodeBTC || code == coin.CodeETH
+func (keystore *keystore) CanSignMessage(code coinpkg.Code) bool {
+	return code == coinpkg.CodeBTC || code == coinpkg.CodeETH
 }
 
 // SignBTCMessage implements keystore.Keystore.

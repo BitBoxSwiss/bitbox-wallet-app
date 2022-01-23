@@ -30,7 +30,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -44,7 +43,7 @@ import (
 // Coin models a Bitcoin-related coin.
 type Coin struct {
 	initOnce              sync.Once
-	code                  coin.Code
+	code                  coinpkg.Code
 	name                  string
 	unit                  string
 	net                   *chaincfg.Params
@@ -62,7 +61,7 @@ type Coin struct {
 
 // NewCoin creates a new coin with the given parameters.
 func NewCoin(
-	code coin.Code,
+	code coinpkg.Code,
 	name string,
 	unit string,
 	net *chaincfg.Params,
@@ -91,7 +90,7 @@ func NewCoin(
 	return coin
 }
 
-// Initialize implements coin.Coin.
+// Initialize implements coinpkg.Coin.
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
@@ -132,13 +131,13 @@ func (coin *Coin) Initialize() {
 	})
 }
 
-// Name implements coin.Coin.
+// Name implements coinpkg.Coin.
 func (coin *Coin) Name() string {
 	return coin.name
 }
 
-// Code implements coin.Coin.
-func (coin *Coin) Code() coin.Code {
+// Code implements coinpkg.Coin.
+func (coin *Coin) Code() coinpkg.Code {
 	return coin.code
 }
 
@@ -147,24 +146,24 @@ func (coin *Coin) Net() *chaincfg.Params {
 	return coin.net
 }
 
-// Unit implements coin.Coin.
+// Unit implements coinpkg.Coin.
 func (coin *Coin) Unit(bool) string {
 	return coin.unit
 }
 
-// Decimals implements coin.Coin.
+// Decimals implements coinpkg.Coin.
 func (coin *Coin) Decimals(isFee bool) uint {
 	return 8
 }
 
-// FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
+// FormatAmount implements coinpkg.Coin.
+func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
 	s := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
 	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 }
 
-// ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coin.Amount, isFee bool) float64 {
+// ToUnit implements coinpkg.Coin.
+func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).Float64()
 	return result
 }
@@ -183,12 +182,12 @@ func (coin *Coin) String() string {
 	return string(coin.code)
 }
 
-// BlockExplorerTransactionURLPrefix implements coin.Coin.
+// BlockExplorerTransactionURLPrefix implements coinpkg.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix
 }
 
-// SmallestUnit implements coin.Coin.
+// SmallestUnit implements coinpkg.Coin.
 func (coin *Coin) SmallestUnit() string {
 	switch coin.code {
 	case "ltc", "tltc":
@@ -220,7 +219,7 @@ func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
 	return btcAddress, nil
 }
 
-// Close implements coin.Coin.
+// Close implements coinpkg.Coin.
 func (coin *Coin) Close() error {
 	coin.log.Info("closing coin")
 	if coin.headers != nil {
