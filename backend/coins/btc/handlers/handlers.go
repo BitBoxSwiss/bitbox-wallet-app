@@ -16,13 +16,11 @@
 package handlers
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/wire"
@@ -273,7 +271,6 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		CustomFee     string   `json:"customFee"`
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
-		Data          string   `json:"data"`
 		Note          string   `json:"note"`
 		Counter       int      `json:"counter"`
 	}{}
@@ -301,10 +298,6 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 			return err
 		}
 		input.SelectedUTXOs[*outPoint] = struct{}{}
-	}
-	input.Data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
-	if err != nil {
-		return errp.WithStack(errors.ErrInvalidData)
 	}
 	input.Note = jsonBody.Note
 	return nil

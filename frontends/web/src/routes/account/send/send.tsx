@@ -66,7 +66,6 @@ interface State {
     proposedAmount?: accountApi.IAmount;
     valid: boolean;
     amount: string;
-    data?: string;
     fiatAmount: string;
     fiatUnit: accountApi.Fiat;
     sendAll: boolean;
@@ -78,7 +77,6 @@ interface State {
     isUpdatingProposal: boolean;
     addressError?: string;
     amountError?: string;
-    dataError?: string;
     feeError?: string;
     paired?: boolean;
     noMobileChannelError?: boolean;
@@ -235,7 +233,6 @@ class Send extends Component<Props, State> {
                     proposedTotal: undefined,
                     fiatAmount: '',
                     amount: '',
-                    data: undefined,
                     note: '',
                     customFee: '',
                 });
@@ -268,7 +265,6 @@ class Send extends Component<Props, State> {
         customFee: this.state.customFee,
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
-        data: this.state.data,
     })
 
     private sendDisabled = () => {
@@ -281,7 +277,6 @@ class Send extends Component<Props, State> {
             proposedTotal: undefined,
             addressError: undefined,
             amountError: undefined,
-            dataError: undefined,
             feeError: undefined,
         });
         if (this.sendDisabled()) {
@@ -325,7 +320,6 @@ class Send extends Component<Props, State> {
             this.setState({
                 addressError: undefined,
                 amountError: undefined,
-                dataError: undefined,
                 feeError: undefined,
                 proposedFee: result.fee,
                 proposedAmount: result.amount,
@@ -345,12 +339,6 @@ class Send extends Component<Props, State> {
                 case 'insufficientFunds':
                     this.setState({
                         amountError: this.props.t(`send.error.${errorCode}`),
-                        proposedFee: undefined,
-                    });
-                    break;
-                case 'invalidData':
-                    this.setState({
-                        dataError: this.props.t('send.error.invalidData'),
                         proposedFee: undefined,
                     });
                     break;
@@ -561,7 +549,6 @@ class Send extends Component<Props, State> {
             addressError,
             amountError,
             feeError,
-            /* dataError, */
             paired,
             signProgress,
             signConfirm,
@@ -713,21 +700,6 @@ class Send extends Component<Props, State> {
                                         </div>
                                     </div>
                                 </div>
-                                {
-                                    /*
-                                    (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && (
-                                        <div className="row">
-                                            <Input
-                                                label={t('send.data.label')}
-                                                placeholder={t('send.data.placeholder')}
-                                                id="data"
-                                                error={dataError}
-                                                onInput={this.handleFormChange}
-                                                value={data} />
-                                        </div>
-                                    )
-                                    */
-                                }
                                 <div className="buttons ignore reverse m-top-none">
                                     <Button
                                         primary

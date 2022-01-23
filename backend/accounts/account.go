@@ -35,7 +35,6 @@ type TxProposalArgs struct {
 	// Only applies if FeeTargetCode == Custom. It is provided in sat/vB for BTC/LTC and Gwei for ETH.
 	CustomFee     string
 	SelectedUTXOs map[wire.OutPoint]struct{}
-	Data          []byte
 	Note          string
 }
 
