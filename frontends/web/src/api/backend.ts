@@ -16,6 +16,7 @@
 
 import { AccountCode, CoinCode } from './account';
 import { apiGet, apiPost } from '../utils/request';
+import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
 
 export interface ICoin {
     coinCode: CoinCode;
@@ -49,3 +50,7 @@ export const renameAccount = (accountCode: AccountCode, name: string): Promise<I
 export const reinitializeAccounts = (): Promise<null> => {
     return apiPost('accounts/reinitialize');
 };
+
+export const subscribeUsingMobileData = (cb: SubscriptionCallback<boolean>) => (
+    subscribeEndpoint('using-mobile-data', cb)
+);
