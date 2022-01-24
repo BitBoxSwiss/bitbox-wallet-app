@@ -18,8 +18,7 @@ import (
 	"encoding/hex"
 	"io"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	hid "github.com/karalabe/usb"
+	hid "github.com/karalabe/hid"
 )
 
 type hidDeviceInfo struct {
@@ -80,11 +79,7 @@ func DeviceInfos() []DeviceInfo {
 	deviceInfosFiltered := []DeviceInfo{}
 
 	// The library never actually returns an error in this function.
-	deviceInfos, err := hid.EnumerateHid(0, 0)
-	if err != nil {
-		logging.Get().WithError(err).Error("EnumerateHid() returned an error")
-		return deviceInfosFiltered
-	}
+	deviceInfos := hid.Enumerate(0, 0)
 
 	for idx := range deviceInfos {
 		di := hidDeviceInfo{deviceInfos[idx]}

@@ -90,17 +90,9 @@ github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 ## explicit
 github.com/gorilla/websocket
-# github.com/karalabe/usb v0.0.0-20211005121534-4c5740d64559
+# github.com/karalabe/hid v1.0.0
 ## explicit
-github.com/karalabe/usb
-github.com/karalabe/usb/hidapi
-github.com/karalabe/usb/hidapi/hidapi
-github.com/karalabe/usb/hidapi/libusb
-github.com/karalabe/usb/hidapi/mac
-github.com/karalabe/usb/hidapi/windows
-github.com/karalabe/usb/libusb
-github.com/karalabe/usb/libusb/libusb
-github.com/karalabe/usb/libusb/libusb/os
+github.com/karalabe/hid
 # github.com/kkdai/bstream v1.0.0
 ## explicit
 github.com/kkdai/bstream
@@ -144,8 +136,6 @@ github.com/tklauser/go-sysconf
 github.com/tklauser/numcpus
 # github.com/tyler-smith/go-bip39 v1.0.2
 ## explicit
-github.com/tyler-smith/go-bip39
-github.com/tyler-smith/go-bip39/wordlists
 # golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 ## explicit
 golang.org/x/crypto/blake2b

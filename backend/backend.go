@@ -665,6 +665,10 @@ func (backend *Backend) Environment() Environment {
 func (backend *Backend) Close() error {
 	defer backend.accountsAndKeystoreLock.Lock()()
 
+	for _, device := range backend.devices {
+		device.Close();
+	}
+
 	errors := []string{}
 
 	backend.ratesUpdater.Stop()
