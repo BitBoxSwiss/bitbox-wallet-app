@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
-import { translate, TranslateProps } from '../../decorators/translate';
+import { FunctionComponent, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SimpleMarkup } from '../../utils/markup';
 import { Dialog, DialogButtons } from '../dialog/dialog';
 import { Button } from '../forms';
 
-let confirmation: (message: string, callback: (response: boolean) => void, customButtonText?: string) => void;
+type TCallback = (response: boolean) => void;
+
+/**
+ * @deprecated
+ * shows an alert when called, triggers the callback with user reply
+ */
+export let confirmation: (message: string, callback: TCallback, customButtonText?: string) => void;
 
 interface State {
     active: boolean;
@@ -28,71 +34,54 @@ interface State {
     customButtonText?: string;
 }
 
-class Confirm extends Component<TranslateProps, State> {
-    private callback!: (input: boolean) => void; // Set within confirmation
+/**
+ * Confirm alert that activates on confirmation module export call,
+ * this should be mounted only once in the App
+ */
+export const Confirm: FunctionComponent = () => {
+    const [state, setState] = useState<State>({ active: false })
+    const { t } = useTranslation();
+    const callback = useRef<TCallback>(() => {});
 
-    constructor(props: TranslateProps) {
-        super(props);
-        confirmation = this.confirmation;
-        this.state = {
-            active: false,
-        };
-    }
-
-    private confirmation = (message: string, callback: (response: boolean) => void, customButtonText?: string) => {
-        this.callback = callback;
-        this.setState({
+    confirmation = (message: string, cb: TCallback, customButtonText?: string) => {
+        callback.current = cb;
+        setState({
             active: true,
             message,
             customButtonText,
         });
-    }
+    };
 
-    private respond = (input: boolean) => {
-        this.callback(input);
-        this.setState({
+    const respond = (response: boolean): void => {
+        callback.current(response);
+        setState({
             active: false,
         });
-    }
+    };
 
-    private decline = () => {
-        this.respond(false);
+    const { message, active, customButtonText } = state;
+    if (!active) {
+        return null;
     }
-
-    private accept = () => {
-        this.respond(true);
-    }
-
-    public render() {
-        const { t } = this.props;
-        const { message, active, customButtonText } = this.state;
-        return active ? (
-            <Dialog title={t('dialog.confirmTitle')} onClose={this.decline}>
-                <div className="columnsContainer half">
-                    <div className="columns">
-                        <div className="column">
-                            {
-                                message ? message.split('\n').map((line, i) => (
-                                    <p
-                                        key={i}
-                                        className={ i === 0 ? 'first' : '' }>
-                                        <SimpleMarkup tagName="span" markup={line} />
-                                    </p>
-                                )) : null
-                            }
-                        </div>
-                    </div>
+    return <Dialog title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+        <div className="columnsContainer half">
+            <div className="columns">
+                <div className="column">
+                    {
+                        message ? message.split('\n').map((line, i) => (
+                            <p
+                                key={i}
+                                className={i === 0 ? 'first' : ''}>
+                                <SimpleMarkup tagName="span" markup={line} />
+                            </p>
+                        )) : null
+                    }
                 </div>
-                <DialogButtons>
-                    <Button primary onClick={this.accept}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
-                    <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
-                </DialogButtons>
-            </Dialog>
-        ) : null;
-    }
-}
-
-const TranslatedConfirm = translate()(Confirm);
-
-export { confirmation };
-export { TranslatedConfirm as Confirm };
+            </div>
+        </div>
+        <DialogButtons>
+            <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
+            <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
+        </DialogButtons>
+    </Dialog>
+};
