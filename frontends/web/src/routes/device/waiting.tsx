@@ -14,71 +14,58 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { FunctionComponent, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Entry } from '../../components/guide/entry';
 import { Guide, store as panelStore } from '../../components/guide/guide';
 import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { setSidebarStatus } from '../../components/sidebar/sidebar';
-import { load } from '../../decorators/load';
-import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
-import style from './bitbox01/bitbox01.module.css';
 import { SkipForTesting } from './components/skipfortesting';
+import style from './bitbox01/bitbox01.module.css';
 
-interface TestingProps {
-    testing?: boolean;
-}
-
-type WaitingProps = TestingProps & TranslateProps;
-
-class Waiting extends Component<WaitingProps> {
-    public UNSAFE_componentWillMount() {
+export const Waiting: FunctionComponent = () => {
+    const { t } = useTranslation();
+    useEffect(() => {
         const { sidebarStatus } = panelStore.state;
         if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
             setSidebarStatus('');
         }
-    }
+    }, []);
 
-    public render() {
-        const { t, testing } = this.props;
-        return (
-            <div className="contentWithGuide">
-                <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className="content padded narrow isVerticallyCentered">
-                        <div>
-                            <AppLogo />
-                            <div className="box large">
-                                <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                                <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
-                            </div>
-                            {
-                                testing && (
-                                    <div className={style.testingContainer}>
-                                        <SkipForTesting show={!!testing} />
-                                    </div>
-                                )
-                            }
+    return (
+        <div className="contentWithGuide">
+            <div className="container">
+                <Header title={<h2>{t('welcome.title')}</h2>} />
+                <div className="content padded narrow isVerticallyCentered">
+                    <div>
+                        <AppLogo />
+                        <div className="box large">
+                            <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
+                            <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
                         </div>
+                        {
+                            debug && (
+                                <div className={style.testingContainer}>
+                                    <SkipForTesting show />
+                                </div>
+                            )
+                        }
                     </div>
-                    <Footer>
-                        <SwissMadeOpenSource />
-                    </Footer>
                 </div>
-                <Guide>
-                    <Entry entry={t('guide.waiting.welcome')} shown={true} />
-                    <Entry entry={t('guide.waiting.getDevice')} />
-                    <Entry entry={t('guide.waiting.lostDevice')} />
-                    <Entry entry={t('guide.waiting.internet')} />
-                    <Entry entry={t('guide.waiting.deviceNotRecognized')} />
-                    <Entry entry={t('guide.waiting.useWithoutDevice')} />
-                </Guide>
+                <Footer>
+                    <SwissMadeOpenSource />
+                </Footer>
             </div>
-        );
-    }
+            <Guide>
+                <Entry entry={t('guide.waiting.welcome')} shown={true} />
+                <Entry entry={t('guide.waiting.getDevice')} />
+                <Entry entry={t('guide.waiting.lostDevice')} />
+                <Entry entry={t('guide.waiting.internet')} />
+                <Entry entry={t('guide.waiting.deviceNotRecognized')} />
+                <Entry entry={t('guide.waiting.useWithoutDevice')} />
+            </Guide>
+        </div>
+    )
 }
-
-const loadHOC = load<TestingProps, TranslateProps>(() => debug ? { testing: 'testing' } : {})(Waiting);
-const translateHOC = translate()(loadHOC);
-export { translateHOC as Waiting };
