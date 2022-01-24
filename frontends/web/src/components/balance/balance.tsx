@@ -15,22 +15,20 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import { FunctionComponent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IBalance } from '../../api/account';
 import { FiatConversion } from '../../components/rates/rates';
-import { translate, TranslateProps } from '../../decorators/translate';
 import style from './balance.module.css';
 
-interface BalanceProps {
+interface Props {
     balance?: IBalance;
 }
 
-type Props = BalanceProps & TranslateProps;
-
-function Balance({
-    t,
+export const Balance: FunctionComponent<Props> = ({
     balance,
-}: PropsWithChildren<Props>) {
+}) => {
+    const { t } = useTranslation();
     if (!balance) {
         return (
             <header className={style.balance}></header>
@@ -61,7 +59,3 @@ function Balance({
         </header>
     );
 }
-
-const TranslatedBalance = translate()(Balance);
-
-export { TranslatedBalance as Balance };
