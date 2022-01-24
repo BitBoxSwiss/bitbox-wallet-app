@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import { FunctionComponent } from 'react';
 import style from './style.module.css';
 
-export function CenteredContent({ children }: PropsWithChildren<{}>): JSX.Element {
+export const CenteredContent: FunctionComponent = ({ children }) => {
     return (
         <div className="contentWithGuide">
             <div className={style.container}>
