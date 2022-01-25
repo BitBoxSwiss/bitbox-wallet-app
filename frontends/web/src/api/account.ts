@@ -22,7 +22,7 @@ export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth'
 
 export type AccountCode = string;
 
-export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'EUR' | 'GBP' | 'HKD' | 'ILS' | 'JPY' | 'KRW' | 'NOK' | 'RUB' | 'SGD' | 'USD';
+export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'EUR' | 'GBP' | 'HKD' | 'ILS' | 'JPY' | 'KRW' | 'NOK' | 'RUB' | 'SEK' | 'SGD' | 'USD';
 
 export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
 
