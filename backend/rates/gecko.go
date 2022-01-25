@@ -99,6 +99,7 @@ var (
 		"HKD": "hkd",
 		"BRL": "brl",
 		"NOK": "nok",
+		"SEK": "sek",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
@@ -120,5 +121,6 @@ var (
 		"hkd": "HKD",
 		"brl": "BRL",
 		"nok": "NOK",
+		"sek": "SEK",
 	}
 )

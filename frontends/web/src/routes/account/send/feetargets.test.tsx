@@ -72,6 +72,7 @@ describe('routes/account/send/feetargets', () => {
                         JPY: '1.30',
                         KRW: '14.43',
                         RUB: '0.88',
+                        SEK: '0.1',
                         SGD: '32233',
                         USD: '0.02',
                         BTC: '0.02',
