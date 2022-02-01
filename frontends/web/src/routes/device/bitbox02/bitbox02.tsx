@@ -16,7 +16,9 @@
  */
 
 import React, { Component} from 'react';
-import { Backup, BackupsListItem } from '../components/backup';
+import { Backup } from '../components/backup';
+import { multilineMarkup } from '../../../utils/markup';
+import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
@@ -392,6 +394,7 @@ class BitBox02 extends Component<Props, State> {
             agreement4,
             agreement5,
             waitDialog,
+            selectedBackup,
         } = this.state;
 
         if (status === '') {
@@ -690,20 +693,28 @@ class BitBox02 extends Component<Props, State> {
                         withBottomBar
                         width="700px">
                         <ViewHeader title={t('backup.restore.confirmTitle')}>
-                            {errorText && (
+                            {errorText ? (
                                 <Status type="warning">
                                     <span>{errorText}</span>
                                 </Status>
+                            ) : (
+                                selectedBackup ? (
+                                    <div>
+                                        {multilineMarkup({
+                                            tagName: 'div',
+                                            markup: t('backup.restore.selectedBackup', {
+                                                backupName: selectedBackup.name,
+                                                createdDateTime: convertDateToLocaleString(selectedBackup.date, this.props.i18n.language),
+                                            })
+                                        })}
+                                        <p className="text-small text-ellipsis">
+                                            ID:&nbsp;{selectedBackup.id}
+                                        </p>
+                                    </div>
+                                ) : null
                             )}
                         </ViewHeader>
                         <ViewContent>
-                            { this.state.selectedBackup ? (
-                                <BackupsListItem
-                                    backup={this.state.selectedBackup}
-                                    handleChange={() => {}}
-                                    onFocus={() => {}}
-                                    radio={false} />
-                            ) : null }
                             <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
                             <PasswordEntry />
                         </ViewContent>

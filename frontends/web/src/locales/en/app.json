@@ -138,6 +138,7 @@
         "showLabel": "Recovery password"
       },
       "restoring": "Restoring backup…",
+      "selectedBackup": "<strong>{{backupName}}</strong> created on {{createdDateTime}} will be restored.",
       "title": "Restore",
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
