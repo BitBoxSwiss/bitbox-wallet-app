@@ -146,6 +146,18 @@
     }
 }
 
+.content .largeIcon {
+    margin: 0 0 var(--space-default) 0;
+    width: 50%;
+}
+@media (max-width: 768px) {
+    .content .largeIcon {
+        margin-bottom: var(--space-half);
+        margin-top: var(--space-half);
+        max-width: 160px;
+    }
+}
+
 .content ul {
     font-size: var(--size-default);
     line-height: 1.625;

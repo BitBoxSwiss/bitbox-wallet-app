@@ -7,18 +7,6 @@
     text-align: center;
 }
 
-.largeIcon {
-    margin: 0 0 var(--space-default) 0;
-    width: 50%;
-}
-@media (max-width: 768px) {
-    .largeIcon {
-        margin-bottom: var(--space-half);
-        margin-top: var(--space-half);
-        max-width: 160px;
-    }
-}
-
 .smallIcon {
     margin: auto 0;
     width: 30px;

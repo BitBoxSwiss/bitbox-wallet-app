@@ -25,7 +25,7 @@ import { View, ViewHeader, ViewContent, ViewButtons } from '../view/view';
 import { Message } from '../message/message';
 import { Button, Field, Label, Select } from '../forms';
 import { CopyableInput } from '../copy/Copy';
-import { Cancel, Checked, PointToBitBox02 } from '../icon';
+import { Cancel, PointToBitBox02 } from '../icon';
 import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
 import styles from './aopp.module.css';
@@ -205,8 +205,7 @@ class Aopp extends Component<Props, State> {
             case 'success':
                 return (
                     <View fullscreen textCenter>
-                        <ViewContent>
-                            <Checked className={styles.largeIcon} />
+                        <ViewContent withIcon="success">
                             <p className={styles.successText}>{t('aopp.success.title')}</p>
                             <p className={styles.proceed}>
                                 {t('aopp.success.message', { host: domain(aopp.callback) })}

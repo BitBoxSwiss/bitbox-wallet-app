@@ -393,6 +393,7 @@ class BitBox02 extends Component<Props, State> {
             agreement5,
             waitDialog,
         } = this.state;
+
         if (status === '') {
             return null;
         }
@@ -714,12 +715,11 @@ class BitBox02 extends Component<Props, State> {
                         key="success"
                         fullscreen
                         textCenter
-                        withBottomBar
-                        width="600px">
+                        withBottomBar>
                         <ViewHeader title={t('bitbox02Wizard.success.title')}>
                             <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
                         </ViewHeader>
-                        <ViewContent>
+                        <ViewContent withIcon="success">
                             <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
                         </ViewContent>
                         <ViewButtons>

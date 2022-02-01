@@ -18,7 +18,7 @@ import { PropsWithChildren } from 'react';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
-import { Close } from '../icon/icon';
+import { Checked, Close } from '../icon/icon';
 import style from './view.module.css';
 
 type ViewProps = {
@@ -79,19 +79,26 @@ export function View({
 type ViewContentProps = {
     fullWidth?: boolean;
     textAlign?: 'center' | 'left';
+    withIcon?: 'success';
 }
 
 export function ViewContent({
     children,
     fullWidth,
     textAlign,
+    withIcon,
     ...props
 }: PropsWithChildren<ViewContentProps>) {
     const align = textAlign ? style[`text-${textAlign}`] : '';
     const containerWidth = fullWidth ? style.fullWidth : '';
     const classes = `${style.content} ${containerWidth} ${align}`;
     return (
-        <div className={classes} {...props}>{children}</div>
+        <div className={classes} {...props}>
+            {withIcon === 'success' && (
+                <Checked className={style.largeIcon} />
+            )}
+            {children}
+        </div>
     );
 }
 
