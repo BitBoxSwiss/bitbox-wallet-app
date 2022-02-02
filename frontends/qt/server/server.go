@@ -41,6 +41,12 @@ static char* getSaveFilename(getSaveFilenameCallback f, const char* suggestedfil
     return f(suggestedfilename);
 }
 
+// see frontends/qt/libserver.h for doc comments
+typedef void (*cppHeapFree) (void* ptr);
+static void customHeapFree(cppHeapFree f, void* ptr) {
+	f(ptr);
+}
+
 #endif
 */
 import "C"
@@ -87,6 +93,7 @@ func handleURI(uri *C.char) {
 
 //export serve
 func serve(
+	cppHeapFreeFn C.cppHeapFree,
 	pushNotificationsFn C.pushNotificationsCallback,
 	responseFn C.responseCallback,
 	notifyUserFn C.notifyUserCallback,
@@ -157,7 +164,7 @@ func serve(
 				if cFilename == nil {
 					return ""
 				}
-				defer C.free(unsafe.Pointer(cFilename))
+				defer C.customHeapFree(cppHeapFreeFn, unsafe.Pointer(cFilename))
 				filename := C.GoString(cFilename)
 				return filename
 			},

@@ -22,6 +22,14 @@ typedef char* (*getSaveFilenameCallback) (const char*);
 static char* getSaveFilename(getSaveFilenameCallback f, const char* suggestedfilename) {
     return f(suggestedfilename);
 }
+
+// equivalent to C.free but suitable for releasing a memory malloc'ed
+// in a non-posix portable environment, incompatible with cgo.
+// this is especially important on windows where the standard C runtime
+// memory management used by cgo and mingw is different from win32 API used
+// when compiling C++ code with MSVC. hence, the memory allocated with malloc
+// in C++ must always be freed by this function in Go instead of C.free.
+typedef void (*cppHeapFree) (void* ptr);
 #endif
 
 #ifdef __cplusplus
@@ -34,6 +42,7 @@ extern void backendCall(int p0, char* p1);
 extern void handleURI(char* p0);
 
 extern void serve(
+    cppHeapFree cppHeapFreeFn,
     pushNotificationsCallback pushNotificationsFn,
     responseCallback responseFn,
     notifyUserCallback notifyUserFn,

@@ -266,6 +266,8 @@ int main(int argc, char *argv[])
     workerThread.start();
 
     serve(
+        // cppHeapFree
+        [](void* ptr) { ::free(ptr); },
         // pushNotificationsCallback
         [](const char* msg) {
             if (!pageLoaded) return;
@@ -304,7 +306,7 @@ int main(int argc, char *argv[])
             // free the memory.
             std::string stdString = filename.toStdString();
             const char* cString = stdString.c_str();
-            char* result = (char*)malloc(strlen(cString)+1);
+            char* result = (char*)::malloc(strlen(cString)+1); // Go must free with C.customHeapFree
             memcpy(result, cString, strlen(cString)+1);
             return result;
         });
