@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
@@ -104,7 +104,7 @@ export function ViewContent({
 
 type HeaderProps = {
     small?: boolean;
-    title: string;
+    title: ReactNode;
     withAppLogo?: boolean;
 }
 

@@ -17,10 +17,8 @@
 
 import { Component } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { SimpleMarkup } from '../../utils/markup';
-import { Dialog } from '../dialog/dialog';
-// TODO: use DialogButtons
-import style from '../dialog/dialog.module.css';
+import { multilineMarkup } from '../../utils/markup';
+import { View, ViewHeader, ViewButtons } from '../view/view';
 import { Button } from '../forms';
 
 let alertUser: (message: string, callback?: () => void) => void;
@@ -61,27 +59,26 @@ class Alert extends Component<WithTranslation, State> {
     public render() {
         const { t } = this.props;
         const { message, active } = this.state;
-        return active ? (
-            <Dialog
-                onClose={this.handleClose}
-                disableEscape>
-                {
-                    message ? message.split('\n').map((line, i) => (
-                        <p
-                            key={i}
-                            className={ i === 0 ? 'first' : '' }>
-                            <SimpleMarkup tagName="span" markup={line} />
-                        </p>
-                    )) : null
-                }
-                <div className={style.actions}>
+        return (active && message) ? (
+            <View
+                key="alert-overlay"
+                fullscreen
+                textCenter>
+                <ViewHeader title={
+                    multilineMarkup({
+                        tagName: 'div',
+                        markup: message,
+                    })
+                }>
+                </ViewHeader>
+                <ViewButtons>
                     <Button
                         primary
                         onClick={this.handleClose}>
                         {t('button.ok')}
                     </Button>
-                </div>
-            </Dialog>
+                </ViewButtons>
+            </View>
         ) : null;
     }
 }

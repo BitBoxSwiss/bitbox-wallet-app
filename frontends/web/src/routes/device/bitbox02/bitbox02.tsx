@@ -32,12 +32,11 @@ import { alertUser } from '../../../components/alert/Alert';
 import { store as panelStore } from '../../../components/guide/guide';
 import { setSidebarStatus } from '../../../components/sidebar/sidebar';
 import Status from '../../../components/status/status';
-import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
-import { Info } from '../../../components/icon';
+import { Info, PointToBitBox02 } from '../../../components/icon';
 import style from './bitbox02.module.css';
 
 interface BitBox02Props {
@@ -425,15 +424,25 @@ class BitBox02 extends Component<Props, State> {
         if (!showWizard) {
             return <Settings deviceID={deviceID}/>;
         }
+        if (waitDialog) {
+            return (
+                <View
+                    key="wait-view"
+                    fullscreen
+                    textCenter>
+                    <ViewHeader title={waitDialog.title}>
+                        <p>{waitDialog.text ? waitDialog.text : t('bitbox02Interact.followInstructions')}</p>
+                    </ViewHeader>
+                    <ViewContent>
+                        <PointToBitBox02 />
+                    </ViewContent>
+                </View>
+            );
+        }
 
         const readDisclaimers = agreement1 && agreement2 && agreement3 && agreement4 && agreement5;
         return (
             <Main>
-                { waitDialog && (
-                    <WaitDialog title={waitDialog.title}>
-                        {waitDialog.text ? waitDialog.text : t('bitbox02Interact.followInstructions')}
-                    </WaitDialog>
-                )}
                 { (status === 'connected') ? (
                     <View
                         key="connection"

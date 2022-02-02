@@ -15,11 +15,22 @@
  */
 
 import i18n from '../i18n/i18n';
-import { extConfig } from './config';
 import { alertUser } from '../components/alert/Alert';
 import { call } from './qttransport';
 import { androidCall } from './androidtransport';
 import { runningInAndroid, runningInQtWebEngine } from './env';
+
+// extConfig is a way to set config values which are inserted
+// externally by templating engines (code generation). A default value
+// is provided in case the file wasn't generated but used directly,
+// for convenience when developing. Both key and defaultValue must be
+// strings and converted into the desired type.
+function extConfig(key, defaultValue) {
+    if (typeof key === 'string' && key.startsWith('{{ ') && key.endsWith(' }}')) {
+        return defaultValue;
+    }
+    return key;
+}
 
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
 export const apiToken = extConfig('{{ API_TOKEN }}', '');
@@ -43,6 +54,8 @@ function handleError(endpoint) {
                     return;
                 }
                 console.error('error from endpoint', endpoint, json);
+                // TODO: remove i18n.t dependency because if cyclic i18n<->request dependency
+                // TODO: deprecate alertUser
                 alertUser(i18n.t('genericError'));
                 reject(json.error);
                 return;
@@ -53,6 +66,11 @@ function handleError(endpoint) {
 }
 
 export function apiGet(endpoint) {
+    // if apiGet() is invoked immediately this can error with:
+    // request.js:64 Uncaught TypeError: Cannot read properties of undefined
+    // (reading 'runningInQtWebEngine')
+    // TODO: maybe use extConfig('{{ ENGINE_QTWEB }}', 'no') === 'yes' instead of runningInQtWebEngine()?
+    // drawback: not treeshakeable
     if (runningInQtWebEngine()) {
         return call(JSON.stringify({
             method: 'GET',

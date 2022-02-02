@@ -46,6 +46,7 @@ export const store = new Store<SharedProps>({
     selected: ['USD', 'EUR', 'CHF'],
 });
 
+// TODO: should not invoking apiGet imediatelly, see the apiGet() function for more details
 apiGet('config').then((appconf) => {
     if (appconf.frontend && appconf.backend.mainFiat) {
         store.setState({ active: appconf.backend.mainFiat });
@@ -55,6 +56,7 @@ apiGet('config').then((appconf) => {
     }
 });
 
+// TODO: should not invoking apiGet imediatelly, see the apiGet() function for more details
 apiGet('rates').then(rates => store.setState({ rates }));
 
 apiSubscribe('rates', ({ object }) => store.setState({ rates: object }));
