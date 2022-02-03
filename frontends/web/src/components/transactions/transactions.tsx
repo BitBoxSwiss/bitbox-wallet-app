@@ -21,14 +21,12 @@ import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
-import { apiPost } from '../../utils/request';
 import style from './transactions.module.css';
 
 interface TransactionsProps {
     accountCode: string;
     explorerURL: string;
     transactions?: ITransaction[];
-    exported: string;
     handleExport: () => void;
 }
 
@@ -41,7 +39,6 @@ class Transactions extends Component<Props> {
             accountCode,
             explorerURL,
             transactions,
-            exported,
             handleExport,
         } = this.props;
         // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
@@ -52,15 +49,8 @@ class Transactions extends Component<Props> {
                 <div className="flex flex-row flex-between flex-items-center">
                     <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
                     { !csvExportDisabled && (
-                        exported ? (
-                            <A key="open" href="#" onClick={() => apiPost('open', exported)} className="labelXLarge labelLink">
-                                {t('account.openFile')}
-                            </A>
-                        ) : (
-                            <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
-                        )
-                    )
-                    }
+                          <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
+                    ) }
                 </div>
                 <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
                     <div className={style.type}>{t('transaction.details.type')}</div>

@@ -20,7 +20,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -42,7 +41,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
-	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -633,8 +631,7 @@ func (backend *Backend) NotifyUser(text string) {
 
 // SystemOpen opens the given URL using backend.environment.
 // It consults fixedURLWhitelist, matching the URL with each whitelist item.
-// If an item is a prefix of url, it is allowed to be openend. Otherwise, an ad-hoc
-// patter matching is performed for URLs like the CSV export download path.
+// If an item is a prefix of url, it is allowed to be openend.
 //
 // If none matched, an ad-hoc URL construction failed or opening a URL failed,
 // an error is returned.
@@ -642,17 +639,6 @@ func (backend *Backend) SystemOpen(url string) error {
 	backend.log.Infof("SystemOpen: attempting to open url: %v", url)
 	for _, whitelisted := range fixedURLWhitelist {
 		if strings.HasPrefix(url, whitelisted) {
-			return backend.environment.SystemOpen(url)
-		}
-	}
-
-	if runtime.GOOS != "android" { // TODO: fix DownloadsDir() for android
-		// Whitelist CSV export.
-		downloadDir, err := utilConfig.DownloadsDir()
-		if err != nil {
-			return err
-		}
-		if strings.HasPrefix(url, downloadDir) {
 			return backend.environment.SystemOpen(url)
 		}
 	}

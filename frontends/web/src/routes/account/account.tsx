@@ -65,7 +65,6 @@ interface State {
     transactions?: accountApi.ITransaction[];
     balance?: accountApi.IBalance;
     hasCard: boolean;
-    exported: string;
     accountInfo?: accountApi.ISigningConfigurationList;
     syncedAddressesCount?: number;
 }
@@ -78,7 +77,6 @@ class Account extends Component<Props, State> {
         transactions: undefined,
         balance: undefined,
         hasCard: false,
-        exported: '',
         accountInfo: undefined,
         syncedAddressesCount: undefined,
     };
@@ -218,7 +216,6 @@ class Account extends Component<Props, State> {
                 transactions: undefined,
             });
         }
-        this.setState({ exported: '' });
     }
 
     private export = () => {
@@ -227,12 +224,8 @@ class Account extends Component<Props, State> {
         }
         accountApi.exportAccount(this.props.code)
             .then(result => {
-                if (result !== null) {
-                    if (result.success) {
-                        this.setState({ exported: result.path });
-                    } else {
-                        alertUser(result.errorMessage);
-                    }
+                if (result !== null && !result.success) {
+                    alertUser(result.errorMessage);
                 }
             })
             .catch(console.error);
@@ -276,7 +269,6 @@ class Account extends Component<Props, State> {
             transactions,
             balance,
             hasCard,
-            exported,
             accountInfo,
             syncedAddressesCount,
         } = this.state;
@@ -360,7 +352,6 @@ class Account extends Component<Props, State> {
                                 ) : (
                                     <Transactions
                                         accountCode={code}
-                                        exported={exported}
                                         handleExport={this.export}
                                         explorerURL={account.blockExplorerTxPrefix}
                                         transactions={transactions}
