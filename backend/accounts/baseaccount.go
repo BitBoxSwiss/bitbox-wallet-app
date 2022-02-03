@@ -57,6 +57,8 @@ type AccountConfig struct {
 	SigningConfigurations signing.Configurations
 	GetNotifier           func(signing.Configurations) Notifier
 	GetSaveFilename       func(suggestedFilename string) string
+	// Opens a file in a default application. The filename is not checked.
+	UnsafeSystemOpen func(filename string) error
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.

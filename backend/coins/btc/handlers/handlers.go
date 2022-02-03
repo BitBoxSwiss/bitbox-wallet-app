@@ -196,7 +196,6 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
 	type result struct {
 		Success      bool   `json:"success"`
-		Path         string `json:"path"`
 		ErrorMessage string `json:"errorMessage"`
 	}
 	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Code)
@@ -232,7 +231,11 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		handlers.log.WithError(err).Error("error exporting account")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	return result{Success: true, Path: path}, nil
+	if err := handlers.account.Config().UnsafeSystemOpen(path); err != nil {
+		handlers.log.WithError(err).Error("error exporting account")
+		return result{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return result{Success: true}, nil
 }
 
 func (handlers *Handlers) getAccountInfo(_ *http.Request) (interface{}, error) {
