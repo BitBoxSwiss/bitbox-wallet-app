@@ -36,6 +36,7 @@
 
     /* background colors */
     --background: var(--color-lightgray);
+    --bg-transparent-dark: rgba(0, 0, 0, 0.4);
 
     /* font sizes */
     --size-extra-large: 2.2rem;

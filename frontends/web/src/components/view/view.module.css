@@ -13,11 +13,15 @@
     /* z-index between sidebar (~4000) and wait-dialog (~10000) */
     z-index: 5100;
 }
-
 :global(.container) .fullscreen {
     /* view components within the content are i.e. unlock
     should have lower z-index than outside content are, i.e. AOPP */
     z-index: 5050;
+}
+
+.dialog {
+    background-color: var(--bg-transparent-dark);
+    justify-content: center;
 }
 
 .fill {
@@ -74,11 +78,21 @@
         width: 580px;
     }
 }
+.dialog .inner {
+    background-color: var(--color-white);
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+    flex-grow: 0;
+}
 
 .header {
     color: var(--color-gray);
     font-size: var(--size-default);
     margin-bottom: var(--space-default);
+}
+.dialog .header {
+    padding-left: var(--space-default);
+    padding-top: 0;
+    padding-right: var(--space-default);
 }
 @media (max-width: 768px) {
     .header {
@@ -98,6 +112,11 @@
     }
     .smallHeader {
         padding-top: 0;
+    }
+    .dialog .header {
+        padding-left: var(--space-half);
+        padding-top: 0;
+        padding-right: var(--space-half);
     }
 }
 
@@ -140,9 +159,17 @@
         padding: 0;
     }
 }
+@media (max-width: 1199px) {
+    .dialog .content {
+        padding: 0 var(--space-half);
+    }
+}
 @media (min-width: 1200px) {
     .content {
         min-height: 130px;
+    }
+    .dialog .content {
+        padding: var(--space-half) var(--space-default);
     }
 }
 
@@ -175,6 +202,10 @@
     margin-top: var(--space-default);
     padding-bottom: var(--space-half);
 }
+.dialog .buttons {
+    padding-left: var(--space-default);
+    padding-right: var(--space-default);
+}
 @media (max-width: 768px) {
     .buttons {
         padding: 0 var(--space-half);
@@ -190,6 +221,11 @@
     }
     .buttons > *:not(:last-child) {
         margin-bottom: var(--space-half);
+    }
+}
+@media (max-width: 1199px) {
+    .dialog .buttons {
+        padding: 0 var(--space-half);
     }
 }
 .textCenter .buttons > *:only-child {

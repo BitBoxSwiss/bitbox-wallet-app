@@ -255,7 +255,7 @@ class BitBox02 extends Component<Props, State> {
                     return true;
                 }
                 if (errorMessage) {
-                    alertUser(errorMessage);
+                    alertUser(errorMessage, { asDialog: false });
                 }
                 return false;
             });
@@ -306,7 +306,7 @@ class BitBox02 extends Component<Props, State> {
     private createBackup = () => {
         this.insertSDCard().then(success1 => {
             if (!success1) {
-                alertUser(this.props.t('bitbox02Wizard.createBackupFailed'));
+                alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
                 return;
             }
 
@@ -316,7 +316,7 @@ class BitBox02 extends Component<Props, State> {
             } });
             apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
                 if (!success) {
-                    alertUser(this.props.t('bitbox02Wizard.createBackupFailed'));
+                    alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
                 }
                 this.setState({ creatingBackup: false, waitDialog: undefined });
             });
@@ -337,7 +337,7 @@ class BitBox02 extends Component<Props, State> {
             if (result.success) {
                 this.setPassword();
             } else if (result.message) {
-                alertUser(result.message);
+                alertUser(result.message, { asDialog: false });
             }
         });
     }
@@ -349,7 +349,7 @@ class BitBox02 extends Component<Props, State> {
         } });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
             if (!success) {
-                alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'));
+                alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'), { asDialog: false });
             } else {
                 this.setState({
                     appStatus: 'restoreFromMnemonic',

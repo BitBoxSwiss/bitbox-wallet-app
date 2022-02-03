@@ -352,7 +352,7 @@ class Send extends Component<Props, State> {
                     this.setState({ proposedFee: undefined });
                     if (errorCode) {
                         this.unregisterEvents();
-                        alertUser(errorCode, this.registerEvents);
+                        alertUser(errorCode, { callback: this.registerEvents });
                     }
             }
             this.setState({ isUpdatingProposal: false });

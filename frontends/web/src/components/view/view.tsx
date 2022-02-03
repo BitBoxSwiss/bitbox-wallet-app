@@ -22,6 +22,7 @@ import { Checked, Close } from '../icon/icon';
 import style from './view.module.css';
 
 type ViewProps = {
+    dialog?: boolean;
     fullscreen?: boolean;
     minHeight?: string;
     top?: boolean;
@@ -33,6 +34,7 @@ type ViewProps = {
 }
 
 export function View({
+    dialog = false,
     fullscreen,
     top = false,
     children,
@@ -42,6 +44,11 @@ export function View({
     width,
     withBottomBar,
 }: PropsWithChildren<ViewProps>) {
+    const containerClasses = `${
+        style[fullscreen ? 'fullscreen' : 'fill']
+    } ${
+        dialog ? style.dialog : ''
+    }`;
     let classNames = style.inner;
     if (!top) {
         classNames += ` ${style.center}`;
@@ -54,7 +61,7 @@ export function View({
         ...(width && { width }),
     };
     return (
-        <div className={fullscreen ? style.fullscreen : style.fill}>
+        <div className={containerClasses}>
             <div
                 className={classNames}
                 style={inlineStyles}>
