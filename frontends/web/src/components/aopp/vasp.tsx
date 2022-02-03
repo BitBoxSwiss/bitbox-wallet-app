@@ -51,7 +51,7 @@ export function Vasp({
 }: PropsWithChildren<VASPProps>) {
     const hasLogo = hostname in VASPLogoMap;
     if (!hasLogo) {
-        return fallback || (<div className={styles.hostname}>{hostname}</div>);
+        return fallback || (<p className={styles.hostname}>{hostname}</p>);
     }
     const logoClasses = prominent ? `${styles.logo} ${styles.prominent}` : styles.logo;
     return (

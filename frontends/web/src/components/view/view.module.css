@@ -85,7 +85,7 @@
 }
 
 .header {
-    color: var(--color-gray);
+    color: var(--color-secondary);
     font-size: var(--size-default);
     margin-bottom: var(--space-default);
 }

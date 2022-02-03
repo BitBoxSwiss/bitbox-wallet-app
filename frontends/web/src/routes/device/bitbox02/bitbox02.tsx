@@ -467,26 +467,26 @@ class BitBox02 extends Component<Props, State> {
 
                 {(status === 'unpaired' || status === 'pairingFailed') && (
                     <View
-                        key="failed-pairing"
+                        key="pairing"
                         fullscreen
                         textCenter
                         withBottomBar
                         width="670px">
                         <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
-                            <p>{t('bitbox02Wizard.stepUnpaired.verify')}</p>
-                        </ViewHeader>
-                        <ViewContent fullWidth>
                             { status === 'pairingFailed' ? (
                                 <Status type="warning">
                                     {t('bitbox02Wizard.pairing.failed')}
                                 </Status>
                             ) : (
-                                attestationResult === false && (
-                                    <Status type="warning">
-                                        {t('bitbox02Wizard.attestationFailed')}
-                                    </Status>
-                                )
+                                <p>{t('bitbox02Wizard.stepUnpaired.verify')}</p>
                             )}
+                            { (attestationResult === false && status !== 'pairingFailed') && (
+                                <Status type="warning">
+                                    {t('bitbox02Wizard.attestationFailed')}
+                                </Status>
+                            )}
+                        </ViewHeader>
+                        <ViewContent fullWidth>
                             { status !== 'pairingFailed' && (
                                 <pre>{hash}</pre>
                             )}
@@ -495,7 +495,8 @@ class BitBox02 extends Component<Props, State> {
                             <Button
                                 primary
                                 onClick={() => this.channelVerify(true)}
-                                disabled={!deviceVerified}>
+                                disabled={!deviceVerified}
+                                hidden={status === 'pairingFailed'}>
                                 {t('bitbox02Wizard.pairing.confirmButton')}
                             </Button>
                         </ViewButtons>
@@ -563,6 +564,7 @@ class BitBox02 extends Component<Props, State> {
                                     <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
                                 </Status>
                             )}
+                            <p>{t('bitbox02Wizard.stepCreate.description')}</p>
                         </ViewHeader>
                         <ViewContent>
                             <Input
@@ -596,16 +598,16 @@ class BitBox02 extends Component<Props, State> {
                         fullscreen
                         textCenter
                         withBottomBar
-                        width="700px">
+                        width="600px">
                         <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
                             {errorText && (
                                 <Status type="warning">
                                     <span>{errorText}</span>
                                 </Status>
                             )}
+                            <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
                         </ViewHeader>
                         <ViewContent>
-                            <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
                             <PasswordEntry />
                         </ViewContent>
                     </View>
@@ -757,8 +759,7 @@ class BitBox02 extends Component<Props, State> {
                         textCenter
                         withBottomBar
                         width="700px">
-                        <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')}>
-                        </ViewHeader>
+                        <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
                         <ViewContent textAlign="left">
                             <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
                             <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
@@ -785,9 +786,8 @@ class BitBox02 extends Component<Props, State> {
                         textCenter
                         withBottomBar
                         width="700px">
-                        <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')}>
-                        </ViewHeader>
-                        <ViewContent>
+                        <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
+                        <ViewContent textAlign="left">
                             <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
                             <ul>
                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>

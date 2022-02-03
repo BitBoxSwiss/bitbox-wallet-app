@@ -245,6 +245,7 @@
     "stepCreate": {
       "buttonBack": "Go back",
       "buttonContinue": "Continue",
+      "description": "This name is used as the device name and for the backup.",
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
       "title": "Choose BitBox02 name",

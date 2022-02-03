@@ -85,6 +85,7 @@ export function View({
 
 type ViewContentProps = {
     fullWidth?: boolean;
+    minHeight?: string;
     textAlign?: 'center' | 'left';
     withIcon?: 'success';
 }
@@ -92,6 +93,7 @@ type ViewContentProps = {
 export function ViewContent({
     children,
     fullWidth,
+    minHeight,
     textAlign,
     withIcon,
     ...props
@@ -100,7 +102,10 @@ export function ViewContent({
     const containerWidth = fullWidth ? style.fullWidth : '';
     const classes = `${style.content} ${containerWidth} ${align}`;
     return (
-        <div className={classes} {...props}>
+        <div
+            className={classes}
+            style={minHeight ? { minHeight } : {}}
+            {...props}>
             {withIcon === 'success' && (
                 <Checked className={style.largeIcon} />
             )}

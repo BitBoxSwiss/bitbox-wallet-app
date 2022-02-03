@@ -18,7 +18,7 @@
 import { Component } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { multilineMarkup } from '../../utils/markup';
-import { View, ViewContent, ViewButtons } from '../view/view';
+import { View, ViewButtons, ViewHeader } from '../view/view';
 import { Button } from '../forms';
 
 /**
@@ -88,12 +88,10 @@ class Alert extends Component<WithTranslation, State> {
                     dialog={asDialog}
                     textCenter={!asDialog}
                     fullscreen>
-                    <ViewContent>
-                        {multilineMarkup({
-                            tagName: 'div',
-                            markup: message,
-                        })}
-                    </ViewContent>
+                    <ViewHeader title={multilineMarkup({
+                        tagName: 'div',
+                        markup: message,
+                    })} />
                     <ViewButtons>
                         <Button
                             autoFocus

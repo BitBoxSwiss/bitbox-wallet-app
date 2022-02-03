@@ -1,3 +1,7 @@
+.radio {
+    --size-default: 14px;
+}
+
 .radio input {
     position: absolute;
     opacity: 0;
