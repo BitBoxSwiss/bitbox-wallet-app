@@ -2,7 +2,8 @@
 
 ## [Unreleased]
 
-## 4.31.1 [tagged 2022-01-25]
+## 4.31.1 [2022-02-07]
+- Bundle BitBox02 Multi firmware version v9.9.1
 - Add a file picker dialog to choose where to export a CSV to
 - Fix display of server name and checking the server connection in 'Connect your own full node'
 - Add support for Swedish krona (SEK)
