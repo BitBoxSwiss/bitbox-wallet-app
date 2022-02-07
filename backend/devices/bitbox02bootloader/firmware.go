@@ -29,9 +29,9 @@ import (
 var firmwareBinaryBTCOnly []byte
 var firmwareVersionBTCOnly = semver.NewSemVer(9, 9, 0)
 
-//go:embed assets/firmware.v9.9.0.signed.bin.gz
+//go:embed assets/firmware.v9.9.1.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 9, 0)
+var firmwareVersionMulti = semver.NewSemVer(9, 9, 1)
 
 type firmwareInfo struct {
 	version *semver.SemVer
