@@ -23,11 +23,14 @@ const (
 	// ScriptTypeP2PKH is a PayToPubKeyHash output.
 	ScriptTypeP2PKH ScriptType = "p2pkh"
 
-	// ScriptTypeP2WPKHP2SH is a segwit PayToPubKeyHash output wrapped in p2sh.
+	// ScriptTypeP2WPKHP2SH is a segwit v0 PayToPubKeyHash output wrapped in p2sh.
 	ScriptTypeP2WPKHP2SH ScriptType = "p2wpkh-p2sh"
 
-	// ScriptTypeP2WPKH is a segwit PayToPubKeyHash output.
+	// ScriptTypeP2WPKH is a segwit v0 PayToPubKeyHash output.
 	ScriptTypeP2WPKH ScriptType = "p2wpkh"
+
+	// ScriptTypeP2TR is a BIP-86 segwit v1 PayToTaproot output.
+	ScriptTypeP2TR ScriptType = "p2tr"
 )
 
 // DecodeScriptType decodes the given script type or returns an error.

@@ -15,16 +15,25 @@
 package addresses_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	testlog "github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
+
+func TestMain(m *testing.M) {
+	testlog.TstSetupLogging()
+	os.Exit(m.Run())
+}
 
 var net = &chaincfg.TestNet3Params
 
@@ -60,4 +69,45 @@ func (s *addressTestSuite) TestScriptHashHex() {
 	require.Equal(s.T(),
 		blockchain.ScriptHashHex("0466d0029406f583feadaccb91c7b5b855eb5d6782316cafa4f390b7c784436b"),
 		s.address.PubkeyScriptHashHex())
+}
+
+func TestAddressP2TR(t *testing.T) {
+	// Test vectors from https://github.com/bitcoin/bips/blob/a3a397c82384220fc871852c809f73898a4d547c/bip-0086.mediawiki#Test_vectors
+
+	extendedPublicKey, err := hdkeychain.NewKeyFromString("xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ")
+	require.NoError(t, err)
+	keypath, err := signing.NewAbsoluteKeypath("m/86'/0'/0'")
+	require.NoError(t, err)
+	for _, test := range []struct {
+		path            string
+		expectedAddress string
+	}{
+		{
+			path:            "0/0",
+			expectedAddress: "bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr",
+		},
+		{
+			path:            "0/1",
+			expectedAddress: "bc1p4qhjn9zdvkux4e44uhx8tc55attvtyu358kutcqkudyccelu0was9fqzwh",
+		},
+		{
+			path:            "1/0",
+			expectedAddress: "bc1p3qkhfews2uk44qtvauqyr2ttdsw7svhkl9nkm9s9c3x4ax5h60wqwruhk7",
+		},
+	} {
+		relKeypath, err := signing.NewRelativeKeypath(test.path)
+		require.NoError(t, err)
+		addr := addresses.NewAccountAddress(
+			signing.NewBitcoinConfiguration(
+				signing.ScriptTypeP2TR,
+				[]byte{1, 2, 3, 4},
+				keypath,
+				extendedPublicKey,
+			),
+			relKeypath,
+			&chaincfg.MainNetParams,
+			logging.Get().WithGroup("addresses_test"),
+		)
+		require.Equal(t, test.expectedAddress, addr.EncodeForHumans())
+	}
 }
