@@ -881,8 +881,8 @@
   },
   "loading": "लोड हो रहा है…",
   "notification": {
-    "newTxs": "{{accountName}} में इसमें नया ट्रांजेक्शन",
-    "newTxs_plural": "{{accountName}} में {{count}} नए ट्रांजेक्शंस"
+    "newTxs_one": "{{accountName}} में इसमें नया ट्रांजेक्शन",
+    "newTxs_other": "{{accountName}} में {{count}} नए ट्रांजेक्शंस"
   },
   "pairing": {
     "aborted": {

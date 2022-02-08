@@ -1068,8 +1068,8 @@
     "title": "Nota"
   },
   "notification": {
-    "newTxs": "Nueva transacción en: {{accountName}}",
-    "newTxs_plural": "{{count}} nuevas transacciones en: {{accountName}}"
+    "newTxs_one": "Nueva transacción en: {{accountName}}",
+    "newTxs_other": "{{count}} nuevas transacciones en: {{accountName}}"
   },
   "pairing": {
     "aborted": {

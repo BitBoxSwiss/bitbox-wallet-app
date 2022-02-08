@@ -808,8 +808,8 @@
   },
   "loading": "зареждане...",
   "notification": {
-    "newTxs": "Нова транзакция в {{accountName}}",
-    "newTxs_plural": "{{count}} нови транзакции в {{accountName}}"
+    "newTxs_one": "Нова транзакция в {{accountName}}",
+    "newTxs_other": "{{count}} нови транзакции в {{accountName}}"
   },
   "pairing": {
     "aborted": {

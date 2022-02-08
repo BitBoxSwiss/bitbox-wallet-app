@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "@zxing/library": "0.18.3",
-    "i18next": "20.6.0",
+    "i18next": "21.6.3",
     "lightweight-charts": "3.1.5",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-i18next": "11.11.4",
+    "react-i18next": "11.15.1",
     "react-router-dom": "6.0.2"
   },
   "eslintConfig": {
