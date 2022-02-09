@@ -119,13 +119,13 @@ class Dialog extends Component<Props, State> {
             return;
         }
         this.modal.current.classList.remove(style.activeModal);
+        this.overlay.current.classList.remove(style.activeOverlay);
         this.setState({ active: false, currentTab: 0 }, () => {
             document.removeEventListener('keydown', this.handleKeyDown);
             if (this.props.onClose) {
                 this.props.onClose();
             }
         });
-        this.overlay.current.classList.remove(style.activeOverlay);
     }
 
     private activate = () => {
