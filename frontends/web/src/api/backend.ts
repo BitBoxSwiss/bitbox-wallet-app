@@ -49,3 +49,7 @@ export const renameAccount = (accountCode: AccountCode, name: string): Promise<I
 export const reinitializeAccounts = (): Promise<null> => {
     return apiPost('accounts/reinitialize');
 };
+
+export const getTesting = (): Promise<boolean> => {
+    return apiGet('testing');
+};
