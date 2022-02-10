@@ -17,14 +17,13 @@
 
 import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad, useSubscribe } from '../hooks/api';
+import { useSync } from '../hooks/api';
 import { getUsingMobileData, subscribeUsingMobileData } from '../api/mobiledata';
 import Status from './status/status';
 
 export const MobileDataWarning: FunctionComponent = () => {
     const { t } = useTranslation();
-    const isUsingMobileData = useLoad(getUsingMobileData);
-    const usingMobileData = useSubscribe(subscribeUsingMobileData);
+    const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
     if (isUsingMobileData === undefined) {
         return null;
     }
@@ -32,7 +31,7 @@ export const MobileDataWarning: FunctionComponent = () => {
         <Status
             dismissable="mobile-data-warning"
             type="warning"
-            hidden={usingMobileData === false || !isUsingMobileData}>
+            hidden={!isUsingMobileData}>
             {t('mobile.usingMobileDataWarning')}
         </Status>
     );
