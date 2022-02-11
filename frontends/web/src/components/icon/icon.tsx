@@ -23,6 +23,7 @@ import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
+import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = (): JSX.Element => (
@@ -97,3 +98,4 @@ export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false}
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
+export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
