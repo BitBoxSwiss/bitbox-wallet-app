@@ -96,7 +96,7 @@ export default class Status extends Component<Props, State> {
             return null;
         }
         return (
-            <div className={[style.container, style[type], className ? className : ''].join(' ')}>
+            <div className={[style.container, style[type], className ? className : '', dismissable ? style.withCloseBtn : ''].join(' ')}>
                 <div className={style.status}>
                     {children}
                     <button
