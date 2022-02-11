@@ -63,12 +63,6 @@
     height: 18px;
 }
 
-@media (max-width: 768px) {
-    .status {
-        font-size: var(--size-subheader-mobile);
-    }
-}
-
 @media (max-width: 1199px) {
     .container {
         padding: calc(var(--space-half) * 1.5);

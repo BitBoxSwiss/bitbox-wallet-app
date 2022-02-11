@@ -185,9 +185,3 @@
     80% { content: "⠇"; }
     90% { content: "⠏"; }
 }
-
-@media screen and (max-width: 640px) {
-    .title {
-        font-size: var(--size-subheader-mobile);
-    }
-}
