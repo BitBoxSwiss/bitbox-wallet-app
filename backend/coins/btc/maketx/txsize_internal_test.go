@@ -34,6 +34,7 @@ var scriptTypes = []signing.ScriptType{
 	signing.ScriptTypeP2PKH,
 	signing.ScriptTypeP2WPKHP2SH,
 	signing.ScriptTypeP2WPKH,
+	signing.ScriptTypeP2TR,
 }
 
 func testEstimateTxSize(
@@ -110,10 +111,14 @@ func TestSigScriptWitnessSize(t *testing.T) {
 	for _, scriptType := range scriptTypes {
 		address := test.GetAddress(scriptType)
 		t.Run(address.Configuration.String(), func(t *testing.T) {
-			sigScriptSize, hasWitness := sigScriptWitnessSize(address.Configuration)
+			sigScriptSize, witnessSize := sigScriptWitnessSize(address.Configuration)
 			sigScript, witness := address.SignatureScript(types.Signature{R: sig.R, S: sig.S})
 			require.Equal(t, len(sigScript), sigScriptSize)
-			require.Equal(t, witness != nil, hasWitness)
+			if witness != nil {
+				require.Equal(t, witness.SerializeSize(), witnessSize)
+			} else {
+				require.Equal(t, 0, witnessSize)
+			}
 		})
 	}
 }

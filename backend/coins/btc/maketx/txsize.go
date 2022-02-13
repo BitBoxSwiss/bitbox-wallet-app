@@ -31,8 +31,22 @@ func outputSize(pkScriptSize int) int {
 	return 8 + wire.VarIntSerializeSize(uint64(pkScriptSize)) + pkScriptSize
 }
 
-// sigScriptWitnessSize returns the maximum possible sigscript size for a given address type.
-func sigScriptWitnessSize(configuration *signing.Configuration) (int, bool) {
+const (
+	// Including SIGHASH op. Assumes signatures follow the low-S requirement.
+	// See https://en.bitcoin.it/wiki/BIP_0062#DER_encoding
+	signatureSize = 72
+	pubkeySize    = 33
+)
+
+// Segwit v0 witnesses.
+// <serialized sig> <serialized compressed pubkey>.
+var witnessV0Size = wire.VarIntSerializeSize(2) +
+	wire.VarIntSerializeSize(signatureSize) + signatureSize +
+	wire.VarIntSerializeSize(pubkeySize) + pubkeySize
+
+// sigScriptWitnessSize returns the maximum possible sigscript/witness size for a given address type.
+// If there is no witness, 0 is returned.
+func sigScriptWitnessSize(configuration *signing.Configuration) (int, int) {
 	switch configuration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		// OP_DATA_72
@@ -40,14 +54,17 @@ func sigScriptWitnessSize(configuration *signing.Configuration) (int, bool) {
 		// OP_DATA_33
 		// 33 bytes of compressed pubkey
 		// OP_73, OP_33 are data push ops.
-		return 1 + 72 + 1 + 33, false
+		return 1 + 72 + 1 + 33, 0
 	case signing.ScriptTypeP2WPKHP2SH:
 		// OP_0 (1 byte) OP_20 (1 byte) pubkeyHash (20 bytes)
 		const redeemScriptSize = 1 + 1 + 20
 		// OP_DATA_22 (1 Byte) redeemScript (22 bytes)
-		return 1 + redeemScriptSize, true
+		return 1 + redeemScriptSize, witnessV0Size
 	case signing.ScriptTypeP2WPKH:
-		return 0, true // hooray
+		return 0, witnessV0Size
+	case signing.ScriptTypeP2TR:
+		// Taproot key spend: <64 byte sig>
+		return 0, wire.VarIntSerializeSize(1) + wire.VarIntSerializeSize(64) + 64
 	default:
 		panic("unknown address type")
 	}
@@ -87,34 +104,20 @@ func estimateTxSize(
 
 	isSegwitTx := false
 	for _, inputConfiguration := range inputConfigurations {
-		_, hasWitness := sigScriptWitnessSize(inputConfiguration)
-		if hasWitness {
+		_, witnessSize := sigScriptWitnessSize(inputConfiguration)
+		if witnessSize > 0 {
 			isSegwitTx = true
 			break
 		}
 	}
 
 	for _, inputConfiguration := range inputConfigurations {
-		sigScriptSize, hasWitness := sigScriptWitnessSize(inputConfiguration)
-		txWeight += nonWitness * calcInputSize(sigScriptSize)
-		if isSegwitTx {
-			const (
-				// Including SIGHASH op. Assumes signatures follow the low-S requirement.
-				// See https://en.bitcoin.it/wiki/BIP_0062#DER_encoding
-				signatureSize = 72
-				pubkeySize    = 33
-			)
-			if hasWitness {
-				// For now, every input has a witness serialization of this format:
-				// <serialized sig> <serialized compressed pubkey>
-				txWeight += wire.VarIntSerializeSize(2) +
-					wire.VarIntSerializeSize(signatureSize) + signatureSize +
-					wire.VarIntSerializeSize(pubkeySize) + pubkeySize
-			} else {
-				// "Empty script witnesses are encoded as a zero byte"
-				// https://github.com/bitcoin/bips/blob/d8a56c9f2b521bf4af5d588f217e7618cc44952c/bip-0144.mediawiki
-				txWeight += wire.VarIntSerializeSize(0)
-			}
+		sigScriptSize, witnessSize := sigScriptWitnessSize(inputConfiguration)
+		txWeight += nonWitness*calcInputSize(sigScriptSize) + witnessSize
+		if isSegwitTx && witnessSize == 0 {
+			// "Empty script witnesses are encoded as a zero byte"
+			// https://github.com/bitcoin/bips/blob/d8a56c9f2b521bf4af5d588f217e7618cc44952c/bip-0144.mediawiki
+			txWeight += wire.VarIntSerializeSize(0)
 		}
 	}
 	if isSegwitTx {
