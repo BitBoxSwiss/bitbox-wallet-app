@@ -16,7 +16,6 @@ package maketx
 
 import (
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
@@ -30,6 +29,28 @@ func outputSize(pkScriptSize int) int {
 		return 0
 	}
 	return 8 + wire.VarIntSerializeSize(uint64(pkScriptSize)) + pkScriptSize
+}
+
+// sigScriptWitnessSize returns the maximum possible sigscript size for a given address type.
+func sigScriptWitnessSize(configuration *signing.Configuration) (int, bool) {
+	switch configuration.ScriptType() {
+	case signing.ScriptTypeP2PKH:
+		// OP_DATA_72
+		// 72 bytes of signature data (including SIGHASH op)
+		// OP_DATA_33
+		// 33 bytes of compressed pubkey
+		// OP_73, OP_33 are data push ops.
+		return 1 + 72 + 1 + 33, false
+	case signing.ScriptTypeP2WPKHP2SH:
+		// OP_0 (1 byte) OP_20 (1 byte) pubkeyHash (20 bytes)
+		const redeemScriptSize = 1 + 1 + 20
+		// OP_DATA_22 (1 Byte) redeemScript (22 bytes)
+		return 1 + redeemScriptSize, true
+	case signing.ScriptTypeP2WPKH:
+		return 0, true // hooray
+	default:
+		panic("unknown address type")
+	}
 }
 
 // estimateTxSize gives the worst case tx size estimate. The unit of the result is vbyte (virtual
@@ -66,7 +87,7 @@ func estimateTxSize(
 
 	isSegwitTx := false
 	for _, inputConfiguration := range inputConfigurations {
-		_, hasWitness := addresses.SigScriptWitnessSize(inputConfiguration)
+		_, hasWitness := sigScriptWitnessSize(inputConfiguration)
 		if hasWitness {
 			isSegwitTx = true
 			break
@@ -74,7 +95,7 @@ func estimateTxSize(
 	}
 
 	for _, inputConfiguration := range inputConfigurations {
-		sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(inputConfiguration)
+		sigScriptSize, hasWitness := sigScriptWitnessSize(inputConfiguration)
 		txWeight += nonWitness * calcInputSize(sigScriptSize)
 		if isSegwitTx {
 			const (
