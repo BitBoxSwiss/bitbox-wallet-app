@@ -24,6 +24,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +67,7 @@ func testEstimateTxSize(
 	for counter := 0; counter < 10; counter++ {
 		for _, inputScriptType := range inputScriptTypes {
 			inputAddress := addressesTest.GetAddress(inputScriptType)
-			sigScript, witness := inputAddress.SignatureScript(*sig)
+			sigScript, witness := inputAddress.SignatureScript(types.Signature{R: sig.R, S: sig.S})
 			tx.TxIn = append(tx.TxIn, &wire.TxIn{
 				SignatureScript: sigScript,
 				Witness:         witness,

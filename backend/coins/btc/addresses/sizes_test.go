@@ -21,6 +21,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
@@ -45,7 +46,7 @@ func TestSigScriptWitnessSize(t *testing.T) {
 		address := test.GetAddress(scriptType)
 		t.Run(address.Configuration.String(), func(t *testing.T) {
 			sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(address.Configuration)
-			sigScript, witness := address.SignatureScript(*sig)
+			sigScript, witness := address.SignatureScript(types.Signature{R: sig.R, S: sig.S})
 			require.Equal(t, len(sigScript), sigScriptSize)
 			require.Equal(t, witness != nil, hasWitness)
 		})

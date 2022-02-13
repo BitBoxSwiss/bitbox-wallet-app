@@ -25,6 +25,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	ourbtcutil "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
@@ -209,13 +210,13 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 // SignatureScript returns the signature script (and witness) needed to spend from this address.
 // The signatures have to be provided in the order of the configuration (and some can be nil).
 func (address *AccountAddress) SignatureScript(
-	signature btcec.Signature,
+	signature types.Signature,
 ) ([]byte, wire.TxWitness) {
 	publicKey := address.Configuration.PublicKey()
 	switch address.Configuration.ScriptType() {
 	case signing.ScriptTypeP2PKH:
 		signatureScript, err := txscript.NewScriptBuilder().
-			AddData(append(signature.Serialize(), byte(txscript.SigHashAll))).
+			AddData(append(signature.SerializeDER(), byte(txscript.SigHashAll))).
 			AddData(publicKey.SerializeCompressed()).
 			Script()
 		if err != nil {
@@ -230,14 +231,22 @@ func (address *AccountAddress) SignatureScript(
 			address.log.WithError(err).Panic("Failed to build segwit signature script.")
 		}
 		txWitness := wire.TxWitness{
-			append(signature.Serialize(), byte(txscript.SigHashAll)),
+			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
 			publicKey.SerializeCompressed(),
 		}
 		return signatureScript, txWitness
 	case signing.ScriptTypeP2WPKH:
 		txWitness := wire.TxWitness{
-			append(signature.Serialize(), byte(txscript.SigHashAll)),
+			append(signature.SerializeDER(), byte(txscript.SigHashAll)),
 			publicKey.SerializeCompressed(),
+		}
+		return []byte{}, txWitness
+	case signing.ScriptTypeP2TR:
+		// We assume SIGHASH_DEFAULT, which defaults to SIGHASH_ALL without needing to explicitly
+		// append it to the signature. See:
+		// https://github.com/bitcoin/bips/blob/97e02b2223b21753acefa813a4e59dbb6e849e77/bip-0341.mediawiki#taproot-key-path-spending-signature-validation
+		txWitness := wire.TxWitness{
+			signature.SerializeCompact(),
 		}
 		return []byte{}, txWitness
 	default:
