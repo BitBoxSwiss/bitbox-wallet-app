@@ -1,57 +1,22 @@
-.receiveContent {
-    margin: 0 auto;
-    text-align: center;
-    max-width: 420px;
-    width: 100%;
-}
-
 .labels {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
     margin: var(--spacing-default) 0;
 }
 
 .label {
     color: var(--color-secondary);
+    flex-grow: 1;
     font-size: var(--size-default);
     font-weight: 400;
-    padding: 0 var(--space-quarter);
     margin: 0;
+    padding: 0 var(--space-quarter);
 }
 
 .qrCodeContainer {
     margin-bottom: var(--space-default);
     min-height: 260px;
-}
-
-.verifyContent {
-    width: 100%;
-}
-
-.verifyContent p {
-    color: var(--color-blue);
-    font-size: var(--size-default);
-}
-
-pre.verifyAddress {
-    margin-top: var(--spacing-default);
-    text-align: center;
-    background-color: var(--color-lightgray);
-    border-radius: 2px;
-    padding: var(--spacing-default) 0;
-}
-
-.bottomButtons {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 0 var(--spacing-large) var(--spacing-default) var(--spacing-large);
-    max-width: var(--content-width);
-    width: 100%;
-    margin: 0 auto;
-}
-
-.button {
-    min-width: 70px;
-    margin: 0 var(--spacing-half);
 }
 
 .arrowLeft,
@@ -71,28 +36,14 @@ pre.verifyAddress {
 
 .previous,
 .next {
-    text-decoration: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    color: var(--color-blue);
     font-size: var(--size-button);
     line-height: 1;
-    color: var(--color-blue);
-}
-
-.next img {
-    height: 16px;
-    margin-left: 4px;
-}
-
-.previous img {
-    height: 16px;
-    margin-right: 4px;
-}
-
-.disabled {
-    color: var(--color-mediumgray);
-}
-
-.arrow {
-    
+    padding: 0;
+    text-decoration: none;
 }
 
 .hide {
@@ -109,18 +60,4 @@ pre.verifyAddress {
     cursor: pointer;
     text-align: center;
     text-decoration: underline;
-}
-
-@media (max-width: 640px) {
-    .addressField {
-        min-width: 0 !important;
-    }
-
-    .addressField input {
-        font-size: var(--size-small);
-    }
-
-    .bottomButtons {
-        padding: 0 var(--spacing-half) var(--spacing-half) var(--spacing-half);
-    }
 }
