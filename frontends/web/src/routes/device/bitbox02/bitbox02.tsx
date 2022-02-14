@@ -276,6 +276,8 @@ class BitBox02 extends Component<Props, State> {
                 }, () => {
                     this.setPassword();
                 });
+                // show noPasswordMatch error and do NOT continue to createBackup
+                return;
             }
             this.setState({ settingPassword: false, createWalletStatus: 'createBackup' });
         });
