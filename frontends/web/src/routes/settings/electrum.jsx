@@ -274,7 +274,7 @@ class ElectrumServersClass extends Component {
             <div className={style.serversContainer}>
                 <div className="row">
                     <div className={['flex flex-row flex-between flex-items-center', style.titleContainer].join(' ')}>
-                        <h4 className={style.title}>{t('settings.electrum.servers')}</h4>
+                        <h4 className="subTitle m-none">{t('settings.electrum.servers')}</h4>
                         <A href="#" className={['labelLarge labelLink', style.resetLink].join(' ')} onClick={this.resetToDefault}>{t('settings.electrum.reset')}</A>
                     </div>
                     <ul className={style.servers}>
@@ -292,7 +292,7 @@ class ElectrumServersClass extends Component {
                 </div>
                 <hr />
                 <div className="row">
-                    <h4 className={style.title}>{t('settings.electrum.add')}</h4>
+                    <h4 className="subTitle">{t('settings.electrum.add')}</h4>
                     <ElectrumServer server={null} onAdd={this.onAdd} />
                 </div>
             </div>
