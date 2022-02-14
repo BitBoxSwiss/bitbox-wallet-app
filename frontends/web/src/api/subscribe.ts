@@ -17,16 +17,17 @@
 import { apiSubscribe, Event, Unsubscribe } from '../utils/event';
 import { apiGet } from '../utils/request';
 
+export type SubscriptionCallback<T> = (eventObject: T) => void
+
 /**
  * Subscribes the given function on an endpoint on which the backend
  * can push data through. This should be mostly used within api.
  * Note there is a subscibe-legacy.ts module that supports older events.
  */
 
-export function subscribeEndpoint(
+export function subscribeEndpoint<T>(
     endpoint: string,
-    // TODO: double check any type
-    cb: (eventObject: any) => any,
+    cb: SubscriptionCallback<T>,
 ): Unsubscribe {
     return apiSubscribe(endpoint, (event: Event) => {
         switch (event.action) {

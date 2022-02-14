@@ -1,6 +1,5 @@
 /**
- * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +14,15 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../hooks/api';
-import { getVersion } from '../../api/version';
+import { apiGet } from '../utils/request';
+import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
 
-const Version: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const version = useLoad(getVersion);
+export const getUsingMobileData = (): Promise<boolean> => {
+    return apiGet('using-mobile-data');
+};
 
-    if (!version) {
-        return null;
-    }
-    return <p>{t('footer.appVersion')} {version}</p>;
-}
-
-export { Version };
+export const subscribeUsingMobileData = (
+    cb: SubscriptionCallback<boolean>
+) => (
+    subscribeEndpoint('using-mobile-data', cb)
+);
