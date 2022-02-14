@@ -15,7 +15,6 @@
 package btc
 
 import (
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
@@ -24,6 +23,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -37,7 +37,7 @@ type ProposedTransaction struct {
 	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	GetPrevTx                    func(chainhash.Hash) *wire.MsgTx
 	// Signatures collects the signatures, one per transaction input.
-	Signatures []*btcec.Signature
+	Signatures []*types.Signature
 	SigHashes  *txscript.TxSigHashes
 }
 
@@ -58,7 +58,7 @@ func (account *Account) signTransaction(
 		PreviousOutputs:              previousOutputs,
 		GetAddress:                   account.getAddress,
 		GetPrevTx:                    getPrevTx,
-		Signatures:                   make([]*btcec.Signature, len(txProposal.Transaction.TxIn)),
+		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction),
 	}
 

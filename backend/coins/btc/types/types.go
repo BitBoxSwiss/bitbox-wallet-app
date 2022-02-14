@@ -14,10 +14,39 @@
 
 package types
 
+import (
+	"math/big"
+
+	"github.com/btcsuite/btcd/btcec"
+)
+
 // GapLimits holds the gap limits for receive and change addresses.
 type GapLimits struct {
 	// Receive is the gap limit for receive addresses.
 	Receive uint16
 	// Change is the gap limit for change addresses.
 	Change uint16
+}
+
+// Signature is a type represending an ECDSA signature, or a BIP-340 Schnorr signature.
+type Signature struct {
+	R *big.Int
+	S *big.Int
+}
+
+// SerializeDER encodes the ECDSA signature in the DER format.  Note that the serialized bytes
+// returned do not include the appended hash type used in Bitcoin signature scripts.
+func (s *Signature) SerializeDER() []byte {
+	return (&btcec.Signature{
+		R: s.R,
+		S: s.S,
+	}).Serialize()
+}
+
+// SerializeCompact encodes the Schnorr signature in the 64 byte compact format: <R><S>.
+func (s *Signature) SerializeCompact() []byte {
+	result := make([]byte, 64)
+	s.R.FillBytes(result[:32])
+	s.S.FillBytes(result[32:])
+	return result
 }

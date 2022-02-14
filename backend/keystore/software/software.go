@@ -20,11 +20,11 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -156,11 +156,11 @@ func (keystore *Keystore) ExtendedPublicKey(
 func (keystore *Keystore) sign(
 	signatureHashes [][]byte,
 	keyPaths []signing.AbsoluteKeypath,
-) ([]btcec.Signature, error) {
+) ([]*types.Signature, error) {
 	if len(signatureHashes) != len(keyPaths) {
 		return nil, errp.New("The number of hashes to sign has to be equal to the number of paths.")
 	}
-	signatures := make([]btcec.Signature, len(keyPaths))
+	signatures := make([]*types.Signature, len(keyPaths))
 	for i, keyPath := range keyPaths {
 		xprv, err := keyPath.Derive(keystore.master)
 		if err != nil {
@@ -174,7 +174,7 @@ func (keystore *Keystore) sign(
 		if err != nil {
 			return nil, err
 		}
-		signatures[i] = *signature
+		signatures[i] = &types.Signature{R: signature.R, S: signature.S}
 	}
 	return signatures, nil
 }
@@ -228,10 +228,7 @@ func (keystore *Keystore) SignTransaction(
 	if len(signatures) != len(transaction.TxIn) {
 		panic("number of signatures doesn't match number of inputs")
 	}
-	for i, signature := range signatures {
-		signature := signature
-		btcProposedTx.Signatures[i] = &signature
-	}
+	btcProposedTx.Signatures = signatures
 	return nil
 }
 

@@ -23,6 +23,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -180,8 +181,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		panic("number of signatures doesn't match number of inputs")
 	}
 	for i, signature := range signatures {
-		signature := signature
-		btcProposedTx.Signatures[i] = &signature.Signature
+		btcProposedTx.Signatures[i] = &types.Signature{R: signature.R, S: signature.S}
 	}
 	return nil
 }

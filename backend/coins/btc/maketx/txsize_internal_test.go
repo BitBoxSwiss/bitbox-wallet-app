@@ -23,10 +23,19 @@ import (
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
+
+var scriptTypes = []signing.ScriptType{
+	signing.ScriptTypeP2PKH,
+	signing.ScriptTypeP2WPKHP2SH,
+	signing.ScriptTypeP2WPKH,
+	signing.ScriptTypeP2TR,
+}
 
 func testEstimateTxSize(
 	t *testing.T, useSegwit bool, outputScriptType, changeScriptType signing.ScriptType) {
@@ -38,11 +47,7 @@ func testEstimateTxSize(
 	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
 	require.NoError(t, err)
 
-	inputScriptTypes := []signing.ScriptType{
-		signing.ScriptTypeP2PKH,
-		signing.ScriptTypeP2WPKHP2SH,
-		signing.ScriptTypeP2WPKH,
-	}
+	inputScriptTypes := scriptTypes
 	if !useSegwit {
 		inputScriptTypes = []signing.ScriptType{signing.ScriptTypeP2PKH}
 	}
@@ -66,7 +71,7 @@ func testEstimateTxSize(
 	for counter := 0; counter < 10; counter++ {
 		for _, inputScriptType := range inputScriptTypes {
 			inputAddress := addressesTest.GetAddress(inputScriptType)
-			sigScript, witness := inputAddress.SignatureScript(*sig)
+			sigScript, witness := inputAddress.SignatureScript(types.Signature{R: sig.R, S: sig.S})
 			tx.TxIn = append(tx.TxIn, &wire.TxIn{
 				SignatureScript: sigScript,
 				Witness:         witness,
@@ -91,6 +96,31 @@ func testEstimateTxSize(
 		len(outputPkScript), changePkScriptSize)
 	require.Equal(t, mempool.GetTxVirtualSize(btcutil.NewTx(tx)), int64(estimatedSize))
 
+}
+
+func TestSigScriptWitnessSize(t *testing.T) {
+	// A signature can be 70 or 71 bytes (excluding sighash op).
+	// We take one that has 71 bytes, as the size function returns the maximum possible size.
+	sigBytes, err := hex.DecodeString(
+		`3045022100a97dc23e47bb79dbff73e33be4a4e476d6ef67c8c23a9ee4a9ee21f4dd80f0f202201c5d4be437308539e1193d9118fae03bae1942e9ce27c86803bb5f18aa044a46`)
+	require.NoError(t, err)
+	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
+	require.NoError(t, err)
+
+	// Test all singlesig configurations.
+	for _, scriptType := range scriptTypes {
+		address := test.GetAddress(scriptType)
+		t.Run(address.Configuration.String(), func(t *testing.T) {
+			sigScriptSize, witnessSize := sigScriptWitnessSize(address.Configuration)
+			sigScript, witness := address.SignatureScript(types.Signature{R: sig.R, S: sig.S})
+			require.Equal(t, len(sigScript), sigScriptSize)
+			if witness != nil {
+				require.Equal(t, witness.SerializeSize(), witnessSize)
+			} else {
+				require.Equal(t, 0, witnessSize)
+			}
+		})
+	}
 }
 
 func TestEstimateTxSize(t *testing.T) {

@@ -20,11 +20,11 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
@@ -405,7 +405,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return err
 	}
 	for index, signature := range signatures {
-		btcProposedTx.Signatures[index] = &btcec.Signature{
+		btcProposedTx.Signatures[index] = &types.Signature{
 			R: big.NewInt(0).SetBytes(signature[:32]),
 			S: big.NewInt(0).SetBytes(signature[32:]),
 		}
