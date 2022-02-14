@@ -42,7 +42,6 @@ export const useSubscribe = <T>(
     return respose;
 }
 
-
 /**
  * useLoad is a hook to load a promise.
  * gets fired on first render, and returns undefined while loading.
@@ -60,6 +59,33 @@ export const useLoad = <T>(
                 }
             });
         }, // we pass no dependencies because it's only queried once
-        []); // eslint-disable-line react-hooks/exhaustive-deps
+        [] // eslint-disable-line react-hooks/exhaustive-deps
+    );
+    return respose;
+}
+
+/**
+ * useSync is a hook to load a promise and sync to a subscription function.
+ * It is a combination of useLoad and useSubscribe.
+ * gets fired on first render, and returns undefined while loading,
+ * re-renders on every update.
+ */
+export const useSync = <T>(
+    apiCall: () => Promise<T>,
+    subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe),
+): (T | undefined) => {
+    const [respose, setResponse] = useState<T>();
+    const mounted = useMountedRef();
+    const onData = (data) => {
+        if (mounted.current) {
+            setResponse(data);
+        }
+    };
+    useEffect(
+        () => {
+            apiCall().then(onData);
+            return subscription(onData);
+        }, // we pass no dependencies because it's only queried once
+    []); // eslint-disable-line react-hooks/exhaustive-deps
     return respose;
 }
