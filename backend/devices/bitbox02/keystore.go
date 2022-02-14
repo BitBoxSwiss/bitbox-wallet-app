@@ -304,24 +304,6 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	for inputIndex, txIn := range tx.TxIn {
 		prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
 
-		prevTx := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
-
-		prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
-		for prevInputIndex, prevTxIn := range prevTx.TxIn {
-			prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
-				PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
-				PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
-				SignatureScript: prevTxIn.SignatureScript,
-				Sequence:        prevTxIn.Sequence,
-			}
-		}
-		prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(prevTx.TxOut))
-		for prevOutputIndex, prevTxOut := range prevTx.TxOut {
-			prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
-				Value:        uint64(prevTxOut.Value),
-				PubkeyScript: prevTxOut.PkScript,
-			}
-		}
 		inputAddress := btcProposedTx.GetAddress(prevOut.ScriptHashHex())
 
 		accountConfiguration := inputAddress.AccountConfiguration
@@ -343,12 +325,36 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
 				ScriptConfigIndex: uint32(scriptConfigIndex),
 			},
-			PrevTx: &firmware.BTCPrevTx{
+		}
+	}
+
+	// Provide the previous transaction for each input if needed.
+	if firmware.BTCSignNeedsPrevTxs(scriptConfigs) {
+		for inputIndex, txIn := range tx.TxIn {
+			prevTx := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
+
+			prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
+			for prevInputIndex, prevTxIn := range prevTx.TxIn {
+				prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
+					PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
+					PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
+					SignatureScript: prevTxIn.SignatureScript,
+					Sequence:        prevTxIn.Sequence,
+				}
+			}
+			prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(prevTx.TxOut))
+			for prevOutputIndex, prevTxOut := range prevTx.TxOut {
+				prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
+					Value:        uint64(prevTxOut.Value),
+					PubkeyScript: prevTxOut.PkScript,
+				}
+			}
+			inputs[inputIndex].PrevTx = &firmware.BTCPrevTx{
 				Version:  uint32(prevTx.Version),
 				Inputs:   prevTxInputs,
 				Outputs:  prevTxOuputs,
 				Locktime: prevTx.LockTime,
-			},
+			}
 		}
 	}
 	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
