@@ -281,17 +281,19 @@ func (keystore *keystore) ExtendedPublicKey(
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	tx := btcProposedTx.TXProposal.Transaction
 
-	scriptConfigs := make([]*messages.BTCScriptConfigWithKeypath, len(btcProposedTx.AccountSigningConfigurations))
-	for i, cfg := range btcProposedTx.AccountSigningConfigurations {
-		msgScriptType, ok := btcMsgScriptTypeMap[cfg.ScriptType()]
-		if !ok {
-			return errp.Newf("Unsupported script type %s", cfg.ScriptType())
+	scriptConfigs := []*messages.BTCScriptConfigWithKeypath{}
+	// addScriptConfig returns the index of the scriptConfig in scriptConfigs, adding it if it isn't
+	// present. Must be a Simple configuration.
+	addScriptConfig := func(scriptConfig *messages.BTCScriptConfigWithKeypath) int {
+		for i, sc := range scriptConfigs {
+			if sc.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType == scriptConfig.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_).SimpleType {
+				return i
+			}
 		}
-		scriptConfigs[i] = &messages.BTCScriptConfigWithKeypath{
-			ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
-			Keypath:      cfg.AbsoluteKeypath().ToUInt32(),
-		}
+		scriptConfigs = append(scriptConfigs, scriptConfig)
+		return len(scriptConfigs) - 1
 	}
+
 	coin := btcProposedTx.TXProposal.Coin.(*btc.Coin)
 	msgCoin, ok := btcMsgCoinMap[coin.Code()]
 	if !ok {
@@ -302,35 +304,17 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	for inputIndex, txIn := range tx.TxIn {
 		prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
 
-		prevTx := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
-
-		prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
-		for prevInputIndex, prevTxIn := range prevTx.TxIn {
-			prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
-				PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
-				PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
-				SignatureScript: prevTxIn.SignatureScript,
-				Sequence:        prevTxIn.Sequence,
-			}
-		}
-		prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(prevTx.TxOut))
-		for prevOutputIndex, prevTxOut := range prevTx.TxOut {
-			prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
-				Value:        uint64(prevTxOut.Value),
-				PubkeyScript: prevTxOut.PkScript,
-			}
-		}
 		inputAddress := btcProposedTx.GetAddress(prevOut.ScriptHashHex())
 
-		// Find the script config index. Assumption: there is only one entry per script type, so we
-		// don't have to check that the keypath prefix matches.
-		var scriptConfigIndex uint32
-		for i, cfg := range btcProposedTx.AccountSigningConfigurations {
-			if cfg.ScriptType() == inputAddress.Configuration.ScriptType() {
-				scriptConfigIndex = uint32(i)
-				break
-			}
+		accountConfiguration := inputAddress.AccountConfiguration
+		msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
+		if !ok {
+			return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
 		}
+		scriptConfigIndex := addScriptConfig(&messages.BTCScriptConfigWithKeypath{
+			ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
+			Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
+		})
 
 		inputs[inputIndex] = &firmware.BTCTxInput{
 			Input: &messages.BTCSignInputRequest{
@@ -339,14 +323,38 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				PrevOutValue:      uint64(prevOut.Value),
 				Sequence:          txIn.Sequence,
 				Keypath:           inputAddress.Configuration.AbsoluteKeypath().ToUInt32(),
-				ScriptConfigIndex: scriptConfigIndex,
+				ScriptConfigIndex: uint32(scriptConfigIndex),
 			},
-			PrevTx: &firmware.BTCPrevTx{
+		}
+	}
+
+	// Provide the previous transaction for each input if needed.
+	if firmware.BTCSignNeedsPrevTxs(scriptConfigs) {
+		for inputIndex, txIn := range tx.TxIn {
+			prevTx := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
+
+			prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
+			for prevInputIndex, prevTxIn := range prevTx.TxIn {
+				prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
+					PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
+					PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
+					SignatureScript: prevTxIn.SignatureScript,
+					Sequence:        prevTxIn.Sequence,
+				}
+			}
+			prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(prevTx.TxOut))
+			for prevOutputIndex, prevTxOut := range prevTx.TxOut {
+				prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
+					Value:        uint64(prevTxOut.Value),
+					PubkeyScript: prevTxOut.PkScript,
+				}
+			}
+			inputs[inputIndex].PrevTx = &firmware.BTCPrevTx{
 				Version:  uint32(prevTx.Version),
 				Inputs:   prevTxInputs,
 				Outputs:  prevTxOuputs,
 				Locktime: prevTx.LockTime,
-			},
+			}
 		}
 	}
 	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))

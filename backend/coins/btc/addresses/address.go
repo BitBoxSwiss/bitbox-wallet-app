@@ -36,6 +36,8 @@ import (
 type AccountAddress struct {
 	btcutil.Address
 
+	// AccountConfiguration is the account level configuration from which this address was derived.
+	AccountConfiguration *signing.Configuration
 	// Configuration contains the absolute keypath and the extended public keys of the address.
 	Configuration *signing.Configuration
 
@@ -148,11 +150,12 @@ func NewAccountAddress(
 	}
 
 	return &AccountAddress{
-		Address:       address,
-		Configuration: configuration,
-		HistoryStatus: "",
-		redeemScript:  redeemScript,
-		log:           log,
+		Address:              address,
+		AccountConfiguration: accountConfiguration,
+		Configuration:        configuration,
+		HistoryStatus:        "",
+		redeemScript:         redeemScript,
+		log:                  log,
 	}
 }
 

@@ -78,7 +78,18 @@ func (keystore *keystore) SupportsCoin(coin coin.Coin) bool {
 
 // SupportsAccount implements keystore.Keystore.
 func (keystore *keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool {
-	return keystore.SupportsCoin(coin)
+	if !keystore.SupportsCoin(coin) {
+		return false
+	}
+	switch coin.(type) {
+	case *btc.Coin:
+		scriptType := meta.(signing.ScriptType)
+		return scriptType == signing.ScriptTypeP2PKH ||
+			scriptType == signing.ScriptTypeP2WPKHP2SH ||
+			scriptType == signing.ScriptTypeP2WPKH
+	default:
+		return false
+	}
 }
 
 // SupportsUnifiedAccounts implements keystore.Keystore.
