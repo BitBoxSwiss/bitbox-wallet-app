@@ -739,9 +739,9 @@ func (account *Account) TxProposal(
 
 // GetUnusedReceiveAddresses implements accounts.Interface.
 func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
-	return []accounts.AddressList{
-		[]accounts.Address{account.address},
-	}
+	return []accounts.AddressList{{
+		Addresses: []accounts.Address{account.address},
+	}}
 }
 
 // VerifyAddress implements accounts.Interface.

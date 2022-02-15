@@ -32,6 +32,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
@@ -414,24 +415,31 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 	}, nil
 }
 
-type jsonAddress struct {
-	Address   string `json:"address"`
-	AddressID string `json:"addressID"`
-}
-
 func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, error) {
-	var addressesList [][]jsonAddress
+
+	type jsonAddress struct {
+		Address   string `json:"address"`
+		AddressID string `json:"addressID"`
+	}
+	type jsonAddressList struct {
+		ScriptType *signing.ScriptType `json:"scriptType"`
+		Addresses  []jsonAddress       `json:"addresses"`
+	}
+	addressList := []jsonAddressList{}
 	for _, addresses := range handlers.account.GetUnusedReceiveAddresses() {
 		addrs := []jsonAddress{}
-		for _, address := range addresses {
+		for _, address := range addresses.Addresses {
 			addrs = append(addrs, jsonAddress{
 				Address:   address.EncodeForHumans(),
 				AddressID: address.ID(),
 			})
 		}
-		addressesList = append(addressesList, addrs)
+		addressList = append(addressList, jsonAddressList{
+			ScriptType: addresses.ScriptType,
+			Addresses:  addrs,
+		})
 	}
-	return addressesList, nil
+	return addressList, nil
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {

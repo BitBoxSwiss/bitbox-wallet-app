@@ -50,7 +50,7 @@ interface State {
 
 interface LoadedReceiveProps {
     // first array index: address types. second array index: unused addresses of that address type.
-    receiveAddresses: accountApi.ReceiveAddressList;
+    receiveAddresses: accountApi.ReceiveAddressList[];
     secureOutput: {
         hasSecureOutput: boolean;
         optional: boolean;
@@ -113,7 +113,7 @@ class Receive extends Component<Props, State> {
         this.setState({ verifying: true });
         accountApi.verifyAddress(
             code,
-            receiveAddresses[addressesIndex][activeIndex].addressID).then(() => {
+            receiveAddresses[addressesIndex].addresses[activeIndex].addressID).then(() => {
                 this.setState({ verifying: false });
             });
     }
@@ -182,7 +182,7 @@ class Receive extends Component<Props, State> {
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
         const enableCopy = !forceVerification;
 
-        const currentAddresses = receiveAddresses[addressType];
+        const currentAddresses = receiveAddresses[addressType].addresses;
 
         let address = currentAddresses[activeIndex].address;
         if (!enableCopy && !verifying) {

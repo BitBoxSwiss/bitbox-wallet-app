@@ -25,7 +25,12 @@ import (
 )
 
 // AddressList is a list of addresses.
-type AddressList []Address
+type AddressList struct {
+	// ScriptType is the Bitcoin script type in case the addresses are of a Bitcoin simple type. Nil
+	// otherwise.
+	ScriptType *signing.ScriptType
+	Addresses  []Address
+}
 
 // TxProposalArgs are the arguments needed when creating a tx proposal.
 type TxProposalArgs struct {
