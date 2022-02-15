@@ -33,6 +33,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { isEthereumBased } from '../utils';
 import style from './receive.module.css';
+import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
 
 interface ReceiveProps {
     code?: string;
@@ -201,56 +202,32 @@ class Receive extends Component<Props, State> {
                 <div className={style.qrCodeContainer}>
                     <QRCode data={enableCopy ? uriPrefix + address : undefined} />
                 </div>
-                <div className={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
+                <div className={style.labels}>
                     {
                         currentAddresses.length > 1 && (
-                            <a
-                                href="#"
-                                className={['flex flex-row flex-items-center', verifying || activeIndex === 0 ? style.disabled : '', style.previous].join(' ')}
+                            <button
+                                className={style.previous}
                                 onClick={this.previous}>
-                                <svg
-                                    className={[style.arrow, verifying ? style.disabled : ''].join(' ')}
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 8 8 12 12 16"></polyline>
-                                    <line x1="16" y1="12" x2="8" y2="12"></line>
-                                </svg>
-                                {/* {t('button.previous')} */}
-                            </a>
+                                {(verifying || activeIndex === 0) ? (
+                                    <ArrowCirlceLeft height="24" width="24" />
+                                ) : (
+                                    <ArrowCirlceLeftActive height="24" width="24" title={t('button.previous')} />
+                                )}
+                            </button>
                         )
                     }
                     <p className={style.label}>{t('receive.label')} {currentAddresses.length > 1 ? `(${activeIndex + 1}/${currentAddresses.length})` : ''}</p>
                     {
                         currentAddresses.length > 1 && (
-                            <a
-                                href="#"
-                                className={['flex flex-row flex-items-center', verifying || activeIndex >= currentAddresses.length - 1 ? style.disabled : '', style.next].join(' ')}
+                            <button
+                                className={style.next}
                                 onClick={e => this.next(e, currentAddresses.length)}>
-                                {/* {t('button.next')} */}
-                                <svg
-                                    className={[style.arrow, verifying ? style.disabled : ''].join(' ')}
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 16 16 12 12 8"></polyline>
-                                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                                </svg>
-                            </a>
+                                {(verifying || activeIndex >= currentAddresses.length - 1) ? (
+                                    <ArrowCirlceRight height="24" width="24" />
+                                ) : (
+                                    <ArrowCirlceRightActive height="24" width="24" title={t('button.next')} />
+                                )}
+                            </button>
                         )
                     }
                 </div>
