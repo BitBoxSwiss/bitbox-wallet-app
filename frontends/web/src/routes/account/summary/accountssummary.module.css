@@ -47,11 +47,25 @@
     text-align: right;
 }
 
+.table thead th {
+    border-bottom: solid 1px var(--color-mediumgray);
+}
+
 .table thead th,
 .table tfoot th {
-    font-size: var(--size-small);
-    background-color: var(--color-mediumgray);
-    color: var(--color-default);
+    background-color: var(--color-white);
+    color: var(--color-softblack);
+    font-size: var(--size-default);
+    font-weight: bold;
+}
+
+.table strong {
+    color: var(--color-softblack);
+}
+
+.table thead th:first-child,
+.table tfoot th:first-child {
+    padding-left: calc(24px + var(--space-default));
 }
 
 .table tr td,
@@ -64,13 +78,18 @@
     background-color: var(--color-white);
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .summaryTableBalance {
     white-space: nowrap;
 }
 
 .table tfoot th,
 .table tfoot td {
-    background-color: var(--color-mediumgray);
+    background-color: var(--color-white);
+    padding-bottom: calc(var(--space-quarter) + var(--space-half));
 }
 
 .coinName {
@@ -97,7 +116,23 @@
 .table progress::-webkit-progress-value {
 }
 
+.showOnTableView {
+    display: block;
+}
+
+.showInCollapsedView {
+    display: none;
+}
+
 @media (max-width: 640px) {
+
+    .showOnTableView {
+        display: none;
+    }
+    .showInCollapsedView {
+        display: block;
+    }
+
     .table tr td,
     .table tr th {
       padding: var(--spacing-default);
@@ -115,9 +150,13 @@
     }
 
     .table tfoot tr {
-        background-color: var(--color-mediumgray);
+        background-color: var(--color-white);
         display: flex;
         justify-content: space-between;
+    }
+
+    .table tfoot th:first-child {
+        padding-left: var(--space-half);
     }
 
     .table tbody td {
@@ -130,6 +169,10 @@
     .table tbody td::before {
         content: attr(data-label);
         white-space: nowrap;
+    }
+
+    .subTotal td::before {
+        font-weight: bold;
     }
 
     .table tbody td:last-child {

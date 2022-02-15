@@ -46,6 +46,7 @@
     "fiatBalance": "Fiat balance",
     "name": "Account name",
     "noAccount": "There are no accounts to show.",
+    "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "My portfolio",
     "total": "Total",
     "transactionHistory": "Transaction history"
