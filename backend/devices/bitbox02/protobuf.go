@@ -33,6 +33,7 @@ var btcMsgCoinMap = map[coin.Code]messages.BTCCoin{
 var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_SimpleType{
 	signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptConfig_P2WPKH_P2SH,
 	signing.ScriptTypeP2WPKH:     messages.BTCScriptConfig_P2WPKH,
+	signing.ScriptTypeP2TR:       messages.BTCScriptConfig_P2TR,
 }
 
 var ethMsgCoinMap = map[coin.Code]messages.ETHCoin{
