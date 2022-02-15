@@ -33,7 +33,7 @@ github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.7.1
 ## explicit
 github.com/deckarep/golang-set
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20211215112420-8cbc2cc44567
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220215094631-137856d4c230
 ## explicit
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common

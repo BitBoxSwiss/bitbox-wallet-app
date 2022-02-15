@@ -197,6 +197,23 @@ func (device *Device) nestedQueryBtcSign(request *messages.BTCRequest) (
 	return next.SignNext, nil
 }
 
+func isTaproot(sc *messages.BTCScriptConfigWithKeypath) bool {
+	simpleTypeConfig, ok := sc.ScriptConfig.Config.(*messages.BTCScriptConfig_SimpleType_)
+	return ok && simpleTypeConfig.SimpleType == messages.BTCScriptConfig_P2TR
+}
+
+// BTCSignNeedsPrevTxs returns true if the PrevTx field in BTCTxInput needs to be populated before
+// calling BTCSign(). This is the case if there are any non-taproot inputs in the transaction to be
+// signed.
+func BTCSignNeedsPrevTxs(scriptConfigs []*messages.BTCScriptConfigWithKeypath) bool {
+	for _, sc := range scriptConfigs {
+		if !isTaproot(sc) {
+			return true
+		}
+	}
+	return false
+}
+
 // BTCPrevTx is the transaction referenced by an input.
 type BTCPrevTx struct {
 	Version  uint32
@@ -208,7 +225,8 @@ type BTCPrevTx struct {
 // BTCTxInput contains the data needed to sign an input.
 type BTCTxInput struct {
 	Input *messages.BTCSignInputRequest
-	// PrevTx must be the transaction referenced by Input.PrevOutHash.
+	// PrevTx must be the transaction referenced by Input.PrevOutHash. Can be nil if
+	// `BTCSignNeedsPrevTxs()` returns false.
 	PrevTx *BTCPrevTx
 }
 
@@ -220,12 +238,23 @@ type BTCTx struct {
 	Locktime uint32
 }
 
-// BTCSign signs a bitcoin or bitcoin-like transaction. Returns one 64 byte signature per input.
+// BTCSign signs a bitcoin or bitcoin-like transaction. The previous transactions of the inputs
+// need to be provided if `BTCSignNeedsPrevTxs()` returns true.
+//
+// Returns one 64 byte signature per input.
 func (device *Device) BTCSign(
 	coin messages.BTCCoin,
 	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
 	tx *BTCTx,
 ) ([][]byte, error) {
+	if !device.version.AtLeast(semver.NewSemVer(9, 10, 0)) {
+		for _, sc := range scriptConfigs {
+			if isTaproot(sc) {
+				return nil, UnsupportedError("9.10.0")
+			}
+		}
+	}
+
 	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 4, 0))
 
 	signatures := make([][]byte, len(tx.Inputs))
@@ -250,8 +279,13 @@ func (device *Device) BTCSign(
 			inputIndex := next.Index
 			input := *tx.Inputs[inputIndex].Input
 
+			inputIsSchnorr := isTaproot(scriptConfigs[input.ScriptConfigIndex])
+
+			// Anti-Klepto protocol not supported yet for Schnorr signatures.
+			performAntiklepto := supportsAntiklepto && isInputsPass2 && !inputIsSchnorr
+
 			var hostNonce []byte
-			if supportsAntiklepto && isInputsPass2 {
+			if performAntiklepto {
 				nonce, err := generateHostNonce()
 				if err != nil {
 					return nil, err
@@ -269,7 +303,7 @@ func (device *Device) BTCSign(
 				return nil, err
 			}
 
-			if supportsAntiklepto && isInputsPass2 {
+			if performAntiklepto {
 				if next.Type != messages.BTCSignNextResponse_HOST_NONCE || next.AntiKleptoSignerCommitment == nil {
 					return nil, errp.New("unexpected response; expected signer nonce commitment")
 				}
@@ -426,6 +460,9 @@ func (device *Device) BTCSignMessage(
 	scriptConfig *messages.BTCScriptConfigWithKeypath,
 	message []byte,
 ) (raw []byte, recID byte, electrum65 []byte, err error) {
+	if isTaproot(scriptConfig) {
+		return nil, 0, nil, errp.New("taproot not supported")
+	}
 	if !device.version.AtLeast(semver.NewSemVer(9, 2, 0)) {
 		return nil, 0, nil, UnsupportedError("9.2.0")
 	}
