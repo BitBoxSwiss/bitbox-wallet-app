@@ -1125,10 +1125,8 @@
     "title": "Opomba"
   },
   "notification": {
-    "newTxs_0": "{{count}} novih transakcij na: {{accountName}}",
-    "newTxs_1": "{{count}} novih transakcij na: {{accountName}}",
-    "newTxs_2": "{{count}} novih transakcij na: {{accountName}}",
-    "newTxs_3": "{{count}} novih transakcij na: {{accountName}}"
+    "newTxs_one": "{{count}} novih transakcij na: {{accountName}}",
+    "newTxs_other": "{{count}} novih transakcij na: {{accountName}}"
   },
   "pairing": {
     "aborted": {

@@ -615,7 +615,7 @@
   },
   "loading": "memuatkan ...",
   "notification": {
-    "newTxs_0": "{{count}} transaksi baru di: {{accountName}}"
+    "newTxs_one": "{{count}} transaksi baru di: {{accountName}}"
   },
   "pairing": {
     "aborted": {

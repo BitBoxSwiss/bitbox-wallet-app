@@ -1168,7 +1168,7 @@
     "title": "Notiz"
   },
   "notification": {
-    "newTxs_one": "Neue Transaktion in:  {{accountName}}",
+    "newTxs_one": "Neue Transaktion in: {{accountName}}",
     "newTxs_other": "{{count}} neue Transaktionen in: {{accountName}}"
   },
   "pairing": {

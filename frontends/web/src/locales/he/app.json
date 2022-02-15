@@ -816,10 +816,8 @@
     "title": "הערה"
   },
   "notification": {
-    "newTxs_0": "{{count}} עסקה חדשה ב: {{accountName}}",
-    "newTxs_1": "{{count}} עסקה חדשה ב: {{accountName}}",
-    "newTxs_2": "{{count}} עסקה חדשה ב: {{accountName}}",
-    "newTxs_3": "{{count}} עסקה חדשה ב: {{accountName}}"
+    "newTxs_one": "{{count}} עסקה חדשה ב: {{accountName}}",
+    "newTxs_other": "{{count}} עסקה חדשה ב: {{accountName}}"
   },
   "pairing": {
     "aborted": {
