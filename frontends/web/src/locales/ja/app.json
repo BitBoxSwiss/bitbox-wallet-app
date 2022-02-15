@@ -737,7 +737,7 @@
   },
   "loading": "ロード中…",
   "notification": {
-    "newTxs_0": "{{accountName}}にて{{count}}個の新しいトランザクション"
+    "newTxs_one": "{{accountName}}にて{{count}}個の新しいトランザクション"
   },
   "pairing": {
     "aborted": {

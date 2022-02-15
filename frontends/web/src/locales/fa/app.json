@@ -873,7 +873,7 @@
   },
   "loading": "در حال بارگذاری…",
   "notification": {
-    "newTxs_0": "{{count}} معاملات جدید در: {{accountName}}"
+    "newTxs_one": "{{count}} معاملات جدید در: {{accountName}}"
   },
   "pairing": {
     "aborted": {

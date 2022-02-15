@@ -805,9 +805,8 @@
     "title": "Примечание"
   },
   "notification": {
-    "newTxs_0": "{{count}} новых транзакций в: {{accountName}}",
-    "newTxs_1": "{{count}} новых транзакций в: {{accountName}}",
-    "newTxs_2": "{{count}} новых транзакций в: {{accountName}}"
+    "newTxs_one": "Новая транзакция в: {{accountName}}",
+    "newTxs_other": "{{count}} новых транзакций в: {{accountName}}"
   },
   "pairing": {
     "aborted": {
