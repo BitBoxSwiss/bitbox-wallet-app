@@ -50,43 +50,47 @@ func TestAOPPSuccess(t *testing.T) {
 	keystoreHelper := software.NewKeystore(rootKey)
 	dummySignature := []byte(`signature`)
 	rootFingerprint := []byte{0x55, 0x055, 0x55, 0x55}
-	ks := keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return rootFingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
+	makeKeystore := func(expectedScriptType *signing.ScriptType) *keystoremock.KeystoreMock {
+		return &keystoremock.KeystoreMock{
+			RootFingerprintFunc: func() ([]byte, error) {
+				return rootFingerprint, nil
+			},
+			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+				switch coin.(type) {
+				case *btc.Coin:
+					scriptType := meta.(signing.ScriptType)
+					return scriptType != signing.ScriptTypeP2PKH
+				default:
+					return true
+				}
+			},
+			SupportsUnifiedAccountsFunc: func() bool {
 				return true
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		CanSignMessageFunc: func(coinpkg.Code) bool {
-			return true
-		},
-		SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
-			require.Equal(t, dummyMsg, string(message))
-			return dummySignature, nil
-		},
-		SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-			require.Equal(t, dummyMsg, string(message))
-			return dummySignature, nil
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+			},
+			SupportsMultipleAccountsFunc: func() bool {
+				return true
+			},
+			CanSignMessageFunc: func(coinpkg.Code) bool {
+				return true
+			},
+			SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+				require.Equal(t, *expectedScriptType, scriptType)
+				require.Equal(t, dummyMsg, string(message))
+				return dummySignature, nil
+			},
+			SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+				require.Equal(t, dummyMsg, string(message))
+				return dummySignature, nil
+			},
+			ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+		}
 	}
-
+	scriptTypeRef := func(s signing.ScriptType) *signing.ScriptType { return &s }
 	tests := []struct {
 		asset       string
 		coinCode    coinpkg.Code
 		format      string
+		scriptType  *signing.ScriptType
 		address     string
 		addressID   string
 		accountCode accounts.Code
@@ -96,6 +100,7 @@ func TestAOPPSuccess(t *testing.T) {
 			asset:       "btc",
 			coinCode:    coinpkg.CodeBTC,
 			format:      "any", // defaults to p2wpkh
+			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKH),
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
 			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
 			accountCode: "v0-55555555-btc-0",
@@ -105,6 +110,7 @@ func TestAOPPSuccess(t *testing.T) {
 			asset:       "btc",
 			coinCode:    coinpkg.CodeBTC,
 			format:      "p2wpkh",
+			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKH),
 			address:     "bc1qxp6xr63t098rl9udlynrktq00un6vqduzjgua3",
 			addressID:   "9959e354fad09a47b0a5b0ac8af1b5f95924526241689b3ed7c472e79d95bde6",
 			accountCode: "v0-55555555-btc-0",
@@ -114,6 +120,7 @@ func TestAOPPSuccess(t *testing.T) {
 			asset:       "btc",
 			coinCode:    coinpkg.CodeBTC,
 			format:      "p2sh",
+			scriptType:  scriptTypeRef(signing.ScriptTypeP2WPKHP2SH),
 			address:     "3C4J3CSPSYD3ibV8u1DqqPRtfsUsSbnuPX",
 			addressID:   "58c9954205732bcae1b9dd7eccda521ba5257749680fad3336556e0d46f68866",
 			accountCode: "v0-55555555-btc-0",
@@ -156,11 +163,12 @@ func TestAOPPSuccess(t *testing.T) {
 			// Add a second account so we can test the choosing-account step. If there is only one
 			// account, the account is used automatically, skipping the step where the user chooses
 			// the account.
-			b.registerKeystore(&ks)
+			ks := makeKeystore(test.scriptType)
+			b.registerKeystore(ks)
 			_, err := b.CreateAndPersistAccountConfig(
 				test.coinCode,
 				"Second account",
-				&ks,
+				ks,
 			)
 			require.NoError(t, err)
 			b.DeregisterKeystore()
@@ -196,7 +204,7 @@ func TestAOPPSuccess(t *testing.T) {
 				b.AOPP(),
 			)
 
-			b.registerKeystore(&ks)
+			b.registerKeystore(makeKeystore(test.scriptType))
 
 			require.Equal(t,
 				AOPP{
@@ -249,7 +257,7 @@ func TestAOPPSuccess(t *testing.T) {
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.AOPPApprove()
 		require.Equal(t, aoppStateAwaitingKeystore, b.AOPP().State)
-		b.registerKeystore(&ks)
+		b.registerKeystore(makeKeystore(scriptTypeRef(signing.ScriptTypeP2WPKH)))
 		require.Equal(t, aoppStateSuccess, b.AOPP().State)
 	})
 
@@ -264,7 +272,7 @@ func TestAOPPSuccess(t *testing.T) {
 		defer b.Close()
 		params := defaultParams()
 		params.Set("callback", server.URL)
-		b.registerKeystore(&ks)
+		b.registerKeystore(makeKeystore(scriptTypeRef(signing.ScriptTypeP2WPKH)))
 		b.HandleURI("aopp:?" + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.AOPPApprove()
@@ -276,7 +284,7 @@ func TestAOPPSuccess(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 		params := defaultParams()
-		b.registerKeystore(&ks)
+		b.registerKeystore(makeKeystore(scriptTypeRef(signing.ScriptTypeP2WPKH)))
 		b.HandleURI("aopp:?" + params.Encode())
 		require.Equal(t, aoppStateUserApproval, b.AOPP().State)
 		b.DeregisterKeystore()
