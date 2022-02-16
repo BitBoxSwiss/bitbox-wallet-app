@@ -56,11 +56,22 @@ $  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --pass
 
 ## Windows
 
-The build requires `mingw-w64`, `bash`, `make`, `Microsoft Visual Studio 2019`, `go 1.16`, `node@14`,
-`QT 5.15.2` and possibly other tools.
+The build requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`, `Microsoft Visual Studio 2019`,
+`go 1.16`, `node@14`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
+
+Some of the tools are easy to install with `choco`:
+
+    choco install git
+    choco install mingw
+    choco install nsis
+    choco install make
 
 Add a system environment variable `MINGW_BIN` pointing to the bin directory of mingw
-(e.g. `/c/MinGW/bin`).
+(e.g. `/c/MinGW/bin` or `/c/Program Files/Git/mingw64/bin`).
+
+Add to the system environment variable `PATH`:
+- Location of `qmake`, e.g. `C:\Qt\5.15.2\msvc2019_64\bin`
+- Location of nsis, e.g. `C:\Program Files (x86)\NSIS\Bin`
 
 Build the QT frontend for Windows: `make qt-windows`
 
