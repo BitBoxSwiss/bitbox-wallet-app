@@ -348,7 +348,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
 			case *btc.Coin:
-				return true
+				return meta.(signing.ScriptType) != signing.ScriptTypeP2TR
 			default:
 				return false
 			}
@@ -383,6 +383,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Code:     "v0-55555555-btc-0",
 				Configurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, fingerprint, mustKeypath("m/86'/0'/0'"), mustXKey("xpub6CC9Tsi4eJvmRsGuXwKBfHDWUWN66voNeZFmXRJhYZS6yYgXKZmtz5qnxK9WL2FZP8uF3abyFZ29d7RfMks4FjCCu4LMh3edyeCoyEFuZLZ")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/0'/0'"), mustXKey("xpub6CUmEcJb7juvnw7fFYybCwvCJuPSEdhTWZCep9X1DBznwB8RRKTYBUidbEPJ9L7ExjrXhem9S759cX3BpzSUSoP2rWh9vqumJ9MPSAbi98F")),
 				},
 			},
@@ -445,6 +446,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				Code:     "v0-55555555-btc-1",
 				Configurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/1'"), mustXKey("xpub6Cxa67Bfe1Aw7YVtdqKPYLhSkf7omb7WkGXQzof15VXbAZKVct1caHHK55UQN2Fnojbp2okiBCbGXyQSRzMQ6XKJJeeM2jAt6FR8K8ckA88")),
+					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, fingerprint, mustKeypath("m/86'/0'/1'"), mustXKey("xpub6CC9Tsi4eJvmSBj5xoU4sKnFGF9nF8qwExB3axxu2F7oWKFH5RucWQUfrgVGfnTDr6p5acBGpAqAMKb2A7ek8SbAUvDEXtvj37pM1S9X2km")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/0'/1'"), mustXKey("xpub6CUmEcJb7juvpvNs2hKMc9BP1n82ixzUb4jyHUdYzSLmnXru3nb4hhGsfS23WRx8hgJLxMxZ7WcBGzTiYfiANUQZe3TVFghLrxvA2Ls7u4a")),
 				},
 			},
