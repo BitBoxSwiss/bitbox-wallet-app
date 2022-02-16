@@ -14,7 +14,7 @@
 
 set -e
 
-mkdir build
+mkdir -p build
 bash ./genassets.sh
 make -C server/ windows-legacy
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
