@@ -67,6 +67,8 @@ export function getScriptName(scriptType: ScriptType): string {
             return 'Segwit';
         case 'p2wpkh':
             return 'Native segwit (bech32)';
+        case 'p2tr':
+            return 'Taproot (bech32m)';
     }
 }
 
