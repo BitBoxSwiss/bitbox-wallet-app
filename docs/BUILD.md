@@ -30,6 +30,14 @@ Build artifacts:
 
 ## MacOS
 
+Make sure you have `qt@5/bin`, `go@1.16/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
+
+```bash
+export PATH="$PATH:/usr/local/opt/qt@5/bin"
+export PATH="$PATH:/usr/local/opt/go@1.16/bin"
+export PATH="$PATH:$HOME/go/bin"
+```
+
 Prepare the MacOS system to have the build environment:
 `make osx-init`
 

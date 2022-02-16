@@ -35,6 +35,7 @@ envinit:
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 	brew install go@1.16
+	brew install qt@5
 	$(MAKE) envinit
 servewallet:
 	go run -mod=vendor ./cmd/servewallet
