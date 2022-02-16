@@ -30,3 +30,5 @@ windows-legacy:
 clean:
 	-rm ${LIBNAME}.dll
 	-rm ${LIBNAME}.h
+	-rm ${LIBNAME}.a
+	-rm ${LIBNAME}.lib
