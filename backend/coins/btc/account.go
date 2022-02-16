@@ -666,6 +666,8 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 	account.log.Debug("Get unused receive address")
 	addresses := make([]accounts.AddressList, len(account.subaccounts))
 	for subaccIdx, subacc := range account.subaccounts {
+		scriptType := subacc.signingConfiguration.ScriptType()
+		addresses[subaccIdx].ScriptType = &scriptType
 		for idx, address := range subacc.receiveAddresses.GetUnused() {
 			if idx >= receiveAddressesLimit {
 				// Limit to gap limit for receive addresses, even if the actual limit is higher when
@@ -673,7 +675,7 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 				break
 			}
 
-			addresses[subaccIdx] = append(addresses[subaccIdx], address)
+			addresses[subaccIdx].Addresses = append(addresses[subaccIdx].Addresses, address)
 		}
 	}
 	return addresses

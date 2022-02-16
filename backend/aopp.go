@@ -313,7 +313,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 			return
 		}
 	}
-	addr := unused[signingConfigIdx][0]
+	addr := unused[signingConfigIdx].Addresses[0]
 
 	backend.aopp.Address = addr.EncodeForHumans()
 	backend.aopp.AddressID = addr.ID()

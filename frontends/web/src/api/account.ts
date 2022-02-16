@@ -207,9 +207,12 @@ export interface IReceiveAddress {
     address: string;
 }
 
-export type ReceiveAddressList = IReceiveAddress[][];
+export interface ReceiveAddressList {
+    scriptType: ScriptType | null;
+    addresses: IReceiveAddress[];
+}
 
-export const getReceiveAddressList = (code: AccountCode): Promise<ReceiveAddressList> => {
+export const getReceiveAddressList = (code: AccountCode): Promise<ReceiveAddressList[]> => {
     return apiGet(`account/${code}/receive-addresses`);
 };
 
