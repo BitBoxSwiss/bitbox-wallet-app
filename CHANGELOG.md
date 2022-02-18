@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Show coin subtotals in 'My portfolio'
+- Transactio details: make transaction ID copyable without opening the block explorer
 
 ## 4.31.1 [2022-02-07]
 - Bundle BitBox02 Multi firmware version v9.9.1

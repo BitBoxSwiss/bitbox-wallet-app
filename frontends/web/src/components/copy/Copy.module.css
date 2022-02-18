@@ -48,7 +48,7 @@
     height: 52px;
     margin-bottom: 0;
     min-width: 200px !important;
-    padding: var(--space-half) calc(var(--space-default) * 1.2) var(--space-half) calc(var(--space-half) * .5);
+    padding: var(--space-half) calc(var(--space-default) * 1.2 + 5px) var(--space-half) calc(var(--space-half) * .5);
     resize: none;
     width: 100%;
 }

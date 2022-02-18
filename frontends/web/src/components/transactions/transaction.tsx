@@ -373,10 +373,25 @@ class Transaction extends Component<Props, State> {
                                     </div>
                                 ) : null
                             }
-                            <div className={style.detail}>
+                            <div className={[style.detail, style.addresses].join(' ')}>
                                 <label>{t('transaction.explorer')}</label>
-                                <p className="text-break">
-                                    <A className={style.externalLink} href={ explorerURL + txID } title={t('transaction.explorerTitle')}>{txID}</A>
+                                <div className={style.detailAddresses}>
+                                    <CopyableInput
+                                            alignRight
+                                            borderLess
+                                            flexibleHeight
+                                            className={style.detailAddress}
+                                            value={txID} />
+                                </div>
+                            </div>
+                            <div className={[style.detail, 'flex-center'].join(' ')}>
+                                <p>
+                                    <A
+                                        className={style.externalLink}
+                                        href={explorerURL + txID}
+                                        title={t('transaction.explorerTitle') + '\n' + explorerURL + txID}>
+                                        {t('transaction.explorerTitle')}
+                                    </A>
                                 </p>
                             </div>
                         </Dialog>
