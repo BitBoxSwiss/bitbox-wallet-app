@@ -706,6 +706,69 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	return nil
 }
 
+// maybeAddP2TR adds a taproot subaccount to all Bitcoin accounts if the keystore suports it.
+func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*config.Account) error {
+	if !keystore.SupportsUnifiedAccounts() {
+		// This case is true only for the BitBox01 keystore only at the moment, where accounts are
+		// not unified, but subaccounts are added as top-level accounts instead. We won't handle
+		// this case as the BitBox01 doesn't support taproot. This could be revisited if there is
+		// ever another keystore that doesn't support unified accounts.
+		return nil
+	}
+	for _, account := range accounts {
+		if account.CoinCode == coinpkg.CodeBTC ||
+			account.CoinCode == coinpkg.CodeTBTC ||
+			account.CoinCode == coinpkg.CodeRBTC {
+			coin, err := backend.Coin(account.CoinCode)
+			if err != nil {
+				return err
+			}
+			if keystore.SupportsAccount(coin, signing.ScriptTypeP2TR) &&
+				account.Configurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
+				rootFingerprint, err := backend.keystore.RootFingerprint()
+				if err != nil {
+					return err
+				}
+				bip44Coin := 1 + hardenedKeystart
+				if account.CoinCode == coinpkg.CodeBTC {
+					bip44Coin = hardenedKeystart
+				}
+				accountNumber, err := account.Configurations[0].AccountNumber()
+				if err != nil {
+					return err
+				}
+				keypath := signing.NewAbsoluteKeypathFromUint32(
+					86+hdkeychain.HardenedKeyStart,
+					bip44Coin,
+					uint32(accountNumber)+hdkeychain.HardenedKeyStart)
+				extendedPublicKey, err := keystore.ExtendedPublicKey(coin, keypath)
+				if err != nil {
+					return err
+				}
+				account.Configurations = append(
+					account.Configurations,
+					signing.NewBitcoinConfiguration(
+						signing.ScriptTypeP2TR,
+						rootFingerprint,
+						keypath,
+						extendedPublicKey,
+					))
+				backend.log.WithField("code", account.Code).
+					Info("upgraded account with taproot subaccount")
+			}
+		}
+	}
+	return nil
+}
+
+// updatePersistedAccounts handles any updates to the persisted accounts before loading them, to
+// perform migrations, updates etc. We use it to add taproot subaccounts to Bitcoin accounts that
+// were created (persisted) before the introduction of taproot support.
+func (backend *Backend) updatePersistedAccounts(
+	keystore keystore.Keystore, accounts []*config.Account) error {
+	return backend.maybeAddP2TR(keystore, accounts)
+}
+
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) initAccounts() {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.

@@ -913,3 +913,107 @@ func TestInactiveAccount(t *testing.T) {
 	require.Len(t, b.Accounts(), 5)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
 }
+
+// Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
+// taproot support in v9.10.0)
+func TestTaprootUpgrade(t *testing.T) {
+	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	keystoreHelper := software.NewKeystore(rootKey)
+	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
+
+	bitbox02NoTaproot := &keystoremock.KeystoreMock{
+		RootFingerprintFunc: func() ([]byte, error) {
+			return fingerprint, nil
+		},
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				return scriptType == signing.ScriptTypeP2WPKHP2SH ||
+					scriptType == signing.ScriptTypeP2WPKH
+			default:
+				return true
+			}
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+	}
+	bitbox02Taproot := &keystoremock.KeystoreMock{
+		RootFingerprintFunc: func() ([]byte, error) {
+			return fingerprint, nil
+		},
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				if scriptType == signing.ScriptTypeP2TR {
+					return coin.Code() == coinpkg.CodeBTC
+				}
+				return scriptType == signing.ScriptTypeP2WPKHP2SH ||
+					scriptType == signing.ScriptTypeP2WPKH
+			default:
+				return true
+			}
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+	}
+
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	// 1) Registering a new keystore persists a set of initial default accounts.
+	b.registerKeystore(bitbox02NoTaproot)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	btcAccount := lookup(b.Accounts(), "v0-55555555-btc-0")
+	require.NotNil(t, btcAccount)
+	ltcAccount := lookup(b.Accounts(), "v0-55555555-ltc-0")
+	require.NotNil(t, ltcAccount)
+	require.Equal(t, coinpkg.CodeBTC, btcAccount.Coin().Code())
+	require.Len(t, btcAccount.Config().SigningConfigurations, 2)
+	require.Len(t, ltcAccount.Config().SigningConfigurations, 2)
+	require.Equal(t,
+		signing.ScriptTypeP2WPKH, btcAccount.Config().SigningConfigurations[0].ScriptType())
+	require.Equal(t,
+		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().SigningConfigurations[1].ScriptType())
+	// Same for the persisted account config.
+	require.Equal(t,
+		btcAccount.Config().SigningConfigurations,
+		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Configurations)
+
+	// "Unplug", then insert an updated keystore with taproot support.
+	b.DeregisterKeystore()
+	b.registerKeystore(bitbox02Taproot)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	btcAccount = lookup(b.Accounts(), "v0-55555555-btc-0")
+	require.NotNil(t, btcAccount)
+	ltcAccount = lookup(b.Accounts(), "v0-55555555-ltc-0")
+	require.NotNil(t, ltcAccount)
+	require.Equal(t, coinpkg.CodeBTC, b.Accounts()[0].Coin().Code())
+	require.Len(t, btcAccount.Config().SigningConfigurations, 3)
+	// LTC (coin with no taproot support) unchanged.
+	require.Len(t, ltcAccount.Config().SigningConfigurations, 2)
+	require.Equal(t,
+		signing.ScriptTypeP2WPKH, btcAccount.Config().SigningConfigurations[0].ScriptType())
+	require.Equal(t,
+		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().SigningConfigurations[1].ScriptType())
+	require.Equal(t,
+		signing.ScriptTypeP2TR, btcAccount.Config().SigningConfigurations[2].ScriptType())
+	// Same for the persisted account config.
+	require.Equal(t,
+		btcAccount.Config().SigningConfigurations,
+		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Configurations)
+}
