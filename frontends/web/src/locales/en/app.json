@@ -34,7 +34,8 @@
     "verify": "Verify on device",
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
-      "p2wpkh": "View Native segwit",
+      "p2tr": "View Taproot",
+      "p2wpkh": "View native segwit",
       "p2wpkh-p2sh": "View older segwit extended public key"
     },
     "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
