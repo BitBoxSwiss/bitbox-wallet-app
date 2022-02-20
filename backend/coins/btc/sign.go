@@ -77,10 +77,16 @@ func (account *Account) signTransaction(
 	}
 
 	// Sanity check: see if the created transaction is valid.
-	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
-		proposedTransaction.SigHashes); err != nil {
-		account.log.WithError(err).Panic("Failed to pass transaction validity check.")
-	}
+	//
+	// TODO: re-enable this once https://github.com/btcsuite/btcd/issues/1735 is
+	// complete. Currently, the library can't verify signed taproot inputs and this check would
+	// fail.
+	//
+	// if err := txValidityCheck(txProposal.Transaction, previousOutputs,
+	// 	proposedTransaction.SigHashes); err != nil {
+	// 	account.log.WithError(err).Panic("Failed to pass transaction validity check.")
+	// }
+	_ = txValidityCheck
 
 	return nil
 }

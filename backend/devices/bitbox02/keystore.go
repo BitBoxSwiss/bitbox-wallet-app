@@ -34,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 
@@ -91,6 +92,15 @@ func (keystore *keystore) SupportsAccount(coin coinpkg.Coin, meta interface{}) b
 	switch coin.(type) {
 	case *btc.Coin:
 		scriptType := meta.(signing.ScriptType)
+		if scriptType == signing.ScriptTypeP2TR {
+			// Taproot available since v9.10.0.
+			switch coin.Code() {
+			case coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC:
+				return keystore.device.Version().AtLeast(semver.NewSemVer(9, 10, 0))
+			default:
+				return false
+			}
+		}
 		return scriptType != signing.ScriptTypeP2PKH
 	default:
 		return true

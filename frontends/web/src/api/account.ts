@@ -70,7 +70,7 @@ export const getStatus = (code: AccountCode): Promise<IStatus> => {
     return apiGet(`account/${code}/status`);
 };
 
-export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh';
+export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh' | 'p2tr';
 
 export interface IKeyInfo {
     keypath: string;

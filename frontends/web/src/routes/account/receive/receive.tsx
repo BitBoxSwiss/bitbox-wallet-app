@@ -46,6 +46,7 @@ interface State {
     verifying: boolean;
     activeIndex: number;
     paired: boolean | null;
+    // index into `availableScriptTypes`, or 0 if none are available.
     addressType: number;
 }
 
@@ -60,7 +61,18 @@ interface LoadedReceiveProps {
 
 type Props = LoadedReceiveProps & ReceiveProps & TranslateProps;
 
+// For BTC/LTC: all possible address types we want to offer to the user, ordered by priority (first one is default).
+// Types that are not available in the addresses delivered by the backend should be ignored.
+const scriptTypes: accountApi.ScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh']
+
 class Receive extends Component<Props, State> {
+    // Find index in list of receive addresses that matches the given script type, or -1 if not found.
+    private getIndexOfMatchingScriptType = (scriptType: accountApi.ScriptType): number => {
+        return this.props.receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
+    }
+
+    // All script types that are present in the addresses delivered by the backend. Will be empty for if there are no such addresses, e.g. in Ethereum.
+    private availableScriptTypes: accountApi.ScriptType[] = scriptTypes.filter(sc => this.getIndexOfMatchingScriptType(sc) >= 0);
     public readonly state: State = {
         verifying: false,
         activeIndex: 0,
@@ -150,10 +162,15 @@ class Receive extends Component<Props, State> {
         return this.props.devices[this.props.deviceIDs[0]];
     }
 
-    private toggleAddressType = () => {
+    private nextAddressType = () => {
         this.setState(({ addressType }) => ({
-            addressType: addressType ? 0 : 1,
+            activeIndex: 0,
+            addressType: this.getNextAddressTypeIndex(addressType)
         }));
+    }
+
+    private getNextAddressTypeIndex = (currentAddressType: number) => {
+        return (currentAddressType + 1) % this.availableScriptTypes.length;
     }
 
     public render() {
@@ -183,7 +200,11 @@ class Receive extends Component<Props, State> {
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
         const enableCopy = !forceVerification;
 
-        const currentAddresses = receiveAddresses[addressType].addresses;
+        let currentAddressIndex = this.availableScriptTypes.length > 0 ? this.getIndexOfMatchingScriptType(this.availableScriptTypes[addressType]) : 0;
+        if (currentAddressIndex === -1) {
+            currentAddressIndex = 0;
+        }
+        const currentAddresses = receiveAddresses[currentAddressIndex].addresses;
 
         let address = currentAddresses[activeIndex].address;
         if (!enableCopy && !verifying) {
@@ -232,10 +253,10 @@ class Receive extends Component<Props, State> {
                     }
                 </div>
                 <CopyableInput disabled={!enableCopy} value={address} flexibleHeight />
-                { receiveAddresses.length > 1 && (
-                    <p className={style.changeType} onClick={this.toggleAddressType}>
-                        {t(`receive.addressType.${this.state.addressType}`)}
-                    </p>
+                { this.availableScriptTypes.length > 1 && (
+                    <button className={style.changeType} onClick={this.nextAddressType}>
+                        {t(`receive.scriptType.${this.availableScriptTypes[this.getNextAddressTypeIndex(addressType)]}`)}
+                    </button>
                 )}
                 <div className="buttons">
                     {
@@ -243,7 +264,7 @@ class Receive extends Component<Props, State> {
                             <Button
                                 primary
                                 disabled={verifying || secureOutput === undefined}
-                                onClick={() => this.verifyAddress(addressType)}>
+                                onClick={() => this.verifyAddress(currentAddressIndex)}>
                                 {t('receive.showFull')}
                             </Button>
                         )
@@ -253,7 +274,7 @@ class Receive extends Component<Props, State> {
                             <Button
                                 primary
                                 disabled={verifying || secureOutput === undefined}
-                                onClick={() => this.verifyAddress(addressType)}>
+                                onClick={() => this.verifyAddress(currentAddressIndex)}>
                                 {verifyLabel}
                             </Button>
                         )

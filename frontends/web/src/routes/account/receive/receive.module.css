@@ -56,8 +56,13 @@
 }
 
 .changeType {
+    appearance: none;
+    background: none;
+    border: none;
     color: var(--color-secondary);
     cursor: pointer;
+    display: inline-block;
     text-align: center;
     text-decoration: underline;
+    padding: var(--space-quarter);
 }
