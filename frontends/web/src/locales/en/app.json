@@ -30,6 +30,7 @@
     },
     "extendedPublicKey": "Extended public key",
     "label": "Account info",
+    "scriptType": "Script type",
     "title": "Account information",
     "verify": "Verify on device",
     "xpubTypeChangeBtn": {
