@@ -14,11 +14,11 @@
 
 set -e
 
-mkdir build
+mkdir -p build
 bash ./genassets.sh
 make -C server/ windows-legacy
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
 cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/
 windeployqt build/windows/BitBox.exe
-cp $MINGW_BIN/libssp-0.dll build/windows/
+cp "$MINGW_BIN/libssp-0.dll" build/windows/

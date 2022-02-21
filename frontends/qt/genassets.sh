@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 if [ ! -d ../web/build ]; then
     echo "Web assets have not been built." 1>&2
     exit 1
