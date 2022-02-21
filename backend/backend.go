@@ -494,8 +494,9 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		return account.Configurations.ContainsRootFingerprint(fingerprint)
 	}
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		if len(backend.filterAccounts(accountsConfig, belongsToKeystore)) != 0 {
-			return nil
+		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
+		if len(accounts) != 0 {
+			return backend.updatePersistedAccounts(keystore, accounts)
 		}
 		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
 	})
