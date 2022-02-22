@@ -35,7 +35,6 @@ export function Radio({
             <input
                 type="radio"
                 id={id}
-                name={id}
                 disabled={disabled}
                 {...props}
             />
