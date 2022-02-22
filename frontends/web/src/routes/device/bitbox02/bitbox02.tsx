@@ -668,8 +668,8 @@ class BitBox02 extends Component<Props, State> {
                         </View>
                     </form>
                 )}
-
-                { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized' && restoreBackupStatus === 'restore') && (
+                {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
+                { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
                     <View
                         key="restore"
                         fullscreen
