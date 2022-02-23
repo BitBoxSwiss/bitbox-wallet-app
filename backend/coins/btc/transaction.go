@@ -73,7 +73,7 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 // the change address type like this:
 //
 // - If there is at least one P2TR UTXO, the change address will be a P2TR change address.
-// - Otherwise we pick P2WPH if available.
+// - Otherwise we pick P2WPKH if available.
 // - Otherwise we take the change of the first subaccount as a fallback.
 //
 // The above is a solution for the current lack of adoption of Taproot in third party (watch-only)
