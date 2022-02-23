@@ -29,6 +29,7 @@ type AddressChain struct {
 	gapLimit             int
 	chainIndex           uint32
 	addresses            []*AccountAddress
+	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
 	addressesLock        locker.Locker
 	log                  *logrus.Entry
 }
@@ -47,6 +48,7 @@ func NewAddressChain(
 		gapLimit:             gapLimit,
 		chainIndex:           chainIndex,
 		addresses:            []*AccountAddress{},
+		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "chain-index": chainIndex,
 			"configuration": accountConfiguration.String()}),
@@ -75,6 +77,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 		addresses.log,
 	)
 	addresses.addresses = append(addresses.addresses, address)
+	addresses.addressesLookup[address.PubkeyScriptHashHex()] = address
 	return address
 }
 
@@ -95,13 +98,7 @@ func (addresses *AddressChain) unusedTailCount() int {
 // if not found.
 func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
 	defer addresses.addressesLock.RLock()()
-	// todo: add map for constant time lookup
-	for _, address := range addresses.addresses {
-		if address.PubkeyScriptHashHex() == hashHex {
-			return address
-		}
-	}
-	return nil
+	return addresses.addressesLookup[hashHex]
 }
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
