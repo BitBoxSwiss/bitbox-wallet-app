@@ -34,6 +34,7 @@ import { apiGet } from '../../../utils/request';
 import { getScriptName, isEthereumBased } from '../utils';
 import style from './receive.module.css';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
+import { Message } from '../../../components/message/message';
 
 interface ReceiveProps {
     code?: string;
@@ -261,7 +262,7 @@ class Receive extends Component<Props, State> {
                             addressDialog: undefined,
                         }));
                     }}>
-                        <Dialog small title={t('receive.changeScriptType')} >
+                        <Dialog medium title={t('receive.changeScriptType')} >
                             {this.availableScriptTypes.map((scriptType, i) => (
                                 <div key={scriptType}>
                                     <Radio
@@ -272,6 +273,11 @@ class Receive extends Component<Props, State> {
                                         title={getScriptName(scriptType)}>
                                         {t(`receive.scriptType.${scriptType}`)}
                                     </Radio>
+                                    {scriptType === 'p2tr' && addressDialog.addressType === i && (
+                                        <Message type="warning">
+                                            {t('receive.taprootWarning')}
+                                        </Message>
+                                    )}
                                 </div>
                             ))}
                             <DialogButtons>
