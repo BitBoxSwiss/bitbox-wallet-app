@@ -166,6 +166,7 @@ func (tx *Tx) TxInfo(txHash chainhash.Hash) (
 	if _, err := readJSON(tx.bucketTransactions, txHash[:], walletTx); err != nil {
 		return nil, err
 	}
+	walletTx.TxHash = txHash
 	return walletTx, nil
 }
 
