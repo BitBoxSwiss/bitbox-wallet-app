@@ -18,6 +18,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,6 +29,7 @@ type AddressChain struct {
 	gapLimit             int
 	chainIndex           uint32
 	addresses            []*AccountAddress
+	addressesLock        locker.Locker
 	log                  *logrus.Entry
 }
 
@@ -54,6 +56,7 @@ func NewAddressChain(
 // GetUnused returns the last `gapLimit` unused addresses. EnsureAddresses() must be called
 // beforehand.
 func (addresses *AddressChain) GetUnused() []*AccountAddress {
+	defer addresses.addressesLock.RLock()()
 	unusedTailCount := addresses.unusedTailCount()
 	if unusedTailCount < addresses.gapLimit {
 		addresses.log.Panic("Concurrency error: Addresses not synced correctly")
@@ -91,6 +94,7 @@ func (addresses *AddressChain) unusedTailCount() int {
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
 // if not found.
 func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
+	defer addresses.addressesLock.RLock()()
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {
 		if address.PubkeyScriptHashHex() == hashHex {
@@ -103,6 +107,7 @@ func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHa
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
 // ones, and returns the new addresses.
 func (addresses *AddressChain) EnsureAddresses() []*AccountAddress {
+	defer addresses.addressesLock.Lock()()
 	addedAddresses := []*AccountAddress{}
 	unusedAddressCount := addresses.unusedTailCount()
 	for i := 0; i < addresses.gapLimit-unusedAddressCount; i++ {

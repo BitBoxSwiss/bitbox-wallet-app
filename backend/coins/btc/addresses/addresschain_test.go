@@ -87,7 +87,7 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 		require.Equal(s.T(), address,
 			s.addresses.LookupByScriptHashHex(address.PubkeyScriptHashHex()))
 	}
-	// Produce addresses beyond  the gapLimit to ensure the gapLimit does not confuse Contains().
+	// Produce addresses beyond the gapLimit to ensure the gapLimit does not confuse Contains().
 	newAddresses[0].HistoryStatus = blockchain.TxHistory{tx1}.Status()
 	newAddresses = s.addresses.EnsureAddresses()
 	require.Len(s.T(), newAddresses, 1)
