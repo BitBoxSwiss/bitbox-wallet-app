@@ -404,7 +404,6 @@ func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	txInfo *DBTxInfo,
 	isChange func(blockchain.ScriptHashHex) bool) *accounts.TransactionData {
-	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
@@ -427,7 +426,7 @@ func (transactions *Transactions) txInfo(
 	for index, txOut := range txInfo.Tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
 		output, err := dbTx.Output(wire.OutPoint{
-			Hash:  txInfo.Tx.TxHash(),
+			Hash:  txInfo.TxHash,
 			Index: uint32(index),
 		})
 		if err != nil {
@@ -504,8 +503,8 @@ func (transactions *Transactions) txInfo(
 	return &accounts.TransactionData{
 		Fee:                      feeP,
 		Timestamp:                txInfo.HeaderTimestamp,
-		TxID:                     txInfo.Tx.TxHash().String(),
-		InternalID:               txInfo.Tx.TxHash().String(),
+		TxID:                     txInfo.TxHash.String(),
+		InternalID:               txInfo.TxHash.String(),
 		NumConfirmations:         numConfirmations,
 		NumConfirmationsComplete: numConfirmationsComplete,
 		Height:                   txInfo.Height,

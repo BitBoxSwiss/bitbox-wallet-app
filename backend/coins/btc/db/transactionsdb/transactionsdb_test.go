@@ -113,7 +113,30 @@ func TestTxQuick(t *testing.T) {
 		}
 		require.True(t, checkTxHashes())
 
-		f := func(expectedTxHash chainhash.Hash, expectedTx *wire.MsgTx, expectedHeight int) bool {
+		f := func(
+			txVersion int32,
+			txIns []wire.TxIn,
+			txOuts []wire.TxOut,
+			txLocktime uint32,
+			expectedHeight int,
+		) bool {
+			txInRefs := make([]*wire.TxIn, len(txIns))
+			for k, v := range txIns {
+				v := v
+				txInRefs[k] = &v
+			}
+			txOutRefs := make([]*wire.TxOut, len(txOuts))
+			for k, v := range txOuts {
+				v := v
+				txOutRefs[k] = &v
+			}
+			expectedTx := &wire.MsgTx{
+				Version:  txVersion,
+				TxIn:     txInRefs,
+				TxOut:    txOutRefs,
+				LockTime: txLocktime,
+			}
+			expectedTxHash := expectedTx.TxHash()
 			if err := tx.PutTx(expectedTxHash, expectedTx, expectedHeight); err != nil {
 				return false
 			}
@@ -134,6 +157,9 @@ func TestTxQuick(t *testing.T) {
 				return false
 			}
 			if txInfo.CreatedTimestamp == nil {
+				return false
+			}
+			if txInfo.TxHash.String() != expectedTxHash.String() {
 				return false
 			}
 			allTxHashes[expectedTxHash] = struct{}{}

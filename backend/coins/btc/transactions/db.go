@@ -31,6 +31,11 @@ type DBTxInfo struct {
 	Verified         *bool           `json:"Verified"`
 	HeaderTimestamp  *time.Time      `json:"ts"`
 	CreatedTimestamp *time.Time      `json:"created"`
+
+	// TxHash is the same as Tx.TxHash(), but since we already have this value in the database, it
+	// is faster to access it this way than to recompute it.  It is not serialized and stored in the
+	// database.
+	TxHash chainhash.Hash `json:"-"`
 }
 
 // DBTxInterface needs to be implemented to persist all wallet/transaction related data.

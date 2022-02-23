@@ -18,6 +18,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,6 +29,8 @@ type AddressChain struct {
 	gapLimit             int
 	chainIndex           uint32
 	addresses            []*AccountAddress
+	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
+	addressesLock        locker.Locker
 	log                  *logrus.Entry
 }
 
@@ -45,6 +48,7 @@ func NewAddressChain(
 		gapLimit:             gapLimit,
 		chainIndex:           chainIndex,
 		addresses:            []*AccountAddress{},
+		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "chain-index": chainIndex,
 			"configuration": accountConfiguration.String()}),
@@ -54,6 +58,7 @@ func NewAddressChain(
 // GetUnused returns the last `gapLimit` unused addresses. EnsureAddresses() must be called
 // beforehand.
 func (addresses *AddressChain) GetUnused() []*AccountAddress {
+	defer addresses.addressesLock.RLock()()
 	unusedTailCount := addresses.unusedTailCount()
 	if unusedTailCount < addresses.gapLimit {
 		addresses.log.Panic("Concurrency error: Addresses not synced correctly")
@@ -72,6 +77,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 		addresses.log,
 	)
 	addresses.addresses = append(addresses.addresses, address)
+	addresses.addressesLookup[address.PubkeyScriptHashHex()] = address
 	return address
 }
 
@@ -91,18 +97,14 @@ func (addresses *AddressChain) unusedTailCount() int {
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
 // if not found.
 func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
-	// todo: add map for constant time lookup
-	for _, address := range addresses.addresses {
-		if address.PubkeyScriptHashHex() == hashHex {
-			return address
-		}
-	}
-	return nil
+	defer addresses.addressesLock.RLock()()
+	return addresses.addressesLookup[hashHex]
 }
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
 // ones, and returns the new addresses.
 func (addresses *AddressChain) EnsureAddresses() []*AccountAddress {
+	defer addresses.addressesLock.Lock()()
 	addedAddresses := []*AccountAddress{}
 	unusedAddressCount := addresses.unusedTailCount()
 	for i := 0; i < addresses.gapLimit-unusedAddressCount; i++ {

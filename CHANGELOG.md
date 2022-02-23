@@ -4,6 +4,7 @@
 - Add support for BIP-86 taproot receive addresses
 - Show coin subtotals in 'My portfolio'
 - Transaction details: make transaction ID copyable without opening the block explorer
+- Improve account loading speed when there are many transactions in the account
 
 ## 4.31.1 [2022-02-07]
 - Bundle BitBox02 Multi firmware version v9.9.1
