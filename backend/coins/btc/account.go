@@ -62,6 +62,16 @@ type subaccount struct {
 	changeAddresses      *addresses.AddressChain
 }
 
+type subaccounts []subaccount
+
+func (sa subaccounts) signingConfigurations() signing.Configurations {
+	result := signing.Configurations{}
+	for _, subacc := range sa {
+		result = append(result, subacc.signingConfiguration)
+	}
+	return result
+}
+
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	*accounts.BaseAccount
@@ -74,7 +84,7 @@ type Account struct {
 	forceGapLimits *types.GapLimits
 	notifier       accounts.Notifier
 
-	subaccounts []subaccount
+	subaccounts subaccounts
 	// How many addresses were synced already during the initial sync. This value is emitted as an
 	// event when it changes. This counter can overshoot if an address is updated more than once
 	// during initial sync (e.g. if there is a tx touching it). This should be rare and have no bad
