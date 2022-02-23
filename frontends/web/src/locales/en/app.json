@@ -1084,15 +1084,16 @@
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
+    "changeScriptType": "Change address type",
     "label": "Your address",
     "onlyThisCoin": {
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
       "warning": "Make sure to only receive {{coinName}} on this address."
     },
     "scriptType": {
-      "p2tr": "change to modern address (taproot)",
-      "p2wpkh": "change back to standard address (recommended)",
-      "p2wpkh-p2sh": "change to compatible address (segwit)"
+      "p2tr": "Taproot (newest format)",
+      "p2wpkh": "Native Segwit (default)",
+      "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
     },
     "showFull": "Show and verify full address on device",
     "title": "Get {{accountName}}",

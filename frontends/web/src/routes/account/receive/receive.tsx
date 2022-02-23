@@ -21,8 +21,8 @@ import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { alertUser } from '../../../components/alert/Alert';
 import { CopyableInput } from '../../../components/copy/Copy';
-import { Dialog } from '../../../components/dialog/dialog';
-import { Button, ButtonLink } from '../../../components/forms';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
+import { Button, ButtonLink, Radio } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
@@ -31,7 +31,7 @@ import Status from '../../../components/status/status';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
-import { isEthereumBased } from '../utils';
+import { getScriptName, isEthereumBased } from '../utils';
 import style from './receive.module.css';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
 
@@ -48,6 +48,7 @@ interface State {
     paired: boolean | null;
     // index into `availableScriptTypes`, or 0 if none are available.
     addressType: number;
+    addressDialog?: { addressType: number };
 }
 
 interface LoadedReceiveProps {
@@ -162,17 +163,6 @@ class Receive extends Component<Props, State> {
         return this.props.devices[this.props.deviceIDs[0]];
     }
 
-    private nextAddressType = () => {
-        this.setState(({ addressType }) => ({
-            activeIndex: 0,
-            addressType: this.getNextAddressTypeIndex(addressType)
-        }));
-    }
-
-    private getNextAddressTypeIndex = (currentAddressType: number) => {
-        return (currentAddressType + 1) % this.availableScriptTypes.length;
-    }
-
     public render() {
         const {
              t,
@@ -184,7 +174,8 @@ class Receive extends Component<Props, State> {
             verifying,
             activeIndex,
             paired,
-            addressType
+            addressDialog,
+            addressType,
         } = this.state;
         const account = this.getAccount();
         if (account === undefined) {
@@ -205,7 +196,7 @@ class Receive extends Component<Props, State> {
             currentAddressIndex = 0;
         }
         const currentAddresses = receiveAddresses[currentAddressIndex].addresses;
-
+        const hasManyScriptTypes = this.availableScriptTypes.length > 1;
         let address = currentAddresses[activeIndex].address;
         if (!enableCopy && !verifying) {
             address = address.substring(0, 8) + '...';
@@ -253,10 +244,43 @@ class Receive extends Component<Props, State> {
                     }
                 </div>
                 <CopyableInput disabled={!enableCopy} value={address} flexibleHeight />
-                { this.availableScriptTypes.length > 1 && (
-                    <button className={style.changeType} onClick={this.nextAddressType}>
-                        {t(`receive.scriptType.${this.availableScriptTypes[this.getNextAddressTypeIndex(addressType)]}`)}
+                { hasManyScriptTypes && (
+                    <button
+                        className={style.changeType}
+                        onClick={() => this.setState(({ addressType, addressDialog }) => ({
+                            addressDialog: !addressDialog ? { addressType } : undefined
+                        }))}>
+                        {t('receive.changeScriptType')}
                     </button>
+                )}
+                { hasManyScriptTypes && addressDialog && (
+                    <form onSubmit={e => {
+                        e.preventDefault();
+                        this.setState(() => ({
+                            addressType: addressDialog.addressType,
+                            addressDialog: undefined,
+                        }));
+                    }}>
+                        <Dialog small title={t('receive.changeScriptType')} >
+                            {this.availableScriptTypes.map((scriptType, i) => (
+                                <div key={scriptType}>
+                                    <Radio
+                                        checked={addressDialog.addressType === i}
+                                        id={scriptType}
+                                        name="scriptType"
+                                        onChange={() => this.setState({ addressDialog: { addressType: i }})}
+                                        title={getScriptName(scriptType)}>
+                                        {t(`receive.scriptType.${scriptType}`)}
+                                    </Radio>
+                                </div>
+                            ))}
+                            <DialogButtons>
+                                <Button primary type="submit">
+                                    {t('button.done')}
+                                </Button>
+                            </DialogButtons>
+                        </Dialog>
+                    </form>
                 )}
                 <div className="buttons">
                     {
