@@ -30,6 +30,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -65,6 +66,43 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 		return 0, errp.New("Fee could not be estimated")
 	}
 	return *feeTarget.feeRatePerKb, nil
+}
+
+// pickChangeAddress returns a suitable unused change address to be used when making a transaction.
+// If the account is a unified account with multiple subaccounts (script/address types), we choose
+// the change address type like this:
+//
+// - If there is at least one P2TR UTXO, the change address will be a P2TR change address.
+// - Otherwise we pick P2WPH if available.
+// - Otherwise we take the change of the first subaccount as a fallback.
+//
+// The above is a solution for the current lack of adoption of Taproot in third party (watch-only)
+// wallets.  Only users who already opted-in to Taproot (by receiving on a Taproot address) continue
+// with Taproot changes. This ensures that also users who received on Taproot and broke their
+// watch-only tools can fix it by moving the coins back to P2WPKH, and not have them go a Taproot
+// change again by accident.
+func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) *addresses.AccountAddress {
+	if len(account.subaccounts) == 1 {
+		return account.subaccounts[0].changeAddresses.GetUnused()[0]
+	}
+
+	p2trIndex := account.subaccounts.signingConfigurations().FindScriptType(signing.ScriptTypeP2TR)
+	if p2trIndex >= 0 {
+		// Check if there is at least one taproot UTXO.
+		for _, utxo := range utxos {
+			if utxo.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+				// Found a taproot UTXO.
+				return account.subaccounts[p2trIndex].changeAddresses.GetUnused()[0]
+			}
+		}
+	}
+
+	p2wpkhIndex := account.subaccounts.signingConfigurations().FindScriptType(signing.ScriptTypeP2WPKH)
+	if p2wpkhIndex >= 0 {
+		return account.subaccounts[p2wpkhIndex].changeAddresses.GetUnused()[0]
+	}
+
+	return account.subaccounts[0].changeAddresses.GetUnused()[0]
 }
 
 // newTx creates a new tx to the given recipient address. It also returns a set of used account
@@ -126,13 +164,14 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if err != nil {
 			return nil, nil, errp.WithStack(errors.ErrInvalidAmount)
 		}
+		changeAddress := account.pickChangeAddress(wireUTXO)
+		account.log.Infof("Change address script type: %s", changeAddress.Configuration.ScriptType())
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			wireUTXO,
 			wire.NewTxOut(parsedAmountInt64, pkScript),
 			feeRatePerKb,
-			// Change address is of the first subaccount, always.
-			account.subaccounts[0].changeAddresses.GetUnused()[0],
+			changeAddress,
 			account.log,
 		)
 		if err != nil {
