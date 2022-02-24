@@ -211,17 +211,19 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*Spendabl
 	}
 	result := map[wire.OutPoint]*SpendableOutput{}
 	for outPoint, txOut := range outputs {
-		txInfo, err := dbTx.TxInfo(outPoint.Hash)
-		if err != nil {
-			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
-		}
-		confirmed := txInfo.Height > 0
-
 		spent := transactions.isInputSpent(dbTx, outPoint)
-		if !spent && (confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx)) {
-			result[outPoint] = &SpendableOutput{
-				TxOut:   txOut,
-				Address: transactions.outputToAddress(txOut.PkScript),
+		if !spent {
+			txInfo, err := dbTx.TxInfo(outPoint.Hash)
+			if err != nil {
+				transactions.log.WithError(err).Panic("Failed to retrieve tx info")
+			}
+			confirmed := txInfo.Height > 0
+
+			if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
+				result[outPoint] = &SpendableOutput{
+					TxOut:   txOut,
+					Address: transactions.outputToAddress(txOut.PkScript),
+				}
 			}
 		}
 	}
