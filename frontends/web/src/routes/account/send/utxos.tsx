@@ -15,14 +15,13 @@
  */
 
 import React, { Component} from 'react';
-import { Coin } from '../../../api/account';
+import * as accountApi from '../../../api/account';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
 import { ExpandOpen } from '../../../components/icon/icon';
 import { FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet } from '../../../utils/request';
 import style from './utxos.module.css';
 
 interface UTXOsProps {
@@ -34,22 +33,6 @@ interface UTXOsProps {
     ref?: React.RefObject<any> // WithTranslation doesn't add ref prop correctly
 }
 
-interface UTXO {
-    outPoint: string;
-    address: string;
-    amount: UTXOAmount;
-}
-
-interface UTXOwithTX extends UTXO {
-    txId: string;
-    txOutput: string;
-}
-
-interface UTXOAmount {
-    amount: string;
-    unit: Coin;
-}
-
 export interface SelectedUTXO {
     [key: string]: boolean;
 }
@@ -57,7 +40,7 @@ export interface SelectedUTXO {
 export type Props = UTXOsProps & TranslateProps;
 
 interface State {
-    utxos: UTXOwithTX[];
+    utxos: accountApi.UTXO[];
     selectedUTXOs: SelectedUTXO;
 }
 
@@ -67,19 +50,9 @@ export class UTXOsClass extends Component<Props, State> {
         selectedUTXOs: {},
     };
 
-    private splitOutPoint(utxo: UTXO): UTXOwithTX {
-        const [txId, txOutput] = utxo.outPoint.split(':');
-        return Object.assign({
-            txId,
-            txOutput,
-        }, utxo);
-    }
-
     public componentDidMount() {
-        apiGet(`account/${this.props.accountCode}/utxos`).then((utxos: UTXO[]) => {
-            this.setState({
-                utxos: utxos.map(this.splitOutPoint),
-            });
+        accountApi.getUTXOs(this.props.accountCode).then(utxos => {
+            this.setState({ utxos });
         });
     }
 

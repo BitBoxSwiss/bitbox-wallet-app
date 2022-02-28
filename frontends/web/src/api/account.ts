@@ -261,3 +261,18 @@ export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => 
 export const verifyAddress = (code: AccountCode, addressID: string): Promise<boolean> => {
     return apiPost(`account/${code}/verify-address`, addressID);
 };
+
+export interface UTXO {
+    outPoint: string;
+    txId: string;
+    txOutput: number;
+    address: string;
+    amount: {
+        amount: string;
+        unit: Coin;
+    };
+}
+
+export const getUTXOs = (code: AccountCode): Promise<UTXO[]> => {
+    return apiGet(`account/${code}/utxos`);
+};

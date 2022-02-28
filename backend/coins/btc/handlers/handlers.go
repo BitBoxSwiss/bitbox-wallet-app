@@ -256,6 +256,8 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 		result = append(result,
 			map[string]interface{}{
 				"outPoint": output.OutPoint.String(),
+				"txId":     output.OutPoint.Hash.String(),
+				"txOutput": output.OutPoint.Index,
 				"amount":   handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
 				"address":  output.Address,
 			})
