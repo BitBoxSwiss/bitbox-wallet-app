@@ -14,8 +14,6 @@
 
 package signing
 
-import "github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-
 // ScriptType indicates which type of output should be produced in case of singlesig.
 type ScriptType string
 
@@ -32,17 +30,3 @@ const (
 	// ScriptTypeP2TR is a BIP-86 segwit v1 PayToTaproot output.
 	ScriptTypeP2TR ScriptType = "p2tr"
 )
-
-// DecodeScriptType decodes the given script type or returns an error.
-func DecodeScriptType(scriptType string) (ScriptType, error) {
-	switch scriptType {
-	case "p2pkh":
-		return ScriptTypeP2PKH, nil
-	case "p2wpkh-p2sh":
-		return ScriptTypeP2WPKHP2SH, nil
-	case "p2wpkh":
-		return ScriptTypeP2WPKH, nil
-	default:
-		return "", errp.Newf("The given script type %s is unknown.", scriptType)
-	}
-}
