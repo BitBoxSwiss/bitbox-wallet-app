@@ -122,7 +122,9 @@ class Receive extends Component<Props, State> {
         const { activeIndex } = this.state;
         if (!secureOutput.hasSecureOutput) {
             this.unregisterEvents();
-            alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
+            alertUser(this.props.t('receive.warning.secureOutput'), {
+                callback: this.registerEvents
+            });
             return;
         }
         this.setState({ verifying: true });

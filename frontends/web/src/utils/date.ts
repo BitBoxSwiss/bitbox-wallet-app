@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,5 +14,16 @@
  * limitations under the License.
  */
 
-export { Steps } from './steps';
-export { Step } from './step';
+export const convertDateToLocaleString = (
+    date: string,
+    language: string
+) => {
+    return new Date(date).toLocaleString(language, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};

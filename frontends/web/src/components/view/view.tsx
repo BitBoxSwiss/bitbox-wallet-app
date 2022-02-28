@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
-import { Close } from '../icon/icon';
+import { Checked, Close } from '../icon/icon';
 import style from './view.module.css';
 
 type ViewProps = {
+    dialog?: boolean;
     fullscreen?: boolean;
     minHeight?: string;
     top?: boolean;
@@ -33,6 +34,7 @@ type ViewProps = {
 }
 
 export function View({
+    dialog = false,
     fullscreen,
     top = false,
     children,
@@ -42,6 +44,11 @@ export function View({
     width,
     withBottomBar,
 }: PropsWithChildren<ViewProps>) {
+    const containerClasses = `${
+        style[fullscreen ? 'fullscreen' : 'fill']
+    } ${
+        dialog ? style.dialog : ''
+    }`;
     let classNames = style.inner;
     if (!top) {
         classNames += ` ${style.center}`;
@@ -54,7 +61,7 @@ export function View({
         ...(width && { width }),
     };
     return (
-        <div className={fullscreen ? style.fullscreen : style.fill}>
+        <div className={containerClasses}>
             <div
                 className={classNames}
                 style={inlineStyles}>
@@ -78,22 +85,38 @@ export function View({
 
 type ViewContentProps = {
     fullWidth?: boolean;
+    minHeight?: string;
+    textAlign?: 'center' | 'left';
+    withIcon?: 'success';
 }
 
 export function ViewContent({
     children,
     fullWidth,
+    minHeight,
+    textAlign,
+    withIcon,
     ...props
 }: PropsWithChildren<ViewContentProps>) {
-    const classes = `${style.content} ${fullWidth ? style.fullWidth : ''}`;
+    const align = textAlign ? style[`text-${textAlign}`] : '';
+    const containerWidth = fullWidth ? style.fullWidth : '';
+    const classes = `${style.content} ${containerWidth} ${align}`;
     return (
-        <div className={classes} {...props}>{children}</div>
+        <div
+            className={classes}
+            style={minHeight ? { minHeight } : {}}
+            {...props}>
+            {withIcon === 'success' && (
+                <Checked className={style.largeIcon} />
+            )}
+            {children}
+        </div>
     );
 }
 
 type HeaderProps = {
     small?: boolean;
-    title: string;
+    title: ReactNode;
     withAppLogo?: boolean;
 }
 

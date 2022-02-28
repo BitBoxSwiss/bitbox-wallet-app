@@ -37,13 +37,19 @@ export const store = new Store<SharedProps>({
     guideExists: false,
 });
 
-apiGet('config').then(({ frontend }) => {
-    if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
-        store.setState({ shown: frontend.guideShown });
-    } else {
-        store.setState({ shown: true });
-    }
-});
+// if apiGet() is invoked immediately this can error due to cyclic dependencies
+// request.js:64 Uncaught TypeError: Cannot read properties of undefined
+// (reading 'runningInQtWebEngine')
+// TODO: this should probably be in a context
+setTimeout(() => {
+    apiGet('config').then(({ frontend }) => {
+        if (frontend && frontend.guideShown !== undefined) {
+            store.setState({ shown: frontend.guideShown });
+        } else {
+            store.setState({ shown: true });
+        }
+    });
+}, 0);
 
 function setGuideShown(shown: boolean) {
     store.setState({ shown });

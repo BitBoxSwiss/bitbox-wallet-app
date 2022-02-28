@@ -131,6 +131,18 @@
     margin: 0 0 calc(var(--space-half) * 1.5) 0;
 }
 
+.title {
+    font-size: var(--size-title);
+    font-weight: 400;
+    line-height: 1;
+    margin: 0 0 var(--space-half) 0;
+}
+@media (min-width: 1200px) {
+    .title {
+        margin: 0 0 var(--space-default) 0;
+    }
+}
+
 .content {
     flex: 1;
     margin: 0 auto;

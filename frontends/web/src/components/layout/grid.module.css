@@ -1,0 +1,38 @@
+.column {
+    margin-bottom: var(--space-default);
+}
+
+.columnAsCard {
+    background-color: var(--color-white);
+    padding: var(--space-default);
+}
+
+.column p {
+    margin-top: 0;
+}
+
+.columnButtons button {
+    width: 100%;
+}
+
+.columnButtons button:not(:first-child) {
+    margin-top: var(--space-quarter);
+}
+
+@media (min-width: 769px) {
+    .grid {
+        display: grid;
+        gap: var(--space-default);
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: minmax(100px, auto);
+    }
+
+    .column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .columnButtons {
+        margin-top: auto;
+    }
+}

@@ -138,6 +138,7 @@
         "showLabel": "Recovery password"
       },
       "restoring": "Restoring backup…",
+      "selectedBackup": "<strong>{{backupName}}</strong> created on {{createdDateTime}} will be restored.",
       "title": "Restore",
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
@@ -244,6 +245,7 @@
     "stepCreate": {
       "buttonBack": "Go back",
       "buttonContinue": "Continue",
+      "description": "This name is used as the device name and for the backup.",
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
       "title": "Choose BitBox02 name",

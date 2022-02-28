@@ -28,6 +28,7 @@ import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
+import warningPNG from './assets/icons/warning.png';
 import style from './icon.module.css';
 
 export const ExpandOpen = (): JSX.Element => (
@@ -94,7 +95,6 @@ export const ExpandIcon = ({
 
 type ImgProps = JSX.IntrinsicElements['img'];
 
-export const Alert = (props: ImgProps) => (<img src={alert} draggable={false} {...props} />);
 export const Info = (props: ImgProps) => (<img src={info} draggable={false} {...props} />);
 export const BitBox02Stylized = (props: ImgProps) => (<img src={BB02Stylized} draggable={false} {...props} />);
 export const ArrowDown = (props: ImgProps) => (<img src={arrowDownSVG} draggable={false} {...props} />);
@@ -107,3 +107,8 @@ export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={fals
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
+export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
+/**
+ * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
+ */
+export const Alert = (props: ImgProps) => (<img src={alert} draggable={false} {...props} />);

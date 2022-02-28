@@ -21,7 +21,11 @@
 
 .hostname {
     color: var(--color-secondary);
-    margin: 0;
+}
+@media (min-width: 769px) {
+    .hostname {
+        margin: 0;
+    }
 }
 
 .capitalized::first-letter {

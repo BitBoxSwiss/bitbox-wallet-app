@@ -17,6 +17,7 @@
 
 import React, { Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
+import { convertDateToLocaleString } from '../../../utils/date';
 import { Radio } from '../../../components/forms';
 import style from './backups.module.css';
 
@@ -42,14 +43,7 @@ class BackupsListItem extends Component<Props> {
         const { disabled, backup, selectedBackup, handleChange, onFocus, radio } = this.props;
         let date = '';
         if (backup.date && backup.date !== '') {
-            date = new Date(backup.date).toLocaleString(this.props.i18n.language, {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
+            date = convertDateToLocaleString(backup.date, this.props.i18n.language);
         } else {
             date = 'unknown';
         }
