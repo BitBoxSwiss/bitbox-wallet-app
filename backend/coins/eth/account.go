@@ -428,7 +428,7 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 
 // TxProposal holds all info needed to create and sign a transacstion.
 type TxProposal struct {
-	Coin coin.Coin
+	Coin *Coin
 	Tx   *types.Transaction
 	Fee  *big.Int
 	// Value can be the same as Tx.Value(), but in case of e.g. ERC20, tx.Value() is zero, while the

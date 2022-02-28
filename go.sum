@@ -110,8 +110,8 @@ github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRk
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-bitstream v0.0.0-20180413035011-3522498ce2c8/go.mod h1:VMaSuZ+SZcx/wljOQKvp5srsbCiKDEb6K2wC4+PiBmQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220215094631-137856d4c230 h1:8m5jLiwWVLjtuOefJ49XyqapDUfrT3552TCVMqRIvfU=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220215094631-137856d4c230/go.mod h1:ZuNrUW4Olzu0VWUqBqe0yoSJbPmkjh7gFbN/TWpSHGo=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220228225819-67b3f707055c h1:bVZif2qcJOOfV4lPhPaSE2kqIbJugVnUDIbr5/WTqfg=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220228225819-67b3f707055c/go.mod h1:ZuNrUW4Olzu0VWUqBqe0yoSJbPmkjh7gFbN/TWpSHGo=
 github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91/go.mod h1:2pZnwuY/m+8K6iRw6wQdMtk+rH5tNGR1i55kozfMjCc=
 github.com/docker/docker v1.4.2-0.20180625184442-8e610b2b55bf/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/dop251/goja v0.0.0-20211011172007-d99e4b8cbf48/go.mod h1:R9ET47fwRVRPZnOGvHxxhuZcbrMCuiqOz3Rlrh4KSnk=

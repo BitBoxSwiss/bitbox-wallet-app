@@ -32,7 +32,7 @@ github.com/btcsuite/btcutil/txsort
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.8.0
 github.com/deckarep/golang-set
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220215094631-137856d4c230
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220228225819-67b3f707055c
 ## explicit
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common

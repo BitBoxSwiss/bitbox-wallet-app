@@ -335,13 +335,13 @@ func (device *Device) Product() common.Product {
 
 // SupportsETH returns true if ETH is supported by the device api.
 // coinCode is eth/teth/reth or eth-erc20-xyz, ...
-func (device *Device) SupportsETH(coinCode messages.ETHCoin) bool {
+func (device *Device) SupportsETH(chainID uint64) bool {
 	if *device.product != common.ProductBitBox02Multi {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
-		switch coinCode {
-		case messages.ETHCoin_ETH, messages.ETHCoin_RopstenETH, messages.ETHCoin_RinkebyETH:
+		switch chainID {
+		case 1, 3, 4: // mainnet, ropsten, rinkeby
 			return true
 		}
 	}
