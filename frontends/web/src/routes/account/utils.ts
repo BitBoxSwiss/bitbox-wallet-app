@@ -62,13 +62,13 @@ export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
 export function getScriptName(scriptType: ScriptType): string {
     switch (scriptType) {
         case 'p2pkh':
-            return 'Legacy';
+            return 'Legacy (P2PKH)';
         case 'p2wpkh-p2sh':
-            return 'Segwit';
+            return 'Wrapped Segwit (P2WPKH-P2SH)';
         case 'p2wpkh':
-            return 'Native segwit (bech32)';
+            return 'Native segwit (bech32, P2WPKH)';
         case 'p2tr':
-            return 'Taproot (bech32m)';
+            return 'Taproot (bech32m, P2TR)';
     }
 }
 
