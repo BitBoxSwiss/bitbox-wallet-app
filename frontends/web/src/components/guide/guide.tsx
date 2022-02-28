@@ -43,7 +43,7 @@ export const store = new Store<SharedProps>({
 // TODO: this should probably be in a context
 setTimeout(() => {
     apiGet('config').then(({ frontend }) => {
-        if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
+        if (frontend && frontend.guideShown !== undefined) {
             store.setState({ shown: frontend.guideShown });
         } else {
             store.setState({ shown: true });
