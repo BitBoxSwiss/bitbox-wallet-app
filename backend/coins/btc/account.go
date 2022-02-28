@@ -746,6 +746,7 @@ func (p *byValue) Swap(i, j int) { p.outputs[i], p.outputs[j] = p.outputs[j], p.
 type SpendableOutput struct {
 	*transactions.SpendableOutput
 	OutPoint wire.OutPoint
+	Address  *addresses.AccountAddress
 }
 
 // SpendableOutputs returns the utxo set, sorted by the value descending.
@@ -754,7 +755,13 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	defer account.RLock()()
 	result := []*SpendableOutput{}
 	for outPoint, txOut := range account.transactions.SpendableOutputs() {
-		result = append(result, &SpendableOutput{OutPoint: outPoint, SpendableOutput: txOut})
+		result = append(
+			result,
+			&SpendableOutput{
+				OutPoint:        outPoint,
+				SpendableOutput: txOut,
+				Address:         account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
+			})
 	}
 	sort.Sort(sort.Reverse(&byValue{result}))
 	return result
