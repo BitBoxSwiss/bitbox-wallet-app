@@ -28,7 +28,7 @@ interface UTXOsProps {
     accountCode: string;
     active: boolean;
     explorerURL: string;
-    onChange: (SelectedUTXO) => void;
+    onChange: (selectedUTXO: SelectedUTXO) => void;
     onClose: () => void;
     ref?: React.RefObject<any> // WithTranslation doesn't add ref prop correctly
 }

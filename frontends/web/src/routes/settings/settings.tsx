@@ -93,7 +93,7 @@ class Settings extends Component<Props, State> {
         });
     }
 
-    private setProxyConfig = proxyConfig => {
+    private setProxyConfig = (proxyConfig: any) => {
         setConfig({
             backend: { proxy: proxyConfig },
         }).then(config => {

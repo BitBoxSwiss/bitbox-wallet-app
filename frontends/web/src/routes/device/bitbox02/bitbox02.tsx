@@ -83,7 +83,7 @@ interface State {
 }
 
 class BitBox02 extends Component<Props, State> {
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             hash: undefined,
@@ -207,7 +207,7 @@ class BitBox02 extends Component<Props, State> {
         this.unsubscribe();
     }
 
-    private channelVerify = ok => {
+    private channelVerify = (ok: boolean) => {
         apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
     }
 
@@ -362,11 +362,12 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
+        type TAgreements = 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
         const target = event.target as HTMLInputElement;
-        const key = target.id as 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
-        const obj = {};
-        obj[key] = target.checked;
-        this.setState(obj);
+        const key = target.id;
+        this.setState({
+            [key as TAgreements]: target.checked
+        } as unknown as Pick<State, keyof State>);
     }
 
     public render() {

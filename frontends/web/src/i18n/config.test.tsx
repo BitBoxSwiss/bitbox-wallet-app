@@ -24,7 +24,7 @@ import { languageFromConfig } from './config';
 describe('language detector', () => {
     it('defaults to english', done => {
         (apiGet as jest.Mock).mockResolvedValue({});
-        languageFromConfig.detect((lang) => {
+        languageFromConfig.detect((lang: any) => {
             expect(lang).toEqual('en');
             done();
         });
@@ -38,7 +38,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        languageFromConfig.detect((lang) => {
+        languageFromConfig.detect((lang: any) => {
             expect(lang).toEqual('it');
             done();
         });
@@ -52,7 +52,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        languageFromConfig.detect((lang) => {
+        languageFromConfig.detect((lang: any) => {
             expect(lang).toEqual('de');
             done();
         });
@@ -66,7 +66,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        languageFromConfig.detect((lang) => {
+        languageFromConfig.detect((lang: any) => {
             expect(lang).toEqual('en');
             done();
         });
@@ -80,7 +80,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        languageFromConfig.detect((lang) => {
+        languageFromConfig.detect((lang: any) => {
             expect(lang).toEqual('de');
             done();
         });
@@ -94,7 +94,7 @@ describe('language detector', () => {
                 default: { return Promise.resolve(); }
             }
         });
-        languageFromConfig.detect((lang) => {
+        languageFromConfig.detect((lang: any) => {
             expect(lang).toEqual('pt-BR');
             done();
         });

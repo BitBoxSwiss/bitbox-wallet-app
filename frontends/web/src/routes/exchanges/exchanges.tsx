@@ -43,7 +43,7 @@ interface Exchange extends ExchangeData {
 
 class Exchanges extends Component<Props, State> {
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.data = data.map(({ link, ...rest }) => ({
             ...rest,
@@ -58,11 +58,11 @@ class Exchanges extends Component<Props, State> {
 
     private data: Exchange[];
 
-    private toggleRegion = code => {
+    private toggleRegion = (code: Region) => {
         this.setState(({ region }) => ({ region: region !== code ? code : null }));
     }
 
-    private toggleMethod = code => {
+    private toggleMethod = (code: Method) => {
         this.setState(({ method }) => ({ method: method !== code ? code : null }));
     }
 

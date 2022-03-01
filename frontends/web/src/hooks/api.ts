@@ -76,7 +76,7 @@ export const useSync = <T>(
 ): (T | undefined) => {
     const [respose, setResponse] = useState<T>();
     const mounted = useMountedRef();
-    const onData = (data) => {
+    const onData = (data: T) => {
         if (mounted.current) {
             setResponse(data);
         }

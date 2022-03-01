@@ -41,7 +41,7 @@ class QRCode extends Component<Props, State> {
         this.update(this.props.data);
     }
 
-    public UNSAFE_componentWillReceiveProps({ data }) {
+    public UNSAFE_componentWillReceiveProps({ data }: Props) {
         if (this.props.data !== data) {
             this.update(data);
         }

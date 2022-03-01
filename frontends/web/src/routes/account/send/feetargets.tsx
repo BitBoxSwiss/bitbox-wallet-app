@@ -28,7 +28,7 @@ interface LoadedProps {
 }
 
 interface FeeTargetsProps {
-    accountCode: string;
+    accountCode: accountApi.AccountCode;
     coinCode: accountApi.CoinCode;
     disabled: boolean;
     fiatUnit: accountApi.Fiat;
@@ -65,13 +65,13 @@ class FeeTargets extends Component<Props, State> {
         this.focusInput();
     }
 
-    public UNSAFE_componentWillReceiveProps({ accountCode }) {
+    public UNSAFE_componentWillReceiveProps({ accountCode }: Props) {
         if (this.props.accountCode !== accountCode) {
             this.updateFeeTargets(accountCode);
         }
     }
 
-    private updateFeeTargets = (accountCode: string) => {
+    private updateFeeTargets = (accountCode: accountApi.AccountCode) => {
         accountApi.getFeeTargetList(accountCode)
             .then(({ feeTargets, defaultFeeTarget }) => {
                 const expert = this.props.config.frontend.expertFee;

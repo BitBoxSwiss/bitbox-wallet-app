@@ -119,7 +119,7 @@ class ManageAccounts extends Component<Props, State> {
         });
     }
 
-    private toggleShowTokens = (accountCode) => {
+    private toggleShowTokens = (accountCode: string) => {
         this.setState(({ showTokens }) => ({
             showTokens: {
                 ...showTokens,

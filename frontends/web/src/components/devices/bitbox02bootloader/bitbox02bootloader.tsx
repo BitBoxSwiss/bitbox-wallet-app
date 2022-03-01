@@ -52,7 +52,7 @@ interface State {
 }
 
 class BitBox02Bootloader extends Component<Props, State> {
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             status: {

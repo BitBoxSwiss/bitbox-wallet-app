@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { Component, SyntheticEvent } from 'react';
 import { Button } from '../../../../components/forms';
 import { SwissMadeOpenSource } from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -49,7 +49,7 @@ interface State {
 }
 
 class Initialize extends Component<Props, State> {
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             showInfo: true,
@@ -60,7 +60,7 @@ class Initialize extends Component<Props, State> {
         };
     }
 
-    private handleSubmit = event => {
+    private handleSubmit = (event: SyntheticEvent) => {
         event.preventDefault();
         if (!this.state.password) {
             return;
@@ -85,7 +85,7 @@ class Initialize extends Component<Props, State> {
         });
     }
 
-    private setValidPassword = password => {
+    private setValidPassword = (password: string) => {
         this.setState({ password });
     }
 

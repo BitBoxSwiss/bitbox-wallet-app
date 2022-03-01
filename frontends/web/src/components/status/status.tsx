@@ -45,7 +45,7 @@ export default class Status extends Component<Props, State> {
         this.checkConfig();
     }
 
-    public componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps: Props) {
         if (this.props.dismissable !== prevProps.dismissable) {
             this.checkConfig();
         }

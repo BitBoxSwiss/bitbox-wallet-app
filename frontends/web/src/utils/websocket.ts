@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +20,13 @@ import { qtSubscribePushNotifications } from './qttransport';
 import { androidSubscribePushNotifications } from './androidtransport';
 import { runningInAndroid, runningInQtWebEngine } from './env';
 
-let socket = null;
-const currentListeners = [];
+let socket: WebSocket | undefined;
 
-export function apiWebsocket(msgCallback) {
+type MsgCallback = (payload: any) => void; // TODO: change to (payload: unknown) => void
+const currentListeners: MsgCallback[] = [];
+
+type UnsubscribeCallback = () => void;
+export function apiWebsocket(msgCallback: MsgCallback): UnsubscribeCallback {
     if (runningInQtWebEngine()) {
         return qtSubscribePushNotifications(msgCallback);
     }
@@ -34,7 +38,9 @@ export function apiWebsocket(msgCallback) {
         socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
 
         socket.onopen = function() {
-            socket.send('Authorization: Basic ' + apiToken);
+            if (socket) {
+                socket.send('Authorization: Basic ' + apiToken);
+            }
         };
 
         socket.onerror = function(event) {

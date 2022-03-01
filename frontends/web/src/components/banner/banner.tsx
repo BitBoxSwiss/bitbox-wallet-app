@@ -45,7 +45,7 @@ function Banner({ banner, i18n, t }: PropsWithChildren<Props>): JSX.Element | nu
     }
     return banner && (
         <Status dismissable="" type="info">
-            { banner.message[i18n.language] || banner.message[i18n.options.fallbackLng[0]] }&nbsp;
+            { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
             { banner.link && (
                 <A href={banner.link.href}>
                     {t('clickHere')}

@@ -44,7 +44,7 @@ class Check extends Component<Props, State> {
         userVerified: false,
     };
 
-    private checkBackup = (silent: boolean, backups) => {
+    private checkBackup = (silent: boolean, backups: Backup[]) => {
         apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
             silent,
         }).then( response => {

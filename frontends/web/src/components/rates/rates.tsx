@@ -16,7 +16,7 @@
  */
 
 import { PropsWithChildren } from 'react';
-import { Coin, Fiat, MainnetCoin } from '../../api/account';
+import { Coin, Fiat } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
@@ -27,7 +27,7 @@ import style from './rates.module.css';
 
 
 export type Rates = {
-    [coin in MainnetCoin]: {
+    [coin in Coin]: {
         [fiat in Fiat]: number;
     }
 };

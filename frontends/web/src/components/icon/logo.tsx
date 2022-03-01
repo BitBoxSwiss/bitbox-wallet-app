@@ -68,7 +68,11 @@ export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} drag
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
 export const SwissMadeOpenSource = ({large: boolean, ...props}: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
 
-const logoMap = {
+type LogoMap = {
+    [property: string]: string[];
+}
+
+const logoMap: LogoMap = {
     'btc': [BTC, BTC_GREY],
     'tbtc': [BTC, BTC_GREY],
     'rbtc': [BTC, BTC_GREY],

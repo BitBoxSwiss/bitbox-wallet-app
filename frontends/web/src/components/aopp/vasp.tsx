@@ -29,7 +29,11 @@ interface VASPProps {
     withLogoText?: string;
 }
 
-const VASPLogoMap = {
+type TVASPMap = {
+    [hostname: string]: string
+}
+
+const VASPLogoMap: TVASPMap = {
     'demo.aopp.group': AOPPGroupLogo,
     'testing.aopp.group': AOPPGroupLogo,
     'bitcoinsuisse.com': BitcoinSuisseLogo,
@@ -38,7 +42,7 @@ const VASPLogoMap = {
     'pocketbitcoin.com': PocketBitcoinLogo,
 };
 
-const VASPHostnameMap = {
+const VASPHostnameMap: TVASPMap = {
     'demo.aopp.group': 'AOPP.group',
     'testing.aopp.group': 'AOPP.group',
 };

@@ -48,7 +48,7 @@ interface State {
 class Backups extends Component<Props, State> {
     private scrollableContainer = createRef<HTMLDivElement>();
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             backupList: [],

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { Component} from 'react';
+import React, { ChangeEvent, Component } from 'react';
 import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
@@ -94,7 +94,7 @@ class BuyInfo extends Component<Props, State> {
         .catch(console.error);
     }
 
-    private handleSkipDisclaimer = (e) => {
+    private handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
         setConfig({ frontend: { skipBuyDisclaimer: e.target.checked }});
     }
 
