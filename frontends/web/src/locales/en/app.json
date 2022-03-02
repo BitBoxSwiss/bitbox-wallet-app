@@ -36,8 +36,8 @@
     "xpubTypeChangeBtn": {
       "p2pkh": "View legacy P2PKH extended public key",
       "p2tr": "View Taproot",
-      "p2wpkh": "View native segwit",
-      "p2wpkh-p2sh": "View older segwit extended public key"
+      "p2wpkh": "View Native Segwit",
+      "p2wpkh-p2sh": "View older Segwit extended public key"
     },
     "xpubTypeInfo": "Currently displaying {{scriptType}} extended public key ({{current}} of {{numberOfXPubs}})"
   },
@@ -737,7 +737,7 @@
         "title": "When do the addresses change?"
       },
       "addressFormats": {
-        "text": "A compatible address is standard segwit whereas the modern address is native segwit (bech32). By default the BitBox02 uses the modern address. If you are having issues sending to this address, click \"change to compatible address\".",
+        "text": "A compatible address is standard segwit whereas the modern address is Native Segwit (bech32). By default the BitBox02 uses the modern address. If you are having issues sending to this address, click \"change to compatible address\".",
         "title": "What is the difference between compatible address and modern address?"
       },
       "howVerify": {
@@ -823,7 +823,7 @@
           "text": "Segregated witness benefits",
           "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
         },
-        "text": "This is a backwards compatible segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
+        "text": "This is a backwards compatible Segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
         "title": "What is the Bitcoin account?"
       },
       "btc-p2wpkh": {
@@ -831,7 +831,7 @@
           "text": "Bech32 adoption",
           "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
         },
-        "text": "Use the new Bitcoin bech32 address format to reap the full benefits of segwit's cheaper network fees. Remember that this format is not accepted everywhere yet.",
+        "text": "Use the new Bitcoin bech32 address format to reap the full benefits of Segwit's cheaper network fees. Remember that this format is not accepted everywhere yet.",
         "title": "What is Bitcoin bech32?"
       },
       "servers": {
