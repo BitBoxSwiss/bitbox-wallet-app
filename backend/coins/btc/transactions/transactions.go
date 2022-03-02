@@ -34,7 +34,6 @@ import (
 // SpendableOutput is an unspent coin.
 type SpendableOutput struct {
 	*wire.TxOut
-	Address string
 }
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
@@ -221,8 +220,7 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*Spendabl
 
 			if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
 				result[outPoint] = &SpendableOutput{
-					TxOut:   txOut,
-					Address: transactions.outputToAddress(txOut.PkScript),
+					TxOut: txOut,
 				}
 			}
 		}

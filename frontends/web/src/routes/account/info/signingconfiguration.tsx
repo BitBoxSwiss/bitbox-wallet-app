@@ -104,12 +104,6 @@ class SigningConfiguration extends Component<Props, State> {
                                 <span>{getScriptName(config.scriptType)}</span>
                             </p>
                         ) : null}
-                        { ('scriptType' in config) ? (
-                            <p key="scriptType" className={style.entry}>
-                                <strong>{t('accountInfo.scriptType')}:</strong>
-                                <span>{config.scriptType.toUpperCase()}</span>
-                            </p>
-                        ) : null}
                         <p key="coinName" className={style.entry}>
                             <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
                             <span>{account.coinName} ({account.coinUnit})</span>

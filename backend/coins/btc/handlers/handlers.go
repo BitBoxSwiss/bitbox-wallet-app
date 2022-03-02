@@ -255,11 +255,12 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 	for _, output := range t.SpendableOutputs() {
 		result = append(result,
 			map[string]interface{}{
-				"outPoint": output.OutPoint.String(),
-				"txId":     output.OutPoint.Hash.String(),
-				"txOutput": output.OutPoint.Index,
-				"amount":   handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
-				"address":  output.Address,
+				"outPoint":   output.OutPoint.String(),
+				"txId":       output.OutPoint.Hash.String(),
+				"txOutput":   output.OutPoint.Index,
+				"amount":     handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
+				"address":    output.Address.EncodeForHumans(),
+				"scriptType": output.Address.Configuration.ScriptType(),
 			})
 	}
 

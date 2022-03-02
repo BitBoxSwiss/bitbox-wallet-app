@@ -72,6 +72,8 @@ export const getStatus = (code: AccountCode): Promise<IStatus> => {
 
 export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh' | 'p2tr';
 
+export const allScriptTypes: ScriptType[] = ['p2pkh', 'p2wpkh-p2sh', 'p2wpkh', 'p2tr'];
+
 export interface IKeyInfo {
     keypath: string;
     rootFingerprint: string;
@@ -271,6 +273,7 @@ export interface UTXO {
         amount: string;
         unit: Coin;
     };
+    scriptType: ScriptType;
 }
 
 export const getUTXOs = (code: AccountCode): Promise<UTXO[]> => {

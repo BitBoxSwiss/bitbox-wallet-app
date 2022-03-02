@@ -183,6 +183,8 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	return utxo, txProposal, nil
 }
 
+// getAddress returns the address in the account with the given `scriptHashHex`. Panics if the
+// address does not exist in the account.
 func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
 	for _, subacc := range account.subaccounts {
 		if address := subacc.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
