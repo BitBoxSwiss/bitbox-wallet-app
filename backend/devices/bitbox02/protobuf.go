@@ -35,20 +35,3 @@ var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_Simple
 	signing.ScriptTypeP2WPKH:     messages.BTCScriptConfig_P2WPKH,
 	signing.ScriptTypeP2TR:       messages.BTCScriptConfig_P2TR,
 }
-
-var ethMsgCoinMap = map[coin.Code]messages.ETHCoin{
-	coin.CodeETH:          messages.ETHCoin_ETH,
-	"eth-erc20-usdt":      messages.ETHCoin_ETH,
-	"eth-erc20-usdc":      messages.ETHCoin_ETH,
-	"eth-erc20-link":      messages.ETHCoin_ETH,
-	"eth-erc20-bat":       messages.ETHCoin_ETH,
-	"eth-erc20-mkr":       messages.ETHCoin_ETH,
-	"eth-erc20-zrx":       messages.ETHCoin_ETH,
-	"eth-erc20-wbtc":      messages.ETHCoin_ETH,
-	"eth-erc20-paxg":      messages.ETHCoin_ETH,
-	"eth-erc20-sai0x89d2": messages.ETHCoin_ETH,
-	"eth-erc20-dai0x6b17": messages.ETHCoin_ETH,
-	coin.CodeTETH:         messages.ETHCoin_RopstenETH,
-	coin.CodeRETH:         messages.ETHCoin_RinkebyETH,
-	coin.CodeERC20TEST:    messages.ETHCoin_RopstenETH,
-}

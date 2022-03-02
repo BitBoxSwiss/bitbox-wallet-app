@@ -35,6 +35,7 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
 
@@ -78,7 +79,7 @@ func (keystore *keystore) SupportsCoin(coin coinpkg.Coin) bool {
 		if specificCoin.ERC20Token() != nil {
 			return keystore.device.SupportsERC20(specificCoin.ERC20Token().ContractAddress().String())
 		}
-		return keystore.device.SupportsETH(ethMsgCoinMap[coin.Code()])
+		return keystore.device.SupportsETH(specificCoin.ChainID())
 	default:
 		return false
 	}
@@ -125,8 +126,7 @@ func (keystore *keystore) CanVerifyAddress(coin coinpkg.Coin) (bool, bool, error
 		_, ok := btcMsgCoinMap[coin.Code()]
 		return ok, optional, nil
 	case *eth.Coin:
-		_, ok := ethMsgCoinMap[coin.Code()]
-		return ok, optional, nil
+		return true, optional, nil
 	}
 	return false, false, nil
 }
@@ -161,10 +161,6 @@ func (keystore *keystore) VerifyAddress(
 			return err
 		}
 	case *eth.Coin:
-		msgCoin, ok := ethMsgCoinMap[coin.Code()]
-		if !ok {
-			return errp.New("unsupported coin")
-		}
 		// No contract address, displays 'Ethereum' etc. depending on `msgCoin`.
 		contractAddress := []byte{}
 		if specificCoin.ERC20Token() != nil {
@@ -172,7 +168,7 @@ func (keystore *keystore) VerifyAddress(
 			contractAddress = specificCoin.ERC20Token().ContractAddress().Bytes()
 		}
 		_, err := keystore.device.ETHPub(
-			msgCoin, configuration.AbsoluteKeypath().ToUInt32(),
+			specificCoin.ChainID(), configuration.AbsoluteKeypath().ToUInt32(),
 			messages.ETHPubRequest_ADDRESS, true, contractAddress)
 		if firmware.IsErrorAbort(err) {
 			// No special action on user abort.
@@ -237,7 +233,7 @@ func (keystore *keystore) VerifyExtendedPublicKey(
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *keystore) ExtendedPublicKey(
 	coin coinpkg.Coin, keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
-	switch coin.(type) {
+	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		msgCoin, ok := btcMsgCoinMap[coin.Code()]
 		if !ok {
@@ -251,11 +247,6 @@ func (keystore *keystore) ExtendedPublicKey(
 		}
 		return hdkeychain.NewKeyFromString(xpubStr)
 	case *eth.Coin:
-		msgCoin, ok := ethMsgCoinMap[coin.Code()]
-		if !ok {
-			return nil, errp.New("unsupported coin")
-		}
-
 		// The BitBox02 only accepts four-element keypaths to get the xpub, e.g.
 		// m/44'/60'/0'/0.
 		//
@@ -267,7 +258,7 @@ func (keystore *keystore) ExtendedPublicKey(
 		keypathUint32 := keyPath.ToUInt32()
 		if len(keypathUint32) == 5 {
 			xpubStr, err := keystore.device.ETHPub(
-				msgCoin, keypathUint32[:4], messages.ETHPubRequest_XPUB, false, []byte{})
+				specificCoin.ChainID(), keypathUint32[:4], messages.ETHPubRequest_XPUB, false, []byte{})
 			if err != nil {
 				return nil, err
 			}
@@ -278,7 +269,7 @@ func (keystore *keystore) ExtendedPublicKey(
 			return xpub.Derive(keypathUint32[4])
 		}
 		xpubStr, err := keystore.device.ETHPub(
-			msgCoin, keypathUint32, messages.ETHPubRequest_XPUB, false, []byte{})
+			specificCoin.ChainID(), keypathUint32, messages.ETHPubRequest_XPUB, false, []byte{})
 		if err != nil {
 			return nil, err
 		}
@@ -432,17 +423,13 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 }
 
 func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
-	msgCoin, ok := ethMsgCoinMap[txProposal.Coin.Code()]
-	if !ok {
-		return errp.New("unsupported coin")
-	}
 	tx := txProposal.Tx
 	recipient := tx.To()
 	if recipient == nil {
 		return errp.New("contract creation not supported")
 	}
 	signature, err := keystore.device.ETHSign(
-		msgCoin,
+		txProposal.Coin.ChainID(),
 		txProposal.Keypath.ToUInt32(),
 		tx.Nonce(),
 		tx.GasPrice(),
@@ -501,5 +488,5 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 
 // SignETHMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	return keystore.device.ETHSignMessage(messages.ETHCoin_ETH, keypath.ToUInt32(), message)
+	return keystore.device.ETHSignMessage(params.MainnetChainConfig.ChainID.Uint64(), keypath.ToUInt32(), message)
 }

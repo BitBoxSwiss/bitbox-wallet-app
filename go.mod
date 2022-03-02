@@ -6,7 +6,7 @@ require (
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/btcsuite/btcutil v1.0.3-0.20210929233259-9cdf59f60c51
 	github.com/cespare/cp v1.1.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220215094631-137856d4c230
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220228225819-67b3f707055c
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/flynn/noise v1.0.0
 	github.com/gorilla/mux v1.8.0
