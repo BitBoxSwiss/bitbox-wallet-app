@@ -80,7 +80,7 @@ class AddAccount extends Component<Props, State> {
         this.ref.current?.focus();
     }
 
-    public componentDidUpdate(_prevProps, prevState: State) {
+    public componentDidUpdate(_prevProps: Props, prevState: State) {
         if ((prevState.step !== this.state.step) && (this.state.step === 'choose-name')){
             this.ref.current?.focus();
         }

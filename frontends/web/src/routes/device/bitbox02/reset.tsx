@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { ChangeEvent, Component} from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -56,7 +56,7 @@ class Reset extends Component<Props, State> {
         });
     }
 
-    private handleUnderstandChange = e => {
+    private handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
         this.setState({ understand: e.target.checked });
     }
 

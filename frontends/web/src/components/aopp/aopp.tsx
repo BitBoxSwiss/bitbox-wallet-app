@@ -58,15 +58,19 @@ class Aopp extends Component<Props, State> {
         this.setAccountCodeDefault();
     }
 
-    public componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps: Props) {
         if (this.props.aopp === undefined) {
             return;
         }
-        if (this.props.aopp.state === 'choosing-account') {
-            if (!equal(this.props.aopp.accounts, prevProps.aopp?.accounts)) {
-                this.setAccountCodeDefault();
-            }
+        if (this.props.aopp.state === 'choosing-account'
+            && (
+                prevProps.aopp?.state !== 'choosing-account'
+                || !equal(this.props.aopp.accounts, prevProps.aopp.accounts)
+            )
+        ) {
+            this.setAccountCodeDefault();
         }
+
     }
 
     private setAccountCodeDefault() {

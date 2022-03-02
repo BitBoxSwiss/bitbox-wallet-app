@@ -314,7 +314,13 @@ class Send extends Component<Props, State> {
         });
     }
 
-    private txProposal = (updateFiat, result) => {
+    private txProposal = (updateFiat: boolean, result: {
+        errorCode?: string;
+        amount: accountApi.IAmount;
+        fee: accountApi.IAmount;
+        success: boolean;
+        total: accountApi.IAmount;
+    }) => {
         this.setState({ valid: result.success });
         if (result.success) {
             this.setState({
@@ -460,7 +466,7 @@ class Send extends Component<Props, State> {
         });
     }
 
-    private parseQRResult = uri => {
+    private parseQRResult = (uri: string) => {
         let address;
         let amount = '';
         try {
@@ -477,8 +483,8 @@ class Send extends Component<Props, State> {
         let updateState = {
             recipientAddress: address,
             sendAll: false,
-            fiatAmount: '',
-        };
+            fiatAmount: ''
+        } as Pick<State, keyof State>;
         if (amount) {
             updateState['amount'] = amount;
         }

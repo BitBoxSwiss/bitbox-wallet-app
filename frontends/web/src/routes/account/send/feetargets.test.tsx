@@ -22,14 +22,14 @@ import { apiGet } from '../../../utils/request';
 jest.mock('../../../i18n/i18n');
 jest.mock('../../../decorators/translate', () => ({
     // this mock makes sure any components using the translate HoC receive the t function as a prop
-    translate: () => Component => {
-        Component.defaultProps = { ...Component.defaultProps, t: k => k };
+    translate: () => (Component: any) => {
+        Component.defaultProps = { ...Component.defaultProps, t: (k: any) => k };
         return Component;
     },
 }));
 
 jest.mock('../../../../src/decorators/load', () => ({
-    load: () => Component => {
+    load: () => (Component: any) => {
         Component.defaultProps = { ...Component.defaultProps, config: { frontend: { } } };
         return Component;
     },
@@ -113,7 +113,7 @@ describe('routes/account/send/feetargets', () => {
             ],
         });
 
-        const onFeeTargetChangeCB = code => {
+        const onFeeTargetChangeCB = (code: string) => {
             expect(code).toBe('normal');
             done();
         };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler } from 'lightweight-charts';
+import { createChart, IChartApi, BarsInfo, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventHandler, MouseEventParams, BarPrice } from 'lightweight-charts';
 import { Component, createRef} from 'react';
 import { Fiat } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -76,7 +76,7 @@ class Chart extends Component<Props, State> {
         }
     }
 
-    public componentDidUpdate(prev) {
+    public componentDidUpdate(prev: Props) {
         const { dataDaily, dataHourly } = this.props;
         if (!this.chart) {
             this.createChart();
@@ -308,7 +308,7 @@ class Chart extends Component<Props, State> {
         });
     }
 
-    private handleCrosshair = ({ point, time, seriesPrices }) => {
+    private handleCrosshair = ({ point, time, seriesPrices }: MouseEventParams) => {
         if (!this.refToolTip.current) {
             return;
         }
@@ -324,7 +324,7 @@ class Chart extends Component<Props, State> {
             });
             return;
         }
-        const price = seriesPrices.get(this.lineSeries);
+        const price = seriesPrices.get(this.lineSeries) as BarPrice;
         const coordinate = this.lineSeries.priceToCoordinate(price);
         if (!coordinate) {
             return;
@@ -336,11 +336,11 @@ class Chart extends Component<Props, State> {
             toolTipValue: price,
             toolTipTop,
             toolTipLeft,
-            toolTipTime: time,
+            toolTipTime: time as number,
         });
     }
 
-    private renderDate = (date) => {
+    private renderDate = (date: number) => {
         return new Date(date).toLocaleString(
             this.props.i18n.language,
             {

@@ -65,6 +65,10 @@ interface BalanceRowProps {
     coinName: string;
 }
 
+type TAccountCoinMap = {
+    [code: accountApi.AccountCode]: accountApi.IAccount[];
+};
+
 class AccountsSummary extends Component<Props, State> {
     private summaryReqTimerID?: number;
     public readonly state: State = {
@@ -74,9 +78,7 @@ class AccountsSummary extends Component<Props, State> {
     };
     private unsubscribe!: () => void;
 
-    private accountsPerCoin: {
-        [code: string]: accountApi.IAccount[],
-    } = {};
+    private accountsPerCoin: TAccountCoinMap = {};
 
     public async componentDidMount() {
         const { accounts } = this.props;
@@ -87,7 +89,7 @@ class AccountsSummary extends Component<Props, State> {
                 ? accountPerCoin[account.coinCode].push(account)
                 : accountPerCoin[account.coinCode] = [account];
             return accountPerCoin;
-        }, {});
+        }, {} as TAccountCoinMap);
 
         const summaryPromise = this.getAccountSummary();
         const promises = accounts.map(account => this.onStatusChanged(account.code, true));

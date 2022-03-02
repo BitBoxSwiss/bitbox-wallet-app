@@ -53,7 +53,7 @@ interface OnDeviceStatusProps {
 class MobilePairing extends Component<Props, State> {
     private unsubscribe: (() => void) | undefined;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             channel: null,

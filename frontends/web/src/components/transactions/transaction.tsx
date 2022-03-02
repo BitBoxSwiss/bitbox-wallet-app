@@ -53,7 +53,7 @@ class Transaction extends Component<Props, State> {
         editMode: !this.props.note,
     };
 
-    private parseTimeShort = time => {
+    private parseTimeShort = (time: string) => {
         const options = {
             year: 'numeric',
             month: 'numeric',

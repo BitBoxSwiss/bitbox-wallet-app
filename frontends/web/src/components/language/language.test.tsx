@@ -33,7 +33,7 @@ describe('components/language/language', () => {
             it(`returns exact match (${lang.code})`, async () => {
                 await i18n.changeLanguage(lang.code)
                
-                let ctx;
+                let ctx: any;
                 act(() => {
                      /* @ts-ignore */
                     ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);

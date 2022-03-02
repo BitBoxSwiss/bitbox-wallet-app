@@ -96,7 +96,7 @@ class Account extends Component<Props, State> {
         unsubscribe(this.subscribtions);
     }
 
-    public UNSAFE_componentWillReceiveProps(nextProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: Props) {
         if (nextProps.code && nextProps.code !== this.props.code) {
             this.setState({
                 status: undefined,
@@ -107,7 +107,7 @@ class Account extends Component<Props, State> {
         }
     }
 
-    public componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps: Props) {
         if (!this.props.code) {
             return;
         }
