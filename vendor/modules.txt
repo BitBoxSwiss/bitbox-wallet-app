@@ -30,8 +30,7 @@ github.com/btcsuite/btcutil/txsort
 ## explicit
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/deckarep/golang-set v1.7.1
-## explicit
+# github.com/deckarep/golang-set v1.8.0
 github.com/deckarep/golang-set
 # github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220215094631-137856d4c230
 ## explicit
@@ -42,7 +41,7 @@ github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages
 github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid
 github.com/digitalbitbox/bitbox02-api-go/util/errp
 github.com/digitalbitbox/bitbox02-api-go/util/semver
-# github.com/ethereum/go-ethereum v1.10.13
+# github.com/ethereum/go-ethereum v1.10.16
 ## explicit
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
@@ -87,7 +86,7 @@ github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 ## explicit
 github.com/gorilla/websocket
-# github.com/karalabe/usb v0.0.0-20211005121534-4c5740d64559
+# github.com/karalabe/usb v0.0.2
 ## explicit
 github.com/karalabe/usb
 github.com/karalabe/usb/hidapi
@@ -141,8 +140,6 @@ github.com/tklauser/go-sysconf
 github.com/tklauser/numcpus
 # github.com/tyler-smith/go-bip39 v1.0.2
 ## explicit
-github.com/tyler-smith/go-bip39
-github.com/tyler-smith/go-bip39/wordlists
 # go.etcd.io/bbolt v1.3.6
 ## explicit
 go.etcd.io/bbolt
