@@ -31,6 +31,7 @@
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
+#include <QtGlobal>
 #if defined(_WIN32)
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
@@ -197,11 +198,22 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // Force software rendering over GPU-accelerated rendering as various rendering artefact issues
-    // were observed on Windows and the app crashes on some Linux systems.
-    qputenv("QMLSCENE_DEVICE", "softwarecontext");
-    qputenv("QT_QUICK_BACKEND", "software");
-
+    QString renderMode = qEnvironmentVariable("BITBOXAPP_RENDER", "software");
+    if (renderMode == "software") {
+        // Force software rendering over GPU-accelerated rendering as various rendering artefact
+        // issues were observed on Windows and the app crashes on some Linux systems.
+        qputenv("QMLSCENE_DEVICE", "softwarecontext");
+        qputenv("QT_QUICK_BACKEND", "software");
+    } else if (renderMode == "auto") {
+        // Do nothing: leave it to Qt to decide the rendering backend, which is usually hardware
+        // accelerated if available.
+        //
+        // In rare cases, this can lead to rendering artefacts and crashes, which is why it is not
+        // enabled by default.
+    } else {
+        std::cerr << "Invalid value for BITBOXAPP_RENDER" << std::endl;
+        return 1;
+    }
 
     BitBoxApp a(argc, argv);
     // These three are part of the SingleApplication instance ID - if changed, the user should close
