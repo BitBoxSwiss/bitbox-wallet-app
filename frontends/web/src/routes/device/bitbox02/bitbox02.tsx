@@ -344,7 +344,7 @@ class BitBox02 extends Component<Props, State> {
 
     private restoreFromMnemonic = () => {
         this.setState({ waitDialog: {
-            title: this.props.t('bitbox02Interact.followInstructions'),
+            title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
             text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
         } });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
