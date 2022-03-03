@@ -173,7 +173,8 @@
     "confirmDateText": "This date will be used to create your backup.",
     "confirmName": "Confirm name on BitBox02",
     "followInstructions": "Please follow the instructions on your BitBox02.",
-    "followInstructionsMnemonic": "Please follow the instructions on your BitBox02 to restore from recovery words."
+    "followInstructionsMnemonic": "Please follow the instructions on your BitBox02 to restore from recovery words.",
+    "followInstructionsMnemonicTitle": "Restore from recovery words"
   },
   "bitbox02Settings": {
     "deviceName": {
