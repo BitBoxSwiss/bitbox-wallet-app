@@ -5,6 +5,9 @@
 - Show coin subtotals in 'My portfolio'
 - Transaction details: make transaction ID copyable without opening the block explorer
 - Improve account loading speed when there are many transactions in the account
+- Desktop: add a configuration option using the environment variable `BITBOXAPP_RENDER` to enable
+  users to turn off forced software rendering. Use `BITBOXAPP_RENDER=auto` to use Qt's default
+  rendering backend.
 
 ## 4.31.1 [2022-02-07]
 - Bundle BitBox02 Multi firmware version v9.9.1
