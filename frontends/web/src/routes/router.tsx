@@ -61,6 +61,7 @@ export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, device
 
     const AccReceive = <InjectParams>
         <Receive
+            code={'' /* dummy to satisfy TS */}
             devices={devices}
             deviceIDs={deviceIDs}
             accounts={activeAccounts} />

@@ -25,3 +25,9 @@ export type TDevices = {
 export const getDeviceList = (): Promise<TDevices> => {
     return apiGet('devices/registered');
 };
+
+export const hasMobileChannel = (deviceID: string) => {
+    return (): Promise<boolean> => {
+        return apiGet(`devices/${deviceID}/has-mobile-channel`);
+    };
+};
