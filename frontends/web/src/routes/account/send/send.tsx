@@ -518,7 +518,10 @@ class Send extends Component<Props, State> {
                         this.qrCodeReader.reset(); // release camera
                     }
                 })
-                .catch(() => {
+                .catch((error) => {
+                    if (error) {
+                        alertUser(error.message || error);
+                    }
                     this.setState({ activeScanQR: false });
                 });
         });
