@@ -763,6 +763,10 @@
       }
     },
     "send": {
+      "change": {
+        "text": "The change will be returned to a Taproot address if you have at least one Taproot UTXO. If you use coin control, the change will be returned to a Taproot address if there is at least one Taproot UTXO among the selected UTXOS. In all other cases, the change is returned to a Native Segwit address.",
+        "title": "How is the change output determined?"
+      },
       "fee": {
         "text": "The fee is based on the transaction data size and not its amount. The fee targets are calculated by Bitcoin Core's fee estimation algorithm for each network priority you chose. They are shown if they have a different value from the target below.\nEconomy: 24 blocks (around 4 hours for Bitcoin, 1 hour for Litecoin)\nLow: 12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)\nNormal: 6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)\nHigh: 2 blocks (around 20 minutes for Bitcoin, 5 minutes for Litecoin)\n(A block takes on average ten minutes for Bitcoin (2.5 minutes in Litecoin) to mine and the network load may vary considerably in the above periods.)",
         "title": "How is the fee determined?"
