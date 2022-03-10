@@ -561,10 +561,6 @@
       "title": "How can I move my coins out of the Legacy account?"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "We update exchange rates every minute from CoinGecko.",
       "title": "Which exchange rates apply?"
     },
@@ -577,10 +573,6 @@
       "title": "Why can't I send any {{unit}}?"
     },
     "accountSummaryAmount": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "The total amount is the sum of all your crypto accounts. Exchange rates are obtained from coingecko.com.\n\nNote: If you use MyEtherWallet for tokens not supported in the BitBoxApp, they will not be included in the amount displayed.",
       "title": "How is the total amount calculated?"
     },
@@ -635,7 +627,6 @@
       }
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "Contact us!",
       "text": "Another question?"
     },
@@ -791,8 +782,7 @@
       },
       "instructions": {
         "link": {
-          "text": "Guide to connect your node",
-          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+          "text": "Guide to connect your node"
         },
         "text": "For a full tutorial, please visit our guide:",
         "title": "How do I connect my BitBoxApp to my own full node?"
@@ -821,16 +811,14 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "Segregated witness benefits",
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "Segregated witness benefits"
         },
         "text": "This is a backwards compatible Segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
         "title": "What is the Bitcoin account?"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Bech32 adoption",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Bech32 adoption"
         },
         "text": "Use the new Bitcoin bech32 address format to reap the full benefits of Segwit's cheaper network fees. Remember that this format is not accepted everywhere yet.",
         "title": "What is Bitcoin bech32?"
@@ -862,8 +850,7 @@
       },
       "getDevice": {
         "link": {
-          "text": "Order a BitBox",
-          "url": "https://shiftcrypto.shop/"
+          "text": "Order a BitBox"
         },
         "text": "You can buy a BitBox in our online shop:",
         "title": "How can I get a device?"
@@ -874,8 +861,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Backup center",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "Backup center"
         },
         "text": "You can recover your accounts on a new BitBox or with our backup center.",
         "title": "I lost my device. Now what?"

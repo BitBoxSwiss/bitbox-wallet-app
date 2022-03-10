@@ -16,6 +16,7 @@
 
 import { FunctionComponent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n/i18n';
 import { useLoad } from '../../hooks/api';
 import { getTesting } from '../../api/backend';
 import { Entry } from '../../components/guide/entry';
@@ -64,8 +65,24 @@ export const Waiting: FunctionComponent = () => {
             </div>
             <Guide>
                 <Entry entry={t('guide.waiting.welcome')} shown={true} />
-                <Entry entry={t('guide.waiting.getDevice')} />
-                <Entry entry={t('guide.waiting.lostDevice')} />
+                <Entry entry={{
+                    link: {
+                        text: t('guide.waiting.getDevice.link.text'),
+                        url: 'https://shiftcrypto.shop/',
+                    },
+                    text: t('guide.waiting.getDevice.text'),
+                    title: t('guide.waiting.getDevice.title'),
+                }} />
+                <Entry entry={{
+                    link: {
+                        text: t('guide.waiting.lostDevice.link.text'),
+                        url: (i18n.language === 'de')
+                            ? 'https://shiftcrypto.support/help/de-de/5-backup/8-wie-kann-ich-ein-bitbox02-wallet-in-ein-drittanbieter-wallet-importieren'
+                            : 'https://shiftcrypto.support/help/en-us/5-backup/8-how-do-i-restore-my-wallet-if-my-bitbox02-is-lost',
+                    },
+                    text: t('guide.waiting.lostDevice.text'),
+                    title: t('guide.waiting.lostDevice.title'),
+                }} />
                 <Entry entry={t('guide.waiting.internet')} />
                 <Entry entry={t('guide.waiting.deviceNotRecognized')} />
                 <Entry entry={t('guide.waiting.useWithoutDevice')} />
