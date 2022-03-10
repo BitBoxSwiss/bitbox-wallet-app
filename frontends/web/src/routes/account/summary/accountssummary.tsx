@@ -359,7 +359,14 @@ class AccountsSummary extends Component<Props, State> {
                 </div>
                 <Guide>
                     <Entry key="accountSummaryDescription" entry={t('guide.accountSummaryDescription')} />
-                    <Entry key="accountSummaryAmount" entry={t('guide.accountSummaryAmount')} />
+                    <Entry key="accountSummaryAmount" entry={{
+                        link: {
+                            text: 'www.coingecko.com',
+                            url: 'https://www.coingecko.com/'
+                        },
+                        text: t('guide.accountSummaryAmount.text'),
+                        title: t('guide.accountSummaryAmount.title')
+                    }} />
                 </Guide>
             </div>
         );

@@ -367,10 +367,24 @@ class Account extends Component<Props, State> {
                         <Entry key="guide.settings.btc-p2pkh" entry={t('guide.settings.btc-p2pkh')} />
                     )}
                     {this.isBTCScriptType('p2wpkh-p2sh', account, accountInfo) && (
-                        <Entry key="guide.settings.btc-p2sh" entry={t('guide.settings.btc-p2sh')} />
+                        <Entry key="guide.settings.btc-p2sh" entry={{
+                            link: {
+                                text: t('guide.settings.btc-p2sh.link.text'),
+                                url: 'https://bitcoincore.org/en/2016/01/26/segwit-benefits/'
+                            },
+                            text: t('guide.settings.btc-p2sh.text'),
+                            title: t('guide.settings.btc-p2sh.title')
+                        }} />
                     )}
                     {this.isBTCScriptType('p2wpkh', account, accountInfo) && (
-                    <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
+                        <Entry key="guide.settings.btc-p2wpkh" entry={{
+                            link: {
+                                text: t('guide.settings.btc-p2wpkh.link.text'),
+                                url: 'https://en.bitcoin.it/wiki/Bech32_adoption'
+                            },
+                            text: t('guide.settings.btc-p2wpkh.text'),
+                            title: t('guide.settings.btc-p2wpkh.title')
+                        }} />
                     )}
                     {balance && balance.available.amount === '0' && (
                         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', { unit: balance.available.unit })} />
@@ -398,7 +412,14 @@ class Account extends Component<Props, State> {
                     <Entry key="accountFiat" entry={t('guide.accountFiat')} />
 
                     { /* careful, also used in Settings */ }
-                    <Entry key="accountRates" entry={t('guide.accountRates')} />
+                    <Entry key="accountRates" entry={{
+                        link: {
+                            text: 'www.coingecko.com',
+                            url: 'https://www.coingecko.com/'
+                        },
+                        text: t('guide.accountRates.text'),
+                        title: t('guide.accountRates.title')
+                    }} />
 
                     <Entry key="cointracking" entry={{
                         link: {

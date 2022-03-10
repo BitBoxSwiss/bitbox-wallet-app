@@ -318,7 +318,7 @@ class ElectrumSettings extends Component {
     }
 
     render() {
-        const { t } = this.props;
+        const { i18n, t } = this.props;
         const { testing, activeTab } = this.state;
         return (
             <div className="contentWithGuide">
@@ -366,7 +366,16 @@ class ElectrumSettings extends Component {
                     <Entry key="guide.settings-electrum.options" entry={t('guide.settings-electrum.options')} />
                     <Entry key="guide.settings-electrum.connection" entry={t('guide.settings-electrum.connection')} />
                     <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
-                    <Entry key="guide.settings-electrum.instructions" entry={t('guide.settings-electrum.instructions')} />
+                    <Entry key="guide.settings-electrum.instructions" entry={{
+                        link: {
+                            text: t('guide.settings-electrum.instructions.link.text'),
+                            url: (i18n.language === 'de')
+                                ? 'https://shiftcrypto.support/help/de-de/14-privatsphare/29-verbindung-der-bitboxapp-zu-meinem-bitcoin-full-node'
+                                : 'https://shiftcrypto.support/help/en-us/14-privacy/29-how-to-connect-the-bitboxapp-to-my-own-full-node'
+                        },
+                        text: t('guide.settings-electrum.instructions.text'),
+                        title: t('guide.settings-electrum.instructions.title')
+                    }} />
                 </Guide>
             </div>
         );

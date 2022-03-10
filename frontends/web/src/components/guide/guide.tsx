@@ -105,7 +105,7 @@ class Guide extends Component<Props> {
                     <div className={style.content}>
                         {children}
                         <div className={style.entry}>
-                            {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+                            {t('guide.appendix.text')} <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
                         </div>
                     </div>
                 </div>

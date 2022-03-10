@@ -298,7 +298,14 @@ class Settings extends Component<Props, State> {
                 <Guide>
                     <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
                     <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
-                    <Entry key="guide.accountRates" entry={t('guide.accountRates')} />
+                    <Entry key="guide.accountRates" entry={{
+                        link: {
+                            text: 'www.coingecko.com',
+                            url: 'https://www.coingecko.com/'
+                        },
+                        text: t('guide.accountRates.text'),
+                        title: t('guide.accountRates.title')
+                    }} />
                     <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
                 </Guide>
             </div>
