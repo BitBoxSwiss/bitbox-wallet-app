@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Bundle BitBox02 firmware version v9.10.0
 - Add support for BIP-86 taproot receive addresses
 - Show coin subtotals in 'My portfolio'
 - Transaction details: make transaction ID copyable without opening the block explorer
