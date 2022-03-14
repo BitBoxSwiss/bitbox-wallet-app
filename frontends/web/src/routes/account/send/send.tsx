@@ -37,7 +37,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import { isBitcoinBased, customFeeUnit } from '../utils';
+import { isBitcoinBased, customFeeUnit, isBitcoinOnly } from '../utils';
 import { FeeTargets } from './feetargets';
 import style from './send.module.css';
 import { SelectedUTXO, UTXOs, UTXOsClass } from './utxos';
@@ -850,16 +850,15 @@ class Send extends Component<Props, State> {
                 </div>
                 <Guide>
                     <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
-                    {
-                        isBitcoinBased(account.coinCode) && (
-                            <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
-                        )
-                    }
-                    {
-                        isBitcoinBased(account.coinCode) && (
-                            <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
-                        )
-                    }
+                    { isBitcoinBased(account.coinCode) && (
+                        <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
+                    )}
+                    { isBitcoinBased(account.coinCode) && (
+                        <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+                    )}
+                    { isBitcoinOnly(account.coinCode) && (
+                        <Entry key="guide.send.change" entry={t('guide.send.change')} />
+                    )}
                     <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
                     <Entry key="guide.send.plugout" entry={t('guide.send.plugout')} />
                 </Guide>
