@@ -4,6 +4,7 @@
 - Bundle BitBox02 firmware version v9.10.0
 - Add support for BIP-86 taproot receive addresses
 - Show coin subtotals in 'My portfolio'
+- Add QR-code scanner to Ethereum
 - Transaction details: make transaction ID copyable without opening the block explorer
 - Improve account loading speed when there are many transactions in the account
 - Desktop: add a configuration option using the environment variable `BITBOXAPP_RENDER` to enable

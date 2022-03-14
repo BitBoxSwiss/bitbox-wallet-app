@@ -125,7 +125,7 @@ class Send extends Component<Props, State> {
         customFee: '',
     };
 
-    private coinSupportsCoinControl = () => {
+    private isBitcoinBased = () => {
         const account = this.getAccount();
         if (!account) {
             return false;
@@ -149,7 +149,7 @@ class Send extends Component<Props, State> {
                 });
             });
         }
-        if (this.coinSupportsCoinControl()) {
+        if (this.isBitcoinBased()) {
             apiGet('config').then(config => this.setState({ coinControl: !!(config.frontend || {}).coinControl }));
         }
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
@@ -170,21 +170,18 @@ class Send extends Component<Props, State> {
 
     public UNSAFE_componentWillMount() {
         this.registerEvents();
-        const account = this.getAccount();
-        if (account && !account.coinCode.startsWith('eth-erc20-') && account.coinCode !== 'eth') {
-            import('../../../components/qrcode/qrreader')
-                .then(({ BrowserQRCodeReader }) => {
-                    if (!this.qrCodeReader) {
-                        this.qrCodeReader = new BrowserQRCodeReader();
-                    }
-                    this.qrCodeReader
-                        .getVideoInputDevices()
-                        .then(videoInputDevices => {
-                            this.setState({ hasCamera: videoInputDevices.length > 0 });
-                        });
-                })
-                .catch(console.error);
-        }
+        import('../../../components/qrcode/qrreader')
+            .then(({ BrowserQRCodeReader }) => {
+                if (!this.qrCodeReader) {
+                    this.qrCodeReader = new BrowserQRCodeReader();
+                }
+                this.qrCodeReader
+                    .getVideoInputDevices()
+                    .then(videoInputDevices => {
+                        this.setState({ hasCamera: videoInputDevices.length > 0 });
+                    });
+            })
+            .catch(console.error);
     }
 
     public componentWillUnmount() {
@@ -471,12 +468,14 @@ class Send extends Component<Props, State> {
         let amount = '';
         try {
             const url = new URL(uri);
-            if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
+            if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
                 alertUser(this.props.t('invalidFormat'));
                 return;
             }
             address = url.pathname;
-            amount = url.searchParams.get('amount') || '';
+            if (this.isBitcoinBased()) {
+                amount = url.searchParams.get('amount') || '';
+            }
         } catch {
             address = uri;
         }
