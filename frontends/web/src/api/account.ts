@@ -101,8 +101,10 @@ export interface ISigningConfigurationList {
     signingConfigurations: TSigningConfiguration[];
 }
 
-export const getInfo = (code: AccountCode): Promise<ISigningConfigurationList> => {
-    return apiGet(`account/${code}/info`);
+export const getInfo = (code: AccountCode) => {
+    return (): Promise<ISigningConfigurationList> => {
+        return apiGet(`account/${code}/info`);
+    };
 };
 
 export const init = (code: AccountCode): Promise<null> => {

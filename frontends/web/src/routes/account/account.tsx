@@ -171,7 +171,7 @@ class Account extends Component<Props, State> {
                 if (!status.synced) {
                     accountApi.init(code).catch(console.error);
                 } else {
-                    accountApi.getInfo(code).then(accountInfo => {
+                    accountApi.getInfo(code)().then(accountInfo => {
                         if (this.props.code !== code) {
                             // Results came in after the account was switched. Ignore.
                             return;
