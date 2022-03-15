@@ -16,7 +16,7 @@
 
 import { apiGet } from '../utils/request';
 
-type TProductName = 'bitbox' | 'bitbox02' | 'bitbox02-bootloader';
+export type TProductName = 'bitbox' | 'bitbox02' | 'bitbox02-bootloader';
 
 export type TDevices = {
     readonly [key in string]: TProductName;

@@ -31,8 +31,9 @@ import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
-import { PairedWarning } from './components/bb01paired';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
+import { PairedWarning } from './components/bb01paired';
+import { useVerfiyLabel, VerifyButton } from './components/verfiybutton';
 import style from './receive.module.css';
 
 interface Props {
@@ -76,6 +77,7 @@ export const Receive: FunctionComponent<Props> = ({
 
     const device = deviceIDs.length ? devices[deviceIDs[0]] : undefined;
     const account = accounts.find(({ code: accountCode }) => accountCode === code);
+    const verifyLabel = useVerfiyLabel(device);
 
     // first array index: address types. second array index: unused addresses of that address type.
     const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -143,13 +145,6 @@ export const Receive: FunctionComponent<Props> = ({
     // enable copying only after verification has been invoked if verification is possible and not optional.
     const forceVerification = secureOutput === undefined ? true : (secureOutput.hasSecureOutput && !secureOutput.optional);
     const enableCopy = !forceVerification;
-
-    let verifyLabel = t('receive.verify'); // fallback
-    if (device === 'bitbox') {
-        verifyLabel = t('receive.verifyBitBox01');
-    } else if (device === 'bitbox02') {
-        verifyLabel = t('receive.verifyBitBox02');
-    }
 
     let uriPrefix = '';
     if (account) {
@@ -252,22 +247,11 @@ export const Receive: FunctionComponent<Props> = ({
                                     </form>
                                 )}
                                 <div className="buttons">
-                                    { forceVerification && (
-                                        <Button
-                                            primary
-                                            disabled={verifying || secureOutput === undefined}
-                                            onClick={() => verifyAddress(currentAddressIndex)}>
-                                            {t('receive.showFull')}
-                                        </Button>
-                                    )}
-                                    { !forceVerification && (
-                                        <Button
-                                            primary
-                                            disabled={verifying || secureOutput === undefined}
-                                            onClick={() => verifyAddress(currentAddressIndex)}>
-                                            {verifyLabel}
-                                        </Button>
-                                    )}
+                                    <VerifyButton
+                                        device={device}
+                                        disabled={verifying || secureOutput === undefined}
+                                        forceVerification={forceVerification}
+                                        onClick={() => verifyAddress(currentAddressIndex)}/>
                                     <ButtonLink
                                         transparent
                                         to={`/account/${code}`}>
