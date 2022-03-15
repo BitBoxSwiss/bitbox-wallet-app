@@ -173,7 +173,7 @@
     "confirmDateText": "This date will be used to create your backup.",
     "confirmName": "Confirm name on BitBox02",
     "followInstructions": "Please follow the instructions on your BitBox02.",
-    "followInstructionsMnemonic": "Please follow the instructions on your BitBox02 to restore from recovery words.",
+    "followInstructionsMnemonic": "Follow the instructions on your BitBox02 to enter the recovery words from your backup and restore your wallet.",
     "followInstructionsMnemonicTitle": "Restore from recovery words"
   },
   "bitbox02Settings": {
@@ -540,7 +540,7 @@
     },
     "accountInfo": {
       "multipleXPubs": {
-        "text": "Each xpub is tied to the \"Type\" shown: either \"Native segwit (bech32)\" or \"Wrapped segwit\". These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the standard address, you only need the \"bech32\" xpub. However, if you also receive funds on the \"compatible address\" type, these will be shown on the \"older segwit\" extended public key.",
+        "text": "Each xpub is tied to the \"Type\" shown: either \"Native Segwit (bech32)\", \"Wrapped Segwit\" or “Taproot” (Bitcoin only). These are script types used by {{coinName}}. The BitBoxApp combines them, supporting multiple script types in the same account. Because each script type gives a different xpub, there are multiple xpubs per account.\n\nIf you consistently receive on the default address (Native Segwit), you only need the \"bech32\" xpub. However, if you also receive funds to \"Wrapped Segwit\" or “Taproot”, you also need to use the \"Wrapped Segwit\" and “Taproot” extended public keys respectively.",
         "title": "Why are there multiple xpubs?"
       },
       "privacy": {
@@ -552,7 +552,7 @@
         "title": "Do I need to verify the xpub on the device?"
       },
       "xpub": {
-        "text": "An extended public key is a root key from which all receiving addresses of an account are derived.\nIt is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel.",
+        "text": "An extended public key (xpub) is a root key from which all receiving addresses of an account are derived.\n\nIt is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel. If you received to different address types, please import all the different xpub formats into the watch-only wallet in order to see all your coins.\n\nPlease note, third party wallets may note support Taproot xpubs yet.",
         "title": "What is an extended public key?"
       }
     },
@@ -729,8 +729,8 @@
         "title": "When do the addresses change?"
       },
       "addressFormats": {
-        "text": "A compatible address is standard segwit whereas the modern address is Native Segwit (bech32). By default the BitBox02 uses the modern address. If you are having issues sending to this address, click \"change to compatible address\".",
-        "title": "What is the difference between compatible address and modern address?"
+        "text": "By default, the address type is Native Segwit. This address type is widely adopted by other wallets/exchanges and gives you the best fee rates for everyday transactions. However, you may also choose to send to Taproot (Bitcoin only), which is the newest address type, but may not be widely supported yet. Alternatively, if you are having issues sending to Native Segwit (the default type), you can try switching to the older Wrapped Segwit address type that may be compatible with more wallets/exchanges.",
+        "title": "When do I use “Change address type”?"
       },
       "howVerify": {
         "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
@@ -755,7 +755,7 @@
     },
     "send": {
       "change": {
-        "text": "The change will be returned to a Taproot address if you have at least one Taproot UTXO. If you use coin control, the change will be returned to a Taproot address if there is at least one Taproot UTXO among the selected UTXOS. In all other cases, the change is returned to a Native Segwit address.",
+        "text": "The change will be returned to a Taproot address if you have at least one Taproot UTXO. If you use coin control, the change will be returned to a Taproot address if there is at least one Taproot UTXO among the selected UTXOs. In all other cases, the change is returned to a Native Segwit address.",
         "title": "How is the change output determined?"
       },
       "fee": {
