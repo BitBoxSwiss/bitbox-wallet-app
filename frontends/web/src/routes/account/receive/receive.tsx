@@ -260,6 +260,7 @@ class Receive extends Component<Props, State> {
                     <form onSubmit={e => {
                         e.preventDefault();
                         this.setState(() => ({
+                            activeIndex: 0,
                             addressType: addressDialog.addressType,
                             addressDialog: undefined,
                         }));
