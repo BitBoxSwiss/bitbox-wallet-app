@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## 4.32.0 [2022-03-16]
 - Bundle BitBox02 firmware version v9.10.0
 - Add support for BIP-86 taproot receive addresses
 - Show coin subtotals in 'My portfolio'
