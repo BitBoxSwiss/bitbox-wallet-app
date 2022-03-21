@@ -18,6 +18,7 @@
 import React, { FunctionComponent, useEffect, useRef, useState} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
+import { useEsc } from '../../../hooks/keyboard';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { route } from '../../../utils/route';
@@ -83,15 +84,7 @@ export const Receive: FunctionComponent<Props> = ({
     const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
     const secureOutput = useLoad(accountApi.hasSecureOutput(code));
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.keyCode === 27 && !verifying) {
-                route(`/account/${code}`);
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [code, verifying]);
+    useEsc(() => !verifying && route(`/account/${code}`));
 
     const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
