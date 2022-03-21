@@ -214,8 +214,10 @@ export interface ReceiveAddressList {
     addresses: IReceiveAddress[];
 }
 
-export const getReceiveAddressList = (code: AccountCode): Promise<ReceiveAddressList[]> => {
-    return apiGet(`account/${code}/receive-addresses`);
+export const getReceiveAddressList = (code: AccountCode) => {
+    return (): Promise<ReceiveAddressList[]> => {
+        return apiGet(`account/${code}/receive-addresses`);
+    };
 };
 
 export interface ISendTx {
@@ -278,4 +280,15 @@ export interface UTXO {
 
 export const getUTXOs = (code: AccountCode): Promise<UTXO[]> => {
     return apiGet(`account/${code}/utxos`);
+};
+
+type TSecureOutput = {
+    hasSecureOutput: boolean;
+    optional: boolean;
+};
+
+export const hasSecureOutput = (code: AccountCode) => {
+    return (): Promise<TSecureOutput> => {
+        return apiGet(`account/${code}/has-secure-output`);
+    };
 };
