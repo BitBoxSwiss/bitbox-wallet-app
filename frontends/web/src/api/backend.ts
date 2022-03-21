@@ -54,11 +54,8 @@ export const getTesting = (): Promise<boolean> => {
     return apiGet('testing');
 };
 
-export const getQRCode = (data: string | undefined) => {
-    if (!data) {
-        return () => Promise.resolve('');
-    }
+export const getQRCode = (data: string) => {
     return (): Promise<string> => {
         return apiGet(`qr?data=${encodeURIComponent(data)}`);
-    }
+    };
 };

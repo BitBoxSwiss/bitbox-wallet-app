@@ -23,13 +23,13 @@ import style from './qrcode.module.css';
 type Props = {
     data?: string;
     size?: number;
-}
+};
 
 export const QRCode: FunctionComponent<Props> = ({
     data,
     size = 256,
 }) => {
-    const src = useLoad(getQRCode(data));
+    const src = useLoad(data !== undefined ? getQRCode(data) : null, [data]);
     if (!src) {
         if (data !== undefined) {
             return <div className={style.empty}></div>;
@@ -43,4 +43,4 @@ export const QRCode: FunctionComponent<Props> = ({
     return (
         <img width={size} height={size} src={src} />
     );
-}
+};
