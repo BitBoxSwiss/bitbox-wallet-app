@@ -159,33 +159,6 @@ func (client *ElectrumClient) CheckConnection() error {
 	return client.rpc.MethodSync(&empty, "server.ping")
 }
 
-// Balance is returned by ScriptHashGetBalance().
-type Balance struct {
-	Confirmed   int64 `json:"confirmed"`
-	Unconfirmed int64 `json:"unconfirmed"`
-}
-
-// ScriptHashGetBalance does the blockchain.scripthash.get_balance RPC call.
-func (client *ElectrumClient) ScriptHashGetBalance(
-	scriptHashHex string,
-	success func(*Balance) error,
-	cleanup func(error)) {
-	client.rpc.Method(
-		func(responseBytes []byte) error {
-			response := &Balance{}
-			if err := json.Unmarshal(responseBytes, response); err != nil {
-				client.log.WithError(err).Error("Failed to unmarshal JSON response")
-				return errp.WithStack(err)
-			}
-			return success(response)
-		},
-		func() func(error) {
-			return cleanup
-		},
-		"blockchain.scripthash.get_balance",
-		scriptHashHex)
-}
-
 // ScriptHashGetHistory does the blockchain.scripthash.get_history RPC call.
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex blockchain.ScriptHashHex,
