@@ -211,18 +211,11 @@ func (account *Account) SendTx() error {
 	account.log.Info("Signing and sending transaction")
 	utxos := account.transactions.SpendableOutputs()
 	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
-		txChan := make(chan *wire.MsgTx)
-		account.coin.Blockchain().TransactionGet(txHash,
-			func(tx *wire.MsgTx) {
-				txChan <- tx
-			},
-			func(err error) {
-				if err != nil {
-					panic(err)
-				}
-			},
-		)
-		return <-txChan
+		tx, err := account.coin.Blockchain().TransactionGet(txHash)
+		if err != nil {
+			panic(err)
+		}
+		return tx
 	}
 	if err := account.signTransaction(txProposal, utxos, getPrevTx); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
