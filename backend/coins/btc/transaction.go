@@ -19,7 +19,6 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -210,14 +209,7 @@ func (account *Account) SendTx() error {
 
 	account.log.Info("Signing and sending transaction")
 	utxos := account.transactions.SpendableOutputs()
-	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
-		tx, err := account.coin.Blockchain().TransactionGet(txHash)
-		if err != nil {
-			panic(err)
-		}
-		return tx
-	}
-	if err := account.signTransaction(txProposal, utxos, getPrevTx); err != nil {
+	if err := account.signTransaction(txProposal, utxos, account.coin.Blockchain().TransactionGet); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 

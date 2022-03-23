@@ -35,7 +35,7 @@ type ProposedTransaction struct {
 	AccountSigningConfigurations []*signing.Configuration
 	PreviousOutputs              map[wire.OutPoint]*transactions.SpendableOutput
 	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
-	GetPrevTx                    func(chainhash.Hash) *wire.MsgTx
+	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
 	// Signatures collects the signatures, one per transaction input.
 	Signatures []*types.Signature
 	SigHashes  *txscript.TxSigHashes
@@ -46,7 +46,7 @@ type ProposedTransaction struct {
 func (account *Account) signTransaction(
 	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
-	getPrevTx func(chainhash.Hash) *wire.MsgTx,
+	getPrevTx func(chainhash.Hash) (*wire.MsgTx, error),
 ) error {
 	signingConfigs := make([]*signing.Configuration, len(account.subaccounts))
 	for i, subacc := range account.subaccounts {
