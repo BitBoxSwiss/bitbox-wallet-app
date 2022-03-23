@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect, useState} from 'react';
+import { FunctionComponent, useState} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
+import { useEsc } from '../../../hooks/keyboard';
 import { getInfo, IAccount } from '../../../api/account';
 import { route } from '../../../utils/route';
 import { isBitcoinBased } from '../utils';
@@ -41,15 +42,7 @@ export const Info: FunctionComponent<Props> = ({
     const [viewXPub, setViewXPub] = useState<number>(0);
     const account = accounts.find(({ code: accountCode }) => accountCode === code);
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.keyCode === 27) {
-                route(`/account/${code}`);
-            }
-        }
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [code]);
+    useEsc(() => route(`/account/${code}`));
 
     if (!account || !info) {
         return null;
