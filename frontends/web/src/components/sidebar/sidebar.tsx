@@ -39,7 +39,7 @@ interface SidebarProps {
 }
 
 interface SubscribedProps {
-    keystores: Array<{ type: 'hardware' | 'software' }>;
+    keystores?: Array<{ type: 'hardware' | 'software' }>;
 }
 
 type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
@@ -164,7 +164,7 @@ class Sidebar extends Component<Props> {
                         </div>
                     </Link>
                     <div className="sidebarHeaderContainer">
-                        <span className="sidebarHeader" hidden={!keystores.length}>
+                        <span className="sidebarHeader" hidden={!keystores?.length}>
                             {t('sidebar.accounts')}
                         </span>
                     </div>
@@ -253,7 +253,7 @@ class Sidebar extends Component<Props> {
                             <span className="sidebar_label">{t('sidebar.settings')}</span>
                         </NavLink>
                     </div>
-                    {(debug && keystores.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
+                    {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
                         <div key="eject" className="sidebarItem">
                             <a href="#" onClick={eject}>
                                 <div className="single">
@@ -279,7 +279,7 @@ function eject(e: React.SyntheticEvent): void {
 
 const subscribeHOC = subscribe<SubscribedProps, SharedPanelProps & SidebarProps & TranslateProps>(
     { keystores: 'keystores' },
-    true,
+    false,
     false,
 )(Sidebar);
 

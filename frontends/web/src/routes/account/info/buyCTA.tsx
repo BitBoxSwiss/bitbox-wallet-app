@@ -17,9 +17,9 @@ const BuyCTAComponent: FunctionComponent<Props> = ({code, unit, t}) => {
     const onCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
     return (
     <div className={`${styles.main} columns-container`}>
-        <h3 className="column">{t('accountInfo.buyCTA.information.looksEmpty')}</h3>
-        <h3 className="column">{t('accountInfo.buyCTA.information.start')}</h3>
-        <div className="column">
+        <h3 className="subTitle">{t('accountInfo.buyCTA.information.looksEmpty')}</h3>
+        <h3>{t('accountInfo.buyCTA.information.start')}</h3>
+        <div>
             <Button primary onClick={onCTA}>{unit ? t('accountInfo.buyCTA.buy', {unit}) : t('accountInfo.buyCTA.buyCrypto')}</Button>
         </div>
     </div>);

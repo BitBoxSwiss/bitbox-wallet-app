@@ -1,0 +1,21 @@
+.skeleton {
+    animation: skeleton-loading 1.4s ease infinite;
+    background: linear-gradient(90deg, rgba(190, 190, 190, .2) 25%, rgba(129, 129, 129, .24) 37%, rgba(190, 190, 190, .2) 63%);
+    background-size: 400% 100%;
+    display: inline-block;
+    max-width: 100%;
+    overflow: clip;
+}
+.skeleton::before {
+    /* Add an invisible underscore _ character to inherit the parents font-size and force the correct height */
+    color: transparent;
+    content: "_";
+    display: block;
+    line-height: 1;
+    min-width: 1em;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 100% 50%; }
+    to { background-position: 0 50%; }
+}
