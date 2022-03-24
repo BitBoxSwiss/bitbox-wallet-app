@@ -297,6 +297,12 @@ class Account extends Component<Props, State> {
             }
         }
 
+        const showBuyButton = this.supportsBuy()
+            && balance
+            && balance.available.amount === '0'
+            && !balance.hasIncoming
+            && transactions && transactions.length === 0;
+
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -313,7 +319,11 @@ class Account extends Component<Props, State> {
                     {status.synced && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            { this.supportsBuy() && balance && (balance.available.amount === '0') && <BuyCTA code={code} unit={balance.available.unit} /> }
+                            { showBuyButton && (
+                                <BuyCTA
+                                    code={code}
+                                    unit={balance.available.unit} />
+                            )}
                             <Status
                                 className="m-bottom-default"
                                 hidden={!WithCoinTypeInfo.includes(code)}
