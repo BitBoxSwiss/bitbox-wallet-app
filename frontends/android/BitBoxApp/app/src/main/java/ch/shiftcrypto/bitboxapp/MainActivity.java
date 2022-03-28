@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProviders;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
@@ -102,7 +103,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Util.log("lifecycle: onCreate");
 
-        getSupportActionBar().hide(); // hide title bar with app name.
+        // Hide title bar with app name.
+        getSupportActionBar().hide();
+        // Treat the content of the window as secure, preventing it from appearing in screenshots or from being viewed on non-secure displays.
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
         final WebView vw = (WebView)findViewById(R.id.vw);
         // For onramp iframe'd widgets like MoonPay.

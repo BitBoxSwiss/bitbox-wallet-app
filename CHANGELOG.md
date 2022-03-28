@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Android: prevent app window from appearing in screenshots or from being viewed on non-secure displays
 
 ## 4.32.0 [2022-03-16]
 - Bundle BitBox02 firmware version v9.10.0
