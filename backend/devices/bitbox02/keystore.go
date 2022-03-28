@@ -332,7 +332,10 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	// Provide the previous transaction for each input if needed.
 	if firmware.BTCSignNeedsPrevTxs(scriptConfigs) {
 		for inputIndex, txIn := range tx.TxIn {
-			prevTx := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
+			prevTx, err := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
+			if err != nil {
+				return err
+			}
 
 			prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
 			for prevInputIndex, prevTxIn := range prevTx.TxIn {

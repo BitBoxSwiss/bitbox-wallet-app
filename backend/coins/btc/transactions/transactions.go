@@ -338,23 +338,11 @@ func (transactions *Transactions) getTransactionCached(
 	if txInfo.Tx != nil {
 		return txInfo.Tx
 	}
-	txChan := make(chan *wire.MsgTx)
-	transactions.blockchain.TransactionGet(
-		txHash,
-		func(tx *wire.MsgTx) {
-			if transactions.isClosed() {
-				transactions.log.Debug("TransactionGet result ignored after the instance was closed")
-				return
-			}
-			txChan <- tx
-		},
-		func(err error) {
-			if err != nil {
-				panic(err)
-			}
-		},
-	)
-	return <-txChan
+	tx, err := transactions.blockchain.TransactionGet(txHash)
+	if err != nil {
+		panic(err)
+	}
+	return tx
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.

@@ -97,7 +97,7 @@ type Header struct {
 //go:generate mockery --name Interface
 type Interface interface {
 	ScriptHashGetHistory(ScriptHashHex, func(TxHistory), func(error))
-	TransactionGet(chainhash.Hash, func(*wire.MsgTx), func(error))
+	TransactionGet(chainhash.Hash) (*wire.MsgTx, error)
 	ScriptHashSubscribe(func() func(error), ScriptHashHex, func(string))
 	HeadersSubscribe(func() func(error), func(*Header))
 	TransactionBroadcast(*wire.MsgTx) error

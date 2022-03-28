@@ -229,29 +229,13 @@ func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 }
 
 // TransactionGet downloads a transaction using the blockchain.transaction.get RPC method.
-func (client *ElectrumClient) TransactionGet(
-	txHash chainhash.Hash,
-	success func(*wire.MsgTx),
-	cleanup func(error),
-) {
-	client.rpc.Method(
-		func(responseBytes []byte) error {
-			var rawTXHex string
-			if err := json.Unmarshal(responseBytes, &rawTXHex); err != nil {
-				return errp.WithStack(err)
-			}
-			tx, err := parseTX(rawTXHex)
-			if err != nil {
-				return err
-			}
-			success(tx)
-			return nil
-		},
-		func() func(error) {
-			return cleanup
-		},
-		"blockchain.transaction.get",
-		txHash.String())
+func (client *ElectrumClient) TransactionGet(txHash chainhash.Hash) (*wire.MsgTx, error) {
+	var rawTxHex string
+	err := client.rpc.MethodSync(&rawTxHex, "blockchain.transaction.get", txHash.String())
+	if err != nil {
+		return nil, err
+	}
+	return parseTX(rawTxHex)
 }
 
 // HeadersSubscribe does the blockchain.headers.subscribe RPC call.
