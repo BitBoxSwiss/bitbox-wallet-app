@@ -89,7 +89,7 @@ class Alert extends Component<WithTranslation, State> {
                     textCenter={!asDialog}
                     fullscreen>
                     <ViewHeader title={multilineMarkup({
-                        tagName: 'div',
+                        tagName: 'span',
                         markup: message,
                     })} />
                     <ViewButtons>

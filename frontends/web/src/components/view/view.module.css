@@ -88,6 +88,7 @@
     color: var(--color-secondary);
     font-size: var(--size-default);
     margin-bottom: var(--space-default);
+    word-break: break-word;
 }
 .dialog .header {
     padding-left: var(--space-default);
@@ -126,6 +127,9 @@
     font-weight: 400;
     margin-bottom: var(--space-half);
 }
+.title span {
+    display: block;
+}
 
 .header p {
     margin-top: var(--space-quarter);
@@ -147,6 +151,7 @@
     flex-grow: 1;
     flex-shrink: 0;
     min-height: 80px;
+    word-break: break-word;
 }
 @media (max-width: 768px) {
     .content {
