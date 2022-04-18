@@ -34,7 +34,10 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.regex.Pattern;
@@ -44,6 +47,14 @@ import goserver.Goserver;
 public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
     private static final String ACTION_USB_PERMISSION = "ch.shiftcrypto.bitboxapp.USB_PERMISSION";
+    // The WebView is configured with this as the base URL. The purpose is so that requests made
+    // from the app include shiftcrypto.ch in the Origin header to allow Moonpay to load in the
+    // iframe. Moonpay compares the origin against a list of origins configured in the Moonpay admin.
+    // This is a security feature relevant for websites running in browsers, but in the case of the
+    // BitBoxApp, it is useless, as any app can do this.
+    //
+    // Unfortunately there seems to be no simple way to include this header only in requests to Moonpay.
+    private static final String BASE_URL = "https://shiftcrypto.ch";
 
     // stores the request from onPermissionRequest until the user has granted or denied the permission.
     private PermissionRequest webViewpermissionRequest;
@@ -147,10 +158,10 @@ public class MainActivity extends AppCompatActivity {
         vw.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
-                // Intercept file:/// urls and serve it from the Android assets folder.
+                // Intercept local requests and serve the response from the Android assets folder.
                 try {
                     String url = request.getUrl().toString();
-                    InputStream inputStream = getAssets().open(url.replace("file:///", "web/"));
+                    InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
                     String mimeType = getMimeType(url);
                     if (mimeType != null) {
                         return new WebResourceResponse(mimeType, "UTF-8", inputStream);
@@ -215,11 +226,33 @@ public class MainActivity extends AppCompatActivity {
         });
         final String javascriptVariableName = "android";
         vw.addJavascriptInterface(new JavascriptBridge(this), javascriptVariableName);
-        vw.loadUrl("file:///android_asset/web/index.html");
+
+        try {
+            String data = readRawText(getAssets().open("web/index.html"));
+            vw.loadDataWithBaseURL(BASE_URL, data, null, null, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
         this.updateDevice();
+    }
+
+    private static String readRawText(InputStream inputStream) throws IOException {
+        if (inputStream == null) {
+            return null;
+        }
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder fileContent = new StringBuilder();
+        String currentLine = bufferedReader.readLine();
+        while (currentLine != null) {
+            fileContent.append(currentLine);
+            fileContent.append("\n");
+            currentLine = bufferedReader.readLine();
+        }
+        return fileContent.toString();
     }
 
     @Override
