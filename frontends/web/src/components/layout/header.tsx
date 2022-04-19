@@ -15,11 +15,10 @@
  */
 
 import React, { Component } from 'react';
-import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
-import { GuideActive } from '../icon';
+import { GuideActive, Menu } from '../icon';
 import { toggleSidebar } from '../sidebar/sidebar';
 import style from './header.module.css';
 
@@ -44,7 +43,7 @@ class Header extends Component<Props> {
       <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
         <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
           <div className={style.sidebarToggler} onClick={toggleSidebar}>
-            <img src={MenuIcon} />
+            <Menu />
           </div>
           <div className={style.title}>{title}</div>
           <div className={style.children}>

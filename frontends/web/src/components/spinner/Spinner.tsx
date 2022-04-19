@@ -16,10 +16,10 @@
 
 import { FunctionComponent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
 import { SharedProps, store, toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
+import { Menu } from '../icon';
 import style from './Spinner.module.css';
 
 interface SpinnerProps {
@@ -46,7 +46,7 @@ const Spinner: FunctionComponent<Props> = ({ text, guideExists }) => {
       <div className={style.togglersContainer}>
         <div className={style.togglerContainer}>
           <div className={style.toggler} onClick={toggleSidebar}>
-            <img src={MenuIcon} />
+            <Menu />
           </div>
         </div>
         {
