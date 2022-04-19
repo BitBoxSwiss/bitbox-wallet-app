@@ -16,6 +16,7 @@
  */
 
 import React, { Component, createRef } from 'react';
+import { CloseXDark } from '../icon';
 import style from './dialog.module.css';
 interface Props {
     title?: string;
@@ -168,10 +169,7 @@ class Dialog extends Component<Props, State> {
                 <h3 className={style.title}>{title}</h3>
                 { onClose ? (
                   <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
+                    <CloseXDark />
                   </button>
                 ) : null }
               </div>

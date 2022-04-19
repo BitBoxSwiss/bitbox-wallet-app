@@ -20,7 +20,7 @@
     line-height: 1;
 }
 
-.close svg {
+.close img {
     width: 18px;
     height: 18px;
     margin-left: calc(var(--space-quarter) / 2);
