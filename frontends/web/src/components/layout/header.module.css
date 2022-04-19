@@ -98,7 +98,7 @@
     align-items: center;
 }
 
-.guideIcon svg {
+.guideIcon img {
     width: 18px;
     height: 18px;
     color: var(--color-blue);
