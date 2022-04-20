@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react'
+import { DependencyList, useEffect, useState } from 'react'
 import { SubscriptionCallback } from '../api/subscribe';
 import { Unsubscribe } from '../utils/event';
 import { useMountedRef } from './utils';
@@ -45,24 +45,30 @@ export const useSubscribe = <T>(
 /**
  * useLoad is a hook to load a promise.
  * gets fired on first render, and returns undefined while loading.
+ * Optionally pass a dependecy array as 2nd arguemnt to control re-executing apiCall
  */
 export const useLoad = <T>(
-    apiCall: () => Promise<T>
+    apiCall: (() => Promise<T>) | null,
+    dependencies?: DependencyList,
 ): (T | undefined) => {
     const [respose, setResponse] = useState<T>();
     const mounted = useMountedRef();
     useEffect(
         () => {
+            if (apiCall === null) {
+                return;
+            }
             apiCall().then((data) => {
                 if (mounted.current) {
                     setResponse(data);
                 }
             });
-        }, // we pass no dependencies because it's only queried once
-        [] // eslint-disable-line react-hooks/exhaustive-deps
+        },
+        // By default no dependencies are passed to only query once
+        dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
     );
     return respose;
-}
+};
 
 /**
  * useSync is a hook to load a promise and sync to a subscription function.
