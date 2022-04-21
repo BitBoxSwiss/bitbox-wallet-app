@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     // BitBoxApp, it is useless, as any app can do this.
     //
     // Unfortunately there seems to be no simple way to include this header only in requests to Moonpay.
-    private static final String BASE_URL = "https://shiftcrypto.ch";
+    private static final String BASE_URL = "https://shiftcrypto.ch/";
 
     // stores the request from onPermissionRequest until the user has granted or denied the permission.
     private PermissionRequest webViewpermissionRequest;
