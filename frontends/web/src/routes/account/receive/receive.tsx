@@ -123,7 +123,7 @@ export const Receive: FunctionComponent<Props> = ({
 
     const previous = (e: React.SyntheticEvent) => {
         e.preventDefault();
-        if (verifying && activeIndex > 0) {
+        if (!verifying && activeIndex > 0) {
             setActiveIndex(activeIndex - 1);
         }
     };
