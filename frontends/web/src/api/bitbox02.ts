@@ -41,6 +41,19 @@ export const getDeviceInfo = (
         });
 };
 
+export type VersionInfo = {
+    newVersion: string;
+    currentVersion: string;
+    canUpgrade: boolean;
+    canGotoStartupSettings: boolean;
+}
+
+export const getVersion = (
+    deviceID: string
+): Promise<VersionInfo> => {
+    return apiGet(`devices/bitbox02/${deviceID}/version`);
+}
+
 export const setMnemonicPassphraseEnabled = (
     deviceID: string,
     enabled: boolean,

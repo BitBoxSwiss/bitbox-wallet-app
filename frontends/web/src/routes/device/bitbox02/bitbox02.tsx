@@ -17,6 +17,7 @@
 
 import React, { Component} from 'react';
 import { Backup } from '../components/backup';
+import { getVersion, VersionInfo } from '../../../api/bitbox02';
 import { multilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -35,7 +36,7 @@ import Status from '../../../components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
-import { UpgradeButton, VersionInfo } from './upgradebutton';
+import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
 import style from './bitbox02.module.css';
 
@@ -118,7 +119,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     public componentDidMount() {
-        apiGet(this.apiPrefix() + '/version').then(versionInfo => {
+        getVersion(this.props.deviceID).then(versionInfo => {
             this.setState({ versionInfo });
         });
         this.updateAttestationCheck();

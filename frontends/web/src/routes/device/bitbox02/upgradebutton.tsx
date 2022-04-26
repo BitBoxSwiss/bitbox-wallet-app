@@ -16,6 +16,7 @@
  */
 
 import { Component} from 'react';
+import { VersionInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -23,13 +24,6 @@ import { Dialog } from '../../../components/dialog/dialog';
 import dialogStyle from '../../../components/dialog/dialog.module.css';
 import { Button } from '../../../components/forms';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
-
-export interface VersionInfo {
-    newVersion: string;
-    currentVersion: string;
-    canUpgrade: boolean;
-    canGotoStartupSettings: boolean;
-}
 
 interface UpgradeButtonProps {
     apiPrefix: string;
