@@ -15,6 +15,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -37,6 +38,7 @@ type BitBox02 interface {
 	ChannelHash() (string, bool)
 	ChannelHashVerify(ok bool)
 	DeviceInfo() (*firmware.DeviceInfo, error)
+	RootFingerprint() ([]byte, error)
 	SetDeviceName(deviceName string) error
 	SetPassword() error
 	CreateBackup() error
@@ -73,6 +75,7 @@ func NewHandlers(
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
+	handleFunc("/root-fingerprint", handlers.getRootFingerprint).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
@@ -137,6 +140,18 @@ func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
 	return map[string]interface{}{
 		"success":    true,
 		"deviceInfo": deviceInfo,
+	}, nil
+}
+
+func (handlers *Handlers) getRootFingerprint(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Get Root Fingerprint")
+	rootFingerprint, err := handlers.device.RootFingerprint()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":         true,
+		"rootFingerprint": hex.EncodeToString(rootFingerprint),
 	}, nil
 }
 

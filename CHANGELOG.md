@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Display root fingerprint in the BitBox02 device settings
 
 ## 4.32.1
 - Fix Moonpay not loading on Android

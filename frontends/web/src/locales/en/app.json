@@ -404,6 +404,7 @@
       }
     },
     "hardware": {
+      "rootFingerprint": "Root fingerprint",
       "sdcard": {
         "false": "Not inserted",
         "label": "microSD card",
@@ -690,6 +691,12 @@
       "pairing": {
         "text": "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app.",
         "title": "How to securely pair with your phone"
+      }
+    },
+    "bitbox02": {
+      "rootFingerprint": {
+        "text": "The root fingerprint is a unique identifier for the wallet currently in use. It can help you distinguish between different wallets if you use passphrases.",
+        "title": "What is the root fingerprint?"
       }
     },
     "buy": {

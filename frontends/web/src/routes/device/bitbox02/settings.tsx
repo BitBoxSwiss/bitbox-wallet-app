@@ -19,7 +19,9 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import { route } from '../../../utils/route';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
-import { getDeviceInfo, DeviceInfo, getVersion } from '../../../api/bitbox02';
+import { getDeviceInfo, DeviceInfo, getVersion, getRootFingerprint } from '../../../api/bitbox02';
+import { Entry } from '../../../components/guide/entry';
+import { Guide } from '../../../components/guide/guide';
 import { SwissMadeOpenSource } from '../../../components/icon/logo';
 import { Footer } from '../../../components/layout';
 import { Header } from '../../../components/layout/header';
@@ -47,6 +49,14 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
     };
     useEffect(getInfo, [deviceID, t]);
 
+    const rootFingerprint = useLoad(async () => {
+        try {
+            return await getRootFingerprint(deviceID);
+        } catch (error) {
+            console.error(error);
+        }
+    }, [deviceID]);
+
     const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
     const apiPrefix = 'devices/bitbox02/' + deviceID;
 
@@ -72,6 +82,11 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
                                             {t('deviceSettings.secrets.manageBackups')}
                                         </SettingsButton>
                                         <ShowMnemonic apiPrefix={apiPrefix} />
+                                        { rootFingerprint !== undefined && (
+                                              <SettingsItem optionalText={rootFingerprint}>
+                                                  {t('deviceSettings.hardware.rootFingerprint')}
+                                              </SettingsItem>
+                                        ) }
                                         <Reset apiPrefix={apiPrefix} />
                                     </div>
                                 </div>
@@ -129,6 +144,9 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
                     </Footer>
                 </div>
             </div>
+            <Guide>
+                <Entry key="accountDescription" entry={t('guide.bitbox02.rootFingerprint')} />
+            </Guide>
         </div>
     );
 }

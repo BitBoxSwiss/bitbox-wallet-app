@@ -41,6 +41,23 @@ export const getDeviceInfo = (
         });
 };
 
+
+type RootFingerprintResponse = SuccessResponse & {
+    rootFingerprint: string;
+};
+
+export const getRootFingerprint = (
+    deviceID: string
+): Promise<string> => {
+    return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`)
+        .then((response: RootFingerprintResponse | FailResponse) => {
+            if (!response.success) {
+                return Promise.reject(response);
+            }
+            return Promise.resolve(response.rootFingerprint);
+        });
+};
+
 export type VersionInfo = {
     newVersion: string;
     currentVersion: string;
