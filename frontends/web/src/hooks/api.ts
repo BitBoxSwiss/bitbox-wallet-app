@@ -45,7 +45,7 @@ export const useSubscribe = <T>(
 /**
  * useLoad is a hook to load a promise.
  * gets fired on first render, and returns undefined while loading.
- * Optionally pass a dependecy array as 2nd arguemnt to control re-executing apiCall
+ * Optionally pass a dependency array as 2nd arguemnt to control re-executing apiCall
  */
 export const useLoad = <T>(
     apiCall: (() => Promise<T>) | null,
