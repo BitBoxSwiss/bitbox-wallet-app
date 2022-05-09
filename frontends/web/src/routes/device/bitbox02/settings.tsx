@@ -39,13 +39,13 @@ type Props = {
 export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
     const { t } = useTranslation();
     const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
-    const getInfo = () => {
+
+    useEffect(() => {
         getDeviceInfo(deviceID).then(setDeviceInfo).catch(error => {
             console.error(error);
             alertUser(t('genericError'));
         });
-    };
-    useEffect(getInfo, [deviceID, t]);
+    }, [deviceID, t]);
 
     const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
     const apiPrefix = 'devices/bitbox02/' + deviceID;
@@ -79,9 +79,8 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
                                     <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
                                     <div className="box slim divide">
                                         <SetDeviceName
-                                            apiPrefix={apiPrefix}
-                                            getInfo={getInfo}
-                                            name={(deviceInfo && deviceInfo.name) ? deviceInfo.name : undefined} />
+                                            deviceName={deviceInfo.name}
+                                            deviceID={deviceID} />
                                         { deviceInfo && deviceInfo.securechipModel !== '' && (
                                               <SettingsItem optionalText={deviceInfo.securechipModel}>
                                                   {t('deviceSettings.hardware.securechip')}
