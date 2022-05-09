@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-export { default as Button } from './button';
-export { ButtonLink } from './button';
+export { Button, ButtonLink } from './button';
 export { default as Checkbox } from './checkbox';
 export { Radio } from './radio';
 export { Field } from './field';
