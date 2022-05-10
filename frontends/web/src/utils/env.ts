@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +15,18 @@
  * limitations under the License.
  */
 
-/* eslint no-undef: "off" */
 export const debug = process.env.NODE_ENV === 'development';
 
 /**
  * Returns whether the code is running in QtWebEngine.
  */
 export function runningInQtWebEngine() {
-  // @ts-ignore
-  return typeof qt !== 'undefined';
+  return typeof window.qt !== 'undefined';
 }
 
 /**
  * Returns whether the code is running in Android.
  */
 export function runningInAndroid() {
-  // @ts-ignore
-  return typeof android !== 'undefined';
+  return typeof window.android !== 'undefined';
 }
