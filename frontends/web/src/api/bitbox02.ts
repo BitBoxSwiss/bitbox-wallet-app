@@ -41,6 +41,21 @@ export const getDeviceInfo = (
         });
 };
 
+export const setDeviceName = (
+    deviceID: string,
+    newDeviceName: string,
+): Promise<void> => {
+    return apiPost(`devices/bitbox02/${deviceID}/set-device-name`, {
+        name: newDeviceName
+    })
+    .then((response: SuccessResponse | FailResponse) => {
+        if (!response.success) {
+            return Promise.reject(response);
+        }
+        return Promise.resolve();
+    });
+};
+
 export type VersionInfo = {
     newVersion: string;
     currentVersion: string;
