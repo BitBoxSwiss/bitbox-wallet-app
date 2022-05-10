@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,28 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { ComponentPropsWithoutRef, FunctionComponent } from 'react';
+import { Link, LinkProps } from 'react-router-dom';
 import style from './button.module.css';
 
-export function ButtonLink({
+type Props = {
+    danger?: boolean;
+    disabled?: boolean;
+    primary?: boolean;
+    secondary?: boolean;
+    transparent?: boolean;
+}
+
+export const ButtonLink: FunctionComponent<Props & LinkProps> = ({
     primary = false,
     secondary = false,
     transparent = false,
     danger = false,
     className = '',
-    tabIndex = 0,
     children,
-    disabled = undefined,
+    disabled,
     ...props
-}) {
+}) => {
     const classNames = [
         style[
             (primary && 'primary')
@@ -42,24 +49,23 @@ export function ButtonLink({
 
     if (disabled) {
         return (
-            <Button
-                primary={primary}
-                secondary={secondary}
-                transparent={transparent}
-                danger={danger}
-                children={children}
-                disabled={disabled}
-                {...props} />
+            <button
+                className={classNames}
+                disabled>
+                {children}
+            </button>
         );
     }
     return (
-        <Link className={classNames} {...props}>
+        <Link
+            className={classNames}
+            {...props}>
             {children}
         </Link>
     );
 }
 
-export default function Button({
+export const Button: FunctionComponent<Props & ComponentPropsWithoutRef<'button'>> = ({
     type = 'button',
     primary = false,
     secondary = false,
@@ -68,7 +74,7 @@ export default function Button({
     className = '',
     children,
     ...props
-}) {
+}) => {
     const classNames = [
         style[(primary && 'primary')
             || (secondary && 'secondary')

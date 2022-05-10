@@ -16,7 +16,7 @@
 
 import { Component, PropsWithChildren } from 'react';
 import A from '../../components/anchor/anchor';
-import Button from '../../components/forms/button';
+import { Button } from '../../components/forms/button';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { SwissMadeOpenSource } from '../../components/icon/logo';
