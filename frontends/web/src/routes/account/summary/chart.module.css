@@ -9,6 +9,10 @@
 }
 
 .chartUpdatingMessage {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   text-align: center;
 }
 
@@ -16,6 +20,7 @@
   display: flex;
   flex-wrap: wrap;
   margin-bottom: var(--spacing-half);
+  min-height: 68px;
 }
 
 .summary {}
@@ -49,6 +54,12 @@
 .filters button.filterActive {
   background: var(--color-blue);
   border-color: var(--color-blue);
+  color: var(--color-white);
+}
+
+.filters button[disabled] {
+  background: var(--color-mediumgray);
+  border-color: var(--color-mediumgray);
   color: var(--color-white);
 }
 

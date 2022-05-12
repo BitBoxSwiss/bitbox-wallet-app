@@ -42,6 +42,10 @@
     font-weight: 400;
 }
 
+.table tr td.noAccount {
+    text-align: center;
+}
+
 .table tr > td:not(:first-child),
 .table tr > th:not(:first-child) {
     text-align: right;

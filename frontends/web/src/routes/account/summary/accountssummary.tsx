@@ -33,6 +33,7 @@ import { AddBuyOnEmptyBalances } from '../info/buyCTA';
 import { apiPost } from '../../../utils/request';
 import style from './accountssummary.module.css';
 import { route } from '../../../utils/route';
+import { Skeleton } from '../../../components/skeleton/skeleton';
 
 interface AccountSummaryProps {
     accounts: accountApi.IAccount[];
@@ -66,7 +67,7 @@ interface BalanceRowProps {
 }
 
 type TAccountCoinMap = {
-    [code: accountApi.AccountCode]: accountApi.IAccount[];
+    [code in accountApi.CoinCode]: accountApi.IAccount[];
 };
 
 class AccountsSummary extends Component<Props, State> {
@@ -78,19 +79,9 @@ class AccountsSummary extends Component<Props, State> {
     };
     private unsubscribe!: () => void;
 
-    private accountsPerCoin: TAccountCoinMap = {};
-
     public async componentDidMount() {
         const { accounts } = this.props;
         this.unsubscribe = apiWebsocket(this.onEvent);
-
-        this.accountsPerCoin = accounts.reduce((accountPerCoin, account) => {
-            accountPerCoin[account.coinCode]
-                ? accountPerCoin[account.coinCode].push(account)
-                : accountPerCoin[account.coinCode] = [account];
-            return accountPerCoin;
-        }, {} as TAccountCoinMap);
-
         const summaryPromise = this.getAccountSummary();
         const promises = accounts.map(account => this.onStatusChanged(account.code, true));
         const totalBalancePerCoinPromise = this.getAccountsTotalBalance();
@@ -100,6 +91,14 @@ class AccountsSummary extends Component<Props, State> {
     public componentWillUnmount() {
         window.clearTimeout(this.summaryReqTimerID);
         this.unsubscribe();
+    }
+
+    public componentDidUpdate(prevProps: Props) {
+        // accounts can be empty in webdev, this can be removed once this is migrated to FunctionalComponent
+        if (this.props.accounts.length === prevProps.accounts.length) {
+            return;
+        }
+        this.props.accounts.map(account => this.onStatusChanged(account.code));
     }
 
     private getAccountSummary = () => {
@@ -121,6 +120,15 @@ class AccountsSummary extends Component<Props, State> {
         } catch (err) {
             console.error(err)
         }
+    }
+
+    private getAccountsPerCoin = () => {
+        return this.props.accounts.reduce((accountPerCoin, account) => {
+            accountPerCoin[account.coinCode]
+                ? accountPerCoin[account.coinCode].push(account)
+                : accountPerCoin[account.coinCode] = [account];
+            return accountPerCoin;
+        }, {} as TAccountCoinMap);
     }
 
     private onEvent = (data: any) => {
@@ -155,7 +163,6 @@ class AccountsSummary extends Component<Props, State> {
         if (!status.synced) {
             return accountApi.init(code);
         }
-
         const balance = await accountApi.getBalance(code);
         this.setState(({ balances }) => ({
             balances: {
@@ -175,7 +182,9 @@ class AccountsSummary extends Component<Props, State> {
         .catch(console.error);
     }
 
-    private balanceRow = ({ code, name, coinCode, coinUnit }: PropsWithChildren<BalanceRowProps>) => {
+    private balanceRow = (
+        { code, name, coinCode, coinUnit }: PropsWithChildren<BalanceRowProps>,
+    ) => {
         const { t } = this.props;
         const balance = this.state.balances ? this.state.balances[code] : undefined;
         const nameCol = (
@@ -191,7 +200,7 @@ class AccountsSummary extends Component<Props, State> {
         );
         if (balance) {
             return (
-                <tr key={code}>
+                <tr key={`${code}_balance`}>
                     { nameCol }
                     <td data-label={t('accountSummary.balance')}>
                         <span className={style.summaryTableBalance}>
@@ -207,7 +216,7 @@ class AccountsSummary extends Component<Props, State> {
         }
         const syncStatus = this.state.syncStatus && this.state.syncStatus[code];
         return (
-            <tr key={code}>
+            <tr key={`${code}_syncing`}>
                 { nameCol }
                 <td colSpan={2}>
                     { t('account.syncedAddressesCount', {
@@ -258,9 +267,10 @@ class AccountsSummary extends Component<Props, State> {
     }
 
     private renderAccountSummary() {
-        const { accountsPerCoin } = this;
         const { totalBalancePerCoin } = this.state;
-        return Object.keys(accountsPerCoin).map(coinCode => {
+        const accountsPerCoin = this.getAccountsPerCoin();
+        const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
+        return coins.map(coinCode => {
             if (accountsPerCoin[coinCode]?.length > 1) {
                 return [
                     ...accountsPerCoin[coinCode].map(account => this.balanceRow(account)),
@@ -302,17 +312,13 @@ class AccountsSummary extends Component<Props, State> {
                     </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded">
-                            { ( accounts.length === Object.keys(balances || {}).length ) && <AddBuyOnEmptyBalances balances={balances} /> }
-                            {data ? (
-                                <Chart
-                                    dataDaily={data.chartDataMissing ? undefined : data.chartDataDaily}
-                                    dataHourly={data.chartDataMissing ? undefined : data.chartDataHourly}
-                                    fiatUnit={data.chartFiat}
-                                    total={data.chartTotal}
-                                    isUpToDate={data.chartIsUpToDate} />
-                            ) : (
-                                <p>&nbsp;</p>
-                            )}
+                            <Chart
+                                data={data}
+                                noDataPlaceholder={
+                                    (accounts.length === Object.keys(balances || {}).length ) ? (
+                                        <AddBuyOnEmptyBalances balances={balances} />
+                                    ) : undefined
+                                } />
                             <div className={style.balanceTable}>
                                 <table className={style.table}>
                                     <colgroup>
@@ -331,16 +337,21 @@ class AccountsSummary extends Component<Props, State> {
                                         { accounts.length > 0 ? (
                                             this.renderAccountSummary()
                                         ) : (
-                                            <tr><td rowSpan={2}>{t('accountSummary.noAccount')}</td></tr>
+                                            <tr>
+                                                <td colSpan={3} className={style.noAccount}>
+                                                    {t('accountSummary.noAccount')}
+                                                </td>
+                                            </tr>
                                         )}
                                     </tbody>
-                                    {(data && data.chartTotal) ? (
-                                        <tfoot>
-                                            <tr>
-                                                <th>
-                                                    <strong>{t('accountSummary.total')}</strong>
-                                                </th>
-                                                <td colSpan={2}>
+                                    <tfoot>
+                                        <tr>
+                                            <th>
+                                                <strong>{t('accountSummary.total')}</strong>
+                                            </th>
+                                            <td colSpan={2}>
+                                                {(data && data.chartTotal !== null) ? (
+                                                <>
                                                     <strong>
                                                         {formatCurrency(data.chartTotal, data.chartFiat)}
                                                     </strong>
@@ -348,10 +359,11 @@ class AccountsSummary extends Component<Props, State> {
                                                     <span className={style.coinUnit}>
                                                         {data.chartFiat}
                                                     </span>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    ) : null }
+                                                </>
+                                                ) : (<Skeleton />) }
+                                            </td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
