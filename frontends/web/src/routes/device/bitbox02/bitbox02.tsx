@@ -737,6 +737,7 @@ class BitBox02 extends Component<Props, State> {
         { (appStatus === 'createWallet' && status === 'initialized') && (
           <View
             key="success"
+            fitContent
             fullscreen
             textCenter
             withBottomBar>

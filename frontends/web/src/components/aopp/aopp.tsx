@@ -208,7 +208,7 @@ class Aopp extends Component<Props, State> {
       );
     case 'success':
       return (
-        <View fullscreen textCenter>
+        <View fitContent fullscreen textCenter>
           <ViewContent withIcon="success">
             <p className={styles.successText}>{t('aopp.success.title')}</p>
             <p className={styles.proceed}>
