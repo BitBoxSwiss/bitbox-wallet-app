@@ -101,8 +101,8 @@ class Chart extends Component<Props, State> {
         }
     }
 
-    private hasData = () => {
-        return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length;
+    private hasData = (): boolean => {
+        return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length > 0;
     }
 
     private createChart = () => {
@@ -388,6 +388,7 @@ class Chart extends Component<Props, State> {
         } = this.state;
         const hasDifferenece = difference && Number.isFinite(difference);
         const hasData = this.hasData();
+        const disableFilters = !hasData || chartTotal === 0 || chartDataMissing;
         return (
             <section className={styles.chart}>
                 <header>
@@ -419,25 +420,25 @@ class Chart extends Component<Props, State> {
                     <div className={styles.filters}>
                         <button
                             className={display === 'week' ? styles.filterActive : undefined}
-                            disabled={!hasData || chartTotal === 0}
+                            disabled={disableFilters}
                             onClick={this.displayWeek}>
                             {t('chart.filter.week')}
                         </button>
                         <button
                             className={display === 'month' ? styles.filterActive : undefined}
-                            disabled={!hasData || chartTotal === 0}
+                            disabled={disableFilters}
                             onClick={this.displayMonth}>
                             {t('chart.filter.month')}
                         </button>
                         <button
                             className={display === 'year' ? styles.filterActive : undefined}
-                            disabled={!hasData || chartTotal === 0}
+                            disabled={disableFilters}
                             onClick={this.displayYear}>
                             {t('chart.filter.year')}
                         </button>
                         <button
                             className={display === 'all' ? styles.filterActive : undefined}
-                            disabled={!hasData || chartTotal === 0}
+                            disabled={disableFilters}
                             onClick={this.displayAll}>
                             {t('chart.filter.all')}
                         </button>
