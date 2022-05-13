@@ -1,7 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+
+## 4.33.0
 - Bundle BitBox02 firmware version v9.11.0
+- Improve visual loading of the portfolio view
 
 ## 4.32.1
 - Fix Moonpay not loading on Android
