@@ -34,53 +34,53 @@ type ViewProps = {
 }
 
 export function View({
-    dialog = false,
-    fullscreen,
-    top = false,
-    children,
-    minHeight,
-    onClose,
-    textCenter,
-    width,
-    withBottomBar,
+  dialog = false,
+  fullscreen,
+  top = false,
+  children,
+  minHeight,
+  onClose,
+  textCenter,
+  width,
+  withBottomBar,
 }: PropsWithChildren<ViewProps>) {
-    const containerClasses = `${
-        style[fullscreen ? 'fullscreen' : 'fill']
-    } ${
-        dialog ? style.dialog : ''
-    }`;
-    let classNames = style.inner;
-    if (!top) {
-        classNames += ` ${style.center}`;
-    }
-    if (textCenter) {
-        classNames += ` ${style.textCenter}`;
-    }
-    const inlineStyles = {
-        ...(minHeight && { minHeight }),
-        ...(width && { width }),
-    };
-    return (
-        <div className={containerClasses}>
-            <div
-                className={classNames}
-                style={inlineStyles}>
-                {children}
-            </div>
-            {onClose && (
-                <button className={style.closeButton} onClick={onClose}>
-                    <Close />
-                </button>
-            )}
-            {withBottomBar && (
-                <div style={{marginTop: 'auto'}}>
-                    <Footer>
-                        <SwissMadeOpenSource />
-                    </Footer>
-                </div>
-            )}
+  const containerClasses = `${
+    style[fullscreen ? 'fullscreen' : 'fill']
+  } ${
+    dialog ? style.dialog : ''
+  }`;
+  let classNames = style.inner;
+  if (!top) {
+    classNames += ` ${style.center}`;
+  }
+  if (textCenter) {
+    classNames += ` ${style.textCenter}`;
+  }
+  const inlineStyles = {
+    ...(minHeight && { minHeight }),
+    ...(width && { width }),
+  };
+  return (
+    <div className={containerClasses}>
+      <div
+        className={classNames}
+        style={inlineStyles}>
+        {children}
+      </div>
+      {onClose && (
+        <button className={style.closeButton} onClick={onClose}>
+          <Close />
+        </button>
+      )}
+      {withBottomBar && (
+        <div style={{ marginTop: 'auto' }}>
+          <Footer>
+            <SwissMadeOpenSource />
+          </Footer>
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 type ViewContentProps = {
@@ -91,27 +91,27 @@ type ViewContentProps = {
 }
 
 export function ViewContent({
-    children,
-    fullWidth,
-    minHeight,
-    textAlign,
-    withIcon,
-    ...props
+  children,
+  fullWidth,
+  minHeight,
+  textAlign,
+  withIcon,
+  ...props
 }: PropsWithChildren<ViewContentProps>) {
-    const align = textAlign ? style[`text-${textAlign}`] : '';
-    const containerWidth = fullWidth ? style.fullWidth : '';
-    const classes = `${style.content} ${containerWidth} ${align}`;
-    return (
-        <div
-            className={classes}
-            style={minHeight ? { minHeight } : {}}
-            {...props}>
-            {withIcon === 'success' && (
-                <Checked className={style.largeIcon} />
-            )}
-            {children}
-        </div>
-    );
+  const align = textAlign ? style[`text-${textAlign}`] : '';
+  const containerWidth = fullWidth ? style.fullWidth : '';
+  const classes = `${style.content} ${containerWidth} ${align}`;
+  return (
+    <div
+      className={classes}
+      style={minHeight ? { minHeight } : {}}
+      {...props}>
+      {withIcon === 'success' && (
+        <Checked className={style.largeIcon} />
+      )}
+      {children}
+    </div>
+  );
 }
 
 type HeaderProps = {
@@ -121,27 +121,27 @@ type HeaderProps = {
 }
 
 export function ViewHeader({
-    children,
-    small,
-    title,
-    withAppLogo,
+  children,
+  small,
+  title,
+  withAppLogo,
 }: PropsWithChildren<HeaderProps>) {
-    const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
-    return (
-        <header className={headerStyles}>
-            {withAppLogo && <AppLogo />}
-            <h1 className={style.title}>{title}</h1>
-            {children}
-        </header>
-    );
+  const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
+  return (
+    <header className={headerStyles}>
+      {withAppLogo && <AppLogo />}
+      <h1 className={style.title}>{title}</h1>
+      {children}
+    </header>
+  );
 }
 
 type ViewButtonsProps = {}
 
 export function ViewButtons({ children }: PropsWithChildren<ViewButtonsProps>) {
-    return (
-        <div className={style.buttons}>
-            {children}
-        </div>
-    );
+  return (
+    <div className={style.buttons}>
+      {children}
+    </div>
+  );
 }

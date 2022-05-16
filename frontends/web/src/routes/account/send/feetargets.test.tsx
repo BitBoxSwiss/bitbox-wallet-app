@@ -21,18 +21,18 @@ import { apiGet } from '../../../utils/request';
 
 jest.mock('../../../i18n/i18n');
 jest.mock('../../../decorators/translate', () => ({
-    // this mock makes sure any components using the translate HoC receive the t function as a prop
-    translate: () => (Component: any) => {
-        Component.defaultProps = { ...Component.defaultProps, t: (k: any) => k };
-        return Component;
-    },
+  // this mock makes sure any components using the translate HoC receive the t function as a prop
+  translate: () => (Component: any) => {
+    Component.defaultProps = { ...Component.defaultProps, t: (k: any) => k };
+    return Component;
+  },
 }));
 
 jest.mock('../../../../src/decorators/load', () => ({
-    load: () => (Component: any) => {
-        Component.defaultProps = { ...Component.defaultProps, config: { frontend: { } } };
-        return Component;
-    },
+  load: () => (Component: any) => {
+    Component.defaultProps = { ...Component.defaultProps, config: { frontend: { } } };
+    return Component;
+  },
 }));
 
 import { FeeTargets } from '../../../routes/account/send/feetargets';
@@ -40,94 +40,94 @@ import { mount, shallow } from 'enzyme';
 
 describe('routes/account/send/feetargets', () => {
 
-    it('should match the snapshot', () => {
-        (apiGet as jest.Mock).mockResolvedValue({
-            defaultFeeTarget: 'economy',
-            feeTargets: [
-                { code: 'low' },
-                { code: 'economy' },
-            ],
-        });
-
-        const fee = shallow(
-            <FeeTargets
-                accountCode="btc"
-                coinCode="btc"
-                disabled={false}
-                fiatUnit="USD"
-                proposedFee={{
-                    amount: '1',
-                    unit: 'ETH',
-                    conversions: {
-                        AUD: '0.02',
-                        BRL: '12900',
-                        CAD: '0.02',
-                        CHF: '0.01',
-                        CNY: '0.08',
-                        EUR: '0.02',
-                        GBP: '0.02',
-                        HKD: '19880',
-                        NOK: '0.02',
-                        ILS: '0.02',
-                        JPY: '1.30',
-                        KRW: '14.43',
-                        RUB: '0.88',
-                        SEK: '0.1',
-                        SGD: '32233',
-                        USD: '0.02',
-                        BTC: '0.02',
-                    },
-                }}
-                customFee=""
-                onCustomFee={jest.fn()}
-                onFeeTargetChange={jest.fn()} />,
-        );
-        expect(fee).toMatchSnapshot();
+  it('should match the snapshot', () => {
+    (apiGet as jest.Mock).mockResolvedValue({
+      defaultFeeTarget: 'economy',
+      feeTargets: [
+        { code: 'low' },
+        { code: 'economy' },
+      ],
     });
 
-    it('should match the snapshot with empty feetargets', () => {
-        (apiGet as jest.Mock).mockResolvedValue({
-            defaultFeeTarget: '',
-            feeTargets: [],
-        });
+    const fee = shallow(
+      <FeeTargets
+        accountCode="btc"
+        coinCode="btc"
+        disabled={false}
+        fiatUnit="USD"
+        proposedFee={{
+          amount: '1',
+          unit: 'ETH',
+          conversions: {
+            AUD: '0.02',
+            BRL: '12900',
+            CAD: '0.02',
+            CHF: '0.01',
+            CNY: '0.08',
+            EUR: '0.02',
+            GBP: '0.02',
+            HKD: '19880',
+            NOK: '0.02',
+            ILS: '0.02',
+            JPY: '1.30',
+            KRW: '14.43',
+            RUB: '0.88',
+            SEK: '0.1',
+            SGD: '32233',
+            USD: '0.02',
+            BTC: '0.02',
+          },
+        }}
+        customFee=""
+        onCustomFee={jest.fn()}
+        onFeeTargetChange={jest.fn()} />,
+    );
+    expect(fee).toMatchSnapshot();
+  });
 
-        const fee = mount(
-            <FeeTargets
-                accountCode="eth"
-                coinCode="eth"
-                disabled={false}
-                fiatUnit="EUR"
-                customFee=""
-                onCustomFee={jest.fn()}
-                onFeeTargetChange={jest.fn()} />,
-        );
-        expect(fee).toMatchSnapshot();
+  it('should match the snapshot with empty feetargets', () => {
+    (apiGet as jest.Mock).mockResolvedValue({
+      defaultFeeTarget: '',
+      feeTargets: [],
     });
 
-    it('should call onFeeTargetChange with default', done => {
-        const apiGetMock = (apiGet as jest.Mock).mockResolvedValue({
-            defaultFeeTarget: 'normal',
-            feeTargets: [
-                { code: 'low' },
-                { code: 'economy' },
-            ],
-        });
+    const fee = mount(
+      <FeeTargets
+        accountCode="eth"
+        coinCode="eth"
+        disabled={false}
+        fiatUnit="EUR"
+        customFee=""
+        onCustomFee={jest.fn()}
+        onFeeTargetChange={jest.fn()} />,
+    );
+    expect(fee).toMatchSnapshot();
+  });
 
-        const onFeeTargetChangeCB = (code: string) => {
-            expect(code).toBe('normal');
-            done();
-        };
-
-        shallow(
-            <FeeTargets
-                accountCode="btc"
-                coinCode="btc"
-                disabled={false}
-                fiatUnit="USD"
-                customFee=""
-                onCustomFee={jest.fn()}
-                onFeeTargetChange={onFeeTargetChangeCB} />,
-        );
-        expect(apiGetMock).toHaveBeenCalled();
+  it('should call onFeeTargetChange with default', done => {
+    const apiGetMock = (apiGet as jest.Mock).mockResolvedValue({
+      defaultFeeTarget: 'normal',
+      feeTargets: [
+        { code: 'low' },
+        { code: 'economy' },
+      ],
     });
+
+    const onFeeTargetChangeCB = (code: string) => {
+      expect(code).toBe('normal');
+      done();
+    };
+
+    shallow(
+      <FeeTargets
+        accountCode="btc"
+        coinCode="btc"
+        disabled={false}
+        fiatUnit="USD"
+        customFee=""
+        onCustomFee={jest.fn()}
+        onFeeTargetChange={onFeeTargetChangeCB} />,
+    );
+    expect(apiGetMock).toHaveBeenCalled();
+  });
 });

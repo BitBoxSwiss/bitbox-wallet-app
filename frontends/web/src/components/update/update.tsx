@@ -36,21 +36,21 @@ interface Props {
 }
 
 const Update: FunctionComponent<Props> = ({ file }) => {
-    const { t } = useTranslation();
-    const downloadElement = <A href="https://shiftcrypto.ch/download/?source=bitboxapp">{t('button.download')}</A>;
-    
-    return file && (
-        <Status dismissable={`update-${file.version}`} type="info">
-            {t('app.upgrade', {
-                current: file.current,
-                version: file.version,
-            })}
-            {file.description}
-            {' '}
-            {/* Don't show download link on Android because they should update from stores */}
-            {!runningInAndroid() && downloadElement}
-        </Status>
-    );
+  const { t } = useTranslation();
+  const downloadElement = <A href="https://shiftcrypto.ch/download/?source=bitboxapp">{t('button.download')}</A>;
+
+  return file && (
+    <Status dismissable={`update-${file.version}`} type="info">
+      {t('app.upgrade', {
+        current: file.current,
+        version: file.version,
+      })}
+      {file.description}
+      {' '}
+      {/* Don't show download link on Android because they should update from stores */}
+      {!runningInAndroid() && downloadElement}
+    </Status>
+  );
 }
 
 const HOC = load<Props>({ file: 'update' })(Update);

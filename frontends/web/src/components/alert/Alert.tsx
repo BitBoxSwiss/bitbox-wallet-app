@@ -42,68 +42,68 @@ interface State {
 }
 
 class Alert extends Component<WithTranslation, State> {
-    private callback?: () => void; // Assigned when alertUser is called / Called before close.
+  private callback?: () => void; // Assigned when alertUser is called / Called before close.
 
-    constructor(props: WithTranslation) {
-        super(props);
-        alertUser = this.alertUser;
-        this.state = {
-            active: false,
-            asDialog: true,
-        };
-    }
+  constructor(props: WithTranslation) {
+    super(props);
+    alertUser = this.alertUser;
+    this.state = {
+      active: false,
+      asDialog: true,
+    };
+  }
 
-    private handleClose = () => {
-        if (this.callback) {
-            this.callback();
-        }
-        this.setState({
-            active: false,
-        });
+  private handleClose = () => {
+    if (this.callback) {
+      this.callback();
     }
+    this.setState({
+      active: false,
+    });
+  }
 
-    private alertUser = (
-        message: string,
-        options: AlertUserOptions = {},
-    ) => {
-        const {
-            callback,
-            asDialog = true,
-        } = options;
-        this.callback = callback;
-        this.setState({
-            active: true,
-            asDialog,
-            message,
-        });
-    }
+  private alertUser = (
+    message: string,
+    options: AlertUserOptions = {},
+  ) => {
+    const {
+      callback,
+      asDialog = true,
+    } = options;
+    this.callback = callback;
+    this.setState({
+      active: true,
+      asDialog,
+      message,
+    });
+  }
 
-    public render() {
-        const { t } = this.props;
-        const { active, asDialog, message } = this.state;
-        return (active && message) ? (
-            <form onSubmit={this.handleClose}>
-                <View
-                    key="alert-overlay"
-                    dialog={asDialog}
-                    textCenter={!asDialog}
-                    fullscreen>
-                    <ViewHeader title={multilineMarkup({
-                        tagName: 'span',
-                        markup: message,
-                    })} />
-                    <ViewButtons>
-                        <Button
-                            autoFocus
-                            primary
-                            onClick={this.handleClose}>
-                            {t('button.ok')}
-                        </Button>
-                    </ViewButtons>
-                </View>
-            </form>
-        ) : null;
-    }
+  public render() {
+    const { t } = this.props;
+    const { active, asDialog, message } = this.state;
+    return (active && message) ? (
+      <form onSubmit={this.handleClose}>
+        <View
+          key="alert-overlay"
+          dialog={asDialog}
+          textCenter={!asDialog}
+          fullscreen>
+          <ViewHeader title={multilineMarkup({
+            tagName: 'span',
+            markup: message,
+          })} />
+          <ViewButtons>
+            <Button
+              autoFocus
+              primary
+              onClick={this.handleClose}>
+              {t('button.ok')}
+            </Button>
+          </ViewButtons>
+        </View>
+      </form>
+    ) : null;
+  }
 }
 
 const TranslatedAlert = withTranslation()(Alert);

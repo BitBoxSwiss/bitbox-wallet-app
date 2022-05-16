@@ -37,97 +37,97 @@ type Props = {
 }
 
 export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
-    const { t } = useTranslation();
-    const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
+  const { t } = useTranslation();
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
 
-    useEffect(() => {
-        getDeviceInfo(deviceID).then(setDeviceInfo).catch(error => {
-            console.error(error);
-            alertUser(t('genericError'));
-        });
-    }, [deviceID, t]);
+  useEffect(() => {
+    getDeviceInfo(deviceID).then(setDeviceInfo).catch(error => {
+      console.error(error);
+      alertUser(t('genericError'));
+    });
+  }, [deviceID, t]);
 
-    const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
-    const apiPrefix = 'devices/bitbox02/' + deviceID;
+  const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
+  const apiPrefix = 'devices/bitbox02/' + deviceID;
 
-    const routeToPassphrase = () => {
-        route(`/passphrase/${deviceID}`);
-    };
+  const routeToPassphrase = () => {
+    route(`/passphrase/${deviceID}`);
+  };
 
-    if (deviceInfo === undefined) {
-        return null;
-    }
-    return (
-        <div className="contentWithGuide">
-            <div className="container">
-                <Header title={<h2>{t('sidebar.device')}</h2>} />
-                <div className="innerContainer scrollableContainer">
-                    <div className="content padded">
-                        <div className="columnsContainer">
-                            <div className="columns">
-                                <div className="column column-1-2">
-                                    <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
-                                    <div className="box slim divide">
-                                        <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
-                                            {t('deviceSettings.secrets.manageBackups')}
-                                        </SettingsButton>
-                                        <ShowMnemonic apiPrefix={apiPrefix} />
-                                        <Reset apiPrefix={apiPrefix} />
-                                    </div>
-                                </div>
-                                <div className="column column-1-2">
-                                    <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
-                                    <div className="box slim divide">
-                                        <SetDeviceName
-                                            deviceName={deviceInfo.name}
-                                            deviceID={deviceID} />
-                                        { deviceInfo && deviceInfo.securechipModel !== '' && (
-                                              <SettingsItem optionalText={deviceInfo.securechipModel}>
-                                                  {t('deviceSettings.hardware.securechip')}
-                                              </SettingsItem>
-                                        ) }
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="columns">
-                                <div className="column column-1-2">
-                                    <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
-                                    <div className="box slim divide">
-                                        {
-                                            versionInfo && versionInfo.canUpgrade ? (
-                                                <UpgradeButton
-                                                    apiPrefix={apiPrefix}
-                                                    versionInfo={versionInfo}/>
-                                            ) : versionInfo && (
-                                                <SettingsItem optionalText={versionInfo.currentVersion}>
-                                                    {t('deviceSettings.firmware.upToDate')}
-                                                </SettingsItem>
-                                            )
-                                        }
-                                    </div>
-                                </div>
-                                <div className="column column-1-2">
-                                    <h3 className="subTitle">{t('settings.expert.title')}</h3>
-                                    <div className="box slim divide">
-                                        <SettingsButton onClick={routeToPassphrase}>
-                                            { deviceInfo.mnemonicPassphraseEnabled
-                                              ? t('passphrase.disable')
-                                              : t('passphrase.enable')}
-                                        </SettingsButton>
-                                        { versionInfo && versionInfo.canGotoStartupSettings ? (
-                                              <GotoStartupSettings apiPrefix={apiPrefix} />
-                                        ) : null
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <Footer>
-                        <SwissMadeOpenSource />
-                    </Footer>
+  if (deviceInfo === undefined) {
+    return null;
+  }
+  return (
+    <div className="contentWithGuide">
+      <div className="container">
+        <Header title={<h2>{t('sidebar.device')}</h2>} />
+        <div className="innerContainer scrollableContainer">
+          <div className="content padded">
+            <div className="columnsContainer">
+              <div className="columns">
+                <div className="column column-1-2">
+                  <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
+                  <div className="box slim divide">
+                    <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
+                      {t('deviceSettings.secrets.manageBackups')}
+                    </SettingsButton>
+                    <ShowMnemonic apiPrefix={apiPrefix} />
+                    <Reset apiPrefix={apiPrefix} />
+                  </div>
                 </div>
+                <div className="column column-1-2">
+                  <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
+                  <div className="box slim divide">
+                    <SetDeviceName
+                      deviceName={deviceInfo.name}
+                      deviceID={deviceID} />
+                    { deviceInfo && deviceInfo.securechipModel !== '' && (
+                      <SettingsItem optionalText={deviceInfo.securechipModel}>
+                        {t('deviceSettings.hardware.securechip')}
+                      </SettingsItem>
+                    ) }
+                  </div>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column column-1-2">
+                  <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
+                  <div className="box slim divide">
+                    {
+                      versionInfo && versionInfo.canUpgrade ? (
+                        <UpgradeButton
+                          apiPrefix={apiPrefix}
+                          versionInfo={versionInfo}/>
+                      ) : versionInfo && (
+                        <SettingsItem optionalText={versionInfo.currentVersion}>
+                          {t('deviceSettings.firmware.upToDate')}
+                        </SettingsItem>
+                      )
+                    }
+                  </div>
+                </div>
+                <div className="column column-1-2">
+                  <h3 className="subTitle">{t('settings.expert.title')}</h3>
+                  <div className="box slim divide">
+                    <SettingsButton onClick={routeToPassphrase}>
+                      { deviceInfo.mnemonicPassphraseEnabled
+                        ? t('passphrase.disable')
+                        : t('passphrase.enable')}
+                    </SettingsButton>
+                    { versionInfo && versionInfo.canGotoStartupSettings ? (
+                      <GotoStartupSettings apiPrefix={apiPrefix} />
+                    ) : null
+                    }
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+          <Footer>
+            <SwissMadeOpenSource />
+          </Footer>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

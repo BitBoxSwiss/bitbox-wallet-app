@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -35,62 +35,62 @@ interface State {
 }
 
 class Create extends Component<Props, State> {
-    public readonly state: State = {
-        creatingBackup: false,
-        disabled: false,
-    };
+  public readonly state: State = {
+    creatingBackup: false,
+    disabled: false,
+  };
 
-    private createBackup = () => {
-        this.setState({ creatingBackup: true });
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
-            if (!success) {
-                alertUser(this.props.t('backup.create.fail'));
-            }
-            this.setState({ creatingBackup: false, disabled: false });
-        });
-    }
+  private createBackup = () => {
+    this.setState({ creatingBackup: true });
+    apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
+      if (!success) {
+        alertUser(this.props.t('backup.create.fail'));
+      }
+      this.setState({ creatingBackup: false, disabled: false });
+    });
+  }
 
-    private maybeCreateBackup = () => {
-        this.setState({ disabled: true });
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
-            silent: true,
-        }).then(check => {
-            if (check.success) {
-                confirmation(this.props.t('backup.create.alreadyExists'), result => {
-                    if (result) {
-                        this.createBackup();
-                    } else {
-                        this.setState({ disabled: false });
-                    }
-                });
-                return;
-            }
+  private maybeCreateBackup = () => {
+    this.setState({ disabled: true });
+    apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
+      silent: true,
+    }).then(check => {
+      if (check.success) {
+        confirmation(this.props.t('backup.create.alreadyExists'), result => {
+          if (result) {
             this.createBackup();
+          } else {
+            this.setState({ disabled: false });
+          }
         });
-    }
+        return;
+      }
+      this.createBackup();
+    });
+  }
 
-    public render() {
-        const { t } = this.props;
-        const {
-            creatingBackup,
-            disabled,
-        } = this.state;
-        return (
-            <span>
-                <Button
-                    primary
-                    disabled={disabled}
-                    onClick={() => this.maybeCreateBackup()}>
-                    {t('backup.create.title')}
-                </Button>
-                { creatingBackup && (
-                    <WaitDialog title={t('backup.create.title')}>
-                        {t('bitbox02Interact.followInstructions')}
-                    </WaitDialog>
-                )}
-            </span>
-        );
-    }
+  public render() {
+    const { t } = this.props;
+    const {
+      creatingBackup,
+      disabled,
+    } = this.state;
+    return (
+      <span>
+        <Button
+          primary
+          disabled={disabled}
+          onClick={() => this.maybeCreateBackup()}>
+          {t('backup.create.title')}
+        </Button>
+        { creatingBackup && (
+          <WaitDialog title={t('backup.create.title')}>
+            {t('bitbox02Interact.followInstructions')}
+          </WaitDialog>
+        )}
+      </span>
+    );
+  }
 }
 
 const HOC = translate()(Create);

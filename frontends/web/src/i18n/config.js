@@ -22,33 +22,33 @@ const defaultUserLanguage = 'en';
 // A hack around https://github.com/i18next/i18next/issues/1484 which ignores
 // underscore "_" as tag separator.
 function i18nextFormat(locale) {
-    return locale.replace('_', '-');
+  return locale.replace('_', '-');
 }
 
 export const languageFromConfig = {
-    type: 'languageDetector',
-    async: true,
-    detect: (cb) => {
-        apiGet('config').then(({ backend }) => {
-            if (backend && backend.userLanguage) {
-                cb(backend.userLanguage);
-                return;
-            }
-            apiGet('native-locale').then(locale => {
-                if (typeof locale === 'string' && locale) {
-                    try {
-                        new Date().toLocaleString(i18nextFormat(locale));
-                    } catch (e) {
-                        cb(defaultUserLanguage);
-                        return;
-                    }
-                    cb(i18nextFormat(locale));
-                    return;
-                }
-                cb(defaultUserLanguage);
-            });
-        });
-    },
-    init: () => {},
-    cacheUserLanguage: () => {}
+  type: 'languageDetector',
+  async: true,
+  detect: (cb) => {
+    apiGet('config').then(({ backend }) => {
+      if (backend && backend.userLanguage) {
+        cb(backend.userLanguage);
+        return;
+      }
+      apiGet('native-locale').then(locale => {
+        if (typeof locale === 'string' && locale) {
+          try {
+            new Date().toLocaleString(i18nextFormat(locale));
+          } catch (e) {
+            cb(defaultUserLanguage);
+            return;
+          }
+          cb(i18nextFormat(locale));
+          return;
+        }
+        cb(defaultUserLanguage);
+      });
+    });
+  },
+  init: () => {},
+  cacheUserLanguage: () => {}
 };

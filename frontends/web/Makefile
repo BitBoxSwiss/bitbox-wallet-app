@@ -18,7 +18,7 @@ dev:
 lint:
 	npm run lint
 fix:
-	npm run fix
+	npm run lint -- --fix
 jstest:
 	npm test
 jstest-watch:

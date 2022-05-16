@@ -17,5 +17,5 @@
 import { apiGet } from '../utils/request';
 
 export const getVersion = (): Promise<string> => {
-    return apiGet('version');
+  return apiGet('version');
 };

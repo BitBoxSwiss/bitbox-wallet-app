@@ -49,26 +49,26 @@ import { Store } from './store';
  * ```
  */
 export function share<SharedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
-    store: Store<SharedProps>,
+  store: Store<SharedProps>,
 ) {
-    return function decorator(
-        WrappedComponent: ComponentType<SharedProps & ProvidedProps>,
-    ) {
-        return class Share extends Component<ProvidedProps & Partial<SharedProps>> {
-            public static displayName = `Share(${getDisplayName(WrappedComponent as any)})`;
+  return function decorator(
+    WrappedComponent: ComponentType<SharedProps & ProvidedProps>,
+  ) {
+    return class Share extends Component<ProvidedProps & Partial<SharedProps>> {
+      public static displayName = `Share(${getDisplayName(WrappedComponent as any)})`;
 
-            public componentDidMount(): void {
-                store.subscribe(this);
-            }
+      public componentDidMount(): void {
+        store.subscribe(this);
+      }
 
-            public componentWillUnmount(): void {
-                store.unsubscribe(this);
-            }
+      public componentWillUnmount(): void {
+        store.unsubscribe(this);
+      }
 
-            public render(): JSX.Element {
-                const props = this.props;
-                return <WrappedComponent {...store.state} {...props as any} />; // This order allows the parent component to override the shared store with properties.
-            }
-        };
+      public render(): JSX.Element {
+        const props = this.props;
+        return <WrappedComponent {...store.state} {...props as any} />; // This order allows the parent component to override the shared store with properties.
+      }
     };
+  };
 }

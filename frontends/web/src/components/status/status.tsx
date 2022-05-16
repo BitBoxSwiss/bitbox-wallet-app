@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { apiGet, apiPost } from '../../utils/request';
 import { CloseXWhite } from '../icon';
 import style from './status.module.css';
@@ -37,76 +37,76 @@ interface StatusProps {
 type Props = StatusProps;
 
 export default class Status extends Component<Props, State> {
-    public readonly state: State = {
-        show: true,
-    };
+  public readonly state: State = {
+    show: true,
+  };
 
-    public componentDidMount() {
-        this.checkConfig();
+  public componentDidMount() {
+    this.checkConfig();
+  }
+
+  public componentDidUpdate(prevProps: Props) {
+    if (this.props.dismissable !== prevProps.dismissable) {
+      this.checkConfig();
     }
+  }
 
-    public componentDidUpdate(prevProps: Props) {
-        if (this.props.dismissable !== prevProps.dismissable) {
-            this.checkConfig();
+  private checkConfig() {
+    if (this.props.dismissable) {
+      apiGet('config').then(({ frontend }) => {
+        if (!this.props.dismissable) {
+          return;
         }
-    }
-
-    private checkConfig() {
-        if (this.props.dismissable) {
-            apiGet('config').then(({ frontend }) => {
-                if (!this.props.dismissable) {
-                    return;
-                }
-                this.setState({
-                    show: !frontend ? true : !frontend[this.props.dismissable],
-                });
-            });
-        }
-    }
-
-    private dismiss = () => {
-        apiGet('config').then(config => {
-            if (!this.props.dismissable) {
-                return;
-            }
-            const newConf = {
-                ...config,
-                frontend: {
-                    ...config.frontend,
-                    [this.props.dismissable]: true,
-                },
-            };
-            apiPost('config', newConf);
-        });
         this.setState({
-            show: false,
+          show: !frontend ? true : !frontend[this.props.dismissable],
         });
+      });
     }
+  }
 
-    public render() {
-        const {
-            children,
-            className,
-            dismissable,
-            hidden,
-            type = 'warning',
-        } = this.props;
-        const { show } = this.state;
-        if (hidden || !show) {
-            return null;
-        }
-        return (
-            <div className={[style.container, style[type], className ? className : '', dismissable ? style.withCloseBtn : ''].join(' ')}>
-                <div className={style.status}>
-                    {children}
-                    <button
-                        hidden={!dismissable}
-                        className={`${style.close} ${style[`close-${type}`]}`}
-                        onClick={this.dismiss}>
-                        <CloseXWhite />
-                    </button>
-                </div>
-            </div>
-        );
+  private dismiss = () => {
+    apiGet('config').then(config => {
+      if (!this.props.dismissable) {
+        return;
+      }
+      const newConf = {
+        ...config,
+        frontend: {
+          ...config.frontend,
+          [this.props.dismissable]: true,
+        },
+      };
+      apiPost('config', newConf);
+    });
+    this.setState({
+      show: false,
+    });
+  }
+
+  public render() {
+    const {
+      children,
+      className,
+      dismissable,
+      hidden,
+      type = 'warning',
+    } = this.props;
+    const { show } = this.state;
+    if (hidden || !show) {
+      return null;
     }
+    return (
+      <div className={[style.container, style[type], className ? className : '', dismissable ? style.withCloseBtn : ''].join(' ')}>
+        <div className={style.status}>
+          {children}
+          <button
+            hidden={!dismissable}
+            className={`${style.close} ${style[`close-${type}`]}`}
+            onClick={this.dismiss}>
+            <CloseXWhite />
+          </button>
+        </div>
+      </div>
+    );
+  }
 }

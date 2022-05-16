@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { backendConnected } from './api/subscribe';
 
 interface State {
@@ -24,34 +24,34 @@ interface State {
 interface Props {}
 
 class ConnectedApp extends Component<Props, State> {
-    public readonly state: State = {
-        connected: true,
-    };
+  public readonly state: State = {
+    connected: true,
+  };
 
-    private unsubscribe!: () => void;
+  private unsubscribe!: () => void;
 
-    public componentDidMount() {
-        this.unsubscribe = backendConnected(connected => this.setState({ connected }));
-    }
+  public componentDidMount() {
+    this.unsubscribe = backendConnected(connected => this.setState({ connected }));
+  }
 
-    public componentWillUnmount() {
-        this.unsubscribe();
-    }
+  public componentWillUnmount() {
+    this.unsubscribe();
+  }
 
-    public render() {
-        const { children } = this.props;
-        const { connected } = this.state;
-        if (!connected) {
-            return (
-                <div className="app" style={{padding: 40}}>
+  public render() {
+    const { children } = this.props;
+    const { connected } = this.state;
+    if (!connected) {
+      return (
+        <div className="app" style={{ padding: 40 }}>
                     The WebSocket closed. Please restart the backend and reload this page.
-                </div>
-            );
-        }
-        return (
-            <div>{children}</div>
-        );
+        </div>
+      );
     }
+    return (
+      <div>{children}</div>
+    );
+  }
 }
 
 export { ConnectedApp };

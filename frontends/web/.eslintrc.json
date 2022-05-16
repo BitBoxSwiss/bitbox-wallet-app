@@ -1,8 +1,12 @@
 {
   "extends": ["react-app"],
   "rules": {
+    "indent": ["error", 2, { "SwitchCase": 0 }],
     "jsx-a11y/anchor-is-valid": 0,
     "jsx-a11y/alt-text" : 0,
+    "jsx-quotes": ["error", "prefer-double"],
+    "no-trailing-spaces": "error",
+    "object-curly-spacing": ["error", "always"],
     "quotes": ["error", "single"]
   },
   "overrides": [

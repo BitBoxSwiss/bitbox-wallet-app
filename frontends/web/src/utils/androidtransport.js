@@ -24,45 +24,45 @@ let currentListeners = [];
 /* global android */
 
 export function androidCall(query) {
-    return new Promise((resolve, reject) => {
-        if (runningInAndroid()) {
-            // @ts-ignore
-            if (typeof window.onAndroidCallResponse === 'undefined') {
-                // @ts-ignore
-                window.onAndroidCallResponse = (queryID, response) => {
-                    queryPromises[queryID].resolve(response);
-                    delete queryPromises[queryID];
-                };
-            }
+  return new Promise((resolve, reject) => {
+    if (runningInAndroid()) {
+      // @ts-ignore
+      if (typeof window.onAndroidCallResponse === 'undefined') {
+        // @ts-ignore
+        window.onAndroidCallResponse = (queryID, response) => {
+          queryPromises[queryID].resolve(response);
+          delete queryPromises[queryID];
+        };
+      }
 
-            queryID++;
-            queryPromises[queryID] = { resolve, reject };
-            // @ts-ignore
-            android.call(queryID, query);
-        } else {
-            reject();
-        }
-    });
+      queryID++;
+      queryPromises[queryID] = { resolve, reject };
+      // @ts-ignore
+      android.call(queryID, query);
+    } else {
+      reject();
+    }
+  });
 }
 
 export function androidSubscribePushNotifications(msgCallback) {
+  // @ts-ignore
+  if (typeof window.onAndroidPushNotification === 'undefined') {
     // @ts-ignore
-    if (typeof window.onAndroidPushNotification === 'undefined') {
-        // @ts-ignore
-        window.onAndroidPushNotification = msg => {
-            currentListeners.forEach(listener => listener(msg));
-        };
-    }
-
-    currentListeners.push(msgCallback);
-    return () => {
-        if (!currentListeners.includes(msgCallback)) {
-            console.warn('!currentListeners.includes(msgCallback)');
-        }
-        const index = currentListeners.indexOf(msgCallback);
-        currentListeners.splice(index, 1);
-        if (currentListeners.includes(msgCallback)) {
-            console.warn('currentListeners.includes(msgCallback)');
-        }
+    window.onAndroidPushNotification = msg => {
+      currentListeners.forEach(listener => listener(msg));
     };
+  }
+
+  currentListeners.push(msgCallback);
+  return () => {
+    if (!currentListeners.includes(msgCallback)) {
+      console.warn('!currentListeners.includes(msgCallback)');
+    }
+    const index = currentListeners.indexOf(msgCallback);
+    currentListeners.splice(index, 1);
+    if (currentListeners.includes(msgCallback)) {
+      console.warn('currentListeners.includes(msgCallback)');
+    }
+  };
 }

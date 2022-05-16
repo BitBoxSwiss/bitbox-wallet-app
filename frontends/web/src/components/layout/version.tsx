@@ -21,13 +21,13 @@ import { useLoad } from '../../hooks/api';
 import { getVersion } from '../../api/version';
 
 const Version: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const version = useLoad(getVersion);
+  const { t } = useTranslation();
+  const version = useLoad(getVersion);
 
-    if (!version) {
-        return null;
-    }
-    return <p>{t('footer.appVersion')} {version}</p>;
+  if (!version) {
+    return null;
+  }
+  return <p>{t('footer.appVersion')} {version}</p>;
 }
 
 export { Version };

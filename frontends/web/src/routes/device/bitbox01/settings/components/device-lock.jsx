@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { Dialog } from '../../../../../components/dialog/dialog';
@@ -26,76 +26,76 @@ import { SettingsButton } from '../../../../../components/settingsButton/setting
 import style from '../../../../../components/dialog/dialog.module.css';
 
 class DeviceLock extends Component {
-    state = {
+  state = {
+    isConfirming: false,
+    activeDialog: false,
+  }
+
+  resetDevice = () => {
+    this.setState({
+      activeDialog: false,
+      isConfirming: true,
+    });
+    apiPost('devices/' + this.props.deviceID + '/lock').then(didLock => {
+      this.setState({
         isConfirming: false,
-        activeDialog: false,
-    }
+      });
+      if (didLock) {
+        this.props.onLock();
+      }
+    });
+  };
 
-    resetDevice = () => {
-        this.setState({
-            activeDialog: false,
-            isConfirming: true,
-        });
-        apiPost('devices/' + this.props.deviceID + '/lock').then(didLock => {
-            this.setState({
-                isConfirming: false,
-            });
-            if (didLock) {
-                this.props.onLock();
-            }
-        });
-    };
+  abort = () => {
+    this.setState({ activeDialog: false });
+  }
 
-    abort = () => {
-        this.setState({ activeDialog: false });
-    }
-
-    render() {
-        const {
-            t,
-            disabled,
-            lock,
-        } = this.props;
-        const {
-            isConfirming,
-            activeDialog,
-        } = this.state;
-        return (
-            <div>
-                <SettingsButton
-                    danger
-                    onClick={() => this.setState({ activeDialog: true })}
-                    disabled={disabled}
-                    optionalText={t(`deviceSettings.pairing.lock.${lock}`)}>
-                    {t('deviceLock.button')}
-                </SettingsButton>
-                {
-                    activeDialog && (
-                        <Dialog
-                            title={t('deviceLock.title')}
-                            onClose={this.abort}>
-                            <p>{t('deviceLock.condition1')}</p>
-                            <p>{t('deviceLock.condition2')}</p>
-                            <p>{t('deviceLock.condition3')}</p>
-                            <div className={style.actions}>
-                                <Button danger onClick={this.resetDevice}>
-                                    {t('deviceLock.confirm')}
-                                </Button>
-                                <Button transparent onClick={this.abort}>
-                                    {t('button.back')}
-                                </Button>
-                            </div>
-                        </Dialog>
-                    )
-                }
-                {
-                    isConfirming && (
-                        <WaitDialog title={t('deviceLock.title')} />
-                    )
-                }
-            </div>
-        );
-    }
+  render() {
+    const {
+      t,
+      disabled,
+      lock,
+    } = this.props;
+    const {
+      isConfirming,
+      activeDialog,
+    } = this.state;
+    return (
+      <div>
+        <SettingsButton
+          danger
+          onClick={() => this.setState({ activeDialog: true })}
+          disabled={disabled}
+          optionalText={t(`deviceSettings.pairing.lock.${lock}`)}>
+          {t('deviceLock.button')}
+        </SettingsButton>
+        {
+          activeDialog && (
+            <Dialog
+              title={t('deviceLock.title')}
+              onClose={this.abort}>
+              <p>{t('deviceLock.condition1')}</p>
+              <p>{t('deviceLock.condition2')}</p>
+              <p>{t('deviceLock.condition3')}</p>
+              <div className={style.actions}>
+                <Button danger onClick={this.resetDevice}>
+                  {t('deviceLock.confirm')}
+                </Button>
+                <Button transparent onClick={this.abort}>
+                  {t('button.back')}
+                </Button>
+              </div>
+            </Dialog>
+          )
+        }
+        {
+          isConfirming && (
+            <WaitDialog title={t('deviceLock.title')} />
+          )
+        }
+      </div>
+    );
+  }
 }
 
 export default withTranslation()(DeviceLock);

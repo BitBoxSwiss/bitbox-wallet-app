@@ -40,27 +40,27 @@ interface BannerProps {
 type Props = LoadedProps & BannerProps & TranslateProps;
 
 function Banner({ banner, i18n, t }: PropsWithChildren<Props>): JSX.Element | null {
-    if (!i18n.options.fallbackLng) {
-        return null;
-    }
-    return banner && (
-        <Status dismissable="" type="info">
-            { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
-            { banner.link && (
-                <A href={banner.link.href}>
-                    {t('clickHere')}
-                </A>
-            )}
-        </Status>
-    );
+  if (!i18n.options.fallbackLng) {
+    return null;
+  }
+  return banner && (
+    <Status dismissable="" type="info">
+      { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
+      { banner.link && (
+        <A href={banner.link.href}>
+          {t('clickHere')}
+        </A>
+      )}
+    </Status>
+  );
 }
 
 const HOC = translate()(
-    subscribe<LoadedProps, BannerProps & TranslateProps>(
-        ({ msgKey }) => ({ banner: 'banners/' + msgKey }),
-        true,
-        false,
-    )(Banner),
+  subscribe<LoadedProps, BannerProps & TranslateProps>(
+    ({ msgKey }) => ({ banner: 'banners/' + msgKey }),
+    true,
+    false,
+  )(Banner),
 );
 
 export { HOC as Banner };

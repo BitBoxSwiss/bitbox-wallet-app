@@ -14,44 +14,44 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { apiPost } from '../../../../../utils/request';
 
 class LegacyHiddenWallet extends Component {
-    toggle = () => {
-        const newValue = !this.props.newHiddenWallet;
-        apiPost('devices/' + this.props.deviceID + '/feature-set', {
-            new_hidden_wallet: newValue,
-        }).then(() => {
-            if (newValue) {
-                alertUser(this.props.t('legacyhiddenwallet.successDisable'));
-            } else {
-                alertUser(this.props.t('legacyhiddenwallet.successEnable'));
-            }
-            if (this.props.onChange) {
-                this.props.onChange(newValue);
-            }
-        });
-    }
+  toggle = () => {
+    const newValue = !this.props.newHiddenWallet;
+    apiPost('devices/' + this.props.deviceID + '/feature-set', {
+      new_hidden_wallet: newValue,
+    }).then(() => {
+      if (newValue) {
+        alertUser(this.props.t('legacyhiddenwallet.successDisable'));
+      } else {
+        alertUser(this.props.t('legacyhiddenwallet.successEnable'));
+      }
+      if (this.props.onChange) {
+        this.props.onChange(newValue);
+      }
+    });
+  }
 
-    render() {
-        const {
-            t,
-            disabled,
-            newHiddenWallet,
-        } = this.props;
-        return (
-            <Button
-                danger
-                disabled={disabled}
-                onclick={this.toggle}>
-                { newHiddenWallet ? t('legacyhiddenwallet.enable') : t('legacyhiddenwallet.disable') }
-            </Button>
-        );
-    }
+  render() {
+    const {
+      t,
+      disabled,
+      newHiddenWallet,
+    } = this.props;
+    return (
+      <Button
+        danger
+        disabled={disabled}
+        onclick={this.toggle}>
+        { newHiddenWallet ? t('legacyhiddenwallet.enable') : t('legacyhiddenwallet.disable') }
+      </Button>
+    );
+  }
 }
 
 export default withTranslation()(LegacyHiddenWallet);

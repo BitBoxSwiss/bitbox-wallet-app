@@ -25,21 +25,21 @@ import { useMountedRef } from './utils';
  * re-renders on every update.
  */
 export const useSubscribe = <T>(
-    subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe)
+  subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe)
 ): (T | undefined) => {
-    const [respose, setResponse] = useState<T>();
-    const mounted = useMountedRef();
-    useEffect(
-        () => (
-            subscription((data) => {
-                if (mounted.current) {
-                    setResponse(data);
-                }
-            })
-        ), // we pass no dependencies because it's only suscribed once
-        [] // eslint-disable-line react-hooks/exhaustive-deps
-    );
-    return respose;
+  const [respose, setResponse] = useState<T>();
+  const mounted = useMountedRef();
+  useEffect(
+    () => (
+      subscription((data) => {
+        if (mounted.current) {
+          setResponse(data);
+        }
+      })
+    ), // we pass no dependencies because it's only suscribed once
+    [] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  return respose;
 }
 
 /**
@@ -48,26 +48,26 @@ export const useSubscribe = <T>(
  * Optionally pass a dependency array as 2nd arguemnt to control re-executing apiCall
  */
 export const useLoad = <T>(
-    apiCall: (() => Promise<T>) | null,
-    dependencies?: DependencyList,
+  apiCall: (() => Promise<T>) | null,
+  dependencies?: DependencyList,
 ): (T | undefined) => {
-    const [respose, setResponse] = useState<T>();
-    const mounted = useMountedRef();
-    useEffect(
-        () => {
-            if (apiCall === null) {
-                return;
-            }
-            apiCall().then((data) => {
-                if (mounted.current) {
-                    setResponse(data);
-                }
-            });
-        },
-        // By default no dependencies are passed to only query once
-        dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
-    );
-    return respose;
+  const [respose, setResponse] = useState<T>();
+  const mounted = useMountedRef();
+  useEffect(
+    () => {
+      if (apiCall === null) {
+        return;
+      }
+      apiCall().then((data) => {
+        if (mounted.current) {
+          setResponse(data);
+        }
+      });
+    },
+    // By default no dependencies are passed to only query once
+    dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  return respose;
 };
 
 /**
@@ -77,21 +77,21 @@ export const useLoad = <T>(
  * re-renders on every update.
  */
 export const useSync = <T>(
-    apiCall: () => Promise<T>,
-    subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe),
+  apiCall: () => Promise<T>,
+  subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe),
 ): (T | undefined) => {
-    const [respose, setResponse] = useState<T>();
-    const mounted = useMountedRef();
-    const onData = (data: T) => {
-        if (mounted.current) {
-            setResponse(data);
-        }
-    };
-    useEffect(
-        () => {
-            apiCall().then(onData);
-            return subscription(onData);
-        }, // we pass no dependencies because it's only queried once
+  const [respose, setResponse] = useState<T>();
+  const mounted = useMountedRef();
+  const onData = (data: T) => {
+    if (mounted.current) {
+      setResponse(data);
+    }
+  };
+  useEffect(
+    () => {
+      apiCall().then(onData);
+      return subscription(onData);
+    }, // we pass no dependencies because it's only queried once
     []); // eslint-disable-line react-hooks/exhaustive-deps
-    return respose;
+  return respose;
 }

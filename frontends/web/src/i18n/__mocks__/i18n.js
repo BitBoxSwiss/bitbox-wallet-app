@@ -29,21 +29,21 @@
 import i18n from 'i18next';
 
 i18n.init({
-    lng: 'en',
-    fallbackLng: 'en',
+  lng: 'en',
+  fallbackLng: 'en',
 
-    ns: ['app', 'wallet'],
-    defaultNS: 'app',
+  ns: ['app', 'wallet'],
+  defaultNS: 'app',
 
-    debug: false,
-    returnObjects: true,
-    interpolation: { escapeValue: false }, // react already escapes
-    react: {
-        wait: false,               // no backend to wait in tests
-        defaultTransParent: 'div', // required for preact
-    },
+  debug: false,
+  returnObjects: true,
+  interpolation: { escapeValue: false }, // react already escapes
+  react: {
+    wait: false,               // no backend to wait in tests
+    defaultTransParent: 'div', // required for preact
+  },
 
-    resources: { en: {} },
+  resources: { en: {} },
 });
 
 export default i18n;

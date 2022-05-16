@@ -28,68 +28,68 @@ type Props = {
 }
 
 export const ButtonLink: FunctionComponent<Props & LinkProps> = ({
-    primary = false,
-    secondary = false,
-    transparent = false,
-    danger = false,
-    className = '',
-    children,
-    disabled,
-    ...props
+  primary = false,
+  secondary = false,
+  transparent = false,
+  danger = false,
+  className = '',
+  children,
+  disabled,
+  ...props
 }) => {
-    const classNames = [
-        style[
-            (primary && 'primary')
+  const classNames = [
+    style[
+      (primary && 'primary')
             || (secondary && 'secondary')
             || (transparent && 'transparent')
             || (danger && 'danger')
             || 'button'
-        ], className
-    ].join(' ');
+    ], className
+  ].join(' ');
 
-    if (disabled) {
-        return (
-            <button
-                className={classNames}
-                disabled>
-                {children}
-            </button>
-        );
-    }
+  if (disabled) {
     return (
-        <Link
-            className={classNames}
-            {...props}>
-            {children}
-        </Link>
+      <button
+        className={classNames}
+        disabled>
+        {children}
+      </button>
     );
+  }
+  return (
+    <Link
+      className={classNames}
+      {...props}>
+      {children}
+    </Link>
+  );
 }
 
 export const Button: FunctionComponent<Props & ComponentPropsWithoutRef<'button'>> = ({
-    type = 'button',
-    primary = false,
-    secondary = false,
-    transparent = false,
-    danger = false,
-    className = '',
-    children,
-    ...props
+  type = 'button',
+  primary = false,
+  secondary = false,
+  transparent = false,
+  danger = false,
+  className = '',
+  children,
+  ...props
 }) => {
-    const classNames = [
-        style[(primary && 'primary')
+  const classNames = [
+    style[(primary && 'primary')
             || (secondary && 'secondary')
             || (transparent && 'transparent')
             || (danger && 'danger')
             || 'button'
-        ], className
-    ].join(' ');
+    ], className
+  ].join(' ');
 
-    return (
-        <button
-            type={type}
-            className={classNames}
-            {...props}>
-            {children}
-        </button>
-    );
+  return (
+    <button
+      type={type}
+      className={classNames}
+      {...props}>
+      {children}
+    </button>
+  );
 }

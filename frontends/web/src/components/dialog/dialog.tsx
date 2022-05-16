@@ -36,158 +36,158 @@ interface State {
 }
 
 class Dialog extends Component<Props, State> {
-    private overlay = createRef<HTMLDivElement>();
-    private modal = createRef<HTMLDivElement>();
-    private modalContent = createRef<HTMLDivElement>();
-    private focusableChildren!: NodeListOf<HTMLElement>;
+  private overlay = createRef<HTMLDivElement>();
+  private modal = createRef<HTMLDivElement>();
+  private modalContent = createRef<HTMLDivElement>();
+  private focusableChildren!: NodeListOf<HTMLElement>;
 
-    public state: State = {
-        active: false,
-        currentTab: 0,
-    };
+  public state: State = {
+    active: false,
+    currentTab: 0,
+  };
 
-    public componentDidMount() {
-        setTimeout(this.activate, 10);
+  public componentDidMount() {
+    setTimeout(this.activate, 10);
+  }
+
+  public componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  private handleFocus = (e: FocusEvent) => {
+    const input = e.target as HTMLElement;
+    const index = input.getAttribute('index');
+    this.setState({ currentTab: Number(index) });
+  }
+
+  private focusWithin = () => {
+    if (this.modalContent.current) {
+      this.focusableChildren = this.modalContent.current.querySelectorAll('a, button, input, textarea');
+      const focusables = Array.from(this.focusableChildren);
+      for (const c of focusables) {
+        c.classList.add('tabbable');
+        c.setAttribute('index', focusables.indexOf(c).toString());
+        c.addEventListener('focus', this.handleFocus);
+      }
+      document.addEventListener('keydown', this.handleKeyDown);
     }
+  }
 
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
+  private focusFirst = () => {
+    const focusables = this.focusableChildren;
+    if (focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
+      focusables[0].focus();
     }
+  }
 
-    private handleFocus = (e: FocusEvent) => {
-        const input = e.target as HTMLElement;
-        const index = input.getAttribute('index');
-        this.setState({ currentTab: Number(index) });
+  private updateIndex = (isNext: boolean) => {
+    const target = this.getNextIndex(isNext);
+    this.setState({ currentTab: target }, () => {
+      this.focusableChildren[target].focus();
+    });
+  }
+
+  private getNextIndex(isNext: boolean) {
+    const { currentTab } = this.state;
+    const focusables = Array.from(this.focusableChildren);
+    const arr = isNext ? focusables : focusables.reverse();
+    const current = isNext ? currentTab : (arr.length - 1) - currentTab;
+    let next = isNext ? currentTab + 1 : arr.length - currentTab;
+    next = arr.findIndex((item, i) => (i >= next && !item.hasAttribute('disabled')));
+    next = next < 0 ? arr.findIndex((item, i) => (i <= current && !item.hasAttribute('disabled'))) : next;
+    return isNext ? next : (arr.length - 1) - next;
+  }
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    const { disableEscape } = this.props;
+    const isEsc = e.keyCode === 27;
+    const isTab = e.keyCode === 9;
+    if (!disableEscape && isEsc) {
+      this.deactivate();
+    } else if (isTab) {
+      e.preventDefault();
     }
-
-    private focusWithin = () => {
-        if (this.modalContent.current) {
-            this.focusableChildren = this.modalContent.current.querySelectorAll('a, button, input, textarea');
-            const focusables = Array.from(this.focusableChildren);
-            for (const c of focusables) {
-                c.classList.add('tabbable');
-                c.setAttribute('index', focusables.indexOf(c).toString());
-                c.addEventListener('focus', this.handleFocus);
-            }
-            document.addEventListener('keydown', this.handleKeyDown);
-        }
+    if (isTab && e.shiftKey) {
+      this.updateIndex(false);
+    } else if (isTab) {
+      this.updateIndex(true);
     }
+  }
 
-    private focusFirst = () => {
-        const focusables = this.focusableChildren;
-        if (focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
-            focusables[0].focus();
-        }
+  private deactivate = () => {
+    if (!this.modal.current || !this.overlay.current) {
+      return;
     }
+    this.modal.current.classList.remove(style.activeModal);
+    this.overlay.current.classList.remove(style.activeOverlay);
+    this.setState({ active: false, currentTab: 0 }, () => {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    });
+  }
 
-    private updateIndex = (isNext: boolean) => {
-        const target = this.getNextIndex(isNext);
-        this.setState({ currentTab: target }, () => {
-            this.focusableChildren[target].focus();
-        });
-    }
+  private activate = () => {
+    this.setState({ active: true }, () => {
+      if (!this.modal.current || !this.overlay.current) {
+        return;
+      }
+      this.overlay.current.classList.add(style.activeOverlay);
+      this.modal.current.classList.add(style.activeModal);
+      this.focusWithin();
+      this.focusFirst();
+    });
+  }
 
-    private getNextIndex(isNext: boolean) {
-        const { currentTab } = this.state;
-        const focusables = Array.from(this.focusableChildren);
-        const arr = isNext ? focusables : focusables.reverse();
-        const current = isNext ? currentTab : (arr.length - 1) - currentTab;
-        let next = isNext ? currentTab + 1 : arr.length - currentTab;
-        next = arr.findIndex((item, i) => (i >= next && !item.hasAttribute('disabled')));
-        next = next < 0 ? arr.findIndex((item, i) => (i <= current && !item.hasAttribute('disabled'))) : next;
-        return isNext ? next : (arr.length - 1) - next;
-    }
-
-    private handleKeyDown = (e: KeyboardEvent) => {
-        const { disableEscape } = this.props;
-        const isEsc = e.keyCode === 27;
-        const isTab = e.keyCode === 9;
-        if (!disableEscape && isEsc) {
-            this.deactivate();
-        } else if (isTab) {
-            e.preventDefault();
-        }
-        if (isTab && e.shiftKey) {
-            this.updateIndex(false);
-        } else if (isTab) {
-            this.updateIndex(true);
-        }
-    }
-
-    private deactivate = () => {
-        if (!this.modal.current || !this.overlay.current) {
-            return;
-        }
-        this.modal.current.classList.remove(style.activeModal);
-        this.overlay.current.classList.remove(style.activeOverlay);
-        this.setState({ active: false, currentTab: 0 }, () => {
-            document.removeEventListener('keydown', this.handleKeyDown);
-            if (this.props.onClose) {
-                this.props.onClose();
-            }
-        });
-    }
-
-    private activate = () => {
-        this.setState({ active: true }, () => {
-            if (!this.modal.current || !this.overlay.current) {
-                return;
-            }
-            this.overlay.current.classList.add(style.activeOverlay);
-            this.modal.current.classList.add(style.activeModal);
-            this.focusWithin();
-            this.focusFirst();
-        });
-    }
-
-    public render() {
-        const {
-            title,
-            small,
-            medium,
-            large,
-            slim,
-            centered,
-            onClose,
-            disabledClose,
-            children,
-        } = this.props;
-        const isSmall = small ? style.small : '';
-        const isMedium = medium ? style.medium : '';
-        const isLarge = large ? style.large : '';
-        const isSlim = slim ? style.slim : '';
-        const isCentered = centered && !onClose ? style.centered : '';
-        return (
-            <div className={style.overlay} ref={this.overlay}>
-                <div
-                    className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
-                    ref={this.modal}>
-                    {
-                        title && (
-                            <div className={[style.header, isCentered].join(' ')}>
-                                <h3 className={style.title}>{title}</h3>
-                                { onClose ? (
-                                    <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </button>
-                                ) : null }
-                            </div>
-                        )
-                    }
-                    <div
-                        className={[style.contentContainer, isSlim].join(' ')}
-                        ref={this.modalContent}>
-                        <div className={style.content}>
-                            {children}
-                        </div>
-                    </div>
-                </div>
+  public render() {
+    const {
+      title,
+      small,
+      medium,
+      large,
+      slim,
+      centered,
+      onClose,
+      disabledClose,
+      children,
+    } = this.props;
+    const isSmall = small ? style.small : '';
+    const isMedium = medium ? style.medium : '';
+    const isLarge = large ? style.large : '';
+    const isSlim = slim ? style.slim : '';
+    const isCentered = centered && !onClose ? style.centered : '';
+    return (
+      <div className={style.overlay} ref={this.overlay}>
+        <div
+          className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
+          ref={this.modal}>
+          {
+            title && (
+              <div className={[style.header, isCentered].join(' ')}>
+                <h3 className={style.title}>{title}</h3>
+                { onClose ? (
+                  <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                ) : null }
+              </div>
+            )
+          }
+          <div
+            className={[style.contentContainer, isSlim].join(' ')}
+            ref={this.modalContent}>
+            <div className={style.content}>
+              {children}
             </div>
-        );
-    }
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 /**
@@ -214,9 +214,9 @@ interface DialogButtonsProps {
 };
 
 function DialogButtons({ children }: DialogButtonsProps) {
-    return (
-        <div className={style.dialogButtons}>{children}</div>
-    );
+  return (
+    <div className={style.dialogButtons}>{children}</div>
+  );
 }
 
 export { Dialog, DialogButtons };

@@ -18,11 +18,11 @@ import { apiGet } from '../utils/request';
 import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
 
 export const getUsingMobileData = (): Promise<boolean> => {
-    return apiGet('using-mobile-data');
+  return apiGet('using-mobile-data');
 };
 
 export const subscribeUsingMobileData = (
-    cb: SubscriptionCallback<boolean>
+  cb: SubscriptionCallback<boolean>
 ) => (
-    subscribeEndpoint('using-mobile-data', cb)
+  subscribeEndpoint('using-mobile-data', cb)
 );

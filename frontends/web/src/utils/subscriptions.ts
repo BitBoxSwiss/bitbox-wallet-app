@@ -26,8 +26,8 @@ export type UnsubscribeList = Array<(Unsubscribe | UnsubscribeLegacy)>;
  */
 
 export function unsubscribe(unsubscribeList: UnsubscribeList) {
-    for (const unsubscribeCallback of unsubscribeList) {
-        unsubscribeCallback();
-    }
-    unsubscribeList.splice(0, unsubscribeList.length);
+  for (const unsubscribeCallback of unsubscribeList) {
+    unsubscribeCallback();
+  }
+  unsubscribeList.splice(0, unsubscribeList.length);
 }

@@ -20,11 +20,11 @@ import style from './grid.module.css';
 type GridProps = {}
 
 export const Grid: FunctionComponent<GridProps> = ({ children }) => {
-    return (
-        <section className={style.grid}>
-            {children}
-        </section>
-    );
+  return (
+    <section className={style.grid}>
+      {children}
+    </section>
+  );
 }
 
 type ColumnProps = {
@@ -32,22 +32,22 @@ type ColumnProps = {
 }
 
 export const Column: FunctionComponent<ColumnProps> = ({
-    asCard,
-    children,
+  asCard,
+  children,
 }) => {
-    return (
-        <div className={`${style.column} ${asCard ? style.columnAsCard : ''}`}>
-            {children}
-        </div>
-    );
+  return (
+    <div className={`${style.column} ${asCard ? style.columnAsCard : ''}`}>
+      {children}
+    </div>
+  );
 }
 
 type ColumnButtonsProps = {}
 
-export const ColumnButtons: FunctionComponent<ColumnButtonsProps> = ({ children}) => {
-    return (
-        <div className={style.columnButtons}>
-            {children}
-        </div>
-    );
+export const ColumnButtons: FunctionComponent<ColumnButtonsProps> = ({ children }) => {
+  return (
+    <div className={style.columnButtons}>
+      {children}
+    </div>
+  );
 }

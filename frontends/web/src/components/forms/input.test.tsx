@@ -19,23 +19,23 @@ import { render, screen } from '@testing-library/react';
 import Input from './input';
 
 describe('components/forms/input', () => {
-    it('should preserve type attribute', () => {
-        const { container } = render(<Input type="password" value="" />);
-        expect(container.querySelector('[type="password"')).toBeTruthy();
-    });
+  it('should preserve type attribute', () => {
+    const { container } = render(<Input type="password" value="" />);
+    expect(container.querySelector('[type="password"')).toBeTruthy();
+  });
 
-    it('should have children', () => {
-        render(<Input value=""><span>label</span></Input>);
-        expect(screen.getByText('label')).toBeTruthy();
-    });
+  it('should have children', () => {
+    render(<Input value=""><span>label</span></Input>);
+    expect(screen.getByText('label')).toBeTruthy();
+  });
 
-    it('should have a label', () => {
-        render(<Input id="myInput" label="Label" value="" />);
-        expect(screen.getByLabelText('Label')).toBeTruthy();
-    });
+  it('should have a label', () => {
+    render(<Input id="myInput" label="Label" value="" />);
+    expect(screen.getByLabelText('Label')).toBeTruthy();
+  });
 
-    it('should preserve text', () => {
-        render(<Input label="Label" error="text too short" value="" />);
-        expect(screen.getByText('text too short')).toBeTruthy();
-    });
+  it('should preserve text', () => {
+    render(<Input label="Label" error="text too short" value="" />);
+    expect(screen.getByText('text too short')).toBeTruthy();
+  });
 });

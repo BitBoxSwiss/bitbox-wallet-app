@@ -22,39 +22,39 @@ import { LanguageSwitch } from './language';
 import { act } from 'react-dom/test-utils';
 
 describe('components/language/language', () => {
-    describe('selectedIndex', () => {
-        const supportedLangs = [
-            {code: 'en', display: 'EN'},
-            {code: 'en-US', display: 'EN'},
-            {code: 'pt', display: 'PT'},
-        ];
+  describe('selectedIndex', () => {
+    const supportedLangs = [
+      { code: 'en', display: 'EN' },
+      { code: 'en-US', display: 'EN' },
+      { code: 'pt', display: 'PT' },
+    ];
 
-        supportedLangs.forEach((lang, idx) => {
-            it(`returns exact match (${lang.code})`, async () => {
-                await i18n.changeLanguage(lang.code)
-               
-                let ctx: any;
-                act(() => {
-                     /* @ts-ignore */
-                    ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
-                })
-                
-                expect(ctx.childAt(0).state('selectedIndex')).toEqual(idx);
-            });
-        });
+    supportedLangs.forEach((lang, idx) => {
+      it(`returns exact match (${lang.code})`, async () => {
+        await i18n.changeLanguage(lang.code)
 
-        it('matches main language tag', async () => {
-            await i18n.changeLanguage('pt_BR');
-            /* @ts-ignore */
-            const ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
-            expect(ctx.childAt(0).state('selectedIndex')).toEqual(2); // 'pt'
-        });
+        let ctx: any;
+        act(() => {
+          /* @ts-ignore */
+          ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
+        })
 
-        it('returns default if none matched', async () => {
-            await i18n.changeLanguage('it');
-            /* @ts-ignore */
-            const ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);  
-            expect(ctx.childAt(0).state('selectedIndex')).toEqual(0); // 'en'
-        });
+        expect(ctx.childAt(0).state('selectedIndex')).toEqual(idx);
+      });
     });
+
+    it('matches main language tag', async () => {
+      await i18n.changeLanguage('pt_BR');
+      /* @ts-ignore */
+      const ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
+      expect(ctx.childAt(0).state('selectedIndex')).toEqual(2); // 'pt'
+    });
+
+    it('returns default if none matched', async () => {
+      await i18n.changeLanguage('it');
+      /* @ts-ignore */
+      const ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
+      expect(ctx.childAt(0).state('selectedIndex')).toEqual(0); // 'en'
+    });
+  });
 });

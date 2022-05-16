@@ -17,5 +17,5 @@
 import { ComponentClass } from 'react';
 
 export function getDisplayName(component: ComponentClass<any, any>): string {
-    return component.displayName || (component as any).name || 'Component';
+  return component.displayName || (component as any).name || 'Component';
 }

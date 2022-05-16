@@ -23,15 +23,14 @@ interface BuyGuideProps {
 }
 
 export default function BuyGuide({ t }: BuyGuideProps) {
-    return (
-        <Guide>
-            <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
-            <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
-            <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
-            <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
-            <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
-            <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
-        </Guide>
-    );
+  return (
+    <Guide>
+      <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
+      <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
+      <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
+      <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
+      <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
+      <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
+    </Guide>
+  );
 }
- 

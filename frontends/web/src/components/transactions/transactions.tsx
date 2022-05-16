@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { ITransaction } from '../../api/account';
 import A from '../../components/anchor/anchor';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -33,52 +33,52 @@ interface TransactionsProps {
 type Props = TransactionsProps & TranslateProps;
 
 class Transactions extends Component<Props> {
-    public render() {
-        const {
-            t,
-            accountCode,
-            explorerURL,
-            transactions,
-            handleExport,
-        } = this.props;
-        // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
-        // folder and permissions.
-        const csvExportDisabled = runningInAndroid();
-        return (
-            <div className={style.container}>
-                <div className="flex flex-row flex-between flex-items-center">
-                    <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
-                    { !csvExportDisabled && (
-                          <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
-                    ) }
-                </div>
-                <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
-                    <div className={style.type}>{t('transaction.details.type')}</div>
-                    <div className={style.date}>{t('transaction.details.date')}</div>
-                    <div className={style.activity}>{t('transaction.details.activity')}</div>
-                    <div className={style.status}>{t('transaction.details.status')}</div>
-                    <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
-                    <div className={style.currency}>{t('transaction.details.amount')}</div>
-                    <div className={style.action}>&nbsp;</div>
-                </div>
-                {
-                    (transactions && transactions.length > 0) ? transactions
-                    .map((props, index) => (
-                        <Transaction
-                            accountCode={accountCode}
-                            key={props.internalID}
-                            explorerURL={explorerURL}
-                            index={index}
-                            {...props} />
-                    )) : (
-                        <div className={['flex flex-row flex-center', style.empty].join(' ')}>
-                            <p>{t('transactions.placeholder')}</p>
-                        </div>
-                    )
-                }
+  public render() {
+    const {
+      t,
+      accountCode,
+      explorerURL,
+      transactions,
+      handleExport,
+    } = this.props;
+    // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
+    // folder and permissions.
+    const csvExportDisabled = runningInAndroid();
+    return (
+      <div className={style.container}>
+        <div className="flex flex-row flex-between flex-items-center">
+          <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
+          { !csvExportDisabled && (
+            <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
+          ) }
+        </div>
+        <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
+          <div className={style.type}>{t('transaction.details.type')}</div>
+          <div className={style.date}>{t('transaction.details.date')}</div>
+          <div className={style.activity}>{t('transaction.details.activity')}</div>
+          <div className={style.status}>{t('transaction.details.status')}</div>
+          <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
+          <div className={style.currency}>{t('transaction.details.amount')}</div>
+          <div className={style.action}>&nbsp;</div>
+        </div>
+        {
+          (transactions && transactions.length > 0) ? transactions
+            .map((props, index) => (
+              <Transaction
+                accountCode={accountCode}
+                key={props.internalID}
+                explorerURL={explorerURL}
+                index={index}
+                {...props} />
+            )) : (
+            <div className={['flex flex-row flex-center', style.empty].join(' ')}>
+              <p>{t('transactions.placeholder')}</p>
             </div>
-        );
-    }
+          )
+        }
+      </div>
+    );
+  }
 }
 
 const HOC = translate()(Transactions);

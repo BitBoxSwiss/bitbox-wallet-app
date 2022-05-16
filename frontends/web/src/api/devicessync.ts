@@ -25,7 +25,7 @@ import { TDevices } from './devices';
  */
 
 export const syncDeviceList = (
-    cb: (accounts: TDevices,) => void
+  cb: (accounts: TDevices,) => void
 ): Unsubscribe => {
-    return subscribeEndpoint('devices/registered', cb);
+  return subscribeEndpoint('devices/registered', cb);
 };

@@ -15,15 +15,15 @@
  */
 
 export const convertDateToLocaleString = (
-    date: string,
-    language: string
+  date: string,
+  language: string
 ) => {
-    return new Date(date).toLocaleString(language, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+  return new Date(date).toLocaleString(language, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };

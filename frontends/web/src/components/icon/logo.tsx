@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
- /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
+/* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
 import AppLogoInvertedImg from './assets/app-logo-inverted.svg';
 import AppLogoImg from './assets/app-logo.svg';
@@ -66,33 +66,33 @@ export const AppLogoInverted = (props: GenericProps) => <img {...props} draggabl
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = ({large: boolean, ...props}: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
+export const SwissMadeOpenSource = ({ large: boolean, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
 
 type LogoMap = {
     [property: string]: string[];
 }
 
 const logoMap: LogoMap = {
-    'btc': [BTC, BTC_GREY],
-    'tbtc': [BTC, BTC_GREY],
-    'rbtc': [BTC, BTC_GREY],
-    'ltc': [LTC, LTC_GREY],
-    'tltc': [LTC, LTC_GREY],
-    'eth': [ETH, ETH_GREY],
-    'teth': [ETH, ETH_GREY],
-    'reth': [ETH, ETH_GREY],
-    'erc20Test': [ETH, ETH_GREY],
+  'btc': [BTC, BTC_GREY],
+  'tbtc': [BTC, BTC_GREY],
+  'rbtc': [BTC, BTC_GREY],
+  'ltc': [LTC, LTC_GREY],
+  'tltc': [LTC, LTC_GREY],
+  'eth': [ETH, ETH_GREY],
+  'teth': [ETH, ETH_GREY],
+  'reth': [ETH, ETH_GREY],
+  'erc20Test': [ETH, ETH_GREY],
 
-    'eth-erc20-usdt': [USDT, USDT_GREY],
-    'eth-erc20-usdc': [USDC, USDC_GREY],
-    'eth-erc20-sai0x89d2': [SAI, SAI_GREY],
-    'eth-erc20-dai0x6b17': [DAI, DAI_GREY],
-    'eth-erc20-link': [LINK, LINK_GREY],
-    'eth-erc20-bat': [BAT, BAT_GREY],
-    'eth-erc20-mkr': [MKR, MKR_GREY],
-    'eth-erc20-zrx': [ZRX, ZRX_GREY],
-    'eth-erc20-wbtc': [WBTC, WBTC_GREY],
-    'eth-erc20-paxg': [PAXG, PAXG_GREY],
+  'eth-erc20-usdt': [USDT, USDT_GREY],
+  'eth-erc20-usdc': [USDC, USDC_GREY],
+  'eth-erc20-sai0x89d2': [SAI, SAI_GREY],
+  'eth-erc20-dai0x6b17': [DAI, DAI_GREY],
+  'eth-erc20-link': [LINK, LINK_GREY],
+  'eth-erc20-bat': [BAT, BAT_GREY],
+  'eth-erc20-mkr': [MKR, MKR_GREY],
+  'eth-erc20-zrx': [ZRX, ZRX_GREY],
+  'eth-erc20-wbtc': [WBTC, WBTC_GREY],
+  'eth-erc20-paxg': [PAXG, PAXG_GREY],
 };
 
 interface Props {
@@ -104,24 +104,24 @@ interface Props {
 }
 
 function Logo({ coinCode, active, stacked, ...rest }: Props) {
-    if (!logoMap[coinCode]) {
-        console.error('logo undefined for ', coinCode);
-        return null;
-    }
-    if (!stacked) {
-        return (
-            <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-        );
-    }
+  if (!logoMap[coinCode]) {
+    console.error('logo undefined for ', coinCode);
+    return null;
+  }
+  if (!stacked) {
     return (
-        <div>
-            { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
-              : <div className="stacked">
-                  <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
-                  <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-              </div>}
-        </div>
+      <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
     );
+  }
+  return (
+    <div>
+      { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
+        : <div className="stacked">
+          <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
+          <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+        </div>}
+    </div>
+  );
 }
 
 export default Logo;

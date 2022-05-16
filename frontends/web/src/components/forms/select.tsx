@@ -30,25 +30,25 @@ type TSelectProps = {
 } & JSX.IntrinsicElements['select']
 
 export function Select({
-    id,
-    label,
-    options = [],
-    ...props
+  id,
+  label,
+  options = [],
+  ...props
 }: TSelectProps) {
-    return (
-        <div className={styles.select}>
-            {label && <label htmlFor={id}>{label}</label>}
-            <select id={id} {...props}>
-                {options.map(({ value, text, disabled = false }) => (
-                    <option
-                        key={`${value}`}
-                        value={value}
-                        disabled={disabled}
-                    >
-                        {text}
-                    </option>
-                ))}
-            </select>
-        </div>
-    );
+  return (
+    <div className={styles.select}>
+      {label && <label htmlFor={id}>{label}</label>}
+      <select id={id} {...props}>
+        {options.map(({ value, text, disabled = false }) => (
+          <option
+            key={`${value}`}
+            value={value}
+            disabled={disabled}
+          >
+            {text}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 }

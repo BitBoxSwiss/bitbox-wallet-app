@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, Component} from 'react';
+import { ChangeEvent, Component } from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -37,91 +37,91 @@ interface State {
 }
 
 class Reset extends Component<Props, State> {
-    public readonly state: State = {
-        understand: false,
-        isConfirming: false,
-        activeDialog: false,
-    };
+  public readonly state: State = {
+    understand: false,
+    isConfirming: false,
+    activeDialog: false,
+  };
 
-    private reset = () => {
-        this.setState({
-            activeDialog: false,
-            isConfirming: true,
-        });
-        apiPost(this.props.apiPrefix + '/reset').then(data => {
-            this.abort();
-            if (!data.success) {
-                alertUser(this.props.t('reset.notReset'));
-            }
-        });
-    }
+  private reset = () => {
+    this.setState({
+      activeDialog: false,
+      isConfirming: true,
+    });
+    apiPost(this.props.apiPrefix + '/reset').then(data => {
+      this.abort();
+      if (!data.success) {
+        alertUser(this.props.t('reset.notReset'));
+      }
+    });
+  }
 
-    private handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
-        this.setState({ understand: e.target.checked });
-    }
+  private handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ understand: e.target.checked });
+  }
 
-    private abort = () => {
-        this.setState({
-            understand: false,
-            isConfirming: false,
-            activeDialog: false,
-        });
-    }
+  private abort = () => {
+    this.setState({
+      understand: false,
+      isConfirming: false,
+      activeDialog: false,
+    });
+  }
 
-    public render() {
-        const { t } = this.props;
-        const {
-            understand,
-            isConfirming,
-            activeDialog,
-          } = this.state;
-        return (
-            <div>
-                <SettingsButton
-                    danger
-                    onClick={() => this.setState({ activeDialog: true })}>
-                    {t('reset.title')}
-                </SettingsButton>
-                {
-                    activeDialog && (
-                        <Dialog
-                            title={t('reset.title')}
-                            onClose={this.abort}
-                            disabledClose={isConfirming}
-                            small>
-                            <div className="columnsContainer half">
-                                <div className="columns">
-                                    <div className="column">
-                                        <p>{t('reset.description')}</p>
-                                        <div>
-                                            <Checkbox
-                                                id="reset_understand"
-                                                label={t('reset.understandBB02')}
-                                                checked={understand}
-                                                onChange={this.handleUnderstandChange} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <DialogButtons>
-                                <Button danger disabled={!understand} onClick={this.reset}>
-                                    {t('reset.title')}
-                                </Button>
-                            </DialogButtons>
-                        </Dialog>
-                    )
-                }
-                {
-                    isConfirming && (
-                        <WaitDialog
-                            title={t('reset.title')} >
-                            {t('bitbox02Interact.followInstructions')}
-                        </WaitDialog>
-                    )
-                }
-            </div>
-        );
-    }
+  public render() {
+    const { t } = this.props;
+    const {
+      understand,
+      isConfirming,
+      activeDialog,
+    } = this.state;
+    return (
+      <div>
+        <SettingsButton
+          danger
+          onClick={() => this.setState({ activeDialog: true })}>
+          {t('reset.title')}
+        </SettingsButton>
+        {
+          activeDialog && (
+            <Dialog
+              title={t('reset.title')}
+              onClose={this.abort}
+              disabledClose={isConfirming}
+              small>
+              <div className="columnsContainer half">
+                <div className="columns">
+                  <div className="column">
+                    <p>{t('reset.description')}</p>
+                    <div>
+                      <Checkbox
+                        id="reset_understand"
+                        label={t('reset.understandBB02')}
+                        checked={understand}
+                        onChange={this.handleUnderstandChange} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogButtons>
+                <Button danger disabled={!understand} onClick={this.reset}>
+                  {t('reset.title')}
+                </Button>
+              </DialogButtons>
+            </Dialog>
+          )
+        }
+        {
+          isConfirming && (
+            <WaitDialog
+              title={t('reset.title')} >
+              {t('bitbox02Interact.followInstructions')}
+            </WaitDialog>
+          )
+        }
+      </div>
+    );
+  }
 }
 
 const HOC = translate()(Reset);

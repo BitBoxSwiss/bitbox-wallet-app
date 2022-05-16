@@ -40,30 +40,30 @@ import { setConfig } from '../utils/config';
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
 
 let i18Init = i18n
-    .use(languageFromConfig);
+  .use(languageFromConfig);
 
 i18Init.init({
-    fallbackLng: 'en',
+  fallbackLng: 'en',
 
-    // have a common namespace used around the full app
-    ns: ['app', 'wallet'],
-    defaultNS: 'app',
+  // have a common namespace used around the full app
+  ns: ['app', 'wallet'],
+  defaultNS: 'app',
 
-    debug: false,
-    returnObjects: true,
+  debug: false,
+  returnObjects: true,
 
-    interpolation: {
-        escapeValue: false // not needed for react
-    },
+  interpolation: {
+    escapeValue: false // not needed for react
+  },
 
-    react: {
-        useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
-    },
+  react: {
+    useSuspense : true, // Not using Suspense you will need to handle the not ready state yourself
+  },
 
-    backend: {
-        projectId: locizeProjectID,
-        referenceLng: 'en'
-    },
+  backend: {
+    projectId: locizeProjectID,
+    referenceLng: 'en'
+  },
 });
 
 i18n.addResourceBundle('de', 'app', appTranslationsDE);
@@ -85,26 +85,26 @@ i18n.addResourceBundle('he', 'app', appTranslationsHE);
 i18n.addResourceBundle('it', 'app', appTranslationsIT);
 
 i18n.on('languageChanged', (lng) => {
-    // Set userLanguage in config back to empty if system locale matches
-    // the newly selected language lng to make the app use native-locale again.
-    // This also covers partial matches. For example, if native locale is pt_BR
-    // and the app has only pt translation, assume they match.
-    //
-    // Since userLanguage is stored in the backend config as a string,
-    // setting it to null here in JS turns it into an empty string "" in Go backend.
-    // This is ok since we're just checking for a truthy value in the language detector.
-    return apiGet('native-locale').then((nativeLocale) => {
-        let match = lng === nativeLocale;
-        if (!match) {
-            // There are too many combinations. So, we compare only the main
-            // language tag.
-            const lngLang = lng.replace('_', '-').split('-')[0];
-            const localeLang = nativeLocale.replace('_', '-').split('-')[0];
-            match = lngLang === localeLang;
-        }
-        const uiLang = match ? null : lng;
-        return setConfig({ backend: { userLanguage: uiLang } });
-    });
+  // Set userLanguage in config back to empty if system locale matches
+  // the newly selected language lng to make the app use native-locale again.
+  // This also covers partial matches. For example, if native locale is pt_BR
+  // and the app has only pt translation, assume they match.
+  //
+  // Since userLanguage is stored in the backend config as a string,
+  // setting it to null here in JS turns it into an empty string "" in Go backend.
+  // This is ok since we're just checking for a truthy value in the language detector.
+  return apiGet('native-locale').then((nativeLocale) => {
+    let match = lng === nativeLocale;
+    if (!match) {
+      // There are too many combinations. So, we compare only the main
+      // language tag.
+      const lngLang = lng.replace('_', '-').split('-')[0];
+      const localeLang = nativeLocale.replace('_', '-').split('-')[0];
+      match = lngLang === localeLang;
+    }
+    const uiLang = match ? null : lng;
+    return setConfig({ backend: { userLanguage: uiLang } });
+  });
 });
 
 export default i18n;

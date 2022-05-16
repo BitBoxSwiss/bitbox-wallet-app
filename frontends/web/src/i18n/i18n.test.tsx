@@ -13,44 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-  
+
 jest.mock('../utils/request');
 
 import { apiGet, apiPost } from '../utils/request';
 import i18n from './i18n';
 
 describe('i18n', () => {
-    describe('languageChanged', () => {
-        beforeEach(() => {
-            (apiPost as jest.Mock).mockImplementation(() => {
-                return Promise.resolve();
-            });
-        });
-
-        const table = [
-            {nativeLocale: 'de', newLang: 'de', userLang: null},
-            {nativeLocale: 'de-DE', newLang: 'de', userLang: null},
-            {nativeLocale: 'pt_BR', newLang: 'pt', userLang: null},
-            {nativeLocale: 'fr', newLang: 'en', userLang: 'en'},
-        ];
-        table.forEach((test) => {
-            it(`sets userLanguage to ${test.userLang} if native-locale is ${test.nativeLocale}`, async () => {
-                (apiGet as jest.Mock).mockImplementation(endpoint => {
-                    switch (endpoint) {
-                        case 'config': { return Promise.resolve({}); }
-                        case 'native-locale': { return Promise.resolve(test.nativeLocale); }
-                        default: { return Promise.resolve(); }
-                    }
-                });
-                let callbackPromise = await i18n.changeLanguage(test.newLang);
-                await callbackPromise; // wait for setConfig to complete
-                
-                expect(apiPost).toHaveBeenCalledTimes(1);
-                expect(apiPost).toHaveBeenCalledWith('config', {
-                    frontend: {},
-                    backend: {userLanguage: test.userLang},
-                });
-            });
-        });
+  describe('languageChanged', () => {
+    beforeEach(() => {
+      (apiPost as jest.Mock).mockImplementation(() => {
+        return Promise.resolve();
+      });
     });
+
+    const table = [
+      { nativeLocale: 'de', newLang: 'de', userLang: null },
+      { nativeLocale: 'de-DE', newLang: 'de', userLang: null },
+      { nativeLocale: 'pt_BR', newLang: 'pt', userLang: null },
+      { nativeLocale: 'fr', newLang: 'en', userLang: 'en' },
+    ];
+    table.forEach((test) => {
+      it(`sets userLanguage to ${test.userLang} if native-locale is ${test.nativeLocale}`, async () => {
+        (apiGet as jest.Mock).mockImplementation(endpoint => {
+          switch (endpoint) {
+          case 'config': { return Promise.resolve({}); }
+          case 'native-locale': { return Promise.resolve(test.nativeLocale); }
+          default: { return Promise.resolve(); }
+          }
+        });
+        let callbackPromise = await i18n.changeLanguage(test.newLang);
+        await callbackPromise; // wait for setConfig to complete
+
+        expect(apiPost).toHaveBeenCalledTimes(1);
+        expect(apiPost).toHaveBeenCalledWith('config', {
+          frontend: {},
+          backend: { userLanguage: test.userLang },
+        });
+      });
+    });
+  });
 });

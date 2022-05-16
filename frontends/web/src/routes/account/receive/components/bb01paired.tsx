@@ -25,16 +25,16 @@ type Props = {
 }
 
 export const PairedWarning: FunctionComponent<Props> = ({
-    deviceID,
+  deviceID,
 }) => {
-    const { t } = useTranslation();
-    const paired = useLoad(hasMobileChannel(deviceID));
-    if (paired) {
-        return null;
-    }
-    return (
-        <Status type="warning" hidden={paired !== false}>
-            {t('warning.receivePairing')}
-        </Status>
-    );
+  const { t } = useTranslation();
+  const paired = useLoad(hasMobileChannel(deviceID));
+  if (paired) {
+    return null;
+  }
+  return (
+    <Status type="warning" hidden={paired !== false}>
+      {t('warning.receivePairing')}
+    </Status>
+  );
 };

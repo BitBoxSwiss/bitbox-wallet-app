@@ -23,10 +23,10 @@ type Props = {
 };
 
 export const Skeleton: FunctionComponent<Props> = ({
-    fontSize,
-    minWidth = '100%',
+  fontSize,
+  minWidth = '100%',
 }) => {
-    return (
-        <span className={style.skeleton} style={{ fontSize, minWidth }} />
-    );
+  return (
+    <span className={style.skeleton} style={{ fontSize, minWidth }} />
+  );
 };

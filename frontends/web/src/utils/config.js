@@ -21,17 +21,17 @@ import { apiGet, apiPost } from './request';
 // returns a promise and passes the new config
 let pendingConfig = {};
 export function setConfig(object) {
-    return apiGet('config')
-        .then((currentConfig = {}) => {
-            const nextConfig = Object.assign(currentConfig, {
-                backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
-                frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
-            });
-            pendingConfig = nextConfig;
-            return apiPost('config', nextConfig)
-                .then(() => {
-                    pendingConfig = {};
-                    return nextConfig;
-                });
+  return apiGet('config')
+    .then((currentConfig = {}) => {
+      const nextConfig = Object.assign(currentConfig, {
+        backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
+        frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
+      });
+      pendingConfig = nextConfig;
+      return apiPost('config', nextConfig)
+        .then(() => {
+          pendingConfig = {};
+          return nextConfig;
         });
+    });
 }

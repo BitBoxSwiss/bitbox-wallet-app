@@ -61,13 +61,13 @@ const subscriptions: Subscriptions = {};
  * This function dispatches the events from the websocket to the observers.
  */
 function handleEvent(payload: any): void {
-    if (typeof payload.subject === 'string') {
-        if (subscriptions[payload.subject]) {
-            for (const observer of subscriptions[payload.subject]) {
-                observer(payload as Event);
-            }
-        }
+  if (typeof payload.subject === 'string') {
+    if (subscriptions[payload.subject]) {
+      for (const observer of subscriptions[payload.subject]) {
+        observer(payload as Event);
+      }
     }
+  }
 }
 
 /**
@@ -79,23 +79,23 @@ let subscribed: Unsubscribe | null = null;
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
  */
 export function apiSubscribe(subject: Subject, observer: Observer): Unsubscribe {
-    if (!subscribed) {
-        subscribed = apiWebsocket(handleEvent);
+  if (!subscribed) {
+    subscribed = apiWebsocket(handleEvent);
+  }
+  let observers = subscriptions[subject];
+  if (observers === undefined) {
+    observers = [];
+    subscriptions[subject] = observers;
+  }
+  observers.push(observer);
+  return () => {
+    if (!observers.includes(observer)) {
+      console.warn('!observers.includes(observer)');
     }
-    let observers = subscriptions[subject];
-    if (observers === undefined) {
-        observers = [];
-        subscriptions[subject] = observers;
+    const index = observers.indexOf(observer);
+    observers.splice(index, 1);
+    if (observers.includes(observer)) {
+      console.warn('observers.includes(observer)');
     }
-    observers.push(observer);
-    return () => {
-        if (!observers.includes(observer)) {
-            console.warn('!observers.includes(observer)');
-        }
-        const index = observers.indexOf(observer);
-        observers.splice(index, 1);
-        if (observers.includes(observer)) {
-            console.warn('observers.includes(observer)');
-        }
-    };
+  };
 }

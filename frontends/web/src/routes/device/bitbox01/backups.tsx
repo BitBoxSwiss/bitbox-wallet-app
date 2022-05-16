@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { Component, createRef} from 'react';
+import React, { Component, createRef } from 'react';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -46,145 +46,145 @@ interface State {
 }
 
 class Backups extends Component<Props, State> {
-    private scrollableContainer = createRef<HTMLDivElement>();
+  private scrollableContainer = createRef<HTMLDivElement>();
 
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            backupList: [],
-            sdCardInserted: null,
-        };
-    }
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      backupList: [],
+      sdCardInserted: null,
+    };
+  }
 
-    public componentDidMount() {
-        this.refresh();
-    }
+  public componentDidMount() {
+    this.refresh();
+  }
 
-    private refresh = () => {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({
-            lock,
-        }) => {
-            this.setState({ lock });
+  private refresh = () => {
+    apiGet('devices/' + this.props.deviceID + '/info').then(({
+      lock,
+    }) => {
+      this.setState({ lock });
+    });
+    apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
+      if (success) {
+        this.setState({
+          sdCardInserted,
+          backupList,
         });
-        apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
-            if (success) {
-                this.setState({
-                    sdCardInserted,
-                    backupList,
-                });
-            } else if (errorMessage) {
-                alertUser(errorMessage);
+      } else if (errorMessage) {
+        alertUser(errorMessage);
+      }
+    });
+  }
+
+  private handleBackuplistChange = (backupID: string) => {
+    this.setState({ selectedBackup: backupID });
+  }
+
+  private scrollIntoView = (event: React.SyntheticEvent) => {
+    if(!this.scrollableContainer.current){
+      return;
+    }
+    const target = event.target as HTMLInputElement;
+    const offsetTop = target.offsetTop;
+    const offsetHeight = (target.parentNode as HTMLElement).offsetHeight;
+    if (offsetTop > this.scrollableContainer.current.scrollTop + offsetHeight) {
+      return;
+    }
+    const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.current.offsetHeight, 0);
+    this.scrollableContainer.current.scroll({ top, behavior: 'smooth' });
+  }
+
+  public render() {
+    const {
+      t,
+      children,
+      showCreate = false,
+      showRestore = true,
+      deviceID,
+      requireConfirmation = true,
+      onRestore,
+    } = this.props;
+    const { backupList, selectedBackup, sdCardInserted, lock } = this.state;
+    if (lock === undefined) {
+      return null;
+    }
+    if (sdCardInserted === false) {
+      return (
+        <div className="box m-top-default">
+          <p className="first">{t('backup.insert')}</p>
+          <div className="buttons">
+            <Button primary onClick={this.refresh}>
+              {t('backup.insertButton')}
+            </Button>
+            {children}
+          </div>
+        </div>
+      );
+    } else if (!sdCardInserted) {
+      return null;
+    }
+
+    return (
+      <div className="box large m-top-default">
+        <SimpleMarkup tagName="p" markup={t('backup.description')} />
+        <div className={style.backupsList} ref={this.scrollableContainer}>
+          <div className={style.listContainer}>
+            {
+              backupList.length ? backupList.map(backup => (
+                <div key={backup.id} className={style.item}>
+                  <BackupsListItem
+                    backup={backup}
+                    selectedBackup={selectedBackup}
+                    handleChange={this.handleBackuplistChange}
+                    onFocus={this.scrollIntoView}
+                    radio={true} />
+                </div>
+              )) : (
+                <p className={style.emptyText}>
+                  {t('backup.noBackups')}
+                </p>
+              )
             }
-        });
-    }
-
-    private handleBackuplistChange = (backupID: string) => {
-        this.setState({ selectedBackup: backupID });
-    }
-
-    private scrollIntoView = (event: React.SyntheticEvent) => {
-        if(!this.scrollableContainer.current){
-            return;
-        }
-        const target = event.target as HTMLInputElement;
-        const offsetTop = target.offsetTop;
-        const offsetHeight = (target.parentNode as HTMLElement).offsetHeight;
-        if (offsetTop > this.scrollableContainer.current.scrollTop + offsetHeight) {
-            return;
-        }
-        const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.current.offsetHeight, 0);
-        this.scrollableContainer.current.scroll({ top, behavior: 'smooth' });
-    }
-
-    public render() {
-        const {
-            t,
-            children,
-            showCreate = false,
-            showRestore = true,
-            deviceID,
-            requireConfirmation = true,
-            onRestore,
-        } = this.props;
-        const { backupList, selectedBackup, sdCardInserted, lock } = this.state;
-        if (lock === undefined) {
-            return null;
-        }
-        if (sdCardInserted === false) {
-            return (
-                <div className="box m-top-default">
-                    <p className="first">{t('backup.insert')}</p>
-                    <div className="buttons">
-                        <Button primary onClick={this.refresh}>
-                            {t('backup.insertButton')}
-                        </Button>
-                        {children}
-                    </div>
-                </div>
-            );
-        } else if (!sdCardInserted) {
-            return null;
-        }
-
-        return (
-            <div className="box large m-top-default">
-                <SimpleMarkup tagName="p" markup={t('backup.description')} />
-                <div className={style.backupsList} ref={this.scrollableContainer}>
-                    <div className={style.listContainer}>
-                        {
-                            backupList.length ? backupList.map(backup => (
-                                <div key={backup.id} className={style.item}>
-                                    <BackupsListItem
-                                        backup={backup}
-                                        selectedBackup={selectedBackup}
-                                        handleChange={this.handleBackuplistChange}
-                                        onFocus={this.scrollIntoView}
-                                        radio={true} />
-                                </div>
-                            )) : (
-                                <p className={style.emptyText}>
-                                    {t('backup.noBackups')}
-                                </p>
-                            )
-                        }
-                    </div>
-                </div>
-                <div className="buttons">
-                    {
-                        showCreate && !lock && (
-                            <Create
-                                onCreate={this.refresh}
-                                deviceID={deviceID} />
-                        )
-                    }
-                    {
-                        showCreate && (
-                            <Check
-                                selectedBackup={selectedBackup}
-                                deviceID={deviceID} />
-                        )
-                    }
-                    {
-                        showRestore && onRestore && (
-                            <Restore
-                                selectedBackup={selectedBackup}
-                                deviceID={deviceID}
-                                onRestore={onRestore}
-                                requireConfirmation={requireConfirmation} />
-                        )
-                    }
-                    {/*
+          </div>
+        </div>
+        <div className="buttons">
+          {
+            showCreate && !lock && (
+              <Create
+                onCreate={this.refresh}
+                deviceID={deviceID} />
+            )
+          }
+          {
+            showCreate && (
+              <Check
+                selectedBackup={selectedBackup}
+                deviceID={deviceID} />
+            )
+          }
+          {
+            showRestore && onRestore && (
+              <Restore
+                selectedBackup={selectedBackup}
+                deviceID={deviceID}
+                onRestore={onRestore}
+                requireConfirmation={requireConfirmation} />
+            )
+          }
+          {/*
                       <Erase
                       selectedBackup={selectedBackup}
                       onErase={this.refresh}
                       deviceID={deviceID}
                     />
                     */}
-                    {children}
-                </div>
-            </div>
-        );
-    }
+          {children}
+        </div>
+      </div>
+    );
+  }
 }
 
 const TranslatedBackups = translate()(Backups);

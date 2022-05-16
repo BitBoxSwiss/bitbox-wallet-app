@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component} from 'react';
+import React, { Component } from 'react';
 import { route } from '../../../utils/route';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -45,145 +45,145 @@ interface State {
 }
 
 class Restore extends Component<Props, State> {
-    public readonly state: State = {
-        isConfirming: false,
+  public readonly state: State = {
+    isConfirming: false,
+    activeDialog: false,
+    isLoading: false,
+    understand: false,
+    password: undefined,
+  };
+
+  private abort = () => {
+    this.setState({
+      isConfirming: false,
+      activeDialog: false,
+      isLoading: false,
+      understand: false,
+      password: undefined,
+    });
+  }
+
+  private validate = () => {
+    return this.props.selectedBackup && this.state.password;
+  }
+
+  private restore = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    if (!this.validate()) { return; }
+    if (this.props.requireConfirmation) {
+      this.setState({
         activeDialog: false,
-        isLoading: false,
-        understand: false,
-        password: undefined,
-    };
-
-    private abort = () => {
-        this.setState({
-            isConfirming: false,
-            activeDialog: false,
-            isLoading: false,
-            understand: false,
-            password: undefined,
-        });
+        isConfirming: true,
+      });
+    } else {
+      this.setState({
+        activeDialog: false,
+        isLoading: true,
+      });
     }
-
-    private validate = () => {
-        return this.props.selectedBackup && this.state.password;
-    }
-
-    private restore = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        if (!this.validate()) { return; }
-        if (this.props.requireConfirmation) {
-            this.setState({
-                activeDialog: false,
-                isConfirming: true,
-            });
-        } else {
-            this.setState({
-                activeDialog: false,
-                isLoading: true,
-            });
+    apiPost('devices/' + this.props.deviceID + '/backups/restore', {
+      password: this.state.password,
+      filename: this.props.selectedBackup,
+    }).then(data => {
+      const { success, didRestore, errorMessage, code } = data;
+      this.abort();
+      if (success) {
+        if (didRestore) {
+          if (this.props.onRestore) {
+            return this.props.onRestore();
+          }
+          console.info('restore.jsx route to /');
+          route('/', true);
         }
-        apiPost('devices/' + this.props.deviceID + '/backups/restore', {
-            password: this.state.password,
-            filename: this.props.selectedBackup,
-        }).then(data => {
-            const { success, didRestore, errorMessage, code } = data;
-            this.abort();
-            if (success) {
-                if (didRestore) {
-                    if (this.props.onRestore) {
-                        return this.props.onRestore();
-                    }
-                    console.info('restore.jsx route to /');
-                    route('/', true);
-                }
-            } else {
-                alertUser(this.props.t(`backup.restore.error.e${code}`, {
-                    defaultValue: errorMessage,
-                }));
-            }
-        });
-    }
+      } else {
+        alertUser(this.props.t(`backup.restore.error.e${code}`, {
+          defaultValue: errorMessage,
+        }));
+      }
+    });
+  }
 
-    private handleUnderstandChange = (e: React.SyntheticEvent) => {
-        this.setState({ understand: (e.target as HTMLInputElement).checked });
-    }
+  private handleUnderstandChange = (e: React.SyntheticEvent) => {
+    this.setState({ understand: (e.target as HTMLInputElement).checked });
+  }
 
-    private setValidPassword = (password: string) => {
-        this.setState({ password });
-    }
+  private setValidPassword = (password: string) => {
+    this.setState({ password });
+  }
 
-    public render() {
-        const {
-            t,
-            selectedBackup,
-            requireConfirmation,
-        } = this.props;
-        const {
-            isConfirming,
-            activeDialog,
-            isLoading,
-            understand,
-        } = this.state;
-        return (
-            <span>
-                <Button
+  public render() {
+    const {
+      t,
+      selectedBackup,
+      requireConfirmation,
+    } = this.props;
+    const {
+      isConfirming,
+      activeDialog,
+      isLoading,
+      understand,
+    } = this.state;
+    return (
+      <span>
+        <Button
+          danger={requireConfirmation}
+          primary={!requireConfirmation}
+          disabled={!selectedBackup}
+          onClick={() => this.setState({ activeDialog: true })}>
+          {t('button.restore')}
+        </Button>
+        {
+          activeDialog && (
+            <Dialog
+              title={t('backup.restore.title')}
+              disableEscape={isConfirming || isLoading}
+              onClose={this.abort}>
+              <form onSubmit={this.restore}>
+                <PasswordRepeatInput
+                  label={t('backup.restore.password.label')}
+                  placeholder={t('backup.restore.password.placeholder')}
+                  repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}
+                  showLabel={t('backup.restore.password.showLabel')}
+                  onValidPassword={this.setValidPassword} />
+                <div className={style.agreements}>
+                  <Checkbox
+                    id="funds_access"
+                    label={t('backup.restore.understand')}
+                    checked={understand}
+                    onChange={this.handleUnderstandChange} />
+                </div>
+                <DialogButtons>
+                  <Button
+                    type="submit"
                     danger={requireConfirmation}
                     primary={!requireConfirmation}
-                    disabled={!selectedBackup}
-                    onClick={() => this.setState({ activeDialog: true })}>
+                    disabled={!understand || !this.validate() || isConfirming}>
                     {t('button.restore')}
-                </Button>
-                {
-                    activeDialog && (
-                        <Dialog
-                            title={t('backup.restore.title')}
-                            disableEscape={isConfirming || isLoading}
-                            onClose={this.abort}>
-                            <form onSubmit={this.restore}>
-                                <PasswordRepeatInput
-                                    label={t('backup.restore.password.label')}
-                                    placeholder={t('backup.restore.password.placeholder')}
-                                    repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}
-                                    showLabel={t('backup.restore.password.showLabel')}
-                                    onValidPassword={this.setValidPassword} />
-                                <div className={style.agreements}>
-                                    <Checkbox
-                                        id="funds_access"
-                                        label={t('backup.restore.understand')}
-                                        checked={understand}
-                                        onChange={this.handleUnderstandChange} />
-                                </div>
-                                <DialogButtons>
-                                    <Button
-                                        type="submit"
-                                        danger={requireConfirmation}
-                                        primary={!requireConfirmation}
-                                        disabled={!understand || !this.validate() || isConfirming}>
-                                        {t('button.restore')}
-                                    </Button>
-                                    <Button
-                                        transparent
-                                        onClick={this.abort}
-                                        disabled={isConfirming}>
-                                        {t('button.back')}
-                                    </Button>
-                                </DialogButtons>
-                            </form>
-                        </Dialog>
-                    )
-                }
-                {
-                    (isConfirming && requireConfirmation) && (
-                        <WaitDialog title={t('backup.restore.confirmTitle')} />
-                    )
-                }
-                {
-                    isLoading && (
-                        <Spinner text={t('backup.restore.restoring')} />
-                    )
-                }
-            </span>
-        );
-    }
+                  </Button>
+                  <Button
+                    transparent
+                    onClick={this.abort}
+                    disabled={isConfirming}>
+                    {t('button.back')}
+                  </Button>
+                </DialogButtons>
+              </form>
+            </Dialog>
+          )
+        }
+        {
+          (isConfirming && requireConfirmation) && (
+            <WaitDialog title={t('backup.restore.confirmTitle')} />
+          )
+        }
+        {
+          isLoading && (
+            <Spinner text={t('backup.restore.restoring')} />
+          )
+        }
+      </span>
+    );
+  }
 }
 
 const TranslatedRestore = translate()(Restore);
