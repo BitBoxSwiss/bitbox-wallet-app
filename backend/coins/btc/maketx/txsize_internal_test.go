@@ -39,6 +39,7 @@ var scriptTypes = []signing.ScriptType{
 
 func testEstimateTxSize(
 	t *testing.T, useSegwit bool, outputScriptType, changeScriptType signing.ScriptType) {
+	t.Helper()
 	// A signature can be 70 or 71 bytes (excluding sighash op).
 	// We take one that has 71 bytes, as the size function returns the maximum possible size.
 	sigBytes, err := hex.DecodeString(

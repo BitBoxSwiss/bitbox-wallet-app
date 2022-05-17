@@ -14,16 +14,19 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     # Which docker image to use to run the CI. Defaults to Docker Hub.
     # Overwrite with CI_IMAGE=docker/image/path environment variable.
     # Keep this in sync with .github/workflows/ci.yml.
-    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:13}"
+    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:14}"
     # Time image pull to compare in the future.
     time docker pull "$CI_IMAGE"
 
     # .gradle dir is mapped to preserve cache.
+    #
+    # safe.directory is added due to "unsafe repository (REPO is owned by someone else)" in GitHub
+    # CI (https://github.com/actions/checkout/issues/760)
     docker run --privileged \
            -v $HOME/.gradle:/root/.gradle \
            -v ${TRAVIS_BUILD_DIR}:/opt/go/${GO_SRC_DIR}/ \
            -i "${CI_IMAGE}" \
-           bash -c "make -C \$GOPATH/${GO_SRC_DIR} ${WHAT}"
+           bash -c "git config --global --add safe.directory \$GOPATH/${GO_SRC_DIR} && make -C \$GOPATH/${GO_SRC_DIR} ${WHAT}"
 fi
 
 # The following is executed only on macOS machines.

@@ -62,6 +62,6 @@ const (
 	// estimated automatically.
 	FeeTargetCodeCustom FeeTargetCode = "custom"
 
-	// DefaultFeeTarget is the default fee target
+	// DefaultFeeTarget is the default fee target.
 	DefaultFeeTarget = FeeTargetCodeNormal
 )

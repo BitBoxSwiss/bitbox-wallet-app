@@ -32,7 +32,7 @@ const (
 	CodeETH Code = "eth"
 	// CodeTETH is Ethereum Ropsten.
 	CodeTETH Code = "teth"
-	// CodeRETH is Ethereum Rinkeby
+	// CodeRETH is Ethereum Rinkeby.
 	CodeRETH Code = "reth"
 	// CodeERC20TEST is an arbitrarily picked test ERC20 token on Ropsten.
 	CodeERC20TEST Code = "erc20Test"
