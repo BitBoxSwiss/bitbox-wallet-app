@@ -26,8 +26,8 @@ envinit:
 	GO111MODULE=on go get -u github.com/vektra/mockery/...
 	GO111MODULE=off go get -u github.com/matryer/moq
 	GO111MODULE=off go get golang.org/x/tools/cmd/goimports
-	GO111MODULE=off go get -u golang.org/x/mobile/cmd/gomobile
-	GO111MODULE=off gomobile init
+	go install golang.org/x/mobile/cmd/gomobile@latest
+	gomobile init
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
