@@ -30,84 +30,84 @@ type Props = {
 }
 
 export const SetDeviceName: FunctionComponent<Props> = ({
-    deviceName,
-    deviceID,
+  deviceName,
+  deviceID,
 }) => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
-    const [active, setActive] = useState(false);
-    const [currentName, setCurrentName] = useState(deviceName);
-    const [name, setName] = useState('');
-    const [inProgress, setInProgress] = useState(false);
+  const [active, setActive] = useState(false);
+  const [currentName, setCurrentName] = useState(deviceName);
+  const [name, setName] = useState('');
+  const [inProgress, setInProgress] = useState(false);
 
-    const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    const updateName = async () => {
-        setInProgress(true);
-        try {
-            await setDeviceName(deviceID, name);
-            const { name: newDeviceName } = await getDeviceInfo(deviceID);
-            setCurrentName(newDeviceName);
-        } catch (e) {
-            alertUser('Device name could not be set')
-        } finally {
-            setActive(false);
-            setInProgress(false);
-        }
-    };
+  const updateName = async () => {
+    setInProgress(true);
+    try {
+      await setDeviceName(deviceID, name);
+      const { name: newDeviceName } = await getDeviceInfo(deviceID);
+      setCurrentName(newDeviceName);
+    } catch (e) {
+      alertUser('Device name could not be set')
+    } finally {
+      setActive(false);
+      setInProgress(false);
+    }
+  };
 
-    return (
-        <div>
-            <SettingsButton
-                onClick={() => {
-                    setName('');
-                    setActive(true);
-                }}
-                optionalText={currentName}>
-                {t('bitbox02Settings.deviceName.title')}
-            </SettingsButton>
-            { active ? (
-                <Dialog
-                    onClose={() => setActive(false)}
-                    title={t('bitbox02Settings.deviceName.title')}
-                    small>
-                    <div className="columnsContainer half">
-                        <div className="columns half">
-                            <div className="column">
-                                <label>
-                                    {t('bitbox02Settings.deviceName.current')}
-                                </label>
-                                <p className="m-bottom-half">
-                                    {currentName}
-                                </p>
-                            </div>
-                            <div className="column">
-                                <Input
-                                    pattern="^.{0,63}$"
-                                    label={t('bitbox02Settings.deviceName.input')}
-                                    onInput={e => setName(e.target.value)}
-                                    ref={inputRef}
-                                    placeholder={t('bitbox02Settings.deviceName.placeholder')}
-                                    value={name}
-                                    id="deviceName" />
-                            </div>
-                        </div>
-                    </div>
-                    <DialogButtons>
-                        <Button
-                            primary
-                            disabled={!(name && inputRef?.current?.validity.valid)}
-                            onClick={() => updateName()}>
-                            {t('button.ok')}
-                        </Button>
-                    </DialogButtons>
-                </Dialog>
-            ) : null }
-            { inProgress && (
-                <WaitDialog>
-                    {t('bitbox02Interact.followInstructions')}
-                </WaitDialog>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <SettingsButton
+        onClick={() => {
+          setName('');
+          setActive(true);
+        }}
+        optionalText={currentName}>
+        {t('bitbox02Settings.deviceName.title')}
+      </SettingsButton>
+      { active ? (
+        <Dialog
+          onClose={() => setActive(false)}
+          title={t('bitbox02Settings.deviceName.title')}
+          small>
+          <div className="columnsContainer half">
+            <div className="columns half">
+              <div className="column">
+                <label>
+                  {t('bitbox02Settings.deviceName.current')}
+                </label>
+                <p className="m-bottom-half">
+                  {currentName}
+                </p>
+              </div>
+              <div className="column">
+                <Input
+                  pattern="^.{0,63}$"
+                  label={t('bitbox02Settings.deviceName.input')}
+                  onInput={e => setName(e.target.value)}
+                  ref={inputRef}
+                  placeholder={t('bitbox02Settings.deviceName.placeholder')}
+                  value={name}
+                  id="deviceName" />
+              </div>
+            </div>
+          </div>
+          <DialogButtons>
+            <Button
+              primary
+              disabled={!(name && inputRef?.current?.validity.valid)}
+              onClick={() => updateName()}>
+              {t('button.ok')}
+            </Button>
+          </DialogButtons>
+        </Dialog>
+      ) : null }
+      { inProgress && (
+        <WaitDialog>
+          {t('bitbox02Interact.followInstructions')}
+        </WaitDialog>
+      )}
+    </div>
+  );
 };

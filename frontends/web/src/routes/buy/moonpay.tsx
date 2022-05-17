@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef} from 'react';
+import { Component, createRef } from 'react';
 import { IAccount } from '../../api/account';
 import { TDevices } from '../../api/devices';
 import Guide from './guide';
@@ -43,85 +43,85 @@ interface State {
 type Props = LoadedBuyProps & BuyProps & TranslateProps;
 
 class Moonpay extends Component<Props, State> {
-    public readonly state: State = {};
+  public readonly state: State = {};
 
-    private ref = createRef<HTMLDivElement>();
-    private resizeTimerID?: any;
+  private ref = createRef<HTMLDivElement>();
+  private resizeTimerID?: any;
 
-    public componentDidMount() {
-        this.onResize();
-        window.addEventListener('resize', this.onResize);
+  public componentDidMount() {
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
+  }
+
+  public componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  private onResize = () => {
+    if (this.resizeTimerID) {
+      clearTimeout(this.resizeTimerID);
     }
+    this.resizeTimerID = setTimeout(() => {
+      if (!this.ref.current) {
+        return;
+      }
+      this.setState({ height: this.ref.current.offsetHeight });
+    }, 200);
+  }
 
-    public componentWillUnmount() {
-        window.removeEventListener('resize', this.onResize);
+  private getAccount = (): IAccount | undefined => {
+    if (!this.props.accounts) {
+      return undefined;
     }
+    return this.props.accounts.find(({ code }) => code === this.props.code);
+  }
 
-    private onResize = () => {
-        if (this.resizeTimerID) {
-            clearTimeout(this.resizeTimerID);
-        }
-        this.resizeTimerID = setTimeout(() => {
-            if (!this.ref.current) {
-                return;
-            }
-            this.setState({ height: this.ref.current.offsetHeight });
-        }, 200);
+  private getCryptoName = (): string => {
+    const { t } = this.props;
+    const account = this.getAccount();
+    if (account) {
+      return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
     }
+    return t('buy.info.crypto');
+  }
 
-    private getAccount = (): IAccount | undefined => {
-        if (!this.props.accounts) {
-            return undefined;
-        }
-        return this.props.accounts.find(({ code }) => code === this.props.code);
+  public render() {
+    const { moonpay, t } = this.props;
+    const { height } = this.state;
+    const account = this.getAccount();
+    if (!account || moonpay.url === '') {
+      return null;
     }
-
-    private getCryptoName = (): string => {
-        const { t } = this.props;
-        const account = this.getAccount();
-        if (account) {
-            return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
-        }
-        return t('buy.info.crypto');
-    }
-
-    public render() {
-        const { moonpay, t } = this.props;
-        const { height } = this.state;
-        const account = this.getAccount();
-        if (!account || moonpay.url === '') {
-            return null;
-        }
-        const name = this.getCryptoName();
-        return (
-            <div className="contentWithGuide">
-                <div className="container">
-                    <div className={style.header}>
-                        <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
-                    </div>
-                    <div ref={this.ref} className="innerContainer">
-                        <div className="noSpace" style={{ height }}>
-                            <Spinner text={t('loading')} />
-                            <iframe
-                                title="Moonpay"
-                                width="100%"
-                                height={height}
-                                frameBorder="0"
-                                className={style.iframe}
-                                allow="camera; payment"
-                                src={`${moonpay.url}&colorCode=%235E94BF`}>
-                            </iframe>
-                        </div>
-                    </div>
-                </div>
-                <Guide t={t} name={name} />
+    const name = this.getCryptoName();
+    return (
+      <div className="contentWithGuide">
+        <div className="container">
+          <div className={style.header}>
+            <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+          </div>
+          <div ref={this.ref} className="innerContainer">
+            <div className="noSpace" style={{ height }}>
+              <Spinner text={t('loading')} />
+              <iframe
+                title="Moonpay"
+                width="100%"
+                height={height}
+                frameBorder="0"
+                className={style.iframe}
+                allow="camera; payment"
+                src={`${moonpay.url}&colorCode=%235E94BF`}>
+              </iframe>
             </div>
-        );
-    }
+          </div>
+        </div>
+        <Guide t={t} name={name} />
+      </div>
+    );
+  }
 }
 
 const loadHOC = load<LoadedBuyProps, BuyProps & TranslateProps>(({ code }) => ({
-    moonpay: `exchange/moonpay/buy/${code}`,
+  moonpay: `exchange/moonpay/buy/${code}`,
 }))(Moonpay);
 const HOC = translate()(loadHOC);
 export { HOC as Moonpay };

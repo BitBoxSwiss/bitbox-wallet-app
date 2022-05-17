@@ -36,14 +36,14 @@ const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
  * ```
  */
 export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
-    if (typeof markup !== 'string') {
-        return null;
-    }
-    const simpleMarkupChunks = captureStrongElement.exec(markup);
-    if (simpleMarkupChunks === null || simpleMarkupChunks.length !== 4) {
-        return createElement(tagName, props, markup);
-    }
-    return createElement(tagName, props, simpleMarkupChunks[1], createElement('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
+  if (typeof markup !== 'string') {
+    return null;
+  }
+  const simpleMarkupChunks = captureStrongElement.exec(markup);
+  if (simpleMarkupChunks === null || simpleMarkupChunks.length !== 4) {
+    return createElement(tagName, props, markup);
+  }
+  return createElement(tagName, props, simpleMarkupChunks[1], createElement('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
 }
 
 /**
@@ -58,12 +58,12 @@ export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
  * ```
  */
 export function multilineMarkup({ tagName, markup, ...props }: MarkupProps) {
-    return markup.split('\n').map((line: string, i: number) => (
-        SimpleMarkup({
-            key: `${line}-${i}`,
-            tagName,
-            markup: line,
-            ...props
-        })
-    ));
+  return markup.split('\n').map((line: string, i: number) => (
+    SimpleMarkup({
+      key: `${line}-${i}`,
+      tagName,
+      markup: line,
+      ...props
+    })
+  ));
 }

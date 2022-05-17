@@ -24,58 +24,58 @@ let queryPromises = {};
 let currentListeners = [];
 
 function initTransport() {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    if (webChannel) {
+      resolve(webChannel);
+    } else if (cache) {
+      const check = function() { // eslint-disable-line func-style
         if (webChannel) {
-            resolve(webChannel);
-        } else if (cache) {
-            const check = function() { // eslint-disable-line func-style
-                if (webChannel) {
-                    resolve(webChannel);
-                } else {
-                    window.setTimeout(check, 1);
-                }
-            };
-            check();
-        } else if (runningInQtWebEngine()) {
-            const initWebChannel = function(channel){ // eslint-disable-line func-style
-                webChannel = channel;
-                webChannel.objects.backend.gotResponse.connect((queryID, response) => {
-                    queryPromises[queryID].resolve(JSON.parse(response));
-                    delete queryPromises[queryID];
-                });
-                webChannel.objects.backend.pushNotify.connect(msg => {
-                    currentListeners.forEach(listener => listener(JSON.parse(msg)));
-                });
-                resolve(webChannel);
-            };
-            // @ts-ignore
-            cache = new QWebChannel(qt.webChannelTransport, initWebChannel); // eslint-disable-line no-undef
+          resolve(webChannel);
         } else {
-            reject();
+          window.setTimeout(check, 1);
         }
-    });
+      };
+      check();
+    } else if (runningInQtWebEngine()) {
+      const initWebChannel = function(channel){ // eslint-disable-line func-style
+        webChannel = channel;
+        webChannel.objects.backend.gotResponse.connect((queryID, response) => {
+          queryPromises[queryID].resolve(JSON.parse(response));
+          delete queryPromises[queryID];
+        });
+        webChannel.objects.backend.pushNotify.connect(msg => {
+          currentListeners.forEach(listener => listener(JSON.parse(msg)));
+        });
+        resolve(webChannel);
+      };
+      // @ts-ignore
+      cache = new QWebChannel(qt.webChannelTransport, initWebChannel); // eslint-disable-line no-undef
+    } else {
+      reject();
+    }
+  });
 }
 
 export function call(query) {
-    return new Promise((resolve, reject) => {
-        initTransport().then(channel => {
-            queryID++;
-            queryPromises[queryID] = { resolve, reject };
-            channel.objects.backend.call(queryID, query);
-        });
+  return new Promise((resolve, reject) => {
+    initTransport().then(channel => {
+      queryID++;
+      queryPromises[queryID] = { resolve, reject };
+      channel.objects.backend.call(queryID, query);
     });
+  });
 }
 
 export function qtSubscribePushNotifications(msgCallback) {
-    currentListeners.push(msgCallback);
-    return () => {
-        if (!currentListeners.includes(msgCallback)) {
-            console.warn('!currentListeners.includes(msgCallback)');
-        }
-        const index = currentListeners.indexOf(msgCallback);
-        currentListeners.splice(index, 1);
-        if (currentListeners.includes(msgCallback)) {
-            console.warn('currentListeners.includes(msgCallback)');
-        }
-    };
+  currentListeners.push(msgCallback);
+  return () => {
+    if (!currentListeners.includes(msgCallback)) {
+      console.warn('!currentListeners.includes(msgCallback)');
+    }
+    const index = currentListeners.indexOf(msgCallback);
+    currentListeners.splice(index, 1);
+    if (currentListeners.includes(msgCallback)) {
+      console.warn('currentListeners.includes(msgCallback)');
+    }
+  };
 }

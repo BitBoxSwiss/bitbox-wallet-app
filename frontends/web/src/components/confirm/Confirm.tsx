@@ -39,49 +39,49 @@ interface State {
  * this should be mounted only once in the App
  */
 export const Confirm: FunctionComponent = () => {
-    const [state, setState] = useState<State>({ active: false })
-    const { t } = useTranslation();
-    const callback = useRef<TCallback>(() => {});
+  const [state, setState] = useState<State>({ active: false })
+  const { t } = useTranslation();
+  const callback = useRef<TCallback>(() => {});
 
-    confirmation = (message: string, cb: TCallback, customButtonText?: string) => {
-        callback.current = cb;
-        setState({
-            active: true,
-            message,
-            customButtonText,
-        });
-    };
+  confirmation = (message: string, cb: TCallback, customButtonText?: string) => {
+    callback.current = cb;
+    setState({
+      active: true,
+      message,
+      customButtonText,
+    });
+  };
 
-    const respond = (response: boolean): void => {
-        callback.current(response);
-        setState({
-            active: false,
-        });
-    };
+  const respond = (response: boolean): void => {
+    callback.current(response);
+    setState({
+      active: false,
+    });
+  };
 
-    const { message, active, customButtonText } = state;
-    if (!active) {
-        return null;
-    }
-    return <Dialog title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
-        <div className="columnsContainer half">
-            <div className="columns">
-                <div className="column">
-                    {
-                        message ? message.split('\n').map((line, i) => (
-                            <p
-                                key={i}
-                                className={i === 0 ? 'first' : ''}>
-                                <SimpleMarkup tagName="span" markup={line} />
-                            </p>
-                        )) : null
-                    }
-                </div>
-            </div>
+  const { message, active, customButtonText } = state;
+  if (!active) {
+    return null;
+  }
+  return <Dialog title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+    <div className="columnsContainer half">
+      <div className="columns">
+        <div className="column">
+          {
+            message ? message.split('\n').map((line, i) => (
+              <p
+                key={i}
+                className={i === 0 ? 'first' : ''}>
+                <SimpleMarkup tagName="span" markup={line} />
+              </p>
+            )) : null
+          }
         </div>
-        <DialogButtons>
-            <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
-            <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
-        </DialogButtons>
-    </Dialog>
+      </div>
+    </div>
+    <DialogButtons>
+      <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
+      <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
+    </DialogButtons>
+  </Dialog>
 };

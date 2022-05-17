@@ -16,7 +16,7 @@
 
 import { subscribeEndpoint } from './subscribe';
 import { Unsubscribe } from '../utils/event';
-import { IAccount} from './account';
+import { IAccount } from './account';
 
 /**
  * Subscribes the given function on the "account" event and receives the
@@ -25,9 +25,9 @@ import { IAccount} from './account';
  */
 
 export const syncAccountsList = (
-    cb: (accounts: IAccount[],) => void
+  cb: (accounts: IAccount[],) => void
 ): Unsubscribe => {
-    return subscribeEndpoint('accounts', cb);
+  return subscribeEndpoint('accounts', cb);
 };
 
 /**
@@ -37,12 +37,12 @@ export const syncAccountsList = (
  */
 
 export const syncAddressesCount = (
-    code: string,
-    cb: (code: string, syncedAddressesCount: number) => void,
+  code: string,
+  cb: (code: string, syncedAddressesCount: number) => void,
 ): Unsubscribe => {
-    return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
-        data: number,
-    ) => {
-        cb(code, data);
-    });
+  return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
+    data: number,
+  ) => {
+    cb(code, data);
+  });
 };

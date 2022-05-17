@@ -14,41 +14,41 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import style from './Toast.module.css';
 
 export default class Toast extends Component {
-    state = {
-        active: false,
-    }
+  state = {
+    active: false,
+  }
 
-    componentDidMount() {
-        setTimeout(this.show, 5);
-    }
+  componentDidMount() {
+    setTimeout(this.show, 5);
+  }
 
-    show = () => {
-        this.setState({ active: true });
-    }
+  show = () => {
+    this.setState({ active: true });
+  }
 
-    hide = () => {
-        this.setState({ active: false });
-        if (this.props.onHide) {
-            this.props.onHide();
-        }
+  hide = () => {
+    this.setState({ active: false });
+    if (this.props.onHide) {
+      this.props.onHide();
     }
+  }
 
-    render() {
-        const {
-            theme,
-            children,
-            withGuide,
-        } = this.props;
-        const { active } = this.state;
-        return (
-            <div
-                className={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
-                <p>{children}</p>
-            </div>
-        );
-    }
+  render() {
+    const {
+      theme,
+      children,
+      withGuide,
+    } = this.props;
+    const { active } = this.state;
+    return (
+      <div
+        className={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
+        <p>{children}</p>
+      </div>
+    );
+  }
 }

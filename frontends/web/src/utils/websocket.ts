@@ -27,44 +27,44 @@ const currentListeners: MsgCallback[] = [];
 
 type UnsubscribeCallback = () => void;
 export function apiWebsocket(msgCallback: MsgCallback): UnsubscribeCallback {
-    if (runningInQtWebEngine()) {
-        return qtSubscribePushNotifications(msgCallback);
-    }
-    if (runningInAndroid()) {
-        return androidSubscribePushNotifications(msgCallback);
-    }
-    currentListeners.push(msgCallback);
-    if (!socket) {
-        socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
+  if (runningInQtWebEngine()) {
+    return qtSubscribePushNotifications(msgCallback);
+  }
+  if (runningInAndroid()) {
+    return androidSubscribePushNotifications(msgCallback);
+  }
+  currentListeners.push(msgCallback);
+  if (!socket) {
+    socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
 
-        socket.onopen = function() {
-            if (socket) {
-                socket.send('Authorization: Basic ' + apiToken);
-            }
-        };
-
-        socket.onerror = function(event) {
-            console.error('websocket error', event);
-        };
-
-        // Listen for messages
-        socket.onmessage = function(event) {
-            const payload = JSON.parse(event.data);
-            currentListeners.forEach(listener => listener(payload));
-        };
-
-        socket.onclose = function() {
-            currentListeners.forEach(listener => listener({ subject: 'backend/connected', action: 'replace', object: false }));
-        };
-    }
-    return () => {
-        if (!currentListeners.includes(msgCallback)) {
-            console.warn('!currentListeners.includes(msgCallback)');
-        }
-        const index = currentListeners.indexOf(msgCallback);
-        currentListeners.splice(index, 1);
-        if (currentListeners.includes(msgCallback)) {
-            console.warn('currentListeners.includes(msgCallback)');
-        }
+    socket.onopen = function() {
+      if (socket) {
+        socket.send('Authorization: Basic ' + apiToken);
+      }
     };
+
+    socket.onerror = function(event) {
+      console.error('websocket error', event);
+    };
+
+    // Listen for messages
+    socket.onmessage = function(event) {
+      const payload = JSON.parse(event.data);
+      currentListeners.forEach(listener => listener(payload));
+    };
+
+    socket.onclose = function() {
+      currentListeners.forEach(listener => listener({ subject: 'backend/connected', action: 'replace', object: false }));
+    };
+  }
+  return () => {
+    if (!currentListeners.includes(msgCallback)) {
+      console.warn('!currentListeners.includes(msgCallback)');
+    }
+    const index = currentListeners.indexOf(msgCallback);
+    currentListeners.splice(index, 1);
+    if (currentListeners.includes(msgCallback)) {
+      console.warn('currentListeners.includes(msgCallback)');
+    }
+  };
 }

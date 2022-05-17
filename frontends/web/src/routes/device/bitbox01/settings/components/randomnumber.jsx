@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { apiPost } from '../../../../../utils/request';
@@ -23,62 +23,62 @@ import { CopyableInput } from '../../../../../components/copy/Copy';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
 class RandomNumber extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            active: false,
-            number: '',
-        };
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      active: false,
+      number: '',
+    };
+  }
 
-    getRandomNumber = () => {
-        apiPost(this.props.apiPrefix + '/random-number').then(number => {
-            this.setState({
-                active: true,
-                number,
-            });
-        });
-    }
+  getRandomNumber = () => {
+    apiPost(this.props.apiPrefix + '/random-number').then(number => {
+      this.setState({
+        active: true,
+        number,
+      });
+    });
+  }
 
-    abort = () => {
-        this.setState({
-            active: false,
-            number: undefined,
-        });
-    }
+  abort = () => {
+    this.setState({
+      active: false,
+      number: undefined,
+    });
+  }
 
-    render() {
-        const { t } = this.props;
-        const { number, active } = this.state;
-        return (
-            <div>
-                <SettingsButton onClick={this.getRandomNumber}>
-                    {t('random.button')}
-                </SettingsButton>
-                {
-                    // @ts-ignore Object is possibly 'undefined'.
-                    active && number ? (
-                        <Dialog title="Generate Random Number" onClose={this.abort}>
-                            <div className="columnsContainer half">
-                                <div className="columns">
-                                    <div className="column">
-                                        <p>{t('random.description', {
-                                            // @ts-ignore
-                                            bits: number.length * 4
-                                        })}</p>
-                                        <CopyableInput value={number} flexibleHeight />
-                                    </div>
-                                </div>
-                            </div>
-                            <DialogButtons>
-                                <Button primary onClick={this.abort}>{t('button.ok')}</Button>
-                            </DialogButtons>
-                        </Dialog>
-                    ) : null
-                }
-            </div>
-        );
-    }
+  render() {
+    const { t } = this.props;
+    const { number, active } = this.state;
+    return (
+      <div>
+        <SettingsButton onClick={this.getRandomNumber}>
+          {t('random.button')}
+        </SettingsButton>
+        {
+          // @ts-ignore Object is possibly 'undefined'.
+          active && number ? (
+            <Dialog title="Generate Random Number" onClose={this.abort}>
+              <div className="columnsContainer half">
+                <div className="columns">
+                  <div className="column">
+                    <p>{t('random.description', {
+                      // @ts-ignore
+                      bits: number.length * 4
+                    })}</p>
+                    <CopyableInput value={number} flexibleHeight />
+                  </div>
+                </div>
+              </div>
+              <DialogButtons>
+                <Button primary onClick={this.abort}>{t('button.ok')}</Button>
+              </DialogButtons>
+            </Dialog>
+          ) : null
+        }
+      </div>
+    );
+  }
 }
 
 export default withTranslation()(RandomNumber);

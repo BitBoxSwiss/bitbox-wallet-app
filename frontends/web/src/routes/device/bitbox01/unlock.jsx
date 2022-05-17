@@ -28,143 +28,143 @@ import { Spinner } from '../../../components/spinner/Spinner';
 import { withTranslation } from 'react-i18next';
 
 const stateEnum = Object.freeze({
-    DEFAULT: 'default',
-    WAITING: 'waiting',
-    ERROR: 'error'
+  DEFAULT: 'default',
+  WAITING: 'waiting',
+  ERROR: 'error'
 });
 
 class Unlock extends Component {
-    state = {
-        status: stateEnum.DEFAULT,
-        errorMessage: '',
-        errorCode: null,
-        remainingAttempts: null,
-        needsLongTouch: false,
-        password: '',
+  state = {
+    status: stateEnum.DEFAULT,
+    errorMessage: '',
+    errorCode: null,
+    remainingAttempts: null,
+    needsLongTouch: false,
+    password: '',
+  }
+
+  handleFormChange = password => {
+    this.setState({ password });
+  };
+
+  validate = () => {
+    return this.state.password !== '';
+  }
+
+  handleSubmit = event => {
+    event.preventDefault();
+    if (!this.validate()) {
+      return;
     }
-
-    handleFormChange = password => {
-        this.setState({ password });
-    };
-
-    validate = () => {
-        return this.state.password !== '';
-    }
-
-    handleSubmit = event => {
-        event.preventDefault();
-        if (!this.validate()) {
-            return;
+    this.setState({
+      status: stateEnum.WAITING
+    });
+    apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
+      if (data.success) {
+        apiGet('devices/' + this.props.deviceID + '/status').then(status => {
+          if (status === 'seeded') {
+            console.info('unlock.jsx route to /account-summary');
+            route('/account-summary', true);
+          }
+        });
+      }
+      if (!data.success) {
+        if (data.code) {
+          this.setState({ errorCode: data.code });
         }
-        this.setState({
-            status: stateEnum.WAITING
-        });
-        apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
-            if (data.success) {
-                apiGet('devices/' + this.props.deviceID + '/status').then(status => {
-                    if (status === 'seeded') {
-                        console.info('unlock.jsx route to /account-summary');
-                        route('/account-summary', true);
-                    }
-                });
-            }
-            if (!data.success) {
-                if (data.code) {
-                    this.setState({ errorCode: data.code });
-                }
-                if (data.remainingAttempts) {
-                    this.setState({ remainingAttempts: data.remainingAttempts });
-                }
-                if (data.needsLongTouch) {
-                    this.setState({ needsLongTouch: data.needsLongTouch });
-                }
-                this.setState({ status: stateEnum.ERROR, errorMessage: data.errorMessage });
-            }
-        });
-        this.setState({ password: '' });
-    };
+        if (data.remainingAttempts) {
+          this.setState({ remainingAttempts: data.remainingAttempts });
+        }
+        if (data.needsLongTouch) {
+          this.setState({ needsLongTouch: data.needsLongTouch });
+        }
+        this.setState({ status: stateEnum.ERROR, errorMessage: data.errorMessage });
+      }
+    });
+    this.setState({ password: '' });
+  };
 
-    render() {
-        const { t } = this.props;
-        const {
-            status,
-            password,
-            errorCode,
-            errorMessage,
+  render() {
+    const { t } = this.props;
+    const {
+      status,
+      password,
+      errorCode,
+      errorMessage,
+      remainingAttempts,
+      needsLongTouch,
+    } = this.state;
+    let submissionState = null;
+    switch (status) {
+    case stateEnum.DEFAULT:
+      submissionState = <p>{t('unlock.description')}</p>;
+      break;
+    case stateEnum.WAITING:
+      submissionState = <Spinner text={t('unlock.unlocking')} />;
+      break;
+    case stateEnum.ERROR:
+      submissionState = (
+        <Message type="error">
+          {t(`unlock.error.e${errorCode}`, {
+            defaultValue: errorMessage,
             remainingAttempts,
-            needsLongTouch,
-        } = this.state;
-        let submissionState = null;
-        switch (status) {
-        case stateEnum.DEFAULT:
-            submissionState = <p>{t('unlock.description')}</p>;
-            break;
-        case stateEnum.WAITING:
-            submissionState = <Spinner text={t('unlock.unlocking')} />;
-            break;
-        case stateEnum.ERROR:
-            submissionState = (
-                <Message type="error">
-                    {t(`unlock.error.e${errorCode}`, {
-                        defaultValue: errorMessage,
-                        remainingAttempts,
-                        context: needsLongTouch ? 'touch' : 'normal'
-                    })}
-                </Message>
-            );
-            break;
-        default:
-            break;
-        }
-
-        return (
-            <div className="contentWithGuide">
-                <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className="innerContainer scrollableContainer">
-                        <div className="content narrow padded isVerticallyCentered">
-                            <AppLogo />
-                            <div className="box large">
-                                {submissionState}
-                                {
-                                    status !== stateEnum.WAITING && (
-                                        <form onSubmit={this.handleSubmit}>
-                                            <div className="m-top-default">
-                                                <PasswordSingleInput
-                                                    autoFocus
-                                                    id="password"
-                                                    type="password"
-                                                    label={t('unlock.input.label')}
-                                                    disabled={status === stateEnum.WAITING}
-                                                    placeholder={t('unlock.input.placeholder')}
-                                                    onValidPassword={this.handleFormChange}
-                                                    value={password} />
-                                            </div>
-                                            <div className="buttons">
-                                                <Button
-                                                    primary
-                                                    type="submit"
-                                                    disabled={!this.validate() || status === stateEnum.WAITING}>
-                                                    {t('button.unlock')}
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    )
-                                }
-                            </div>
-                        </div>
-                        <Footer>
-                            <SwissMadeOpenSource />
-                        </Footer>
-                    </div>
-                </div>
-                <Guide>
-                    <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword')} />
-                    <Entry key="guide.unlock.reset" entry={t('guide.unlock.reset')} />
-                </Guide>
-            </div>
-        );
+            context: needsLongTouch ? 'touch' : 'normal'
+          })}
+        </Message>
+      );
+      break;
+    default:
+      break;
     }
+
+    return (
+      <div className="contentWithGuide">
+        <div className="container">
+          <Header title={<h2>{t('welcome.title')}</h2>} />
+          <div className="innerContainer scrollableContainer">
+            <div className="content narrow padded isVerticallyCentered">
+              <AppLogo />
+              <div className="box large">
+                {submissionState}
+                {
+                  status !== stateEnum.WAITING && (
+                    <form onSubmit={this.handleSubmit}>
+                      <div className="m-top-default">
+                        <PasswordSingleInput
+                          autoFocus
+                          id="password"
+                          type="password"
+                          label={t('unlock.input.label')}
+                          disabled={status === stateEnum.WAITING}
+                          placeholder={t('unlock.input.placeholder')}
+                          onValidPassword={this.handleFormChange}
+                          value={password} />
+                      </div>
+                      <div className="buttons">
+                        <Button
+                          primary
+                          type="submit"
+                          disabled={!this.validate() || status === stateEnum.WAITING}>
+                          {t('button.unlock')}
+                        </Button>
+                      </div>
+                    </form>
+                  )
+                }
+              </div>
+            </div>
+            <Footer>
+              <SwissMadeOpenSource />
+            </Footer>
+          </div>
+        </div>
+        <Guide>
+          <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword')} />
+          <Entry key="guide.unlock.reset" entry={t('guide.unlock.reset')} />
+        </Guide>
+      </div>
+    );
+  }
 }
 
 export default withTranslation()(Unlock);

@@ -22,17 +22,17 @@ import { getUsingMobileData, subscribeUsingMobileData } from '../api/mobiledata'
 import Status from './status/status';
 
 export const MobileDataWarning: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
-    if (isUsingMobileData === undefined) {
-        return null;
-    }
-    return (
-        <Status
-            dismissable="mobile-data-warning"
-            type="warning"
-            hidden={!isUsingMobileData}>
-            {t('mobile.usingMobileDataWarning')}
-        </Status>
-    );
+  const { t } = useTranslation();
+  const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
+  if (isUsingMobileData === undefined) {
+    return null;
+  }
+  return (
+    <Status
+      dismissable="mobile-data-warning"
+      type="warning"
+      hidden={!isUsingMobileData}>
+      {t('mobile.usingMobileDataWarning')}
+    </Status>
+  );
 }

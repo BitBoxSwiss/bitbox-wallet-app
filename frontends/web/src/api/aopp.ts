@@ -51,13 +51,13 @@ export type Aopp = {
 };
 
 export const cancel = (): Promise<null> => {
-    return apiPost('aopp/cancel');
+  return apiPost('aopp/cancel');
 };
 
 export const approve = (): Promise<null> => {
-    return apiPost('aopp/approve');
+  return apiPost('aopp/approve');
 };
 
 export const chooseAccount = (accountCode: AccountCode): Promise<null> => {
-    return apiPost('aopp/choose-account', { accountCode });
+  return apiPost('aopp/choose-account', { accountCode });
 };

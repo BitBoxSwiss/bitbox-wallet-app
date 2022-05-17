@@ -25,7 +25,7 @@ interface Status {
 }
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (
-    (cb: SubscriptionCallback<Status>) => (
-        subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
-    )
+  (cb: SubscriptionCallback<Status>) => (
+    subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
+  )
 );

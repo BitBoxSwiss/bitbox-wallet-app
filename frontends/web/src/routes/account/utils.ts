@@ -18,66 +18,66 @@
 import { CoinCode, ScriptType } from '../../api/account';
 
 export function isBitcoinOnly(coinCode: CoinCode): boolean {
-    switch (coinCode) {
-    case 'btc':
-    case 'tbtc':
-        return true;
-    default:
-        return false;
-    }
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+    return true;
+  default:
+    return false;
+  }
 }
 
 export function isBitcoinBased(coinCode: CoinCode): boolean {
-    switch (coinCode) {
-    case 'btc':
-    case 'tbtc':
-    case 'ltc':
-    case 'tltc':
-        return true;
-    default:
-        return false;
-    }
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+  case 'ltc':
+  case 'tltc':
+    return true;
+  default:
+    return false;
+  }
 }
 
 export function isEthereumBased(coinCode: CoinCode): boolean {
-    return coinCode === 'eth' || coinCode === 'teth' || coinCode === 'reth' || coinCode.startsWith('eth-erc20-');
+  return coinCode === 'eth' || coinCode === 'teth' || coinCode === 'reth' || coinCode.startsWith('eth-erc20-');
 }
 
 export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
-    switch (coinCode) {
-        case 'btc':
-        case 'tbtc':
-            return 'btc';
-        case 'ltc':
-        case 'tltc':
-            return 'ltc';
-        case 'eth':
-        case 'teth':
-        case 'reth':
-            return 'eth';
-    }
+  switch (coinCode) {
+  case 'btc':
+  case 'tbtc':
+    return 'btc';
+  case 'ltc':
+  case 'tltc':
+    return 'ltc';
+  case 'eth':
+  case 'teth':
+  case 'reth':
+    return 'eth';
+  }
 }
 
 
 export function getScriptName(scriptType: ScriptType): string {
-    switch (scriptType) {
-        case 'p2pkh':
-            return 'Legacy (P2PKH)';
-        case 'p2wpkh-p2sh':
-            return 'Wrapped Segwit (P2WPKH-P2SH)';
-        case 'p2wpkh':
-            return 'Native segwit (bech32, P2WPKH)';
-        case 'p2tr':
-            return 'Taproot (bech32m, P2TR)';
-    }
+  switch (scriptType) {
+  case 'p2pkh':
+    return 'Legacy (P2PKH)';
+  case 'p2wpkh-p2sh':
+    return 'Wrapped Segwit (P2WPKH-P2SH)';
+  case 'p2wpkh':
+    return 'Native segwit (bech32, P2WPKH)';
+  case 'p2tr':
+    return 'Taproot (bech32m, P2TR)';
+  }
 }
 
 export function customFeeUnit(coinCode: CoinCode): string {
-    if (isBitcoinBased(coinCode)) {
-        return 'sat/vB';
-    }
-    if (isEthereumBased(coinCode)) {
-        return 'Gwei';
-    }
-    return '';
+  if (isBitcoinBased(coinCode)) {
+    return 'sat/vB';
+  }
+  if (isEthereumBased(coinCode)) {
+    return 'Gwei';
+  }
+  return '';
 }

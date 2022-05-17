@@ -26,24 +26,24 @@ export type SubscriptionCallback<T> = (eventObject: T) => void
  */
 
 export function subscribeEndpoint<T>(
-    endpoint: string,
-    cb: SubscriptionCallback<T>,
+  endpoint: string,
+  cb: SubscriptionCallback<T>,
 ): Unsubscribe {
-    return apiSubscribe(endpoint, (event: Event) => {
-        switch (event.action) {
-        case 'replace':
-            cb(event.object);
-            break;
-        case 'reload':
-            // TODO: backend should push data with "replace" and not use "reload"
-            apiGet(event.subject)
-                .then(object => cb(object))
-                .catch(console.error);
-            break;
-        default:
-            throw new Error(`Event: ${event} not supported`);
-        }
-    });
+  return apiSubscribe(endpoint, (event: Event) => {
+    switch (event.action) {
+    case 'replace':
+      cb(event.object);
+      break;
+    case 'reload':
+      // TODO: backend should push data with "replace" and not use "reload"
+      apiGet(event.subject)
+        .then(object => cb(object))
+        .catch(console.error);
+      break;
+    default:
+      throw new Error(`Event: ${event} not supported`);
+    }
+  });
 }
 
 /**
@@ -54,7 +54,7 @@ export function subscribeEndpoint<T>(
  */
 
 export const backendConnected = (
-    cb: (connected: boolean) => void
+  cb: (connected: boolean) => void
 ): Unsubscribe => {
-    return subscribeEndpoint('backend/connected', cb);
+  return subscribeEndpoint('backend/connected', cb);
 };

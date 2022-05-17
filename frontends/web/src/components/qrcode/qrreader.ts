@@ -17,5 +17,5 @@
 import { BrowserQRCodeReader } from '@zxing/library';
 
 export {
-    BrowserQRCodeReader
+  BrowserQRCodeReader
 };

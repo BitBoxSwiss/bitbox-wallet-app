@@ -34,37 +34,37 @@ type TVASPMap = {
 }
 
 const VASPLogoMap: TVASPMap = {
-    'demo.aopp.group': AOPPGroupLogo,
-    'testing.aopp.group': AOPPGroupLogo,
-    'bitcoinsuisse.com': BitcoinSuisseLogo,
-    'bity.com': BityLogo,
-    'getbittr.com': BittrLogo,
-    'pocketbitcoin.com': PocketBitcoinLogo,
+  'demo.aopp.group': AOPPGroupLogo,
+  'testing.aopp.group': AOPPGroupLogo,
+  'bitcoinsuisse.com': BitcoinSuisseLogo,
+  'bity.com': BityLogo,
+  'getbittr.com': BittrLogo,
+  'pocketbitcoin.com': PocketBitcoinLogo,
 };
 
 const VASPHostnameMap: TVASPMap = {
-    'demo.aopp.group': 'AOPP.group',
-    'testing.aopp.group': 'AOPP.group',
+  'demo.aopp.group': 'AOPP.group',
+  'testing.aopp.group': 'AOPP.group',
 };
 
 export function Vasp({
-    fallback,
-    hostname,
-    prominent,
-    withLogoText,
+  fallback,
+  hostname,
+  prominent,
+  withLogoText,
 }: PropsWithChildren<VASPProps>) {
-    const hasLogo = hostname in VASPLogoMap;
-    if (!hasLogo) {
-        return fallback || (<p className={styles.hostname}>{hostname}</p>);
-    }
-    const logoClasses = prominent ? `${styles.logo} ${styles.prominent}` : styles.logo;
-    return (
-        <div>
-            <img className={logoClasses} src={VASPLogoMap[hostname]} alt={hostname} />
-            <p className={`${styles.hostname} ${styles.capitalized}`}>
-                {hostname in VASPHostnameMap ? VASPHostnameMap[hostname] : hostname}
-            </p>
-            {withLogoText ? (<p>{withLogoText}</p>) : null}
-        </div>
-    );
+  const hasLogo = hostname in VASPLogoMap;
+  if (!hasLogo) {
+    return fallback || (<p className={styles.hostname}>{hostname}</p>);
+  }
+  const logoClasses = prominent ? `${styles.logo} ${styles.prominent}` : styles.logo;
+  return (
+    <div>
+      <img className={logoClasses} src={VASPLogoMap[hostname]} alt={hostname} />
+      <p className={`${styles.hostname} ${styles.capitalized}`}>
+        {hostname in VASPHostnameMap ? VASPHostnameMap[hostname] : hostname}
+      </p>
+      {withLogoText ? (<p>{withLogoText}</p>) : null}
+    </div>
+  );
 }

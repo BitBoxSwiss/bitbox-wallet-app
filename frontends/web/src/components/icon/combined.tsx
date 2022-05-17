@@ -18,8 +18,8 @@ import { BitBox02Stylized, CaretDown } from './icon';
 import style from './combined.module.css';
 
 export const PointToBitBox02 = () => (
-    <div className={style.point2bitbox02}>
-        <CaretDown className={style.caret} />
-        <BitBox02Stylized className={style.bitbox02} />
-    </div>
+  <div className={style.point2bitbox02}>
+    <CaretDown className={style.caret} />
+    <BitBox02Stylized className={style.bitbox02} />
+  </div>
 );

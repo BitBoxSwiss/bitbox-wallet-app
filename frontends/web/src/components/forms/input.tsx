@@ -44,45 +44,45 @@ export interface Props {
 }
 
 export default forwardRef<HTMLInputElement, Props>(function Input({
-    id,
-    label = '',
-    error,
-    align = 'left',
-    className = '',
-    children,
-    transparent = false,
-    type = 'text',
-    labelSection,
-    ...props
+  id,
+  label = '',
+  error,
+  align = 'left',
+  className = '',
+  children,
+  transparent = false,
+  type = 'text',
+  labelSection,
+  ...props
 }, ref) {
-    return (
-        <div className={[
-            styles.input,
-            styles[`align-${align}`],
-            className,
-            transparent ? styles.isTransparent : '',
-        ].join(' ')}>
-            { label ? (
-                <div className="flex flex-row flex-between">
-                    <label htmlFor={id} className={error ? styles.errorText : ''}>
-                        {label}
-                        { error ? (
-                            <span>:<span>{error}</span></span>
-                        ) : null }
-                    </label>
-                    {labelSection && labelSection}
-                </div>
+  return (
+    <div className={[
+      styles.input,
+      styles[`align-${align}`],
+      className,
+      transparent ? styles.isTransparent : '',
+    ].join(' ')}>
+      { label ? (
+        <div className="flex flex-row flex-between">
+          <label htmlFor={id} className={error ? styles.errorText : ''}>
+            {label}
+            { error ? (
+              <span>:<span>{error}</span></span>
             ) : null }
-            <input
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck={false}
-                type={type}
-                id={id}
-                ref={ref}
-                {...props}
-            />
-            {children}
+          </label>
+          {labelSection && labelSection}
         </div>
-    );
+      ) : null }
+      <input
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        type={type}
+        id={id}
+        ref={ref}
+        {...props}
+      />
+      {children}
+    </div>
+  );
 });

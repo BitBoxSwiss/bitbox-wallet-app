@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import Toast from '../../../components/toast/Toast';
 import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -51,122 +51,122 @@ interface State {
 }
 
 class Backups extends Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            restoring: false,
-            errorText: '',
-            creatingBackup: false,
-        };
-    }
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      restoring: false,
+      errorText: '',
+      creatingBackup: false,
+    };
+  }
 
-    private restore = () => {
-        if (!this.state.selectedBackup || !this.props.backups.backups) {
-            return;
-        }
-        const backup = this.props.backups.backups.find(b => b.id === this.state.selectedBackup);
-        if (!backup) {
-            return;
-        }
-        this.setState({ restoring: true });
-        if (this.props.backupOnBeforeRestore) {
-            this.props.backupOnBeforeRestore(backup);
-        }
-        apiPost(
-            'devices/bitbox02/' + this.props.deviceID + '/backups/restore',
-            this.state.selectedBackup).then(({ success }) => {
-                this.setState({
-                    restoring: false,
-                    errorText: success ? '' : this.props.t('backup.restore.error.general'),
-                });
-                if (this.props.backupOnAfterRestore) {
-                    this.props.backupOnAfterRestore(success);
-                }
-            },
-        );
+  private restore = () => {
+    if (!this.state.selectedBackup || !this.props.backups.backups) {
+      return;
     }
+    const backup = this.props.backups.backups.find(b => b.id === this.state.selectedBackup);
+    if (!backup) {
+      return;
+    }
+    this.setState({ restoring: true });
+    if (this.props.backupOnBeforeRestore) {
+      this.props.backupOnBeforeRestore(backup);
+    }
+    apiPost(
+      'devices/bitbox02/' + this.props.deviceID + '/backups/restore',
+      this.state.selectedBackup).then(({ success }) => {
+      this.setState({
+        restoring: false,
+        errorText: success ? '' : this.props.t('backup.restore.error.general'),
+      });
+      if (this.props.backupOnAfterRestore) {
+        this.props.backupOnAfterRestore(success);
+      }
+    },
+    );
+  }
 
-    public render() {
-        const {
-            t,
-            children,
-            backups,
-            showRestore,
-            showCreate,
-            showRadio,
-            deviceID,
-        } = this.props;
-        const { selectedBackup,
-            restoring,
-            errorText,
-        } = this.state;
-        if (!backups.success) {
-            return <div>Error fetching backups</div>;
-        }
-        return (
-            <div>
-                <div className={backupStyle.stepContext}>
-                    {
-                        errorText && (
-                            <Toast theme="warning">
-                                {errorText}
-                            </Toast>
-                        )
-                    }
-                    <div className={backupStyle.backupsList}>
-                        {
+  public render() {
+    const {
+      t,
+      children,
+      backups,
+      showRestore,
+      showCreate,
+      showRadio,
+      deviceID,
+    } = this.props;
+    const { selectedBackup,
+      restoring,
+      errorText,
+    } = this.state;
+    if (!backups.success) {
+      return <div>Error fetching backups</div>;
+    }
+    return (
+      <div>
+        <div className={backupStyle.stepContext}>
+          {
+            errorText && (
+              <Toast theme="warning">
+                {errorText}
+              </Toast>
+            )
+          }
+          <div className={backupStyle.backupsList}>
+            {
                             backups.backups!.length ? (
-                                <div className={backupStyle.listContainer}>
-                                    {
+                              <div className={backupStyle.listContainer}>
+                                {
                                         backups.backups!.map(backup => (
-                                            <div key={backup.id} className={backupStyle.item}>
-                                                <BackupsListItem
-                                                    disabled={restoring}
-                                                    backup={backup}
-                                                    selectedBackup={selectedBackup}
-                                                    handleChange={(b => this.setState({ selectedBackup: b }))}
-                                                    onFocus={() => undefined}
-                                                    radio={showRadio} />
-                                            </div>
+                                          <div key={backup.id} className={backupStyle.item}>
+                                            <BackupsListItem
+                                              disabled={restoring}
+                                              backup={backup}
+                                              selectedBackup={selectedBackup}
+                                              handleChange={(b => this.setState({ selectedBackup: b }))}
+                                              onFocus={() => undefined}
+                                              radio={showRadio} />
+                                          </div>
                                         ))
-                                    }
-                                </div>
+                                }
+                              </div>
                             ) : (
-                                <p>{t('backup.noBackups')}</p>
+                              <p>{t('backup.noBackups')}</p>
                             )
-                        }
-                    </div>
-                    <div className={backupStyle.backupButtons}>
-                        {
-                            showRestore && (
-                                <Button
-                                    primary={true}
-                                    disabled={!selectedBackup || restoring}
-                                    onClick={this.restore}>
-                                    {t('button.restore')}
-                                </Button>
-                            )
-                        }
-                        {
-                            showCreate && (
-                                <Create deviceID={deviceID} />
-                            )
-                        }
-                        {
-                            showCreate && (
-                                <Check
-                                    deviceID={deviceID}
-                                    backups={backups.backups ? backups.backups : []}
-                                    disabled={backups.backups!.length === 0}
-                                />
-                            )
-                        }
-                        {children}
-                    </div>
-                </div>
-            </div>
-        );
-    }
+            }
+          </div>
+          <div className={backupStyle.backupButtons}>
+            {
+              showRestore && (
+                <Button
+                  primary={true}
+                  disabled={!selectedBackup || restoring}
+                  onClick={this.restore}>
+                  {t('button.restore')}
+                </Button>
+              )
+            }
+            {
+              showCreate && (
+                <Create deviceID={deviceID} />
+              )
+            }
+            {
+              showCreate && (
+                <Check
+                  deviceID={deviceID}
+                  backups={backups.backups ? backups.backups : []}
+                  disabled={backups.backups!.length === 0}
+                />
+              )
+            }
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 const subscribeHOC = subscribe<SubscribedBackupsProps, BackupsProps & TranslateProps>(({ deviceID }) => ({ backups: 'devices/bitbox02/' + deviceID + '/backups/list' }))(Backups);

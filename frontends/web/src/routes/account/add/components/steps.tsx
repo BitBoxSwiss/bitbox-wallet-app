@@ -23,28 +23,28 @@ interface Props {
 }
 
 export const Steps: FunctionComponent<Props> = ({
-    current,
-    children
+  current,
+  children
 }) => {
-    let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[]
-    return (
-        <div className={style.steps}>
-            { childrens
-            .filter((child) => !child.props.hidden)
-            .map((child, step) => {
-                if (!child) return null;
-                const status = step === current ? 'process' : (
-                    step < current ? 'finish' : 'wait'
-                );
-                const line = (step > 0);
-                return cloneElement(child, {
-                    step: step + 1,
-                    line,
-                    status,
-                });
-            }) }
-        </div>
-    );
+  let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[]
+  return (
+    <div className={style.steps}>
+      { childrens
+        .filter((child) => !child.props.hidden)
+        .map((child, step) => {
+          if (!child) return null;
+          const status = step === current ? 'process' : (
+            step < current ? 'finish' : 'wait'
+          );
+          const line = (step > 0);
+          return cloneElement(child, {
+            step: step + 1,
+            line,
+            status,
+          });
+        }) }
+    </div>
+  );
 }
 
 interface StepProps {
@@ -55,20 +55,20 @@ interface StepProps {
 }
 
 export function Step({
-    children,
-    hidden = false,
-    line,
-    status = 'wait',
+  children,
+  hidden = false,
+  line,
+  status = 'wait',
 }: PropsWithChildren<StepProps>) {
-    if (hidden) {
-        return null;
-    }
-    return (
-        <div className={`${style.step} ${style[status]} ${line ? style.line : ''}`}>
-            <div className={style.dot}></div>
-            <div className={style.content}>
-                {children}
-            </div>
-        </div>
-    );
+  if (hidden) {
+    return null;
+  }
+  return (
+    <div className={`${style.step} ${style[status]} ${line ? style.line : ''}`}>
+      <div className={style.dot}></div>
+      <div className={style.content}>
+        {children}
+      </div>
+    </div>
+  );
 }

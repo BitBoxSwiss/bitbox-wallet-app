@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { apiGet } from '../../../../utils/request';
 import UpgradeFirmware from '../components/upgradefirmware';
@@ -22,35 +22,35 @@ import { BitBox } from '../../../../components/icon/logo';
 import style from '../bitbox01.module.css';
 
 class RequireUpgrade extends Component {
-    state = {
-        firmwareVersion: null
-    }
+  state = {
+    firmwareVersion: null
+  }
 
-    componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version }) => {
-            this.setState({
-                firmwareVersion: version.replace('v', ''),
-            });
-        });
-    }
+  componentDidMount() {
+    apiGet('devices/' + this.props.deviceID + '/info').then(({ version }) => {
+      this.setState({
+        firmwareVersion: version.replace('v', ''),
+      });
+    });
+  }
 
-    render() {
-        const { t, deviceID } = this.props;
-        const { firmwareVersion } = this.state;
-        return (
-            <div className="contentWithGuide">
-                <div className={style.container}>
-                    <BitBox />
-                    <div className="box">
-                        <p className="m-top-none">{t('upgradeFirmware.label')}</p>
-                        <div className="buttons m-top-half">
-                            <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} asButton />
-                        </div>
-                    </div>
-                </div>
+  render() {
+    const { t, deviceID } = this.props;
+    const { firmwareVersion } = this.state;
+    return (
+      <div className="contentWithGuide">
+        <div className={style.container}>
+          <BitBox />
+          <div className="box">
+            <p className="m-top-none">{t('upgradeFirmware.label')}</p>
+            <div className="buttons m-top-half">
+              <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} asButton />
             </div>
-        );
-    }
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default withTranslation()(RequireUpgrade);

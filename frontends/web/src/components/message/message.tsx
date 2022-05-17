@@ -23,16 +23,16 @@ export interface Props {
 }
 
 export function Message({
-    hidden,
-    type = 'message',
-    children,
+  hidden,
+  type = 'message',
+  children,
 }: PropsWithChildren<Props>) {
-    if (hidden) {
-        return null;
-    }
-    return (
-        <div className={styles[type]}>
-            {children}
-        </div>
-    );
+  if (hidden) {
+    return null;
+  }
+  return (
+    <div className={styles[type]}>
+      {children}
+    </div>
+  );
 }

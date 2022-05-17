@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import * as accountAPI from '../../api/account';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button } from '../forms';
@@ -33,33 +33,33 @@ interface VerifyAddressProps {
 type Props = VerifyAddressProps & TranslateProps;
 
 class VerifyAddress extends Component<Props, State> {
-    public readonly state: State = {
-        verifying: false,
-    };
+  public readonly state: State = {
+    verifying: false,
+  };
 
-    private verifyAddress = () => {
-        this.setState({ verifying: true });
-        accountAPI.verifyAddress(this.props.accountCode, this.props.addressID).then(() => {
-            this.setState({ verifying: false });
-        });
-    }
+  private verifyAddress = () => {
+    this.setState({ verifying: true });
+    accountAPI.verifyAddress(this.props.accountCode, this.props.addressID).then(() => {
+      this.setState({ verifying: false });
+    });
+  }
 
-    public render() {
-        const { t, address } = this.props;
-        const { verifying } = this.state;
-        return (
-            <div className="flex flex-column">
-                <Button secondary onClick={this.verifyAddress}>
-                    {t('receive.verifyBitBox02')}
-                </Button>
-                { verifying ? (
-                    <WaitDialog title={t('receive.verifyBitBox02')}>
-                        { address }
-                    </WaitDialog>
-                ) : null }
-            </div>
-        );
-    }
+  public render() {
+    const { t, address } = this.props;
+    const { verifying } = this.state;
+    return (
+      <div className="flex flex-column">
+        <Button secondary onClick={this.verifyAddress}>
+          {t('receive.verifyBitBox02')}
+        </Button>
+        { verifying ? (
+          <WaitDialog title={t('receive.verifyBitBox02')}>
+            { address }
+          </WaitDialog>
+        ) : null }
+      </div>
+    );
+  }
 }
 
 const translateHOC = translate()(VerifyAddress);

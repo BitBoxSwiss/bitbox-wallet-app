@@ -48,7 +48,7 @@ export interface IAccount {
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {
-    return apiGet('accounts');
+  return apiGet('accounts');
 };
 
 export interface ITotalBalance {
@@ -56,7 +56,7 @@ export interface ITotalBalance {
 }
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
-    return apiGet('accounts/total-balance');
+  return apiGet('accounts/total-balance');
 }
 
 export interface IStatus {
@@ -67,7 +67,7 @@ export interface IStatus {
 }
 
 export const getStatus = (code: AccountCode): Promise<IStatus> => {
-    return apiGet(`account/${code}/status`);
+  return apiGet(`account/${code}/status`);
 };
 
 export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh' | 'p2tr';
@@ -102,13 +102,13 @@ export interface ISigningConfigurationList {
 }
 
 export const getInfo = (code: AccountCode) => {
-    return (): Promise<ISigningConfigurationList> => {
-        return apiGet(`account/${code}/info`);
-    };
+  return (): Promise<ISigningConfigurationList> => {
+    return apiGet(`account/${code}/info`);
+  };
 };
 
 export const init = (code: AccountCode): Promise<null> => {
-    return apiPost(`account/${code}/init`);
+  return apiPost(`account/${code}/init`);
 };
 
 export interface ISummary {
@@ -121,11 +121,11 @@ export interface ISummary {
 }
 
 export const getSummary = (): Promise<ISummary> => {
-    return apiGet('account-summary');
+  return apiGet('account-summary');
 };
 
 export const exportSummary = (): Promise<string> => {
-    return apiPost('export-account-summary');
+  return apiPost('export-account-summary');
 };
 
 export type Conversions = null | {
@@ -145,7 +145,7 @@ export interface IBalance {
 }
 
 export const getBalance = (code: AccountCode): Promise<IBalance> => {
-    return apiGet(`account/${code}/balance`);
+  return apiGet(`account/${code}/balance`);
 };
 
 export interface ITransaction {
@@ -174,14 +174,14 @@ export interface INoteTx {
 }
 
 export const postNotesTx = (code: AccountCode, {
-    internalTxID,
-    note,
+  internalTxID,
+  note,
 }: INoteTx): Promise<null> => {
-    return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
+  return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
 export const getTransactionList = (code: AccountCode): Promise<ITransaction[]> => {
-    return apiGet(`account/${code}/transactions`);
+  return apiGet(`account/${code}/transactions`);
 };
 
 
@@ -192,18 +192,18 @@ export interface IExport {
 }
 
 export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
-    return apiPost(`account/${code}/export`);
+  return apiPost(`account/${code}/export`);
 };
 
 export const getCanVerifyXPub = (code: AccountCode): Promise<boolean> => {
-    return apiGet(`account/${code}/can-verify-extended-public-key`);
+  return apiGet(`account/${code}/can-verify-extended-public-key`);
 };
 
 export const verifyXPub = (
-    code: AccountCode,
-    signingConfigIndex: number,
+  code: AccountCode,
+  signingConfigIndex: number,
 ): Promise<void> => {
-    return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
+  return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
 };
 
 export interface IReceiveAddress {
@@ -217,9 +217,9 @@ export interface ReceiveAddressList {
 }
 
 export const getReceiveAddressList = (code: AccountCode) => {
-    return (): Promise<ReceiveAddressList[]> => {
-        return apiGet(`account/${code}/receive-addresses`);
-    };
+  return (): Promise<ReceiveAddressList[]> => {
+    return apiGet(`account/${code}/receive-addresses`);
+  };
 };
 
 export interface ISendTx {
@@ -229,7 +229,7 @@ export interface ISendTx {
 }
 
 export const sendTx = (code: AccountCode): Promise<ISendTx> => {
-    return apiPost(`account/${code}/sendtx`);
+  return apiPost(`account/${code}/sendtx`);
 };
 
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high';
@@ -261,11 +261,11 @@ export interface IFeeTargetList {
 }
 
 export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
-    return apiGet(`account/${code}/fee-targets`);
+  return apiGet(`account/${code}/fee-targets`);
 };
 
 export const verifyAddress = (code: AccountCode, addressID: string): Promise<boolean> => {
-    return apiPost(`account/${code}/verify-address`, addressID);
+  return apiPost(`account/${code}/verify-address`, addressID);
 };
 
 export interface UTXO {
@@ -281,7 +281,7 @@ export interface UTXO {
 }
 
 export const getUTXOs = (code: AccountCode): Promise<UTXO[]> => {
-    return apiGet(`account/${code}/utxos`);
+  return apiGet(`account/${code}/utxos`);
 };
 
 type TSecureOutput = {
@@ -290,7 +290,7 @@ type TSecureOutput = {
 };
 
 export const hasSecureOutput = (code: AccountCode) => {
-    return (): Promise<TSecureOutput> => {
-        return apiGet(`account/${code}/has-secure-output`);
-    };
+  return (): Promise<TSecureOutput> => {
+    return apiGet(`account/${code}/has-secure-output`);
+  };
 };

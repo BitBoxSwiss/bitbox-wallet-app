@@ -29,64 +29,64 @@ import { SkipForTesting } from './components/skipfortesting';
 import style from './bitbox01/bitbox01.module.css';
 
 export const Waiting: FunctionComponent = () => {
-    const { t } = useTranslation();
-    const testing = useLoad(debug ? getTesting : () => Promise.resolve(false));
+  const { t } = useTranslation();
+  const testing = useLoad(debug ? getTesting : () => Promise.resolve(false));
 
-    useEffect(() => {
-        const { sidebarStatus } = panelStore.state;
-        if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
-            setSidebarStatus('');
-        }
-    }, []);
+  useEffect(() => {
+    const { sidebarStatus } = panelStore.state;
+    if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
+      setSidebarStatus('');
+    }
+  }, []);
 
-    return (
-        <div className="contentWithGuide">
-            <div className="container">
-                <Header title={<h2>{t('welcome.title')}</h2>} />
-                <div className="content padded narrow isVerticallyCentered">
-                    <div>
-                        <AppLogo />
-                        <div className="box large">
-                            <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                            <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
-                        </div>
-                        {
-                            testing && (
-                                <div className={style.testingContainer}>
-                                    <SkipForTesting show />
-                                </div>
-                            )
-                        }
-                    </div>
-                </div>
-                <Footer>
-                    <SwissMadeOpenSource />
-                </Footer>
+  return (
+    <div className="contentWithGuide">
+      <div className="container">
+        <Header title={<h2>{t('welcome.title')}</h2>} />
+        <div className="content padded narrow isVerticallyCentered">
+          <div>
+            <AppLogo />
+            <div className="box large">
+              <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
+              <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
             </div>
-            <Guide>
-                <Entry entry={t('guide.waiting.welcome')} shown={true} />
-                <Entry entry={{
-                    link: {
-                        text: t('guide.waiting.getDevice.link.text'),
-                        url: 'https://shiftcrypto.shop/',
-                    },
-                    text: t('guide.waiting.getDevice.text'),
-                    title: t('guide.waiting.getDevice.title'),
-                }} />
-                <Entry entry={{
-                    link: {
-                        text: t('guide.waiting.lostDevice.link.text'),
-                        url: (i18n.language === 'de')
-                            ? 'https://shiftcrypto.support/help/de-de/5-backup/8-wie-kann-ich-ein-bitbox02-wallet-in-ein-drittanbieter-wallet-importieren'
-                            : 'https://shiftcrypto.support/help/en-us/5-backup/8-how-do-i-restore-my-wallet-if-my-bitbox02-is-lost',
-                    },
-                    text: t('guide.waiting.lostDevice.text'),
-                    title: t('guide.waiting.lostDevice.title'),
-                }} />
-                <Entry entry={t('guide.waiting.internet')} />
-                <Entry entry={t('guide.waiting.deviceNotRecognized')} />
-                <Entry entry={t('guide.waiting.useWithoutDevice')} />
-            </Guide>
+            {
+              testing && (
+                <div className={style.testingContainer}>
+                  <SkipForTesting show />
+                </div>
+              )
+            }
+          </div>
         </div>
-    );
+        <Footer>
+          <SwissMadeOpenSource />
+        </Footer>
+      </div>
+      <Guide>
+        <Entry entry={t('guide.waiting.welcome')} shown={true} />
+        <Entry entry={{
+          link: {
+            text: t('guide.waiting.getDevice.link.text'),
+            url: 'https://shiftcrypto.shop/',
+          },
+          text: t('guide.waiting.getDevice.text'),
+          title: t('guide.waiting.getDevice.title'),
+        }} />
+        <Entry entry={{
+          link: {
+            text: t('guide.waiting.lostDevice.link.text'),
+            url: (i18n.language === 'de')
+              ? 'https://shiftcrypto.support/help/de-de/5-backup/8-wie-kann-ich-ein-bitbox02-wallet-in-ein-drittanbieter-wallet-importieren'
+              : 'https://shiftcrypto.support/help/en-us/5-backup/8-how-do-i-restore-my-wallet-if-my-bitbox02-is-lost',
+          },
+          text: t('guide.waiting.lostDevice.text'),
+          title: t('guide.waiting.lostDevice.title'),
+        }} />
+        <Entry entry={t('guide.waiting.internet')} />
+        <Entry entry={t('guide.waiting.deviceNotRecognized')} />
+        <Entry entry={t('guide.waiting.useWithoutDevice')} />
+      </Guide>
+    </div>
+  );
 };

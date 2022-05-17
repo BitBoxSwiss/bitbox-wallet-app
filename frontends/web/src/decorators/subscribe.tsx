@@ -31,96 +31,96 @@ import { load } from './load';
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
 export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
-    endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
-    renderOnlyOnceLoaded: boolean = true,
-    subscribeWithoutLoading: boolean = false,
+  endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
+  renderOnlyOnceLoaded: boolean = true,
+  subscribeWithoutLoading: boolean = false,
 ) {
-    return function decorator(
-        WrappedComponent: ComponentType<LoadedProps & ProvidedProps>,
-    ) {
-        return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
-            public static displayName = `Subscribe(${getDisplayName(WrappedComponent as any)})`;
+  return function decorator(
+    WrappedComponent: ComponentType<LoadedProps & ProvidedProps>,
+  ) {
+    return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
+      public static displayName = `Subscribe(${getDisplayName(WrappedComponent as any)})`;
 
-            private determineEndpoints(): EndpointsObject<LoadedProps> {
-                if (typeof endpointsObjectOrFunction === 'function') {
-                    return endpointsObjectOrFunction(this.props);
-                }
-                return endpointsObjectOrFunction;
+      private determineEndpoints(): EndpointsObject<LoadedProps> {
+        if (typeof endpointsObjectOrFunction === 'function') {
+          return endpointsObjectOrFunction(this.props);
+        }
+        return endpointsObjectOrFunction;
+      }
+
+      private subscriptions: { [Key in keyof LoadedProps]?: () => void } = {};
+
+      private unsubscribeEndpoint(key: keyof LoadedProps) {
+        const subscription = this.subscriptions[key];
+        if (subscription !== undefined) {
+          subscription();
+          delete this.subscriptions[key];
+          if (subscribeWithoutLoading || !renderOnlyOnceLoaded) {
+            // There is no loading on component update, so we reset it to the default value.
+            this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
+          }
+        }
+      }
+
+      private subscribeEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
+        this.unsubscribeEndpoint(key);
+        this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
+          switch (event.action) {
+          case 'replace':
+            this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
+            break;
+          case 'reload':
+            apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
+            break;
+          }
+        });
+      }
+
+      private endpoints?: EndpointsObject<LoadedProps>;
+
+      private subscribeEndpoints(): void {
+        const oldEndpoints = this.endpoints;
+        const newEndpoints = this.determineEndpoints();
+        // Update the endpoints that were different or undefined before.
+        for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
+          if (oldEndpoints === undefined || newEndpoints[key] !== oldEndpoints[key]) {
+            this.subscribeEndpoint(key, newEndpoints[key]);
+          }
+        }
+        if (oldEndpoints !== undefined) {
+          // Remove endpoints that no longer exist from the state.
+          for (const key of Object.keys(oldEndpoints) as KeysOf<LoadedProps>) {
+            if (newEndpoints[key] === undefined) {
+              this.unsubscribeEndpoint(key);
+              this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
             }
+          }
+        }
+        this.endpoints = newEndpoints;
+      }
 
-            private subscriptions: { [Key in keyof LoadedProps]?: () => void } = {};
+      public componentDidMount(): void {
+        this.subscribeEndpoints();
+      }
 
-            private unsubscribeEndpoint(key: keyof LoadedProps) {
-                const subscription = this.subscriptions[key];
-                if (subscription !== undefined) {
-                    subscription();
-                    delete this.subscriptions[key];
-                    if (subscribeWithoutLoading || !renderOnlyOnceLoaded) {
-                        // There is no loading on component update, so we reset it to the default value.
-                        this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
-                    }
-                }
-            }
+      public componentDidUpdate(): void {
+        this.subscribeEndpoints();
+      }
 
-            private subscribeEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
-                this.unsubscribeEndpoint(key);
-                this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
-                    switch (event.action) {
-                    case 'replace':
-                        this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
-                        break;
-                    case 'reload':
-                        apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
-                        break;
-                    }
-                });
-            }
+      public componentWillUnmount() {
+        for (const key of Object.keys(this.subscriptions) as KeysOf<LoadedProps>) {
+          this.unsubscribeEndpoint(key);
+        }
+      }
 
-            private endpoints?: EndpointsObject<LoadedProps>;
+      private readonly component = subscribeWithoutLoading ? WrappedComponent : load(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
 
-            private subscribeEndpoints(): void {
-                const oldEndpoints = this.endpoints;
-                const newEndpoints = this.determineEndpoints();
-                // Update the endpoints that were different or undefined before.
-                for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
-                    if (oldEndpoints === undefined || newEndpoints[key] !== oldEndpoints[key]) {
-                        this.subscribeEndpoint(key, newEndpoints[key]);
-                    }
-                }
-                if (oldEndpoints !== undefined) {
-                    // Remove endpoints that no longer exist from the state.
-                    for (const key of Object.keys(oldEndpoints) as KeysOf<LoadedProps>) {
-                        if (newEndpoints[key] === undefined) {
-                            this.unsubscribeEndpoint(key);
-                            this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
-                        }
-                    }
-                }
-                this.endpoints = newEndpoints;
-            }
-
-            public componentDidMount(): void {
-                this.subscribeEndpoints();
-            }
-
-            public componentDidUpdate(): void {
-                this.subscribeEndpoints();
-            }
-
-            public componentWillUnmount() {
-                for (const key of Object.keys(this.subscriptions) as KeysOf<LoadedProps>) {
-                    this.unsubscribeEndpoint(key);
-                }
-            }
-
-            private readonly component = subscribeWithoutLoading ? WrappedComponent : load(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
-
-            public render(): JSX.Element {
-                const props = this.props;
-                const state = this.state;
-                const Component = this.component;
-                return <Component {...state} {...props} />;
-            }
-        };
+      public render(): JSX.Element {
+        const props = this.props;
+        const state = this.state;
+        const Component = this.component;
+        return <Component {...state} {...props} />;
+      }
     };
+  };
 }

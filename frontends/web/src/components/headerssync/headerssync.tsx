@@ -28,45 +28,45 @@ interface Props {
     coinCode: CoinCode;
 }
 
-export const HeadersSync: FunctionComponent<Props> = ({coinCode}) => {
-    const { t } = useTranslation();
-    const status = useSubscribe(subscribeCoinHeaders(coinCode));
-    const [hidden, setHidden] = useState<boolean>(false);
-    const mounted = useMountedRef();
+export const HeadersSync: FunctionComponent<Props> = ({ coinCode }) => {
+  const { t } = useTranslation();
+  const status = useSubscribe(subscribeCoinHeaders(coinCode));
+  const [hidden, setHidden] = useState<boolean>(false);
+  const mounted = useMountedRef();
 
-    useEffect(() => {
-        if(mounted.current && status && (status.tip === status.targetHeight)){
-            setTimeout(() => setHidden(true), 4000);
-        }
-    }, [mounted, status]);
-
-    if (!status || hidden) {
-        return null;
+  useEffect(() => {
+    if(mounted.current && status && (status.tip === status.targetHeight)){
+      setTimeout(() => setHidden(true), 4000);
     }
+  }, [mounted, status]);
 
-    const total = status.targetHeight - status.tipAtInitTime;
-    const value = 100 * (status.tip - status.tipAtInitTime) / total;
-    const loaded = !total || value >= 100;
-    let formatted = status.tip.toString();
-    let position = formatted.length - 3;
-    while (position > 0) {
-        formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
-        position = position - 3;
-    }
+  if (!status || hidden) {
+    return null;
+  }
 
-    return (
-        <div className={style.syncContainer}>
-            <div className={style.syncMessage}>
-                <div className={style.syncText}>
-                    {t('headerssync.blocksSynced', { blocks: formatted })}
-                    {' '}
-                    { !loaded && `(${Math.ceil(value)}%)` }
-                </div>
-                { !loaded ? (<Spinner />) : null }
-            </div>
-            <div className={style.progressBar}>
-                <div className={style.progressValue} style={{ width: `${value}%` }}></div>
-            </div>
+  const total = status.targetHeight - status.tipAtInitTime;
+  const value = 100 * (status.tip - status.tipAtInitTime) / total;
+  const loaded = !total || value >= 100;
+  let formatted = status.tip.toString();
+  let position = formatted.length - 3;
+  while (position > 0) {
+    formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
+    position = position - 3;
+  }
+
+  return (
+    <div className={style.syncContainer}>
+      <div className={style.syncMessage}>
+        <div className={style.syncText}>
+          {t('headerssync.blocksSynced', { blocks: formatted })}
+          {' '}
+          { !loaded && `(${Math.ceil(value)}%)` }
         </div>
-    );
+        { !loaded ? (<Spinner />) : null }
+      </div>
+      <div className={style.progressBar}>
+        <div className={style.progressValue} style={{ width: `${value}%` }}></div>
+      </div>
+    </div>
+  );
 }

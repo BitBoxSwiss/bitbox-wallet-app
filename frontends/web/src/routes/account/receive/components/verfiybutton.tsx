@@ -20,13 +20,13 @@ import { TProductName } from '../../../../api/devices';
 import { Button } from '../../../../components/forms';
 
 export const useVerfiyLabel = (device?: TProductName): string => {
-    const { t } = useTranslation();
-    if (device === 'bitbox') {
-        return t('receive.verifyBitBox01');
-    } else if (device === 'bitbox02') {
-        return t('receive.verifyBitBox02');
-    }
-    return t('receive.verify'); // fallback
+  const { t } = useTranslation();
+  if (device === 'bitbox') {
+    return t('receive.verifyBitBox01');
+  } else if (device === 'bitbox02') {
+    return t('receive.verifyBitBox02');
+  }
+  return t('receive.verify'); // fallback
 };
 
 type Props = JSX.IntrinsicElements['button'] & {
@@ -35,15 +35,15 @@ type Props = JSX.IntrinsicElements['button'] & {
 };
 
 export const VerifyButton: FunctionComponent<Props> = ({
-    device,
-    forceVerification,
-    ...props
+  device,
+  forceVerification,
+  ...props
 }) => {
-    const { t } = useTranslation();
-    const verifyLabel = useVerfiyLabel(device);
-    return (
-        <Button primary {...props}>
-            { forceVerification ? t('receive.showFull') : verifyLabel }
-        </Button>
-    );
+  const { t } = useTranslation();
+  const verifyLabel = useVerfiyLabel(device);
+  return (
+    <Button primary {...props}>
+      { forceVerification ? t('receive.showFull') : verifyLabel }
+    </Button>
+  );
 };

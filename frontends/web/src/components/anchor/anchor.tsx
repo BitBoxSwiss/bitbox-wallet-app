@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, SyntheticEvent} from 'react';
+import { FunctionComponent, SyntheticEvent } from 'react';
 import { route } from '../../utils/route';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
@@ -27,21 +27,21 @@ interface Props {
 }
 
 const A:FunctionComponent<Props> =({ href, icon, children, ...props }) => {
-    return (
-        <span className={style.link} onClick={(e: SyntheticEvent) => {
-            e.preventDefault();
-            const { hostname, origin } = new URL(href, window.location.href);
-            if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
-                hide();
-                route(href);
-            } else {
-                apiPost('open', href);
-            }
-        }} title={props.title || href} {...props}>
-            {icon ? icon : null}
-            {children}
-        </span>
-    );
+  return (
+    <span className={style.link} onClick={(e: SyntheticEvent) => {
+      e.preventDefault();
+      const { hostname, origin } = new URL(href, window.location.href);
+      if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
+        hide();
+        route(href);
+      } else {
+        apiPost('open', href);
+      }
+    }} title={props.title || href} {...props}>
+      {icon ? icon : null}
+      {children}
+    </span>
+  );
 }
 
 export default A;

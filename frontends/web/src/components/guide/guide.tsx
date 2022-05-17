@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component} from 'react';
+import { Component } from 'react';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -31,10 +31,10 @@ export interface SharedProps {
 }
 
 export const store = new Store<SharedProps>({
-    shown: false,
-    activeSidebar: false,
-    sidebarStatus: '',
-    guideExists: false,
+  shown: false,
+  activeSidebar: false,
+  sidebarStatus: '',
+  guideExists: false,
 });
 
 // if apiGet() is invoked immediately this can error due to cyclic dependencies
@@ -42,76 +42,76 @@ export const store = new Store<SharedProps>({
 // (reading 'runningInQtWebEngine')
 // TODO: this should probably be in a context
 setTimeout(() => {
-    apiGet('config').then(({ frontend }) => {
-        if (frontend && frontend.guideShown !== undefined) {
-            store.setState({ shown: frontend.guideShown });
-        } else {
-            store.setState({ shown: true });
-        }
-    });
+  apiGet('config').then(({ frontend }) => {
+    if (frontend && frontend.guideShown !== undefined) {
+      store.setState({ shown: frontend.guideShown });
+    } else {
+      store.setState({ shown: true });
+    }
+  });
 }, 0);
 
 function setGuideShown(shown: boolean) {
-    store.setState({ shown });
-    setConfig({ frontend: { guideShown: shown } });
+  store.setState({ shown });
+  setConfig({ frontend: { guideShown: shown } });
 }
 
 export function toggle() {
-    setGuideShown(!store.state.shown);
+  setGuideShown(!store.state.shown);
 }
 
 export function show() {
-    setGuideShown(true);
+  setGuideShown(true);
 }
 
 export function hide() {
-    setGuideShown(false);
+  setGuideShown(false);
 }
 
 type Props = SharedProps & TranslateProps;
 
 class Guide extends Component<Props> {
-    public componentDidMount() {
-        store.setState({ guideExists: true });
-    }
+  public componentDidMount() {
+    store.setState({ guideExists: true });
+  }
 
-    public componentWillUnmount() {
-        store.setState({ guideExists: false });
-    }
+  public componentWillUnmount() {
+    store.setState({ guideExists: false });
+  }
 
-    public render() {
-        const { shown, t, children } = this.props;
-        return (
-            <div className={style.wrapper}>
-                <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>
-                <div className={[style.guide, shown && style.show].join(' ')}>
-                    <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
-                        <h2>{t('guide.title')}</h2>
-                        <a href="#" className={style.close} onClick={toggle}>
-                            {t('guide.toggle.close')}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </a>
-                    </div>
-                    <div className={style.content}>
-                        {children}
-                        <div className={style.entry}>
-                            {t('guide.appendix.text')} <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
-                        </div>
-                    </div>
-                </div>
+  public render() {
+    const { shown, t, children } = this.props;
+    return (
+      <div className={style.wrapper}>
+        <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>
+        <div className={[style.guide, shown && style.show].join(' ')}>
+          <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+            <h2>{t('guide.title')}</h2>
+            <a href="#" className={style.close} onClick={toggle}>
+              {t('guide.toggle.close')}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </a>
+          </div>
+          <div className={style.content}>
+            {children}
+            <div className={style.entry}>
+              {t('guide.appendix.text')} <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
             </div>
-        );
-    }
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 const HOC = translate()(share<SharedProps, TranslateProps>(store)(Guide));

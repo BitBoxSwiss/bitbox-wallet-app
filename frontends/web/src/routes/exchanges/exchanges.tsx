@@ -43,118 +43,118 @@ interface Exchange extends ExchangeData {
 
 class Exchanges extends Component<Props, State> {
 
-    constructor(props: Props) {
-        super(props);
-        this.data = data.map(({ link, ...rest }) => ({
-            ...rest,
-            link,
-            hostname: new URL(link).hostname,
-        }));
-        this.state = {
-            region: null,
-            method: null,
-        };
-    }
+  constructor(props: Props) {
+    super(props);
+    this.data = data.map(({ link, ...rest }) => ({
+      ...rest,
+      link,
+      hostname: new URL(link).hostname,
+    }));
+    this.state = {
+      region: null,
+      method: null,
+    };
+  }
 
-    private data: Exchange[];
+  private data: Exchange[];
 
-    private toggleRegion = (code: Region) => {
-        this.setState(({ region }) => ({ region: region !== code ? code : null }));
-    }
+  private toggleRegion = (code: Region) => {
+    this.setState(({ region }) => ({ region: region !== code ? code : null }));
+  }
 
-    private toggleMethod = (code: Method) => {
-        this.setState(({ method }) => ({ method: method !== code ? code : null }));
-    }
+  private toggleMethod = (code: Method) => {
+    this.setState(({ method }) => ({ method: method !== code ? code : null }));
+  }
 
-    public render() {
-        const { t } = this.props;
-        const { method, region } = this.state;
-        const results = this.data
-            .filter(({ regions }) => !region || regions.includes(region))
-            .filter(({ payment }) => !method || payment.includes(method))
-            .map(Row);
-        return (
-            <div className="contentWithGuide">
-                <div className="container">
-                    <Header title={<h2>{t('exchanges.title')}</h2>}>
-                    </Header>
-                    <div className="innerContainer scrollableContainer">
-                        <div className="content padded">
-                            <div className={styles.filters}>
-                                <div className={styles.regions}>
-                                    <h4>{t('exchanges.region')}</h4>
-                                    <FilterButton
-                                        active={region === 'NA'}
-                                        onClick={() => this.toggleRegion('NA')} >
-                                        {t('exchanges.regions.NA')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={region === 'LA'}
-                                        onClick={() => this.toggleRegion('LA')} >
-                                        {t('exchanges.regions.LA')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={region === 'EU'}
-                                        onClick={() => this.toggleRegion('EU')} >
-                                        {t('exchanges.regions.EU')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={region === 'AF'}
-                                        onClick={() => this.toggleRegion('AF')} >
-                                        {t('exchanges.regions.AF')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={region === 'APAC'}
-                                        onClick={() => this.toggleRegion('APAC')} >
-                                        {t('exchanges.regions.APAC')}
-                                    </FilterButton>
-                                </div>
-                                <div className={styles.methods}>
-                                    <h4>{t('exchanges.method')}</h4>
-                                    <FilterButton
-                                        active={method === 'BT'}
-                                        onClick={() => this.toggleMethod('BT')} >
-                                        {t('exchanges.methods.BT')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={method === 'CC'}
-                                        onClick={() => this.toggleMethod('CC')} >
-                                        {t('exchanges.methods.CC')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={method === 'DCA'}
-                                        onClick={() => this.toggleMethod('DCA')} >
-                                        {t('exchanges.methods.DCA')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={method === 'SW'}
-                                        onClick={() => this.toggleMethod('SW')} >
-                                        {t('exchanges.methods.SW')}
-                                    </FilterButton>
-                                    <FilterButton
-                                        active={method === 'P2P'}
-                                        onClick={() => this.toggleMethod('P2P')} >
-                                        {t('exchanges.methods.P2P')}
-                                    </FilterButton>
-                                </div>
-                            </div>
-                            <div className={styles.results}>
-                                {results.length ? results : t('exchanges.nomatch')}
-                            </div>
-                        </div>
-                        <Footer>
-                            <SwissMadeOpenSource />
-                        </Footer>
-                    </div>
+  public render() {
+    const { t } = this.props;
+    const { method, region } = this.state;
+    const results = this.data
+      .filter(({ regions }) => !region || regions.includes(region))
+      .filter(({ payment }) => !method || payment.includes(method))
+      .map(Row);
+    return (
+      <div className="contentWithGuide">
+        <div className="container">
+          <Header title={<h2>{t('exchanges.title')}</h2>}>
+          </Header>
+          <div className="innerContainer scrollableContainer">
+            <div className="content padded">
+              <div className={styles.filters}>
+                <div className={styles.regions}>
+                  <h4>{t('exchanges.region')}</h4>
+                  <FilterButton
+                    active={region === 'NA'}
+                    onClick={() => this.toggleRegion('NA')} >
+                    {t('exchanges.regions.NA')}
+                  </FilterButton>
+                  <FilterButton
+                    active={region === 'LA'}
+                    onClick={() => this.toggleRegion('LA')} >
+                    {t('exchanges.regions.LA')}
+                  </FilterButton>
+                  <FilterButton
+                    active={region === 'EU'}
+                    onClick={() => this.toggleRegion('EU')} >
+                    {t('exchanges.regions.EU')}
+                  </FilterButton>
+                  <FilterButton
+                    active={region === 'AF'}
+                    onClick={() => this.toggleRegion('AF')} >
+                    {t('exchanges.regions.AF')}
+                  </FilterButton>
+                  <FilterButton
+                    active={region === 'APAC'}
+                    onClick={() => this.toggleRegion('APAC')} >
+                    {t('exchanges.regions.APAC')}
+                  </FilterButton>
                 </div>
-                <Guide>
-                    <Entry key="exchangeDescription" entry={t('guide.exchanges.description')} />
-                    <Entry key="exchangeWhichService" entry={t('guide.exchanges.whichService')} />
-                    <Entry key="accountTransactionConfirmation" entry={t('guide.exchanges.commission')} />
-                </Guide>
+                <div className={styles.methods}>
+                  <h4>{t('exchanges.method')}</h4>
+                  <FilterButton
+                    active={method === 'BT'}
+                    onClick={() => this.toggleMethod('BT')} >
+                    {t('exchanges.methods.BT')}
+                  </FilterButton>
+                  <FilterButton
+                    active={method === 'CC'}
+                    onClick={() => this.toggleMethod('CC')} >
+                    {t('exchanges.methods.CC')}
+                  </FilterButton>
+                  <FilterButton
+                    active={method === 'DCA'}
+                    onClick={() => this.toggleMethod('DCA')} >
+                    {t('exchanges.methods.DCA')}
+                  </FilterButton>
+                  <FilterButton
+                    active={method === 'SW'}
+                    onClick={() => this.toggleMethod('SW')} >
+                    {t('exchanges.methods.SW')}
+                  </FilterButton>
+                  <FilterButton
+                    active={method === 'P2P'}
+                    onClick={() => this.toggleMethod('P2P')} >
+                    {t('exchanges.methods.P2P')}
+                  </FilterButton>
+                </div>
+              </div>
+              <div className={styles.results}>
+                {results.length ? results : t('exchanges.nomatch')}
+              </div>
             </div>
-        );
-    }
+            <Footer>
+              <SwissMadeOpenSource />
+            </Footer>
+          </div>
+        </div>
+        <Guide>
+          <Entry key="exchangeDescription" entry={t('guide.exchanges.description')} />
+          <Entry key="exchangeWhichService" entry={t('guide.exchanges.whichService')} />
+          <Entry key="accountTransactionConfirmation" entry={t('guide.exchanges.commission')} />
+        </Guide>
+      </div>
+    );
+  }
 }
 
 interface FilterButtonProps {
@@ -164,45 +164,45 @@ interface FilterButtonProps {
 }
 
 function FilterButton({
-    active = false,
-    onClick,
-    children,
+  active = false,
+  onClick,
+  children,
 }: PropsWithChildren<FilterButtonProps>): JSX.Element {
-    return (
-        <Button
-            primary={active}
-            transparent={!active}
-            onClick={onClick} >
-            {children}
-        </Button>
-    );
+  return (
+    <Button
+      primary={active}
+      transparent={!active}
+      onClick={onClick} >
+      {children}
+    </Button>
+  );
 }
 
 function Row({
-    key,
-    description,
-    hostname,
+  key,
+  description,
+  hostname,
 }: PropsWithChildren<Exchange>): JSX.Element {
-    return (
-        <A
-            key={key}
-            href={`https://ext.shiftcrypto.ch/${key}`}
-            title={hostname}
-            className={styles.row}
-        >
-            <div className={`${styles.image} ${styles[`logo-${key}`]}`}>
-            </div>
-            <div className={styles.description}>
-                {description}
-                <div className="exchange-hostname">
-                    {hostname}
-                </div>
-            </div>
-            <div className={styles.button}>
-                <img src={externalIcon} />
-            </div>
-        </A>
-    );
+  return (
+    <A
+      key={key}
+      href={`https://ext.shiftcrypto.ch/${key}`}
+      title={hostname}
+      className={styles.row}
+    >
+      <div className={`${styles.image} ${styles[`logo-${key}`]}`}>
+      </div>
+      <div className={styles.description}>
+        {description}
+        <div className="exchange-hostname">
+          {hostname}
+        </div>
+      </div>
+      <div className={styles.button}>
+        <img src={externalIcon} />
+      </div>
+    </A>
+  );
 }
 
 const HOC = translate()(Exchanges);

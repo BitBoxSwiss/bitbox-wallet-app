@@ -7,9 +7,9 @@ interface Props {
 }
 
 export const Badge: FunctionComponent<Props> = ({ type, className, children }) => {
-    return (
-        <span className={[style.container, style[type], className].join(' ')}>
-            {children}
-        </span>
-    );
+  return (
+    <span className={[style.container, style[type], className].join(' ')}>
+      {children}
+    </span>
+  );
 }

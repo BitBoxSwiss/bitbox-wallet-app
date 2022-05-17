@@ -17,24 +17,24 @@
 import { subscribe, IUnsubscribe } from '../utils/event-legacy';
 
 export const statusChanged = (
-    code: string,
-    cb: (code: string) => void,
+  code: string,
+  cb: (code: string) => void,
 ): IUnsubscribe => {
-    const unsubscribe = subscribe('statusChanged', data => {
-        if (data.type === 'account' && data.code === code) {
-            cb(code);
-        }
-    });
-    return unsubscribe;
+  const unsubscribe = subscribe('statusChanged', data => {
+    if (data.type === 'account' && data.code === code) {
+      cb(code);
+    }
+  });
+  return unsubscribe;
 };
 
 export const syncdone = (
-    code: string,
-    cb: (code: string) => void,
+  code: string,
+  cb: (code: string) => void,
 ): IUnsubscribe => {
-    return subscribe('syncdone', data => {
-        if (data.type === 'account' && data.code === code) {
-            cb(code);
-        }
-    });
+  return subscribe('syncdone', data => {
+    if (data.type === 'account' && data.code === code) {
+      cb(code);
+    }
+  });
 };

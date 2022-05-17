@@ -37,130 +37,130 @@ interface State {
 }
 
 class WaitDialog extends Component<Props, State> {
-    private overlay = createRef<HTMLDivElement>();
-    private modal = createRef<HTMLDivElement>();
+  private overlay = createRef<HTMLDivElement>();
+  private modal = createRef<HTMLDivElement>();
 
-    public readonly state: State = {
-        active: false,
+  public readonly state: State = {
+    active: false,
+  }
+
+  public UNSAFE_componentWillMount() {
+    document.body.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  public componentDidMount() {
+    setTimeout(this.activate, 10);
+  }
+
+  public componentWillUnmount() {
+    document.body.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement instanceof HTMLElement) {
+      activeElement.blur();
     }
+    e.preventDefault();
+    e.stopPropagation();
+  }
 
-    public UNSAFE_componentWillMount() {
-        document.body.addEventListener('keydown', this.handleKeyDown);
-    }
+  private activate = () => {
+    this.setState({ active: true }, () => {
+      if (!this.overlay.current || !this.modal.current) {
+        return;
+      }
+      this.overlay.current.classList.add(style.activeOverlay);
+      this.modal.current.classList.add(style.activeModal);
+    });
+  }
 
-    public componentDidMount() {
-        setTimeout(this.activate, 10);
-    }
-
-    public componentWillUnmount() {
-        document.body.removeEventListener('keydown', this.handleKeyDown);
-    }
-
-    private handleKeyDown = (e: KeyboardEvent) => {
-        const activeElement = document.activeElement;
-        if (activeElement && activeElement instanceof HTMLElement) {
-            activeElement.blur();
+  public render() {
+    const {
+      t,
+      includeDefault,
+      prequel,
+      title,
+      paired = false,
+      touchConfirm = true,
+      children,
+    } = this.props;
+    const defaultContent = (
+      <div>
+        {
+          prequel && (
+            <p className="m-top-none">{prequel}</p>
+          )
         }
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    private activate = () => {
-        this.setState({ active: true }, () => {
-            if (!this.overlay.current || !this.modal.current) {
-                return;
-            }
-            this.overlay.current.classList.add(style.activeOverlay);
-            this.modal.current.classList.add(style.activeModal);
-        });
-    }
-
-    public render() {
-        const {
-            t,
-            includeDefault,
-            prequel,
-            title,
-            paired = false,
-            touchConfirm = true,
-            children,
-        } = this.props;
-        const defaultContent = (
+        {
+          paired ? (
             <div>
-                {
-                    prequel && (
-                        <p className="m-top-none">{prequel}</p>
-                    )
-                }
-                {
-                    paired ? (
-                        <div>
-                            <p className={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
-                                <span className={style.confirmationLabelNumber}>1.</span>
-                                {t('confirm.infoWhenPaired')}
-                            </p>
-                            <p className={[style.confirmationLabel, !touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
-                                <span className={style.confirmationLabelNumber}>2.</span>
-                                {t('confirm.info')}
-                            </p>
-                        </div>
-                    ) : (
-                        <p className={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
-                            {t('confirm.info')}
-                        </p>
-                    )
-                }
-                {
-                    touchConfirm && (
-                        <div className={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
-                            <div className="flex flex-column flex-center flex-items-center">
-                                <img className={style.image} src={reject} alt="Reject" />
-                                <p>
-                                    {t('confirm.abortInfo')}
-                                    <span className="text-red">{t('confirm.abortInfoRedText')}</span>
-                                </p>
-                            </div>
-                            <div className="flex flex-column flex-center flex-items-center">
-                                <img className={style.image} src={approve} alt="Approve" />
-                                <p>
-                                    {t('confirm.approveInfo')}
-                                    <span className="text-green">{t('confirm.approveInfoGreenText')}</span>
-                                </p>
-                            </div>
-                        </div>
-                    )
-                }
+              <p className={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
+                <span className={style.confirmationLabelNumber}>1.</span>
+                {t('confirm.infoWhenPaired')}
+              </p>
+              <p className={[style.confirmationLabel, !touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
+                <span className={style.confirmationLabelNumber}>2.</span>
+                {t('confirm.info')}
+              </p>
             </div>
-        );
+          ) : (
+            <p className={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
+              {t('confirm.info')}
+            </p>
+          )
+        }
+        {
+          touchConfirm && (
+            <div className={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
+              <div className="flex flex-column flex-center flex-items-center">
+                <img className={style.image} src={reject} alt="Reject" />
+                <p>
+                  {t('confirm.abortInfo')}
+                  <span className="text-red">{t('confirm.abortInfoRedText')}</span>
+                </p>
+              </div>
+              <div className="flex flex-column flex-center flex-items-center">
+                <img className={style.image} src={approve} alt="Approve" />
+                <p>
+                  {t('confirm.approveInfo')}
+                  <span className="text-green">{t('confirm.approveInfoGreenText')}</span>
+                </p>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    );
 
-        const hasChildren = React.Children.toArray(children).length > 0;
-        return (
-            <div
-                className={style.overlay}
-                ref={this.overlay}
-                style={{zIndex: 10001}}>
-                <div className={style.modal} ref={this.modal}>
-                    {
-                        title && (
-                            <div className={style.header}>
-                                <h3 className={style.title}>{title}</h3>
-                            </div>
-                        )
-                    }
-                    <div className={style.contentContainer}>
-                        <div className={style.content}>
-                            { (hasChildren && includeDefault) ? defaultContent : null }
-                            { hasChildren ? (
-                                <div className="flex flex-column flex-start">
-                                    {children}
-                                </div>
-                            ) : defaultContent }
-                        </div>
-                    </div>
+    const hasChildren = React.Children.toArray(children).length > 0;
+    return (
+      <div
+        className={style.overlay}
+        ref={this.overlay}
+        style={{ zIndex: 10001 }}>
+        <div className={style.modal} ref={this.modal}>
+          {
+            title && (
+              <div className={style.header}>
+                <h3 className={style.title}>{title}</h3>
+              </div>
+            )
+          }
+          <div className={style.contentContainer}>
+            <div className={style.content}>
+              { (hasChildren && includeDefault) ? defaultContent : null }
+              { hasChildren ? (
+                <div className="flex flex-column flex-start">
+                  {children}
                 </div>
+              ) : defaultContent }
             </div>
-        );
-    }
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 const TranslatedWaitDialog = translate()(WaitDialog);

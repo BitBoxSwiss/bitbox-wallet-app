@@ -24,24 +24,24 @@ interface IRadioProps {
 type TRadioProps = IRadioProps & JSX.IntrinsicElements['input']
 
 export function Radio({
-    disabled = false,
-    label,
-    id,
-    children,
-    ...props
+  disabled = false,
+  label,
+  id,
+  children,
+  ...props
 }: TRadioProps) {
-    return (
-        <span className={style.radio}>
-            <input
-                type="radio"
-                id={id}
-                disabled={disabled}
-                {...props}
-            />
-            <label htmlFor={id}>
-                {label}
-                {children}
-            </label>
-        </span>
-    );
+  return (
+    <span className={style.radio}>
+      <input
+        type="radio"
+        id={id}
+        disabled={disabled}
+        {...props}
+      />
+      <label htmlFor={id}>
+        {label}
+        {children}
+      </label>
+    </span>
+  );
 }
