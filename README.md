@@ -34,7 +34,7 @@ XCode project.
 - `backend/`: The library that ties it all together. Uses the above packages to create a wallet
   talking Electrum using the BitBox for signing, and serve a high level HTTP API to control it.
 - `frontends/qt/`: the C++/Qt5 app which builds the wallet app for the desktop.
-- `frontends/android/`: Android target (EXPERIMENTAL / ALPHA)
+- `frontends/android/`: Android target
 - `frontends/web/`: home of the React UI.
 
 ## Set up the development environment
