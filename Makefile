@@ -21,21 +21,22 @@ catch:
 	@echo "Choose a make target."
 envinit:
 	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.43.0
-	GO111MODULE=off go get -u github.com/stretchr/testify # needed for mockery
-	GO111MODULE=on go get -u github.com/vektra/mockery/...
-	GO111MODULE=off go get -u github.com/matryer/moq
-	GO111MODULE=off go get golang.org/x/tools/cmd/goimports
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.46.1
+	go install github.com/vektra/mockery/v2@latest
+	go install github.com/matryer/moq@latest
+	go install golang.org/x/tools/cmd/goimports@latest
 	go install golang.org/x/mobile/cmd/gomobile@latest
+	# The gomobile/gobind libs are also needed when using `gomobile bind`, but it's not compatible with vendoring:
+	# https://github.com/golang/go/issues/50994#issuecomment-1032754206
+	GO111MODULE=off go get -u golang.org/x/mobile/cmd/gomobile
 	gomobile init
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.16/bin
+#  - add to $PATH: /usr/local/opt/go@1.18/bin
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-	brew install go@1.16
-	brew install qt@5
+	brew install go@1.18	brew install qt@5
 	$(MAKE) envinit
 servewallet:
 	go run -mod=vendor ./cmd/servewallet

@@ -30,11 +30,11 @@ Build artifacts:
 
 ## MacOS
 
-Make sure you have `qt@5/bin`, `go@1.16/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
+Make sure you have `qt@5/bin`, `go@1.18/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
 
 ```bash
 export PATH="$PATH:/usr/local/opt/qt@5/bin"
-export PATH="$PATH:/usr/local/opt/go@1.16/bin"
+export PATH="$PATH:/usr/local/opt/go@1.18/bin"
 export PATH="$PATH:$HOME/go/bin"
 ```
 
@@ -65,7 +65,7 @@ $  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --pass
 ## Windows
 
 The build requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`, `Microsoft Visual Studio 2019`,
-`go 1.16`, `node@14`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
+`go 1.18`, `node@14`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
 

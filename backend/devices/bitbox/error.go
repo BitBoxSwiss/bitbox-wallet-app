@@ -37,7 +37,7 @@ const (
 	// listing the backups.
 	errSDOpenDir = 403
 
-	// ========= Below are error codes defined locally, not by the BitBox firmware. ========
+	// ========= Below are error codes defined locally, not by the BitBox firmware.
 
 	errPINIncorrect     = 10000
 	errReplacePINFailed = 10001

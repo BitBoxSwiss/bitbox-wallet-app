@@ -249,7 +249,6 @@ func BenchmarkLoadHistoryBucket(b *testing.B) {
 	updater := NewRateUpdater(nil, dbdir)
 	updater.dumpHistoryBucket("btcUSD", rates)
 	updater.Stop()
-	updater = nil // make sure unused in the rest of the test
 
 	updater2 := NewRateUpdater(nil, dbdir)
 	defer updater2.Stop()

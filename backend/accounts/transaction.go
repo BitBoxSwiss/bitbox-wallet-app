@@ -47,7 +47,8 @@ const (
 	// TxStatusComplete means the tx is complete, depending on the number of confirmations needed
 	// for the respective coin.
 	TxStatusComplete TxStatus = "complete"
-	// TxStatusFailed means the tx is confirmed but considered failed, e.g. a ETH transaction which
+	// TxStatusFailed means the tx is confirmed but considered failed, e.g. a ETH transaction with a
+	// too low gas limit.
 	TxStatusFailed TxStatus = "failed"
 )
 

@@ -3,6 +3,8 @@
 
 # options for analysis running
 run:
+  go: 1.18
+
   # default concurrency is a available CPU number
   concurrency: 4
 
@@ -84,6 +86,9 @@ linters-settings:
 linters:
   enable-all: true
   disable:
+    - golint
+    - scopelint
+    - interfacer
     - gosec
     - bodyclose
     - dogsled
@@ -102,6 +107,31 @@ linters:
     - stylecheck
     - whitespace
     - wsl
+    - execinquery
+    - ireturn
+    - wrapcheck
+    - varnamelen
+    - tagliatelle
+    - paralleltest
+    - nonamedreturns
+    - noctx
+    - nlreturn
+    - cyclop
+    - ifshort
+    - exhaustive
+    - nilnil
+    - nilerr
+    - forcetypeassert
+    - exhaustivestruct
+    - exhaustruct
+    - maintidx
+    - errorlint
+    - gofumpt
+    - gci
+    - errname
+    - forbidigo
+    - makezero
+    - nolintlint
   disable-all: false
 
 issues:
