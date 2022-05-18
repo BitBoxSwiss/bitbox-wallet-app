@@ -15,8 +15,6 @@
 package transactions
 
 import (
-	"fmt"
-
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
@@ -96,11 +94,10 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 		func(merkle []blockchain.TXHash, pos int) {
 			expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
 			if expectedMerkleRoot != header.MerkleRoot {
-				transactions.log.Warning(
-					fmt.Sprintf("Merkle root verification failed for %s", txHash))
+				transactions.log.Warning("Merkle root verification failed")
 				return
 			}
-			transactions.log.Debugf("Merkle root verification succeeded for %s", txHash)
+			transactions.log.Debugf("Merkle root verification succeeded")
 
 			defer transactions.Lock()()
 			dbTx, err := transactions.db.Begin()

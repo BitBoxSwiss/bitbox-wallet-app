@@ -36,7 +36,7 @@ type KeyInfo struct {
 }
 
 func (ki KeyInfo) String() string {
-	return fmt.Sprintf("keypath=%s,xpub=%s", ki.AbsoluteKeypath.Encode(), ki.ExtendedPublicKey)
+	return fmt.Sprintf("keypath=%s", ki.AbsoluteKeypath.Encode())
 }
 
 type keyInfoEncoding struct {
