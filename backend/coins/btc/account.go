@@ -489,6 +489,7 @@ func (account *Account) updateFeeTargets() {
 
 // FeeTargets returns the fee targets and the default fee target.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
+	defer account.RLock()()
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
 	feeTargets := []accounts.FeeTarget{}
