@@ -250,22 +250,21 @@ func (account *Account) gapLimits(
 // getMinRelayFeeRate fetches the min relay fee from the server and returns it. The value is cached
 // so that subsequent calls are instant. This is important as this function can be called many times
 // in succession when validating tx proposals.
-func (account *Account) getMinRelayFeeRate() btcutil.Amount {
+func (account *Account) getMinRelayFeeRate() (btcutil.Amount, error) {
 	account.minRelayFeeRateMu.Lock()
 	defer account.minRelayFeeRateMu.Unlock()
 	cached := account.minRelayFeeRate
 	if cached != nil {
-		return *cached
+		return *cached, nil
 	}
 
-	resultCh := make(chan btcutil.Amount)
-	account.coin.Blockchain().RelayFee(func(feeRatePerKb btcutil.Amount) {
-		resultCh <- feeRatePerKb
-	}, func(error) {})
-	feeRate := <-resultCh
+	feeRate, err := account.coin.Blockchain().RelayFee()
+	if err != nil {
+		return 0, err
+	}
 	account.minRelayFeeRate = &feeRate
 	account.log.Infof("min relay fee rate: %s", feeRate)
-	return feeRate
+	return feeRate, nil
 }
 
 // Initialize initializes the account.
@@ -478,7 +477,13 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						account.coin.Blockchain().RelayFee(setFee, func(error) {})
+						minRelayFeeRate, err := account.getMinRelayFeeRate()
+						if err != nil {
+							account.log.WithField("fee-target", feeTarget.blocks).
+								Warning("Minimum relay fee could not be determined")
+							return
+						}
+						setFee(minRelayFeeRate)
 					} else {
 						setFee(*feeRatePerKb)
 					}

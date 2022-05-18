@@ -48,8 +48,12 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 		// Technically it is vKb (virtual Kb) since fees are computed from a transaction's weight
 		// (measured in weight units or virtual bytes), but we keep the `Kb` unit to be consistent
 		// with the rest of the codebase and Bitcoin Core.
+		minRelayFeeRate, err := account.getMinRelayFeeRate()
+		if err != nil {
+			return 0, err
+		}
 		feePerKb := btcutil.Amount(float * 1000)
-		if feePerKb < account.getMinRelayFeeRate() {
+		if feePerKb < minRelayFeeRate {
 			return 0, errors.ErrFeeTooLow
 		}
 		return feePerKb, nil

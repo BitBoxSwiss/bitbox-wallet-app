@@ -339,22 +339,12 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 }
 
 // RelayFee does the blockchain.relayfee RPC call.
-func (client *ElectrumClient) RelayFee(
-	success func(btcutil.Amount),
-	cleanup func(error),
-) {
-	client.rpc.Method(func(responseBytes []byte) error {
-		var fee float64
-		if err := json.Unmarshal(responseBytes, &fee); err != nil {
-			return errp.Wrap(err, "Failed to unmarshal JSON")
-		}
-		amount, err := btcutil.NewAmount(fee)
-		if err != nil {
-			return errp.Wrap(err, "Failed to construct BTC amount")
-		}
-		success(amount)
-		return nil
-	}, func() func(error) { return cleanup }, "blockchain.relayfee")
+func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
+	var fee float64
+	if err := client.rpc.MethodSync(&fee, "blockchain.relayfee"); err != nil {
+		return 0, err
+	}
+	return btcutil.NewAmount(fee)
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of

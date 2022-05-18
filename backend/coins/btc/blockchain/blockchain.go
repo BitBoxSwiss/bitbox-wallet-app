@@ -101,7 +101,7 @@ type Interface interface {
 	ScriptHashSubscribe(func() func(error), ScriptHashHex, func(string))
 	HeadersSubscribe(func() func(error), func(*Header))
 	TransactionBroadcast(*wire.MsgTx) error
-	RelayFee(func(btcutil.Amount), func(error))
+	RelayFee() (btcutil.Amount, error)
 	EstimateFee(int, func(*btcutil.Amount), func(error))
 	Headers(int, int, func([]*wire.BlockHeader, int))
 	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
