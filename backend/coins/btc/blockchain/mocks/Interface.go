@@ -39,9 +39,25 @@ func (_m *Interface) ConnectionError() error {
 	return r0
 }
 
-// EstimateFee provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount), _a2 func(error)) {
-	_m.Called(_a0, _a1, _a2)
+// EstimateFee provides a mock function with given fields: _a0
+func (_m *Interface) EstimateFee(_a0 int) (btcutil.Amount, error) {
+	ret := _m.Called(_a0)
+
+	var r0 btcutil.Amount
+	if rf, ok := ret.Get(0).(func(int) btcutil.Amount); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(btcutil.Amount)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetMerkle provides a mock function with given fields: _a0, _a1, _a2, _a3

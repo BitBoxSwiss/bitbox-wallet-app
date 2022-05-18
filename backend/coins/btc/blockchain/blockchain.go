@@ -102,7 +102,7 @@ type Interface interface {
 	HeadersSubscribe(func() func(error), func(*Header))
 	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee() (btcutil.Amount, error)
-	EstimateFee(int, func(*btcutil.Amount), func(error))
+	EstimateFee(int) (btcutil.Amount, error)
 	Headers(int, int, func([]*wire.BlockHeader, int))
 	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
 	Close()

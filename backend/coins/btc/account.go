@@ -458,38 +458,31 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 func (account *Account) updateFeeTargets() {
-	defer account.RLock()()
+	defer account.Lock()()
 	for _, feeTarget := range account.feeTargets {
 		func(feeTarget *FeeTarget) {
 			setFee := func(feeRatePerKb btcutil.Amount) {
-				defer account.Lock()()
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
 				account.Config().OnEvent(accounts.EventFeeTargetsChanged)
 			}
-
-			account.coin.Blockchain().EstimateFee(
-				feeTarget.blocks,
-				func(feeRatePerKb *btcutil.Amount) {
-					if feeRatePerKb == nil {
-						if account.coin.Code() != coin.CodeTLTC {
-							account.log.WithField("fee-target", feeTarget.blocks).
-								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
-						}
-						minRelayFeeRate, err := account.getMinRelayFeeRate()
-						if err != nil {
-							account.log.WithField("fee-target", feeTarget.blocks).
-								Warning("Minimum relay fee could not be determined")
-							return
-						}
-						setFee(minRelayFeeRate)
-					} else {
-						setFee(*feeRatePerKb)
-					}
-				},
-				func(error) {},
-			)
+			feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
+			if err != nil {
+				if account.coin.Code() != coin.CodeTLTC {
+					account.log.WithField("fee-target", feeTarget.blocks).
+						Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+				}
+				minRelayFeeRate, err := account.getMinRelayFeeRate()
+				if err != nil {
+					account.log.WithField("fee-target", feeTarget.blocks).
+						Warning("Minimum relay fee could not be determined")
+					return
+				}
+				setFee(minRelayFeeRate)
+			} else {
+				setFee(feeRatePerKb)
+			}
 		}(feeTarget)
 	}
 }
