@@ -434,7 +434,7 @@ class Account extends Component<Props, State> {
           <Entry key="cointracking" entry={{
             link: {
               text: 'CoinTracking',
-              url: 'https://cointracking.info/import/bitbox/',
+              url: 'https://cointracking.info/import/bitbox/?aa=511',
             },
             text: t('guide.cointracking.text'),
             title: t('guide.cointracking.title')
