@@ -339,55 +339,26 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 }
 
 // RelayFee does the blockchain.relayfee RPC call.
-func (client *ElectrumClient) RelayFee(
-	success func(btcutil.Amount),
-	cleanup func(error),
-) {
-	client.rpc.Method(func(responseBytes []byte) error {
-		var fee float64
-		if err := json.Unmarshal(responseBytes, &fee); err != nil {
-			return errp.Wrap(err, "Failed to unmarshal JSON")
-		}
-		amount, err := btcutil.NewAmount(fee)
-		if err != nil {
-			return errp.Wrap(err, "Failed to construct BTC amount")
-		}
-		success(amount)
-		return nil
-	}, func() func(error) { return cleanup }, "blockchain.relayfee")
+func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
+	var fee float64
+	if err := client.rpc.MethodSync(&fee, "blockchain.relayfee"); err != nil {
+		return 0, err
+	}
+	return btcutil.NewAmount(fee)
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
 // blocks using the blockchain.estimatefee RPC method.
-// If the fee rate could not be estimated by the blockchain node, nil is passed to the
-// success callback.
-func (client *ElectrumClient) EstimateFee(
-	number int,
-	success func(*btcutil.Amount),
-	cleanup func(error),
-) {
-	client.rpc.Method(
-		func(responseBytes []byte) error {
-			var fee float64
-			if err := json.Unmarshal(responseBytes, &fee); err != nil {
-				return errp.Wrap(err, "Failed to unmarshal JSON")
-			}
-			if fee == -1 {
-				success(nil)
-				return nil
-			}
-			amount, err := btcutil.NewAmount(fee)
-			if err != nil {
-				return errp.Wrap(err, "Failed to construct BTC amount")
-			}
-			success(&amount)
-			return nil
-		},
-		func() func(error) {
-			return cleanup
-		},
-		"blockchain.estimatefee",
-		number)
+// If the fee rate could not be estimated by the blockchain node, an error is returned.
+func (client *ElectrumClient) EstimateFee(number int) (btcutil.Amount, error) {
+	var fee float64
+	if err := client.rpc.MethodSync(&fee, "blockchain.estimatefee", number); err != nil {
+		return 0, err
+	}
+	if fee == -1 {
+		return 0, errp.Newf("node could not estimate fee for target %d", number)
+	}
+	return btcutil.NewAmount(fee)
 }
 
 func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {

@@ -250,22 +250,21 @@ func (account *Account) gapLimits(
 // getMinRelayFeeRate fetches the min relay fee from the server and returns it. The value is cached
 // so that subsequent calls are instant. This is important as this function can be called many times
 // in succession when validating tx proposals.
-func (account *Account) getMinRelayFeeRate() btcutil.Amount {
+func (account *Account) getMinRelayFeeRate() (btcutil.Amount, error) {
 	account.minRelayFeeRateMu.Lock()
 	defer account.minRelayFeeRateMu.Unlock()
 	cached := account.minRelayFeeRate
 	if cached != nil {
-		return *cached
+		return *cached, nil
 	}
 
-	resultCh := make(chan btcutil.Amount)
-	account.coin.Blockchain().RelayFee(func(feeRatePerKb btcutil.Amount) {
-		resultCh <- feeRatePerKb
-	}, func(error) {})
-	feeRate := <-resultCh
+	feeRate, err := account.coin.Blockchain().RelayFee()
+	if err != nil {
+		return 0, err
+	}
 	account.minRelayFeeRate = &feeRate
 	account.log.Infof("min relay fee rate: %s", feeRate)
-	return feeRate
+	return feeRate, nil
 }
 
 // Initialize initializes the account.
@@ -459,38 +458,32 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 func (account *Account) updateFeeTargets() {
-	defer account.RLock()()
+	defer account.Lock()()
 	for _, feeTarget := range account.feeTargets {
-		func(feeTarget *FeeTarget) {
-			setFee := func(feeRatePerKb btcutil.Amount) {
-				defer account.Lock()()
-				feeTarget.feeRatePerKb = &feeRatePerKb
-				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
-					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.Config().OnEvent(accounts.EventFeeTargetsChanged)
+		feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
+		if err != nil {
+			if account.coin.Code() != coin.CodeTLTC {
+				account.log.WithField("fee-target", feeTarget.blocks).
+					Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 			}
-
-			account.coin.Blockchain().EstimateFee(
-				feeTarget.blocks,
-				func(feeRatePerKb *btcutil.Amount) {
-					if feeRatePerKb == nil {
-						if account.coin.Code() != coin.CodeTLTC {
-							account.log.WithField("fee-target", feeTarget.blocks).
-								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
-						}
-						account.coin.Blockchain().RelayFee(setFee, func(error) {})
-					} else {
-						setFee(*feeRatePerKb)
-					}
-				},
-				func(error) {},
-			)
-		}(feeTarget)
+			minRelayFeeRate, err := account.getMinRelayFeeRate()
+			if err != nil {
+				account.log.WithField("fee-target", feeTarget.blocks).
+					Warning("Minimum relay fee could not be determined")
+				continue
+			}
+			feeRatePerKb = minRelayFeeRate
+		}
+		feeTarget.feeRatePerKb = &feeRatePerKb
+		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
+			"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
+		account.Config().OnEvent(accounts.EventFeeTargetsChanged)
 	}
 }
 
 // FeeTargets returns the fee targets and the default fee target.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
+	defer account.RLock()()
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
 	feeTargets := []accounts.FeeTarget{}
