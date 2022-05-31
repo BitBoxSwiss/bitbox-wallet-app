@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- The Windows installer now asks the user to close a running instance of the BitBoxApp instead of forcefully stopping it
 
 ## 4.33.0
 - Bundle BitBox02 firmware version v9.11.0
