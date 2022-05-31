@@ -87,12 +87,13 @@ ShowUninstDetails show
 
 # Installer sections
 Section -Main SEC0000
-    DetailPrint "Shutting down any running instances of ${APP_EXE}"
-    ExecWait "taskkill /IM ${APP_EXE} /F"
-    # taskkill may exit before the process actually terminates.
-    # Give it a couple seconds to release any open files.
-    Sleep 3000
-    DetailPrint "Proceeding with the installation"
+    # Finds if there is an open window with name BitBoxApp
+    # If found, prompts user to close the window then quits installer
+    FindWindow $0 "" "BitBoxApp"
+    StrCmp $0 0 notRunning
+        MessageBox MB_OK|MB_ICONEXCLAMATION "BitBoxApp is running. Please close it first and restart the installer." /SD IDOK
+        Quit
+    notRunning:
 
     SetOutPath $INSTDIR
     SetOverwrite on
