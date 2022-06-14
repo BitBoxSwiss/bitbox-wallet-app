@@ -42,7 +42,7 @@ import (
 // Etherscan rate limits to one request per 0.2 seconds.
 var CallInterval = 260 * time.Millisecond
 
-const apiKey = "8GXVIES9ACAJIH7Q5PFXVHK8KH44HZRWBM"
+const apiKey = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
 
 // EtherScan is a rate-limited etherscan api client. See https://etherscan.io/apis.
 type EtherScan struct {
