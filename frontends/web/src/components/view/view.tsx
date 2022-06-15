@@ -23,9 +23,9 @@ import style from './view.module.css';
 
 type ViewProps = {
     dialog?: boolean;
+    fitContent?: boolean;
     fullscreen?: boolean;
     minHeight?: string;
-    top?: boolean;
     onClose?: () => void;
     position?: 'fill' | '';
     textCenter?: boolean;
@@ -33,10 +33,21 @@ type ViewProps = {
     withBottomBar?: boolean;
 }
 
+/**
+ * View component is used as a container component to wrap ViewHeader, ViewContent and ViewButtons
+ * @param dialog wether to render the view as a dialog
+ * @param fitContent tries to squeeze the whole view into the visible area, if true the icon specified through ViewContent withIcon will shrink if the visible area is bigger than the window height
+ * @param fullscreen wether the View container should cover the whole window
+ * @param minHeight optional minimum height, useful for keeping content area same size through multiple views
+ * @param onClose if a callback is provided it will render a close button that triggers the callback
+ * @param textCenter centers all text content in the view
+ * @param width can be used to overwrite the default width of the inner area
+ * @param withBottomBar enables a footer with some logo and language switch
+ */
 export function View({
   dialog = false,
+  fitContent = false,
   fullscreen,
-  top = false,
   children,
   minHeight,
   onClose,
@@ -50,8 +61,8 @@ export function View({
     dialog ? style.dialog : ''
   }`;
   let classNames = style.inner;
-  if (!top) {
-    classNames += ` ${style.center}`;
+  if (fitContent) {
+    classNames += ` ${style.fit}`;
   }
   if (textCenter) {
     classNames += ` ${style.textCenter}`;
@@ -90,6 +101,13 @@ type ViewContentProps = {
     withIcon?: 'success';
 }
 
+/**
+ * ViewContent useful for all sorts of content, text, images, grids and forms
+ * @param fullWidth useful to present content on small screen on the full width of the screen
+ * @param minHeight can be used to set a minimum content height to keep the same height over multiple views
+ * @param textAlign allows overwriting text alignment in the content area
+ * @param withIcon supports success icon currently, but could support other icons in the future
+ */
 export function ViewContent({
   children,
   fullWidth,
@@ -120,6 +138,12 @@ type HeaderProps = {
     withAppLogo?: boolean;
 }
 
+/**
+ * ViewHeader component to render the view's title and a byline
+ * @param small option to reduce the size of the header
+ * @param title the title of the view
+ * @param withAppLogo if true includes the BitBoxApp logo before the title
+ */
 export function ViewHeader({
   children,
   small,
@@ -138,6 +162,9 @@ export function ViewHeader({
 
 type ViewButtonsProps = {}
 
+/**
+ * ViewButtons component use as container for buttons
+ */
 export function ViewButtons({ children }: PropsWithChildren<ViewButtonsProps>) {
   return (
     <div className={style.buttons}>

@@ -44,7 +44,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var pollInterval = 60 * time.Second
+var pollInterval = 5 * time.Minute
 
 // ethGasStationAPIKey is used to access the API of https://ethgasstation.info.
 // See https://docs.ethgasstation.info/.
