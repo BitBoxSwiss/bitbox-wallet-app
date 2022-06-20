@@ -38,7 +38,7 @@ const INFO_STEPS_ENABLE = 5;
 // disabling passphrase shows only 1 info dialog
 const INFO_STEPS_DISABLE = 0;
 
-const CONTENT_MIN_HEIGHT = '34em';
+const CONTENT_MIN_HEIGHT = '38em';
 const CONTENT_WIDTH = '740px';
 
 interface MnemonicPassphraseButtonProps {
