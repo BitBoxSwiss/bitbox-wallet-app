@@ -1061,7 +1061,7 @@
     },
     "what": {
       "button": "Learn how this works",
-      "message": "A wallet is created (derived) from a very big random number, also known as a seed. This seed is created when you first set up your BitBox02 and is backed up with the microSD card or 24 words. Anyone who has access to the seed has full control over the funds on that wallet.\n\nA passphrase is an <strong>optional secret</strong>, added to the seed. When using a passphrase, each passphrase creates a new wallet based on the seed + passphrase (optional secret). A passphrase can be anything: letters, words, special characters or it can even be empty. The default wallet is in fact derived from the seed + empty passphrase.",
+      "message": "A wallet is created (derived) from a very big random number, also known as a seed. This seed is created when you first set up your BitBox02 and is backed up with the microSD card or 24 words. Anyone who has access to the seed has full control over the funds on that wallet.\n\nA passphrase is an <strong>optional secret</strong>, added to the seed. When using a passphrase, each passphrase creates a new wallet based on the seed + passphrase (optional secret). A passphrase can be anything: letters, words, special characters or it can even be empty. The default wallet is in fact derived from the seed + empty passphrase.\n\nThe passphrase is part of the BIP39 standard, which means it is compatible with all wallets that support the same standard.",
       "title": "What is a passphrase?"
     },
     "why": {

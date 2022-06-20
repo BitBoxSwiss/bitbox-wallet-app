@@ -15,20 +15,29 @@
     },
     "initializing": "Obtendo informações da blockchain...",
     "maybeProxyError": "Tor proxy ativado. Certifique-se que seu Tor esteja rodando corretamente ou desative as opções de proxy.",
-    "openFile": "Abrir arquivo",
     "reconnecting": "Conexão perdida, tentando reconectar...",
     "syncedAddressesCount": "Encontrado {{count}} endereços"
   },
   "accountInfo": {
     "address": "Endereço",
+    "buyCTA": {
+      "buy": "Comprar {{unit}}",
+      "buyCrypto": "Comprar Cripto",
+      "information": {
+        "looksEmpty": "Parece que esta carteira está vazia.",
+        "start": "Comece depositando algumas moedas na carteira ou comprando diretamente no BitBoxApp."
+      }
+    },
     "extendedPublicKey": "Chave pública estendida",
     "label": "Informações da conta",
+    "scriptType": "Tipo de script",
     "title": "Informações da conta",
     "verify": "Verificar no dispositivo",
     "xpubTypeChangeBtn": {
       "p2pkh": "Visualizar chave P2PKH pública estendida já existente.",
-      "p2wpkh": "Visualizar chave Segwit nativa",
-      "p2wpkh-p2sh": "Visualizar chave antiga segwit pública estendida."
+      "p2tr": "Ver Taproot",
+      "p2wpkh": "Ver Segwit Nativo",
+      "p2wpkh-p2sh": "Veja a chave pública estendida do Segwit mais antiga"
     },
     "xpubTypeInfo": "Atualmente mostrando {{scriptType}} chave pública estendida ({{current}} de {{numberOfXPubs}})"
   },
@@ -39,44 +48,45 @@
     "fiatBalance": "Saldo em moeda corrente",
     "name": "Nome da conta",
     "noAccount": "Não há contas para mostrar.",
-    "synchronizing": "Sincronizando contas com suas blockchains:",
+    "subtotalWithCoinName": "Total ({{coinName}})",
     "title": "Meu portfólio",
     "total": "Total",
     "transactionHistory": "Histórico de transações"
   },
   "addAccount": {
-    "accountName": "Nome da conta",
-    "address": "Endereço",
     "chooseName": {
       "nextButton": "Adicionar conta",
       "step": "Nome conta",
       "title": "Um nome para sua conta"
     },
-    "coin": "Moeda",
-    "error": {
-      "alreadyExists": "A conta já existe.",
-      "invalidAddress": "Por favor, digite um endereço válido.",
-      "xprivEntered": "AVISO: Você digitou uma chave privada estendida. Por favor digite uma chave pública estendida e mantenha suas chaves privadas seguras.",
-      "xpubInvalid": "Chave pública estendida mal formatada."
-    },
-    "extendedPublicKey": "Chave pública estendida",
-    "scriptType": "Tipo de script",
     "selectCoin": {
       "nextButton": "Próximo",
       "step": "Selecione a moeda",
       "title": "Selecione a crypto."
     },
-    "submit": "Adicionar conta",
     "success": {
       "message": "<strong>{{accountName}}</strong> foi addicionado agora as suas contas.",
       "nextButton": "Pronto",
       "step": "Terminado",
       "title": "Conta adicionada"
     },
-    "title": "Adicionar conta",
-    "warning": {
-      "xpubWrongNet": "Aviso: O formato da chave pública estendida indica que não é válido para o tipo de conta selecionado. Se você não vir as transações que espera, tente importar a chave pública estendida com outro tipo de conta."
-    }
+    "title": "Adicionar conta"
+  },
+  "aopp": {
+    "addressRequest": "{{host}} está solicitando um endereço de recebimento.",
+    "addressRequestWithLogo": "está solicitando um endereço de recebimento",
+    "banner": "Solicitação de endereço em andamento.",
+    "errorTitle": "Erro durante a solicitação de endereço",
+    "labelAddress": "Endereço",
+    "labelMessage": "Mensagem",
+    "reverifyInfoText": "Verificar endereço",
+    "signing": "Para prosseguir, assine a mensagem na sua BitBox02",
+    "success": {
+      "message": "Prossiga em {{host}}",
+      "title": "Endereço enviado com sucesso"
+    },
+    "syncing": "Sincronizando a conta, aguarde.",
+    "title": "Solicitação de endereço"
   },
   "app": {
     "upgrade": "Uma nova versão desse app está disponível! Por favor, atualize de {{current}} para {{version}}."
@@ -128,6 +138,7 @@
         "showLabel": "Senha de recuperação"
       },
       "restoring": "Restaurando o backup...",
+      "selectedBackup": "<strong>{{backupName}}</strong> criado em {{createdDateTime}} será restaurado.",
       "title": "Restaurar",
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
@@ -139,6 +150,7 @@
   },
   "bb02Bootloader": {
     "abort": "Não atualizar - Leve-me de volta",
+    "abort_noUpgrade": "Me leve de volta",
     "advanced": {
       "label": "Configurações avançadas",
       "toggleShowFirmwareHash": "Mostrar o hash de firmware toda vez na inicialização"
@@ -161,7 +173,8 @@
     "confirmDateText": "Esta data será usada para criar seu backup.",
     "confirmName": "Confirme o nome na BitBox02",
     "followInstructions": "Por favor, siga as instruções na sua BitBox02.",
-    "followInstructionsMnemonic": "Siga as instruções em sua BitBox02 para restaurar a partir da frase de recuperação."
+    "followInstructionsMnemonic": "Siga as instruções em sua BitBox02 para inserir as palavras de recuperação de seu backup e restaurar sua carteira.",
+    "followInstructionsMnemonicTitle": "Restaurar a partir da frase de recuperação"
   },
   "bitbox02Settings": {
     "deviceName": {
@@ -170,16 +183,13 @@
       "placeholder": "Novo nome de dispositivo",
       "title": "Definir nome da BitBox02"
     },
-    "mnemonicPassphrase": {
-      "description": "Isso permite que você insira uma frase secreta opcional depois de desbloquear a sua BitBox02.\n\n<strong>NOTA:</strong> qualquer frase secreta deriva uma nova carteira separadamente.\nMantenha sua frase secreta <strong>segura</strong>.\n<strong>A perda de uma frase secreta NÃO É RECUPERÁVEL.</strong>",
-      "disable": "Desativar frase secreta opcional",
-      "enable": "Ativar frase secreta opcional",
-      "successDisable": "Frase secreta opcional desativada com sucesso",
-      "successEnable": "Frase secreta opcional ativada com sucesso.\n\nA partir de agora você pode inserir uma frase secreta depois de desbloquear a sua BitBox02.\n\nSe você não sabe o que é uma frase secreta, desative esta opção. É uma opção de usuário avançado. \n\n\n<strong>Aviso:</strong> cada frase secreta gera uma carteira válida.\nVocê precisa ter certeza de que sua frase secreta é <strong>segura e que você não a perca.</strong>\n\n<strong>Se você perder sua frase secreta, não poderá acessar suas moedas. Isso significa que suas moedas serão perdidas.</strong>"
+    "gotoStartupSettings": {
+      "description": "Isso reiniciará sua BitBox02 e entrará nas configurações de inicialização.",
+      "title": "Vá para as configurações de inicialização"
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Falha na verificação do dispositivo, o que pode ter ocorrido ao reniciar o app enquanto o dispositivo estava esperando uma entrada do usuário. Por favor, reconecte e tente novamente.",
+    "attestationFailed": "Falha na verificação do dispositivo, o que pode ter ocorrido ao reniciar o app enquanto o dispositivo estava esperando uma entrada do usuário. Por favor, reconecte e tente novamente. Entre em contato com support@shiftcrypto.ch se a falha persistir.",
     "backup": {
       "point1": "Selecione um backup no cartão microSD",
       "point2": "Defina uma senha para o seu dispositivo",
@@ -236,6 +246,7 @@
     "stepCreate": {
       "buttonBack": "Voltar",
       "buttonContinue": "Continuar",
+      "description": "Este nome é usado como o nome do dispositivo e para o backup.",
       "nameLabel": "Nome da BitBox02",
       "namePlaceholder": "Minha BitBox02",
       "title": "Escolha o nome da BitBox02",
@@ -243,7 +254,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox02 e guarde-o em um local seguro.",
-      "success": "Você criou com êxito seu backup."
+      "success": ""
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox02 para continuar.",
@@ -268,22 +279,6 @@
       "title": "Você está pronto para começar!"
     }
   },
-  "bitboxBase": {
-    "connect": "Conectar Base",
-    "detectedBases": "",
-    "manualInput": "",
-    "title": "BitBoxBase"
-  },
-  "bitboxBaseWizard": {
-    "bitcoin": {
-      "presync": "",
-      "reindex": "",
-      "title": ""
-    },
-    "pairing": {
-      "title": "Verificar código de emparelhamento"
-    }
-  },
   "blink": {
     "button": "Piscar"
   },
@@ -303,6 +298,8 @@
     "continue": "Continuar",
     "copy": "Copiar",
     "create": "Criar",
+    "dismiss": "Dispensar",
+    "done": "Pronto",
     "download": "Baixar",
     "hiddenwallet": "Criar carteira oculta",
     "next": "Próximo",
@@ -447,7 +444,16 @@
   },
   "error": {
     "accountAlreadyExists": "A conta já existe.",
-    "accountLimitReached": "Não foi possível adicionar a conta. O número máximo de contas para essa moeda foi atingido."
+    "accountLimitReached": "Não foi possível adicionar a conta. O número máximo de contas para essa moeda foi atingido.",
+    "aoppCallback": "Ocorreu um erro ao entregar o endereço para {{host}}.",
+    "aoppInvalidRequest": "Pedido inválido.",
+    "aoppNoAccounts": "Não há contas disponíveis.",
+    "aoppSigningAborted": "Solicitação de propriedade de endereço cancelada.",
+    "aoppUnknown": "Ocorreu um erro desconhecido.",
+    "aoppUnsupportedAsset": "O ativo não é compatível.",
+    "aoppUnsupportedFormat": "Não há contas disponíveis que suportem o formato de endereço solicitado.",
+    "aoppUnsupportedKeystore": "O dispositivo conectado não pode assinar mensagens para este ativo.",
+    "aoppVersion": "Versão desconhecida."
   },
   "exchanges": {
     "method": "Selecione sua forma de pagamento",
@@ -485,7 +491,8 @@
     "enable_false": "Desabilitar",
     "enable_true": "Habilitar",
     "enabled_false": "Desabilitado",
-    "enabled_true": "Habilitado"
+    "enabled_true": "Habilitado",
+    "success": "Sucesso"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -533,7 +540,7 @@
     },
     "accountInfo": {
       "multipleXPubs": {
-        "text": "Cada xpub é atrelado ao \"Tipo\" mostrado: tanto a \"Segwit Nativa (bech32)\" como ao \"Wrapped segwit\". Esses são tipos de scrypts usados pela {{coinName}}. O BitBoxApp combina eles, suportando multiplos tipos de scripts na mesma conta. Por isso cada tipo de scrypt te fornece um xpub diferente, existem vários xpubs por conta.\n\nSe você recebe constantemente em um tipo de endereço padrão, você só precisa da \"bech332\" xpub. Entretando, se você recebe saldo nos tipos de \"endereço compatíveis\", estes serão mostrados no modelo \"segwit antigo\" de chave pública estendida.",
+        "text": "Cada xpub é atrelado ao \"Tipo\" mostrado: tanto o \"Segwit Nativo (bech32)\" como ao \"Wrapped Segwit\" ou \"Taproot\" (somente Bitcoin). Esses são tipos de scripts usados pela {{coinName}}. O BitBoxApp combina eles, suportando múltiplos tipos de scripts na mesma conta. Por isso cada tipo de script te fornece um xpub diferente, existem vários xpubs por conta.\n\nSe você recebe constantemente em um tipo de endereço padrão (Segwit Nativo), você só precisa do xpub \"bech32\". Entretando, se você também recebe valores nos tipos \"Wrapped Segwit\" ou \"Taproot\", você precisa usar as chaves públicas estendidas do \"Wrapped Segwit\" e \"Taproot\" respectivamente.",
         "title": "Por que tem vários xpubs?"
       },
       "privacy": {
@@ -545,7 +552,7 @@
         "title": "Preciso verificar minha xpub nesse dispositivo?"
       },
       "xpub": {
-        "text": "Uma chave pública estendida é uma chave-raiz da qual todos os endereços de recebimento de uma conta são derivados.\nEla é fornecida aqui para uso avançado e interoperabilidade com carteiras watch-only, como Electrum ou Sentinel.",
+        "text": "Uma chave pública estendida (xpub) é uma chave-raiz da qual todos os endereços de recebimento de uma conta são derivados.\n\nEla é fornecida aqui para uso avançado e interoperabilidade com carteiras watch-only, como Electrum ou Sentinel. Se você recebe de diferentes tipos de endereço, importe todos os formatos diferentes de xpub em sua carteira watch-only para ver suas moedas.\n\nPor favor, note que que carteiras de terceiros podem não suportar xpubs do tipo Taproot ainda.",
         "title": "O que é uma chave pública estendida?"
       }
     },
@@ -554,10 +561,6 @@
       "title": "Como posso retirar minhas moedas da conta Legacy?"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "Nós atualizamos as taxas de câmbio a cada minuto no CoinGecko.",
       "title": "Quais taxas de câmbio são aplicadas?"
     },
@@ -570,10 +573,6 @@
       "title": "Por que não consigo enviar {{unit}}?"
     },
     "accountSummaryAmount": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "O montante total é a soma de de saldo de todas sua contas crypto. Taxas de troca são obtidas através da coingecko.com.\n\nObs: Se você usa a MyEtherWallet para tokens ela não é suportada no BitBoxApp, por isso não será incluso no montante total mostrado.",
       "title": "Como o valor total é calculado?"
     },
@@ -628,7 +627,6 @@
       }
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "Contate-nos!",
       "text": "Outra pergunta?"
     },
@@ -731,12 +729,16 @@
         "title": "Quando os endereços mudam?"
       },
       "addressFormats": {
-        "text": "Um endereço padrão compatível segwit usa o endereço moderno e nativo segwit (bech32). Por padrão o BitBotx02 usa o padrão moderno. Se você está tendo problemas para mandar nesse endereço, clique em \"mudar para endereço compatível\".",
-        "title": "Qual a diferença entre endereço compatível e endereço moderno?"
+        "text": "Por padrão, o tipo de endereço é Segwit Nativo. Esse tipo de endereço é amplamente adotado por outras carteiras/corretoras e oferece as melhores taxas para transações habituais. No entanto, você também pode optar por enviar para Taproot (somente Bitcoin), que é o tipo de endereço mais recente, mas pode não ser amplamente suportado ainda. Alternativamente, se você estiver tendo problemas para enviar para o Segwit Nativo (o tipo padrão), tente alternar para o tipo de endereço mais antigo Wrapped Segwit que pode ser compatível com mais carteiras/corretoras.",
+        "title": "Quando usar \"Alterar tipo de endereço\"?"
       },
       "howVerify": {
         "text": "Para a BitBox01, clique no ícone BitBox na barra lateral à esquerda e veja a seção Emparelhamento. O guia será atualizado e você poderá continuar seguindo as instruções.\nPara a BitBox02, você pode verificar os endereços diretamente no dispositivo durante o processo de envio/recebimento.",
         "title": "Como posso verificar um endereço com segurança?"
+      },
+      "plugout": {
+        "text": "Não, uma vez que você enviou moedas para o seu endereço BitBox, você não precisa deixar sua BitBox conectada. Você pode desconectar sua BitBox.",
+        "title": "Preciso deixar minha BitBox conectada durante o recebimento?"
       },
       "why20": {
         "text": "Durante a inicialização, o aplicativo gera endereços derivados de sua semente para ver se eles receberam fundos. Como o aplicativo pode gerar um número quase infinito de endereços, poderia levar anos determinando o saldo. Para limitar essa pesquisa, ele para depois de ver 20 endereços que nunca receberam fundos. Esse é o \"gap limit\" e 20 é um padrão de fato, embora o número seja arbitrário. Estes são os 20 endereços que você pode escolher.",
@@ -752,9 +754,17 @@
       }
     },
     "send": {
+      "change": {
+        "text": "O troco será devolvido a um endereço Taproot se você tiver pelo menos um Taproot UTXO. Se você usar o controle de moedas, o troco será devolvido a um endereço Taproot se houver pelo menos um Taproot UTXO entre os UTXOs selecionados. Em todos os outros casos, o troco é devolvido a um endereço Segwit Nativo.",
+        "title": "Como o output do troco é determinado?"
+      },
       "fee": {
         "text": "A taxa é baseada no tamanho dos dados da transação e não no valor. As metas de taxas são calculadas pelo algoritmo de estimativa de taxas do Bitcoin Core para cada prioridade de rede que você escolher. Elas são mostradas se tiverem um valor diferente do objetivo abaixo.\nEconômica: 24 blocos (cerca de 4 horas para Bitcoin, 1 hora para Litecoin)\nBaixa: 12 blocos (cerca de 2 horas para o Bitcoin, 30 minutos para o Litecoin)\nNormal: 6 blocos (cerca de 1 hora para o Bitcoin, 15 minutos para o Litecoin)\nAlta: 2 blocos (cerca de 20 minutos para Bitcoin, 5 minutos para Litecoin)\n(Um bloco demora, em média, dez minutos para Bitcoin (2,5 minutos para Litecoin) para ser minerado e o carregamento da rede pode variar consideravelmente nos períodos acima.)",
         "title": "Como a taxa é determinada?"
+      },
+      "plugout": {
+        "text": "Não, uma vez que você tenha feito uma transação, você não precisa deixar sua BitBox conectada. Você pode desconectar sua BitBox.",
+        "title": "Preciso deixar minha BitBox conectada durante o envio?"
       },
       "priority": {
         "text": "Tipicamente, quanto maior a taxa que você está disposto a pagar, mais rapidamente sua transação é confirmada pela rede.",
@@ -776,8 +786,7 @@
       },
       "instructions": {
         "link": {
-          "text": "Guia para conectar seu nó",
-          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+          "text": "Guia para conectar seu nó"
         },
         "text": "Para um tutorial completo, por favor visite nosso guia:",
         "title": "Como conecto meu BitBoxApp no meu prórprio nó?"
@@ -806,16 +815,14 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "Benefícios do Segregated Witness",
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "Benefícios do Segregated Witness"
         },
-        "text": "Esta é uma conta segwit compatível com versões anteriores (p2sh-p2wpkh). Ela usa um novo formato de transação que economiza taxas de rede. O formato do endereço é semelhante ao legacy e, como tal, pode ser usado com todas as carteiras/trocas/serviços Bitcoin existentes.",
+        "text": "Esta é uma conta segwit compatível com versões anteriores (p2sh-p2wpkh). Ela usa um novo formato de transação que economiza taxas de rede. O formato do endereço é semelhante ao legacy e, como tal, pode ser usado com todas as carteiras/corretoras/serviços Bitcoin existentes.",
         "title": "O que é a conta Bitcoin?"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Adoção do Bech32",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Adoção do Bech32"
         },
         "text": "Use o novo formato de endereço Bitcoin bech32 para obter todos os benefícios das taxas de rede mais baratas do segwit. Lembre-se de que esse formato ainda não é aceito em todos os lugares.",
         "title": "O que é Bitcoin bech32?"
@@ -823,10 +830,6 @@
       "servers": {
         "text": "Este aplicativo se comunica com os servidores Shift Crypto para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nO aplicativo também busca as taxas de câmbio mais recentes do CoinGecko. Todas as conversões são calculadas localmente, o que significa que nenhum dado sobre o valor da sua transação é transmitido.\nNota: Para Ethereum e ERC20 Tokens, nós usamos APIs do Etherscan.io.",
         "title": "Com quais servidores este aplicativo se comunica?"
-      },
-      "whyMultipleAccounts": {
-        "text": "Algumas criptomoedas têm vários formatos de endereço e transação. Esses endereços são separados em contas extras.",
-        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Guia",
@@ -846,13 +849,12 @@
     },
     "waiting": {
       "deviceNotRecognized": {
-        "text": "O dispositivo deve piscar uma vez quando inserido. Certifique-se de que está inserido de maneira correta. Se você está tendo problemas, por favor, entre em contato conosco através do link abaixo.",
+        "text": "O dispositivo deve piscar uma vez quando inserido. Certifique-se de que está inserido de maneira correta. Se você está tendo problemas, por favor, entre em contato conosco através do link abaixo.\n\nA BitBox01 não é suportada em dispositivos móveis. Por favor, use o BitBoxApp no Desktop para conectar sua BitBox01.",
         "title": "Minha BitBox01 não é reconhecida"
       },
       "getDevice": {
         "link": {
-          "text": "Encomendar uma BitBox",
-          "url": "https://shiftcrypto.shop/"
+          "text": "Encomendar uma BitBox"
         },
         "text": "Você pode comprar uma BitBox em nossa loja online:",
         "title": "Como posso obter um dispositivo?"
@@ -863,8 +865,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Centro de backup",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "Centro de backup"
         },
         "text": "Você pode recuperar suas contas em uma nova BitBox ou com o nosso centro de backup.",
         "title": "Eu perdi meu dispositivo. E agora?"
@@ -995,6 +996,75 @@
     },
     "title": "Emparelhamento por celular"
   },
+  "passphrase": {
+    "considerations": {
+      "button": "Considerações sobre backup",
+      "message": "A frase secreta adiciona uma camada de proteção ao backup da sua carteira (cartão microSD ou 24 palavras). Se alguém tiver acesso ao seu backup, também precisará da frase secreta para acessar sua carteira.\n\nNo entanto, isso significa que você precisará <strong>tanto da frase secreta + backup da carteira</strong> para restaurar sua carteira habilitada para frase secreta, caso sua BitBox02 seja perdida ou quebrada. Se você esquecer ou perder sua frase secreta, perderá o acesso a todas as moedas dessa carteira.\n\nAo armazenar sua frase secreta, considere colocá-la em um local separado do backup. Dessa forma, se alguém encontrar seu backup, eles também não encontrarão sua frase secreta.",
+      "title": "Considerações sobre backup"
+    },
+    "disable": "Desabilitar frase secreta",
+    "disableInfo": {
+      "button": "Desabilitar",
+      "message": "Depois de desabilitar a frase secreta, você não será mais solicitado a inserir uma frase secreta após desbloquear sua BitBox02. Portanto, você entrará em sua carteira padrão.\n\nQuaisquer moedas em sua carteira gerada com a frase secreta ainda estarão nessa carteira, mas você não poderá acessá-las porque depois de desbloquear sua BitBox02, você abrirá sua carteira padrão.\n\nPara acessar suas carteiras geradas com frases secretas novamente, basta reativar o recurso de frase secreta e inserir a frase secreta relevante após desbloquear a BitBox02.\n\n<strong>Dica:</strong> você ainda pode acessar sua carteira original deixando a frase secreta vazia."
+    },
+    "enable": "Habilitar frase secreta",
+    "error": {
+      "e104": "A alteração da configuração da frase secreta foi abortada."
+    },
+    "how": {
+      "button": "Como funciona",
+      "message": "Uma frase secreta não funciona como uma senha com a qual você está acostumado. Se você digitar incorretamente sua frase secreta, você não será notificado. Isso ocorre porque <strong>cada frase secreta cria uma carteira diferente, porém válida</strong>. Isso significa que você pode usar várias frases secretas para quantas carteiras quiser. Mas cada carteira só pode ser acessada ao digitar a frase secreta correspondente.\n\nAo conectar sua BitBox02, você será solicitado a inserir a senha do dispositivo como de costume. Depois disso, você será solicitado a inserir uma frase secreta no dispositivo.\n\nDepois de inserir a frase secreta, você verá a frase secreta digitada. Isso é para que você possa confirmar que digitou corretamente.",
+      "title": "Como funciona"
+    },
+    "intro": {
+      "message": "Uma frase secreta fornece uma camada adicional de segurança em sua carteira.\nVamos aprender como funciona.",
+      "title": "Configurar frase secreta"
+    },
+    "progressDisable": {
+      "message": "Confirme em sua BitBox que você deseja <strong>desabilitar</strong> a frase secreta opcional.",
+      "title": "Confirmar no dispositivo"
+    },
+    "progressEnable": {
+      "message": "Confirme em sua BitBox que você deseja <strong>ativar</strong> a frase secreta opcional.",
+      "title": "Confirmar no dispositivo"
+    },
+    "successDisabled": {
+      "message": "Frase secreta opcional <strong>ativada com sucesso</strong>!\nVocê será solicitado a fornecer uma frase secreta a partir de agora.",
+      "messageEnd": "Por favor, reconecte a BitBox02 agora.",
+      "title": "Frase secreta ativada"
+    },
+    "successEnabled": {
+      "message": "Frase secreta opcional <strong>desativada com sucesso</strong>!\n\nVocê não será mais solicitado a fornecer uma frase secreta.",
+      "messageEnd": "Por favor, reconecte sua BitBox02 agora.",
+      "tips": "Dicas",
+      "tipsList": [
+        "Sugerimos enviar primeiro uma pequena quantia para a carteira gerada pela frase secreta. Em seguida, desconecte e reconecte a BitBox02 e digite sua senha e frase secreta. Se você digitou a frase secreta corretamente, deverá ver as moedas em sua carteira.",
+        "Se você deseja acessar sua carteira original sem uma frase secreta, você ainda pode fazer isso não digitando nada quando solicitado a inserir a frase secreta. Ou você pode desativar o recurso de frase secreta."
+      ],
+      "title": "Frase secreta desativada"
+    },
+    "summary": {
+      "button": "Ativar frase secreta",
+      "title": "Resumo",
+      "understand": "Eu entendo como a frase secreta funciona e os riscos associados a ela.",
+      "understandList": [
+        "A frase secreta é uma camada adicional de segurança em seu backup.",
+        "A inserção de uma frase secreta diferente sempre gerará uma carteira diferente.",
+        "Para restaurar sua carteira, você precisa <strong>da frase secreta e do backup</strong>.",
+        "Se você esquecer sua frase secreta, não poderá mais acessar suas moedas."
+      ]
+    },
+    "what": {
+      "button": "Saiba como isso funciona",
+      "message": "Uma carteira é criada (derivada) a partir de um número aleatório muito grande, também conhecido como semente. Essa semente é criada quando você configura sua BitBox02 pela primeira vez e é feito backup com o cartão microSD ou 24 palavras. Qualquer pessoa que tenha acesso à semente tem controle total sobre os fundos dessa carteira.\n\nUma frase secreta é um <strong>segredo opcional</strong>, adicionado à semente. Ao usar uma frase secreta, cada frase secreta cria uma nova carteira com base na semente + frase secreta (segredo opcional). Uma frase secreta pode ser qualquer coisa: letras, palavras, caracteres especiais ou pode até ser vazia. A carteira padrão é de fato derivada da semente + frase secreta vazia.\n\nA frase secreta é parte do padrão BIP39, o que significa que é compatível com todas as carteiras que suportam o mesmo padrão.",
+      "title": "O que é uma frase secreta?"
+    },
+    "why": {
+      "button": "Por que usar uma frase secreta",
+      "message": "A BitBox02 protege a semente contra extração do próprio dispositivo, mas o backup (cartão microSD ou 24 palavras) dá acesso total à carteira. É por isso que deve ser armazenado em um local seguro!\n\nComo uma frase secreta cria uma nova carteira usando sua semente existente, a carteira da frase secreta requer tanto seu <strong>backup quanto sua frase secreta para restaurar</strong>. O benefício disso é que, se alguém encontrar seu backup, ainda precisará da frase secreta para acessar a carteira.\n\nAlém disso, o recurso de frase secreta permite que você crie várias carteiras no mesmo dispositivo ou “carteiras ocultas” além da padrão.",
+      "title": "Por que usar uma frase secreta?"
+    }
+  },
   "password": {
     "show": "Mostrar {{label}}",
     "warning": {
@@ -1007,16 +1077,19 @@
     "description": "Sua BitBox gerou o seguinte número aleatório de {{bits}} bits:"
   },
   "receive": {
-    "addressType": [
-      "mudar para endereço compatível (Segwit)",
-      "mudar para endereço moderno (recomendado)"
-    ],
+    "changeScriptType": "Alterar tipo de endereço",
     "label": "Seu endereço",
     "onlyThisCoin": {
       "description": "Para receber outros tokens, ative-os nas configurações. Se você depositar outros tokens, eles podem não ser acessíveis.",
       "warning": "Certifique-se de receber apenas {{coinName}} neste endereço."
     },
+    "scriptType": {
+      "p2tr": "Taproot (formato mais recente)",
+      "p2wpkh": "Segwit Nativo (padrão)",
+      "p2wpkh-p2sh": "Wrapped Segwit (formato compatível)"
+    },
     "showFull": "Mostrar e verificar endereço completo no dispositivo",
+    "taprootWarning": "Nota: Taproot é um novo recurso do Bitcoin e ainda não é amplamente adotado. Os valores recebidos em endereços Taproot podem não ser visíveis em carteiras watch-only de terceiros. Muitas carteiras e corretoras ainda não podem enviar para endereços Taproot.",
     "title": "Receber {{accountName}}",
     "verify": "Verificar endereço com segurança",
     "verifyBitBox01": "Verifique o endereço no aplicativo móvel",
@@ -1115,16 +1188,9 @@
       "title": "Confirmar e enviar transação",
       "total": "Total"
     },
-    "customFee": {
-      "label": "Taxa convertida",
-      "placeholder": "Taxa convertida"
-    },
-    "data": {
-      "label": "Dados opcionais",
-      "placeholder": "Digite dados hexadecimais"
-    },
     "error": {
       "feeTooLow": "taxa muito baixa",
+      "feesNotAvailable": "Não foi possível estimar as taxas",
       "insufficientFunds": "saldo insuficiente",
       "invalidAddress": "endereço inválido",
       "invalidAmount": "montante inválido",
@@ -1136,17 +1202,23 @@
       "placeholder": "Não disponível"
     },
     "feeTarget": {
+      "customLabel": "Taxa",
+      "customLabel_eth": "Preço do gás",
       "description": {
-        "economy": "24 blocos (cerca de 4 horas para Bitcoin, 1 hora para Litecoin)",
+        "economy": "4 horas (24 blocos)",
+        "economy_eth": "30 minutos ou menos",
         "economy_ltc": "1 hora (24 blocos)",
-        "high": "2 blocos (cerca de 20 minutos para Bitcoin, 5 minutos para Litecoin)",
+        "high": "20 minutos (2 blocos)",
+        "high_eth": "30 segundos ou menos",
         "high_ltc": "5 minutos (2 blocos)",
-        "low": "12 blocos (cerca de 2 horas para Bitcoin, 30 minutos para Litecoin)",
+        "low": "2 horas (12 blocos)",
+        "low_eth": "5 minutos ou menos",
         "low_ltc": "30 minutos (12 blocos)",
-        "normal": "6 blocos (cerca de 1 hora para Bitcoin, 15 minutos para Litecoin)",
+        "normal": "1 hora (6 blocos)",
+        "normal_eth": "2 minutos ou menos",
         "normal_ltc": "15 minutos (6 blocos)"
       },
-      "estimate": "Tempo de espera estimado:",
+      "estimate": "Tempo estimado de confirmação:",
       "label": {
         "custom": "Customizar",
         "economy": "Econômica",
@@ -1157,6 +1229,7 @@
       "placeholder": "Calculando a taxa ..."
     },
     "maximum": "Enviar tudo",
+    "maximumSelectedCoins": "Enviar moedas selecionadas",
     "priority": "Prioridade",
     "scanQR": "Escanear QR code",
     "signprogress": {
@@ -1169,9 +1242,6 @@
     "transactionDetails": "Detalhes da transação"
   },
   "settings": {
-    "accounts": {
-      "title": "Contas ativas"
-    },
     "electrum": {
       "add": "Adicionar um servidor",
       "add-server": "Adicionar",
@@ -1223,10 +1293,8 @@
   "sidebar": {
     "accounts": "Contas",
     "addAccount": "Adicionar conta",
-    "bitboxBase": "BitBoxBase",
     "buy": "Comprar crypto",
     "device": "Gerenciar dispositivo",
-    "exchanges": "Comprar & vender",
     "leave": "Sair",
     "settings": "Configurações"
   },
@@ -1313,7 +1381,7 @@
     "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
   },
   "welcome": {
-    "getStarted": "Vamos começar instalando o firmware no seu BitBox02.",
+    "getStarted": "Vamos começar instalando o firmware na sua BitBox02.",
     "insertBitBox02": "Para a BitBox02, por favor, toque no dispositivo para continuar.",
     "insertDevice": "Por favor, conecte seu dispositivo para iniciar",
     "title": "Bem-vindo"

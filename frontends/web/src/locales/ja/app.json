@@ -14,7 +14,6 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "ブロックチェーンから情報を取得中…",
-    "openFile": "ファイルを開く",
     "reconnecting": "接続が切れました。再試行中…"
   },
   "accountInfo": {
@@ -36,22 +35,7 @@
     "transactionHistory": "取引履歴"
   },
   "addAccount": {
-    "accountName": "アカウント名",
-    "address": "アドレス",
-    "coin": "コイン",
-    "error": {
-      "alreadyExists": "アカウントは既に存在します。",
-      "invalidAddress": "有効なアドレスを入力してください",
-      "xprivEntered": "警告：あなたは拡張プライベートキーを入力しました。拡張パブリックキーを入力し、プライベートキーは安全に保管してください。",
-      "xpubInvalid": "拡張パブリックキーの形式が正しくありません。"
-    },
-    "extendedPublicKey": "拡張パブリックキー",
-    "scriptType": "スクリプトタイプ",
-    "submit": "アカウントを追加",
-    "title": "アカウントを追加",
-    "warning": {
-      "xpubWrongNet": "注意：拡張公開鍵の形式が選択されたアカウントに対して有効でない可能性を示しています。目的の取引が表示されない場合、別のアカウント形式から拡張公開鍵のインポートを試みてください。"
-    }
+    "title": "アカウントを追加"
   },
   "app": {
     "upgrade": "アプリの新しいバージョンが利用可能です！{{current}}から{{version}}にアップグレードしてください。"
@@ -143,13 +127,6 @@
       "input": "BitBox02の名前",
       "placeholder": "新しいデバイス名",
       "title": "BitBox02の名前を設定"
-    },
-    "mnemonicPassphrase": {
-      "description": "任意でBItBox02のアンロック後にパスフレーズを入力することができます。\n\n<strong>注意：</strong>パスフレーズの内容毎に新しいウォレットが派生します。ご自身で決めたパスフレーズは<strong>大切に保管してください</strong>。\n<strong>パスフレーズを紛失した場合、ウォレットは復元できません。</strong>",
-      "disable": "ニーモニックパスフレーズを無効化",
-      "enable": "ニーモニックパスフレーズを有効化",
-      "successDisable": "ニーモニックパスフレーズの無効化に成功しました",
-      "successEnable": "ニーモニックパスフレーズの有効化に成功しました。\n\nこれからはBitBox02のアンロック後にパスフレースを入力することができます。\n\nパスフレーズが何か分からない場合はこのオプションを無効化してください、上級ユーザ向けのオプションとなります。\n\n<strong>注意：</strong>どのパスフレーズも有効なウォレットを生成します。パスフレーズが<strong>安全で失くさないよう気をつけてください。</strong>\n\n<strong>パスフレーズを失くした場合は、あなたのコインへアクセスできなくなり、紛失したことになります。</strong"
     }
   },
   "bitbox02Wizard": {
@@ -240,71 +217,6 @@
       "text": "おめでとうございます！BitBox02を使い始める準備が整いました。\n\nBitBox Appの使い方を確認するには、画面右上のアイコンからアプリ内のガイドを参照してください。",
       "title": "準備が整いました！"
     }
-  },
-  "bitboxBase": {
-    "connect": "Baseに接続",
-    "connectedBases": "接続されたデバイス",
-    "detectedBases": "ネットワーク上に次のデバイスが認識されました：",
-    "detectedBasesEmpty": "デバイスがありません",
-    "manage": "管理",
-    "manualInput": "BitBox Baseが表示されませんか？下記から手動で接続することができます：",
-    "manualInputInvalid": "IPアドレスが無効です。",
-    "manualInputLabel": "IPアドレス:ポート",
-    "new": "新しいBitBoxBase",
-    "settings": {
-      "advanced": {
-        "blocks": "ブロック数",
-        "confirmSystemPassword": "<strong>SSH認証とsudoアクセス</strong>のためBitBoxBaseのシステムパスワードを設定する。\n$t(generic.confirmToContinue)",
-        "connectElectrum": "Electrumに接続",
-        "headers": "ヘッダー",
-        "ipAddress": "IPアドレス",
-        "manual": "手動で更新",
-        "port": "ポート",
-        "reset": "初期設定にリセット",
-        "sshAccess": {
-          "button": "SSHパスワードでログイン",
-          "confirm": "この設定はパスワードを決めることでBitBoxBaseに<strong>SSHとsudoアクセス</strong>の権限を与えます。\n内容を理解している場合のみ次へお進みください。",
-          "inProgress": "SSHパスワード認証の切り替え",
-          "success": "SSHパスワード認証とsudoアクセス：{{enabled}}",
-          "title": "SSHアクセス"
-        },
-        "status": "ステータス",
-        "subheaders": {
-          "bitcoin": "Bitcoin Core",
-          "electrs": "Electrs",
-          "lightning": "ライトニング",
-          "networking": "ネットワーキング"
-        },
-        "syncOptions": "同期オプション",
-        "systemPassword": "システムパスワードの設定",
-        "systemPasswordSuccess": "BitBoxBaseのシステムパスワードの設定に成功しました。",
-        "title": "アドバンスト設定",
-        "torAddress": "Tor onionアドレス",
-        "version": "バージョン"
-      },
-      "backups": {
-        "confirmBackup": "BitBoxBaseの設定事項のバックアップを外部フラッシュドライブに新規作成します。\n\nBitBoxBaseに<strong>フラッシュドライブが接続されている</strong>ことを確認してください。",
-        "create": "バックアップの作成",
-        "created": "バックアップの作成に成功しました。",
-        "creating": "バックアップの作成中…",
-        "manage": "バックアップの管理",
-        "restore": "バックアップの復元",
-        "title": "バックアップ"
-      },
-      "dashboard": {
-        "lightningChannels": "ライトニング・チャンネルの有効化",
-        "notAvailable": "利用不可",
-        "peers": "Bitcoinピア数",
-        "syncStatus": "Bitcoin同期状況"
-      },
-      "node": {
-        "bitcoinRestarting": "Baseサービスの再起動中…",
-        "changeName": "名前の変更",
-        "changeNameTitle": "BitBoxBaseのホスト名を変更",
-        "confirmDisconnect": "アプリからBitBoxBaseを取り除きます、使用するには再度繋げ直す必要なあります。\n$t(generic.confirmToContinue)"
-      }
-    },
-    "title": "BitBox Base"
   },
   "blink": {
     "button": "点滅"
@@ -468,10 +380,6 @@
       "title": "Legacyアカウントからどのようにコインを移し出せますか？"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "換算レートは毎分CoinGeckoの情報を取得して更新されます。",
       "title": "どのレートが使用されていますか？"
     },
@@ -504,7 +412,6 @@
       "title": "何の時間が表示されているのですか？"
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "ご連絡ください！",
       "text": "他にも質問がありますか？"
     },
@@ -623,16 +530,14 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "証明書の分離(Segregated Witness, Segwit)の有益性",
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "証明書の分離(Segregated Witness, Segwit)の有益性"
         },
         "text": "こちらは後方互換性のあるSegwitアカウント(p2sh-p2wpkh)です。新しい取引形式を使用していて、以前より低い手数料で取引を行うことができます。アドレスの形式はLegacyと似ていて、それ自体は現存する全てのBitcoinウォレット、交換所、サービスで使用することができます。",
         "title": "Bitcoin accountとはなんですか？"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Bech32の採用",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Bech32の採用"
         },
         "text": "Segwitのより安いネットワーク手数料の有益性をフル活用するためにはBitcoin beck32を使うことをお勧めします。bech32という新しいアドレス形式を採用していますが、この形式はまだ限られたところでしか受け入れられていません。",
         "title": "Bitcoin bech32とはなんですか？"
@@ -640,10 +545,6 @@
       "servers": {
         "text": "このアプリは情報更新、取引履歴の読み込み、ペアされたモバイルアプリへの情報送信のためShift Cryptoのサーバーと繋がっています。また、CryptoCompareより最新の換算レートを取得しています(換算はローカル環境で行われます、あなたの金額等の情報は一切発信されません)。",
         "title": "このアプリはどのサーバーと接続していますか？"
-      },
-      "whyMultipleAccounts": {
-        "text": "いくつかの仮想通貨は複数のアドレス形式と取引形式をとっていて、これらのアドレスは別のアカウントへと分けられます。",
-        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "ガイド",
@@ -664,8 +565,7 @@
       },
       "getDevice": {
         "link": {
-          "text": "BitBoxを注文",
-          "url": "https://shiftcrypto.shop/"
+          "text": "BitBoxを注文"
         },
         "text": "BitBoxは弊社オンラインショップよりご購入いただけます：",
         "title": "どのようにデバイスを入手できますか？"
@@ -676,8 +576,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "バックアップセンター",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "バックアップセンター"
         },
         "text": "バックアップセンターを使用することで、新しいBitBoxにあなたのアカウントを復元することができます。",
         "title": "デバイスを紛失してしまったのですが？"
@@ -885,14 +784,6 @@
       "title": "取引を確認",
       "total": "総額"
     },
-    "customFee": {
-      "label": "換算後の手数料",
-      "placeholder": "換算後の手数料"
-    },
-    "data": {
-      "label": "任意データ",
-      "placeholder": "16進数のデータを入力してください"
-    },
     "error": {
       "insufficientFunds": "資金が不十分です",
       "invalidAddress": "無効なアドレス",
@@ -930,9 +821,6 @@
     "toggleCoinControl": "コインコントロール切り替え"
   },
   "settings": {
-    "accounts": {
-      "title": "アクティブなアカウント"
-    },
     "electrum": {
       "add": "サーバーを追加",
       "add-server": "追加",
@@ -972,7 +860,6 @@
   "setup": "デバイスを設定",
   "sidebar": {
     "addAccount": "アカウントを追加",
-    "bitboxBase": "BitBox Base",
     "device": "デバイス管理",
     "leave": "離れる",
     "settings": "設定"

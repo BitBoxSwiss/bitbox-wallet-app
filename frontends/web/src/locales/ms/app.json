@@ -13,7 +13,6 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Mendapatkan maklumat dari blockchain ...",
-    "openFile": "Buka fail",
     "reconnecting": "Sambungan hilang, mencuba menyambung kembali..."
   },
   "accountInfo": {
@@ -28,27 +27,11 @@
     "fiatBalance": "Baki Fiat",
     "name": "Nama Akaun",
     "noAccount": "Tiada akaun untuk dipaparkan.",
-    "synchronizing": "Menyegerakkan akaun dengan blockchain:",
     "title": "Ringkasan Akaun",
     "total": "Jumlah"
   },
   "addAccount": {
-    "accountName": "Nama akaun",
-    "address": "Alamat",
-    "coin": "Syiling",
-    "error": {
-      "alreadyExists": "Akaun ini sudah ada.",
-      "invalidAddress": "Sila masukkan alamat yang sah",
-      "xprivEntered": "AMARAN: Anda memasukkan Private Key Lanjutan. Sila masukkan Public Key Lanjutan dan simpan Private Key anda.",
-      "xpubInvalid": "Public Key Lanjutan salah format."
-    },
-    "extendedPublicKey": "Public Key Lanjutan",
-    "scriptType": "Jenis Skrip",
-    "submit": "Tambah Akaun",
-    "title": "Tambah Akaun",
-    "warning": {
-      "xpubWrongNet": "Amaran: Format Public Key Lanjutan menunjukkan bahawa ia mungkin tidak sah untuk jenis akaun yang dipilih. Sekiranya anda tidak melihat transaksi yang dijangka, maka cuba import Public Key Lanjutan dengan jenis akaun yang lain."
-    }
+    "title": "Tambah Akaun"
   },
   "app": {
     "upgrade": "Versi baru aplikasi ini telah didapati! Sila kemaskini dari {{current}} ke {{version}}."
@@ -128,12 +111,6 @@
     "deviceName": {
       "input": "Nama BitBox02",
       "title": "Tetapkan Nama BitBox02"
-    },
-    "mnemonicPassphrase": {
-      "disable": "Matikan Frasa Laluan Mnemonik",
-      "enable": "Aktifkan Frasa Laluan Mnemonik",
-      "successDisable": "Frasa Laluan Mnemonik berjaya dimatikan.",
-      "successEnable": "Frasa Sambung Mnemonik berjaya diaktifkan.\n\nMulai sekarang anda boleh memasukkan frasa laluan selepas membuka kunci BitBox 02 anda.\n\nSekiranya anda tidak tahu apa kata laluan, sila nyahaktifkan pilihan ini. Ia adalah pilihan pengguna yang maju. \n\n\n<strong>Amaran:</strong> setiap frasa laluan menjana Wallet yang sah.\nAnda perlu memastikan frasa laluan anda <strong>selamat dan jangan melupakannya.</strong>\n\n<strong>Jika anda kehilangan frasa laluan anda, anda tidak dapat mengakses syiling anda. Itu bermakna duit syiling anda akan hilang.</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -173,12 +150,6 @@
       "text": "Hooray! BitBox02 anda kini siap untuk digunakan.\n\nUntuk maklumat lanjut mengenai cara menggunakan aplikasi BitBox, sila gunakan panduan dalam aplikasi dengan mengklik tanda tanya di sudut kanan atas.",
       "title": "Anda sudah bersedia untuk pergi!"
     }
-  },
-  "bitboxBase": {
-    "connect": "Sambungkan Base",
-    "detectedBases": "Mengesan peranti berikut pada rangkaian anda:",
-    "manualInput": "Tidak dapat melihat Base BitBox anda? Sambung secara manual di bawah:",
-    "title": "Base BitBox"
   },
   "blink": {
     "button": "Berkedip"
@@ -342,10 +313,6 @@
       "title": "Bagaimana untuk mengalihkan duit syiling saya keluar dari akaun Legacy?"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "Kadar pertukaran dikemas kini setiap minit oleh CoinGecko.",
       "title": "Kadar mana yang digunakan?"
     },
@@ -378,7 +345,6 @@
       "title": "Masa mana yang dipaparkan?"
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "Hubungi kami!",
       "text": "Soalan lain?"
     },
@@ -497,31 +463,21 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "Segregated Witness Benefits",
-          "url": "http://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "Segregated Witness Benefits"
         },
         "text": "Ini adalah akaun segerak yang serasi (p2sh-p2wpkh). Ia menggunakan format transaksi baru yang menjimatkan yuran rangkaian anda. Format alamat adalah serupa dengan Legacy, dan dengan itu boleh digunakan dengan semua wallet / pertukaran / perkhidmatan Bitcoin yang sedia ada.",
         "title": "Apa itu akaun Bitcoin?"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Pengambilan Bech32",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Pengambilan Bech32"
         },
         "text": "Untuk meraih faedah penuh yuran rangkaian Segwit yang lebih murah, Bitcoin bech32 harus digunakan. Ia menggunakan format alamat baru bernama bech32, akan tetapi format ini belum boleh diterima di mana-mana.",
         "title": "Apa itu Bitcoin bech32?"
       },
-      "moreCoins": {
-        "text": "Kami akan mengintegrasikan lebih banyak altcoin selain Litecoin dalam beberapa versi yang akan datang. Sekiranya anda mencari duit syiling tertentu, sila syorkan kepada kami melalui hubungan di bawah.",
-        "title": "Dapatkah anda menambah lebih banyak syiling?"
-      },
       "servers": {
         "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CoinGecko. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
         "title": "Server mana yang digunakan aplikasi ini?"
-      },
-      "whyMultipleAccounts": {
-        "text": "Beberapa mata wang kriptografi mempunyai pelbagai alamat dan format transaksi. Alamat ini telah dipisahkan ke dalam akaun tambahan.",
-        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "Panduan",
@@ -542,8 +498,7 @@
       },
       "getDevice": {
         "link": {
-          "text": "Pesan sebuah BitBox",
-          "url": "https://shiftcrypto.shop/"
+          "text": "Pesan sebuah BitBox"
         },
         "text": "Anda boleh membeli BitBox di kedai online kami:",
         "title": "Bagaimana saya boleh mendapatkan peranti?"
@@ -554,8 +509,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Pusat Backup",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "Pusat Backup"
         },
         "text": "Anda boleh memulihkan akaun anda pada BitBox baru atau dengan pusat backup kami.",
         "title": "Saya kehilangan peranti saya. Bagaimana sekarang?"
@@ -763,14 +717,6 @@
       "title": "Sahkan Transaksi",
       "total": "Jumlah"
     },
-    "customFee": {
-      "label": "Yuran yang telah ditukarkan",
-      "placeholder": "Yuran yang telah ditukarkan"
-    },
-    "data": {
-      "label": "Data Pilihan",
-      "placeholder": "Masukkan data heksadesimal"
-    },
     "error": {
       "insufficientFunds": "Dana tidak mencukupi",
       "invalidAddress": "alamat tidak sah",
@@ -808,9 +754,6 @@
     "toggleCoinControl": "Toggle Kawalan Syiling"
   },
   "settings": {
-    "accounts": {
-      "title": "Akaun aktif"
-    },
     "electrum": {
       "add": "Tambah server",
       "add-server": "Tambah",
@@ -850,7 +793,6 @@
   "setup": "Menetapkan peranti",
   "sidebar": {
     "addAccount": "Tambah akaun",
-    "bitboxBase": "Base BitBox",
     "device": "Urus Peranti",
     "leave": "Tinggalkan",
     "settings": "Tetapan"
