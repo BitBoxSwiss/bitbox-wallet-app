@@ -22,6 +22,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
 import { BitBox02 } from '../../icon/logo';
+import Status from '../../status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 
 interface BitBox02BootloaderProps {
@@ -189,8 +190,10 @@ class BitBox02Bootloader extends Component<Props, State> {
     return (
       <CenteredContent>
         <BitBox02 />
+        {status.errMsg && (
+          <Status type="warning">{status.errMsg}</Status>
+        )}
         {contents}
-        <p className="text-center">{status.errMsg}</p>
       </CenteredContent>
     );
   }
