@@ -3,6 +3,7 @@ package coin
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 )
@@ -27,6 +28,26 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateU
 		conversions = map[string]string{}
 		for key, value := range rates[unit] {
 			conversions[key] = formatAsCurrency(float * value)
+		}
+	}
+	return conversions
+}
+
+// ConversionsAtTime handles fiat conversions at a specific time.
+func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateUpdater, timeStamp *time.Time) map[string]string {
+	var conversions map[string]string
+	rates := ratesUpdater.LatestPrice()
+	if rates != nil {
+		unit := coin.Unit(isFee)
+		float := coin.ToUnit(amount, isFee)
+		conversions = map[string]string{}
+		for fiat := range rates[unit] {
+			value := ratesUpdater.HistoricalPriceAt(string(coin.Code()), fiat, *timeStamp)
+			if value == 0 {
+				conversions[fiat] = ""
+			} else {
+				conversions[fiat] = formatAsCurrency(float * value)
+			}
 		}
 	}
 	return conversions

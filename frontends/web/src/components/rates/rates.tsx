@@ -16,7 +16,7 @@
  */
 
 import { PropsWithChildren } from 'react';
-import { Coin, Fiat } from '../../api/account';
+import { Coin, Fiat, IAmount } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
@@ -118,13 +118,8 @@ export function formatCurrency(amount: number, fiat: Fiat): string {
 
 }
 
-export interface AmountInterface {
-    amount: string;
-    unit: Coin;
-}
-
 interface ProvidedProps {
-    amount: AmountInterface;
+    amount: IAmount;
     tableRow?: boolean;
     unstyled?: boolean;
     skipUnit?: boolean;
@@ -143,13 +138,17 @@ function Conversion({
   noAction,
   children,
 }: PropsWithChildren<Props>): JSX.Element | null {
-  if (!rates) {
-    return null;
-  }
+
   const coin = amount.unit;
-  let formattedValue = '';
-  if (rates[coin]) {
-    formattedValue = formatCurrency(rates[coin][active] * Number(amount.amount), active);
+  let formattedValue = '---';
+
+  if (amount.conversions) {
+    if (amount.conversions[active] !== '')
+      formattedValue = amount.conversions[active];
+  } else {
+    if (rates && rates[coin]) {
+      formattedValue = formatCurrency(rates[coin][active] * Number(amount.amount), active);
+    }
   }
   if (tableRow) {
     return (
