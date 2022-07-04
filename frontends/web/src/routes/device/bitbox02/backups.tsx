@@ -84,7 +84,7 @@ class Backups extends Component<Props, State> {
       }
     },
     );
-  }
+  };
 
   public render() {
     const {

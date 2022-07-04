@@ -42,7 +42,7 @@ class SigningConfiguration extends Component<Props, State> {
 
   public readonly state: State = {
     canVerifyExtendedPublicKey: false,
-  }
+  };
 
   public componentDidMount() {
     this.canVerifyExtendedPublicKeys();
@@ -52,11 +52,11 @@ class SigningConfiguration extends Component<Props, State> {
     getCanVerifyXPub(this.props.code).then(canVerifyExtendedPublicKey => {
       this.setState({ canVerifyExtendedPublicKey });
     });
-  }
+  };
 
   private verifyExtendedPublicKey = (signingConfigIndex: number) => {
     verifyXPub(this.props.code, signingConfigIndex);
-  }
+  };
 
   private getSimpleInfo(): TBitcoinSimple | TEthereumSimple {
     const { info } = this.props;

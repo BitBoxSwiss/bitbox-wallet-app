@@ -35,4 +35,4 @@ export const MobileDataWarning: FunctionComponent = () => {
       {t('mobile.usingMobileDataWarning')}
     </Status>
   );
-}
+};

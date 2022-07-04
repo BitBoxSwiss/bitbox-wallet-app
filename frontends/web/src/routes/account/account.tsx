@@ -216,7 +216,7 @@ class Account extends Component<Props, State> {
         transactions: undefined,
       });
     }
-  }
+  };
 
   private export = () => {
     if (this.state.status === undefined || this.state.status.fatalError) {
@@ -229,7 +229,7 @@ class Account extends Component<Props, State> {
         }
       })
       .catch(console.error);
-  }
+  };
 
   private isBTCScriptType = (
     scriptType: accountApi.ScriptType,
@@ -242,20 +242,20 @@ class Account extends Component<Props, State> {
     const config = accountInfo.signingConfigurations[0].bitcoinSimple;
     return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
             config !== undefined && config.scriptType === scriptType;
-  }
+  };
 
   private deviceIDs = (devices: TDevices) => {
     return Object.keys(devices);
-  }
+  };
 
   private dataLoaded = () => {
     return this.state.balance !== undefined && this.state.transactions !== undefined;
-  }
+  };
 
   private supportsBuy = () => {
     // True if at least one external service supports onramp for this account.
     return this.props.moonpayBuySupported;
-  }
+  };
 
   public render() {
     const {

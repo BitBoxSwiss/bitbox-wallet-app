@@ -41,7 +41,7 @@ class Unlock extends Component {
     remainingAttempts: null,
     needsLongTouch: false,
     password: '',
-  }
+  };
 
   handleFormChange = password => {
     this.setState({ password });
@@ -49,7 +49,7 @@ class Unlock extends Component {
 
   validate = () => {
     return this.state.password !== '';
-  }
+  };
 
   handleSubmit = event => {
     event.preventDefault();

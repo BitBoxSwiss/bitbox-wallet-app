@@ -35,13 +35,13 @@ class PasswordSingleInputClass extends Component {
     password: '',
     seePlaintext: false,
     capsLock: false
-  }
+  };
 
   password = createRef();
 
   idPrefix = () => {
     return this.props.idPrefix || '';
-  }
+  };
 
   UNSAFE_componentWillMount() {
     window.addEventListener('keydown', this.handleCheckCaps);
@@ -67,7 +67,7 @@ class PasswordSingleInputClass extends Component {
         label: this.props.label
       }));
     }
-  }
+  };
 
   clear = () => {
     this.setState({
@@ -75,7 +75,7 @@ class PasswordSingleInputClass extends Component {
       seePlaintext: false,
       capsLock: false
     });
-  }
+  };
 
   validate = () => {
     if (this.regex && this.password.current && !this.password.current.validity.valid) {
@@ -86,7 +86,7 @@ class PasswordSingleInputClass extends Component {
     } else {
       this.props.onValidPassword(null);
     }
-  }
+  };
 
   handleFormChange = event => {
     let value = event.target.value;
@@ -95,14 +95,14 @@ class PasswordSingleInputClass extends Component {
     }
     const stateKey = event.target.id.slice(this.idPrefix().length);
     this.setState({ [stateKey]: value }, this.validate);
-  }
+  };
 
   handleCheckCaps = event => {
     const capsLock = hasCaps(event);
     if (capsLock !== null) {
       this.setState({ capsLock });
     }
-  }
+  };
 
   render() {
     const {
@@ -162,14 +162,14 @@ class PasswordRepeatInputClass extends Component {
     passwordRepeat: '',
     seePlaintext: false,
     capsLock: false
-  }
+  };
 
   password = createRef();
   passwordRepeat = createRef();
 
   idPrefix = () => {
     return this.props.idPrefix || '';
-  }
+  };
 
   UNSAFE_componentWillMount() {
     window.addEventListener('keydown', this.handleCheckCaps);
@@ -195,7 +195,7 @@ class PasswordRepeatInputClass extends Component {
         label: this.props.label
       }));
     }
-  }
+  };
 
   validate = () => {
     if (
@@ -209,7 +209,7 @@ class PasswordRepeatInputClass extends Component {
     } else {
       this.props.onValidPassword(null);
     }
-  }
+  };
 
   handleFormChange = event => {
     let value = event.target.value;
@@ -218,14 +218,14 @@ class PasswordRepeatInputClass extends Component {
     }
     const stateKey = event.target.id.slice(this.idPrefix().length);
     this.setState({ [stateKey]: value }, this.validate);
-  }
+  };
 
   handleCheckCaps = event => {
     const capsLock = hasCaps(event);
         if (capsLock != null) { // eslint-disable-line
       this.setState({ capsLock });
     }
-  }
+  };
 
   render() {
     const {

@@ -39,7 +39,7 @@ interface State {
  * this should be mounted only once in the App
  */
 export const Confirm: FunctionComponent = () => {
-  const [state, setState] = useState<State>({ active: false })
+  const [state, setState] = useState<State>({ active: false });
   const { t } = useTranslation();
   const callback = useRef<TCallback>(() => {});
 
@@ -83,5 +83,5 @@ export const Confirm: FunctionComponent = () => {
       <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
       <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
     </DialogButtons>
-  </Dialog>
+  </Dialog>;
 };

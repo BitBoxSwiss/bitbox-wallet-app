@@ -20,7 +20,7 @@ import style from './Toast.module.css';
 export default class Toast extends Component {
   state = {
     active: false,
-  }
+  };
 
   componentDidMount() {
     setTimeout(this.show, 5);
@@ -28,14 +28,14 @@ export default class Toast extends Component {
 
   show = () => {
     this.setState({ active: true });
-  }
+  };
 
   hide = () => {
     this.setState({ active: false });
     if (this.props.onHide) {
       this.props.onHide();
     }
-  }
+  };
 
   render() {
     const {

@@ -57,7 +57,7 @@ export interface ITotalBalance {
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
   return apiGet('accounts/total-balance');
-}
+};
 
 export interface IStatus {
     disabled: boolean;

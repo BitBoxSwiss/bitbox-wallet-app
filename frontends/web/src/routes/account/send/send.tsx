@@ -131,7 +131,7 @@ class Send extends Component<Props, State> {
       return false;
     }
     return isBitcoinBased(account.coinCode);
-  }
+  };
 
   public componentDidMount() {
     if (this.props.code) {
@@ -196,11 +196,11 @@ class Send extends Component<Props, State> {
 
   private registerEvents = () => {
     document.addEventListener('keydown', this.handleKeyDown);
-  }
+  };
 
   private unregisterEvents = () => {
     document.removeEventListener('keydown', this.handleKeyDown);
-  }
+  };
 
   private handleKeyDown = (e: KeyboardEvent) => {
     if (e.keyCode === 27) {
@@ -210,7 +210,7 @@ class Send extends Component<Props, State> {
         route(`/account/${this.props.code}`);
       }
     }
-  }
+  };
 
   private send = () => {
     if (this.state.noMobileChannelError) {
@@ -253,7 +253,7 @@ class Send extends Component<Props, State> {
         // The following method allows pressing escape again.
         this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
       });
-  }
+  };
 
   private txInput = () => ({
     address: this.state.recipientAddress,
@@ -262,12 +262,12 @@ class Send extends Component<Props, State> {
     customFee: this.state.customFee,
     sendAll: this.state.sendAll ? 'yes' : 'no',
     selectedUTXOs: Object.keys(this.selectedUTXOs),
-  })
+  });
 
   private sendDisabled = () => {
     const txInput = this.txInput();
     return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount) || (this.state.feeTarget === 'custom' && !this.state.customFee);
-  }
+  };
 
   private validateAndDisplayFee = (updateFiat: boolean = true) => {
     this.setState({
@@ -300,7 +300,7 @@ class Send extends Component<Props, State> {
         });
       this.pendingProposals.push(propose);
     }, 400);
-  }
+  };
 
   private handleNoteInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
@@ -309,7 +309,7 @@ class Send extends Component<Props, State> {
     }, () => {
       apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
     });
-  }
+  };
 
   private txProposal = (updateFiat: boolean, result: {
         errorCode?: string;
@@ -360,7 +360,7 @@ class Send extends Component<Props, State> {
       }
       this.setState({ isUpdatingProposal: false });
     }
-  }
+  };
 
   private handleFormChange = (event: React.SyntheticEvent) => {
     const target = (event.target as HTMLInputElement);
@@ -381,13 +381,13 @@ class Send extends Component<Props, State> {
     }), () => {
       this.validateAndDisplayFee(true);
     });
-  }
+  };
 
   private handleFiatInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     this.setState({ fiatAmount: value });
     this.convertFromFiat(value);
-  }
+  };
 
   private convertToFiat = (value?: string | boolean) => {
     if (value) {
@@ -403,7 +403,7 @@ class Send extends Component<Props, State> {
     } else {
       this.setState({ fiatAmount: '' });
     }
-  }
+  };
 
   private convertFromFiat = (value: string) => {
     if (value) {
@@ -420,7 +420,7 @@ class Send extends Component<Props, State> {
     } else {
       this.setState({ amount: '' });
     }
-  }
+  };
 
   private sendToSelf = (event: React.SyntheticEvent) => {
     accountApi.getReceiveAddressList(this.getAccount()!.code)()
@@ -429,30 +429,30 @@ class Send extends Component<Props, State> {
         this.handleFormChange(event);
       })
       .catch(console.error);
-  }
+  };
 
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
     this.setState(
       { feeTarget, customFee: '' },
       () => this.validateAndDisplayFee(this.state.sendAll),
     );
-  }
+  };
 
   private onSelectedUTXOsChange = (selectedUTXOs: SelectedUTXO) => {
     this.selectedUTXOs = selectedUTXOs;
     this.validateAndDisplayFee(true);
-  }
+  };
 
   private hasSelectedUTXOs = (): boolean => {
     return Object.keys(this.selectedUTXOs).length !== 0;
-  }
+  };
 
   private getAccount = (): accountApi.IAccount | undefined => {
     if (!this.props.accounts) {
       return undefined;
     }
     return this.props.accounts.find(({ code }) => code === this.props.code);
-  }
+  };
 
   private toggleCoinControl = () => {
     this.setState(({ activeCoinControl }) => {
@@ -461,7 +461,7 @@ class Send extends Component<Props, State> {
       }
       return { activeCoinControl: !activeCoinControl };
     });
-  }
+  };
 
   private parseQRResult = (uri: string) => {
     let address;
@@ -491,7 +491,7 @@ class Send extends Component<Props, State> {
       this.convertToFiat(this.state.amount);
       this.validateAndDisplayFee(true);
     });
-  }
+  };
 
   private toggleScanQR = () => {
     if (this.state.activeScanQR) {
@@ -524,15 +524,15 @@ class Send extends Component<Props, State> {
           this.setState({ activeScanQR: false });
         });
     });
-  }
+  };
 
   private deactivateCoinControl = () => {
     this.setState({ activeCoinControl: false });
-  }
+  };
 
   private handleVideoLoad = () => {
     this.setState({ videoLoading: false });
-  }
+  };
 
   public render() {
     const { t, code } = this.props;

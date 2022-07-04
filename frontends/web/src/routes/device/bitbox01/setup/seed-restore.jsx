@@ -38,7 +38,7 @@ class SeedRestore extends Component {
     showInfo: true,
     status: STATUS.CHECKING,
     error: '',
-  }
+  };
 
   componentDidMount () {
     this.checkSDcard();
@@ -49,7 +49,7 @@ class SeedRestore extends Component {
       status: STATUS.ERROR,
       error,
     });
-  }
+  };
 
   checkSDcard = () => {
     apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
@@ -62,12 +62,12 @@ class SeedRestore extends Component {
       });
       setTimeout(this.checkSDcard, 2500);
     });
-  }
+  };
 
   handleStart = () => {
     this.setState({ showInfo: false });
     this.checkSDcard();
-  }
+  };
 
   renderSpinner() {
     switch (this.state.status) {

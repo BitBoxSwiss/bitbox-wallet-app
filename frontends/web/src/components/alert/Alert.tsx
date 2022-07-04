@@ -60,7 +60,7 @@ class Alert extends Component<WithTranslation, State> {
     this.setState({
       active: false,
     });
-  }
+  };
 
   private alertUser = (
     message: string,
@@ -76,7 +76,7 @@ class Alert extends Component<WithTranslation, State> {
       asDialog,
       message,
     });
-  }
+  };
 
   public render() {
     const { t } = this.props;

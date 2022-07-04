@@ -34,7 +34,7 @@ const Spinner: FunctionComponent<Props> = ({ text, guideExists }) => {
   const handleKeyDown = (e: KeyboardEvent) => {
     e.preventDefault();
     (document.activeElement as HTMLInputElement).blur();
-  }
+  };
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -87,7 +87,7 @@ const Spinner: FunctionComponent<Props> = ({ text, guideExists }) => {
       <div className={style.overlay}></div>
     </div>
   );
-}
+};
 
 const SharedSpinner = share<SharedProps, SpinnerProps>(store)(Spinner);
 export { SharedSpinner as Spinner };

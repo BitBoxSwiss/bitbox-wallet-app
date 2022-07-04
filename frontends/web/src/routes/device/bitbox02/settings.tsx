@@ -130,4 +130,4 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
       </div>
     </div>
   );
-}
+};

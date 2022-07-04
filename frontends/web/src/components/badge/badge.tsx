@@ -12,4 +12,4 @@ export const Badge: FunctionComponent<Props> = ({ type, className, children }) =
       {children}
     </span>
   );
-}
+};

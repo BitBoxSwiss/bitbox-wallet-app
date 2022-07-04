@@ -17,21 +17,21 @@
 import { FunctionComponent, useEffect } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router';
 
-let navigate: NavigateFunction | undefined
+let navigate: NavigateFunction | undefined;
 
 /**
  * @deprecated preact-router like. Use `useNavigate` hook if possible
  */
 export const route = (route: string, replace?: boolean) => {
   navigate?.(route, { replace });
-}
+};
 
 // This component makes route fn work, and triggers an onChange function
 export const RouterWatcher: FunctionComponent<{onChange: (() => void)}> = ({ onChange }) => {
-  navigate = useNavigate()
-  const { pathname } = useLocation()
+  navigate = useNavigate();
+  const { pathname } = useLocation();
   useEffect(() => {
     onChange();
   }, [onChange, pathname]);
   return null;
-}
+};

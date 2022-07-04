@@ -30,7 +30,7 @@ class Create extends Component {
     backupName: '',
     recoveryPassword: '',
     activeDialog: false,
-  }
+  };
 
   abort = () => {
     this.setState({
@@ -39,7 +39,7 @@ class Create extends Component {
       recoveryPassword: '',
       activeDialog: false,
     });
-  }
+  };
 
   handleFormChange = event => {
     this.setState({ [event.target.id]: event.target.value });
@@ -47,7 +47,7 @@ class Create extends Component {
 
   validate = () => {
     return !this.state.waiting && this.state.backupName !== '';
-  }
+  };
 
   create = event => {
     event.preventDefault();
@@ -67,7 +67,7 @@ class Create extends Component {
         }
       }
     });
-  }
+  };
 
   render() {
     const { t } = this.props;

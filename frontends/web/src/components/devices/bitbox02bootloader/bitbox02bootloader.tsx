@@ -94,19 +94,19 @@ class BitBox02Bootloader extends Component<Props, State> {
     apiGet('devices/bitbox02-bootloader/' + this.props.deviceID + '/status').then(status => {
       this.setState({ status });
     });
-  }
+  };
 
   private upgradeFirmware = () => {
     apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/upgrade-firmware');
-  }
+  };
 
   private reboot = () => {
     apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/reboot');
-  }
+  };
 
   private screenRotate = () => {
     apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/screen-rotate');
-  }
+  };
 
   public render() {
     const { t,

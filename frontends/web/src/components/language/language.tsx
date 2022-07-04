@@ -78,7 +78,7 @@ class LanguageSwitch extends Component<Props, State> {
 
   abort = () => {
     this.setState({ activeDialog: false });
-  }
+  };
 
   getSelectedIndex = (languages: TLanguagesList) => {
     const lang = this.props.i18n.language;
@@ -99,7 +99,7 @@ class LanguageSwitch extends Component<Props, State> {
       return 0;
     }
     return index;
-  }
+  };
 
   changeLanguage = (langCode: TActiveLanguageCodes, index: number) => {
     // const langCode = e.target.dataset.code;
@@ -109,7 +109,7 @@ class LanguageSwitch extends Component<Props, State> {
       activeDialog: false,
     });
     i18n.changeLanguage(langCode);
-  }
+  };
 
   render() {
     const { t } = this.props;

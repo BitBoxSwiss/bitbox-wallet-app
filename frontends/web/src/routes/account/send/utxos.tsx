@@ -61,7 +61,7 @@ export class UTXOsClass extends Component<Props, State> {
     this.setState({ selectedUTXOs: {} }, () => {
       this.props.onChange(this.state.selectedUTXOs);
     });
-  }
+  };
 
   private handleUTXOChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
@@ -75,7 +75,7 @@ export class UTXOsClass extends Component<Props, State> {
     this.setState({ selectedUTXOs }, () => {
       this.props.onChange(selectedUTXOs);
     });
-  }
+  };
 
   private renderUTXOs = (scriptType: accountApi.ScriptType) => {
     const { t, explorerURL } = this.props;
@@ -137,7 +137,7 @@ export class UTXOsClass extends Component<Props, State> {
         </ul>
       </div>
     );
-  }
+  };
 
   public render() {
     const { t, active, onClose } = this.props;

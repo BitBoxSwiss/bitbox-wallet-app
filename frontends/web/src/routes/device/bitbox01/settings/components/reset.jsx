@@ -33,11 +33,11 @@ class Reset extends Component {
     isConfirming: false,
     activeDialog: false,
     understand: false,
-  }
+  };
 
   handleUnderstandChange = (e) => {
     this.setState({ understand: e.target.checked });
-  }
+  };
 
   resetDevice = () => {
     this.setState({
@@ -60,7 +60,7 @@ class Reset extends Component {
 
   setValidPIN = e => {
     this.setState({ pin: e.target.value });
-  }
+  };
 
   abort = () => {
     this.setState({
@@ -69,7 +69,7 @@ class Reset extends Component {
       isConfirming: false,
       activeDialog: false,
     });
-  }
+  };
 
   render() {
     const { t } = this.props;

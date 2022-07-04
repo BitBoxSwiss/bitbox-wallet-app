@@ -54,7 +54,7 @@ export class Entry extends Component<Props, State> {
       shown: !state.shown,
       highlighted: false,
     }));
-  }
+  };
 
   public render() {
     const props = this.props;

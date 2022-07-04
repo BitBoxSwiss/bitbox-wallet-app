@@ -25,7 +25,7 @@ export const Grid: FunctionComponent<GridProps> = ({ children }) => {
       {children}
     </section>
   );
-}
+};
 
 type ColumnProps = {
     asCard?: boolean;
@@ -40,7 +40,7 @@ export const Column: FunctionComponent<ColumnProps> = ({
       {children}
     </div>
   );
-}
+};
 
 type ColumnButtonsProps = {}
 
@@ -50,4 +50,4 @@ export const ColumnButtons: FunctionComponent<ColumnButtonsProps> = ({ children 
       {children}
     </div>
   );
-}
+};

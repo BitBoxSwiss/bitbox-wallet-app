@@ -69,4 +69,4 @@ export const HeadersSync: FunctionComponent<Props> = ({ coinCode }) => {
       </div>
     </div>
   );
-}
+};

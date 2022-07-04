@@ -154,21 +154,21 @@ class BitBox02 extends Component<Props, State> {
     apiGet(this.apiPrefix() + '/attestation').then(attestationResult => {
       this.setState({ attestationResult });
     });
-  }
+  };
 
   private apiPrefix = () => {
     return 'devices/bitbox02/' + this.props.deviceID;
-  }
+  };
 
   private handleGetStarted = () => {
     route('/account-summary', true);
-  }
+  };
 
   private onChannelHashChanged = () => {
     apiGet(this.apiPrefix() + '/channel-hash').then(({ hash, deviceVerified }) => {
       this.setState({ hash, deviceVerified });
     });
-  }
+  };
 
   private onStatusChanged = () => {
     const { showWizard, unlockOnly, appStatus } = this.state;
@@ -198,7 +198,7 @@ class BitBox02 extends Component<Props, State> {
         route('/', true);
       }
     });
-  }
+  };
 
   public componentWillUnmount() {
     const { sidebarStatus } = panelStore.state;
@@ -210,18 +210,18 @@ class BitBox02 extends Component<Props, State> {
 
   private channelVerify = (ok: boolean) => {
     apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
-  }
+  };
 
   private uninitializedStep = () => {
     this.setState({ appStatus: '' });
-  }
+  };
 
   private createWalletStep = () => {
     this.checkSDCard().then(sdCardInserted => {
       this.setState({ sdCardInserted });
     });
     this.setState({ appStatus: 'createWallet' });
-  }
+  };
 
   private restoreBackupStep = () => {
     this.insertSDCard().then(success => {
@@ -232,13 +232,13 @@ class BitBox02 extends Component<Props, State> {
         });
       }
     });
-  }
+  };
 
   private checkSDCard = () => {
     return apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(sdCardInserted => {
       return sdCardInserted;
     });
-  }
+  };
 
   private insertSDCard = () => {
     return this.checkSDCard().then(sdCardInserted => {
@@ -261,7 +261,7 @@ class BitBox02 extends Component<Props, State> {
         return false;
       });
     });
-  }
+  };
 
   private setPassword = () => {
     this.setState({
@@ -281,28 +281,28 @@ class BitBox02 extends Component<Props, State> {
       }
       this.setState({ settingPassword: false, createWalletStatus: 'createBackup' });
     });
-  }
+  };
 
   private restoreBackup = () => {
     this.insertSDCard();
     this.setState({
       restoreBackupStatus: 'restore',
     });
-  }
+  };
 
   private backupOnBeforeRestore = (backup: Backup) => {
     this.setState({
       restoreBackupStatus: 'setPassword',
       selectedBackup: backup,
     });
-  }
+  };
 
   private backupOnAfterRestore = (success: boolean) => {
     if (!success) {
       this.restoreBackup();
     }
     this.setState({ selectedBackup: undefined });
-  }
+  };
 
   private createBackup = () => {
     this.insertSDCard().then(success1 => {
@@ -322,13 +322,13 @@ class BitBox02 extends Component<Props, State> {
         this.setState({ creatingBackup: false, waitDialog: undefined });
       });
     });
-  }
+  };
 
   private handleDeviceNameInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
     const value: string = target.value;
     this.setState({ deviceName: value });
-  }
+  };
 
   private setDeviceName = () => {
     this.setState({ waitDialog: { title: this.props.t('bitbox02Interact.confirmName') } });
@@ -341,7 +341,7 @@ class BitBox02 extends Component<Props, State> {
           alertUser(result.message, { asDialog: false });
         }
       });
-  }
+  };
 
   private restoreFromMnemonic = () => {
     this.setState({ waitDialog: {
@@ -360,7 +360,7 @@ class BitBox02 extends Component<Props, State> {
         waitDialog: undefined,
       });
     });
-  }
+  };
 
   private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
         type TAgreements = 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
@@ -369,7 +369,7 @@ class BitBox02 extends Component<Props, State> {
         this.setState({
           [key as TAgreements]: target.checked
         } as unknown as Pick<State, keyof State>);
-  }
+  };
 
   public render() {
     const { t, deviceID } = this.props;

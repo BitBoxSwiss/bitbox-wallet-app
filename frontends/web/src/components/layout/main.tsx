@@ -25,4 +25,4 @@ export const Main: FunctionComponent<MainProps> = ({ children }) => {
       {children}
     </main>
   );
-}
+};

@@ -76,11 +76,11 @@ class Backups extends Component<Props, State> {
         alertUser(errorMessage);
       }
     });
-  }
+  };
 
   private handleBackuplistChange = (backupID: string) => {
     this.setState({ selectedBackup: backupID });
-  }
+  };
 
   private scrollIntoView = (event: React.SyntheticEvent) => {
     if(!this.scrollableContainer.current){
@@ -94,7 +94,7 @@ class Backups extends Component<Props, State> {
     }
     const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.current.offsetHeight, 0);
     this.scrollableContainer.current.scroll({ top, behavior: 'smooth' });
-  }
+  };
 
   public render() {
     const {

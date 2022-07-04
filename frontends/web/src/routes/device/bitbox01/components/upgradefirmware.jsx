@@ -29,7 +29,7 @@ class UpgradeFirmware extends Component {
     newVersion: '',
     isConfirming: false,
     activeDialog: false,
-  }
+  };
 
   upgradeFirmware = () => {
     this.setState({
@@ -56,7 +56,7 @@ class UpgradeFirmware extends Component {
 
   abort = () => {
     this.setState({ activeDialog: false });
-  }
+  };
 
   render() {
     const {

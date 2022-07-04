@@ -60,7 +60,7 @@ class Chart extends Component<Props, State> {
       chartTotal: null,
       chartIsUpToDate: false,
     }
-  }
+  };
 
   public readonly state: State = {
     display: 'all',
@@ -103,7 +103,7 @@ class Chart extends Component<Props, State> {
 
   private hasData = (): boolean => {
     return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length > 0;
-  }
+  };
 
   private createChart = () => {
     const { data: { chartIsUpToDate, chartDataMissing } } = this.props;
@@ -178,7 +178,7 @@ class Chart extends Component<Props, State> {
       window.addEventListener('resize', this.onResize);
       setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
     }
-  }
+  };
 
   private onResize = () => {
     if (this.resizeTimerID) {
@@ -190,7 +190,7 @@ class Chart extends Component<Props, State> {
       }
       this.chart.resize(this.ref.current.offsetWidth, this.height);
     }, 200);
-  }
+  };
 
   private getUTCRange = () => {
     const now = new Date();
@@ -207,7 +207,7 @@ class Chart extends Component<Props, State> {
       to,
       from,
     };
-  }
+  };
 
   private displayWeek = () => {
     if (this.state.source !== 'hourly' && this.lineSeries && this.props.data.chartDataHourly && this.chart) {
@@ -228,7 +228,7 @@ class Chart extends Component<Props, State> {
         });
       }
     );
-  }
+  };
 
   private displayMonth = () => {
     if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
@@ -249,7 +249,7 @@ class Chart extends Component<Props, State> {
         });
       }
     );
-  }
+  };
 
   private displayYear = () => {
     if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
@@ -270,7 +270,7 @@ class Chart extends Component<Props, State> {
         });
       }
     );
-  }
+  };
 
   private displayAll = () => {
     if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
@@ -286,7 +286,7 @@ class Chart extends Component<Props, State> {
         this.chart.timeScale().fitContent();
       }
     );
-  }
+  };
 
   private calculateChange = () => {
     const data = this.props.data[this.state.source === 'daily' ? 'chartDataDaily' : 'chartDataHourly'];
@@ -315,7 +315,7 @@ class Chart extends Component<Props, State> {
       difference: ((valueDiff / valueFrom) * 100),
       diffSince: `${data[rangeFrom].value.toFixed(2)} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
     });
-  }
+  };
 
   private handleCrosshair = ({ point, time, seriesPrices }: MouseEventParams) => {
     if (!this.refToolTip.current) {
@@ -347,7 +347,7 @@ class Chart extends Component<Props, State> {
       toolTipLeft,
       toolTipTime: time as number,
     });
-  }
+  };
 
   private renderDate = (date: number) => {
     return new Date(date).toLocaleString(
@@ -362,7 +362,7 @@ class Chart extends Component<Props, State> {
         } : null)
       }
     );
-  }
+  };
 
   public render() {
     const {

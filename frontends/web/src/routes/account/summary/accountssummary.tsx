@@ -111,14 +111,14 @@ class AccountsSummary extends Component<Props, State> {
         this.summaryReqTimerID = window.setTimeout(this.getAccountSummary, delay);
       });
     }).catch(console.error);
-  }
+  };
 
   private async getAccountsTotalBalance() {
     try {
       const totalBalancePerCoin = await accountApi.getAccountsTotalBalance();
       this.setState({ totalBalancePerCoin });
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
   }
 
@@ -129,7 +129,7 @@ class AccountsSummary extends Component<Props, State> {
         : accountPerCoin[account.coinCode] = [account];
       return accountPerCoin;
     }, {} as TAccountCoinMap);
-  }
+  };
 
   private onEvent = (data: any) => {
     for (const account of this.props.accounts) {
@@ -153,7 +153,7 @@ class AccountsSummary extends Component<Props, State> {
         break;
       }
     }
-  }
+  };
 
   private async onStatusChanged(code: string, initial: boolean = false) {
     const status = await accountApi.getStatus(code);
@@ -180,7 +180,7 @@ class AccountsSummary extends Component<Props, State> {
       this.setState({ exported });
     })
       .catch(console.error);
-  }
+  };
 
   private balanceRow = (
     { code, name, coinCode, coinUnit }: PropsWithChildren<BalanceRowProps>,
@@ -227,7 +227,7 @@ class AccountsSummary extends Component<Props, State> {
         </td>
       </tr>
     );
-  }
+  };
 
   private subTotalRow({ coinCode, coinName, coinUnit, balance }: PropsWithChildren<BalanceRowProps>) {
     const { t } = this.props;

@@ -28,36 +28,36 @@ interface Props {
 
 const InjectParams: FunctionComponent = ({ children }) => {
   const params = useParams();
-  return React.cloneElement(children as React.ReactElement, params)
-}
+  return React.cloneElement(children as React.ReactElement, params);
+};
 
 export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }) => {
   const Homepage = <DeviceSwitch
     key={devicesKey('device-switch-default')}
     deviceID={null}
     devices={devices}
-  />
+  />;
 
   const Device = <InjectParams>
     <DeviceSwitch
       key={devicesKey('device-switch')}
       deviceID={null}
       devices={devices} />
-  </InjectParams>
+  </InjectParams>;
 
   const Acc = <InjectParams>
     <Account
       code={'' /* dummy to satisfy TS */}
       devices={devices}
       accounts={activeAccounts} />
-  </InjectParams>
+  </InjectParams>;
 
   const AccSend = <InjectParams>
     <Send
       devices={devices}
       deviceIDs={deviceIDs}
       accounts={activeAccounts} />
-  </InjectParams>
+  </InjectParams>;
 
   const AccReceive = <InjectParams>
     <Receive
@@ -65,33 +65,33 @@ export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, device
       devices={devices}
       deviceIDs={deviceIDs}
       accounts={activeAccounts} />
-  </InjectParams>
+  </InjectParams>;
 
   const AccInfo = <InjectParams>
     <Info
       code={''}
       accounts={activeAccounts} />
-  </InjectParams>
+  </InjectParams>;
 
   const BuyInfoEl = <InjectParams>
     <BuyInfo
       devices={devices}
       accounts={activeAccounts} />
-  </InjectParams>
+  </InjectParams>;
 
   const MoonpayEl = <InjectParams>
     <Moonpay
       code={''}
       devices={devices}
       accounts={activeAccounts} />
-  </InjectParams>
+  </InjectParams>;
 
-  const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>
+  const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
 
   const ManageBackupsEl = <InjectParams><ManageBackups
     key={devicesKey('manage-backups')}
     devices={devices}
-  /></InjectParams>
+  /></InjectParams>;
 
   return <Routes>
     <Route path="/">
@@ -121,5 +121,5 @@ export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, device
         <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} />} />
       </Route>
     </Route>
-  </Routes>
-}
+  </Routes>;
+};

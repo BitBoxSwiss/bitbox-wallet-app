@@ -62,7 +62,7 @@ class AddAccount extends Component<Props, State> {
 
   private onlyOneSupportedCoin = (): boolean => {
     return this.state.supportedCoins.length === 1;
-  }
+  };
 
   public componentDidMount() {
     backendAPI.getSupportedCoins()
@@ -95,7 +95,7 @@ class AddAccount extends Component<Props, State> {
       this.setState({ step: 'choose-name' });
       break;
     }
-  }
+  };
 
   private next = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -143,7 +143,7 @@ class AddAccount extends Component<Props, State> {
       break;
 
     }
-  }
+  };
 
   private isFirstStep = () => {
     switch (this.state.step) {
@@ -154,7 +154,7 @@ class AddAccount extends Component<Props, State> {
     case 'success':
       return false;
     }
-  }
+  };
 
   private renderContent = () => {
     const { t } = this.props;
@@ -187,7 +187,7 @@ class AddAccount extends Component<Props, State> {
         </div>
       );
     }
-  }
+  };
 
   private getTextFor = (step: TStep) => {
     const { t } = this.props;
@@ -208,7 +208,7 @@ class AddAccount extends Component<Props, State> {
         nextButtonText: t('addAccount.success.nextButton'),
       };
     }
-  }
+  };
 
   public render() {
     const { t } = this.props;

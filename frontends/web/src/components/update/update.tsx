@@ -51,7 +51,7 @@ const Update: FunctionComponent<Props> = ({ file }) => {
       {!runningInAndroid() && downloadElement}
     </Status>
   );
-}
+};
 
 const HOC = load<Props>({ file: 'update' })(Update);
 

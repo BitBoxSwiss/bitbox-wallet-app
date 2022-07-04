@@ -35,7 +35,7 @@ class LegacyHiddenWallet extends Component {
         this.props.onChange(newValue);
       }
     });
-  }
+  };
 
   render() {
     const {

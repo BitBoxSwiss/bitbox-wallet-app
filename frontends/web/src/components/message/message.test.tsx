@@ -15,9 +15,9 @@
  */
 
 import 'jest';
-import { render } from '@testing-library/react'
+import { render } from '@testing-library/react';
 import { Message } from './message';
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 describe('components/message/message', () => {
   it('should have child nodes', () => {

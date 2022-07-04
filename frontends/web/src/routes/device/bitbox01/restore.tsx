@@ -61,11 +61,11 @@ class Restore extends Component<Props, State> {
       understand: false,
       password: undefined,
     });
-  }
+  };
 
   private validate = () => {
     return this.props.selectedBackup && this.state.password;
-  }
+  };
 
   private restore = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -101,15 +101,15 @@ class Restore extends Component<Props, State> {
         }));
       }
     });
-  }
+  };
 
   private handleUnderstandChange = (e: React.SyntheticEvent) => {
     this.setState({ understand: (e.target as HTMLInputElement).checked });
-  }
+  };
 
   private setValidPassword = (password: string) => {
     this.setState({ password });
-  }
+  };
 
   public render() {
     const {

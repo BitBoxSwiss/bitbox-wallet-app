@@ -42,6 +42,6 @@ const A:FunctionComponent<Props> =({ href, icon, children, ...props }) => {
       {children}
     </span>
   );
-}
+};
 
 export default A;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { DependencyList, useEffect, useState } from 'react'
+import { DependencyList, useEffect, useState } from 'react';
 import { SubscriptionCallback } from '../api/subscribe';
 import { Unsubscribe } from '../utils/event';
 import { useMountedRef } from './utils';
@@ -40,7 +40,7 @@ export const useSubscribe = <T>(
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
   return respose;
-}
+};
 
 /**
  * useLoad is a hook to load a promise.
@@ -94,4 +94,4 @@ export const useSync = <T>(
     }, // we pass no dependencies because it's only queried once
     []); // eslint-disable-line react-hooks/exhaustive-deps
   return respose;
-}
+};

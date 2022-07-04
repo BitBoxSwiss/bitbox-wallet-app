@@ -43,7 +43,7 @@ class ShowMnemonic extends Component<Props, State> {
     apiPost(this.props.apiPrefix + '/show-mnemonic').then(() => {
       this.setState({ inProgress: false });
     });
-  }
+  };
 
   private askShowMnemonic = () => {
     confirmation(this.props.t('backup.showMnemonic.description'), result => {
@@ -52,7 +52,7 @@ class ShowMnemonic extends Component<Props, State> {
       }
     });
 
-  }
+  };
 
   public render() {
     const { t } = this.props;

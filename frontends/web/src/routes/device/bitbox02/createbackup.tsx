@@ -48,7 +48,7 @@ class Create extends Component<Props, State> {
       }
       this.setState({ creatingBackup: false, disabled: false });
     });
-  }
+  };
 
   private maybeCreateBackup = () => {
     this.setState({ disabled: true });
@@ -67,7 +67,7 @@ class Create extends Component<Props, State> {
       }
       this.createBackup();
     });
-  }
+  };
 
   public render() {
     const { t } = this.props;

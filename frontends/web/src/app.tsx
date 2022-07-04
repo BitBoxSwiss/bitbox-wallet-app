@@ -16,7 +16,7 @@
  */
 
 import { Component } from 'react';
-import { AppRouter } from './routes/router'
+import { AppRouter } from './routes/router';
 import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
@@ -60,7 +60,7 @@ class App extends Component<Props, State> {
     if (panelStore.state.activeSidebar) {
       toggleSidebar();
     }
-  }
+  };
 
   public componentDidMount() {
     this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
@@ -162,17 +162,17 @@ class App extends Component<Props, State> {
       route('/', true);
       return;
     }
-  }
+  };
 
   // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.
   // The prefix is used so different subcomponents can have unique keys to not confuse the renderer.
   private devicesKey = (prefix: string): string => {
     return prefix + ':' + JSON.stringify(this.state.devices, Object.keys(this.state.devices).sort());
-  }
+  };
 
   private activeAccounts = (): IAccount[] => {
     return this.state.accounts.filter(acct => acct.active);
-  }
+  };
 
   public render() {
     const { accounts, devices } = this.state;

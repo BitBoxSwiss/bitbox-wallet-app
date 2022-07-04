@@ -60,7 +60,7 @@ class Transaction extends Component<Props, State> {
       day: 'numeric',
     } as Intl.DateTimeFormatOptions;
     return new Date(Date.parse(time)).toLocaleString(this.props.i18n.language, options);
-  }
+  };
 
   private showDetails = () => {
     this.setState({
@@ -68,16 +68,16 @@ class Transaction extends Component<Props, State> {
       newNote: this.props.note,
       editMode: !this.props.note,
     });
-  }
+  };
 
   private hideDetails = () => {
     this.setState({ transactionDialog: false });
-  }
+  };
 
   private handleNoteInput = (e: Event) => {
     const target = e.target as HTMLInputElement;
     this.setState({ newNote: target.value });
-  }
+  };
 
   private handleEdit = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -93,7 +93,7 @@ class Transaction extends Component<Props, State> {
       ({ editMode }) => ({ editMode: !editMode }),
       this.focusEdit,
     );
-  }
+  };
 
   private focusEdit = () => {
     if (this.editButton.current) {
@@ -103,7 +103,7 @@ class Transaction extends Component<Props, State> {
       this.input.current.scrollLeft = this.input.current.scrollWidth;
       this.input.current.focus();
     }
-  }
+  };
 
   public render() {
     const {

@@ -58,7 +58,7 @@ export const Info: FunctionComponent<Props> = ({
     }
     const numberOfXPubs = info.signingConfigurations.length;
     setViewXPub((viewXPub + 1) % numberOfXPubs);
-  }
+  };
 
   return (
     <div className="contentWithGuide">
@@ -105,4 +105,4 @@ export const Info: FunctionComponent<Props> = ({
       ) : null }
     </div>
   );
-}
+};

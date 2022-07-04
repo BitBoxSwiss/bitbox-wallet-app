@@ -100,7 +100,7 @@ class MobilePairing extends Component<Props, State> {
         break;
       }
     }
-  }
+  };
 
   private reconnectUnpaired = () => {
     // If a mobile connection exists, but the device is not marked as paired, then mark it as paired.
@@ -115,7 +115,7 @@ class MobilePairing extends Component<Props, State> {
         alertUser(this.props.t('pairing.success.text'));
       });
     });
-  }
+  };
 
   private startPairing = () => {
     confirmation(this.props.t('pairing.confirm'), response => {
@@ -140,18 +140,18 @@ class MobilePairing extends Component<Props, State> {
         }
       });
     });
-  }
+  };
 
   private abort = () => {
     this.setState({
       showQRCode: false,
       status: false,
     });
-  }
+  };
 
   private toggleQRCode = () => {
     this.setState({ showQRCode: !this.state.showQRCode });
-  }
+  };
 
   public render() {
     const { t, deviceLocked, paired, hasMobileChannel } = this.props;

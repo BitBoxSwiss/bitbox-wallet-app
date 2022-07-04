@@ -40,6 +40,6 @@ const DeviceSwitch: FunctionComponent<Props> = ({ deviceID, devices }) => {
   default:
     return <Waiting />;
   }
-}
+};
 
 export { DeviceSwitch };

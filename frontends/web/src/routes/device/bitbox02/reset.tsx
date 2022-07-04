@@ -54,11 +54,11 @@ class Reset extends Component<Props, State> {
         alertUser(this.props.t('reset.notReset'));
       }
     });
-  }
+  };
 
   private handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({ understand: e.target.checked });
-  }
+  };
 
   private abort = () => {
     this.setState({
@@ -66,7 +66,7 @@ class Reset extends Component<Props, State> {
       isConfirming: false,
       activeDialog: false,
     });
-  }
+  };
 
   public render() {
     const { t } = this.props;

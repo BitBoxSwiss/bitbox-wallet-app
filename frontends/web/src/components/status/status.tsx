@@ -81,7 +81,7 @@ export default class Status extends Component<Props, State> {
     this.setState({
       show: false,
     });
-  }
+  };
 
   public render() {
     const {
