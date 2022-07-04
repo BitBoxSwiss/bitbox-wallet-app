@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,72 +15,67 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { FunctionComponent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ITransaction } from '../../api/account';
 import A from '../../components/anchor/anchor';
-import { translate, TranslateProps } from '../../decorators/translate';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
 import style from './transactions.module.css';
 
-interface TransactionsProps {
+type Props = {
     accountCode: string;
     explorerURL: string;
     transactions?: ITransaction[];
     handleExport: () => void;
-}
+};
 
-type Props = TransactionsProps & TranslateProps;
+export const Transactions: FunctionComponent<Props> = ({
+  accountCode,
+  explorerURL,
+  transactions,
+  handleExport,
+}) => {
+  const { t } = useTranslation();
 
-class Transactions extends Component<Props> {
-  public render() {
-    const {
-      t,
-      accountCode,
-      explorerURL,
-      transactions,
-      handleExport,
-    } = this.props;
-    // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
-    // folder and permissions.
-    const csvExportDisabled = runningInAndroid();
-    return (
-      <div className={style.container}>
-        <div className="flex flex-row flex-between flex-items-center">
-          <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
-          { !csvExportDisabled && (
-            <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
-          ) }
-        </div>
-        <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
-          <div className={style.type}>{t('transaction.details.type')}</div>
-          <div className={style.date}>{t('transaction.details.date')}</div>
-          <div className={style.activity}>{t('transaction.details.activity')}</div>
-          <div className={style.status}>{t('transaction.details.status')}</div>
-          <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
-          <div className={style.currency}>{t('transaction.details.amount')}</div>
-          <div className={style.action}>&nbsp;</div>
-        </div>
-        {
-          (transactions && transactions.length > 0) ? transactions
-            .map((props, index) => (
-              <Transaction
-                accountCode={accountCode}
-                key={props.internalID}
-                explorerURL={explorerURL}
-                index={index}
-                {...props} />
-            )) : (
-            <div className={['flex flex-row flex-center', style.empty].join(' ')}>
-              <p>{t('transactions.placeholder')}</p>
-            </div>
-          )
-        }
+  // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
+  // folder and permissions.
+  const csvExportDisabled = runningInAndroid();
+
+  return (
+    <div className={style.container}>
+      <div className="flex flex-row flex-between flex-items-center">
+        <label className="labelXLarge">
+          {t('accountSummary.transactionHistory')}
+        </label>
+        { !csvExportDisabled && (
+          <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>
+            {t('account.export')}
+          </A>
+        ) }
       </div>
-    );
-  }
-}
-
-const HOC = translate()(Transactions);
-
-export { HOC as Transactions };
+      <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
+        <div className={style.type}>{t('transaction.details.type')}</div>
+        <div className={style.date}>{t('transaction.details.date')}</div>
+        <div className={style.activity}>{t('transaction.details.activity')}</div>
+        <div className={style.status}>{t('transaction.details.status')}</div>
+        <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
+        <div className={style.currency}>{t('transaction.details.amount')}</div>
+        <div className={style.action}>&nbsp;</div>
+      </div>
+      { (transactions && transactions.length > 0)
+        ? transactions.map((props, index) => (
+          <Transaction
+            accountCode={accountCode}
+            key={props.internalID}
+            explorerURL={explorerURL}
+            index={index}
+            {...props} />
+        )) : (
+          <div className={`flex flex-row flex-center ${style.empty}`}>
+            <p>{t('transactions.placeholder')}</p>
+          </div>
+        ) }
+    </div>
+  );
+};
