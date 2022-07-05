@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import { Component } from 'react';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
+import { getDeviceInfo } from '../../api/bitbox01';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
 import { alertUser } from '../../components/alert/Alert';
@@ -138,13 +139,8 @@ class Account extends Component<Props, State> {
     Promise.all(this.deviceIDs(this.props.devices).map(deviceID => {
       switch (this.props.devices[deviceID]) {
       case 'bitbox':
-        return apiGet(`devices/${deviceID}/info`)
-          .then(info => {
-            if (!info) {
-              return false;
-            }
-            return info.sdcard;
-          });
+        return getDeviceInfo(deviceID)
+          .then(({ sdcard }) => sdcard);
       case 'bitbox02':
         return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
           .then(sdcard => sdcard);

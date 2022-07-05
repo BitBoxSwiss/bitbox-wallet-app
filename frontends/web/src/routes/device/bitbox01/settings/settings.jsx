@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { route } from '../../../../utils/route';
+import { getDeviceInfo } from '../../../../api/bitbox01';
 import { apiGet } from '../../../../utils/request';
 import { apiWebsocket } from '../../../../utils/websocket';
 import { Guide } from '../../../../components/guide/guide';
@@ -50,22 +52,25 @@ class Settings extends Component {
   }
 
   componentDidMount() {
-    apiGet('devices/' + this.props.deviceID + '/info').then(({
-      version,
-      sdcard,
-      lock,
-      name,
-      new_hidden_wallet, // eslint-disable-line camelcase,
-      pairing,
-    }) => {
-      this.setState({
-        firmwareVersion: version.replace('v', ''),
-        lock, name, sdcard,
-        spinner: false,
-        newHiddenWallet: new_hidden_wallet,
+    getDeviceInfo(this.props.deviceID)
+      .then(({
+        lock,
+        name,
+        new_hidden_wallet,
         pairing,
+        sdcard,
+        version,
+      }) => {
+        this.setState({
+          firmwareVersion: version.replace('v', ''),
+          lock,
+          name,
+          newHiddenWallet: new_hidden_wallet,
+          pairing,
+          sdcard,
+          spinner: false,
+        });
       });
-    });
 
     apiGet('devices/' + this.props.deviceID + '/has-mobile-channel').then(mobileChannel => {
       this.setState({ mobileChannel });
