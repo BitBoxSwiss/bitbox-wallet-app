@@ -59,7 +59,7 @@ class Passphrase extends Component<Props, State> {
     infoStep: 0,
     status: 'info',
     understood: false,
-  }
+  };
 
   public componentDidMount() {
     getDeviceInfo(this.props.deviceID)
@@ -96,9 +96,9 @@ class Passphrase extends Component<Props, State> {
           defaultValue: e.message || t('genericError'),
         }));
       });
-  }
+  };
 
-  private stopInfo = () => route(`/device/${this.props.deviceID}`)
+  private stopInfo = () => route(`/device/${this.props.deviceID}`);
 
   private continueInfo = () => {
     if (this.state.infoStep === 0) {
@@ -106,7 +106,7 @@ class Passphrase extends Component<Props, State> {
       return;
     }
     this.setState(({ infoStep }) => ({ infoStep: infoStep - 1 }));
-  }
+  };
 
   private backInfo = () => {
     if (this.state.infoStep === undefined) {
@@ -121,7 +121,7 @@ class Passphrase extends Component<Props, State> {
       return;
     }
     this.setState(({ infoStep }) => ({ infoStep: infoStep + 1 }));
-  }
+  };
 
   private renderEnableInfo = () => {
     const { infoStep, understood } = this.state;
@@ -291,7 +291,7 @@ class Passphrase extends Component<Props, State> {
       console.error(`invalid infoStep ${infoStep}`);
       return;
     }
-  }
+  };
 
   private renderDisableInfo = () => {
     const { t } = this.props;
@@ -319,7 +319,7 @@ class Passphrase extends Component<Props, State> {
         </ViewButtons>
       </View>
     );
-  }
+  };
 
   public render() {
     const { t } = this.props;

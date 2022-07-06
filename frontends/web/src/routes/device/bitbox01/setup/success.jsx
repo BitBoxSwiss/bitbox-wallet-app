@@ -27,7 +27,7 @@ class Success extends Component {
 
   handleGetStarted = () => {
     route('/account-summary', true);
-  }
+  };
 
   render() {
     const {

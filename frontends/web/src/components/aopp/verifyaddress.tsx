@@ -42,7 +42,7 @@ class VerifyAddress extends Component<Props, State> {
     accountAPI.verifyAddress(this.props.accountCode, this.props.addressID).then(() => {
       this.setState({ verifying: false });
     });
-  }
+  };
 
   public render() {
     const { t, address } = this.props;

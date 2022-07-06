@@ -57,11 +57,11 @@ class BuyInfo extends Component<Props, State> {
   public readonly state: State = {
     status: this.props.config.frontend.skipBuyDisclaimer ? 'choose' : 'agree',
     selected: this.props.code,
-  }
+  };
 
   componentDidMount = () => {
     this.checkSupportedCoins();
-  }
+  };
 
   private handleProceed = () => {
     const { status, selected } = this.state;
@@ -70,13 +70,13 @@ class BuyInfo extends Component<Props, State> {
     } else {
       this.setState({ status: 'choose' }, this.maybeProceed);
     }
-  }
+  };
 
   private maybeProceed = () => {
     if (this.state.status === 'choose' && this.state.options !== undefined && this.state.options.length === 1) {
       route(`/buy/moonpay/${this.state.options[0].value}`);
     }
-  }
+  };
 
   private checkSupportedCoins = () => {
     Promise.all(
@@ -92,11 +92,11 @@ class BuyInfo extends Component<Props, State> {
         this.setState({ options }, this.maybeProceed);
       })
       .catch(console.error);
-  }
+  };
 
   private handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipBuyDisclaimer: e.target.checked } });
-  }
+  };
 
   private getCryptoName = (): string => {
     const { accounts, code, t } = this.props;
@@ -109,7 +109,7 @@ class BuyInfo extends Component<Props, State> {
       return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
     }
     return t('buy.info.crypto');
-  }
+  };
 
   public render() {
     const { t } = this.props;

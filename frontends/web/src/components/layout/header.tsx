@@ -35,7 +35,7 @@ class Header extends Component<Props> {
       toggleGuide();
     }
     return false;
-  }
+  };
 
   public render() {
     const { t, title, narrow, children, guideExists, shown, sidebarStatus } = this.props;

@@ -60,11 +60,11 @@ class Exchanges extends Component<Props, State> {
 
   private toggleRegion = (code: Region) => {
     this.setState(({ region }) => ({ region: region !== code ? code : null }));
-  }
+  };
 
   private toggleMethod = (code: Method) => {
     this.setState(({ method }) => ({ method: method !== code ? code : null }));
-  }
+  };
 
   public render() {
     const { t } = this.props;

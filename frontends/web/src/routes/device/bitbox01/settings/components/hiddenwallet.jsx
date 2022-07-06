@@ -32,7 +32,7 @@ class HiddenWallet extends Component {
     pin: null,
     isConfirming: false,
     activeDialog: false,
-  }
+  };
 
   abort = () => {
     this.setState({
@@ -40,15 +40,15 @@ class HiddenWallet extends Component {
       isConfirming: false,
       activeDialog: false,
     });
-  }
+  };
 
   handleFormChange = event => {
     this.setState({ [event.target.id]: event.target.value });
-  }
+  };
 
   validate = () => {
     return this.state.password && this.state.pin;
-  }
+  };
 
   createHiddenWallet = event => {
     event.preventDefault();
@@ -72,15 +72,15 @@ class HiddenWallet extends Component {
         }));
       }
     });
-  }
+  };
 
   setValidPassword = password => {
     this.setState({ password });
-  }
+  };
 
   setValidPIN = pin => {
     this.setState({ pin });
-  }
+  };
 
   render() {
     const {

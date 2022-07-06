@@ -31,13 +31,13 @@ describe('components/language/language', () => {
 
     supportedLangs.forEach((lang, idx) => {
       it(`returns exact match (${lang.code})`, async () => {
-        await i18n.changeLanguage(lang.code)
+        await i18n.changeLanguage(lang.code);
 
         let ctx: any;
         act(() => {
           /* @ts-ignore */
           ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
-        })
+        });
 
         expect(ctx.childAt(0).state('selectedIndex')).toEqual(idx);
       });

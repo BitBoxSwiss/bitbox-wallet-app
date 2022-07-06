@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react'
+import { useEffect } from 'react';
 
 /**
  * useEsc handles ESC key.
@@ -28,7 +28,7 @@ export const useEsc = (
       if (e.key === 'Escape') {
         callback();
       }
-    }
+    };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [callback]);

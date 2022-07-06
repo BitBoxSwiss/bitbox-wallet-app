@@ -49,7 +49,7 @@ export const SetDeviceName: FunctionComponent<Props> = ({
       const { name: newDeviceName } = await getDeviceInfo(deviceID);
       setCurrentName(newDeviceName);
     } catch (e) {
-      alertUser('Device name could not be set')
+      alertUser('Device name could not be set');
     } finally {
       setActive(false);
       setInProgress(false);

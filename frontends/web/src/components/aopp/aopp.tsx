@@ -88,7 +88,7 @@ class Aopp extends Component<Props, State> {
       aoppAPI.chooseAccount(this.state.accountCode);
     }
     e.preventDefault();
-  }
+  };
 
   public render() {
     const { t, aopp } = this.props;

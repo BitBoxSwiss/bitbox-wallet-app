@@ -40,8 +40,8 @@ const ToggleFWHash: FunctionComponent<Props> = ({ enabled, deviceID }) => {
       'devices/bitbox02-bootloader/' + deviceID + '/set-firmware-hash-enabled',
       enabled,
     );
-    setEnabledState(enabled)
-  }
+    setEnabledState(enabled);
+  };
 
   return (
     <div className="box slim divide">
@@ -55,7 +55,7 @@ const ToggleFWHash: FunctionComponent<Props> = ({ enabled, deviceID }) => {
       </div>
     </div>
   );
-}
+};
 
 const HOC = load<LoadedProps, ToggleProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
 export { HOC as ToggleShowFirmwareHash };

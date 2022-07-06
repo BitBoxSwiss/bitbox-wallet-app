@@ -50,11 +50,11 @@ class UpgradeButton extends Component<Props, State> {
       this.setState({ confirming: false });
       this.abort();
     });
-  }
+  };
 
   private abort = () => {
     this.setState({ activeDialog: false });
-  }
+  };
 
   public render() {
     const {

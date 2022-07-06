@@ -38,14 +38,14 @@ class RandomNumber extends Component {
         number,
       });
     });
-  }
+  };
 
   abort = () => {
     this.setState({
       active: false,
       number: undefined,
     });
-  }
+  };
 
   render() {
     const { t } = this.props;

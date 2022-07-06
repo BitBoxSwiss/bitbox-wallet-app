@@ -67,14 +67,14 @@ class Moonpay extends Component<Props, State> {
       }
       this.setState({ height: this.ref.current.offsetHeight });
     }, 200);
-  }
+  };
 
   private getAccount = (): IAccount | undefined => {
     if (!this.props.accounts) {
       return undefined;
     }
     return this.props.accounts.find(({ code }) => code === this.props.code);
-  }
+  };
 
   private getCryptoName = (): string => {
     const { t } = this.props;
@@ -83,7 +83,7 @@ class Moonpay extends Component<Props, State> {
       return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
     }
     return t('buy.info.crypto');
-  }
+  };
 
   public render() {
     const { moonpay, t } = this.props;

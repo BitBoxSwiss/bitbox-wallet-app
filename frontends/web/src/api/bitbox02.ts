@@ -67,7 +67,7 @@ export const getVersion = (
   deviceID: string
 ): Promise<VersionInfo> => {
   return apiGet(`devices/bitbox02/${deviceID}/version`);
-}
+};
 
 export const setMnemonicPassphraseEnabled = (
   deviceID: string,

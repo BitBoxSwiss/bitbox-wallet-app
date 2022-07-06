@@ -40,7 +40,7 @@ class GotoStartupSettings extends Component<Props, State> {
     apiPost(this.props.apiPrefix + '/goto-startup-settings').then(() => {
       this.setState({ isConfirming: false });
     });
-  }
+  };
 
   public render() {
     const { t } = this.props;

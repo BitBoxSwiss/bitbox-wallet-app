@@ -29,7 +29,7 @@ class DeviceLock extends Component {
   state = {
     isConfirming: false,
     activeDialog: false,
-  }
+  };
 
   resetDevice = () => {
     this.setState({
@@ -48,7 +48,7 @@ class DeviceLock extends Component {
 
   abort = () => {
     this.setState({ activeDialog: false });
-  }
+  };
 
   render() {
     const {

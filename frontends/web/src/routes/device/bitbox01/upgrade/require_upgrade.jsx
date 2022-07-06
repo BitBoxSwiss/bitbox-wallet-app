@@ -24,7 +24,7 @@ import style from '../bitbox01.module.css';
 class RequireUpgrade extends Component {
   state = {
     firmwareVersion: null
-  }
+  };
 
   componentDidMount() {
     apiGet('devices/' + this.props.deviceID + '/info').then(({ version }) => {

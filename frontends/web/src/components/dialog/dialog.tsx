@@ -58,7 +58,7 @@ class Dialog extends Component<Props, State> {
     const input = e.target as HTMLElement;
     const index = input.getAttribute('index');
     this.setState({ currentTab: Number(index) });
-  }
+  };
 
   private focusWithin = () => {
     if (this.modalContent.current) {
@@ -71,21 +71,21 @@ class Dialog extends Component<Props, State> {
       }
       document.addEventListener('keydown', this.handleKeyDown);
     }
-  }
+  };
 
   private focusFirst = () => {
     const focusables = this.focusableChildren;
     if (focusables.length && focusables[0].getAttribute('autofocus') !== 'false') {
       focusables[0].focus();
     }
-  }
+  };
 
   private updateIndex = (isNext: boolean) => {
     const target = this.getNextIndex(isNext);
     this.setState({ currentTab: target }, () => {
       this.focusableChildren[target].focus();
     });
-  }
+  };
 
   private getNextIndex(isNext: boolean) {
     const { currentTab } = this.state;
@@ -112,7 +112,7 @@ class Dialog extends Component<Props, State> {
     } else if (isTab) {
       this.updateIndex(true);
     }
-  }
+  };
 
   private deactivate = () => {
     if (!this.modal.current || !this.overlay.current) {
@@ -126,7 +126,7 @@ class Dialog extends Component<Props, State> {
         this.props.onClose();
       }
     });
-  }
+  };
 
   private activate = () => {
     this.setState({ active: true }, () => {
@@ -138,7 +138,7 @@ class Dialog extends Component<Props, State> {
       this.focusWithin();
       this.focusFirst();
     });
-  }
+  };
 
   public render() {
     const {
@@ -211,7 +211,7 @@ class Dialog extends Component<Props, State> {
 
 interface DialogButtonsProps {
     children: React.ReactNode;
-};
+}
 
 function DialogButtons({ children }: DialogButtonsProps) {
   return (

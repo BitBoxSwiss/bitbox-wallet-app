@@ -28,6 +28,6 @@ const Version: FunctionComponent = () => {
     return null;
   }
   return <p>{t('footer.appVersion')} {version}</p>;
-}
+};
 
 export { Version };

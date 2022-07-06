@@ -39,7 +39,7 @@ interface State {
 class CopyableInput extends Component<Props, State> {
   public readonly state: State = {
     success: false,
-  }
+  };
 
   private textArea = createRef<HTMLTextAreaElement>();
 
@@ -64,7 +64,7 @@ class CopyableInput extends Component<Props, State> {
 
   private onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
     e.currentTarget.focus();
-  }
+  };
 
   private copy = () => {
     this.textArea.current?.select();
@@ -73,7 +73,7 @@ class CopyableInput extends Component<Props, State> {
         setTimeout(() => this.setState({ success: false }), 1500);
       });
     }
-  }
+  };
 
   public render() {
     const { alignLeft, alignRight, borderLess, t, value, className, disabled, flexibleHeight } = this.props;

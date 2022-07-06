@@ -41,7 +41,7 @@ class SDCardCheck extends Component<Props, State> {
   private check = () => {
     apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard')
       .then(inserted => this.setState({ sdCardInserted: inserted }));
-  }
+  };
 
   public render() {
     const {

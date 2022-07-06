@@ -83,15 +83,15 @@ class Initialize extends Component<Props, State> {
         });
       }
     });
-  }
+  };
 
   private setValidPassword = (password: string) => {
     this.setState({ password });
-  }
+  };
 
   private handleStart = () => {
     this.setState({ showInfo: false });
-  }
+  };
 
   public render() {
     const { t, goBack } = this.props;

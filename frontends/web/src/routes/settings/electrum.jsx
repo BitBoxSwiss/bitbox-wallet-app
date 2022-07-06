@@ -34,7 +34,7 @@ class ElectrumServerClass extends Component {
     tls: false,
     loadingCheck: false,
     loadingCert: false,
-  }
+  };
 
   componentDidMount() {
     if (this.props.server !== null) {
@@ -52,14 +52,14 @@ class ElectrumServerClass extends Component {
     }
     // in list-mode
     return this.props.server.tls;
-  }
+  };
 
   handleFormChange = event => {
     this.setState({
       [event.target.name]: event.target.value,
       valid: false
     });
-  }
+  };
 
   getServer = () => {
     return {
@@ -67,12 +67,12 @@ class ElectrumServerClass extends Component {
       pemCert: this.state.electrumCert,
       tls: this.isTLS(),
     };
-  }
+  };
 
   add = () => {
     this.props.onAdd(this.getServer());
     this.setState({ electrumServer: '', electrumCert: '' });
-  }
+  };
 
   downloadCert = () => {
     this.setState({
@@ -86,7 +86,7 @@ class ElectrumServerClass extends Component {
       }
       this.setState({ loadingCert: false });
     });
-  }
+  };
 
   check = () => {
     this.setState({ loadingCheck: true });
@@ -101,7 +101,7 @@ class ElectrumServerClass extends Component {
         loadingCheck: false,
       });
     });
-  }
+  };
 
   render() {
     const {
@@ -220,7 +220,7 @@ export const ElectrumServer = withTranslation()(ElectrumServerClass);
 class ElectrumServersClass extends Component {
   state = {
     electrumServers: [],
-  }
+  };
 
   componentDidMount() {
     apiGet('config').then(config => {
@@ -233,21 +233,21 @@ class ElectrumServersClass extends Component {
       config.backend[this.props.coin].electrumServers = this.state.electrumServers;
       apiPost('config', config);
     });
-  }
+  };
 
   onAdd = server => {
     let electrumServers = this.state.electrumServers.slice();
     electrumServers.push(server);
     this.setState({ electrumServers });
     this.save();
-  }
+  };
 
   onRemove = index => {
     let electrumServers = this.state.electrumServers.slice();
     electrumServers.splice(index, 1);
     this.setState({ electrumServers });
     this.save();
-  }
+  };
 
   resetToDefault = () => {
     confirmation(this.props.t('settings.electrum.resetConfirm'), response => {
@@ -260,7 +260,7 @@ class ElectrumServersClass extends Component {
         return;
       }
     });
-  }
+  };
 
   render() {
     const { t } = this.props;
@@ -306,7 +306,7 @@ class ElectrumSettings extends Component {
   state = {
     testing: false,
     activeTab: 'btc',
-  }
+  };
 
   componentDidMount() {
     apiGet('testing').then(testing => this.setState({ testing }));
@@ -315,7 +315,7 @@ class ElectrumSettings extends Component {
   handleTab = e => {
     const target = e.target.dataset.tab;
     this.setState({ activeTab: target });
-  }
+  };
 
   render() {
     const { i18n, t } = this.props;

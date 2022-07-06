@@ -25,4 +25,4 @@ export const CenteredContent: FunctionComponent = ({ children }) => {
       </div>
     </div>
   );
-}
+};

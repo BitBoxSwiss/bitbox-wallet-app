@@ -300,4 +300,4 @@ export const Receive: FunctionComponent<Props> = ({
       </Guide>
     </div>
   );
-}
+};

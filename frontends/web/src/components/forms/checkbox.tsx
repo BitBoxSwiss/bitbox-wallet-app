@@ -44,6 +44,6 @@ const Checkbox: FunctionComponent<CheckboxProps> = ({
       <label htmlFor={id}>{label} {children}</label>
     </span>
   );
-}
+};
 
 export default Checkbox;

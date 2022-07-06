@@ -56,7 +56,7 @@ class ManageAccounts extends Component<Props, State> {
 
   private fetchAccounts = () => {
     accountAPI.getAccounts().then(accounts => this.setState({ accounts }));
-  }
+  };
 
   public componentDidMount() {
     this.fetchAccounts();
@@ -107,7 +107,7 @@ class ManageAccounts extends Component<Props, State> {
         </div>
       );
     });
-  }
+  };
 
   private toggleAccount = (accountCode: string, active: boolean) => {
     backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
@@ -117,7 +117,7 @@ class ManageAccounts extends Component<Props, State> {
         alertUser(errorMessage);
       }
     });
-  }
+  };
 
   private toggleShowTokens = (accountCode: string) => {
     this.setState(({ showTokens }) => ({
@@ -126,7 +126,7 @@ class ManageAccounts extends Component<Props, State> {
         [accountCode]: (accountCode in showTokens) ? !showTokens[accountCode] : true,
       }
     }));
-  }
+  };
 
   private erc20TokenCodes = {
     'eth-erc20-usdt': 'Tether USD',
@@ -169,7 +169,7 @@ class ManageAccounts extends Component<Props, State> {
           </div>
         );
       });
-  }
+  };
 
   private toggleToken = (ethAccountCode: string, tokenCode: string, active: boolean) => {
     backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
@@ -179,7 +179,7 @@ class ManageAccounts extends Component<Props, State> {
         alertUser(errorMessage);
       }
     });
-  }
+  };
 
   private updateAccountName = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -202,7 +202,7 @@ class ManageAccounts extends Component<Props, State> {
           editErrorMessage: undefined,
         });
       });
-  }
+  };
 
   public render() {
     const { t } = this.props;

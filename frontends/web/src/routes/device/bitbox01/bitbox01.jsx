@@ -53,7 +53,7 @@ class Device extends Component {
     deviceStatus: '',
     goal: '',
     success: null,
-  }
+  };
 
   componentDidMount() {
     this.onDevicesRegisteredChanged();
@@ -95,7 +95,7 @@ class Device extends Component {
         }
       });
     });
-  }
+  };
 
   onDeviceStatusChanged = () => {
     if (this.state.deviceRegistered) {
@@ -108,7 +108,7 @@ class Device extends Component {
         this.setState({ deviceStatus });
       });
     }
-  }
+  };
 
   getDeviceID() {
     return this.props.deviceID || null;
@@ -116,19 +116,19 @@ class Device extends Component {
 
   handleCreate = () => {
     this.setState({ goal: GOAL.CREATE });
-  }
+  };
 
   handleRestore = () => {
     this.setState({ goal: GOAL.RESTORE });
-  }
+  };
 
   handleBack = () => {
     this.setState({ goal: null });
-  }
+  };
 
   handleSuccess = () => {
     this.setState({ success: true });
-  }
+  };
 
   render() {
     const {

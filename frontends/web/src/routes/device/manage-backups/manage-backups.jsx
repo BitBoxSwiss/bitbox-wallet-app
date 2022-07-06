@@ -28,7 +28,7 @@ import { SDCardCheck } from '../bitbox02/sdcardcheck';
 class ManageBackups extends Component {
   hasDevice = () => {
     return !!this.props.devices[this.props.deviceID];
-  }
+  };
 
   UNSAFE_componentWillMount() {
     if (!this.hasDevice()) {
@@ -44,7 +44,7 @@ class ManageBackups extends Component {
         {this.props.t('button.back')}
       </ButtonLink>
     );
-  }
+  };
 
   listBackups  = () => {
     switch (this.props.devices[this.props.deviceID]) {
@@ -72,7 +72,7 @@ class ManageBackups extends Component {
     default:
       return;
     }
-  }
+  };
 
   renderGuide = t => {
     switch (this.props.devices[this.props.deviceID]) {
@@ -97,7 +97,7 @@ class ManageBackups extends Component {
     default:
       return null;
     }
-  }
+  };
 
   render() {
     const { t } = this.props;

@@ -32,7 +32,7 @@ class ChangePIN extends Component {
     errorCode: null,
     isConfirming: false,
     activeDialog: false,
-  }
+  };
 
   abort = () => {
     this.setState({
@@ -41,11 +41,11 @@ class ChangePIN extends Component {
       isConfirming: false,
       activeDialog: false,
     });
-  }
+  };
 
   validate = () => {
     return this.state.newPIN && this.state.oldPIN;
-  }
+  };
 
   changePin = event => {
     event.preventDefault();
@@ -65,15 +65,15 @@ class ChangePIN extends Component {
         }));
       }
     });
-  }
+  };
 
   setValidOldPIN = e => {
     this.setState({ oldPIN: e.target.value });
-  }
+  };
 
   setValidNewPIN = newPIN => {
     this.setState({ newPIN });
-  }
+  };
 
   render() {
     const {

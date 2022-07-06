@@ -28,7 +28,7 @@ class Check extends Component {
     password: null,
     activeDialog: false,
     message: null,
-  }
+  };
 
   abort = () => {
     this.setState({
@@ -36,15 +36,15 @@ class Check extends Component {
       activeDialog: false,
       message: null,
     });
-  }
+  };
 
   handleFormChange = event => {
     this.setState({ [event.target.id]: event.target.value });
-  }
+  };
 
   validate = () => {
     return this.props.selectedBackup && this.state.password;
-  }
+  };
 
   check = event => {
     event.preventDefault();
@@ -67,11 +67,11 @@ class Check extends Component {
       }
       this.setState({ message });
     });
-  }
+  };
 
   setValidPassword = password => {
     this.setState({ password });
-  }
+  };
 
   render() {
     const {

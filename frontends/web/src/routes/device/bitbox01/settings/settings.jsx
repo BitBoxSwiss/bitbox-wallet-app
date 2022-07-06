@@ -47,7 +47,7 @@ class Settings extends Component {
     mobileChannel: false,
     connected: false,
     newHiddenWallet: true,
-  }
+  };
 
   componentDidMount() {
     apiGet('devices/' + this.props.deviceID + '/info').then(({

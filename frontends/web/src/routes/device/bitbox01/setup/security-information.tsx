@@ -45,7 +45,7 @@ class SecurityInformation extends Component<Props, State> {
 
   private handleStart = () => {
     this.setState({ showInfo: false });
-  }
+  };
 
   public render() {
     const { t, goBack, goal, children } = this.props;

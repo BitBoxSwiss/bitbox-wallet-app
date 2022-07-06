@@ -63,7 +63,7 @@ export const ButtonLink: FunctionComponent<Props & LinkProps> = ({
       {children}
     </Link>
   );
-}
+};
 
 export const Button: FunctionComponent<Props & ComponentPropsWithoutRef<'button'>> = ({
   type = 'button',
@@ -92,4 +92,4 @@ export const Button: FunctionComponent<Props & ComponentPropsWithoutRef<'button'
       {children}
     </button>
   );
-}
+};

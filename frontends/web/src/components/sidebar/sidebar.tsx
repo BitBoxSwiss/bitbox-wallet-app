@@ -74,7 +74,7 @@ const GetAccountLink: FunctionComponent<IAccount & { handleSidebarItemClick: ((e
       </Link>
     </div>
   );
-}
+};
 
 
 class Sidebar extends Component<Props> {
@@ -92,13 +92,13 @@ class Sidebar extends Component<Props> {
     document.addEventListener('touchstart', this.handleTouchStart);
     document.addEventListener('touchmove', this.handleTouchMove);
     document.addEventListener('touchend', this.handleTouchEnd);
-  }
+  };
 
   private removeTouchEvents = () => {
     document.removeEventListener('touchstart', this.handleTouchStart);
     document.removeEventListener('touchmove', this.handleTouchMove);
     document.removeEventListener('touchend', this.handleTouchEnd);
-  }
+  };
 
   private handleTouchStart = (e: TouchEvent) => {
     const touch = e.touches[0];
@@ -106,7 +106,7 @@ class Sidebar extends Component<Props> {
       x: touch.clientX,
       y: touch.clientY,
     };
-  }
+  };
 
   private handleTouchMove = (e: TouchEvent) => {
     if (this.props.sidebarStatus !== 'forceHidden') {
@@ -114,7 +114,7 @@ class Sidebar extends Component<Props> {
         this.swipe.active = true;
       }
     }
-  }
+  };
 
   private handleTouchEnd = (e: TouchEvent) => {
     if (this.props.sidebarStatus !== 'forceHidden') {
@@ -132,14 +132,14 @@ class Sidebar extends Component<Props> {
         active: false,
       };
     }
-  }
+  };
 
   private handleSidebarItemClick = (e: React.SyntheticEvent) => {
     const el = (e.target as Element).closest('a');
     if (el!.classList.contains('sidebar-active') && window.innerWidth <= 901) {
       toggleSidebar();
     }
-  }
+  };
 
   public render() {
     const {

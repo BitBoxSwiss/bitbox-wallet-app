@@ -89,22 +89,22 @@ class FeeTargets extends Component<Props, State> {
         this.setFeeTarget(defaultFeeTarget);
       })
       .catch(console.error);
-  }
+  };
 
   private handleFeeTargetChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLSelectElement;
     this.setFeeTarget(target.options[target.selectedIndex].value as accountApi.FeeTargetCode);
-  }
+  };
 
   private handleCustomFee = (event: Event) => {
     const target = event.target as HTMLInputElement;
     this.props.onCustomFee(target.value);
-  }
+  };
 
   private setFeeTarget = (feeTarget: accountApi.FeeTargetCode) => {
     this.setState({ feeTarget });
     this.props.onFeeTargetChange(feeTarget);
-  }
+  };
 
   private getProposeFeeText = (): string => {
     if (!this.props.proposedFee) {
@@ -113,13 +113,13 @@ class FeeTargets extends Component<Props, State> {
     const { amount, unit, conversions } = this.props.proposedFee;
     const fiatUnit = this.props.fiatUnit;
     return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
-  }
+  };
 
   private focusInput = () => {
     if (!this.props.disabled && this.input.current && this.input.current.autofocus) {
       this.input.current.focus();
     }
-  }
+  };
 
   public render() {
     const {

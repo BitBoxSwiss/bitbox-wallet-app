@@ -35,11 +35,11 @@ export class SkipForTesting extends Component<SkipForTestingProps, SkipForTestin
   private registerTestingDevice = (e: React.SyntheticEvent) => {
     apiPost('test/register', { pin: this.state.testPIN });
     e.preventDefault();
-  }
+  };
 
   private handleFormChange = (value: string) => {
     this.setState({ testPIN: value });
-  }
+  };
 
   public render() {
     const { show } = this.props;

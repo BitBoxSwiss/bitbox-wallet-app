@@ -26,7 +26,7 @@ export const Steps: FunctionComponent<Props> = ({
   current,
   children
 }) => {
-  let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[]
+  let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[];
   return (
     <div className={style.steps}>
       { childrens
@@ -45,7 +45,7 @@ export const Steps: FunctionComponent<Props> = ({
         }) }
     </div>
   );
-}
+};
 
 interface StepProps {
     line?: boolean;

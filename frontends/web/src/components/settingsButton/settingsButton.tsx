@@ -33,6 +33,6 @@ const SettingsButton: FunctionComponent<SettingsButtonProps> = ({
       </svg>
     </button>
   );
-}
+};
 
 export { SettingsButton };

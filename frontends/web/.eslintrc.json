@@ -7,7 +7,9 @@
     "jsx-quotes": ["error", "prefer-double"],
     "no-trailing-spaces": "error",
     "object-curly-spacing": ["error", "always"],
-    "quotes": ["error", "single"]
+    "quotes": ["error", "single"],
+    "semi": "error",
+    "no-extra-semi": "error"
   },
   "overrides": [
     {

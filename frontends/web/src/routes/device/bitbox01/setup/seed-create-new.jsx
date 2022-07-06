@@ -45,7 +45,7 @@ class SeedCreateNew extends Component {
       password_required: false,
       funds_access: false,
     },
-  }
+  };
 
   walletNameInput = createRef();
 
@@ -58,11 +58,11 @@ class SeedCreateNew extends Component {
       return false;
     }
     return this.state.backupPassword && this.state.walletName !== '';
-  }
+  };
 
   handleFormChange = ({ target }) => {
     this.setState({ [target.id]: target.value });
-  }
+  };
 
   handleSubmit = event => {
     event.preventDefault();
@@ -86,24 +86,24 @@ class SeedCreateNew extends Component {
       }
       this.setState({ backupPassword: '' });
     });
-  }
+  };
 
   setValidBackupPassword = backupPassword => {
     this.setState({ backupPassword });
-  }
+  };
 
   validAgreements = () => {
     const { agreements } = this.state;
     const invalid = Object.keys(agreements).map(agr => agreements[agr]).includes(false);
     return !invalid;
-  }
+  };
 
   handleAgreementChange = ({ target }) => {
     this.setState(state => ({ agreements: {
       ...state.agreements,
       [target.id]: target.checked
     } }));
-  }
+  };
 
   checkSDcard = () => {
     apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
@@ -116,12 +116,12 @@ class SeedCreateNew extends Component {
       });
       setTimeout(this.checkSDcard, 2500);
     });
-  }
+  };
 
   handleStart = () => {
     this.setState({ showInfo: false });
     this.checkSDcard();
-  }
+  };
 
   renderSpinner() {
     switch (this.state.status) {

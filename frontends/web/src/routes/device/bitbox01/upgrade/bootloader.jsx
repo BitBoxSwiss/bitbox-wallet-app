@@ -55,7 +55,7 @@ class Bootloader extends Component {
     default:
       break;
     }
-  }
+  };
 
   onStatusChanged = () => {
     apiGet('devices/' + this.props.deviceID + '/bootloader-status')
@@ -67,11 +67,11 @@ class Bootloader extends Component {
           errMsg,
         });
       });
-  }
+  };
 
   upgradeFirmware = () => {
     apiPost('devices/' + this.props.deviceID + '/bootloader/upgrade-firmware');
-  }
+  };
 
   render() {
     const { t } = this.props;

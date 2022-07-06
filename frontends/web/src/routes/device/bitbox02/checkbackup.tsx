@@ -68,11 +68,11 @@ class Check extends Component<Props, State> {
       }
       this.setState({ message });
     });
-  }
+  };
 
   private abort = () => {
     this.setState({ activeDialog: false, userVerified: false });
-  }
+  };
 
   public render() {
     const { t, backups } = this.props;

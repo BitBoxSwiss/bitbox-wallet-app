@@ -42,7 +42,7 @@ class WaitDialog extends Component<Props, State> {
 
   public readonly state: State = {
     active: false,
-  }
+  };
 
   public UNSAFE_componentWillMount() {
     document.body.addEventListener('keydown', this.handleKeyDown);
@@ -63,7 +63,7 @@ class WaitDialog extends Component<Props, State> {
     }
     e.preventDefault();
     e.stopPropagation();
-  }
+  };
 
   private activate = () => {
     this.setState({ active: true }, () => {
@@ -73,7 +73,7 @@ class WaitDialog extends Component<Props, State> {
       this.overlay.current.classList.add(style.activeOverlay);
       this.modal.current.classList.add(style.activeModal);
     });
-  }
+  };
 
   public render() {
     const {
