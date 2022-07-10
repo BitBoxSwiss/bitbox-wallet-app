@@ -33,7 +33,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
@@ -68,8 +67,8 @@ func newAccount(t *testing.T) *Account {
 		EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
 			return 21000, nil
 		},
-		HeaderByNumberFunc: func(ctx context.Context, number *big.Int) (*types.Header, error) {
-			return &types.Header{Number: big.NewInt(100)}, nil
+		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+			return big.NewInt(100), nil
 		},
 		BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
 			return big.NewInt(1e18), nil

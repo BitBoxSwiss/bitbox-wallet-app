@@ -29,7 +29,8 @@ import (
 type Interface interface {
 	TransactionReceiptWithBlockNumber(
 		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
-	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
+	// BlockNumber returns the current latest block number.
+	BlockNumber(ctx context.Context) (*big.Int, error)
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
 	// Balance returns the current confirmed balance of the address.
 	Balance(ctx context.Context, account common.Address) (*big.Int, error)

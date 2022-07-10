@@ -405,21 +405,17 @@ func (etherScan *EtherScan) TransactionByHash(
 	return &result.Transaction, result.BlockNumber == nil, nil
 }
 
-// HeaderByNumber implements rpc.Interface.
-func (etherScan *EtherScan) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
+// BlockNumber implements rpc.Interface.
+func (etherScan *EtherScan) BlockNumber(ctx context.Context) (*big.Int, error) {
 	params := url.Values{}
 	params.Set("action", "eth_getBlockByNumber")
-	if number == nil {
-		params.Set("tag", "latest")
-	} else {
-		panic("not implemented")
-	}
+	params.Set("tag", "latest")
 	params.Set("boolean", "false")
-	var result *types.Header
-	if err := etherScan.rpcCall(params, &result); err != nil {
+	var header *types.Header
+	if err := etherScan.rpcCall(params, &header); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return header.Number, nil
 }
 
 // Balance implements rpc.Interface.

@@ -306,11 +306,11 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 func (account *Account) update() error {
 	defer account.Synchronizer.IncRequestsCounter()()
 
-	header, err := account.coin.client.HeaderByNumber(context.TODO(), nil)
+	blockNumber, err := account.coin.client.BlockNumber(context.TODO())
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	account.blockNumber = header.Number
+	account.blockNumber = blockNumber
 
 	transactionsSource := account.coin.TransactionsSource()
 
