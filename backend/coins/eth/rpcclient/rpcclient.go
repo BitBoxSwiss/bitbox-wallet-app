@@ -18,7 +18,8 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 )
@@ -32,7 +33,21 @@ type Interface interface {
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
 	// Balance returns the current confirmed balance of the address.
 	Balance(ctx context.Context, account common.Address) (*big.Int, error)
-	bind.ContractBackend
+	// ERC20Balance returns the current confirmed token balance of the given token for the adddress.
+	ERC20Balance(account common.Address, erc20Token *erc20.Token) (*big.Int, error)
+	// SendTransaction injects the transaction into the pending pool for execution.
+	SendTransaction(ctx context.Context, tx *types.Transaction) error
+	// PendingNonceAt retrieves the current pending nonce associated with an account.
+	PendingNonceAt(ctx context.Context, account common.Address) (uint64, error)
+	// EstimateGas tries to estimate the gas needed to execute a specific
+	// transaction based on the current pending state of the backend blockchain.
+	// There is no guarantee that this is the true gas limit requirement as other
+	// transactions may be added or removed by miners, but it should provide a basis
+	// for setting a reasonable default.
+	EstimateGas(ctx context.Context, call ethereum.CallMsg) (gas uint64, err error)
+	// SuggestGasPrice retrieves the currently suggested gas price to allow a timely
+	// execution of a transaction.
+	SuggestGasPrice(ctx context.Context) (*big.Int, error)
 }
 
 // RPCTransactionReceipt is a receipt extended with the block number.

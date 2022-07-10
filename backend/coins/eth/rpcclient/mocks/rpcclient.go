@@ -5,6 +5,7 @@ package mocks
 
 import (
 	"context"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -26,23 +27,14 @@ var _ rpcclient.Interface = &InterfaceMock{}
 // 			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
 // 				panic("mock out the Balance method")
 // 			},
-// 			CallContractFunc: func(ctx context.Context, call ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
-// 				panic("mock out the CallContract method")
-// 			},
-// 			CodeAtFunc: func(ctx context.Context, contract common.Address, blockNumber *big.Int) ([]byte, error) {
-// 				panic("mock out the CodeAt method")
+// 			ERC20BalanceFunc: func(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
+// 				panic("mock out the ERC20Balance method")
 // 			},
 // 			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
 // 				panic("mock out the EstimateGas method")
 // 			},
-// 			FilterLogsFunc: func(ctx context.Context, query ethereum.FilterQuery) ([]types.Log, error) {
-// 				panic("mock out the FilterLogs method")
-// 			},
 // 			HeaderByNumberFunc: func(ctx context.Context, number *big.Int) (*types.Header, error) {
 // 				panic("mock out the HeaderByNumber method")
-// 			},
-// 			PendingCodeAtFunc: func(ctx context.Context, account common.Address) ([]byte, error) {
-// 				panic("mock out the PendingCodeAt method")
 // 			},
 // 			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
 // 				panic("mock out the PendingNonceAt method")
@@ -50,14 +42,8 @@ var _ rpcclient.Interface = &InterfaceMock{}
 // 			SendTransactionFunc: func(ctx context.Context, tx *types.Transaction) error {
 // 				panic("mock out the SendTransaction method")
 // 			},
-// 			SubscribeFilterLogsFunc: func(ctx context.Context, query ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error) {
-// 				panic("mock out the SubscribeFilterLogs method")
-// 			},
 // 			SuggestGasPriceFunc: func(ctx context.Context) (*big.Int, error) {
 // 				panic("mock out the SuggestGasPrice method")
-// 			},
-// 			SuggestGasTipCapFunc: func(ctx context.Context) (*big.Int, error) {
-// 				panic("mock out the SuggestGasTipCap method")
 // 			},
 // 			TransactionByHashFunc: func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 // 				panic("mock out the TransactionByHash method")
@@ -75,23 +61,14 @@ type InterfaceMock struct {
 	// BalanceFunc mocks the Balance method.
 	BalanceFunc func(ctx context.Context, account common.Address) (*big.Int, error)
 
-	// CallContractFunc mocks the CallContract method.
-	CallContractFunc func(ctx context.Context, call ethereum.CallMsg, blockNumber *big.Int) ([]byte, error)
-
-	// CodeAtFunc mocks the CodeAt method.
-	CodeAtFunc func(ctx context.Context, contract common.Address, blockNumber *big.Int) ([]byte, error)
+	// ERC20BalanceFunc mocks the ERC20Balance method.
+	ERC20BalanceFunc func(account common.Address, erc20Token *erc20.Token) (*big.Int, error)
 
 	// EstimateGasFunc mocks the EstimateGas method.
 	EstimateGasFunc func(ctx context.Context, call ethereum.CallMsg) (uint64, error)
 
-	// FilterLogsFunc mocks the FilterLogs method.
-	FilterLogsFunc func(ctx context.Context, query ethereum.FilterQuery) ([]types.Log, error)
-
 	// HeaderByNumberFunc mocks the HeaderByNumber method.
 	HeaderByNumberFunc func(ctx context.Context, number *big.Int) (*types.Header, error)
-
-	// PendingCodeAtFunc mocks the PendingCodeAt method.
-	PendingCodeAtFunc func(ctx context.Context, account common.Address) ([]byte, error)
 
 	// PendingNonceAtFunc mocks the PendingNonceAt method.
 	PendingNonceAtFunc func(ctx context.Context, account common.Address) (uint64, error)
@@ -99,14 +76,8 @@ type InterfaceMock struct {
 	// SendTransactionFunc mocks the SendTransaction method.
 	SendTransactionFunc func(ctx context.Context, tx *types.Transaction) error
 
-	// SubscribeFilterLogsFunc mocks the SubscribeFilterLogs method.
-	SubscribeFilterLogsFunc func(ctx context.Context, query ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error)
-
 	// SuggestGasPriceFunc mocks the SuggestGasPrice method.
 	SuggestGasPriceFunc func(ctx context.Context) (*big.Int, error)
-
-	// SuggestGasTipCapFunc mocks the SuggestGasTipCap method.
-	SuggestGasTipCapFunc func(ctx context.Context) (*big.Int, error)
 
 	// TransactionByHashFunc mocks the TransactionByHash method.
 	TransactionByHashFunc func(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error)
@@ -123,23 +94,12 @@ type InterfaceMock struct {
 			// Account is the account argument value.
 			Account common.Address
 		}
-		// CallContract holds details about calls to the CallContract method.
-		CallContract []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Call is the call argument value.
-			Call ethereum.CallMsg
-			// BlockNumber is the blockNumber argument value.
-			BlockNumber *big.Int
-		}
-		// CodeAt holds details about calls to the CodeAt method.
-		CodeAt []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Contract is the contract argument value.
-			Contract common.Address
-			// BlockNumber is the blockNumber argument value.
-			BlockNumber *big.Int
+		// ERC20Balance holds details about calls to the ERC20Balance method.
+		ERC20Balance []struct {
+			// Account is the account argument value.
+			Account common.Address
+			// Erc20Token is the erc20Token argument value.
+			Erc20Token *erc20.Token
 		}
 		// EstimateGas holds details about calls to the EstimateGas method.
 		EstimateGas []struct {
@@ -148,26 +108,12 @@ type InterfaceMock struct {
 			// Call is the call argument value.
 			Call ethereum.CallMsg
 		}
-		// FilterLogs holds details about calls to the FilterLogs method.
-		FilterLogs []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Query is the query argument value.
-			Query ethereum.FilterQuery
-		}
 		// HeaderByNumber holds details about calls to the HeaderByNumber method.
 		HeaderByNumber []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Number is the number argument value.
 			Number *big.Int
-		}
-		// PendingCodeAt holds details about calls to the PendingCodeAt method.
-		PendingCodeAt []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Account is the account argument value.
-			Account common.Address
 		}
 		// PendingNonceAt holds details about calls to the PendingNonceAt method.
 		PendingNonceAt []struct {
@@ -183,22 +129,8 @@ type InterfaceMock struct {
 			// Tx is the tx argument value.
 			Tx *types.Transaction
 		}
-		// SubscribeFilterLogs holds details about calls to the SubscribeFilterLogs method.
-		SubscribeFilterLogs []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Query is the query argument value.
-			Query ethereum.FilterQuery
-			// Ch is the ch argument value.
-			Ch chan<- types.Log
-		}
 		// SuggestGasPrice holds details about calls to the SuggestGasPrice method.
 		SuggestGasPrice []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-		}
-		// SuggestGasTipCap holds details about calls to the SuggestGasTipCap method.
-		SuggestGasTipCap []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
@@ -218,17 +150,12 @@ type InterfaceMock struct {
 		}
 	}
 	lockBalance                           sync.RWMutex
-	lockCallContract                      sync.RWMutex
-	lockCodeAt                            sync.RWMutex
+	lockERC20Balance                      sync.RWMutex
 	lockEstimateGas                       sync.RWMutex
-	lockFilterLogs                        sync.RWMutex
 	lockHeaderByNumber                    sync.RWMutex
-	lockPendingCodeAt                     sync.RWMutex
 	lockPendingNonceAt                    sync.RWMutex
 	lockSendTransaction                   sync.RWMutex
-	lockSubscribeFilterLogs               sync.RWMutex
 	lockSuggestGasPrice                   sync.RWMutex
-	lockSuggestGasTipCap                  sync.RWMutex
 	lockTransactionByHash                 sync.RWMutex
 	lockTransactionReceiptWithBlockNumber sync.RWMutex
 }
@@ -268,81 +195,38 @@ func (mock *InterfaceMock) BalanceCalls() []struct {
 	return calls
 }
 
-// CallContract calls CallContractFunc.
-func (mock *InterfaceMock) CallContract(ctx context.Context, call ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
-	if mock.CallContractFunc == nil {
-		panic("InterfaceMock.CallContractFunc: method is nil but Interface.CallContract was just called")
+// ERC20Balance calls ERC20BalanceFunc.
+func (mock *InterfaceMock) ERC20Balance(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
+	if mock.ERC20BalanceFunc == nil {
+		panic("InterfaceMock.ERC20BalanceFunc: method is nil but Interface.ERC20Balance was just called")
 	}
 	callInfo := struct {
-		Ctx         context.Context
-		Call        ethereum.CallMsg
-		BlockNumber *big.Int
+		Account    common.Address
+		Erc20Token *erc20.Token
 	}{
-		Ctx:         ctx,
-		Call:        call,
-		BlockNumber: blockNumber,
+		Account:    account,
+		Erc20Token: erc20Token,
 	}
-	mock.lockCallContract.Lock()
-	mock.calls.CallContract = append(mock.calls.CallContract, callInfo)
-	mock.lockCallContract.Unlock()
-	return mock.CallContractFunc(ctx, call, blockNumber)
+	mock.lockERC20Balance.Lock()
+	mock.calls.ERC20Balance = append(mock.calls.ERC20Balance, callInfo)
+	mock.lockERC20Balance.Unlock()
+	return mock.ERC20BalanceFunc(account, erc20Token)
 }
 
-// CallContractCalls gets all the calls that were made to CallContract.
+// ERC20BalanceCalls gets all the calls that were made to ERC20Balance.
 // Check the length with:
-//     len(mockedInterface.CallContractCalls())
-func (mock *InterfaceMock) CallContractCalls() []struct {
-	Ctx         context.Context
-	Call        ethereum.CallMsg
-	BlockNumber *big.Int
+//     len(mockedInterface.ERC20BalanceCalls())
+func (mock *InterfaceMock) ERC20BalanceCalls() []struct {
+	Account    common.Address
+	Erc20Token *erc20.Token
 } {
 	var calls []struct {
-		Ctx         context.Context
-		Call        ethereum.CallMsg
-		BlockNumber *big.Int
+		Account    common.Address
+		Erc20Token *erc20.Token
 	}
-	mock.lockCallContract.RLock()
-	calls = mock.calls.CallContract
-	mock.lockCallContract.RUnlock()
-	return calls
-}
-
-// CodeAt calls CodeAtFunc.
-func (mock *InterfaceMock) CodeAt(ctx context.Context, contract common.Address, blockNumber *big.Int) ([]byte, error) {
-	if mock.CodeAtFunc == nil {
-		panic("InterfaceMock.CodeAtFunc: method is nil but Interface.CodeAt was just called")
-	}
-	callInfo := struct {
-		Ctx         context.Context
-		Contract    common.Address
-		BlockNumber *big.Int
-	}{
-		Ctx:         ctx,
-		Contract:    contract,
-		BlockNumber: blockNumber,
-	}
-	mock.lockCodeAt.Lock()
-	mock.calls.CodeAt = append(mock.calls.CodeAt, callInfo)
-	mock.lockCodeAt.Unlock()
-	return mock.CodeAtFunc(ctx, contract, blockNumber)
-}
-
-// CodeAtCalls gets all the calls that were made to CodeAt.
-// Check the length with:
-//     len(mockedInterface.CodeAtCalls())
-func (mock *InterfaceMock) CodeAtCalls() []struct {
-	Ctx         context.Context
-	Contract    common.Address
-	BlockNumber *big.Int
-} {
-	var calls []struct {
-		Ctx         context.Context
-		Contract    common.Address
-		BlockNumber *big.Int
-	}
-	mock.lockCodeAt.RLock()
-	calls = mock.calls.CodeAt
-	mock.lockCodeAt.RUnlock()
+	mock.lockERC20Balance.RLock()
+	calls = mock.calls.ERC20Balance
+	mock.lockERC20Balance.RUnlock()
 	return calls
 }
 
@@ -381,41 +265,6 @@ func (mock *InterfaceMock) EstimateGasCalls() []struct {
 	return calls
 }
 
-// FilterLogs calls FilterLogsFunc.
-func (mock *InterfaceMock) FilterLogs(ctx context.Context, query ethereum.FilterQuery) ([]types.Log, error) {
-	if mock.FilterLogsFunc == nil {
-		panic("InterfaceMock.FilterLogsFunc: method is nil but Interface.FilterLogs was just called")
-	}
-	callInfo := struct {
-		Ctx   context.Context
-		Query ethereum.FilterQuery
-	}{
-		Ctx:   ctx,
-		Query: query,
-	}
-	mock.lockFilterLogs.Lock()
-	mock.calls.FilterLogs = append(mock.calls.FilterLogs, callInfo)
-	mock.lockFilterLogs.Unlock()
-	return mock.FilterLogsFunc(ctx, query)
-}
-
-// FilterLogsCalls gets all the calls that were made to FilterLogs.
-// Check the length with:
-//     len(mockedInterface.FilterLogsCalls())
-func (mock *InterfaceMock) FilterLogsCalls() []struct {
-	Ctx   context.Context
-	Query ethereum.FilterQuery
-} {
-	var calls []struct {
-		Ctx   context.Context
-		Query ethereum.FilterQuery
-	}
-	mock.lockFilterLogs.RLock()
-	calls = mock.calls.FilterLogs
-	mock.lockFilterLogs.RUnlock()
-	return calls
-}
-
 // HeaderByNumber calls HeaderByNumberFunc.
 func (mock *InterfaceMock) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	if mock.HeaderByNumberFunc == nil {
@@ -448,41 +297,6 @@ func (mock *InterfaceMock) HeaderByNumberCalls() []struct {
 	mock.lockHeaderByNumber.RLock()
 	calls = mock.calls.HeaderByNumber
 	mock.lockHeaderByNumber.RUnlock()
-	return calls
-}
-
-// PendingCodeAt calls PendingCodeAtFunc.
-func (mock *InterfaceMock) PendingCodeAt(ctx context.Context, account common.Address) ([]byte, error) {
-	if mock.PendingCodeAtFunc == nil {
-		panic("InterfaceMock.PendingCodeAtFunc: method is nil but Interface.PendingCodeAt was just called")
-	}
-	callInfo := struct {
-		Ctx     context.Context
-		Account common.Address
-	}{
-		Ctx:     ctx,
-		Account: account,
-	}
-	mock.lockPendingCodeAt.Lock()
-	mock.calls.PendingCodeAt = append(mock.calls.PendingCodeAt, callInfo)
-	mock.lockPendingCodeAt.Unlock()
-	return mock.PendingCodeAtFunc(ctx, account)
-}
-
-// PendingCodeAtCalls gets all the calls that were made to PendingCodeAt.
-// Check the length with:
-//     len(mockedInterface.PendingCodeAtCalls())
-func (mock *InterfaceMock) PendingCodeAtCalls() []struct {
-	Ctx     context.Context
-	Account common.Address
-} {
-	var calls []struct {
-		Ctx     context.Context
-		Account common.Address
-	}
-	mock.lockPendingCodeAt.RLock()
-	calls = mock.calls.PendingCodeAt
-	mock.lockPendingCodeAt.RUnlock()
 	return calls
 }
 
@@ -556,45 +370,6 @@ func (mock *InterfaceMock) SendTransactionCalls() []struct {
 	return calls
 }
 
-// SubscribeFilterLogs calls SubscribeFilterLogsFunc.
-func (mock *InterfaceMock) SubscribeFilterLogs(ctx context.Context, query ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error) {
-	if mock.SubscribeFilterLogsFunc == nil {
-		panic("InterfaceMock.SubscribeFilterLogsFunc: method is nil but Interface.SubscribeFilterLogs was just called")
-	}
-	callInfo := struct {
-		Ctx   context.Context
-		Query ethereum.FilterQuery
-		Ch    chan<- types.Log
-	}{
-		Ctx:   ctx,
-		Query: query,
-		Ch:    ch,
-	}
-	mock.lockSubscribeFilterLogs.Lock()
-	mock.calls.SubscribeFilterLogs = append(mock.calls.SubscribeFilterLogs, callInfo)
-	mock.lockSubscribeFilterLogs.Unlock()
-	return mock.SubscribeFilterLogsFunc(ctx, query, ch)
-}
-
-// SubscribeFilterLogsCalls gets all the calls that were made to SubscribeFilterLogs.
-// Check the length with:
-//     len(mockedInterface.SubscribeFilterLogsCalls())
-func (mock *InterfaceMock) SubscribeFilterLogsCalls() []struct {
-	Ctx   context.Context
-	Query ethereum.FilterQuery
-	Ch    chan<- types.Log
-} {
-	var calls []struct {
-		Ctx   context.Context
-		Query ethereum.FilterQuery
-		Ch    chan<- types.Log
-	}
-	mock.lockSubscribeFilterLogs.RLock()
-	calls = mock.calls.SubscribeFilterLogs
-	mock.lockSubscribeFilterLogs.RUnlock()
-	return calls
-}
-
 // SuggestGasPrice calls SuggestGasPriceFunc.
 func (mock *InterfaceMock) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
 	if mock.SuggestGasPriceFunc == nil {
@@ -623,37 +398,6 @@ func (mock *InterfaceMock) SuggestGasPriceCalls() []struct {
 	mock.lockSuggestGasPrice.RLock()
 	calls = mock.calls.SuggestGasPrice
 	mock.lockSuggestGasPrice.RUnlock()
-	return calls
-}
-
-// SuggestGasTipCap calls SuggestGasTipCapFunc.
-func (mock *InterfaceMock) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
-	if mock.SuggestGasTipCapFunc == nil {
-		panic("InterfaceMock.SuggestGasTipCapFunc: method is nil but Interface.SuggestGasTipCap was just called")
-	}
-	callInfo := struct {
-		Ctx context.Context
-	}{
-		Ctx: ctx,
-	}
-	mock.lockSuggestGasTipCap.Lock()
-	mock.calls.SuggestGasTipCap = append(mock.calls.SuggestGasTipCap, callInfo)
-	mock.lockSuggestGasTipCap.Unlock()
-	return mock.SuggestGasTipCapFunc(ctx)
-}
-
-// SuggestGasTipCapCalls gets all the calls that were made to SuggestGasTipCap.
-// Check the length with:
-//     len(mockedInterface.SuggestGasTipCapCalls())
-func (mock *InterfaceMock) SuggestGasTipCapCalls() []struct {
-	Ctx context.Context
-} {
-	var calls []struct {
-		Ctx context.Context
-	}
-	mock.lockSuggestGasTipCap.RLock()
-	calls = mock.calls.SuggestGasTipCap
-	mock.lockSuggestGasTipCap.RUnlock()
 	return calls
 }
 

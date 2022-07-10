@@ -37,7 +37,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -367,11 +366,7 @@ func (account *Account) update() error {
 	}
 
 	if account.coin.erc20Token != nil {
-		tok, err := erc20.NewIERC20(account.coin.erc20Token.ContractAddress(), account.coin.client)
-		if err != nil {
-			panic(err)
-		}
-		balance, err := tok.BalanceOf(&bind.CallOpts{}, account.address.Address)
+		balance, err := account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
 		if err != nil {
 			return errp.WithStack(err)
 		}

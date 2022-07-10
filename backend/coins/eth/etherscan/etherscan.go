@@ -306,7 +306,7 @@ func (etherScan *EtherScan) Transactions(
 	params.Set("module", "account")
 	if erc20Token != nil {
 		params.Set("action", "tokentx")
-		params.Set("contractAddress", erc20Token.ContractAddress().Hex())
+		params.Set("contractaddress", erc20Token.ContractAddress().Hex())
 	} else {
 		params.Set("action", "txlist")
 	}
@@ -448,6 +448,33 @@ func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address)
 	return balance, nil
 }
 
+// ERC20Balance implements rpc.Interface.
+func (etherScan *EtherScan) ERC20Balance(account common.Address, erc20Token *erc20.Token) (*big.Int, error) {
+	var result struct {
+		Status  string
+		Message string
+		Result  string
+	}
+
+	params := url.Values{}
+	params.Set("module", "account")
+	params.Set("action", "tokenbalance")
+	params.Set("address", account.Hex())
+	params.Set("contractaddress", erc20Token.ContractAddress().Hex())
+	params.Set("tag", "latest")
+	if err := etherScan.call(params, &result); err != nil {
+		return nil, err
+	}
+	if result.Status != "1" {
+		return nil, errp.New("unexpected response from EtherScan")
+	}
+	balance, ok := new(big.Int).SetString(result.Result, 10)
+	if !ok {
+		return nil, errp.New("unexpected response from EtherScan")
+	}
+	return balance, nil
+}
+
 // CallContract implements rpc.Interface.
 func (etherScan *EtherScan) CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
 	params := url.Values{}
@@ -463,11 +490,6 @@ func (etherScan *EtherScan) CallContract(ctx context.Context, msg ethereum.CallM
 		return nil, err
 	}
 	return result, nil
-}
-
-// CodeAt implements rpc.Interface.
-func (etherScan *EtherScan) CodeAt(ctx context.Context, account common.Address, blockNumber *big.Int) ([]byte, error) {
-	panic("not implemented")
 }
 
 func callMsgParams(params *url.Values, msg ethereum.CallMsg) {
@@ -500,16 +522,6 @@ func (etherScan *EtherScan) EstimateGas(ctx context.Context, msg ethereum.CallMs
 	return uint64(result), nil
 }
 
-// FilterLogs implements rpc.Interface.
-func (etherScan *EtherScan) FilterLogs(ctx context.Context, q ethereum.FilterQuery) ([]types.Log, error) {
-	panic("not implemented")
-}
-
-// PendingCodeAt implements rpc.Interface.
-func (etherScan *EtherScan) PendingCodeAt(ctx context.Context, account common.Address) ([]byte, error) {
-	panic("not implemented")
-}
-
 // PendingNonceAt implements rpc.Interface.
 func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.Address) (uint64, error) {
 	params := url.Values{}
@@ -534,11 +546,6 @@ func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Trans
 	params.Set("action", "eth_sendRawTransaction")
 	params.Set("hex", hexutil.Encode(encodedTx))
 	return etherScan.rpcCall(params, nil)
-}
-
-// SubscribeFilterLogs implements rpc.Interface.
-func (etherScan *EtherScan) SubscribeFilterLogs(ctx context.Context, q ethereum.FilterQuery, ch chan<- types.Log) (ethereum.Subscription, error) {
-	panic("not implemented")
 }
 
 // SuggestGasPrice implements rpc.Interface.
