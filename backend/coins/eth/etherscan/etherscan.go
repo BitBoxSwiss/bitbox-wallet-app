@@ -422,8 +422,8 @@ func (etherScan *EtherScan) HeaderByNumber(ctx context.Context, number *big.Int)
 	return result, nil
 }
 
-// BalanceAt implements rpc.Interface.
-func (etherScan *EtherScan) BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
+// Balance implements rpc.Interface.
+func (etherScan *EtherScan) Balance(ctx context.Context, account common.Address) (*big.Int, error) {
 	var result struct {
 		Status  string
 		Message string
@@ -434,11 +434,7 @@ func (etherScan *EtherScan) BalanceAt(ctx context.Context, account common.Addres
 	params.Set("module", "account")
 	params.Set("action", "balance")
 	params.Set("address", account.Hex())
-	if blockNumber == nil {
-		params.Set("tag", "latest")
-	} else {
-		panic("not implemented")
-	}
+	params.Set("tag", "latest")
 	if err := etherScan.call(params, &result); err != nil {
 		return nil, err
 	}

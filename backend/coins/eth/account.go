@@ -377,8 +377,7 @@ func (account *Account) update() error {
 		}
 		account.balance = coin.NewAmount(balance)
 	} else {
-		balance, err := account.coin.client.BalanceAt(context.TODO(),
-			account.address.Address, nil)
+		balance, err := account.coin.client.Balance(context.TODO(), account.address.Address)
 		if err != nil {
 			return errp.WithStack(err)
 		}

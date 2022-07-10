@@ -71,7 +71,7 @@ func newAccount(t *testing.T) *Account {
 		HeaderByNumberFunc: func(ctx context.Context, number *big.Int) (*types.Header, error) {
 			return &types.Header{Number: big.NewInt(100)}, nil
 		},
-		BalanceAtFunc: func(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
+		BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
 			return big.NewInt(1e18), nil
 		},
 		PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {

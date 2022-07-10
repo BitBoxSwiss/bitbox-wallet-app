@@ -30,7 +30,8 @@ type Interface interface {
 		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
 	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
-	BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
+	// Balance returns the current confirmed balance of the address.
+	Balance(ctx context.Context, account common.Address) (*big.Int, error)
 	bind.ContractBackend
 }
 
