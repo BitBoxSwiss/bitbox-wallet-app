@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
-import { apiGet } from '../../../../utils/request';
+import { getDeviceInfo } from '../../../../api/bitbox01';
 import { Button } from '../../../../components/forms';
 import { Backups } from '../backups';
 import { Message } from '../../../../components/message/message';
@@ -52,16 +53,17 @@ class SeedRestore extends Component {
   };
 
   checkSDcard = () => {
-    apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
-      if (sdcard) {
-        return this.setState({ status: STATUS.DEFAULT, error: '' });
-      }
-      this.setState({
-        status: STATUS.ERROR,
-        error: this.props.t('seedRestore.error.e200'),
+    getDeviceInfo(this.props.deviceID)
+      .then(({ sdcard }) => {
+        if (sdcard) {
+          return this.setState({ status: STATUS.DEFAULT, error: '' });
+        }
+        this.setState({
+          status: STATUS.ERROR,
+          error: this.props.t('seedRestore.error.e200'),
+        });
+        setTimeout(this.checkSDcard, 2500);
       });
-      setTimeout(this.checkSDcard, 2500);
-    });
   };
 
   handleStart = () => {

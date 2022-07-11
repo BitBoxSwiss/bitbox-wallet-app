@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import React, { Component, createRef } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
+import { getDeviceInfo } from '../../../api/bitbox01';
 import { Checked, Cancel } from '../../../components/icon/icon';
 import qrcodeIcon from '../../../assets/icons/qrcode.png';
 import { alertUser } from '../../../components/alert/Alert';
@@ -141,12 +142,13 @@ class Send extends Component<Props, State> {
     }
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
       apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
-        apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
-          const account = this.getAccount();
-          const paired = mobileChannel && pairing;
-          const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-          this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
-        });
+        getDeviceInfo(this.props.deviceIDs[0])
+          .then(({ pairing }) => {
+            const account = this.getAccount();
+            const paired = mobileChannel && pairing;
+            const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
+            this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
+          });
       });
     }
     if (this.isBitcoinBased()) {

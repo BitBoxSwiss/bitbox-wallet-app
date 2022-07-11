@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
  */
 
 import React, { Component, createRef } from 'react';
+import { getDeviceInfo } from '../../../api/bitbox01';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -61,11 +63,8 @@ class Backups extends Component<Props, State> {
   }
 
   private refresh = () => {
-    apiGet('devices/' + this.props.deviceID + '/info').then(({
-      lock,
-    }) => {
-      this.setState({ lock });
-    });
+    getDeviceInfo(this.props.deviceID)
+      .then(({ lock }) => this.setState({ lock }));
     apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
       if (success) {
         this.setState({

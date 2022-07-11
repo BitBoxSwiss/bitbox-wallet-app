@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,8 @@
 
 import { Component, createRef } from 'react';
 import { withTranslation } from 'react-i18next';
-import { apiGet, apiPost } from '../../../../utils/request';
+import { getDeviceInfo } from '../../../../api/bitbox01';
+import { apiPost } from '../../../../utils/request';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { Button, Input, Checkbox } from '../../../../components/forms';
 import { Message } from '../../../../components/message/message';
@@ -106,16 +108,17 @@ class SeedCreateNew extends Component {
   };
 
   checkSDcard = () => {
-    apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
-      if (sdcard) {
-        return this.setState({ status: STATUS.DEFAULT, error: '' });
-      }
-      this.setState({
-        status: STATUS.ERROR,
-        error: this.props.t('seed.error.e200'),
+    getDeviceInfo(this.props.deviceID)
+      .then(({ sdcard }) => {
+        if (sdcard) {
+          return this.setState({ status: STATUS.DEFAULT, error: '' });
+        }
+        this.setState({
+          status: STATUS.ERROR,
+          error: this.props.t('seed.error.e200'),
+        });
+        setTimeout(this.checkSDcard, 2500);
       });
-      setTimeout(this.checkSDcard, 2500);
-    });
   };
 
   handleStart = () => {

@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
-import { apiGet } from '../../../../utils/request';
+import { getDeviceInfo } from '../../../../api/bitbox01';
 import UpgradeFirmware from '../components/upgradefirmware';
 import { BitBox } from '../../../../components/icon/logo';
 import style from '../bitbox01.module.css';
@@ -27,11 +28,12 @@ class RequireUpgrade extends Component {
   };
 
   componentDidMount() {
-    apiGet('devices/' + this.props.deviceID + '/info').then(({ version }) => {
-      this.setState({
-        firmwareVersion: version.replace('v', ''),
+    getDeviceInfo(this.props.deviceID)
+      .then(({ version }) => {
+        this.setState({
+          firmwareVersion: version.replace('v', ''),
+        });
       });
-    });
   }
 
   render() {
