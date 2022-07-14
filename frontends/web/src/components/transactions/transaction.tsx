@@ -33,6 +33,7 @@ interface State {
     transactionDialog: boolean;
     newNote: string;
     editMode: boolean;
+    transactionInfo?: accountApi.ITransaction;
 }
 
 interface TransactionProps extends accountApi.ITransaction {
@@ -63,11 +64,19 @@ class Transaction extends Component<Props, State> {
   };
 
   private showDetails = () => {
-    this.setState({
-      transactionDialog: true,
-      newNote: this.props.note,
-      editMode: !this.props.note,
-    });
+    accountApi.getTransaction(this.props.accountCode, this.props.internalID).then(transaction => {
+      if (!transaction) {
+        console.error('Unable to retrieve transaction ' + this.props.internalID);
+        return null;
+      }
+      this.setState({
+        transactionInfo: transaction,
+        transactionDialog: true,
+        newNote: this.props.note,
+        editMode: !this.props.note,
+      });
+    })
+      .catch(console.error);
   };
 
   private hideDetails = () => {
@@ -111,15 +120,8 @@ class Transaction extends Component<Props, State> {
       index,
       explorerURL,
       type,
-      txID,
       amount,
-      fee,
       feeRatePerKb,
-      gas,
-      nonce,
-      vsize,
-      size,
-      weight,
       numConfirmations,
       numConfirmationsComplete,
       time,
@@ -131,6 +133,7 @@ class Transaction extends Component<Props, State> {
       transactionDialog,
       newNote,
       editMode,
+      transactionInfo,
     } = this.state;
     const arrow = type === 'receive' ? (
       <ArrowIn />
@@ -219,7 +222,9 @@ class Transaction extends Component<Props, State> {
           </div>
         </div>
         {
-          transactionDialog && (
+          transactionDialog && transactionInfo && (
+            // Amount and Confirmations info are displayed using props data instead of transactionInfo
+            // because they are live updated
             <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
               <form onSubmit={this.handleEdit} className={style.detailInput}>
                 <label htmlFor="note">{t('note.title')}</label>
@@ -284,23 +289,31 @@ class Transaction extends Component<Props, State> {
                 </p>
               </div>
               <div className={style.detail}>
+                <label>{t('transaction.details.fiatAtTime')}</label>
+                <p>
+                  <span className={`${style.fiat} ${typeClassName}`}>
+                    <FiatConversion amount={transactionInfo.amountAtTime} noAction>{sign}</FiatConversion>
+                  </span>
+                </p>
+              </div>
+              <div className={style.detail}>
                 <label>{t('transaction.details.amount')}</label>
                 <p>
                   <span className={`${style.currency} ${typeClassName}`}>
-                    {sign}{amount.amount}
+                    {sign}{transactionInfo.amount.amount}
                     {' '}
-                    <span className={style.currencyUnit}>{amount.unit}</span>
+                    <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
                   </span>
                 </p>
               </div>
               <div className={style.detail}>
                 <label>{t('transaction.fee')}</label>
                 {
-                  fee && fee.amount ? (
+                  transactionInfo.fee && transactionInfo.fee.amount ? (
                     <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
-                      {fee.amount}
+                      {transactionInfo.fee.amount}
                       {' '}
-                      <span className={style.currencyUnit}>{fee.unit}</span>
+                      <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
                     </p>
                   ) : (
                     <p>---</p>
@@ -310,7 +323,7 @@ class Transaction extends Component<Props, State> {
               <div className={[style.detail, style.addresses].join(' ')}>
                 <label>{t('transaction.details.address')}</label>
                 <div className={style.detailAddresses}>
-                  { addresses.map((address) => (
+                  { transactionInfo.addresses.map((address) => (
                     <CopyableInput
                       key={address}
                       alignRight
@@ -322,27 +335,27 @@ class Transaction extends Component<Props, State> {
                 </div>
               </div>
               {
-                gas ? (
+                transactionInfo.gas ? (
                   <div className={style.detail}>
                     <label>{t('transaction.gas')}</label>
-                    <p>{gas}</p>
+                    <p>{transactionInfo.gas}</p>
                   </div>
                 ) : null
               }
               {
-                nonce !== null ? (
+                transactionInfo.nonce !== null ? (
                   <div className={style.detail}>
                     <label>Nonce</label>
-                    <p>{nonce}</p>
+                    <p>{transactionInfo.nonce}</p>
                   </div>
                 ) : null
               }
               {
-                weight ? (
+                transactionInfo.weight ? (
                   <div className={style.detail}>
                     <label>{t('transaction.weight')}</label>
                     <p>
-                      {weight}
+                      {transactionInfo.weight}
                       {' '}
                       <span className={style.currencyUnit}>WU</span>
                     </p>
@@ -350,11 +363,11 @@ class Transaction extends Component<Props, State> {
                 ) : null
               }
               {
-                vsize ? (
+                transactionInfo.vsize ? (
                   <div className={style.detail}>
                     <label>{t('transaction.vsize')}</label>
                     <p>
-                      {vsize}
+                      {transactionInfo.vsize}
                       {' '}
                       <span className={style.currencyUnit}>b</span>
                     </p>
@@ -362,11 +375,11 @@ class Transaction extends Component<Props, State> {
                 ) : null
               }
               {
-                size ? (
+                transactionInfo.size ? (
                   <div className={style.detail}>
                     <label>{t('transaction.size')}</label>
                     <p>
-                      {size}
+                      {transactionInfo.size}
                       {' '}
                       <span className={style.currencyUnit}>b</span>
                     </p>
@@ -381,15 +394,15 @@ class Transaction extends Component<Props, State> {
                     borderLess
                     flexibleHeight
                     className={style.detailAddress}
-                    value={txID} />
+                    value={transactionInfo.txID} />
                 </div>
               </div>
               <div className={[style.detail, 'flex-center'].join(' ')}>
                 <p>
                   <A
                     className={style.externalLink}
-                    href={explorerURL + txID}
-                    title={t('transaction.explorerTitle') + '\n' + explorerURL + txID}>
+                    href={explorerURL + transactionInfo.txID}
+                    title={t('transaction.explorerTitle') + '\n' + explorerURL + transactionInfo.txID}>
                     {t('transaction.explorerTitle')}
                   </A>
                 </p>
