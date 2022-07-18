@@ -110,6 +110,10 @@
   color: var(--color-secondary);
 }
 
+.syncText {
+    font-variant: tabular-nums;
+}
+
 .table progress {
     appearance: none;
 }

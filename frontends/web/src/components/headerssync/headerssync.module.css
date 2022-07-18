@@ -33,6 +33,7 @@
 .syncText {
     display: inline-block;
     height: 100%;
+    font-variant: tabular-nums;
 }
 
 .spinnerContainer {
