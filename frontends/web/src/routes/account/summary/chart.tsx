@@ -366,6 +366,7 @@ class Chart extends Component<Props, State> {
 
   public render() {
     const {
+      i18n,
       t,
       data: {
         chartDataDaily,
@@ -394,7 +395,7 @@ class Chart extends Component<Props, State> {
         <header>
           <div className={styles.summary}>
             <div className={styles.totalValue}>
-              {chartTotal !== null ? formatCurrency(chartTotal, chartFiat) : (
+              {chartTotal !== null ? formatCurrency(i18n.language, chartTotal, chartFiat) : (
                 <Skeleton minWidth="220px" />
               )}
               <span className={styles.totalUnit}>
@@ -410,7 +411,7 @@ class Chart extends Component<Props, State> {
                     {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
                   </span>
                   <span className={styles.diffValue}>
-                    {formatNumber(difference, 2)}
+                    {formatNumber(i18n.language, difference, 2)}
                     <span className={styles.diffUnit}>%</span>
                   </span>
                 </>
@@ -461,7 +462,7 @@ class Chart extends Component<Props, State> {
             {toolTipValue !== undefined ? (
               <span>
                 <h2 className={styles.toolTipValue}>
-                  {formatCurrency(toolTipValue, chartFiat)}
+                  {formatCurrency(i18n.language, toolTipValue, chartFiat)}
                   <span className={styles.toolTipUnit}>{chartFiat}</span>
                 </h2>
                 <span className={styles.toolTipTime}>

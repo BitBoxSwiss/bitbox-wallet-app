@@ -29,7 +29,7 @@ interface Props {
 }
 
 export const HeadersSync: FunctionComponent<Props> = ({ coinCode }) => {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const status = useSubscribe(subscribeCoinHeaders(coinCode));
   const [hidden, setHidden] = useState<boolean>(false);
   const mounted = useMountedRef();
@@ -47,12 +47,7 @@ export const HeadersSync: FunctionComponent<Props> = ({ coinCode }) => {
   const total = status.targetHeight - status.tipAtInitTime;
   const value = 100 * (status.tip - status.tipAtInitTime) / total;
   const loaded = !total || value >= 100;
-  let formatted = status.tip.toString();
-  let position = formatted.length - 3;
-  while (position > 0) {
-    formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
-    position = position - 3;
-  }
+  const formatted = new Intl.NumberFormat(i18n.language).format(status.tip);
 
   return (
     <div className={style.syncContainer}>

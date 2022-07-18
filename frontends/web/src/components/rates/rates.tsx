@@ -16,6 +16,7 @@
  */
 
 import { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Coin, Fiat, IAmount } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
@@ -97,25 +98,23 @@ export function unselectFiat(fiat: Fiat): void {
     });
 }
 
-export function formatNumber(amount: number, maxDigits: number): string {
-  let formatted = amount.toFixed(maxDigits);
-  let position = formatted.indexOf('.') - 3;
-  while (position > 0) {
-    formatted = formatted.slice(0, position) + '\'' + formatted.slice(position);
-    position = position - 3;
-  }
-  return formatted;
+export function formatNumber(locale: string, amount: number, fractionDigits: number): string {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(amount);
 }
 
-export function formatCurrency(amount: number, fiat: Fiat): string {
-  const isBTC = fiat === 'BTC';
-  let formatted = formatNumber(amount, isBTC ? 8 : 2);
-  if (isBTC) {
-    // Replace trailing zeroes except, e.g. "1.10" => "1.1", "1.0" => "1".
-    formatted = formatted.replace(/0*$/, '').replace(/\.$/, '');
-  }
-  return formatted;
-
+export function formatCurrency(locale: string, amount: number, fiat: Fiat): string {
+  const formatter = fiat === 'BTC' ?
+    new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 8,
+    }) : new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  return formatter.format(amount);
 }
 
 interface ProvidedProps {
@@ -138,6 +137,7 @@ function Conversion({
   noAction,
   children,
 }: PropsWithChildren<Props>): JSX.Element | null {
+  const { i18n } = useTranslation();
 
   const coin = amount.unit;
   let formattedValue = '---';
@@ -147,7 +147,7 @@ function Conversion({
       formattedValue = amount.conversions[active];
   } else {
     if (rates && rates[coin]) {
-      formattedValue = formatCurrency(rates[coin][active] * Number(amount.amount), active);
+      formattedValue = formatCurrency(i18n.language, rates[coin][active] * Number(amount.amount), active);
     }
   }
   if (tableRow) {

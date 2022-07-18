@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Localize numbers using the user's chosen language and system region
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
 - Transaction Details: show fiat value at time of transaction
 

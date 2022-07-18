@@ -285,7 +285,7 @@ class AccountsSummary extends Component<Props, State> {
   }
 
   public render() {
-    const { t, accounts } = this.props;
+    const { i18n, t, accounts } = this.props;
     const { exported, data, balances } = this.state;
     return (
       <div className="contentWithGuide">
@@ -353,7 +353,7 @@ class AccountsSummary extends Component<Props, State> {
                         {(data && data.chartTotal !== null) ? (
                           <>
                             <strong>
-                              {formatCurrency(data.chartTotal, data.chartFiat)}
+                              {formatCurrency(i18n.language, data.chartTotal, data.chartFiat)}
                             </strong>
                             {' '}
                             <span className={style.coinUnit}>
