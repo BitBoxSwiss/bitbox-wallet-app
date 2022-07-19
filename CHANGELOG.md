@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+- Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
+- Transaction Details: show fiat value at time of transaction
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0

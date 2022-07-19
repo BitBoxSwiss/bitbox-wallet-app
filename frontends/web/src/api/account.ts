@@ -134,7 +134,7 @@ export type Conversions = null | {
 
 export interface IAmount {
     amount: string;
-    conversions: Conversions;
+    conversions?: Conversions;
     unit: Coin;
 }
 
@@ -151,6 +151,7 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
+    amountAtTime: IAmount;
     fee: IAmount;
     feeRatePerKb: IAmount;
     gas: number;
@@ -184,6 +185,9 @@ export const getTransactionList = (code: AccountCode): Promise<ITransaction[]> =
   return apiGet(`account/${code}/transactions`);
 };
 
+export const getTransaction = (code: AccountCode, id: ITransaction['internalID']): Promise<ITransaction | null> => {
+  return apiGet(`account/${code}/transaction?id=${id}`);
+};
 
 export interface IExport {
     success: boolean;

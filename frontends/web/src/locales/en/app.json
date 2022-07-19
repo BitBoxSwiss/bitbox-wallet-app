@@ -1321,6 +1321,7 @@
       "date": "Date",
       "fiat": "Fiat",
       "fiatAmount": "Fiat amount",
+      "fiatAtTime": "Fiat at time of transaction",
       "status": "Status",
       "type": "Type"
     },

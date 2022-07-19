@@ -218,7 +218,7 @@ class AccountsSummary extends Component<Props, State> {
     return (
       <tr key={`${code}_syncing`}>
         { nameCol }
-        <td colSpan={2}>
+        <td colSpan={2} className={style.syncText}>
           { t('account.syncedAddressesCount', {
             count: syncStatus?.toString(),
             defaultValue: 0,
