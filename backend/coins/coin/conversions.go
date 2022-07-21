@@ -8,8 +8,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 )
 
-func formatAsCurrency(amount float64) string {
-	formatted := strconv.FormatFloat(amount, 'f', 2, 64)
+func formatAsCurrency(amount float64, currency string) string {
+	var formatted string
+	if currency == "BTC" {
+		formatted = strings.TrimRight(strconv.FormatFloat(amount, 'f', 8, 64), "0")
+	} else {
+		formatted = strconv.FormatFloat(amount, 'f', 2, 64)
+	}
 	position := strings.Index(formatted, ".") - 3
 	for position > 0 {
 		formatted = formatted[:position] + "'" + formatted[position:]
@@ -27,7 +32,7 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateU
 		float := coin.ToUnit(amount, isFee)
 		conversions = map[string]string{}
 		for key, value := range rates[unit] {
-			conversions[key] = formatAsCurrency(float * value)
+			conversions[key] = formatAsCurrency(float*value, key)
 		}
 	}
 	return conversions
@@ -46,7 +51,7 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 			if value == 0 {
 				conversions[fiat] = ""
 			} else {
-				conversions[fiat] = formatAsCurrency(float * value)
+				conversions[fiat] = formatAsCurrency(float*value, fiat)
 			}
 		}
 	}
