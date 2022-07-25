@@ -220,7 +220,10 @@ class BitBox02 extends Component<Props, State> {
     this.checkSDCard().then(sdCardInserted => {
       this.setState({ sdCardInserted });
     });
-    this.setState({ appStatus: 'createWallet' });
+    this.setState({
+      appStatus: 'createWallet',
+      deviceName: '',
+    });
   };
 
   private restoreBackupStep = () => {
