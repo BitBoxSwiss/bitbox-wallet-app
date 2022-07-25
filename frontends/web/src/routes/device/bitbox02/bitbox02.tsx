@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
 import { getVersion, setDeviceName, VersionInfo } from '../../../api/bitbox02';
 import { multilineMarkup } from '../../../utils/markup';
@@ -333,7 +333,8 @@ class BitBox02 extends Component<Props, State> {
     this.setState({ deviceName: value });
   };
 
-  private setDeviceName = () => {
+  private setDeviceName = (event: FormEvent) => {
+    event.preventDefault();
     this.setState({
       waitDialog: { title: this.props.t('bitbox02Interact.confirmName') }
     }, () => {
