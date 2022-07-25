@@ -554,44 +554,49 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'intro') && (
-          <View
+          <form
             key="intro-pairing"
-            fullscreen
-            textCenter
-            withBottomBar
-            width="600px">
-            <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
-              {!sdCardInserted && (
-                <Status type="warning">
-                  <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
-                </Status>
-              )}
-              <p>{t('bitbox02Wizard.stepCreate.description')}</p>
-            </ViewHeader>
-            <ViewContent>
-              <Input
-                className={style.wizardLabel}
-                label={t('bitbox02Wizard.stepCreate.nameLabel')}
-                pattern="^.{0,63}$"
-                onInput={this.handleDeviceNameInput}
-                placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
-                value={deviceName}
-                id="deviceName" />
-            </ViewContent>
-            <ViewButtons>
-              <Button
-                primary
-                disabled={!deviceName}
-                onClick={this.setDeviceName}>
-                {t('bitbox02Wizard.stepCreate.buttonContinue')}
-              </Button>
-              <Button
-                transparent
-                onClick={() => this.setState({ appStatus: '' })}>
-                {t('bitbox02Wizard.stepCreate.buttonBack')}
-              </Button>
-            </ViewButtons>
-          </View>
+            onSubmit={this.setDeviceName}>
+            <View
+              fullscreen
+              textCenter
+              withBottomBar
+              width="600px">
+              <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
+                {!sdCardInserted && (
+                  <Status type="warning">
+                    <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
+                  </Status>
+                )}
+                <p>{t('bitbox02Wizard.stepCreate.description')}</p>
+              </ViewHeader>
+              <ViewContent>
+                <Input
+                  autoFocus
+                  className={style.wizardLabel}
+                  label={t('bitbox02Wizard.stepCreate.nameLabel')}
+                  pattern="^.{0,63}$"
+                  onInput={this.handleDeviceNameInput}
+                  placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
+                  value={deviceName}
+                  id="deviceName" />
+              </ViewContent>
+              <ViewButtons>
+                <Button
+                  disabled={!deviceName}
+                  primary
+                  type="submit">
+                  {t('bitbox02Wizard.stepCreate.buttonContinue')}
+                </Button>
+                <Button
+                  onClick={() => this.setState({ appStatus: '' })}
+                  transparent
+                  type="button">
+                  {t('bitbox02Wizard.stepCreate.buttonBack')}
+                </Button>
+              </ViewButtons>
+            </View>
+          </form>
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'setPassword') && (
