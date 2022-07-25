@@ -17,7 +17,7 @@
 
 import React, { Component } from 'react';
 import { Backup } from '../components/backup';
-import { getVersion, VersionInfo } from '../../../api/bitbox02';
+import { getVersion, setDeviceName, VersionInfo } from '../../../api/bitbox02';
 import { multilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -334,16 +334,25 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private setDeviceName = () => {
-    this.setState({ waitDialog: { title: this.props.t('bitbox02Interact.confirmName') } });
-    apiPost('devices/bitbox02/' + this.props.deviceID + '/set-device-name', { name: this.state.deviceName })
-      .then(result => {
-        this.setState({ waitDialog: undefined });
-        if (result.success) {
-          this.setPassword();
-        } else if (result.message) {
-          alertUser(result.message, { asDialog: false });
-        }
-      });
+    this.setState({
+      waitDialog: { title: this.props.t('bitbox02Interact.confirmName') }
+    }, () => {
+      setDeviceName(this.props.deviceID, this.state.deviceName)
+        .then(() => {
+          this.setState(
+            { waitDialog: undefined },
+            () => this.setPassword(),
+          );
+        })
+        .catch(result => {
+          if (result.message) {
+            alertUser(result.message, {
+              asDialog: false,
+              callback: () => this.setState({ waitDialog: undefined }),
+            });
+          }
+        });
+    });
   };
 
   private restoreFromMnemonic = () => {
