@@ -27,8 +27,7 @@ import { CopyableInput } from '../../../components/copy/Copy';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Radio } from '../../../components/forms';
 import { Message } from '../../../components/message/message';
-import { Entry } from '../../../components/guide/entry';
-import { Guide } from '../../../components/guide/guide';
+import { ReceiveGuide } from './components/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
@@ -280,20 +279,10 @@ export const Receive: FunctionComponent<Props> = ({
           </div>
         </div>
       </div>
-      <Guide>
-        <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
-        <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
-        <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
-        <Entry key="guide.receive.plugout" entry={t('guide.receive.plugout')} />
-        {currentAddresses && (
-          <>
-            {currentAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
-            {currentAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
-            {currentAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}
-            {receiveAddresses && receiveAddresses.length > 1 && currentAddresses.length > 1 && <Entry key="guide.receive.addressFormats" entry={t('guide.receive.addressFormats')} />}
-          </>
-        )}
-      </Guide>
+      <ReceiveGuide
+        hasMultipleAddresses={currentAddresses && currentAddresses.length > 1}
+        hasDifferentFormats={receiveAddresses && receiveAddresses.length > 1}
+      />
     </div>
   );
 };
