@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 
 interface BitcoinBasedAccountInfoGuideProps {
     coinName: string;
-    t: TFunction;
 }
 
 export function BitcoinBasedAccountInfoGuide({
-  t,
   coinName,
 }: BitcoinBasedAccountInfoGuideProps) {
+  const { t } = useTranslation();
   return (
     <Guide>
       <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} shown={true} />

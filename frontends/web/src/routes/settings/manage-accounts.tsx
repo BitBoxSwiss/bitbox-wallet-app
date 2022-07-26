@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,7 +251,7 @@ class ManageAccounts extends Component<Props, State> {
             </div>
           </div>
         </div>
-        <Guide t={t} />
+        <Guide />
       </div>
     );
   }
