@@ -24,8 +24,7 @@ import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
 import { alertUser } from '../../components/alert/Alert';
 import { Balance } from '../../components/balance/balance';
-import { Entry } from '../../components/guide/entry';
-import { Guide } from '../../components/guide/guide';
+import { AccountGuide } from './guide';
 import { HeadersSync } from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
 import { Info } from '../../components/icon';
@@ -227,19 +226,6 @@ class Account extends Component<Props, State> {
       .catch(console.error);
   };
 
-  private isBTCScriptType = (
-    scriptType: accountApi.ScriptType,
-    account: accountApi.IAccount,
-    accountInfo?: accountApi.ISigningConfigurationList,
-  ): boolean => {
-    if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
-      return false;
-    }
-    const config = accountInfo.signingConfigurations[0].bitcoinSimple;
-    return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
-            config !== undefined && config.scriptType === scriptType;
-  };
-
   private deviceIDs = (devices: TDevices) => {
     return Object.keys(devices);
   };
@@ -367,75 +353,13 @@ class Account extends Component<Props, State> {
             </div>
           </div>
         </div>
-        <Guide>
-          <Entry key="accountDescription" entry={t('guide.accountDescription')} />
-          {this.isBTCScriptType('p2pkh', account, accountInfo) && (
-            <Entry key="guide.settings.btc-p2pkh" entry={t('guide.settings.btc-p2pkh')} />
-          )}
-          {this.isBTCScriptType('p2wpkh-p2sh', account, accountInfo) && (
-            <Entry key="guide.settings.btc-p2sh" entry={{
-              link: {
-                text: t('guide.settings.btc-p2sh.link.text'),
-                url: 'https://bitcoincore.org/en/2016/01/26/segwit-benefits/'
-              },
-              text: t('guide.settings.btc-p2sh.text'),
-              title: t('guide.settings.btc-p2sh.title')
-            }} />
-          )}
-          {this.isBTCScriptType('p2wpkh', account, accountInfo) && (
-            <Entry key="guide.settings.btc-p2wpkh" entry={{
-              link: {
-                text: t('guide.settings.btc-p2wpkh.link.text'),
-                url: 'https://en.bitcoin.it/wiki/Bech32_adoption'
-              },
-              text: t('guide.settings.btc-p2wpkh.text'),
-              title: t('guide.settings.btc-p2wpkh.title')
-            }} />
-          )}
-          {balance && balance.available.amount === '0' && (
-            <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', { unit: balance.available.unit })} />
-          )}
-          <Entry key="accountReload" entry={t('guide.accountReload')} />
-          {transactions !== undefined && transactions.length > 0 && (
-            <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel')} />
-          )}
-          {transactions !== undefined && transactions.length > 0 && (
-            <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
-          )}
-          {this.isBTCScriptType('p2pkh', account, accountInfo) && (
-            <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
-          )}
-          {transactions !== undefined &&  transactions.length > 0 && (
-            <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric')} />
-          )}
-          {transactions !== undefined && transactions.length > 0 && isBitcoinBased(account.coinCode) && (
-            <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC')} />
-          )}
-          {balance && balance.hasIncoming && (
-            <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance')} />
-          )}
-          <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation')} />
-          <Entry key="accountFiat" entry={t('guide.accountFiat')} />
-
-          { /* careful, also used in Settings */ }
-          <Entry key="accountRates" entry={{
-            link: {
-              text: 'www.coingecko.com',
-              url: 'https://www.coingecko.com/'
-            },
-            text: t('guide.accountRates.text'),
-            title: t('guide.accountRates.title')
-          }} />
-
-          <Entry key="cointracking" entry={{
-            link: {
-              text: 'CoinTracking',
-              url: 'https://cointracking.info/import/bitbox/?ref=BITBOX',
-            },
-            text: t('guide.cointracking.text'),
-            title: t('guide.cointracking.title')
-          }} />
-        </Guide>
+        <AccountGuide
+          account={account}
+          accountInfo={accountInfo}
+          unit={balance?.available.unit}
+          hasIncomingBalance={balance && balance.hasIncoming}
+          hasTransactions={transactions !== undefined && transactions.length > 0}
+          hasNoBalance={balance && balance.available.amount === '0'} />
       </div>
     );
   }
