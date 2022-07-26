@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
 import * as accountApi from '../../../api/account';
-import { TDevices } from '../../../api/devices';
 import { route } from '../../../utils/route';
 import { getScriptName, isEthereumBased } from '../utils';
 import { alertUser } from '../../../components/alert/Alert';
@@ -33,16 +32,13 @@ import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
-import { PairedWarning } from './components/bb01paired';
-import { useVerfiyLabel, VerifyButton } from './components/verfiybutton';
+import { VerifyButton } from './components/verfiybutton';
 import style from './receive.module.css';
 
-interface Props {
-    code: string;
-    devices: TDevices;
-    accounts: accountApi.IAccount[];
-    deviceIDs: string[];
-}
+type Props = {
+  accounts: accountApi.IAccount[];
+  code: string;
+};
 
 type AddressDialog = { addressType: number } | undefined;
 
@@ -64,8 +60,6 @@ const getIndexOfMatchingScriptType = (
 export const Receive: FunctionComponent<Props> = ({
   accounts,
   code,
-  devices,
-  deviceIDs,
 }) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
@@ -76,9 +70,7 @@ export const Receive: FunctionComponent<Props> = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const device = deviceIDs.length ? devices[deviceIDs[0]] : undefined;
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
-  const verifyLabel = useVerfiyLabel(device);
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -161,7 +153,6 @@ export const Receive: FunctionComponent<Props> = ({
   return (
     <div className="contentWithGuide">
       <div className="container">
-        {device === 'bitbox' && (<PairedWarning deviceID={deviceIDs[0]} />)}
         <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
         <div className="innerContainer scrollableContainer">
           <div className="content narrow isVerticallyCentered">
@@ -241,7 +232,7 @@ export const Receive: FunctionComponent<Props> = ({
                   )}
                   <div className="buttons">
                     <VerifyButton
-                      device={device}
+                      device="bitbox02"
                       disabled={verifying || secureOutput === undefined}
                       forceVerification={forceVerification}
                       onClick={() => verifyAddress(currentAddressIndex)}/>
@@ -256,7 +247,7 @@ export const Receive: FunctionComponent<Props> = ({
                   )}
                   { account && forceVerification && verifying && (
                     <Dialog
-                      title={verifyLabel}
+                      title={t('receive.verifyBitBox02')}
                       disableEscape={true}
                       medium centered>
                       <div className="text-center">

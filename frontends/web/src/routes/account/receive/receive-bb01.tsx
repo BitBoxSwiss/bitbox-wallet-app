@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
 import * as accountApi from '../../../api/account';
-import { TDevices } from '../../../api/devices';
 import { route } from '../../../utils/route';
 import { getScriptName, isEthereumBased } from '../utils';
 import { alertUser } from '../../../components/alert/Alert';
@@ -37,12 +36,11 @@ import { PairedWarning } from './components/bb01paired';
 import { useVerfiyLabel, VerifyButton } from './components/verfiybutton';
 import style from './receive.module.css';
 
-interface Props {
-    code: string;
-    devices: TDevices;
-    accounts: accountApi.IAccount[];
-    deviceIDs: string[];
-}
+type Props = {
+  accounts: accountApi.IAccount[];
+  code: string;
+  deviceIDs: string[];
+};
 
 type AddressDialog = { addressType: number } | undefined;
 
@@ -64,7 +62,6 @@ const getIndexOfMatchingScriptType = (
 export const Receive: FunctionComponent<Props> = ({
   accounts,
   code,
-  devices,
   deviceIDs,
 }) => {
   const { t } = useTranslation();
@@ -76,9 +73,8 @@ export const Receive: FunctionComponent<Props> = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const device = deviceIDs.length ? devices[deviceIDs[0]] : undefined;
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
-  const verifyLabel = useVerfiyLabel(device);
+  const verifyLabel = useVerfiyLabel('bitbox');
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -161,7 +157,7 @@ export const Receive: FunctionComponent<Props> = ({
   return (
     <div className="contentWithGuide">
       <div className="container">
-        {device === 'bitbox' && (<PairedWarning deviceID={deviceIDs[0]} />)}
+        <PairedWarning deviceID={deviceIDs[0]} />
         <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
         <div className="innerContainer scrollableContainer">
           <div className="content narrow isVerticallyCentered">
@@ -241,7 +237,7 @@ export const Receive: FunctionComponent<Props> = ({
                   )}
                   <div className="buttons">
                     <VerifyButton
-                      device={device}
+                      device="bitbox"
                       disabled={verifying || secureOutput === undefined}
                       forceVerification={forceVerification}
                       onClick={() => verifyAddress(currentAddressIndex)}/>
