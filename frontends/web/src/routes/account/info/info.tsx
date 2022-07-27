@@ -101,7 +101,7 @@ export const Info: FunctionComponent<Props> = ({
         </div>
       </div>
       { isBitcoinBased(account.coinCode) ? (
-        <BitcoinBasedAccountInfoGuide t={t} coinName={account.coinName} />
+        <BitcoinBasedAccountInfoGuide coinName={account.coinName} />
       ) : null }
     </div>
   );
