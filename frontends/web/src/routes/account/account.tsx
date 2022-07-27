@@ -19,6 +19,7 @@ import { Component } from 'react';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
+import { isMoonpayBuySupported } from '../../api/backend';
 import { getDeviceInfo } from '../../api/bitbox01';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
@@ -56,17 +57,17 @@ interface AccountProps {
 }
 
 interface LoadedAccountProps {
-    moonpayBuySupported: boolean;
-    config: any;
+  config: any;
 }
 
 interface State {
-    status?: accountApi.IStatus;
-    transactions?: accountApi.ITransaction[];
-    balance?: accountApi.IBalance;
-    hasCard: boolean;
-    accountInfo?: accountApi.ISigningConfigurationList;
-    syncedAddressesCount?: number;
+  status?: accountApi.IStatus;
+  transactions?: accountApi.ITransaction[];
+  balance?: accountApi.IBalance;
+  hasCard: boolean;
+  accountInfo?: accountApi.ISigningConfigurationList;
+  syncedAddressesCount?: number;
+  moonpayBuySupported?: boolean;
 }
 
 type Props = LoadedAccountProps & AccountProps & TranslateProps;
@@ -79,6 +80,7 @@ class Account extends Component<Props, State> {
     hasCard: false,
     accountInfo: undefined,
     syncedAddressesCount: undefined,
+    moonpayBuySupported: undefined,
   };
 
   private subscriptions: UnsubscribeList = [];
@@ -90,6 +92,7 @@ class Account extends Component<Props, State> {
     }
     this.subscribe();
     this.onStatusChanged();
+    this.checkBuySupport();
   }
 
   public componentWillUnmount() {
@@ -116,6 +119,7 @@ class Account extends Component<Props, State> {
       this.checkSDCards();
       unsubscribe(this.subscriptions);
       this.subscribe();
+      this.checkBuySupport();
     }
     if (this.deviceIDs(this.props.devices).length !== this.deviceIDs(prevProps.devices).length) {
       this.checkSDCards();
@@ -234,9 +238,14 @@ class Account extends Component<Props, State> {
     return this.state.balance !== undefined && this.state.transactions !== undefined;
   };
 
+  private checkBuySupport = () => {
+    isMoonpayBuySupported(this.props.code)()
+      .then(moonpayBuySupported => this.setState({ moonpayBuySupported }));
+  };
+
   private supportsBuy = () => {
     // True if at least one external service supports onramp for this account.
-    return this.props.moonpayBuySupported;
+    return this.state.moonpayBuySupported;
   };
 
   public render() {
@@ -363,8 +372,7 @@ class Account extends Component<Props, State> {
   }
 }
 
-const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
-  moonpayBuySupported: `exchange/moonpay/buy-supported/${code}`,
+const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(() => ({
   config: 'config',
 }))(Account);
 
