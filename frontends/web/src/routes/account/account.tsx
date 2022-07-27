@@ -32,7 +32,6 @@ import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
-import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
 import { BuyCTA } from './info/buyCTA';
@@ -56,10 +55,6 @@ interface AccountProps {
     accounts: accountApi.IAccount[];
 }
 
-interface LoadedAccountProps {
-  config: any;
-}
-
 interface State {
   status?: accountApi.IStatus;
   transactions?: accountApi.ITransaction[];
@@ -68,9 +63,10 @@ interface State {
   accountInfo?: accountApi.ISigningConfigurationList;
   syncedAddressesCount?: number;
   moonpayBuySupported?: boolean;
+  usesProxy?: boolean;
 }
 
-type Props = LoadedAccountProps & AccountProps & TranslateProps;
+type Props = AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
   public readonly state: State = {
@@ -81,6 +77,7 @@ class Account extends Component<Props, State> {
     accountInfo: undefined,
     syncedAddressesCount: undefined,
     moonpayBuySupported: undefined,
+    usesProxy: undefined,
   };
 
   private subscriptions: UnsubscribeList = [];
@@ -93,6 +90,7 @@ class Account extends Component<Props, State> {
     this.subscribe();
     this.onStatusChanged();
     this.checkBuySupport();
+    this.checkProxyConfig();
   }
 
   public componentWillUnmount() {
@@ -248,12 +246,18 @@ class Account extends Component<Props, State> {
     return this.state.moonpayBuySupported;
   };
 
+  private checkProxyConfig = () => {
+    apiGet('config')
+      .then(({ backend }) => {
+        this.setState({ usesProxy: backend.proxy.useProxy });
+      });
+  };
+
   public render() {
     const {
       t,
       code,
       accounts,
-      config,
     } = this.props;
     const {
       status,
@@ -261,6 +265,7 @@ class Account extends Component<Props, State> {
       balance,
       hasCard,
       syncedAddressesCount,
+      usesProxy,
     } = this.state;
     const account = accounts &&
                         accounts.find(acct => acct.code === code);
@@ -282,7 +287,7 @@ class Account extends Component<Props, State> {
     if (status.offlineError !== null) {
       offlineErrorTextLines.push(t('account.reconnecting'));
       offlineErrorTextLines.push(status.offlineError);
-      if (config.backend.proxy.useProxy) {
+      if (usesProxy) {
         offlineErrorTextLines.push(t('account.maybeProxyError'));
       }
     }
@@ -372,9 +377,5 @@ class Account extends Component<Props, State> {
   }
 }
 
-const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(() => ({
-  config: 'config',
-}))(Account);
-
-const HOC = translate()(loadHOC);
+const HOC = translate()(Account);
 export { HOC as Account };
