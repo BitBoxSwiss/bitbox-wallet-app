@@ -33,7 +33,6 @@ interface BackupsProps {
     showCreate?: boolean;
     showRestore?: boolean;
     requireConfirmation?: boolean;
-    fillSpace?: boolean;
     displayError?: () => void;
     onRestore?: () => void;
 }

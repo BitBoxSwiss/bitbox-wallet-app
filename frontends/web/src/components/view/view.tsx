@@ -27,11 +27,10 @@ type ViewProps = {
     fullscreen?: boolean;
     minHeight?: string;
     onClose?: () => void;
-    position?: 'fill' | '';
     textCenter?: boolean;
     width?: string;
     withBottomBar?: boolean;
-}
+};
 
 /**
  * View component is used as a container component to wrap ViewHeader, ViewContent and ViewButtons

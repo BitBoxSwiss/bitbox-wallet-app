@@ -161,7 +161,7 @@ class Device extends Component {
       }
       return (
         <SecurityInformation goal={goal} goBack={this.handleBack}>
-          <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} />
+          <Initialize goBack={this.handleBack} deviceID={deviceID} />
         </SecurityInformation>
       );
     case DeviceStatus.LOGGED_IN:

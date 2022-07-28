@@ -17,7 +17,6 @@
 import React, { ChangeEvent, Component } from 'react';
 import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
-import { TDevices } from '../../api/devices';
 import Guide from './guide';
 import A from '../../components/anchor/anchor';
 import { Header } from '../../components/layout';
@@ -33,7 +32,6 @@ import style from './info.module.css';
 interface BuyInfoProps {
     accounts: IAccount[];
     code?: string;
-    devices: TDevices;
 }
 
 interface LoadedBuyInfoProps {

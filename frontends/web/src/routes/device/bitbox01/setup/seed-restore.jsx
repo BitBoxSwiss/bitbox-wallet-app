@@ -140,8 +140,7 @@ class SeedRestore extends Component {
                     displayError={this.displayError}
                     deviceID={deviceID}
                     requireConfirmation={false}
-                    onRestore={onSuccess}
-                    fillSpace>
+                    onRestore={onSuccess}>
                     <Button
                       transparent
                       onClick={goBack}>
