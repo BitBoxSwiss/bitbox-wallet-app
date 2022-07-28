@@ -22,8 +22,7 @@ import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
 import { isMoonpayBuySupported } from '../../api/backend';
-import { checkSDCard } from '../../api/bitbox02';
-import { getDeviceInfo } from '../../api/bitbox01';
+import { useSDCard } from '../../hooks/sdcard';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
 import { alertUser } from '../../components/alert/Alert';
@@ -64,7 +63,6 @@ export function Account({
   const { t } = useTranslation();
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
-  const [hasCard, setHasCard] = useState<boolean>(false);
   const [moonpayBuySupported, setMoonpayBuySupported] = useState<boolean>();
   const [status, setStatus] = useState<accountApi.IStatus>();
   const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
@@ -80,22 +78,7 @@ export function Account({
     deviceIDs.current = Object.keys(devices);
   }, [devices]);
 
-  useEffect(() => { // TODO: write as custom hook
-    Promise.all(deviceIDs.current.map(deviceID => {
-      switch (devices[deviceID]) {
-      case 'bitbox':
-        return getDeviceInfo(deviceID)
-          .then(({ sdcard }) => sdcard);
-      case 'bitbox02':
-        return checkSDCard(deviceID);
-      default:
-        return [];
-      }
-    }))
-      .then(sdcards => sdcards.some(sdcard => sdcard))
-      .then(result =>  setHasCard(result))
-      .catch(console.error);
-  }, [code, deviceIDs,  devices]);
+  const hasCard = useSDCard(devices, [devices, code]);
 
   const onAccountChanged = useCallback(() => {
     if (!code || status === undefined || status.fatalError) {
