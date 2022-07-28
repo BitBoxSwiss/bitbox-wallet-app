@@ -22,6 +22,7 @@ import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
 import { isMoonpayBuySupported } from '../../api/backend';
+import { checkSDCard } from '../../api/bitbox02';
 import { getDeviceInfo } from '../../api/bitbox01';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
@@ -86,8 +87,7 @@ export function Account({
         return getDeviceInfo(deviceID)
           .then(({ sdcard }) => sdcard);
       case 'bitbox02':
-        return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
-          .then(sdcard => sdcard);
+        return checkSDCard(deviceID);
       default:
         return [];
       }

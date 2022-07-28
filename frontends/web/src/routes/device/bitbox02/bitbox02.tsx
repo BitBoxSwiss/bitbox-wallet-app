@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
+import { checkSDCard, getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
 import { multilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -238,9 +238,7 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private checkSDCard = () => {
-    return apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(sdCardInserted => {
-      return sdCardInserted;
-    });
+    return checkSDCard(this.props.deviceID);
   };
 
   private insertSDCard = () => {

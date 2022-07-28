@@ -41,6 +41,12 @@ export const getDeviceInfo = (
     });
 };
 
+export const checkSDCard = (
+  deviceID: string,
+): Promise<boolean> => {
+  return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`);
+};
+
 export const setDeviceName = (
   deviceID: string,
   newDeviceName: string,
