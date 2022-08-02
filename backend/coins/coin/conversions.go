@@ -1,19 +1,20 @@
 package coin
 
 import (
-	"strconv"
+	"math/big"
 	"strings"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 )
 
-func formatAsCurrency(amount float64, currency string) string {
+// FormatAsCurrency handles formatting for currencies.
+func FormatAsCurrency(amount *big.Rat, coinUnit string) string {
 	var formatted string
-	if currency == "BTC" {
-		formatted = strings.TrimRight(strconv.FormatFloat(amount, 'f', 8, 64), "0")
+	if coinUnit == "BTC" {
+		formatted = strings.TrimRight(strings.TrimRight(amount.FloatString(8), "0"), ".")
 	} else {
-		formatted = strconv.FormatFloat(amount, 'f', 2, 64)
+		formatted = amount.FloatString(2)
 	}
 	position := strings.Index(formatted, ".") - 3
 	for position > 0 {
@@ -29,10 +30,10 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateU
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
-		float := coin.ToUnit(amount, isFee)
 		conversions = map[string]string{}
 		for key, value := range rates[unit] {
-			conversions[key] = formatAsCurrency(float*value, key)
+			conversion := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
+			conversions[key] = FormatAsCurrency(conversion, key)
 		}
 	}
 	return conversions
@@ -44,14 +45,14 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
-		float := coin.ToUnit(amount, isFee)
 		conversions = map[string]string{}
 		for fiat := range rates[unit] {
 			value := ratesUpdater.HistoricalPriceAt(string(coin.Code()), fiat, *timeStamp)
 			if value == 0 {
 				conversions[fiat] = ""
 			} else {
-				conversions[fiat] = formatAsCurrency(float*value, fiat)
+				conversion := new(big.Rat).Mul(new(big.Rat).SetFloat64(coin.ToUnit(amount, isFee)), new(big.Rat).SetFloat64(value))
+				conversions[fiat] = FormatAsCurrency(conversion, fiat)
 			}
 		}
 	}

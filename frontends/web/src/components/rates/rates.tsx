@@ -16,24 +16,15 @@
  */
 
 import { PropsWithChildren } from 'react';
-import { Coin, Fiat, IAmount } from '../../api/account';
+import { Fiat, IAmount } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
 import { equal } from '../../utils/equal';
-import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import style from './rates.module.css';
 
-
-export type Rates = {
-    [coin in Coin]: {
-        [fiat in Fiat]: number;
-    }
-};
-
 export interface SharedProps {
-    rates: Rates | undefined | null;
     active: Fiat;
     selected: Fiat[];
 }
@@ -41,7 +32,6 @@ export interface SharedProps {
 export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
 
 export const store = new Store<SharedProps>({
-  rates: undefined,
   active: 'USD',
   selected: ['USD', 'EUR', 'CHF'],
 });
@@ -55,11 +45,6 @@ apiGet('config').then((appconf) => {
     store.setState({ selected: appconf.backend.fiatList });
   }
 });
-
-// TODO: should not invoking apiGet imediatelly, see the apiGet() function for more details
-apiGet('rates').then(rates => store.setState({ rates }));
-
-apiSubscribe('rates', ({ object }) => store.setState({ rates: object }));
 
 export function setActiveFiat(fiat: Fiat): void {
   if (!store.state.selected.includes(fiat)) {
@@ -107,17 +92,6 @@ export function formatNumber(amount: number, maxDigits: number): string {
   return formatted;
 }
 
-export function formatCurrency(amount: number, fiat: Fiat): string {
-  const isBTC = fiat === 'BTC';
-  let formatted = formatNumber(amount, isBTC ? 8 : 2);
-  if (isBTC) {
-    // Replace trailing zeroes except, e.g. "1.10" => "1.1", "1.0" => "1".
-    formatted = formatted.replace(/0*$/, '').replace(/\.$/, '');
-  }
-  return formatted;
-
-}
-
 interface ProvidedProps {
     amount: IAmount;
     tableRow?: boolean;
@@ -133,24 +107,18 @@ function Conversion({
   tableRow,
   unstyled,
   skipUnit,
-  rates,
   active,
   noAction,
   children,
 }: PropsWithChildren<Props>): JSX.Element | null {
 
-  const coin = amount.unit;
   let formattedValue = '---';
 
-  if (amount.conversions) {
-    if (amount.conversions[active] !== '') {
-      formattedValue = amount.conversions[active];
-    }
-  } else {
-    if (rates && rates[coin]) {
-      formattedValue = formatCurrency(rates[coin][active] * Number(amount.amount), active);
-    }
+  // amount.conversions[active] can be empty in recent transactions.
+  if (amount && amount.conversions[active] !== '') {
+    formattedValue = amount.conversions[active];
   }
+  
   if (tableRow) {
     return (
       <tr className={unstyled ? '' : style.fiatRow}>

@@ -26,7 +26,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"strconv"
 	"strings"
 	"time"
 
@@ -493,6 +492,10 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 
 func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
 	totalPerCoin := make(map[coin.Code]*big.Int)
+	conversionsPerCoin := make(map[coin.Code]map[string]string)
+
+	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
+
 	for _, account := range handlers.backend.Accounts() {
 		if !account.Config().Active {
 			continue
@@ -515,17 +518,21 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 		} else {
 			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
 		}
+		conversionsPerCoin[coinCode] = coin.Conversions(coin.NewAmount(totalPerCoin[coinCode]), account.Coin(), false, account.Config().RateUpdater)
 	}
 
-	formattedTotalPerCoint := make(map[coin.Code]string)
 	for k, v := range totalPerCoin {
 		currentCoin, err := handlers.backend.Coin(k)
 		if err != nil {
 			return nil, err
 		}
-		formattedTotalPerCoint[k] = currentCoin.FormatAmount(coin.NewAmount(v), false)
+
+		totalAmount[k] = accountHandlers.FormattedAmount{
+			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+			Conversions: conversionsPerCoin[k],
+		}
 	}
-	return formattedTotalPerCoint, nil
+	return totalAmount, nil
 }
 
 func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interface{}, error) {
@@ -632,17 +639,20 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
-	amountAsFloat, err := strconv.ParseFloat(amount, 64)
-	if err != nil {
+	amountRat, valid := new(big.Rat).SetString(amount)
+	if !valid {
 		return map[string]interface{}{
 			"success": false,
 			"errMsg":  "invalid amount",
 		}, nil
 	}
+
 	rate := handlers.backend.RatesUpdater().LatestPrice()[from][to]
+	convertedAmount := new(big.Rat).Mul(amountRat, new(big.Rat).SetFloat64(rate))
+
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": strconv.FormatFloat(amountAsFloat*rate, 'f', 2, 64),
+		"fiatAmount": coinpkg.FormatAsCurrency(convertedAmount, to),
 	}, nil
 }
 
@@ -650,7 +660,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
-	coin, err := handlers.backend.Coin(coinpkg.Code(to))
+	currentCoin, err := handlers.backend.Coin(coinpkg.Code(to))
 	if err != nil {
 		return map[string]interface{}{
 			"success": false,
@@ -658,27 +668,30 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 		}, nil
 	}
 
-	amount := r.URL.Query().Get("amount")
-	amountAsFloat, err := strconv.ParseFloat(amount, 64)
-	if err != nil {
+	fiatStr := r.URL.Query().Get("amount")
+	fiatRat, valid := new(big.Rat).SetString(fiatStr)
+	if !valid {
 		return map[string]interface{}{
 			"success": false,
 			"errMsg":  "invalid amount",
 		}, nil
 	}
-	unit := coin.Unit(isFee)
+
+	unit := currentCoin.Unit(isFee)
 	switch unit { // HACK: fake rates for testnet coins
 	case "TBTC", "TLTC", "TETH", "RETH":
 		unit = unit[1:]
 	}
+
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
-	result := 0.0
+	result := coin.NewAmountFromInt64(0)
 	if rate != 0.0 {
-		result = amountAsFloat / rate
+		amountRat := new(big.Rat).Quo(fiatRat, new(big.Rat).SetFloat64(rate))
+		result = currentCoin.SetAmount(amountRat, false)
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  strconv.FormatFloat(result, 'f', int(coin.Decimals(isFee)), 64),
+		"amount":  currentCoin.FormatAmount(result, false),
 	}, nil
 }
 

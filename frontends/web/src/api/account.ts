@@ -52,7 +52,8 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export interface ITotalBalance {
-    [key: string]: string;
+    [key: string]: IAmount;
+
 }
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
@@ -117,6 +118,7 @@ export interface ISummary {
     chartDataHourly: ChartData;
     chartFiat: Fiat;
     chartTotal: number | null;
+    formattedChartTotal: string | null;
     chartIsUpToDate: boolean; // only valid if chartDataMissing is false
 }
 

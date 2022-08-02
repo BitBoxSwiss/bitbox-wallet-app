@@ -677,7 +677,7 @@ class Send extends Component<Props, State> {
                         onInput={this.handleFiatInput}
                         disabled={sendAll}
                         error={amountError}
-                        value={fiatAmount}
+                        value={fiatAmount.replace('\'','')} /* input with type=number doesn't like some formatting chars like [']. */
                         placeholder={t('send.amount.placeholder')} />
                     </div>
                   </div>

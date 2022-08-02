@@ -21,6 +21,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -145,6 +146,14 @@ func (coin *Coin) ToUnit(amount coin.Amount, isFee bool) float64 {
 	factor := coin.unitFactor(isFee)
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), factor).Float64()
 	return result
+}
+
+// SetAmount implements coin.Coin.
+func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coin.Amount {
+	factor := coin.unitFactor(isFee)
+	weiAmount := new(big.Rat).Mul(amount, new(big.Rat).SetInt(factor))
+	intWeiAmount, _ := new(big.Int).SetString(weiAmount.FloatString(0), 0)
+	return coinpkg.NewAmount(intWeiAmount)
 }
 
 // BlockExplorerTransactionURLPrefix implements coin.Coin.

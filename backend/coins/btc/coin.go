@@ -168,6 +168,13 @@ func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
 	return result
 }
 
+// SetAmount implements coinpkg.Coin.
+func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coinpkg.Amount {
+	satsAmount := new(big.Rat).Mul(amount, new(big.Rat).SetFloat64(unitSatoshi))
+	intSatsAmount, _ := new(big.Int).SetString(satsAmount.FloatString(0), 0)
+	return coinpkg.NewAmount(intSatsAmount)
+}
+
 // Blockchain connects to a blockchain backend.
 func (coin *Coin) Blockchain() blockchain.Interface {
 	return coin.blockchain

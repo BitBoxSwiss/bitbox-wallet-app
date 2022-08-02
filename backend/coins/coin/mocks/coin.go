@@ -6,21 +6,8 @@ package mocks
 import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"math/big"
 	"sync"
-)
-
-var (
-	lockCoinMockBlockExplorerTransactionURLPrefix sync.RWMutex
-	lockCoinMockClose                             sync.RWMutex
-	lockCoinMockCode                              sync.RWMutex
-	lockCoinMockDecimals                          sync.RWMutex
-	lockCoinMockFormatAmount                      sync.RWMutex
-	lockCoinMockInitialize                        sync.RWMutex
-	lockCoinMockName                              sync.RWMutex
-	lockCoinMockObserve                           sync.RWMutex
-	lockCoinMockSmallestUnit                      sync.RWMutex
-	lockCoinMockToUnit                            sync.RWMutex
-	lockCoinMockUnit                              sync.RWMutex
 )
 
 // Ensure, that CoinMock does implement coin.Coin.
@@ -29,49 +16,52 @@ var _ coin.Coin = &CoinMock{}
 
 // CoinMock is a mock implementation of coin.Coin.
 //
-//     func TestSomethingThatUsesCoin(t *testing.T) {
+// 	func TestSomethingThatUsesCoin(t *testing.T) {
 //
-//         // make and configure a mocked coin.Coin
-//         mockedCoin := &CoinMock{
-//             BlockExplorerTransactionURLPrefixFunc: func() string {
-// 	               panic("mock out the BlockExplorerTransactionURLPrefix method")
-//             },
-//             CloseFunc: func() error {
-// 	               panic("mock out the Close method")
-//             },
-//             CodeFunc: func() coin.Code {
-// 	               panic("mock out the Code method")
-//             },
-//             DecimalsFunc: func(isFee bool) uint {
-// 	               panic("mock out the Decimals method")
-//             },
-//             FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
-// 	               panic("mock out the FormatAmount method")
-//             },
-//             InitializeFunc: func()  {
-// 	               panic("mock out the Initialize method")
-//             },
-//             NameFunc: func() string {
-// 	               panic("mock out the Name method")
-//             },
-//             ObserveFunc: func(in1 func(observable.Event)) func() {
-// 	               panic("mock out the Observe method")
-//             },
-//             SmallestUnitFunc: func() string {
-// 	               panic("mock out the SmallestUnit method")
-//             },
-//             ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
-// 	               panic("mock out the ToUnit method")
-//             },
-//             UnitFunc: func(isFee bool) string {
-// 	               panic("mock out the Unit method")
-//             },
-//         }
+// 		// make and configure a mocked coin.Coin
+// 		mockedCoin := &CoinMock{
+// 			BlockExplorerTransactionURLPrefixFunc: func() string {
+// 				panic("mock out the BlockExplorerTransactionURLPrefix method")
+// 			},
+// 			CloseFunc: func() error {
+// 				panic("mock out the Close method")
+// 			},
+// 			CodeFunc: func() coin.Code {
+// 				panic("mock out the Code method")
+// 			},
+// 			DecimalsFunc: func(isFee bool) uint {
+// 				panic("mock out the Decimals method")
+// 			},
+// 			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
+// 				panic("mock out the FormatAmount method")
+// 			},
+// 			InitializeFunc: func()  {
+// 				panic("mock out the Initialize method")
+// 			},
+// 			NameFunc: func() string {
+// 				panic("mock out the Name method")
+// 			},
+// 			ObserveFunc: func(fn func(observable.Event)) func() {
+// 				panic("mock out the Observe method")
+// 			},
+// 			SetAmountFunc: func(amount *big.Rat, isFee bool) coin.Amount {
+// 				panic("mock out the SetAmount method")
+// 			},
+// 			SmallestUnitFunc: func() string {
+// 				panic("mock out the SmallestUnit method")
+// 			},
+// 			ToUnitFunc: func(amount coin.Amount, isFee bool) float64 {
+// 				panic("mock out the ToUnit method")
+// 			},
+// 			UnitFunc: func(isFee bool) string {
+// 				panic("mock out the Unit method")
+// 			},
+// 		}
 //
-//         // use mockedCoin in code that requires coin.Coin
-//         // and then make assertions.
+// 		// use mockedCoin in code that requires coin.Coin
+// 		// and then make assertions.
 //
-//     }
+// 	}
 type CoinMock struct {
 	// BlockExplorerTransactionURLPrefixFunc mocks the BlockExplorerTransactionURLPrefix method.
 	BlockExplorerTransactionURLPrefixFunc func() string
@@ -95,7 +85,10 @@ type CoinMock struct {
 	NameFunc func() string
 
 	// ObserveFunc mocks the Observe method.
-	ObserveFunc func(in1 func(observable.Event)) func()
+	ObserveFunc func(fn func(observable.Event)) func()
+
+	// SetAmountFunc mocks the SetAmount method.
+	SetAmountFunc func(amount *big.Rat, isFee bool) coin.Amount
 
 	// SmallestUnitFunc mocks the SmallestUnit method.
 	SmallestUnitFunc func() string
@@ -137,8 +130,15 @@ type CoinMock struct {
 		}
 		// Observe holds details about calls to the Observe method.
 		Observe []struct {
-			// In1 is the in1 argument value.
-			In1 func(observable.Event)
+			// Fn is the fn argument value.
+			Fn func(observable.Event)
+		}
+		// SetAmount holds details about calls to the SetAmount method.
+		SetAmount []struct {
+			// Amount is the amount argument value.
+			Amount *big.Rat
+			// IsFee is the isFee argument value.
+			IsFee bool
 		}
 		// SmallestUnit holds details about calls to the SmallestUnit method.
 		SmallestUnit []struct {
@@ -156,6 +156,18 @@ type CoinMock struct {
 			IsFee bool
 		}
 	}
+	lockBlockExplorerTransactionURLPrefix sync.RWMutex
+	lockClose                             sync.RWMutex
+	lockCode                              sync.RWMutex
+	lockDecimals                          sync.RWMutex
+	lockFormatAmount                      sync.RWMutex
+	lockInitialize                        sync.RWMutex
+	lockName                              sync.RWMutex
+	lockObserve                           sync.RWMutex
+	lockSetAmount                         sync.RWMutex
+	lockSmallestUnit                      sync.RWMutex
+	lockToUnit                            sync.RWMutex
+	lockUnit                              sync.RWMutex
 }
 
 // BlockExplorerTransactionURLPrefix calls BlockExplorerTransactionURLPrefixFunc.
@@ -165,9 +177,9 @@ func (mock *CoinMock) BlockExplorerTransactionURLPrefix() string {
 	}
 	callInfo := struct {
 	}{}
-	lockCoinMockBlockExplorerTransactionURLPrefix.Lock()
+	mock.lockBlockExplorerTransactionURLPrefix.Lock()
 	mock.calls.BlockExplorerTransactionURLPrefix = append(mock.calls.BlockExplorerTransactionURLPrefix, callInfo)
-	lockCoinMockBlockExplorerTransactionURLPrefix.Unlock()
+	mock.lockBlockExplorerTransactionURLPrefix.Unlock()
 	return mock.BlockExplorerTransactionURLPrefixFunc()
 }
 
@@ -178,9 +190,9 @@ func (mock *CoinMock) BlockExplorerTransactionURLPrefixCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockCoinMockBlockExplorerTransactionURLPrefix.RLock()
+	mock.lockBlockExplorerTransactionURLPrefix.RLock()
 	calls = mock.calls.BlockExplorerTransactionURLPrefix
-	lockCoinMockBlockExplorerTransactionURLPrefix.RUnlock()
+	mock.lockBlockExplorerTransactionURLPrefix.RUnlock()
 	return calls
 }
 
@@ -191,9 +203,9 @@ func (mock *CoinMock) Close() error {
 	}
 	callInfo := struct {
 	}{}
-	lockCoinMockClose.Lock()
+	mock.lockClose.Lock()
 	mock.calls.Close = append(mock.calls.Close, callInfo)
-	lockCoinMockClose.Unlock()
+	mock.lockClose.Unlock()
 	return mock.CloseFunc()
 }
 
@@ -204,9 +216,9 @@ func (mock *CoinMock) CloseCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockCoinMockClose.RLock()
+	mock.lockClose.RLock()
 	calls = mock.calls.Close
-	lockCoinMockClose.RUnlock()
+	mock.lockClose.RUnlock()
 	return calls
 }
 
@@ -217,9 +229,9 @@ func (mock *CoinMock) Code() coin.Code {
 	}
 	callInfo := struct {
 	}{}
-	lockCoinMockCode.Lock()
+	mock.lockCode.Lock()
 	mock.calls.Code = append(mock.calls.Code, callInfo)
-	lockCoinMockCode.Unlock()
+	mock.lockCode.Unlock()
 	return mock.CodeFunc()
 }
 
@@ -230,9 +242,9 @@ func (mock *CoinMock) CodeCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockCoinMockCode.RLock()
+	mock.lockCode.RLock()
 	calls = mock.calls.Code
-	lockCoinMockCode.RUnlock()
+	mock.lockCode.RUnlock()
 	return calls
 }
 
@@ -246,9 +258,9 @@ func (mock *CoinMock) Decimals(isFee bool) uint {
 	}{
 		IsFee: isFee,
 	}
-	lockCoinMockDecimals.Lock()
+	mock.lockDecimals.Lock()
 	mock.calls.Decimals = append(mock.calls.Decimals, callInfo)
-	lockCoinMockDecimals.Unlock()
+	mock.lockDecimals.Unlock()
 	return mock.DecimalsFunc(isFee)
 }
 
@@ -261,9 +273,9 @@ func (mock *CoinMock) DecimalsCalls() []struct {
 	var calls []struct {
 		IsFee bool
 	}
-	lockCoinMockDecimals.RLock()
+	mock.lockDecimals.RLock()
 	calls = mock.calls.Decimals
-	lockCoinMockDecimals.RUnlock()
+	mock.lockDecimals.RUnlock()
 	return calls
 }
 
@@ -279,9 +291,9 @@ func (mock *CoinMock) FormatAmount(amount coin.Amount, isFee bool) string {
 		Amount: amount,
 		IsFee:  isFee,
 	}
-	lockCoinMockFormatAmount.Lock()
+	mock.lockFormatAmount.Lock()
 	mock.calls.FormatAmount = append(mock.calls.FormatAmount, callInfo)
-	lockCoinMockFormatAmount.Unlock()
+	mock.lockFormatAmount.Unlock()
 	return mock.FormatAmountFunc(amount, isFee)
 }
 
@@ -296,9 +308,9 @@ func (mock *CoinMock) FormatAmountCalls() []struct {
 		Amount coin.Amount
 		IsFee  bool
 	}
-	lockCoinMockFormatAmount.RLock()
+	mock.lockFormatAmount.RLock()
 	calls = mock.calls.FormatAmount
-	lockCoinMockFormatAmount.RUnlock()
+	mock.lockFormatAmount.RUnlock()
 	return calls
 }
 
@@ -309,9 +321,9 @@ func (mock *CoinMock) Initialize() {
 	}
 	callInfo := struct {
 	}{}
-	lockCoinMockInitialize.Lock()
+	mock.lockInitialize.Lock()
 	mock.calls.Initialize = append(mock.calls.Initialize, callInfo)
-	lockCoinMockInitialize.Unlock()
+	mock.lockInitialize.Unlock()
 	mock.InitializeFunc()
 }
 
@@ -322,9 +334,9 @@ func (mock *CoinMock) InitializeCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockCoinMockInitialize.RLock()
+	mock.lockInitialize.RLock()
 	calls = mock.calls.Initialize
-	lockCoinMockInitialize.RUnlock()
+	mock.lockInitialize.RUnlock()
 	return calls
 }
 
@@ -335,9 +347,9 @@ func (mock *CoinMock) Name() string {
 	}
 	callInfo := struct {
 	}{}
-	lockCoinMockName.Lock()
+	mock.lockName.Lock()
 	mock.calls.Name = append(mock.calls.Name, callInfo)
-	lockCoinMockName.Unlock()
+	mock.lockName.Unlock()
 	return mock.NameFunc()
 }
 
@@ -348,40 +360,75 @@ func (mock *CoinMock) NameCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockCoinMockName.RLock()
+	mock.lockName.RLock()
 	calls = mock.calls.Name
-	lockCoinMockName.RUnlock()
+	mock.lockName.RUnlock()
 	return calls
 }
 
 // Observe calls ObserveFunc.
-func (mock *CoinMock) Observe(in1 func(observable.Event)) func() {
+func (mock *CoinMock) Observe(fn func(observable.Event)) func() {
 	if mock.ObserveFunc == nil {
 		panic("CoinMock.ObserveFunc: method is nil but Coin.Observe was just called")
 	}
 	callInfo := struct {
-		In1 func(observable.Event)
+		Fn func(observable.Event)
 	}{
-		In1: in1,
+		Fn: fn,
 	}
-	lockCoinMockObserve.Lock()
+	mock.lockObserve.Lock()
 	mock.calls.Observe = append(mock.calls.Observe, callInfo)
-	lockCoinMockObserve.Unlock()
-	return mock.ObserveFunc(in1)
+	mock.lockObserve.Unlock()
+	return mock.ObserveFunc(fn)
 }
 
 // ObserveCalls gets all the calls that were made to Observe.
 // Check the length with:
 //     len(mockedCoin.ObserveCalls())
 func (mock *CoinMock) ObserveCalls() []struct {
-	In1 func(observable.Event)
+	Fn func(observable.Event)
 } {
 	var calls []struct {
-		In1 func(observable.Event)
+		Fn func(observable.Event)
 	}
-	lockCoinMockObserve.RLock()
+	mock.lockObserve.RLock()
 	calls = mock.calls.Observe
-	lockCoinMockObserve.RUnlock()
+	mock.lockObserve.RUnlock()
+	return calls
+}
+
+// SetAmount calls SetAmountFunc.
+func (mock *CoinMock) SetAmount(amount *big.Rat, isFee bool) coin.Amount {
+	if mock.SetAmountFunc == nil {
+		panic("CoinMock.SetAmountFunc: method is nil but Coin.SetAmount was just called")
+	}
+	callInfo := struct {
+		Amount *big.Rat
+		IsFee  bool
+	}{
+		Amount: amount,
+		IsFee:  isFee,
+	}
+	mock.lockSetAmount.Lock()
+	mock.calls.SetAmount = append(mock.calls.SetAmount, callInfo)
+	mock.lockSetAmount.Unlock()
+	return mock.SetAmountFunc(amount, isFee)
+}
+
+// SetAmountCalls gets all the calls that were made to SetAmount.
+// Check the length with:
+//     len(mockedCoin.SetAmountCalls())
+func (mock *CoinMock) SetAmountCalls() []struct {
+	Amount *big.Rat
+	IsFee  bool
+} {
+	var calls []struct {
+		Amount *big.Rat
+		IsFee  bool
+	}
+	mock.lockSetAmount.RLock()
+	calls = mock.calls.SetAmount
+	mock.lockSetAmount.RUnlock()
 	return calls
 }
 
@@ -392,9 +439,9 @@ func (mock *CoinMock) SmallestUnit() string {
 	}
 	callInfo := struct {
 	}{}
-	lockCoinMockSmallestUnit.Lock()
+	mock.lockSmallestUnit.Lock()
 	mock.calls.SmallestUnit = append(mock.calls.SmallestUnit, callInfo)
-	lockCoinMockSmallestUnit.Unlock()
+	mock.lockSmallestUnit.Unlock()
 	return mock.SmallestUnitFunc()
 }
 
@@ -405,9 +452,9 @@ func (mock *CoinMock) SmallestUnitCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockCoinMockSmallestUnit.RLock()
+	mock.lockSmallestUnit.RLock()
 	calls = mock.calls.SmallestUnit
-	lockCoinMockSmallestUnit.RUnlock()
+	mock.lockSmallestUnit.RUnlock()
 	return calls
 }
 
@@ -423,9 +470,9 @@ func (mock *CoinMock) ToUnit(amount coin.Amount, isFee bool) float64 {
 		Amount: amount,
 		IsFee:  isFee,
 	}
-	lockCoinMockToUnit.Lock()
+	mock.lockToUnit.Lock()
 	mock.calls.ToUnit = append(mock.calls.ToUnit, callInfo)
-	lockCoinMockToUnit.Unlock()
+	mock.lockToUnit.Unlock()
 	return mock.ToUnitFunc(amount, isFee)
 }
 
@@ -440,9 +487,9 @@ func (mock *CoinMock) ToUnitCalls() []struct {
 		Amount coin.Amount
 		IsFee  bool
 	}
-	lockCoinMockToUnit.RLock()
+	mock.lockToUnit.RLock()
 	calls = mock.calls.ToUnit
-	lockCoinMockToUnit.RUnlock()
+	mock.lockToUnit.RUnlock()
 	return calls
 }
 
@@ -456,9 +503,9 @@ func (mock *CoinMock) Unit(isFee bool) string {
 	}{
 		IsFee: isFee,
 	}
-	lockCoinMockUnit.Lock()
+	mock.lockUnit.Lock()
 	mock.calls.Unit = append(mock.calls.Unit, callInfo)
-	lockCoinMockUnit.Unlock()
+	mock.lockUnit.Unlock()
 	return mock.UnitFunc(isFee)
 }
 
@@ -471,8 +518,8 @@ func (mock *CoinMock) UnitCalls() []struct {
 	var calls []struct {
 		IsFee bool
 	}
-	lockCoinMockUnit.RLock()
+	mock.lockUnit.RLock()
 	calls = mock.calls.Unit
-	lockCoinMockUnit.RUnlock()
+	mock.lockUnit.RUnlock()
 	return calls
 }
