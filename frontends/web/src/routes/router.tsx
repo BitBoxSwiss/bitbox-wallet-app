@@ -6,7 +6,7 @@ import { AddAccount } from './account/add/add';
 import { Moonpay } from './buy/moonpay';
 import { BuyInfo } from './buy/info';
 import { Info } from './account/info/info';
-import { Receive } from './account/receive/receive';
+import { Receive } from './account/receive';
 import { Send } from './account/send/send';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';

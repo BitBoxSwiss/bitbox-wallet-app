@@ -31,12 +31,14 @@ import { ReceiveGuide } from './components/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
-import { VerifyButton } from './components/verfiybutton';
+import { PairedWarning } from './components/bb01paired';
+import { useVerfiyLabel, VerifyButton } from './components/verfiybutton';
 import style from './receive.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
   code: string;
+  deviceIDs: string[];
 };
 
 type AddressDialog = { addressType: number } | undefined;
@@ -59,6 +61,7 @@ const getIndexOfMatchingScriptType = (
 export const Receive: FunctionComponent<Props> = ({
   accounts,
   code,
+  deviceIDs,
 }) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
@@ -70,6 +73,7 @@ export const Receive: FunctionComponent<Props> = ({
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const verifyLabel = useVerfiyLabel('bitbox');
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -152,6 +156,7 @@ export const Receive: FunctionComponent<Props> = ({
   return (
     <div className="contentWithGuide">
       <div className="container">
+        <PairedWarning deviceID={deviceIDs[0]} />
         <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
         <div className="innerContainer scrollableContainer">
           <div className="content narrow isVerticallyCentered">
@@ -231,7 +236,7 @@ export const Receive: FunctionComponent<Props> = ({
                   )}
                   <div className="buttons">
                     <VerifyButton
-                      device="bitbox02"
+                      device="bitbox"
                       disabled={verifying || secureOutput === undefined}
                       forceVerification={forceVerification}
                       onClick={() => verifyAddress(currentAddressIndex)}/>
@@ -246,7 +251,7 @@ export const Receive: FunctionComponent<Props> = ({
                   )}
                   { account && forceVerification && verifying && (
                     <Dialog
-                      title={t('receive.verifyBitBox02')}
+                      title={verifyLabel}
                       disableEscape={true}
                       medium centered>
                       <div className="text-center">
