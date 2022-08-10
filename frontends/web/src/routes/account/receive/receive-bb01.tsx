@@ -32,7 +32,7 @@ import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
 import { PairedWarning } from './components/bb01paired';
-import { useVerfiyLabel, VerifyButton } from './components/verfiybutton';
+import { useVerifyLabel, VerifyButton } from './components/verifybutton';
 import style from './receive.module.css';
 
 type Props = {
@@ -73,7 +73,7 @@ export const Receive: FunctionComponent<Props> = ({
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
-  const verifyLabel = useVerfiyLabel('bitbox');
+  const verifyLabel = useVerifyLabel('bitbox');
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));

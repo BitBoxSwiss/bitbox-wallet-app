@@ -31,7 +31,7 @@ import { ReceiveGuide } from './components/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
-import { VerifyButton } from './components/verfiybutton';
+import { VerifyButton } from './components/verifybutton';
 import style from './receive.module.css';
 
 type Props = {

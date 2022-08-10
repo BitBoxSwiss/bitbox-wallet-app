@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { TProductName } from '../../../../api/devices';
 import { Button } from '../../../../components/forms';
 
-export const useVerfiyLabel = (device?: TProductName): string => {
+export const useVerifyLabel = (device?: TProductName): string => {
   const { t } = useTranslation();
   if (device === 'bitbox') {
     return t('receive.verifyBitBox01');
@@ -40,7 +40,7 @@ export const VerifyButton: FunctionComponent<Props> = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const verifyLabel = useVerfiyLabel(device);
+  const verifyLabel = useVerifyLabel(device);
   return (
     <Button primary {...props}>
       { forceVerification ? t('receive.showFull') : verifyLabel }
