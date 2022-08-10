@@ -34,15 +34,14 @@ export const Receive: FunctionComponent<Props> = props => {
   } = props;
   const device = deviceIDs.length ? devices[deviceIDs[0]] : undefined;
   switch (device) {
-  case 'bitbox02':
-    return (
-      <ReceiveBB02 {...props} />
-    );
   case 'bitbox':
     return (
       <ReceiveBB01 {...props} />
     );
-  default:
-    return null;
+  case 'bitbox02':
+  default: // software keystore
+    return (
+      <ReceiveBB02 {...props} />
+    );
   }
 };
