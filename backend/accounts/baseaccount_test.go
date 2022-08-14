@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"

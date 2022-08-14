@@ -4,11 +4,12 @@
 package mocks
 
 import (
-	"github.com/btcsuite/btcutil/hdkeychain"
+	"sync"
+
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	"sync"
 )
 
 var (

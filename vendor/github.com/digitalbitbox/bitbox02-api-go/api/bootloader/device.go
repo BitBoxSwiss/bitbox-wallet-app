@@ -31,7 +31,7 @@ import (
 const (
 	chunkSize       = 8 * 512
 	maxFirmwareSize = 884736
-	// max number of chunks that can be written when flashing the firmware
+	// max number of chunks that can be written when flashing the firmware.
 	firmwareChunks = maxFirmwareSize / chunkSize
 
 	numRootKeys    = 3

@@ -30,7 +30,7 @@ const (
 )
 
 const (
-	// CID - channel identifier
+	// CID - channel identifier.
 	cid = 0xff000000
 )
 

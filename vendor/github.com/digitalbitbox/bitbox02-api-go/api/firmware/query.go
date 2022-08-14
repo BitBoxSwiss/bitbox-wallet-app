@@ -20,13 +20,13 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
 	// sinve v7.0.0, requets and responses are framed with hww* codes.
 
-	// hwwReq* are HWW-level framing opcodes of requests
+	// hwwReq* are HWW-level framing opcodes of requests.
 
 	// New request.
 	hwwReqNew = "\x00"
@@ -38,7 +38,7 @@ const (
 	// the same way for all firmware versions.
 	hwwInfo = "i"
 
-	// hwwRsp* are HWW-level framing pocodes of responses
+	// hwwRsp* are HWW-level framing pocodes of responses.
 
 	// Request finished, payload is valid.
 	hwwRspAck = "\x00"
@@ -46,7 +46,7 @@ const (
 	hwwRspNotready = "\x01"
 	// Device is busy, request was dropped. Client should retry the exact same msg.
 	hwwRspBusy = "\x02"
-	// Bad request
+	// Bad request.
 	hwwRspNack = "\x03"
 )
 

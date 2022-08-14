@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/btcsuite/btcutil/base58"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 const multisigNameMaxLen = 30
@@ -277,7 +277,7 @@ func (device *Device) BTCSign(
 		switch next.Type {
 		case messages.BTCSignNextResponse_INPUT:
 			inputIndex := next.Index
-			input := *tx.Inputs[inputIndex].Input
+			input := tx.Inputs[inputIndex].Input
 
 			inputIsSchnorr := isTaproot(scriptConfigs[input.ScriptConfigIndex])
 
@@ -297,7 +297,7 @@ func (device *Device) BTCSign(
 			}
 			next, err = device.queryBtcSign(&messages.Request{
 				Request: &messages.Request_BtcSignInput{
-					BtcSignInput: &input,
+					BtcSignInput: input,
 				}})
 			if err != nil {
 				return nil, err

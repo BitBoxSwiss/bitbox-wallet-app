@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 )
 

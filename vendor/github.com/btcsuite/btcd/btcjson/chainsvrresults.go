@@ -11,8 +11,8 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 )
 
 // GetBlockHeaderVerboseResult models the data from the getblockheader command when
@@ -172,12 +172,13 @@ type SoftForkDescription struct {
 // Bip9SoftForkDescription describes the current state of a defined BIP0009
 // version bits soft-fork.
 type Bip9SoftForkDescription struct {
-	Status     string `json:"status"`
-	Bit        uint8  `json:"bit"`
-	StartTime1 int64  `json:"startTime"`
-	StartTime2 int64  `json:"start_time"`
-	Timeout    int64  `json:"timeout"`
-	Since      int32  `json:"since"`
+	Status              string `json:"status"`
+	Bit                 uint8  `json:"bit"`
+	StartTime1          int64  `json:"startTime"`
+	StartTime2          int64  `json:"start_time"`
+	Timeout             int64  `json:"timeout"`
+	Since               int32  `json:"since"`
+	MinActivationHeight int32  `json:"min_activation_height"`
 }
 
 // StartTime returns the starting time of the softfork as a Unix epoch.
@@ -363,6 +364,8 @@ type GetNetworkInfoResult struct {
 	LocalRelay      bool                   `json:"localrelay"`
 	TimeOffset      int64                  `json:"timeoffset"`
 	Connections     int32                  `json:"connections"`
+	ConnectionsIn   int32                  `json:"connections_in"`
+	ConnectionsOut  int32                  `json:"connections_out"`
 	NetworkActive   bool                   `json:"networkactive"`
 	Networks        []NetworksResult       `json:"networks"`
 	RelayFee        float64                `json:"relayfee"`

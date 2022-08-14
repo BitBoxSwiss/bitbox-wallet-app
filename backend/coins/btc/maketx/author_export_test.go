@@ -15,7 +15,7 @@
 package maketx
 
 import (
-	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/sirupsen/logrus"
 )
 

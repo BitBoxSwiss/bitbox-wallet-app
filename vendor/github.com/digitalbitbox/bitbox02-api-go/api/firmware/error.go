@@ -22,9 +22,9 @@ import (
 
 const (
 	// 100 errors are reserved for errors coming from the device firmware
-	// Different namespace should be used for local app errors
+	// Different namespace should be used for local app errors.
 
-	// ErrInvalidInput is returned when the request sends and invalid or unexpected input
+	// ErrInvalidInput is returned when the request sends and invalid or unexpected input.
 	ErrInvalidInput = 101
 
 	// ErrUserAbort is returned when the user aborts an action on the device.

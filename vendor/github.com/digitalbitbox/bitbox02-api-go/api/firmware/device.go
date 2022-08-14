@@ -27,8 +27,6 @@ import (
 	"github.com/flynn/noise"
 )
 
-//go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
-
 var (
 	lowestSupportedFirmwareVersion                   = semver.NewSemVer(9, 0, 0)
 	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(9, 0, 0)

@@ -17,9 +17,9 @@ package mocks
 import (
 	"errors"
 
+	btcutil "github.com/btcsuite/btcd/btcutil"
 	chainhash "github.com/btcsuite/btcd/chaincfg/chainhash"
 	wire "github.com/btcsuite/btcd/wire"
-	btcutil "github.com/btcsuite/btcutil"
 	blockchain "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 )
 

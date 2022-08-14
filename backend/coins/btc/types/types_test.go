@@ -18,20 +18,20 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSignatureDER(t *testing.T) {
 	ecdsaSk, _ := btcec.PrivKeyFromBytes(
-		btcec.S256(),
 		[]byte("\xda\xfc\x5b\x9b\x48\x2e\x5c\x5c\xd0\x6b\xe6\x73\xde\x62\x97\xe5\xd5\x25\x9a\x4f\xab\x18\x51\x2a\x93\xfe\x00\x9b\xef\xb1\xeb\xc0"),
 	)
 	dummyMsg := make([]byte, 32)
-	sig, err := ecdsaSk.Sign(dummyMsg)
+	sig, err := ecdsa.SignCompact(ecdsaSk, dummyMsg, true)
 	require.NoError(t, err)
 	require.Equal(t,
-		(&Signature{R: sig.R, S: sig.S}).SerializeDER(),
+		(&Signature{R: new(big.Int).SetBytes(sig[1:33]), S: new(big.Int).SetBytes(sig[33:])}).SerializeDER(),
 		[]byte("\x30\x45\x02\x21\x00\xe6\x21\xa7\x68\x6d\x51\xfb\x23\xe7\x61\xad\xff\x43\x67\x88\x1a\x6f\xb1\x6b\xc5\x63\x5f\xf3\x4e\xea\x39\xaf\xda\xf0\x33\xe4\xd7\x02\x20\x79\x98\x51\x2f\x52\xbd\x3d\xae\x10\x09\x51\xa6\xdf\x9e\x66\xbc\xb7\x8c\x19\x4d\xca\xa3\xc7\xfd\x24\x51\x18\x0b\x5c\xc9\x4d\x4e"),
 	)
 }

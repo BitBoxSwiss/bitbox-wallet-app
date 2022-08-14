@@ -18,7 +18,7 @@ package btc
 import (
 	"testing"
 
-	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/stretchr/testify/require"
 )

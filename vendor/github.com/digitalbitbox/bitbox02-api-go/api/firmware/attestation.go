@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
@@ -128,7 +128,7 @@ func (device *Device) performAttestation() (bool, error) {
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	rootPubkey, err := btcec.ParsePubKey(rootPubkeyBytes, btcec.S256())
+	rootPubkey, err := btcec.ParsePubKey(rootPubkeyBytes)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
