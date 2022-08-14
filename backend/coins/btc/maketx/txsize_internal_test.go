@@ -17,9 +17,9 @@ package maketx
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"testing"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -37,16 +37,31 @@ var scriptTypes = []signing.ScriptType{
 	signing.ScriptTypeP2TR,
 }
 
+func unhex(s string) []byte {
+	r, err := hex.DecodeString(s)
+	if err != nil {
+		panic(err)
+	}
+	return r
+}
+
+func makeSig() types.Signature {
+	// In the DER encoding, a signature can be 70 or 71 bytes (excluding sighash op).
+	// We take one that has 71 bytes, as the size function returns the maximum possible size.
+	sig := types.Signature{
+		R: new(big.Int).SetBytes(unhex("a97dc23e47bb79dbff73e33be4a4e476d6ef67c8c23a9ee4a9ee21f4dd80f0f2")),
+		S: new(big.Int).SetBytes(unhex("1c5d4be437308539e1193d9118fae03bae1942e9ce27c86803bb5f18aa044a46")),
+	}
+	if len(sig.SerializeDER()) != 71 {
+		panic("bad test signature")
+	}
+	return sig
+}
+
 func testEstimateTxSize(
 	t *testing.T, useSegwit bool, outputScriptType, changeScriptType signing.ScriptType) {
 	t.Helper()
-	// A signature can be 70 or 71 bytes (excluding sighash op).
-	// We take one that has 71 bytes, as the size function returns the maximum possible size.
-	sigBytes, err := hex.DecodeString(
-		`3045022100a97dc23e47bb79dbff73e33be4a4e476d6ef67c8c23a9ee4a9ee21f4dd80f0f202201c5d4be437308539e1193d9118fae03bae1942e9ce27c86803bb5f18aa044a46`)
-	require.NoError(t, err)
-	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
-	require.NoError(t, err)
+	sig := makeSig()
 
 	inputScriptTypes := scriptTypes
 	if !useSegwit {
@@ -72,7 +87,7 @@ func testEstimateTxSize(
 	for counter := 0; counter < 10; counter++ {
 		for _, inputScriptType := range inputScriptTypes {
 			inputAddress := addressesTest.GetAddress(inputScriptType)
-			sigScript, witness := inputAddress.SignatureScript(types.Signature{R: sig.R, S: sig.S})
+			sigScript, witness := inputAddress.SignatureScript(sig)
 			tx.TxIn = append(tx.TxIn, &wire.TxIn{
 				SignatureScript: sigScript,
 				Witness:         witness,
@@ -100,20 +115,14 @@ func testEstimateTxSize(
 }
 
 func TestSigScriptWitnessSize(t *testing.T) {
-	// A signature can be 70 or 71 bytes (excluding sighash op).
-	// We take one that has 71 bytes, as the size function returns the maximum possible size.
-	sigBytes, err := hex.DecodeString(
-		`3045022100a97dc23e47bb79dbff73e33be4a4e476d6ef67c8c23a9ee4a9ee21f4dd80f0f202201c5d4be437308539e1193d9118fae03bae1942e9ce27c86803bb5f18aa044a46`)
-	require.NoError(t, err)
-	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
-	require.NoError(t, err)
+	sig := makeSig()
 
 	// Test all singlesig configurations.
 	for _, scriptType := range scriptTypes {
 		address := test.GetAddress(scriptType)
 		t.Run(address.Configuration.String(), func(t *testing.T) {
 			sigScriptSize, witnessSize := sigScriptWitnessSize(address.Configuration)
-			sigScript, witness := address.SignatureScript(types.Signature{R: sig.R, S: sig.S})
+			sigScript, witness := address.SignatureScript(sig)
 			require.Equal(t, len(sigScript), sigScriptSize)
 			if witness != nil {
 				require.Equal(t, witness.SerializeSize(), witnessSize)
