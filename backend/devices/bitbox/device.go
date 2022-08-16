@@ -28,10 +28,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -1110,7 +1110,7 @@ func (dbb *Device) signBatch(
 // SignatureWithRecID also contains the recoverable ID, with which one can more efficiently recover
 // the public key.
 type SignatureWithRecID struct {
-	btcec.Signature
+	types.Signature
 	RecID int64
 }
 
@@ -1199,7 +1199,7 @@ func (dbb *Device) Sign(
 				return nil, errp.New("Unexpected reply: 'recid' must be a hex value")
 			}
 			signatures = append(signatures, SignatureWithRecID{
-				Signature: btcec.Signature{R: sigR, S: sigS},
+				Signature: types.Signature{R: sigR, S: sigS},
 				RecID:     sigRecIDNum.Int64(),
 			})
 		}
