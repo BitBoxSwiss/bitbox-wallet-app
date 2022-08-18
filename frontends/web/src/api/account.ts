@@ -280,6 +280,7 @@ export interface UTXO {
     amount: {
         amount: string;
         unit: Coin;
+        conversions: Conversions;
     };
     scriptType: ScriptType;
 }
