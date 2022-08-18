@@ -303,7 +303,11 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 
 	inputs := make([]*firmware.BTCTxInput, len(tx.TxIn))
 	for inputIndex, txIn := range tx.TxIn {
-		prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
+		prevOut, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
+		if !ok {
+			keystore.log.Error("There needs to be exactly one output being spent per input.")
+			return errp.New("There needs to be exactly one output being spent per input.")
+		}
 
 		inputAddress := btcProposedTx.GetAddress(prevOut.ScriptHashHex())
 

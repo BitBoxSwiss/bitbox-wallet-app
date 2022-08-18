@@ -150,7 +150,8 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
-			keystore.log.Panic("There needs to be exactly one output being spent per input!")
+			keystore.log.Error("There needs to be exactly one output being spent per input.")
+			return errp.New("There needs to be exactly one output being spent per input.")
 		}
 		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
 		isSegwit, subScript := address.ScriptForHashToSign()
