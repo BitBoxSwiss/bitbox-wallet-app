@@ -60,13 +60,6 @@ export const data: ExchangeData[] = [
     payment: ['BT'],
   },
   {
-    key: 'bitwala',
-    link: 'https://www.bitwala.com',
-    description: 'Bitwala is crypto-friendly banking, a one-stop solution with integrated non-custodial Bitcoin & Ethereum wallet and exchange.',
-    regions: ['EU'],
-    payment: ['BT'],
-  },
-  {
     key: 'shapeshift',
     link: 'https://shapeshift.io/',
     description: 'Founded in 2014, ShapeShift allows users to buy crypto with fiat, trade, track, and secure their crypto. Users stay in control of their keys.',
