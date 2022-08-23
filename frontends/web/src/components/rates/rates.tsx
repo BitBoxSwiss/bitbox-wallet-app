@@ -93,7 +93,7 @@ export function formatNumber(amount: number, maxDigits: number): string {
 }
 
 interface ProvidedProps {
-    amount: IAmount;
+    amount?: IAmount;
     tableRow?: boolean;
     unstyled?: boolean;
     skipUnit?: boolean;
@@ -118,7 +118,7 @@ function Conversion({
   if (amount && amount.conversions[active] !== '') {
     formattedValue = amount.conversions[active];
   }
-  
+
   if (tableRow) {
     return (
       <tr className={unstyled ? '' : style.fiatRow}>

@@ -130,13 +130,13 @@ export const exportSummary = (): Promise<string> => {
   return apiPost('export-account-summary');
 };
 
-export type Conversions = null | {
+export type Conversions = {
     [key in Fiat]: string;
 }
 
 export interface IAmount {
     amount: string;
-    conversions?: Conversions;
+    conversions: Conversions;
     unit: Coin;
 }
 
@@ -153,7 +153,7 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
-    amountAtTime: IAmount;
+    amountAtTime: IAmount | null;
     fee: IAmount;
     feeRatePerKb: IAmount;
     gas: number;
@@ -279,10 +279,7 @@ export interface UTXO {
     txId: string;
     txOutput: number;
     address: string;
-    amount: {
-        amount: string;
-        unit: Coin;
-    };
+    amount: IAmount;
     scriptType: ScriptType;
 }
 

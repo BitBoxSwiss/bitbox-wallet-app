@@ -8,14 +8,21 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 )
 
-// FormatAsCurrency handles formatting for currencies.
-func FormatAsCurrency(amount *big.Rat, coinUnit string) string {
+// FormatAsPlainCurrency handles formatting for currencies in a simplified way.
+// This should be used when `FormatAsCurrency` can't be used because a simpler formatting is needed (e.g. to populate forms in the frontend).
+func FormatAsPlainCurrency(amount *big.Rat, coinUnit string) string {
 	var formatted string
 	if coinUnit == "BTC" {
 		formatted = strings.TrimRight(strings.TrimRight(amount.FloatString(8), "0"), ".")
 	} else {
 		formatted = amount.FloatString(2)
 	}
+	return formatted
+}
+
+// FormatAsCurrency handles formatting for currencies.
+func FormatAsCurrency(amount *big.Rat, coinUnit string) string {
+	formatted := FormatAsPlainCurrency(amount, coinUnit)
 	position := strings.Index(formatted, ".") - 3
 	for position > 0 {
 		formatted = formatted[:position] + "'" + formatted[position:]

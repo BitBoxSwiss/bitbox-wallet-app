@@ -47,6 +47,10 @@ interface State {
 
 type Props = ChartProps & TranslateProps;
 
+interface FormattedData {
+  [key: number]: string;
+}
+
 class Chart extends Component<Props, State> {
   private ref = createRef<HTMLDivElement>();
   private refToolTip = createRef<HTMLSpanElement>();
@@ -54,7 +58,7 @@ class Chart extends Component<Props, State> {
   private lineSeries?: ISeriesApi<'Area'>;
   private resizeTimerID?: any;
   private height: number = 300;
-  private formattedData?: Map<number, string>;
+  private formattedData?: FormattedData;
 
   static readonly defaultProps: ChartProps = {
     data: {
@@ -113,17 +117,14 @@ class Chart extends Component<Props, State> {
     return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length > 0;
   };
 
-  private setFormattedData(data : ChartData) {
-    if (!this.formattedData)
-      this.formattedData = new Map<number,string>();
-    // TODO BEERO -> change with a map() function?
+  private setFormattedData(data: ChartData) {
+    this.formattedData = {} as FormattedData;
+
     data.forEach( entry => {
       if (this.formattedData) {
-        this.formattedData.set(entry.time as number, entry.formattedValue);
-        //console.log('added: ' + this.formattedData.get(entry.time as number));
+        this.formattedData[entry.time as number] = entry.formattedValue;
       }
     });
-    //console.log('data: ' +  [...(this.formattedData? this.formattedData.entries(): [])]);
   }
 
   private createChart = () => {
@@ -369,7 +370,7 @@ class Chart extends Component<Props, State> {
     const toolTipLeft =  Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
     this.setState({
       toolTipVisible: true,
-      toolTipValue: this.formattedData? this.formattedData.get(time as number) : '',
+      toolTipValue: this.formattedData ? this.formattedData[time as number] : '',
       toolTipTop,
       toolTipLeft,
       toolTipTime: time as number,

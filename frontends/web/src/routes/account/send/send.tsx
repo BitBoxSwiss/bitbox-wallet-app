@@ -394,7 +394,7 @@ class Send extends Component<Props, State> {
   private convertToFiat = (value?: string | boolean) => {
     if (value) {
       const coinUnit = this.getAccount()!.coinUnit;
-      apiGet(`coins/convertToFiat?from=${coinUnit}&to=${this.state.fiatUnit}&amount=${value}`)
+      apiGet(`coins/convertToPlainFiat?from=${coinUnit}&to=${this.state.fiatUnit}&amount=${value}`)
         .then(data => {
           if (data.success) {
             this.setState({ fiatAmount: data.fiatAmount });
@@ -677,7 +677,7 @@ class Send extends Component<Props, State> {
                         onInput={this.handleFiatInput}
                         disabled={sendAll}
                         error={amountError}
-                        value={fiatAmount.replace('\'','')} /* input with type=number doesn't like some formatting chars like [']. */
+                        value={fiatAmount}
                         placeholder={t('send.amount.placeholder')} />
                     </div>
                   </div>

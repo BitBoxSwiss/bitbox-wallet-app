@@ -191,7 +191,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convertToFiat", handlers.getConvertToFiatHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convertToPlainFiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
@@ -635,7 +635,7 @@ func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) 
 	return handlers.backend.RatesUpdater().LatestPrice(), nil
 }
 
-func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interface{}, error) {
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
@@ -652,7 +652,7 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": coinpkg.FormatAsCurrency(convertedAmount, to),
+		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, to),
 	}, nil
 }
 

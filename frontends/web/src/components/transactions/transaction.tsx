@@ -292,7 +292,11 @@ class Transaction extends Component<Props, State> {
                 <label>{t('transaction.details.fiatAtTime')}</label>
                 <p>
                   <span className={`${style.fiat} ${typeClassName}`}>
-                    <FiatConversion amount={transactionInfo.amountAtTime} noAction>{sign}</FiatConversion>
+                    { transactionInfo.amountAtTime ?
+                      <FiatConversion amount={transactionInfo.amountAtTime} noAction>{sign}</FiatConversion>
+                      :
+                      <FiatConversion noAction>{sign}</FiatConversion>
+                    }
                   </span>
                 </p>
               </div>
