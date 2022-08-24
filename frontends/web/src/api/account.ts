@@ -151,7 +151,7 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
 export interface ITransaction {
     addresses: string[];
     amount: IAmount;
-    amountAtTime: IAmount;
+    amountAtTime: IAmount | null;
     fee: IAmount;
     feeRatePerKb: IAmount;
     gas: number;

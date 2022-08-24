@@ -140,7 +140,7 @@ function Conversion({
 }: PropsWithChildren<Props>): JSX.Element | null {
 
   const coin = amount.unit;
-  let formattedValue = '---';
+  let formattedValue = '';
 
   if (amount.conversions) {
     if (amount.conversions[active] !== '')
