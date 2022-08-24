@@ -670,7 +670,7 @@ class Send extends Component<Props, State> {
                     <div className="column column-1-2">
                       <Input
                         type="number"
-                        step=".01"
+                        step="any"
                         min="0"
                         label={fiatUnit}
                         id="fiatAmount"
