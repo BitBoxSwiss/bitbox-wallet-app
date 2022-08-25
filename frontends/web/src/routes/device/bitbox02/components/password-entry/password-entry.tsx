@@ -36,7 +36,7 @@ function replayVideo(ref: HTMLVideoElement): void {
 export function PasswordEntry({ children }: PropsWithChildren<IPasswordEntryProps>) {
   let ref = createRef<HTMLVideoElement>();
   useEffect(() => {
-    if(ref.current){
+    if (ref.current) {
       replayVideo(ref.current);
     }
   },[ref]);
