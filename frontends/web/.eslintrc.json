@@ -13,7 +13,10 @@
     "quotes": ["error", "single"],
     "semi": "error",
     "space-before-blocks": ["error", "always"],
-    "no-extra-semi": "error"
+    "no-extra-semi": "error",
+    "@typescript-eslint/type-annotation-spacing": "error",
+    "arrow-spacing": "error",
+    "space-infix-ops": "error"
   },
   "overrides": [
     {

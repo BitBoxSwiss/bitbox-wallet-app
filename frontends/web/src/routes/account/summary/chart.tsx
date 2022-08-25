@@ -468,7 +468,7 @@ class Chart extends Component<Props, State> {
                   {this.renderDate(toolTipTime * 1000)}
                 </span>
               </span>
-            ): null}
+            ) : null}
           </span>
         </div>
       </section>
