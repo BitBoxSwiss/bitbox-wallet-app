@@ -300,7 +300,7 @@ class Chart extends Component<Props, State> {
       return;
     }
     const rangeFrom = Math.max(Math.floor(visiblerange.barsBefore), 0);
-    if (!data[rangeFrom]){
+    if (!data[rangeFrom]) {
       // when data series have changed it triggers subscribeVisibleLogicalRangeChange
       // but at this point the setVisibleRange has not executed what the new range
       // should be and therefore barsBefore might still point to the old range

@@ -69,7 +69,9 @@ class Restore extends Component<Props, State> {
 
   private restore = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    if (!this.validate()) { return; }
+    if (!this.validate()) {
+      return;
+    }
     if (this.props.requireConfirmation) {
       this.setState({
         activeDialog: false,

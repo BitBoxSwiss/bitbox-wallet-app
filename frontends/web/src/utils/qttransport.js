@@ -37,7 +37,7 @@ function initTransport() {
       };
       check();
     } else if (runningInQtWebEngine()) {
-      const initWebChannel = function(channel){ // eslint-disable-line func-style
+      const initWebChannel = function(channel) { // eslint-disable-line func-style
         webChannel = channel;
         webChannel.objects.backend.gotResponse.connect((queryID, response) => {
           queryPromises[queryID].resolve(JSON.parse(response));

@@ -267,7 +267,9 @@ class ElectrumServersClass extends Component {
     const { electrumServers } = this.state;
     let onRemove = (server, index) => (() => {
       confirmation(t('settings.electrum.removeConfirm', { server: server.server }), confirmed => {
-        if (confirmed) this.onRemove(index);
+        if (confirmed) {
+          this.onRemove(index);
+        }
       });
     });
     return (
