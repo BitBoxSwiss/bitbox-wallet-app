@@ -171,7 +171,9 @@ class AccountsSummary extends Component<Props, State> {
       }
     }));
 
-    if (initial) return;
+    if (initial) {
+      return;
+    }
     return await this.getAccountsTotalBalance();
   }
 

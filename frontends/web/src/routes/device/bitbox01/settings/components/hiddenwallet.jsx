@@ -52,7 +52,9 @@ class HiddenWallet extends Component {
 
   createHiddenWallet = event => {
     event.preventDefault();
-    if (!this.validate()) return;
+    if (!this.validate()) {
+      return;
+    }
     this.setState({
       activeDialog: false,
       isConfirming: true,
