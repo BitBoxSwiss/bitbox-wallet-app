@@ -22,7 +22,6 @@ import { useEsc } from '../../../hooks/keyboard';
 import * as accountApi from '../../../api/account';
 import { route } from '../../../utils/route';
 import { getScriptName, isEthereumBased } from '../utils';
-import { alertUser } from '../../../components/alert/Alert';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Radio } from '../../../components/forms';
@@ -31,12 +30,12 @@ import { ReceiveGuide } from './components/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
-import { VerifyButton } from './components/verifybutton';
 import style from './receive.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
   code: string;
+  deviceID?: string;
 };
 
 type AddressDialog = { addressType: number } | undefined;
@@ -59,6 +58,7 @@ const getIndexOfMatchingScriptType = (
 export const Receive: FunctionComponent<Props> = ({
   accounts,
   code,
+  deviceID,
 }) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
@@ -73,7 +73,6 @@ export const Receive: FunctionComponent<Props> = ({
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
-  const secureOutput = useLoad(accountApi.hasSecureOutput(code));
 
   useEsc(() => !verifying && route(`/account/${code}`));
 
@@ -98,12 +97,8 @@ export const Receive: FunctionComponent<Props> = ({
   }, [addressType, availableScriptTypes, receiveAddresses]);
 
   const verifyAddress = (addressesIndex: number) => {
-    if (receiveAddresses && secureOutput) {
+    if (receiveAddresses) {
       if (code === undefined) {
-        return;
-      }
-      if (!secureOutput.hasSecureOutput) {
-        alertUser(t('receive.warning.secureOutput'));
         return;
       }
       setVerifying(true);
@@ -126,9 +121,8 @@ export const Receive: FunctionComponent<Props> = ({
     }
   };
 
-  // enable copying only after verification has been invoked if verification is possible and not optional.
-  const forceVerification = secureOutput === undefined ? true : (secureOutput.hasSecureOutput && !secureOutput.optional);
-  const enableCopy = !forceVerification;
+  const hasDevice = deviceID !== undefined;
+  const enableCopy = hasDevice ? false : true;
 
   let uriPrefix = '';
   if (account) {
@@ -142,7 +136,7 @@ export const Receive: FunctionComponent<Props> = ({
   let address = '';
   if (currentAddresses) {
     address = currentAddresses[activeIndex].address;
-    if (!enableCopy && !verifying) {
+    if (hasDevice && !verifying) {
       address = address.substring(0, 8) + '...';
     }
   }
@@ -230,21 +224,23 @@ export const Receive: FunctionComponent<Props> = ({
                     </form>
                   )}
                   <div className="buttons">
-                    <VerifyButton
-                      device="bitbox02"
-                      disabled={verifying || secureOutput === undefined}
-                      forceVerification={forceVerification}
-                      onClick={() => verifyAddress(currentAddressIndex)}/>
+                    <Button
+                      disabled={verifying}
+                      hidden={!hasDevice}
+                      onClick={() => verifyAddress(currentAddressIndex)}
+                      primary>
+                      {t('receive.verifyBitBox02')}
+                    </Button>
                     <ButtonLink
                       transparent
                       to={`/account/${code}`}>
                       {t('button.back')}
                     </ButtonLink>
                   </div>
-                  { forceVerification && verifying && (
+                  { verifying && (
                     <div className={style.hide}></div>
                   )}
-                  { account && forceVerification && verifying && (
+                  { account && verifying && (
                     <Dialog
                       title={t('receive.verifyBitBox02')}
                       disableEscape={true}

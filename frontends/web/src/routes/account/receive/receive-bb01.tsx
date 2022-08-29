@@ -38,7 +38,7 @@ import style from './receive.module.css';
 type Props = {
   accounts: accountApi.IAccount[];
   code: string;
-  deviceIDs: string[];
+  deviceID: string;
 };
 
 type AddressDialog = { addressType: number } | undefined;
@@ -61,7 +61,7 @@ const getIndexOfMatchingScriptType = (
 export const Receive: FunctionComponent<Props> = ({
   accounts,
   code,
-  deviceIDs,
+  deviceID,
 }) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
@@ -156,7 +156,7 @@ export const Receive: FunctionComponent<Props> = ({
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <PairedWarning deviceID={deviceIDs[0]} />
+        <PairedWarning deviceID={deviceID} />
         <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
         <div className="innerContainer scrollableContainer">
           <div className="content narrow isVerticallyCentered">
