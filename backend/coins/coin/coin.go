@@ -16,6 +16,8 @@
 package coin
 
 import (
+	"math/big"
+
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
@@ -48,6 +50,10 @@ type Coin interface {
 
 	// ToUnit returns the given amount in the unit as returned above.
 	ToUnit(amount Amount, isFee bool) float64
+
+	// SetAmount return an Amount object representing the *big.Rat given amount
+	// e.g. BTC 1/2 => 50000000
+	SetAmount(amount *big.Rat, isFee bool) Amount
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

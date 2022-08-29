@@ -19,10 +19,14 @@ import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
-import { formatCurrency, formatNumber } from '../../../components/rates/rates';
+import { formatNumber } from '../../../components/rates/rates';
 import styles from './chart.module.css';
 
-export type ChartData = LineData[];
+export interface FormattedLineData extends LineData {
+  formattedValue: string;
+}
+
+export type ChartData = FormattedLineData[];
 
 type ChartProps = {
     data: ISummary;
@@ -35,13 +39,17 @@ interface State {
     difference?: number;
     diffSince?: string;
     toolTipVisible: boolean;
-    toolTipValue?: number;
+    toolTipValue?: string;
     toolTipTop: number;
     toolTipLeft: number;
     toolTipTime: number;
 }
 
 type Props = ChartProps & TranslateProps;
+
+interface FormattedData {
+  [key: number]: string;
+}
 
 class Chart extends Component<Props, State> {
   private ref = createRef<HTMLDivElement>();
@@ -50,6 +58,7 @@ class Chart extends Component<Props, State> {
   private lineSeries?: ISeriesApi<'Area'>;
   private resizeTimerID?: any;
   private height: number = 300;
+  private formattedData?: FormattedData;
 
   static readonly defaultProps: ChartProps = {
     data: {
@@ -58,6 +67,7 @@ class Chart extends Component<Props, State> {
       chartDataHourly: [],
       chartFiat: 'USD',
       chartTotal: null,
+      formattedChartTotal: null,
       chartIsUpToDate: false,
     }
   };
@@ -70,6 +80,7 @@ class Chart extends Component<Props, State> {
     toolTipTop: 0,
     toolTipLeft: 0,
     toolTipTime: 0,
+
   };
 
   public componentDidMount() {
@@ -98,12 +109,23 @@ class Chart extends Component<Props, State> {
     ) {
       const data = this.state.source === 'hourly' ? chartDataHourly : chartDataDaily;
       this.lineSeries.setData(data);
+      this.setFormattedData(data);
     }
   }
 
   private hasData = (): boolean => {
     return this.props.data.chartDataDaily && this.props.data.chartDataDaily.length > 0;
   };
+
+  private setFormattedData(data: ChartData) {
+    this.formattedData = {} as FormattedData;
+
+    data.forEach( entry => {
+      if (this.formattedData) {
+        this.formattedData[entry.time as number] = entry.formattedValue;
+      }
+    });
+  }
 
   private createChart = () => {
     const { data: { chartIsUpToDate, chartDataMissing } } = this.props;
@@ -172,11 +194,13 @@ class Chart extends Component<Props, State> {
         crosshairMarkerRadius: 6,
       });
       this.lineSeries.setData(this.props.data.chartDataDaily as ChartData);
+      this.setFormattedData(this.props.data.chartDataDaily as ChartData);
       this.chart.timeScale().subscribeVisibleLogicalRangeChange(this.calculateChange);
       this.chart.subscribeCrosshairMove(this.handleCrosshair as MouseEventHandler);
       this.chart.timeScale().fitContent();
       window.addEventListener('resize', this.onResize);
       setTimeout(() => this.ref.current?.classList.remove(styles.invisible), 200);
+
     }
   };
 
@@ -212,6 +236,7 @@ class Chart extends Component<Props, State> {
   private displayWeek = () => {
     if (this.state.source !== 'hourly' && this.lineSeries && this.props.data.chartDataHourly && this.chart) {
       this.lineSeries.setData(this.props.data.chartDataHourly || []);
+      this.setFormattedData(this.props.data.chartDataHourly || []);
       this.chart.applyOptions({ timeScale: { timeVisible: true } });
     }
     this.setState(
@@ -233,6 +258,7 @@ class Chart extends Component<Props, State> {
   private displayMonth = () => {
     if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
       this.lineSeries.setData(this.props.data.chartDataDaily || []);
+      this.setFormattedData(this.props.data.chartDataDaily || []);
       this.chart.applyOptions({ timeScale: { timeVisible: false } });
     }
     this.setState(
@@ -254,6 +280,7 @@ class Chart extends Component<Props, State> {
   private displayYear = () => {
     if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
       this.lineSeries.setData(this.props.data.chartDataDaily);
+      this.setFormattedData(this.props.data.chartDataDaily);
       this.chart.applyOptions({ timeScale: { timeVisible: false } });
     }
     this.setState(
@@ -275,6 +302,7 @@ class Chart extends Component<Props, State> {
   private displayAll = () => {
     if (this.state.source !== 'daily' && this.lineSeries && this.props.data.chartDataDaily && this.chart) {
       this.lineSeries.setData(this.props.data.chartDataDaily);
+      this.setFormattedData(this.props.data.chartDataDaily);
       this.chart.applyOptions({ timeScale: { timeVisible: false } });
     }
     this.setState(
@@ -313,7 +341,7 @@ class Chart extends Component<Props, State> {
     const valueDiff = valueTo ? valueTo - valueFrom : 0;
     this.setState({
       difference: ((valueDiff / valueFrom) * 100),
-      diffSince: `${data[rangeFrom].value.toFixed(2)} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
+      diffSince: `${data[rangeFrom].formattedValue} (${this.renderDate(Number(data[rangeFrom].time) * 1000)})`
     });
   };
 
@@ -342,7 +370,7 @@ class Chart extends Component<Props, State> {
     const toolTipLeft =  Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
     this.setState({
       toolTipVisible: true,
-      toolTipValue: price,
+      toolTipValue: this.formattedData ? this.formattedData[time as number] : '',
       toolTipTop,
       toolTipLeft,
       toolTipTime: time as number,
@@ -373,6 +401,7 @@ class Chart extends Component<Props, State> {
         chartFiat,
         chartIsUpToDate,
         chartTotal,
+        formattedChartTotal,
       },
       noDataPlaceholder,
     } = this.props;
@@ -394,7 +423,9 @@ class Chart extends Component<Props, State> {
         <header>
           <div className={styles.summary}>
             <div className={styles.totalValue}>
-              {chartTotal !== null ? formatCurrency(chartTotal, chartFiat) : (
+              {chartTotal !== null ? (
+                formattedChartTotal
+              ) : (
                 <Skeleton minWidth="220px" />
               )}
               <span className={styles.totalUnit}>
@@ -461,7 +492,7 @@ class Chart extends Component<Props, State> {
             {toolTipValue !== undefined ? (
               <span>
                 <h2 className={styles.toolTipValue}>
-                  {formatCurrency(toolTipValue, chartFiat)}
+                  {toolTipValue}
                   <span className={styles.toolTipUnit}>{chartFiat}</span>
                 </h2>
                 <span className={styles.toolTipTime}>

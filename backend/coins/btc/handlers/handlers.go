@@ -102,8 +102,8 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) For
 	}
 }
 
-func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) FormattedAmount {
-	return FormattedAmount{
+func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) *FormattedAmount {
+	return &FormattedAmount{
 		Amount: handlers.account.Coin().FormatAmount(amount, false),
 		Unit:   handlers.account.Coin().Unit(false),
 		Conversions: coin.ConversionsAtTime(
@@ -129,7 +129,7 @@ type Transaction struct {
 	Type                     string            `json:"type"`
 	Status                   accounts.TxStatus `json:"status"`
 	Amount                   FormattedAmount   `json:"amount"`
-	AmountAtTime             FormattedAmount   `json:"amountAtTime"`
+	AmountAtTime             *FormattedAmount  `json:"amountAtTime"`
 	Fee                      FormattedAmount   `json:"fee"`
 	Time                     *string           `json:"time"`
 	Addresses                []string          `json:"addresses"`
@@ -163,7 +163,7 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		feeString = handlers.formatAmountAsJSON(*txInfo.Fee, true)
 	}
 	var formattedTime *string
-	var amountAtTime FormattedAmount
+	var amountAtTime *FormattedAmount
 	if txInfo.Timestamp != nil {
 		t := txInfo.Timestamp.Format(time.RFC3339)
 		formattedTime = &t

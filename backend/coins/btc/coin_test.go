@@ -16,6 +16,7 @@
 package btc_test
 
 import (
+	"math/big"
 	"os"
 	"testing"
 
@@ -109,6 +110,21 @@ func (s *testSuite) TestToUnit() {
 			coin.NewAmountFromInt64(0), isFee))
 		require.Equal(s.T(), float64(0.00000001), s.coin.ToUnit(
 			coin.NewAmountFromInt64(1), isFee))
+	}
+}
+
+func (s *testSuite) TestSetAmount() {
+	ratAmount1, _ := new(big.Rat).SetString("123.12345678")
+	ratAmount2, _ := new(big.Rat).SetString("0")
+	ratAmount3, _ := new(big.Rat).SetString("123")
+
+	for _, isFee := range []bool{false, true} {
+		require.Equal(s.T(), "12312345678",
+			s.coin.SetAmount(ratAmount1, isFee).BigInt().String())
+		require.Equal(s.T(), "0",
+			s.coin.SetAmount(ratAmount2, isFee).BigInt().String())
+		require.Equal(s.T(), "12300000000",
+			s.coin.SetAmount(ratAmount3, isFee).BigInt().String())
 	}
 }
 

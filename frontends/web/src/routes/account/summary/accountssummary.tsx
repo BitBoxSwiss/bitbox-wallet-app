@@ -22,7 +22,7 @@ import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { FiatConversion, formatCurrency } from '../../../components/rates/rates';
+import { FiatConversion } from '../../../components/rates/rates';
 import { Check } from '../../../components/icon/icon';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
@@ -60,7 +60,7 @@ type Props = WithTranslation & AccountSummaryProps;
 interface BalanceRowProps {
     code: accountApi.AccountCode;
     name: string;
-    balance?: string;
+    balance?: accountApi.IAmount;
     coinUnit: string;
     coinCode: accountApi.CoinCode;
     coinName: string;
@@ -254,14 +254,14 @@ class AccountsSummary extends Component<Props, State> {
         { nameCol }
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
-            <strong>{balance}</strong>
+            <strong>{balance.amount}</strong>
             {' '}
             <span className={style.coinUnit}>{coinUnit}</span>
           </span>
         </td>
         <td data-label={t('accountSummary.fiatBalance')}>
           <strong>
-            <FiatConversion amount={{ amount: balance, unit: coinUnit as accountApi.Coin }} noAction={true} />
+            <FiatConversion amount={balance} noAction={true} />
           </strong>
         </td>
       </tr>
@@ -352,10 +352,10 @@ class AccountsSummary extends Component<Props, State> {
                         <strong>{t('accountSummary.total')}</strong>
                       </th>
                       <td colSpan={2}>
-                        {(data && data.chartTotal !== null) ? (
+                        {(data && data.formattedChartTotal !== null) ? (
                           <>
                             <strong>
-                              {formatCurrency(data.chartTotal, data.chartFiat)}
+                              {data.formattedChartTotal}
                             </strong>
                             {' '}
                             <span className={style.coinUnit}>

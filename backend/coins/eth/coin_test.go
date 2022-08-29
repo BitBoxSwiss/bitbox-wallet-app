@@ -56,4 +56,17 @@ func TestCoin(t *testing.T) {
 		"1.234",
 		c.FormatAmount(coin.NewAmountFromInt64(1.234e18), false),
 	)
+
+	ratAmount1, _ := new(big.Rat).SetString("123.123456789012345678")
+	ratAmount2, _ := new(big.Rat).SetString("0")
+	ratAmount3, _ := new(big.Rat).SetString("123")
+
+	for _, isFee := range []bool{false, true} {
+		require.Equal(t, "123123456789012345678",
+			c.SetAmount(ratAmount1, isFee).BigInt().String())
+		require.Equal(t, "0",
+			c.SetAmount(ratAmount2, isFee).BigInt().String())
+		require.Equal(t, "123000000000000000000",
+			c.SetAmount(ratAmount3, isFee).BigInt().String())
+	}
 }
