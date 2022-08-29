@@ -143,8 +143,9 @@ function Conversion({
   let formattedValue = '---';
 
   if (amount.conversions) {
-    if (amount.conversions[active] !== '')
+    if (amount.conversions[active] !== '') {
       formattedValue = amount.conversions[active];
+    }
   } else {
     if (rates && rates[coin]) {
       formattedValue = formatCurrency(rates[coin][active] * Number(amount.amount), active);

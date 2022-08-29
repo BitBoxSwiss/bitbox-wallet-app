@@ -49,7 +49,9 @@ class ChangePIN extends Component {
 
   changePin = event => {
     event.preventDefault();
-    if (!this.validate()) return;
+    if (!this.validate()) {
+      return;
+    }
     this.setState({
       activeDialog: false,
       isConfirming: true,

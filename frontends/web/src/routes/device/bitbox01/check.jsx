@@ -48,7 +48,9 @@ class Check extends Component {
 
   check = event => {
     event.preventDefault();
-    if (!this.validate()) return;
+    if (!this.validate()) {
+      return;
+    }
     this.setState({ message: this.props.t('backup.check.checking') });
 
     apiPost('devices/' + this.props.deviceID + '/backups/check', {

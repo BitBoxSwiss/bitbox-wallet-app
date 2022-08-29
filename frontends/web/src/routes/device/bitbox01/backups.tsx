@@ -82,7 +82,7 @@ class Backups extends Component<Props, State> {
   };
 
   private scrollIntoView = (event: React.SyntheticEvent) => {
-    if(!this.scrollableContainer.current){
+    if (!this.scrollableContainer.current) {
       return;
     }
     const target = event.target as HTMLInputElement;

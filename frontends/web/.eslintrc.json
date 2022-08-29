@@ -1,15 +1,22 @@
 {
   "extends": ["react-app"],
   "rules": {
+    "brace-style": ["error", "1tbs"],
+    "curly": "error",
     "indent": ["error", 2, { "SwitchCase": 0 }],
     "jsx-a11y/anchor-is-valid": 0,
     "jsx-a11y/alt-text" : 0,
     "jsx-quotes": ["error", "prefer-double"],
+    "keyword-spacing": "error",
     "no-trailing-spaces": "error",
     "object-curly-spacing": ["error", "always"],
     "quotes": ["error", "single"],
     "semi": "error",
-    "no-extra-semi": "error"
+    "space-before-blocks": ["error", "always"],
+    "no-extra-semi": "error",
+    "@typescript-eslint/type-annotation-spacing": "error",
+    "arrow-spacing": "error",
+    "space-infix-ops": "error"
   },
   "overrides": [
     {

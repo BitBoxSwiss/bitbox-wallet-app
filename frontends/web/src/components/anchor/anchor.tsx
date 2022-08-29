@@ -26,7 +26,7 @@ interface Props {
     [property: string]: any;
 }
 
-const A:FunctionComponent<Props> =({ href, icon, children, ...props }) => {
+const A: FunctionComponent<Props> = ({ href, icon, children, ...props }) => {
   return (
     <span className={style.link} onClick={(e: SyntheticEvent) => {
       e.preventDefault();

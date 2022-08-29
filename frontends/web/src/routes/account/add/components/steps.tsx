@@ -32,7 +32,9 @@ export const Steps: FunctionComponent<Props> = ({
       { childrens
         .filter((child) => !child.props.hidden)
         .map((child, step) => {
-          if (!child) return null;
+          if (!child) {
+            return null;
+          }
           const status = step === current ? 'process' : (
             step < current ? 'finish' : 'wait'
           );

@@ -35,7 +35,7 @@ export const HeadersSync: FunctionComponent<Props> = ({ coinCode }) => {
   const mounted = useMountedRef();
 
   useEffect(() => {
-    if(mounted.current && status && (status.tip === status.targetHeight)){
+    if (mounted.current && status && (status.tip === status.targetHeight)) {
       setTimeout(() => setHidden(true), 4000);
     }
   }, [mounted, status]);

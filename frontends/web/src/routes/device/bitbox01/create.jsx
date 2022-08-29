@@ -51,7 +51,9 @@ class Create extends Component {
 
   create = event => {
     event.preventDefault();
-    if (!this.validate()) return;
+    if (!this.validate()) {
+      return;
+    }
     this.setState({ waiting: true });
     apiPost('devices/' + this.props.deviceID + '/backups/create', {
       backupName: this.state.backupName,
