@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	btcutil "github.com/btcsuite/btcutil"
+	btcutil "github.com/btcsuite/btcd/btcutil"
 	blockchain "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 
 	chainhash "github.com/btcsuite/btcd/chaincfg/chainhash"

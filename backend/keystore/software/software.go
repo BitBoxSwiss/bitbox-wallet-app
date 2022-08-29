@@ -19,10 +19,12 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"math/big"
 
+	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -181,11 +183,14 @@ func (keystore *Keystore) sign(
 		if err != nil {
 			return nil, err
 		}
-		signature, err := prv.Sign(signatureHashes[i])
+		signature, err := ecdsa.SignCompact(prv, signatureHashes[i], true)
 		if err != nil {
 			return nil, err
 		}
-		signatures[i] = &types.Signature{R: signature.R, S: signature.S}
+		signatures[i] = &types.Signature{
+			R: new(big.Int).SetBytes(signature[1:33]),
+			S: new(big.Int).SetBytes(signature[33:]),
+		}
 	}
 	return signatures, nil
 }

@@ -19,7 +19,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"

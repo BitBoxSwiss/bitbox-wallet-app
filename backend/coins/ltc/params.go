@@ -83,19 +83,42 @@ var MainNetParams = chaincfg.Params{
 	MinerConfirmationWindow:       8064, //
 	Deployments: [chaincfg.DefinedDeployments]chaincfg.ConsensusDeployment{
 		chaincfg.DeploymentTestDummy: {
-			BitNumber:  28,
-			StartTime:  1199145601, // January 1, 2008 UTC
-			ExpireTime: 1230767999, // December 31, 2008 UTC
+			BitNumber: 28,
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Unix(11991456010, 0), // January 1, 2008 UTC
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Unix(1230767999, 0), // December 31, 2008 UTC
+			),
+		},
+		chaincfg.DeploymentTestDummyMinActivation: {
+			BitNumber:                 22,
+			CustomActivationThreshold: 1815,    // Only needs 90% hash rate.
+			MinActivationHeight:       10_0000, // Can only activate after height 10k.
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Time{}, // Always available for vote
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Time{}, // Never expires
+			),
 		},
 		chaincfg.DeploymentCSV: {
-			BitNumber:  0,
-			StartTime:  1485561600, // January 28, 2017 UTC
-			ExpireTime: 1517356801, // January 31st, 2018 UTC
+			BitNumber: 0,
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Unix(1462060800, 0), // May 1st, 2016
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Unix(1493596800, 0), // May 1st, 2017
+			),
 		},
 		chaincfg.DeploymentSegwit: {
-			BitNumber:  1,
-			StartTime:  1485561600, // January 28, 2017 UTC
-			ExpireTime: 1517356801, // January 31st, 2018 UTC.
+			BitNumber: 1,
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Unix(1479168000, 0), // November 15, 2016 UTC
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Unix(1510704000, 0), // November 15, 2017 UTC.
+			),
 		},
 	},
 
@@ -169,19 +192,42 @@ var TestNet4Params = chaincfg.Params{
 	MinerConfirmationWindow:       2016,
 	Deployments: [chaincfg.DefinedDeployments]chaincfg.ConsensusDeployment{
 		chaincfg.DeploymentTestDummy: {
-			BitNumber:  28,
-			StartTime:  1199145601, // January 1, 2008 UTC
-			ExpireTime: 1230767999, // December 31, 2008 UTC
+			BitNumber: 28,
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Time{}, // Always available for vote
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Time{}, // Never expires
+			),
+		},
+		chaincfg.DeploymentTestDummyMinActivation: {
+			BitNumber:                 22,
+			CustomActivationThreshold: 72,  // Only needs 50% hash rate.
+			MinActivationHeight:       600, // Can only activate after height 600.
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Time{}, // Always available for vote
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Time{}, // Never expires
+			),
 		},
 		chaincfg.DeploymentCSV: {
-			BitNumber:  0,
-			StartTime:  1483228800, // January 1, 2017
-			ExpireTime: 1517356801, // January 31st, 2018
+			BitNumber: 0,
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Time{}, // Always available for vote
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Time{}, // Never expires
+			),
 		},
 		chaincfg.DeploymentSegwit: {
-			BitNumber:  1,
-			StartTime:  1483228800, // January 1, 2017
-			ExpireTime: 1517356801, // January 31st, 2018
+			BitNumber: 1,
+			DeploymentStarter: chaincfg.NewMedianTimeDeploymentStarter(
+				time.Time{}, // Always available for vote
+			),
+			DeploymentEnder: chaincfg.NewMedianTimeDeploymentEnder(
+				time.Time{}, // Never expires.
+			),
 		},
 	},
 

@@ -17,9 +17,9 @@ package addresses_test
 import (
 	"testing"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"

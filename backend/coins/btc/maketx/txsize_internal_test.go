@@ -20,9 +20,9 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"

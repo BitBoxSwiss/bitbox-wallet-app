@@ -18,7 +18,7 @@ import (
 	"crypto/sha256"
 	"math/big"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 )
 
@@ -39,15 +39,15 @@ func antikleptoHostCommit(hostNonce []byte) []byte {
 // generation according to k' = k + H(clientCommitment, hostNonce) by checking that
 // k'*G = signerCommitment + H(signerCommitment, hostNonce)*G.
 func antikleptoVerify(hostNonce, signerCommitment, signature []byte) error {
-	signerCommitmentPubkey, err := btcec.ParsePubKey(signerCommitment, btcec.S256())
+	signerCommitmentPubkey, err := btcec.ParsePubKey(signerCommitment)
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	curve := signerCommitmentPubkey.Curve
+	curve := btcec.S256()
 	// Compute R = R1 + H(R1, host_nonce)*G.
 	tweak := taggedSha256([]byte("s2c/ecdsa/point"), append(signerCommitmentPubkey.SerializeCompressed(), hostNonce...))
 	tx, ty := curve.ScalarBaseMult(tweak)
-	x, _ := curve.Add(signerCommitmentPubkey.X, signerCommitmentPubkey.Y, tx, ty)
+	x, _ := curve.Add(signerCommitmentPubkey.X(), signerCommitmentPubkey.Y(), tx, ty)
 	x.Mod(x, curve.Params().N)
 	signatureR := big.NewInt(0).SetBytes(signature[:32])
 	if x.Cmp(signatureR) != 0 {

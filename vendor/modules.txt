@@ -2,37 +2,49 @@
 github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 github.com/aead/siphash
-# github.com/btcsuite/btcd v0.22.0-beta
+# github.com/btcsuite/btcd v0.23.1
 ## explicit
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
-github.com/btcsuite/btcd/btcec
 github.com/btcsuite/btcd/btcjson
 github.com/btcsuite/btcd/chaincfg
-github.com/btcsuite/btcd/chaincfg/chainhash
 github.com/btcsuite/btcd/database
 github.com/btcsuite/btcd/mempool
 github.com/btcsuite/btcd/mining
 github.com/btcsuite/btcd/txscript
 github.com/btcsuite/btcd/wire
+# github.com/btcsuite/btcd/btcec/v2 v2.2.1
+## explicit
+github.com/btcsuite/btcd/btcec/v2
+github.com/btcsuite/btcd/btcec/v2/ecdsa
+github.com/btcsuite/btcd/btcec/v2/schnorr
+# github.com/btcsuite/btcd/btcutil v1.1.2
+## explicit
+github.com/btcsuite/btcd/btcutil
+github.com/btcsuite/btcd/btcutil/base58
+github.com/btcsuite/btcd/btcutil/bech32
+github.com/btcsuite/btcd/btcutil/gcs
+github.com/btcsuite/btcd/btcutil/gcs/builder
+github.com/btcsuite/btcd/btcutil/hdkeychain
+github.com/btcsuite/btcd/btcutil/txsort
+# github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
+## explicit
+github.com/btcsuite/btcd/chaincfg/chainhash
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
 github.com/btcsuite/btclog
-# github.com/btcsuite/btcutil v1.0.3-0.20210929233259-9cdf59f60c51
-## explicit
-github.com/btcsuite/btcutil
-github.com/btcsuite/btcutil/base58
-github.com/btcsuite/btcutil/bech32
-github.com/btcsuite/btcutil/gcs
-github.com/btcsuite/btcutil/gcs/builder
-github.com/btcsuite/btcutil/hdkeychain
-github.com/btcsuite/btcutil/txsort
 # github.com/cespare/cp v1.1.1
 ## explicit
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.8.0
 github.com/deckarep/golang-set
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220228225819-67b3f707055c
+# github.com/decred/dcrd/crypto/blake256 v1.0.0
+github.com/decred/dcrd/crypto/blake256
+# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1
+github.com/decred/dcrd/dcrec/secp256k1/v4
+github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
+github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220817141646-e9258db31750
 ## explicit
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
@@ -41,7 +53,7 @@ github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages
 github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid
 github.com/digitalbitbox/bitbox02-api-go/util/errp
 github.com/digitalbitbox/bitbox02-api-go/util/semver
-# github.com/ethereum/go-ethereum v1.10.16
+# github.com/ethereum/go-ethereum v1.10.21
 ## explicit
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
@@ -59,13 +71,13 @@ github.com/ethereum/go-ethereum/crypto/secp256k1
 github.com/ethereum/go-ethereum/crypto/secp256k1/libsecp256k1/include
 github.com/ethereum/go-ethereum/crypto/secp256k1/libsecp256k1/src
 github.com/ethereum/go-ethereum/crypto/secp256k1/libsecp256k1/src/modules/recovery
-github.com/ethereum/go-ethereum/ethclient
 github.com/ethereum/go-ethereum/event
 github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
 github.com/ethereum/go-ethereum/p2p/netutil
 github.com/ethereum/go-ethereum/params
 github.com/ethereum/go-ethereum/rlp
+github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/signer/core/apitypes
 # github.com/flynn/noise v1.0.0
@@ -76,9 +88,7 @@ github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
 # github.com/go-stack/stack v1.8.0
 github.com/go-stack/stack
-# github.com/golang/protobuf v1.4.3
-github.com/golang/protobuf/proto
-# github.com/google/uuid v1.1.5
+# github.com/google/uuid v1.2.0
 github.com/google/uuid
 # github.com/gorilla/mux v1.8.0
 ## explicit
@@ -123,12 +133,10 @@ github.com/sirupsen/logrus
 github.com/skip2/go-qrcode
 github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
-# github.com/status-im/keycard-go v0.0.0-20190424133014-d95853db0f48
-## explicit
 # github.com/stretchr/objx v0.2.0
 ## explicit
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.7.0
+# github.com/stretchr/testify v1.7.2
 ## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
@@ -138,38 +146,37 @@ github.com/stretchr/testify/suite
 github.com/tklauser/go-sysconf
 # github.com/tklauser/numcpus v0.2.2
 github.com/tklauser/numcpus
-# github.com/tyler-smith/go-bip39 v1.0.2
-## explicit
 # go.etcd.io/bbolt v1.3.6
 ## explicit
 go.etcd.io/bbolt
-# golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+# golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 ## explicit
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
 golang.org/x/crypto/chacha20
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/curve25519
+golang.org/x/crypto/curve25519/internal/field
+golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/pbkdf2
-golang.org/x/crypto/poly1305
 golang.org/x/crypto/ripemd160
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/sha3
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
+# golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 ## explicit
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-# golang.org/x/sys v0.0.0-20210816183151-1e6c022a8912
+# golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
+# golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 golang.org/x/term
-# google.golang.org/protobuf v1.23.0
+# google.golang.org/protobuf v1.28.1
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire
 google.golang.org/protobuf/internal/descfmt
@@ -180,14 +187,12 @@ google.golang.org/protobuf/internal/encoding/messageset
 google.golang.org/protobuf/internal/encoding/tag
 google.golang.org/protobuf/internal/encoding/text
 google.golang.org/protobuf/internal/errors
-google.golang.org/protobuf/internal/fieldnum
-google.golang.org/protobuf/internal/fieldsort
 google.golang.org/protobuf/internal/filedesc
 google.golang.org/protobuf/internal/filetype
 google.golang.org/protobuf/internal/flags
-google.golang.org/protobuf/internal/genname
+google.golang.org/protobuf/internal/genid
 google.golang.org/protobuf/internal/impl
-google.golang.org/protobuf/internal/mapsort
+google.golang.org/protobuf/internal/order
 google.golang.org/protobuf/internal/pragma
 google.golang.org/protobuf/internal/set
 google.golang.org/protobuf/internal/strs
@@ -199,5 +204,5 @@ google.golang.org/protobuf/runtime/protoiface
 google.golang.org/protobuf/runtime/protoimpl
 # gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
 gopkg.in/natefinch/npipe.v2
-# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+# gopkg.in/yaml.v3 v3.0.1
 gopkg.in/yaml.v3

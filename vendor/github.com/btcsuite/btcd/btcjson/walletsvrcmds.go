@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/btcutil"
 )
 
 // AddMultisigAddressCmd defines the addmutisigaddress JSON-RPC command.
@@ -242,7 +242,8 @@ func NewGetBalancesCmd() *GetBalancesCmd {
 
 // GetNewAddressCmd defines the getnewaddress JSON-RPC command.
 type GetNewAddressCmd struct {
-	Account *string
+	Account     *string
+	AddressType *string
 }
 
 // NewGetNewAddressCmd returns a new instance which can be used to issue a
@@ -250,15 +251,17 @@ type GetNewAddressCmd struct {
 //
 // The parameters which are pointers indicate they are optional.  Passing nil
 // for optional parameters will use the default value.
-func NewGetNewAddressCmd(account *string) *GetNewAddressCmd {
+func NewGetNewAddressCmd(account, addrType *string) *GetNewAddressCmd {
 	return &GetNewAddressCmd{
-		Account: account,
+		Account:     account,
+		AddressType: addrType,
 	}
 }
 
 // GetRawChangeAddressCmd defines the getrawchangeaddress JSON-RPC command.
 type GetRawChangeAddressCmd struct {
-	Account *string
+	Account     *string
+	AddressType *string
 }
 
 // NewGetRawChangeAddressCmd returns a new instance which can be used to issue a
@@ -266,9 +269,10 @@ type GetRawChangeAddressCmd struct {
 //
 // The parameters which are pointers indicate they are optional.  Passing nil
 // for optional parameters will use the default value.
-func NewGetRawChangeAddressCmd(account *string) *GetRawChangeAddressCmd {
+func NewGetRawChangeAddressCmd(account, addrType *string) *GetRawChangeAddressCmd {
 	return &GetRawChangeAddressCmd{
-		Account: account,
+		Account:     account,
+		AddressType: addrType,
 	}
 }
 
@@ -1029,7 +1033,7 @@ type WalletCreateFundedPsbtOpts struct {
 	ChangeType             *ChangeType `json:"change_type,omitempty"`
 	IncludeWatching        *bool       `json:"includeWatching,omitempty"`
 	LockUnspents           *bool       `json:"lockUnspents,omitempty"`
-	FeeRate                *int64      `json:"feeRate,omitempty"`
+	FeeRate                *float64    `json:"feeRate,omitempty"`
 	SubtractFeeFromOutputs *[]int64    `json:"subtractFeeFromOutputs,omitempty"`
 	Replaceable            *bool       `json:"replaceable,omitempty"`
 	ConfTarget             *int64      `json:"conf_target,omitempty"`

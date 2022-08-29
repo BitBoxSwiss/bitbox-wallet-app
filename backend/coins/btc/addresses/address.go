@@ -15,15 +15,13 @@
 package addresses
 
 import (
-	"crypto/sha256"
 	"fmt"
-	"math/big"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2/schnorr"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	ourbtcutil "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -99,49 +97,8 @@ func NewAccountAddress(
 			log.WithError(err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
 		}
 	case signing.ScriptTypeP2TR:
-		// A taproot pubkey is an x-only pubkey, i.e. only the X-coordinate. For every X-coordinate,
-		// there are two possible curve points. BIP340 defines the tie-breaker to be the oddness of
-		// the Y-coordinate, choosing the one that is even.
-		//
-		// If a point P is odd, the negation of the point (-P) is even.
-		//
-		// See also:
-		// https://github.com/bitcoin/bips/blob/a3a397c82384220fc871852c809f73898a4d547c/bip-0340.mediawiki
-		// https://github.com/bitcoin/bips/blob/a3a397c82384220fc871852c809f73898a4d547c/bip-0086.mediawiki
-		pubKey := configuration.PublicKey()
-		isOdd := func(pubKey *btcec.PublicKey) bool {
-			return pubKey.SerializeCompressed()[0] == 0x03
-		}
-		negate := func(pubKey *btcec.PublicKey) *btcec.PublicKey {
-			// See also: https://bitcoin.stackexchange.com/a/107957
-			return &btcec.PublicKey{
-				Curve: pubKey.Curve,
-				X:     pubKey.X,
-				Y:     new(big.Int).Sub(pubKey.Curve.Params().P, pubKey.Y),
-			}
-			// Alternative code with the same result: -P = (n-1)*P.
-			// x, y := pubKey.Curve.ScalarMult(
-			// 	pubKey.X,
-			// 	pubKey.Y,
-			// 	new(big.Int).Sub(pubKey.Curve.Params().N, big.NewInt(1)).Bytes(),
-			// )
-			// return &btcec.PublicKey{Curve: pubKey.Curve, X: x, Y: y}
-		}
-		taggedHash := func(tag string, msg []byte) []byte {
-			tagHash := sha256.Sum256([]byte(tag))
-			h := sha256.New()
-			h.Write(tagHash[:]) //nolint:errcheck
-			h.Write(tagHash[:]) //nolint:errcheck
-			h.Write(msg)        //nolint:errcheck
-			return h.Sum(nil)
-		}
-		if isOdd(pubKey) {
-			pubKey = negate(pubKey)
-		}
-		_, tweak := btcec.PrivKeyFromBytes(pubKey.Curve, taggedHash("TapTweak", pubKey.SerializeCompressed()[1:]))
-		x, y := pubKey.Curve.Add(pubKey.X, pubKey.Y, tweak.X, tweak.Y)
-		xOnlyPubKey := (&btcec.PublicKey{Curve: pubKey.Curve, X: x, Y: y}).SerializeCompressed()[1:]
-		address, err = btcutil.NewAddressTaproot(xOnlyPubKey, net)
+		outputKey := txscript.ComputeTaprootKeyNoScript(configuration.PublicKey())
+		address, err = btcutil.NewAddressTaproot(schnorr.SerializePubKey(outputKey), net)
 		if err != nil {
 			log.WithError(err).Panic("Failed to get p2tr addr")
 		}

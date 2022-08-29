@@ -28,8 +28,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"

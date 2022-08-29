@@ -21,16 +21,16 @@ import (
 )
 
 var (
-	// New wraps errors.New
+	// New wraps errors.New.
 	New = errors.New
-	// Newf wraps errors.Newf
+	// Newf wraps errors.Newf.
 	Newf = errors.Errorf
-	// WithStack wraps errors.WithStack
+	// WithStack wraps errors.WithStack.
 	WithStack = errors.WithStack
-	// Cause wraps errors.Cause
+	// Cause wraps errors.Cause.
 	Cause = errors.Cause
-	// Wrap wraps errors.Wrap
+	// Wrap wraps errors.Wrap.
 	Wrap = errors.Wrap
-	// WithMessage wraps errors.WithMessage
+	// WithMessage wraps errors.WithMessage.
 	WithMessage = errors.WithMessage
 )

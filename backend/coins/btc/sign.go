@@ -15,10 +15,10 @@
 package btc
 
 import (
+	"github.com/btcsuite/btcd/btcutil/txsort"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil/txsort"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
@@ -28,12 +28,20 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
+// PreviousOutputs represents a UTXO set. It also implements `txscript.PrevOutputFetcher`.
+type PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
+
+// FetchPrevOutput implements `txscript.PrevOutputFetcher`.
+func (p PreviousOutputs) FetchPrevOutput(op wire.OutPoint) *wire.TxOut {
+	return p[op].TxOut
+}
+
 // ProposedTransaction contains all the info needed to sign a btc transaction.
 type ProposedTransaction struct {
 	TXProposal *maketx.TxProposal
 	// List of signing configurations that might be used in the tx inputs.
 	AccountSigningConfigurations []*signing.Configuration
-	PreviousOutputs              map[wire.OutPoint]*transactions.SpendableOutput
+	PreviousOutputs              PreviousOutputs
 	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
 	// Signatures collects the signatures, one per transaction input.
@@ -45,7 +53,7 @@ type ProposedTransaction struct {
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func (account *Account) signTransaction(
 	txProposal *maketx.TxProposal,
-	previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
+	previousOutputs PreviousOutputs,
 	getPrevTx func(chainhash.Hash) (*wire.MsgTx, error),
 ) error {
 	signingConfigs := make([]*signing.Configuration, len(account.subaccounts))
@@ -59,7 +67,7 @@ func (account *Account) signTransaction(
 		GetAddress:                   account.getAddress,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
-		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction),
+		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction, previousOutputs),
 	}
 
 	if err := account.Config().Keystore.SignTransaction(proposedTransaction); err != nil {
@@ -77,21 +85,15 @@ func (account *Account) signTransaction(
 	}
 
 	// Sanity check: see if the created transaction is valid.
-	//
-	// TODO: re-enable this once https://github.com/btcsuite/btcd/issues/1735 is
-	// complete. Currently, the library can't verify signed taproot inputs and this check would
-	// fail.
-	//
-	// if err := txValidityCheck(txProposal.Transaction, previousOutputs,
-	// 	proposedTransaction.SigHashes); err != nil {
-	// 	account.log.WithError(err).Panic("Failed to pass transaction validity check.")
-	// }
-	_ = txValidityCheck
+	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
+		proposedTransaction.SigHashes); err != nil {
+		account.log.WithError(err).Panic("Failed to pass transaction validity check.")
+	}
 
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
+func txValidityCheck(transaction *wire.MsgTx, previousOutputs PreviousOutputs,
 	sigHashes *txscript.TxSigHashes) error {
 	if !txsort.IsSorted(transaction) {
 		return errp.New("tx not bip69 conformant")
@@ -102,7 +104,7 @@ func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]
 			return errp.New("There needs to be exactly one output being spent per input!")
 		}
 		engine, err := txscript.NewEngine(spentOutput.PkScript, transaction, index,
-			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.Value)
+			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.Value, previousOutputs)
 		if err != nil {
 			return errp.WithStack(err)
 		}

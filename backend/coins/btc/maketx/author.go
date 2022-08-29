@@ -6,7 +6,7 @@
 package maketx
 
 import (
-	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
 )
