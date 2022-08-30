@@ -21,6 +21,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
+import { CloseXWhite } from '../icon';
 import style from './guide.module.css';
 
 export interface SharedProps {
@@ -89,17 +90,7 @@ class Guide extends Component<Props> {
             <h2>{t('guide.title')}</h2>
             <a href="#" className={style.close} onClick={toggle}>
               {t('guide.toggle.close')}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <CloseXWhite />
             </a>
           </div>
           <div className={style.content}>

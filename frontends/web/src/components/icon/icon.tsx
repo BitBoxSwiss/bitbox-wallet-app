@@ -28,6 +28,9 @@ import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
+import closeXDarkSVG from './assets/icons/close-x-dark.svg';
+import guideSVG from './assets/icons/guide.svg';
+import menuSVG from './assets/icons/menu.svg';
 import warningPNG from './assets/icons/warning.png';
 import style from './icon.module.css';
 
@@ -107,6 +110,9 @@ export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={fals
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
+export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
+export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
+export const Menu = (props: ImgProps) => (<img src={menuSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
