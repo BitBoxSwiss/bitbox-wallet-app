@@ -22,6 +22,7 @@ import (
 	"math/big"
 
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
+	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
@@ -114,7 +115,9 @@ func (keystore *Keystore) SupportsAccount(coin coin.Coin, meta interface{}) bool
 		scriptType := meta.(signing.ScriptType)
 		return scriptType == signing.ScriptTypeP2PKH ||
 			scriptType == signing.ScriptTypeP2WPKHP2SH ||
-			scriptType == signing.ScriptTypeP2WPKH
+			scriptType == signing.ScriptTypeP2WPKH ||
+			scriptType == signing.ScriptTypeP2TR
+
 	default:
 		return false
 	}
@@ -166,35 +169,6 @@ func (keystore *Keystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
-func (keystore *Keystore) sign(
-	signatureHashes [][]byte,
-	keyPaths []signing.AbsoluteKeypath,
-) ([]*types.Signature, error) {
-	if len(signatureHashes) != len(keyPaths) {
-		return nil, errp.New("The number of hashes to sign has to be equal to the number of paths.")
-	}
-	signatures := make([]*types.Signature, len(keyPaths))
-	for i, keyPath := range keyPaths {
-		xprv, err := keyPath.Derive(keystore.master)
-		if err != nil {
-			return nil, err
-		}
-		prv, err := xprv.ECPrivKey()
-		if err != nil {
-			return nil, err
-		}
-		signature, err := ecdsa.SignCompact(prv, signatureHashes[i], true)
-		if err != nil {
-			return nil, err
-		}
-		signatures[i] = &types.Signature{
-			R: new(big.Int).SetBytes(signature[1:33]),
-			S: new(big.Int).SetBytes(signature[33:]),
-		}
-	}
-	return signatures, nil
-}
-
 // SignTransaction implements keystore.Keystore.
 func (keystore *Keystore) SignTransaction(
 	proposedTransaction interface{},
@@ -204,9 +178,8 @@ func (keystore *Keystore) SignTransaction(
 		panic("Only BTC supported for now.")
 	}
 	keystore.log.Info("Sign transaction.")
-	signatureHashes := [][]byte{}
-	keyPaths := []signing.AbsoluteKeypath{}
 	transaction := btcProposedTx.TXProposal.Transaction
+	signatures := make([]*types.Signature, len(transaction.TxIn))
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
@@ -214,37 +187,65 @@ func (keystore *Keystore) SignTransaction(
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
 		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
-		isSegwit, subScript := address.ScriptForHashToSign()
-		var signatureHash []byte
-		if isSegwit {
-			var err error
-			signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
-				txscript.SigHashAll, transaction, index, spentOutput.Value)
-			if err != nil {
-				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
-			}
-			keystore.log.Debug("Calculated segwit signature hash")
-		} else {
-			var err error
-			signatureHash, err = txscript.CalcSignatureHash(
-				subScript, txscript.SigHashAll, transaction, index)
-			if err != nil {
-				return errp.Wrap(err, "Failed to calculate legacy signature hash")
-			}
-			keystore.log.Debug("Calculated legacy signature hash")
+
+		xprv, err := address.Configuration.AbsoluteKeypath().Derive(keystore.master)
+		if err != nil {
+			return err
+		}
+		prv, err := xprv.ECPrivKey()
+		if err != nil {
+			return errp.WithStack(err)
 		}
 
-		signatureHashes = append(signatureHashes, signatureHash)
-		keyPaths = append(keyPaths, address.Configuration.AbsoluteKeypath())
+		if address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
+			prv = txscript.TweakTaprootPrivKey(prv, nil)
+			signatureHash, err := txscript.CalcTaprootSignatureHash(
+				btcProposedTx.SigHashes, txscript.SigHashDefault, transaction,
+				index, btcProposedTx.PreviousOutputs)
+			if err != nil {
+				return errp.Wrap(err, "Failed to calculate Taproot signature hash")
+			}
+			keystore.log.Debug("Calculated taproot signature hash")
+			signature, err := schnorr.Sign(prv, signatureHash)
+			if err != nil {
+				return err
+			}
+			signatureSer := signature.Serialize()
+			signatures[index] = &types.Signature{
+				R: new(big.Int).SetBytes(signatureSer[:32]),
+				S: new(big.Int).SetBytes(signatureSer[32:]),
+			}
+		} else {
+			var signatureHash []byte
+			isSegwit, subScript := address.ScriptForHashToSign()
+			if isSegwit {
+				var err error
+				signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
+					txscript.SigHashAll, transaction, index, spentOutput.Value)
+				if err != nil {
+					return errp.Wrap(err, "Failed to calculate SegWit signature hash")
+				}
+				keystore.log.Debug("Calculated segwit signature hash")
+			} else {
+				var err error
+				signatureHash, err = txscript.CalcSignatureHash(
+					subScript, txscript.SigHashAll, transaction, index)
+				if err != nil {
+					return errp.Wrap(err, "Failed to calculate legacy signature hash")
+				}
+				keystore.log.Debug("Calculated legacy signature hash")
+			}
+			signature, err := ecdsa.SignCompact(prv, signatureHash, true)
+			if err != nil {
+				return err
+			}
+			signatures[index] = &types.Signature{
+				R: new(big.Int).SetBytes(signature[1:33]),
+				S: new(big.Int).SetBytes(signature[33:]),
+			}
+		}
 	}
 
-	signatures, err := keystore.sign(signatureHashes, keyPaths)
-	if err != nil {
-		return errp.WithMessage(err, "Failed to sign signature hash")
-	}
-	if len(signatures) != len(transaction.TxIn) {
-		panic("number of signatures doesn't match number of inputs")
-	}
 	btcProposedTx.Signatures = signatures
 	return nil
 }
