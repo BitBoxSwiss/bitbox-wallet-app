@@ -1,0 +1,7 @@
+<resources>
+    <!-- extend the base theme to add styles available only with API level 23+ -->
+    <style name="AppTheme" parent="BaseAppTheme">
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>
