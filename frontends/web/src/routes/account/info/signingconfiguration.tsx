@@ -100,7 +100,7 @@ class SigningConfiguration extends Component<Props, State> {
             </p>
             { ('scriptType' in config) ? (
               <p key="scriptName" className={style.entry}>
-                <strong>Type:</strong>
+                <strong>{t('accountInfo.scriptType')}:</strong>
                 <span>{getScriptName(config.scriptType)}</span>
               </p>
             ) : null}
