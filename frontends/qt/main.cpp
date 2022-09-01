@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
         });
 
     RequestInterceptor interceptor;
-    view->page()->profile()->setRequestInterceptor(&interceptor);
+    view->page()->profile()->setUrlRequestInterceptor(&interceptor);
     QObject::connect(
         view->page(),
         &QWebEnginePage::featurePermissionRequested,
