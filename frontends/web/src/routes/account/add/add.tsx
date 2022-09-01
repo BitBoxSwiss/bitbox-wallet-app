@@ -106,12 +106,12 @@ class AddAccount extends Component<Props, State> {
       this.setState({ step: 'choose-name' });
       break;
     case 'choose-name':
-                interface ResponseData {
-                    success: boolean;
-                    accountCode?: string;
-                    errorCode?: 'alreadyExists' | 'limitReached';
-                    errorMessage?: string;
-                }
+      type ResponseData = {
+        success: boolean;
+        accountCode?: string;
+        errorCode?: 'accountAlreadyExists' | 'accountLimitReached';
+        errorMessage?: string;
+      };
       this.setState({ adding: true });
       apiPost('account-add', {
         coinCode,
