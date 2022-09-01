@@ -51,7 +51,6 @@ function CoinDropDown({
       onInput={e => onChange(supportedCoins.find(c => {
         return c.coinCode === (e.target as HTMLSelectElement).value;
       }) as backendAPI.ICoin)}
-      placeholder={t('buy.info.selectPlaceholder')}
       value={value}
       id="coinCodeDropDown" />
   );
