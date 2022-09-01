@@ -356,6 +356,7 @@ func (account *Account) update() error {
 		outgoingTransactionsData[i] = tx.TransactionData(
 			account.blockNumber.Uint64(),
 			account.coin.erc20Token,
+			account.address.Address.Hex(),
 		)
 	}
 	account.transactions = append(outgoingTransactionsData, confirmedTansactions...)

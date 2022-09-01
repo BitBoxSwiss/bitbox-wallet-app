@@ -85,7 +85,7 @@ func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 
 // TransactionData returns the tx data to be shown to the user.
 func (txh *TransactionWithMetadata) TransactionData(
-	tipHeight uint64, erc20Token *erc20.Token) *accounts.TransactionData {
+	tipHeight uint64, erc20Token *erc20.Token, accountAddress string) *accounts.TransactionData {
 	data := txh.Transaction.Data()
 	if erc20Token == nil && len(data) > 0 {
 		panic("invalid config")
@@ -113,6 +113,14 @@ func (txh *TransactionWithMetadata) TransactionData(
 
 	numConfirmations := txh.numConfirmations(tipHeight)
 	nonce := txh.Transaction.Nonce()
+
+	var txType accounts.TxType
+	if address == accountAddress {
+		txType = accounts.TxTypeSendSelf
+	} else {
+		txType = accounts.TxTypeSend
+	}
+
 	return &accounts.TransactionData{
 		Fee: txh.fee(),
 		// ERC20 token transaction pay fees in Ether.
@@ -124,7 +132,7 @@ func (txh *TransactionWithMetadata) TransactionData(
 		NumConfirmations:         numConfirmations,
 		NumConfirmationsComplete: NumConfirmationsComplete,
 		Status:                   txh.status(numConfirmations),
-		Type:                     accounts.TxTypeSend,
+		Type:                     txType,
 		Amount:                   amount,
 		Addresses: []accounts.AddressAndAmount{{
 			Address: address,
