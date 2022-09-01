@@ -123,7 +123,16 @@ function Conversion({
     return (
       <tr className={unstyled ? '' : style.fiatRow}>
         <td className={unstyled ? '' : style.availableFiatAmount}>{formattedValue}</td>
-        <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{active}</td>
+        {
+          !noAction && (
+            <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{active}</td>
+          )
+        }
+        {
+          noAction && (
+            <td className={unstyled ? '' : style.availableFiatUnitNoAction}>{active}</td>
+          )
+        }
       </tr>
     );
   }

@@ -24,6 +24,7 @@
     text-align: right;
 }
 
+.availableFiatUnitNoAction,
 .availableFiatUnit {
     color: var(--color-secondary);
     cursor: default;

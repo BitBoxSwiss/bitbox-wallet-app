@@ -105,7 +105,7 @@ export class UTXOsClass extends Component<Props, State> {
                           {utxo.amount.unit}
                         </span>
                       </span>
-                      <FiatConversion amount={utxo.amount} unstyled />
+                      <FiatConversion amount={utxo.amount} unstyled noAction/>
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>
