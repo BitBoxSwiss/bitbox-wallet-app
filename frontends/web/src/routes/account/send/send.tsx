@@ -597,7 +597,7 @@ class Send extends Component<Props, State> {
                 <label className="labelXLarge">{t('send.availableBalance')}</label>
               </div>
               <div className="box large">
-                <Balance balance={balance} />
+                <Balance balance={balance} noRotateFiat/>
               </div>
               {
                 coinControl && (

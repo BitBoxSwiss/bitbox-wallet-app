@@ -23,10 +23,12 @@ import style from './balance.module.css';
 
 interface Props {
     balance?: IBalance;
+    noRotateFiat?: boolean;
 }
 
 export const Balance: FunctionComponent<Props> = ({
   balance,
+  noRotateFiat,
 }) => {
   const { t } = useTranslation();
   if (!balance) {
@@ -42,7 +44,7 @@ export const Balance: FunctionComponent<Props> = ({
             <td className={style.availableAmount}>{balance.available.amount}</td>
             <td className={style.availableUnit}>{balance.available.unit}</td>
           </tr>
-          <FiatConversion amount={balance.available} tableRow />
+          <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat}/>
         </tbody>
       </table>
       {
