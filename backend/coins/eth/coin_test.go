@@ -19,12 +19,20 @@ import (
 	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestCoin(t *testing.T) {
-	c := NewCoin(
+type testSuite struct {
+	suite.Suite
+	coin      *Coin
+	ERC20Coin *Coin
+}
+
+func (s *testSuite) SetupTest() {
+	s.coin = NewCoin(
 		nil,
 		coin.CodeETH,
 		"Ethereum",
@@ -36,37 +44,72 @@ func TestCoin(t *testing.T) {
 		nil,
 	)
 
-	require.Equal(t,
-		"0.000000000000000001",
-		c.FormatAmount(coin.NewAmountFromInt64(1), false),
+	s.ERC20Coin = NewCoin(
+		nil,
+		coin.CodeERC20TEST,
+		"ERC20Test",
+		"TOK",
+		"TOK",
+		params.MainnetChainConfig,
+		"",
+		nil,
+		erc20.NewToken("0x0000000000000000000000000000000000000001", 12),
 	)
-	require.Equal(t,
-		"0.000000000001",
-		c.FormatAmount(coin.NewAmountFromInt64(1000000), false),
-	)
-	require.Equal(t,
-		"1",
-		c.FormatAmount(coin.NewAmountFromInt64(1e18), false),
-	)
-	require.Equal(t,
-		"100",
-		c.FormatAmount(coin.NewAmount(new(big.Int).Exp(big.NewInt(10), big.NewInt(20), nil)), false),
-	)
-	require.Equal(t,
-		"1.234",
-		c.FormatAmount(coin.NewAmountFromInt64(1.234e18), false),
-	)
+}
 
+func TestSuite(t *testing.T) {
+	suite.Run(t, new(testSuite))
+}
+
+func (s *testSuite) TestFormatAmount() {
+
+	for _, isFee := range []bool{false, true} {
+		require.Equal(s.T(),
+			"0.000000000000000001",
+			s.coin.FormatAmount(coin.NewAmountFromInt64(1), isFee),
+		)
+		require.Equal(s.T(),
+			"0.000000000001",
+			s.coin.FormatAmount(coin.NewAmountFromInt64(1000000), isFee),
+		)
+		require.Equal(s.T(),
+			"1",
+			s.coin.FormatAmount(coin.NewAmountFromInt64(1e18), isFee),
+		)
+		require.Equal(s.T(),
+			"100",
+			s.coin.FormatAmount(coin.NewAmount(new(big.Int).Exp(big.NewInt(10), big.NewInt(20), nil)), isFee),
+		)
+		require.Equal(s.T(),
+			"1.234",
+			s.coin.FormatAmount(coin.NewAmountFromInt64(1.234e18), isFee),
+		)
+	}
+	require.Equal(s.T(),
+		"123456.789012345678",
+		s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(123456789012345678), false),
+	)
+	require.Equal(s.T(),
+		"0.123456789012345678",
+		s.ERC20Coin.FormatAmount(coin.NewAmountFromInt64(123456789012345678), true),
+	)
+}
+
+func (s *testSuite) TestSetAmount() {
 	ratAmount1, _ := new(big.Rat).SetString("123.123456789012345678")
 	ratAmount2, _ := new(big.Rat).SetString("0")
 	ratAmount3, _ := new(big.Rat).SetString("123")
 
 	for _, isFee := range []bool{false, true} {
-		require.Equal(t, "123123456789012345678",
-			c.SetAmount(ratAmount1, isFee).BigInt().String())
-		require.Equal(t, "0",
-			c.SetAmount(ratAmount2, isFee).BigInt().String())
-		require.Equal(t, "123000000000000000000",
-			c.SetAmount(ratAmount3, isFee).BigInt().String())
+		require.Equal(s.T(), "123123456789012345678",
+			s.coin.SetAmount(ratAmount1, isFee).BigInt().String())
+		require.Equal(s.T(), "0",
+			s.coin.SetAmount(ratAmount2, isFee).BigInt().String())
+		require.Equal(s.T(), "123000000000000000000",
+			s.coin.SetAmount(ratAmount3, isFee).BigInt().String())
 	}
+	require.Equal(s.T(), "123123456789012345678",
+		s.ERC20Coin.SetAmount(ratAmount1, true).BigInt().String())
+	require.Equal(s.T(), "123123456789012",
+		s.ERC20Coin.SetAmount(ratAmount1, false).BigInt().String())
 }
