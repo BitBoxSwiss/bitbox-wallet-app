@@ -34,6 +34,7 @@ interface LoadedProps {
 }
 
 interface BannerProps {
+    // eslint-disable-next-line react/no-unused-prop-types
     msgKey: 'bitbox01';
 }
 
