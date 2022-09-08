@@ -166,6 +166,17 @@ class Send extends Component<Props, State> {
           break;
         }
         break;
+      case 'account':
+        switch (data) {
+        case 'syncdone':
+          if (this.props.code) {
+            accountApi.getBalance(this.props.code)
+              .then(balance => this.setState({ balance }))
+              .catch(console.error);
+          }
+          break;
+        }
+        break;
       }
     });
   }

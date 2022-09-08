@@ -4,6 +4,7 @@
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
 - Transaction details: show fiat value at time of transaction
 - Android: more modern look by changing the status bar color to white while the app is running
+- Fix update balance after transaction sent
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0
