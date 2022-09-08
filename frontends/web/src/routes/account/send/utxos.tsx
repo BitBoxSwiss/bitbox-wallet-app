@@ -23,6 +23,8 @@ import { ExpandOpen } from '../../../components/icon/icon';
 import { FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { getScriptName } from '../utils';
+import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
+import { syncdone } from '../../../api/subscribe-legacy';
 import style from './utxos.module.css';
 
 interface UTXOsProps {
@@ -51,7 +53,24 @@ export class UTXOsClass extends Component<Props, State> {
     selectedUTXOs: {},
   };
 
+  private subscribtions: UnsubscribeList = [];
+
   public componentDidMount() {
+    this.getUTXOs();
+    this.subscribe();
+  }
+
+  public componentWillUnmount() {
+    unsubscribe(this.subscribtions);
+  }
+
+  private subscribe() {
+    this.subscribtions.push(
+      syncdone(this.props.accountCode, () => this.getUTXOs()),
+    );
+  }
+
+  private getUTXOs() {
     accountApi.getUTXOs(this.props.accountCode).then(utxos => {
       this.setState({ utxos });
     });
