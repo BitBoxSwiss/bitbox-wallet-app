@@ -17,6 +17,9 @@
 import { apiGet, apiPost } from '../utils/request';
 import { SuccessResponse, FailResponse } from './response';
 
+// BitBox02 error codes.
+export const errUserAbort = 104;
+
 export type DeviceInfo = {
     initialized: boolean;
     mnemonicPassphraseEnabled: boolean;
