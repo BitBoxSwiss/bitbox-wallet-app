@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
@@ -214,8 +215,8 @@ func NewDefaultAppConfig() AppConfig {
 				DeprecatedActiveERC20Tokens: []string{},
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.
-			FiatList: []string{"USD", "EUR", "CHF"},
-			MainFiat: "USD",
+			FiatList: []string{rates.USD.String(), rates.EUR.String(), rates.CHF.String()},
+			MainFiat: rates.USD.String(),
 		},
 	}
 }

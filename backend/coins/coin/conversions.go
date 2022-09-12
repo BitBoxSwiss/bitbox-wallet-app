@@ -12,7 +12,7 @@ import (
 // This should be used when `FormatAsCurrency` can't be used because a simpler formatting is needed (e.g. to populate forms in the frontend).
 func FormatAsPlainCurrency(amount *big.Rat, coinUnit string) string {
 	var formatted string
-	if coinUnit == "BTC" {
+	if coinUnit == rates.BTC.String() {
 		formatted = strings.TrimRight(strings.TrimRight(amount.FloatString(8), "0"), ".")
 	} else {
 		formatted = amount.FloatString(2)

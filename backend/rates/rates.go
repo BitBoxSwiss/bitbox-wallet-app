@@ -50,6 +50,35 @@ type exchangeRate struct {
 	timestamp time.Time
 }
 
+// Fiat type represents currency strings.
+type Fiat string
+
+// String return a string representing the Fiat.
+func (f Fiat) String() string {
+	return string(f)
+}
+
+// supported Fiat.
+const (
+	AUD Fiat = "AUD"
+	BRL Fiat = "BRL"
+	CAD Fiat = "CAD"
+	CHF Fiat = "CHF"
+	CNY Fiat = "CNY"
+	EUR Fiat = "EUR"
+	GBP Fiat = "GBP"
+	HKD Fiat = "HKD"
+	ILS Fiat = "ILS"
+	JPY Fiat = "JPY"
+	KRW Fiat = "KRW"
+	NOK Fiat = "NOK"
+	RUB Fiat = "RUB"
+	SEK Fiat = "SEK"
+	SGD Fiat = "SGD"
+	USD Fiat = "USD"
+	BTC Fiat = "BTC"
+)
+
 // RateUpdater provides cryptocurrency-to-fiat conversion rates.
 type RateUpdater struct {
 	observable.Implementation
