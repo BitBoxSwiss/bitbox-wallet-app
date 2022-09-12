@@ -33,6 +33,7 @@ interface UTXOsProps {
     explorerURL: string;
     onChange: (selectedUTXO: SelectedUTXO) => void;
     onClose: () => void;
+    // eslint-disable-next-line react/no-unused-prop-types
     ref?: React.RefObject<any> // WithTranslation doesn't add ref prop correctly
 }
 

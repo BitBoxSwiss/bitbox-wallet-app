@@ -52,7 +52,6 @@ export const Steps: FunctionComponent<Props> = ({
 interface StepProps {
     line?: boolean;
     status?: 'process' | 'finish' | 'wait';
-    step?: number;
     hidden?: boolean;
 }
 

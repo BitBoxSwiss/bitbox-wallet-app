@@ -17,7 +17,6 @@
 
 import { Component, createRef } from 'react';
 import { IAccount } from '../../api/account';
-import { TDevices } from '../../api/devices';
 import Guide from './guide';
 import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
@@ -29,7 +28,6 @@ import style from './moonpay.module.css';
 interface BuyProps {
     accounts: IAccount[];
     code: string;
-    devices: TDevices;
 }
 
 interface LoadedBuyProps {

@@ -26,6 +26,7 @@ import style from './rates.module.css';
 
 export interface SharedProps {
     active: Fiat;
+    // eslint-disable-next-line react/no-unused-prop-types
     selected: Fiat[];
 }
 

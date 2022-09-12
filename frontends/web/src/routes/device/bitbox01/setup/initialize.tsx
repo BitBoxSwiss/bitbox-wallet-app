@@ -33,7 +33,6 @@ const stateEnum = Object.freeze({
 });
 
 interface InitializeProps {
-    goal: string;
     goBack: () => void;
     deviceID: string;
 }

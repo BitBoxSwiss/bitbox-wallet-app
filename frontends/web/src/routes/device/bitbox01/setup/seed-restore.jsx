@@ -45,13 +45,6 @@ class SeedRestore extends Component {
     this.checkSDcard();
   }
 
-  displayError = error => {
-    this.setState({
-      status: STATUS.ERROR,
-      error,
-    });
-  };
-
   checkSDcard = () => {
     getDeviceInfo(this.props.deviceID)
       .then(({ sdcard }) => {
@@ -137,11 +130,9 @@ class SeedRestore extends Component {
                 ) : (
                   <Backups
                     showCreate={false}
-                    displayError={this.displayError}
                     deviceID={deviceID}
                     requireConfirmation={false}
-                    onRestore={onSuccess}
-                    fillSpace>
+                    onRestore={onSuccess}>
                     <Button
                       transparent
                       onClick={goBack}>

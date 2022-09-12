@@ -75,14 +75,12 @@ export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, device
 
   const BuyInfoEl = <InjectParams>
     <BuyInfo
-      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>;
 
   const MoonpayEl = <InjectParams>
     <Moonpay
       code={''}
-      devices={devices}
       accounts={activeAccounts} />
   </InjectParams>;
 

@@ -26,8 +26,11 @@ import style from './guide.module.css';
 
 export interface SharedProps {
     shown: boolean;
+    // eslint-disable-next-line react/no-unused-prop-types
     activeSidebar: boolean;
+    // eslint-disable-next-line react/no-unused-prop-types
     sidebarStatus: string;
+    // eslint-disable-next-line react/no-unused-prop-types
     guideExists: boolean;
 }
 
