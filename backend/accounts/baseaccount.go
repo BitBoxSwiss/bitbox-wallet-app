@@ -208,6 +208,15 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 		account.notes = append(account.notes, legacyNotes)
 	}
 
+	// An account syncdone event is generated when new rates are available. This allows the frontend to reload the relevant data.
+	if account.config.RateUpdater != nil {
+		account.config.RateUpdater.Observe(func(e observable.Event) {
+			if e.Subject == rates.RatesEventSubject {
+				account.config.OnEvent(EventSyncDone)
+			}
+		})
+	}
+
 	return nil
 }
 
