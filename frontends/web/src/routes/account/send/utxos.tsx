@@ -54,7 +54,7 @@ export class UTXOsClass extends Component<Props, State> {
     selectedUTXOs: {},
   };
 
-  private subscribtions: UnsubscribeList = [];
+  private subscriptions: UnsubscribeList = [];
 
   public componentDidMount() {
     this.getUTXOs();
@@ -62,11 +62,11 @@ export class UTXOsClass extends Component<Props, State> {
   }
 
   public componentWillUnmount() {
-    unsubscribe(this.subscribtions);
+    unsubscribe(this.subscriptions);
   }
 
   private subscribe() {
-    this.subscribtions.push(
+    this.subscriptions.push(
       syncdone(this.props.accountCode, () => this.getUTXOs()),
     );
   }
