@@ -47,9 +47,9 @@
     padding-top: 0;
 }
 .fit .content {
+    align-items: stretch;
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 .textCenter,
 .text-center {
@@ -180,7 +180,7 @@
 }
 
 .content .largeIcon {
-    margin: 0 0 var(--space-default) 0;
+    margin: var(--space-half) auto;
     max-height: 100%;
     width: 50%;
 }
