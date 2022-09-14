@@ -82,7 +82,7 @@ class Account extends Component<Props, State> {
     syncedAddressesCount: undefined,
   };
 
-  private subscribtions: UnsubscribeList = [];
+  private subscriptions: UnsubscribeList = [];
 
   public componentDidMount() {
     this.checkSDCards();
@@ -94,7 +94,7 @@ class Account extends Component<Props, State> {
   }
 
   public componentWillUnmount() {
-    unsubscribe(this.subscribtions);
+    unsubscribe(this.subscriptions);
   }
 
   public UNSAFE_componentWillReceiveProps(nextProps: Props) {
@@ -115,7 +115,7 @@ class Account extends Component<Props, State> {
     if (this.props.code !== prevProps.code) {
       this.onStatusChanged();
       this.checkSDCards();
-      unsubscribe(this.subscribtions);
+      unsubscribe(this.subscriptions);
       this.subscribe();
     }
     if (this.deviceIDs(this.props.devices).length !== this.deviceIDs(prevProps.devices).length) {
@@ -124,7 +124,7 @@ class Account extends Component<Props, State> {
   }
 
   private subscribe() {
-    this.subscribtions.push(
+    this.subscriptions.push(
       syncAddressesCount(this.props.code, (code, syncedAddressesCount) => {
         if (code === this.props.code) {
           this.setState({ syncedAddressesCount });
