@@ -43,4 +43,7 @@ var (
 	// ErrNotAvailable is returned if data required is not available yet. Example: the headers are
 	// not synced yet, which is a prerequisite to making a timeseries of the portfolio.
 	ErrNotAvailable = errpkg.New("notAvailable")
+
+	// ERC20InsufficientGasFunds is returned when there is not enough ETH to pay the erc20 transaction fee.
+	ERC20InsufficientGasFunds = errpkg.New("erc20InsufficientGasFunds")
 )

@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -378,7 +379,11 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
 	if err != nil {
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
+		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
+		if err.Error() == etherscan.ERC20GasErr {
+			result["errorCode"] = errors.ERC20InsufficientGasFunds.Error()
+		}
+		return result, nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }

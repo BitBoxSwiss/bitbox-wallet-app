@@ -7,6 +7,7 @@
 - Fix update balance after transaction sent
 - Fix missing utxos update after new transaction is sent
 - Add attestation check on device setting
+- Fix unsufficient gas funds error message on erc20 transactions
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0
