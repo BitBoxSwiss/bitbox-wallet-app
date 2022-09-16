@@ -84,9 +84,7 @@ class UpgradeButton extends Component<Props, State> {
         }
         {
           activeDialog && (
-            <Dialog
-              title={t('upgradeFirmware.title')}
-              onClose={this.abort}>
+            <Dialog title={t('upgradeFirmware.title')}>
               {confirming ? t('confirmOnDevice') : (
                 <p>{t('upgradeFirmware.description', {
                   currentVersion: versionInfo.currentVersion,
