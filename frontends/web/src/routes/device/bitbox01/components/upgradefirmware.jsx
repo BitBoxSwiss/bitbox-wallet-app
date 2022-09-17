@@ -91,9 +91,7 @@ class UpgradeFirmware extends Component {
         }
         {
           activeDialog && (
-            <Dialog
-              title={t('upgradeFirmware.title')}
-              onClose={this.abort}>
+            <Dialog title={t('upgradeFirmware.title')}>
               <p className="m-top-none">{t('upgradeFirmware.description', {
                 currentVersion, newVersion
               })}</p>

@@ -19,9 +19,7 @@ import { Component } from 'react';
 import { VersionInfo } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
-import { Dialog } from '../../../components/dialog/dialog';
-// TODO: use DialogButtons
-import dialogStyle from '../../../components/dialog/dialog.module.css';
+import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 
@@ -84,9 +82,7 @@ class UpgradeButton extends Component<Props, State> {
         }
         {
           activeDialog && (
-            <Dialog
-              title={t('upgradeFirmware.title')}
-              onClose={this.abort}>
+            <Dialog title={t('upgradeFirmware.title')}>
               {confirming ? t('confirmOnDevice') : (
                 <p>{t('upgradeFirmware.description', {
                   currentVersion: versionInfo.currentVersion,
@@ -94,7 +90,7 @@ class UpgradeButton extends Component<Props, State> {
                 })}</p>
               )}
               { !confirming && (
-                <div className={dialogStyle.actions}>
+                <DialogButtons>
                   <Button
                     primary
                     onClick={this.upgradeFirmware}>
@@ -103,7 +99,7 @@ class UpgradeButton extends Component<Props, State> {
                   <Button transparent onClick={this.abort}>
                     {t('button.back')}
                   </Button>
-                </div>
+                </DialogButtons>
               )}
             </Dialog>
           )
