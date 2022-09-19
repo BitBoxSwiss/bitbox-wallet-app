@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +16,21 @@
  */
 
 import { QWebChannel } from './qwebchannel';
+import { TMsgCallback, TQueryPromiseMap } from './transport-common';
 import { runningInQtWebEngine } from './env';
 
-let cache = null;
-let webChannel = null;
-let queryID = 0;
-let queryPromises = {};
-let currentListeners = [];
+let cache: any = null;
+let webChannel: any = null;
+let queryID: number = 0;
+const queryPromises: TQueryPromiseMap = {};
+const currentListeners: TMsgCallback[] = [];
 
 function initTransport() {
   return new Promise((resolve, reject) => {
     if (webChannel) {
       resolve(webChannel);
     } else if (cache) {
-      const check = function() { // eslint-disable-line func-style
+      const check = function() {
         if (webChannel) {
           resolve(webChannel);
         } else {
@@ -37,28 +39,31 @@ function initTransport() {
       };
       check();
     } else if (runningInQtWebEngine()) {
-      const initWebChannel = function(channel) { // eslint-disable-line func-style
+      const initWebChannel = function(channel: any) {
         webChannel = channel;
-        webChannel.objects.backend.gotResponse.connect((queryID, response) => {
+        webChannel.objects.backend.gotResponse.connect((
+          queryID: number,
+          response: string,
+        ) => {
           queryPromises[queryID].resolve(JSON.parse(response));
           delete queryPromises[queryID];
         });
-        webChannel.objects.backend.pushNotify.connect(msg => {
+        webChannel.objects.backend.pushNotify.connect((msg: string) => {
           currentListeners.forEach(listener => listener(JSON.parse(msg)));
         });
         resolve(webChannel);
+
       };
-      // @ts-ignore
-      cache = new QWebChannel(qt.webChannelTransport, initWebChannel); // eslint-disable-line no-undef
+      cache = new QWebChannel((window.qt!).webChannelTransport, initWebChannel);
     } else {
       reject();
     }
   });
 }
 
-export function call(query) {
+export function call(query: string) {
   return new Promise((resolve, reject) => {
-    initTransport().then(channel => {
+    initTransport().then((channel: any) => {
       queryID++;
       queryPromises[queryID] = { resolve, reject };
       channel.objects.backend.call(queryID, query);
@@ -66,7 +71,7 @@ export function call(query) {
   });
 }
 
-export function qtSubscribePushNotifications(msgCallback) {
+export function qtSubscribePushNotifications(msgCallback: TMsgCallback) {
   currentListeners.push(msgCallback);
   return () => {
     if (!currentListeners.includes(msgCallback)) {

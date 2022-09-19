@@ -18,15 +18,16 @@
 import { apiPort, apiToken, isTLS } from './request';
 import { qtSubscribePushNotifications } from './qttransport';
 import { androidSubscribePushNotifications } from './androidtransport';
+import { TMsgCallback } from './transport-common';
 import { runningInAndroid, runningInQtWebEngine } from './env';
 
 let socket: WebSocket | undefined;
 
-type MsgCallback = (payload: any) => void; // TODO: change to (payload: unknown) => void
-const currentListeners: MsgCallback[] = [];
+const currentListeners: TMsgCallback[] = [];
 
 type UnsubscribeCallback = () => void;
-export function apiWebsocket(msgCallback: MsgCallback): UnsubscribeCallback {
+
+export function apiWebsocket(msgCallback: TMsgCallback): UnsubscribeCallback {
   if (runningInQtWebEngine()) {
     return qtSubscribePushNotifications(msgCallback);
   }

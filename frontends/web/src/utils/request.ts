@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +26,8 @@ import { runningInAndroid, runningInQtWebEngine } from './env';
 // is provided in case the file wasn't generated but used directly,
 // for convenience when developing. Both key and defaultValue must be
 // strings and converted into the desired type.
-function extConfig(key, defaultValue) {
-  if (typeof key === 'string' && key.startsWith('{{ ') && key.endsWith(' }}')) {
+function extConfig(key: string, defaultValue: string): string {
+  if (key.startsWith('{{ ') && key.endsWith(' }}')) {
     return defaultValue;
   }
   return key;
@@ -35,16 +36,16 @@ function extConfig(key, defaultValue) {
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
 export const apiToken = extConfig('{{ API_TOKEN }}', '');
 
-export function isTLS() {
+export function isTLS(): boolean {
   return document.URL.startsWith('https://');
 }
 
-export function apiURL(endpoint) {
+export function apiURL(endpoint: string): string {
   return (isTLS() ? 'https://' : 'http://') + 'localhost:' + apiPort + '/api/' + endpoint;
 }
 
-function handleError(endpoint) {
-  return function(json) {
+function handleError(endpoint: string) {
+  return function(json: undefined | null | { error?: string }) {
     return new Promise((resolve, reject) => {
       if (json && json.error) {
         if (json.error.indexOf('hidapi: unknown failure') !== -1) {
@@ -65,7 +66,7 @@ function handleError(endpoint) {
   };
 }
 
-export function apiGet(endpoint) {
+export function apiGet(endpoint: string): Promise<any> {
   // if apiGet() is invoked immediately this can error with:
   // request.js:64 Uncaught TypeError: Cannot read properties of undefined
   // (reading 'runningInQtWebEngine')
@@ -88,7 +89,10 @@ export function apiGet(endpoint) {
   }).then(response => response.json()).then(handleError(endpoint));
 }
 
-export function apiPost(endpoint, body) {
+export function apiPost(
+  endpoint: string,
+  body?: object | number | string | boolean, // any is not safe to use, for example Set and Map are stringified to empty "{}"
+): Promise<any> {
   if (runningInQtWebEngine()) {
     return call(JSON.stringify({
       method: 'POST',
