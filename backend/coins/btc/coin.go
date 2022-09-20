@@ -41,10 +41,13 @@ import (
 
 // Coin models a Bitcoin-related coin.
 type Coin struct {
-	initOnce              sync.Once
-	code                  coinpkg.Code
-	name                  string
-	unit                  string
+	initOnce sync.Once
+	code     coinpkg.Code
+	name     string
+	// unit is the main unit of the coin, e.g. 'BTC'
+	unit string
+	// formatUnit keeps track of the unit used, e.g. 'BTC' or 'sat' depening on if sat mode is enabled
+	formatUnit            string
 	net                   *chaincfg.Params
 	dbFolder              string
 	makeBlockchain        func() blockchain.Interface
@@ -74,6 +77,7 @@ func NewCoin(
 		code:                  code,
 		name:                  name,
 		unit:                  unit,
+		formatUnit:            unit,
 		net:                   net,
 		dbFolder:              dbFolder,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
@@ -150,6 +154,23 @@ func (coin *Coin) Unit(bool) string {
 	return coin.unit
 }
 
+// SetFormatUnit implements coin.Coin.
+func (coin *Coin) SetFormatUnit(unit string) {
+	coin.formatUnit = unit
+}
+
+// GetFormatUnit implements coin.Coin.
+func (coin *Coin) GetFormatUnit() string {
+	if coin.code == coinpkg.CodeTBTC {
+		if coin.formatUnit == coinpkg.UnitSats {
+			return "t" + coin.formatUnit
+		}
+		return "T" + coin.formatUnit
+	}
+
+	return coin.formatUnit
+}
+
 // Decimals implements coinpkg.Coin.
 func (coin *Coin) Decimals(isFee bool) uint {
 	return 8
@@ -157,6 +178,9 @@ func (coin *Coin) Decimals(isFee bool) uint {
 
 // FormatAmount implements coinpkg.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
+	if coin.formatUnit == coinpkg.UnitSats {
+		return amount.BigInt().String()
+	}
 	return new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
 }
 
@@ -168,9 +192,22 @@ func (coin *Coin) ToUnit(amount coinpkg.Amount, isFee bool) float64 {
 
 // SetAmount implements coinpkg.Coin.
 func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coinpkg.Amount {
-	satsAmount := new(big.Rat).Mul(amount, new(big.Rat).SetFloat64(unitSatoshi))
+	satsAmount := coinpkg.Btc2Sat(amount)
 	intSatsAmount, _ := new(big.Int).SetString(satsAmount.FloatString(0), 0)
 	return coinpkg.NewAmount(intSatsAmount)
+}
+
+// ParseAmount implements coinpkg.Coin.
+func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
+	amountRat, valid := new(big.Rat).SetString(amount)
+	if !valid {
+		return coinpkg.Amount{}, errp.New("Invalid amount")
+	}
+
+	if coin.formatUnit == coinpkg.UnitSats {
+		amountRat = coinpkg.Sat2Btc(amountRat)
+	}
+	return coin.SetAmount(amountRat, false), nil
 }
 
 // Blockchain connects to a blockchain backend.

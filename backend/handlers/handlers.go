@@ -34,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
@@ -197,6 +198,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
@@ -490,6 +492,43 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 	return accounts, nil
 }
 
+func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	var request struct {
+		Unit string `json:"unit"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false}, nil
+	}
+
+	unit := request.Unit
+
+	// update BTC format unit for Coins
+	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		return response{Success: false}, nil
+	}
+	btcCoin.SetFormatUnit(unit)
+
+	btcCoin, err = handlers.backend.Coin(coinpkg.CodeTBTC)
+	if err != nil {
+		return response{Success: false}, nil
+	}
+	btcCoin.SetFormatUnit(unit)
+
+	// update BTC format unit for fiat conversions
+	for _, account := range handlers.backend.Accounts() {
+		account.Config().BtcCurrencyUnit = unit
+	}
+
+	return response{Success: true}, nil
+}
+
 func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
 	totalPerCoin := make(map[coin.Code]*big.Int)
 	conversionsPerCoin := make(map[coin.Code]map[string]string)
@@ -515,10 +554,17 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 		amount := b.Available()
 		if _, ok := totalPerCoin[coinCode]; !ok {
 			totalPerCoin[coinCode] = amount.BigInt()
+
 		} else {
 			totalPerCoin[coinCode] = new(big.Int).Add(totalPerCoin[coinCode], amount.BigInt())
 		}
-		conversionsPerCoin[coinCode] = coin.Conversions(coin.NewAmount(totalPerCoin[coinCode]), account.Coin(), false, account.Config().RateUpdater)
+
+		conversionsPerCoin[coinCode] = coin.Conversions(
+			coin.NewAmount(totalPerCoin[coinCode]),
+			account.Coin(),
+			false,
+			account.Config().RateUpdater,
+			util.FormatBtcAsSat(handlers.backend.Config().AppConfig().Backend.BtcUnit))
 	}
 
 	for k, v := range totalPerCoin {
@@ -526,9 +572,9 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 		if err != nil {
 			return nil, err
 		}
-
 		totalAmount[k] = accountHandlers.FormattedAmount{
 			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
+			Unit:        currentCoin.GetFormatUnit(),
 			Conversions: conversionsPerCoin[k],
 		}
 	}
@@ -639,20 +685,34 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
-	amountRat, valid := new(big.Rat).SetString(amount)
-	if !valid {
+
+	currentCoin, err := handlers.backend.Coin(coinpkg.Code(from))
+	if err != nil {
+		logrus.Error(err.Error())
 		return map[string]interface{}{
 			"success": false,
-			"errMsg":  "invalid amount",
 		}, nil
 	}
 
-	rate := handlers.backend.RatesUpdater().LatestPrice()[from][to]
-	convertedAmount := new(big.Rat).Mul(amountRat, new(big.Rat).SetFloat64(rate))
+	coinAmount, err := currentCoin.ParseAmount(amount)
+	if err != nil {
+		logrus.Error(err.Error())
+		return map[string]interface{}{
+			"success": false,
+		}, nil
+	}
 
+	coinUnitAmount := new(big.Rat).SetFloat64(currentCoin.ToUnit(coinAmount, false))
+
+	unit := currentCoin.Unit(false)
+	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][to]
+
+	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
+
+	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, to),
+		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, to, util.FormatBtcAsSat(btcUnit)),
 	}, nil
 }
 
@@ -683,6 +743,10 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 		unit = unit[1:]
 	case "GOETH":
 		unit = unit[2:]
+	}
+
+	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.UnitSats {
+		fiatRat = coinpkg.Sat2Btc(fiatRat)
 	}
 
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]

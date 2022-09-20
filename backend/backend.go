@@ -351,10 +351,12 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
 			"https://blockstream.info/testnet/tx/", backend.socksProxy)
+		coin.SetFormatUnit(backend.config.AppConfig().Backend.BtcUnit)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", &chaincfg.MainNetParams, dbFolder, servers,
 			"https://blockstream.info/tx/", backend.socksProxy)
+		coin.SetFormatUnit(backend.config.AppConfig().Backend.BtcUnit)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", &ltc.TestNet4Params, dbFolder, servers,

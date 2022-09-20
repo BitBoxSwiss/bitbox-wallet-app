@@ -18,6 +18,7 @@
 import React, { Component, createRef } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
+import { BtcUnit } from '../../../api/coins';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { Checked, Cancel } from '../../../components/icon/icon';
@@ -85,6 +86,7 @@ interface State {
     // show visual BitBox in dialog when instructed to sign.
     signConfirm: boolean;
     coinControl: boolean;
+    btcUnit: BtcUnit;
     activeCoinControl: boolean;
     hasCamera: boolean;
     activeScanQR: boolean;
@@ -118,6 +120,7 @@ class Send extends Component<Props, State> {
     noMobileChannelError: false,
     fiatUnit: fiat.state.active,
     coinControl: false,
+    btcUnit : 'BTC',
     activeCoinControl: false,
     hasCamera: false,
     activeScanQR: false,
@@ -151,9 +154,12 @@ class Send extends Component<Props, State> {
           });
       });
     }
-    if (this.isBitcoinBased()) {
-      apiGet('config').then(config => this.setState({ coinControl: !!(config.frontend || {}).coinControl }));
-    }
+    apiGet('config').then(config => {
+      this.setState({ btcUnit: config.backend.btcUnit });
+      if (this.isBitcoinBased()) {
+        this.setState({ coinControl: !!(config.frontend || {}).coinControl });
+      }
+    });
     this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
       switch (type) {
       case 'device':
@@ -410,8 +416,8 @@ class Send extends Component<Props, State> {
 
   private convertToFiat = (value?: string | boolean) => {
     if (value) {
-      const coinUnit = this.getAccount()!.coinUnit;
-      apiGet(`coins/convertToPlainFiat?from=${coinUnit}&to=${this.state.fiatUnit}&amount=${value}`)
+      const coinCode = this.getAccount()!.coinCode;
+      apiGet(`coins/convertToPlainFiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
         .then(data => {
           if (data.success) {
             this.setState({ fiatAmount: data.fiatAmount });
@@ -580,6 +586,7 @@ class Send extends Component<Props, State> {
       signProgress,
       signConfirm,
       coinControl,
+      btcUnit,
       activeCoinControl,
       hasCamera,
       activeScanQR,
@@ -601,6 +608,7 @@ class Send extends Component<Props, State> {
         {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
       </span>
     ) : undefined;
+    const baseCurrencyUnit = fiatUnit === 'BTC' ? btcUnit : fiatUnit;
     return (
       <div className="contentWithGuide">
         <div className="container">
@@ -689,7 +697,7 @@ class Send extends Component<Props, State> {
                         type="number"
                         step="any"
                         min="0"
-                        label={fiatUnit}
+                        label={baseCurrencyUnit}
                         id="fiatAmount"
                         onInput={this.handleFiatInput}
                         disabled={sendAll}
@@ -704,7 +712,7 @@ class Send extends Component<Props, State> {
                         accountCode={account.code}
                         coinCode={account.coinCode}
                         disabled={!amount && !sendAll}
-                        fiatUnit={fiatUnit}
+                        fiatUnit={baseCurrencyUnit}
                         proposedFee={proposedFee}
                         customFee={customFee}
                         showCalculatingFeeLabel={isUpdatingProposal}
@@ -765,7 +773,7 @@ class Send extends Component<Props, State> {
                     </span>
                     {
                       proposedAmount && proposedAmount.conversions && (
-                        <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} <small>{fiatUnit}</small></span>
+                        <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} <small>{baseCurrencyUnit}</small></span>
                       )
                     }
                   </p>
@@ -787,7 +795,7 @@ class Send extends Component<Props, State> {
                     {proposedFee && proposedFee.conversions && (
                       <span key="conversation">
                         <span className="text-gray"> / </span>
-                        {proposedFee.conversions[fiatUnit]} <small>{fiatUnit}</small>
+                        {proposedFee.conversions[fiatUnit]} <small>{baseCurrencyUnit}</small>
                       </span>
                     )}
                     {customFee ? (
@@ -819,7 +827,7 @@ class Send extends Component<Props, State> {
                       <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
                     </span>
                     {(proposedTotal && proposedTotal.conversions) && (
-                      <span> <span className="text-gray">/</span> <strong>{proposedTotal.conversions[fiatUnit]}</strong> <small>{fiatUnit}</small></span>
+                      <span> <span className="text-gray">/</span> <strong>{proposedTotal.conversions[fiatUnit]}</strong> <small>{baseCurrencyUnit}</small></span>
                     )}
                   </p>
                 </div>

@@ -91,27 +91,31 @@ type FormattedAmount struct {
 }
 
 func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) FormattedAmount {
+	accountCoin := handlers.account.Coin()
 	return FormattedAmount{
-		Amount: handlers.account.Coin().FormatAmount(amount, isFee),
-		Unit:   handlers.account.Coin().Unit(isFee),
+		Amount: accountCoin.FormatAmount(amount, isFee),
+		Unit:   accountCoin.GetFormatUnit(),
 		Conversions: coin.Conversions(
 			amount,
-			handlers.account.Coin(),
+			accountCoin,
 			isFee,
 			handlers.account.Config().RateUpdater,
+			util.FormatBtcAsSat(handlers.account.Config().BtcCurrencyUnit),
 		),
 	}
 }
 
 func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp *time.Time) *FormattedAmount {
+	accountCoin := handlers.account.Coin()
 	return &FormattedAmount{
-		Amount: handlers.account.Coin().FormatAmount(amount, false),
-		Unit:   handlers.account.Coin().Unit(false),
+		Amount: accountCoin.FormatAmount(amount, false),
+		Unit:   accountCoin.GetFormatUnit(),
 		Conversions: coin.ConversionsAtTime(
 			amount,
 			handlers.account.Coin(),
 			false,
 			handlers.account.Config().RateUpdater,
+			util.FormatBtcAsSat(handlers.account.Config().BtcCurrencyUnit),
 			timeStamp,
 		),
 	}

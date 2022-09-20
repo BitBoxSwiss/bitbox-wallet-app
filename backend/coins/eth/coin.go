@@ -24,6 +24,7 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/common"
@@ -118,6 +119,16 @@ func (coin *Coin) Unit(isFee bool) string {
 	return coin.unit
 }
 
+// SetFormatUnit implements coin.Coin.
+func (coin *Coin) SetFormatUnit(string) {
+	// No need for format unit on ETH coins.
+}
+
+// GetFormatUnit implements coin.Coin.
+func (coin *Coin) GetFormatUnit() string {
+	return coin.unit
+}
+
 // Decimals implements coin.Coin.
 func (coin *Coin) Decimals(isFee bool) uint {
 	if !isFee && coin.erc20Token != nil {
@@ -154,6 +165,16 @@ func (coin *Coin) SetAmount(amount *big.Rat, isFee bool) coin.Amount {
 	weiAmount := new(big.Rat).Mul(amount, new(big.Rat).SetInt(factor))
 	intWeiAmount, _ := new(big.Int).SetString(weiAmount.FloatString(0), 0)
 	return coinpkg.NewAmount(intWeiAmount)
+}
+
+// ParseAmount implements coinpkg.Coin.
+func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
+	amountRat, valid := new(big.Rat).SetString(amount)
+	if !valid {
+		return coinpkg.Amount{}, errp.New("Invalid amount")
+	}
+
+	return coin.SetAmount(amountRat, false), nil
 }
 
 // BlockExplorerTransactionURLPrefix implements coin.Coin.

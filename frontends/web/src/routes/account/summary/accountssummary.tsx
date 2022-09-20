@@ -185,7 +185,7 @@ class AccountsSummary extends Component<Props, State> {
   };
 
   private balanceRow = (
-    { code, name, coinCode, coinUnit }: PropsWithChildren<BalanceRowProps>,
+    { code, name, coinCode }: PropsWithChildren<BalanceRowProps>,
   ) => {
     const { t } = this.props;
     const balance = this.state.balances ? this.state.balances[code] : undefined;
@@ -207,7 +207,7 @@ class AccountsSummary extends Component<Props, State> {
           <td data-label={t('accountSummary.balance')}>
             <span className={style.summaryTableBalance}>
               {balance.available.amount}{' '}
-              <span className={style.coinUnit}>{coinUnit}</span>
+              <span className={style.coinUnit}>{balance.available.unit}</span>
             </span>
           </td>
           <td data-label={t('accountSummary.fiatBalance')}>
@@ -231,7 +231,7 @@ class AccountsSummary extends Component<Props, State> {
     );
   };
 
-  private subTotalRow({ coinCode, coinName, coinUnit, balance }: PropsWithChildren<BalanceRowProps>) {
+  private subTotalRow({ coinCode, coinName, balance }: PropsWithChildren<BalanceRowProps>) {
     const { t } = this.props;
     const nameCol = (
       <td data-label={t('accountSummary.total')}>
@@ -256,7 +256,7 @@ class AccountsSummary extends Component<Props, State> {
           <span className={style.summaryTableBalance}>
             <strong>{balance.amount}</strong>
             {' '}
-            <span className={style.coinUnit}>{coinUnit}</span>
+            <span className={style.coinUnit}>{balance.unit}</span>
           </span>
         </td>
         <td data-label={t('accountSummary.fiatBalance')}>

@@ -113,3 +113,22 @@ func (s *testSuite) TestSetAmount() {
 	require.Equal(s.T(), "123123456789012",
 		s.ERC20Coin.SetAmount(ratAmount1, false).BigInt().String())
 }
+
+func (s *testSuite) TestParseAmount() {
+	ethAmount := "1.123456789012345678"
+	intWeiAmount := int64(1123456789012345678)
+
+	coinAmount, err := s.coin.ParseAmount(ethAmount)
+	require.Equal(s.T(), err, nil)
+	intAmount, err := coinAmount.Int64()
+	require.Equal(s.T(), err, nil)
+	require.Equal(s.T(), intWeiAmount, intAmount)
+
+	// SetFormatUnit implementation is empty for eth
+	s.coin.SetFormatUnit("useless-string")
+	coinAmount, err = s.coin.ParseAmount(ethAmount)
+	require.Equal(s.T(), err, nil)
+	intAmount, err = coinAmount.Int64()
+	require.Equal(s.T(), err, nil)
+	require.Equal(s.T(), intWeiAmount, intAmount)
+}

@@ -41,6 +41,12 @@ type Coin interface {
 	// The fee unit is usually the same as the main unit, but can differ.
 	Unit(isFee bool) string
 
+	// SetFormatUnit sets the unit used to format the amount, e.g. "BTC" or "sat".
+	SetFormatUnit(unit string)
+
+	// GetFormatUnit sets the unit used to format the amount, e.g. "BTC" or "sat".
+	GetFormatUnit() string
+
 	// Number of decimal places in the standard unit, e.g. 8 for Bitcoin. Must be in the range
 	// [0..31].
 	Decimals(isFee bool) uint
@@ -54,6 +60,10 @@ type Coin interface {
 	// SetAmount return an Amount object representing the *big.Rat given amount
 	// e.g. BTC 1/2 => 50000000
 	SetAmount(amount *big.Rat, isFee bool) Amount
+
+	// ParseAmount parse a String representing a given amount, considering the formatting unit.
+	// e.g. if the formatUnit is set as "sat", the amount will be considered as being sats
+	ParseAmount(amount string) (Amount, error)
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

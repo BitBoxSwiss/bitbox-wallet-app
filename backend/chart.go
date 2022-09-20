@@ -21,7 +21,9 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -123,6 +125,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		backend.log.Info("ChartDataMissing, until is zero")
 	}
 	isUpToDate := time.Since(until) < 2*time.Hour
+
+	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
 
 	currentTotal := new(big.Rat)
 	currentTotalMissing := false
@@ -254,7 +258,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			result[i] = ChartEntry{
 				Time:           entry.Time,
 				Value:          floatValue,
-				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat),
+				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat, formatBtcAsSat),
 			}
 			i++
 		}
@@ -270,7 +274,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			result = append(result, ChartEntry{
 				Time:           time.Now().Unix(),
 				Value:          total,
-				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat),
+				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat, formatBtcAsSat),
 			})
 		}
 
@@ -292,18 +296,23 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		chartDataMissing = false
 	}
 
+	chartFiat := fiat
+	if fiat == rates.BTC.String() {
+		chartFiat = backend.Config().AppConfig().Backend.BtcUnit
+	}
+
 	var chartTotal *float64
 	var formattedChartTotal string
 	if !currentTotalMissing {
 		tot, _ := currentTotal.Float64()
 		chartTotal = &tot
-		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat)
+		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat, formatBtcAsSat)
 	}
 	return &Chart{
 		DataMissing:    chartDataMissing,
 		DataDaily:      toSortedSlice(chartEntriesDaily, fiat),
 		DataHourly:     toSortedSlice(chartEntriesHourly, fiat),
-		Fiat:           fiat,
+		Fiat:           chartFiat,
 		Total:          chartTotal,
 		FormattedTotal: formattedChartTotal,
 		IsUpToDate:     isUpToDate,
