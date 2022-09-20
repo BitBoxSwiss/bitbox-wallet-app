@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +16,12 @@
  */
 
 import { apiWebsocket } from './websocket';
-
-/**
- * This type describes the subject of an event.
- */
-export type Subject = string;
-
-/**
- * This type enumerates the various actions of an event.
- */
-export type Action = 'replace' | 'reload';
-
-/**
- * This interface models the events that are received from the backend.
- */
-export interface Event {
-    readonly subject: Subject;
-    readonly action: Action;
-    readonly object: any;
-}
+import { TEvent, TPayload, TSubject } from './socket';
 
 /**
  * This type describes the function used to observe the events.
  */
-export type Observer = (event: Event) => void;
+export type Observer = (event: TEvent) => void;
 
 /**
  * This type describes the method returned to unsubscribe again.
@@ -60,11 +43,14 @@ const subscriptions: Subscriptions = {};
 /**
  * This function dispatches the events from the websocket to the observers.
  */
-function handleEvent(payload: any): void {
-  if (typeof payload.subject === 'string') {
+function handleEvent(payload: TPayload): void {
+  if (
+    'subject' in payload
+    && typeof payload.subject === 'string'
+  ) {
     if (subscriptions[payload.subject]) {
       for (const observer of subscriptions[payload.subject]) {
-        observer(payload as Event);
+        observer(payload);
       }
     }
   }
@@ -78,7 +64,10 @@ let subscribed: Unsubscribe | null = null;
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
  */
-export function apiSubscribe(subject: Subject, observer: Observer): Unsubscribe {
+export function apiSubscribe(
+  subject: TSubject,
+  observer: Observer
+): Unsubscribe {
   if (!subscribed) {
     subscribed = apiWebsocket(handleEvent);
   }

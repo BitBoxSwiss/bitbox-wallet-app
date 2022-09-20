@@ -18,6 +18,7 @@
 import { Component, PropsWithChildren } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
+import { TPayload } from '../../../utils/socket';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
@@ -131,26 +132,34 @@ class AccountsSummary extends Component<Props, State> {
     }, {} as TAccountCoinMap);
   };
 
-  private onEvent = (data: any) => {
-    for (const account of this.props.accounts) {
-      if (data.subject === 'account/' + account.code + '/synced-addresses-count') {
-        this.setState(state => {
-          const syncStatus = { ...state.syncStatus };
-          syncStatus[account.code] = data.object;
-          return { syncStatus };
-        });
+  private onEvent = (payload: TPayload) => {
+    if ('subject' in payload) {
+      const { object, subject } = payload;
+      for (const account of this.props.accounts) {
+        if (subject === 'account/' + account.code + '/synced-addresses-count') {
+          this.setState(state => {
+            const syncStatus = { ...state.syncStatus };
+            syncStatus[account.code] = object;
+            return { syncStatus };
+          });
+        }
       }
     }
-    if (data.type === 'account') {
-      switch (data.data) {
-      case 'statusChanged':
-      case 'syncdone':
-        this.onStatusChanged(data.code);
-        // Force getting account summary now; cancel next scheduled call.
-        window.clearTimeout(this.summaryReqTimerID);
-        this.summaryReqTimerID = undefined;
-        this.getAccountSummary();
-        break;
+    if ('type' in payload) {
+      const { code, data, type } = payload;
+      if (type === 'account') {
+        switch (data) {
+        case 'statusChanged':
+        case 'syncdone':
+          if (code) {
+            this.onStatusChanged(code);
+          }
+          // Force getting account summary now; cancel next scheduled call.
+          window.clearTimeout(this.summaryReqTimerID);
+          this.summaryReqTimerID = undefined;
+          this.getAccountSummary();
+          break;
+        }
       }
     }
   };

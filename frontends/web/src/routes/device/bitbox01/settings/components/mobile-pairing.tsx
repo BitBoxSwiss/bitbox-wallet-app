@@ -15,6 +15,7 @@
  */
 
 import { Component } from 'react';
+import { TPayload } from '../../../../../utils/socket';
 import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
@@ -44,12 +45,6 @@ interface State {
     showQRCode: boolean;
 }
 
-interface OnDeviceStatusProps {
-    type: string;
-    data: string;
-    deviceID: string;
-}
-
 class MobilePairing extends Component<Props, State> {
   private unsubscribe: (() => void) | undefined;
 
@@ -72,32 +67,35 @@ class MobilePairing extends Component<Props, State> {
     }
   }
 
-  private onDeviceStatus = ({ type, data, deviceID }: OnDeviceStatusProps) => {
-    if (type === 'device' && deviceID === this.props.deviceID) {
-      switch (data) {
-      case 'pairingStarted':
-        this.setState({ status: 'started' });
-        break;
-      case 'pairingTimedout':
-        if (this.state.status) {
-          this.setState({ status: 'timeout' });
+  private onDeviceStatus = (payload: TPayload) => {
+    if ('type' in payload) {
+      const { type, data, deviceID } = payload;
+      if (type === 'device' && deviceID === this.props.deviceID) {
+        switch (data) {
+        case 'pairingStarted':
+          this.setState({ status: 'started' });
+          break;
+        case 'pairingTimedout':
+          if (this.state.status) {
+            this.setState({ status: 'timeout' });
+          }
+          break;
+        case 'pairingPullMessageFailed':
+          this.setState({ status: 'pullFailed' });
+          break;
+        case 'pairingScanningFailed':
+          this.setState({ status: 'scanningFailed' });
+          break;
+        case 'pairingAborted':
+          this.setState({ status: 'aborted' });
+          break;
+        case 'pairingError':
+          this.setState({ status: 'error' });
+          break;
+        case 'pairingSuccess':
+          this.setState({ status: 'success' });
+          break;
         }
-        break;
-      case 'pairingPullMessageFailed':
-        this.setState({ status: 'pullFailed' });
-        break;
-      case 'pairingScanningFailed':
-        this.setState({ status: 'scanningFailed' });
-        break;
-      case 'pairingAborted':
-        this.setState({ status: 'aborted' });
-        break;
-      case 'pairingError':
-        this.setState({ status: 'error' });
-        break;
-      case 'pairingSuccess':
-        this.setState({ status: 'success' });
-        break;
       }
     }
   };

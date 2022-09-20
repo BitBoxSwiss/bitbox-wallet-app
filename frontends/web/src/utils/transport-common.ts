@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import { TPayload } from './socket';
+
+export type TMsgCallback = (payload: TPayload) => void;
+
 export type TQueryPromiseMap = {
   [key: number]: {
     resolve: (value: unknown) => void,
     reject: (value: unknown) => void,
   };
 };
-
-export type TMsgCallback = (payload: any) => void; // should be { type: any; data: any; meta: any; } or
