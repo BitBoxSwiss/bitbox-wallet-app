@@ -142,7 +142,7 @@ class Transaction extends Component<Props, State> {
     ) : (
       <ArrowSelf />
     );
-    const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
+    const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
     const typeClassName = (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
     const sDate = time ? this.parseTimeShort(time) : '---';
     const statusText = {
@@ -204,7 +204,7 @@ class Transaction extends Component<Props, State> {
             </div>
             <div className={parentStyle.fiat}>
               <span className={`${style.fiat} ${typeClassName}`}>
-                <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
+                <FiatConversion amount={amount} sign={sign} noAction />
               </span>
             </div>
             <div className={parentStyle.currency}>
@@ -284,7 +284,7 @@ class Transaction extends Component<Props, State> {
                 <label>{t('transaction.details.fiat')}</label>
                 <p>
                   <span className={`${style.fiat} ${typeClassName}`}>
-                    <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
+                    <FiatConversion amount={amount} sign={sign} noAction />
                   </span>
                 </p>
               </div>
@@ -293,9 +293,9 @@ class Transaction extends Component<Props, State> {
                 <p>
                   <span className={`${style.fiat} ${typeClassName}`}>
                     { transactionInfo.amountAtTime ?
-                      <FiatConversion amount={transactionInfo.amountAtTime} noAction>{sign}</FiatConversion>
+                      <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
                       :
-                      <FiatConversion noAction>{sign}</FiatConversion>
+                      <FiatConversion noAction />
                     }
                   </span>
                 </p>

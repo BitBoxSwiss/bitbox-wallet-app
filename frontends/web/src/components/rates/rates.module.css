@@ -41,6 +41,10 @@
     right: 2px;
 }
 
+.notAvailable {
+    color: var(--color-default);
+}
+
 @media (max-width: 880px) {
     .fiatRow {
         bottom: 0;
