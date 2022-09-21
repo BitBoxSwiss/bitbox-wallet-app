@@ -20,7 +20,6 @@ import (
 	"math/big"
 	"os"
 	"path"
-	"strings"
 	"sync"
 
 	"github.com/btcsuite/btcd/btcutil"
@@ -158,8 +157,7 @@ func (coin *Coin) Decimals(isFee bool) uint {
 
 // FormatAmount implements coinpkg.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
-	s := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
-	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	return new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
 }
 
 // ToUnit implements coinpkg.Coin.

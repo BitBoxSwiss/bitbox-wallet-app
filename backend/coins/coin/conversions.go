@@ -13,7 +13,7 @@ import (
 func FormatAsPlainCurrency(amount *big.Rat, coinUnit string) string {
 	var formatted string
 	if coinUnit == rates.BTC.String() {
-		formatted = strings.TrimRight(strings.TrimRight(amount.FloatString(8), "0"), ".")
+		formatted = amount.FloatString(8)
 	} else {
 		formatted = amount.FloatString(2)
 	}

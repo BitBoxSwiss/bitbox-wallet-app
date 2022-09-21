@@ -20,6 +20,7 @@ import { Fiat, IAmount } from '../../api/account';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
+import { bitcoinRemoveTrailingZeroes } from '../../utils/trailing-zeroes';
 import { equal } from '../../utils/equal';
 import { apiGet, apiPost } from '../../utils/request';
 import style from './rates.module.css';
@@ -100,7 +101,7 @@ interface ProvidedProps {
     skipUnit?: boolean;
     noAction?: boolean;
     sign?: string;
-
+    noBtcZeroes?: boolean;
 }
 
 type Props = ProvidedProps & SharedProps;
@@ -113,6 +114,7 @@ function Conversion({
   active,
   noAction,
   sign,
+  noBtcZeroes,
 }: PropsWithChildren<Props>): JSX.Element | null {
 
   let formattedValue = '---';
@@ -122,6 +124,9 @@ function Conversion({
   if (amount && amount.conversions[active] && amount.conversions[active] !== '') {
     isAvailable = true;
     formattedValue = amount.conversions[active];
+    if (noBtcZeroes) {
+      formattedValue = bitcoinRemoveTrailingZeroes(formattedValue, active);
+    }
   }
 
   if (tableRow) {

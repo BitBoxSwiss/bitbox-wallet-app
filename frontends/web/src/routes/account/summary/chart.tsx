@@ -20,6 +20,7 @@ import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
 import { formatNumber } from '../../../components/rates/rates';
+import { bitcoinRemoveTrailingZeroes } from '../../../utils/trailing-zeroes';
 import styles from './chart.module.css';
 
 export interface FormattedLineData extends LineData {
@@ -423,8 +424,9 @@ class Chart extends Component<Props, State> {
         <header>
           <div className={styles.summary}>
             <div className={styles.totalValue}>
-              {chartTotal !== null ? (
-                formattedChartTotal
+              {formattedChartTotal !== null ? (
+                // remove trailing zeroes for BTC fiat total
+                bitcoinRemoveTrailingZeroes(formattedChartTotal, chartFiat)
               ) : (
                 <Skeleton minWidth="220px" />
               )}

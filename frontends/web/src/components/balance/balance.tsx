@@ -19,6 +19,7 @@ import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IBalance } from '../../api/account';
 import { FiatConversion } from '../../components/rates/rates';
+import { bitcoinRemoveTrailingZeroes } from '../../utils/trailing-zeroes';
 import style from './balance.module.css';
 
 interface Props {
@@ -36,24 +37,29 @@ export const Balance: FunctionComponent<Props> = ({
       <header className={style.balance}></header>
     );
   }
+
+  // remove trailing zeroes from Bitcoin balance
+  const availableBalance = bitcoinRemoveTrailingZeroes(balance.available.amount, balance.available.unit);
+  const incomingBalance = bitcoinRemoveTrailingZeroes(balance.incoming.amount, balance.incoming.unit);
+
   return (
     <header className={style.balance}>
       <table className={style.balanceTable}>
         <tbody>
           <tr>
-            <td className={style.availableAmount}>{balance.available.amount}</td>
+            <td className={style.availableAmount}>{availableBalance}</td>
             <td className={style.availableUnit}>{balance.available.unit}</td>
           </tr>
-          <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat}/>
+          <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat} noBtcZeroes/>
         </tbody>
       </table>
       {
         balance.hasIncoming && (
           <p className={style.pendingBalance}>
-            {t('account.incoming')} +{balance.incoming.amount} {balance.incoming.unit} /
+            {t('account.incoming')} +{incomingBalance} {balance.incoming.unit} /
             <span className={style.incomingConversion}>
               {' '}
-              <FiatConversion amount={balance.incoming} />
+              <FiatConversion amount={balance.incoming} noBtcZeroes/>
             </span>
           </p>
         )
