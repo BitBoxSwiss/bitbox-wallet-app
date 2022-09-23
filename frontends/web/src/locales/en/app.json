@@ -1277,7 +1277,9 @@
       "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
-      "useProxy": "Enable tor proxy"
+      "useProxy": "Enable tor proxy",
+      "useCustomBlockExplorer": "Custom block explorer",
+      "setBlockExplorerURL": "Set block explorer URL"
     },
     "header": {
       "home": "Home"

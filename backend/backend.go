@@ -352,8 +352,13 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 			"https://blockstream.info/testnet/tx/", backend.socksProxy)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
+		bkcfg := backend.config.AppConfig().Backend
+		blockExpURL := "https://blockstream.info/tx/"
+		if bkcfg.BlockExplorer.UseCustomBlockExplorer && len(bkcfg.BlockExplorer.BlockExplorerURL) > 0 {
+			blockExpURL = bkcfg.BlockExplorer.BlockExplorerURL
+		}
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockstream.info/tx/", backend.socksProxy)
+			blockExpURL, backend.socksProxy)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", &ltc.TestNet4Params, dbFolder, servers,

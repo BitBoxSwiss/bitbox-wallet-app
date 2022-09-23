@@ -136,6 +136,10 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
+			BlockExplorer: blockExplorerConfig{
+				UseCustomBlockExplorer: false,
+				BlockExplorerURL:       "",
+			},
 			DeprecatedBitcoinActive:  true,
 			DeprecatedLitecoinActive: true,
 			DeprecatedEthereumActive: true,

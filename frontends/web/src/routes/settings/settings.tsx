@@ -47,6 +47,8 @@ interface State {
     config: any;
     proxyAddress?: string;
     activeProxyDialog: boolean;
+    blockExplorerURL?: string;
+    activeCustomBlockExplorerDialog: boolean;
 }
 
 class Settings extends Component<Props, State> {
@@ -57,12 +59,14 @@ class Settings extends Component<Props, State> {
       config: null,
       proxyAddress: undefined,
       activeProxyDialog: false,
+      blockExplorerURL: undefined,
+      activeCustomBlockExplorerDialog: false,
     };
   }
 
   public componentDidMount() {
     apiGet('config').then(config => {
-      this.setState({ config, proxyAddress: config.backend.proxy.proxyAddress });
+      this.setState({ config, proxyAddress: config.backend.proxy.proxyAddress, blockExplorerURL: config.backend.blockExplorer.blockExplorerURL });
     });
   }
 
@@ -93,6 +97,17 @@ class Settings extends Component<Props, State> {
     });
   };
 
+  private handleBlkExpFormChange = (event: React.SyntheticEvent) => {
+    const target = (event.target as HTMLInputElement);
+    if (target.name !== 'blockExplorerURL') {
+      return;
+    }
+    this.setState({
+      [target.name]: target.value,
+      restart: false,
+    });
+  }
+
   private setProxyConfig = (proxyConfig: any) => {
     setConfig({
       backend: { proxy: proxyConfig },
@@ -105,6 +120,18 @@ class Settings extends Component<Props, State> {
     });
   };
 
+  private setBlockExplorerConfig = (explorerConfig: any) => {
+    setConfig({
+      backend: { blockExplorer: explorerConfig },
+    }).then(config => {
+      this.setState({
+        config,
+        blockExplorerURL: explorerConfig.blockExplorerURL,
+        restart: true,
+      });
+    });
+  }
+
   private handleToggleProxy = (event: React.SyntheticEvent) => {
     const config = this.state.config;
     if (!config) {
@@ -115,6 +142,17 @@ class Settings extends Component<Props, State> {
     proxy.useProxy = target.checked;
     this.setProxyConfig(proxy);
   };
+
+  private handleToggleCustomBlockExplorer = (event: React.SyntheticEvent) => {
+    const config = this.state.config;
+    if (!config) {
+      return;
+    }
+    const target = (event.target as HTMLInputElement);
+    const blkExp = config.backend.blockExplorer;
+    blkExp.useCustomBlockExplorer = target.checked;
+    this.setBlockExplorerConfig(blkExp);
+  }
 
   private setProxyAddress = () => {
     const config = this.state.config;
@@ -132,6 +170,16 @@ class Settings extends Component<Props, State> {
     });
   };
 
+  private setCustomBlockExplorerURL = () => {
+    const config = this.state.config;
+    if (!config || this.state.blockExplorerURL === undefined) {
+      return;
+    }
+    const blkExp = config.backend.blockExplorer;
+    blkExp.blockExplorerURL = this.state.blockExplorerURL.trim();
+    this.setBlockExplorerConfig(blkExp);
+  }
+
   private showProxyDialog = () => {
     this.setState({ activeProxyDialog: true });
   };
@@ -139,6 +187,14 @@ class Settings extends Component<Props, State> {
   private hideProxyDialog = () => {
     this.setState({ activeProxyDialog: false });
   };
+
+  private showCustomBlockExplorerDialog = () => {
+    this.setState({ activeCustomBlockExplorerDialog: true });
+  }
+
+  private hideCustomBlockExplorerDialog = () => {
+    this.setState({ activeCustomBlockExplorerDialog: false });
+  }
 
   private handleRestartDismissMessage = () => {
     this.setState({ restart: false });
@@ -154,9 +210,11 @@ class Settings extends Component<Props, State> {
       config,
       restart,
       proxyAddress,
-      activeProxyDialog
+      activeProxyDialog,
+      blockExplorerURL,
+      activeCustomBlockExplorerDialog
     } = this.state;
-    if (proxyAddress === undefined) {
+    if (proxyAddress === undefined || blockExplorerURL === undefined) {
       return null;
     }
 
@@ -271,6 +329,42 @@ class Settings extends Component<Props, State> {
                             <SettingsButton onClick={() => route('/settings/electrum', true)}>
                               {t('settings.expert.electrum.title')}
                             </SettingsButton>
+                            <SettingsButton
+                              onClick={this.showCustomBlockExplorerDialog}
+                              optionalText={t('generic.enabled', { context: config.backend.blockExplorer.useCustomBlockExplorer.toString() })}>
+                              {t('settings.expert.useCustomBlockExplorer')}
+                            </SettingsButton>
+                            {
+                              activeCustomBlockExplorerDialog && (
+                                <Dialog onClose={this.hideCustomBlockExplorerDialog} title={t('settings.expert.setBlockExplorerURL')} small>
+                                  <div className="flex flex-row flex-between flex-items-center">
+                                    <div>
+                                      <p className="m-none">{t('settings.expert.useCustomBlockExplorer')}</p>
+                                    </div>
+                                    <Toggle
+                                      id="useCustomBlockExplorer"
+                                      checked={config.backend.blockExplorer.useCustomBlockExplorer}
+                                      onChange={this.handleToggleCustomBlockExplorer} />
+                                  </div>
+                                  <div className="m-top-half">
+                                    <Input
+                                      name="blockExplorerURL"
+                                      onInput={this.handleBlkExpFormChange}
+                                      value={blockExplorerURL}
+                                      placeholder="https://blockstream.info/tx/"
+                                      disabled={!config.backend.blockExplorer.useCustomBlockExplorer}
+                                    />
+                                    <DialogButtons>
+                                      <Button primary
+                                        onClick={this.setCustomBlockExplorerURL}
+                                        disabled={!config.backend.blockExplorer.useCustomBlockExplorer || blockExplorerURL === config.backend.blockExplorer.blockExplorerURL}>
+                                        {t('settings.expert.setBlockExplorerURL')}
+                                      </Button>
+                                    </DialogButtons>
+                                  </div>
+                                </Dialog>
+                              )
+                            }
                           </div>
                         </div>
                       </div>
