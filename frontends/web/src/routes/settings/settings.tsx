@@ -106,7 +106,7 @@ class Settings extends Component<Props, State> {
       [target.name]: target.value,
       restart: false,
     });
-  }
+  };
 
   private setProxyConfig = (proxyConfig: any) => {
     setConfig({
@@ -130,7 +130,7 @@ class Settings extends Component<Props, State> {
         restart: true,
       });
     });
-  }
+  };
 
   private handleToggleProxy = (event: React.SyntheticEvent) => {
     const config = this.state.config;
@@ -152,7 +152,7 @@ class Settings extends Component<Props, State> {
     const blkExp = config.backend.blockExplorer;
     blkExp.useCustomBlockExplorer = target.checked;
     this.setBlockExplorerConfig(blkExp);
-  }
+  };
 
   private setProxyAddress = () => {
     const config = this.state.config;
@@ -178,7 +178,7 @@ class Settings extends Component<Props, State> {
     const blkExp = config.backend.blockExplorer;
     blkExp.blockExplorerURL = this.state.blockExplorerURL.trim();
     this.setBlockExplorerConfig(blkExp);
-  }
+  };
 
   private showProxyDialog = () => {
     this.setState({ activeProxyDialog: true });
@@ -190,11 +190,11 @@ class Settings extends Component<Props, State> {
 
   private showCustomBlockExplorerDialog = () => {
     this.setState({ activeCustomBlockExplorerDialog: true });
-  }
+  };
 
   private hideCustomBlockExplorerDialog = () => {
     this.setState({ activeCustomBlockExplorerDialog: false });
-  }
+  };
 
   private handleRestartDismissMessage = () => {
     this.setState({ restart: false });

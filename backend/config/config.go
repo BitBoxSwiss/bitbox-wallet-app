@@ -59,9 +59,15 @@ type proxyConfig struct {
 	ProxyAddress string `json:"proxyAddress"`
 }
 
+type blockExplorerConfig struct {
+	UseCustomBlockExplorer bool   `json:"useCustomBlockExplorer"`
+	BlockExplorerURL       string `json:"blockExplorerURL"`
+}
+
 // Backend holds the backend specific configuration.
 type Backend struct {
-	Proxy proxyConfig `json:"proxy"`
+	Proxy         proxyConfig         `json:"proxy"`
+	BlockExplorer blockExplorerConfig `json:"blockExplorer"`
 
 	DeprecatedBitcoinActive  bool `json:"bitcoinActive"`
 	DeprecatedLitecoinActive bool `json:"litecoinActive"`
