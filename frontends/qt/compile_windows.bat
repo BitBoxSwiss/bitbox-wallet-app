@@ -8,7 +8,6 @@ for /f "tokens=2* eol=," %%a in ('reg query "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432
 If Defined varsbat (
   set varsbat="%varsbat:common7\ide\devenv.exe,1200=VC\Auxiliary\Build\vcvars64.bat%"
 )
-endlocal
 :CALL_VC_VARS_BAT
 call %varsbat%
 
@@ -23,3 +22,4 @@ COPY "%VCToolsRedistDir%\x64\Microsoft.VC142.CRT\msvcp140_codecvt_ids.dll" windo
 COPY "%VCToolsRedistDir%\x64\Microsoft.VC142.CRT\vccorlib140.dll" windows\
 COPY "%VCToolsRedistDir%\x64\Microsoft.VC142.CRT\vcruntime140.dll" windows\
 COPY "%VCToolsRedistDir%\x64\Microsoft.VC142.CRT\vcruntime140_1.dll" windows\
+endlocal
