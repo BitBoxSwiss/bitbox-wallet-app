@@ -17,7 +17,8 @@
     cursor: pointer;
 }
 
-.container svg {
+.container svg,
+.container img {
     width: 18px;
     height: 18px;
     color: var(--color-secondary);
@@ -37,7 +38,7 @@
     font-size: var(--size-small);
     color: var(--color-secondary);
     white-space: nowrap;
-    max-width: 120px;
+    max-width: 150px;
     text-overflow: ellipsis;
     overflow: hidden;
 }

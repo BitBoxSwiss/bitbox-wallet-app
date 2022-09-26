@@ -19,8 +19,9 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import { route } from '../../../utils/route';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
-import { getDeviceInfo, DeviceInfo, getVersion } from '../../../api/bitbox02';
+import { getDeviceInfo, DeviceInfo, getVersion, verifyAttestation } from '../../../api/bitbox02';
 import { SwissMadeOpenSource } from '../../../components/icon/logo';
+import { Checked, Warning } from '../../../components/icon/icon';
 import { Footer } from '../../../components/layout';
 import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
@@ -39,12 +40,14 @@ type Props = {
 export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
   const { t } = useTranslation();
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
+  const [attestation, setAttestation] = useState<boolean>();
 
   useEffect(() => {
     getDeviceInfo(deviceID).then(setDeviceInfo).catch(error => {
       console.error(error);
       alertUser(t('genericError'));
     });
+    verifyAttestation(deviceID).then(setAttestation);
   }, [deviceID, t]);
 
   const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
@@ -86,6 +89,13 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
                         {t('deviceSettings.hardware.securechip')}
                       </SettingsItem>
                     ) }
+                    {attestation !== undefined && (
+                      <SettingsItem
+                        optionalText={t(`deviceSettings.hardware.attestation.${attestation}`)}
+                        optionalIcon={attestation ? <Checked/> : <Warning/>}>
+                        {t('deviceSettings.hardware.attestation.label')}
+                      </SettingsItem>
+                    )}
                   </div>
                 </div>
               </div>
