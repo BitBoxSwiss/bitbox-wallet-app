@@ -260,7 +260,7 @@ func TestSupportedCoins(t *testing.T) {
 		b := newBackend(t, testnetEnabled, regtestDisabled)
 		defer b.Close()
 		require.Equal(t,
-			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH},
+			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH, coinpkg.CodeGOETH},
 			b.SupportedCoins(&keystoremock.KeystoreMock{
 				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
 					return true

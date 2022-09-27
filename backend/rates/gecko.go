@@ -42,11 +42,12 @@ var (
 		"ltc": "litecoin",
 		"eth": "ethereum",
 		// Useful for testing with testnets.
-		"tbtc": "bitcoin",
-		"rbtc": "bitcoin",
-		"tltc": "litecoin",
-		"teth": "ethereum",
-		"reth": "ethereum",
+		"tbtc":  "bitcoin",
+		"rbtc":  "bitcoin",
+		"tltc":  "litecoin",
+		"teth":  "ethereum",
+		"reth":  "ethereum",
+		"goeth": "ethereum",
 		// ERC20 tokens as used in the backend.
 		// Frontend and app config use unprefixed name, without "eth-erc20-".
 		"eth-erc20-bat":       "basic-attention-token",

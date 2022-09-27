@@ -34,6 +34,8 @@ const (
 	CodeTETH Code = "teth"
 	// CodeRETH is Ethereum Rinkeby.
 	CodeRETH Code = "reth"
+	// CodeGOETH is Ethereum Goerli.
+	CodeGOETH Code = "goeth"
 	// CodeERC20TEST is an arbitrarily picked test ERC20 token on Ropsten.
 	CodeERC20TEST Code = "erc20Test"
 	// If you add coins, don't forget to update `testnetCoins` below.
@@ -46,5 +48,6 @@ var TestnetCoins = map[Code]struct{}{
 	CodeTLTC:      {},
 	CodeTETH:      {},
 	CodeRETH:      {},
+	CodeGOETH:     {},
 	CodeERC20TEST: {},
 }

@@ -76,6 +76,7 @@ var fixedURLWhitelist = []string{
 	"https://etherscan.io/tx/",
 	"https://rinkeby.etherscan.io/tx/",
 	"https://ropsten.etherscan.io/tx/",
+	"https://goerli.etherscan.io/tx/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
 	"https://support.moonpay.com/",
@@ -378,6 +379,12 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Ropsten", "TETH", "TETH", params.RopstenChainConfig,
 			"https://ropsten.etherscan.io/tx/",
+			etherScan,
+			nil)
+	case code == coinpkg.CodeGOETH:
+		etherScan := etherscan.NewEtherScan("https://api-goerli.etherscan.io/api", backend.etherScanHTTPClient)
+		coin = eth.NewCoin(etherScan, code, "Ethereum Goerli", "GOETH", "GOETH", params.GoerliChainConfig,
+			"https://goerli.etherscan.io/tx/",
 			etherScan,
 			nil)
 	case code == coinpkg.CodeERC20TEST:
