@@ -1278,8 +1278,8 @@
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",
-      "useCustomBlockExplorer": "Custom block explorer",
-      "setBlockExplorerURL": "Set block explorer URL"
+      "useCustomBlockExplorer": "Custom Bitcoin block explorer",
+      "setBlockExplorerURL": "Set Bitcoin block explorer URL"
     },
     "header": {
       "home": "Home"

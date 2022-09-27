@@ -354,8 +354,8 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 		servers := backend.defaultElectrumXServers(code)
 		bkcfg := backend.config.AppConfig().Backend
 		blockExpURL := "https://blockstream.info/tx/"
-		if bkcfg.BlockExplorer.UseCustomBlockExplorer && len(bkcfg.BlockExplorer.BlockExplorerURL) > 0 {
-			blockExpURL = bkcfg.BlockExplorer.BlockExplorerURL
+		if bkcfg.BTCBlockExplorer.Enabled && len(bkcfg.BTCBlockExplorer.URL) > 0 {
+			blockExpURL = bkcfg.BTCBlockExplorer.URL
 		}
 		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", &chaincfg.MainNetParams, dbFolder, servers,
 			blockExpURL, backend.socksProxy)
@@ -644,7 +644,7 @@ func (backend *Backend) NotifyUser(text string) {
 func (backend *Backend) SystemOpen(url string) error {
 	backend.log.Infof("SystemOpen: attempting to open url: %v", url)
 	cfg := backend.config.AppConfig().Backend
-	if cfg.BlockExplorer.UseCustomBlockExplorer && strings.HasPrefix(url, cfg.BlockExplorer.BlockExplorerURL) {
+	if cfg.BTCBlockExplorer.Enabled && strings.HasPrefix(url, cfg.BTCBlockExplorer.URL) {
 		return backend.environment.SystemOpen(url)
 	}
 	for _, whitelisted := range fixedURLWhitelist {

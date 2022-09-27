@@ -60,14 +60,14 @@ type proxyConfig struct {
 }
 
 type blockExplorerConfig struct {
-	UseCustomBlockExplorer bool   `json:"useCustomBlockExplorer"`
-	BlockExplorerURL       string `json:"blockExplorerURL"`
+	Enabled bool   `json:"useCustomBlockExplorer"`
+	URL     string `json:"blockExplorerURL"`
 }
 
 // Backend holds the backend specific configuration.
 type Backend struct {
-	Proxy         proxyConfig         `json:"proxy"`
-	BlockExplorer blockExplorerConfig `json:"blockExplorer"`
+	Proxy            proxyConfig         `json:"proxy"`
+	BTCBlockExplorer blockExplorerConfig `json:"blockExplorer"`
 
 	DeprecatedBitcoinActive  bool `json:"bitcoinActive"`
 	DeprecatedLitecoinActive bool `json:"litecoinActive"`
@@ -142,9 +142,9 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
-			BlockExplorer: blockExplorerConfig{
-				UseCustomBlockExplorer: false,
-				BlockExplorerURL:       "",
+			BTCBlockExplorer: blockExplorerConfig{
+				Enabled: false,
+				URL:     "",
 			},
 			DeprecatedBitcoinActive:  true,
 			DeprecatedLitecoinActive: true,
