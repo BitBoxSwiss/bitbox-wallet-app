@@ -643,6 +643,10 @@ func (backend *Backend) NotifyUser(text string) {
 // an error is returned.
 func (backend *Backend) SystemOpen(url string) error {
 	backend.log.Infof("SystemOpen: attempting to open url: %v", url)
+	cfg := backend.config.AppConfig().Backend
+	if cfg.BlockExplorer.UseCustomBlockExplorer && strings.HasPrefix(url, cfg.BlockExplorer.BlockExplorerURL) {
+		return backend.environment.SystemOpen(url)
+	}
 	for _, whitelisted := range fixedURLWhitelist {
 		if strings.HasPrefix(url, whitelisted) {
 			return backend.environment.SystemOpen(url)
