@@ -404,6 +404,11 @@
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "Authenticity check failed",
+        "label": "Authenticity check",
+        "true": "Your BitBox02 is authentic"
+      },
       "sdcard": {
         "false": "Not inserted",
         "label": "microSD card",
