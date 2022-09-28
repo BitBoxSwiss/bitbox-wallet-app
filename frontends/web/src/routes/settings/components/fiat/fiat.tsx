@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,17 +64,24 @@ function Selection({
             const toggled = selected.includes(currency);
             return (
               <div key={currency} className={parentStyle.setting}>
-                <p className="m-none">{currency}</p>
+                <p className="m-none">
+                  {currency}
+                  {' '}
+                  {main && (
+                    <small className={style.defaultFiat}>
+                      {t('fiat.default')}
+                    </small>
+                  )}
+                </p>
                 {
                   toggled && (
-                    <a
-                      className={[style.star, main ? style.active : ''].join(' ')}
-                      href="#"
+                    <button
+                      className={style.star}
                       title={t(main ? 'fiat.default' : 'fiat.setDefault', { code: currency })}
                       data-code={currency}
                       onClick={setDefault}>
                       { main ? <Star /> : <StarInactive /> }
-                    </a>
+                    </button>
                   )
                 }
                 <Toggle
