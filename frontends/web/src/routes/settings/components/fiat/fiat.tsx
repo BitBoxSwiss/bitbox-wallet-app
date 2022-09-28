@@ -90,7 +90,6 @@ function Selection({
                   key={currency}
                   name="fiat"
                   id={`fiat-${index}`}
-                  // label={currency}
                   checked={toggled}
                   disabled={main}
                   onChange={changeSelected}

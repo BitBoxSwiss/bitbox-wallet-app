@@ -1,28 +1,23 @@
-import { ChangeEvent, Component } from 'react';
+import { ChangeEvent } from 'react';
 import style from './toggle.module.css';
 
-interface ToggleProps {
-    checked: boolean;
-    disabled?: boolean;
-    onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-    id?: string;
-    value?: string;
-    name?: string;
-    [key: string]: any;
-}
+type ToggleProps = {
+  checked: boolean;
+  className?: string;
+  disabled?: boolean;
+  id?: string;
+  name?: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  value?: string;
+};
 
-class Toggle extends Component<ToggleProps> {
-  public render() {
-    const props = this.props;
-    return (
-      <label className={style.container}>
-        <input
-          type="checkbox"
-          {...props} />
-        <span className={style.slider}></span>
-      </label>
-    );
-  }
-}
-
-export { Toggle };
+export const Toggle = (props: ToggleProps) => {
+  return (
+    <label className={style.container}>
+      <input
+        type="checkbox"
+        {...props} />
+      <span className={style.slider}></span>
+    </label>
+  );
+};
