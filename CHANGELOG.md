@@ -12,6 +12,7 @@
 - Display trailing zeroes for BTC/LTC amount formatting
 - Fix broken links on Android 11+
 - Add 'sat' unit for Bitcoin accounts, available in Settings view
+- Add version number and available updates check in settings
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0
