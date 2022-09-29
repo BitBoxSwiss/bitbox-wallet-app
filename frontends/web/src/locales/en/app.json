@@ -489,15 +489,8 @@
     "appVersion": "App version:"
   },
   "generic": {
-    "and": "and",
-    "applying": "Applying configuration",
-    "confirmToContinue": "Please confirm to continue.",
-    "description": "Description",
-    "enable_false": "Disable",
-    "enable_true": "Enable",
     "enabled_false": "Disabled",
-    "enabled_true": "Enabled",
-    "success": "Success"
+    "enabled_true": "Enabled"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
