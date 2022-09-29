@@ -1194,6 +1194,7 @@
       "total": "Total"
     },
     "error": {
+      "erc20InsufficientGasFunds": "It seems like you do not have enough Ether to pay for this ERC20 transaction. Please make sure you hold enough Ether in your wallet",
       "feeTooLow": "fee too low",
       "feesNotAvailable": "Could not estimate fees",
       "insufficientFunds": "insufficient funds",

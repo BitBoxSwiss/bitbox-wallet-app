@@ -232,6 +232,7 @@ export interface ISendTx {
     aborted?: boolean;
     success?: boolean;
     errorMessage?: string;
+    errorCode?: string;
 }
 
 export const sendTx = (code: AccountCode): Promise<ISendTx> => {

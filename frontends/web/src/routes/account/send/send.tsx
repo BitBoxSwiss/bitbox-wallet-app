@@ -257,8 +257,14 @@ class Send extends Component<Props, State> {
         this.setState({ isAborted: true });
         setTimeout(() => this.setState({ isAborted: false }), 5000);
       } else {
-        const { errorMessage } = result;
-        alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
+        switch (result.errorCode) {
+        case 'erc20InsufficientGasFunds':
+          alertUser(this.props.t(`send.error.${result.errorCode}`));
+          break;
+        default:
+          const { errorMessage } = result;
+          alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
+        }
       }
     })
       .catch((error) => console.error(error))

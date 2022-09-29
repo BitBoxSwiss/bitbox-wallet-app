@@ -44,6 +44,9 @@ var CallInterval = 260 * time.Millisecond
 
 const apiKey = "X3AFAGQT2QCAFTFPIH9VJY88H9PIQ2UWP7"
 
+// ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
+const ERC20GasErr = "insufficient funds for gas * price + value"
+
 // EtherScan is a rate-limited etherscan api client. See https://etherscan.io/apis.
 type EtherScan struct {
 	url        string
