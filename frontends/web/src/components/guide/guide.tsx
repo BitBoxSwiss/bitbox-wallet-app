@@ -83,6 +83,18 @@ class Guide extends Component<Props> {
     store.setState({ guideExists: false });
   }
 
+  private getEmailText() {
+    const lang = this.props.i18n.language.toUpperCase();
+    const date = new Date().toISOString().split('T')[0];
+    return encodeURI(`mailto:translations@shiftcrypto.ch?subject=BitBoxApp translation feedback (#${lang} ${date})&body=I would like to report a translation issue in the BitBoxApp.
+AppView: ${window.location.pathname}
+AppLanguage: ${this.props.i18n.language}
+(Please keep this information to help us locate the issue)
+
+Description of the translation issue:
+`);
+  }
+
   public render() {
     const { shown, t, children } = this.props;
     return (
@@ -99,7 +111,15 @@ class Guide extends Component<Props> {
           <div className={style.content}>
             {children}
             <div className={style.entry}>
-              {t('guide.appendix.text')} <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
+              Translation feedback:
+              {' '}
+              <A href={this.getEmailText()}>
+                translations@shiftcrypto.ch
+              </A>
+              <br />
+              {t('guide.appendix.text')}
+              {' '}
+              <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
             </div>
           </div>
         </div>
