@@ -18,7 +18,7 @@ import { PropsWithChildren, ReactNode } from 'react';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
-import { Checked, Close } from '../icon/icon';
+import { AnimatedChecked, Close } from '../icon/icon';
 import style from './view.module.css';
 
 type ViewProps = {
@@ -124,7 +124,7 @@ export function ViewContent({
       style={minHeight ? { minHeight } : {}}
       {...props}>
       {withIcon === 'success' && (
-        <Checked className={style.largeIcon} />
+        <AnimatedChecked className={style.largeIcon} />
       )}
       {children}
     </div>

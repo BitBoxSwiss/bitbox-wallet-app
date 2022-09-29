@@ -23,6 +23,7 @@ import arrowCircleLeftSVG from './assets/icons/arrow-circle-left.svg';
 import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.svg';
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
 import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.svg';
+import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import copySVG from './assets/icons/copy.svg';
@@ -73,7 +74,7 @@ export const ExpandClose = (): JSX.Element => (
 
 type SVGProps = JSX.IntrinsicElements['svg'];
 
-export const Checked = ({ className, ...props }: SVGProps) => (
+export const AnimatedChecked = ({ className, ...props }: SVGProps) => (
   <svg className={`checked ${className || ''}`} viewBox="0 0 52 52" {...props}>
     <circle className="checked-circle" cx="26" cy="26" r="25" fill="none"/>
     <path className="checked-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
@@ -105,6 +106,9 @@ export const ArrowCirlceLeft = (props: ImgProps) => (<img src={arrowCircleLeftSV
 export const ArrowCirlceLeftActive = (props: ImgProps) => (<img src={arrowCircleLeftActiveSVG} draggable={false} {...props} />);
 export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRightSVG} draggable={false} {...props} />);
 export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircleRightActiveSVG} draggable={false} {...props} />);
+// check icon on a green circle
+export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
+// simple check for copy component
 export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
