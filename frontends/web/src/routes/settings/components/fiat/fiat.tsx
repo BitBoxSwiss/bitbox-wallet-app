@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 
 import React, { PropsWithChildren } from 'react';
 import { Fiat } from '../../../../api/account';
+import { Star, StarInactive } from '../../../../components/icon';
 import {
   currencies,
   selectFiat,
@@ -62,28 +64,24 @@ function Selection({
             const toggled = selected.includes(currency);
             return (
               <div key={currency} className={parentStyle.setting}>
-                <p className="m-none">{currency}</p>
+                <p className="m-none">
+                  {currency}
+                  {' '}
+                  {main && (
+                    <small className={style.defaultFiat}>
+                      {t('fiat.default')}
+                    </small>
+                  )}
+                </p>
                 {
                   toggled && (
-                    <a
-                      className={[style.star, main ? style.active : ''].join(' ')}
-                      href="#"
+                    <button
+                      className={style.star}
                       title={t(main ? 'fiat.default' : 'fiat.setDefault', { code: currency })}
                       data-code={currency}
                       onClick={setDefault}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    </a>
+                      { main ? <Star /> : <StarInactive /> }
+                    </button>
                   )
                 }
                 <Toggle

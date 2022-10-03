@@ -33,6 +33,8 @@ import closeXDarkSVG from './assets/icons/close-x-dark.svg';
 import guideSVG from './assets/icons/guide.svg';
 import menuSVG from './assets/icons/menu.svg';
 import warningPNG from './assets/icons/warning.png';
+import starSVG from './assets/icons/star.svg';
+import starInactiveSVG from './assets/icons/star-inactive.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = (): JSX.Element => (
@@ -118,6 +120,8 @@ export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggab
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
 export const Menu = (props: ImgProps) => (<img src={menuSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
+export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
+export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

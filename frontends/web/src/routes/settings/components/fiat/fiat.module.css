@@ -1,110 +1,20 @@
-.button {
-    color: var(--color-secondary);
-    font-size: var(--size-small);
-    font-weight: bold;
-    text-transform: uppercase;
-    top: -.5rem;
-    position: relative;
-    margin-bottom: calc(var(--spacing-half) / 2);
-    cursor: pointer;
-    user-select: none;
-}
-
-.fiatList label {
-    width: 100%;
-}
-
-.fiatList label span {
-    color: var(--color-blue);
-    background-color: transparent;
-    font-size: var(--size-label);
-    font-weight: 400;
-    margin-left: var(--spacing-half);
-    padding: 1px 0;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    transform: translateY(-50%);
-    transition: background-color .2s ease-out;
-    display: inline-block;
-    border-radius: 2px;
-    line-height: 16px;
-    cursor: pointer;
-}
-
-.fiatList label:focus span,
-.fiatList label:hover span,
-.fiatList label span:focus,
-.fiatList label span:hover {
-    outline: none;
-    display: inline-block;
-}
-
-.fiatList label span.show {
-    display: inline-block;
-    padding: 1px var(--spacing-half);
-    background-color: var(--color-blue);
-    color: var(--color-white);
-    cursor: default;
-}
-
-.container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.left,
-.right {
-    width: calc((100% - var(--space-default)) / 2);
-}
-
-.content {
-    background-color: var(--color-white);
-    padding: var(--space-half);
-}
-
-.content > span > label {
-    display: block;
-}
-
-.content > span:not(:first-child) > label {
-    margin-top: var(--space-quarter);
+.defaultFiat {
+    color: var(--color-gray);
 }
 
 .star {
-    margin-left: auto;
-    margin-right: var(--space-half);
+    background: none;
+    border: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-left: auto;
+    margin-right: var(--space-half);
+    padding: 3px;
 }
 
-.star svg {
-    width: 18px;
-    height: 18px;
+.star img {
     color: var(--color-gray-alt);
-}
-
-.star.active svg {
-    color: var(--color-orange);
-}
-
-.currency:not(:first-child) {
-    border-top: solid 1px var(--color-lightgray);
-}
-
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .left,
-    .right {
-        width: 100%;
-    }
-
-    .right {
-        margin-top: var(--space-half);
-    }
+    height: 18px;
+    width: 18px;
 }
