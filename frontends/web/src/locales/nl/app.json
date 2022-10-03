@@ -15,9 +15,8 @@
     },
     "initializing": "Blockchain wordt gesynchroniseerd",
     "maybeProxyError": "De Tor Proxy staat ingeschakeld. Zorg ervoor dat deze correct werkt, of schakel de proxy-instelling uit.",
-    "openFile": "Bestand openen.",
     "reconnecting": "Verbinding verbroken, opnieuw aan het verbinden...",
-    "syncedAddressesCount": "{{Count}} adressen gescand"
+    "syncedAddressesCount": "{{count}} adressen gescand"
   },
   "accountInfo": {
     "address": "Adres",
@@ -31,10 +30,12 @@
     },
     "extendedPublicKey": "Uitgebreide publieke sleutel",
     "label": "Accountinformatie",
+    "scriptType": "Script-type",
     "title": "Accountinformatie",
     "verify": "Verifieer op je adres",
     "xpubTypeChangeBtn": {
       "p2pkh": "Legacy P2PKH uitgebreide publieke sleutel weergeven",
+      "p2tr": "Taproot weergeven",
       "p2wpkh": "Native SegWit weergeven",
       "p2wpkh-p2sh": "Oude SegWit uitgebreide publieke sleutel weergeven"
     },
@@ -47,6 +48,7 @@
     "fiatBalance": "Fiat balans",
     "name": "Accountnaam",
     "noAccount": "Er zijn geen accounts om weer te geven",
+    "subtotalWithCoinName": "Totaal ({{coinName}})",
     "title": "Mijn portfolio",
     "total": "Totaal",
     "transactionHistory": "Transactiegeschiedenis"
@@ -136,6 +138,7 @@
         "showLabel": "Herstelwachtwoord"
       },
       "restoring": "Backup aan het herstellen",
+      "selectedBackup": "De backup <strong>{{backupName}}</strong>, aangemaakt op {{createdDateTime}}, wordt hersteld",
       "title": "Herstellen",
       "understand": ""
     },
@@ -161,7 +164,7 @@
     "error": {
       "e10000": "Huidig apparaatwachtwoord incorrect",
       "e10001": "Het veranderen van het wachtwoord is niet gelukt",
-      "e102": "Het wachtwoord moet ten minste uit 4 karakters bestaan.",
+      "e102": "Het wachtwoord moet uit ten minste vier karakters bestaan.",
       "e112": "Het verborgen apparaatwachtwoord kan niet hetzelfde zijn als het hoofdwachtwoord."
     }
   },
@@ -170,7 +173,8 @@
     "confirmDateText": "Deze datum wordt gebruikt om je backup te maken.",
     "confirmName": "Bevestig naam op je BitBox02",
     "followInstructions": "Volg de instructies op je BitBox02",
-    "followInstructionsMnemonic": "Volg de instructies op je BitBox02 om te herstellen met je herstelwoorden."
+    "followInstructionsMnemonic": "Volg de instructies op je BitBox02 om te herstellen met je herstelwoorden.",
+    "followInstructionsMnemonicTitle": "Met herstelwoorden herstellen"
   },
   "bitbox02Settings": {
     "deviceName": {
@@ -202,7 +206,7 @@
     "create": {
       "button": "",
       "info": "Dit zijn de stappen die je gaat nemen om je BitBox in te stellen:",
-      "inputTitle": "Wallet naam",
+      "inputTitle": "Walletnaam",
       "point1": "Geef je BitBox een naam",
       "point2": "Stel een wachtwoord voor je BitBox in",
       "point3": "Maak een backup",
@@ -242,6 +246,7 @@
     "stepCreate": {
       "buttonBack": "Ga terug",
       "buttonContinue": "Verder",
+      "description": "Deze naam wordt gebruikt als apparaatnaam en voor de backup",
       "nameLabel": "BitBox02 naam",
       "namePlaceholder": "Mijn BitBox02",
       "title": "Kies een naam voor je BitBox02",
@@ -318,7 +323,7 @@
           "MoonPay is een platform dat het snel en makkelijk maakt om {{name}} in meer dan 160 landen te kopen."
         ],
         "payment": {
-          "details": "Je kunt via MoonPay direct {{name}} kopen met de volgende betaalmethodes. Credit- of debitcard aankopen zijn makkelijk en snel, maar zijn duurder omdat de transactie teruggedraaid kan worden. We raden aan om een bankoverschrijving te doen voor grotere hoeveelheiden. De minimale kosten zijn 4 euro.",
+          "details": "Je kunt via MoonPay direct {{name}} kopen met de volgende betaalmethodes. Credit- of debitcard aankopen zijn makkelijk en snel, maar zijn duurder omdat de transactie teruggedraaid kan worden. We raden aan om een bankoverschrijving te doen voor grotere hoeveelheden. De minimale kosten zijn 4 euro.",
           "footnote": "Houd er rekening mee dat de wisselkoers die MoonPay aanhoudt anders kan zijn dan die in de BitBoxApp, waardoor de hoeveelheden kunnen verschillen.",
           "table": {
             "1_description": "Laagste kosten, kan tot 3 werkdagen duren.",
@@ -329,15 +334,15 @@
             "fee": "Kosten",
             "method": "Methode"
           },
-          "title": "Betaalmethode en koste"
+          "title": "Betaalmethode en kosten"
         },
         "privacyPolicy": "MoonPay privacy policy",
         "protection": {
-          "description": "De BitBoxApp verzameld geen data als je {{name}} koopt, de inkomende transactie wordt als gewone transactie behandeld. MoonPay moet wat persoonlijke data verzamelen om je hun diensten aan te bieden. Hun privacy policy legt in detail uit hoe die data behandeld wordt.",
+          "description": "De BitBoxApp verzamelt geen data als je {{name}} koopt, de inkomende transactie wordt als gewone transactie behandeld. MoonPay moet wat persoonlijke data verzamelen om je hun diensten aan te bieden. Hun privacy policy legt in detail uit hoe die data behandeld wordt.",
           "title": "Databescherming."
         },
         "security": {
-          "description": "Als je {{name}} koop via MoonPay, gebruik je een externe dienst. Deze dienst valt buiten de BitBox02 Beveiliging- en bedreigingsmodel en vertrouwd op de beveiliging van de omgeving waarin de BitBoxApp draait.",
+          "description": "Als je {{name}} koopt via MoonPay, gebruik je een externe dienst. Deze dienst valt buiten het BitBox02 Beveiligings- en bedreigingsmodel en vertrouwt op de beveiliging van de omgeving waarin de BitBoxApp draait.",
           "link": "Beveiliging- en bedreigingsmodel",
           "title": "Bedreigingsmodel"
         },
@@ -535,7 +540,7 @@
     },
     "accountInfo": {
       "multipleXPubs": {
-        "text": "Iedere xpub is gekoppeld aan het getoonde 'type': dit is \"Native segwit (bech32)\" of \"Wrapped segwit\". Dit zijn scrypttypes die gebruikt worden door {{coinName}}. De BitBoxApp combineert ze door meerdere scripttypes in dezelfde account te ondersteunen. Omdat ieder scripttype een andere xpub heeft, heb je meerdere xpubs per account.\n\nAls je altijd op het standaardadres ontvangt, heb je alleen de 'bech32' xpub nodig. Als je echter ook (handmatig) ontvangt op je compatibiliteitsadres, staan deze onder de 'oudere segwit' uitgebreide publieke sleutel (xpub).",
+        "text": "Iedere xpub is gekoppeld aan het getoonde 'type': dit is \"Native segwit (bech32)\", \"Wrapped segwit\" of \"Taproot\" (alleen bij Bitcoin). Dit zijn scrypttypes die gebruikt worden door {{coinName}}. De BitBoxApp combineert ze door meerdere scripttypes in dezelfde account te ondersteunen. Omdat ieder scripttype een andere xpub heeft, heb je meerdere xpubs per account.\n\nAls je altijd op het standaardadres ontvangt, heb je alleen de 'bech32' xpub nodig. Als je echter ook (handmatig) ontvangt op je compatibiliteitsadres, staan deze onder de \"oudere Segwit\" of \"Taproot\" uitgebreide publieke sleutel (xpub).",
         "title": "Waarom heb ik meerdere xpubs?"
       },
       "privacy": {
@@ -547,7 +552,7 @@
         "title": "Moet ik de xpub verifiëren op mijn BitBox?"
       },
       "xpub": {
-        "text": "Een uitgebreide publieke sleutel is de bron waaruit alle ontvangstadressen van een account gemaakt worden. \nHet wordt hier weergegeven voor geavanceerde gebruikers en voor ondersteuning van alleen-lezen wallets zoals Electrum of Sentinel.",
+        "text": "Een uitgebreide publieke sleutel is de bron waaruit alle ontvangstadressen van een account gemaakt worden. \n\nHet wordt hier weergegeven voor geavanceerde gebruikers en voor ondersteuning van watch-only wallets zoals Electrum of Sentinel. Als je verschillende adrestypes gebruikt, noteer dan alle verschillende XPUB-formaten in de watch-only wallet om al je coins te kunnen zien.\n\nLet op dat niet alle externe wallets nog Taproot ondersteunen. ",
         "title": "Wat is een uitgebreide publieke sleutel?"
       }
     },
@@ -556,10 +561,6 @@
       "title": "Hoe kan ik mijn coins uit de legacy-account verplaatsen?"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "We vernieuwen de wisselkoers iedere minuut gebaseerd op de wisselkoersen van CoinGecko.",
       "title": "Welke wisselkoersen gelden er?"
     },
@@ -572,10 +573,6 @@
       "title": "Waarom kan ik geen {{unit}} verzenden?"
     },
     "accountSummaryAmount": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "De totale balans is de som van al je crypto-accounts, berekend met de wisselkoers van coingecko.com.\nLet op: Gebruik je MyEtherWallet voor toekens die niet ondersteund worden door de BitBoxApp? Dan worden deze niet meegerekend in dit totaal.",
       "title": "Hoe wordt de totale balans berekend?"
     },
@@ -630,7 +627,6 @@
       }
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "Neem contact met ons op!",
       "text": "Nog een vraag?"
     },
@@ -733,8 +729,8 @@
         "title": "Wanneer veranderen mijn adressen?"
       },
       "addressFormats": {
-        "text": "Een compatibiliteitsadres is een standaard segwit adres, terwijl een modern adres 'native' segwit (bech32) is. De BitBox02 gebruikt standaard het moderne adresformaat. Als je problemen hebt met naar dit adresformaat te versturen, kun je op 'compatibiliteitsadres gebruiken' klikken.",
-        "title": "Wat is het verschil tussen een compatibiliteitsadres en een modern adres?"
+        "text": "Het standaardadrestype is Native Segwit. Dit adrestype is het meest gebruikt door andere wallets en exchanges en zorgt ervoor dat je de laagste transactiekosten betaalt. Je kunt er echter voor kiezen om bitcointransacties naar Taproot-adressen te doen, wat het nieuwste adresformaat is, maar nog niet overal ondersteund wordt. Als je problemen ondervind met het versturen naar een Native Segwit adres, kun je ervoor kiezen om een Wrapped Segwit adres te gebruiken, wat met vrijwel alle andere wallets en exchanges compatibel is. ",
+        "title": "Wanneer moet ik \"Adrestype wijzigen\" gebruiken?"
       },
       "howVerify": {
         "text": "Voor de BitBox01 klik je op het BitBox icoon in het zijmenu aan de linkerkant en ga je naar de 'koppelen'-sectie. Als je daar bent, updatet de hulp en kun je de instructies daar verder volgen.\nOp de BitBox02 kun je adressen direct op het apparaat verifiëren tijdens het proces van verzenden of ontvangen.",
@@ -758,6 +754,10 @@
       }
     },
     "send": {
+      "change": {
+        "text": "Het wisselgeld wordt naar een Taproot-adres gestort als je ten minste één andere Taproot-UTXO hebt. Als je coin control gebruikt, wordt het wisselgeld naar een Taproot adres gestort als er zich ten minste één Taproot-UTXO tussen de geselecteerde UTXOs bevindt. In alle andere gevallen wordt het wisselgeld naar een Native Segwit adres gestort. ",
+        "title": "Hoe wordt het wisselgeldadres bepaald?"
+      },
       "fee": {
         "text": "De netwerkkosten worden geschat op basis van de grootte van de transactie en niet de hoeveelheid. De netwerkkosten worden berekend door het algoritme van Bitcoin Core op basis van de prioriteit die je zelf kiest. Deze worden weergegeven als ze een andere waarde hebben dan de waardes hieronder:\nBudget: 24 blokken (ongeveer 4 uur voor Bitcoin, 1 uur voor Litecoin)\nLaag: 12 blokken (ongeveer 2 uur voor Bitcoin, 30 minuten voor Litecoin)\nNormaal: 6 blokken (ongeveer 1 uur voor Bitcoin, 15 minuten voor Litecoin)\nHoog: 2 blokken (ongeveer 20 uur voor Bitcoin, 5 minuten voor Litecoin)\n(Een Bitcoin-blok kost gemiddeld 10 minuten en een Litecoin-blok 2,5 minuut om te minen. De belasting op het netwerk en dus je bevestigingstijd kan drastisch variëren.)",
         "title": "Hoe worden de netwerkkosten bepaald?"
@@ -786,8 +786,7 @@
       },
       "instructions": {
         "link": {
-          "text": "Instructies om je eigen node te koppelen.",
-          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+          "text": "Instructies om je eigen node te koppelen."
         },
         "text": "Voor een volledige tutorial kun je onze instructies op deze webpagina volgen:",
         "title": "Hoe verbind ik mijn BitBoxApp met mijn eigen full node?"
@@ -816,18 +815,16 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "Segwit voordelen",
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "Segwit voordelen"
         },
-        "text": "Dit is een segwit-compatibiliteitsadres (P2SH-P2WPKH). Het gebruikt een nieuw transactieformat dat bespaart op netwerkkosten. Dit adresformat lijkt op dat van Legacy, en kan gebruikt worden met de meeste Bitcoin wallets, exchanges en diensten.",
+        "text": "Dit is een segwit-compatibiliteitsadres (P2SH-P2WPKH). Het gebruikt een nieuw transactieformat dat bespaart op netwerkkosten. Dit adresformat lijkt op dat van Legacy, en kan gebruikt worden met alle Bitcoin wallets, exchanges en diensten.",
         "title": "Wat is dit Bitcoin account?"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Bech32 adoptie",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Bech32 adoptie"
         },
-        "text": "Bech32 is een nieuw adresformat dat volledig profiteert van segwit's lagere netwerkkosten. Dit adresformat wordt nog niet overal geaccepteerd.",
+        "text": "Gebruik het nieuwe bech32 adresformaat om van alle voordelen die SegWit biedt te profiteren. Enkele exchanges ondersteunen SegWit nog niet.",
         "title": "Wat is Bitcoin bech32?"
       },
       "servers": {
@@ -857,8 +854,7 @@
       },
       "getDevice": {
         "link": {
-          "text": "Bestel een BitBox",
-          "url": "https://shiftcrypto.shop/"
+          "text": "Bestel een BitBox"
         },
         "text": "Je kunt een BitBox op onze webwinkel bestellen:",
         "title": "Hoe kan ik aan een BitBox komen?"
@@ -869,8 +865,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Backup-center",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "Backup-center"
         },
         "text": "Je kunt je accounts herstellen met een nieuwe BitBox of via ons backup-center",
         "title": "Ik ben mijn BitBox kwijt, wat nu?"
@@ -1026,11 +1021,11 @@
       "title": "Passphrase instellen"
     },
     "progressDisable": {
-      "message": "Bevestig op je BitBox dat je de passphrase wilt uitschakelen",
+      "message": "Bevestig op je BitBox dat je de passphrase wilt <strong>uitschakelen</strong>",
       "title": "Bevestig op je BitBox"
     },
     "progressEnable": {
-      "message": "Bevestig op je BitBox dat je de passphrase wilt aanzetten.",
+      "message": "Bevestig op je BitBox dat je de passphrase wilt <strong>aanzetten</strong>.",
       "title": "Bevestig op je BitBox"
     },
     "successDisabled": {
@@ -1061,7 +1056,7 @@
     },
     "what": {
       "button": "Leer hoe dit werkt",
-      "message": "Een wallet wordt gemaakt (komt voort uit) een heel groot willekeurig getal, ook bekend als je 'seed'. Deze seed is gemaakt toen je je BitBox02 voor het eerst instelde en is gebackupt met de microSD kaart of je lijst van 24 woorden. Iedereen die toegang heeft tot de seed, heeft volledige controle over de coins in die wallet. \n\nEen passphrase is een <strong>optioneel geheim</strong> dat toegevoegd wordt aan de seed. Wanneer je een passphrase gebruikt, maakt iedere passphrase een nieuwe wallet op basis van de seed en de passphrase. Een passphrase kan alles zijn, letters, woorden, speciale karakters, of helemaal niets. In feite is je standaardwallet een seed met een lege passphrase.",
+      "message": "Een wallet komt voort uit een heel groot willekeurig getal, ook wel bekend als je 'seed'. Deze seed is gemaakt toen je je BitBox02 voor het eerst instelde en is gebackupt met de microSD kaart of je lijst van 24 woorden. Iedereen die toegang heeft tot de seed, heeft volledige controle over de coins in die wallet. \n\nEen passphrase is een <strong>optioneel geheim</strong> dat toegevoegd wordt aan de seed. Wanneer je een passphrase gebruikt, maakt iedere passphrase een nieuwe wallet op basis van de seed en de passphrase. Een passphrase kan alles zijn, letters, woorden, speciale karakters, of helemaal niets. In feite is je standaardwallet een seed met een lege passphrase.\n\nDeze passphrase is onderdeel van de BIP39 standaard, wat betekent dat hij compatibel is met alle wallets die diezelfde standaard ondersteunen. ",
       "title": "Wat is een passphrase?"
     },
     "why": {
@@ -1082,16 +1077,19 @@
     "description": "Je BitBox heeft het volgende willekeurige getal van {{bits}} bits gegenereerd:"
   },
   "receive": {
-    "addressType": [
-      "wissel naar segwit-compatibiliteitsadres",
-      "terugwisselen naar modern adres (aanbevolen)"
-    ],
+    "changeScriptType": "Adrestype wijzigen",
     "label": "Jouw adres",
     "onlyThisCoin": {
       "description": "Om andere tokens te ontvangen, moet je deze inschakelen in de instellingen. Als je hier andere tokens stort, zijn ze mogelijk niet toegankelijk.",
       "warning": "Zorg dat je alleen {{coinName}} op dit adres ontvangt."
     },
+    "scriptType": {
+      "p2tr": "Taproot (nieuwste adresformaat)",
+      "p2wpkh": "Native Segwit (standaard)",
+      "p2wpkh-p2sh": "Wrapped Segwit (compatibiliteitsformaat)"
+    },
     "showFull": "Toon het volledige adres op je BitBox om te verifiëren",
+    "taprootWarning": "Let op: Taproot is een nieuwe adressoort in Bitcoin en wordt nog niet op grote schaal gebruikt. Het kan bijvoorbeeld zijn dat bitcoin die op een Taproot-adres ontvangen wordt, niet weergegeven wordt in andere watch-only wallets. Veel andere wallets en exchanges kunnen ook nog niet naar Taproot-adressen zenden.",
     "title": "Krijg {{accountName}}",
     "verify": "Verifieer veilig je adres ",
     "verifyBitBox01": "Verifieer het adres op de mobiele app",
@@ -1189,10 +1187,6 @@
       "selected-coins": "Geselecteerde coins",
       "title": "Bevestigen & transactie versturen",
       "total": "Totaal"
-    },
-    "data": {
-      "label": "Optionele gegevens",
-      "placeholder": "Hexadecimale data invoeren"
     },
     "error": {
       "feeTooLow": "netwerkkosten te laag",
@@ -1327,6 +1321,7 @@
       "date": "Datum",
       "fiat": "Fiat",
       "fiatAmount": "Hoeveelheid in fiat",
+      "fiatAtTime": "Fiat-waarde ten tijde van de transactie",
       "status": "Status",
       "type": "Type"
     },

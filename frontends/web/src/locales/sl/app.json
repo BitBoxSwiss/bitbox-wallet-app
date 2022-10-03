@@ -15,7 +15,6 @@
     },
     "initializing": "Pridobivam podatke iz verige blokov...",
     "maybeProxyError": "Tor proxy omogočen. Prepričajte se, da Tor proxy deluje pravilno, ali onemogočite proxy.",
-    "openFile": "Odprite datoteko",
     "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo...",
     "syncedAddressesCount": "Prešteto št. naslovov: {{count}}"
   },
@@ -38,38 +37,23 @@
     "transactionHistory": "Zgodovina transakcij"
   },
   "addAccount": {
-    "accountName": "",
-    "address": "",
     "chooseName": {
       "nextButton": "Dodaj račun",
       "step": "Poimenuj račun",
       "title": "Poimenuj račun"
     },
-    "coin": "",
-    "error": {
-      "alreadyExists": "",
-      "invalidAddress": "",
-      "xprivEntered": "",
-      "xpubInvalid": ""
-    },
-    "extendedPublicKey": "",
-    "scriptType": "",
     "selectCoin": {
       "nextButton": "Naprej",
       "step": "Izberi kovanec",
       "title": "Izberi kriptovaluto"
     },
-    "submit": "",
     "success": {
       "message": "<strong> {{accountName}} </strong> je zdaj dodan med vaše račune.",
       "nextButton": "OK",
       "step": "Zaklljučeno",
       "title": "Račun dodan"
     },
-    "title": "Dodajte račun",
-    "warning": {
-      "xpubWrongNet": ""
-    }
+    "title": "Dodajte račun"
   },
   "app": {
     "upgrade": "Na voljo je nova verzija te aplikacije! Prosimo vas, da jo nadgradite iz verzije  {{current}} na {{version}}."
@@ -161,13 +145,6 @@
       "input": "Novo ime",
       "placeholder": "Novo ime naprave",
       "title": "Nastavite ime vaši BitBox02"
-    },
-    "mnemonicPassphrase": {
-      "description": "Opcijska koda (passphrase) vam omogoča, da po odklepanju na zaslon naprave vnesete še dodatno besedno zvezo ali skupke znakov.\n\n<strong>POMEMBNO:</strong> Vsaka različna koda povzroči kreacijo nove, ločene denarnice, zato je pomembno, da vedno vnesete identično kodo, kot jo boste določili prvič.\nShranite to kodo <strong>na varno mesto</strong>.\n<strong>Izgubljene kode NI MOŽNO povrniti .</strong>",
-      "disable": "Onemogoči opcijsko kodo",
-      "enable": "Omogoči opcijsko kodo",
-      "successDisable": "Opcijska koda je uspešno onemogočena",
-      "successEnable": "Opcijska koda je uspešno omogočena.\n\nOdslej lahko vstavite kodo, potem ko ste odklenili BitBox02.\n\nČe ne veste, kaj je vloga te kode in kako jo hraniti, priporočamo, da uporabo kode izključite.\n\n\n<strong>Opozorilo:</strong> Vsaka koda ustvari veljavno denarnico.\nPoskrbeti morate da je koda <strong>dovolj varna (dolga) in da je ne izgubite.</strong>\n\n<strong>Če izgubite svojo kodo, ne boste mogli dostopati do svojih kovancev. To pomeni, da bodo vaši kovanci izgubljeni.</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -260,216 +237,6 @@
       "title": "Zdaj ste pripravljeni za delo z BitBox denarnico!"
     }
   },
-  "bitboxBase": {
-    "connect": "Povežite BitBoxBase",
-    "connectedBases": "Povezane naprave",
-    "detectedBases": "Zaznane naprave v vašem omrežju",
-    "detectedBasesEmpty": "Ni najdenih naprav",
-    "manage": "Upravljaj",
-    "manualInput": "Povežite se ročno",
-    "manualInputInvalid": "Neveljaven IP naslov",
-    "manualInputLabel": "IP naslov: port",
-    "new": "Novi BitBoxBase",
-    "settings": {
-      "advanced": {
-        "blocks": "Bloki",
-        "confirmSystemPassword": "Nastavite sistemsko geslo za BitBoxBase, ki ga želite uporabiti za <strong>ssh overitev in sudo dostop.</strong>\n$t(generic.confirmToContinue)",
-        "connectElectrum": "Poveži Electrum",
-        "headers": "Glave",
-        "ipAddress": "IP naslov",
-        "manual": "Ročna posodobitev",
-        "port": "Port",
-        "reset": "Ponastavite na tovarniške nastavitve",
-        "sshAccess": {
-          "button": "Prijava z geslom za SSH",
-          "confirm": "Ta nastavitev vam omogoča <strong>SSH in sudo dostop</strong> do BitBoxBase s sistemskim geslom, ki ga morate nastaviti.\nNadaljujte samo, če razumete, kaj počnete.",
-          "inProgress": "Izklopi SSH geslo za preverjanje pristnosti",
-          "success": "Preverjanje pristnosti SSH gesla in dostop do \"sudo\": {{enabled}}",
-          "title": "SSH dostop"
-        },
-        "status": "Stanje",
-        "subheaders": {
-          "bitcoin": "Bitcoin Core",
-          "electrs": "Electrs",
-          "lightning": "Lightning",
-          "networking": "Omrežne nastavitve"
-        },
-        "syncOptions": "Možnosti sinhronizacije",
-        "systemPassword": "Nastavite sistemsko geslo",
-        "systemPasswordSuccess": "Sistemsko geslo BitBoxBase je uspešno nastavljeno.",
-        "title": "Napredne nastavitve",
-        "torAddress": "Naslov Tor onion",
-        "version": "Različica"
-      },
-      "backups": {
-        "confirmBackup": "Ustvarite novo arhivsko kopijo konfiguracije BitBoxBase na zunanji USB pogon (ključek).\nPrepričajte se, da je USB ključek <strong>vstavljen v</strong> BitBoxBase.",
-        "create": "Ustvari arhivsko kopijo",
-        "created": "Arhivska kopija je uspešno ustvarjena.",
-        "creating": "Ustvarjanje arhivske kopije ...",
-        "manage": "Upravljanje arhivskih kopij",
-        "restore": "Obnovi arhivsko kopijo",
-        "title": "Arhivske kopije"
-      },
-      "dashboard": {
-        "lightningChannels": "Aktivni Lightning kanali",
-        "notAvailable": "Ni na voljo",
-        "peers": "Povezani Bitcoin viri (peers)",
-        "syncStatus": "Status sinhronizacije omrežja Bitcoin"
-      },
-      "node": {
-        "bitcoinRestarting": "Storitve na Base se ponovno zaganjajo...",
-        "changeName": "Spremeni ime",
-        "changeNameTitle": "Spremenite ime gostitelja za BitBoxBase",
-        "confirmDisconnect": "BitBoxBase bo odstranjena iz aplikacije, zato jo boste morali znova povezati.\nŽelite nadaljevati?\n$t(generic.confirmToContinue)",
-        "confirmTorEnabled": {
-          "false": "Ali ste prepričani, da želite <strong>omogočiti</strong> Tor?\n $t(bitboxBase.settings.node.warning)",
-          "true": "Ali ste prepričani, da želite <strong>onemogočiti</strong> Tor?\nTega vam ne priporočamo saj ima lahko resne in nepopravljive posledice glede zasebnosti.\n $t(bitboxBase.settings.node.warning)"
-        },
-        "disconnect": "Prekinite povezavo",
-        "newName": "Vnesite novo ime gostitelja",
-        "password": "Spremenite geslo",
-        "title": "Vozlišče",
-        "tor": "Tor",
-        "warning": "Počakajte 1-2 minuti, da spremembe začnejo veljati."
-      },
-      "system": {
-        "confirmRestart": "BitBoxBase se bo zdaj <strong>ponovno zagnal</strong> in se ponovno povezal na internet. To lahko traja nekaj minut.\n $t(generic.confirmToContinue)",
-        "confirmShutdown": "BitBoxBase se bo zdaj <strong>ugasnil</strong> in ga boste morali vklopiti ročno.\n $t(generic.confirmToContinue)",
-        "confirmUpdate": "Želite posodobiti BitBoxBase iz različice {{current}} na {{newVersion}}?",
-        "restart": "Ponovni zagon",
-        "shutdown": "Izklop",
-        "title": "Sistem",
-        "upToDate": "Vaša BitBoxBase je posodobljena",
-        "update": "Posodobi",
-        "updateProgress": {
-          "updateApplying": "Nameščam posodobitve ...",
-          "updateDownloading": "Prenos datotek za posodobitev ...",
-          "updateFailed": "Posodobitev ni uspela",
-          "updateNotInProgress": "Pridobivanje informacij o posodobitvi ...",
-          "updateRebooting": "Ponovni zagon ...",
-          "warning": "Ko konča, se baza samodejno odklopi in ponovno zažene."
-        },
-        "updateSeverity": "Težavnost",
-        "updateTitle": "Posodobi BitBoxBase"
-      },
-      "title": "<strong>BitBox</strong>Base nastavitve"
-    },
-    "title": "BitBoxBase"
-  },
-  "bitboxBaseUnlock": {
-    "placeholder": "Vnesite geslo za BitBoxBase"
-  },
-  "bitboxBaseWizard": {
-    "backups": {
-      "created": "Varnostna kopija je bila ustvarjena na <strong>USB ključku.</strong>",
-      "createdTitle": "Uveljavitev konfiguracije",
-      "finalizing": "BitBoxBase zaključuje namestitev. To traja le nekaj sekund.",
-      "insert": "Vstavite USB ključek v BitBoxBase, da naredite varnostno kopijo denarnice.",
-      "list": {
-        "point1": "Ta arhivska kopija vsebuje občutljive podatke.",
-        "point2": "Omogoča vam, da ponastavite geslo za upravljanje BitBoxBase.",
-        "point3": "Zdaj <strong>odstranite USB ključek</strong> in ga shranite na varno mesto."
-      },
-      "title": "Arhivska kopija denarnice"
-    },
-    "bitcoin": {
-      "presync": "Uporabite predhodno sinhronizirano",
-      "presyncInfo": {
-        "con1": "Zaupate posredovanim podatkom",
-        "con2": "Ni neodvisnega overjanja zgodovine Bitcoin transakcij",
-        "label": "Najhitrejši način za začetek",
-        "pro1": "BitBoxBase je pripravljen v nekaj minutah",
-        "pro2": "Začetni prenos ali overjanje ni potrebno"
-      },
-      "reindex": "Reindex",
-      "reindexInfo": {
-        "con1": "Približno en dan traja, da je BitBoxBase pripravljen",
-        "label": "Overi celotno verigo blokov",
-        "pro1": "Popolna overitev predhodno sinhronizirane Bitcoin verige blokov ",
-        "warning": "Ta postopek traja približno 1 dan. Ali ste prepričani, da želite nadaljevati?"
-      },
-      "resync": "Osveži",
-      "resyncInfo": {
-        "con1": "Za pripravljenost BitBoxBase lahko traja več kot 2 dni",
-        "con2": "Obremenjuje omrežja Bitcoin in Tor",
-        "label": "Prenesite in overite celotno verigo blokov",
-        "pro1": "Popolna overitev neodvisno prenesene Bitcoin verige blokokv",
-        "warning": "Ta postopek lahko traja 2 dni ali več, odvisno od vaše internetne povezave. Ali ste prepričani, da želite nadaljevati?"
-      },
-      "title": "Izberite sinhronizacijo"
-    },
-    "errors": {
-      "networkSetting": "Omrežnih nastavitev ni bilo mogoče najti"
-    },
-    "hostname": {
-      "label": "Ime gostitelja",
-      "placeholder": "Veljavno ime gostitelja, npr. 'moj bitboxbase'",
-      "title": "Izberite ime",
-      "tooltip": "Veljavno ime gostitelja mora vsebovati 2-64 znakov: male črke od a-z, števke od 0-9, pike ali vezaji (razen prvega ali zadnjega znaka)"
-    },
-    "networks": {
-      "clearnet": {
-        "con1": "Če se uporablja neprevidno, izda domači IP naslov in geolokacijo",
-        "con2": "ISP lahko zazna Bitcoin vozlišče",
-        "label": "Uporabite nešifriran internet za vse povezave; to ni priporočljivo.",
-        "pro1": "Najhitreje",
-        "pro2": "Krajši dostopni čas",
-        "pro3": "Omogoča uporabo VPN",
-        "select": "Izberite \"clearnet\"",
-        "title": "Clearnet"
-      },
-      "clearnetThenTor": {
-        "con1": "Obremenjuje omrežje Tor",
-        "label": "Uporabite nešifrirano povezavo za začetni prenos verige blokov in nato preklopite na Tor.",
-        "pro1": "Hitrejše nalaganje prvega bloka",
-        "pro2": "Ne obremenjuje mreže Tor med prvim nalaganjem verige blokov.",
-        "select": "Izberite clearnet + Tor",
-        "title": "Clearnet in nato Tor"
-      },
-      "title": "Izberite omrežje",
-      "tor": {
-        "con1": "Obremenjuje omrežje Tor",
-        "con2": "Lahko je sumljivo v totalitarnih jurisdikcijah",
-        "label1": "Uporabite Tor za vse povezave; to je naše priporočilo.",
-        "label2": "Uporabite Tor za vse povezave",
-        "pro1": "Zasebno",
-        "pro2": "Fizično lokacijo je težje določiti",
-        "pro3": "Omogoča oddaljeni dostop",
-        "select": "Izberite Tor",
-        "title": "Tor"
-      }
-    },
-    "pairing": {
-      "failed": "Seznanjanje ni uspelo. Poskusite prekiniti povezavo in se ponovno povezati z BitBoxBase",
-      "paired": "Na BitBoxBase ste potrdili, da se koda ujema",
-      "title": "Preverite kodo za seznanjanje",
-      "unpaired": "Zaznana je bila nova povezava BitBoxBase. Za nadaljevanje potrdite, da se spodnja koda ujema s kodo, prikazano na zaslonu BitBoxBase."
-    },
-    "setPassword": "Nastavite geslo",
-    "setup": {
-      "custom": {
-        "point1": "Možnosti sinhronizacije",
-        "point2": "Možnosti omrežja",
-        "point3": "Poljubno ime gostitelja",
-        "select": "Izberite po meri",
-        "title": "Po meri"
-      },
-      "quick": {
-        "point1": "Vnaprej sinhroniziran blockchain",
-        "point2": "Privzeto Tor",
-        "point3": "Privzeto ime gostitelja",
-        "select": "Izberite hitro",
-        "title": "Hiter začetek"
-      },
-      "title": "Izberite nastavitev"
-    },
-    "success": {
-      "button": "Pojdite na nadzorno ploščo",
-      "text": "Posodobitev vseh informacij na nadzorni plošči lahko traja minuto ali dve.",
-      "title": "Zdaj ste pripravljeni!"
-    },
-    "welcome": "Dobrodošli v vaši BitBoxBase"
-  },
   "blink": {
     "button": "Sproži utripanje na napravi"
   },
@@ -506,8 +273,7 @@
       "disclaimer": {
         "intro": [
           "V sodelovanju z MoonPay vam ponujamo možnost nakupa {{name}} neposredno znotraj BitBoxApp. S samo nekaj kliki.",
-          "MoonPay je regulirana platforma za finančne storitve, ki omogoča preprost in hiter nakup {{name}} v več kot 160 državah",
-          ""
+          "MoonPay je regulirana platforma za finančne storitve, ki omogoča preprost in hiter nakup {{name}} v več kot 160 državah"
         ],
         "payment": {
           "details": "{{name}} je možno kupiti takoj prek storitve MoonPay z naslednjimi načini plačila. Plačila s kreditno ali debetno kartico so takojšnja in priročna, vendar dražja. Za večje zneske priporočamo uporabo bančnega nakazila. Minimalna pristojbina je 4 EUR.",
@@ -517,8 +283,6 @@
             "1_method": "Bančno nakazilo (SEPA)",
             "2_description": "Višja provizija vendar takojšnja izvršitev",
             "2_method": "Kreditna ali debetna kartica",
-            "3_description": "",
-            "3_method": "",
             "description": "Opis",
             "fee": "Provizija",
             "method": "Način plačila"
@@ -633,8 +397,7 @@
   },
   "error": {
     "accountAlreadyExists": "Račun že obstaja.",
-    "accountLimitReached": "Računa ni mogoče dodati. Doseženo je največje število računov za ta kovanec.",
-    "accountNameAlreadyExists": "Račun z enakim imenom že obstaja."
+    "accountLimitReached": "Računa ni mogoče dodati. Doseženo je največje število računov za ta kovanec."
   },
   "exchanges": {
     "method": "Izberite željen način plačila",
@@ -729,10 +492,6 @@
       "title": "Kako lahko premaknem svoje kovance iz Bitcoin Legacy računa?"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "Menjalni tečaji se vsako minuto posodobijo s strani CoinGecko.",
       "title": "Od kod izvirajo prikazani menjalni tečaji?"
     },
@@ -742,13 +501,9 @@
     },
     "accountSendDisabled": {
       "text": "Gumb »Pošlji« se aktivira, ko je stanje večje od nič.",
-      "title": "Zakaj ne morem poslati nobenega {{enota}}?"
+      "title": "Zakaj ne morem poslati nobenega {{unit}}?"
     },
     "accountSummaryAmount": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "Skupni znesek je vsota vseh vaših kripto računov. Menjalni tečaji so na voljo na spletnem mestu coingecko.com.\n\nOpomba: Če MyEtherWallet uporabljate za žetone, ki jih BitBoxApp ne podpira, ti ne bodo vključeni v prikazani znesek.",
       "title": "Kako se skupni znesek izračunava?"
     },
@@ -803,7 +558,6 @@
       }
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "Kontaktirajte nas!",
       "text": "Imate še kakšno vprašanje?"
     },
@@ -872,19 +626,10 @@
     "buy": {
       "exchanges": {
         "link": {
-          "text": "Seznam menjalnic",
-          "url": ""
+          "text": "Seznam menjalnic"
         },
         "text": "Tu je seznam tistih, ki jih priporočamo glede na vašo regijo in nakupne preference.",
         "title": "Iščete kripto menjalnico?"
-      },
-      "support": {
-        "link": {
-          "text": "",
-          "url": ""
-        },
-        "text": "",
-        "title": ""
       }
     },
     "exchanges": {
@@ -956,8 +701,7 @@
       },
       "instructions": {
         "link": {
-          "text": "Vodnik za povezavo lastnega vozlišča",
-          "url": "https://guides.shiftcrypto.ch/bitboxapp/full-node/"
+          "text": "Vodnik za povezavo lastnega vozlišča"
         },
         "text": "Za obširnejša navodila obiščite naš vodič (v angleščini):",
         "title": "Kako povežem BitBoxApp s svojim polnim vozliščem?"
@@ -986,16 +730,14 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "Prednosti \"Segregated witness\"",
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "Prednosti \"Segregated witness\""
         },
         "text": "To je Bitcoin Segwit račun, ki je združljiv za nazaj (p2sh-p2wpkh). Uporablja novo obliko transakcij, ki vam prihrani omrežne provizije. Oblika naslova je podobna kot pri izvirnih bitcoin naslovih in kot taka se lahko uporablja z vsemi obstoječimi denarnicami / menjalnicami / storitvami, ki podpirajo bitcoin.",
         "title": "Kaj je Bitcoin račun?"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Sprejemanje Bech32",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Sprejemanje Bech32"
         },
         "text": "Uporabite novo obliko naslova Bitcoin, bech32, da izkoristite vse prednosti cenejših omrežnin.\nNe pozabite, da ta oblika še ni povsod podprta.",
         "title": "Kaj je Bitcoin bech32?"
@@ -1003,10 +745,6 @@
       "servers": {
         "text": "Ta aplikacija komunicira s strežniki podjetja Shift Crypto AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CoinGecko. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
         "title": "S katerimi strežniki govori ta aplikacija?"
-      },
-      "whyMultipleAccounts": {
-        "text": "",
-        "title": ""
       }
     },
     "title": "Vodič vam v pomoč",
@@ -1031,8 +769,7 @@
       },
       "getDevice": {
         "link": {
-          "text": "Naročite BitBox",
-          "url": "https://shiftcrypto.shop/"
+          "text": "Naročite BitBox"
         },
         "text": "BitBox lahko kupite v naši spletni trgovini:",
         "title": "Kako lahko dobim napravo?"
@@ -1043,8 +780,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Arhivske kopije",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "Arhivske kopije"
         },
         "text": "Vaše račune lahko obnovite na novem BitBoxu ali v našem spletnem centru za arhivske kopije.",
         "title": "Izgubil sem napravo. Kaj pa zdaj?"
@@ -1186,10 +922,6 @@
     "description": "BitBox je ustvaril {{bits}}-bitno naključno število:"
   },
   "receive": {
-    "addressType": [
-      "Spremeni v format naslova ki se začne s 3 (Segwit)",
-      "Spremeni nazaj v novejši bech32 format (priporočamo)"
-    ],
     "label": "Vaš naslov",
     "onlyThisCoin": {
       "description": "Če želite prejemati druge podprte žetone, jih omogočite v nastavitvah. Če na naslove, ki so na voljo nakažete/pošljete nepodprte žetone, zelo verjetno ne bodo vidni/ dostopni.",
@@ -1294,14 +1026,6 @@
       "title": "Potrdite in pošljite transakcijo",
       "total": "Skupaj"
     },
-    "customFee": {
-      "label": "Pretvorjena omrežnina",
-      "placeholder": "Pretvorjena omrežnina"
-    },
-    "data": {
-      "label": "Neobvezni podatki",
-      "placeholder": "Vnesite heksadecimalne vrednosti"
-    },
     "error": {
       "feeTooLow": "Omrežnina je prenizka",
       "insufficientFunds": "nezadostna sredstva",
@@ -1348,9 +1072,6 @@
     "transactionDetails": "Podrobnosti transakcije"
   },
   "settings": {
-    "accounts": {
-      "title": ""
-    },
     "electrum": {
       "add": "Dodaj strežnik",
       "add-server": "Dodaj",
@@ -1379,14 +1100,12 @@
       "title-tltc": "Strežniki Litecoin Testnet Electrum-a"
     },
     "expert": {
-      "base": "Upravljanje BitBoxBase",
       "coinControl": "Omogoči nadzor nad kovanci (Coin control)",
       "electrum": {
         "title": "Povežite svoje polno vozlišče"
       },
       "fee": "Omogoči omrežnine po meri",
       "setProxyAddress": "Nastavite naslov proxy strežnika",
-      "splitAccounts": "",
       "title": "Napredne nastavitve",
       "useProxy": "Omogoči tor proxy"
     },
@@ -1404,11 +1123,8 @@
   "sidebar": {
     "accounts": "Računi",
     "addAccount": "Dodajte račun",
-    "bitboxBase": "BitBoxBase",
-    "bitboxBaseConnect": "Povežite BitBoxBase",
     "buy": "Kupite kripto",
     "device": "Upravljanje naprave",
-    "exchanges": "",
     "leave": "Zapusti",
     "settings": "Nastavitve"
   },

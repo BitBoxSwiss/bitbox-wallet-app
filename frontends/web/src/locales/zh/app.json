@@ -13,7 +13,6 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "正在从区块链网络中获取信息",
-    "openFile": "打开文件",
     "reconnecting": "链接断开，尝试重新链接"
   },
   "accountInfo": {
@@ -29,27 +28,11 @@
     "fiatBalance": "法币余额",
     "name": "账户名",
     "noAccount": "还未添加账户",
-    "synchronizing": "正在进行账户与区块链的同步",
     "title": "帐户汇总",
     "total": "总计"
   },
   "addAccount": {
-    "accountName": "账户名",
-    "address": "地址",
-    "coin": "币种",
-    "error": {
-      "alreadyExists": "账户已存在",
-      "invalidAddress": "请输入有效地址",
-      "xprivEntered": "警告：您输入了扩展私钥。请输入扩展公钥，并确保您的私钥安全。",
-      "xpubInvalid": "扩展公钥格式错误。"
-    },
-    "extendedPublicKey": "扩展公钥",
-    "scriptType": "脚本类型",
-    "submit": "添加账户",
-    "title": "添加账户",
-    "warning": {
-      "xpubWrongNet": "警告：扩展公钥的格式提示它可能不适用于所选的帐户类型。如果您没有看预期的交易，请尝试使用其他帐户类型导入扩展公钥。"
-    }
+    "title": "添加账户"
   },
   "app": {
     "upgrade": "该应用程序有新版本可用！请从 {{current}} 升级至 {{version}}。"
@@ -103,9 +86,6 @@
       "title": "恢复",
       "understand": "我知道输入错误的恢复密码会创建出另一个不同的钱包"
     },
-    "restoreFromMnemonic": {
-      "confirmTitle": "通过助记词进行恢复"
-    },
     "showMnemonic": {
       "description": "系统将为您提供最多24个单词，构成您的钱包(助记词)备份。请把它们用抄写到纸上。\n\n<strong>请勿将其数字化存储或对其进行拍照。</strong>\n\n<strong>不要大声说出这些单词。</strong>\n\n<strong>此备份不受密码加密保护。</strong>\n\n抄写完成后，您将需要再次核对每个单词。",
       "title": "显示助记词"
@@ -138,13 +118,6 @@
       "current": "当前设备名称",
       "input": "BitBox02 名称",
       "title": "设置BitBox02的设备名称"
-    },
-    "mnemonicPassphrase": {
-      "description": "该功能可以让您在解锁BitBox02之后输入一个可选密码短语。\n\n<strong>注意：</strong> 任何密语都会衍生出一个新的独立钱包。\n保持密码短语 <strong>安全</strong>。\n<strong>一旦密码短语丢失将再也无法恢复资产。</strong>",
-      "disable": "禁用可选密码短语",
-      "enable": "启用可选密码短语",
-      "successDisable": "可选密码短语已成功禁用",
-      "successEnable": "密码短语(可选功能)已成功启用。\n\n从现在开始，您可以在解锁BitBox02之后输密码短语。\n\n如果您不知道密码短语是什么，请停用此选项。这是高级用户的选项。 \n\n\n<strong>警告：</strong> 每个密码短语都会生成一个有效的钱包。\n您需要确保您的密码短语是 <strong>安全，并且您不会丢失它。</strong>\n\n<strong>如果您丢失密码短语，则将无法使用您的资产。这意味着您的资产将丢失。</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -186,9 +159,7 @@
       "unpaired": "已检测到新的BitBox02。请验证以下代码是否与您设备上显示的代码匹配。如果代码匹配(相同)，请轻触BitBox02显示屏上打勾选项下方的设备边框以继续。"
     },
     "restoreFromMnemonic": {
-      "failed": "通过助记词进行的恢复失败，请重试。",
-      "point1": "输入单词",
-      "point2": "$t(bitbox02Wizard.backup.point2)"
+      "failed": "通过助记词进行的恢复失败，请重试。"
     },
     "stepBackup": {
       "beforeProceed": "在继续之前，请阅读以下重要的安全注意事项：",
@@ -231,203 +202,6 @@
       "text": "太棒了！您可以开始使用BitBox02了。\n\n如需获取如何使用BitBoxApp的信息，请单击右上角的问号访问应用程序指南。",
       "title": "您已准备就绪！"
     }
-  },
-  "bitboxBase": {
-    "connect": "连接Base",
-    "connectedBases": "已连接的设备",
-    "detectedBases": "在网络中已检测到设备",
-    "detectedBasesEmpty": "未找到设备",
-    "manualInput": "手动连接",
-    "manualInputInvalid": "IP地址无效",
-    "manualInputLabel": "IP地址: port",
-    "new": "新的BitBoxBase",
-    "settings": {
-      "advanced": {
-        "confirmSystemPassword": "这将进行BitBoxBase系统密码设置，用于 <strong>ssh身份验证和sudo访问。</strong>\n$t(generic.confirmToContinue)",
-        "connectElectrum": "连接Electrum",
-        "ipAddress": "IP地址",
-        "manual": "手动更新",
-        "port": "端口",
-        "reset": "重置为出厂设置",
-        "sshAccess": {
-          "button": "SSH密码登录",
-          "confirm": "你是否想要 {{切换}} SSH密码验证？",
-          "inProgress": "切换SSH密码认证",
-          "success": "SSH密码验证 {{已启用}}",
-          "title": "SSH访问"
-        },
-        "subheaders": {
-          "bitcoin": "Bitcoin Core",
-          "electrs": "Electrs",
-          "lightning": "Lightning闪电网络",
-          "networking": "联网"
-        },
-        "syncOptions": "同步选项",
-        "systemPassword": "设置系统密码",
-        "systemPasswordSuccess": "BitBoxBase系统密码设置成功。",
-        "title": "高级设置"
-      },
-      "backups": {
-        "confirmBackup": "您要创建一个新的备份吗？",
-        "create": "创建备份",
-        "created": "备份创建成功。",
-        "creating": "正在创建备份...",
-        "manage": "管理备份",
-        "restore": "恢复备份",
-        "title": "备份"
-      },
-      "node": {
-        "bitcoinRestarting": "Base服务正在重新启动...",
-        "changeName": "更换名字",
-        "changeNameTitle": "更改BitBoxBase主机名",
-        "confirmTorEnabled": {
-          "false": "你确定要 <strong>启用</strong>Tor ？\n $t(bitboxBase.settings.node.warning)",
-          "true": "你确定要 <strong>禁用</strong>Tor ？\n 这可能会对隐私产生严重且不可逆的影响，因此不建议这样做。\n $t(bitboxBase.settings.node.warning)"
-        },
-        "disconnect": "断开连接",
-        "newName": "输入新的主机名",
-        "password": "更改密码",
-        "title": "节点",
-        "tor": "Tor",
-        "warning": "请等待1-2分钟，以使更改生效。"
-      },
-      "system": {
-        "confirmRestart": "您的BitBoxBase现在将 <strong>重启</strong> ，准备就绪后您将需要进行重新连接。\n $t(generic.confirmToContinue)",
-        "confirmShutdown": "您的BitBoxBase现在将 <strong>关闭</strong> 您将需要手动将其重新启动。\n $t(generic.confirmToContinue)",
-        "confirmUpdate": "您想将BitBoxBase版本从 {{current}}更新至 {{newVersion}}吗？",
-        "restart": "重启",
-        "shutdown": "关闭",
-        "title": "系统",
-        "upToDate": "您的BitBoxBase是最新版本",
-        "update": "更新",
-        "updateProgress": {
-          "updateApplying": "安装更新...",
-          "updateDownloading": "正在下载更新文件...",
-          "updateFailed": "更新失败",
-          "updateNotInProgress": "正在获取更新信息...",
-          "updateRebooting": "正在重新启动...",
-          "warning": "完成后，Base将自动断开连接并重新启动。"
-        },
-        "updateSeverity": "",
-        "updateTitle": "更新BitBoxBase"
-      },
-      "title": "<strong>BitBox</strong>Base设置"
-    },
-    "title": "BitBoxBase"
-  },
-  "bitboxBaseUnlock": {
-    "placeholder": "输入您的BitBoxBase密码以解锁"
-  },
-  "bitboxBaseWizard": {
-    "backups": {
-      "created": "您的备份已在创建在 <strong>USB闪存盘(U盘)。</strong>中",
-      "createdTitle": "应用配置",
-      "finalizing": "BitBoxBase正在完成设置。只需要几秒钟。",
-      "insert": "将USB记忆棒插入BitBoxBase，以备份您的钱包。",
-      "list": {
-        "point1": "此备份包含敏感信息。",
-        "point2": "它将允许您重置BitBoxBase的管理密码。",
-        "point3": "请 <strong>拔出闪存驱动器(闪存盘)</strong> ，并将其存储在安全的地方。"
-      },
-      "title": "钱包备份"
-    },
-    "bitcoin": {
-      "presync": "使用预同步",
-      "presyncInfo": {
-        "con1": "信任所提供的数据",
-        "con2": "没有独立验证的比特币交易历史",
-        "label": "最快的入门方式",
-        "pro1": "BitBoxBase在几分钟内即可准备好",
-        "pro2": "无需初始下载或验证"
-      },
-      "reindex": "重新索引",
-      "reindexInfo": {
-        "con1": "BitBoxBase大约1天的时间准备就绪",
-        "label": "验证整个区块链",
-        "pro1": "预同步的比特币区块链完全验证",
-        "warning": "此过程大约需要1天。你确定要继续吗？"
-      },
-      "resync": "重新同步",
-      "resyncInfo": {
-        "con1": "可能需要2+天的时间才能准备好BitBoxBase",
-        "con2": "",
-        "label": "下载并验证整个区块链",
-        "pro1": "独立下载的比特币区块链的完全验证",
-        "warning": "此过程可能需要2+天，具体取决于您的网络连接情况。你确定要继续吗？"
-      },
-      "title": "选择同步"
-    },
-    "errors": {
-      "networkSetting": "找不到网络设置"
-    },
-    "hostname": {
-      "label": "主机名",
-      "placeholder": "有效的主机名，例如'mybitboxbase'",
-      "title": "选择一个名字",
-      "tooltip": "有效的主机名介于2到64个字符之间；小写字母a-z;数字0-9；和句点或连字符，不包括第一个和最后一个字符"
-    },
-    "networks": {
-      "clearnet": {
-        "con1": "如果不采取预防措施，将泄漏家庭IP地址和地理位置",
-        "con2": "ISP可以检测到比特币Bitcoin节点",
-        "label": "使用clearnet进行所有连接；不建议。",
-        "pro1": "最快的",
-        "pro2": "更少的延迟",
-        "pro3": "允许使用VPN",
-        "select": "选择Clearnet",
-        "title": "Clearnet"
-      },
-      "clearnetThenTor": {
-        "con1": "",
-        "label": "使用clearnet进行初始区块下载（IBD），然后切换到Tor",
-        "pro1": "更快的初始区块下载",
-        "pro2": "在IBD期间不会给Tor网络造成负荷",
-        "select": "选择clearnet + Tor",
-        "title": "先Clearnet网络然后Tor网络"
-      },
-      "title": "选择网络",
-      "tor": {
-        "con1": "",
-        "con2": "在极权主义的司法管辖区可能是可疑的",
-        "label1": "所有连接均使用Tor。我们推荐的选项。",
-        "label2": "使用Tor进行所有连接",
-        "pro1": "",
-        "pro2": "难以追踪实际位置",
-        "pro3": "允许远程访问",
-        "select": "选择Tor",
-        "title": "Tor"
-      }
-    },
-    "pairing": {
-      "failed": "未确认的配对。请尝试断开并再次连接到BitBoxBase",
-      "paired": "您已在BitBoxBase上确认代码匹配",
-      "title": "验证配对码",
-      "unpaired": "检测到新的BitBoxBase连接。要继续，请确认下面的代码与BitBoxBase屏幕上显示的代码匹配。"
-    },
-    "setPassword": "设定密码",
-    "setup": {
-      "custom": {
-        "point1": "同步选项",
-        "point2": "网络选项",
-        "point3": "自定义主机名",
-        "select": "选择自定义",
-        "title": "自定义"
-      },
-      "quick": {
-        "point1": "预同步的区块链",
-        "point2": "将Tor设为默认选项",
-        "point3": "默认主机名",
-        "select": "快速选择",
-        "title": "快速开始"
-      },
-      "title": "选择设置"
-    },
-    "success": {
-      "button": "前往仪表盘dashboard",
-      "text": "所有仪表板上的信息可能需要一两分钟才能更新。",
-      "title": "您已准备就绪！"
-    },
-    "welcome": "欢迎使用您的BitBoxBase"
   },
   "blink": {
     "button": ""
@@ -600,10 +374,6 @@
       "title": "如何将我的数字货币从Legacy帐户中移出？"
     },
     "accountRates": {
-      "link": {
-        "text": "www.coingecko.com",
-        "url": "https://www.coingecko.com/"
-      },
       "text": "我们每分钟都会通过CoinGecko更新汇率。",
       "title": "使用的哪种汇率？"
     },
@@ -636,7 +406,6 @@
       "title": "显示的是什么时间？"
     },
     "appendix": {
-      "href": "https://shiftcrypto.ch/contact",
       "link": "联系我们！",
       "text": "另一个问题？"
     },
@@ -759,31 +528,21 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "隔离见证(Segregated witness)的好处",
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+          "text": "隔离见证(Segregated witness)的好处"
         },
         "text": "这是一个向后兼容的segwit隔离见证帐户（p2sh-p2wpkh）。它使用一种新的交易格式，可以节省您的网络费用。这种地址格式与legacy账户格式类似，因此可以被所有现有的Bitcoin比特币钱包/交易所/服务进行采用。",
         "title": "什么是Bitcoin账户？"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Bech32的采用范围",
-          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+          "text": "Bech32的采用范围"
         },
         "text": "使用新的比特币Bitcoin bech32地址格式，可以享受segwit隔离见证带来的便宜网络费用。请记住，该地址格式尚未被所有应用(钱包/交易所等)接受。",
         "title": "什么是Bitcoin bech32？"
       },
-      "moreCoins": {
-        "text": "在接下来的几个版本中，除了莱特币Litecoin，我们还将集成更多的币种。如果您正在寻找特定的币种，请在下面的留言区给我们提出建议。",
-        "title": "可以添加更多币种吗？"
-      },
       "servers": {
         "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CoinGecko检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
-      },
-      "whyMultipleAccounts": {
-        "text": "一些加密货币具有多种类型的地址和交易格式。这些地址被划分成多个帐户。",
-        "title": "$t(settings.expert.splitAccounts)"
       }
     },
     "title": "指南",
@@ -808,8 +567,7 @@
       },
       "getDevice": {
         "link": {
-          "text": "订购一个BitBox",
-          "url": "https://shiftcrypto.shop/"
+          "text": "订购一个BitBox"
         },
         "text": "您可以在我们的网上商店购买BitBox：",
         "title": "我如何获得设备？"
@@ -820,8 +578,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "备份中心",
-          "url": "https://shiftcrypto.ch/backup"
+          "text": "备份中心"
         },
         "text": "您可以在新的BitBox或通过我们的备份中心进行帐户恢复。",
         "title": "我丢失了设备。怎么办？"
@@ -1037,14 +794,6 @@
       "title": "确认交易",
       "total": "总计"
     },
-    "customFee": {
-      "label": "折算费用",
-      "placeholder": "折算费用"
-    },
-    "data": {
-      "label": "可选数据",
-      "placeholder": "输入十六进制数据"
-    },
     "error": {
       "insufficientFunds": "余额不足",
       "invalidAddress": "无效地址",
@@ -1083,9 +832,6 @@
     "toggleCoinControl": "切换coin控制"
   },
   "settings": {
-    "accounts": {
-      "title": "活跃帐户"
-    },
     "electrum": {
       "add": "添加服务器",
       "add-server": "添加",
@@ -1113,7 +859,6 @@
       "title-tltc": "Litecoin莱特币测试网Electrum服务器"
     },
     "expert": {
-      "base": "BitBoxBase管理",
       "coinControl": "启用coin控制",
       "electrum": {
         "title": "连接您自己的全节点"
@@ -1132,8 +877,6 @@
   "setup": "设置设备",
   "sidebar": {
     "addAccount": "新增帐户",
-    "bitboxBase": "BitBoxBase",
-    "bitboxBaseConnect": "连接BitBoxBase",
     "device": "管理设备",
     "leave": "离开",
     "settings": "设置"
@@ -1172,7 +915,7 @@
     "description": "输入您的设备密码以解锁设备",
     "error": {
       "e109_normal": "设备密码错误。 {{remainingAttempts}} 重设设备之前尝试会保留。",
-      "e109_touch": "$ t（unlock.error.e109_normal）下次登录需要按住触摸按钮。",
+      "e109_touch": "$t(unlock.error.e109_normal）下次登录需要按住触摸按钮。",
       "e113": "由于多次登录尝试，下次登录需要按住触摸按钮4秒钟。"
     },
     "input": {
