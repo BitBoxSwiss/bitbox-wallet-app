@@ -207,11 +207,10 @@ class Transaction extends Component<Props, State> {
                 <FiatConversion amount={amount} sign={sign} noAction />
               </span>
             </div>
-            <div className={parentStyle.currency}>
-              <span className={`${style.currency} ${typeClassName}`}>
+            <div className={`${parentStyle.currency} ${typeClassName}`}>
+              <span className={`${style.amount} ${style.amountOverflow}`}>
                 {sign}{amount.amount}
-                {' '}
-                <span className={style.currencyUnit}>{amount.unit}</span>
+                <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
               </span>
             </div>
             <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
@@ -302,12 +301,10 @@ class Transaction extends Component<Props, State> {
               </div>
               <div className={style.detail}>
                 <label>{t('transaction.details.amount')}</label>
-                <p>
-                  <span className={`${style.currency} ${typeClassName}`}>
-                    {sign}{transactionInfo.amount.amount}
-                    {' '}
-                    <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
-                  </span>
+                <p className={typeClassName}>
+                  <span className={style.amount}>{sign}{amount.amount}</span>
+                  {' '}
+                  <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
                 </p>
               </div>
               <div className={style.detail}>
