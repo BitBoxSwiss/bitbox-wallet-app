@@ -29,7 +29,6 @@ export const useSDCard = (
 ) => {
   const [sdcard, setSDCard] = useState<boolean>(false);
   const mounted = useMountedRef();
-
   useEffect(() => {
     const deviceIDs = Object.keys(devices);
     Promise.all(deviceIDs.map(deviceID => {
@@ -51,7 +50,7 @@ export const useSDCard = (
       })
       .catch(console.error);
     // disable warning about mounted not in the dependency list
-  }, dependencies || []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [devices, ...(dependencies || [])] ); // eslint-disable-line react-hooks/exhaustive-deps
 
   return sdcard;
 };

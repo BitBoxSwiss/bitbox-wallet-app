@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useLoad } from '../../hooks/api';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
@@ -63,7 +64,6 @@ export function Account({
   const { t } = useTranslation();
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
-  const [moonpayBuySupported, setMoonpayBuySupported] = useState<boolean>();
   const [status, setStatus] = useState<accountApi.IStatus>();
   const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
   const [transactions, setTransactions] = useState<accountApi.ITransaction[]>();
@@ -71,14 +71,9 @@ export function Account({
 
   useEffect(() => {
     apiGet('config').then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  });
+  }, []);
 
-  const deviceIDs = useRef<string[]>(Object.keys(devices));
-  useEffect(() => {
-    deviceIDs.current = Object.keys(devices);
-  }, [devices]);
-
-  const hasCard = useSDCard(devices, [devices, code]);
+  const hasCard = useSDCard(devices, [code]);
 
   const onAccountChanged = useCallback(() => {
     if (!code || status === undefined || status.fatalError) {
@@ -130,6 +125,7 @@ export function Account({
   }, [code]);
 
   useEffect(onAccountChanged, [onAccountChanged, status]);
+  useEffect(onStatusChanged, [onStatusChanged, code]);
 
   const subscriptions = useRef<UnsubscribeList>([]);
   useEffect(() => {
@@ -143,19 +139,11 @@ export function Account({
       statusChanged(code, () => onStatusChanged()),
       syncdone(code, () => onAccountChanged()),
     );
-
-    if (status === undefined) {
-      onStatusChanged();
-    }
-
     const unsubscribeList = subscriptions.current;
-    return () => unsubscribe(unsubscribeList); // TODO: test if subscriptions.current works
+    return () => unsubscribe(unsubscribeList);
   }, [code, onAccountChanged, onStatusChanged, status]);
 
-  useEffect(() => {
-    isMoonpayBuySupported(code)()
-      .then(buySupported => setMoonpayBuySupported(buySupported));
-  }, [code]);
+  const moonpayBuySupported = useLoad(isMoonpayBuySupported(code));
 
   function exportAccount() {
     if (status === undefined || status.fatalError) {
@@ -175,13 +163,10 @@ export function Account({
     setStatus(undefined);
     setSyncedAddressesCount(0);
     setTransactions(undefined);
-  }, [code]);
+    onStatusChanged();
+  }, [code, onStatusChanged]);
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
-
-  if (!code) { // TODO: needed?
-    return null;
-  }
 
   const account = accounts && accounts.find(acct => acct.code === code);
   if (!account || status === undefined) {
