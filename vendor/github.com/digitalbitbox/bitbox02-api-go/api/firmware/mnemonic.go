@@ -15,6 +15,7 @@
 package firmware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
@@ -81,5 +82,6 @@ func (device *Device) SetMnemonicPassphraseEnabled(enabled bool) error {
 	if !ok {
 		return errp.New("unexpected response")
 	}
+	device.log.Info(fmt.Sprintf("SetMnemonicPassphraseEnabled=%v successfully finished", enabled))
 	return nil
 }

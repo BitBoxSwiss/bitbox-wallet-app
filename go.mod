@@ -8,7 +8,7 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.2
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
 	github.com/cespare/cp v1.1.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20220817141646-e9258db31750
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20221003094719-2c29561c5a4c
 	github.com/ethereum/go-ethereum v1.10.21
 	github.com/flynn/noise v1.0.0
 	github.com/gorilla/mux v1.8.0
