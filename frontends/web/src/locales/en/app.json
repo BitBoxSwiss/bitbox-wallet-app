@@ -554,10 +554,6 @@
         "title": "What is an extended public key?"
       }
     },
-    "accountLegacyConvert": {
-      "text": "Go to the Bitcoin account, select receive and copy the address. Go back to your legacy account, click send, paste the copied address and tick send all. Then sign and send to move all your coins in a single transaction.",
-      "title": "How can I move my coins out of the Legacy account?"
-    },
     "accountRates": {
       "text": "We update exchange rates every minute from CoinGecko.",
       "title": "Which exchange rates apply?"
@@ -807,24 +803,6 @@
       }
     },
     "settings": {
-      "btc-p2pkh": {
-        "text": "An account that uses an old transaction format, now superseded by the Segwit address and transaction formats. If you used the BitBox with the old desktop app then this account will contain your coins. We recommend transferring your coins to a Bitcoin or Bitcoin bech32 account to save transaction fees.",
-        "title": "What is Bitcoin Legacy?"
-      },
-      "btc-p2sh": {
-        "link": {
-          "text": "Segregated witness benefits"
-        },
-        "text": "This is a backwards compatible Segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
-        "title": "What is the Bitcoin account?"
-      },
-      "btc-p2wpkh": {
-        "link": {
-          "text": "Bech32 adoption"
-        },
-        "text": "Use the new Bitcoin bech32 address format to reap the full benefits of Segwit's cheaper network fees. Remember that this format is not accepted everywhere yet.",
-        "title": "What is Bitcoin bech32?"
-      },
       "servers": {
         "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"

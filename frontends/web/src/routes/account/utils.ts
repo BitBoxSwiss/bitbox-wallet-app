@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { CoinCode, IAccount, ISigningConfigurationList, ScriptType } from '../../api/account';
+import { CoinCode, ScriptType } from '../../api/account';
 
 export function isBitcoinOnly(coinCode: CoinCode): boolean {
   switch (coinCode) {
@@ -80,17 +80,4 @@ export function customFeeUnit(coinCode: CoinCode): string {
     return 'Gwei';
   }
   return '';
-}
-
-export function isBTCScriptType(
-  scriptType: ScriptType,
-  account: IAccount,
-  accountInfo?: ISigningConfigurationList,
-): boolean {
-  if (!accountInfo || accountInfo.signingConfigurations.length !== 1) {
-    return false;
-  }
-  const config = accountInfo.signingConfigurations[0].bitcoinSimple;
-  return (account.coinCode === 'btc' || account.coinCode === 'tbtc')
-    && config !== undefined && config.scriptType === scriptType;
 }

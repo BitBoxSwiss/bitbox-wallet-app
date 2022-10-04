@@ -251,7 +251,6 @@ class Account extends Component<Props, State> {
       transactions,
       balance,
       hasCard,
-      accountInfo,
       syncedAddressesCount,
     } = this.state;
     const account = accounts &&
@@ -355,7 +354,6 @@ class Account extends Component<Props, State> {
         </div>
         <AccountGuide
           account={account}
-          accountInfo={accountInfo}
           unit={balance?.available.unit}
           hasIncomingBalance={balance && balance.hasIncoming}
           hasTransactions={transactions !== undefined && transactions.length > 0}

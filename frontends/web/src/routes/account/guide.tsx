@@ -15,14 +15,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { IAccount, ISigningConfigurationList } from '../../api/account';
+import { IAccount } from '../../api/account';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { isBitcoinBased, isBTCScriptType } from './utils';
+import { isBitcoinBased } from './utils';
 
 type Props = {
   account: IAccount;
-  accountInfo?: ISigningConfigurationList;
   unit?: string;
   hasNoBalance?: boolean;
   hasIncomingBalance?: boolean;
@@ -31,7 +30,6 @@ type Props = {
 
 export function AccountGuide({
   account,
-  accountInfo,
   unit,
   hasNoBalance,
   hasIncomingBalance,
@@ -41,29 +39,6 @@ export function AccountGuide({
   return (
     <Guide>
       <Entry key="accountDescription" entry={t('guide.accountDescription')} />
-      {isBTCScriptType('p2pkh', account, accountInfo) && (
-        <Entry key="guide.settings.btc-p2pkh" entry={t('guide.settings.btc-p2pkh')} />
-      )}
-      {isBTCScriptType('p2wpkh-p2sh', account, accountInfo) && (
-        <Entry key="guide.settings.btc-p2sh" entry={{
-          link: {
-            text: t('guide.settings.btc-p2sh.link.text'),
-            url: 'https://bitcoincore.org/en/2016/01/26/segwit-benefits/'
-          },
-          text: t('guide.settings.btc-p2sh.text'),
-          title: t('guide.settings.btc-p2sh.title')
-        }} />
-      )}
-      {isBTCScriptType('p2wpkh', account, accountInfo) && (
-        <Entry key="guide.settings.btc-p2wpkh" entry={{
-          link: {
-            text: t('guide.settings.btc-p2wpkh.link.text'),
-            url: 'https://en.bitcoin.it/wiki/Bech32_adoption'
-          },
-          text: t('guide.settings.btc-p2wpkh.text'),
-          title: t('guide.settings.btc-p2wpkh.title')
-        }} />
-      )}
       {hasNoBalance && (
         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', {
           unit
@@ -75,9 +50,6 @@ export function AccountGuide({
       )}
       {hasTransactions && (
         <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
-      )}
-      {isBTCScriptType('p2pkh', account, accountInfo) && (
-        <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
       )}
       {hasTransactions && (
         <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric')} />
