@@ -33,7 +33,7 @@ func FormatAsCurrency(amount *big.Rat, coinUnit string) string {
 
 // Conversions handles fiat conversions.
 func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateUpdater) map[string]string {
-	var conversions map[string]string
+	conversions := map[string]string{}
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
@@ -48,11 +48,10 @@ func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateU
 
 // ConversionsAtTime handles fiat conversions at a specific time.
 func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateUpdater, timeStamp *time.Time) map[string]string {
-	var conversions map[string]string
+	conversions := map[string]string{}
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
-		conversions = map[string]string{}
 		for fiat := range rates[unit] {
 			value := ratesUpdater.HistoricalPriceAt(string(coin.Code()), fiat, *timeStamp)
 			if value == 0 {
