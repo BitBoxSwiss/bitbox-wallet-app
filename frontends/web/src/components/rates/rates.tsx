@@ -99,6 +99,8 @@ interface ProvidedProps {
     unstyled?: boolean;
     skipUnit?: boolean;
     noAction?: boolean;
+    sign?: string;
+
 }
 
 type Props = ProvidedProps & SharedProps;
@@ -110,13 +112,15 @@ function Conversion({
   skipUnit,
   active,
   noAction,
-  children,
+  sign,
 }: PropsWithChildren<Props>): JSX.Element | null {
 
   let formattedValue = '---';
+  let isAvailable = false;
 
   // amount.conversions[active] can be empty in recent transactions.
   if (amount && amount.conversions[active] !== '') {
+    isAvailable = true;
     formattedValue = amount.conversions[active];
   }
 
@@ -138,8 +142,8 @@ function Conversion({
     );
   }
   return (
-    <span className={style.rates}>
-      {children}
+    <span className={ `${style.rates} ${!isAvailable ? style.notAvailable : ''}`}>
+      {isAvailable ? sign : ''}
       {formattedValue}
       {' '}
       {
