@@ -81,6 +81,7 @@ const logoMap: LogoMap = {
   'eth': [ETH, ETH_GREY],
   'teth': [ETH, ETH_GREY],
   'reth': [ETH, ETH_GREY],
+  'goeth': [ETH, ETH_GREY],
   'erc20Test': [ETH, ETH_GREY],
 
   'eth-erc20-usdt': [USDT, USDT_GREY],

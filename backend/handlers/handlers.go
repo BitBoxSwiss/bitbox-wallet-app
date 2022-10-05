@@ -681,6 +681,8 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	switch unit { // HACK: fake rates for testnet coins
 	case "TBTC", "TLTC", "TETH", "RETH":
 		unit = unit[1:]
+	case "GOETH":
+		unit = unit[2:]
 	}
 
 	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][from]
