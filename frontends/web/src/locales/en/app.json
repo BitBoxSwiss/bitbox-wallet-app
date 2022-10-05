@@ -5,14 +5,6 @@
     "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
-    "info": {
-      "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",
-      "btc-p2wpkh": "This Native Segwit Bitcoin account incurs even lower network fees through the bech32 address format. It's bleeding edge technology but not yet widely supported.",
-      "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you have just upgraded from the previous app, you can find your funds in the Bitcoin Legacy account, which you can enable in the settings. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses the Bech32 address format.",
-      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
-      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
-    },
     "initializing": "Getting information from the blockchain…",
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
