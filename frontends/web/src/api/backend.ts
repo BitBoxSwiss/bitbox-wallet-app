@@ -59,3 +59,9 @@ export const getQRCode = (data: string) => {
     return apiGet(`qr?data=${encodeURIComponent(data)}`);
   };
 };
+
+export const isMoonpayBuySupported = (code: string) => {
+  return (): Promise<boolean> => {
+    return apiGet(`exchange/moonpay/buy-supported/${code}`);
+  };
+};
