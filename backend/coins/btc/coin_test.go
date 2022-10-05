@@ -93,9 +93,9 @@ func (s *testSuite) TestCoin() {
 
 func (s *testSuite) TestFormatAmount() {
 	for _, isFee := range []bool{false, true} {
-		require.Equal(s.T(), "12.3456891", s.coin.FormatAmount(
+		require.Equal(s.T(), "12.34568910", s.coin.FormatAmount(
 			coin.NewAmountFromInt64(1234568910), isFee))
-		require.Equal(s.T(), "0", s.coin.FormatAmount(
+		require.Equal(s.T(), "0.00000000", s.coin.FormatAmount(
 			coin.NewAmountFromInt64(0), isFee))
 		require.Equal(s.T(), "0.00000001", s.coin.FormatAmount(
 			coin.NewAmountFromInt64(1), isFee))
