@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-export declare global {
-    interface Window {
-        qt?: { webChannelTransport: unknown; };
-        android?: {
-            call: (queryID: number, query: string) => void;
-        }
-        onAndroidCallResponse?: (queryID: number, response: string) => void;
-        onAndroidPushNotification?: (msg: string) => void;
-    }
-}
+export type TQueryPromiseMap = {
+  [key: number]: {
+    resolve: (value: unknown) => void,
+    reject: (value: unknown) => void,
+  };
+};
+
+export type TMsgCallback = (payload: any) => void; // should be { type: any; data: any; meta: any; } or
