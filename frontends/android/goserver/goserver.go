@@ -17,7 +17,10 @@ package goserver
 import (
 	"io"
 	"log"
+	"os/exec"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
@@ -29,6 +32,29 @@ import (
 var (
 	once sync.Once
 )
+
+// fixTimezone sets the local timezone on Android. This is a workaround to the bug that on Android,
+// time.Local is hard-coded to UTC. See https://github.com/golang/go/issues/20455.
+//
+// We need the correct timezone to be able to send the `time.Now().Zone()` offset to the BitBox02.
+// Without it, the BitBox02 will always display UTC time instad of local time.
+//
+// This fix is copied from https://github.com/golang/go/issues/20455#issuecomment-342287698.
+func fixTimezone() {
+	out, err := exec.Command("/system/bin/getprop", "persist.sys.timezone").Output()
+	if err != nil {
+		return
+	}
+	z, err := time.LoadLocation(strings.TrimSpace(string(out)))
+	if err != nil {
+		return
+	}
+	time.Local = z
+}
+
+func init() {
+	fixTimezone()
+}
 
 // the Go*-named interfaces are implemented in Java for the mobile client. The "Go" prefix is so
 // that the code is more readable in Java (interfaces coming from Go-land). The implemented

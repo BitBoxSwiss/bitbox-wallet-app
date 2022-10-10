@@ -4,6 +4,7 @@
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
 - Transaction details: show fiat value at time of transaction
 - Android: more modern look by changing the status bar color to white while the app is running
+- Android: fix time shown on BitBox02 when restoring a backup (it was shown in UTC instead of local time)
 - Fix update balance after transaction sent
 - Fix missing utxos update after new transaction is sent
 - Add attestation check on device setting
