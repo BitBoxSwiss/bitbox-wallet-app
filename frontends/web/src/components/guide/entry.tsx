@@ -30,29 +30,25 @@ export interface EntryProp {
 interface EntryProps {
     entry: EntryProp | string; // string could be the entry translation key in cimode, e.g. 'guide.waiting.1'.
     shown?: boolean;
-    highlighted?: boolean;
 }
 
 type Props = EntryProps;
 
 interface State {
     shown: boolean;
-    highlighted: boolean;
 }
 
 export class Entry extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      shown: props.shown || props.highlighted || false,
-      highlighted: props.highlighted || false,
+      shown: props.shown || false,
     };
   }
 
   private toggle = () => {
     this.setState(state => ({
       shown: !state.shown,
-      highlighted: false,
     }));
   };
 
@@ -60,7 +56,6 @@ export class Entry extends Component<Props, State> {
     const props = this.props;
     const {
       shown,
-      highlighted,
     } = this.state;
     let entry: EntryProp;
     if (typeof props.entry === 'string') {
@@ -76,7 +71,7 @@ export class Entry extends Component<Props, State> {
       entry = props.entry;
     }
     return (
-      <div className={highlighted ? style.highlighted : style.entry}>
+      <div className={style.entry}>
         <div className={style.entryTitle} onClick={this.toggle}>
           <div className={style.entryToggle}>{shown ? '–' : '+'}</div>
           <div className={style.entryTitleText}>
