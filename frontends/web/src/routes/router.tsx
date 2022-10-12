@@ -13,7 +13,7 @@ import { DeviceSwitch } from './device/deviceswitch';
 import ManageBackups from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { Exchanges } from './exchanges/exchanges';
-import ElectrumSettings from './settings/electrum';
+import { ElectrumSettings } from './settings/electrum';
 import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
