@@ -44,12 +44,6 @@ win32 {
     QMAKE_CXXFLAGS += $$CMISC
 }
 
-# Pass on env var as a define.
-QT_BITBOX_ALLOW_EXTERNAL_URLS = $$(QT_BITBOX_ALLOW_EXTERNAL_URLS)
-equals(QT_BITBOX_ALLOW_EXTERNAL_URLS, 1) {
-    DEFINES += QT_BITBOX_ALLOW_EXTERNAL_URLS
-}
-
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
 unix:!macx {
     QMAKE_LFLAGS_RPATH=
