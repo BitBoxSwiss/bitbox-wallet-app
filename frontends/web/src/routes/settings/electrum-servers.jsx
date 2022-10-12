@@ -17,7 +17,7 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { ElectrumServer } from './electrum-server';
-import { apiGet, apiPost } from '../../utils/request';
+import { getConfig, getDefaultConfig, setConfig } from '../../api/backend';
 import { confirmation } from '../../components/confirm/Confirm';
 import style from './electrum.module.css';
 import A from '../../components/anchor/anchor';
@@ -29,15 +29,15 @@ class ElectrumServersClass extends Component {
   };
 
   componentDidMount() {
-    apiGet('config').then(config => {
+    getConfig().then(config => {
       this.setState({ electrumServers: config.backend[this.props.coin].electrumServers });
     });
   }
 
   save = () => {
-    apiGet('config').then(config => {
+    getConfig().then(config => {
       config.backend[this.props.coin].electrumServers = this.state.electrumServers;
-      apiPost('config', config);
+      setConfig(config);
     });
   };
 
@@ -58,7 +58,7 @@ class ElectrumServersClass extends Component {
   resetToDefault = () => {
     confirmation(this.props.t('settings.electrum.resetConfirm'), response => {
       if (response) {
-        apiGet('config/default').then(config => {
+        getDefaultConfig().then(config => {
           this.setState({ electrumServers: config.backend[this.props.coin].electrumServers });
           this.save();
         });
