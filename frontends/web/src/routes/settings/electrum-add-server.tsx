@@ -72,6 +72,7 @@ export const ElectrumAddServer = ({
     setValid(success);
     setLoadingCheck(false);
   };
+
   return (
     <div className={style.addServer}>
       <div className="flex flex-row flex-start flex-wrap">

@@ -89,7 +89,7 @@ export const ElectrumServers = ({
           {
             electrumServers.map((server, index) => (
               <ElectrumServer
-                key={server.server + server.tls.toString()}
+                key={server.server + server.tls.toString() + '-' + index.toString()}
                 server={server}
                 onRemove={onRemoveCb(server, index)}
               />
