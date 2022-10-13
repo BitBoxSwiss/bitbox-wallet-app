@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ElectrumAddServer } from './electrum-add-server';
 import { ElectrumServer } from './electrum-server';
 import { getConfig, getDefaultConfig, setConfig } from '../../api/backend';
 import { confirmation } from '../../components/confirm/Confirm';
@@ -104,7 +105,7 @@ export const ElectrumServers = ({
       <hr />
       <div className="row">
         <h4 className="subTitle">{t('settings.electrum.add')}</h4>
-        <ElectrumServer server={null} onAdd={onAdd} />
+        <ElectrumAddServer onAdd={onAdd} />
       </div>
     </div>
   );
