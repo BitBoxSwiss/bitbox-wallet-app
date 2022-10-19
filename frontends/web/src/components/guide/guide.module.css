@@ -88,12 +88,6 @@
     margin-top: var(--space-default);
 }
 
-.highlighted {
-    margin: 1.1em -1em;
-    padding: 0.5em 1em;
-    background-color: var(--color-darkblue);
-}
-
 .entryTitle {
     display: flex;
     flex-direction: row;
@@ -151,7 +145,7 @@
         transform: translateX(100%);
         transition-delay: 0.2s;
     }
-    
+
     .show {
         opacity: 1;
         z-index: 4002;
