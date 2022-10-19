@@ -16,8 +16,8 @@
  */
 
 import { apiPort, apiToken, isTLS } from './request';
-import { qtSubscribePushNotifications } from './qttransport';
-import { androidSubscribePushNotifications } from './androidtransport';
+import { qtSubscribePushNotifications } from './transport-qt';
+import { androidSubscribePushNotifications } from './transport-android';
 import { TMsgCallback } from './transport-common';
 import { runningInAndroid, runningInQtWebEngine } from './env';
 
