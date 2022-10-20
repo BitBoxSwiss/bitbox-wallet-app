@@ -516,13 +516,17 @@ class BitBox02 extends Component<Props, State> {
               )}
             </ViewContent>
             <ViewButtons>
-              <Button
-                primary
-                onClick={() => this.channelVerify(true)}
-                disabled={!deviceVerified}
-                hidden={status === 'pairingFailed'}>
-                {t('button.continue')}
-              </Button>
+              {status !== 'pairingFailed' ? (
+                deviceVerified ? (
+                  <Button
+                    primary
+                    onClick={() => this.channelVerify(true)}>
+                    {t('button.continue')}
+                  </Button>
+                ) : (
+                  <PointToBitBox02 />
+                )
+              ) : null}
             </ViewButtons>
           </View>
         )}
