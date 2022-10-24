@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
 import { multilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -222,6 +222,7 @@ class BitBox02 extends Component<Props, State> {
     });
     this.setState({
       appStatus: 'createWallet',
+      createWalletStatus: 'intro',
       deviceName: '',
     });
   };
@@ -269,14 +270,24 @@ class BitBox02 extends Component<Props, State> {
       settingPassword: true,
       createWalletStatus: 'setPassword',
     });
-    apiPost(this.apiPrefix() + '/set-password').then(({ success }) => {
+    apiPost(this.apiPrefix() + '/set-password').then(({ code, success }) => {
       if (!success) {
-        this.setState({
-          errorText: this.props.t('bitbox02Wizard.noPasswordMatch'),
-          settingPassword: false,
-        }, () => {
-          this.setPassword();
-        });
+        if (code === errUserAbort) {
+          // On user abort, just go back to the first screen. This is a bit lazy, as we should show
+          // a screen to ask the user to go back or try again.
+          this.setState({
+            appStatus: '',
+            errorText: undefined,
+            settingPassword: false,
+          });
+        } else {
+          this.setState({
+            errorText: this.props.t('bitbox02Wizard.noPasswordMatch'),
+            settingPassword: false,
+          }, () => {
+            this.setPassword();
+          });
+        }
         // show noPasswordMatch error and do NOT continue to createBackup
         return;
       }
