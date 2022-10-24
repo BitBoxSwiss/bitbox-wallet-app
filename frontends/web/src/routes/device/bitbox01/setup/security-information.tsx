@@ -74,7 +74,7 @@ class SecurityInformation extends Component<Props, State> {
                     <SimpleMarkup tagName="p" markup={t('securityInformation.create.description5')} />
                     <div className="buttons">
                       <Button primary onClick={this.handleStart}>
-                        {t('securityInformation.create.button')}
+                        {t('button.continue')}
                       </Button>
                       <Button
                         transparent
@@ -96,7 +96,7 @@ class SecurityInformation extends Component<Props, State> {
                     </Message>
                     <div className="buttons">
                       <Button primary onClick={this.handleStart}>
-                        {t('securityInformation.restore.button')}
+                        {t('button.continue')}
                       </Button>
                       <Button
                         transparent

@@ -215,7 +215,6 @@
     "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
     "noPasswordMatch": "Passwords did not match, please try again.",
     "pairing": {
-      "confirmButton": "Continue",
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
       "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
       "title": "Verify pairing code",
@@ -237,7 +236,6 @@
     },
     "stepCreate": {
       "buttonBack": "Go back",
-      "buttonContinue": "Continue",
       "description": "This name is used as the device name and for the backup.",
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
@@ -868,7 +866,6 @@
       "e102": "The device password must consist of at least 4 characters."
     },
     "info": {
-      "button": "Continue",
       "description1": "Choose your device password. This will be used to unlock your BitBox.",
       "description2": "You can use numbers, letters & symbols. Longer passwords offer higher security.",
       "description3": "If you lose the device password you will have to reset your device and restore your wallet backup.",
@@ -1076,7 +1073,6 @@
   },
   "securityInformation": {
     "create": {
-      "button": "Continue",
       "description1": "We recommend you set up your device in a safe environment, meaning you are away from other people that could see what password you choose.",
       "description2": "You will be asked to create two passwords.",
       "description3": "The first is the <strong>device password</strong> which unlocks your BitBox device and can be changed later.",
@@ -1085,7 +1081,6 @@
       "title": "Security information"
     },
     "restore": {
-      "button": "Continue",
       "description1": "You will be asked to insert the microSD card you used to store you backup.",
       "description2": "To restore your device you will need your recovery password. ",
       "description3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect.",
@@ -1126,7 +1121,6 @@
       "e200": "Restoring a wallet from a backup requires the microSD card."
     },
     "info": {
-      "button": "Continue",
       "description1": "Insert the microSD card into the BitBox and click “Continue”",
       "description2": "Choose a backup and click “Restore”",
       "description3": "Enter the recovery password",
