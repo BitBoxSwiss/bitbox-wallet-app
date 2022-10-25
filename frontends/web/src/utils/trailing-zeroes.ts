@@ -21,7 +21,7 @@ export function bitcoinRemoveTrailingZeroes(amount: string, unit: string): strin
     case 'TBTC':
     case 'LTC':
     case 'TLTC':
-      return amount.replace(/\.?0+$/,'');
+      return amount.replace(/\.?0+$/, '');
     default:
     }
   }
