@@ -1246,6 +1246,12 @@
     "header": {
       "home": "Home"
     },
+    "info": {
+      "out-of-date": "New udate available",
+      "title": "Info",
+      "up-to-date": "Your app is up to date",
+      "version": "App Version"
+    },
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
     "services": {
       "title": "Services"

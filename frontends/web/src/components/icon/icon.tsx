@@ -26,6 +26,7 @@ import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
+import redDotSVG from './assets/icons/red-dot.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
@@ -113,6 +114,7 @@ export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggabl
 // simple check for copy component
 export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
+export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);

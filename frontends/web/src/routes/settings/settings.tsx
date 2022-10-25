@@ -20,6 +20,8 @@ import { Link } from 'react-router-dom';
 import { route } from '../../utils/route';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
+import { Skeleton } from '../../components/skeleton/skeleton';
+import { updatePath } from '../../components/update/update';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
@@ -29,11 +31,14 @@ import { SwissMadeOpenSource } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import { Footer, Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
+import { SettingsItem } from '../../components/settingsButton/settingsItem';
 import { Toggle } from '../../components/toggle/toggle';
+import { Checked, RedDot } from '../../components/icon/icon';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet, apiPost } from '../../utils/request';
 import { setBtcUnit, BtcUnit } from '../../api/coins';
+import { TUpdateFile, getVersion, getUpdate } from '../../api/version';
 import { FiatSelection } from './components/fiat/fiat';
 import style from './settings.module.css';
 
@@ -49,6 +54,8 @@ interface State {
     config: any;
     proxyAddress?: string;
     activeProxyDialog: boolean;
+    version?: string;
+    update?: TUpdateFile | null;
 }
 
 class Settings extends Component<Props, State> {
@@ -59,6 +66,8 @@ class Settings extends Component<Props, State> {
       config: null,
       proxyAddress: undefined,
       activeProxyDialog: false,
+      version: undefined,
+      update: undefined
     };
   }
 
@@ -66,6 +75,8 @@ class Settings extends Component<Props, State> {
     apiGet('config').then(config => {
       this.setState({ config, proxyAddress: config.backend.proxy.proxyAddress });
     });
+    getVersion().then(version => this.setState({ version }));
+    getUpdate().then(update => this.setState({ update }));
   }
 
   public componentDidUpdate(prevProps: Props) {
@@ -180,7 +191,9 @@ class Settings extends Component<Props, State> {
       config,
       restart,
       proxyAddress,
-      activeProxyDialog
+      activeProxyDialog,
+      version,
+      update
     } = this.state;
     if (proxyAddress === undefined) {
       return null;
@@ -221,6 +234,36 @@ class Settings extends Component<Props, State> {
                           <FiatSelection />
                         </div>
                         <div className="column column-2-3">
+                          <div>
+                            <h3 className="subTitle">{t('settings.info.title')}</h3>
+                            <div className="box slim divide m-bottom-large">
+                              { version !== undefined && update !== undefined ? (
+                                <div>
+                                  { update ? (
+                                    <SettingsButton
+                                      optionalText={version}
+                                      secondaryText={
+                                        <>
+                                          {t('settings.info.out-of-date')}
+                                          {' '}
+                                          <RedDot />
+                                        </>
+                                      }
+                                      disabled={false}
+                                      onClick={() => update && apiPost('open', updatePath)}>
+                                      {t('settings.info.version')}
+                                    </SettingsButton>) : (
+                                    <SettingsItem
+                                      optionalText={version}
+                                      optionalIcon={<Checked/>}>
+                                      {t('settings.info.up-to-date')}
+                                    </SettingsItem>
+                                  )
+                                  }
+                                </div>
+                              ) : <Skeleton />}
+                            </div>
+                          </div>
                           { manageAccountsLen ? (
                             <div>
                               <h3 className="subTitle">Accounts</h3>
@@ -235,7 +278,7 @@ class Settings extends Component<Props, State> {
                             </div>
                           ) : null}
                           <h3 className="subTitle">{t('settings.expert.title')}</h3>
-                          <div className="box slim divide">
+                          <div className="box slim divide m-bottom-large">
                             <div className={style.setting}>
                               <div>
                                 <p className="m-none">{t('settings.expert.fee')}</p>

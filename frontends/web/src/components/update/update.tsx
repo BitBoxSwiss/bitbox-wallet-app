@@ -19,25 +19,19 @@ import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { load } from '../../decorators/load';
 import { runningInAndroid } from '../../utils/env';
+import { TUpdateFile } from '../../api/version';
 import A from '../anchor/anchor';
 import Status from '../status/status';
 
-/**
- * Describes the file that is loaded from 'https://shiftcrypto.ch/updates/desktop.json'.
- */
-interface File {
-    current: string;
-    version: string;
-    description: string;
+interface Props {
+    file: TUpdateFile | null;
 }
 
-interface Props {
-    file: File | null;
-}
+export const updatePath: string = 'https://shiftcrypto.ch/download/?source=bitboxapp';
 
 const Update: FunctionComponent<Props> = ({ file }) => {
   const { t } = useTranslation();
-  const downloadElement = <A href="https://shiftcrypto.ch/download/?source=bitboxapp">{t('button.download')}</A>;
+  const downloadElement = <A href={updatePath}>{t('button.download')}</A>;
 
   return file && (
     <Status dismissable={`update-${file.version}`} type="info">
