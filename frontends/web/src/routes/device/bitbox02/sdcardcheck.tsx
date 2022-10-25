@@ -14,80 +14,64 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { translate, TranslateProps } from '../../../decorators/translate';
+import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { TranslateProps } from '../../../decorators/translate';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
-import { apiGet } from '../../../utils/request';
 import { Button, ButtonLink } from '../../../components/forms';
+import { checkSDCard } from '../../../api/bitbox02';
+import { useTranslation } from 'react-i18next';
 
-interface SDCardCheckProps {
+type SDCardCheckProps = {
     deviceID: string;
 }
 
-interface State {
-    sdCardInserted?: boolean;
-}
-
-
 type Props = SDCardCheckProps & TranslateProps;
 
-class SDCardCheck extends Component<Props, State> {
-  state = {} as State;
+const SDCardCheck: FunctionComponent<Props> = ({ deviceID, children }) => {
+  const { t } = useTranslation();
+  const [sdCardInserted, setSdCardInserted] = useState<boolean | undefined>();
+  const check = useCallback(() => checkSDCard(deviceID).then(setSdCardInserted), [deviceID]);
 
-  public componentDidMount() {
-    this.check();
+  useEffect(() => {
+    check();
+  }, [check]);
+
+
+  // pending check-sdcard request
+  if (sdCardInserted === undefined) {
+    return null;
   }
 
-  private check = () => {
-    apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard')
-      .then(inserted => this.setState({ sdCardInserted: inserted }));
-  };
-
-  public render() {
-    const {
-      t,
-      children,
-      deviceID,
-    } = this.props;
-    const { sdCardInserted } = this.state;
-
-    // pending check-sdcard request
-    if (sdCardInserted === undefined) {
-      return null;
-    }
-    if (!sdCardInserted) {
-      return (
-        <Dialog title="Check your device" small>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                <p>{this.props.t('backup.insert')}</p>
-              </div>
+  if (!sdCardInserted) {
+    return (
+      <Dialog title="Check your device" small>
+        <div className="columnsContainer half">
+          <div className="columns">
+            <div className="column">
+              <p>{t('backup.insert')}</p>
             </div>
           </div>
-          <DialogButtons>
-            <Button
-              primary
-              onClick={this.check}>
-              {t('button.ok')}
-            </Button>
-            <ButtonLink
-              transparent
-              to={`/device/${deviceID}`}>
-              {t('button.back')}
-            </ButtonLink>
-          </DialogButtons>
-        </Dialog>
-      );
-    }
-    return (
-      <div>
-        {children}
-      </div>
+        </div>
+        <DialogButtons>
+          <Button
+            primary
+            onClick={check}>
+            {t('button.ok')}
+          </Button>
+          <ButtonLink
+            transparent
+            to={`/device/${deviceID}`}>
+            {t('button.back')}
+          </ButtonLink>
+        </DialogButtons>
+      </Dialog>
     );
   }
+  return (
+    <div>
+      {children}
+    </div>
+  );
+};
 
-}
-
-const HOC = translate()(SDCardCheck);
-export { HOC as SDCardCheck };
+export { SDCardCheck };
