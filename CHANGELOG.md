@@ -11,6 +11,7 @@
 - Fix unsufficient gas funds error message on erc20 transactions
 - Display trailing zeroes for BTC/LTC amount formatting
 - Fix broken links on Android 11+
+- Add 'sat' unit for Bitcoin accounts, available in Settings view
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0

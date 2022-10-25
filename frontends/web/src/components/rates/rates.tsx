@@ -16,7 +16,8 @@
  */
 
 import { PropsWithChildren } from 'react';
-import { Fiat, IAmount } from '../../api/account';
+import { Fiat, ConversionUnit, IAmount } from '../../api/account';
+import { BtcUnit } from '../../api/coins';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
@@ -29,6 +30,7 @@ export interface SharedProps {
     active: Fiat;
     // eslint-disable-next-line react/no-unused-prop-types
     selected: Fiat[];
+    btcUnit: BtcUnit;
 }
 
 export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
@@ -36,17 +38,25 @@ export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GB
 export const store = new Store<SharedProps>({
   active: 'USD',
   selected: ['USD', 'EUR', 'CHF'],
+  btcUnit: 'BTC',
 });
 
 // TODO: should not invoking apiGet imediatelly, see the apiGet() function for more details
-apiGet('config').then((appconf) => {
-  if (appconf.frontend && appconf.backend.mainFiat) {
-    store.setState({ active: appconf.backend.mainFiat });
-  }
-  if (appconf.backend && appconf.backend.fiatList) {
-    store.setState({ selected: appconf.backend.fiatList });
-  }
-});
+updateRatesConfig();
+
+export function updateRatesConfig(): void {
+  apiGet('config').then((appconf) => {
+    if (appconf.frontend && appconf.backend.mainFiat) {
+      store.setState({ active: appconf.backend.mainFiat });
+    }
+    if (appconf.backend && appconf.backend.fiatList && appconf.backend.btcUnit) {
+      store.setState({
+        selected: appconf.backend.fiatList,
+        btcUnit: appconf.backend.btcUnit,
+      });
+    }
+  });
+}
 
 export function setActiveFiat(fiat: Fiat): void {
   if (!store.state.selected.includes(fiat)) {
@@ -115,6 +125,7 @@ function Conversion({
   noAction,
   sign,
   noBtcZeroes,
+  btcUnit,
 }: PropsWithChildren<Props>): JSX.Element | null {
 
   let formattedValue = '---';
@@ -129,18 +140,23 @@ function Conversion({
     }
   }
 
+  var activeUnit: ConversionUnit = active;
+  if (active === 'BTC' && btcUnit === 'sat') {
+    activeUnit = 'sat';
+  }
+
   if (tableRow) {
     return (
       <tr className={unstyled ? '' : style.fiatRow}>
         <td className={unstyled ? '' : style.availableFiatAmount}>{formattedValue}</td>
         {
           !noAction && (
-            <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{active}</td>
+            <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{activeUnit}</td>
           )
         }
         {
           noAction && (
-            <td className={unstyled ? '' : style.availableFiatUnitNoAction}>{active}</td>
+            <td className={unstyled ? '' : style.availableFiatUnitNoAction}>{activeUnit}</td>
           )
         }
       </tr>
@@ -153,12 +169,12 @@ function Conversion({
       {' '}
       {
         !skipUnit && !noAction && (
-          <span className={style.unitAction} onClick={rotateFiat}>{active}</span>
+          <span className={style.unitAction} onClick={rotateFiat}>{activeUnit}</span>
         )
       }
       {
         !skipUnit && noAction && (
-          <span className={style.unit}>{active}</span>
+          <span className={style.unit}>{activeUnit}</span>
         )
       }
     </span>

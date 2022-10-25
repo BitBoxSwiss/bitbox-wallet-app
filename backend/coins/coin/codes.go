@@ -42,6 +42,13 @@ const (
 	// There are some more coin codes for the supported erc20 tokens in erc20.go.
 )
 
+const (
+	// UnitBtc represents Bitcoin unit.
+	UnitBtc string = "BTC"
+	// UnitSats represents Satoshi unit.
+	UnitSats string = "sat"
+)
+
 // TestnetCoins is the subset of all coins which are available in testnet mode.
 var TestnetCoins = map[Code]struct{}{
 	CodeTBTC:      {},

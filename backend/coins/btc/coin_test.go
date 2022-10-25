@@ -128,6 +128,26 @@ func (s *testSuite) TestSetAmount() {
 	}
 }
 
+func (s *testSuite) TestParseAmount() {
+	btcAmount := "123.12345678"
+	satAmount := "12312345678"
+	intSatAmount := int64(12312345678)
+
+	s.coin.SetFormatUnit("BTC")
+	coinAmount, err := s.coin.ParseAmount(btcAmount)
+	require.Equal(s.T(), err, nil)
+	intAmount, err := coinAmount.Int64()
+	require.Equal(s.T(), err, nil)
+	require.Equal(s.T(), intSatAmount, intAmount)
+
+	s.coin.SetFormatUnit("sat")
+	coinAmount, err = s.coin.ParseAmount(satAmount)
+	require.Equal(s.T(), err, nil)
+	intAmount, err = coinAmount.Int64()
+	require.Equal(s.T(), err, nil)
+	require.Equal(s.T(), intSatAmount, intAmount)
+}
+
 func (s *testSuite) TestDecodeAddress() {
 	tbtcValidAddresses := []string{
 		"myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL",                             // p2pkh legacy

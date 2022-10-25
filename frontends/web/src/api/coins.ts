@@ -16,6 +16,10 @@
 
 import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
 import { CoinCode } from './account';
+import { ISuccess } from './backend';
+import { apiPost } from '../utils/request';
+
+export type BtcUnit = 'BTC' | 'sat';
 
 interface Status {
     targetHeight: number;
@@ -29,3 +33,7 @@ export const subscribeCoinHeaders = (coinCode: CoinCode) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
 );
+
+export const setBtcUnit = (unit: BtcUnit): Promise<ISuccess> => {
+  return apiPost('coins/btc/set-unit', { unit });
+};

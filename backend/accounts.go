@@ -407,6 +407,7 @@ func (backend *Backend) createAndAddAccount(
 		},
 		GetSaveFilename:  backend.environment.GetSaveFilename,
 		UnsafeSystemOpen: backend.environment.SystemOpen,
+		BtcCurrencyUnit:  backend.config.AppConfig().Backend.BtcUnit,
 	}
 
 	switch specificCoin := coin.(type) {

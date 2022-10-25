@@ -31,7 +31,7 @@ interface FeeTargetsProps {
     accountCode: accountApi.AccountCode;
     coinCode: accountApi.CoinCode;
     disabled: boolean;
-    fiatUnit: accountApi.Fiat;
+    fiatUnit: accountApi.ConversionUnit;
     proposedFee?: accountApi.IAmount;
     customFee: string;
     showCalculatingFeeLabel?: boolean;
@@ -112,7 +112,7 @@ class FeeTargets extends Component<Props, State> {
     }
     const { amount, unit, conversions } = this.props.proposedFee;
     const fiatUnit = this.props.fiatUnit;
-    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit]} ${fiatUnit}` : ''}`;
+    return `${amount} ${unit} ${conversions ? ` = ${conversions[fiatUnit === 'sat' ? 'BTC' : fiatUnit]} ${fiatUnit}` : ''}`;
   };
 
   private focusInput = () => {

@@ -1240,7 +1240,8 @@
       "fee": "Enable custom fees",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
-      "useProxy": "Enable tor proxy"
+      "useProxy": "Enable tor proxy",
+      "useSats": "Display BTC values in sat"
     },
     "header": {
       "home": "Home"

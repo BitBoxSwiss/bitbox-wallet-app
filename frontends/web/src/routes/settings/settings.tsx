@@ -24,6 +24,7 @@ import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
+import { updateRatesConfig } from '../../components/rates/rates';
 import { SwissMadeOpenSource } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import { Footer, Header } from '../../components/layout';
@@ -32,6 +33,7 @@ import { Toggle } from '../../components/toggle/toggle';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet, apiPost } from '../../utils/request';
+import { setBtcUnit, BtcUnit } from '../../api/coins';
 import { FiatSelection } from './components/fiat/fiat';
 import style from './settings.module.css';
 
@@ -114,6 +116,30 @@ class Settings extends Component<Props, State> {
     const proxy = config.backend.proxy;
     proxy.useProxy = target.checked;
     this.setProxyConfig(proxy);
+  };
+
+  private handleToggleSatsUnit = (event: React.SyntheticEvent) => {
+    const config = this.state.config;
+    if (!config) {
+      return;
+    }
+    const target = (event.target as HTMLInputElement);
+    var unit: BtcUnit = 'BTC';
+    if (target.checked) {
+      unit = 'sat';
+    }
+
+    setConfig({
+      backend: { btcUnit: unit }
+    }).then(config => {
+      this.setState({ config });
+      updateRatesConfig();
+    });
+    setBtcUnit(unit).then(result => {
+      if (!result.success) {
+        alertUser(this.props.t('genericError'));
+      }
+    });
   };
 
   private setProxyAddress = () => {
@@ -231,6 +257,15 @@ class Settings extends Component<Props, State> {
                                 checked={config.frontend.coinControl}
                                 id="coinControl"
                                 onChange={this.handleToggleFrontendSetting} />
+                            </div>
+                            <div className={style.setting}>
+                              <div>
+                                <p className="m-none">{t('settings.expert.useSats')}</p>
+                              </div>
+                              <Toggle
+                                checked={config.backend.btcUnit === 'sat'}
+                                id="satsUnit"
+                                onChange={this.handleToggleSatsUnit} />
                             </div>
                             <SettingsButton
                               onClick={this.showProxyDialog}
