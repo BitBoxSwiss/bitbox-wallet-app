@@ -65,3 +65,15 @@ export const isMoonpayBuySupported = (code: string) => {
     return apiGet(`exchange/moonpay/buy-supported/${code}`);
   };
 };
+
+export const getDefaultConfig = (): Promise<any> => {
+  return apiGet('config/default');
+};
+
+export const getConfig = (): Promise<any> => {
+  return apiGet('config');
+};
+
+export const setConfig = (config: any): Promise<null> => {
+  return apiPost('config', config);
+};
