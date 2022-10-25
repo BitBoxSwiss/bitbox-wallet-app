@@ -39,7 +39,7 @@ export function PasswordEntry({ children }: PropsWithChildren<IPasswordEntryProp
     if (ref.current) {
       replayVideo(ref.current);
     }
-  },[ref]);
+  }, [ref]);
   return (
     <div className={styles.passwordGesturesWrapper}>
       <video
