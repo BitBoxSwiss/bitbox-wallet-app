@@ -118,7 +118,7 @@ class SeedRestore extends Component {
                         primary
                         onClick={this.handleStart}
                         disabled={status !== STATUS.DEFAULT}>
-                        {t('seedRestore.info.button')}
+                        {t('button.continue')}
                       </Button>
                       <Button
                         transparent

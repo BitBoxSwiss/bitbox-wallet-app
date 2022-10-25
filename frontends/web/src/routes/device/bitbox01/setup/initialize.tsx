@@ -123,7 +123,7 @@ class Initialize extends Component<Props, State> {
         <p>{t('initialize.info.description3')}</p>
         <div className="buttons">
           <Button primary onClick={this.handleStart}>
-            {t('initialize.info.button')}
+            {t('button.continue')}
           </Button>
           <Button
             transparent

@@ -521,7 +521,7 @@ class BitBox02 extends Component<Props, State> {
                 onClick={() => this.channelVerify(true)}
                 disabled={!deviceVerified}
                 hidden={status === 'pairingFailed'}>
-                {t('bitbox02Wizard.pairing.confirmButton')}
+                {t('button.continue')}
               </Button>
             </ViewButtons>
           </View>
@@ -608,7 +608,7 @@ class BitBox02 extends Component<Props, State> {
                   disabled={!deviceName}
                   primary
                   type="submit">
-                  {t('bitbox02Wizard.stepCreate.buttonContinue')}
+                  {t('button.continue')}
                 </Button>
                 <Button
                   onClick={() => this.setState({ appStatus: '' })}
@@ -691,7 +691,7 @@ class BitBox02 extends Component<Props, State> {
                   primary
                   onClick={this.createBackup}
                   disabled={creatingBackup || !readDisclaimers}>
-                  {t('securityInformation.create.button')}
+                  {t('button.continue')}
                 </Button>
               </ViewButtons>
             </View>
