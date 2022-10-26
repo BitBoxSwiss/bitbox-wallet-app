@@ -326,9 +326,10 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 		return nil, err
 	}
 	return map[string]interface{}{
-		"available":   handlers.formatAmountAsJSON(balance.Available(), false),
-		"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), false),
-		"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
+		"hasAvailable": balance.Available().BigInt().Sign() > 0,
+		"available":    handlers.formatAmountAsJSON(balance.Available(), false),
+		"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
+		"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
 	}, nil
 }
 
