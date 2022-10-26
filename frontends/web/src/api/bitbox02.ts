@@ -93,6 +93,6 @@ export const setMnemonicPassphraseEnabled = (
 
 export const verifyAttestation = (
   deviceID: string,
-): Promise<boolean> => {
+): Promise<boolean | null> => {
   return apiGet(`devices/bitbox02/${deviceID}/attestation`);
 };

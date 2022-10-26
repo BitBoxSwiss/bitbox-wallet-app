@@ -40,8 +40,7 @@ type Props = {
 export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
   const { t } = useTranslation();
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
-  const [attestation, setAttestation] = useState<boolean>();
-
+  const [attestation, setAttestation] = useState<boolean | null>(null);
   useEffect(() => {
     getDeviceInfo(deviceID).then(setDeviceInfo).catch(error => {
       console.error(error);
@@ -89,7 +88,7 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
                         {t('deviceSettings.hardware.securechip')}
                       </SettingsItem>
                     ) }
-                    {attestation !== undefined && (
+                    {attestation !== null && (
                       <SettingsItem
                         optionalText={t(`deviceSettings.hardware.attestation.${attestation}`)}
                         optionalIcon={attestation ? <Checked/> : <Warning/>}>
