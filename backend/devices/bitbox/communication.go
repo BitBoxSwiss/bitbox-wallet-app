@@ -20,7 +20,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
-	"runtime"
 	"unicode"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -232,13 +231,6 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 	for written < sendLen {
 		chunk := paddedMsg.Next(usbWriteReportSize)
 		chunkLen := len(chunk)
-		if runtime.GOOS != "windows" {
-			// packets have a 0 byte report ID in front. The karalabe hid library adds it
-			// automatically for windows, and not for unix, as there, it is stripped by the signal11
-			// hid library.  Since we are padding with zeroes, we have to add it (to be stripped by
-			// signal11), as otherwise, it would strip our 0 byte that is just padding.
-			chunk = append([]byte{0}, chunk...)
-		}
 		_, err := communication.communication.Write(chunk)
 		if err != nil {
 			return nil, errp.WithStack(err)
