@@ -42,11 +42,15 @@ const (
 	// There are some more coin codes for the supported erc20 tokens in erc20.go.
 )
 
+// BtcUnit defines how BTC values are formatted.
+type BtcUnit string
+
 const (
-	// UnitBtc represents Bitcoin unit.
-	UnitBtc string = "BTC"
-	// UnitSats represents Satoshi unit.
-	UnitSats string = "sat"
+	// BtcUnitDefault formats the value in the default unit, e.g. "BTC" for Bitcoin, "TBTC" for
+	// Bitcoin testnet.
+	BtcUnitDefault BtcUnit = "default"
+	// BtcUnitSats formats the value as satoshis. Applies to both Bitcoin mainnet and testnet.
+	BtcUnitSats BtcUnit = "sat"
 )
 
 // TestnetCoins is the subset of all coins which are available in testnet mode.

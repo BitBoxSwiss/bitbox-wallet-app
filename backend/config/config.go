@@ -89,8 +89,8 @@ type Backend struct {
 	// as reported by the OS.
 	UserLanguage string `json:"userLanguage"`
 
-	// BtcUnit is the unit used to represents Bitcoin amounts, e.g. `BTC` or `sat`.
-	BtcUnit string `json:"btcUnit"`
+	// BtcUnit is the unit used to represent Bitcoin amounts. See `coin.BtcUnit` for details.
+	BtcUnit coin.BtcUnit `json:"btcUnit"`
 }
 
 // DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be
@@ -220,7 +220,7 @@ func NewDefaultAppConfig() AppConfig {
 			// Copied from frontend/web/src/components/rates/rates.tsx.
 			FiatList: []string{rates.USD.String(), rates.EUR.String(), rates.CHF.String()},
 			MainFiat: rates.USD.String(),
-			BtcUnit:  "BTC",
+			BtcUnit:  coin.BtcUnitDefault,
 		},
 	}
 }

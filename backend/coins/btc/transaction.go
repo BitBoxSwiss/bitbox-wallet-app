@@ -161,7 +161,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		allowZero := false
 
 		unit := int64(unitSatoshi)
-		if account.coin.formatUnit == coin.UnitSats {
+		if account.coin.formatUnit == coin.BtcUnitSats {
 			unit = 1
 		}
 		parsedAmount, err := args.Amount.Amount(big.NewInt(unit), allowZero)

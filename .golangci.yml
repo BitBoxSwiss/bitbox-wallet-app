@@ -58,8 +58,6 @@ linters-settings:
       - underef
       - unlambda
       - unslice
-  gocyclo:
-    min-complexity: 28
   maligned:
     # print struct with more effective memory layout or not, false by default
     suggest-new: true
@@ -132,6 +130,7 @@ linters:
     - forbidigo
     - makezero
     - nolintlint
+    - gocyclo
   disable-all: false
 
 issues:
@@ -150,7 +149,6 @@ issues:
     - path: _test\.go
       linters:
         - errcheck
-        - gocyclo
         - godot
         - gosec
         - testpackage

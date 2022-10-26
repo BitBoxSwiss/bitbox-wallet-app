@@ -41,9 +41,6 @@ type Coin interface {
 	// The fee unit is usually the same as the main unit, but can differ.
 	Unit(isFee bool) string
 
-	// SetFormatUnit sets the unit used to format the amount, e.g. "BTC" or "sat".
-	SetFormatUnit(unit string)
-
 	// GetFormatUnit sets the unit used to format the amount, e.g. "BTC" or "sat".
 	GetFormatUnit() string
 

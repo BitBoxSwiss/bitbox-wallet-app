@@ -16,8 +16,6 @@
 
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
-import { BtcUnit } from './coins';
-
 
 export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
 
@@ -25,7 +23,7 @@ export type AccountCode = string;
 
 export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'EUR' | 'GBP' | 'HKD' | 'ILS' | 'JPY' | 'KRW' | 'NOK' | 'RUB' | 'SEK' | 'SGD' | 'USD';
 
-export type ConversionUnit = Fiat | BtcUnit
+export type ConversionUnit = Fiat | 'sat'
 
 export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
 

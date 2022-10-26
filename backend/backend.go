@@ -344,27 +344,26 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	dbFolder := backend.arguments.CacheDirectoryPath()
 
 	erc20Token := erc20TokenByCode(code)
+	btcFormatUnit := backend.config.AppConfig().Backend.BtcUnit
 	switch {
 	case code == coinpkg.CodeRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
+		coin = btc.NewCoin(coinpkg.CodeRBTC, "Bitcoin Regtest", "RBTC", coinpkg.BtcUnitDefault, &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
 	case code == coinpkg.CodeTBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTBTC, "Bitcoin Testnet", "TBTC", btcFormatUnit, &chaincfg.TestNet3Params, dbFolder, servers,
 			"https://blockstream.info/testnet/tx/", backend.socksProxy)
-		coin.SetFormatUnit(backend.config.AppConfig().Backend.BtcUnit)
 	case code == coinpkg.CodeBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", &chaincfg.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeBTC, "Bitcoin", "BTC", btcFormatUnit, &chaincfg.MainNetParams, dbFolder, servers,
 			"https://blockstream.info/tx/", backend.socksProxy)
-		coin.SetFormatUnit(backend.config.AppConfig().Backend.BtcUnit)
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", &ltc.TestNet4Params, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
 			"http://explorer.litecointools.com/tx/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", &ltc.MainNetParams, dbFolder, servers,
+		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)

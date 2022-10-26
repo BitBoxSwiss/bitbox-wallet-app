@@ -60,7 +60,7 @@ type AccountConfig struct {
 	// Opens a file in a default application. The filename is not checked.
 	UnsafeSystemOpen func(filename string) error
 	// BtcCurrencyUnit is the unit which should be used to format fiat amounts values expressed in BTC..
-	BtcCurrencyUnit string
+	BtcCurrencyUnit coin.BtcUnit
 }
 
 // BaseAccount is an account struct with common functionality to all coin accounts.
