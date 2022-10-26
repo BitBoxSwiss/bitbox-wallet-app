@@ -24,6 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -47,6 +48,7 @@ type ProposedTransaction struct {
 	// Signatures collects the signatures, one per transaction input.
 	Signatures []*types.Signature
 	SigHashes  *txscript.TxSigHashes
+	FormatUnit coin.BtcUnit
 }
 
 // signTransaction signs all inputs. It assumes all outputs spent belong to this
@@ -68,6 +70,7 @@ func (account *Account) signTransaction(
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
 		SigHashes:                    txscript.NewTxSigHashes(txProposal.Transaction, previousOutputs),
+		FormatUnit:                   account.coin.formatUnit,
 	}
 
 	if err := account.Config().Keystore.SignTransaction(proposedTransaction); err != nil {

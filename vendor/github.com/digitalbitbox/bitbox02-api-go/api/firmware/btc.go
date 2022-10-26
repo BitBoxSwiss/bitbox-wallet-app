@@ -246,6 +246,7 @@ func (device *Device) BTCSign(
 	coin messages.BTCCoin,
 	scriptConfigs []*messages.BTCScriptConfigWithKeypath,
 	tx *BTCTx,
+	formatUnit messages.BTCSignInitRequest_FormatUnit,
 ) ([][]byte, error) {
 	if !device.version.AtLeast(semver.NewSemVer(9, 10, 0)) {
 		for _, sc := range scriptConfigs {
@@ -267,6 +268,7 @@ func (device *Device) BTCSign(
 				NumInputs:     uint32(len(tx.Inputs)),
 				NumOutputs:    uint32(len(tx.Outputs)),
 				Locktime:      tx.Locktime,
+				FormatUnit:    formatUnit,
 			}}})
 	if err != nil {
 		return nil, err
