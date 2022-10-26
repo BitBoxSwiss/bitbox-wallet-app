@@ -13,6 +13,7 @@
 - Fix broken links on Android 11+
 - Add 'sat' unit for Bitcoin accounts, available in Settings view
 - Add version number and available updates check in settings
+- Add translation feedback link in the guide
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0

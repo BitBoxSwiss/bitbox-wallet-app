@@ -35,7 +35,7 @@ const A: FunctionComponent<Props> = ({ href, icon, children, ...props }) => {
         hide();
         route(href);
       } else {
-        apiPost('open', href);
+        apiPost('open', href).catch(console.error);
       }
     }} title={props.title || href} {...props}>
       {icon ? icon : null}
