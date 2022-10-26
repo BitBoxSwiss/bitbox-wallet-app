@@ -15,35 +15,16 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
-import i18n from '../../i18n/i18n';
+import { FunctionComponent, useState } from 'react';
+import { i18n as Ii18n } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Dialog } from '../dialog/dialog';
 import style from './language.module.css';
+import { TActiveLanguageCodes, TLanguagesList } from './types';
 
-type TActiveLanguageCodes = 'bg' | 'de' | 'en' | 'es'
-    | 'fr' | 'hi' | 'it' | 'ja' | 'ms' | 'nl' | 'pt'
-    | 'ru' | 'sl' | 'tr' | 'zh';
-
-type TLanguage = {
-    code: TActiveLanguageCodes;
-    display: string;
-};
-
-type TLanguagesList = TLanguage[];
-
-interface State {
-    selectedIndex: number;
-    activeDialog: boolean;
-    languages: TLanguagesList;
-}
-
-interface LanguageSwitchProps {
+type TLanguageSwitchProps = {
     languages?: TLanguagesList;
-    i18n?: any;
 }
-
-type Props = WithTranslation & LanguageSwitchProps;
 
 const defaultLanguages = [
   { code: 'bg', display: 'България' },
@@ -65,127 +46,112 @@ const defaultLanguages = [
   { code: 'zh', display: '中文' },
 ] as TLanguagesList;
 
-class LanguageSwitch extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const languages = this.props.languages || defaultLanguages;
-    this.state = {
-      selectedIndex: this.getSelectedIndex(languages),
-      activeDialog: false,
-      languages,
-    };
+const getSelectedIndex = (languages: TLanguagesList, i18n: Ii18n) => {
+  const lang = i18n.language;
+
+  // Check for exact match first.
+  let index = languages.findIndex(({ code }) => code === lang);
+
+  // A locale may contain region and other sub tags.
+  // Try with a relaxed match, only the first component.
+  if (index === -1 && lang.indexOf('-') > 0) {
+    const tag = lang.slice(0, lang.indexOf('-'));
+    index = languages.findIndex(({ code }) => code === tag);
   }
 
-  abort = () => {
-    this.setState({ activeDialog: false });
-  };
+  if (index === -1 && lang.indexOf('_') > 0) {
+    const tag = lang.slice(0, lang.indexOf('_'));
+    index = languages.findIndex(({ code }) => code === tag);
+  }
 
-  getSelectedIndex = (languages: TLanguagesList) => {
-    const lang = this.props.i18n.language;
-    // Check for exact match first.
-    let index = languages.findIndex(({ code }) => code === lang);
-    // A locale may contain region and other sub tags.
-    // Try with a relaxed match, only the first component.
-    if (index === -1 && lang.indexOf('-') > 0) {
-      const tag = lang.slice(0, lang.indexOf('-'));
-      index = languages.findIndex(({ code }) => code === tag);
-    }
-    if (index === -1 && lang.indexOf('_') > 0) {
-      const tag = lang.slice(0, lang.indexOf('_'));
-      index = languages.findIndex(({ code }) => code === tag);
-    }
-    // Give up. We tried.
-    if (index === -1) {
-      return 0;
-    }
-    return index;
-  };
+  // Give up. We tried.
+  if (index === -1) {
+    return 0;
+  }
 
-  changeLanguage = (langCode: TActiveLanguageCodes, index: number) => {
-    // const langCode = e.target.dataset.code;
-    // const index = parseInt(target.dataset.index, 10);
-    this.setState({
-      selectedIndex: index,
-      activeDialog: false,
-    });
+  return index;
+};
+
+const LanguageSwitch: FunctionComponent<TLanguageSwitchProps> = ({ languages }) => {
+
+  const { t, i18n } = useTranslation();
+  const allLanguages = languages || defaultLanguages;
+
+  const [selectedIndex, setSelectedIndex] = useState<number>(getSelectedIndex(allLanguages, i18n));
+  const [activeDialog, setActiveDialog] = useState<boolean>(false);
+
+  const changeLanguage = (langCode: TActiveLanguageCodes, index: number) => {
+    setSelectedIndex(index);
+    setActiveDialog(false);
     i18n.changeLanguage(langCode);
   };
 
-  render() {
-    const { t } = this.props;
-    const {
-      selectedIndex,
-      activeDialog,
-      languages,
-    } = this.state;
-    if (languages.length === 1) {
-      return null;
-    }
-    return (
-      <div>
-        <button
-          title="Select Language"
-          className={style.link}
-          onClick={() => this.setState({ activeDialog: true })}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="2" y1="12" x2="22" y2="12" />
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-          </svg>
-          {languages[selectedIndex].code === 'en' ? 'Other languages' : 'English'}
-        </button>
-        {
-          activeDialog && (
-            <Dialog small slim title={t('language.title')} onClose={this.abort}>
-              {
-                languages.map((language, i) => {
-                  const selected = selectedIndex === i;
-                  return (
-                    <button
-                      key={language.code}
-                      className={[style.language, selected ? style.selected : ''].join(' ')}
-                      onClick={() => this.changeLanguage(language.code, i)}
-                      data-index={i}
-                      data-code={language.code}>
-                      {language.display}
-                      {
-                        selected && (
-                          <svg
-                            className={style.checked}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        )
-                      }
-                    </button>
-                  );
-                })
-              }
-            </Dialog>
-          )
-        }
-      </div>
-    );
+  if (allLanguages.length === 1) {
+    return null;
   }
-}
 
-const TranslatedLanguageSwitcher = withTranslation()(LanguageSwitch);
+  return (
+    <div>
+      <button
+        title="Select Language"
+        className={style.link}
+        onClick={() => setActiveDialog(true)}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        {allLanguages[selectedIndex].code === 'en' ? 'Other languages' : 'English'}
+      </button>
+      {
+        activeDialog && (
+          <Dialog small slim title={t('language.title')} onClose={() => setActiveDialog(false)}>
+            {
+              allLanguages.map((language, i) => {
+                const selected = selectedIndex === i;
+                return (
+                  <button
+                    key={language.code}
+                    className={[style.language, selected ? style.selected : ''].join(' ')}
+                    onClick={() => changeLanguage(language.code, i)}
+                    data-testid={`language-selection-${language.code}`}
+                  >
+                    {language.display}
+                    {
+                      selected && (
+                        <svg
+                          className={style.checked}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )
+                    }
+                  </button>
+                );
+              })
+            }
+          </Dialog>
+        )
+      }
+    </div>
+  );
+};
 
-export { TranslatedLanguageSwitcher as LanguageSwitch };
+export { LanguageSwitch };
