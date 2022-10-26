@@ -56,8 +56,8 @@
 }
 
 .activity {
-  min-width: 362px;
-  width: 362px;
+  min-width: 334px;
+  width: 334px;
   text-align: left;
 }
 
@@ -73,8 +73,8 @@
 }
 
 .currency {
-  min-width: 202px;
-  width: 202px;
+  min-width: 230px;
+  width: 230px;
   justify-content: flex-end;
 }
 
@@ -162,9 +162,29 @@
 }
 
 @media (max-width: 768px) {
+
   .container {
     margin: var(--space-default) 0;
   }
+
+
+  .fiat,
+  .currency {
+    min-width: 0;
+    width: auto;
+  }
+
+  .fiat {
+    flex-grow: 1;
+    flex-shrink: 0;
+    justify-content: flex-end;
+  }
+
+  .currency {
+    flex-grow: 0;
+    flex-shrink: 1;
+  }
+
 }
 
 @media (max-width: 666px) {
@@ -189,7 +209,8 @@
   }
 
   .status {
-    min-width: 100px;
     margin-left: 2px;
+    min-width: 14px;
+    padding-right: 0;
   }
 }

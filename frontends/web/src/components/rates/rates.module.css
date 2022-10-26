@@ -1,7 +1,8 @@
 .rates {
     cursor: default;
-    margin: 0;
     line-height: 1;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .unit {
@@ -12,6 +13,7 @@
 .unitAction {
     color: var(--color-secondary);
     font-size: var(--size-default);
+    font-variant: normal;
     position: relative;
 }
 
