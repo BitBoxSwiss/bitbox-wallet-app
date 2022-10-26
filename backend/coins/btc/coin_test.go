@@ -57,7 +57,7 @@ type testSuite struct {
 func (s *testSuite) SetupTest() {
 	s.dbFolder = test.TstTempDir("btc-dbfolder")
 
-	s.coin = btc.NewCoin(s.code, "Some coin", s.unit, s.net, s.dbFolder, nil,
+	s.coin = btc.NewCoin(s.code, "Some coin", s.unit, coin.BtcUnitDefault, s.net, s.dbFolder, nil,
 		explorer, socksproxy.NewSocksProxy(false, ""))
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(

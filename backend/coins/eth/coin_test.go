@@ -124,8 +124,6 @@ func (s *testSuite) TestParseAmount() {
 	require.Equal(s.T(), err, nil)
 	require.Equal(s.T(), intWeiAmount, intAmount)
 
-	// SetFormatUnit implementation is empty for eth
-	s.coin.SetFormatUnit("useless-string")
 	coinAmount, err = s.coin.ParseAmount(ethAmount)
 	require.Equal(s.T(), err, nil)
 	intAmount, err = coinAmount.Int64()

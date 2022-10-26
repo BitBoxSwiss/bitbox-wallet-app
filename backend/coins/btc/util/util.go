@@ -71,6 +71,6 @@ func AddressFromPkScript(pkScript []byte, net *chaincfg.Params) (btcutil.Address
 }
 
 // FormatBtcAsSat returns true if the btcUnit param is `[t]sat`.
-func FormatBtcAsSat(btcUnit string) bool {
-	return btcUnit == coin.UnitSats || btcUnit == "t"+coin.UnitSats
+func FormatBtcAsSat(btcUnit coin.BtcUnit) bool {
+	return btcUnit == coin.BtcUnitSats
 }

@@ -297,8 +297,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 
 	chartFiat := fiat
-	if fiat == rates.BTC.String() {
-		chartFiat = backend.Config().AppConfig().Backend.BtcUnit
+	if fiat == rates.BTC.String() && backend.Config().AppConfig().Backend.BtcUnit == coin.BtcUnitSats {
+		chartFiat = "sat"
 	}
 
 	var chartTotal *float64

@@ -38,7 +38,7 @@ export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GB
 export const store = new Store<SharedProps>({
   active: 'USD',
   selected: ['USD', 'EUR', 'CHF'],
-  btcUnit: 'BTC',
+  btcUnit: 'default',
 });
 
 // TODO: should not invoking apiGet imediatelly, see the apiGet() function for more details

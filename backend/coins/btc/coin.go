@@ -47,7 +47,7 @@ type Coin struct {
 	// unit is the main unit of the coin, e.g. 'BTC'
 	unit string
 	// formatUnit keeps track of the unit used, e.g. 'BTC' or 'sat' depening on if sat mode is enabled
-	formatUnit            string
+	formatUnit            coinpkg.BtcUnit
 	net                   *chaincfg.Params
 	dbFolder              string
 	makeBlockchain        func() blockchain.Interface
@@ -66,6 +66,7 @@ func NewCoin(
 	code coinpkg.Code,
 	name string,
 	unit string,
+	formatUnit coinpkg.BtcUnit,
 	net *chaincfg.Params,
 	dbFolder string,
 	servers []*config.ServerInfo,
@@ -77,7 +78,7 @@ func NewCoin(
 		code:                  code,
 		name:                  name,
 		unit:                  unit,
-		formatUnit:            unit,
+		formatUnit:            formatUnit,
 		net:                   net,
 		dbFolder:              dbFolder,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
@@ -155,20 +156,22 @@ func (coin *Coin) Unit(bool) string {
 }
 
 // SetFormatUnit implements coin.Coin.
-func (coin *Coin) SetFormatUnit(unit string) {
+func (coin *Coin) SetFormatUnit(unit coinpkg.BtcUnit) {
 	coin.formatUnit = unit
 }
 
 // GetFormatUnit implements coin.Coin.
 func (coin *Coin) GetFormatUnit() string {
-	if coin.code == coinpkg.CodeTBTC {
-		if coin.formatUnit == coinpkg.UnitSats {
-			return "t" + coin.formatUnit
+	if coin.formatUnit == coinpkg.BtcUnitSats {
+		switch coin.code {
+		case coinpkg.CodeBTC:
+			return "sat"
+		case coinpkg.CodeTBTC:
+			return "tsat"
 		}
-		return "T" + coin.formatUnit
 	}
 
-	return coin.formatUnit
+	return coin.unit
 }
 
 // Decimals implements coinpkg.Coin.
@@ -178,7 +181,7 @@ func (coin *Coin) Decimals(isFee bool) uint {
 
 // FormatAmount implements coinpkg.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount, isFee bool) string {
-	if coin.formatUnit == coinpkg.UnitSats {
+	if coin.formatUnit == coinpkg.BtcUnitSats {
 		return amount.BigInt().String()
 	}
 	return new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8)
@@ -204,7 +207,7 @@ func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 		return coinpkg.Amount{}, errp.New("Invalid amount")
 	}
 
-	if coin.formatUnit == coinpkg.UnitSats {
+	if coin.formatUnit == coinpkg.BtcUnitSats {
 		amountRat = coinpkg.Sat2Btc(amountRat)
 	}
 	return coin.SetAmount(amountRat, false), nil

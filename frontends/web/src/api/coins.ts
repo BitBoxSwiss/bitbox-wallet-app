@@ -19,7 +19,7 @@ import { CoinCode } from './account';
 import { ISuccess } from './backend';
 import { apiPost } from '../utils/request';
 
-export type BtcUnit = 'BTC' | 'sat';
+export type BtcUnit = 'default' | 'sat';
 
 interface Status {
     targetHeight: number;

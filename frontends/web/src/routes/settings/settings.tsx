@@ -135,7 +135,7 @@ class Settings extends Component<Props, State> {
       return;
     }
     const target = (event.target as HTMLInputElement);
-    var unit: BtcUnit = 'BTC';
+    var unit: BtcUnit = 'default';
     if (target.checked) {
       unit = 'sat';
     }

@@ -499,7 +499,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error
 	}
 
 	var request struct {
-		Unit string `json:"unit"`
+		Unit coinpkg.BtcUnit `json:"unit"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -513,13 +513,13 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error
 	if err != nil {
 		return response{Success: false}, nil
 	}
-	btcCoin.SetFormatUnit(unit)
+	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
 	btcCoin, err = handlers.backend.Coin(coinpkg.CodeTBTC)
 	if err != nil {
 		return response{Success: false}, nil
 	}
-	btcCoin.SetFormatUnit(unit)
+	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
 	// update BTC format unit for fiat conversions
 	for _, account := range handlers.backend.Accounts() {
@@ -745,7 +745,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 		unit = unit[2:]
 	}
 
-	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.UnitSats {
+	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
 		fiatRat = coinpkg.Sat2Btc(fiatRat)
 	}
 

@@ -120,7 +120,7 @@ class Send extends Component<Props, State> {
     noMobileChannelError: false,
     fiatUnit: fiat.state.active,
     coinControl: false,
-    btcUnit : 'BTC',
+    btcUnit : 'default',
     activeCoinControl: false,
     hasCamera: false,
     activeScanQR: false,
@@ -608,7 +608,7 @@ class Send extends Component<Props, State> {
         {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
       </span>
     ) : undefined;
-    const baseCurrencyUnit = fiatUnit === 'BTC' ? btcUnit : fiatUnit;
+    const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
     return (
       <div className="contentWithGuide">
         <div className="container">

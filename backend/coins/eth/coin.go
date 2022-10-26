@@ -119,11 +119,6 @@ func (coin *Coin) Unit(isFee bool) string {
 	return coin.unit
 }
 
-// SetFormatUnit implements coin.Coin.
-func (coin *Coin) SetFormatUnit(string) {
-	// No need for format unit on ETH coins.
-}
-
 // GetFormatUnit implements coin.Coin.
 func (coin *Coin) GetFormatUnit() string {
 	return coin.unit

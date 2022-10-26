@@ -41,8 +41,8 @@ import (
 
 var noDust = btcutil.Amount(0)
 
-var tltc = btc.NewCoin(coin.CodeTLTC, "TLTC", "Litecoin Testnet", &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
-var tbtc = btc.NewCoin(coin.CodeTBTC, "TBTC", "Bitcoin Testnet", &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
+var tltc = btc.NewCoin(coin.CodeTLTC, "Litecoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "", socksproxy.NewSocksProxy(false, ""))
+var tbtc = btc.NewCoin(coin.CodeTBTC, "Bitcoin Testnet", "TBTC", coin.BtcUnitDefault, &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
 // 1 inputs: 226
