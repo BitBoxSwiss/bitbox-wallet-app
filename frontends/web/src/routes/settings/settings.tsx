@@ -374,8 +374,7 @@ class Settings extends Component<Props, State> {
           </div>
         </div>
         <Guide>
-          <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
-          <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
+          <Entry key="guide.settings.sats" entry={t('guide.settings.sats')} />
           <Entry key="guide.accountRates" entry={{
             link: {
               text: 'www.coingecko.com',
@@ -384,6 +383,8 @@ class Settings extends Component<Props, State> {
             text: t('guide.accountRates.text'),
             title: t('guide.accountRates.title')
           }} />
+          <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
+          <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
           <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
         </Guide>
       </div>
