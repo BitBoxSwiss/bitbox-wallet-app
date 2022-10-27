@@ -65,6 +65,16 @@ class AddAccount extends Component<Props, State> {
   };
 
   public componentDidMount() {
+    this.startProcess();
+  }
+
+  public componentDidUpdate(_prevProps: Props, prevState: State) {
+    if ((prevState.step !== this.state.step) && (this.state.step === 'choose-name')) {
+      this.ref.current?.focus();
+    }
+  }
+
+  private startProcess = () => {
     backendAPI.getSupportedCoins()
       .then((coins) => {
         const onlyOneSupportedCoin = (coins.length === 1);
@@ -78,16 +88,13 @@ class AddAccount extends Component<Props, State> {
         }
       });
     this.ref.current?.focus();
-  }
-
-  public componentDidUpdate(_prevProps: Props, prevState: State) {
-    if ((prevState.step !== this.state.step) && (this.state.step === 'choose-name')) {
-      this.ref.current?.focus();
-    }
-  }
+  };
 
   private back = () => {
     switch (this.state.step) {
+    case 'select-coin':
+      route('/settings/manage-accounts');
+      break;
     case 'choose-name':
       this.setState({ step: 'select-coin', errorMessage: undefined });
       break;
@@ -142,17 +149,6 @@ class AddAccount extends Component<Props, State> {
       }
       break;
 
-    }
-  };
-
-  private isFirstStep = () => {
-    switch (this.state.step) {
-    case 'select-coin':
-      return true;
-    case 'choose-name':
-      return this.onlyOneSupportedCoin();
-    case 'success':
-      return false;
     }
   };
 
@@ -273,10 +269,21 @@ class AddAccount extends Component<Props, State> {
                   </Button>
                   <Button
                     onClick={this.back}
-                    disabled={this.isFirstStep()}
-                    hidden={this.isFirstStep() || step === 'success'}
+                    hidden={step === 'success'}
                     transparent>
                     {t('button.back')}
+                  </Button>
+                  <Button
+                    onClick={() => this.setState({
+                      accountCode: undefined,
+                      accountName: '',
+                      coinCode: 'choose',
+                      errorMessage: undefined,
+                      step: 'select-coin',
+                    }, this.startProcess)}
+                    hidden={step !== 'success'}
+                    transparent>
+                    Add another account
                   </Button>
                 </div>
               </form>
