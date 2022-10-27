@@ -114,8 +114,6 @@ export function Account({
       .catch(console.error);
   }, [onAccountChanged, code]);
 
-  useEffect(onStatusChanged, [onStatusChanged, code]);
-
   const subscriptions = useRef<UnsubscribeList>([]);
   useEffect(() => {
     unsubscribe(subscriptions.current);
