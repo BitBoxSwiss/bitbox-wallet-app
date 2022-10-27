@@ -416,6 +416,10 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		}
 	}
 
+	formatUnit := messages.BTCSignInitRequest_DEFAULT
+	if btcProposedTx.FormatUnit == coinpkg.BtcUnitSats {
+		formatUnit = messages.BTCSignInitRequest_SAT
+	}
 	signatures, err := keystore.device.BTCSign(
 		msgCoin,
 		scriptConfigs,
@@ -425,6 +429,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			Outputs:  outputs,
 			Locktime: tx.LockTime,
 		},
+		formatUnit,
 	)
 	if firmware.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)

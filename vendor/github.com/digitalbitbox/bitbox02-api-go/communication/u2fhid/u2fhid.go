@@ -31,7 +31,7 @@ const (
 
 const (
 	// CID - channel identifier.
-	cid = 0xff000000
+	cid uint32 = 0xff000000
 )
 
 func newBuffer() *bytes.Buffer {
@@ -109,7 +109,7 @@ func (communication *Communication) sendFrame(msg string) error {
 	readBuffer := bytes.NewBuffer([]byte(msg))
 	// init frame
 	header := newBuffer()
-	if err := binary.Write(header, binary.BigEndian, uint32(cid)); err != nil {
+	if err := binary.Write(header, binary.BigEndian, cid); err != nil {
 		return errp.WithStack(err)
 	}
 	if err := binary.Write(header, binary.BigEndian, communication.cmd); err != nil {
@@ -124,7 +124,7 @@ func (communication *Communication) sendFrame(msg string) error {
 	for seq := 0; readBuffer.Len() > 0; seq++ {
 		// cont frame
 		header = newBuffer()
-		if err := binary.Write(header, binary.BigEndian, uint32(cid)); err != nil {
+		if err := binary.Write(header, binary.BigEndian, cid); err != nil {
 			return errp.WithStack(err)
 		}
 		if err := binary.Write(header, binary.BigEndian, uint8(seq)); err != nil {
@@ -153,8 +153,9 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	if readLen < 7 {
 		return nil, errp.New("expected minimum read length of 7")
 	}
-	if read[0] != 0xff || read[1] != 0 || read[2] != 0 || read[3] != 0 {
-		return nil, errp.Newf("USB command ID mismatch %d %d %d %d", read[0], read[1], read[2], read[3])
+	replyCid := binary.BigEndian.Uint32(read[:4])
+	if replyCid != cid {
+		return nil, errp.Newf("USB command ID mismatch, %v != %v", cid, replyCid)
 	}
 	if read[4] != communication.cmd {
 		return nil, errp.Newf("USB command frame mismatch (%d, expected %d)", read[4], communication.cmd)
