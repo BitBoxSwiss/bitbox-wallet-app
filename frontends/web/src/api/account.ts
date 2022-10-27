@@ -142,6 +142,7 @@ export interface IAmount {
 }
 
 export interface IBalance {
+    hasAvailable: boolean;
     available: IAmount;
     hasIncoming: boolean;
     incoming: IAmount;

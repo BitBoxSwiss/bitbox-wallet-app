@@ -170,7 +170,7 @@ export function Account({
     return null;
   }
 
-  const canSend = balance && balance.available.amount !== '0';
+  const canSend = balance && balance.hasAvailable;
 
   const initializingSpinnerText =
     (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
@@ -191,7 +191,7 @@ export function Account({
 
   const showBuyButton = moonpayBuySupported
     && balance
-    && balance.available.amount === '0'
+    && !balance.hasAvailable
     && !balance.hasIncoming
     && transactions && transactions.length === 0;
 

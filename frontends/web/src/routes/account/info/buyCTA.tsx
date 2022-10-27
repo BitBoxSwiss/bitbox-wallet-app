@@ -34,7 +34,7 @@ export const AddBuyOnEmptyBalances: FunctionComponent<{balances?: Balances}> = (
     return null;
   }
   const balanceList = Object.entries(balances);
-  if (balanceList.some(entry => entry[1].available.amount !== '0')) {
+  if (balanceList.some(entry => entry[1].hasAvailable)) {
     return null;
   }
   if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
