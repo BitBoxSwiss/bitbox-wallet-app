@@ -793,6 +793,10 @@
       }
     },
     "settings": {
+      "sats": {
+        "text": "A Satoshi ('sat' for short) is the smallest unit of Bitcoin. One Satoshi is a hundred millionth of a bitcoin (0.00000001 BTC). It is named after the creator of Bitcoin, Satoshi Nakamoto.",
+        "title": "What is a Satoshi?"
+      },
       "servers": {
         "text": "This app communicates with the Shift Crypto servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CoinGecko. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"
@@ -1241,7 +1245,7 @@
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",
-      "useSats": "Display BTC values in sat"
+      "useSats": "Display BTC values in Satoshis"
     },
     "header": {
       "home": "Home"
