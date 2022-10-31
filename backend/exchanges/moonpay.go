@@ -14,9 +14,10 @@ const (
 	// Test assets and notes:
 	// - working fake CC: 4000 0231 0466 2535, 12/2020, 123
 	// - always declined CC: 4008 3708 9666 2369, 12/2020, 123
-	// - TBTC and TETH work; send them back after a purchase to
+	// - TBTC and testnet ETH works; send them back after a purchase to
 	//   tb1q45h8zexwztmz3nyd8gmkxhpavdsva4znwwhzvs and
-	//   0xc216eD2D6c295579718dbd4a797845CdA70B3C36, respectively
+	//   0xc216eD2D6c295579718dbd4a797845CdA70B3C36, respectively.
+	//   TODO: used to be Ropsten, which has been shut down. Replace with another tesntet.
 	// - KYC always succeeds; simply click on "submit anyway"
 	// - need to provide a valid email addr to receive a check code;
 	//   any temp email service like fakermail.com will do
@@ -49,7 +50,8 @@ var moonpayAPICryptoCode = map[coin.Code]string{ // -> moonpay crypto currency c
 
 	// Test mode.
 	coin.CodeTBTC: "btc", // testnet
-	coin.CodeTETH: "eth", // ropsten
+	// TODO: Ropsten is shut down, check which other testnet Moonpay supports.
+	// coin.CodeTETH: "eth", // ropsten
 }
 
 // moonpayAPIPaymentMethods defines which payment methods can be used in onramp.

@@ -35,7 +35,7 @@ describe('removeTrailingZeroes', () => {
   });
 
   describe('coins that don\'t need to remove trailing zeroes', () => {
-    coins = ['ETH', 'TETH', 'RETH', 'GOETH'];
+    coins = ['ETH', 'GOETH'];
     coins.forEach(coin => {
       it('10.00000000 ' + coin + ' stays 10.00000000', () => {
         expect(bitcoinRemoveTrailingZeroes('10.00000000', coin)).toBe('10.00000000');
@@ -50,4 +50,3 @@ describe('removeTrailingZeroes', () => {
   });
 
 });
-
