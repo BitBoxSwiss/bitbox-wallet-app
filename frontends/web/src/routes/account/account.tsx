@@ -66,7 +66,7 @@ export function Account({
 
   const hasCard = useSDCard(devices, [code]);
 
-  const onAccountChanged = useCallback(() => {
+  const onAccountChanged = useCallback((code: string, status: accountApi.IStatus | undefined) => {
     if (!code || status === undefined || status.fatalError) {
       return;
     }
@@ -93,30 +93,26 @@ export function Account({
       setBalance(undefined);
       setTransactions(undefined);
     }
-  }, [code, status]);
+  }, []);
 
   const onStatusChanged = useCallback(() => {
     const currentCode = code;
     if (!currentCode) {
       return;
     }
-    accountApi.getStatus(currentCode).then(status => {
+    accountApi.getStatus(currentCode).then(async status => {
       if (currentCode !== code) {
         // Results came in after the account was switched. Ignore.
         return;
       }
-      if (!status.disabled) {
-        if (!status.synced) {
-          accountApi.init(currentCode).catch(console.error);
-        }
-      }
       setStatus(status);
+      if (!status.disabled && !status.synced) {
+        await accountApi.init(currentCode).catch(console.error);
+      }
+      onAccountChanged(code, status);
     })
       .catch(console.error);
-  }, [code]);
-
-  useEffect(onAccountChanged, [onAccountChanged, status]);
-  useEffect(onStatusChanged, [onStatusChanged, code]);
+  }, [onAccountChanged, code]);
 
   const subscriptions = useRef<UnsubscribeList>([]);
   useEffect(() => {
@@ -128,7 +124,7 @@ export function Account({
         }
       }),
       statusChanged(code, () => onStatusChanged()),
-      syncdone(code, () => onAccountChanged()),
+      syncdone(code, () => onAccountChanged(code, status)),
     );
     const unsubscribeList = subscriptions.current;
     return () => unsubscribe(unsubscribeList);
