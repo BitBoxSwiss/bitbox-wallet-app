@@ -15,46 +15,75 @@
  */
 
 import 'jest';
-import { mount } from 'enzyme';
-jest.mock('../../i18n/i18n');
-import i18n from '../../i18n/i18n';
 import { LanguageSwitch } from './language';
-import { act } from 'react-dom/test-utils';
+import { render, fireEvent } from '@testing-library/react';
+
+import { useTranslation } from 'react-i18next';
+import { TLanguagesList } from './types';
+
+jest.mock('react-i18next');
+const useTranslationSpy = useTranslation;
 
 describe('components/language/language', () => {
+
+
+  const supportedLangs = [
+    { code: 'en-US', display: 'English' },
+    { code: 'pt', display: 'Portugues' },
+    { code: 'ms', display: 'Bahasa Melayu' },
+    { code: 'de', display: 'Deutsch' },
+  ] as TLanguagesList;
+
+  /**
+   * renderSwitchAndOpenDialog is a util function used to render
+   * the language switch and open the language dialog. This returns
+   * `RenderResult` from the render function of `@testing-library/react`.
+   */
+  function renderSwitchAndOpenDialog() {
+    const rendered = render(<LanguageSwitch languages={supportedLangs} />);
+    const btn = rendered.getByTitle('Select Language');
+    fireEvent.click(btn);
+    return rendered;
+  }
+
   describe('selectedIndex', () => {
-    const supportedLangs = [
-      { code: 'en', display: 'EN' },
-      { code: 'en-US', display: 'EN' },
-      { code: 'pt', display: 'PT' },
-    ];
-
-    supportedLangs.forEach((lang, idx) => {
-      it(`returns exact match (${lang.code})`, async () => {
-        await i18n.changeLanguage(lang.code);
-
-        let ctx: any;
-        act(() => {
-          /* @ts-ignore */
-          ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
+    supportedLangs.forEach((lang) => {
+      it(`returns exact match (${lang.code})`, () => {
+        (useTranslationSpy as jest.Mock).mockReturnValue({
+          t: jest.fn(),
+          i18n: {
+            language: lang.code
+          },
         });
 
-        expect(ctx.childAt(0).state('selectedIndex')).toEqual(idx);
+        const { getByTestId } = renderSwitchAndOpenDialog();
+        const selectedLang = getByTestId(`language-selection-${lang.code}`);
+        expect(selectedLang.classList.contains('selected')).toBe(true);
       });
     });
 
-    it('matches main language tag', async () => {
-      await i18n.changeLanguage('pt_BR');
-      /* @ts-ignore */
-      const ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
-      expect(ctx.childAt(0).state('selectedIndex')).toEqual(2); // 'pt'
+    it('matches main language tag', () => {
+      (useTranslationSpy as jest.Mock).mockReturnValue({
+        t: jest.fn(),
+        i18n: {
+          language: 'de'
+        },
+      });
+      const { getByTestId } = renderSwitchAndOpenDialog();
+      const selectedLang = getByTestId('language-selection-de');
+      expect(selectedLang.classList.contains('selected')).toBe(true);
     });
 
-    it('returns default if none matched', async () => {
-      await i18n.changeLanguage('it');
-      /* @ts-ignore */
-      const ctx = mount(<LanguageSwitch i18n={i18n} languages={supportedLangs} />);
-      expect(ctx.childAt(0).state('selectedIndex')).toEqual(0); // 'en'
+    it('returns default if none matched', () => {
+      (useTranslationSpy as jest.Mock).mockReturnValue({
+        t: jest.fn(),
+        i18n: {
+          language: 'it'
+        },
+      });
+      const { getByTestId } = renderSwitchAndOpenDialog();
+      const defaultLang = getByTestId('language-selection-en-US');
+      expect(defaultLang.classList.contains('selected')).toBe(true);
     });
   });
 });
