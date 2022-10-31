@@ -36,7 +36,7 @@ jest.mock('../../../../src/decorators/load', () => ({
 }));
 
 import { FeeTargets } from '../../../routes/account/send/feetargets';
-import { mount, shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 describe('routes/account/send/feetargets', () => {
 
@@ -49,7 +49,7 @@ describe('routes/account/send/feetargets', () => {
       ],
     });
 
-    const fee = shallow(
+    const { container } = render(
       <FeeTargets
         accountCode="btc"
         coinCode="btc"
@@ -82,7 +82,7 @@ describe('routes/account/send/feetargets', () => {
         onCustomFee={jest.fn()}
         onFeeTargetChange={jest.fn()} />,
     );
-    expect(fee).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should match the snapshot with empty feetargets', () => {
@@ -91,7 +91,7 @@ describe('routes/account/send/feetargets', () => {
       feeTargets: [],
     });
 
-    const fee = mount(
+    const { container } = render(
       <FeeTargets
         accountCode="eth"
         coinCode="eth"
@@ -101,7 +101,7 @@ describe('routes/account/send/feetargets', () => {
         onCustomFee={jest.fn()}
         onFeeTargetChange={jest.fn()} />,
     );
-    expect(fee).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should call onFeeTargetChange with default', done => {
@@ -118,7 +118,7 @@ describe('routes/account/send/feetargets', () => {
       done();
     };
 
-    shallow(
+    render(
       <FeeTargets
         accountCode="btc"
         coinCode="btc"
