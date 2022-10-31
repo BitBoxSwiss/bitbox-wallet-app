@@ -16,7 +16,9 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ElectrumAddServer } from './electrum-add-server';
 import { ElectrumServer } from './electrum-server';
+import { TElectrumServer } from './types';
 import { getConfig, getDefaultConfig, setConfig } from '../../api/backend';
 import { confirmation } from '../../components/confirm/Confirm';
 import style from './electrum.module.css';
@@ -25,12 +27,6 @@ import A from '../../components/anchor/anchor';
 type Props = {
   coin: 'btc' | 'tbtc' | 'ltc' | 'tltc';
 };
-
-type IElectrumServer = {
-  server: string;
-  tls: boolean;
-  pemCert: string;
-}
 
 export const ElectrumServers = ({
   coin
@@ -44,16 +40,16 @@ export const ElectrumServers = ({
   if (config === undefined) {
     return null;
   }
-  const electrumServers: IElectrumServer[] = config.backend[coin].electrumServers;
+  const electrumServers: TElectrumServer[] = config.backend[coin].electrumServers;
 
-  const save = async (newElectrumServers: IElectrumServer[]) => {
+  const save = async (newElectrumServers: TElectrumServer[]) => {
     const currentConfig = await getConfig();
     currentConfig.backend[coin].electrumServers = newElectrumServers;
     await setConfig(currentConfig);
     setConfigState(currentConfig);
   };
 
-  const onAdd = (server: IElectrumServer) => {
+  const onAdd = (server: TElectrumServer) => {
     let newElectrumServers = [...electrumServers, server];
     save(newElectrumServers);
   };
@@ -74,7 +70,7 @@ export const ElectrumServers = ({
     });
   };
 
-  const onRemoveCb = (server: IElectrumServer, index: number) => (() => {
+  const onRemoveCb = (server: TElectrumServer, index: number) => (() => {
     confirmation(t('settings.electrum.removeConfirm', { server: server.server }), confirmed => {
       if (confirmed) {
         onRemove(index);
@@ -93,7 +89,7 @@ export const ElectrumServers = ({
           {
             electrumServers.map((server, index) => (
               <ElectrumServer
-                key={server.server + server.tls.toString()}
+                key={server.server + server.tls.toString() + '-' + index.toString()}
                 server={server}
                 onRemove={onRemoveCb(server, index)}
               />
@@ -104,7 +100,7 @@ export const ElectrumServers = ({
       <hr />
       <div className="row">
         <h4 className="subTitle">{t('settings.electrum.add')}</h4>
-        <ElectrumServer server={null} onAdd={onAdd} />
+        <ElectrumAddServer onAdd={onAdd} />
       </div>
     </div>
   );
