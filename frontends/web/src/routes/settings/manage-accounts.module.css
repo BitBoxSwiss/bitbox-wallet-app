@@ -12,10 +12,6 @@
     flex-shrink: 0;
 }
 
-.setting.disabled > p {
-    color: var(--color-gray-alt);
-}
-
 .coinLogo {
     position: relative;
     z-index: 2;
@@ -113,7 +109,7 @@
 .tokenActive {}
 
 .tokenInactive {
-    color: var(--color-gray-alt);
+    color: var(--color-tertiary);
     transition: color 0.2s ease;
 }
 

@@ -117,7 +117,7 @@
     display: inline-block;
     text-decoration: none;
     background-color: var(--color-blue);
-    color: var(--color-white);
+    color: var(--color-alt);
     width: 18px;
     height: 18px;
     line-height: 18px;

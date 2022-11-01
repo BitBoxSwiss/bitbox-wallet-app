@@ -3,7 +3,7 @@
 }
 
 .columnAsCard {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     padding: var(--space-default);
 }
 

@@ -3,7 +3,7 @@
 }
 
 .row {
-    background-color: var(--color-white) !important;
+    background-color: var(--background-secondary) !important;
     min-height: 52px;
 }
 
@@ -112,7 +112,7 @@
 .label,
 .columnLabel,
 .inlineLabel {
-    color: var(--color-gray);
+    color: var(--color-secondary);
     font-size: var(--size-default);
 }
 
@@ -203,7 +203,7 @@
 
 .editButton path,
 .editButton polyline {
-    stroke: var(--color-gray-alt);
+    stroke: var(--background-tertiary);
 }
 
 .editButton:focus path,
