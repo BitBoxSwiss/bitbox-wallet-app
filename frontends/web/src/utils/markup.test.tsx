@@ -15,38 +15,39 @@
  */
 
 import 'jest';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 import { multilineMarkup, SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
   it('contains a strong element with the text bar', () => {
-    const paragaph = mount(<SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />);
-    expect(paragaph.getDOMNode().nodeName).toEqual('P');
-    expect(paragaph.find('strong').text()).toEqual('bar');
+    const { container } = render(<SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />);
+    // container is a div that wraps whatever element that's being rendered
+    expect(container.firstElementChild?.nodeName).toBe('P');
+    expect(container.querySelector('strong')).toHaveTextContent('bar');
   });
   it('should but doesnt support multiple strong elements', () => {
-    const span = mount(<SimpleMarkup tagName="span" markup="<strong>foo</strong> <strong>bar</strong> <strong>baz</strong>" />);
-    expect(span.getDOMNode().nodeName).toEqual('SPAN');
-    expect(span.text()).toEqual('<strong>foo</strong> <strong>bar</strong> baz');
+    const { container } = render(<SimpleMarkup tagName="span" markup="<strong>foo</strong> <strong>bar</strong> <strong>baz</strong>" />);
+    expect(container.firstElementChild?.nodeName).toBe('SPAN');
+    expect(container.textContent).toBe('<strong>foo</strong> <strong>bar</strong> baz');
   });
 });
 
 describe('multilineMarkup', () => {
   it('contains multiple lines with a strong element each', () => {
-    const multiline = mount(
+    const { container } = render(
       <div>
         {multilineMarkup({
           tagName: 'p', markup: 'foo <strong>bar</strong> baz\n<strong>booz</strong>'
         })}
       </div>
     );
-    const paragaphs = multiline.first().find('p');
-    expect(paragaphs.length).toEqual(2);
-    const first = paragaphs.first();
-    const last = paragaphs.last();
-    expect(first.text()).toEqual('foo bar baz');
-    expect(first.find('strong').text()).toEqual('bar');
-    expect(last.text()).toEqual('booz');
-    expect(last.find('strong').text()).toEqual('booz');
+    const paragraphs = container.querySelectorAll('p');
+    expect(paragraphs).toHaveLength(2);
+    const first = paragraphs[0];
+    const last = paragraphs[1];
+    expect(first.textContent).toBe('foo bar baz');
+    expect(first.querySelector('strong')).toHaveTextContent('bar');
+    expect(last.textContent).toBe('booz');
+    expect(last.querySelector('strong')).toHaveTextContent('booz');
   });
 });

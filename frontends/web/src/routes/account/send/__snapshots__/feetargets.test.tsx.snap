@@ -1,64 +1,59 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`routes/account/send/feetargets should match the snapshot 1`] = `
-<ForwardRef(Input)
-  disabled={true}
-  id="feetarget"
-  label="send.priority"
-  placeholder="send.feeTarget.placeholder"
-  transparent={true}
-  value=""
-/>
+<div>
+  <div
+    class="input align-left  isTransparent"
+  >
+    <div
+      class="flex flex-row flex-between"
+    >
+      <label
+        class=""
+        for="feetarget"
+      >
+        send.priority
+      </label>
+    </div>
+    <input
+      autocomplete="off"
+      autocorrect="off"
+      disabled=""
+      id="feetarget"
+      placeholder="send.feeTarget.placeholder"
+      spellcheck="false"
+      type="text"
+      value=""
+    />
+  </div>
+</div>
 `;
 
 exports[`routes/account/send/feetargets should match the snapshot with empty feetargets 1`] = `
-<FeeTargets
-  accountCode="eth"
-  coinCode="eth"
-  config={
-    Object {
-      "frontend": Object {},
-    }
-  }
-  customFee=""
-  disabled={false}
-  fiatUnit="EUR"
-  onCustomFee={[MockFunction]}
-  onFeeTargetChange={[MockFunction]}
-  t={[Function]}
->
-  <ForwardRef(Input)
-    disabled={true}
-    id="feetarget"
-    label="send.priority"
-    placeholder="send.feeTarget.placeholder"
-    transparent={true}
-    value=""
+<div>
+  <div
+    class="input align-left  isTransparent"
   >
     <div
-      className="input align-left  isTransparent"
+      class="flex flex-row flex-between"
     >
-      <div
-        className="flex flex-row flex-between"
+      <label
+        class=""
+        for="feetarget"
       >
-        <label
-          className=""
-          htmlFor="feetarget"
-        >
-          send.priority
-        </label>
-      </div>
-      <input
-        autoComplete="off"
-        autoCorrect="off"
-        disabled={true}
-        id="feetarget"
-        placeholder="send.feeTarget.placeholder"
-        spellCheck={false}
-        type="text"
-        value=""
-      />
+        send.priority
+      </label>
     </div>
-  </ForwardRef(Input)>
-</FeeTargets>
+    <input
+      autocomplete="off"
+      autocorrect="off"
+      disabled=""
+      id="feetarget"
+      placeholder="send.feeTarget.placeholder"
+      spellcheck="false"
+      type="text"
+      value=""
+    />
+  </div>
+</div>
 `;
