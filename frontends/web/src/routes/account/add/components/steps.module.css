@@ -79,7 +79,7 @@
 }
 
 .wait {
-    color: var(--color-gray-alt);
+    color: var(--color-tertiary);
 }
 
 .finish .dot::before,
@@ -88,7 +88,7 @@
 }
 
 .wait .dot::before {
-    background: var(--color-mediumgray);
+    background: var(--background-quaternary);
     height: var(--icon-size-small);
     width: var(--icon-size-small);
 }

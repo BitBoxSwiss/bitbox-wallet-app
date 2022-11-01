@@ -46,7 +46,7 @@ dt {
 .labelButton {
     padding: var(--space-quarter) var(--space-half);
     border-radius: 2px;
-    color: var(--color-white);
+    color: var(--color-alt);
     transition: background-color ease-in-out 0.2s;
     will-change: background-color;
 }

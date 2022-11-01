@@ -12,7 +12,7 @@
 
 .checkbox input + label::before,
 .checkbox input + label::after {
-    background: rgb(255, 255, 255);
+    background: var(--background-secondary);
     box-sizing: border-box;
     content: '';
     display: inline-block;
@@ -31,21 +31,21 @@
     top: -1px;
 }
 .success input + label::before {
-    border-color: var(--color-white);
+    border-color: var(--background-secondary);
     outline: 1px solid var(--color-success);
 }
 .warning input + label::before {
-    border-color: var(--color-white);
+    border-color: var(--background-secondary);
     outline: 1px solid var(--color-warning);
 }
 .info input + label::before {
-    border-color: var(--color-white);
+    border-color: var(--background-secondary);
     outline: 1px solid var(--color-info);
 }
 
 .checkbox input + label::after {
     background: transparent;
-    border: solid var(--color-white);
+    border: solid var(--color-alt);
     border-width: 0px 2px 2px 0;
     width: 0.35em;
     height: 0.55em;
@@ -69,19 +69,19 @@
 .success input:checked + label::before {
     background-color: var(--color-success);
     border-color: var(--color-success);
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .warning input:checked + label::before {
     background-color: var(--color-warning);
     border-color: var(--color-warning);
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .info input:checked + label::before {
     background-color: var(--color-info);
     border-color: var(--color-info);
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .checkbox input:checked + label::after {

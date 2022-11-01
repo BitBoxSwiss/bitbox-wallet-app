@@ -36,7 +36,7 @@
 
 .toast p {
     margin: 0;
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 @media (max-width: 768px) {

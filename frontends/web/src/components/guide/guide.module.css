@@ -11,7 +11,7 @@
 }
 
 .close {
-    color: var(--color-white);
+    color: var(--color-alt);
     font-size: var(--size-default) !important;
     text-decoration: none;
     display: flex;

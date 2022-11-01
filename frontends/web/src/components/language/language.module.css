@@ -40,7 +40,7 @@
 }
 
 .language:hover {
-    background-color: var(--color-lightgray);
+    background-color: var(--background);
 }
 
 .checked {

@@ -100,7 +100,7 @@
 }
 
 :global(.exchange-hostname) {
-    color: var(--color-gray);
+    color: var(--color-secondary);
     padding-top: calc(var(--space-half) * .5);
 }
 

@@ -30,7 +30,7 @@
 .send {
     background-color: var(--color-blue);
     border-radius: 2px;
-    color: var(--color-white);
+    color: var(--color-alt);
     display: inline-block;
     font-size: var(--size-default);
     height: calc(var(--item-height) / 1.5);

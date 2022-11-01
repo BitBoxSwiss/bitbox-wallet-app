@@ -20,7 +20,7 @@
     position: fixed;
     margin-left: calc(var(--sidebar-width-large) * -1);
     align-content: stretch;
-    background-color: var(--color-softblack);
+    background-color: var(--background-dark);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -73,7 +73,7 @@
 .sidebarHeader {
     font-size: var(--sidebar-header-size);
     line-height: var(--sidebar-header-line-height);
-    color: var(--color-gray);
+    color: var(--color-secondary);
     text-transform: uppercase;
 }
 
@@ -137,7 +137,7 @@
 a.sidebar-active .sidebar_label,
 .sidebar a:hover .sidebar_label,
 .activeGroup .sidebar_label {
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .sidebar a.sidebar-active .sidebar_label {
@@ -191,7 +191,7 @@ a.sidebar-active .single img,
 }
 
 .sidebar_label {
-    color: var(--color-mediumgray);
+    color: var(--color-light);
     line-height: 1;
     flex: 1;
     padding-top: 0;
