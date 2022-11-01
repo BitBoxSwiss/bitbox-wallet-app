@@ -15,8 +15,8 @@
  */
 
 import { Component } from 'react';
+import * as bitbox02API from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
@@ -45,9 +45,7 @@ class Check extends Component<Props, State> {
   };
 
   private checkBackup = (silent: boolean, backups: Backup[]) => {
-    apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
-      silent,
-    }).then( response => {
+    bitbox02API.checkBackup(this.props.deviceID, silent).then(response => {
       let message;
       // "silent" call gets the backup id from device without blocking to display in dialogue
       if (silent && response.success && response.backupID) {
