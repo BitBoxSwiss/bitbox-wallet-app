@@ -96,7 +96,7 @@ type Header struct {
 // other backends can implement the same interface.
 //go:generate mockery --name Interface
 type Interface interface {
-	ScriptHashGetHistory(ScriptHashHex, func(TxHistory), func(error))
+	ScriptHashGetHistory(ScriptHashHex) (TxHistory, error)
 	TransactionGet(chainhash.Hash) (*wire.MsgTx, error)
 	ScriptHashSubscribe(func() func(error), ScriptHashHex, func(string))
 	HeadersSubscribe(func() func(error), func(*Header))
