@@ -92,6 +92,10 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	transactions.blockchain.GetMerkle(
 		txHash, height,
 		func(merkle []blockchain.TXHash, pos int) {
+			if transactions.isClosed() {
+				transactions.log.Debug("GetMerkle after the instance was closed")
+				return
+			}
 			expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
 			if expectedMerkleRoot != header.MerkleRoot {
 				transactions.log.Warning("Merkle root verification failed")

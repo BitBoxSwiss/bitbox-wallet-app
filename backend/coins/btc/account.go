@@ -573,6 +573,11 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
 func (account *Account) ensureAddresses() {
+	if account.isClosed() {
+		account.log.Debug("Stopping ensureAddresses as the account was closed")
+		return
+	}
+
 	defer account.Synchronizer.IncRequestsCounter()()
 
 	dbTx, err := account.db.Begin()
