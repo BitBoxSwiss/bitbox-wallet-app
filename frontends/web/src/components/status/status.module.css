@@ -33,7 +33,7 @@
 .success label, /* also force label elements to use color white */
 .warning label,
 .info label {
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .close-success {

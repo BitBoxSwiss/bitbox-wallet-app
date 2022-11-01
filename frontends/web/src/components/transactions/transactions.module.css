@@ -16,7 +16,7 @@
 
 .columns {
   align-items: center;
-  background-color: var(--color-white);
+  background-color: var(--background-secondary);
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -25,7 +25,6 @@
 }
 
 .headers {
-  color: var(--color-softblack);
   font-weight: bold;
   height: 48px;
 }
@@ -86,7 +85,7 @@
 }
 
 .empty {
-  background-color: var(--color-white);
+  background-color: var(--background-secondary);
   height: 52px;
   display: flex;
   flex-direction: row;

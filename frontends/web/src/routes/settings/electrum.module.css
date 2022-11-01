@@ -21,7 +21,7 @@
 }
 
 .servers {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     list-style: none;
     padding: var(--space-quarter) var(--space-half);
     margin: 0;
@@ -89,7 +89,7 @@
 
 .primary {
     background-color: var(--color-blue);
-    color: var(--color-white);
+    color: var(--color-alt);
     transition: background-color 0.2s ease-in-out;
     will-change: background-color;
 }
@@ -100,7 +100,7 @@
 
 .warning {
     background-color: var(--color-softred);
-    color: var(--color-white);
+    color: var(--color-alt);
     transition: background-color 0.2s ease-in-out;
     will-change: background-color;
 }
@@ -124,7 +124,7 @@
 .addServer {
     margin-top: var(--space-half);
     margin-bottom: var(--space-default);
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     padding: var(--space-half);
 }
 

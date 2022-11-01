@@ -79,7 +79,7 @@
 }
 
 .wait {
-    color: var(--color-gray-alt);
+    color: var(--color-tertiary);
 }
 
 .finish .dot::before,

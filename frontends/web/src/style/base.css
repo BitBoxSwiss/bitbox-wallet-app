@@ -92,7 +92,7 @@ svg {
 }
 
 pre {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     display: block;
     font-family: monospace;
     font-size: 20px;

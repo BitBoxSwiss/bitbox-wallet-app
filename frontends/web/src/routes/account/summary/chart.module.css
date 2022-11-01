@@ -36,10 +36,10 @@
 
 .filters button {
   appearance: none;
-  background: var(--color-white);
-  border: 2px solid var(--color-white);
+  background: var(--background-secondary);
+  border: 2px solid var(--background-secondary);
   border-radius: 2rem;
-  color: var(--color-softblack);
+  color: var(--color-default);
   line-height: 1.75;
   margin-bottom: var(--spacing-half);
   margin-left: var(--spacing-half);
@@ -54,13 +54,13 @@
 .filters button.filterActive {
   background: var(--color-blue);
   border-color: var(--color-blue);
-  color: var(--color-white);
+  color: var(--color-alt);
 }
 
 .filters button[disabled] {
   background: var(--color-mediumgray);
   border-color: var(--color-mediumgray);
-  color: var(--color-white);
+  color: var(--color-alt);
 }
 
 .arrow svg {

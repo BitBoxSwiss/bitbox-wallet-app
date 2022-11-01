@@ -1,6 +1,6 @@
 .button {
     align-items: center;
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     border: none;
     border-radius: 50%;
     cursor: pointer;

@@ -74,7 +74,7 @@
 
 .qrButton {
     border: none;
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     width: 18px;
     height: 18px;
     padding: 0;
