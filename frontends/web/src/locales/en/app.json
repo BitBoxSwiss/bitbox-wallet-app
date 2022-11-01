@@ -689,6 +689,26 @@
       "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
       "title": "How to import my transactions into CoinTracking?"
     },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Read more about the authenticity check"
+        },
+        "text": "The BitBoxApp performs an attestation check on the BitBox02 to verify if the device is genuine. The check is done locally and does not connect to any servers.",
+        "title": "How does the authenticity check work?"
+      },
+      "name": {
+        "text": "This is the name of your wallet and backup. The name is used for future backups and can be used to help distinguish between different wallets. It can be changed at any time but note that backups made before the change will still use the previous name.",
+        "title": "What is the BitBox02 name used for?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Read more about the secure chip"
+        },
+        "text": "This information shows the model number of the secure chip, the most up to date chip is ATECC608B with improved security features compared to older models.",
+        "title": "Why show the secure chip model?"
+      }
+    },
     "exchanges": {
       "commission": {
         "text": "This page uses affiliate links where available. However, not all listed exchanges have an affiliate program. Whether an exchange offers one does not influence our decision to list them.",

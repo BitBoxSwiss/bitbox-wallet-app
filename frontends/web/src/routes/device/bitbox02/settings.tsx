@@ -32,6 +32,7 @@ import { SetDeviceName } from './setdevicename';
 import { ShowMnemonic } from './showmnemonic';
 import { UpgradeButton } from './upgradebutton';
 import { alertUser } from '../../../components/alert/Alert';
+import { ManageDeviceGuide } from './settings-guide';
 
 type Props = {
     deviceID: string;
@@ -137,6 +138,7 @@ export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
           </Footer>
         </div>
       </div>
+      <ManageDeviceGuide />
     </div>
   );
 };
