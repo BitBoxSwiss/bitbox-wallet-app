@@ -73,6 +73,10 @@ export const ElectrumAddServer = ({
     setLoadingCheck(false);
   };
 
+  const downloadCertButtonDisabled: boolean = electrumServer.trim().length === 0 || electrumCert.trim().length > 0 || loadingCert;
+
+  const checkConnectionButtonDisabled: boolean = electrumServer.trim().length === 0 || loadingCheck;
+
   return (
     <div className={style.addServer}>
       <div className="flex flex-row flex-start flex-wrap">
@@ -104,7 +108,7 @@ export const ElectrumAddServer = ({
         placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'}
       />
       <div className={[style.block, 'flex flex-row flex-end'].join(' ')}>
-        <Button primary disabled={loadingCert || electrumCert !== ''} onClick={downloadCert}>
+        <Button primary disabled={downloadCertButtonDisabled} onClick={downloadCert}>
           {
             loadingCert && (
               <div className={style.miniSpinnerContainer}>
@@ -122,7 +126,7 @@ export const ElectrumAddServer = ({
         </div>
       </div>
       <div className={['flex flex-row flex-end spaced', style.block].join(' ')}>
-        <Button primary disabled={electrumServer === '' || loadingCheck} onClick={check}>
+        <Button primary disabled={checkConnectionButtonDisabled} onClick={check}>
           {
             loadingCheck && (
               <div className={style.miniSpinnerContainer}>
