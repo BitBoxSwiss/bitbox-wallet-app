@@ -54,7 +54,7 @@
     word-break: normal;
 }
 
-.servers .server > div button[disabled] {
+.servers .server > div button[disabled], textarea[name="electrumCert"] ~ div button[disabled] {
     background-color: var(--color-disabled);
     color: var(--color-secondary);
 }
