@@ -97,11 +97,15 @@ export const verifyAttestation = (
   return apiGet(`devices/bitbox02/${deviceID}/attestation`);
 };
 
-type CheckBackupResponse = FailResponse | (SuccessResponse & { backupID: string; });
-
 export const checkBackup = (
   deviceID: string,
   silent: boolean,
-): Promise<CheckBackupResponse> => {
-  return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent });
+): Promise<string> => {
+  return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent })
+    .then((response: FailResponse | (SuccessResponse & { backupID: string; })) => {
+      if (response.success) {
+        return response.backupID;
+      }
+      throw response;
+    });
 };
