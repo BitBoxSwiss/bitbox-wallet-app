@@ -47,8 +47,10 @@ docker run -v $BITCOIN_DATADIR:/bitcoin --name=bitcoind-regtest \
        -e RPCUSER=dbb \
        -e RPCPASSWORD=dbb \
        -p 10332:10332 \
+       -p 12340:12340 \
        kylemanna/bitcoind \
        -regtest \
+       -fallbackfee=0.00001 \
        -port=12340 \
        -rpcport=10332 \
        -rpcbind=0.0.0.0 \
@@ -60,12 +62,14 @@ docker run \
        -v $BITCOIN_DATADIR/.bitcoin:/bitcoin \
        -v $ELECTRS_DATADIR:/data \
        --name=electrs-regtest \
-       benma2/electrs \
-       /electrs/electrs -vvvv --cookie-file=/data/rpccreds --timestamp --network=regtest --daemon-rpc-addr=${DOCKER_IP}:10332 --electrum-rpc-addr=127.0.0.1:52001 --daemon-dir=/bitcoin --db-dir=/data &
+       benma2/electrs:v0.9.9 \
+        --cookie-file=/data/rpccreds --log-filters INFO --timestamp --network=regtest --daemon-rpc-addr=${DOCKER_IP}:10332 --daemon-p2p-addr=${DOCKER_IP}:12340 --electrum-rpc-addr=127.0.0.1:52001 --daemon-dir=/bitcoin --db-dir=/data &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
+echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet"
 echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
 echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
 echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
+echo "Delete headers-rbtc.bin in the app cache folder before running the BitBoxApp, otherwise it can conflict the fresh regtest chain."
 
 while true; do sleep 1; done

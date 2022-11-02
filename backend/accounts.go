@@ -84,10 +84,12 @@ func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, fi
 	var accounts []*config.Account
 	for idx := range accountsConfig.Accounts {
 		account := &accountsConfig.Accounts[idx]
-		if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
-			// Don't load testnet accounts when running normally, nor mainnet accounts when running
-			// in testing mode
-			continue
+		if !backend.arguments.Regtest() {
+			if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
+				// Don't load testnet accounts when running normally, nor mainnet accounts when running
+				// in testing mode
+				continue
+			}
 		}
 		if isRegtest := account.CoinCode == coinpkg.CodeRBTC; isRegtest != backend.arguments.Regtest() {
 			// Don't load regtest accounts when running normally, nor mainnet accounts when running
