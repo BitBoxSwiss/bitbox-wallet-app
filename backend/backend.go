@@ -67,7 +67,6 @@ var fixedURLWhitelist = []string{
 	"https://shiftcrypto.support/",
 	// Exchange rates.
 	"https://www.coingecko.com/",
-	"https://www.cryptocompare.com/",
 	// Block explorers.
 	"https://blockstream.info/tx/",
 	"https://blockstream.info/testnet/tx/",
