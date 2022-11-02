@@ -46,7 +46,7 @@ func (s *testSuite) SetupTest() {
 
 	s.ERC20Coin = NewCoin(
 		nil,
-		coin.CodeERC20TEST,
+		"ERC20TEST",
 		"ERC20Test",
 		"TOK",
 		"TOK",

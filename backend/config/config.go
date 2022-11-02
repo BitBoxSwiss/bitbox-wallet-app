@@ -73,8 +73,10 @@ type Backend struct {
 	LTC  btcCoinConfig `json:"ltc"`
 	TLTC btcCoinConfig `json:"tltc"`
 	ETH  ethCoinConfig `json:"eth"`
-	TETH ethCoinConfig `json:"teth"`
-	RETH ethCoinConfig `json:"reth"`
+
+	// Removed in v4.35 - don't reuse these two keys.
+	TETH struct{} `json:"teth"`
+	RETH struct{} `json:"reth"`
 
 	// FiatList contains all enabled fiat currencies.
 	// These are used in the UI as well as by RateUpdater to fetch historical exchange rates.
@@ -102,7 +104,7 @@ func (backend Backend) DeprecatedCoinActive(code coin.Code) bool {
 		return backend.DeprecatedBitcoinActive
 	case coin.CodeLTC, coin.CodeTLTC:
 		return backend.DeprecatedLitecoinActive
-	case coin.CodeETH, coin.CodeTETH, coin.CodeRETH, coin.CodeGOETH, coin.CodeERC20TEST:
+	case coin.CodeETH, coin.CodeGOETH:
 		return backend.DeprecatedEthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
@@ -209,12 +211,6 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				DeprecatedActiveERC20Tokens: []string{},
-			},
-			TETH: ethCoinConfig{
-				DeprecatedActiveERC20Tokens: []string{},
-			},
-			RETH: ethCoinConfig{
 				DeprecatedActiveERC20Tokens: []string{},
 			},
 			// Copied from frontend/web/src/components/rates/rates.tsx.

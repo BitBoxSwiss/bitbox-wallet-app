@@ -15,6 +15,7 @@
 - Add version number and available updates check in settings
 - Add translation feedback link in the guide
 - Fix a UI bug when checking a backup where the confirmation dialog is sometimes empty
+- Ethereum: remove Ropsten/Rinkeby testnet networks, which have been shut down
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0

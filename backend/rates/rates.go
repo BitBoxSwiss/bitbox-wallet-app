@@ -317,7 +317,7 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 	}
 
 	// Provide conversion rates for testnets as well, useful for testing.
-	for _, testnetUnit := range []string{"TBTC", "RBTC", "TLTC", "TETH", "RETH", "GOETH"} {
+	for _, testnetUnit := range []string{"TBTC", "RBTC", "TLTC", "GOETH"} {
 		if testnetUnit == "GOETH" {
 			rates[testnetUnit] = rates[testnetUnit[2:]]
 		} else {

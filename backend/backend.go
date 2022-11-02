@@ -30,7 +30,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -73,8 +72,6 @@ var fixedURLWhitelist = []string{
 	"http://explorer.litecointools.com/tx/",
 	"https://insight.litecore.io/tx/",
 	"https://etherscan.io/tx/",
-	"https://rinkeby.etherscan.io/tx/",
-	"https://ropsten.etherscan.io/tx/",
 	"https://goerli.etherscan.io/tx/",
 	// Moonpay onramp
 	"https://www.moonpay.com/",
@@ -370,31 +367,12 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 			"https://etherscan.io/tx/",
 			etherScan,
 			nil)
-	case code == coinpkg.CodeRETH:
-		etherScan := etherscan.NewEtherScan("https://api-rinkeby.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "Ethereum Rinkeby", "RETH", "RETH", params.RinkebyChainConfig,
-			"https://rinkeby.etherscan.io/tx/",
-			etherScan,
-			nil)
-	case code == coinpkg.CodeTETH:
-		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "Ethereum Ropsten", "TETH", "TETH", params.RopstenChainConfig,
-			"https://ropsten.etherscan.io/tx/",
-			etherScan,
-			nil)
 	case code == coinpkg.CodeGOETH:
 		etherScan := etherscan.NewEtherScan("https://api-goerli.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum Goerli", "GOETH", "GOETH", params.GoerliChainConfig,
 			"https://goerli.etherscan.io/tx/",
 			etherScan,
 			nil)
-	case code == coinpkg.CodeERC20TEST:
-		etherScan := etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api", backend.etherScanHTTPClient)
-		coin = eth.NewCoin(etherScan, code, "ERC20 TEST", "TEST", "TETH", params.RopstenChainConfig,
-			"https://ropsten.etherscan.io/tx/",
-			etherScan,
-			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
-		)
 	case erc20Token != nil:
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, erc20Token.code, erc20Token.name, erc20Token.unit, "ETH", params.MainnetChainConfig,

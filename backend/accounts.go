@@ -50,9 +50,7 @@ func sortAccounts(accounts []*config.Account) {
 			coinpkg.CodeLTC:   2,
 			coinpkg.CodeTLTC:  3,
 			coinpkg.CodeETH:   4,
-			coinpkg.CodeTETH:  5,
-			coinpkg.CodeRETH:  6,
-			coinpkg.CodeGOETH: 7,
+			coinpkg.CodeGOETH: 6,
 		}
 		order1, ok1 := order[coin1]
 		order2, ok2 := order[coin2]
@@ -117,7 +115,7 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	allCoins := []coinpkg.Code{
 		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
 		coinpkg.CodeLTC, coinpkg.CodeTLTC,
-		coinpkg.CodeETH, coinpkg.CodeTETH, coinpkg.CodeRETH, coinpkg.CodeGOETH,
+		coinpkg.CodeETH, coinpkg.CodeGOETH,
 	}
 	var availableCoins []coinpkg.Code
 	for _, coinCode := range allCoins {
@@ -222,7 +220,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			},
 			accountsConfig,
 		)
-	case coinpkg.CodeETH, coinpkg.CodeRETH, coinpkg.CodeTETH, coinpkg.CodeGOETH:
+	case coinpkg.CodeETH, coinpkg.CodeGOETH:
 		bip44Coin := "1'"
 		if coinCode == coinpkg.CodeETH {
 			bip44Coin = "60'"
@@ -674,7 +672,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 				}
 			}
 		} else {
-			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeTETH, coinpkg.CodeRETH, coinpkg.CodeGOETH} {
+			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH} {
 				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 					if _, err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, nil, accountsConfig); err != nil {
 						return err

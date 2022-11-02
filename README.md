@@ -187,8 +187,4 @@ Get Bitcoin Testnet coins here: https://coinfaucet.eu/en/btc-testnet/
 
 Get Litecoin Testnet coins here: https://tltc.bitaps.com/
 
-Get Ethereum Rinkeby coins here: http://rinkeby-faucet.com/
-
-Get Ethereum Ropsten coins here: https://faucet.ropsten.be/
-
 Get Ethereum Goerli coins here: https://goerlifaucet.com/

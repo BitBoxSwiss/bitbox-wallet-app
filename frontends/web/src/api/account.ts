@@ -17,7 +17,7 @@
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
+export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth';
 
 export type AccountCode = string;
 
@@ -27,7 +27,7 @@ export type ConversionUnit = Fiat | 'sat'
 
 export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
 
-export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
+export type TestnetCoin = 'TBTC' | 'TLTC' | 'GOETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
