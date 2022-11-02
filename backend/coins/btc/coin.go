@@ -161,7 +161,7 @@ func (coin *Coin) SetFormatUnit(unit coinpkg.BtcUnit) {
 }
 
 // GetFormatUnit implements coin.Coin.
-func (coin *Coin) GetFormatUnit() string {
+func (coin *Coin) GetFormatUnit(bool) string {
 	if coin.formatUnit == coinpkg.BtcUnitSats {
 		switch coin.code {
 		case coinpkg.CodeBTC:

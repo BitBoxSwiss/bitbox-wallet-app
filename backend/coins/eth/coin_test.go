@@ -49,7 +49,7 @@ func (s *testSuite) SetupTest() {
 		"ERC20TEST",
 		"ERC20Test",
 		"TOK",
-		"TOK",
+		"ETH",
 		params.MainnetChainConfig,
 		"",
 		nil,
@@ -129,4 +129,18 @@ func (s *testSuite) TestParseAmount() {
 	intAmount, err = coinAmount.Int64()
 	require.Equal(s.T(), err, nil)
 	require.Equal(s.T(), intWeiAmount, intAmount)
+}
+
+func (s *testSuite) TestGetFormatUnit() {
+	require.Equal(s.T(), "ETH", s.coin.GetFormatUnit(true))
+	require.Equal(s.T(), "ETH", s.coin.GetFormatUnit(false))
+	require.Equal(s.T(), "ETH", s.ERC20Coin.GetFormatUnit(true))
+	require.Equal(s.T(), "TOK", s.ERC20Coin.GetFormatUnit(false))
+}
+
+func (s *testSuite) TestUnit() {
+	require.Equal(s.T(), "ETH", s.coin.Unit(true))
+	require.Equal(s.T(), "ETH", s.coin.Unit(false))
+	require.Equal(s.T(), "ETH", s.ERC20Coin.Unit(true))
+	require.Equal(s.T(), "TOK", s.ERC20Coin.Unit(false))
 }

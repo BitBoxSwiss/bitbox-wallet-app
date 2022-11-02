@@ -120,8 +120,8 @@ func (coin *Coin) Unit(isFee bool) string {
 }
 
 // GetFormatUnit implements coin.Coin.
-func (coin *Coin) GetFormatUnit() string {
-	return coin.unit
+func (coin *Coin) GetFormatUnit(isFee bool) string {
+	return coin.Unit(isFee)
 }
 
 // Decimals implements coin.Coin.

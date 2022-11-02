@@ -42,7 +42,7 @@ type Coin interface {
 	Unit(isFee bool) string
 
 	// GetFormatUnit sets the unit used to format the amount, e.g. "BTC" or "sat".
-	GetFormatUnit() string
+	GetFormatUnit(isFee bool) string
 
 	// Number of decimal places in the standard unit, e.g. 8 for Bitcoin. Must be in the range
 	// [0..31].
