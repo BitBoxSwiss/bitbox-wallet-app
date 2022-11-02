@@ -537,9 +537,10 @@ func (account *Account) incAndEmitSyncCounter() {
 // there was indeed change, the tx history is downloaded and processed.
 func (account *Account) onAddressStatus(address *addresses.AccountAddress, status string) {
 	if account.isClosed() {
-		account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
+		account.log.Debug("Ignoring result of ScriptHashSubscribe after the account was closed")
 		return
 	}
+	defer account.Lock()()
 	if status == address.HistoryStatus {
 		account.incAndEmitSyncCounter()
 		// Address didn't change.
@@ -548,34 +549,23 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 
 	account.log.Debug("Address status changed, fetching history.")
 
-	done := account.Synchronizer.IncRequestsCounter()
-	account.coin.Blockchain().ScriptHashGetHistory(
-		address.PubkeyScriptHashHex(),
-		func(history blockchain.TxHistory) {
-			if account.isClosed() {
-				account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
-				return
-			}
+	defer account.Synchronizer.IncRequestsCounter()()
+	history, err := account.coin.Blockchain().ScriptHashGetHistory(address.PubkeyScriptHashHex())
+	if err != nil {
+		// We are not closing client.blockchain here, as it is reused per coin with
+		// different accounts.
+		account.fatalError = true
+		account.Config().OnEvent(accounts.EventStatusChanged)
+		return
+	}
 
-			defer account.Lock()()
-			address.HistoryStatus = history.Status()
-			if address.HistoryStatus != status {
-				account.log.Warning("client status should match after sync")
-			}
-			account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
-			account.incAndEmitSyncCounter()
-			account.ensureAddresses()
-		},
-		func(err error) {
-			done()
-			if err != nil {
-				// We are not closing client.blockchain here, as it is reused per coin with
-				// different accounts.
-				account.fatalError = true
-				account.Config().OnEvent(accounts.EventStatusChanged)
-			}
-		},
-	)
+	address.HistoryStatus = history.Status()
+	if address.HistoryStatus != status {
+		account.log.Warning("client status should match after sync")
+	}
+	account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
+	account.incAndEmitSyncCounter()
+	account.ensureAddresses()
 }
 
 // ensureAddresses is the entry point of syncing up the account. It extends the receive and change
@@ -583,6 +573,11 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
 func (account *Account) ensureAddresses() {
+	if account.isClosed() {
+		account.log.Debug("Stopping ensureAddresses as the account was closed")
+		return
+	}
+
 	defer account.Synchronizer.IncRequestsCounter()()
 
 	dbTx, err := account.db.Begin()

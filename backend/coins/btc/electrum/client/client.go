@@ -160,26 +160,14 @@ func (client *ElectrumClient) CheckConnection() error {
 }
 
 // ScriptHashGetHistory does the blockchain.scripthash.get_history RPC call.
-func (client *ElectrumClient) ScriptHashGetHistory(
-	scriptHashHex blockchain.ScriptHashHex,
-	success func(blockchain.TxHistory),
-	cleanup func(error),
-) {
-	client.rpc.Method(
-		func(responseBytes []byte) error {
-			txs := blockchain.TxHistory{}
-			if err := json.Unmarshal(responseBytes, &txs); err != nil {
-				client.log.WithError(err).Error("Failed to unmarshal JSON response")
-				return errp.WithStack(err)
-			}
-			success(txs)
-			return nil
-		},
-		func() func(error) {
-			return cleanup
-		},
-		"blockchain.scripthash.get_history",
-		string(scriptHashHex))
+func (client *ElectrumClient) ScriptHashGetHistory(scriptHashHex blockchain.ScriptHashHex) (
+	blockchain.TxHistory, error) {
+	txs := blockchain.TxHistory{}
+	err := client.rpc.MethodSync(&txs, "blockchain.scripthash.get_history", string(scriptHashHex))
+	if err != nil {
+		return nil, err
+	}
+	return txs, nil
 }
 
 // ScriptHashSubscribe does the blockchain.scripthash.subscribe RPC call.
