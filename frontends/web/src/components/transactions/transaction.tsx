@@ -208,7 +208,9 @@ class Transaction extends Component<Props, State> {
               </span>
             </div>
             <div className={`${parentStyle.currency} ${typeClassName}`}>
-              <span className={`${style.amount} ${style.amountOverflow}`}>
+              <span
+                className={`${style.amount} ${style.amountOverflow}`}
+                data-unit={` ${amount.unit}`}>
                 {sign}{amount.amount}
                 <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
               </span>
