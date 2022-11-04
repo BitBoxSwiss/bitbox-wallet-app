@@ -46,7 +46,7 @@ class ManageBackups extends Component {
     );
   };
 
-  listBackups  = () => {
+  listBackups = () => {
     switch (this.props.devices[this.props.deviceID]) {
     case 'bitbox':
       return (
