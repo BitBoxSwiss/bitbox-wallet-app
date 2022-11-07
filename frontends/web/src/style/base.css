@@ -100,3 +100,8 @@ pre {
     padding: var(--space-default);
     text-align: center;
 }
+
+progress {
+    display: block;
+    width: 100%;
+}
