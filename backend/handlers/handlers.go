@@ -574,7 +574,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 		}
 		totalAmount[k] = accountHandlers.FormattedAmount{
 			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
-			Unit:        currentCoin.GetFormatUnit(),
+			Unit:        currentCoin.GetFormatUnit(false),
 			Conversions: conversionsPerCoin[k],
 		}
 	}

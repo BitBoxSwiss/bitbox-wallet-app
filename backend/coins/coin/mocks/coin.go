@@ -35,7 +35,7 @@ var _ coin.Coin = &CoinMock{}
 // 			FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
 // 				panic("mock out the FormatAmount method")
 // 			},
-// 			GetFormatUnitFunc: func() string {
+// 			GetFormatUnitFunc: func(isFee bool) string {
 // 				panic("mock out the GetFormatUnit method")
 // 			},
 // 			InitializeFunc: func()  {
@@ -52,9 +52,6 @@ var _ coin.Coin = &CoinMock{}
 // 			},
 // 			SetAmountFunc: func(amount *big.Rat, isFee bool) coin.Amount {
 // 				panic("mock out the SetAmount method")
-// 			},
-// 			SetFormatUnitFunc: func(unit string)  {
-// 				panic("mock out the SetFormatUnit method")
 // 			},
 // 			SmallestUnitFunc: func() string {
 // 				panic("mock out the SmallestUnit method")
@@ -88,7 +85,7 @@ type CoinMock struct {
 	FormatAmountFunc func(amount coin.Amount, isFee bool) string
 
 	// GetFormatUnitFunc mocks the GetFormatUnit method.
-	GetFormatUnitFunc func() string
+	GetFormatUnitFunc func(isFee bool) string
 
 	// InitializeFunc mocks the Initialize method.
 	InitializeFunc func()
@@ -104,9 +101,6 @@ type CoinMock struct {
 
 	// SetAmountFunc mocks the SetAmount method.
 	SetAmountFunc func(amount *big.Rat, isFee bool) coin.Amount
-
-	// SetFormatUnitFunc mocks the SetFormatUnit method.
-	SetFormatUnitFunc func(unit string)
 
 	// SmallestUnitFunc mocks the SmallestUnit method.
 	SmallestUnitFunc func() string
@@ -142,6 +136,8 @@ type CoinMock struct {
 		}
 		// GetFormatUnit holds details about calls to the GetFormatUnit method.
 		GetFormatUnit []struct {
+			// IsFee is the isFee argument value.
+			IsFee bool
 		}
 		// Initialize holds details about calls to the Initialize method.
 		Initialize []struct {
@@ -165,11 +161,6 @@ type CoinMock struct {
 			Amount *big.Rat
 			// IsFee is the isFee argument value.
 			IsFee bool
-		}
-		// SetFormatUnit holds details about calls to the SetFormatUnit method.
-		SetFormatUnit []struct {
-			// Unit is the unit argument value.
-			Unit string
 		}
 		// SmallestUnit holds details about calls to the SmallestUnit method.
 		SmallestUnit []struct {
@@ -198,7 +189,6 @@ type CoinMock struct {
 	lockObserve                           sync.RWMutex
 	lockParseAmount                       sync.RWMutex
 	lockSetAmount                         sync.RWMutex
-	lockSetFormatUnit                     sync.RWMutex
 	lockSmallestUnit                      sync.RWMutex
 	lockToUnit                            sync.RWMutex
 	lockUnit                              sync.RWMutex
@@ -349,24 +339,29 @@ func (mock *CoinMock) FormatAmountCalls() []struct {
 }
 
 // GetFormatUnit calls GetFormatUnitFunc.
-func (mock *CoinMock) GetFormatUnit() string {
+func (mock *CoinMock) GetFormatUnit(isFee bool) string {
 	if mock.GetFormatUnitFunc == nil {
 		panic("CoinMock.GetFormatUnitFunc: method is nil but Coin.GetFormatUnit was just called")
 	}
 	callInfo := struct {
-	}{}
+		IsFee bool
+	}{
+		IsFee: isFee,
+	}
 	mock.lockGetFormatUnit.Lock()
 	mock.calls.GetFormatUnit = append(mock.calls.GetFormatUnit, callInfo)
 	mock.lockGetFormatUnit.Unlock()
-	return mock.GetFormatUnitFunc()
+	return mock.GetFormatUnitFunc(isFee)
 }
 
 // GetFormatUnitCalls gets all the calls that were made to GetFormatUnit.
 // Check the length with:
 //     len(mockedCoin.GetFormatUnitCalls())
 func (mock *CoinMock) GetFormatUnitCalls() []struct {
+	IsFee bool
 } {
 	var calls []struct {
+		IsFee bool
 	}
 	mock.lockGetFormatUnit.RLock()
 	calls = mock.calls.GetFormatUnit
@@ -520,37 +515,6 @@ func (mock *CoinMock) SetAmountCalls() []struct {
 	mock.lockSetAmount.RLock()
 	calls = mock.calls.SetAmount
 	mock.lockSetAmount.RUnlock()
-	return calls
-}
-
-// SetFormatUnit calls SetFormatUnitFunc.
-func (mock *CoinMock) SetFormatUnit(unit string) {
-	if mock.SetFormatUnitFunc == nil {
-		panic("CoinMock.SetFormatUnitFunc: method is nil but Coin.SetFormatUnit was just called")
-	}
-	callInfo := struct {
-		Unit string
-	}{
-		Unit: unit,
-	}
-	mock.lockSetFormatUnit.Lock()
-	mock.calls.SetFormatUnit = append(mock.calls.SetFormatUnit, callInfo)
-	mock.lockSetFormatUnit.Unlock()
-	mock.SetFormatUnitFunc(unit)
-}
-
-// SetFormatUnitCalls gets all the calls that were made to SetFormatUnit.
-// Check the length with:
-//     len(mockedCoin.SetFormatUnitCalls())
-func (mock *CoinMock) SetFormatUnitCalls() []struct {
-	Unit string
-} {
-	var calls []struct {
-		Unit string
-	}
-	mock.lockSetFormatUnit.RLock()
-	calls = mock.calls.SetFormatUnit
-	mock.lockSetFormatUnit.RUnlock()
 	return calls
 }
 
