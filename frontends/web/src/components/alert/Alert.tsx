@@ -17,7 +17,7 @@
 
 import { Component } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { multilineMarkup } from '../../utils/markup';
+import { MultilineMarkup } from '../../utils/markup';
 import { View, ViewButtons, ViewHeader } from '../view/view';
 import { Button } from '../forms';
 
@@ -88,10 +88,7 @@ class Alert extends Component<WithTranslation, State> {
           dialog={asDialog}
           textCenter={!asDialog}
           fullscreen>
-          <ViewHeader title={multilineMarkup({
-            tagName: 'span',
-            markup: message,
-          })} />
+          <ViewHeader title={<MultilineMarkup tagName="span" markup={message} />} />
           <ViewButtons>
             <Button
               autoFocus

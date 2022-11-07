@@ -16,7 +16,7 @@
 
 import 'jest';
 import { render } from '@testing-library/react';
-import { multilineMarkup, SimpleMarkup } from './markup';
+import { MultilineMarkup, SimpleMarkup } from './markup';
 
 describe('SimpleMarkup', () => {
   it('contains a strong element with the text bar', () => {
@@ -35,11 +35,7 @@ describe('SimpleMarkup', () => {
 describe('multilineMarkup', () => {
   it('contains multiple lines with a strong element each', () => {
     const { container } = render(
-      <div>
-        {multilineMarkup({
-          tagName: 'p', markup: 'foo <strong>bar</strong> baz\n<strong>booz</strong>'
-        })}
-      </div>
+      <MultilineMarkup tagName="p" markup={'foo <strong>bar</strong> baz\n<strong>booz</strong>'}/>
     );
     const paragraphs = container.querySelectorAll('p');
     expect(paragraphs).toHaveLength(2);
