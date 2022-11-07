@@ -20,8 +20,10 @@ import (
 	"sort"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/bolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
 )
 
@@ -35,8 +37,8 @@ type DB struct {
 }
 
 // NewDB creates/opens a new db.
-func NewDB(filename string) (*DB, error) {
-	db, err := bbolt.Open(filename, 0600, nil)
+func NewDB(filename string, log *logrus.Entry) (*DB, error) {
+	db, err := bolt.Open(filename, log)
 	if err != nil {
 		return nil, err
 	}

@@ -31,6 +31,8 @@ var (
 	Cause = errors.Cause
 	// Wrap wraps errors.Wrap.
 	Wrap = errors.Wrap
+	// Wrapf wraps errors.Wrapf.
+	Wrapf = errors.Wrapf
 	// WithMessage wraps errors.WithMessage.
 	WithMessage = errors.WithMessage
 )

@@ -6,12 +6,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/bolt"
+	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
 )
 
-func openRatesDB(dir string) (*bbolt.DB, error) {
-	opt := &bbolt.Options{Timeout: 5 * time.Second} // network disks may take long
-	return bbolt.Open(filepath.Join(dir, "rates.db"), 0600, opt)
+func openRatesDB(dir string, log *logrus.Entry) (*bbolt.DB, error) {
+	return bolt.Open(filepath.Join(dir, "rates.db"), log)
 }
 
 // loadHistoryBucket loads data from an updater.historyDB bucket identified by the key.

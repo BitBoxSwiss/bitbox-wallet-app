@@ -292,7 +292,7 @@ func (account *Account) Initialize() error {
 
 	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
-	db, err := transactionsdb.NewDB(path.Join(account.Config().DBFolder, dbName))
+	db, err := transactionsdb.NewDB(path.Join(account.Config().DBFolder, dbName), account.log)
 	if err != nil {
 		return err
 	}

@@ -26,12 +26,14 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/require"
 )
 
 func getDB() *DB {
-	db, err := NewDB(path.Join(test.TstTempDir("transactionsdb_test"), "testdb"))
+	db, err := NewDB(path.Join(test.TstTempDir("transactionsdb_test"), "testdb"),
+		logging.Get().WithGroup("transactionsdb_test"))
 	if err != nil {
 		panic(err)
 	}
