@@ -368,7 +368,7 @@ class Chart extends Component<Props, State> {
       return;
     }
     const toolTipTop = Math.max(coordinate - 70, 0);
-    const toolTipLeft =  Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
+    const toolTipLeft = Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
     this.setState({
       toolTipVisible: true,
       toolTipValue: this.formattedData ? this.formattedData[time as number] : '',

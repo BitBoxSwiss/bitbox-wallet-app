@@ -23,7 +23,7 @@ import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button, Checkbox, Input  } from '../../../components/forms';
+import { Button, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';

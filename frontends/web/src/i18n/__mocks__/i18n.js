@@ -39,7 +39,7 @@ i18n.init({
   returnObjects: true,
   interpolation: { escapeValue: false }, // react already escapes
   react: {
-    wait: false,               // no backend to wait in tests
+    wait: false, // no backend to wait in tests
     defaultTransParent: 'div', // required for preact
   },
 
