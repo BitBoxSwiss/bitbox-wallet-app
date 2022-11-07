@@ -114,16 +114,6 @@
     font-variant: tabular-nums;
 }
 
-.table progress {
-    appearance: none;
-}
-
-.table progress::-webkit-progress-bar {
-}
-
-.table progress::-webkit-progress-value {
-}
-
 .showOnTableView {
     display: block;
 }
