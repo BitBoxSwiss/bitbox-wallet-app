@@ -49,6 +49,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
@@ -56,6 +57,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -102,6 +104,8 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accounts.Code)
+	AoppBTCScriptTypeMap() map[string]signing.ScriptType
+	GetAccountFromCode(code string) (accounts.Interface, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -204,6 +208,9 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/pocket/buy-supported/{code}", handlers.getExchangePocketBuySupported).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/pocket/api-url/{code}", handlers.getExchangePocketURL).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
@@ -1026,45 +1033,19 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
-	acctCode := mux.Vars(r)["code"]
-	// TODO: Refactor to make use of a map.
-	var acct accounts.Interface
-	for _, a := range handlers.backend.Accounts() {
-		if !a.Config().Active {
-			continue
-		}
-		if string(a.Config().Code) == acctCode {
-			acct = a
-			break
-		}
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		return nil, err
 	}
+
 	// TODO: Offline() can be removed from here once there is a unified way of initializing accounts
 	// and showing sync status, offline/fatal states, etc.
 	return acct != nil && acct.Offline() == nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
 }
 
-func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
-	return handlers.backend.AOPP(), nil
-}
-
 func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
-	acctCode := accounts.Code(mux.Vars(r)["code"])
-	// TODO: Refactor to make use of a map.
-	var acct accounts.Interface
-	for _, a := range handlers.backend.Accounts() {
-		if !a.Config().Active {
-			continue
-		}
-		if a.Config().Code == acctCode {
-			acct = a
-			break
-		}
-	}
-	if acct == nil {
-		return nil, fmt.Errorf("unknown account code %q", acctCode)
-	}
-
-	if err := acct.Initialize(); err != nil {
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
 		return nil, err
 	}
 
@@ -1084,6 +1065,87 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 		Address: buy.Address,
 	}
 	return resp, nil
+}
+
+func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, error) {
+	type errorResult struct {
+		Error string `json:"error"`
+	}
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Error: err.Error()}, nil
+	}
+
+	url, err := exchanges.PocketURL(acct)
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Error: err.Error()}, nil
+	}
+	return url, nil
+}
+
+func (handlers *Handlers) getExchangePocketBuySupported(r *http.Request) (interface{}, error) {
+	type errorResult struct {
+		Error string `json:"error"`
+	}
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Error: err.Error()}, nil
+	}
+
+	return exchanges.IsPocketSupported(acct), nil
+
+}
+
+func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		AccountCode string `json:"accountCode"`
+		Msg         string `json:"msg"`
+		Format      string `json:"format"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	var response struct {
+		Success   bool   `json:"success"`
+		Abort     bool   `json:"abort"`
+		Address   string `json:"address"`
+		Signature string `json:"signature"`
+		Error     string `json:"error"`
+	}
+
+	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
+	if err != nil {
+		handlers.log.Error(err)
+		response.Success = false
+		response.Error = err.Error()
+		return response, nil
+	}
+
+	response.Address, response.Signature, err = exchanges.PocketWidgetSignAddress(
+		account,
+		request.Msg,
+		request.Format,
+		handlers.backend.AoppBTCScriptTypeMap())
+	if err != nil {
+		if firmware.IsErrorAbort(err) {
+			response.Abort = true
+		} else {
+			handlers.log.WithField("code", account.Config().Code).Error(err)
+			response.Success = false
+			response.Error = err.Error()
+		}
+	} else {
+		response.Success = true
+	}
+	return response, nil
+}
+
+func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
+	return handlers.backend.AOPP(), nil
 }
 
 func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interface{}, error) {

@@ -22,7 +22,7 @@ import { useLoad } from '../../hooks/api';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
-import { isMoonpayBuySupported } from '../../api/backend';
+import { isMoonpayBuySupported } from '../../api/exchanges';
 import { useSDCard } from '../../hooks/sdcard';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
