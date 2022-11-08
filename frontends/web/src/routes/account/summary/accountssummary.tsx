@@ -381,6 +381,7 @@ class AccountsSummary extends Component<Props, State> {
             text: t('guide.accountSummaryAmount.text'),
             title: t('guide.accountSummaryAmount.title')
           }} />
+          <Entry key="trackingModePortfolioChart" entry={t('guide.trackingModePortfolioChart')} />
         </Guide>
       </div>
     );

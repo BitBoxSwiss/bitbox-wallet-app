@@ -827,6 +827,10 @@
       "close": "Close guide",
       "open": "Guide"
     },
+    "trackingModePortfolioChart": {
+      "text": "On desktop, hover the cursor over the chart. On mobile, hold your finger on the chart and drag horizontally.",
+      "title": "How to see historical values on the chart?"
+    },
     "unlock": {
       "forgotDevicePassword": {
         "text": "You have to reset the device and restore the wallet from a backup, using the recovery password.",
