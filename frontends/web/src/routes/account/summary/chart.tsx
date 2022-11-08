@@ -22,6 +22,8 @@ import { Skeleton } from '../../../components/skeleton/skeleton';
 import { formatNumber } from '../../../components/rates/rates';
 import { bitcoinRemoveTrailingZeroes } from '../../../utils/trailing-zeroes';
 import styles from './chart.module.css';
+import Filters from './filters';
+import { TChartDisplay, TChartFiltersProps } from './types';
 
 export interface FormattedLineData extends LineData {
   formattedValue: string;
@@ -34,21 +36,22 @@ type ChartProps = {
     noDataPlaceholder?: ReactChild;
 };
 
-interface State {
-    display: 'week' | 'month' | 'year' | 'all';
-    source: 'daily' | 'hourly';
-    difference?: number;
-    diffSince?: string;
-    toolTipVisible: boolean;
-    toolTipValue?: string;
-    toolTipTop: number;
-    toolTipLeft: number;
-    toolTipTime: number;
+type State = {
+  display: TChartDisplay;
+  source: 'daily' | 'hourly';
+  difference?: number;
+  diffSince?: string;
+  toolTipVisible: boolean;
+  toolTipValue?: string;
+  toolTipTop: number;
+  toolTipLeft: number;
+  toolTipTime: number;
+  isMobile: boolean;
 }
 
 type Props = ChartProps & TranslateProps;
 
-interface FormattedData {
+type FormattedData = {
   [key: number]: string;
 }
 
@@ -59,6 +62,7 @@ class Chart extends Component<Props, State> {
   private lineSeries?: ISeriesApi<'Area'>;
   private resizeTimerID?: any;
   private height: number = 300;
+  private mobileHeight: number = 150;
   private formattedData?: FormattedData;
 
   static readonly defaultProps: ChartProps = {
@@ -81,10 +85,11 @@ class Chart extends Component<Props, State> {
     toolTipTop: 0,
     toolTipLeft: 0,
     toolTipTime: 0,
-
+    isMobile: false,
   };
 
   public componentDidMount() {
+    this.checkIfMobile();
     this.createChart();
   }
 
@@ -128,13 +133,19 @@ class Chart extends Component<Props, State> {
     });
   }
 
+  private checkIfMobile = () => {
+    this.setState({ isMobile: window.innerWidth <= 640 });
+  };
+
   private createChart = () => {
     const { data: { chartIsUpToDate, chartDataMissing } } = this.props;
     if (this.ref.current && this.hasData() && (chartIsUpToDate && !chartDataMissing)) {
       if (!this.chart) {
+        const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
+        const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
         this.chart = createChart(this.ref.current, {
-          width: this.ref.current.offsetWidth,
-          height: this.height,
+          width: chartWidth,
+          height: chartHeight,
           handleScroll: false,
           handleScale: false,
           crosshair: {
@@ -155,7 +166,7 @@ class Chart extends Component<Props, State> {
             horzLines: {
               color: '#dedede',
               style: LineStyle.Solid,
-              visible: true,
+              visible: !this.state.isMobile,
             },
           },
           layout: {
@@ -167,7 +178,7 @@ class Chart extends Component<Props, State> {
           leftPriceScale: {
             borderVisible: false,
             drawTicks: false,
-            visible: true,
+            visible: !this.state.isMobile,
             entireTextOnly: true,
           },
           localization: {
@@ -180,6 +191,10 @@ class Chart extends Component<Props, State> {
           timeScale: {
             borderVisible: false,
             timeVisible: false,
+            visible: !this.state.isMobile,
+          },
+          trackingMode: {
+            exitMode: 0
           }
         });
       }
@@ -189,8 +204,8 @@ class Chart extends Component<Props, State> {
         priceFormat: {
           type: 'volume',
         },
-        topColor: 'rgba(94, 148, 192, 0.5)',
-        bottomColor: 'rgba(94, 148, 192, 0.02)',
+        topColor: '#DFF1FF',
+        bottomColor: '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
@@ -206,6 +221,7 @@ class Chart extends Component<Props, State> {
   };
 
   private onResize = () => {
+    this.checkIfMobile();
     if (this.resizeTimerID) {
       clearTimeout(this.resizeTimerID);
     }
@@ -213,7 +229,22 @@ class Chart extends Component<Props, State> {
       if (!this.chart || !this.ref.current) {
         return;
       }
-      this.chart.resize(this.ref.current.offsetWidth, this.height);
+      const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
+      const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
+      this.chart.resize(chartWidth, chartHeight);
+      this.chart.applyOptions({
+        grid: {
+          horzLines: {
+            visible: !this.state.isMobile
+          }
+        },
+        timeScale: {
+          visible: !this.state.isMobile
+        },
+        leftPriceScale: {
+          visible: !this.state.isMobile,
+        },
+      });
     }, 200);
   };
 
@@ -378,6 +409,8 @@ class Chart extends Component<Props, State> {
     });
   };
 
+
+
   private renderDate = (date: number) => {
     return new Date(date).toLocaleString(
       this.props.i18n.language,
@@ -415,10 +448,21 @@ class Chart extends Component<Props, State> {
       toolTipTop,
       toolTipLeft,
       toolTipTime,
+      isMobile
     } = this.state;
     const hasDifferenece = difference && Number.isFinite(difference);
     const hasData = this.hasData();
     const disableFilters = !hasData || chartTotal === 0 || chartDataMissing;
+    const showMobileTotalValue = toolTipVisible && !!toolTipValue && isMobile;
+    const chartFiltersProps = {
+      display,
+      disableFilters,
+      onDisplayWeek: this.displayWeek,
+      onDisplayMonth: this.displayMonth,
+      onDisplayYear: this.displayYear,
+      onDisplayAll: this.displayAll,
+    } as TChartFiltersProps;
+    const chartHeight = `${!isMobile ? this.height : this.mobileHeight}px`;
     return (
       <section className={styles.chart}>
         <header>
@@ -426,7 +470,7 @@ class Chart extends Component<Props, State> {
             <div className={styles.totalValue}>
               {formattedChartTotal !== null ? (
                 // remove trailing zeroes for BTC fiat total
-                bitcoinRemoveTrailingZeroes(formattedChartTotal, chartFiat)
+                bitcoinRemoveTrailingZeroes(!showMobileTotalValue ? formattedChartTotal : toolTipValue, chartFiat)
               ) : (
                 <Skeleton minWidth="220px" />
               )}
@@ -434,52 +478,33 @@ class Chart extends Component<Props, State> {
                 {chartTotal !== null && chartFiat}
               </span>
             </div>
-            <span className={!hasDifferenece ? '' : (
-              styles[difference < 0 ? 'down' : 'up']
-            )} title={diffSince}>
-              {hasDifferenece ? (
-                <>
-                  <span className={styles.arrow}>
-                    {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
-                  </span>
-                  <span className={styles.diffValue}>
-                    {formatNumber(difference, 2)}
-                    <span className={styles.diffUnit}>%</span>
-                  </span>
-                </>
-              ) : chartTotal === 0 ? null : (<Skeleton fontSize="1.125rem" minWidth="125px" />)}
-            </span>
+            {!showMobileTotalValue ?
+              <span className={!hasDifferenece ? '' : (
+                styles[difference < 0 ? 'down' : 'up']
+              )} title={diffSince}>
+                {hasDifferenece ? (
+                  <>
+                    <span className={styles.arrow}>
+                      {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
+                    </span>
+                    <span className={styles.diffValue}>
+                      {formatNumber(difference, 2)}
+                      <span className={styles.diffUnit}>%</span>
+                    </span>
+                  </>
+                ) : chartTotal === 0 ? null : (<Skeleton fontSize="1.125rem" minWidth="125px" />)}
+              </span>
+              :
+              <span className={styles.diffValue}>
+                {this.renderDate(toolTipTime * 1000)}
+              </span>
+            }
           </div>
-          <div className={styles.filters}>
-            <button
-              className={display === 'week' ? styles.filterActive : undefined}
-              disabled={disableFilters}
-              onClick={this.displayWeek}>
-              {t('chart.filter.week')}
-            </button>
-            <button
-              className={display === 'month' ? styles.filterActive : undefined}
-              disabled={disableFilters}
-              onClick={this.displayMonth}>
-              {t('chart.filter.month')}
-            </button>
-            <button
-              className={display === 'year' ? styles.filterActive : undefined}
-              disabled={disableFilters}
-              onClick={this.displayYear}>
-              {t('chart.filter.year')}
-            </button>
-            <button
-              className={display === 'all' ? styles.filterActive : undefined}
-              disabled={disableFilters}
-              onClick={this.displayAll}>
-              {t('chart.filter.all')}
-            </button>
-          </div>
+          {!isMobile && <Filters {...chartFiltersProps} />}
         </header>
-        <div className={styles.chartCanvas} style={{ minHeight: `${this.height}px` }}>
+        <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
           {(!chartIsUpToDate || chartDataMissing) ? (
-            <div className={styles.chartUpdatingMessage} style={{ height: `${this.height}px` }}>
+            <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
               {chartDataDaily === undefined
                 ? t('chart.dataMissing')
                 : t('chart.dataUpdating')}
@@ -490,7 +515,7 @@ class Chart extends Component<Props, State> {
             ref={this.refToolTip}
             className={styles.tooltip}
             style={{ 'left': toolTipLeft, top: toolTipTop }}
-            hidden={!toolTipVisible}>
+            hidden={!toolTipVisible || isMobile}>
             {toolTipValue !== undefined ? (
               <span>
                 <h2 className={styles.toolTipValue}>
@@ -504,10 +529,12 @@ class Chart extends Component<Props, State> {
             ) : null}
           </span>
         </div>
+        {isMobile && <Filters {...chartFiltersProps} />}
       </section>
     );
   }
 }
+
 
 const HOC = translate()(Chart);
 

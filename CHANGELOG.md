@@ -18,6 +18,7 @@
 - Add translation feedback link in the guide
 - Fix a UI bug when checking a backup where the confirmation dialog is sometimes empty
 - Ethereum: remove Ropsten/Rinkeby testnet networks, which have been shut down
+- Re-style Portfolio Chart on mobile (Android) for better usability and a more modern look
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0

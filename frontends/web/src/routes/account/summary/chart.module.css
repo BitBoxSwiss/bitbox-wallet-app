@@ -10,11 +10,13 @@
 
 .chartUpdatingMessage {
   align-items: center;
+  color: var(--color-gray-alt);
   display: flex;
   flex-direction: row;
   justify-content: center;
   text-align: center;
 }
+
 
 .chart header {
   display: flex;
@@ -23,7 +25,12 @@
   min-height: 68px;
 }
 
-.summary {}
+.summary {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
 .filters {
   align-items: baseline;
@@ -34,16 +41,42 @@
   margin: var(--spacing-half) 0 0 0;
 }
 
+@media (max-width: 640px){
+
+  .chart{
+    margin-bottom: var(--spacing-default);
+  }
+
+  .summary{
+    align-items: center;
+  }
+
+  .filters{
+    justify-content: center;
+    margin-top: var(--spacing-default);
+  }
+}
+
+
 .filters button {
   appearance: none;
   background: var(--color-white);
   border: 2px solid var(--color-white);
   border-radius: 2rem;
   color: var(--color-softblack);
+  font-size: var(--size-default);
   line-height: 1.75;
   margin-bottom: var(--spacing-half);
   margin-left: var(--spacing-half);
   padding: 0 calc(var(--spacing-default) * .75);
+}
+
+.filters button:hover:not([disabled]) {
+  cursor: pointer;
+}
+
+.filters button:hover:is([disabled]) {
+  cursor: not-allowed;
 }
 
 .filters button:focus {
@@ -99,6 +132,14 @@
 .chartCanvas {
   position: relative;
 }
+
+@media (max-width: 640px){
+  .chartCanvas {
+    width: 100vw;
+    margin-left: calc(var(--space-half) * -1);
+  } 
+}
+  
 
 .tooltip {
   background: white;
