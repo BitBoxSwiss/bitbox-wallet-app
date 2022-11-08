@@ -133,7 +133,7 @@ class AccountsSummary extends Component<Props, State> {
 
   private onEvent = (data: any) => {
     for (const account of this.props.accounts) {
-      if (data.subject ===  'account/' + account.code + '/synced-addresses-count') {
+      if (data.subject === 'account/' + account.code + '/synced-addresses-count') {
         this.setState(state => {
           const syncStatus = { ...state.syncStatus };
           syncStatus[account.code] = data.object;

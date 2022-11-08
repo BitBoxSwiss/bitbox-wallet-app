@@ -94,7 +94,7 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) For
 	accountCoin := handlers.account.Coin()
 	return FormattedAmount{
 		Amount: accountCoin.FormatAmount(amount, isFee),
-		Unit:   accountCoin.GetFormatUnit(),
+		Unit:   accountCoin.GetFormatUnit(isFee),
 		Conversions: coin.Conversions(
 			amount,
 			accountCoin,
@@ -109,7 +109,7 @@ func (handlers *Handlers) formatAmountAtTimeAsJSON(amount coin.Amount, timeStamp
 	accountCoin := handlers.account.Coin()
 	return &FormattedAmount{
 		Amount: accountCoin.FormatAmount(amount, false),
-		Unit:   accountCoin.GetFormatUnit(),
+		Unit:   accountCoin.GetFormatUnit(false),
 		Conversions: coin.ConversionsAtTime(
 			amount,
 			handlers.account.Coin(),

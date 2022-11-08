@@ -574,7 +574,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 		}
 		totalAmount[k] = accountHandlers.FormattedAmount{
 			Amount:      currentCoin.FormatAmount(coin.NewAmount(v), false),
-			Unit:        currentCoin.GetFormatUnit(),
+			Unit:        currentCoin.GetFormatUnit(false),
 			Conversions: conversionsPerCoin[k],
 		}
 	}
@@ -739,7 +739,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 
 	unit := currentCoin.Unit(isFee)
 	switch unit { // HACK: fake rates for testnet coins
-	case "TBTC", "TLTC", "TETH", "RETH":
+	case "TBTC", "TLTC":
 		unit = unit[1:]
 	case "GOETH":
 		unit = unit[2:]

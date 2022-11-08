@@ -9,6 +9,7 @@
     "jsx-a11y/alt-text" : 0,
     "jsx-quotes": ["error", "prefer-double"],
     "keyword-spacing": "error",
+    "no-multi-spaces": "error",
     "no-trailing-spaces": "error",
     "object-curly-spacing": ["error", "always"],
     "quotes": ["error", "single"],

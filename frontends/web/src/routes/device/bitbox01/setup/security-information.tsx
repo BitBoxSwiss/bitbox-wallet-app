@@ -20,7 +20,7 @@ import { Alert, SwissMadeOpenSource } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
-import { translate,  TranslateProps } from '../../../../decorators/translate';
+import { translate, TranslateProps } from '../../../../decorators/translate';
 import { SimpleMarkup } from '../../../../utils/markup';
 import style from '../bitbox01.module.css';
 
@@ -119,4 +119,4 @@ class SecurityInformation extends Component<Props, State> {
 }
 
 const translatedSecutiryInformation = translate()(SecurityInformation);
-export { translatedSecutiryInformation as  SecurityInformation };
+export { translatedSecutiryInformation as SecurityInformation };

@@ -118,7 +118,7 @@ func NewHeaders(
 
 // checkpoint returns the latest checkpoint for the current chain. It panics if the network is
 // unknown.
-func (headers *Headers) checkpoint() chaincfg.Checkpoint {
+func (headers *Headers) checkpoint() *chaincfg.Checkpoint {
 	// We define our own checkpoints over using headers.net.Checkpoints, because they are defined in
 	// the vendored btcd dep, and we want to control it. Furthermore, the chaincfg.Params are evil
 	// globals registered in the lib's `init()`, so we can't replicate the instances ourselves.
@@ -132,24 +132,24 @@ func (headers *Headers) checkpoint() chaincfg.Checkpoint {
 	}
 	switch headers.net.Net {
 	case chaincfg.MainNetParams.Net: // BTC
-		return chaincfg.Checkpoint{
+		return &chaincfg.Checkpoint{
 			Height: 629350,
 			Hash:   mustUnhex("000000000000000000076807241b4e0f830c638cc1122cb67bfb856c58a21017"),
 		}
 	case chaincfg.TestNet3Params.Net: // TBTC
-		return chaincfg.Checkpoint{
+		return &chaincfg.Checkpoint{
 			Height: 1723210,
 			Hash:   mustUnhex("00000000a2aa46899e5eda73c816b55903799a4feb321c903d9baeacc9443925")}
 	case ltc.MainNetParams.Net: // LTC
-		return chaincfg.Checkpoint{
+		return &chaincfg.Checkpoint{
 			Height: 1837000,
 			Hash:   mustUnhex("43e55db47d6fdbc6e9f1d2f7a8974689f10bc3abf6e27355564dd5e18bfa53e4")}
 	case ltc.TestNet4Params.Net: // TLTC
-		return chaincfg.Checkpoint{
+		return &chaincfg.Checkpoint{
 			Height: 1464330,
 			Hash:   mustUnhex("4329edb4d3eb20baded30bc67f59ce7d951de176012688124a65fe55e60244b4")}
 	default:
-		panic("unknown network")
+		return nil
 	}
 }
 
@@ -322,7 +322,7 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 		}
 
 		lastCheckpoint := headers.checkpoint()
-		if tip == int(lastCheckpoint.Height) {
+		if lastCheckpoint != nil && tip == int(lastCheckpoint.Height) {
 			if *lastCheckpoint.Hash != header.BlockHash() {
 				return errp.Newf("checkpoint mismatch at %d. Expected %s, got %s",
 					tip, lastCheckpoint.Hash, header.BlockHash())
@@ -343,7 +343,7 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 				panic(errp.WithStack(err))
 			}
 			// Skip PoW check before the checkpoint for performance.
-			if tip > int(lastCheckpoint.Height) {
+			if lastCheckpoint != nil && tip > int(lastCheckpoint.Height) {
 				powHash := headers.powHash(headerSerialized.Bytes())
 				proofOfWork := btcdBlockchain.HashToBig(&powHash)
 				if proofOfWork.Cmp(newTarget) > 0 {
@@ -428,7 +428,8 @@ func (headers *Headers) VerifiedHeaderByHeight(height int) (*wire.BlockHeader, e
 		return nil, err
 	}
 
-	if tip < int(headers.checkpoint().Height) {
+	checkpoint := headers.checkpoint()
+	if checkpoint != nil && tip < int(checkpoint.Height) {
 		return nil, nil
 	}
 

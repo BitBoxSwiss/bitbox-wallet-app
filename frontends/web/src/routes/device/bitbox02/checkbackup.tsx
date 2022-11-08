@@ -15,9 +15,10 @@
  */
 
 import { Component } from 'react';
+import * as bitbox02API from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
+import { alertUser } from '../../../components/alert/Alert';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
 
@@ -44,30 +45,24 @@ class Check extends Component<Props, State> {
     userVerified: false,
   };
 
-  private checkBackup = (silent: boolean, backups: Backup[]) => {
-    apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
-      silent,
-    }).then( response => {
-      let message;
-      // "silent" call gets the backup id from device without blocking to display in dialogue
-      if (silent && response.success && response.backupID) {
-        const foundBackup = backups.find((backup: Backup) => backup.id === response.backupID);
-        if (foundBackup) {
-          this.setState({ foundBackup });
-          message = this.props.t('backup.check.success');
-        } else {
-          message = this.props.t('unknownError', { errorMessage: 'Not found' });
-        }
-        // second non-silent call is blocking and waits for user to confirm backup on device screen
-      } else if (!silent && response.success) {
-        message = this.props.t('backup.check.success');
-        this.setState({ userVerified: true });
-      } else {
-        message = this.props.t('backup.check.notOK');
-        this.setState({ userVerified: true });
+  private checkBackup = async () => {
+    try {
+      const backupID = await bitbox02API.checkBackup(this.props.deviceID, true);
+      const foundBackup = this.props.backups.find((backup: Backup) => backup.id === backupID);
+      if (!foundBackup) {
+        alertUser(this.props.t('unknownError', { errorMessage: 'Not found' }));
+        return;
       }
-      this.setState({ message });
-    });
+      this.setState({
+        foundBackup,
+        activeDialog: true,
+        message: this.props.t('backup.check.success'),
+      });
+      await bitbox02API.checkBackup(this.props.deviceID, false);
+      this.setState({ userVerified: true });
+    } catch {
+      this.setState({ activeDialog: true, message: this.props.t('backup.check.notOK'), userVerified: true });
+    }
   };
 
   private abort = () => {
@@ -75,18 +70,14 @@ class Check extends Component<Props, State> {
   };
 
   public render() {
-    const { t, backups } = this.props;
+    const { t } = this.props;
     const { activeDialog, message, foundBackup, userVerified } = this.state;
     return (
       <div>
         <Button
           primary
           disabled={this.props.disabled}
-          onClick={() => {
-            this.checkBackup(true, backups);
-            this.setState({ activeDialog: true, userVerified: false });
-            this.checkBackup(false, backups);
-          }}
+          onClick={this.checkBackup}
         >
           {t('button.check')}
         </Button>

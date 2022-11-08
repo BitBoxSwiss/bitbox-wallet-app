@@ -18,12 +18,12 @@
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
 import { checkSDCard, errUserAbort, getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
-import { multilineMarkup } from '../../../utils/markup';
+import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button, Checkbox, Input  } from '../../../components/forms';
+import { Button, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -744,13 +744,10 @@ class BitBox02 extends Component<Props, State> {
               ) : (
                 selectedBackup ? (
                   <div>
-                    {multilineMarkup({
-                      tagName: 'div',
-                      markup: t('backup.restore.selectedBackup', {
-                        backupName: selectedBackup.name,
-                        createdDateTime: convertDateToLocaleString(selectedBackup.date, this.props.i18n.language),
-                      })
-                    })}
+                    <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
+                      backupName: selectedBackup.name,
+                      createdDateTime: convertDateToLocaleString(selectedBackup.date, this.props.i18n.language),
+                    })}/>
                     <p className="text-small text-ellipsis">
                                             ID:&nbsp;{selectedBackup.id}
                     </p>

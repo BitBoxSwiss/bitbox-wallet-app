@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { createElement } from 'react';
+import React, { createElement, FunctionComponent } from 'react';
 
 type MarkupProps = {
     tagName: keyof JSX.IntrinsicElements;
@@ -47,23 +47,16 @@ export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
 }
 
 /**
- * **multilineMarkup** splits a text by newline and renders each
+ * **<MultilineMarkup>** splits a text by newline and renders each
  * line with the `<SimmpleMarkup>` component.
- * **Note**: With current Preact 8 document fragments are not
- * supported so this has to be used as function, but once we move
- * to modern Preact/React we can use it as a normal component.
- * ### Example:
- * ```jsx
-    {multilineMarkup({ tagName: 'p', markup: 'messages\n\nwith <strong>newlines</strong>'})}
- * ```
  */
-export function multilineMarkup({ tagName, markup, ...props }: MarkupProps) {
-  return markup.split('\n').map((line: string, i: number) => (
-    SimpleMarkup({
-      key: `${line}-${i}`,
-      tagName,
-      markup: line,
-      ...props
-    })
-  ));
-}
+
+export const MultilineMarkup: FunctionComponent<MarkupProps> = ({ tagName, markup, ...props }) => {
+  return <>
+    {
+      markup.split('\n').map((line: string, i: number) => (
+        <SimpleMarkup key={`${line}-${i}`} tagName={tagName} markup={line} {...props} />
+      ))
+    }
+  </>;
+};

@@ -46,7 +46,7 @@ func TestByCode(t *testing.T) {
 
 func TestSetTokenActive(t *testing.T) {
 	// not an ETH account.
-	require.Error(t, (&Account{CoinCode: coin.CodeTETH}).SetTokenActive("TOKEN", true))
+	require.Error(t, (&Account{CoinCode: coin.CodeGOETH}).SetTokenActive("TOKEN", true))
 
 	acct := &Account{
 		CoinCode: coin.CodeETH,

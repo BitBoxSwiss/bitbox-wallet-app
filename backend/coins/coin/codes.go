@@ -30,14 +30,8 @@ const (
 	CodeTLTC Code = "tltc"
 	// CodeETH is Ethereum.
 	CodeETH Code = "eth"
-	// CodeTETH is Ethereum Ropsten.
-	CodeTETH Code = "teth"
-	// CodeRETH is Ethereum Rinkeby.
-	CodeRETH Code = "reth"
 	// CodeGOETH is Ethereum Goerli.
 	CodeGOETH Code = "goeth"
-	// CodeERC20TEST is an arbitrarily picked test ERC20 token on Ropsten.
-	CodeERC20TEST Code = "erc20Test"
 	// If you add coins, don't forget to update `testnetCoins` below.
 	// There are some more coin codes for the supported erc20 tokens in erc20.go.
 )
@@ -55,10 +49,7 @@ const (
 
 // TestnetCoins is the subset of all coins which are available in testnet mode.
 var TestnetCoins = map[Code]struct{}{
-	CodeTBTC:      {},
-	CodeTLTC:      {},
-	CodeTETH:      {},
-	CodeRETH:      {},
-	CodeGOETH:     {},
-	CodeERC20TEST: {},
+	CodeTBTC:  {},
+	CodeTLTC:  {},
+	CodeGOETH: {},
 }

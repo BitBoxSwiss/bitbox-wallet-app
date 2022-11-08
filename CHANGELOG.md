@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## 4.35.0
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
 - Transaction details: show fiat value at time of transaction
 - Android: more modern look by changing the status bar color to white while the app is running
@@ -14,6 +16,9 @@
 - Add 'sat' unit for Bitcoin accounts, available in Settings view
 - Add version number and available updates check in settings
 - Add translation feedback link in the guide
+- Fix a UI bug when checking a backup where the confirmation dialog is sometimes empty
+- Ethereum: remove Ropsten/Rinkeby testnet networks, which have been shut down
+- Re-style Portfolio Chart on mobile (Android) for better usability and a more modern look
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0

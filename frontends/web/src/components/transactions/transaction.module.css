@@ -61,9 +61,14 @@
 
 .amountOverflow {
     overflow: hidden;
-    padding-right: 40px;
     position: relative;
     text-overflow: ellipsis;
+}
+
+/* invisible element that creates the exact space for the used unit */
+.amountOverflow::after {
+    content: attr(data-unit);
+    color: transparent;
 }
 
 .send {

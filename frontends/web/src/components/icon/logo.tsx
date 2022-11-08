@@ -79,8 +79,6 @@ const logoMap: LogoMap = {
   'ltc': [LTC, LTC_GREY],
   'tltc': [LTC, LTC_GREY],
   'eth': [ETH, ETH_GREY],
-  'teth': [ETH, ETH_GREY],
-  'reth': [ETH, ETH_GREY],
   'goeth': [ETH, ETH_GREY],
   'erc20Test': [ETH, ETH_GREY],
 
