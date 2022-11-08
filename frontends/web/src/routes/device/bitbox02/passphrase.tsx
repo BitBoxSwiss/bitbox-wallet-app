@@ -19,7 +19,7 @@ import { Component } from 'react';
 import { route } from '../../../utils/route';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { multilineMarkup, SimpleMarkup } from '../../../utils/markup';
+import { MultilineMarkup, SimpleMarkup } from '../../../utils/markup';
 // This is the first time we use <View> in a <Main> component
 // keeping guide and header as example in the code
 import { /* Header, */ Main } from '../../../components/layout';
@@ -137,10 +137,7 @@ class Passphrase extends Component<Props, State> {
           width={CONTENT_WIDTH}>
           <ViewHeader title={t('passphrase.intro.title')} />
           <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.intro.message'),
-            })}
+            <MultilineMarkup tagName="p" markup={t('passphrase.intro.message')} />
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={this.continueInfo}>
@@ -162,10 +159,7 @@ class Passphrase extends Component<Props, State> {
           width={CONTENT_WIDTH}>
           <ViewHeader title={t('passphrase.what.title')} />
           <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.what.message'),
-            })}
+            <MultilineMarkup tagName="p" markup={t('passphrase.what.message')} />
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={this.continueInfo}>
@@ -187,10 +181,7 @@ class Passphrase extends Component<Props, State> {
           width={CONTENT_WIDTH}>
           <ViewHeader title={t('passphrase.why.title')} />
           <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.why.message'),
-            })}
+            <MultilineMarkup tagName="p" markup={t('passphrase.why.message')} />
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={this.continueInfo}>
@@ -212,10 +203,7 @@ class Passphrase extends Component<Props, State> {
           width={CONTENT_WIDTH}>
           <ViewHeader title={t('passphrase.considerations.title')} />
           <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.considerations.message'),
-            })}
+            <MultilineMarkup tagName="p" markup={t('passphrase.considerations.message')} />
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={this.continueInfo}>
@@ -237,10 +225,7 @@ class Passphrase extends Component<Props, State> {
           width={CONTENT_WIDTH}>
           <ViewHeader title={t('passphrase.how.title')} />
           <ViewContent>
-            {multilineMarkup({
-              tagName: 'p',
-              markup: t('passphrase.how.message'),
-            })}
+            <MultilineMarkup tagName="p" markup={t('passphrase.how.message')} />
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={this.continueInfo}>
@@ -304,10 +289,7 @@ class Passphrase extends Component<Props, State> {
         width={CONTENT_WIDTH}>
         <ViewHeader title={t('passphrase.disable')} />
         <ViewContent>
-          {multilineMarkup({
-            tagName: 'p',
-            markup: t('passphrase.disableInfo.message'),
-          })}
+          <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />
         </ViewContent>
         <ViewButtons>
           <Button primary onClick={this.continueInfo}>
@@ -369,12 +351,9 @@ class Passphrase extends Component<Props, State> {
                 : 'passphrase.successEnabled.title')} >
             </ViewHeader>
             <ViewContent>
-              {multilineMarkup({
-                tagName: 'p',
-                markup: t(passphraseEnabled
-                  ? 'passphrase.successDisabled.message'
-                  : 'passphrase.successEnabled.message'),
-              })}
+              <MultilineMarkup tagName="p" markup={t(passphraseEnabled
+                ? 'passphrase.successDisabled.message'
+                : 'passphrase.successEnabled.message')} />
               {passphraseEnabled && (
                 <ul style={{ paddingLeft: 'var(--space-default)' }}>
                   <SimpleMarkup key="tip-1" tagName="li" markup={t('passphrase.successEnabled.tipsList.0')} />
