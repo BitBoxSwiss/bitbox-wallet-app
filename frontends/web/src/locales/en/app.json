@@ -1083,7 +1083,7 @@
     },
     "showFull": "Show and verify full address on device",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
-    "title": "Get {{accountName}}",
+    "title": "Receive {{accountName}}",
     "verify": "Verify address securely",
     "verifyBitBox01": "Verify address on mobile app",
     "verifyBitBox02": "Verify address on BitBox02",
@@ -1275,7 +1275,7 @@
       "home": "Home"
     },
     "info": {
-      "out-of-date": "New udate available",
+      "out-of-date": "New update available",
       "title": "Info",
       "up-to-date": "Your app is up to date",
       "version": "App Version"
