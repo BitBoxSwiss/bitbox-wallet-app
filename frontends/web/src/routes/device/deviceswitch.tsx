@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { TDevices } from '../../api/devices';
 import BitBox01 from './bitbox01/bitbox01';
 import { BitBox02 } from './bitbox02/bitbox02';
 import { BitBox02Bootloader } from '../../components/devices/bitbox02bootloader/bitbox02bootloader';
 import { Waiting } from './waiting';
 
-interface Props {
+type TProps = {
     devices: TDevices;
     deviceID: string | null;
 }
 
-const DeviceSwitch: FunctionComponent<Props> = ({ deviceID, devices }) => {
+const DeviceSwitch = ({ deviceID, devices }: TProps) => {
   if (deviceID === null || !Object.keys(devices).includes(deviceID)) {
     return <Waiting />;
   }

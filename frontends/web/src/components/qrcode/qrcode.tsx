@@ -15,20 +15,19 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useLoad } from '../../hooks/api';
 import { getQRCode } from '../../api/backend';
 import style from './qrcode.module.css';
 
-type Props = {
+type TProps = {
     data?: string;
     size?: number;
 };
 
-export const QRCode: FunctionComponent<Props> = ({
+export const QRCode = ({
   data,
   size = 256,
-}) => {
+}: TProps) => {
   const src = useLoad(data !== undefined ? getQRCode(data) : null, [data]);
   if (!src) {
     if (data !== undefined) {

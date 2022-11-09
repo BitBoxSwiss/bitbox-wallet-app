@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component, FunctionComponent } from 'react';
+import React, { Component } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
@@ -44,6 +44,8 @@ interface SubscribedProps {
 
 type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
 
+type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+
 interface SwipeAttributes {
     x: number;
     y: number;
@@ -59,7 +61,7 @@ export function setSidebarStatus(status: string) {
   panelStore.setState({ sidebarStatus: status });
 }
 
-const GetAccountLink: FunctionComponent<IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => any) }> = ({ coinCode, code, name, handleSidebarItemClick }) => {
+const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAccountLinkProps ) => {
   const { pathname } = useLocation();
   const active = ( pathname === `/account/${code}` ) || ( pathname.startsWith(`/account/${code}/`) );
   return (

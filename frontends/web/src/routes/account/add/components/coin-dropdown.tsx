@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
 import * as backendAPI from '../../../../api/backend';
 import { Select } from '../../../../components/forms';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 
-interface CoinDropDownProps {
+type TCoinDropDownProps = {
     onChange: (coin: backendAPI.ICoin) => void;
     supportedCoins: backendAPI.ICoin[];
     value: string;
 }
 
-type Props = CoinDropDownProps & TranslateProps;
+type TProps = TCoinDropDownProps & TranslateProps;
 
 function CoinDropDown({
   onChange,
   supportedCoins,
   t,
   value,
-}: PropsWithChildren<Props>) {
+}: TProps) {
   return (
     <Select
       autoFocus

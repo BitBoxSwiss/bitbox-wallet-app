@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
+import { ReactNode } from 'react';
 import style from './grid.module.css';
 
-type GridProps = {}
+type TGridProps = {
+  children: ReactNode;
+}
 
-export const Grid: FunctionComponent<GridProps> = ({ children }) => {
+export const Grid = ({ children }: TGridProps) => {
   return (
     <section className={style.grid}>
       {children}
@@ -27,14 +29,15 @@ export const Grid: FunctionComponent<GridProps> = ({ children }) => {
   );
 };
 
-type ColumnProps = {
-    asCard?: boolean;
+type TColumnProps = {
+  asCard?: boolean;
+  children: ReactNode;
 }
 
-export const Column: FunctionComponent<ColumnProps> = ({
+export const Column = ({
   asCard,
   children,
-}) => {
+}: TColumnProps) => {
   return (
     <div className={`${style.column} ${asCard ? style.columnAsCard : ''}`}>
       {children}
@@ -42,9 +45,11 @@ export const Column: FunctionComponent<ColumnProps> = ({
   );
 };
 
-type ColumnButtonsProps = {}
+type TColumnButtonsProps = {
+  children: ReactNode;
+}
 
-export const ColumnButtons: FunctionComponent<ColumnButtonsProps> = ({ children }) => {
+export const ColumnButtons = ({ children }: TColumnButtonsProps) => {
   return (
     <div className={style.columnButtons}>
       {children}

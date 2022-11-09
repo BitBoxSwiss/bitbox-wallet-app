@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMountedRef } from '../../hooks/utils';
 import { CoinCode } from '../../api/account';
@@ -24,11 +24,11 @@ import { useSubscribe } from '../../hooks/api';
 import Spinner from '../spinner/ascii';
 import style from './headerssync.module.css';
 
-interface Props {
+type TProps = {
     coinCode: CoinCode;
 }
 
-export const HeadersSync: FunctionComponent<Props> = ({ coinCode }) => {
+export const HeadersSync = ({ coinCode }: TProps) => {
   const { i18n, t } = useTranslation();
   const status = useSubscribe(subscribeCoinHeaders(coinCode));
   const [hidden, setHidden] = useState<boolean>(false);

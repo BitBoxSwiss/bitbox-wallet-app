@@ -15,13 +15,10 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
 import { translate, TranslateProps } from '../decorators/translate';
 import A from './anchor/anchor';
 
-type Props = TranslateProps;
-
-function AppUpgradeRequired({ t }: PropsWithChildren<Props>): JSX.Element {
+function AppUpgradeRequired({ t }: TranslateProps) {
   return (
     <div className="contentWithGuide">
       <div className="container">

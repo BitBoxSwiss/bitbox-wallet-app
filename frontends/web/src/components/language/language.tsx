@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useState } from 'react';
+import { useState } from 'react';
 import { i18n as Ii18n } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../dialog/dialog';
@@ -72,7 +72,7 @@ const getSelectedIndex = (languages: TLanguagesList, i18n: Ii18n) => {
   return index;
 };
 
-const LanguageSwitch: FunctionComponent<TLanguageSwitchProps> = ({ languages }) => {
+const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
 
   const { t, i18n } = useTranslation();
   const allLanguages = languages || defaultLanguages;

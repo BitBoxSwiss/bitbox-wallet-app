@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { load } from '../../decorators/load';
 import { runningInAndroid } from '../../utils/env';
@@ -23,13 +22,13 @@ import { TUpdateFile } from '../../api/version';
 import A from '../anchor/anchor';
 import Status from '../status/status';
 
-interface Props {
+type TProps = {
     file: TUpdateFile | null;
 }
 
 export const updatePath: string = 'https://shiftcrypto.ch/download/?source=bitboxapp';
 
-const Update: FunctionComponent<Props> = ({ file }) => {
+const Update = ({ file }: TProps) => {
   const { t } = useTranslation();
   const downloadElement = <A href={updatePath}>{t('button.download')}</A>;
 
@@ -47,6 +46,6 @@ const Update: FunctionComponent<Props> = ({ file }) => {
   );
 };
 
-const HOC = load<Props>({ file: 'update' })(Update);
+const HOC = load<TProps>({ file: 'update' })(Update);
 
 export { HOC as Update };

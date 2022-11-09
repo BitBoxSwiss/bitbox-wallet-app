@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-import { ComponentPropsWithoutRef, FunctionComponent } from 'react';
+import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { Link, LinkProps } from 'react-router-dom';
 import style from './button.module.css';
 
-type Props = {
+type TProps = {
     danger?: boolean;
     disabled?: boolean;
     primary?: boolean;
     secondary?: boolean;
     transparent?: boolean;
+    children: ReactNode;
 }
 
-export const ButtonLink: FunctionComponent<Props & LinkProps> = ({
+export const ButtonLink = ({
   primary = false,
   secondary = false,
   transparent = false,
@@ -36,7 +37,7 @@ export const ButtonLink: FunctionComponent<Props & LinkProps> = ({
   children,
   disabled,
   ...props
-}) => {
+}: TProps & LinkProps) => {
   const classNames = [
     style[
       (primary && 'primary')
@@ -65,7 +66,7 @@ export const ButtonLink: FunctionComponent<Props & LinkProps> = ({
   );
 };
 
-export const Button: FunctionComponent<Props & ComponentPropsWithoutRef<'button'>> = ({
+export const Button = ({
   type = 'button',
   primary = false,
   secondary = false,
@@ -74,7 +75,7 @@ export const Button: FunctionComponent<Props & ComponentPropsWithoutRef<'button'
   className = '',
   children,
   ...props
-}) => {
+}: TProps & ComponentPropsWithoutRef<'button'>) => {
   const classNames = [
     style[(primary && 'primary')
             || (secondary && 'secondary')

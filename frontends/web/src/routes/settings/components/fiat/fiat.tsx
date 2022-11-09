@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 import { Fiat } from '../../../../api/account';
 import { Star, StarInactive } from '../../../../components/icon';
 import {
@@ -47,13 +47,13 @@ function setDefault(event: React.SyntheticEvent): void {
   event.preventDefault();
 }
 
-type Props = SharedProps & TranslateProps;
+type TProps = SharedProps & TranslateProps;
 
 function Selection({
   t,
   active,
   selected,
-}: PropsWithChildren<Props>): JSX.Element | null {
+}: TProps) {
   return (
     <div>
       <h3 className="subTitle">{t('fiat.title')}</h3>

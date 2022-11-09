@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
 import styles from './vasp.module.css';
 import AOPPGroupLogo from '../../assets/exchanges/logos/aoppgroup.svg';
 import BitcoinSuisseLogo from '../../assets/exchanges/logos/bitcoin_suisse.png';
@@ -22,7 +21,7 @@ import BittrLogo from '../../assets/exchanges/logos/bittr.png';
 import BityLogo from '../../assets/exchanges/logos/bity.png';
 import PocketBitcoinLogo from '../../assets/exchanges/logos/pocketbitcoin.svg';
 
-interface VASPProps {
+type TVASPProps = {
     fallback?: JSX.Element;
     hostname: string;
     prominent?: boolean;
@@ -47,12 +46,12 @@ const VASPHostnameMap: TVASPMap = {
   'testing.aopp.group': 'AOPP.group',
 };
 
-export function Vasp({
+export const Vasp = ({
   fallback,
   hostname,
   prominent,
   withLogoText,
-}: PropsWithChildren<VASPProps>) {
+}: TVASPProps) => {
   const hasLogo = hostname in VASPLogoMap;
   if (!hasLogo) {
     return fallback || (<p className={styles.hostname}>{hostname}</p>);
@@ -67,4 +66,4 @@ export function Vasp({
       {withLogoText ? (<p>{withLogoText}</p>) : null}
     </div>
   );
-}
+};

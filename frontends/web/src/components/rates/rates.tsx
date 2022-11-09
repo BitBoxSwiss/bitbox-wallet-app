@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
 import { Fiat, ConversionUnit, IAmount } from '../../api/account';
 import { BtcUnit } from '../../api/coins';
 import { share } from '../../decorators/share';
@@ -104,7 +103,7 @@ export function formatNumber(amount: number, maxDigits: number): string {
   return formatted;
 }
 
-interface ProvidedProps {
+type TProvidedProps = {
     amount?: IAmount;
     tableRow?: boolean;
     unstyled?: boolean;
@@ -114,7 +113,7 @@ interface ProvidedProps {
     noBtcZeroes?: boolean;
 }
 
-type Props = ProvidedProps & SharedProps;
+type TProps = TProvidedProps & SharedProps;
 
 function Conversion({
   amount,
@@ -126,7 +125,7 @@ function Conversion({
   sign,
   noBtcZeroes,
   btcUnit,
-}: PropsWithChildren<Props>): JSX.Element | null {
+}: TProps) {
 
   let formattedValue = '---';
   let isAvailable = false;
@@ -181,4 +180,4 @@ function Conversion({
   );
 }
 
-export const FiatConversion = share<SharedProps, ProvidedProps>(store)(Conversion);
+export const FiatConversion = share<SharedProps, TProvidedProps>(store)(Conversion);

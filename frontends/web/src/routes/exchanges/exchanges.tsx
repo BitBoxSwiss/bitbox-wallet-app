@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, PropsWithChildren } from 'react';
+import { Component, ReactNode } from 'react';
 import A from '../../components/anchor/anchor';
 import { Button } from '../../components/forms/button';
 import { Entry } from '../../components/guide/entry';
@@ -37,7 +37,7 @@ interface State {
     method: Method | null;
 }
 
-interface Exchange extends ExchangeData {
+type TExchange = ExchangeData & {
     hostname?: string;
 }
 
@@ -56,7 +56,7 @@ class Exchanges extends Component<Props, State> {
     };
   }
 
-  private data: Exchange[];
+  private data: TExchange[];
 
   private toggleRegion = (code: Region) => {
     this.setState(({ region }) => ({ region: region !== code ? code : null }));
@@ -157,17 +157,17 @@ class Exchanges extends Component<Props, State> {
   }
 }
 
-interface FilterButtonProps {
+type TFilterButtonProps = {
     active?: boolean;
     onClick: () => void;
-    children: JSX.Element;
+    children: ReactNode;
 }
 
 function FilterButton({
   active = false,
   onClick,
   children,
-}: PropsWithChildren<FilterButtonProps>): JSX.Element {
+}: TFilterButtonProps) {
   return (
     <Button
       primary={active}
@@ -182,7 +182,7 @@ function Row({
   key,
   description,
   hostname,
-}: PropsWithChildren<Exchange>): JSX.Element {
+}: TExchange) {
   return (
     <A
       key={key}

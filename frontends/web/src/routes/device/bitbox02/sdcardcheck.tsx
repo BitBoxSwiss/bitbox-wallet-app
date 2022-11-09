@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { TranslateProps } from '../../../decorators/translate';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, ButtonLink } from '../../../components/forms';
@@ -22,12 +22,13 @@ import { checkSDCard } from '../../../api/bitbox02';
 import { useTranslation } from 'react-i18next';
 
 type SDCardCheckProps = {
-    deviceID: string;
+  deviceID: string;
+  children: ReactNode;
 }
 
-type Props = SDCardCheckProps & TranslateProps;
+type TProps = SDCardCheckProps & TranslateProps;
 
-const SDCardCheck: FunctionComponent<Props> = ({ deviceID, children }) => {
+const SDCardCheck = ({ deviceID, children }: TProps) => {
   const { t } = useTranslation();
   const [sdCardInserted, setSdCardInserted] = useState<boolean | undefined>();
   const check = useCallback(() => checkSDCard(deviceID).then(setSdCardInserted), [deviceID]);

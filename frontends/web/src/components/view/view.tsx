@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent, ReactNode } from 'react';
 import { AppLogo } from '../icon';
 import { Footer } from '../layout';
 import { SwissMadeOpenSource } from '../icon/logo';
 import { AnimatedChecked, Close } from '../icon/icon';
 import style from './view.module.css';
 
-type ViewProps = {
+type TViewProps = {
     dialog?: boolean;
     fitContent?: boolean;
     fullscreen?: boolean;
+    children: ReactNode;
     minHeight?: string;
     onClose?: () => void;
     textCenter?: boolean;
@@ -43,7 +44,7 @@ type ViewProps = {
  * @param width can be used to overwrite the default width of the inner area
  * @param withBottomBar enables a footer with some logo and language switch
  */
-export function View({
+export const View = ({
   dialog = false,
   fitContent = false,
   fullscreen,
@@ -53,7 +54,7 @@ export function View({
   textCenter,
   width,
   withBottomBar,
-}: PropsWithChildren<ViewProps>) {
+}: TViewProps) => {
   const containerClasses = `${
     style[fullscreen ? 'fullscreen' : 'fill']
   } ${
@@ -91,9 +92,10 @@ export function View({
       )}
     </div>
   );
-}
+};
 
-type ViewContentProps = {
+type TViewContentProps = {
+    children: ReactNode;
     fullWidth?: boolean;
     minHeight?: string;
     textAlign?: 'center' | 'left';
@@ -107,14 +109,14 @@ type ViewContentProps = {
  * @param textAlign allows overwriting text alignment in the content area
  * @param withIcon supports success icon currently, but could support other icons in the future
  */
-export function ViewContent({
+export const ViewContent = ({
   children,
   fullWidth,
   minHeight,
   textAlign,
   withIcon,
   ...props
-}: PropsWithChildren<ViewContentProps>) {
+}: TViewContentProps) => {
   const align = textAlign ? style[`text-${textAlign}`] : '';
   const containerWidth = fullWidth ? style.fullWidth : '';
   const classes = `${style.content} ${containerWidth} ${align}`;
@@ -129,9 +131,9 @@ export function ViewContent({
       {children}
     </div>
   );
-}
+};
 
-type HeaderProps = {
+type THeaderProps = {
     small?: boolean;
     title: ReactNode;
     withAppLogo?: boolean;
@@ -143,12 +145,12 @@ type HeaderProps = {
  * @param title the title of the view
  * @param withAppLogo if true includes the BitBoxApp logo before the title
  */
-export function ViewHeader({
+export const ViewHeader: FunctionComponent<THeaderProps> = ({
   children,
   small,
   title,
   withAppLogo,
-}: PropsWithChildren<HeaderProps>) {
+}) => {
   const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
   return (
     <header className={headerStyles}>
@@ -157,17 +159,19 @@ export function ViewHeader({
       {children}
     </header>
   );
-}
+};
 
-type ViewButtonsProps = {}
+type TViewButtonsProps = {
+  children: ReactNode;
+}
 
 /**
  * ViewButtons component use as container for buttons
  */
-export function ViewButtons({ children }: PropsWithChildren<ViewButtonsProps>) {
+export const ViewButtons = ({ children }: TViewButtonsProps) => {
   return (
     <div className={style.buttons}>
       {children}
     </div>
   );
-}
+};

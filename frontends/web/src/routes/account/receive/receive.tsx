@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
@@ -32,7 +32,7 @@ import { QRCode } from '../../../components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '../../../components/icon';
 import style from './receive.module.css';
 
-type Props = {
+type TProps = {
   accounts: accountApi.IAccount[];
   code: string;
   deviceID?: string;
@@ -55,11 +55,11 @@ const getIndexOfMatchingScriptType = (
   return receiveAddresses.findIndex(addrs => addrs.scriptType !== null && scriptType === addrs.scriptType);
 };
 
-export const Receive: FunctionComponent<Props> = ({
+export const Receive = ({
   accounts,
   code,
   deviceID,
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
   const [verifying, setVerifying] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);

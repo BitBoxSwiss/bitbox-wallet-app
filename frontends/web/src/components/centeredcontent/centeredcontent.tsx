@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
+import { ReactNode } from 'react';
 import style from './style.module.css';
 
-export const CenteredContent: FunctionComponent = ({ children }) => {
+type TProps = {
+  children: ReactNode;
+}
+
+export const CenteredContent = ({ children }: TProps) => {
   return (
     <div className="contentWithGuide">
       <div className={style.container}>

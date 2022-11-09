@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
 import Status from '../status/status';
 
-interface BannerInfo {
+type TBannerInfo = {
     id: string;
     message: { [key: string]: string; };
     link?: {
@@ -29,18 +28,18 @@ interface BannerInfo {
     };
 }
 
-interface LoadedProps {
-    banner: BannerInfo | null;
+type TLoadedProps = {
+    banner: TBannerInfo | null;
 }
 
-interface BannerProps {
+type TBannerProps = {
     // eslint-disable-next-line react/no-unused-prop-types
     msgKey: 'bitbox01';
 }
 
-type Props = LoadedProps & BannerProps & TranslateProps;
+type TProps = TLoadedProps & TBannerProps & TranslateProps;
 
-function Banner({ banner, i18n, t }: PropsWithChildren<Props>): JSX.Element | null {
+function Banner({ banner, i18n, t }: TProps) {
   if (!i18n.options.fallbackLng) {
     return null;
   }
@@ -57,7 +56,7 @@ function Banner({ banner, i18n, t }: PropsWithChildren<Props>): JSX.Element | nu
 }
 
 const HOC = translate()(
-  subscribe<LoadedProps, BannerProps & TranslateProps>(
+  subscribe<TLoadedProps, TBannerProps & TranslateProps>(
     ({ msgKey }) => ({ banner: 'banners/' + msgKey }),
     true,
     false,

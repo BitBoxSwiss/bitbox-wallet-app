@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
 import { getVersion } from '../../api/version';
 
-const Version: FunctionComponent = () => {
+const Version = () => {
   const { t } = useTranslation();
   const version = useLoad(getVersion);
 
