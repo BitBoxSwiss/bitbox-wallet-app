@@ -404,6 +404,11 @@
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "Autentiteitscontrole mislukt",
+        "label": "Autentiteitscontrole",
+        "true": "Je hebt een autentieke BitBox02"
+      },
       "sdcard": {
         "false": "Niet ingevoerd",
         "label": "microSD kaart",
@@ -827,6 +832,10 @@
         "text": "Gebruik het nieuwe bech32 adresformaat om van alle voordelen die SegWit biedt te profiteren. Enkele exchanges ondersteunen SegWit nog niet.",
         "title": "Wat is Bitcoin bech32?"
       },
+      "sats": {
+        "text": "Een Satoshi (of \"sat\" in het kort) is de kleinst mogelijke eenheid op het bitcoinnetwerk. Een satoshi is één honderdmiljoenste bitcoin (0.00 000 001 BTC). Het is vernoemd naar de maker van Bitcoin, Satoshi Nakamoto.",
+        "title": "Wat is een Satoshi?"
+      },
       "servers": {
         "text": "De app communiceert met de Shift Crypto servers om op updates te controleren, je transacties te laden en informatie te versturen naar je gekoppelde mobiele apps. \nDe app haalt ook de huidige wisselkoersen van CoinGecko. Alle conversies worden lokaal gedaan, zodat je balansen nooit naar derde partijen verstuurd worden.\nVoor Ethereum en ERC20 tokens worden de Etherscan.io APIs gebruikt.",
         "title": "Met welke servers verbindt deze app?"
@@ -1189,6 +1198,7 @@
       "total": "Totaal"
     },
     "error": {
+      "erc20InsufficientGasFunds": "Je hebt niet genoeg Ether in je wallet voor deze transactie. Stort meer Ether in je wallet om de transactie uit te voeren.",
       "feeTooLow": "netwerkkosten te laag",
       "feesNotAvailable": "Schatting van netwerkkosten niet beschikbaar",
       "insufficientFunds": "ontoereikende balans",
@@ -1277,10 +1287,17 @@
       "fee": "Custom fees aanzetten",
       "setProxyAddress": "Proxy adres instellen",
       "title": "Geavanceerde instellingen",
-      "useProxy": "Tor proxy aanzetten"
+      "useProxy": "Tor proxy aanzetten",
+      "useSats": "BTC-waarde in Satoshis weergeven"
     },
     "header": {
       "home": "Home"
+    },
+    "info": {
+      "out-of-date": "Nieuwe update beschikbaar",
+      "title": "Info",
+      "up-to-date": "Je app is bijgewerkt",
+      "version": "App versie"
     },
     "restart": "Start de BitBoxApp opnieuw op om de veranderde instellingen in te schakelen.",
     "services": {

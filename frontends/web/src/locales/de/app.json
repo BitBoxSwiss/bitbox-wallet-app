@@ -404,6 +404,11 @@
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "Echtheitscheck fehlgeschlagen",
+        "label": "Echtheitsprüfung",
+        "true": "Deine BitBox02 ist echt"
+      },
       "sdcard": {
         "false": "Nicht eingesteckt",
         "label": "microSD Karte",
@@ -705,6 +710,26 @@
       "text": "Klicken Sie auf \"Exportieren\" und öffnen Sie den Download-Ordner. Dort finden Sie die exportierte CSV Datei. Klicken Sie dann auf den untenstehenden Link, laden Sie Ihre BitBox-CSV-Datei hoch und importieren Sie die Daten, um sie für Ihren CoinTracking-Portfoliomanager zu verwenden und Ihre Steuerberichte zu erstellen.",
       "title": "Wie importiere ich meine Transaktionen in CoinTracking?"
     },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Lese mehr über den Echtheitscheck"
+        },
+        "text": "Die BitBoxApp führt eine Überprüfung der BitBox02 durch, um festzustellen, ob das Gerät echt ist. Die Prüfung wird lokal durchgeführt und stellt keine Verbindung zu unseren Servern her.",
+        "title": "Wie funktioniert die Echtheitsprüfung?"
+      },
+      "name": {
+        "text": "Dies ist der Name deiner Wallet und deines Backups. Der Name wird für zukünftige Backups verwendet und kann dazu dienen, verschiedene Wallets zu unterscheiden. Er kann jederzeit geändert werden, aber beachte, dass Backups, die vor der Änderung erstellt wurden, weiterhin den vorherigen Namen verwenden.",
+        "title": "Wofür wird der BitBox02-Name verwendet?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Lese mehr über den Secure-Chip"
+        },
+        "text": "Diese Information zeigt die Modellnummer des Sicherheitschips. Der aktuellste Chip ist der ATECC608B mit verbesserten Sicherheitsfunktionen im Vergleich zu älteren Modellen.",
+        "title": "Warum das Modell des Secure-Chips anzeigen?"
+      }
+    },
     "exchanges": {
       "commission": {
         "text": "Diese Seite verwendet Affiliate-Links, sofern verfügbar. Allerdings haben nicht alle Börsen ein Partnerprogramm. Ob eine Börse dies anbietet, hat keinen Einfluss auf unsere Entscheidung sie hier aufzuführen.",
@@ -826,6 +851,10 @@
         },
         "text": "Verwende das neue Bitcoin bech32 Adressformat um von den günstigeren Segwit-Netzgebühren zu profitieren. Bech32 wird jedoch noch nicht überall akzeptiert.",
         "title": "Was ist Bitcoin bech32?"
+      },
+      "sats": {
+        "text": "Ein Satoshi (kurz \"sat\") ist die kleinste Einheit eines Bitcoins. Ein Satoshi ist ein Hundertmillionstel eines Bitcoins (0,00000001 BTC). Benannt ist er nach dem Erfinder von Bitcoin, Satoshi Nakamoto.",
+        "title": "Was ist ein Satoshi?"
       },
       "servers": {
         "text": "Diese App kommuniziert mit Servern von Shift Crypto, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CoinGecko abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
@@ -1189,6 +1218,7 @@
       "total": "Gesamt"
     },
     "error": {
+      "erc20InsufficientGasFunds": "Es scheint, als hättest du nicht genug Ether, um für diese ERC20-Transaktion zu bezahlen. Bitte vergewissere dich, dass du genug Ether in deiner Wallet hast.",
       "feeTooLow": "Gebühr zu niedrig",
       "feesNotAvailable": "Gebühren konnten nicht geschätzt werden",
       "insufficientFunds": "Unzureichende Mittel",
@@ -1277,10 +1307,17 @@
       "fee": "Eigene Gebühr aktivieren",
       "setProxyAddress": "Proxy Adresse eingeben",
       "title": "Erweiterte Einstellungen",
-      "useProxy": "Tor Proxy aktivieren"
+      "useProxy": "Tor Proxy aktivieren",
+      "useSats": "BTC-Werte in Satoshis anzeigen"
     },
     "header": {
       "home": "Home"
+    },
+    "info": {
+      "out-of-date": "Neues Update verfügbar",
+      "title": "Info",
+      "up-to-date": "Deine App ist auf dem neuesten Stand",
+      "version": "App-Version"
     },
     "restart": "Bitte starten Sie die BitBoxApp neu, damit die Änderungen wirksam werden.",
     "services": {
@@ -1321,6 +1358,7 @@
       "date": "Datum",
       "fiat": "Fiat",
       "fiatAmount": "Fiatbetrag",
+      "fiatAtTime": "Fiat zur Transaktionszeit",
       "status": "Status",
       "type": "Typ"
     },
