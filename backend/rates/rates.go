@@ -129,7 +129,7 @@ type RateUpdater struct {
 // to free up all used resources.
 func NewRateUpdater(client *http.Client, dbdir string) *RateUpdater {
 	log := logging.Get().WithGroup("rates")
-	db, err := openRatesDB(dbdir)
+	db, err := openRatesDB(dbdir, log)
 	if err != nil {
 		log.Errorf("openRatesDB(%q): %v; database is unusable", dbdir, err)
 		// To avoid null pointer dereference in other methods where historyDB
