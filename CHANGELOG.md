@@ -9,9 +9,9 @@
 - Android: more modern look by changing the status bar color to white while the app is running
 - Android: fix time shown on BitBox02 when restoring a backup (it was shown in UTC instead of local time)
 - Fix update balance after transaction sent
-- Fix missing utxos update after new transaction is sent
-- Add attestation check on device setting
-- Fix unsufficient gas funds error message on erc20 transactions
+- Fix utxos update after new transaction is sent
+- Add attestation check to the device settings
+- Fix insufficient gas funds error message on erc20 transactions
 - Display trailing zeroes for BTC/LTC amount formatting
 - Fix broken links on Android 11+
 - Add 'sat' unit for Bitcoin accounts, available in Settings view
@@ -19,7 +19,7 @@
 - Add translation feedback link in the guide
 - Fix a UI bug when checking a backup where the confirmation dialog is sometimes empty
 - Ethereum: remove Ropsten/Rinkeby testnet networks, which have been shut down
-- Re-style Portfolio Chart on mobile (Android) for better usability and a more modern look
+- Re-style portfolio chart on mobile (Android) for better usability and a more modern look
 
 ## 4.34.0
 - Bundle BitBox02 firmware version v9.12.0
