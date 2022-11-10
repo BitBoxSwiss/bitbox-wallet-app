@@ -1,7 +1,6 @@
 # Changelog
 
 ## [Unreleased]
-- Gracefully deal with corrupt bbolt database files
 
 ## 4.35.0
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI

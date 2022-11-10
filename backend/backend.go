@@ -196,7 +196,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		aopp:     AOPP{State: aoppStateInactive},
 		log:      log,
 	}
-	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"), log)
+	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
 		return nil, err
 	}

@@ -99,7 +99,7 @@ func (s *transactionsSuite) SetupTest() {
 	_, s.addressChain = addressesTest.NewAddressChain()
 	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
-	db, err := transactionsdb.NewDB(test.TstTempFile("bitbox-wallet-db-"), s.log)
+	db, err := transactionsdb.NewDB(test.TstTempFile("bitbox-wallet-db-"))
 	if err != nil {
 		panic(err)
 	}
