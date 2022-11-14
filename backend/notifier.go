@@ -18,9 +18,7 @@ import (
 	"fmt"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/bolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/sirupsen/logrus"
 	"go.etcd.io/bbolt"
 )
 
@@ -35,8 +33,8 @@ type Notifier struct {
 }
 
 // NewNotifier returns a new Notifier.
-func NewNotifier(dbFilename string, log *logrus.Entry) (*Notifier, error) {
-	db, err := bolt.Open(dbFilename, log)
+func NewNotifier(dbFilename string) (*Notifier, error) {
+	db, err := bbolt.Open(dbFilename, 0600, nil)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
