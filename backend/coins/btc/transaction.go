@@ -214,8 +214,6 @@ func (account *Account) SendTx() error {
 		return errp.New("No active tx proposal")
 	}
 
-	note := account.BaseAccount.GetAndClearProposedTxNote()
-
 	account.log.Info("Signing and sending transaction")
 	utxos := account.transactions.SpendableOutputs()
 	if err := account.signTransaction(txProposal, utxos, account.coin.Blockchain().TransactionGet); err != nil {
@@ -226,6 +224,8 @@ func (account *Account) SendTx() error {
 	if err := account.coin.Blockchain().TransactionBroadcast(txProposal.Transaction); err != nil {
 		return err
 	}
+
+	note := account.BaseAccount.GetAndClearProposedTxNote()
 	if err := account.SetTxNote(txProposal.Transaction.TxHash().String(), note); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")

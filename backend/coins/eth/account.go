@@ -587,8 +587,6 @@ func (account *Account) SendTx() error {
 		return errp.New("No active tx proposal")
 	}
 
-	note := account.BaseAccount.GetAndClearProposedTxNote()
-
 	account.log.Info("Signing and sending transaction")
 	if err := account.Config().Keystore.SignTransaction(txProposal); err != nil {
 		return err
@@ -602,6 +600,8 @@ func (account *Account) SendTx() error {
 	if err := account.storePendingOutgoingTransaction(txProposal.Tx); err != nil {
 		return err
 	}
+
+	note := account.BaseAccount.GetAndClearProposedTxNote()
 	if err := account.SetTxNote(txProposal.Tx.Hash().Hex(), note); err != nil {
 		// Not critical.
 		account.log.WithError(err).Error("Failed to save transaction note when sending a tx")
