@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { IAccount } from '../../../api/account';
 import { TDevices } from '../../../api/devices';
 import { Receive as ReceiveBB02 } from './receive';
 import { Receive as ReceiveBB01 } from './receive-bb01';
 
-type Props = {
+type TProps = {
   accounts: IAccount[];
   code: string;
   deviceIDs: string[];
   devices: TDevices;
 };
 
-export const Receive: FunctionComponent<Props> = props => {
+export const Receive = (props: TProps) => {
   const {
     devices,
     deviceIDs,

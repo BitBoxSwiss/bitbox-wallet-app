@@ -1,6 +1,6 @@
 import style from './icons.module.css';
 
-export const ArrowIn = (): JSX.Element => (
+export const ArrowIn = () => (
   <svg
     className={`${style.txArrowType} ${style.txArrowTypeIn}`}
     xmlns="http://www.w3.org/2000/svg"
@@ -16,7 +16,7 @@ export const ArrowIn = (): JSX.Element => (
   </svg>
 );
 
-export const ArrowOut = (): JSX.Element => (
+export const ArrowOut = () => (
   <svg
     className={`${style.txArrowType} ${style.txArrowTypeOut}`}
     xmlns="http://www.w3.org/2000/svg"
@@ -32,7 +32,7 @@ export const ArrowOut = (): JSX.Element => (
   </svg>
 );
 
-export const ArrowSelf = (): JSX.Element => (
+export const ArrowSelf = () => (
   <svg
     className={`${style.txArrowType} ${style.txArrowTypeSelf}`}
     xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +48,7 @@ export const ArrowSelf = (): JSX.Element => (
   </svg>
 );
 
-export const Edit = (): JSX.Element => (
+export const Edit = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"
@@ -64,7 +64,7 @@ export const Edit = (): JSX.Element => (
   </svg>
 );
 
-export const Save = (): JSX.Element => (
+export const Save = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"

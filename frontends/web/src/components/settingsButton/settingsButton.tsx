@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import { ReactNode } from 'react';
 import style from './settingsButton.module.css';
 
 interface SettingsButtonProps {
@@ -8,9 +8,10 @@ interface SettingsButtonProps {
     secondaryText?: string | JSX.Element;
     disabled?: boolean;
     optionalIcon?: JSX.Element;
+    children: ReactNode;
 }
 
-const SettingsButton: FunctionComponent<SettingsButtonProps> = ({
+const SettingsButton = ({
   onClick,
   danger,
   optionalText,
@@ -18,7 +19,7 @@ const SettingsButton: FunctionComponent<SettingsButtonProps> = ({
   disabled,
   children,
   optionalIcon,
-}) => {
+}: SettingsButtonProps) => {
   return (
     <button
       className={

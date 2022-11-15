@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
@@ -28,15 +28,15 @@ import { SigningConfiguration } from './signingconfiguration';
 import { BitcoinBasedAccountInfoGuide } from './guide';
 import style from './info.module.css';
 
-type Props = {
+type TProps = {
     accounts: IAccount[];
     code: string;
 };
 
-export const Info: FunctionComponent<Props> = ({
+export const Info = ({
   accounts,
   code,
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
   const info = useLoad(getInfo(code));
   const [viewXPub, setViewXPub] = useState<number>(0);

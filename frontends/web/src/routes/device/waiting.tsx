@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/i18n';
 import { useLoad } from '../../hooks/api';
@@ -28,7 +28,7 @@ import { debug } from '../../utils/env';
 import { SkipForTesting } from './components/skipfortesting';
 import style from './bitbox01/bitbox01.module.css';
 
-export const Waiting: FunctionComponent = () => {
+export const Waiting = () => {
   const { t } = useTranslation();
   const testing = useLoad(debug ? getTesting : () => Promise.resolve(false));
 

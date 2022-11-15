@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSync } from '../hooks/api';
 import { getUsingMobileData, subscribeUsingMobileData } from '../api/mobiledata';
 import Status from './status/status';
 
-export const MobileDataWarning: FunctionComponent = () => {
+export const MobileDataWarning = () => {
   const { t } = useTranslation();
   const isUsingMobileData = useSync(getUsingMobileData, subscribeUsingMobileData);
   if (isUsingMobileData === undefined) {

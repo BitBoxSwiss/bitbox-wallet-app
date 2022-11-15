@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect } from 'react';
+import { useEffect } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router';
+
+
+type TProps = { onChange: (() => void) };
 
 let navigate: NavigateFunction | undefined;
 
@@ -27,7 +30,7 @@ export const route = (route: string, replace?: boolean) => {
 };
 
 // This component makes route fn work, and triggers an onChange function
-export const RouterWatcher: FunctionComponent<{onChange: (() => void)}> = ({ onChange }) => {
+export const RouterWatcher = ({ onChange }: TProps) => {
   navigate = useNavigate();
   const { pathname } = useLocation();
   useEffect(() => {

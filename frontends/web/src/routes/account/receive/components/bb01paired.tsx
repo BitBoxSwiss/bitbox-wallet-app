@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../../hooks/api';
 import { hasMobileChannel } from '../../../../api/devices';
 import Status from '../../../../components/status/status';
 
-type Props = {
+type TProps = {
     deviceID: string;
 }
 
-export const PairedWarning: FunctionComponent<Props> = ({
+export const PairedWarning = ({
   deviceID,
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
   const paired = useLoad(hasMobileChannel(deviceID));
   if (paired) {

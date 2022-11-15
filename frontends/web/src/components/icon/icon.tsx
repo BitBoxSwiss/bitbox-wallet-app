@@ -38,7 +38,7 @@ import starSVG from './assets/icons/star.svg';
 import starInactiveSVG from './assets/icons/star-inactive.svg';
 import style from './icon.module.css';
 
-export const ExpandOpen = (): JSX.Element => (
+export const ExpandOpen = () => (
   <svg
     className={style.expandIcon}
     xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +57,7 @@ export const ExpandOpen = (): JSX.Element => (
   </svg>
 );
 
-export const ExpandClose = (): JSX.Element => (
+export const ExpandClose = () => (
   <svg
     className={style.expandIcon}
     xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +96,7 @@ interface ExpandIconProps {
 
 export const ExpandIcon = ({
   expand = true,
-}: ExpandIconProps): JSX.Element => (
+}: ExpandIconProps) => (
   expand ? <ExpandOpen /> : <ExpandClose />
 );
 

@@ -15,22 +15,21 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IBalance } from '../../api/account';
 import { FiatConversion } from '../../components/rates/rates';
 import { bitcoinRemoveTrailingZeroes } from '../../utils/trailing-zeroes';
 import style from './balance.module.css';
 
-interface Props {
+type TProps = {
     balance?: IBalance;
     noRotateFiat?: boolean;
 }
 
-export const Balance: FunctionComponent<Props> = ({
+export const Balance = ({
   balance,
   noRotateFiat,
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
   if (!balance) {
     return (

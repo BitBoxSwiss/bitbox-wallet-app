@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SimpleMarkup } from '../../utils/markup';
 import { Dialog, DialogButtons } from '../dialog/dialog';
@@ -38,7 +38,7 @@ interface State {
  * Confirm alert that activates on confirmation module export call,
  * this should be mounted only once in the App
  */
-export const Confirm: FunctionComponent = () => {
+export const Confirm = () => {
   const [state, setState] = useState<State>({ active: false });
   const { t } = useTranslation();
   const callback = useRef<TCallback>(() => {});

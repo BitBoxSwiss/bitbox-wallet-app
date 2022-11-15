@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { ReactChild } from 'react';
 import { Route, Routes, useParams } from 'react-router';
 import { IAccount } from '../api/account';
 import { TDevices } from '../api/devices';
@@ -18,7 +18,7 @@ import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
 
-interface Props {
+type TAppRouterProps = {
     devices: TDevices;
     deviceIDs: string[];
     accounts: IAccount[];
@@ -26,12 +26,16 @@ interface Props {
     devicesKey: ((input: string) => string)
 }
 
-const InjectParams: FunctionComponent = ({ children }) => {
+type TInjectParamsProps = {
+  children: ReactChild;
+}
+
+const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter: FunctionComponent<Props> = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }) => {
+export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
   const Homepage = <DeviceSwitch
     key={devicesKey('device-switch-default')}
     deviceID={null}

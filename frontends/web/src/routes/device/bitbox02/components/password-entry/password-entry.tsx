@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { createRef, PropsWithChildren, useEffect } from 'react';
+import { createRef, useEffect } from 'react';
 import PasswordGestureVideo from './assets/password-gestures.webm';
 import styles from './password-entry.module.css';
 
-export interface IPasswordEntryProps {}
+
 
 function isVideoPlaying(video: HTMLVideoElement): boolean {
   return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2;
@@ -33,7 +33,7 @@ function replayVideo(ref: HTMLVideoElement): void {
   }
 }
 
-export function PasswordEntry({ children }: PropsWithChildren<IPasswordEntryProps>) {
+export const PasswordEntry = () => {
   let ref = createRef<HTMLVideoElement>();
   useEffect(() => {
     if (ref.current) {
@@ -51,8 +51,7 @@ export function PasswordEntry({ children }: PropsWithChildren<IPasswordEntryProp
         height="338"
         width="600">
         <source src={PasswordGestureVideo} type="video/webm" />
-        {children}
       </video>
     </div>
   );
-}
+};

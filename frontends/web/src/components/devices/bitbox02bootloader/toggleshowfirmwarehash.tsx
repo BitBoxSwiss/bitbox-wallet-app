@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, FunctionComponent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { load } from '../../../decorators/load';
 import { apiPost } from '../../../utils/request';
 import { Toggle } from '../../toggle/toggle';
 
-interface ToggleProps {
+type TToggleProps = {
     deviceID: string;
 }
 
-interface LoadedProps {
+type TLoadedProps = {
     enabled: boolean;
 }
 
-type Props = ToggleProps & LoadedProps;
+type TProps = TToggleProps & TLoadedProps;
 
-const ToggleFWHash: FunctionComponent<Props> = ({ enabled, deviceID }) => {
+const ToggleFWHash = ({ enabled, deviceID }: TProps) => {
   const { t } = useTranslation();
   const [enabledState, setEnabledState] = useState<boolean>(enabled);
 
@@ -57,5 +57,5 @@ const ToggleFWHash: FunctionComponent<Props> = ({ enabled, deviceID }) => {
   );
 };
 
-const HOC = load<LoadedProps, ToggleProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
+const HOC = load<TLoadedProps, TToggleProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
 export { HOC as ToggleShowFirmwareHash };

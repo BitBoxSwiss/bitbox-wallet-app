@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import { ReactNode } from 'react';
 import { LanguageSwitch } from '../language/language';
 import style from './footer.module.css';
 import { Version } from './version';
 
-export function Footer({ children }: PropsWithChildren<{}>) {
+type TProps = {
+  children: ReactNode;
+}
+
+export function Footer({ children }: TProps) {
   return (
     <footer className={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
       {children}

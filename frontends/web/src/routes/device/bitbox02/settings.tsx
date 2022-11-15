@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { route } from '../../../utils/route';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
@@ -34,11 +34,11 @@ import { UpgradeButton } from './upgradebutton';
 import { alertUser } from '../../../components/alert/Alert';
 import { ManageDeviceGuide } from './settings-guide';
 
-type Props = {
+type TProps = {
     deviceID: string;
 }
 
-export const Settings: FunctionComponent<Props> = ({ deviceID }) => {
+export const Settings = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
   const [attestation, setAttestation] = useState<boolean | null>(null);

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useState, useRef, FunctionComponent } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getDeviceInfo, setDeviceName } from '../../../api/bitbox02';
 import { Button, Input } from '../../../components/forms';
@@ -24,15 +24,15 @@ import { alertUser } from '../../../components/alert/Alert';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
-type Props = {
+type TProps = {
     deviceName?: string;
     deviceID: string;
 }
 
-export const SetDeviceName: FunctionComponent<Props> = ({
+export const SetDeviceName = ({
   deviceName,
   deviceID,
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
 
   const [active, setActive] = useState(false);

@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import style from './skeleton.module.css';
 
-type Props = {
+type TProps = {
     fontSize?: string;
     minWidth?: string;
 };
 
-export const Skeleton: FunctionComponent<Props> = ({
+export const Skeleton = ({
   fontSize,
   minWidth = '100%',
-}) => {
+}: TProps) => {
   return (
     <span className={style.skeleton} style={{ fontSize, minWidth }} />
   );

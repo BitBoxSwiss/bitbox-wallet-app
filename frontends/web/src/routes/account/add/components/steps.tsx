@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { cloneElement, FunctionComponent, PropsWithChildren } from 'react';
+import React, { ReactNode } from 'react';
+import { cloneElement } from 'react';
 import style from './steps.module.css';
 
-interface Props {
-    current: number;
+type TStepsProps = {
+  current: number;
+  children: ReactNode;
 }
 
-export const Steps: FunctionComponent<Props> = ({
+export const Steps = ({
   current,
   children
-}) => {
+}: TStepsProps) => {
   let childrens = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement[];
   return (
     <div className={style.steps}>
@@ -49,7 +50,8 @@ export const Steps: FunctionComponent<Props> = ({
   );
 };
 
-interface StepProps {
+type TStepProps = {
+    children: ReactNode;
     line?: boolean;
     status?: 'process' | 'finish' | 'wait';
     hidden?: boolean;
@@ -60,7 +62,7 @@ export function Step({
   hidden = false,
   line,
   status = 'wait',
-}: PropsWithChildren<StepProps>) {
+}: TStepProps) {
   if (hidden) {
     return null;
   }

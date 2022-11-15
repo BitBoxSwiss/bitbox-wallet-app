@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TProductName } from '../../../../api/devices';
 import { Button } from '../../../../components/forms';
@@ -29,16 +28,16 @@ export const useVerifyLabel = (device?: TProductName): string => {
   return t('receive.verify'); // fallback
 };
 
-type Props = JSX.IntrinsicElements['button'] & {
+type TProps = JSX.IntrinsicElements['button'] & {
     device?: TProductName;
     forceVerification: boolean;
 };
 
-export const VerifyButton: FunctionComponent<Props> = ({
+export const VerifyButton = ({
   device,
   forceVerification,
   ...props
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
   const verifyLabel = useVerifyLabel(device);
   return (

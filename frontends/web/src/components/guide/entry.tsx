@@ -18,7 +18,7 @@ import { FunctionComponent, useState } from 'react';
 import A from '../anchor/anchor';
 import style from './guide.module.css';
 
-export interface EntryProp {
+export type TEntryProp = {
     title: string;
     text: string;
     link?: {
@@ -27,14 +27,14 @@ export interface EntryProp {
     };
 }
 
-interface EntryProps {
-    entry: EntryProp;
+type TEntryProps = {
+    entry: TEntryProp;
     shown?: boolean;
 }
 
-type Props = EntryProps;
+type TProps = TEntryProps;
 
-export const Entry: FunctionComponent<Props> = props => {
+export const Entry: FunctionComponent<TProps> = props => {
   const [shown, setShown] = useState<boolean>(props.shown || false);
 
   const toggle = () => {

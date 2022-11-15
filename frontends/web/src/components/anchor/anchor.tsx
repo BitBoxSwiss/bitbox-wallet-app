@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, SyntheticEvent } from 'react';
+import { ReactNode, SyntheticEvent } from 'react';
 import { route } from '../../utils/route';
 import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import style from './anchor.module.css';
 
-interface Props {
+type TProps = {
     href: string;
+    children: ReactNode;
     [property: string]: any;
 }
 
-const A: FunctionComponent<Props> = ({ href, icon, children, ...props }) => {
+const A = ({ href, icon, children, ...props }: TProps) => {
   return (
     <span className={style.link} onClick={(e: SyntheticEvent) => {
       e.preventDefault();

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
+import { ReactNode } from 'react';
 import style from './main.module.css';
 
-type MainProps = {}
+type TMainProps = {
+  children: ReactNode;
+}
 
-export const Main: FunctionComponent<MainProps> = ({ children }) => {
+export const Main = ({ children }: TMainProps) => {
   return (
     <main className={style.main}>
       {children}

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
 import style from './progressRing.module.css';
 
-interface ProgressRingProps {
+type TProgressRingProps = {
     width: number;
     value: number;
     className?: string[] | string;
@@ -33,7 +32,7 @@ const ProgressRing = ({
   isError,
   value,
   width,
-}: PropsWithChildren<ProgressRingProps>) => {
+}: TProgressRingProps) => {
   const radius = (width - 3) / 2;
   const circumference = radius * 2 * Math.PI;
   const progress = isError ? 100 : value / 100;

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import React, { createElement, FunctionComponent } from 'react';
+import React, { createElement } from 'react';
 
-type MarkupProps = {
+type TMarkupProps = {
     tagName: keyof JSX.IntrinsicElements;
     markup: string;
     key?: string;
@@ -35,7 +35,7 @@ const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;
     <SimpleMarkup tagName="p" markup="foo <strong>bar</strong> baz" />
  * ```
  */
-export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
+export function SimpleMarkup({ tagName, markup, ...props }: TMarkupProps) {
   if (typeof markup !== 'string') {
     return null;
   }
@@ -51,7 +51,7 @@ export function SimpleMarkup({ tagName, markup, ...props }: MarkupProps) {
  * line with the `<SimmpleMarkup>` component.
  */
 
-export const MultilineMarkup: FunctionComponent<MarkupProps> = ({ tagName, markup, ...props }) => {
+export const MultilineMarkup = ({ tagName, markup, ...props }: TMarkupProps) => {
   return <>
     {
       markup.split('\n').map((line: string, i: number) => (

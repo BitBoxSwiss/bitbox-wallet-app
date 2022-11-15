@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ITransaction } from '../../api/account';
 import A from '../../components/anchor/anchor';
@@ -23,19 +22,19 @@ import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
 import style from './transactions.module.css';
 
-type Props = {
+type TProps = {
     accountCode: string;
     explorerURL: string;
     transactions?: ITransaction[];
     handleExport: () => void;
 };
 
-export const Transactions: FunctionComponent<Props> = ({
+export const Transactions = ({
   accountCode,
   explorerURL,
   transactions,
   handleExport,
-}) => {
+}: TProps) => {
   const { t } = useTranslation();
 
   // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads

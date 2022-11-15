@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TChartFiltersProps } from './types';
 import styles from './chart.module.css';
 
-const Filters: FunctionComponent<TChartFiltersProps> = ({
+const Filters = ({
   display,
   disableFilters,
   onDisplayWeek,
   onDisplayMonth,
   onDisplayYear,
   onDisplayAll
-}) => {
+}: TChartFiltersProps) => {
   const { t } = useTranslation();
   return (
     <div className={styles.filters}>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { Component, PropsWithChildren } from 'react';
+import React, { Component, ReactNode } from 'react';
 import * as accountAPI from '../../api/account';
 import * as aoppAPI from '../../api/aopp';
 import { subscribe } from '../../decorators/subscribe';
@@ -30,7 +30,11 @@ import { VerifyAddress } from './verifyaddress';
 import { Vasp } from './vasp';
 import styles from './aopp.module.css';
 
-const Banner = ({ children }: PropsWithChildren<{}>) => (
+type TProps = {
+  children: ReactNode;
+}
+
+const Banner = ({ children }: TProps) => (
   <div className={styles.banner}>{children}</div>
 );
 
