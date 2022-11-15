@@ -918,7 +918,6 @@
   },
   "loading": "loading…",
   "manageAccounts": {
-    "addAccount": "$t(addAccount.title)",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
     "noAccounts": "no accounts found",
