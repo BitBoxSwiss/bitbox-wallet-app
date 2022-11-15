@@ -222,197 +222,197 @@ class Transaction extends Component<Props, State> {
             </div>
           </div>
         </div>
-        {
-          transactionDialog && transactionInfo && (
-            // Amount and Confirmations info are displayed using props data instead of transactionInfo
-            // because they are live updated
-            <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
-              <form onSubmit={this.handleEdit} className={style.detailInput}>
-                <label htmlFor="note">{t('note.title')}</label>
-                <Input
-                  align="right"
-                  autoFocus={editMode}
-                  className={style.textOnlyInput}
-                  readOnly={!editMode}
-                  type="text"
-                  id="note"
-                  transparent
-                  placeholder={t('note.input.placeholder')}
-                  value={newNote}
-                  maxLength={256}
-                  onInput={this.handleNoteInput}
-                  ref={this.input}/>
-                <button
-                  className={style.editButton}
-                  onClick={this.handleEdit}
-                  title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
-                  type="button"
-                  ref={this.editButton}>
-                  {editMode ? <Save /> : <Edit />}
-                </button>
-              </form>
-              <div className={style.detail}>
-                <label>{t('transaction.details.type')}</label>
-                <p>{arrow}</p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.confirmation')}</label>
-                <p>{numConfirmations}</p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.details.status')}</label>
-                <p className="flex flex-items-center">
-                  <ProgressRing
-                    className="m-right-quarter"
-                    width={14}
-                    value={progress}
-                    isComplete={numConfirmations >= numConfirmationsComplete}
-                  />
-                  <span className={style.status}>
-                    {statusText} {
-                      status === 'pending' && (
-                        <span>({numConfirmations}/{numConfirmationsComplete})</span>
-                      )
-                    }
-                  </span>
-                </p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.details.date')}</label>
-                <p>{sDate}</p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.details.fiat')}</label>
-                <p>
-                  <span className={`${style.fiat} ${typeClassName}`}>
-                    <FiatConversion amount={amount} sign={sign} noAction />
-                  </span>
-                </p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.details.fiatAtTime')}</label>
-                <p>
-                  <span className={`${style.fiat} ${typeClassName}`}>
-                    { transactionInfo.amountAtTime ?
-                      <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
-                      :
-                      <FiatConversion noAction />
-                    }
-                  </span>
-                </p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.details.amount')}</label>
-                <p className={typeClassName}>
-                  <span className={style.amount}>{sign}{amount.amount}</span>
-                  {' '}
-                  <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
-                </p>
-              </div>
-              <div className={style.detail}>
-                <label>{t('transaction.fee')}</label>
-                {
-                  transactionInfo.fee && transactionInfo.fee.amount ? (
-                    <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
-                      {transactionInfo.fee.amount}
-                      {' '}
-                      <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
-                    </p>
-                  ) : (
-                    <p>---</p>
-                  )
-                }
-              </div>
-              <div className={[style.detail, style.addresses].join(' ')}>
-                <label>{t('transaction.details.address')}</label>
-                <div className={style.detailAddresses}>
-                  { transactionInfo.addresses.map((address) => (
-                    <CopyableInput
-                      key={address}
-                      alignRight
-                      borderLess
-                      flexibleHeight
-                      className={style.detailAddress}
-                      value={address} />
-                  )) }
-                </div>
-              </div>
+        {/*
+            Amount and Confirmations info are displayed using props data
+            instead of transactionInfo because they are live updated.
+          */}
+        <Dialog open={transactionDialog} title="Transaction Details" onClose={this.hideDetails} slim medium>
+          {transactionInfo && <>
+            <form onSubmit={this.handleEdit} className={style.detailInput}>
+              <label htmlFor="note">{t('note.title')}</label>
+              <Input
+                align="right"
+                autoFocus={editMode}
+                className={style.textOnlyInput}
+                readOnly={!editMode}
+                type="text"
+                id="note"
+                transparent
+                placeholder={t('note.input.placeholder')}
+                value={newNote}
+                maxLength={256}
+                onInput={this.handleNoteInput}
+                ref={this.input}/>
+              <button
+                className={style.editButton}
+                onClick={this.handleEdit}
+                title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
+                type="button"
+                ref={this.editButton}>
+                {editMode ? <Save /> : <Edit />}
+              </button>
+            </form>
+            <div className={style.detail}>
+              <label>{t('transaction.details.type')}</label>
+              <p>{arrow}</p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.confirmation')}</label>
+              <p>{numConfirmations}</p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.details.status')}</label>
+              <p className="flex flex-items-center">
+                <ProgressRing
+                  className="m-right-quarter"
+                  width={14}
+                  value={progress}
+                  isComplete={numConfirmations >= numConfirmationsComplete}
+                />
+                <span className={style.status}>
+                  {statusText} {
+                    status === 'pending' && (
+                      <span>({numConfirmations}/{numConfirmationsComplete})</span>
+                    )
+                  }
+                </span>
+              </p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.details.date')}</label>
+              <p>{sDate}</p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.details.fiat')}</label>
+              <p>
+                <span className={`${style.fiat} ${typeClassName}`}>
+                  <FiatConversion amount={amount} sign={sign} noAction />
+                </span>
+              </p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.details.fiatAtTime')}</label>
+              <p>
+                <span className={`${style.fiat} ${typeClassName}`}>
+                  { transactionInfo.amountAtTime ?
+                    <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
+                    :
+                    <FiatConversion noAction />
+                  }
+                </span>
+              </p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.details.amount')}</label>
+              <p className={typeClassName}>
+                <span className={style.amount}>{sign}{amount.amount}</span>
+                {' '}
+                <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
+              </p>
+            </div>
+            <div className={style.detail}>
+              <label>{t('transaction.fee')}</label>
               {
-                transactionInfo.gas ? (
-                  <div className={style.detail}>
-                    <label>{t('transaction.gas')}</label>
-                    <p>{transactionInfo.gas}</p>
-                  </div>
-                ) : null
+                transactionInfo.fee && transactionInfo.fee.amount ? (
+                  <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
+                    {transactionInfo.fee.amount}
+                    {' '}
+                    <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
+                  </p>
+                ) : (
+                  <p>---</p>
+                )
               }
-              {
-                transactionInfo.nonce !== null ? (
-                  <div className={style.detail}>
-                    <label>Nonce</label>
-                    <p>{transactionInfo.nonce}</p>
-                  </div>
-                ) : null
-              }
-              {
-                transactionInfo.weight ? (
-                  <div className={style.detail}>
-                    <label>{t('transaction.weight')}</label>
-                    <p>
-                      {transactionInfo.weight}
-                      {' '}
-                      <span className={style.currencyUnit}>WU</span>
-                    </p>
-                  </div>
-                ) : null
-              }
-              {
-                transactionInfo.vsize ? (
-                  <div className={style.detail}>
-                    <label>{t('transaction.vsize')}</label>
-                    <p>
-                      {transactionInfo.vsize}
-                      {' '}
-                      <span className={style.currencyUnit}>b</span>
-                    </p>
-                  </div>
-                ) : null
-              }
-              {
-                transactionInfo.size ? (
-                  <div className={style.detail}>
-                    <label>{t('transaction.size')}</label>
-                    <p>
-                      {transactionInfo.size}
-                      {' '}
-                      <span className={style.currencyUnit}>b</span>
-                    </p>
-                  </div>
-                ) : null
-              }
-              <div className={[style.detail, style.addresses].join(' ')}>
-                <label>{t('transaction.explorer')}</label>
-                <div className={style.detailAddresses}>
+            </div>
+            <div className={[style.detail, style.addresses].join(' ')}>
+              <label>{t('transaction.details.address')}</label>
+              <div className={style.detailAddresses}>
+                { transactionInfo.addresses.map((address) => (
                   <CopyableInput
+                    key={address}
                     alignRight
                     borderLess
                     flexibleHeight
                     className={style.detailAddress}
-                    value={transactionInfo.txID} />
+                    value={address} />
+                )) }
+              </div>
+            </div>
+            {
+              transactionInfo.gas ? (
+                <div className={style.detail}>
+                  <label>{t('transaction.gas')}</label>
+                  <p>{transactionInfo.gas}</p>
                 </div>
+              ) : null
+            }
+            {
+              transactionInfo.nonce !== null ? (
+                <div className={style.detail}>
+                  <label>Nonce</label>
+                  <p>{transactionInfo.nonce}</p>
+                </div>
+              ) : null
+            }
+            {
+              transactionInfo.weight ? (
+                <div className={style.detail}>
+                  <label>{t('transaction.weight')}</label>
+                  <p>
+                    {transactionInfo.weight}
+                    {' '}
+                    <span className={style.currencyUnit}>WU</span>
+                  </p>
+                </div>
+              ) : null
+            }
+            {
+              transactionInfo.vsize ? (
+                <div className={style.detail}>
+                  <label>{t('transaction.vsize')}</label>
+                  <p>
+                    {transactionInfo.vsize}
+                    {' '}
+                    <span className={style.currencyUnit}>b</span>
+                  </p>
+                </div>
+              ) : null
+            }
+            {
+              transactionInfo.size ? (
+                <div className={style.detail}>
+                  <label>{t('transaction.size')}</label>
+                  <p>
+                    {transactionInfo.size}
+                    {' '}
+                    <span className={style.currencyUnit}>b</span>
+                  </p>
+                </div>
+              ) : null
+            }
+            <div className={[style.detail, style.addresses].join(' ')}>
+              <label>{t('transaction.explorer')}</label>
+              <div className={style.detailAddresses}>
+                <CopyableInput
+                  alignRight
+                  borderLess
+                  flexibleHeight
+                  className={style.detailAddress}
+                  value={transactionInfo.txID} />
               </div>
-              <div className={[style.detail, 'flex-center'].join(' ')}>
-                <p>
-                  <A
-                    className={style.externalLink}
-                    href={explorerURL + transactionInfo.txID}
-                    title={t('transaction.explorerTitle') + '\n' + explorerURL + transactionInfo.txID}>
-                    {t('transaction.explorerTitle')}
-                  </A>
-                </p>
-              </div>
-            </Dialog>
-          )
-        }
+            </div>
+            <div className={[style.detail, 'flex-center'].join(' ')}>
+              <p>
+                <A
+                  className={style.externalLink}
+                  href={explorerURL + transactionInfo.txID}
+                  title={t('transaction.explorerTitle') + '\n' + explorerURL + transactionInfo.txID}>
+                  {t('transaction.explorerTitle')}
+                </A>
+              </p>
+            </div>
+          </> }
+        </Dialog>
       </div>
     );
   }

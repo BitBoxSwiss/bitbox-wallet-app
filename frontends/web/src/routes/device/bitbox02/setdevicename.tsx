@@ -66,43 +66,42 @@ export const SetDeviceName = ({
         optionalText={currentName}>
         {t('bitbox02Settings.deviceName.title')}
       </SettingsButton>
-      { active ? (
-        <Dialog
-          onClose={() => setActive(false)}
-          title={t('bitbox02Settings.deviceName.title')}
-          small>
-          <div className="columnsContainer half">
-            <div className="columns half">
-              <div className="column">
-                <label>
-                  {t('bitbox02Settings.deviceName.current')}
-                </label>
-                <p className="m-bottom-half">
-                  {currentName}
-                </p>
-              </div>
-              <div className="column">
-                <Input
-                  pattern="^.{0,63}$"
-                  label={t('bitbox02Settings.deviceName.input')}
-                  onInput={e => setName(e.target.value)}
-                  ref={inputRef}
-                  placeholder={t('bitbox02Settings.deviceName.placeholder')}
-                  value={name}
-                  id="deviceName" />
-              </div>
+      <Dialog
+        open={active}
+        onClose={() => setActive(false)}
+        title={t('bitbox02Settings.deviceName.title')}
+        small>
+        <div className="columnsContainer half">
+          <div className="columns half">
+            <div className="column">
+              <label>
+                {t('bitbox02Settings.deviceName.current')}
+              </label>
+              <p className="m-bottom-half">
+                {currentName}
+              </p>
+            </div>
+            <div className="column">
+              <Input
+                pattern="^.{0,63}$"
+                label={t('bitbox02Settings.deviceName.input')}
+                onInput={e => setName(e.target.value)}
+                ref={inputRef}
+                placeholder={t('bitbox02Settings.deviceName.placeholder')}
+                value={name}
+                id="deviceName" />
             </div>
           </div>
-          <DialogButtons>
-            <Button
-              primary
-              disabled={!(name && inputRef?.current?.validity.valid)}
-              onClick={() => updateName()}>
-              {t('button.ok')}
-            </Button>
-          </DialogButtons>
-        </Dialog>
-      ) : null }
+        </div>
+        <DialogButtons>
+          <Button
+            primary
+            disabled={!(name && inputRef?.current?.validity.valid)}
+            onClick={() => updateName()}>
+            {t('button.ok')}
+          </Button>
+        </DialogButtons>
+      </Dialog>
       { inProgress && (
         <WaitDialog>
           {t('bitbox02Interact.followInstructions')}

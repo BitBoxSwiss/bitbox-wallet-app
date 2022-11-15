@@ -82,35 +82,32 @@ class Reset extends Component<Props, State> {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('reset.title')}
         </SettingsButton>
-        {
-          activeDialog && (
-            <Dialog
-              title={t('reset.title')}
-              onClose={this.abort}
-              disabledClose={isConfirming}
-              small>
-              <div className="columnsContainer half">
-                <div className="columns">
-                  <div className="column">
-                    <p>{t('reset.description')}</p>
-                    <div>
-                      <Checkbox
-                        id="reset_understand"
-                        label={t('reset.understandBB02')}
-                        checked={understand}
-                        onChange={this.handleUnderstandChange} />
-                    </div>
-                  </div>
+        <Dialog
+          open={activeDialog}
+          title={t('reset.title')}
+          onClose={this.abort}
+          disabledClose={isConfirming}
+          small>
+          <div className="columnsContainer half">
+            <div className="columns">
+              <div className="column">
+                <p>{t('reset.description')}</p>
+                <div>
+                  <Checkbox
+                    id="reset_understand"
+                    label={t('reset.understandBB02')}
+                    checked={understand}
+                    onChange={this.handleUnderstandChange} />
                 </div>
               </div>
-              <DialogButtons>
-                <Button danger disabled={!understand} onClick={this.reset}>
-                  {t('reset.title')}
-                </Button>
-              </DialogButtons>
-            </Dialog>
-          )
-        }
+            </div>
+          </div>
+          <DialogButtons>
+            <Button danger disabled={!understand} onClick={this.reset}>
+              {t('reset.title')}
+            </Button>
+          </DialogButtons>
+        </Dialog>
         {
           isConfirming && (
             <WaitDialog

@@ -226,28 +226,27 @@ class ManageAccounts extends Component<Props, State> {
                   { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
                 </div>
               </div>
-              { editAccountCode ? (
-                <Dialog
-                  onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
-                  title={t('manageAccounts.editAccountNameTitle')}>
-                  <form onSubmit={this.updateAccountName}>
-                    <Message type="error" hidden={!editErrorMessage}>
-                      {editErrorMessage}
-                    </Message>
-                    <Input
-                      onInput={e => this.setState({ editAccountNewName: e.target.value })}
-                      value={editAccountNewName} />
-                    <DialogButtons>
-                      <Button
-                        disabled={!editAccountNewName}
-                        primary
-                        type="submit">
-                        {t('button.update')}
-                      </Button>
-                    </DialogButtons>
-                  </form>
-                </Dialog>
-              ) : null}
+              <Dialog
+                open={!!(editAccountCode)}
+                onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
+                title={t('manageAccounts.editAccountNameTitle')}>
+                <form onSubmit={this.updateAccountName}>
+                  <Message type="error" hidden={!editErrorMessage}>
+                    {editErrorMessage}
+                  </Message>
+                  <Input
+                    onInput={e => this.setState({ editAccountNewName: e.target.value })}
+                    value={editAccountNewName} />
+                  <DialogButtons>
+                    <Button
+                      disabled={!editAccountNewName}
+                      primary
+                      type="submit">
+                      {t('button.update')}
+                    </Button>
+                  </DialogButtons>
+                </form>
+              </Dialog>
             </div>
           </div>
         </div>

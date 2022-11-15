@@ -84,37 +84,34 @@ class Reset extends Component {
         <SettingsButton danger onClick={() => this.setState({ activeDialog: true })}>
           {t('reset.title')}
         </SettingsButton>
-        {
-          activeDialog && (
-            <Dialog
-              title={t('reset.title')}
-              onClose={this.abort}>
-              <p>
-                {t('reset.description')}
-              </p>
-              <PasswordInput
-                idPrefix="pin"
-                label={t('initialize.input.label')}
-                value={pin}
-                onInput={this.setValidPIN} />
-              <div className={style.agreements}>
-                <Checkbox
-                  id="funds_access"
-                  label={t('reset.understand')}
-                  checked={understand}
-                  onChange={this.handleUnderstandChange} />
-              </div>
-              <DialogButtons>
-                <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
-                  {t('reset.title')}
-                </Button>
-                <Button transparent onClick={this.abort} disabled={isConfirming}>
-                  {t('button.back')}
-                </Button>
-              </DialogButtons>
-            </Dialog>
-          )
-        }
+        <Dialog
+          active={activeDialog}
+          title={t('reset.title')}
+          onClose={this.abort}>
+          <p>
+            {t('reset.description')}
+          </p>
+          <PasswordInput
+            idPrefix="pin"
+            label={t('initialize.input.label')}
+            value={pin}
+            onInput={this.setValidPIN} />
+          <div className={style.agreements}>
+            <Checkbox
+              id="funds_access"
+              label={t('reset.understand')}
+              checked={understand}
+              onChange={this.handleUnderstandChange} />
+          </div>
+          <DialogButtons>
+            <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
+              {t('reset.title')}
+            </Button>
+            <Button transparent onClick={this.abort} disabled={isConfirming}>
+              {t('button.back')}
+            </Button>
+          </DialogButtons>
+        </Dialog>
         { isConfirming ? (
           <WaitDialog title={t('reset.title')} />
         ) : null }

@@ -92,40 +92,37 @@ class Check extends Component {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.check')}
         </Button>
-        {
-          activeDialog && (
-            <Dialog
-              title={t('backup.check.title')}
-              onClose={this.abort}>
-              { message ? (
-                <div>
-                  <p style={{ minHeight: '3rem' }}>{message}</p>
-                  <div className={style.actions}>
-                    <Button transparent onClick={this.abort}>
-                      {t('button.back')}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={this.check}>
-                  <PasswordSingleInput
-                    label={t('backup.check.password.label')}
-                    placeholder={t('backup.check.password.placeholder')}
-                    showLabel={t('backup.check.password.showLabel')}
-                    onValidPassword={this.setValidPassword} />
-                  <div className={style.actions}>
-                    <Button type="submit" primary disabled={!this.validate()}>
-                      {t('button.check')}
-                    </Button>
-                    <Button transparent onClick={this.abort}>
-                      {t('button.back')}
-                    </Button>
-                  </div>
-                </form>
-              )}
-            </Dialog>
-          )
-        }
+        <Dialog
+          open={activeDialog}
+          title={t('backup.check.title')}
+          onClose={this.abort}>
+          { message ? (
+            <div>
+              <p style={{ minHeight: '3rem' }}>{message}</p>
+              <div className={style.actions}>
+                <Button transparent onClick={this.abort}>
+                  {t('button.back')}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={this.check}>
+              <PasswordSingleInput
+                label={t('backup.check.password.label')}
+                placeholder={t('backup.check.password.placeholder')}
+                showLabel={t('backup.check.password.showLabel')}
+                onValidPassword={this.setValidPassword} />
+              <div className={style.actions}>
+                <Button type="submit" primary disabled={!this.validate()}>
+                  {t('button.check')}
+                </Button>
+                <Button transparent onClick={this.abort}>
+                  {t('button.back')}
+                </Button>
+              </div>
+            </form>
+          )}
+        </Dialog>
       </div>
     );
   }

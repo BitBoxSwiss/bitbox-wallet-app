@@ -89,23 +89,19 @@ class UpgradeFirmware extends Component {
             </SettingsButton>
           )
         }
-        {
-          activeDialog && (
-            <Dialog title={t('upgradeFirmware.title')}>
-              <p className="m-top-none">{t('upgradeFirmware.description', {
-                currentVersion, newVersion
-              })}</p>
-              <DialogButtons>
-                <Button primary onClick={this.upgradeFirmware}>
-                  {t('button.upgrade')}
-                </Button>
-                <Button transparent onClick={this.abort}>
-                  {t('button.back')}
-                </Button>
-              </DialogButtons>
-            </Dialog>
-          )
-        }
+        <Dialog open={activeDialog} title={t('upgradeFirmware.title')}>
+          <p className="m-top-none">{t('upgradeFirmware.description', {
+            currentVersion, newVersion
+          })}</p>
+          <DialogButtons>
+            <Button primary onClick={this.upgradeFirmware}>
+              {t('button.upgrade')}
+            </Button>
+            <Button transparent onClick={this.abort}>
+              {t('button.back')}
+            </Button>
+          </DialogButtons>
+        </Dialog>
         {
           isConfirming && (
             <WaitDialog title={t('upgradeFirmware.title')} includeDefault={!unlocked}>

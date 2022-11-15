@@ -43,34 +43,30 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
     return null;
   }
 
-  if (!sdCardInserted) {
-    return (
-      <Dialog title="Check your device" small>
-        <div className="columnsContainer half">
-          <div className="columns">
-            <div className="column">
-              <p>{t('backup.insert')}</p>
-            </div>
-          </div>
-        </div>
-        <DialogButtons>
-          <Button
-            primary
-            onClick={check}>
-            {t('button.ok')}
-          </Button>
-          <ButtonLink
-            transparent
-            to={`/device/${deviceID}`}>
-            {t('button.back')}
-          </ButtonLink>
-        </DialogButtons>
-      </Dialog>
-    );
-  }
   return (
     <div>
-      {children}
+      {!sdCardInserted ?
+        <Dialog open={!sdCardInserted} title="Check your device" small>
+          <div className="columnsContainer half">
+            <div className="columns">
+              <div className="column">
+                <p>{t('backup.insert')}</p>
+              </div>
+            </div>
+          </div>
+          <DialogButtons>
+            <Button
+              primary
+              onClick={check}>
+              {t('button.ok')}
+            </Button>
+            <ButtonLink
+              transparent
+              to={`/device/${deviceID}`}>
+              {t('button.back')}
+            </ButtonLink>
+          </DialogButtons>
+        </Dialog> : children}
     </div>
   );
 };
