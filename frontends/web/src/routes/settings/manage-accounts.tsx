@@ -219,7 +219,7 @@ class ManageAccounts extends Component<Props, State> {
                   <Button
                     primary
                     onClick={() => route('/add-account', true)}>
-                    {t('manageAccounts.addAccount')}
+                    {t('addAccount.title')}
                   </Button>
                 </div>
                 <div className="box slim divide m-bottom-large">
