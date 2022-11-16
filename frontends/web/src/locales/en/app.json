@@ -540,7 +540,7 @@
         "title": "Do I need to verify the xpub on the device?"
       },
       "xpub": {
-        "text": "An extended public key (xpub) is a root key from which all receiving addresses of an account are derived.\n\nIt is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel. If you received to different address types, please import all the different xpub formats into the watch-only wallet in order to see all your coins.\n\nPlease note, third party wallets may note support Taproot xpubs yet.",
+        "text": "An extended public key (xpub) is a root key from which all receiving addresses of an account are derived.\n\nIt is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel. If you received to different address types, please import all the different xpub formats into the watch-only wallet in order to see all your coins.\n\nPlease note, third party wallets may not support Taproot xpubs yet.",
         "title": "What is an extended public key?"
       }
     },

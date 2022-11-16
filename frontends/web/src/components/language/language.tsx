@@ -27,6 +27,7 @@ type TLanguageSwitchProps = {
 }
 
 const defaultLanguages = [
+  { code: 'ar', display: 'العربية' },
   { code: 'bg', display: 'България' },
   { code: 'de', display: 'Deutsch' },
   { code: 'en', display: 'English' },
