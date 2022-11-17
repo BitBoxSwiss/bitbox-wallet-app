@@ -138,7 +138,7 @@ class App extends Component<Props, State> {
       return;
     }
     // if no accounts are registered on specified views route to /
-    if ( accounts.length === 0 && (
+    if (accounts.length === 0 && (
       currentURL.startsWith('/account-summary')
              || currentURL.startsWith('/add-account')
              || currentURL.startsWith('/settings/manage-accounts')

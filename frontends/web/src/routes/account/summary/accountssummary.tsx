@@ -317,7 +317,7 @@ class AccountsSummary extends Component<Props, State> {
               <Chart
                 data={data}
                 noDataPlaceholder={
-                  (accounts.length === Object.keys(balances || {}).length ) ? (
+                  (accounts.length === Object.keys(balances || {}).length) ? (
                     <AddBuyOnEmptyBalances balances={balances} />
                   ) : undefined
                 } />
