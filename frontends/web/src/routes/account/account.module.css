@@ -85,7 +85,5 @@
     .buy {
         font-size: var(--size-small);
         width: auto;
-        height: calc(var(--item-height) / 2);
-        line-height: calc(var(--item-height) / 2);
     }
 }
