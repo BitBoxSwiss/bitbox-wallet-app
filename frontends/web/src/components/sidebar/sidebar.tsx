@@ -61,9 +61,9 @@ export function setSidebarStatus(status: string) {
   panelStore.setState({ sidebarStatus: status });
 }
 
-const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAccountLinkProps ) => {
+const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active = ( pathname === `/account/${code}` ) || ( pathname.startsWith(`/account/${code}/`) );
+  const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
   return (
     <div key={code} className="sidebarItem">
       <Link

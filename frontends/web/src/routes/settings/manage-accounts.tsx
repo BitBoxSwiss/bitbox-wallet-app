@@ -98,7 +98,7 @@ class ManageAccounts extends Component<Props, State> {
                 className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
                 onClick={() => this.toggleShowTokens(account.code)}
                 transparent>
-                {t( tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
+                {t(tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
                   activeTokenCount: `${account.activeTokens?.length || 0}`
                 })}
               </Button>
