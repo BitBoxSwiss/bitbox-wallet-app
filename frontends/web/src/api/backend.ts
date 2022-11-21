@@ -60,12 +60,6 @@ export const getQRCode = (data: string) => {
   };
 };
 
-export const isMoonpayBuySupported = (code: string) => {
-  return (): Promise<boolean> => {
-    return apiGet(`exchange/moonpay/buy-supported/${code}`);
-  };
-};
-
 export const getDefaultConfig = (): Promise<any> => {
   return apiGet('config/default');
 };

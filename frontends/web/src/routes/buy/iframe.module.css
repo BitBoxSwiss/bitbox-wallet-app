@@ -1,0 +1,14 @@
+.container {
+    margin-top: calc(var(--space-default) * 1.5);
+}
+
+.iframe {
+    max-width: 100%;
+    position: relative;
+    z-index: 3000;
+}
+
+.header {
+    position: relative;
+    z-index: 2200;
+}

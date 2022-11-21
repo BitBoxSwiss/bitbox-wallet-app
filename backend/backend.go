@@ -16,6 +16,7 @@
 package backend
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -682,4 +683,30 @@ func (backend *Backend) HandleURI(uri string) {
 	default:
 		backend.log.Warningf("Unknown URI scheme: %s", uri)
 	}
+}
+
+// GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
+// if found. It also initialize the account before returning it.
+func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, error) {
+	acctCode := accounts.Code(code)
+	// TODO: Refactor to make use of a map.
+	var acct accounts.Interface
+	for _, a := range backend.Accounts() {
+		if !a.Config().Active {
+			continue
+		}
+		if a.Config().Code == acctCode {
+			acct = a
+			break
+		}
+	}
+	if acct == nil {
+		return nil, fmt.Errorf("unknown account code %q", acctCode)
+	}
+
+	if err := acct.Initialize(); err != nil {
+		return nil, err
+	}
+
+	return acct, nil
 }

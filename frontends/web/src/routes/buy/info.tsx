@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-import React, { ChangeEvent, Component } from 'react';
+import React, { Component } from 'react';
 import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
 import Guide from './guide';
-import A from '../../components/anchor/anchor';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Button, Checkbox, Select } from '../../components/forms';
-import { setConfig } from '../../utils/config';
+import { Button, Select } from '../../components/forms';
 import { apiGet } from '../../utils/request';
 import { isBitcoinOnly } from '../account/utils';
 import style from './info.module.css';
@@ -34,26 +31,20 @@ interface BuyInfoProps {
     code?: string;
 }
 
-interface LoadedBuyInfoProps {
-    config: any;
-}
-
 interface Option {
     text: string;
     value: AccountCode;
 }
 
 interface State {
-    status: 'choose' | 'agree'
     selected?: string;
     options?: Option[]
 }
 
-type Props = BuyInfoProps & LoadedBuyInfoProps & TranslateProps;
+type Props = BuyInfoProps & TranslateProps;
 
 class BuyInfo extends Component<Props, State> {
   public readonly state: State = {
-    status: this.props.config.frontend.skipBuyDisclaimer ? 'choose' : 'agree',
     selected: this.props.code,
   };
 
@@ -61,21 +52,13 @@ class BuyInfo extends Component<Props, State> {
     this.checkSupportedCoins();
   };
 
-  private handleProceed = () => {
-    const { status, selected } = this.state;
-    if (selected && (status === 'choose' || this.props.config.frontend.skipBuyDisclaimer)) {
-      route(`/buy/moonpay/${selected}`);
-    } else {
-      this.setState({ status: 'choose' }, this.maybeProceed);
-    }
-  };
-
   private maybeProceed = () => {
-    if (this.state.status === 'choose' && this.state.options !== undefined && this.state.options.length === 1) {
-      route(`/buy/moonpay/${this.state.options[0].value}`);
+    if (this.state.options !== undefined && this.state.options.length === 1) {
+      route(`/buy/exchange/${this.state.options[0].value}`);
     }
   };
 
+  // TODO add pocket supported coins
   private checkSupportedCoins = () => {
     Promise.all(
       this.props.accounts.map((account) => (
@@ -90,10 +73,6 @@ class BuyInfo extends Component<Props, State> {
         this.setState({ options }, this.maybeProceed);
       })
       .catch(console.error);
-  };
-
-  private handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBuyDisclaimer: e.target.checked } });
   };
 
   private getCryptoName = (): string => {
@@ -112,7 +91,6 @@ class BuyInfo extends Component<Props, State> {
   public render() {
     const { t } = this.props;
     const {
-      status,
       selected,
       options,
     } = this.state;
@@ -125,108 +103,32 @@ class BuyInfo extends Component<Props, State> {
         <div className="container">
           <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
           <div className="innerContainer">
-            { status === 'agree' ? (
-              <div className={style.disclaimerContainer}>
-                <div className={style.disclaimer}>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.title', { name })}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
-                  <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.payment.title')}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
-                  <div className={style.table}>
-                    <table>
-                      <colgroup>
-                        <col width="*" />
-                        <col width="50px" />
-                        <col width="*" />
-                      </colgroup>
-                      <thead>
-                        <tr>
-                          <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                          <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                          <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                          <td className={style.nowrap}>1.9 %</td>
-                          <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-                        </tr>
-                        <tr>
-                          <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                          <td className={style.nowrap}>4.9 %</td>
-                          <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p>{t('buy.info.disclaimer.payment.footnote')}</p>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.security.title')}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.security.description', { name })}</p>
-                  <p>
-                    <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
-                      {t('buy.info.disclaimer.security.link')}
-                    </A>
-                  </p>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.protection.title')}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
-                  <p>
-                    <A className={style.link} href="https://www.moonpay.com/privacy_policy">
-                      {t('buy.info.disclaimer.privacyPolicy')}
-                    </A>
-                  </p>
-                </div>
-                <div className="text-center m-bottom-quarter">
-                  <Checkbox
-                    id="skip_disclaimer"
-                    label={t('buy.info.skip')}
-                    onChange={this.handleSkipDisclaimer} />
-                </div>
-                <div className="buttons text-center m-bottom-xlarge">
+            { options.length === 0 ? (
+              <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
+            ) : (
+              <div className="content narrow isVerticallyCentered">
+                <h1 className={style.title}>{t('buy.title', { name })}</h1>
+                <Select
+                  options={[{
+                    text: t('buy.info.selectLabel'),
+                    disabled: true,
+                    value: 'choose',
+                  },
+                  ...options]
+                  }
+                  onChange={(e: React.SyntheticEvent) => this.setState({ selected: (e.target as HTMLSelectElement).value })}
+                  value={selected || 'choose'}
+                  id="coinAndAccountCode"
+                />
+                <div className="buttons text-center m-bottom-xxlarge">
                   <Button
                     primary
-                    onClick={this.handleProceed}>
-                    {t('buy.info.continue')}
+                    onClick={() => route(`/buy/exchange/${selected}`)}
+                    disabled={!selected}>
+                    {t('buy.info.next')}
                   </Button>
                 </div>
               </div>
-            ) : (
-              options.length === 0 ? (
-                <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
-              ) : (
-                <div className="content narrow isVerticallyCentered">
-                  <h1 className={style.title}>{t('buy.title', { name })}</h1>
-                  <Select
-                    options={[{
-                      text: t('buy.info.selectLabel'),
-                      disabled: true,
-                      value: 'choose',
-                    },
-                    ...options]
-                    }
-                    onChange={(e: React.SyntheticEvent) => this.setState({ selected: (e.target as HTMLSelectElement).value })}
-                    value={selected || 'choose'}
-                    id="coinAndAccountCode"
-                  />
-                  <div className="buttons text-center m-bottom-xxlarge">
-                    <Button
-                      primary
-                      onClick={this.handleProceed}
-                      disabled={!selected}>
-                      {t('buy.info.next')}
-                    </Button>
-                  </div>
-                </div>
-              )
             )}
           </div>
         </div>
@@ -236,9 +138,5 @@ class BuyInfo extends Component<Props, State> {
   }
 }
 
-const loadHOC = load<LoadedBuyInfoProps, BuyInfoProps & TranslateProps>({
-  config: 'config'
-})(BuyInfo);
-
-const HOC = translate()(loadHOC);
+const HOC = translate()(BuyInfo);
 export { HOC as BuyInfo };
