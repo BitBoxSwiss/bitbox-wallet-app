@@ -1,5 +1,5 @@
 // Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
+// Copyright 2022 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -450,6 +450,11 @@ func (backend *Backend) Start() <-chan interface{} {
 // DevicesRegistered returns a map of device IDs to device of registered devices.
 func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 	return backend.devices
+}
+
+// HTTPClient is a getter method for the HTTPClient instance.
+func (backend *Backend) HTTPClient() *http.Client {
+	return backend.httpClient
 }
 
 // Keystore returns the keystore registered at this backend, or nil if no keystore is registered.

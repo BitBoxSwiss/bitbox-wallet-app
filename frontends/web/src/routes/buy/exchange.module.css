@@ -1,0 +1,8 @@
+.container {
+    margin-top: calc(var(--space-default) * 1.5);
+}
+
+.header {
+    position: relative;
+    z-index: 2200;
+}

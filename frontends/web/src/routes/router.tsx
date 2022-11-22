@@ -81,6 +81,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const BuyInfoEl = <InjectParams>
     <BuyInfo
+      code={''}
       accounts={activeAccounts} />
   </InjectParams>;
 
@@ -92,7 +93,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const ExchangeEl = <InjectParams>
     <Exchange
-      code={''} />
+      code={''}
+      accounts={activeAccounts} />
   </InjectParams>;
 
   const PocketEl = <InjectParams>

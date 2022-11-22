@@ -17,18 +17,18 @@
 import React, { Component } from 'react';
 import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
+import { isExchangeBuySupported } from '../../api/exchanges';
 import Guide from './guide';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Button, Select } from '../../components/forms';
-import { apiGet } from '../../utils/request';
-import { isBitcoinOnly } from '../account/utils';
+import { findAccount, getCryptoName } from '../account/utils';
 import style from './info.module.css';
 
 interface BuyInfoProps {
     accounts: IAccount[];
-    code?: string;
+    code: string;
 }
 
 interface Option {
@@ -62,7 +62,7 @@ class BuyInfo extends Component<Props, State> {
   private checkSupportedCoins = () => {
     Promise.all(
       this.props.accounts.map((account) => (
-        apiGet(`exchange/moonpay/buy-supported/${account.code}`)
+        isExchangeBuySupported(account.code)
           .then(isSupported => (isSupported ? account : false))
       ))
     )
@@ -75,21 +75,8 @@ class BuyInfo extends Component<Props, State> {
       .catch(console.error);
   };
 
-  private getCryptoName = (): string => {
-    const { accounts, code, t } = this.props;
-    if (!code) {
-      const onlyBitcoin = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
-      return onlyBitcoin ? 'Bitcoin' : t('buy.info.crypto');
-    }
-    const account = accounts.find(account => account.code === code);
-    if (account) {
-      return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
-    }
-    return t('buy.info.crypto');
-  };
-
   public render() {
-    const { t } = this.props;
+    const { t, accounts, code } = this.props;
     const {
       selected,
       options,
@@ -97,7 +84,10 @@ class BuyInfo extends Component<Props, State> {
     if (options === undefined) {
       return <Spinner text={t('loading')} />;
     }
-    const name = this.getCryptoName();
+
+    const account = findAccount(accounts, code);
+    const name = getCryptoName(t('buy.info.crypto'), account);
+
     return (
       <div className="contentWithGuide">
         <div className="container">

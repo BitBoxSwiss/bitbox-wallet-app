@@ -106,6 +106,7 @@ type Backend interface {
 	AOPPChooseAccount(code accounts.Code)
 	AoppBTCScriptTypeMap() map[string]signing.ScriptType
 	GetAccountFromCode(code string) (accounts.Interface, error)
+	HTTPClient() *http.Client
 }
 
 // Handlers provides a web api to the backend.
@@ -206,7 +207,10 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
+	getAPIRouter(apiRouter)("/exchange/by-region", handlers.getExchangesByRegion).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/buy-supported/{code}", handlers.getExchangePocketBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/api-url/{code}", handlers.getExchangePocketURL).Methods("GET")
@@ -1032,14 +1036,45 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	return path, nil
 }
 
-func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getExchangesByRegion(r *http.Request) (interface{}, error) {
+	return exchanges.ListExchangesByRegion(handlers.backend.HTTPClient()), nil
+}
+
+func (handlers *Handlers) getExchangeDeals(r *http.Request) (interface{}, error) {
+	type exchangeDeals struct {
+		Pocket  []exchanges.ExchangeDeal `json:"pocket"`
+		Moonpay []exchanges.ExchangeDeal `json:"moonpay"`
+	}
+	return exchangeDeals{
+		Pocket:  exchanges.PocketDeals(),
+		Moonpay: exchanges.MoonpayDeals(),
+	}, nil
+}
+
+func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{}, error) {
 	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: Offline() can be removed from here once there is a unified way of initializing accounts
-	// and showing sync status, offline/fatal states, etc.
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	isMoonpaySupported := exchanges.IsMoonpaySupported(acct.Coin().Code())
+	isPocketSupported := exchanges.IsPocketSupported(acct)
+
+	return accountValid && (isMoonpaySupported || isPocketSupported), nil
+}
+
+func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
+	type errorResult struct {
+		Error string `json:"error"`
+	}
+
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Error: err.Error()}, nil
+	}
+
 	return acct != nil && acct.Offline() == nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
 }
 
