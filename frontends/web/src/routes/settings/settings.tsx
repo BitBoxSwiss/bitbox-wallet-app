@@ -202,28 +202,28 @@ class Settings extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('settings.title')}</h2>}>
-            {
-              !deviceIDs.length && (
-                <Link to="/" className="flex flex-row flex-items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="m-right-tiny">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                  </svg>
-                  {t('settings.header.home')}
-                </Link>
-              )
-            }
-          </Header>
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('settings.title')}</h2>}>
+              {
+                !deviceIDs.length && (
+                  <Link to="/" className="flex flex-row flex-items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="m-right-tiny">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    {t('settings.header.home')}
+                  </Link>
+                )
+              }
+            </Header>
             <div className="content padded">
               {
                 config && (

@@ -615,15 +615,13 @@ class Send extends Component<Props, State> {
           <Status type="warning" hidden={paired !== false}>
             {t('warning.sendPairing')}
           </Status>
-          <Header title={<h2>{t('send.title', { accountName: account.coinName })}</h2>} />
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('send.title', { accountName: account.coinName })}</h2>} />
             <div className="content padded">
               <div>
                 <label className="labelXLarge">{t('send.availableBalance')}</label>
               </div>
-              <div className="box large">
-                <Balance balance={balance} noRotateFiat/>
-              </div>
+              <Balance balance={balance} noRotateFiat/>
               {
                 coinControl && (
                   <UTXOs

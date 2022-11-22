@@ -107,8 +107,8 @@ class ManageBackups extends Component {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('backup.title')}</h2>} />
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('backup.title')}</h2>} />
             <div className="content padded">
               <h3 className="subTitle">{t('backup.list')}</h3>
               {this.listBackups()}

@@ -25,23 +25,26 @@ import { Spinner } from '../../components/spinner/Spinner';
 import { isBitcoinOnly } from '../account/utils';
 import style from './moonpay.module.css';
 
-interface BuyProps {
+type TBuyProps = {
     accounts: IAccount[];
     code: string;
 }
 
-interface LoadedBuyProps {
+type TLoadedBuyProps = {
     moonpay: { url: string, address: string; };
 }
 
-interface State {
-    height?: number;
+type State = {
+  height?: number;
+  iframeLoaded: boolean;
 }
 
-type Props = LoadedBuyProps & BuyProps & TranslateProps;
+type Props = TLoadedBuyProps & TBuyProps & TranslateProps;
 
 class Moonpay extends Component<Props, State> {
-  public readonly state: State = {};
+  public readonly state: State = {
+    iframeLoaded: false
+  };
 
   private ref = createRef<HTMLDivElement>();
   private resizeTimerID?: any;
@@ -83,32 +86,40 @@ class Moonpay extends Component<Props, State> {
     return t('buy.info.crypto');
   };
 
+
   public render() {
     const { moonpay, t } = this.props;
-    const { height } = this.state;
+    const { height, iframeLoaded } = this.state;
     const account = this.getAccount();
+
     if (!account || moonpay.url === '') {
       return null;
     }
+
     const name = this.getCryptoName();
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <div className={style.header}>
-            <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
-          </div>
-          <div ref={this.ref} className="innerContainer">
-            <div className="noSpace" style={{ height }}>
-              <Spinner text={t('loading')} />
-              <iframe
-                title="Moonpay"
-                width="100%"
-                height={height}
-                frameBorder="0"
-                className={style.iframe}
-                allow="camera; payment"
-                src={`${moonpay.url}&colorCode=%235E94BF`}>
-              </iframe>
+          <div ref={this.ref} className="innerContainer scrollableContainer">
+            <div className={style.header}>
+              <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+            </div>
+            <div ref={this.ref} className="innerContainer">
+              <div className="noSpace">
+                {!iframeLoaded && <Spinner text={t('loading')} />}
+                <iframe
+                  onLoad={() => {
+                    this.setState({ iframeLoaded: true });
+                  }}
+                  title="Moonpay"
+                  width="100%"
+                  height={iframeLoaded ? height : 0}
+                  frameBorder="0"
+                  className={style.iframe}
+                  allow="camera; payment"
+                  src={`${moonpay.url}&colorCode=%235E94BF`}>
+                </iframe>
+              </div>
             </div>
           </div>
         </div>
@@ -118,7 +129,7 @@ class Moonpay extends Component<Props, State> {
   }
 }
 
-const loadHOC = load<LoadedBuyProps, BuyProps & TranslateProps>(({ code }) => ({
+const loadHOC = load<TLoadedBuyProps, TBuyProps & TranslateProps>(({ code }) => ({
   moonpay: `exchange/moonpay/buy/${code}`,
 }))(Moonpay);
 const HOC = translate()(loadHOC);

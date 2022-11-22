@@ -120,8 +120,8 @@ class Unlock extends Component {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('welcome.title')}</h2>} />
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('welcome.title')}</h2>} />
             <div className="content narrow padded isVerticallyCentered">
               <AppLogo />
               <div className="box large">
