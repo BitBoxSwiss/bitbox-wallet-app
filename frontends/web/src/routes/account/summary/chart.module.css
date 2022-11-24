@@ -91,7 +91,7 @@
 }
 
 .filters button[disabled] {
-  background: var(--color-mediumgray);
+  background: var(--background-quaternary);
   border-color: var(--color-mediumgray);
   color: var(--color-alt);
 }

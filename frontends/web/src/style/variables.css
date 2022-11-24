@@ -37,13 +37,16 @@
     --color-disabled: var(--color-mediumgray);
 
     /* background colors */
+    /* all backgrounds should use these colors and not from the main colors directly */
     --background: var(--color-lightgray);
     --bg-transparent-dark: rgba(0, 0, 0, 0.4);
     --background-secondary: var(--color-white);
     --background-dark: var(--color-softblack);
     --background-tertiary: var(--color-gray-alt);
+    --background-quaternary:var(--color-mediumgray);
 
     /* font sizes */
+    /* all fonts should use these colors and not from the main colors directly */
     --size-extra-large: 2.2rem;
     --size-large: 2rem;
     --size-large-mobile: 1.4rem;

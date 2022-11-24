@@ -145,7 +145,7 @@
 
 .disabledLabel,
 .disabledLabel span {
-    color: var(--color-mediumgray) !important;
+    color: var(--color-light) !important;
 }
 
 .noStep {
