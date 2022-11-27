@@ -366,38 +366,28 @@ func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
 }
 
 // Headers does the blockchain.block.headers RPC call.
-func (client *ElectrumClient) Headers(
-	startHeight int, count int,
-	success func(headers []*wire.BlockHeader, max int),
-) {
-	client.rpc.Method(
-		func(responseBytes []byte) error {
-			var response struct {
-				Hex   string `json:"hex"`
-				Count int    `json:"count"`
-				Max   int    `json:"max"`
-			}
-			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				return errp.WithStack(err)
-			}
-			headers, err := parseHeaders(hex.NewDecoder(strings.NewReader(response.Hex)))
-			if err != nil {
-				return err
-			}
-			if len(headers) != response.Count {
-				return errp.Newf(
-					"unexpected electrumx reply: should have gotten %d headers, but got %d",
-					response.Count,
-					len(headers))
-			}
-			success(headers, response.Max)
-			return nil
-		},
-		func() func(error) {
-			return func(error) {}
-		},
-		"blockchain.block.headers",
-		startHeight, count)
+func (client *ElectrumClient) Headers(startHeight int, count int) ([]*wire.BlockHeader, int, error) {
+	var response struct {
+		Hex   string `json:"hex"`
+		Count int    `json:"count"`
+		Max   int    `json:"max"`
+	}
+
+	err := client.rpc.MethodSync(&response, "blockchain.block.headers", startHeight, count)
+	if err != nil {
+		return nil, 0, err
+	}
+	headers, err := parseHeaders(hex.NewDecoder(strings.NewReader(response.Hex)))
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(headers) != response.Count {
+		return nil, 0, errp.Newf(
+			"unexpected electrumx reply: should have gotten %d headers, but got %d",
+			response.Count,
+			len(headers))
+	}
+	return headers, response.Max, nil
 }
 
 // GetMerkle does the blockchain.transaction.get_merkle RPC call.

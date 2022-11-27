@@ -183,11 +183,6 @@ func (headers *Headers) Initialize() {
 	headers.kickChan <- struct{}{}
 }
 
-type batchInfo struct {
-	blockHeaders []*wire.BlockHeader
-	max          int
-}
-
 func (headers *Headers) download() {
 	defer func() {
 		// Only for testing.
@@ -207,17 +202,18 @@ func (headers *Headers) download() {
 		tip, err := db.Tip()
 		if err != nil {
 			// TODO
-			panic(err)
+			return
 		}
-		batchChan := make(chan batchInfo)
-		headers.blockchain.Headers(
-			tip+1, headers.headersPerBatch,
-			func(blockHeaders []*wire.BlockHeader, max int) {
-				batchChan <- batchInfo{blockHeaders, max}
-			})
-		batch := <-batchChan
-		if err := headers.processBatch(db, tip, batch.blockHeaders, batch.max); err != nil {
-			headers.log.WithError(err).Panic("processBatch")
+		blockHeaders, max, err := headers.blockchain.Headers(tip+1, headers.headersPerBatch)
+		if err != nil {
+			// TODO
+			headers.log.WithError(err).Error("blockchain.Headers")
+			return
+		}
+		if err := headers.processBatch(db, tip, blockHeaders, max); err != nil {
+			// TODO
+			headers.log.WithError(err).Error("processBatch")
+			return
 		}
 	}
 
