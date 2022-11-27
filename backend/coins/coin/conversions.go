@@ -51,7 +51,7 @@ func FormatAsCurrency(amount *big.Rat, fiatUnit string, formatBtcAsSats bool) st
 
 // Conversions handles fiat conversions.
 func Conversions(amount Amount, coin Coin, isFee bool, ratesUpdater *rates.RateUpdater, formatBtcAsSats bool) map[string]string {
-	var conversions map[string]string
+	conversions := map[string]string{}
 	rates := ratesUpdater.LatestPrice()
 	if rates != nil {
 		unit := coin.Unit(isFee)
