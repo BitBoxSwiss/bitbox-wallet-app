@@ -37,8 +37,9 @@ import Status from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { apiGet } from '../../utils/request';
 import { BuyCTA } from './info/buyCTA';
-import style from './account.module.css';
 import { isBitcoinBased } from './utils';
+import { ActionButtons } from './actionButtons';
+import style from './account.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -191,6 +192,12 @@ export function Account({
     && !balance.hasIncoming
     && transactions && transactions.length === 0;
 
+  const actionButtonsProps = {
+    code,
+    canSend,
+    moonpayBuySupported
+  };
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -214,33 +221,20 @@ export function Account({
                 code={code}
                 unit={balance.available.unit} />
             )}
-            <div className="flex flex-row flex-between flex-items-center flex-column-mobile flex-reverse-mobile">
-              <label className="labelXLarge flex-self-start-mobile">
+
+            <div className="flex flex-column flex-reverse-mobile">
+              <label className="labelXLarge flex-self-start-mobile hide-on-small">
                 {t('accountSummary.availableBalance')}
               </label>
-              <div className={style.actionsContainer}>
-                {canSend ? (
-                  <Link key="sendLink" to={`/account/${code}/send`} className={style.send}>
-                    <span>{t('button.send')}</span>
-                  </Link>
-                ) : (
-                  <span key="sendDisabled" className={`${style.send} ${style.disabled}`}>
-                    {t('button.send')}
-                  </span>
-                )}
-                <Link key="receive" to={`/account/${code}/receive`} className={style.receive}>
-                  <span>{t('button.receive')}</span>
-                </Link>
-                { moonpayBuySupported && (
-                  <Link key="buy" to={`/buy/info/${code}`} className={style.buy}>
-                    <span>{t('button.buy')}</span>
-                  </Link>
-                )}
+              <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
+                <Balance balance={balance} />
+                <label className="labelXLarge flex-self-start-mobile show-on-small">
+                  {t('accountSummary.availableBalance')}
+                </label>
+                <ActionButtons {...actionButtonsProps} />
               </div>
             </div>
-            <div className="box large">
-              <Balance balance={balance} />
-            </div>
+
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
               <Spinner text={
                 (status.fatalError && t('account.fatalError'))

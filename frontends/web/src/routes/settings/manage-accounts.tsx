@@ -211,8 +211,8 @@ class ManageAccounts extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('manageAccounts.title')}</h2>} />
           <div className="innerContainer scrollContainer">
+            <Header title={<h2>{t('manageAccounts.title')}</h2>} />
             <div className="content">
               <div className="columnsContainer">
                 <div className="buttons m-bottom-large m-top-large">

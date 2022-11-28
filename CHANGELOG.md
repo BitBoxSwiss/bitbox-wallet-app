@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Re-style header for a better space utilisation
 
 ## 4.35.0
 - Add Arabic translation

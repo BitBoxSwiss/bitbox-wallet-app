@@ -63,8 +63,8 @@ export const Settings = ({ deviceID }: TProps) => {
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Header title={<h2>{t('sidebar.device')}</h2>} />
         <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('sidebar.device')}</h2>} />
           <div className="content padded">
             <div className="columnsContainer">
               <div className="columns">

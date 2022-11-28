@@ -157,8 +157,8 @@ export const Receive = ({
     <div className="contentWithGuide">
       <div className="container">
         <PairedWarning deviceID={deviceID} />
-        <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
         <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
           <div className="content narrow isVerticallyCentered">
             <div className="box large text-center">
               { currentAddresses && (

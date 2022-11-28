@@ -23,6 +23,7 @@
 .actionsContainer {
     display: flex;
     transform: translateY(-36%);
+    margin-top: var(--space-quarter);
 }
 
 .buy,
@@ -73,6 +74,8 @@
         max-width: 91%;
         transform: none;
         width: 91%;
+        margin-left: auto;
+        margin-right: auto;
     }
     .actionsContainer a {
         flex: 1 0 30%;
