@@ -201,16 +201,16 @@ export const Receive = ({
                       {t('receive.changeScriptType')}
                     </button>
                   )}
-                  { hasManyScriptTypes && addressDialog && (
-                    <form onSubmit={e => {
-                      e.preventDefault();
-                      setActiveIndex(0);
-                      setAddressType(addressDialog.addressType);
-                      setAddressDialog(undefined);
-                    }}>
-                      <Dialog medium title={t('receive.changeScriptType')} >
-                        {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
-                          <div key={scriptType}>
+                  <form onSubmit={e => {
+                    e.preventDefault();
+                    setActiveIndex(0);
+                    setAddressType(addressDialog ? addressDialog?.addressType : addressType);
+                    setAddressDialog(undefined);
+                  }}>
+                    <Dialog open={(!!addressDialog)} medium title={t('receive.changeScriptType')} >
+                      {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
+                        <div key={scriptType}>
+                          {addressDialog && <>
                             <Radio
                               checked={addressDialog.addressType === i}
                               id={scriptType}
@@ -224,16 +224,16 @@ export const Receive = ({
                                 {t('receive.taprootWarning')}
                               </Message>
                             )}
-                          </div>
-                        ))}
-                        <DialogButtons>
-                          <Button primary type="submit">
-                            {t('button.done')}
-                          </Button>
-                        </DialogButtons>
-                      </Dialog>
-                    </form>
-                  )}
+                          </>}
+                        </div>
+                      ))}
+                      <DialogButtons>
+                        <Button primary type="submit">
+                          {t('button.done')}
+                        </Button>
+                      </DialogButtons>
+                    </Dialog>
+                  </form>
                   <div className="buttons">
                     <VerifyButton
                       device="bitbox"
@@ -249,12 +249,13 @@ export const Receive = ({
                   { forceVerification && verifying && (
                     <div className={style.hide}></div>
                   )}
-                  { account && forceVerification && verifying && (
-                    <Dialog
-                      title={verifyLabel}
-                      disableEscape={true}
-                      medium centered>
-                      <div className="text-center">
+                  <Dialog
+                    open={((!!account) && forceVerification && verifying)}
+                    title={verifyLabel}
+                    disableEscape={true}
+                    medium centered>
+                    <div className="text-center">
+                      {account && <>
                         { isEthereumBased(account.coinCode) && (
                           <p>
                             <strong>
@@ -267,12 +268,12 @@ export const Receive = ({
                         )}
                         <QRCode data={uriPrefix + address} />
                         <p>{t('receive.verifyInstruction')}</p>
-                      </div>
-                      <div className="m-bottom-half">
-                        <CopyableInput value={address} flexibleHeight />
-                      </div>
-                    </Dialog>
-                  )}
+                      </>}
+                    </div>
+                    <div className="m-bottom-half">
+                      <CopyableInput value={address} flexibleHeight />
+                    </div>
+                  </Dialog>
                 </div>
               )}
             </div>

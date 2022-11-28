@@ -55,27 +55,21 @@ class RandomNumber extends Component {
         <SettingsButton onClick={this.getRandomNumber}>
           {t('random.button')}
         </SettingsButton>
-        {
-          // @ts-ignore Object is possibly 'undefined'.
-          active && number ? (
-            <Dialog title="Generate Random Number" onClose={this.abort}>
-              <div className="columnsContainer half">
-                <div className="columns">
-                  <div className="column">
-                    <p>{t('random.description', {
-                      // @ts-ignore
-                      bits: number.length * 4
-                    })}</p>
-                    <CopyableInput value={number} flexibleHeight />
-                  </div>
-                </div>
+        <Dialog open={!!(active && number)} title="Generate Random Number" onClose={this.abort}>
+          <div className="columnsContainer half">
+            <div className="columns">
+              <div className="column">
+                <p>{t('random.description', {
+                  bits: number.length * 4
+                })}</p>
+                <CopyableInput value={number} flexibleHeight />
               </div>
-              <DialogButtons>
-                <Button primary onClick={this.abort}>{t('button.ok')}</Button>
-              </DialogButtons>
-            </Dialog>
-          ) : null
-        }
+            </div>
+          </div>
+          <DialogButtons>
+            <Button primary onClick={this.abort}>{t('button.ok')}</Button>
+          </DialogButtons>
+        </Dialog>
       </div>
     );
   }

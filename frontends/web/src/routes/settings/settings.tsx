@@ -315,37 +315,33 @@ class Settings extends Component<Props, State> {
                               optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
                               {t('settings.expert.useProxy')}
                             </SettingsButton>
-                            {
-                              activeProxyDialog && (
-                                <Dialog onClose={this.hideProxyDialog} title={t('settings.expert.setProxyAddress')} small>
-                                  <div className="flex flex-row flex-between flex-items-center">
-                                    <div>
-                                      <p className="m-none">{t('settings.expert.useProxy')}</p>
-                                    </div>
-                                    <Toggle
-                                      id="useProxy"
-                                      checked={config.backend.proxy.useProxy}
-                                      onChange={this.handleToggleProxy} />
-                                  </div>
-                                  <div className="m-top-half">
-                                    <Input
-                                      name="proxyAddress"
-                                      onInput={this.handleFormChange}
-                                      value={proxyAddress}
-                                      placeholder="127.0.0.1:9050"
-                                      disabled={!config.backend.proxy.useProxy}
-                                    />
-                                    <DialogButtons>
-                                      <Button primary
-                                        onClick={this.setProxyAddress}
-                                        disabled={!config.backend.proxy.useProxy || proxyAddress === config.backend.proxy.proxyAddress}>
-                                        {t('settings.expert.setProxyAddress')}
-                                      </Button>
-                                    </DialogButtons>
-                                  </div>
-                                </Dialog>
-                              )
-                            }
+                            <Dialog open={activeProxyDialog} onClose={this.hideProxyDialog} title={t('settings.expert.setProxyAddress')} small>
+                              <div className="flex flex-row flex-between flex-items-center">
+                                <div>
+                                  <p className="m-none">{t('settings.expert.useProxy')}</p>
+                                </div>
+                                <Toggle
+                                  id="useProxy"
+                                  checked={config.backend.proxy.useProxy}
+                                  onChange={this.handleToggleProxy} />
+                              </div>
+                              <div className="m-top-half">
+                                <Input
+                                  name="proxyAddress"
+                                  onInput={this.handleFormChange}
+                                  value={proxyAddress}
+                                  placeholder="127.0.0.1:9050"
+                                  disabled={!config.backend.proxy.useProxy}
+                                />
+                                <DialogButtons>
+                                  <Button primary
+                                    onClick={this.setProxyAddress}
+                                    disabled={!config.backend.proxy.useProxy || proxyAddress === config.backend.proxy.proxyAddress}>
+                                    {t('settings.expert.setProxyAddress')}
+                                  </Button>
+                                </DialogButtons>
+                              </div>
+                            </Dialog>
                             <SettingsButton onClick={() => route('/settings/electrum', true)}>
                               {t('settings.expert.electrum.title')}
                             </SettingsButton>

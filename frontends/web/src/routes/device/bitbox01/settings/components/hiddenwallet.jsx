@@ -100,38 +100,34 @@ class HiddenWallet extends Component {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.hiddenwallet')}
         </SettingsButton>
-        {
-          activeDialog && (
-            <Dialog title={t('button.hiddenwallet')}
-              onClose={this.abort}>
-              <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
-              <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
-              <form onSubmit={this.createHiddenWallet}>
-                <PasswordRepeatInput
-                  idPrefix="pin"
-                  pattern="^.{4,}$"
-                  label={t('hiddenWallet.pinLabel')}
-                  repeatLabel={t('hiddenWallet.pinRepeatLabel')}
-                  repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
-                  onValidPassword={this.setValidPIN} />
-                <PasswordRepeatInput
-                  idPrefix="password"
-                  label={t('hiddenWallet.passwordLabel')}
-                  repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
-                  onValidPassword={this.setValidPassword}
-                />
-                <DialogButtons>
-                  <Button type="submit" danger disabled={!this.validate() || isConfirming}>
-                    {t('button.hiddenwallet')}
-                  </Button>
-                  <Button transparent onClick={this.abort} disabled={isConfirming}>
-                    {t('button.abort')}
-                  </Button>
-                </DialogButtons>
-              </form>
-            </Dialog>
-          )
-        }
+        <Dialog open={activeDialog} title={t('button.hiddenwallet')}
+          onClose={this.abort}>
+          <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
+          <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
+          <form onSubmit={this.createHiddenWallet}>
+            <PasswordRepeatInput
+              idPrefix="pin"
+              pattern="^.{4,}$"
+              label={t('hiddenWallet.pinLabel')}
+              repeatLabel={t('hiddenWallet.pinRepeatLabel')}
+              repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
+              onValidPassword={this.setValidPIN} />
+            <PasswordRepeatInput
+              idPrefix="password"
+              label={t('hiddenWallet.passwordLabel')}
+              repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
+              onValidPassword={this.setValidPassword}
+            />
+            <DialogButtons>
+              <Button type="submit" danger disabled={!this.validate() || isConfirming}>
+                {t('button.hiddenwallet')}
+              </Button>
+              <Button transparent onClick={this.abort} disabled={isConfirming}>
+                {t('button.abort')}
+              </Button>
+            </DialogButtons>
+          </form>
+        </Dialog>
         {
           isConfirming && (
             <WaitDialog title={t('button.hiddenwallet')} />

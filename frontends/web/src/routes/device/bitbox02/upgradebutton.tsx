@@ -80,30 +80,26 @@ class UpgradeButton extends Component<Props, State> {
             </SettingsButton>
           )
         }
-        {
-          activeDialog && (
-            <Dialog title={t('upgradeFirmware.title')}>
-              {confirming ? t('confirmOnDevice') : (
-                <p>{t('upgradeFirmware.description', {
-                  currentVersion: versionInfo.currentVersion,
-                  newVersion: versionInfo.newVersion,
-                })}</p>
-              )}
-              { !confirming && (
-                <DialogButtons>
-                  <Button
-                    primary
-                    onClick={this.upgradeFirmware}>
-                    {t('button.upgrade')}
-                  </Button>
-                  <Button transparent onClick={this.abort}>
-                    {t('button.back')}
-                  </Button>
-                </DialogButtons>
-              )}
-            </Dialog>
-          )
-        }
+        <Dialog open={activeDialog} title={t('upgradeFirmware.title')}>
+          {confirming ? t('confirmOnDevice') : (
+            <p>{t('upgradeFirmware.description', {
+              currentVersion: versionInfo.currentVersion,
+              newVersion: versionInfo.newVersion,
+            })}</p>
+          )}
+          { !confirming && (
+            <DialogButtons>
+              <Button
+                primary
+                onClick={this.upgradeFirmware}>
+                {t('button.upgrade')}
+              </Button>
+              <Button transparent onClick={this.abort}>
+                {t('button.back')}
+              </Button>
+            </DialogButtons>
+          )}
+        </Dialog>
       </div>
     );
   }

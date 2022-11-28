@@ -81,38 +81,32 @@ class Check extends Component<Props, State> {
         >
           {t('button.check')}
         </Button>
-        {
-          activeDialog && (
-            <Dialog title={message}>
-              {
-                <div className="columnsContainer half">
-                  <div className="columns">
-                    <div className="column">
-                      {
-                        foundBackup !== undefined && (
-                          <BackupsListItem
-                            backup={foundBackup}
-                            handleChange={() => undefined}
-                            onFocus={() => undefined}
-                            radio={false} />
-                        )
-                      }
-                    </div>
-                  </div>
-                  <DialogButtons>
-                    <Button
-                      primary
-                      onClick={this.abort}
-                      disabled={!userVerified}
-                    >
-                      { userVerified ? t('button.ok') : t('accountInfo.verify') }
-                    </Button>
-                  </DialogButtons>
-                </div>
-              }
-            </Dialog>
-          )
-        }
+        <Dialog open={activeDialog} title={message}>
+          <div className="columnsContainer half">
+            <div className="columns">
+              <div className="column">
+                {
+                  foundBackup !== undefined && (
+                    <BackupsListItem
+                      backup={foundBackup}
+                      handleChange={() => undefined}
+                      onFocus={() => undefined}
+                      radio={false} />
+                  )
+                }
+              </div>
+            </div>
+            <DialogButtons>
+              <Button
+                primary
+                onClick={this.abort}
+                disabled={!userVerified}
+              >
+                { userVerified ? t('button.ok') : t('accountInfo.verify') }
+              </Button>
+            </DialogButtons>
+          </div>
+        </Dialog>
       </div>
     );
   }

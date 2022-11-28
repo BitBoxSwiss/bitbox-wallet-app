@@ -60,10 +60,8 @@ export const Confirm = () => {
   };
 
   const { message, active, customButtonText } = state;
-  if (!active) {
-    return null;
-  }
-  return <Dialog title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+
+  return <Dialog open={active} title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
     <div className="columnsContainer half">
       <div className="columns">
         <div className="column">
@@ -79,6 +77,7 @@ export const Confirm = () => {
         </div>
       </div>
     </div>
+
     <DialogButtons>
       <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
       <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>

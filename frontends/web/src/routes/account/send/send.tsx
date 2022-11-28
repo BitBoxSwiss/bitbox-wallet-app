@@ -852,28 +852,25 @@ class Send extends Component<Props, State> {
               </WaitDialog>
             )
           }
-          {
-            activeScanQR && (
-              <Dialog
-                title={t('send.scanQR')}
-                onClose={this.toggleScanQR}>
-                {videoLoading && <Spinner />}
-                <video
-                  id="video"
-                  width={400}
-                  height={300 /* fix height to avoid ugly resize effect after open */}
-                  className={style.qrVideo}
-                  onLoadedData={this.handleVideoLoad} />
-                <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-                  <Button
-                    secondary
-                    onClick={this.toggleScanQR}>
-                    {t('button.back')}
-                  </Button>
-                </div>
-              </Dialog>
-            )
-          }
+          <Dialog
+            open={activeScanQR}
+            title={t('send.scanQR')}
+            onClose={this.toggleScanQR}>
+            {videoLoading && <Spinner />}
+            <video
+              id="video"
+              width={400}
+              height={300 /* fix height to avoid ugly resize effect after open */}
+              className={style.qrVideo}
+              onLoadedData={this.handleVideoLoad} />
+            <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
+              <Button
+                secondary
+                onClick={this.toggleScanQR}>
+                {t('button.back')}
+              </Button>
+            </div>
+          </Dialog>
         </div>
         <Guide>
           <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
