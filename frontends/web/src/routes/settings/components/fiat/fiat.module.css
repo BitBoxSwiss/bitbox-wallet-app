@@ -1,5 +1,5 @@
 .defaultFiat {
-    color: var(--color-gray);
+    color: var(--color-secondary);
 }
 
 .star {
@@ -14,7 +14,7 @@
 }
 
 .star img {
-    color: var(--color-gray-alt);
+    color: var(--color-tertiary);
     height: 18px;
     width: 18px;
 }

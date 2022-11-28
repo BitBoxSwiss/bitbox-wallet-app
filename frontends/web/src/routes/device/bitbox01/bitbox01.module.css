@@ -117,7 +117,7 @@
 .waitingContent {
     max-width: 540px;
     width: 100%;
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     padding: var(--space-default);
     margin: 0 auto;
     text-align: center;

@@ -31,16 +31,10 @@
     font-size: var(--size-default);
     text-transform: none;
 }
-.text-bold { font-weight: bold; }
 .text-blue { color: var(--color-blue); }
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-secondary); }
-.text-darkgray { color: var(--color-gray); }
-.text-black { color: var(--color-dark) !important; }
-.text-black + label {
-    color: var(--color-dark);
-}
 
 .show-on-small {
     display: none;
@@ -207,7 +201,7 @@
 
 .tabs .tab.active a {
     color: var(--color-blue);
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
 }
 
 @media (max-width: 768px) {
@@ -235,7 +229,7 @@
 }
 
 .box {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     padding: var(--space-half);
 }
 
