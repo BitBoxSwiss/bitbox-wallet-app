@@ -391,32 +391,24 @@ func (client *ElectrumClient) Headers(startHeight int, count int) ([]*wire.Block
 }
 
 // GetMerkle does the blockchain.transaction.get_merkle RPC call.
-func (client *ElectrumClient) GetMerkle(
-	txHash chainhash.Hash, height int,
-	success func(merkle []blockchain.TXHash, pos int),
-	cleanup func(error),
-) {
-	client.rpc.Method(
-		func(responseBytes []byte) error {
-			var response struct {
-				Merkle      []blockchain.TXHash `json:"merkle"`
-				Pos         int                 `json:"pos"`
-				BlockHeight int                 `json:"block_height"`
-			}
-			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				return errp.WithStack(err)
-			}
-			if response.BlockHeight != height {
-				return errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
-			}
-			success(response.Merkle, response.Pos)
-			return nil
-		},
-		func() func(error) {
-			return cleanup
-		},
+func (client *ElectrumClient) GetMerkle(txHash chainhash.Hash, height int) ([]blockchain.TXHash, int, error) {
+	var response struct {
+		Merkle      []blockchain.TXHash `json:"merkle"`
+		Pos         int                 `json:"pos"`
+		BlockHeight int                 `json:"block_height"`
+	}
+
+	err := client.rpc.MethodSync(
+		&response,
 		"blockchain.transaction.get_merkle",
 		txHash.String(), height)
+	if err != nil {
+		return nil, 0, err
+	}
+	if response.BlockHeight != height {
+		return nil, 0, errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
+	}
+	return response.Merkle, response.Pos, nil
 }
 
 // Close closes the connection.

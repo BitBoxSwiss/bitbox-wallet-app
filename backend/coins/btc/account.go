@@ -579,7 +579,6 @@ func (account *Account) ensureAddresses() {
 	}
 
 	defer account.Synchronizer.IncRequestsCounter()()
-
 	dbTx, err := account.db.Begin()
 	if err != nil {
 		// TODO

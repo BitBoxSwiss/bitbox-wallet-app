@@ -71,7 +71,7 @@ func (transactions *Transactions) verifyTransactions() {
 	unverifiedTransactions := transactions.unverifiedTransactions()
 	transactions.log.Debugf("verifying %d transactions", len(unverifiedTransactions))
 	for txHash, height := range unverifiedTransactions {
-		transactions.verifyTransaction(txHash, height)
+		go transactions.verifyTransaction(txHash, height)
 	}
 }
 
@@ -82,45 +82,44 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	header, err := transactions.headers.VerifiedHeaderByHeight(height)
 	if err != nil {
 		// TODO
-		panic(err)
+		transactions.log.WithError(err).Error("VerifiedHeaderByHeight")
+		return
 	}
 	if header == nil {
 		transactions.log.Warningf("Header not yet synced to %d, couldn't verify tx", height)
 		return
 	}
-	done := transactions.synchronizer.IncRequestsCounter()
-	transactions.blockchain.GetMerkle(
-		txHash, height,
-		func(merkle []blockchain.TXHash, pos int) {
-			if transactions.isClosed() {
-				transactions.log.Debug("GetMerkle after the instance was closed")
-				return
-			}
-			expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
-			if expectedMerkleRoot != header.MerkleRoot {
-				transactions.log.Warning("Merkle root verification failed")
-				return
-			}
-			transactions.log.Debugf("Merkle root verification succeeded")
 
-			defer transactions.Lock()()
-			dbTx, err := transactions.db.Begin()
-			if err != nil {
-				// TODO
-				panic(err)
-			}
-			defer dbTx.Rollback()
-			if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
-				transactions.log.WithError(err).Panic("MarkTxVerified")
-			}
-			if err := dbTx.Commit(); err != nil {
-				transactions.log.WithError(err).Panic("GetMerkle Commit")
-			}
-		},
-		func(err error) {
-			done()
-			if err != nil {
-				panic(err)
-			}
-		})
+	done := transactions.synchronizer.IncRequestsCounter()
+	defer done()
+
+	merkle, pos, err := transactions.blockchain.GetMerkle(txHash, height)
+	if err != nil {
+		// TODO
+		transactions.log.WithError(err).Error("GetMerkle")
+		return
+	}
+	expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
+	if expectedMerkleRoot != header.MerkleRoot {
+		transactions.log.Warning("Merkle root verification failed")
+		return
+	}
+	transactions.log.Debugf("Merkle root verification succeeded")
+
+	defer transactions.Lock()()
+	dbTx, err := transactions.db.Begin()
+	if err != nil {
+		// TODO
+		transactions.log.WithError(err).Error("transaction begin")
+		return
+	}
+	defer dbTx.Rollback()
+	if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
+		transactions.log.WithError(err).Error("MarkTxVerified")
+		return
+	}
+	if err := dbTx.Commit(); err != nil {
+		transactions.log.WithError(err).Error("GetMerkle Commit")
+		return
+	}
 }

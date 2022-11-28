@@ -33,7 +33,7 @@ type BlockchainMock struct {
 	MockRelayFee             func() (btcutil.Amount, error)
 	MockEstimateFee          func(int) (btcutil.Amount, error)
 	MockHeaders              func(int, int) ([]*wire.BlockHeader, int, error)
-	MockGetMerkle            func(chainhash.Hash, int, func(merkle []blockchain.TXHash, pos int), func(error))
+	MockGetMerkle            func(chainhash.Hash, int) ([]blockchain.TXHash, int, error)
 	MockClose                func()
 	MockConnectionError      func() error
 
@@ -103,10 +103,11 @@ func (b *BlockchainMock) Headers(i1 int, i2 int) ([]*wire.BlockHeader, int, erro
 }
 
 // GetMerkle implements Interface.
-func (b *BlockchainMock) GetMerkle(h chainhash.Hash, i int, success func(merkle []blockchain.TXHash, pos int), cleanup func(error)) {
+func (b *BlockchainMock) GetMerkle(h chainhash.Hash, i int) ([]blockchain.TXHash, int, error) {
 	if b.MockGetMerkle != nil {
-		b.MockGetMerkle(h, i, success, cleanup)
+		return b.MockGetMerkle(h, i)
 	}
+	panic("not implemented")
 }
 
 // Close implements Interface.
