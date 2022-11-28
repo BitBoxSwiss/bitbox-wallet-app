@@ -384,11 +384,13 @@
   },
   "deviceSettings": {
     "firmware": {
+      "firmwareVersion": "Firmware Version",
       "newVersion": {
         "label": "Available version"
       },
       "title": "Firmware",
       "upToDate": "Your device is up to date",
+      "upgradeAvailable": "New upgrade available",
       "version": {
         "label": "Version"
       }
