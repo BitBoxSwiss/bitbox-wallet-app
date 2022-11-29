@@ -109,7 +109,9 @@ export const Settings = ({ deviceID }: TProps) => {
                           apiPrefix={apiPrefix}
                           versionInfo={versionInfo}/>
                       ) : versionInfo && (
-                        <SettingsItem optionalText={versionInfo.currentVersion}>
+                        <SettingsItem
+                          optionalText={versionInfo.currentVersion}
+                          optionalIcon={<Checked/>}>
                           {t('deviceSettings.firmware.upToDate')}
                         </SettingsItem>
                       )

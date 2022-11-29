@@ -22,6 +22,7 @@ import { apiPost } from '../../../utils/request';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
+import { RedDot } from '../../../components/icon/icon';
 
 interface UpgradeButtonProps {
     apiPrefix: string;
@@ -73,12 +74,22 @@ class UpgradeButton extends Component<Props, State> {
           asButton ? (
             <Button primary onClick={() => this.setState({ activeDialog: true })}>
               {t('button.upgrade')}
+              {' '}
+              <RedDot/>
             </Button>
           ) : (
-            <SettingsButton optionalText={versionInfo.newVersion} onClick={() => this.setState({ activeDialog: true })}>
-              {t('button.upgrade')}
-            </SettingsButton>
-          )
+            <SettingsButton
+              optionalText={versionInfo.newVersion}
+              secondaryText={
+                <>
+                  {t('deviceSettings.firmware.upgradeAvailable')}
+                  {' '}
+                  <RedDot />
+                </>
+              }
+              onClick={() => this.setState({ activeDialog: true })}>
+              {t('deviceSettings.firmware.firmwareVersion')}
+            </SettingsButton>)
         }
         <Dialog open={activeDialog} title={t('upgradeFirmware.title')}>
           {confirming ? t('confirmOnDevice') : (
