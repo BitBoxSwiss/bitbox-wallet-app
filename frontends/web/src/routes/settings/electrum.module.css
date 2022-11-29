@@ -112,7 +112,7 @@
 .textarea {
     width: 100%;
     border-radius: 2px;
-    border-color: var(--color-mediumgray);
+    border-color: var(--background-quaternary);
     padding: var(--space-half) var(--space-half);
     margin-bottom: var(--space-quarter);
 }

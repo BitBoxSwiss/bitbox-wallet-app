@@ -31,7 +31,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-bottom: var(--spacing-default);
-    border: solid 1px var(--color-mediumgray);
+    border: solid 1px var(--background-quaternary);
 }
 
 .table tr td,

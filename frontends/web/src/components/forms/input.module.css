@@ -25,7 +25,7 @@
 
 .input input {
     background-color: var(--background-secondary);
-    border-color: var(--color-mediumgray);
+    border-color: var(--background-quaternary);
     border-radius: 2px;
     border-style: solid;
     border-width: 1px;
@@ -50,13 +50,13 @@
 
 .input input[disabled] {
     background-color: var(--background-secondary) !important;
-    border-color: var(--color-lightgray) !important;
+    border-color: var(--background) !important;
     color: var(--color-secondary) !important;
     cursor: not-allowed;
 }
 
 .isTransparent input[disabled] {
-    border-color: var(--color-lightgray);
+    border-color: var(--background);
     color: var(--color-default) !important;
     cursor: default;
 }

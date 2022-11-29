@@ -92,7 +92,7 @@
 
 .filters button[disabled] {
   background: var(--background-quaternary);
-  border-color: var(--color-mediumgray);
+  border-color: var(--background-quaternary);
   color: var(--color-alt);
 }
 

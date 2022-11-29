@@ -45,7 +45,7 @@
 
 .checkbox input + label::after {
     background: transparent;
-    border: solid var(--color-alt);
+    border: solid var(--background-secondary);
     border-width: 0px 2px 2px 0;
     width: 0.35em;
     height: 0.55em;

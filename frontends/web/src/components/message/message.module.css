@@ -1,5 +1,5 @@
 .message {
-    border: solid 1px var(--color-mediumgray);
+    border: solid 1px var(--background-quaternary);
     color: var(--color-secondary);
     border-radius: 2px;
     padding: var(--spacing-default);
