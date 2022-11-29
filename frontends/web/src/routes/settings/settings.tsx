@@ -202,28 +202,28 @@ class Settings extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('settings.title')}</h2>}>
-            {
-              !deviceIDs.length && (
-                <Link to="/" className="flex flex-row flex-items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="m-right-tiny">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                  </svg>
-                  {t('settings.header.home')}
-                </Link>
-              )
-            }
-          </Header>
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('settings.title')}</h2>}>
+              {
+                !deviceIDs.length && (
+                  <Link to="/" className="flex flex-row flex-items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="m-right-tiny">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    {t('settings.header.home')}
+                  </Link>
+                )
+              }
+            </Header>
             <div className="content padded">
               {
                 config && (
@@ -315,37 +315,33 @@ class Settings extends Component<Props, State> {
                               optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
                               {t('settings.expert.useProxy')}
                             </SettingsButton>
-                            {
-                              activeProxyDialog && (
-                                <Dialog onClose={this.hideProxyDialog} title={t('settings.expert.setProxyAddress')} small>
-                                  <div className="flex flex-row flex-between flex-items-center">
-                                    <div>
-                                      <p className="m-none">{t('settings.expert.useProxy')}</p>
-                                    </div>
-                                    <Toggle
-                                      id="useProxy"
-                                      checked={config.backend.proxy.useProxy}
-                                      onChange={this.handleToggleProxy} />
-                                  </div>
-                                  <div className="m-top-half">
-                                    <Input
-                                      name="proxyAddress"
-                                      onInput={this.handleFormChange}
-                                      value={proxyAddress}
-                                      placeholder="127.0.0.1:9050"
-                                      disabled={!config.backend.proxy.useProxy}
-                                    />
-                                    <DialogButtons>
-                                      <Button primary
-                                        onClick={this.setProxyAddress}
-                                        disabled={!config.backend.proxy.useProxy || proxyAddress === config.backend.proxy.proxyAddress}>
-                                        {t('settings.expert.setProxyAddress')}
-                                      </Button>
-                                    </DialogButtons>
-                                  </div>
-                                </Dialog>
-                              )
-                            }
+                            <Dialog open={activeProxyDialog} onClose={this.hideProxyDialog} title={t('settings.expert.setProxyAddress')} small>
+                              <div className="flex flex-row flex-between flex-items-center">
+                                <div>
+                                  <p className="m-none">{t('settings.expert.useProxy')}</p>
+                                </div>
+                                <Toggle
+                                  id="useProxy"
+                                  checked={config.backend.proxy.useProxy}
+                                  onChange={this.handleToggleProxy} />
+                              </div>
+                              <div className="m-top-half">
+                                <Input
+                                  name="proxyAddress"
+                                  onInput={this.handleFormChange}
+                                  value={proxyAddress}
+                                  placeholder="127.0.0.1:9050"
+                                  disabled={!config.backend.proxy.useProxy}
+                                />
+                                <DialogButtons>
+                                  <Button primary
+                                    onClick={this.setProxyAddress}
+                                    disabled={!config.backend.proxy.useProxy || proxyAddress === config.backend.proxy.proxyAddress}>
+                                    {t('settings.expert.setProxyAddress')}
+                                  </Button>
+                                </DialogButtons>
+                              </div>
+                            </Dialog>
                             <SettingsButton onClick={() => route('/settings/electrum', true)}>
                               {t('settings.expert.electrum.title')}
                             </SettingsButton>

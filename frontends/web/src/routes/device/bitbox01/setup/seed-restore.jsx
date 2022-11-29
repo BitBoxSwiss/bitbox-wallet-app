@@ -90,10 +90,10 @@ class SeedRestore extends Component {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('welcome.title')}</h2>}>
-            <LanguageSwitch />
-          </Header>
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('welcome.title')}</h2>}>
+              <LanguageSwitch />
+            </Header>
             <div className="content padded narrow isVerticallyCentered">
               <h1 className={[style.title, 'text-center'].join(' ')}>{t('seedRestore.info.title')}</h1>
               {

@@ -38,10 +38,10 @@ class Success extends Component {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('welcome.title')}</h2>}>
-            <LanguageSwitch />
-          </Header>
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('welcome.title')}</h2>}>
+              <LanguageSwitch />
+            </Header>
             <div className="content padded narrow isVerticallyCentered">
               <h1 className={[style.title, 'text-center'].join(' ')}>{t(`success.${goal}.title`)}</h1>
               <div className="box large">

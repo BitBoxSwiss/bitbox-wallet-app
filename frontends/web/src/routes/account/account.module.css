@@ -23,6 +23,7 @@
 .actionsContainer {
     display: flex;
     transform: translateY(-36%);
+    margin-top: var(--space-quarter);
 }
 
 .buy,
@@ -30,7 +31,7 @@
 .send {
     background-color: var(--color-blue);
     border-radius: 2px;
-    color: var(--color-white);
+    color: var(--color-alt);
     display: inline-block;
     font-size: var(--size-default);
     height: calc(var(--item-height) / 1.5);
@@ -73,6 +74,8 @@
         max-width: 91%;
         transform: none;
         width: 91%;
+        margin-left: auto;
+        margin-right: auto;
     }
     .actionsContainer a {
         flex: 1 0 30%;
@@ -85,7 +88,5 @@
     .buy {
         font-size: var(--size-small);
         width: auto;
-        height: calc(var(--item-height) / 2);
-        line-height: calc(var(--item-height) / 2);
     }
 }

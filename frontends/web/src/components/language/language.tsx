@@ -19,14 +19,15 @@ import { useState } from 'react';
 import { i18n as Ii18n } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../dialog/dialog';
-import style from './language.module.css';
 import { TActiveLanguageCodes, TLanguagesList } from './types';
+import style from './language.module.css';
 
 type TLanguageSwitchProps = {
     languages?: TLanguagesList;
 }
 
 const defaultLanguages = [
+  { code: 'ar', display: 'العربية' },
   { code: 'bg', display: 'България' },
   { code: 'de', display: 'Deutsch' },
   { code: 'en', display: 'English' },
@@ -112,44 +113,40 @@ const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
         </svg>
         {allLanguages[selectedIndex].code === 'en' ? 'Other languages' : 'English'}
       </button>
-      {
-        activeDialog && (
-          <Dialog small slim title={t('language.title')} onClose={() => setActiveDialog(false)}>
-            {
-              allLanguages.map((language, i) => {
-                const selected = selectedIndex === i;
-                return (
-                  <button
-                    key={language.code}
-                    className={[style.language, selected ? style.selected : ''].join(' ')}
-                    onClick={() => changeLanguage(language.code, i)}
-                    data-testid={`language-selection-${language.code}`}
-                  >
-                    {language.display}
-                    {
-                      selected && (
-                        <svg
-                          className={style.checked}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )
-                    }
-                  </button>
-                );
-              })
-            }
-          </Dialog>
-        )
-      }
+      <Dialog small slim title={t('language.title')} onClose={() => setActiveDialog(false)} open={activeDialog}>
+        {
+          allLanguages.map((language, i) => {
+            const selected = selectedIndex === i;
+            return (
+              <button
+                key={language.code}
+                className={[style.language, selected ? style.selected : ''].join(' ')}
+                onClick={() => changeLanguage(language.code, i)}
+                data-testid={`language-selection-${language.code}`}
+              >
+                {language.display}
+                {
+                  selected && (
+                    <svg
+                      className={style.checked}
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )
+                }
+              </button>
+            );
+          })
+        }
+      </Dialog>
     </div>
   );
 };

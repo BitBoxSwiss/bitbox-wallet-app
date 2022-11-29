@@ -29,11 +29,13 @@ interface Props {
     onClose?: (e?: Event) => void;
     disabledClose?: boolean;
     children: React.ReactNode;
+    open: boolean;
 }
 
 interface State {
     active: boolean;
     currentTab: number;
+    renderDialog: boolean;
 }
 
 class Dialog extends Component<Props, State> {
@@ -41,14 +43,30 @@ class Dialog extends Component<Props, State> {
   private modal = createRef<HTMLDivElement>();
   private modalContent = createRef<HTMLDivElement>();
   private focusableChildren!: NodeListOf<HTMLElement>;
+  private timerId: any;
 
   public state: State = {
     active: false,
     currentTab: 0,
+    renderDialog: false,
   };
 
-  public componentDidMount() {
-    setTimeout(this.activate, 10);
+  public componentDidUpdate(prevProps: Readonly<Props>): void {
+    const { open } = this.props;
+    const { active } = this.state;
+
+    if (!active && open && !prevProps.open) {
+      this.setState({ renderDialog: true }, () => {
+        this.activate();
+      });
+      return;
+    }
+
+
+    if (active && !open && prevProps.open) {
+      this.deactivate();
+      return;
+    }
   }
 
   public componentWillUnmount() {
@@ -88,6 +106,19 @@ class Dialog extends Component<Props, State> {
     });
   };
 
+  private deactivateModal = () => {
+    if (!this.modal.current || !this.overlay.current) {
+      return;
+    }
+    this.overlay.current.classList.remove(style.closingOverlay);
+    this.setState({ active: false, currentTab: 0, renderDialog: false }, () => {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    });
+  };
+
   private getNextIndex(isNext: boolean) {
     const { currentTab } = this.state;
     const focusables = Array.from(this.focusableChildren);
@@ -119,23 +150,36 @@ class Dialog extends Component<Props, State> {
     if (!this.modal.current || !this.overlay.current) {
       return;
     }
-    this.modal.current.classList.remove(style.activeModal);
+
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
+
+    this.modal.current?.classList.remove(style.open);
     this.overlay.current.classList.remove(style.activeOverlay);
-    this.setState({ active: false, currentTab: 0 }, () => {
-      document.removeEventListener('keydown', this.handleKeyDown);
-      if (this.props.onClose) {
-        this.props.onClose();
-      }
-    });
+    this.overlay.current.classList.add(style.closingOverlay);
+    this.timerId = setTimeout(this.deactivateModal, 300);
   };
 
   private activate = () => {
+
     this.setState({ active: true }, () => {
       if (!this.modal.current || !this.overlay.current) {
         return;
       }
+
+      if (this.timerId) {
+        clearTimeout(this.timerId);
+      }
+
       this.overlay.current.classList.add(style.activeOverlay);
-      this.modal.current.classList.add(style.activeModal);
+
+      // Minor delay
+      this.timerId = setTimeout(() => {
+        this.modal.current?.classList.add(style.open);
+      }, 10);
+
+
       this.focusWithin();
       this.focusFirst();
     });
@@ -153,11 +197,17 @@ class Dialog extends Component<Props, State> {
       disabledClose,
       children,
     } = this.props;
+    const { renderDialog } = this.state;
     const isSmall = small ? style.small : '';
     const isMedium = medium ? style.medium : '';
     const isLarge = large ? style.large : '';
     const isSlim = slim ? style.slim : '';
     const isCentered = centered && !onClose ? style.centered : '';
+
+    if (!renderDialog) {
+      return null;
+    }
+
     return (
       <div className={style.overlay} ref={this.overlay}>
         <div

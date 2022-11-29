@@ -126,7 +126,7 @@ class Chart extends Component<Props, State> {
   private setFormattedData(data: ChartData) {
     this.formattedData = {} as FormattedData;
 
-    data.forEach( entry => {
+    data.forEach(entry => {
       if (this.formattedData) {
         this.formattedData[entry.time as number] = entry.formattedValue;
       }

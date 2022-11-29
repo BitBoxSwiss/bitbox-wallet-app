@@ -131,7 +131,7 @@ function Conversion({
   let isAvailable = false;
 
   // amount.conversions[active] can be empty in recent transactions.
-  if (amount && amount.conversions[active] && amount.conversions[active] !== '') {
+  if (amount && amount.conversions && amount.conversions[active] && amount.conversions[active] !== '') {
     isAvailable = true;
     formattedValue = amount.conversions[active];
     if (noBtcZeroes) {

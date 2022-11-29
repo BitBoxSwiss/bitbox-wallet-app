@@ -8,7 +8,7 @@
 .progressBar {
     width: 100%;
     height: 1px;
-    background-color: var(--color-lightgray);
+    background-color: var(--background);
 }
 
 .progressValue {

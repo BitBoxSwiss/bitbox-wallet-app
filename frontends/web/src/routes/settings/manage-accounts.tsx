@@ -98,7 +98,7 @@ class ManageAccounts extends Component<Props, State> {
                 className={`${style.expandBtn} ${tokensVisible ? style.expandBtnOpen : ''}`}
                 onClick={() => this.toggleShowTokens(account.code)}
                 transparent>
-                {t( tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
+                {t(tokensVisible ? 'manageAccounts.settings.hideTokens' : 'manageAccounts.settings.showTokens', {
                   activeTokenCount: `${account.activeTokens?.length || 0}`
                 })}
               </Button>
@@ -211,8 +211,8 @@ class ManageAccounts extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('manageAccounts.title')}</h2>} />
           <div className="innerContainer scrollContainer">
+            <Header title={<h2>{t('manageAccounts.title')}</h2>} />
             <div className="content">
               <div className="columnsContainer">
                 <div className="buttons m-bottom-large m-top-large">
@@ -226,28 +226,27 @@ class ManageAccounts extends Component<Props, State> {
                   { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
                 </div>
               </div>
-              { editAccountCode ? (
-                <Dialog
-                  onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
-                  title={t('manageAccounts.editAccountNameTitle')}>
-                  <form onSubmit={this.updateAccountName}>
-                    <Message type="error" hidden={!editErrorMessage}>
-                      {editErrorMessage}
-                    </Message>
-                    <Input
-                      onInput={e => this.setState({ editAccountNewName: e.target.value })}
-                      value={editAccountNewName} />
-                    <DialogButtons>
-                      <Button
-                        disabled={!editAccountNewName}
-                        primary
-                        type="submit">
-                        {t('button.update')}
-                      </Button>
-                    </DialogButtons>
-                  </form>
-                </Dialog>
-              ) : null}
+              <Dialog
+                open={!!(editAccountCode)}
+                onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
+                title={t('manageAccounts.editAccountNameTitle')}>
+                <form onSubmit={this.updateAccountName}>
+                  <Message type="error" hidden={!editErrorMessage}>
+                    {editErrorMessage}
+                  </Message>
+                  <Input
+                    onInput={e => this.setState({ editAccountNewName: e.target.value })}
+                    value={editAccountNewName} />
+                  <DialogButtons>
+                    <Button
+                      disabled={!editAccountNewName}
+                      primary
+                      type="submit">
+                      {t('button.update')}
+                    </Button>
+                  </DialogButtons>
+                </form>
+              </Dialog>
             </div>
           </div>
         </div>

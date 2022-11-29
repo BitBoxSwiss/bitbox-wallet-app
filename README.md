@@ -61,7 +61,7 @@ To initialize the build environment and install the required go utilities (linte
 
 ## Build the BitBoxApp
 
-Clone this repository using `git clone --resursive`.
+Clone this repository using `git clone --recursive`.
 
 Please consult [docs/BUILD.md](./docs/BUILD.md) for platform specific instructions and further information.
 

@@ -1,8 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+- Re-style header for a better space utilisation
 
 ## 4.35.0
+- Add Arabic translation
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
 - Transaction details: show fiat value at time of transaction
 - Android: more modern look by changing the status bar color to white while the app is running

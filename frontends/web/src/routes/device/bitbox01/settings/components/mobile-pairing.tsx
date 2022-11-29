@@ -218,29 +218,26 @@ class MobilePairing extends Component<Props, State> {
             (hasMobileChannel && !paired) ? t('pairing.reconnectOnly.button') : t('pairing.button')
           )}
         </SettingsButton>
-        {
-          status && (
-            <Dialog
-              title={t('pairing.title')}
-              onClose={this.abort}
-              medium>
-              <div className="flex flex-column flex-center flex-items-center">
-                {
-                  channel ? (
-                    content
-                  ) : (
-                    <p>{t('loading')}</p>
-                  )
-                }
-              </div>
-              <DialogButtons>
-                <Button transparent onClick={this.abort}>
-                  {t('button.back')}
-                </Button>
-              </DialogButtons>
-            </Dialog>
-          )
-        }
+        <Dialog
+          open={!!status}
+          title={t('pairing.title')}
+          onClose={this.abort}
+          medium>
+          <div className="flex flex-column flex-center flex-items-center">
+            {
+              channel ? (
+                content
+              ) : (
+                <p>{t('loading')}</p>
+              )
+            }
+          </div>
+          <DialogButtons>
+            <Button transparent onClick={this.abort}>
+              {t('button.back')}
+            </Button>
+          </DialogButtons>
+        </Dialog>
       </div>
     );
   }

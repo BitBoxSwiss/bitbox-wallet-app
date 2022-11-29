@@ -57,14 +57,9 @@
 
 .table thead th,
 .table tfoot th {
-    background-color: var(--color-white);
-    color: var(--color-softblack);
+    background-color: var(--background-secondary);
     font-size: var(--size-default);
     font-weight: bold;
-}
-
-.table strong {
-    color: var(--color-softblack);
 }
 
 .table thead th:first-child,
@@ -79,7 +74,7 @@
 }
 
 .table tbody td {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
 }
 
 .clickable {
@@ -92,7 +87,7 @@
 
 .table tfoot th,
 .table tfoot td {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     padding-bottom: calc(var(--space-quarter) + var(--space-half));
 }
 
@@ -148,7 +143,7 @@
     }
 
     .table tfoot tr {
-        background-color: var(--color-white);
+        background-color: var(--background-secondary);
         display: flex;
         justify-content: space-between;
     }

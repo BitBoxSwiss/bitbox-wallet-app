@@ -16,6 +16,7 @@
  */
 
 import i18n from 'i18next';
+import appTranslationsAR from '../locales/ar/app.json';
 import appTranslationsDE from '../locales/de/app.json';
 import appTranslationsEN from '../locales/en/app.json';
 import appTranslationsFR from '../locales/fr/app.json';
@@ -66,6 +67,7 @@ i18Init.init({
   },
 });
 
+i18n.addResourceBundle('ar', 'app', appTranslationsAR);
 i18n.addResourceBundle('de', 'app', appTranslationsDE);
 i18n.addResourceBundle('en', 'app', appTranslationsEN);
 i18n.addResourceBundle('fr', 'app', appTranslationsFR);

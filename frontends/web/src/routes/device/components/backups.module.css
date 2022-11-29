@@ -45,7 +45,7 @@
 }
 
 .backupItem + label {
-    color: var(--color-dark);
+    color: var(--color-default);
     word-break: break-all;
 }
 

@@ -97,7 +97,7 @@ jobs:
           path: frontends/qt/build/linux/bitbox-*.rpm
           name: BitBoxApp-linux-${{github.sha}}.rpm
   macos:
-    runs-on: macos-10.15
+    runs-on: macos-11
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2

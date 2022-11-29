@@ -137,7 +137,7 @@ export type Conversions = {
 
 export interface IAmount {
     amount: string;
-    conversions: Conversions;
+    conversions?: Conversions;
     unit: Coin;
 }
 

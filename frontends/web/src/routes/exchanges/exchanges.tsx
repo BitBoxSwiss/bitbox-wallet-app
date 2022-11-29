@@ -76,9 +76,8 @@ class Exchanges extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{t('exchanges.title')}</h2>}>
-          </Header>
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{t('exchanges.title')}</h2>} />
             <div className="content padded">
               <div className={styles.filters}>
                 <div className={styles.regions}>

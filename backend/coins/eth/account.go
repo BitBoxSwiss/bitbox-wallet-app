@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -514,6 +515,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 	}
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
+		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+			return nil, errp.WithStack(errors.ErrInsufficientFunds)
+		}
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
 		return nil, errp.WithStack(errors.TxValidationError(err.Error()))
 	}

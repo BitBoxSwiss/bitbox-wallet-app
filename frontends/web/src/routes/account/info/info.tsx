@@ -63,8 +63,8 @@ export const Info = ({
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Header title={<h2>{t('accountInfo.title')}</h2>} />
         <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('accountInfo.title')}</h2>} />
           <div className="content padded">
             <div className="box larger">
               { isBitcoinBased(account.coinCode) ? (

@@ -21,10 +21,13 @@
     --color-lightorange: #F9AC60;
 
     /* font colors */
+    /* all fonts should use these colors and not from the main colors directly */
     --color-default: var(--color-dark);
     --color-primary: var(--color-blue);
     --color-secondary: var(--color-gray);
     --color-light: var(--color-mediumgray);
+    --color-alt: var(--color-white);
+    --color-tertiary: var(--color-gray-alt);
 
     /* status colors */
     --color-success: var(--color-green);
@@ -35,8 +38,13 @@
     --color-disabled: var(--color-mediumgray);
 
     /* background colors */
+    /* all backgrounds should use these colors and not from the main colors directly */
     --background: var(--color-lightgray);
     --bg-transparent-dark: rgba(0, 0, 0, 0.4);
+    --background-secondary: var(--color-white);
+    --background-dark: var(--color-softblack);
+    --background-tertiary: var(--color-gray-alt);
+    --background-quaternary: var(--color-mediumgray);
 
     /* font sizes */
     --size-extra-large: 2.2rem;

@@ -134,8 +134,8 @@ class Settings extends Component {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
           <div className="innerContainer scrollableContainer">
+            <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
             <div className="content padded">
               <div className="columnsContainer">
                 <div className="columns">

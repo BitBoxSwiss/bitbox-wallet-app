@@ -1,7 +1,3 @@
-.balance {
-    /*font-weight: bold;*/
-}
-
 .amount {
     position: relative;
     line-height: 1;
@@ -22,10 +18,6 @@
 
 .balanceConversion {
     padding-left: var(--spacing-default);
-}
-
-.incomingConversion {
-
 }
 
 .balanceTable {
@@ -117,7 +109,7 @@
     display: inline-block;
     text-decoration: none;
     background-color: var(--color-blue);
-    color: var(--color-white);
+    color: var(--color-alt);
     width: 18px;
     height: 18px;
     line-height: 18px;

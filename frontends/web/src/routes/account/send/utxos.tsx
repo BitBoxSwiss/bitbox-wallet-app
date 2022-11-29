@@ -161,11 +161,8 @@ export class UTXOsClass extends Component<Props, State> {
 
   public render() {
     const { t, active, onClose } = this.props;
-    if (!active) {
-      return null;
-    }
     return (
-      <Dialog title={t('send.coincontrol.title')} large onClose={onClose}>
+      <Dialog open={active} title={t('send.coincontrol.title')} large onClose={onClose}>
         <div>
           { accountApi.allScriptTypes.map(this.renderUTXOs) }
           <div className="buttons text-center m-top-none m-bottom-half">

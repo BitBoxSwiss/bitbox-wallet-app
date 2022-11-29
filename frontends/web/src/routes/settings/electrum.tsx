@@ -43,8 +43,8 @@ export const ElectrumSettings = () => {
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
         <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
           <div className="content padded">
             <div className="flex flex-row flex-between flex-items-center tabs">
               <div className={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>

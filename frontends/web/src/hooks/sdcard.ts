@@ -52,7 +52,7 @@ export const useSDCard = (
       })
       .catch(console.error);
     // disable warning about mounted not in the dependency list
-  }, [devices, ...(dependencies || [])] ); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [devices, ...(dependencies || [])]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return sdcard;
 };

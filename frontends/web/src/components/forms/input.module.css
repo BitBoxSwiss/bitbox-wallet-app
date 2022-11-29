@@ -24,7 +24,7 @@
 }
 
 .input input {
-    background-color: var(--color-white);
+    background-color: var(--background-secondary);
     border-color: var(--color-mediumgray);
     border-radius: 2px;
     border-style: solid;
@@ -49,7 +49,7 @@
 }
 
 .input input[disabled] {
-    background-color: var(--color-white) !important;
+    background-color: var(--background-secondary) !important;
     border-color: var(--color-lightgray) !important;
     color: var(--color-secondary) !important;
     cursor: not-allowed;

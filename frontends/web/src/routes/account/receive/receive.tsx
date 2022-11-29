@@ -69,6 +69,7 @@ export const Receive = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
+
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
 
   // first array index: address types. second array index: unused addresses of that address type.
@@ -95,6 +96,15 @@ export const Receive = ({
       setCurrentAddresses(receiveAddresses[addressIndex].addresses);
     }
   }, [addressType, availableScriptTypes, receiveAddresses]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (addressDialog) {
+      e.preventDefault();
+      setActiveIndex(0);
+      setAddressType(addressDialog.addressType);
+      setAddressDialog(undefined);
+    }
+  };
 
   const verifyAddress = (addressesIndex: number) => {
     if (receiveAddresses) {
@@ -146,8 +156,8 @@ export const Receive = ({
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
         <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('receive.title', { accountName: account?.coinName })}</h2>} />
           <div className="content narrow isVerticallyCentered">
             <div className="box large text-center">
               { currentAddresses && (
@@ -190,16 +200,11 @@ export const Receive = ({
                       {t('receive.changeScriptType')}
                     </button>
                   )}
-                  { hasManyScriptTypes && addressDialog && (
-                    <form onSubmit={e => {
-                      e.preventDefault();
-                      setActiveIndex(0);
-                      setAddressType(addressDialog.addressType);
-                      setAddressDialog(undefined);
-                    }}>
-                      <Dialog medium title={t('receive.changeScriptType')} >
-                        {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
-                          <div key={scriptType}>
+                  <form onSubmit={handleSubmit}>
+                    <Dialog open={!!(addressDialog && hasManyScriptTypes)} medium title={t('receive.changeScriptType')} >
+                      {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
+                        <div key={scriptType}>
+                          {addressDialog && <>
                             <Radio
                               checked={addressDialog.addressType === i}
                               id={scriptType}
@@ -213,16 +218,17 @@ export const Receive = ({
                                 {t('receive.taprootWarning')}
                               </Message>
                             )}
-                          </div>
-                        ))}
-                        <DialogButtons>
-                          <Button primary type="submit">
-                            {t('button.done')}
-                          </Button>
-                        </DialogButtons>
-                      </Dialog>
-                    </form>
-                  )}
+                          </>
+                          }
+                        </div>
+                      ))}
+                      <DialogButtons>
+                        <Button primary type="submit">
+                          {t('button.done')}
+                        </Button>
+                      </DialogButtons>
+                    </Dialog>
+                  </form>
                   <div className="buttons">
                     <Button
                       disabled={verifying}
@@ -240,11 +246,12 @@ export const Receive = ({
                   { verifying && (
                     <div className={style.hide}></div>
                   )}
-                  { account && verifying && (
-                    <Dialog
-                      title={t('receive.verifyBitBox02')}
-                      disableEscape={true}
-                      medium centered>
+                  <Dialog
+                    open={!!(account && verifying)}
+                    title={t('receive.verifyBitBox02')}
+                    disableEscape={true}
+                    medium centered>
+                    {account && <>
                       <div className="text-center">
                         { isEthereumBased(account.coinCode) && (
                           <p>
@@ -262,8 +269,8 @@ export const Receive = ({
                       <div className="m-bottom-half">
                         <CopyableInput value={address} flexibleHeight />
                       </div>
-                    </Dialog>
-                  )}
+                    </>}
+                  </Dialog>
                 </div>
               )}
             </div>

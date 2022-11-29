@@ -33,7 +33,7 @@
 .primary {
     composes: button;
     background: var(--color-blue);
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .primary:not([disabled]):focus,
@@ -43,8 +43,8 @@
 
 .secondary {
     composes: button;
-    background-color: var(--color-white);
-    border-color: var(--color-gray-alt);
+    background-color: var(--background-secondary);
+    border-color: var(--background-tertiary);
     color: var(--color-default);
 }
 
@@ -55,7 +55,7 @@
 }
 
 .secondary[disabled] {
-    color: var(--color-gray-alt);
+    color: var(--color-tertiary);
     border-color: var(--color-mediumgray);
 }
 
@@ -63,7 +63,7 @@
     composes: button;
     background-color: var(--color-softred);
     border-color: var(--color-softred);
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .danger:not([disabled]):focus,

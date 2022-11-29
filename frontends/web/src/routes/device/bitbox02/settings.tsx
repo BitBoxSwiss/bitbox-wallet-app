@@ -63,8 +63,8 @@ export const Settings = ({ deviceID }: TProps) => {
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <Header title={<h2>{t('sidebar.device')}</h2>} />
         <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('sidebar.device')}</h2>} />
           <div className="content padded">
             <div className="columnsContainer">
               <div className="columns">
@@ -109,7 +109,9 @@ export const Settings = ({ deviceID }: TProps) => {
                           apiPrefix={apiPrefix}
                           versionInfo={versionInfo}/>
                       ) : versionInfo && (
-                        <SettingsItem optionalText={versionInfo.currentVersion}>
+                        <SettingsItem
+                          optionalText={versionInfo.currentVersion}
+                          optionalIcon={<Checked/>}>
                           {t('deviceSettings.firmware.upToDate')}
                         </SettingsItem>
                       )
