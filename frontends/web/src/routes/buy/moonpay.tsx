@@ -100,26 +100,24 @@ class Moonpay extends Component<Props, State> {
     return (
       <div className="contentWithGuide">
         <div className="container">
-          <div ref={this.ref} className="innerContainer scrollableContainer">
+          <div className="innerContainer">
             <div className={style.header}>
               <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
             </div>
-            <div ref={this.ref} className="innerContainer">
-              <div className="noSpace">
-                {!iframeLoaded && <Spinner text={t('loading')} />}
-                <iframe
-                  onLoad={() => {
-                    this.setState({ iframeLoaded: true });
-                  }}
-                  title="Moonpay"
-                  width="100%"
-                  height={iframeLoaded ? height : 0}
-                  frameBorder="0"
-                  className={style.iframe}
-                  allow="camera; payment"
-                  src={`${moonpay.url}&colorCode=%235E94BF`}>
-                </iframe>
-              </div>
+            <div ref={this.ref} className="iframeContainer">
+              {!iframeLoaded && <Spinner text={t('loading')} />}
+              <iframe
+                onLoad={() => {
+                  this.setState({ iframeLoaded: true });
+                }}
+                title="Moonpay"
+                width="100%"
+                height={iframeLoaded ? height : 0}
+                frameBorder="0"
+                className={style.iframe}
+                allow="camera; payment"
+                src={`${moonpay.url}&colorCode=%235E94BF`}>
+              </iframe>
             </div>
           </div>
         </div>
