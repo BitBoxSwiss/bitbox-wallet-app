@@ -27,6 +27,7 @@ import { FiatConversion } from '../../../components/rates/rates';
 import { Check } from '../../../components/icon/icon';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
+import { Spinner as ErrorSpinner } from '../../../components/spinner/Spinner';
 import { debug } from '../../../utils/env';
 import { Chart } from './chart';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
@@ -52,6 +53,7 @@ interface State {
     exported: string;
     balances?: Balances;
     syncStatus?: SyncStatus;
+    offlineErrors: string[];
     totalBalancePerCoin?: accountApi.ITotalBalance;
 }
 
@@ -75,6 +77,7 @@ class AccountsSummary extends Component<Props, State> {
   public readonly state: State = {
     data: undefined,
     exported: '',
+    offlineErrors: [],
     totalBalancePerCoin: undefined,
   };
   private unsubscribe!: () => void;
@@ -165,6 +168,10 @@ class AccountsSummary extends Component<Props, State> {
 
   private async onStatusChanged(code: string, initial: boolean = false) {
     const status = await accountApi.getStatus(code);
+    const { offlineErrors } = this.state;
+    if (status.offlineError && !offlineErrors.includes(status.offlineError)) {
+      this.setState({ offlineErrors: [...offlineErrors, status.offlineError] });
+    }
     if (status.disabled) {
       return;
     }
@@ -296,7 +303,7 @@ class AccountsSummary extends Component<Props, State> {
 
   public render() {
     const { t, accounts } = this.props;
-    const { exported, data, balances } = this.state;
+    const { exported, data, balances, offlineErrors } = this.state;
     return (
       <div className="contentWithGuide">
         <div className="container">
@@ -322,60 +329,66 @@ class AccountsSummary extends Component<Props, State> {
               )}
             </Header>
             <div className="content padded">
-              <Chart
-                data={data}
-                noDataPlaceholder={
-                  (accounts.length === Object.keys(balances || {}).length) ? (
-                    <AddBuyReceiveOnEmptyBalances balances={balances} />
-                  ) : undefined
-                } />
-              <div className={style.balanceTable}>
-                <table className={style.table}>
-                  <colgroup>
-                    <col width="33%" />
-                    <col width="33%" />
-                    <col width="*" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>{t('accountSummary.name')}</th>
-                      <th>{t('accountSummary.balance')}</th>
-                      <th>{t('accountSummary.fiatBalance')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    { accounts.length > 0 ? (
-                      this.renderAccountSummary()
-                    ) : (
-                      <tr>
-                        <td colSpan={3} className={style.noAccount}>
-                          {t('accountSummary.noAccount')}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <th>
-                        <strong>{t('accountSummary.total')}</strong>
-                      </th>
-                      <td colSpan={2}>
-                        {(data && data.formattedChartTotal !== null) ? (
-                          <>
-                            <strong>
-                              {data.formattedChartTotal}
-                            </strong>
-                            {' '}
-                            <span className={style.coinUnit}>
-                              {data.chartFiat}
-                            </span>
-                          </>
-                        ) : (<Skeleton />) }
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+              {offlineErrors.length ? (
+                <ErrorSpinner text={offlineErrors.join('\n')} guideExists={false} />
+              ) : (
+                <>
+                  <Chart
+                    data={data}
+                    noDataPlaceholder={
+                      (accounts.length === Object.keys(balances || {}).length) ? (
+                        <AddBuyReceiveOnEmptyBalances balances={balances} />
+                      ) : undefined
+                    } />
+                  <div className={style.balanceTable}>
+                    <table className={style.table}>
+                      <colgroup>
+                        <col width="33%" />
+                        <col width="33%" />
+                        <col width="*" />
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th>{t('accountSummary.name')}</th>
+                          <th>{t('accountSummary.balance')}</th>
+                          <th>{t('accountSummary.fiatBalance')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        { accounts.length > 0 ? (
+                          this.renderAccountSummary()
+                        ) : (
+                          <tr>
+                            <td colSpan={3} className={style.noAccount}>
+                              {t('accountSummary.noAccount')}
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th>
+                            <strong>{t('accountSummary.total')}</strong>
+                          </th>
+                          <td colSpan={2}>
+                            {(data && data.formattedChartTotal !== null) ? (
+                              <>
+                                <strong>
+                                  {data.formattedChartTotal}
+                                </strong>
+                                {' '}
+                                <span className={style.coinUnit}>
+                                  {data.chartFiat}
+                                </span>
+                              </>
+                            ) : (<Skeleton />) }
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
