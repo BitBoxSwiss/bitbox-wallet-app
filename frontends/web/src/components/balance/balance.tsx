@@ -45,7 +45,7 @@ export const Balance = ({
     <header className={style.balance}>
       <table className={style.balanceTable}>
         <tbody>
-          <tr>
+          <tr data-testid="availableBalance">
             <td className={style.availableAmount}>{availableBalance}</td>
             <td className={style.availableUnit}>{balance.available.unit}</td>
           </tr>
@@ -54,7 +54,7 @@ export const Balance = ({
       </table>
       {
         balance.hasIncoming && (
-          <p className={style.pendingBalance}>
+          <p data-testid="incomingBalance" className={style.pendingBalance}>
             {t('account.incoming')} +{incomingBalance} {balance.incoming.unit} /
             <span className={style.incomingConversion}>
               {' '}

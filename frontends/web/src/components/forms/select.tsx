@@ -21,7 +21,7 @@ type TOptionTextContent = {
     text: string;
 }
 
-type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent
+export type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent
 
 type TSelectProps = {
     id: string;
