@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,106 +15,77 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { VersionInfo } from '../../../api/bitbox02';
-import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
+import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { VersionInfo, upgradeDeviceFirmware } from '../../../api/bitbox02';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { RedDot } from '../../../components/icon/icon';
 
-interface UpgradeButtonProps {
-    apiPrefix: string;
-    versionInfo?: VersionInfo;
+export type TProps = {
     asButton?: boolean;
+    deviceID: string;
+    versionInfo?: VersionInfo;
 }
 
-type Props = UpgradeButtonProps & TranslateProps;
+export const UpgradeButton = ({ asButton, deviceID, versionInfo }: TProps) => {
+  const { t } = useTranslation();
 
-interface State {
-    activeDialog: boolean;
-    confirming: boolean;
-}
+  const [activeDialog, setActiveDialog] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
-class UpgradeButton extends Component<Props, State> {
-  public readonly state: State = {
-    activeDialog: false,
-    confirming: false,
+  const upgradeFirmware = async () => {
+    setConfirming(true);
+    await upgradeDeviceFirmware(deviceID);
+    setConfirming(false);
+    setActiveDialog(false);
   };
 
-  private upgradeFirmware = () => {
-    this.setState({ confirming: true });
-    apiPost(this.props.apiPrefix + '/upgrade-firmware').then(() => {
-      this.setState({ confirming: false });
-      this.abort();
-    });
-  };
-
-  private abort = () => {
-    this.setState({ activeDialog: false });
-  };
-
-  public render() {
-    const {
-      t,
-      versionInfo,
-      asButton,
-    } = this.props;
-    const {
-      activeDialog,
-      confirming,
-    } = this.state;
-    if (!versionInfo || !versionInfo.canUpgrade) {
-      return null;
-    }
-    return (
-      <div>
-        {
-          asButton ? (
-            <Button primary onClick={() => this.setState({ activeDialog: true })}>
-              {t('button.upgrade')}
-              {' '}
-              <RedDot/>
-            </Button>
-          ) : (
-            <SettingsButton
-              optionalText={versionInfo.newVersion}
-              secondaryText={
-                <>
-                  {t('deviceSettings.firmware.upgradeAvailable')}
-                  {' '}
-                  <RedDot />
-                </>
-              }
-              onClick={() => this.setState({ activeDialog: true })}>
-              {t('deviceSettings.firmware.firmwareVersion')}
-            </SettingsButton>)
-        }
-        <Dialog open={activeDialog} title={t('upgradeFirmware.title')}>
-          {confirming ? t('confirmOnDevice') : (
-            <p>{t('upgradeFirmware.description', {
-              currentVersion: versionInfo.currentVersion,
-              newVersion: versionInfo.newVersion,
-            })}</p>
-          )}
-          { !confirming && (
-            <DialogButtons>
-              <Button
-                primary
-                onClick={this.upgradeFirmware}>
-                {t('button.upgrade')}
-              </Button>
-              <Button transparent onClick={this.abort}>
-                {t('button.back')}
-              </Button>
-            </DialogButtons>
-          )}
-        </Dialog>
-      </div>
-    );
+  if (!versionInfo || !versionInfo.canUpgrade) {
+    return null;
   }
-}
 
-const HOC = translate()(UpgradeButton);
-export { HOC as UpgradeButton };
+  return (
+    <div>
+      { asButton ? (
+        <Button primary onClick={() => setActiveDialog(true)}>
+          {t('button.upgrade')}
+          {' '}
+        </Button>
+      ) : (
+        <SettingsButton
+          optionalText={versionInfo.newVersion}
+          secondaryText={
+            <>
+              {t('deviceSettings.firmware.upgradeAvailable')}
+              {' '}
+              <RedDot />
+            </>
+          }
+          onClick={() => setActiveDialog(true)}>
+          {t('deviceSettings.firmware.firmwareVersion')}
+        </SettingsButton>) }
+      <Dialog open={activeDialog} title={t('upgradeFirmware.title')}>
+        {confirming ? t('confirmOnDevice') : (
+          <p>{t('upgradeFirmware.description', {
+            currentVersion: versionInfo.currentVersion,
+            newVersion: versionInfo.newVersion,
+          })}</p>
+        )}
+        { !confirming && (
+          <DialogButtons>
+            <Button
+              primary
+              onClick={upgradeFirmware}>
+              {t('button.upgrade')}
+            </Button>
+            <Button transparent onClick={() => setActiveDialog(false)}>
+              {t('button.back')}
+            </Button>
+          </DialogButtons>
+        )}
+      </Dialog>
+    </div>
+  );
+};
