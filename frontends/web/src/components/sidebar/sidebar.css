@@ -1,3 +1,15 @@
+.closeButton {
+    background: transparent;
+    border: none;
+    display: none;
+    padding: 12px;
+    transform: translateX(14px);
+}
+
+.closeButton:focus{
+    outline: none;
+}
+
 .sidebarOverlay {
     position: fixed;
     background-color: rgba(0, 0, 0, 0.3);
@@ -42,11 +54,11 @@
 }
 
 .sidebar .sidebarLogoContainer {
+    align-items: center;
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
     height: 70px;
+    justify-content: space-between;
     padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-large);
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.1);
@@ -75,25 +87,6 @@
     line-height: var(--sidebar-header-line-height);
     color: var(--color-secondary);
     text-transform: uppercase;
-}
-
-.sidebarHeaderAction {
-    height: var(--sidebar-header-line-height);
-}
-
-.sidebarHeaderAction > a {
-    height: 100% !important;
-}
-
-.sidebarHeaderAction > a > svg {
-    height: var(--sidebar-header-line-height);
-    width: auto;
-    stroke: var(--color-gray);
-    transition: stroke 0.2s ease;
-}
-
-.sidebarHeaderAction:hover > a > svg {
-    stroke: var(--color-white);
 }
 
 .sidebarItem {
@@ -228,8 +221,16 @@ a.sidebar-active .single img,
         margin-left: 0;
         width: var(--sidebar-width-large);
     }
+}
 
-    .sidebarContainer:not(.forceHide) .sidebar .sidebarLogoContainer a {
-        display: none !important;
+@media (max-width: 560px) {
+    .closeButton {
+        display:block;
+    }
+
+    .sidebar {
+        margin-left: -100vw;
+        transition: margin-left 0.3s ease;
+        width: 100vw;
     }
 }

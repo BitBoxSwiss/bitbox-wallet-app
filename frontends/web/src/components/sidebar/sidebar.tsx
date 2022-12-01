@@ -32,6 +32,7 @@ import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
+import { CloseXWhite } from '../icon';
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -158,13 +159,17 @@ class Sidebar extends Component<Props> {
       <div className={['sidebarContainer', hidden ? 'forceHide' : ''].join(' ')}>
         <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
         <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
-          <Link
-            to={accounts.length ? '/account-summary' : '/'}
-            onClick={this.handleSidebarItemClick}>
-            <div className="sidebarLogoContainer">
+          <div className="sidebarLogoContainer">
+            <Link
+              to={accounts.length ? '/account-summary' : '/'}
+              onClick={this.handleSidebarItemClick}>
               <AppLogoInverted className="sidebarLogo" />
-            </div>
-          </Link>
+            </Link>
+            <button className="closeButton" onClick={toggleSidebar}>
+              <CloseXWhite />
+            </button>
+          </div>
+
           <div className="sidebarHeaderContainer">
             <span className="sidebarHeader" hidden={!keystores?.length}>
               {t('sidebar.accounts')}
