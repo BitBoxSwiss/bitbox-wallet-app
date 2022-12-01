@@ -106,7 +106,7 @@ export const Settings = ({ deviceID }: TProps) => {
                     {
                       versionInfo && versionInfo.canUpgrade ? (
                         <UpgradeButton
-                          apiPrefix={apiPrefix}
+                          deviceID={deviceID}
                           versionInfo={versionInfo}/>
                       ) : versionInfo && (
                         <SettingsItem
