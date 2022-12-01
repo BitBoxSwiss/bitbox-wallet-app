@@ -20,7 +20,8 @@
     "@typescript-eslint/type-annotation-spacing": "error",
     "arrow-spacing": "error",
     "space-infix-ops": "error",
-    "react/no-unused-prop-types": "error"
+    "react/no-unused-prop-types": "error",
+    "react/jsx-equals-spacing": ["error", "never"]
   },
   "overrides": [
     {
