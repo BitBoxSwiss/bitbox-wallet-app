@@ -21,23 +21,59 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/sirupsen/logrus"
 )
 
 const headerSize = 80
 
-// DB is a bbolt key/value database.
+// DB is a database for storing headers. The database is simply a file where headers are appended
+// to. Loolup is quick as each header is 80 bytes.
 type DB struct {
 	file *os.File
+	log  *logrus.Entry
 	lock locker.Locker
 }
 
 // NewDB creates/opens a new db.
-func NewDB(filename string) (*DB, error) {
+func NewDB(filename string, log *logrus.Entry) (*DB, error) {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return &DB{file: file}, nil
+	db := &DB{
+		file: file,
+		log:  log,
+	}
+	if err := db.fixTrailingZeroesHeaders(); err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+// fixTrailingZeroesHeaders deletes trailing headers that are stored as zero bytes. Zero headers
+// don't exist in reality and could end up in the database file as a result of an interrupted
+// `file.WriteAt()` call.
+func (db *DB) fixTrailingZeroesHeaders() error {
+	for {
+		tip, err := db.tip()
+		if err != nil {
+			return err
+		}
+		if tip == -1 {
+			return nil
+		}
+		header, err := db.HeaderByHeight(tip)
+		if err != nil {
+			return err
+		}
+		if header != nil {
+			return nil
+		}
+		db.log.Errorf("Loading headers DB; found empty trailing header at height %d. Fixing.", tip)
+		if err := db.RevertTo(tip - 1); err != nil {
+			return err
+		}
+	}
 }
 
 func (db *DB) tip() (int, error) {
@@ -83,6 +119,9 @@ func (db *DB) PutHeader(height int, header *wire.BlockHeader) error {
 	if err := header.Serialize(&headerSer); err != nil {
 		return errp.WithStack(err)
 	}
+	// This call, if interrupted, can leave zero bytes at the end of the file without writing the
+	// data. We can't fix it here as the process may have ended. It is fixed at DB loading time, see
+	// `fixTrailingZeroesHeaders()`.
 	if _, err := db.file.WriteAt(headerSer.Bytes(), headerSize*int64(height)); err != nil {
 		return errp.WithStack(err)
 	}

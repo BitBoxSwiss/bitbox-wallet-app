@@ -253,9 +253,16 @@ func (headers *Headers) getTarget(db DBInterface, index int) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
-	last, err := db.HeaderByHeight((chunkIndex+1)*blocksPerRetarget - 1)
+	if first == nil {
+		return nil, errp.Newf("header at %d not found", firstIndex)
+	}
+	lastIndex := (chunkIndex+1)*blocksPerRetarget - 1
+	last, err := db.HeaderByHeight(lastIndex)
 	if err != nil {
 		return nil, err
+	}
+	if last == nil {
+		return nil, errp.Newf("header at %d not found", lastIndex)
 	}
 	lastTarget := btcdBlockchain.CompactToBig(last.Bits)
 	timespan := last.Timestamp.Unix() - first.Timestamp.Unix()
@@ -309,6 +316,9 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 		previousHeader, err := db.HeaderByHeight(tip - 1)
 		if err != nil {
 			return err
+		}
+		if previousHeader == nil {
+			return errp.Newf("header at %d not found", tip-1)
 		}
 		prevBlock := previousHeader.BlockHash()
 		if header.PrevBlock != prevBlock {
@@ -466,6 +476,9 @@ func (headers *Headers) Status() (*Status, error) {
 	header, err := headers.db.HeaderByHeight(tip)
 	if err != nil {
 		return nil, err
+	}
+	if header == nil {
+		return nil, errp.Newf("header at %d not found", tip)
 	}
 	var tipHashHex blockchain.TXHash
 	if header != nil {
