@@ -109,3 +109,7 @@ export const checkBackup = (
       throw response;
     });
 };
+
+export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/upgrade-firmware`);
+};

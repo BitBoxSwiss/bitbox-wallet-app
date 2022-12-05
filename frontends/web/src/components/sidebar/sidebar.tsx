@@ -32,6 +32,8 @@ import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
+import { CloseXWhite } from '../icon';
+import style from './sidebar.module.css';
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -65,14 +67,14 @@ const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAc
   const { pathname } = useLocation();
   const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
   return (
-    <div key={code} className="sidebarItem">
+    <div key={code} className={style.sidebarItem}>
       <Link
-        className={active ? 'sidebar-active' : ''}
+        className={active ? style.sidebarActive : ''}
         to={`/account/${code}`}
         onClick={handleSidebarItemClick}
         title={name}>
-        <Logo stacked coinCode={coinCode} className="sidebar_icon" alt={name} />
-        <span className="sidebar_label">{name}</span>
+        <Logo stacked coinCode={coinCode} alt={name} />
+        <span className={style.sidebarLabel}>{name}</span>
       </Link>
     </div>
   );
@@ -138,7 +140,7 @@ class Sidebar extends Component<Props> {
 
   private handleSidebarItemClick = (e: React.SyntheticEvent) => {
     const el = (e.target as Element).closest('a');
-    if (el!.classList.contains('sidebar-active') && window.innerWidth <= 901) {
+    if (el!.classList.contains('sidebarActive') && window.innerWidth <= 901) {
       toggleSidebar();
     }
   };
@@ -155,113 +157,89 @@ class Sidebar extends Component<Props> {
     } = this.props;
     const hidden = ['forceHidden', 'forceCollapsed'].includes(sidebarStatus);
     return (
-      <div className={['sidebarContainer', hidden ? 'forceHide' : ''].join(' ')}>
-        <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
-        <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
-          <Link
-            to={accounts.length ? '/account-summary' : '/'}
-            onClick={this.handleSidebarItemClick}>
-            <div className="sidebarLogoContainer">
-              <AppLogoInverted className="sidebarLogo" />
-            </div>
-          </Link>
-          <div className="sidebarHeaderContainer">
-            <span className="sidebarHeader" hidden={!keystores?.length}>
+      <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
+        <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
+        <nav className={[style.sidebar, activeSidebar ? style.forceShow : '', shown ? style.withGuide : ''].join(' ')}>
+          <div className={style.sidebarLogoContainer}>
+            <Link
+              to={accounts.length ? '/account-summary' : '/'}
+              onClick={this.handleSidebarItemClick}>
+              <AppLogoInverted className={style.sidebarLogo} />
+            </Link>
+            <button className={style.closeButton} onClick={toggleSidebar}>
+              <CloseXWhite />
+            </button>
+          </div>
+
+          <div className={style.sidebarHeaderContainer}>
+            <span className={style.sidebarHeader} hidden={!keystores?.length}>
               {t('sidebar.accounts')}
             </span>
           </div>
-          {/* <div className="activeGroup">
-                        <div className="sidebarItem">
-                            <a href="#" className="sidebar-active">
-                                <div className="single">
-                                    <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
-                                </div>
-                                <span className="sidebar_label">Hello</span>
-                                <svg className="sidebarArrow" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="18" height="18" viewBox="0, 0, 18, 18">
-                                    <path d="M0,4.5 L9,13.5 L18,4.5" fill="#FFFFFF"/>
-                                </svg>
-                            </a>
-                            <div className="sidebarSubmenu">
-                                <a href="#">
-                                    <div className="single">
-                                        <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
-                                    </div>
-                                    <span className="sidebar_label">One</span>
-                                </a>
-                                <a href="#">
-                                    <div className="single">
-                                        <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
-                                    </div>
-                                    <span className="sidebar_label">Two</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div> */}
           { accounts.length ? (
-            <div className="sidebarItem">
+            <div className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive ? 'sidebar-active' : ''}
+                className={({ isActive }) => isActive ? style.sidebarActive : ''}
                 to={'/account-summary'}
                 title={t('accountSummary.title')}
                 onClick={this.handleSidebarItemClick}>
-                <div className="single">
-                  <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                <div className={style.single}>
+                  <img draggable={false} src={info} alt={t('sidebar.addAccount')} />
                 </div>
-                <span className="sidebar_label">{t('accountSummary.title')}</span>
+                <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
               </NavLink>
             </div>
           ) : null }
           { accounts && accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
-          <div className="sidebarHeaderContainer end"></div>
+          <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           { accounts.length ? (
-            <div key="buy" className="sidebarItem">
+            <div key="buy" className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive ? 'sidebar-active' : ''}
+                className={({ isActive }) => isActive ? style.sidebarActive : ''}
                 to="/buy/info"
               >
-                <div className="single">
-                  <img draggable={false} className="sidebar_settings" src={coins} alt={t('sidebar.exchanges')} />
+                <div className={style.single}>
+                  <img draggable={false} src={coins} alt={t('sidebar.exchanges')} />
                 </div>
-                <span className="sidebar_label">
+                <span className={style.sidebarLabel}>
                   {t('sidebar.buy')}
                 </span>
               </NavLink>
             </div>
           ) : null }
           { deviceIDs.map(deviceID => (
-            <div key={deviceID} className="sidebarItem">
+            <div key={deviceID} className={style.sidebarItem}>
               <NavLink
                 to={`/device/${deviceID}`}
-                className={({ isActive }) => isActive ? 'sidebar-active' : ''}
+                className={({ isActive }) => isActive ? style.sidebarActive : ''}
                 title={t('sidebar.device')}
                 onClick={this.handleSidebarItemClick}>
-                <div className="single">
-                  <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
+                <div className={style.single}>
+                  <img draggable={false} src={deviceSettings} alt={t('sidebar.device')} />
                 </div>
-                <span className="sidebar_label">{t('sidebar.device')}</span>
+                <span className={style.sidebarLabel}>{t('sidebar.device')}</span>
               </NavLink>
             </div>
           )) }
-          <div key="settings" className="sidebarItem">
+          <div key="settings" className={style.sidebarItem}>
             <NavLink
-              className={({ isActive }) => isActive ? 'sidebar-active' : ''}
+              className={({ isActive }) => isActive ? style.sidebarActive : ''}
               to={'/settings'}
               title={t('sidebar.settings')}
               onClick={this.handleSidebarItemClick}>
               <div className="stacked">
-                <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
-                <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
+                <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
+                <img draggable={false} src={settings} alt={t('sidebar.settings')} />
               </div>
-              <span className="sidebar_label">{t('sidebar.settings')}</span>
+              <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
             </NavLink>
           </div>
           {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
-            <div key="eject" className="sidebarItem">
+            <div key="eject" className={style.sidebarItem}>
               <a href="#" onClick={eject}>
-                <div className="single">
+                <div className={style.single}>
                   <img
                     draggable={false}
-                    className="sidebar_settings"
                     src={ejectIcon}
                     alt={t('sidebar.leave')} />
                 </div>

@@ -434,7 +434,7 @@ class BitBox02 extends Component<Props, State> {
             <div className="buttons">
               <UpgradeButton
                 asButton
-                apiPrefix={this.apiPrefix()}
+                deviceID={deviceID}
                 versionInfo={versionInfo}
               />
             </div>

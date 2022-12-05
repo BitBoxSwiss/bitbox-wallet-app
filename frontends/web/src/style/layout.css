@@ -101,6 +101,13 @@
     height: 100%;
 }
 
+.iframeContainer {
+    flex-basis: 100vh;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+}
+
 .fluid {
     max-width: none;
 }
@@ -364,6 +371,22 @@
 .items > * {
     display: inline-block;
     margin: var(--space-quarter);
+}
+
+.stacked {
+    position: relative;
+}
+
+.stacked img {
+    transition: opacity 0.2s ease;
+}
+
+.stacked img:last-child {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .transparent {

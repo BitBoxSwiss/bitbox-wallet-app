@@ -56,7 +56,6 @@ class Moonpay extends Component<Props, State> {
   private resizeTimerID?: any;
 
   public componentDidMount() {
-    this.onResize();
     window.addEventListener('resize', this.onResize);
     console.log(this.props.config.frontend.skipBuyDisclaimer);
   }
@@ -116,105 +115,102 @@ class Moonpay extends Component<Props, State> {
 
       <div className="contentWithGuide">
         <div className="container">
-          <div ref={this.ref} className="innerContainer scrollableContainer">
+          <div className="innerContainer">
             <div className={style.header}>
               <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
             </div>
-            <div ref={this.ref} className="innerContainer">
-              { !agreedTerms ? (
-                <div className={style.disclaimerContainer}>
-                  <div className={style.disclaimer}>
-                    <h2 className={style.title}>
-                      {t('buy.info.disclaimer.title', { name })}
-                    </h2>
-                    <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
-                    <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
-                    <h2 className={style.title}>
-                      {t('buy.info.disclaimer.payment.title')}
-                    </h2>
-                    <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
-                    <div className={style.table}>
-                      <table>
-                        <colgroup>
-                          <col width="*" />
-                          <col width="50px" />
-                          <col width="*" />
-                        </colgroup>
-                        <thead>
-                          <tr>
-                            <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                            <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                            <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                            <td className={style.nowrap}>1.9 %</td>
-                            <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-                          </tr>
-                          <tr>
-                            <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                            <td className={style.nowrap}>4.9 %</td>
-                            <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <p>{t('buy.info.disclaimer.payment.footnote')}</p>
-                    <h2 className={style.title}>
-                      {t('buy.info.disclaimer.security.title')}
-                    </h2>
-                    <p>{t('buy.info.disclaimer.security.description', { name })}</p>
-                    <p>
-                      <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
-                        {t('buy.info.disclaimer.security.link')}
-                      </A>
-                    </p>
-                    <h2 className={style.title}>
-                      {t('buy.info.disclaimer.protection.title')}
-                    </h2>
-                    <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
-                    <p>
-                      <A className={style.link} href="https://www.moonpay.com/privacy_policy">
-                        {t('buy.info.disclaimer.privacyPolicy')}
-                      </A>
-                    </p>
+            { !agreedTerms ? (
+              <div className={style.disclaimerContainer}>
+                <div className={style.disclaimer}>
+                  <h2 className={style.title}>
+                    {t('buy.info.disclaimer.title', { name })}
+                  </h2>
+                  <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
+                  <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
+                  <h2 className={style.title}>
+                    {t('buy.info.disclaimer.payment.title')}
+                  </h2>
+                  <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
+                  <div className={style.table}>
+                    <table>
+                      <colgroup>
+                        <col width="*" />
+                        <col width="50px" />
+                        <col width="*" />
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th>{t('buy.info.disclaimer.payment.table.method')}</th>
+                          <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
+                          <th>{t('buy.info.disclaimer.payment.table.description')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
+                          <td className={style.nowrap}>1.9 %</td>
+                          <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
+                        </tr>
+                        <tr>
+                          <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
+                          <td className={style.nowrap}>4.9 %</td>
+                          <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="text-center m-bottom-quarter">
-                    <Checkbox
-                      id="skip_disclaimer"
-                      label={t('buy.info.skip')}
-                      onChange={this.handleSkipDisclaimer} />
-                  </div>
-                  <div className="buttons text-center m-bottom-xlarge">
-                    <Button
-                      primary
-                      onClick={this.agreeTerms}>
-                      {t('buy.info.continue')}
-                    </Button>
-                  </div>
+                  <p>{t('buy.info.disclaimer.payment.footnote')}</p>
+                  <h2 className={style.title}>
+                    {t('buy.info.disclaimer.security.title')}
+                  </h2>
+                  <p>{t('buy.info.disclaimer.security.description', { name })}</p>
+                  <p>
+                    <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
+                      {t('buy.info.disclaimer.security.link')}
+                    </A>
+                  </p>
+                  <h2 className={style.title}>
+                    {t('buy.info.disclaimer.protection.title')}
+                  </h2>
+                  <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
+                  <p>
+                    <A className={style.link} href="https://www.moonpay.com/privacy_policy">
+                      {t('buy.info.disclaimer.privacyPolicy')}
+                    </A>
+                  </p>
                 </div>
-              ) : (
-                <div className="noSpace">
-                  {!iframeLoaded && <Spinner text={t('loading')} />}
-                  <iframe
-                    onLoad={() => {
-                      console.log('loaded');
-                      this.setState({ iframeLoaded: true });
-                    }}
-                    title="Moonpay"
-                    width="100%"
-                    height={iframeLoaded ? height : 0}
-                    frameBorder="0"
-                    className={style.iframe}
-                    allow="camera; payment"
-                    src={`${moonpay.url}&colorCode=%235E94BF`}>
-                  </iframe>
+                <div className="text-center m-bottom-quarter">
+                  <Checkbox
+                    id="skip_disclaimer"
+                    label={t('buy.info.skip')}
+                    onChange={this.handleSkipDisclaimer} />
                 </div>
-
-              )}
-            </div>
+                <div className="buttons text-center m-bottom-xlarge">
+                  <Button
+                    primary
+                    onClick={this.agreeTerms}>
+                    {t('buy.info.continue')}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div ref={this.ref} className="iframeContainer">
+                {!iframeLoaded && <Spinner text={t('loading')} />}
+                <iframe
+                  onLoad={() => {
+                    this.setState({ iframeLoaded: true });
+                    this.onResize();
+                  }}
+                  title="Moonpay"
+                  width="100%"
+                  height={iframeLoaded ? height : 0}
+                  frameBorder="0"
+                  className={style.iframe}
+                  allow="camera; payment"
+                  src={`${moonpay.url}&colorCode=%235E94BF`}>
+                </iframe>
+              </div>
+            )}
           </div>
         </div>
         <Guide name={name} />
