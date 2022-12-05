@@ -373,6 +373,22 @@
     margin: var(--space-quarter);
 }
 
+.stacked {
+    position: relative;
+}
+
+.stacked img {
+    transition: opacity 0.2s ease;
+}
+
+.stacked img:last-child {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 .transparent {
     display: none;
 }
