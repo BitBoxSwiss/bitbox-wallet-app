@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## 4.35.1
+- Fix issue where the app sometimes shows a blank screen after unlock
+
 ## 4.35.0
 - Add Arabic translation
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
