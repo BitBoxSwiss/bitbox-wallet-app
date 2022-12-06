@@ -34,7 +34,7 @@ import appTranslationsES from '../locales/es/app.json';
 import appTranslationsSL from '../locales/sl/app.json';
 import appTranslationsHE from '../locales/he/app.json';
 import appTranslationsIT from '../locales/it/app.json';
-import { languageFromConfig } from './config';
+import { languageFromConfig, localeMainLanguage } from './config';
 import { apiGet } from '../utils/request';
 import { setConfig } from '../utils/config';
 
@@ -100,8 +100,8 @@ i18n.on('languageChanged', (lng) => {
     if (!match) {
       // There are too many combinations. So, we compare only the main
       // language tag.
-      const lngLang = lng.replace('_', '-').split('-')[0];
-      const localeLang = nativeLocale.replace('_', '-').split('-')[0];
+      const lngLang = localeMainLanguage(lng);
+      const localeLang = localeMainLanguage(nativeLocale);
       match = lngLang === localeLang;
     }
     const uiLang = match ? null : lng;
