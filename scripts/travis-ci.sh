@@ -14,7 +14,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     # Which docker image to use to run the CI. Defaults to Docker Hub.
     # Overwrite with CI_IMAGE=docker/image/path environment variable.
     # Keep this in sync with .github/workflows/ci.yml.
-    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:14}"
+    : "${CI_IMAGE:=shiftcrypto/bitbox-wallet-app:15}"
     # Time image pull to compare in the future.
     time docker pull "$CI_IMAGE"
 
