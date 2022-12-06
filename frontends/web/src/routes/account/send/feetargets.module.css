@@ -44,7 +44,7 @@
     border-left: none;
     border-top-left-radius: 0;
     padding-left: 0;
-    border-color: var(--color-mediumgray) !important;
+    border-color: var(--background-quaternary) !important;
 }
 @media (min-width: 640px) {
     .fee input {
@@ -56,19 +56,19 @@
 }
 
 select:disabled.priority {
-    border-color: var(--color-lightgray) !important;
+    border-color: var(--background) !important;
 }
 
 select.priority {
-    border-color: var(--color-mediumgray) !important;
+    border-color: var(--background-quaternary) !important;
 }
 
 @media (min-width: 640px) {
     .fee input:disabled {
-        border-color: var(--color-lightgray) !important;
+        border-color: var(--background) !important;
     }
     .fee input {
-        border-color: var(--color-mediumgray) !important;
+        border-color: var(--background-quaternary) !important;
     }
 }
 

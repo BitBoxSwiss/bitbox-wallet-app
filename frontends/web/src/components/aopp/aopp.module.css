@@ -32,7 +32,7 @@
 
 .message {
     background-color: var(--background-secondary);
-    border-color: var(--color-mediumgray);
+    border-color: var(--background-quaternary);
     border-radius: 2px;
     border-style: solid;
     border-width: 1px;

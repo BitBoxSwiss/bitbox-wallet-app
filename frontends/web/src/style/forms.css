@@ -24,7 +24,7 @@ dt {
 .labelXLarge {
     font-size: var(--size-subheader);
     margin-bottom: calc(var(--space-half) * 1.5);
-    color: var(--color-dark);
+    color: var(--color-default);
 }
 
 .labelLink {

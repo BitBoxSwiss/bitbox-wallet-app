@@ -102,7 +102,7 @@
 }
 
 .wait.line .dot::after {
-    border-color: var(--color-mediumgray);
+    border-color: var(--background-quaternary);
     border-top-width: 3px;
     top: 7px;
 }
