@@ -4,6 +4,9 @@
 - Re-style header for a better space utilisation
 - Re-style sidebar navigation on mobile (portrait) to be full-screen for better space utilisation and a more modern look
 
+## 4.35.1
+- Fix issue where the app sometimes shows a blank screen after unlock
+
 ## 4.35.0
 - Add Arabic translation
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
