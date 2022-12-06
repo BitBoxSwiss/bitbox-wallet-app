@@ -16,7 +16,7 @@ package backend
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -146,7 +146,7 @@ func TestAOPPSuccess(t *testing.T) {
 					[]string{"application/json"},
 					r.Header["Content-Type"],
 				)
-				body, err := ioutil.ReadAll(r.Body)
+				body, err := io.ReadAll(r.Body)
 				require.NoError(t, err)
 
 				require.JSONEq(t,

@@ -17,7 +17,7 @@ package accounts
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"os"
 	"path"
 	"testing"
 	"time"
@@ -70,28 +70,28 @@ func TestBaseAccount(t *testing.T) {
 	// The long ID in the filename is the legacy hash of the configurations above (unified and split).
 	// This tests notes migration from v4.27.0 to v4.28.0.
 	require.NoError(t,
-		ioutil.WriteFile(
+		os.WriteFile(
 			path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"),
 			[]byte(`{"transactions": { "legacy-1": "legacy note in unified account" }}`),
 			0666,
 		),
 	)
 	require.NoError(t,
-		ioutil.WriteFile(
+		os.WriteFile(
 			path.Join(cfg.NotesFolder, "account-989b84ec36f0b84e7926f9f5715e4b59a0592993b1fa4b70836addbcb0cb6e09-tbtc-p2pkh.json"),
 			[]byte(`{"transactions": { "legacy-2": "legacy note in split account, p2pkh" }}`),
 			0666,
 		),
 	)
 	require.NoError(t,
-		ioutil.WriteFile(
+		os.WriteFile(
 			path.Join(cfg.NotesFolder, "account-e60b99507ba983d522f15932dbe1214e99de13c56e2bea75ed9c285f7c013117-tbtc-p2wpkh.json"),
 			[]byte(`{"transactions": { "legacy-3": "legacy note in split account, p2wpkh" }}`),
 			0666,
 		),
 	)
 	require.NoError(t,
-		ioutil.WriteFile(
+		os.WriteFile(
 			path.Join(cfg.NotesFolder, "account-9e779e0d49e77236f0769e0bab2fd656958d3fd023dce2388525ee66fead88bb-tbtc-p2wpkh-p2sh.json"),
 			[]byte(`{"transactions": { "legacy-4": "legacy note in split account, p2wpkh-p2sh" }}`),
 			0666,
@@ -165,12 +165,12 @@ func TestBaseAccount(t *testing.T) {
 		// Setting a note sets it in the main notes file, and wipes it out in legacy note files.
 		require.NoError(t, account.SetTxNote("legacy-1", "updated legacy note"))
 		require.Equal(t, "updated legacy note", account.TxNote("legacy-1"))
-		contents, err := ioutil.ReadFile(path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"))
+		contents, err := os.ReadFile(path.Join(cfg.NotesFolder, "account-54b4597c3a5c48177ef2b12c97e0cb30b6fef0b431e7821675b17704c330ce5d-tbtc.json"))
 		require.NoError(t, err)
 		require.JSONEq(t, `{"transactions":{}}`, string(contents))
 
 		// Test that the notes were persisted under the right file name with the right contents.
-		contents, err = ioutil.ReadFile(path.Join(cfg.NotesFolder, "test-account-identifier.json"))
+		contents, err = os.ReadFile(path.Join(cfg.NotesFolder, "test-account-identifier.json"))
 		require.NoError(t, err)
 		require.JSONEq(t, `{"transactions":{"legacy-1": "updated legacy note", "test-tx-id": "another test note"}}`, string(contents))
 	})
