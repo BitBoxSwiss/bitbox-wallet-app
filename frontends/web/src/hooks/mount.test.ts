@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 
-import { apiGet } from '../utils/request';
+import { renderHook } from '@testing-library/react-hooks';
+import { useMountedRef } from './mount';
 
-export type DeviceInfo = {
-  bootlock: boolean;
-  id: string;
-  lock: boolean;
-  name: string;
-  new_hidden_wallet: boolean;
-  pairing: boolean;
-  seeded: boolean;
-  serial: string;
-  sdcard: boolean;
-  TFA: string;
-  U2F: boolean;
-  U2F_hijack: boolean;
-  version: string;
-};
+describe('useMountedRef', () => {
+  it('should return true on mount and false on unmount', () => {
+    const { result, unmount } = renderHook(() => useMountedRef());
+    expect(result.current).toEqual({ current: true });
+    unmount();
+    expect(result.current).toEqual({ current: false });
+  });
+});
 
-export const getDeviceInfo = (
-  deviceID: string,
-): Promise<DeviceInfo> => {
-  return apiGet(`devices/${deviceID}/info`);
-};

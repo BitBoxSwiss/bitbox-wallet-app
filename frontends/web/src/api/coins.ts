@@ -21,7 +21,7 @@ import { apiPost } from '../utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 
-interface Status {
+export type TStatus = {
     targetHeight: number;
     tip: number;
     tipAtInitTime: number;
@@ -29,7 +29,7 @@ interface Status {
 }
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (
-  (cb: SubscriptionCallback<Status>) => (
+  (cb: SubscriptionCallback<TStatus>) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
 );

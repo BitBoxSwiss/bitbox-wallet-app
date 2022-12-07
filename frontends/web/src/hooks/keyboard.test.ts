@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-import { apiGet } from '../utils/request';
+import { fireEvent } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import { useEsc } from './keyboard';
+import { act } from 'react-dom/test-utils';
 
-export type DeviceInfo = {
-  bootlock: boolean;
-  id: string;
-  lock: boolean;
-  name: string;
-  new_hidden_wallet: boolean;
-  pairing: boolean;
-  seeded: boolean;
-  serial: string;
-  sdcard: boolean;
-  TFA: string;
-  U2F: boolean;
-  U2F_hijack: boolean;
-  version: string;
-};
+describe('useEsc', () => {
+  it('should fire its callback when escape key gets pressed', () => {
+    const mock = jest.fn();
+    renderHook((() => useEsc(mock)));
+    act(() => {
+      fireEvent.keyDown(document, { key: 'Escape', code: 27 });
+    });
+    expect(mock).toHaveBeenCalled();
+  });
+});
 
-export const getDeviceInfo = (
-  deviceID: string,
-): Promise<DeviceInfo> => {
-  return apiGet(`devices/${deviceID}/info`);
-};
