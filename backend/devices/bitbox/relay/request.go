@@ -17,7 +17,7 @@ package relay
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -85,7 +85,7 @@ func (request *request) send() (*response, error) {
 		return nil, errp.New("Proxy Server did not respond with OK http status code, it is probably offline")
 	}
 	defer func() { _ = httpResponse.Body.Close() }()
-	body, err := ioutil.ReadAll(httpResponse.Body)
+	body, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 		return nil, err
 	}

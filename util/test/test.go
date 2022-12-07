@@ -17,7 +17,6 @@ package test
 import (
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -27,7 +26,7 @@ import (
 
 // TstTempFile gets the filename for creating a temporary file.
 func TstTempFile(name string) string {
-	f, err := ioutil.TempFile("", name)
+	f, err := os.CreateTemp("", name)
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +41,7 @@ func TstTempFile(name string) string {
 
 // TstTempDir creates a temporary dir and returns its path.
 func TstTempDir(name string) string {
-	f, err := ioutil.TempDir("", name)
+	f, err := os.MkdirTemp("", name)
 	if err != nil {
 		panic(err)
 	}
