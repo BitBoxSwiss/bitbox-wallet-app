@@ -55,7 +55,7 @@ export const Entry: FunctionComponent<TProps> = props => {
           <div className="flex-1">
             {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
             {entry.link && (
-              <p><A href={entry.link.url}>{entry.link.text}</A></p>
+              <p><A data-testid="link" href={entry.link.url}>{entry.link.text}</A></p>
             )}
             {props.children}
           </div>

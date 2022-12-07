@@ -24,7 +24,7 @@ import { useSubscribe } from '../../hooks/api';
 import Spinner from '../spinner/ascii';
 import style from './headerssync.module.css';
 
-type TProps = {
+export type TProps = {
     coinCode: CoinCode;
 }
 
@@ -59,7 +59,7 @@ export const HeadersSync = ({ coinCode }: TProps) => {
         </div>
         { !loaded ? (<Spinner />) : null }
       </div>
-      <div className={style.progressBar}>
+      <div data-testid="progress-bar" className={style.progressBar}>
         <div className={style.progressValue} style={{ width: `${value}%` }}></div>
       </div>
     </div>

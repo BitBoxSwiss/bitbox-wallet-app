@@ -25,8 +25,6 @@ jest.mock('react-i18next');
 const useTranslationSpy = useTranslation;
 
 describe('components/language/language', () => {
-
-
   const supportedLangs = [
     { code: 'en-US', display: 'English' },
     { code: 'pt', display: 'Portugues' },
