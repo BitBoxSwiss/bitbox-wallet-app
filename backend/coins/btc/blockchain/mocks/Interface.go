@@ -60,14 +60,64 @@ func (_m *Interface) EstimateFee(_a0 int) (btcutil.Amount, error) {
 	return r0, r1
 }
 
-// GetMerkle provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]blockchain.TXHash, int), _a3 func(error)) {
-	_m.Called(_a0, _a1, _a2, _a3)
+// GetMerkle provides a mock function with given fields: _a0, _a1
+func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int) ([]blockchain.TXHash, int, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 []blockchain.TXHash
+	if rf, ok := ret.Get(0).(func(chainhash.Hash, int) []blockchain.TXHash); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]blockchain.TXHash)
+		}
+	}
+
+	var r1 int
+	if rf, ok := ret.Get(1).(func(chainhash.Hash, int) int); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(chainhash.Hash, int) error); ok {
+		r2 = rf(_a0, _a1)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
-// Headers provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int)) {
-	_m.Called(_a0, _a1, _a2)
+// Headers provides a mock function with given fields: _a0, _a1
+func (_m *Interface) Headers(_a0 int, _a1 int) ([]*wire.BlockHeader, int, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 []*wire.BlockHeader
+	if rf, ok := ret.Get(0).(func(int, int) []*wire.BlockHeader); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*wire.BlockHeader)
+		}
+	}
+
+	var r1 int
+	if rf, ok := ret.Get(1).(func(int, int) int); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(int, int) error); ok {
+		r2 = rf(_a0, _a1)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // HeadersSubscribe provides a mock function with given fields: _a0, _a1

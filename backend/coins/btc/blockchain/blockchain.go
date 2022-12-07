@@ -103,8 +103,8 @@ type Interface interface {
 	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee() (btcutil.Amount, error)
 	EstimateFee(int) (btcutil.Amount, error)
-	Headers(int, int, func([]*wire.BlockHeader, int))
-	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
+	Headers(int, int) ([]*wire.BlockHeader, int, error)
+	GetMerkle(chainhash.Hash, int) ([]TXHash, int, error)
 	Close()
 	ConnectionError() error
 	RegisterOnConnectionErrorChangedEvent(func(error))
