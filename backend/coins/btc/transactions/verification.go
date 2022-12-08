@@ -93,13 +93,13 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	done := transactions.synchronizer.IncRequestsCounter()
 	defer done()
 
-	merkle, pos, err := transactions.blockchain.GetMerkle(txHash, height)
+	merkle, err := transactions.blockchain.GetMerkle(txHash, height)
 	if err != nil {
 		// TODO
 		transactions.log.WithError(err).Error("GetMerkle")
 		return
 	}
-	expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
+	expectedMerkleRoot := hashMerkleRoot(merkle.Merkle, txHash, merkle.Pos)
 	if expectedMerkleRoot != header.MerkleRoot {
 		transactions.log.Warning("Merkle root verification failed")
 		return

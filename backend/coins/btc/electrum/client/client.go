@@ -366,7 +366,7 @@ func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
 }
 
 // Headers does the blockchain.block.headers RPC call.
-func (client *ElectrumClient) Headers(startHeight int, count int) ([]*wire.BlockHeader, int, error) {
+func (client *ElectrumClient) Headers(startHeight int, count int) (*blockchain.HeadersResult, error) {
 	var response struct {
 		Hex   string `json:"hex"`
 		Count int    `json:"count"`
@@ -375,23 +375,26 @@ func (client *ElectrumClient) Headers(startHeight int, count int) ([]*wire.Block
 
 	err := client.rpc.MethodSync(&response, "blockchain.block.headers", startHeight, count)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	headers, err := parseHeaders(hex.NewDecoder(strings.NewReader(response.Hex)))
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	if len(headers) != response.Count {
-		return nil, 0, errp.Newf(
+		return nil, errp.Newf(
 			"unexpected electrumx reply: should have gotten %d headers, but got %d",
 			response.Count,
 			len(headers))
 	}
-	return headers, response.Max, nil
+	return &blockchain.HeadersResult{
+		Headers: headers,
+		Max:     response.Max,
+	}, nil
 }
 
 // GetMerkle does the blockchain.transaction.get_merkle RPC call.
-func (client *ElectrumClient) GetMerkle(txHash chainhash.Hash, height int) ([]blockchain.TXHash, int, error) {
+func (client *ElectrumClient) GetMerkle(txHash chainhash.Hash, height int) (*blockchain.GetMerkleResult, error) {
 	var response struct {
 		Merkle      []blockchain.TXHash `json:"merkle"`
 		Pos         int                 `json:"pos"`
@@ -403,12 +406,15 @@ func (client *ElectrumClient) GetMerkle(txHash chainhash.Hash, height int) ([]bl
 		"blockchain.transaction.get_merkle",
 		txHash.String(), height)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	if response.BlockHeight != height {
-		return nil, 0, errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
+		return nil, errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
 	}
-	return response.Merkle, response.Pos, nil
+	return &blockchain.GetMerkleResult{
+		Merkle: response.Merkle,
+		Pos:    response.Pos,
+	}, nil
 }
 
 // Close closes the connection.
