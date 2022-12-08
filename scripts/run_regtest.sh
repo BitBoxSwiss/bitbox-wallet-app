@@ -101,10 +101,10 @@ docker run \
         --db-dir=/data &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
 echo "Delete headers-rbtc.bin in the app cache folder before running the BitBoxApp, otherwise it can conflict the fresh regtest chain."
 echo "You may need to disable VPN, as it can prevent Electrs/bitcoin-cli from connecting to bitcoind."
 
