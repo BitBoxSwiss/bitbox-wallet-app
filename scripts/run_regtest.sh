@@ -106,6 +106,7 @@ echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -
 echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
 echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
 echo "Delete headers-rbtc.bin in the app cache folder before running the BitBoxApp, otherwise it can conflict the fresh regtest chain."
+echo "Also delete all rbtc account caches in the app cache folder before running the BitBoxApp."
 echo "You may need to disable VPN, as it can prevent Electrs/bitcoin-cli from connecting to bitcoind."
 
 while true; do sleep 1; done
