@@ -107,7 +107,7 @@ type Account struct {
 	// true when initialized (Initialize() was called).
 	initialized bool
 
-	fatalError bool
+	fatalError atomic.Bool
 
 	closed     bool
 	closedLock locker.Locker
@@ -417,7 +417,7 @@ func (account *Account) onNewHeader(header *blockchain.Header) {
 
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
-	return account.fatalError
+	return account.fatalError.Load()
 }
 
 // Close stops the account.
@@ -515,7 +515,7 @@ outer:
 
 // Balance implements the interface.
 func (account *Account) Balance() (*accounts.Balance, error) {
-	if account.fatalError {
+	if account.fatalError.Load() {
 		return nil, errp.New("can't call Balance() after a fatal error")
 	}
 	return account.transactions.Balance(), nil
@@ -554,7 +554,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	if err != nil {
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
-		account.fatalError = true
+		account.fatalError.Store(true)
 		account.Config().OnEvent(accounts.EventStatusChanged)
 		return
 	}
@@ -642,7 +642,7 @@ func (account *Account) subscribeAddress(
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
-	if account.fatalError {
+	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
 	return account.transactions.Transactions(
