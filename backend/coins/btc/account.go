@@ -75,7 +75,6 @@ func (sa subaccounts) signingConfigurations() signing.Configurations {
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	*accounts.BaseAccount
-	locker.Locker
 
 	coin *Coin
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
@@ -84,6 +83,7 @@ type Account struct {
 	forceGapLimits *types.GapLimits
 	notifier       accounts.Notifier
 
+	// Once the account is initialized, this variable is only read.
 	subaccounts subaccounts
 	// How many addresses were synced already during the initial sync. This value is emitted as an
 	// event when it changes. This counter can overshoot if an address is updated more than once
@@ -99,13 +99,15 @@ type Account struct {
 	activeTxProposal     *maketx.TxProposal
 	activeTxProposalLock locker.Locker
 
-	feeTargets []*FeeTarget
+	feeTargets     []*FeeTarget
+	feeTargetsLock locker.Locker
 	// Access this only via getMinRelayFeeRate(). sat/kB.
 	minRelayFeeRate   *btcutil.Amount
 	minRelayFeeRateMu sync.Mutex
 
 	// true when initialized (Initialize() was called).
-	initialized bool
+	initialized     bool
+	initializedLock locker.Locker
 
 	fatalError atomic.Bool
 
@@ -267,12 +269,23 @@ func (account *Account) getMinRelayFeeRate() (btcutil.Amount, error) {
 	return feeRate, nil
 }
 
+func (account *Account) isInitialized() bool {
+	defer account.initializedLock.RLock()()
+	return account.initialized
+}
+
 // Initialize initializes the account.
 func (account *Account) Initialize() error {
 	if account.isClosed() {
 		return errp.New("Initialize: account was closed, init only works once.")
 	}
-	defer account.Lock()()
+
+	// Early return that does not require a write-lock.
+	if account.isInitialized() {
+		return nil
+	}
+
+	defer account.initializedLock.Lock()()
 	if account.initialized {
 		return nil
 	}
@@ -373,8 +386,12 @@ func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte
 	}
 }
 
-// Info returns account info, such as the signing configuration (xpubs).
+// Info returns account info, such as the signing configuration (xpubs). Returns nil if the account
+// is not initialized.
 func (account *Account) Info() *accounts.Info {
+	if !account.isInitialized() {
+		return nil
+	}
 	// The internal extended key representation always uses the same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
 	signingConfigurations := make([]*signing.Configuration, len(account.subaccounts))
@@ -458,7 +475,7 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 func (account *Account) updateFeeTargets() {
-	defer account.Lock()()
+	defer account.feeTargetsLock.Lock()()
 	for _, feeTarget := range account.feeTargets {
 		feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
 		if err != nil {
@@ -483,7 +500,7 @@ func (account *Account) updateFeeTargets() {
 
 // FeeTargets returns the fee targets and the default fee target.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
-	defer account.RLock()()
+	defer account.feeTargetsLock.RLock()()
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
 	feeTargets := []accounts.FeeTarget{}
@@ -540,7 +557,6 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		account.log.Debug("Ignoring result of ScriptHashSubscribe after the account was closed")
 		return
 	}
-	defer account.Lock()()
 	if status == address.HistoryStatus {
 		account.incAndEmitSyncCounter()
 		// Address didn't change.
@@ -634,7 +650,7 @@ func (account *Account) subscribeAddress(
 		},
 		address.PubkeyScriptHashHex(),
 		func(status string) {
-			account.onAddressStatus(address, status)
+			go account.onAddressStatus(address, status)
 		},
 	)
 	return nil
@@ -642,6 +658,9 @@ func (account *Account) subscribeAddress(
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
+	if !account.isInitialized() {
+		return nil, errp.New("account not initialized")
+	}
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
@@ -656,10 +675,12 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 		}), nil
 }
 
-// GetUnusedReceiveAddresses returns a number of unused addresses.
+// GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.
 func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
+	if !account.isInitialized() {
+		return nil
+	}
 	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
 	addresses := make([]accounts.AddressList, len(account.subaccounts))
 	for subaccIdx, subacc := range account.subaccounts {
@@ -681,11 +702,10 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
-	if !account.initialized {
+	if !account.isInitialized() {
 		return false, errp.New("account must be initialized")
 	}
 	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
 	var address *addresses.AccountAddress
 	for _, subacc := range account.subaccounts {
@@ -709,9 +729,6 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 
 // CanVerifyAddresses wraps Keystores().CanVerifyAddresses(), see that function for documentation.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
-	if !account.initialized {
-		return false, false, errp.New("account must be initialized")
-	}
 	return account.Config().Keystore.CanVerifyAddress(account.Coin())
 }
 
@@ -739,7 +756,6 @@ type SpendableOutput struct {
 // SpendableOutputs returns the utxo set, sorted by the value descending.
 func (account *Account) SpendableOutputs() []*SpendableOutput {
 	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	result := []*SpendableOutput{}
 	for outPoint, txOut := range account.transactions.SpendableOutputs() {
 		result = append(
@@ -759,6 +775,10 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 //
 // signingConfigIndex refers to the subaccount / signing config.
 func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, error) {
+	if !account.isInitialized() {
+		return false, errp.New("account not initialized")
+	}
+
 	keystore := account.Config().Keystore
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(

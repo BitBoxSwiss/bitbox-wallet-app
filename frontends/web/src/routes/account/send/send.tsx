@@ -450,8 +450,10 @@ class Send extends Component<Props, State> {
   private sendToSelf = (event: React.SyntheticEvent) => {
     accountApi.getReceiveAddressList(this.getAccount()!.code)()
       .then(receiveAddresses => {
-        this.setState({ recipientAddress: receiveAddresses[0].addresses[0].address });
-        this.handleFormChange(event);
+        if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
+          this.setState({ recipientAddress: receiveAddresses[0].addresses[0].address });
+          this.handleFormChange(event);
+        }
       })
       .catch(console.error);
   };
