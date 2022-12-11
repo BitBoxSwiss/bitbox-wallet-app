@@ -96,7 +96,11 @@ func (s *transactionsSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
 	s.log = logging.Get().WithGroup("transactions_test")
 
-	_, s.addressChain = addressesTest.NewAddressChain()
+	_, s.addressChain = addressesTest.NewAddressChain(
+		func(address *addresses.AccountAddress) (bool, error) {
+			return false, nil
+		},
+	)
 	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
 	db, err := transactionsdb.NewDB(test.TstTempFile("bitbox-wallet-db-"))
@@ -155,7 +159,8 @@ func newBalance(available, incoming btcutil.Amount) *accounts.Balance {
 
 // TestUpdateAddressHistorySingleTxReceive receives a single confirmed tx for a single address.
 func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
-	addresses := s.addressChain.EnsureAddresses()
+	addresses, err := s.addressChain.EnsureAddresses()
+	require.NoError(s.T(), err)
 	address := addresses[0]
 	expectedAmount := btcutil.Amount(123)
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
@@ -188,7 +193,8 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 func (s *transactionsSuite) TestSpendableOutputs() {
 	// Starts out empty.
 	require.Empty(s.T(), s.transactions.SpendableOutputs())
-	addresses := s.addressChain.EnsureAddresses()
+	addresses, err := s.addressChain.EnsureAddresses()
+	require.NoError(s.T(), err)
 	address1 := addresses[0]
 	address2 := addresses[1]
 	// address not belonging to the wallet.
@@ -247,7 +253,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 
 func (s *transactionsSuite) TestBalance() {
 	require.Equal(s.T(), newBalance(0, 0), s.transactions.Balance())
-	addresses := s.addressChain.EnsureAddresses()
+	addresses, err := s.addressChain.EnsureAddresses()
+	require.NoError(s.T(), err)
 	address1 := addresses[0]
 	otherAddress := addresses[2]
 	expectedAmount := btcutil.Amount(123)
@@ -306,7 +313,8 @@ func (s *transactionsSuite) TestBalance() {
 }
 
 func (s *transactionsSuite) TestRemoveTransaction() {
-	addresses := s.addressChain.EnsureAddresses()
+	addresses, err := s.addressChain.EnsureAddresses()
+	require.NoError(s.T(), err)
 	address1 := addresses[0]
 	address2 := addresses[1]
 	tx1 := newTx(chainhash.HashH(nil), 0, address1, 12)

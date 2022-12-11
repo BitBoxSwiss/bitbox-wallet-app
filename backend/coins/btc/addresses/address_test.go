@@ -54,7 +54,6 @@ func TestAddressTestSuite(t *testing.T) {
 func (s *addressTestSuite) TestNewAddress() {
 	require.Equal(s.T(), absoluteKeypath, s.address.Configuration.AbsoluteKeypath())
 	require.Equal(s.T(), "n2gAErwJCuPmnQuhzPkkWi2haGz9oQxjnX", s.address.EncodeAddress())
-	require.Equal(s.T(), "", s.address.HistoryStatus)
 	require.True(s.T(), s.address.IsForNet(net))
 }
 

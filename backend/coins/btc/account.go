@@ -349,9 +349,9 @@ func (account *Account) Initialize() error {
 		account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
 		subacc.receiveAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.isAddressUsed, account.log)
 		subacc.changeAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.isAddressUsed, account.log)
 
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
@@ -547,6 +547,23 @@ func (account *Account) incAndEmitSyncCounter() {
 	}
 }
 
+func (account *Account) getAddressHistory(address *addresses.AccountAddress) (blockchain.TxHistory, error) {
+	dbTx, err := account.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer dbTx.Rollback()
+	return dbTx.AddressHistory(address.PubkeyScriptHashHex())
+}
+
+func (account *Account) isAddressUsed(address *addresses.AccountAddress) (bool, error) {
+	history, err := account.getAddressHistory(address)
+	if err != nil {
+		return false, err
+	}
+	return len(history) > 0, nil
+}
+
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
@@ -555,9 +572,16 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		account.log.Debug("Ignoring result of ScriptHashSubscribe after the account was closed")
 		return
 	}
-	if status == address.HistoryStatus {
+	addressHistory, err := account.getAddressHistory(address)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	if status == addressHistory.Status() {
 		account.incAndEmitSyncCounter()
-		// Address didn't change.
+		// Address didn't change.  Note: there is a potential race condition where to concurrent
+		// onAddressStatus calls with the same `status` can pass this check and continue below, but
+		// that only leads to too much work (downloading the history again), not an invalid state.
 		return
 	}
 
@@ -573,10 +597,6 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		return
 	}
 
-	address.HistoryStatus = history.Status()
-	if address.HistoryStatus != status {
-		account.log.Warning("client status should match after sync")
-	}
 	account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 	account.incAndEmitSyncCounter()
 	account.ensureAddresses()
@@ -593,21 +613,19 @@ func (account *Account) ensureAddresses() {
 	}
 
 	defer account.Synchronizer.IncRequestsCounter()()
-	dbTx, err := account.db.Begin()
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	defer dbTx.Rollback()
 
 	syncSequence := func(addressChain *addresses.AddressChain) error {
 		for {
-			newAddresses := addressChain.EnsureAddresses()
+			newAddresses, err := addressChain.EnsureAddresses()
+			if err != nil {
+				// TODO
+				panic(err)
+			}
 			if len(newAddresses) == 0 {
 				break
 			}
 			for _, address := range newAddresses {
-				if err := account.subscribeAddress(dbTx, address); err != nil {
+				if err := account.subscribeAddress(address); err != nil {
 					return errp.Wrap(err, "Failed to subscribe to address")
 				}
 			}
@@ -628,14 +646,7 @@ func (account *Account) ensureAddresses() {
 	}
 }
 
-func (account *Account) subscribeAddress(
-	dbTx transactions.DBTxInterface, address *addresses.AccountAddress) error {
-	addressHistory, err := dbTx.AddressHistory(address.PubkeyScriptHashHex())
-	if err != nil {
-		return err
-	}
-	address.HistoryStatus = addressHistory.Status()
-
+func (account *Account) subscribeAddress(address *addresses.AccountAddress) error {
 	account.coin.Blockchain().ScriptHashSubscribe(
 		func() func(error) {
 			done := account.Synchronizer.IncRequestsCounter()
@@ -684,7 +695,12 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 	for subaccIdx, subacc := range account.subaccounts {
 		scriptType := subacc.signingConfiguration.ScriptType()
 		addresses[subaccIdx].ScriptType = &scriptType
-		for idx, address := range subacc.receiveAddresses.GetUnused() {
+		unusedAddresses, err := subacc.receiveAddresses.GetUnused()
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		for idx, address := range unusedAddresses {
 			if idx >= receiveAddressesLimit {
 				// Limit to gap limit for receive addresses, even if the actual limit is higher when
 				// scanning.
