@@ -15,7 +15,7 @@
 package headersdb
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/btcsuite/btcd/wire"
@@ -55,7 +55,7 @@ func TestTip(t *testing.T) {
 }
 
 func TestFixTrailingZeroes(t *testing.T) {
-	f, err := ioutil.TempFile("", "headersdb")
+	f, err := os.CreateTemp("", "headersdb")
 	require.NoError(t, err)
 	filename := f.Name()
 
