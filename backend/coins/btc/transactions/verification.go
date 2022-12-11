@@ -31,29 +31,23 @@ func (transactions *Transactions) onHeadersEvent(event headers.Event) {
 	}
 }
 
-func (transactions *Transactions) unverifiedTransactions() map[chainhash.Hash]int {
+func (transactions *Transactions) unverifiedTransactions() (map[chainhash.Hash]int, error) {
 	defer transactions.RLock()()
-	dbTx, err := transactions.db.Begin()
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	defer dbTx.Rollback()
-	unverifiedTransactions, err := dbTx.UnverifiedTransactions()
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	result := map[chainhash.Hash]int{}
-	for _, txHash := range unverifiedTransactions {
-		txInfo, err := dbTx.TxInfo(txHash)
+	return DBView(transactions.db, func(dbTx DBTxInterface) (map[chainhash.Hash]int, error) {
+		unverifiedTransactions, err := dbTx.UnverifiedTransactions()
 		if err != nil {
-			// TODO
-			panic(err)
+			return nil, err
 		}
-		result[txHash] = txInfo.Height
-	}
-	return result
+		result := map[chainhash.Hash]int{}
+		for _, txHash := range unverifiedTransactions {
+			txInfo, err := dbTx.TxInfo(txHash)
+			if err != nil {
+				return nil, err
+			}
+			result[txHash] = txInfo.Height
+		}
+		return result, nil
+	})
 }
 
 func hashMerkleRoot(merkle []blockchain.TXHash, start chainhash.Hash, pos int) chainhash.Hash {
@@ -68,7 +62,11 @@ func hashMerkleRoot(merkle []blockchain.TXHash, start chainhash.Hash, pos int) c
 }
 
 func (transactions *Transactions) verifyTransactions() {
-	unverifiedTransactions := transactions.unverifiedTransactions()
+	unverifiedTransactions, err := transactions.unverifiedTransactions()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
 	transactions.log.Debugf("verifying %d transactions", len(unverifiedTransactions))
 	for txHash, height := range unverifiedTransactions {
 		go transactions.verifyTransaction(txHash, height)
@@ -107,19 +105,10 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	transactions.log.Debugf("Merkle root verification succeeded")
 
 	defer transactions.Lock()()
-	dbTx, err := transactions.db.Begin()
+	err = DBUpdate(transactions.db, func(dbTx DBTxInterface) error {
+		return dbTx.MarkTxVerified(txHash, header.Timestamp)
+	})
 	if err != nil {
-		// TODO
-		transactions.log.WithError(err).Error("transaction begin")
-		return
-	}
-	defer dbTx.Rollback()
-	if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
-		transactions.log.WithError(err).Error("MarkTxVerified")
-		return
-	}
-	if err := dbTx.Commit(); err != nil {
-		transactions.log.WithError(err).Error("GetMerkle Commit")
-		return
+		transactions.log.WithError(err).Error("MarkTXVerified")
 	}
 }

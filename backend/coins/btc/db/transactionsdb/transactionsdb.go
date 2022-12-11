@@ -54,8 +54,8 @@ func NewDB(filename string) (*DB, error) {
 }
 
 // Begin implements transactions.Begin.
-func (db *DB) Begin() (transactions.DBTxInterface, error) {
-	tx, err := db.db.Begin(true)
+func (db *DB) Begin(writable bool) (transactions.DBTxInterface, error) {
+	tx, err := db.db.Begin(writable)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}

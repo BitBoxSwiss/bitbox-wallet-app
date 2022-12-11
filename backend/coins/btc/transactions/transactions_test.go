@@ -170,20 +170,22 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	s.updateAddressHistory(address, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: expectedHeight},
 	})
-	require.Equal(s.T(),
-		newBalance(expectedAmount, 0),
-		s.transactions.Balance(),
-	)
+	balance, err := s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(expectedAmount, 0), balance)
 	utxo := &transactions.SpendableOutput{
 		TxOut: wire.NewTxOut(int64(expectedAmount), address.PubkeyScript()),
 	}
+	spendableOutputs, err := s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
 	require.Equal(s.T(),
 		map[wire.OutPoint]*transactions.SpendableOutput{
 			{Hash: tx1.TxHash(), Index: 0}: utxo,
 		},
-		s.transactions.SpendableOutputs(),
+		spendableOutputs,
 	)
-	transactions := s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
+	transactions, err := s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
+	require.NoError(s.T(), err)
 	require.Len(s.T(), transactions, 1)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)
 }
@@ -192,7 +194,9 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 // we own) outputs can be spent.
 func (s *transactionsSuite) TestSpendableOutputs() {
 	// Starts out empty.
-	require.Empty(s.T(), s.transactions.SpendableOutputs())
+	spendableOutputs, err := s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
+	require.Empty(s.T(), spendableOutputs)
 	addresses, err := s.addressChain.EnsureAddresses()
 	require.NoError(s.T(), err)
 	address1 := addresses[0]
@@ -216,7 +220,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 		{TXHash: blockchainpkg.TXHash(tx22.TxHash()), Height: 10},
 	})
 
-	spendableOutputs := s.transactions.SpendableOutputs()
+	spendableOutputs, err = s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
 	// Two confirmed txs.
 	require.Len(s.T(), spendableOutputs, 2)
 	require.Contains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx12.TxHash(), Index: 0})
@@ -230,7 +235,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 		{TXHash: blockchainpkg.TXHash(tx12.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx12Spend.TxHash()), Height: 0},
 	})
-	spendableOutputs = s.transactions.SpendableOutputs()
+	spendableOutputs, err = s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
 	require.Len(s.T(), spendableOutputs, 1)
 	require.NotContains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx12.TxHash(), Index: 0})
 	require.Contains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx22.TxHash(), Index: 0})
@@ -243,7 +249,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 		{TXHash: blockchainpkg.TXHash(tx22.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx22Spend.TxHash()), Height: 0},
 	})
-	spendableOutputs = s.transactions.SpendableOutputs()
+	spendableOutputs, err = s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
 	require.Len(s.T(), spendableOutputs, 1)
 	// tx22 spent, not available anymore
 	require.NotContains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx22.TxHash(), Index: 0})
@@ -252,7 +259,9 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 }
 
 func (s *transactionsSuite) TestBalance() {
-	require.Equal(s.T(), newBalance(0, 0), s.transactions.Balance())
+	balance, err := s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(0, 0), balance)
 	addresses, err := s.addressChain.EnsureAddresses()
 	require.NoError(s.T(), err)
 	address1 := addresses[0]
@@ -268,27 +277,27 @@ func (s *transactionsSuite) TestBalance() {
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 0},
 	})
-	require.Equal(s.T(),
-		newBalance(0, expectedAmount),
-		s.transactions.Balance())
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(0, expectedAmount), balance)
 	// Confirm it, plus another one incoming.
 	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
 	})
-	require.Equal(s.T(),
-		newBalance(expectedAmount, expectedAmount2),
-		s.transactions.Balance())
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(expectedAmount, expectedAmount2), balance)
 	// Spend funds that came from tx1, first unconfirmed. Available balance decreases.
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
 		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 0},
 	})
-	require.Equal(s.T(),
-		newBalance(0, expectedAmount2),
-		s.transactions.Balance())
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(0, expectedAmount2), balance)
 	// Confirm it.
 	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
@@ -296,9 +305,9 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
 		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 10},
 	})
-	require.Equal(s.T(),
-		newBalance(0, expectedAmount2),
-		s.transactions.Balance())
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(0, expectedAmount2), balance)
 	// Spend the unconfirmed incoming tx to an internal address, unconfirmed (can't confirm until
 	// the first one is). The funds are still available as we own the unconfirmed output.
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
@@ -307,9 +316,9 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx2Spend.TxHash()), Height: 0},
 	})
-	require.Equal(s.T(),
-		newBalance(expectedAmount2, 0),
-		s.transactions.Balance())
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(expectedAmount2, 0), balance)
 }
 
 func (s *transactionsSuite) TestRemoveTransaction() {
@@ -335,9 +344,9 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx3.TxHash()), Height: 10},
 	})
-	require.Equal(s.T(),
-		newBalance(2+10+34, 0),
-		s.transactions.Balance())
+	balance, err := s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(2+10+34, 0), balance)
 	// Remove tx3 from the history of address1. It is still referenced by address2, so the index
 	// does not change.
 	tx3Hash := tx3.TxHash()
@@ -345,20 +354,20 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 	})
-	require.Equal(s.T(),
-		newBalance(2+10+34, 0),
-		s.transactions.Balance())
-	require.Len(s.T(),
-		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }),
-		3)
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(2+10+34, 0), balance)
+	transactions, err := s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
+	require.NoError(s.T(), err)
+	require.Len(s.T(), transactions, 3)
 	// Remove tx3 from the history of address2. Now it's not referenced anymore and disappears.
 	s.updateAddressHistory(address2, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
 	})
-	require.Equal(s.T(),
-		newBalance(12+34, 0),
-		s.transactions.Balance())
-	require.Len(s.T(),
-		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }),
-		2)
+	balance, err = s.transactions.Balance()
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), newBalance(12+34, 0), balance)
+	transactions, err = s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false })
+	require.NoError(s.T(), err)
+	require.Len(s.T(), transactions, 2)
 }

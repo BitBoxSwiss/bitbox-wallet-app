@@ -190,62 +190,56 @@ func (account *Account) defaultGapLimits(signingConfiguration *signing.Configura
 // one set of gap limits is used for all subaccounts for simplicity.
 func (account *Account) gapLimits(
 	signingConfiguration *signing.Configuration) (types.GapLimits, error) {
-	dbTx, err := account.db.Begin()
-	if err != nil {
-		return types.GapLimits{}, err
-	}
-	defer dbTx.Rollback()
-
 	if account.forceGapLimits != nil {
 		account.log.Infof(
 			"persisting gap limits: receive=%d, change=%d",
 			account.forceGapLimits.Receive,
 			account.forceGapLimits.Change,
 		)
-		if err := dbTx.PutGapLimits(*account.forceGapLimits); err != nil {
+		err := transactions.DBUpdate(account.db, func(dbTx transactions.DBTxInterface) error {
+			return dbTx.PutGapLimits(*account.forceGapLimits)
+		})
+		if err != nil {
 			return types.GapLimits{}, err
 		}
-		defer func() {
-			if err := dbTx.Commit(); err != nil {
-				account.log.WithError(err).Error("failed to persist gap limits")
-			}
-		}()
 	}
 
 	defaultLimits := account.defaultGapLimits(signingConfiguration)
 
-	limits, err := dbTx.GapLimits()
-	if err != nil {
-		return types.GapLimits{}, err
-	}
-	if limits.Receive < defaultLimits.Receive {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("receive gap limit increased to minimum of %d", defaultLimits.Receive)
+	return transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (types.GapLimits, error) {
+		limits, err := dbTx.GapLimits()
+		if err != nil {
+			return types.GapLimits{}, err
 		}
-		limits.Receive = defaultLimits.Receive
-	}
-	if limits.Receive > maxGapLimit {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("receive gap limit decreased to maximum of %d", maxGapLimit)
+		if limits.Receive < defaultLimits.Receive {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("receive gap limit increased to minimum of %d", defaultLimits.Receive)
+			}
+			limits.Receive = defaultLimits.Receive
 		}
-		limits.Receive = maxGapLimit
-	}
-	if limits.Change < defaultLimits.Change {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("change gap limit increased to minimum of %d", defaultLimits.Change)
+		if limits.Receive > maxGapLimit {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("receive gap limit decreased to maximum of %d", maxGapLimit)
+			}
+			limits.Receive = maxGapLimit
 		}
-		limits.Change = defaultLimits.Change
-	}
-	if limits.Change > maxGapLimit {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("change gap limit decreased to maximum of %d", maxGapLimit)
+		if limits.Change < defaultLimits.Change {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("change gap limit increased to minimum of %d", defaultLimits.Change)
+			}
+			limits.Change = defaultLimits.Change
 		}
-		limits.Change = maxGapLimit
-	}
-	if receiveAddressesLimit > limits.Receive {
-		panic("receive address limit must be smaller")
-	}
-	return limits, nil
+		if limits.Change > maxGapLimit {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("change gap limit decreased to maximum of %d", maxGapLimit)
+			}
+			limits.Change = maxGapLimit
+		}
+		if receiveAddressesLimit > limits.Receive {
+			panic("receive address limit must be smaller")
+		}
+		return limits, nil
+	})
 }
 
 // getMinRelayFeeRate fetches the min relay fee from the server and returns it. The value is cached
@@ -533,7 +527,12 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Balance() after a fatal error")
 	}
-	return account.transactions.Balance(), nil
+	balance, err := account.transactions.Balance()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	return balance, nil
 }
 
 func (account *Account) incAndEmitSyncCounter() {
@@ -548,12 +547,9 @@ func (account *Account) incAndEmitSyncCounter() {
 }
 
 func (account *Account) getAddressHistory(address *addresses.AccountAddress) (blockchain.TxHistory, error) {
-	dbTx, err := account.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer dbTx.Rollback()
-	return dbTx.AddressHistory(address.PubkeyScriptHashHex())
+	return transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (blockchain.TxHistory, error) {
+		return dbTx.AddressHistory(address.PubkeyScriptHashHex())
+	})
 }
 
 func (account *Account) isAddressUsed(address *addresses.AccountAddress) (bool, error) {
@@ -673,7 +669,7 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
-	return account.transactions.Transactions(
+	txs, err := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			for _, subacc := range account.subaccounts {
 				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
@@ -681,7 +677,12 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 				}
 			}
 			return false
-		}), nil
+		})
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	return txs, nil
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.
@@ -771,7 +772,12 @@ type SpendableOutput struct {
 func (account *Account) SpendableOutputs() []*SpendableOutput {
 	account.Synchronizer.WaitSynchronized()
 	result := []*SpendableOutput{}
-	for outPoint, txOut := range account.transactions.SpendableOutputs() {
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	for outPoint, txOut := range utxos {
 		result = append(
 			result,
 			&SpendableOutput{

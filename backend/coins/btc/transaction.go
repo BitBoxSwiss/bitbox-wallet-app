@@ -141,7 +141,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if err != nil {
 		return nil, nil, err
 	}
-	utxo := account.transactions.SpendableOutputs()
+	utxo, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return nil, nil, err
+	}
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
 		// Apply coin control.
@@ -234,7 +237,10 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	utxos := account.transactions.SpendableOutputs()
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return err
+	}
 	if err := account.signTransaction(txProposal, utxos, account.coin.Blockchain().TransactionGet); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
