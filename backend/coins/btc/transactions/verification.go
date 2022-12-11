@@ -32,7 +32,6 @@ func (transactions *Transactions) onHeadersEvent(event headers.Event) {
 }
 
 func (transactions *Transactions) unverifiedTransactions() (map[chainhash.Hash]int, error) {
-	defer transactions.RLock()()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (map[chainhash.Hash]int, error) {
 		unverifiedTransactions, err := dbTx.UnverifiedTransactions()
 		if err != nil {
@@ -104,7 +103,6 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	}
 	transactions.log.Debugf("Merkle root verification succeeded")
 
-	defer transactions.Lock()()
 	err = DBUpdate(transactions.db, func(dbTx DBTxInterface) error {
 		return dbTx.MarkTxVerified(txHash, header.Timestamp)
 	})

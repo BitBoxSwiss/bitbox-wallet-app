@@ -49,8 +49,6 @@ func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
 // outputs, etc.
 type Transactions struct {
-	locker.Locker
-
 	net     *chaincfg.Params
 	db      DBInterface
 	headers headers.Interface
@@ -197,7 +195,6 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 // ourselves.
 func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error) {
 	transactions.synchronizer.WaitSynchronized()
-	defer transactions.RLock()()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (map[wire.OutPoint]*SpendableOutput, error) {
 		outputs, err := dbTx.Outputs()
 		if err != nil {
@@ -281,7 +278,6 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		transactions.log.Debug("UpdateAddressHistory after the instance was closed")
 		return
 	}
-	defer transactions.Lock()()
 	err := DBUpdate(transactions.db, func(dbTx DBTxInterface) error {
 		txsSet := map[chainhash.Hash]struct{}{}
 		for _, txInfo := range txs {
@@ -342,7 +338,6 @@ func (transactions *Transactions) getTransactionCached(
 // Balance computes the confirmed and unconfirmed balance of the account.
 func (transactions *Transactions) Balance() (*accounts.Balance, error) {
 	transactions.synchronizer.WaitSynchronized()
-	defer transactions.RLock()()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (*accounts.Balance, error) {
 		outputs, err := dbTx.Outputs()
 		if err != nil {
@@ -504,7 +499,6 @@ func (transactions *Transactions) txInfo(
 func (transactions *Transactions) Transactions(
 	isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
 	transactions.synchronizer.WaitSynchronized()
-	defer transactions.RLock()()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (accounts.OrderedTransactions, error) {
 		txs := []*accounts.TransactionData{}
 		txHashes, err := dbTx.Transactions()
