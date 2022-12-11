@@ -74,16 +74,17 @@ type Account struct {
 	// interval.
 	enqueueUpdateCh chan struct{}
 
-	address     Address
-	balance     coin.Amount
-	blockNumber *big.Int
+	address Address
 
-	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal     *TxProposal
-	activeTxProposalLock locker.Locker
-
+	// updateLock covers balance, blockNumber, nextNonce, transactions and activeTxProposal.
+	updateLock   locker.Locker
+	balance      coin.Amount
+	blockNumber  *big.Int
 	nextNonce    uint64
 	transactions []*accounts.TransactionData
+
+	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
+	activeTxProposal *TxProposal
 
 	quitChan chan struct{}
 
@@ -314,6 +315,7 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 }
 
 func (account *Account) update() error {
+	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
 	blockNumber, err := account.coin.client.BlockNumber(context.TODO())
@@ -593,7 +595,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 
 // SendTx implements accounts.Interface.
 func (account *Account) SendTx() error {
-	unlock := account.activeTxProposalLock.RLock()
+	unlock := account.updateLock.RLock()
 	txProposal := account.activeTxProposal
 	unlock()
 	if txProposal == nil {
@@ -729,7 +731,7 @@ func (account *Account) gasPrice(args *accounts.TxProposalArgs) (*big.Int, error
 func (account *Account) TxProposal(
 	args *accounts.TxProposalArgs,
 ) (coin.Amount, coin.Amount, coin.Amount, error) {
-	defer account.activeTxProposalLock.Lock()()
+	defer account.updateLock.Lock()()
 	txProposal, err := account.newTx(args)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
