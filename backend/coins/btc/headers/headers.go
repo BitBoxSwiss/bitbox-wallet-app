@@ -49,6 +49,7 @@ const (
 )
 
 // Interface represents the public API of this package.
+//
 //go:generate mockery -name Interface
 type Interface interface {
 	Initialize()
@@ -204,13 +205,13 @@ func (headers *Headers) download() {
 			// TODO
 			return
 		}
-		blockHeaders, max, err := headers.blockchain.Headers(tip+1, headers.headersPerBatch)
+		headersResult, err := headers.blockchain.Headers(tip+1, headers.headersPerBatch)
 		if err != nil {
 			// TODO
 			headers.log.WithError(err).Error("blockchain.Headers")
 			return
 		}
-		if err := headers.processBatch(db, tip, blockHeaders, max); err != nil {
+		if err := headers.processBatch(db, tip, headersResult.Headers, headersResult.Max); err != nil {
 			// TODO
 			headers.log.WithError(err).Error("processBatch")
 			return

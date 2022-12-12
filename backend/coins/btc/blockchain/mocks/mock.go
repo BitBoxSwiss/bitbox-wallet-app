@@ -32,8 +32,8 @@ type BlockchainMock struct {
 	MockTransactionBroadcast func(*wire.MsgTx) error
 	MockRelayFee             func() (btcutil.Amount, error)
 	MockEstimateFee          func(int) (btcutil.Amount, error)
-	MockHeaders              func(int, int) ([]*wire.BlockHeader, int, error)
-	MockGetMerkle            func(chainhash.Hash, int) ([]blockchain.TXHash, int, error)
+	MockHeaders              func(int, int) (*blockchain.HeadersResult, error)
+	MockGetMerkle            func(chainhash.Hash, int) (*blockchain.GetMerkleResult, error)
 	MockClose                func()
 	MockConnectionError      func() error
 
@@ -95,15 +95,18 @@ func (b *BlockchainMock) EstimateFee(i int) (btcutil.Amount, error) {
 }
 
 // Headers implements Interface.
-func (b *BlockchainMock) Headers(i1 int, i2 int) ([]*wire.BlockHeader, int, error) {
+func (b *BlockchainMock) Headers(i1 int, i2 int) (*blockchain.HeadersResult, error) {
 	if b.MockHeaders != nil {
 		return b.MockHeaders(i1, i2)
 	}
-	return []*wire.BlockHeader{}, 1, nil
+	return &blockchain.HeadersResult{
+		Headers: []*wire.BlockHeader{},
+		Max:     1,
+	}, nil
 }
 
 // GetMerkle implements Interface.
-func (b *BlockchainMock) GetMerkle(h chainhash.Hash, i int) ([]blockchain.TXHash, int, error) {
+func (b *BlockchainMock) GetMerkle(h chainhash.Hash, i int) (*blockchain.GetMerkleResult, error) {
 	if b.MockGetMerkle != nil {
 		return b.MockGetMerkle(h, i)
 	}
