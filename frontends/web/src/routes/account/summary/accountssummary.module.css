@@ -52,7 +52,7 @@
 }
 
 .table thead th {
-    border-bottom: solid 1px var(--color-mediumgray);
+    border-bottom: solid 1px var(--background-quaternary);
 }
 
 .table thead th,

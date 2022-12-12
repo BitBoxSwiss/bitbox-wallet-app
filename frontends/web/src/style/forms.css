@@ -5,6 +5,12 @@ label {
     user-select: none;
 }
 
+input[type="text"],
+textarea {
+    color: var(--color-default);
+    background: var(--background);
+}
+
 .label,
 label,
 dt {
