@@ -1,8 +1,23 @@
+// Copyright 2022 Shift Crypto AG
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package exchanges
 
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -10,12 +25,21 @@ import (
 )
 
 const (
-	// pocketAPITestURL is the url of the pocket widget in test environment.
-	pocketAPITestURL = "https://widget.staging.pocketbitcoin.com/widget_mjxWDmSUkMvdQdXDCeHrjC"
+	// pocketWidgetTestURL is the url of the pocket widget in test environment.
+	pocketWidgetTestURL = "https://widget.staging.pocketbitcoin.com/widget_mjxWDmSUkMvdQdXDCeHrjC"
 
-	// pocketAPILiveURL is the url of the pocket widget in production environment.
-	pocketAPILiveURL = "https://widget.pocketbitcoin.com/widget_vqx25E6kzvGBYGjN2QoXVH"
+	// pocketWidgetLiveURL is the url of the pocket widget in production environment.
+	pocketWidgetLiveURL = "https://widget.pocketbitcoin.com/widget_vqx25E6kzvGBYGjN2QoXVH"
+
+	// pocketAPILiveURL is the base url of pocket API in production environment.
+	pocketAPILiveURL = "https://widget.pocketbitcoin.com/api"
 )
+
+// PocketRegion represents informations collected by Pocket supported countries REST call.
+type PocketRegion struct {
+	Code    string `json:"code"`
+	Country string `json:"country"`
+}
 
 // PocketURL returns the url needed to incorporate the widget in the frontend, verifying
 // if the account is mainnet or testnet.
@@ -23,9 +47,9 @@ func PocketURL(acct accounts.Interface) (string, error) {
 	apiURL := ""
 	switch acct.Coin().Code() {
 	case coin.CodeBTC:
-		apiURL = pocketAPILiveURL
+		apiURL = pocketWidgetLiveURL
 	case coin.CodeTBTC:
-		apiURL = pocketAPITestURL
+		apiURL = pocketWidgetTestURL
 	default:
 		err := fmt.Errorf("unsupported cryptocurrency code %q", acct.Coin().Code())
 		return "", err
@@ -40,6 +64,35 @@ func IsPocketSupported(account accounts.Interface) bool {
 	canSign := account.Config().Keystore.CanSignMessage(coinCode)
 	// Pocket would also support tbtc, but at the moment testnet address signing is disabled on firmware.
 	return (coinCode == coin.CodeBTC || coinCode == coin.CodeTBTC) && canSign
+}
+
+// PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
+func PocketDeals() []ExchangeDeal {
+	return []ExchangeDeal{
+		{
+			Fee:     0.015, //1.5%
+			Payment: BankTransferPayment,
+			IsFast:  false,
+		},
+	}
+}
+
+// GetPocketSupportedRegions query pocket API and returns a map of available regions.
+func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion, error) {
+	regionsMap := make(map[string]PocketRegion)
+	var regionsList []PocketRegion
+	endpoint := fmt.Sprintf("%s/availabilities", pocketAPILiveURL)
+
+	err := APIGet(httpClient, endpoint, &regionsList)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, region := range regionsList {
+		regionsMap[region.Code] = region
+	}
+
+	return regionsMap, nil
 }
 
 // PocketWidgetSignAddress returns an unused address and makes the user sign a message to prove ownership.

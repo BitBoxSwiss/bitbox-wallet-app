@@ -24,6 +24,34 @@ export type AddressSignResponse = {
   address: string;
   error: string;
 }
+export type ExchangeRegionList = {
+  regions: ExchangeRegion[];
+}
+
+export type ExchangeRegion = {
+  code: string;
+  isMoonpayEnabled: boolean;
+  isPocketEnabled: boolean;
+}
+
+export type ExchangeDeal = {
+  fee: number;
+  payment: 'card' | 'bank-transfer';
+  isFast: boolean;
+}
+
+export type ExchangeDeals = {
+  pocket: ExchangeDeal[];
+  moonpay: ExchangeDeal[];
+}
+
+export const getExchangesByRegion = (): Promise<ExchangeRegionList> => {
+  return apiGet('exchange/by-region');
+};
+
+export const getExchangeDeals = (): Promise<ExchangeDeals> => {
+  return apiGet('exchange/deals');
+};
 
 export const isMoonpayBuySupported = (code: string) => {
   return (): Promise<boolean> => {
@@ -45,4 +73,8 @@ export const isPocketSupported = (accountCode: string) => {
   return (): Promise<boolean> => {
     return apiGet(`exchange/pocket/buy-supported/${accountCode}`);
   };
+};
+
+export const isExchangeBuySupported = (code: string): Promise<boolean> => {
+  return apiGet(`exchange/buy-supported/${code}`);
 };

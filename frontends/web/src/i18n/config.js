@@ -25,6 +25,10 @@ function i18nextFormat(locale) {
   return locale.replace('_', '-');
 }
 
+export const localeMainLanguage = (locale) => {
+  return i18nextFormat(locale).split('-')[0];
+};
+
 export const languageFromConfig = {
   type: 'languageDetector',
   async: true,

@@ -22,7 +22,7 @@ import { Header } from '../../components/layout';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Spinner } from '../../components/spinner/Spinner';
-import { isBitcoinOnly } from '../account/utils';
+import { findAccount, getCryptoName } from '../account/utils';
 import { Button, Checkbox } from '../../components/forms';
 import { setConfig } from '../../utils/config';
 import A from '../../components/anchor/anchor';
@@ -57,7 +57,6 @@ class Moonpay extends Component<Props, State> {
 
   public componentDidMount() {
     window.addEventListener('resize', this.onResize);
-    console.log(this.props.config.frontend.skipBuyDisclaimer);
   }
 
   public componentWillUnmount() {
@@ -84,33 +83,15 @@ class Moonpay extends Component<Props, State> {
     }, 200);
   };
 
-  private getAccount = (): IAccount | undefined => {
-    if (!this.props.accounts) {
-      return undefined;
-    }
-    return this.props.accounts.find(({ code }) => code === this.props.code);
-  };
-
-  private getCryptoName = (): string => {
-    const { t } = this.props;
-    const account = this.getAccount();
-    if (account) {
-      return isBitcoinOnly(account.coinCode) ? 'Bitcoin' : t('buy.info.crypto');
-    }
-    return t('buy.info.crypto');
-  };
-
-
   public render() {
     const { moonpay, t } = this.props;
     const { agreedTerms, height, iframeLoaded } = this.state;
-    const account = this.getAccount();
-
+    const account = findAccount(this.props.accounts, this.props.code);
     if (!account || moonpay.url === '') {
       return null;
     }
 
-    const name = this.getCryptoName();
+    const name = getCryptoName(t('buy.info.crypto'), account);
     return (
 
       <div className="contentWithGuide">
