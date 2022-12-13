@@ -8,7 +8,7 @@ label {
 input[type="text"],
 textarea {
     color: var(--color-default);
-    background: var(--background);
+    background: var(--background-secondary);
 }
 
 .label,
