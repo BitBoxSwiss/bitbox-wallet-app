@@ -137,8 +137,8 @@ func MoonpayDeals() []ExchangeDeal {
 	}
 }
 
-// BuyMoonpay returns info for the frontend to initiate an onramp flow.
-func BuyMoonpay(acct accounts.Interface, params BuyMoonpayParams) (BuyMoonpayInfo, error) {
+// MoonpayInfo returns info for the frontend to initiate an onramp flow.
+func MoonpayInfo(acct accounts.Interface, params BuyMoonpayParams) (BuyMoonpayInfo, error) {
 	if !IsMoonpaySupported(acct.Coin().Code()) {
 		return BuyMoonpayInfo{}, fmt.Errorf("unsupported cryptocurrency code %q", acct.Coin().Code())
 	}
