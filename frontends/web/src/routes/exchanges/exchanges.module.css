@@ -1,5 +1,5 @@
 .filters {
-    background: white;
+    background: var(--background-secondary);
     margin-bottom: var(--space-default);
     padding: var(--space-half) var(--space-default);
 }
@@ -32,7 +32,7 @@
 .row {
     align-content: stretch;
     align-items: stretch;
-    background: white;
+    background: var(--background-secondary);
     cursor: pointer;
     display: flex;
     flex-direction: row;

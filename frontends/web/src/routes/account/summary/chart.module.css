@@ -142,7 +142,7 @@
   
 
 .tooltip {
-  background: white;
+  background: var(--background-secondary);
   border: 1px solid #dedede;
   border-radius: 3px;
   font-size: var(--size-small);
