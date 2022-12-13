@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
-import { Button, Select, Radio } from '../../components/forms';
+import { Button, Select, ButtonLink } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
@@ -25,7 +25,11 @@ import { findAccount, getCryptoName } from '../account/utils';
 import { route } from '../../utils/route';
 import { useLoad } from '../../hooks/api';
 import { languageFromConfig, localeMainLanguage } from '../../i18n/config';
+import { findLowestFee, findBestDeal as findBestD } from './utils';
+import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
+import { Spinner } from '../../components/spinner/Spinner';
 import style from './exchange.module.css';
+import { FrontendExchangeDealsList } from './types';
 
 type TProps = {
     code: string;
@@ -49,7 +53,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const [selectedExchange, setSelectedExchange] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
   const [locale, setLocale] = useState('');
-  const [bestDeal, setBestDeal] = useState<exchangesAPI.ExchangeDeal>();
+  const [allExchangeDeals, setAllExchanges] = useState<FrontendExchangeDealsList>();
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
@@ -74,6 +78,20 @@ export const Exchange = ({ code, accounts }: TProps) => {
     regions.sort((a, b) => a.text.localeCompare(b.text, locale));
     setRegions(regions);
   }, [regionList, locale]);
+
+  useEffect(() => {
+    if (!exchangeDeals) {
+      return;
+    }
+
+    const deals = { exchanges: exchangeDeals.exchanges.map(ex => ({ ...ex, supported: ex.exchangeName === 'pocket' ? showPocket : showMoonpay })) };
+
+    const lowestFee = findLowestFee(deals);
+    const exchangesWithBestDeal = findBestD(deals, lowestFee);
+
+    setAllExchanges(exchangesWithBestDeal);
+  }, [selectedRegion, showMoonpay, showPocket, exchangeDeals]);
+
 
   // update exchange list when:
   // - pocket/moonpay supported async calls return
@@ -110,53 +128,14 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   }, [selectedRegion, regionList, supportedExchanges]);
 
-  const findBestDeal = (deals: exchangesAPI.ExchangeDeal[]): exchangesAPI.ExchangeDeal => {
-    let best = deals[0];
-    deals.forEach(deal => best = deal.fee < best.fee ? deal : best);
-    return best;
-  };
-
-  // set the bestDeal when getExchangeDeals returns.
-  useEffect(() => {
-    if (!exchangeDeals) {
-      return;
-    }
-    const pocketBest = findBestDeal(exchangeDeals.exchanges[0].deals);
-    const moonpayBest = findBestDeal(exchangeDeals.exchanges[1].deals);
-    setBestDeal(findBestDeal([pocketBest, moonpayBest]));
-  }, [exchangeDeals]);
-
-  const dealsDetails = (exchange: string): string => {
-    if (!exchangeDeals) {
-      return '';
-    }
-    var details = exchange === 'pocket' ? 'Pocket' : 'Moonpay';
-    const deals = exchange === 'pocket' ? exchangeDeals.exchanges[0].deals : exchangeDeals.exchanges[1].deals;
-    deals.forEach(deal => {
-      details += ' | ';
-      details += deal.payment === 'card' ? t('buy.exchange.creditCard') : t('buy.exchange.bankTransfer');
-      details += ' - ' + t('buy.exchange.fee') + ': ';
-      details += String(deal.fee * 100) + '%';
-      if (deal === bestDeal && showPocket && showMoonpay) {
-        details += ' - ';
-        //TODO replace with icon
-        details += 'BEST DEAL';
-      }
-      if (deal.isFast) {
-        details += ' - ';
-        //TODO replace with icon
-        details += 'FAST';
-      }
-    });
-    return details;
-  };
-
   const goToExchange = () => {
     if (!selectedExchange) {
       return;
     }
     route(`/buy/${selectedExchange}/${code}`);
   };
+
+  const noExchangeAvailable = !showMoonpay && !showPocket;
 
   return (
     <div className="contentWithGuide">
@@ -165,57 +144,60 @@ export const Exchange = ({ code, accounts }: TProps) => {
           <Header title={<h2>{t('buy.exchange.title', { name })}</h2>} />
         </div>
         <div className="innerContainer">
-          {t('buy.exchange.region')}
-          <div>
-            { regions.length ? (
-              <Select
-                options={[{
-                  text: t('buy.exchange.selectRegion'),
-                  value: '',
-                },
-                ...regions]
-                }
-                onChange={(e: React.SyntheticEvent) => setSelectedRegion((e.target as HTMLSelectElement).value)}
-                id="exchangeRegions"
-              />
-            ) : ('')}
-          </div>
-          <div>
-            { !showMoonpay && !showPocket && (
-              t('buy.exchange.noExchanges')
-            )}
-          </div>
-          <div>
-            { showMoonpay && (<Radio
-              disabled={!selectedRegion}
-              id="moonpay"
-              checked={ selectedExchange === 'moonpay' }
-              onChange={() => setSelectedExchange('moonpay')} >
-              {dealsDetails('moonpay')}
+          <div className={[style.exchangeContainer, 'content', 'narrow'].join(' ')}>
+            <h1 className={style.title}>{t('buy.title', { name })}</h1>
+            <p className={style.label}>{t('buy.exchange.region')}</p>
+            {regions.length ? (
+              <>
+                <Select
+                  options={[{
+                    text: t('buy.exchange.selectRegion'),
+                    value: '',
+                  },
+                  ...regions]
+                  }
+                  onChange={(e: React.SyntheticEvent) => setSelectedRegion((e.target as HTMLSelectElement).value)}
+                  id="exchangeRegions"
+                />
 
-            </Radio>) }
-          </div>
-          <div>
-            { showPocket && (<Radio
-              disabled={!selectedRegion}
-              id="pocket"
-              checked={ selectedExchange === 'pocket' }
-              onChange={() => setSelectedExchange('pocket')} >
-              {dealsDetails('pocket')}
-            </Radio>) }
-          </div>
-          <div>
-            <Button
-              primary
-              disabled={!selectedExchange}
-              onClick={goToExchange} >
-          Next
-            </Button>
+                <div>
+                  {noExchangeAvailable && (
+                    <p className={style.noExchangeText}>{t('buy.exchange.noExchanges')}</p>
+                  )}
+
+                  <div>
+                    {!noExchangeAvailable && allExchangeDeals && allExchangeDeals.exchanges.map(exchange => exchange.supported && (<ExchangeSelectionRadio
+                      key={exchange.exchangeName}
+                      disabled={!selectedRegion}
+                      id={exchange.exchangeName}
+                      exchangeName={exchange.exchangeName}
+                      deals={exchange.deals}
+                      checked={selectedExchange === exchange.exchangeName}
+                      onChange={() => setSelectedExchange(exchange.exchangeName)} />
+                    ))}
+                  </div>
+
+                  {!noExchangeAvailable && <div className={style.buttonsContainer}>
+                    <ButtonLink
+                      className={style.buttonBack}
+                      secondary
+                      to={'/buy/info'}>
+                      {t('button.back')}
+                    </ButtonLink>
+                    <Button
+                      primary
+                      disabled={!selectedExchange}
+                      onClick={goToExchange} >
+                      {t('button.next')}
+                    </Button>
+                  </div>}
+                </div>
+              </>
+            ) : <Spinner/>}
           </div>
         </div>
       </div>
       <Guide name={name} />
     </div>
-
   );
 };

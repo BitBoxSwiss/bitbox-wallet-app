@@ -306,7 +306,9 @@
   "buy": {
     "exchange": {
       "bankTransfer": "Bank transfer",
+      "bestDeal": "Best Deal",
       "creditCard": "Credit card",
+      "fast": "Fast",
       "fee": "fee",
       "noExchanges": "Sorry, there are no available exchanges in this region.",
       "region": "Region",
