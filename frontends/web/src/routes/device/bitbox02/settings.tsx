@@ -20,10 +20,7 @@ import { route } from '../../../utils/route';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { getDeviceInfo, DeviceInfo, getVersion, verifyAttestation } from '../../../api/bitbox02';
-import { SwissMadeOpenSource } from '../../../components/icon/logo';
 import { Checked, Warning } from '../../../components/icon/icon';
-import { Footer } from '../../../components/layout';
-import { Header } from '../../../components/layout/header';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../../components/settingsButton/settingsItem';
 import { GotoStartupSettings } from './gotostartupsettings';
@@ -33,6 +30,8 @@ import { ShowMnemonic } from './showmnemonic';
 import { UpgradeButton } from './upgradebutton';
 import { alertUser } from '../../../components/alert/Alert';
 import { ManageDeviceGuide } from './settings-guide';
+import { View, ViewContent, ViewHeader } from '../../../components/view/view';
+import { Column, Grid, Header, Main } from '../../../components/layout';
 
 type TProps = {
     deviceID: string;
@@ -61,86 +60,69 @@ export const Settings = ({ deviceID }: TProps) => {
     return null;
   }
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer scrollableContainer">
-          <Header title={<h2>{t('sidebar.device')}</h2>} />
-          <div className="content padded">
-            <div className="columnsContainer">
-              <div className="columns">
-                <div className="column column-1-2">
-                  <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
-                  <div className="box slim divide">
-                    <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
-                      {t('deviceSettings.secrets.manageBackups')}
-                    </SettingsButton>
-                    <ShowMnemonic apiPrefix={apiPrefix} />
-                    <Reset apiPrefix={apiPrefix} />
-                  </div>
-                </div>
-                <div className="column column-1-2">
-                  <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
-                  <div className="box slim divide">
-                    <SetDeviceName
-                      deviceName={deviceInfo.name}
-                      deviceID={deviceID} />
-                    { deviceInfo && deviceInfo.securechipModel !== '' && (
-                      <SettingsItem optionalText={deviceInfo.securechipModel}>
-                        {t('deviceSettings.hardware.securechip')}
-                      </SettingsItem>
-                    ) }
-                    {attestation !== null && (
-                      <SettingsItem
-                        optionalText={t(`deviceSettings.hardware.attestation.${attestation}`)}
-                        optionalIcon={attestation ? <Checked/> : <Warning/>}>
-                        {t('deviceSettings.hardware.attestation.label')}
-                      </SettingsItem>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column column-1-2">
-                  <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
-                  <div className="box slim divide">
-                    {
-                      versionInfo && versionInfo.canUpgrade ? (
-                        <UpgradeButton
-                          deviceID={deviceID}
-                          versionInfo={versionInfo}/>
-                      ) : versionInfo && (
-                        <SettingsItem
-                          optionalText={versionInfo.currentVersion}
-                          optionalIcon={<Checked/>}>
-                          {t('deviceSettings.firmware.upToDate')}
-                        </SettingsItem>
-                      )
-                    }
-                  </div>
-                </div>
-                <div className="column column-1-2">
-                  <h3 className="subTitle">{t('settings.expert.title')}</h3>
-                  <div className="box slim divide">
-                    <SettingsButton onClick={routeToPassphrase}>
-                      { deviceInfo.mnemonicPassphraseEnabled
-                        ? t('passphrase.disable')
-                        : t('passphrase.enable')}
-                    </SettingsButton>
-                    { versionInfo && versionInfo.canGotoStartupSettings ? (
-                      <GotoStartupSettings apiPrefix={apiPrefix} />
-                    ) : null
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <Footer>
-            <SwissMadeOpenSource />
-          </Footer>
-        </div>
-      </div>
+    <Main>
+      <Header />
+      <View fullscreen={false} withBottomBar>
+        <ViewHeader small title={t('sidebar.device')} />
+        <ViewContent>
+          <Grid>
+            <Column>
+              <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
+              <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
+                {t('deviceSettings.secrets.manageBackups')}
+              </SettingsButton>
+              <ShowMnemonic apiPrefix={apiPrefix} />
+              <Reset apiPrefix={apiPrefix} />
+            </Column>
+            <Column>
+              <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
+              <SetDeviceName
+                deviceName={deviceInfo.name}
+                deviceID={deviceID} />
+              { deviceInfo && deviceInfo.securechipModel !== '' && (
+                <SettingsItem optionalText={deviceInfo.securechipModel}>
+                  {t('deviceSettings.hardware.securechip')}
+                </SettingsItem>
+              ) }
+              {attestation !== null && (
+                <SettingsItem
+                  optionalText={t(`deviceSettings.hardware.attestation.${attestation}`)}
+                  optionalIcon={attestation ? <Checked/> : <Warning/>}>
+                  {t('deviceSettings.hardware.attestation.label')}
+                </SettingsItem>
+              )}
+            </Column>
+          </Grid>
+          <Grid>
+            <Column>
+              <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
+              { versionInfo && versionInfo.canUpgrade ? (
+                <UpgradeButton
+                  deviceID={deviceID}
+                  versionInfo={versionInfo}/>
+              ) : versionInfo && (
+                <SettingsItem
+                  optionalText={versionInfo.currentVersion}
+                  optionalIcon={<Checked/>}>
+                  {t('deviceSettings.firmware.upToDate')}
+                </SettingsItem>
+              )}
+            </Column>
+            <Column>
+              <h3 className="subTitle">{t('settings.expert.title')}</h3>
+              <SettingsButton onClick={routeToPassphrase}>
+                { deviceInfo.mnemonicPassphraseEnabled
+                  ? t('passphrase.disable')
+                  : t('passphrase.enable')}
+              </SettingsButton>
+              { versionInfo && versionInfo.canGotoStartupSettings ? (
+                <GotoStartupSettings apiPrefix={apiPrefix} />
+              ) : null }
+            </Column>
+          </Grid>
+        </ViewContent>
+      </View>
       <ManageDeviceGuide />
-    </div>
+    </Main>
   );
 };
