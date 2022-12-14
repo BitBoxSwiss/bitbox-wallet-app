@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, createRef, ChangeEvent } from 'react';
+import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
 import { IAccount } from '../../api/account';
@@ -25,9 +25,7 @@ import Guide from './guide';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
-import { Button, Checkbox } from '../../components/forms';
-import { setConfig } from '../../utils/config';
-import A from '../../components/anchor/anchor';
+import { MoonpayTerms } from './moonpay-terms';
 import style from './moonpay.module.css';
 
 type TProps = {
@@ -62,10 +60,6 @@ export const Moonpay = ({ accounts, code }: TProps) => {
     return () => window.removeEventListener('resize', onResize);
   });
 
-  const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBuyDisclaimer: e.target.checked } });
-  };
-
   const onResize = () => {
     if (resizeTimerID) {
       clearTimeout(resizeTimerID);
@@ -91,79 +85,10 @@ export const Moonpay = ({ accounts, code }: TProps) => {
             <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
           </div>
           { !agreedTerms ? (
-            <div className={style.disclaimerContainer}>
-              <div className={style.disclaimer}>
-                <h2 className={style.title}>
-                  {t('buy.info.disclaimer.title', { name })}
-                </h2>
-                <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
-                <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
-                <h2 className={style.title}>
-                  {t('buy.info.disclaimer.payment.title')}
-                </h2>
-                <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
-                <div className={style.table}>
-                  <table>
-                    <colgroup>
-                      <col width="*" />
-                      <col width="50px" />
-                      <col width="*" />
-                    </colgroup>
-                    <thead>
-                      <tr>
-                        <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                        <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                        <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                        <td className={style.nowrap}>1.9 %</td>
-                        <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-                      </tr>
-                      <tr>
-                        <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                        <td className={style.nowrap}>4.9 %</td>
-                        <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p>{t('buy.info.disclaimer.payment.footnote')}</p>
-                <h2 className={style.title}>
-                  {t('buy.info.disclaimer.security.title')}
-                </h2>
-                <p>{t('buy.info.disclaimer.security.description', { name })}</p>
-                <p>
-                  <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
-                    {t('buy.info.disclaimer.security.link')}
-                  </A>
-                </p>
-                <h2 className={style.title}>
-                  {t('buy.info.disclaimer.protection.title')}
-                </h2>
-                <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
-                <p>
-                  <A className={style.link} href="https://www.moonpay.com/privacy_policy">
-                    {t('buy.info.disclaimer.privacyPolicy')}
-                  </A>
-                </p>
-              </div>
-              <div className="text-center m-bottom-quarter">
-                <Checkbox
-                  id="skip_disclaimer"
-                  label={t('buy.info.skip')}
-                  onChange={handleSkipDisclaimer} />
-              </div>
-              <div className="buttons text-center m-bottom-xlarge">
-                <Button
-                  primary
-                  onClick={() => setAgreedTerms(true)}>
-                  {t('buy.info.continue')}
-                </Button>
-              </div>
-            </div>
+            <MoonpayTerms
+              account={account}
+              onAgreedTerms={() => setAgreedTerms(true)}
+            />
           ) : (
             <div ref={ref} className="iframeContainer">
               {!iframeLoaded && <Spinner text={t('loading')} />}
