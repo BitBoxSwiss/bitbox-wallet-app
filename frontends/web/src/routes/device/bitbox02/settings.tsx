@@ -30,7 +30,7 @@ import { ShowMnemonic } from './showmnemonic';
 import { UpgradeButton } from './upgradebutton';
 import { alertUser } from '../../../components/alert/Alert';
 import { ManageDeviceGuide } from './settings-guide';
-import { View, ViewContent, ViewHeader } from '../../../components/view/view';
+import { View, ViewContent } from '../../../components/view/view';
 import { Column, Grid, Header, Main } from '../../../components/layout';
 
 type TProps = {
@@ -61,9 +61,8 @@ export const Settings = ({ deviceID }: TProps) => {
   }
   return (
     <Main>
-      <Header />
+      <Header title={<h2>{t('sidebar.device')}</h2>} />
       <View fullscreen={false} withBottomBar>
-        <ViewHeader small title={t('sidebar.device')} />
         <ViewContent>
           <Grid>
             <Column>
