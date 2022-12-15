@@ -33,6 +33,9 @@ const (
 
 	// pocketAPILiveURL is the base url of pocket API in production environment.
 	pocketAPILiveURL = "https://widget.pocketbitcoin.com/api"
+
+	// PocketName is the name of the exchange, it is unique among all the supported exchanges.
+	PocketName = "pocket"
 )
 
 // PocketRegion represents informations collected by Pocket supported countries REST call.
@@ -67,12 +70,15 @@ func IsPocketSupported(account accounts.Interface) bool {
 }
 
 // PocketDeals returns the purchase conditions (fee and payment methods) offered by Pocket.
-func PocketDeals() []ExchangeDeal {
-	return []ExchangeDeal{
-		{
-			Fee:     0.015, //1.5%
-			Payment: BankTransferPayment,
-			IsFast:  false,
+func PocketDeals() ExchangeDeals {
+	return ExchangeDeals{
+		ExchangeName: PocketName,
+		Deals: []ExchangeDeal{
+			{
+				Fee:     0.015, //1.5%
+				Payment: BankTransferPayment,
+				IsFast:  false,
+			},
 		},
 	}
 }

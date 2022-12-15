@@ -207,12 +207,10 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
-	getAPIRouter(apiRouter)("/exchange/by-region", handlers.getExchangesByRegion).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/pocket/buy-supported/{code}", handlers.getExchangePocketBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/api-url/{code}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
@@ -1037,34 +1035,6 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 }
 
 func (handlers *Handlers) getExchangesByRegion(r *http.Request) (interface{}, error) {
-	return exchanges.ListExchangesByRegion(handlers.backend.HTTPClient()), nil
-}
-
-func (handlers *Handlers) getExchangeDeals(r *http.Request) (interface{}, error) {
-	type exchangeDeals struct {
-		Pocket  []exchanges.ExchangeDeal `json:"pocket"`
-		Moonpay []exchanges.ExchangeDeal `json:"moonpay"`
-	}
-	return exchangeDeals{
-		Pocket:  exchanges.PocketDeals(),
-		Moonpay: exchanges.MoonpayDeals(),
-	}, nil
-}
-
-func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{}, error) {
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
-	if err != nil {
-		return nil, err
-	}
-
-	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
-	isMoonpaySupported := exchanges.IsMoonpaySupported(acct.Coin().Code())
-	isPocketSupported := exchanges.IsPocketSupported(acct)
-
-	return accountValid && (isMoonpaySupported || isPocketSupported), nil
-}
-
-func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
 	type errorResult struct {
 		Error string `json:"error"`
 	}
@@ -1075,7 +1045,52 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 		return errorResult{Error: err.Error()}, nil
 	}
 
-	return acct != nil && acct.Offline() == nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if !accountValid {
+		handlers.log.Error("Account not valid")
+		return errorResult{Error: "Account not valid"}, nil
+	}
+
+	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient()), nil
+}
+
+func (handlers *Handlers) getExchangeDeals(r *http.Request) (interface{}, error) {
+	type exchangeDealsList struct {
+		Exchanges []exchanges.ExchangeDeals `json:"exchanges"`
+	}
+
+	return exchangeDealsList{
+		Exchanges: []exchanges.ExchangeDeals{
+			exchanges.PocketDeals(),
+			exchanges.MoonpayDeals(),
+		},
+	}, nil
+}
+
+func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{}, error) {
+	type supportedExchanges struct {
+		Exchanges []string `json:"exchanges"`
+	}
+
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		return nil, err
+	}
+
+	supported := supportedExchanges{Exchanges: []string{}}
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if !accountValid {
+		return supported, nil
+	}
+
+	if exchanges.IsMoonpaySupported(acct.Coin().Code()) {
+		supported.Exchanges = append(supported.Exchanges, exchanges.MoonpayName)
+	}
+	if exchanges.IsPocketSupported(acct) {
+		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
+	}
+
+	return supported, nil
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {
@@ -1120,20 +1135,6 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, er
 	return url, nil
 }
 
-func (handlers *Handlers) getExchangePocketBuySupported(r *http.Request) (interface{}, error) {
-	type errorResult struct {
-		Error string `json:"error"`
-	}
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}, nil
-	}
-
-	return exchanges.IsPocketSupported(acct), nil
-
-}
-
 func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interface{}, error) {
 	var request struct {
 		AccountCode string `json:"accountCode"`
@@ -1145,8 +1146,7 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 	}
 
 	var response struct {
-		Success   bool   `json:"success"`
-		Abort     bool   `json:"abort"`
+		Status    string `json:"status"`
 		Address   string `json:"address"`
 		Signature string `json:"signature"`
 		Error     string `json:"error"`
@@ -1155,7 +1155,6 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
 	if err != nil {
 		handlers.log.Error(err)
-		response.Success = false
 		response.Error = err.Error()
 		return response, nil
 	}
@@ -1167,14 +1166,13 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 		handlers.backend.AoppBTCScriptTypeMap())
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
-			response.Abort = true
+			response.Status = "abort"
 		} else {
 			handlers.log.WithField("code", account.Config().Code).Error(err)
-			response.Success = false
 			response.Error = err.Error()
 		}
 	} else {
-		response.Success = true
+		response.Status = "success"
 	}
 	return response, nil
 }

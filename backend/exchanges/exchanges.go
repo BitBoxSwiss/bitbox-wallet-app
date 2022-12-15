@@ -17,6 +17,7 @@ package exchanges
 import (
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
@@ -73,11 +74,18 @@ type ExchangeDeal struct {
 	IsFast  bool          `json:"isFast"`
 }
 
+// ExchangeDeals list the name of a specific exchange and the list of available deals offered by that exchange.
+type ExchangeDeals struct {
+	ExchangeName string         `json:"exchangeName"`
+	Deals        []ExchangeDeal `json:"deals"`
+}
+
 // ListExchangesByRegion populates an array of `ExchangeRegion` objects representing the availability
-// of the various exchanges in each of them.
+// of the various exchanges in each of them, for the provided account.
+// For each region, an exchange is enabled if it supports the account coin and it is active in that region.
 // NOTE: if one of the endpoint fails for any reason, the related exchange will be set as available in any
-// region by default.
-func ListExchangesByRegion(httpClient *http.Client) ExchangeRegionList {
+// region by default (for the supported coins).
+func ListExchangesByRegion(account accounts.Interface, httpClient *http.Client) ExchangeRegionList {
 	moonpayRegions, moonpayError := GetMoonpaySupportedRegions(httpClient)
 	log := logging.Get().WithGroup("exchanges")
 	if moonpayError != nil {
@@ -88,6 +96,9 @@ func ListExchangesByRegion(httpClient *http.Client) ExchangeRegionList {
 	if pocketError != nil {
 		log.Error(pocketError)
 	}
+
+	isMoonpaySupported := IsMoonpaySupported(account.Coin().Code())
+	isPocketSupported := IsPocketSupported(account)
 
 	exchangeRegions := ExchangeRegionList{}
 	for _, code := range regionCodes {
@@ -101,8 +112,8 @@ func ListExchangesByRegion(httpClient *http.Client) ExchangeRegionList {
 		}
 		exchangeRegions.Regions = append(exchangeRegions.Regions, ExchangeRegion{
 			Code:             code,
-			IsMoonpayEnabled: moonpayEnabled,
-			IsPocketEnabled:  pocketEnabled,
+			IsMoonpayEnabled: moonpayEnabled && isMoonpaySupported,
+			IsPocketEnabled:  pocketEnabled && isPocketSupported,
 		})
 	}
 
