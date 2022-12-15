@@ -211,7 +211,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/buy-supported/{code}", handlers.getExchangePocketBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/api-url/{code}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
@@ -1078,7 +1078,7 @@ func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (inter
 	return acct != nil && acct.Offline() == nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
 }
 
-func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {
 	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
 	if err != nil {
 		return nil, err
@@ -1088,7 +1088,7 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
 		Lang: handlers.backend.Config().AppConfig().Backend.UserLanguage,
 	}
-	buy, err := exchanges.BuyMoonpay(acct, params)
+	buy, err := exchanges.MoonpayInfo(acct, params)
 	if err != nil {
 		return nil, err
 	}

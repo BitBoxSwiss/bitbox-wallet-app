@@ -15,194 +15,103 @@
  * limitations under the License.
  */
 
-import { Component, createRef, ChangeEvent } from 'react';
+import { useState, useEffect, createRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLoad } from '../../hooks/api';
 import { IAccount } from '../../api/account';
+import { getConfig } from '../../api/backend';
+import { getMoonpayBuyInfo } from '../../api/exchanges';
 import Guide from './guide';
 import { Header } from '../../components/layout';
-import { load } from '../../decorators/load';
-import { translate, TranslateProps } from '../../decorators/translate';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
-import { Button, Checkbox } from '../../components/forms';
-import { setConfig } from '../../utils/config';
-import A from '../../components/anchor/anchor';
+import { MoonpayTerms } from './moonpay-terms';
 import style from './moonpay.module.css';
 
-type TBuyProps = {
+type TProps = {
     accounts: IAccount[];
     code: string;
 }
 
-type TLoadedBuyProps = {
-    moonpay: { url: string, address: string; };
-    config: any;
-}
+export const Moonpay = ({ accounts, code }: TProps) => {
+  const { t } = useTranslation();
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [height, setHeight] = useState(0);
 
-type State = {
-  agreedTerms: boolean;
-  height?: number;
-  iframeLoaded: boolean;
-}
+  const config = useLoad(getConfig);
+  const moonpay = useLoad(getMoonpayBuyInfo(code));
 
-type Props = TLoadedBuyProps & TBuyProps & TranslateProps;
+  const account = findAccount(accounts, code);
+  const name = getCryptoName(t('buy.info.crypto'), account);
+  const ref = createRef<HTMLDivElement>();
+  let resizeTimerID: any;
 
-class Moonpay extends Component<Props, State> {
-  public readonly state: State = {
-    agreedTerms: this.props.config.frontend.skipBuyDisclaimer,
-    iframeLoaded: false,
-  };
-
-  private ref = createRef<HTMLDivElement>();
-  private resizeTimerID?: any;
-
-  public componentDidMount() {
-    window.addEventListener('resize', this.onResize);
-  }
-
-  public componentWillUnmount() {
-    window.removeEventListener('resize', this.onResize);
-  }
-
-  private handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBuyDisclaimer: e.target.checked } });
-  };
-
-  private agreeTerms = () => {
-    this.setState({ agreedTerms: true });
-  };
-
-  private onResize = () => {
-    if (this.resizeTimerID) {
-      clearTimeout(this.resizeTimerID);
+  useEffect(() => {
+    if (config) {
+      setAgreedTerms(config.frontend.skipBuyDisclaimer);
     }
-    this.resizeTimerID = setTimeout(() => {
-      if (!this.ref.current) {
+  }, [config]);
+
+  useEffect(() => {
+    onResize();
+    window.addEventListener('resize', onResize);
+
+    return () => window.removeEventListener('resize', onResize);
+  });
+
+  const onResize = () => {
+    if (resizeTimerID) {
+      clearTimeout(resizeTimerID);
+    }
+    resizeTimerID = setTimeout(() => {
+      if (!ref.current) {
         return;
       }
-      this.setState({ height: this.ref.current.offsetHeight });
+      setHeight(ref.current.offsetHeight);
     }, 200);
   };
 
-  public render() {
-    const { moonpay, t } = this.props;
-    const { agreedTerms, height, iframeLoaded } = this.state;
-    const account = findAccount(this.props.accounts, this.props.code);
-    if (!account || moonpay.url === '') {
-      return null;
-    }
+  if (!account || !config) {
+    return null;
+  }
 
-    const name = getCryptoName(t('buy.info.crypto'), account);
-    return (
+  return (
 
-      <div className="contentWithGuide">
-        <div className="container">
-          <div className="innerContainer">
-            <div className={style.header}>
-              <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
-            </div>
-            { !agreedTerms ? (
-              <div className={style.disclaimerContainer}>
-                <div className={style.disclaimer}>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.title', { name })}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.intro.0', { name })}</p>
-                  <p>{t('buy.info.disclaimer.intro.1', { name })}</p>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.payment.title')}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.payment.details', { name })}</p>
-                  <div className={style.table}>
-                    <table>
-                      <colgroup>
-                        <col width="*" />
-                        <col width="50px" />
-                        <col width="*" />
-                      </colgroup>
-                      <thead>
-                        <tr>
-                          <th>{t('buy.info.disclaimer.payment.table.method')}</th>
-                          <th>{t('buy.info.disclaimer.payment.table.fee')}</th>
-                          <th>{t('buy.info.disclaimer.payment.table.description')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{t('buy.info.disclaimer.payment.table.1_method')}</td>
-                          <td className={style.nowrap}>1.9 %</td>
-                          <td>{t('buy.info.disclaimer.payment.table.1_description')}</td>
-                        </tr>
-                        <tr>
-                          <td>{t('buy.info.disclaimer.payment.table.2_method')}</td>
-                          <td className={style.nowrap}>4.9 %</td>
-                          <td>{t('buy.info.disclaimer.payment.table.2_description')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p>{t('buy.info.disclaimer.payment.footnote')}</p>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.security.title')}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.security.description', { name })}</p>
-                  <p>
-                    <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
-                      {t('buy.info.disclaimer.security.link')}
-                    </A>
-                  </p>
-                  <h2 className={style.title}>
-                    {t('buy.info.disclaimer.protection.title')}
-                  </h2>
-                  <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
-                  <p>
-                    <A className={style.link} href="https://www.moonpay.com/privacy_policy">
-                      {t('buy.info.disclaimer.privacyPolicy')}
-                    </A>
-                  </p>
-                </div>
-                <div className="text-center m-bottom-quarter">
-                  <Checkbox
-                    id="skip_disclaimer"
-                    label={t('buy.info.skip')}
-                    onChange={this.handleSkipDisclaimer} />
-                </div>
-                <div className="buttons text-center m-bottom-xlarge">
-                  <Button
-                    primary
-                    onClick={this.agreeTerms}>
-                    {t('buy.info.continue')}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div ref={this.ref} className="iframeContainer">
-                {!iframeLoaded && <Spinner text={t('loading')} />}
+    <div className="contentWithGuide">
+      <div className="container">
+        <div className="innerContainer">
+          <div className={style.header}>
+            <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+          </div>
+          { !agreedTerms ? (
+            <MoonpayTerms
+              account={account}
+              onAgreedTerms={() => setAgreedTerms(true)}
+            />
+          ) : (
+            <div ref={ref} className="iframeContainer">
+              {!iframeLoaded && <Spinner text={t('loading')} />}
+              { moonpay && (
                 <iframe
                   onLoad={() => {
-                    this.setState({ iframeLoaded: true });
-                    this.onResize();
+                    setIframeLoaded(true);
+                    onResize();
                   }}
                   title="Moonpay"
                   width="100%"
-                  height={iframeLoaded ? height : 0}
+                  height={height}
                   frameBorder="0"
                   className={style.iframe}
                   allow="camera; payment"
                   src={`${moonpay.url}&colorCode=%235E94BF`}>
                 </iframe>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-        <Guide name={name} />
       </div>
-    );
-  }
-}
-
-const loadHOC = load<TLoadedBuyProps, TBuyProps & TranslateProps>(({ code }) => ({
-  moonpay: `exchange/moonpay/buy/${code}`,
-  config: 'config',
-}))(Moonpay);
-const HOC = translate()(loadHOC);
-export { HOC as Moonpay };
+      <Guide name={name} />
+    </div>
+  );
+};

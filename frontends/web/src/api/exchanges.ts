@@ -59,6 +59,17 @@ export const isMoonpayBuySupported = (code: string) => {
   };
 };
 
+export type MoonpayBuyInfo = {
+  url: string;
+  address: string;
+}
+
+export const getMoonpayBuyInfo = (code: string) => {
+  return (): Promise<MoonpayBuyInfo> => {
+    return apiGet(`exchange/moonpay/buy-info/${code}`);
+  };
+};
+
 export const signAddress = (format: string, msg: string, accountCode: AccountCode): Promise<AddressSignResponse> => {
   return apiPost('exchange/pocket/sign-address', { format, msg, accountCode });
 };
