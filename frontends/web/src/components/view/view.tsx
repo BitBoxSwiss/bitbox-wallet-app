@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 import { FunctionComponent, ReactNode } from 'react';
-import { AppLogo } from '../icon';
-import { Footer } from '../layout';
-import { SwissMadeOpenSource } from '../icon/logo';
+import { LanguageSwitch } from '../language/language';
+import { Version } from '../layout/version';
+import { AppLogo, SwissMadeOpenSource } from '../icon/logo';
 import { AnimatedChecked, Close } from '../icon/icon';
 import style from './view.module.css';
 
@@ -85,9 +85,13 @@ export const View = ({
       )}
       {withBottomBar && (
         <div style={{ marginTop: 'auto' }}>
-          <Footer>
+          <footer className={style.footer}>
             <SwissMadeOpenSource />
-          </Footer>
+            <div className="m-right-half hide-on-small">
+              <Version />
+            </div>
+            <LanguageSwitch />
+          </footer>
         </div>
       )}
     </div>
