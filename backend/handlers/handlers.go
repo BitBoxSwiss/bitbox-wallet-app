@@ -49,7 +49,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
@@ -104,7 +103,6 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accounts.Code)
-	AoppBTCScriptTypeMap() map[string]signing.ScriptType
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
 }
@@ -213,6 +211,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/api-url/{code}", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
+	getAPIRouter(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
@@ -1155,6 +1154,39 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, er
 	return url, nil
 }
 
+func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		AccountCode string `json:"accountCode"`
+		Address     string `json:"address"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	type response struct {
+		Success   bool   `json:"success"`
+		Error     string `json:"error,omitempty"`
+		ErrorCode string `json:"errorCode,omitempty"`
+	}
+
+	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
+	if err != nil {
+		handlers.log.Error(err)
+		return response{Success: false, Error: err.Error()}, nil
+	}
+
+	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
+	if err != nil {
+		handlers.log.WithField("code", account.Config().Code).Error(err)
+		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
+			return response{Success: false, ErrorCode: string(errCode)}, nil
+		}
+		return response{Success: false, Error: err.Error()}, nil
+	}
+	return response{Success: true}, nil
+
+}
+
 func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interface{}, error) {
 	var request struct {
 		AccountCode string `json:"accountCode"`
@@ -1182,8 +1214,7 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 	response.Address, response.Signature, err = exchanges.PocketWidgetSignAddress(
 		account,
 		request.Msg,
-		request.Format,
-		handlers.backend.AoppBTCScriptTypeMap())
+		request.Format)
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
 			response.Status = "abort"

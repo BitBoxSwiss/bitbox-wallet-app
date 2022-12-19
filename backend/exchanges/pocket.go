@@ -22,6 +22,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 const (
@@ -43,6 +44,19 @@ const (
 	// PocketName is the name of the exchange, it is unique among all the supported exchanges.
 	PocketName = "pocket"
 )
+
+// requestAddressScriptTypeMap maps from format codes specified by request-address js library
+// to our own script type codes. See https://www.npmjs.com/package/request-address
+var requestAddressScriptTypeMap = map[string]signing.ScriptType{
+	"p2pkh":  signing.ScriptTypeP2PKH,
+	"p2wpkh": signing.ScriptTypeP2WPKH,
+	"p2sh":   signing.ScriptTypeP2WPKHP2SH,
+	"p2tr":   signing.ScriptTypeP2TR,
+}
+
+// defaultScriptType is the default type used for address sharing and verification, if the
+// `format` param is not defined.
+var defaultScriptType = "p2wpkh"
 
 // PocketRegion represents informations collected by Pocket supported countries REST call.
 type PocketRegion struct {
@@ -113,13 +127,13 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 // 	`message` is the message that will be signed by the user with the private key linked to the address.
 //	`format` is the script type that should be used in the address derivation, as received by the widget
 //		(see https://github.com/pocketbitcoin/request-address#requestaddressv0messagescripttype).
-// 	`aoppBTCScriptTypeMap` is the map used in the AOPP flow to get the `ScriptType` object related to the `format` param.
+//		If format is empty, native segwit type is used as a fallback.
 //
 // Returned values:
 //	#1: is the first unused address corresponding to the account and the script type identified by the input values.
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
-func PocketWidgetSignAddress(account accounts.Interface, message string, format string, aoppBTCScriptTypeMap map[string]signing.ScriptType) (string, string, error) {
+func PocketWidgetSignAddress(account accounts.Interface, message string, format string) (string, string, error) {
 
 	if !IsPocketSupported(account) {
 		err := fmt.Errorf("Coin not supported %s", account.Coin().Code())
@@ -128,7 +142,10 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 
 	unused := account.GetUnusedReceiveAddresses()
 	// Use the format hint to get a compatible address
-	expectedScriptType, ok := aoppBTCScriptTypeMap[format]
+	if len(format) == 0 {
+		format = defaultScriptType
+	}
+	expectedScriptType, ok := requestAddressScriptTypeMap[format]
 	if !ok {
 		err := fmt.Errorf("Unknown format:  %s", format)
 		return "", "", err
@@ -150,4 +167,33 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 	}
 
 	return addr.EncodeForHumans(), base64.StdEncoding.EncodeToString(sig), nil
+}
+
+// PocketWidgetVerifyAddress allows the user to verify an address for the Pocket Iframe workflow.
+// Input params:
+// 	`account` is the account from which the address is derived, and that will be linked to the Pocket order.
+// 	`address` is the address to be verified. It should be the same address previously returned by
+//		`PocketWidgetSignAddress`. Since this should be the first unused address, this function ranges
+//		among them to retrieve the ID needed for the verification.
+func PocketWidgetVerifyAddress(account accounts.Interface, address string) error {
+	if !IsPocketSupported(account) {
+		return fmt.Errorf("Coin not supported %s", account.Coin().Code())
+	}
+
+	addressLists := account.GetUnusedReceiveAddresses()
+	// iterate over the available script types to find the correct address
+	for _, list := range addressLists {
+		for _, addr := range list.Addresses {
+			if addr.EncodeForHumans() == address {
+				_, err := account.VerifyAddress(addr.ID())
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+		}
+	}
+	// If this happens the address provided by pocket is not in the list of unused addresses.
+	// Reason could be that it has been used between the message signing and the verification.
+	return errp.WithStack(ErrAddressNotFound)
 }

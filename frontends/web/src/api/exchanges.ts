@@ -75,6 +75,16 @@ export const signAddress = (format: string, msg: string, accountCode: AccountCod
   return apiPost('exchange/pocket/sign-address', { format, msg, accountCode });
 };
 
+export type AddressVerificationResponse = {
+  success: boolean;
+  error?: string;
+  errorCode?: string;
+}
+
+export const verifyAddress = (address: string, accountCode: AccountCode): Promise<AddressVerificationResponse> => {
+  return apiPost('exchange/pocket/verify-address', { address, accountCode });
+};
+
 export const getPocketURL = (accountCode: string) => {
   return (): Promise<string> => {
     return apiGet(`exchange/pocket/api-url/${accountCode}`);

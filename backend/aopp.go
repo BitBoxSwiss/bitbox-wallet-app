@@ -262,11 +262,6 @@ func (backend *Backend) AOPPApprove() {
 	backend.aoppKeystoreRegistered()
 }
 
-// AoppBTCScriptTypeMap allows to access the object from other packages.
-func (backend *Backend) AoppBTCScriptTypeMap() map[string]signing.ScriptType {
-	return aoppBTCScriptTypeMap
-}
-
 // aoppChooseAccount is called when an AOPP request is being processed and an account should be
 // selected. `accountsAndKeystoreLock` must be held when calling this function.
 func (backend *Backend) aoppChooseAccount(code accounts.Code) {
