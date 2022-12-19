@@ -86,7 +86,7 @@ export const Pocket = ({ code }: TProps) => {
           String(message.withMessageSignature),
           code)
           .then(response => {
-            if (response.abort) {
+            if (response.status === 'abort') {
               // TODO notify to the widget with a message?
               alertUser('Message signing aborted by the user');
             } else {

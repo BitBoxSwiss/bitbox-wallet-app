@@ -17,13 +17,6 @@
 import { AccountCode } from './account';
 import { apiGet, apiPost } from '../utils/request';
 
-export type AddressSignResponse = {
-  success: boolean;
-  abort: boolean;
-  signature: string;
-  address: string;
-  error: string;
-}
 export type ExchangeRegionList = {
   regions: ExchangeRegion[];
 }
@@ -34,29 +27,31 @@ export type ExchangeRegion = {
   isPocketEnabled: boolean;
 }
 
+export const getExchangesByRegion = (code: string) => {
+  return (): Promise<ExchangeRegionList> => {
+    return apiGet(`exchange/by-region/${code}`);
+  };
+};
+
 export type ExchangeDeal = {
   fee: number;
   payment: 'card' | 'bank-transfer';
   isFast: boolean;
+  //not populated by BE response, meant for FE manipulation.
+  isBestDeal?: boolean;
 }
 
 export type ExchangeDeals = {
-  pocket: ExchangeDeal[];
-  moonpay: ExchangeDeal[];
+  exchangeName: string;
+  deals: ExchangeDeal[];
 }
 
-export const getExchangesByRegion = (): Promise<ExchangeRegionList> => {
-  return apiGet('exchange/by-region');
-};
+export type ExchangeDealsList = {
+  exchanges: ExchangeDeals[];
+}
 
-export const getExchangeDeals = (): Promise<ExchangeDeals> => {
+export const getExchangeDeals = (): Promise<ExchangeDealsList> => {
   return apiGet('exchange/deals');
-};
-
-export const isMoonpayBuySupported = (code: string) => {
-  return (): Promise<boolean> => {
-    return apiGet(`exchange/moonpay/buy-supported/${code}`);
-  };
 };
 
 export type MoonpayBuyInfo = {
@@ -70,6 +65,14 @@ export const getMoonpayBuyInfo = (code: string) => {
   };
 };
 
+export type AddressSignResponse = {
+  status?: 'success' | 'abort';
+  signature: string;
+  address: string;
+  error: string;
+}
+
+
 export const signAddress = (format: string, msg: string, accountCode: AccountCode): Promise<AddressSignResponse> => {
   return apiPost('exchange/pocket/sign-address', { format, msg, accountCode });
 };
@@ -80,12 +83,12 @@ export const getPocketURL = (accountCode: string) => {
   };
 };
 
-export const isPocketSupported = (accountCode: string) => {
-  return (): Promise<boolean> => {
-    return apiGet(`exchange/pocket/buy-supported/${accountCode}`);
-  };
+export type SupportedExchanges= {
+  exchanges: string[];
 };
 
-export const isExchangeBuySupported = (code: string): Promise<boolean> => {
-  return apiGet(`exchange/buy-supported/${code}`);
+export const getExchangeBuySupported = (code: string) => {
+  return (): Promise<SupportedExchanges> => {
+    return apiGet(`exchange/buy-supported/${code}`);
+  };
 };

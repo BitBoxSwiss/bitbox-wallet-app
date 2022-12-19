@@ -51,10 +51,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const [locale, setLocale] = useState('');
   const [bestDeal, setBestDeal] = useState<exchangesAPI.ExchangeDeal>();
 
-  const isPocketSupportedCoin = useLoad(exchangesAPI.isPocketSupported(code));
-  const isMoonpaySupportedCoin = useLoad(exchangesAPI.isMoonpayBuySupported(code));
-  const regionList = useLoad(exchangesAPI.getExchangesByRegion);
+  const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
+  const supportedExchanges = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
 
   const account = findAccount(accounts, code);
   const name = getCryptoName(t('buy.info.crypto'), account);
@@ -83,9 +82,15 @@ export const Exchange = ({ code, accounts }: TProps) => {
   useEffect(() => {
     setSelectedExchange('');
 
+    if (!supportedExchanges) {
+      setShowPocket(false);
+      setShowMoonpay(false);
+      return;
+    }
+
     if (selectedRegion === '') {
-      setShowPocket(!!isPocketSupportedCoin);
-      setShowMoonpay(!!isMoonpaySupportedCoin);
+      setShowPocket(supportedExchanges.exchanges.includes('pocket'));
+      setShowMoonpay(supportedExchanges.exchanges.includes('moonpay'));
       return;
     }
 
@@ -97,13 +102,13 @@ export const Exchange = ({ code, accounts }: TProps) => {
     setShowMoonpay(false);
     regionList.regions.forEach(region => {
       if (region.code === selectedRegion) {
-        setShowPocket(!!isPocketSupportedCoin && region.isPocketEnabled);
-        setShowMoonpay(!!isMoonpaySupportedCoin && region.isMoonpayEnabled);
+        setShowPocket(region.isPocketEnabled);
+        setShowMoonpay(region.isMoonpayEnabled);
         return;
       }
     });
 
-  }, [isPocketSupportedCoin, isMoonpaySupportedCoin, selectedRegion, regionList]);
+  }, [selectedRegion, regionList, supportedExchanges]);
 
   const findBestDeal = (deals: exchangesAPI.ExchangeDeal[]): exchangesAPI.ExchangeDeal => {
     let best = deals[0];
@@ -116,8 +121,8 @@ export const Exchange = ({ code, accounts }: TProps) => {
     if (!exchangeDeals) {
       return;
     }
-    const pocketBest = findBestDeal(exchangeDeals.pocket);
-    const moonpayBest = findBestDeal(exchangeDeals.moonpay);
+    const pocketBest = findBestDeal(exchangeDeals.exchanges[0].deals);
+    const moonpayBest = findBestDeal(exchangeDeals.exchanges[1].deals);
     setBestDeal(findBestDeal([pocketBest, moonpayBest]));
   }, [exchangeDeals]);
 
@@ -126,7 +131,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
       return '';
     }
     var details = exchange === 'pocket' ? 'Pocket' : 'Moonpay';
-    const deals = exchange === 'pocket' ? exchangeDeals.pocket : exchangeDeals.moonpay;
+    const deals = exchange === 'pocket' ? exchangeDeals.exchanges[0].deals : exchangeDeals.exchanges[1].deals;
     deals.forEach(deal => {
       details += ' | ';
       details += deal.payment === 'card' ? t('buy.exchange.creditCard') : t('buy.exchange.bankTransfer');

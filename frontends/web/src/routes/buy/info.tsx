@@ -17,7 +17,7 @@
 import React, { Component } from 'react';
 import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
-import { isExchangeBuySupported } from '../../api/exchanges';
+import { getExchangeBuySupported } from '../../api/exchanges';
 import Guide from './guide';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -58,12 +58,11 @@ class BuyInfo extends Component<Props, State> {
     }
   };
 
-  // TODO add pocket supported coins
   private checkSupportedCoins = () => {
     Promise.all(
       this.props.accounts.map((account) => (
-        isExchangeBuySupported(account.code)
-          .then(isSupported => (isSupported ? account : false))
+        getExchangeBuySupported(account.code)()
+          .then(supported => (supported.exchanges.length ? account : false))
       ))
     )
       .then(results => results.filter(result => result))

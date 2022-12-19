@@ -46,6 +46,9 @@ const (
 
 	// moonpayAPILiveURL is the API url for REST calls.
 	moonpayAPILiveURL = "https://api.moonpay.com/v3"
+
+	// MoonpayName is the name of the exchange, it is unique among all the supported exchanges.
+	MoonpayName = "moonpay"
 )
 
 // Here's the list of all supported currencies:
@@ -122,17 +125,20 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 }
 
 // MoonpayDeals returns the purchase conditions (fee and payment methods) offered by Moonpay.
-func MoonpayDeals() []ExchangeDeal {
-	return []ExchangeDeal{
-		{
-			Fee:     0.049, //4.9%
-			Payment: CardPayment,
-			IsFast:  true,
-		},
-		{
-			Fee:     0.019, //1.9%
-			Payment: BankTransferPayment,
-			IsFast:  false,
+func MoonpayDeals() ExchangeDeals {
+	return ExchangeDeals{
+		ExchangeName: MoonpayName,
+		Deals: []ExchangeDeal{
+			{
+				Fee:     0.049, //4.9%
+				Payment: CardPayment,
+				IsFast:  true,
+			},
+			{
+				Fee:     0.019, //1.9%
+				Payment: BankTransferPayment,
+				IsFast:  false,
+			},
 		},
 	}
 }
