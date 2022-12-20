@@ -187,6 +187,11 @@ func NewDefaultAppConfig() AppConfig {
 						TLS:     false,
 						PEMCert: "",
 					},
+					{
+						Server:  "127.0.0.1:52002",
+						TLS:     false,
+						PEMCert: "",
+					},
 				},
 			},
 			LTC: btcCoinConfig{
