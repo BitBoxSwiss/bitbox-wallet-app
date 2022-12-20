@@ -52,8 +52,4 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     cd $GOPATH/$GO_SRC_DIR
     make "$WHAT"
     popd
-    # Bring cacheable artifacts back to the original directory.
-    # Some CIs are picky and don't allow caching outside.
-    rsync -a --delete $GOPATH/$GO_SRC_DIR/frontends/web/node_modules/ \
-      frontends/web/node_modules/
 fi
