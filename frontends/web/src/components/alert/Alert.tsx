@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MultilineMarkup } from '../../utils/markup';
 import { View, ViewButtons, ViewHeader } from '../view/view';
 import { Button } from '../forms';
@@ -28,82 +28,57 @@ import { Button } from '../forms';
  * @param callback callback function called after user confirm
  * @param asDialog option to opt-out of rendinging as dialog
  */
-let alertUser: (message: string, options?: AlertUserOptions) => void;
 
 type AlertUserOptions = {
-    callback?: () => void,
-    asDialog?: boolean,
+  callback?: () => void;
+  asDialog?: boolean;
 };
 
-interface State {
-    active: boolean;
-    asDialog: boolean;
-    message?: string;
-}
+let alertUser: (message: string, options?: AlertUserOptions) => void;
+let callback: AlertUserOptions['callback'];
 
-class Alert extends Component<WithTranslation, State> {
-  private callback?: () => void; // Assigned when alertUser is called / Called before close.
+const Alert = () => {
+  const [active, setActive] = useState(false);
+  const [asDialog, setAsDialog] = useState(true);
+  const [message, setMessage] = useState<string>();
+  const { t } = useTranslation();
 
-  constructor(props: WithTranslation) {
-    super(props);
-    alertUser = this.alertUser;
-    this.state = {
-      active: false,
-      asDialog: true,
-    };
-  }
-
-  private handleClose = () => {
-    if (this.callback) {
-      this.callback();
-    }
-    this.setState({
-      active: false,
-    });
-  };
-
-  private alertUser = (
-    message: string,
-    options: AlertUserOptions = {},
-  ) => {
+  alertUser = (message: string, options: AlertUserOptions = {}) => {
     const {
-      callback,
       asDialog = true,
     } = options;
-    this.callback = callback;
-    this.setState({
-      active: true,
-      asDialog,
-      message,
-    });
+    callback = options.callback;
+    setActive(true);
+    setAsDialog(asDialog);
+    setMessage(message);
   };
 
-  public render() {
-    const { t } = this.props;
-    const { active, asDialog, message } = this.state;
-    return (active && message) ? (
-      <form onSubmit={this.handleClose}>
-        <View
-          key="alert-overlay"
-          dialog={asDialog}
-          textCenter={!asDialog}
-          fullscreen>
-          <ViewHeader title={<MultilineMarkup tagName="span" markup={message} />} />
-          <ViewButtons>
-            <Button
-              autoFocus
-              primary
-              onClick={this.handleClose}>
-              {t('button.ok')}
-            </Button>
-          </ViewButtons>
-        </View>
-      </form>
-    ) : null;
-  }
-}
+  const handleClose = () => {
+    if (callback) {
+      callback();
+    }
+    setActive(false);
+  };
 
-const TranslatedAlert = withTranslation()(Alert);
+  return (active && message) ? (
+    <form onSubmit={() => setActive(false)}>
+      <View
+        key="alert-overlay"
+        dialog={asDialog}
+        textCenter={!asDialog}
+        fullscreen>
+        <ViewHeader title={<MultilineMarkup tagName="span" markup={message} />} />
+        <ViewButtons>
+          <Button
+            autoFocus
+            primary
+            onClick={handleClose}>
+            {t('button.ok')}
+          </Button>
+        </ViewButtons>
+      </View>
+    </form>
+  ) : null;
+};
 
-export { alertUser };
-export { TranslatedAlert as Alert };
+export { Alert, alertUser };
