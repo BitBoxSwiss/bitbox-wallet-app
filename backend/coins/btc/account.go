@@ -20,7 +20,6 @@ import (
 	"os"
 	"path"
 	"sort"
-	"sync"
 	"sync/atomic"
 
 	"github.com/btcsuite/btcd/btcutil"
@@ -102,8 +101,8 @@ type Account struct {
 	feeTargets     []*FeeTarget
 	feeTargetsLock locker.Locker
 	// Access this only via getMinRelayFeeRate(). sat/kB.
-	minRelayFeeRate   *btcutil.Amount
-	minRelayFeeRateMu sync.Mutex
+	minRelayFeeRate     *btcutil.Amount
+	minRelayFeeRateLock locker.Locker
 
 	// true when initialized (Initialize() was called).
 	initialized     bool
@@ -253,8 +252,7 @@ func (account *Account) gapLimits(
 // so that subsequent calls are instant. This is important as this function can be called many times
 // in succession when validating tx proposals.
 func (account *Account) getMinRelayFeeRate() (btcutil.Amount, error) {
-	account.minRelayFeeRateMu.Lock()
-	defer account.minRelayFeeRateMu.Unlock()
+	defer account.minRelayFeeRateLock.Lock()()
 	cached := account.minRelayFeeRate
 	if cached != nil {
 		return *cached, nil
