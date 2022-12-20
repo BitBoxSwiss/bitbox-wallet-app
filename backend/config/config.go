@@ -32,6 +32,13 @@ type ServerInfo struct {
 	PEMCert string `json:"pemCert"`
 }
 
+func (s *ServerInfo) String() string {
+	if s.TLS {
+		return s.Server + ":s"
+	}
+	return s.Server + ":p"
+}
+
 // btcCoinConfig holds configurations specific to a btc-based coin.
 type btcCoinConfig struct {
 	ElectrumServers []*ServerInfo `json:"electrumServers"`
