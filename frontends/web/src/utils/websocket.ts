@@ -15,57 +15,20 @@
  * limitations under the License.
  */
 
-import { apiPort, apiToken, isTLS } from './request';
-import { qtSubscribePushNotifications } from './qttransport';
-import { androidSubscribePushNotifications } from './androidtransport';
-import { TMsgCallback } from './transport-common';
+import { qtSubscribePushNotifications } from './transport-qt';
+import { androidSubscribePushNotifications } from './transport-android';
+import { webSubscribePushNotifications } from './transport-websocket';
+import { TPayload, TMsgCallback, TUnsubscribe } from './transport-common';
 import { runningInAndroid, runningInQtWebEngine } from './env';
 
-let socket: WebSocket | undefined;
+export type { TPayload, TUnsubscribe };
 
-const currentListeners: TMsgCallback[] = [];
-
-type UnsubscribeCallback = () => void;
-
-export function apiWebsocket(msgCallback: TMsgCallback): UnsubscribeCallback {
+export function apiWebsocket(msgCallback: TMsgCallback): TUnsubscribe {
   if (runningInQtWebEngine()) {
     return qtSubscribePushNotifications(msgCallback);
   }
   if (runningInAndroid()) {
     return androidSubscribePushNotifications(msgCallback);
   }
-  currentListeners.push(msgCallback);
-  if (!socket) {
-    socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
-
-    socket.onopen = function() {
-      if (socket) {
-        socket.send('Authorization: Basic ' + apiToken);
-      }
-    };
-
-    socket.onerror = function(event) {
-      console.error('websocket error', event);
-    };
-
-    // Listen for messages
-    socket.onmessage = function(event) {
-      const payload = JSON.parse(event.data);
-      currentListeners.forEach(listener => listener(payload));
-    };
-
-    socket.onclose = function() {
-      currentListeners.forEach(listener => listener({ subject: 'backend/connected', action: 'replace', object: false }));
-    };
-  }
-  return () => {
-    if (!currentListeners.includes(msgCallback)) {
-      console.warn('!currentListeners.includes(msgCallback)');
-    }
-    const index = currentListeners.indexOf(msgCallback);
-    currentListeners.splice(index, 1);
-    if (currentListeners.includes(msgCallback)) {
-      console.warn('currentListeners.includes(msgCallback)');
-    }
-  };
+  return webSubscribePushNotifications(msgCallback);
 }

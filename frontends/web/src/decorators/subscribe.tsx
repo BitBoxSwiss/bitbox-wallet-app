@@ -16,7 +16,7 @@
 
 import { Component, ComponentType } from 'react';
 import { getDisplayName } from '../utils/component';
-import { apiSubscribe, Event } from '../utils/event';
+import { apiSubscribe } from '../utils/event';
 import { apiGet } from '../utils/request';
 import { KeysOf, ObjectButNotFunction } from '../utils/types';
 import { Endpoint, EndpointsFunction, EndpointsObject } from './endpoint';
@@ -64,7 +64,7 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
 
       private subscribeEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
         this.unsubscribeEndpoint(key);
-        this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
+        this.subscriptions[key] = apiSubscribe(endpoint, (event) => {
           switch (event.action) {
           case 'replace':
             this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
