@@ -105,7 +105,7 @@ export class UTXOsClass extends Component<Props, State> {
       return null;
     }
     return (
-      <div>
+      <div key={'utxos-' + scriptType}>
         <h2 className="subTitle">{ getScriptName(scriptType) }</h2>
         <ul className={style.utxosList}>
           { filteredUTXOs.map(utxo => (
