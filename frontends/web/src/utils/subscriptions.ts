@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-import { Unsubscribe } from './event';
-import { IUnsubscribe as UnsubscribeLegacy } from './event-legacy';
+import { TUnsubscribe } from './transport-common';
 
-export type UnsubscribeList = Array<(Unsubscribe | UnsubscribeLegacy)>;
+export type UnsubscribeList = Array<(TUnsubscribe)>;
 
 /**
  * Helper function that takes an array of unsubscribe callbacks.
  * It calls and removes all unsubscribers from the array.
  * This is only useful if you component has more than 1 subscribtion.
  */
-
 export function unsubscribe(unsubscribeList: UnsubscribeList) {
   for (const unsubscribeCallback of unsubscribeList) {
     unsubscribeCallback();

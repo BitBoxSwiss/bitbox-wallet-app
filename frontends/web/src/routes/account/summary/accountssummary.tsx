@@ -18,7 +18,7 @@
 import { Component, PropsWithChildren } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { TPayload } from '../../../utils/socket';
+import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
@@ -28,7 +28,6 @@ import { Check } from '../../../components/icon/icon';
 import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
-import { apiWebsocket } from '../../../utils/websocket';
 import { Chart } from './chart';
 import { AddBuyOnEmptyBalances } from '../info/buyCTA';
 import { apiPost } from '../../../utils/request';

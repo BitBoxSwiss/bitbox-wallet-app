@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import { TEvent } from '../utils/socket';
-import { apiSubscribe, Unsubscribe } from '../utils/event';
+import { apiSubscribe, TEvent, TUnsubscribe } from '../utils/event';
 import { apiGet } from '../utils/request';
 
-export type SubscriptionCallback<T> = (eventObject: T) => void;
+export type { TUnsubscribe };
+
+export type TSubscriptionCallback<T> = (eventObject: T) => void;
 
 /**
  * Subscribes the given function on an endpoint on which the backend
  * can push data through. This should be mostly used within api.
  * Note there is a subscibe-legacy.ts module that supports older events.
  */
-
 export function subscribeEndpoint<T>(
   endpoint: string,
-  cb: SubscriptionCallback<T>,
-): Unsubscribe {
+  cb: TSubscriptionCallback<T>,
+): TUnsubscribe {
   return apiSubscribe(endpoint, (event: TEvent) => {
     switch (event.action) {
     case 'replace':
@@ -53,9 +53,8 @@ export function subscribeEndpoint<T>(
  * the connection to the backend is lost.
  * See utils/websocket.js
  */
-
 export const backendConnected = (
   cb: (connected: boolean) => void
-): Unsubscribe => {
+): TUnsubscribe => {
   return subscribeEndpoint('backend/connected', cb);
 };

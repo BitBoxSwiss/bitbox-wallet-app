@@ -15,7 +15,7 @@
  */
 
 import { renderHook } from '@testing-library/react-hooks';
-import { SubscriptionCallback } from '../api/subscribe';
+import { TSubscriptionCallback } from '../api/subscribe';
 import { useSubscribe, useLoad, useSync } from './api';
 import * as utils from './mount';
 import { TStatus } from '../api/coins';
@@ -77,7 +77,7 @@ describe('hooks for api calls', () => {
       targetHeight: 2408940
     };
 
-    const mockSubscribe = jest.fn().mockImplementation(() => (cb: SubscriptionCallback<any>) => mockSubscribeEndpoint(cb));
+    const mockSubscribe = jest.fn().mockImplementation(() => (cb: TSubscriptionCallback<any>) => mockSubscribeEndpoint(cb));
     const mockSubscribeEndpoint = jest.fn().mockImplementation((cb) => cb(MOCK_RETURN_STATUS));
 
 
@@ -89,7 +89,7 @@ describe('hooks for api calls', () => {
   it('useSync should load promise and sync to a subscription function', async () => {
     const mockApiCall = jest.fn().mockImplementation(() => () => Promise.resolve('some_value'));
 
-    const mockSubscribe = jest.fn().mockImplementation(() => (cb: SubscriptionCallback<any>) => mockSubscribeEndpoint(cb));
+    const mockSubscribe = jest.fn().mockImplementation(() => (cb: TSubscriptionCallback<any>) => mockSubscribeEndpoint(cb));
     const mockSubscribeEndpoint = jest.fn().mockImplementation((cb) => cb());
 
     const { result, waitForNextUpdate } = renderHook(() => useSync(mockApiCall(), mockSubscribe()));

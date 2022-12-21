@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-import { apiWebsocket } from './websocket';
-import { TEventLegacy, TPayload, TSubject } from './socket';
+import { apiWebsocket, TUnsubscribe } from './websocket';
+import { TEventLegacy, TPayload, TSubject } from './transport-common';
+
+export type { TUnsubscribe };
 
 /**
  * This type describes the function used to observe the events.
  */
 type Observer = (event: TEventLegacy) => void;
-
-/**
- * This type describes the method returned to unsubscribe again.
- */
-export type IUnsubscribe = () => void;
 
 /**
  * This interface describes how the subscriptions are stored.
@@ -59,7 +56,7 @@ function handleMessages(payload: TPayload): void {
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
  */
-export function subscribe(subject: TSubject, observer: Observer): IUnsubscribe {
+export function subscribe(subject: TSubject, observer: Observer): TUnsubscribe {
   if (!subscriptions[subject]) {
     subscriptions[subject] = [];
   }

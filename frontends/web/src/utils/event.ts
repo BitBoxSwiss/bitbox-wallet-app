@@ -15,18 +15,15 @@
  * limitations under the License.
  */
 
-import { apiWebsocket } from './websocket';
-import { TEvent, TPayload, TSubject } from './socket';
+import { apiWebsocket, TUnsubscribe } from './websocket';
+import { TEvent, TPayload, TSubject } from './transport-common';
+
+export type { TEvent, TUnsubscribe };
 
 /**
  * This type describes the function used to observe the events.
  */
 export type Observer = (event: TEvent) => void;
-
-/**
- * This type describes the method returned to unsubscribe again.
- */
-export type Unsubscribe = () => void;
 
 /**
  * This interface describes how the subscriptions are stored.
@@ -59,7 +56,7 @@ function handleEvent(payload: TPayload): void {
 /**
  * This variable keeps track of whether the below method has subscribed to the websocket.
  */
-let subscribed: Unsubscribe | null = null;
+let subscribed: TUnsubscribe | null = null;
 
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
@@ -67,7 +64,7 @@ let subscribed: Unsubscribe | null = null;
 export function apiSubscribe(
   subject: TSubject,
   observer: Observer
-): Unsubscribe {
+): TUnsubscribe {
   if (!subscribed) {
     subscribed = apiWebsocket(handleEvent);
   }

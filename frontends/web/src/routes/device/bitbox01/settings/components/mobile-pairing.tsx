@@ -15,7 +15,7 @@
  */
 
 import { Component } from 'react';
-import { TPayload } from '../../../../../utils/socket';
+import { apiWebsocket, TPayload } from '../../../../../utils/websocket';
 import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
@@ -26,7 +26,6 @@ import { QRCode } from '../../../../../components/qrcode/qrcode';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 import { translate, TranslateProps } from '../../../../../decorators/translate';
 import { apiPost } from '../../../../../utils/request';
-import { apiWebsocket } from '../../../../../utils/websocket';
 import style from '../../bitbox01.module.css';
 
 interface PairingProps {
