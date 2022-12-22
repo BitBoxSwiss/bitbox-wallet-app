@@ -18,7 +18,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { showMnemonic } from '../../../api/bitbox02';
-import { SimpleMarkup } from '../../../utils/markup';
+import { MultilineMarkup } from '../../../utils/markup';
 import { confirmation } from '../../../components/confirm/Confirm';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
@@ -50,11 +50,10 @@ export const ShowMnemonic = ({ deviceID }: TProps) => {
       { inProgress && (
         <WaitDialog title={t('backup.showMnemonic.title')}>
           <p>
-            { t('backup.showMnemonic.description').split('\n').map((line, i) => (
-              <span key={`${line}-${i}`}>
-                <SimpleMarkup tagName="span" markup={line} /><br/>
-              </span>
-            )) }
+            <MultilineMarkup
+              markup={t('backup.showMnemonic.description')}
+              tagName="span"
+              withBreaks />
           </p>
           <p>{t('bitbox02Interact.followInstructions')}</p>
         </WaitDialog>
