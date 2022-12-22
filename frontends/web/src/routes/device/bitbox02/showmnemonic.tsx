@@ -15,72 +15,50 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { showMnemonic } from '../../../api/bitbox02';
 import { SimpleMarkup } from '../../../utils/markup';
 import { confirmation } from '../../../components/confirm/Confirm';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 
-interface ShowMnemonicProps {
-    apiPrefix: string;
-}
+export type TProps = {
+  deviceID: string;
+};
 
-type Props = ShowMnemonicProps & TranslateProps;
+export const ShowMnemonic = ({ deviceID }: TProps) => {
+  const { t } = useTranslation();
+  const [inProgress, setInProgress] = useState<boolean>(false);
 
-interface State {
-    inProgress: boolean;
-}
-
-class ShowMnemonic extends Component<Props, State> {
-  public readonly state: State = {
-    inProgress: false,
-  };
-
-  private showMnemonic = () => {
-    this.setState({ inProgress: true });
-    apiPost(this.props.apiPrefix + '/show-mnemonic').then(() => {
-      this.setState({ inProgress: false });
-    });
-  };
-
-  private askShowMnemonic = () => {
-    confirmation(this.props.t('backup.showMnemonic.description'), result => {
+  const handleShowMnemonic = () => {
+    confirmation(t('backup.showMnemonic.description'), async result => {
       if (result) {
-        this.showMnemonic();
+        setInProgress(true);
+        await showMnemonic(deviceID);
+        setInProgress(false);
       }
     });
-
   };
 
-  public render() {
-    const { t } = this.props;
-    const { inProgress } = this.state;
-    return (
-      <div>
-        <SettingsButton
-          onClick={this.askShowMnemonic}>
-          {t('backup.showMnemonic.title')}
-        </SettingsButton>
-        {
-          inProgress && (
-            <WaitDialog title={t('backup.showMnemonic.title')}>
-              <p>
-                { t('backup.showMnemonic.description').split('\n').map((line, i) => (
-                  <span key={`${line}-${i}`}>
-                    <SimpleMarkup tagName="span" markup={line} /><br/>
-                  </span>
-                )) }
-              </p>
-              <p>{t('bitbox02Interact.followInstructions')}</p>
-            </WaitDialog>
-          )
-        }
-      </div>
-    );
-  }
-}
-
-const HOC = translate()(ShowMnemonic);
-export { HOC as ShowMnemonic };
+  return (
+    <div>
+      <SettingsButton
+        onClick={handleShowMnemonic}>
+        {t('backup.showMnemonic.title')}
+      </SettingsButton>
+      { inProgress && (
+        <WaitDialog title={t('backup.showMnemonic.title')}>
+          <p>
+            { t('backup.showMnemonic.description').split('\n').map((line, i) => (
+              <span key={`${line}-${i}`}>
+                <SimpleMarkup tagName="span" markup={line} /><br/>
+              </span>
+            )) }
+          </p>
+          <p>{t('bitbox02Interact.followInstructions')}</p>
+        </WaitDialog>
+      )}
+    </div>
+  );
+};

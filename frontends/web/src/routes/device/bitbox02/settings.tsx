@@ -70,7 +70,7 @@ export const Settings = ({ deviceID }: TProps) => {
               <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
                 {t('deviceSettings.secrets.manageBackups')}
               </SettingsButton>
-              <ShowMnemonic apiPrefix={apiPrefix} />
+              <ShowMnemonic deviceID={deviceID} />
               <Reset apiPrefix={apiPrefix} />
             </Column>
             <Column>

@@ -113,3 +113,7 @@ export const checkBackup = (
 export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/upgrade-firmware`);
 };
+
+export const showMnemonic = (deviceID: string): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
+};
