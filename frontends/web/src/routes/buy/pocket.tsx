@@ -35,6 +35,8 @@ export const Pocket = ({ code }: TProps) => {
   const { t } = useTranslation();
 
   const [height, setHeight] = useState(0);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+
   const iframeURL = useLoad(getPocketURL(code));
 
 
@@ -126,8 +128,11 @@ export const Pocket = ({ code }: TProps) => {
         </div>
         <div ref={ref} className="innerContainer">
           <div className="noSpace" style={{ height }}>
-            <Spinner text={t('loading')} />
+            {!iframeLoaded && <Spinner text={t('loading')} /> }
             <iframe
+              onLoad={() => {
+                setIframeLoaded(true);
+              }}
               ref={iframeRef}
               title="Pocket"
               width="100%"
