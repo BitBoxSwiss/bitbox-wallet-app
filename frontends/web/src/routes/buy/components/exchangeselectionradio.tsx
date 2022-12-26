@@ -17,6 +17,7 @@
 import { useTranslation } from 'react-i18next';
 import { ExchangeDeals } from '../../../api/exchanges';
 import { ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
+import { BestDeal, Fast } from './buyTags';
 import style from './exchangeselectionradio.module.css';
 
 type RadioProps = {
@@ -43,8 +44,8 @@ const Deal = ({ deal }: { deal: ExchangeDealWithBestDeal }) => {
     <div className={style.paymentMethodContainer}>
       <p className={style.paymentMethodName}>{getPaymentMethodName(deal.payment)}</p>
       <div>
-        <span>{deal.isBestDeal && t('buy.exchange.bestDeal')}</span>
-        <span>{deal.isFast && t('buy.exchange.fast')}</span>
+        {deal.isBestDeal && <BestDeal />}
+        {deal.isFast && <Fast />}
       </div>
     </div>
   );
