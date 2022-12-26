@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { ExchangeDeals } from '../../../api/exchanges';
+import { Bank, CreditCard } from '../../../components/icon';
 import { ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
 import { BestDeal, Fast } from './buyTags';
 import style from './exchangeselectionradio.module.css';
@@ -28,21 +29,28 @@ type RadioProps = {
 
 type TRadioProps = RadioProps & JSX.IntrinsicElements['input'];
 
-const Deal = ({ deal }: { deal: ExchangeDealWithBestDeal }) => {
+const PaymentMethod = ({ methodName }: {methodName: ExchangeDeals['exchangeName']}) => {
   const { t } = useTranslation();
-  const getPaymentMethodName = (methodName: ExchangeDeals['exchangeName']) => {
-    switch (methodName) {
-    case 'bank-transfer':
-      return t('buy.exchange.bankTransfer');
-    case 'card':
-      return t('buy.exchange.creditCard');
-    default:
-      return methodName;
-    }
-  };
+  switch (methodName) {
+  case 'bank-transfer':
+    return (<span>
+      <Bank />
+      <p className={style.paymentMethodName}>{t('buy.exchange.bankTransfer')}</p>
+    </span>);
+  case 'card':
+    return (<span>
+      <CreditCard />
+      <p className={style.paymentMethodName}>{t('buy.exchange.creditCard')}</p>
+    </span>);
+  default:
+    return <>{methodName}</>;
+  }
+};
+
+const Deal = ({ deal }: { deal: ExchangeDealWithBestDeal }) => {
   return (
     <div className={style.paymentMethodContainer}>
-      <p className={style.paymentMethodName}>{getPaymentMethodName(deal.payment)}</p>
+      <PaymentMethod methodName={deal.payment} />
       <div>
         {deal.isBestDeal && <BestDeal />}
         {deal.isFast && <Fast />}

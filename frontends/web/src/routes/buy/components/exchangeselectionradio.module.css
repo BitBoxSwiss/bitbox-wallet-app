@@ -29,18 +29,26 @@
 }
 
 .paymentMethodName {
-    width: 50%;
+    color: var(--color-default);
+    display: inline-block;
+    font-weight: 400;
+    line-height: 22px;
     margin: 0;
+    margin-left: var(--space-quarter);
 }
 
 .paymentMethodContainer:not(:first-child) {
     margin-top: var(--space-eight);
 }
 
+.paymentMethodContainer > span {
+    width: 124px;
+}
+
 .radio {
     --size-default: 14px;
     background-color: #fff;
-    border: 1px solid var(--color-mediumgray);
+    border: 1px solid var(--color-light);
     display: block;
     padding: 8px;
 }
@@ -82,7 +90,7 @@
 }
 
 .radio input + label::after {
-    background: var(--color-blue);
+    background: var(--color-info);
     border-radius: 1em;
     width: 10px;
     height: 10px;
@@ -98,7 +106,7 @@
 }
 
 .text {
-    color: var(--color-dark);
+    color: var(--color-default);
     margin: 0;
 }
 
@@ -120,13 +128,13 @@
 /* focus */
 
 .radio input[type="radio"]:focus + label::before {
-    box-shadow: 0px 0px 2px 2px var(--color-blue);
+    box-shadow: 0px 0px 2px 2px var(--color-info);
     outline: none;
     outline-offset: 0;
 }
 
 .radio input[type="radio"]:checked:focus + label::before {
-    box-shadow: 0px 0px 2px 2px var(--color-blue);
+    box-shadow: 0px 0px 2px 2px var(--color-info);
 }
 
 /* disabled */
