@@ -37,8 +37,6 @@ export type ExchangeDeal = {
   fee: number;
   payment: 'card' | 'bank-transfer';
   isFast: boolean;
-  //not populated by BE response, meant for FE manipulation.
-  isBestDeal?: boolean;
 }
 
 export type ExchangeDeals = {
