@@ -40,7 +40,7 @@ export type ExchangeDeal = {
 }
 
 export type ExchangeDeals = {
-  exchangeName: string;
+  exchangeName: 'moonpay' | 'pocket';
   deals: ExchangeDeal[];
 }
 

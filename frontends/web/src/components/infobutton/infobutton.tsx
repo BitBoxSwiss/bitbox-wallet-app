@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
-import style from './buyTags.module.css';
+import { BuyInfo } from '../icon/icon';
+import style from './infobutton.module.css';
 
-export const BestDeal = () => {
-  const { t } = useTranslation();
+type TProps = { onClick: () => void }
+export const InfoButton = ({ onClick, ...props }: TProps) => {
   return (
-    <div className={`${style.tag} ${style.bestDeal}`}>{t('buy.exchange.bestDeal')}</div>
-  );
-};
-
-export const Fast = () => {
-  const { t } = useTranslation();
-  return (
-    <div className={`${style.tag} ${style.fast}`}>{t('buy.exchange.fast')}</div>
+    <button onClick={onClick} {...props} className={style.button}>
+      <BuyInfo />
+    </button>
   );
 };

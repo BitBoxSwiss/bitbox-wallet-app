@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-.buttonBack{
+.buttonBack {
     margin-right: auto;
 }
 
-.buttonsContainer{
+.buttonsContainer {
     display: flex;
     margin-top: var(--space-default);
 }
@@ -43,11 +43,38 @@
     flex-grow: 0;
     flex-shrink: 0;
     margin: auto;
+    padding-right: 40px;
+}
+
+.extraLeftSpace {
+    padding-left: calc(var(--space-quarter) + var(--space-default)) !important;
 }
 
 .header {
     position: relative;
     z-index: 2200;
+}
+
+.selectContainer {
+    position: relative;
+    margin-bottom: var(--space-half);
+}
+
+.selectContainer > div {
+    position: relative;
+}
+
+.selectContainer > div > div {
+    margin: 0;
+}
+
+.selectContainer .flag {
+    left: calc(var(--space-eight) + var(--space-quarter));
+    line-height: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
 }
 
 .label {
@@ -57,7 +84,7 @@
     margin-bottom: var(--space-eight);
 }
 
-.noExchangeText{
+.noExchangeText {
     color: var(--color-gray-alt);
     line-height: 22px;
     margin: 0;

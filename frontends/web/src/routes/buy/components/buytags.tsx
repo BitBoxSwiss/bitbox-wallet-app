@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-import { ExchangeDeal, ExchangeDeals } from '../../api/exchanges';
+import { useTranslation } from 'react-i18next';
+import style from './buytags.module.css';
 
-export type ExchangeDealWithBestDeal = ExchangeDeal & {
-    isBestDeal?: boolean;
-}
+export const BestDeal = () => {
+  const { t } = useTranslation();
+  return (
+    <div className={`${style.tag} ${style.bestDeal}`}>{t('buy.exchange.bestDeal')}</div>
+  );
+};
 
-export type ExchangeDealsWithSupported = ExchangeDeals & {
-    supported?: boolean;
-}
-export type FrontendExchangeDealsList = {
-    exchanges: ExchangeDealsWithSupported[];
-}
-
-export type Info = ExchangeDealsWithSupported['exchangeName'] | 'region';
+export const Fast = () => {
+  const { t } = useTranslation();
+  return (
+    <div className={`${style.tag} ${style.fast}`}>{t('buy.exchange.fast')}</div>
+  );
+};
