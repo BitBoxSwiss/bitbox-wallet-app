@@ -39,11 +39,6 @@ type AccountAddress struct {
 	// Configuration contains the absolute keypath and the extended public keys of the address.
 	Configuration *signing.Configuration
 
-	// HistoryStatus is used to determine if the address status changed, and to determine if the
-	// address has been used before or not. The status corresponds to
-	// https://github.com/kyuupichan/electrumx/blob/46f245891cb62845f9eec0f9549526a7e569eb03/docs/protocol-basics.rst#status.
-	HistoryStatus string
-
 	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is P2PKH.
 	redeemScript []byte
 
@@ -110,7 +105,6 @@ func NewAccountAddress(
 		Address:              address,
 		AccountConfiguration: accountConfiguration,
 		Configuration:        configuration,
-		HistoryStatus:        "",
 		redeemScript:         redeemScript,
 		log:                  log,
 	}
@@ -129,10 +123,6 @@ func (address *AccountAddress) EncodeForHumans() string {
 // AbsoluteKeypath implements coin.AbsoluteKeypath.
 func (address *AccountAddress) AbsoluteKeypath() signing.AbsoluteKeypath {
 	return address.Configuration.AbsoluteKeypath()
-}
-
-func (address *AccountAddress) isUsed() bool {
-	return address.HistoryStatus != ""
 }
 
 // PubkeyScript returns the pubkey script of this address. Use this in a tx output to receive funds.

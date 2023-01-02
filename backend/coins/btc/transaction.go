@@ -84,9 +84,13 @@ func (account *Account) getFeePerKb(args *accounts.TxProposalArgs) (btcutil.Amou
 // with Taproot changes. This ensures that also users who received on Taproot and broke their
 // watch-only tools can fix it by moving the coins back to P2WPKH, and not have them go a Taproot
 // change again by accident.
-func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) *addresses.AccountAddress {
+func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) (*addresses.AccountAddress, error) {
 	if len(account.subaccounts) == 1 {
-		return account.subaccounts[0].changeAddresses.GetUnused()[0]
+		unusedAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+		if err != nil {
+			return nil, err
+		}
+		return unusedAddresses[0], nil
 	}
 
 	p2trIndex := account.subaccounts.signingConfigurations().FindScriptType(signing.ScriptTypeP2TR)
@@ -95,17 +99,29 @@ func (account *Account) pickChangeAddress(utxos map[wire.OutPoint]maketx.UTXO) *
 		for _, utxo := range utxos {
 			if utxo.Configuration.ScriptType() == signing.ScriptTypeP2TR {
 				// Found a taproot UTXO.
-				return account.subaccounts[p2trIndex].changeAddresses.GetUnused()[0]
+				unusedAddresses, err := account.subaccounts[p2trIndex].changeAddresses.GetUnused()
+				if err != nil {
+					return nil, err
+				}
+				return unusedAddresses[0], nil
 			}
 		}
 	}
 
 	p2wpkhIndex := account.subaccounts.signingConfigurations().FindScriptType(signing.ScriptTypeP2WPKH)
 	if p2wpkhIndex >= 0 {
-		return account.subaccounts[p2wpkhIndex].changeAddresses.GetUnused()[0]
+		unusedAddresses, err := account.subaccounts[p2wpkhIndex].changeAddresses.GetUnused()
+		if err != nil {
+			return nil, err
+		}
+		return unusedAddresses[0], nil
 	}
 
-	return account.subaccounts[0].changeAddresses.GetUnused()[0]
+	unusedAddresses, err := account.subaccounts[0].changeAddresses.GetUnused()
+	if err != nil {
+		return nil, err
+	}
+	return unusedAddresses[0], nil
 }
 
 // newTx creates a new tx to the given recipient address. It also returns a set of used account
@@ -125,7 +141,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if err != nil {
 		return nil, nil, err
 	}
-	utxo := account.transactions.SpendableOutputs()
+	utxo, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return nil, nil, err
+	}
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
 		// Apply coin control.
@@ -172,7 +191,10 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 		if err != nil {
 			return nil, nil, errp.WithStack(errors.ErrInvalidAmount)
 		}
-		changeAddress := account.pickChangeAddress(wireUTXO)
+		changeAddress, err := account.pickChangeAddress(wireUTXO)
+		if err != nil {
+			return nil, nil, err
+		}
 		account.log.Infof("Change address script type: %s", changeAddress.Configuration.ScriptType())
 		txProposal, err = maketx.NewTx(
 			account.coin,
@@ -215,7 +237,10 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	utxos := account.transactions.SpendableOutputs()
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		return err
+	}
 	if err := account.signTransaction(txProposal, utxos, account.coin.Blockchain().TransactionGet); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
