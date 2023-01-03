@@ -8,7 +8,7 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.2
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
 	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20221027102202-8c31f236c498
-	github.com/digitalbitbox/block-client-go v0.0.0-20221208180325-288e450fea98
+	github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d
 	github.com/ethereum/go-ethereum v1.10.21
 	github.com/flynn/noise v1.0.0
 	github.com/gorilla/mux v1.8.0

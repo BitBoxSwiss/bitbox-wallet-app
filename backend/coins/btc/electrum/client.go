@@ -1,0 +1,147 @@
+// Copyright 2023 Shift Crypto AG
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package electrum
+
+import (
+	"bytes"
+	"context"
+	"encoding/hex"
+
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/block-client-go/electrum"
+	"github.com/digitalbitbox/block-client-go/electrum/types"
+)
+
+// client wraps electrum.Client to convert some method inputs and outputs to btcd/btcutil types. It
+// also implements blockchain.Interface.
+type client struct {
+	client *electrum.Client
+}
+
+func (c *client) EstimateFee(number int) (btcutil.Amount, error) {
+	fee, err := c.client.EstimateFee(context.Background(), number)
+	if err != nil {
+		return 0, err
+	}
+	return btcutil.NewAmount(fee)
+}
+
+func (c *client) GetMerkle(txHash chainhash.Hash, height int) (*blockchain.GetMerkleResult, error) {
+	result, err := c.client.GetMerkle(context.Background(), txHash.String(), height)
+	if err != nil {
+		return nil, err
+	}
+	merkle := make([]blockchain.TXHash, len(result.Merkle))
+	for i, s := range result.Merkle {
+		t, err := chainhash.NewHashFromStr(s)
+		if err != nil {
+			return nil, err
+		}
+		merkle[i] = blockchain.TXHash(*t)
+	}
+	return &blockchain.GetMerkleResult{Merkle: merkle, Pos: result.Pos}, nil
+}
+
+func (c *client) Headers(startHeight int, count int) (*blockchain.HeadersResult, error) {
+	headersResult, err := c.client.Headers(context.Background(), startHeight, count)
+	if err != nil {
+		return nil, err
+	}
+	headers := make([]*wire.BlockHeader, len(headersResult.Headers))
+	for i, h := range headersResult.Headers {
+		header := &wire.BlockHeader{}
+		err := header.Deserialize(bytes.NewReader(h))
+		if err != nil {
+			return nil, err
+		}
+		headers[i] = header
+	}
+	return &blockchain.HeadersResult{Headers: headers, Max: headersResult.Max}, nil
+}
+
+func (c *client) HeadersSubscribe(result func(*types.Header, error)) {
+	c.client.HeadersSubscribe(context.Background(), result)
+}
+
+func (c *client) RelayFee() (btcutil.Amount, error) {
+	fee, err := c.client.RelayFee(context.Background())
+	if err != nil {
+		return 0, err
+	}
+	return btcutil.NewAmount(fee)
+}
+
+func (c *client) ScriptHashGetHistory(scriptHashHex blockchain.ScriptHashHex) (
+	blockchain.TxHistory, error) {
+	historyA, err := c.client.ScriptHashGetHistory(context.Background(), string(scriptHashHex))
+	if err != nil {
+		return nil, err
+	}
+	history := blockchain.TxHistory{}
+	for _, t := range historyA {
+		txHash, err := chainhash.NewHashFromStr(t.TxHash)
+		if err != nil {
+			return nil, err
+		}
+		history = append(history, &blockchain.TxInfo{
+			Height: t.Height,
+			TXHash: blockchain.TXHash(*txHash),
+		})
+	}
+	return history, nil
+}
+
+func (c *client) ScriptHashSubscribe(
+	scriptHashHex blockchain.ScriptHashHex,
+	success func(string, error),
+) {
+	c.client.ScriptHashSubscribe(context.Background(), string(scriptHashHex), success)
+}
+
+func (c *client) TransactionBroadcast(transaction *wire.MsgTx) error {
+	rawTx := &bytes.Buffer{}
+	_ = transaction.BtcEncode(rawTx, 0, wire.WitnessEncoding)
+	rawTxHex := hex.EncodeToString(rawTx.Bytes())
+	txID, err := c.client.TransactionBroadcast(context.Background(), rawTxHex)
+	if txID != transaction.TxHash().String() {
+		return errp.New("Response is unexpected (expected TX hash)")
+	}
+	return err
+}
+
+func (c *client) TransactionGet(txHash chainhash.Hash) (*wire.MsgTx, error) {
+	rawTx, err := c.client.TransactionGet(context.Background(), txHash.String())
+	if err != nil {
+		return nil, err
+	}
+
+	tx := &wire.MsgTx{}
+	if err := tx.BtcDecode(bytes.NewReader(rawTx), 0, wire.WitnessEncoding); err != nil {
+		return nil, err
+	}
+	return tx, nil
+}
+
+func (c *client) SetOnError(f func(error)) {
+	c.client.SetOnError(f)
+}
+
+func (c *client) Close() {
+	c.client.Close()
+}

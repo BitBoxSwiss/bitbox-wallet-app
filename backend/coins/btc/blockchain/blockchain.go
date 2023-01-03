@@ -24,6 +24,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/block-client-go/electrum/types"
 )
 
 // TXHash wraps chainhash.Hash for json deserialization.
@@ -86,11 +87,6 @@ func NewScriptHashHex(pkScript []byte) ScriptHashHex {
 	return ScriptHashHex(chainhash.HashH(pkScript).String())
 }
 
-// Header is returned by HeadersSubscribe().
-type Header struct {
-	BlockHeight int
-}
-
 // HeadersResult is returned by Headers().
 type HeadersResult struct {
 	// Headers are the returned headers.
@@ -112,8 +108,8 @@ type GetMerkleResult struct {
 type Interface interface {
 	ScriptHashGetHistory(ScriptHashHex) (TxHistory, error)
 	TransactionGet(chainhash.Hash) (*wire.MsgTx, error)
-	ScriptHashSubscribe(func() func(error), ScriptHashHex, func(string))
-	HeadersSubscribe(func() func(error), func(*Header))
+	ScriptHashSubscribe(func() func(), ScriptHashHex, func(string))
+	HeadersSubscribe(func(*types.Header))
 	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee() (btcutil.Amount, error)
 	EstimateFee(int) (btcutil.Amount, error)
