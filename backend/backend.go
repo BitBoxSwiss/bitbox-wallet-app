@@ -80,6 +80,8 @@ var fixedURLWhitelist = []string{
 	"https://support.moonpay.io/",
 	"https://help.moonpay.io/",
 	"https://help.moonpay.com/",
+	// PocketBitcoin
+	"https://pocketbitcoin.com/",
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
