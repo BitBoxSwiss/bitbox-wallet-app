@@ -59,7 +59,6 @@ type TxInfo struct {
 	// transaction with an unconfirmed parent transaction.
 	Height int    `json:"height"`
 	TXHash TXHash `json:"tx_hash"`
-	Fee    *int64 `json:"fee"`
 }
 
 // TxHistory is returned by ScriptHashGetHistory.

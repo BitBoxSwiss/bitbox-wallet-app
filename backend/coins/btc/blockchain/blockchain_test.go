@@ -28,12 +28,10 @@ func TestStatus(t *testing.T) {
 	tx1 := &TxInfo{
 		Height: 10,
 		TXHash: TXHash(chainhash.HashH([]byte("tx1"))),
-		Fee:    nil,
 	}
 	tx2 := &TxInfo{
 		Height: 12,
 		TXHash: TXHash(chainhash.HashH([]byte("tx2"))),
-		Fee:    nil,
 	}
 
 	history = []*TxInfo{tx1}
