@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint } from './subscribe';
-import { Unsubscribe } from '../utils/event';
+import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 import { IAccount } from './account';
 
 /**
@@ -23,10 +22,9 @@ import { IAccount } from './account';
  * list of all available accounts from the backend.
  * Returns a method to unsubscribe.
  */
-
 export const syncAccountsList = (
   cb: (accounts: IAccount[],) => void
-): Unsubscribe => {
+): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
 
@@ -35,11 +33,10 @@ export const syncAccountsList = (
  * to receive the progress of the address sync.
  * Returns a method to unsubscribe.
  */
-
 export const syncAddressesCount = (
   code: string,
   cb: (code: string, syncedAddressesCount: number) => void,
-): Unsubscribe => {
+): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
     data: number,
   ) => {

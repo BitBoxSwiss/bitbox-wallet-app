@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 
 import { DependencyList, useEffect, useState } from 'react';
-import { SubscriptionCallback } from '../api/subscribe';
-import { Unsubscribe } from '../utils/event';
+import { TSubscriptionCallback, TUnsubscribe } from '../api/subscribe';
 import { useMountedRef } from './mount';
 
 /**
@@ -25,7 +24,7 @@ import { useMountedRef } from './mount';
  * re-renders on every update.
  */
 export const useSubscribe = <T>(
-  subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe),
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
@@ -81,7 +80,7 @@ export const useLoad = <T>(
  */
 export const useSync = <T>(
   apiCall: () => Promise<T>,
-  subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe),
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
 ): (T | undefined) => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();

@@ -58,7 +58,6 @@ func isMixedCase(s string) bool {
 type Account struct {
 	*accounts.BaseAccount
 
-	locker.Locker
 	coin *Coin
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
 	dbSubfolder          string
@@ -68,22 +67,24 @@ type Account struct {
 	httpClient           *http.Client
 
 	// true when initialized (Initialize() was called).
-	initialized bool
+	initialized     bool
+	initializedLock locker.Locker
 
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
 	enqueueUpdateCh chan struct{}
 
-	address     Address
-	balance     coin.Amount
-	blockNumber *big.Int
+	address Address
 
-	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
-	activeTxProposal     *TxProposal
-	activeTxProposalLock locker.Locker
-
+	// updateLock covers balance, blockNumber, nextNonce, transactions and activeTxProposal.
+	updateLock   locker.Locker
+	balance      coin.Amount
+	blockNumber  *big.Int
 	nextNonce    uint64
 	transactions []*accounts.TransactionData
+
+	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
+	activeTxProposal *TxProposal
 
 	quitChan chan struct{}
 
@@ -133,11 +134,20 @@ func (account *Account) FilesFolder() string {
 	return account.dbSubfolder
 }
 
+func (account *Account) isInitialized() bool {
+	defer account.initializedLock.RLock()()
+	return account.initialized
+}
+
 // Initialize implements accounts.Interface.
 func (account *Account) Initialize() error {
-	defer account.Lock()()
+	// Early return that does not require a write-lock.
+	if account.isInitialized() {
+		return nil
+	}
+
+	defer account.initializedLock.Lock()()
 	if account.initialized {
-		account.log.Debug("Account has already been initialized")
 		return nil
 	}
 	account.initialized = true
@@ -305,6 +315,7 @@ func (account *Account) outgoingTransactions(allTxs []*accounts.TransactionData)
 }
 
 func (account *Account) update() error {
+	defer account.updateLock.Lock()()
 	defer account.Synchronizer.IncRequestsCounter()()
 
 	blockNumber, err := account.coin.client.BlockNumber(context.TODO())
@@ -584,7 +595,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 
 // SendTx implements accounts.Interface.
 func (account *Account) SendTx() error {
-	unlock := account.activeTxProposalLock.RLock()
+	unlock := account.updateLock.RLock()
 	txProposal := account.activeTxProposal
 	unlock()
 	if txProposal == nil {
@@ -720,7 +731,7 @@ func (account *Account) gasPrice(args *accounts.TxProposalArgs) (*big.Int, error
 func (account *Account) TxProposal(
 	args *accounts.TxProposalArgs,
 ) (coin.Amount, coin.Amount, coin.Amount, error) {
-	defer account.activeTxProposalLock.Lock()()
+	defer account.updateLock.Lock()()
 	txProposal, err := account.newTx(args)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
@@ -738,6 +749,9 @@ func (account *Account) TxProposal(
 
 // GetUnusedReceiveAddresses implements accounts.Interface.
 func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
+	if !account.isInitialized() {
+		return nil
+	}
 	return []accounts.AddressList{{
 		Addresses: []accounts.Address{account.address},
 	}}
@@ -745,11 +759,9 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 
 // VerifyAddress implements accounts.Interface.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
-	if account.signingConfiguration == nil {
+	if !account.isInitialized() {
 		return false, errp.New("account must be initialized")
 	}
-	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	canVerifyAddress, _, err := account.Config().Keystore.CanVerifyAddress(account.Coin())
 	if err != nil {
 		return false, err
@@ -762,8 +774,5 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 
 // CanVerifyAddresses implements accounts.Interface.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
-	if account.signingConfiguration == nil {
-		return false, false, errp.New("account must be initialized")
-	}
 	return account.Config().Keystore.CanVerifyAddress(account.Coin())
 }

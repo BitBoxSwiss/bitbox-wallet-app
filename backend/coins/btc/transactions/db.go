@@ -21,6 +21,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // DBTxInfo contains data stored for a wallet transaction.
@@ -109,7 +110,37 @@ type DBTxInterface interface {
 // DBInterface can be implemented by database backends to open database transactions.
 type DBInterface interface {
 	// Begin starts a DB transaction. Apply `defer tx.Rollback()` in any case after. Use
-	// `tx.Commit()` to commit the write operations.
-	Begin() (DBTxInterface, error)
+	// `tx.Commit()` to commit the write operations.  If `writable` is true, write-operations are
+	// permitted, and concurrent write- or read-transactions are serialized by blocking. If
+	// `writable` is false, concurrent read-transactions are performed without blocking, unless
+	// there is an ongoing write-transaction.
+	Begin(writable bool) (DBTxInterface, error)
 	Close() error
+}
+
+// DBUpdate updates the database. All changes are rolled back on error. The transaction is committed
+// if the callback does not return an error.
+func DBUpdate(db DBInterface, f func(DBTxInterface) error) error {
+	dbTx, err := db.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer dbTx.Rollback()
+	if err := f(dbTx); err != nil {
+		return err
+	}
+	return dbTx.Commit()
+}
+
+// DBView reads from the database. Any write-operations on the database transaction will result in
+// an error. The return value of the callback is passed as the return value of the whole function
+// for ease of use.
+func DBView[R any](db DBInterface, f func(DBTxInterface) (R, error)) (R, error) {
+	dbTx, err := db.Begin(false)
+	if err != nil {
+		var empty R
+		return empty, errp.WithStack(err)
+	}
+	defer dbTx.Rollback()
+	return f(dbTx)
 }

@@ -15,7 +15,8 @@
 
 
 BITCOIN_DATADIR="/tmp/regtest/btcdata"
-ELECTRS_DATADIR="/tmp/regtest/electrsdata"
+ELECTRS_DATADIR1="/tmp/regtest/electrsdata1"
+ELECTRS_DATADIR2="/tmp/regtest/electrsdata2"
 
 trap 'killall' EXIT
 
@@ -26,50 +27,86 @@ killall() {
     kill -TERM 0
     wait
     rm -rf $BITCOIN_DATADIR
-    rm -rf $ELECTRS_DATADIR
+    rm -rf $ELECTRS_DATADIR1
+    rm -rf $ELECTRS_DATADIR2
     docker rm bitcoind-regtest
-    docker rm electrs-regtest
+    docker rm electrs-regtest1
+    docker rm electrs-regtest2
     echo DONE
 }
 
 mkdir -p $BITCOIN_DATADIR
-mkdir -p $ELECTRS_DATADIR
-echo -n "dbb:dbb" > $ELECTRS_DATADIR/rpccreds
+mkdir -p $ELECTRS_DATADIR1
+mkdir -p $ELECTRS_DATADIR2
+echo -n "dbb:dbb" > $ELECTRS_DATADIR1/rpccreds
+echo -n "dbb:dbb" > $ELECTRS_DATADIR2/rpccreds
 echo "bitcoind datadir: ${BITCOIN_DATADIR}"
-echo "electrs datadir: ${ELECTRS_DATADIR}"
+echo "electrs datadir1: ${ELECTRS_DATADIR1}"
+echo "electrs datadir2: ${ELECTRS_DATADIR2}"
 
 # Default docker bridge.
 DOCKER_IP="172.17.0.1"
+BITCOIND_PORT=12340
+BITCOIND_RPC_PORT=10332
+ELECTRS_RPC_PORT1=52001
+ELECTRS_RPC_PORT2=52002
 
-docker run -v $BITCOIN_DATADIR:/bitcoin --name=bitcoind-regtest \
+docker run -v $BITCOIN_DATADIR:/bitcoin/.bitcoin --name=bitcoind-regtest \
        -e DISABLEWALLET=0 \
        -e PRINTTOCONSOLE=0 \
        -e RPCUSER=dbb \
        -e RPCPASSWORD=dbb \
-       -p 10332:10332 \
-       -p 12340:12340 \
+       -p ${BITCOIND_RPC_PORT}:${BITCOIND_RPC_PORT} \
+       -p ${BITCOIND_PORT}:${BITCOIND_PORT} \
        kylemanna/bitcoind \
        -regtest \
        -fallbackfee=0.00001 \
-       -port=12340 \
-       -rpcport=10332 \
+       -port=${BITCOIND_PORT} \
+       -rpcport=${BITCOIND_RPC_PORT} \
        -rpcbind=0.0.0.0 \
        -rpcallowip=$DOCKER_IP/16 &
 
 docker run \
        -u $(id -u $USER) \
        --net=host \
-       -v $BITCOIN_DATADIR/.bitcoin:/bitcoin \
-       -v $ELECTRS_DATADIR:/data \
-       --name=electrs-regtest \
+       -v $BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin \
+       -v $ELECTRS_DATADIR1:/data \
+       --name=electrs-regtest1 \
        benma2/electrs:v0.9.9 \
-        --cookie-file=/data/rpccreds --log-filters INFO --timestamp --network=regtest --daemon-rpc-addr=${DOCKER_IP}:10332 --daemon-p2p-addr=${DOCKER_IP}:12340 --electrum-rpc-addr=127.0.0.1:52001 --daemon-dir=/bitcoin --db-dir=/data &
+        --cookie-file=/data/rpccreds \
+        --log-filters INFO \
+        --timestamp \
+        --network=regtest \
+        --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
+        --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
+        --electrum-rpc-addr=127.0.0.1:${ELECTRS_RPC_PORT1} \
+        --daemon-dir=/bitcoin/.bitcoin \
+        --db-dir=/data &
+
+docker run \
+       -u $(id -u $USER) \
+       --net=host \
+       -v $BITCOIN_DATADIR/.bitcoin:/bitcoin/.bitcoin \
+       -v $ELECTRS_DATADIR2:/data \
+       --name=electrs-regtest2 \
+       benma2/electrs:v0.9.9 \
+        --cookie-file=/data/rpccreds \
+        --log-filters INFO \
+        --timestamp \
+        --network=regtest \
+        --daemon-rpc-addr=${DOCKER_IP}:${BITCOIND_RPC_PORT} \
+        --daemon-p2p-addr=${DOCKER_IP}:${BITCOIND_PORT} \
+        --electrum-rpc-addr=127.0.0.1:${ELECTRS_RPC_PORT2} \
+        --daemon-dir=/bitcoin/.bitcoin \
+        --db-dir=/data &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 createwallet"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
+echo "    docker exec --user=`id -u` -it bitcoind-regtest bitcoin-cli -regtest -datadir=/bitcoin -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
 echo "Delete headers-rbtc.bin in the app cache folder before running the BitBoxApp, otherwise it can conflict the fresh regtest chain."
+echo "Also delete all rbtc account caches in the app cache folder before running the BitBoxApp."
+echo "You may need to disable VPN, as it can prevent Electrs/bitcoin-cli from connecting to bitcoind."
 
 while true; do sleep 1; done

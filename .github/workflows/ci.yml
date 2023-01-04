@@ -32,11 +32,6 @@ jobs:
         with:
           submodules: recursive
         uses: actions/checkout@v2
-      - name: Enable caching
-        uses: actions/cache@v2
-        with:
-          key: ${{runner.os}}-test-lint
-          path: frontends/web/node_modules
       - name: Run CI script
         # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
         # to keep its linter errors in this log, too.
@@ -53,7 +48,6 @@ jobs:
         with:
           key: ${{runner.os}}-android
           path: |
-            frontends/web/node_modules
             ~/.gradle/caches
             ~/.gradle/wrapper
       - name: Build Android
@@ -72,11 +66,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Enable caching
-        uses: actions/cache@v2
-        with:
-          key: ${{runner.os}}-qt-linux
-          path: frontends/web/node_modules
       - name: Build Qt-Linux
         run: ./scripts/travis-ci.sh qt-linux
         env:
@@ -110,7 +99,6 @@ jobs:
           # Bump it every time there are changes in CI scripts.
           key: ${{runner.os}}-qt-osx-v2
           path: |
-            frontends/web/node_modules
             ~/Library/Caches/Homebrew
       - name: Install Go
         uses: actions/setup-go@v2

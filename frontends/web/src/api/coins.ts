@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
+import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { CoinCode } from './account';
 import { ISuccess } from './backend';
 import { apiPost } from '../utils/request';
@@ -29,7 +29,7 @@ export type TStatus = {
 }
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (
-  (cb: SubscriptionCallback<TStatus>) => (
+  (cb: TSubscriptionCallback<TStatus>) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
 );

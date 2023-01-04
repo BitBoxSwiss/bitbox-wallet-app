@@ -32,6 +32,13 @@ type ServerInfo struct {
 	PEMCert string `json:"pemCert"`
 }
 
+func (s *ServerInfo) String() string {
+	if s.TLS {
+		return s.Server + ":s"
+	}
+	return s.Server + ":p"
+}
+
 // btcCoinConfig holds configurations specific to a btc-based coin.
 type btcCoinConfig struct {
 	ElectrumServers []*ServerInfo `json:"electrumServers"`
@@ -177,6 +184,11 @@ func NewDefaultAppConfig() AppConfig {
 				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "127.0.0.1:52001",
+						TLS:     false,
+						PEMCert: "",
+					},
+					{
+						Server:  "127.0.0.1:52002",
 						TLS:     false,
 						PEMCert: "",
 					},

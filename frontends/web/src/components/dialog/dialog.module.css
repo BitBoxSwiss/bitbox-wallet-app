@@ -26,6 +26,15 @@
     max-height: 100vh;
     overflow: auto;
 }
+/* guard dialog and wait-dialog from view styles */
+@media (min-width: 1200px) {
+    .header .title {
+        --size-subheader: 16px;
+    }
+    .modal .contentContainer p {
+        --size-default: 14px;
+    }
+}
 
 .modal.small {
     max-width: 340px;

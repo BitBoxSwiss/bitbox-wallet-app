@@ -278,8 +278,8 @@ export const Receive = ({
         </div>
       </div>
       <ReceiveGuide
-        hasMultipleAddresses={currentAddresses && currentAddresses.length > 1}
-        hasDifferentFormats={receiveAddresses && receiveAddresses.length > 1}
+        hasMultipleAddresses={currentAddresses ? currentAddresses.length > 1 : false}
+        hasDifferentFormats={receiveAddresses ? receiveAddresses.length > 1 : false}
       />
     </div>
   );

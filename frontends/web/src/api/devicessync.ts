@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint } from './subscribe';
-import { Unsubscribe } from '../utils/event';
+import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 import { TDevices } from './devices';
 
 /**
@@ -23,9 +22,8 @@ import { TDevices } from './devices';
  * and receives a list of all available accounts from the backend.
  * Returns a method to unsubscribe.
  */
-
 export const syncDeviceList = (
   cb: (accounts: TDevices,) => void
-): Unsubscribe => {
+): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
 };

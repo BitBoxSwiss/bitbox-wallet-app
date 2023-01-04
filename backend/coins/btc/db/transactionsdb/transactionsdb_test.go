@@ -46,14 +46,14 @@ func TestCommit(t *testing.T) {
 
 	expectedGapLimits := types.GapLimits{Receive: 123, Change: 456}
 	store := func() {
-		tx, err := db.Begin()
+		tx, err := db.Begin(true)
 		require.NoError(t, err)
 		defer tx.Rollback()
 		require.NoError(t, tx.PutGapLimits(expectedGapLimits))
 		require.NoError(t, tx.Commit())
 	}
 	retrieve := func() {
-		tx, err := db.Begin()
+		tx, err := db.Begin(false)
 		require.NoError(t, err)
 		defer tx.Rollback()
 		gapLimits, err := tx.GapLimits()
@@ -71,7 +71,7 @@ func testTx(f func(tx *Tx)) {
 			panic(err)
 		}
 	}()
-	tx, err := db.Begin()
+	tx, err := db.Begin(true)
 	if err != nil {
 		panic(err)
 	}

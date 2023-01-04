@@ -44,14 +44,14 @@ servewallet:
 servewallet-mainnet:
 	go run -mod=vendor ./cmd/servewallet -mainnet
 servewallet-regtest:
-	rm -f appfolder.dev/cache/headers-rbtc.bin && go run -mod=vendor ./cmd/servewallet -regtest
+	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && go run -mod=vendor ./cmd/servewallet -regtest
 servewallet-prodservers:
 	go run -mod=vendor ./cmd/servewallet -devservers=false
 buildweb:
 	node --version
 	npm --version
 	rm -rf ${WEBROOT}/build
-	cd ${WEBROOT} && npm install
+	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run build
 webdev:
 	cd ${WEBROOT} && $(MAKE) dev

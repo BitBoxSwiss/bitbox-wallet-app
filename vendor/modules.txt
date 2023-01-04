@@ -60,6 +60,12 @@ github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages
 github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid
 github.com/digitalbitbox/bitbox02-api-go/util/errp
 github.com/digitalbitbox/bitbox02-api-go/util/semver
+# github.com/digitalbitbox/block-client-go v0.0.0-20221208180325-288e450fea98
+## explicit; go 1.19
+github.com/digitalbitbox/block-client-go/electrum
+github.com/digitalbitbox/block-client-go/electrum/types
+github.com/digitalbitbox/block-client-go/jsonrpc
+github.com/digitalbitbox/block-client-go/jsonrpc/types
 # github.com/ethereum/go-ethereum v1.10.21
 ## explicit; go 1.17
 github.com/ethereum/go-ethereum
@@ -146,10 +152,10 @@ github.com/sirupsen/logrus
 github.com/skip2/go-qrcode
 github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
-# github.com/stretchr/objx v0.2.0
+# github.com/stretchr/objx v0.5.0
 ## explicit; go 1.12
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.7.2
+# github.com/stretchr/testify v1.8.1
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock

@@ -34,6 +34,7 @@ import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
 import style from './sidebar.module.css';
+import { isBitcoinOnly } from '../../routes/account/utils';
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -156,6 +157,7 @@ class Sidebar extends Component<Props> {
       sidebarStatus,
     } = this.props;
     const hidden = ['forceHidden', 'forceCollapsed'].includes(sidebarStatus);
+    const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
     return (
       <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
         <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
@@ -202,7 +204,7 @@ class Sidebar extends Component<Props> {
                   <img draggable={false} src={coins} alt={t('sidebar.exchanges')} />
                 </div>
                 <span className={style.sidebarLabel}>
-                  {t('sidebar.buy')}
+                  {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
                 </span>
               </NavLink>
             </div>

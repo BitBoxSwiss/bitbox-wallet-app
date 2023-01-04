@@ -77,8 +77,13 @@ type newTxSuite struct {
 
 func (s *newTxSuite) SetupTest() {
 	s.log = logging.Get().WithGroup("newTxTest")
-	s.inputConfiguration, s.addressChain = addressesTest.NewAddressChain()
-	someAddresses := s.addressChain.EnsureAddresses()
+	s.inputConfiguration, s.addressChain = addressesTest.NewAddressChain(
+		func(address *addresses.AccountAddress) (bool, error) {
+			return false, nil
+		},
+	)
+	someAddresses, err := s.addressChain.EnsureAddresses()
+	require.NoError(s.T(), err)
 	s.outputPkScript = someAddresses[1].PubkeyScript()
 	s.changeAddress = someAddresses[0]
 	s.someAddresses = someAddresses[2:]

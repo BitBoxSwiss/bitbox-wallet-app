@@ -70,18 +70,21 @@ class BitBox02Bootloader extends Component<Props, State> {
 
   public componentDidMount() {
     this.onStatusChanged();
-    this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
-      switch (type) {
-      case 'device':
-        if (deviceID !== this.props.deviceID) {
-          return;
-        }
-        switch (data) {
-        case 'statusChanged':
-          this.onStatusChanged();
+    this.unsubscribe = apiWebsocket((payload) => {
+      if ('type' in payload) {
+        const { data, deviceID, type } = payload;
+        switch (type) {
+        case 'device':
+          if (deviceID !== this.props.deviceID) {
+            return;
+          }
+          switch (data) {
+          case 'statusChanged':
+            this.onStatusChanged();
+            break;
+          }
           break;
         }
-        break;
       }
     });
   }
