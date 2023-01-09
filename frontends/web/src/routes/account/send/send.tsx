@@ -228,7 +228,9 @@ class Send extends Component<Props, State> {
     if (e.keyCode === 27) {
       if (this.state.activeScanQR) {
         this.toggleScanQR();
-      } else {
+        return;
+      }
+      if (!this.state.activeCoinControl) {
         route(`/account/${this.props.code}`);
       }
     }
