@@ -20,17 +20,12 @@ import { route } from '../../../utils/route';
 import { getDeviceInfo, setMnemonicPassphraseEnabled } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { MultilineMarkup, SimpleMarkup } from '../../../utils/markup';
-// This is the first time we use <View> in a <Main> component
-// keeping guide and header as example in the code
-import { /* Header, */ Main } from '../../../components/layout';
+import { Main } from '../../../components/layout';
 import { Button, Checkbox } from '../../../components/forms';
 import { alertUser } from '../../../components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { PointToBitBox02 } from '../../../components/icon';
 import Status from '../../../components/status/status';
-// keeing as example for using guides in the new main component
-// import { Guide } from '../../../components/guide/guide';
-// import { Entry } from '../../../components/guide/entry';
 
 // enabling has 6 dialogs with information
 const INFO_STEPS_ENABLE = 5;
@@ -115,7 +110,7 @@ class Passphrase extends Component<Props, State> {
     const enabled = this.state.passphraseEnabled;
     if (
       (!enabled && this.state.infoStep >= INFO_STEPS_ENABLE)
-            || (enabled && this.state.infoStep >= INFO_STEPS_DISABLE)
+      || (enabled && this.state.infoStep >= INFO_STEPS_DISABLE)
     ) {
       this.stopInfo();
       return;
@@ -311,7 +306,6 @@ class Passphrase extends Component<Props, State> {
     }
     return (
       <Main>
-        {/* <Header /> */}
         {status === 'info' && (
           passphraseEnabled
             ? this.renderDisableInfo()
@@ -367,9 +361,6 @@ class Passphrase extends Component<Props, State> {
             </ViewContent>
           </View>
         )}
-        {/* <Guide>
-                    <Entry key="whatisapassphrase" entry={t('guide.passphrase.whatisapassphrase')} />
-                </Guide> */}
       </Main>
     );
   }
