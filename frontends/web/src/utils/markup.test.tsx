@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,5 +45,17 @@ describe('multilineMarkup', () => {
     expect(first.querySelector('strong')).toHaveTextContent('bar');
     expect(last.textContent).toBe('booz');
     expect(last.querySelector('strong')).toHaveTextContent('booz');
+  });
+});
+
+describe('multilineMarkup with breaks', () => {
+  it('contains multiple lines with a strong element each', () => {
+    const { container } = render(
+      <MultilineMarkup markup={'one\ntwo'} tagName="span" withBreaks />
+    );
+    const paragraphs = container.querySelectorAll('span');
+    expect(paragraphs).toHaveLength(2);
+    const breaks = container.querySelectorAll('br');
+    expect(breaks).toHaveLength(2);
   });
 });
