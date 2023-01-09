@@ -164,7 +164,7 @@ class Chart extends Component<Props, State> {
               visible: false,
             },
             horzLines: {
-              color: '#dedede',
+              color: '#333333',
               style: LineStyle.Solid,
               visible: !this.state.isMobile,
             },
@@ -204,7 +204,7 @@ class Chart extends Component<Props, State> {
         priceFormat: {
           type: 'volume',
         },
-        topColor: '#DFF1FF',
+        topColor: '#5E94BF',
         bottomColor: '#1D1D1B',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
