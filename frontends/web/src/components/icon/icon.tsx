@@ -32,7 +32,6 @@ import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
 import guideSVG from './assets/icons/guide.svg';
-import menuSVG from './assets/icons/menu.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import warningPNG from './assets/icons/warning.png';
 import starSVG from './assets/icons/star.svg';
