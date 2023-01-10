@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
+import { Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ExchangeDeals } from '../../../api/exchanges';
 import { Bank, CreditCard } from '../../../components/icon';
-import { ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
-import { BestDeal, Fast } from './buyTags';
+import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
+import { getFormattedName } from '../utils';
+import { BestDeal, Fast } from './buytags';
+import { InfoButton } from '../../../components/infobutton/infobutton';
 import style from './exchangeselectionradio.module.css';
 
 type RadioProps = {
   deals: ExchangeDealsWithSupported['deals'];
   exchangeName: ExchangeDealsWithSupported['exchangeName'];
   onChange: () => void;
+  onClickInfoButton: Dispatch<SetStateAction<Info | undefined>>;
 }
 
 type TRadioProps = RadioProps & JSX.IntrinsicElements['input'];
+type TPaymentMethodProps = { methodName: ExchangeDealWithBestDeal['payment'] };
 
-const PaymentMethod = ({ methodName }: {methodName: ExchangeDeals['exchangeName']}) => {
+const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   const { t } = useTranslation();
   switch (methodName) {
   case 'bank-transfer':
@@ -67,42 +71,46 @@ export function ExchangeSelectionRadio({
   deals,
   onChange,
   exchangeName,
+  onClickInfoButton,
   ...props
 }: TRadioProps) {
 
-  const getExchangeName = (name: string) => {
-    switch (name) {
-    case 'moonpay':
-      return 'MoonPay';
-    case 'pocket':
-      return 'Pocket';
+  const handleClick = () => {
+    if (!disabled) {
+      onChange();
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
+    if (!disabled && e.key === 'Enter') {
+      onChange();
     }
   };
 
   return (
-    <span aria-checked={checked} aria-disabled={disabled} role={'radio'} onClick={() => {
-      if (!disabled) {
-        onChange();
-      }
-    }} className={style.radio}>
-      <input
-        checked={checked}
-        type="radio"
-        id={id}
-        disabled={disabled}
-        onChange={onChange}
-        {...props}
-      />
-      <label className={style.radioLabel} htmlFor={id}>
-        <div className={style.container}>
-          <p className={[style.text, style.exchangeName].join(' ')}>
-            {getExchangeName(exchangeName)}
-          </p>
-          <div className={style.paymentMethodsContainer}>
-            {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}
+    <div className={style.outerContainer}>
+      <span aria-checked={checked} onKeyDown={handleKeyDown} aria-disabled={disabled} role="radio" tabIndex={0} onClick={handleClick} className={style.radio}>
+        <input
+          checked={checked}
+          type="radio"
+          id={id}
+          disabled={disabled}
+          onChange={onChange}
+          {...props}
+        />
+        <label className={style.radioLabel} htmlFor={id}>
+          <div className={style.container}>
+            <p className={[style.text, style.exchangeName].join(' ')}>
+              {getFormattedName(exchangeName)}
+            </p>
+            <div className={style.paymentMethodsContainer}>
+              {deals.map(deal => <Deal key={deal.payment} deal={deal}/>)}
+            </div>
           </div>
-        </div>
-      </label>
-    </span>
+        </label>
+      </span>
+      <InfoButton onClick={() => onClickInfoButton(exchangeName)} />
+    </div>
+
   );
 }

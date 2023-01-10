@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FrontendExchangeDealsList } from './types';
+import { FrontendExchangeDealsList, Info } from './types';
 
 /**
  * Finds the lowest fee among all `supported`
@@ -51,4 +51,16 @@ export function findBestDeal(providers: FrontendExchangeDealsList, lowestFee: nu
     }))
   }));
   return { exchanges };
+}
+
+/**
+ * Gets formatted name for exchange.
+ */
+export function getFormattedName(name: Omit<Info, 'region'>) {
+  switch (name) {
+  case 'moonpay':
+    return 'MoonPay';
+  case 'pocket':
+    return 'Pocket';
+  }
 }

@@ -24,6 +24,7 @@ import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.sv
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
 import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.svg';
 import bankSVG from './assets/icons/bank.svg';
+import buyInfoSVG from './assets/icons/buy-info.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
@@ -33,6 +34,7 @@ import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
 import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
+import globeSVG from './assets/icons/globe.svg';
 import guideSVG from './assets/icons/guide.svg';
 import menuSVG from './assets/icons/menu.svg';
 import warningPNG from './assets/icons/warning.png';
@@ -112,6 +114,7 @@ export const ArrowCirlceLeftActive = (props: ImgProps) => (<img src={arrowCircle
 export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRightSVG} draggable={false} {...props} />);
 export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircleRightActiveSVG} draggable={false} {...props} />);
 export const Bank = (props: ImgProps) => (<img src={bankSVG} draggable={false} {...props} />);
+export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
 // check icon on a green circle
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
 // simple check for copy component
@@ -123,6 +126,7 @@ export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
+export const Globe = (props: ImgProps) => (<img src={globeSVG} draggable={false} {...props} />);
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
 export const Menu = (props: ImgProps) => (<img src={menuSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);

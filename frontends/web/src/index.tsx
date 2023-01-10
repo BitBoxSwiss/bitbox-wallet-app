@@ -23,6 +23,7 @@ import { App } from './app';
 import i18n from './i18n/i18n';
 import './style/index.css';
 
+
 ReactDOM.render(
   <React.StrictMode>
     <I18nextProvider i18n={i18n}>

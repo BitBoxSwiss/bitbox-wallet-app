@@ -1,4 +1,4 @@
-.tag{
+.tag {
     padding: var(--space-eight) 10px;
     border-radius: var(--space-half);
     border: 1px solid;
@@ -6,14 +6,20 @@
     line-height: 14px;
 }
 
-.bestDeal{
+.bestDeal {
     background: var(--color-palegreen);
     border-color: var(--color-lightgreen);
     color: var(--color-darkgreen);
 }
 
-.fast{
+.fast {
     background: var(--color-lightyellow);
     border-color: var(--color-darkyellow);
     color: var(--color-olive);
+}
+
+@media (max-width: 382px) {
+    .tag {
+        font-size: 10px;
+    }
 }

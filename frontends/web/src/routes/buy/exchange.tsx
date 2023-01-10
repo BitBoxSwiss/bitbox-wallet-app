@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { useTranslation } from 'react-i18next';
+import 'flag-icons';
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Select, ButtonLink } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { IAccount } from '../../api/account';
@@ -25,11 +25,15 @@ import { findAccount, getCryptoName } from '../account/utils';
 import { route } from '../../utils/route';
 import { useLoad } from '../../hooks/api';
 import { languageFromConfig, localeMainLanguage } from '../../i18n/config';
-import { findLowestFee, findBestDeal as findBestD } from './utils';
+import { findLowestFee, findBestDeal, getFormattedName } from './utils';
 import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
 import { Spinner } from '../../components/spinner/Spinner';
+import { Info, FrontendExchangeDealsList } from './types';
+import { Dialog } from '../../components/dialog/dialog';
+import { InfoButton } from '../../components/infobutton/infobutton';
+import { InfoContent } from './components/infocontent';
+import { Globe } from '../../components/icon';
 import style from './exchange.module.css';
-import { FrontendExchangeDealsList } from './types';
 
 type TProps = {
     code: string;
@@ -42,8 +46,12 @@ type TOption = {
     value?: string;
 }
 
-// TODO:
-// - add layout
+const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
+  return <span className={style.flag}>
+    {regionCode === '' ? <Globe /> : <span className={`fi fi-${regionCode}`}></span>}
+  </span>;
+};
+
 export const Exchange = ({ code, accounts }: TProps) => {
   const { t } = useTranslation();
 
@@ -54,6 +62,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const [regions, setRegions] = useState<TOption[]>([]);
   const [locale, setLocale] = useState('');
   const [allExchangeDeals, setAllExchanges] = useState<FrontendExchangeDealsList>();
+  const [info, setInfo] = useState<Info>();
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
@@ -61,6 +70,8 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   const account = findAccount(accounts, code);
   const name = getCryptoName(t('buy.info.crypto'), account);
+
+  const hasMoreThanOneExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length > 1 : false;
 
   // link locale detection to regionList to having it happen only once page load.
   // can't use `useLoad` because `detect` function returns void.
@@ -87,11 +98,16 @@ export const Exchange = ({ code, accounts }: TProps) => {
     const deals = { exchanges: exchangeDeals.exchanges.map(ex => ({ ...ex, supported: ex.exchangeName === 'pocket' ? showPocket : showMoonpay })) };
 
     const lowestFee = findLowestFee(deals);
-    const exchangesWithBestDeal = findBestD(deals, lowestFee);
+    const exchangesWithBestDeal = findBestDeal(deals, lowestFee);
 
     setAllExchanges(exchangesWithBestDeal);
-  }, [selectedRegion, showMoonpay, showPocket, exchangeDeals]);
+  }, [selectedRegion, showMoonpay, showPocket, exchangeDeals, hasMoreThanOneExchange]);
 
+  useEffect(() => {
+    if (!hasMoreThanOneExchange && allExchangeDeals) {
+      setSelectedExchange(allExchangeDeals.exchanges[0].exchangeName);
+    }
+  }, [hasMoreThanOneExchange, allExchangeDeals]);
 
   // update exchange list when:
   // - pocket/moonpay supported async calls return
@@ -137,28 +153,42 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   const noExchangeAvailable = !showMoonpay && !showPocket;
 
+
+
   return (
     <div className="contentWithGuide">
       <div className="container">
-        <div className={style.header}>
+        <Dialog medium title={info && info !== 'region' ? getFormattedName(info) : t('buy.exchange.region')} onClose={() => setInfo(undefined)} open={!!info}>
+          {info && <InfoContent info={info} />}
+        </Dialog>
+        <div className="innerContainer scrollableContainer">
           <Header title={<h2>{t('buy.exchange.title', { name })}</h2>} />
-        </div>
-        <div className="innerContainer">
-          <div className={[style.exchangeContainer, 'content', 'narrow'].join(' ')}>
+          <div className={[style.exchangeContainer, 'content', 'narrow', 'isVerticallyCentered'].join(' ')}>
             <h1 className={style.title}>{t('buy.title', { name })}</h1>
             <p className={style.label}>{t('buy.exchange.region')}</p>
             {regions.length ? (
               <>
-                <Select
-                  options={[{
-                    text: t('buy.exchange.selectRegion'),
-                    value: '',
-                  },
-                  ...regions]
-                  }
-                  onChange={(e: React.SyntheticEvent) => setSelectedRegion((e.target as HTMLSelectElement).value)}
-                  id="exchangeRegions"
-                />
+                <div className={style.selectContainer}>
+                  <div>
+                    <SelectedRegionIcon regionCode={selectedRegion.toLowerCase()}/>
+                    <Select
+                      className={style.extraLeftSpace}
+                      options={[{
+                        text: t('buy.exchange.selectRegion'),
+                        disabled: true,
+                        value: '',
+                      },
+                      ...regions]
+                      }
+                      value={selectedRegion || ''}
+                      onChange={(e: React.SyntheticEvent) => setSelectedRegion((e.target as HTMLSelectElement).value)}
+                      id="exchangeRegions"
+                    />
+
+                  </div>
+
+                  <InfoButton onClick={() => setInfo('region')} />
+                </div>
 
                 <div>
                   {noExchangeAvailable && (
@@ -172,8 +202,10 @@ export const Exchange = ({ code, accounts }: TProps) => {
                       id={exchange.exchangeName}
                       exchangeName={exchange.exchangeName}
                       deals={exchange.deals}
-                      checked={selectedExchange === exchange.exchangeName}
-                      onChange={() => setSelectedExchange(exchange.exchangeName)} />
+                      checked={selectedExchange === exchange.exchangeName || !hasMoreThanOneExchange}
+                      onChange={() => setSelectedExchange(exchange.exchangeName)}
+                      onClickInfoButton={setInfo}
+                    />
                     ))}
                   </div>
 
