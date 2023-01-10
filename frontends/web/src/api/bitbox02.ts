@@ -130,3 +130,12 @@ export type TStatus = 'connected'
 export const getStatus = (deviceID: string): Promise<TStatus> => {
   return apiGet(`devices/bitbox02/${deviceID}/status`);
 };
+
+type TChannelHash = {
+  hash: string;
+  deviceVerified: boolean;
+};
+
+export const getChannelHash = (deviceID: string): Promise<TChannelHash> => {
+  return apiGet(`devices/bitbox02/${deviceID}/channel-hash`);
+};
