@@ -117,3 +117,16 @@ export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
 export const showMnemonic = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
 };
+
+export type TStatus = 'connected'
+  | 'initialized'
+  | 'pairingFailed'
+  | 'require_firmware_upgrade'
+  | 'require_app_upgrade'
+  | 'seeded'
+  | 'unpaired'
+  | 'uninitialized';
+
+export const getStatus = (deviceID: string): Promise<TStatus> => {
+  return apiGet(`devices/bitbox02/${deviceID}/status`);
+};
