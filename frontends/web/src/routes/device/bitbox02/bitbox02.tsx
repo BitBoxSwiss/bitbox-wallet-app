@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getStatus, getVersion, setDeviceName, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, setDeviceName, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -27,7 +27,7 @@ import { Button, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
+import { apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../../components/alert/Alert';
 import { store as panelStore } from '../../../components/guide/guide';
@@ -160,7 +160,7 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private onChannelHashChanged = () => {
-    apiGet(this.apiPrefix() + '/channel-hash').then(({ hash, deviceVerified }) => {
+    getChannelHash(this.props.deviceID).then(({ hash, deviceVerified }) => {
       this.setState({ hash, deviceVerified });
     });
   };
