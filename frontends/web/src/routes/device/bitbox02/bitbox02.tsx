@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getStatus, getVersion, setDeviceName, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -51,15 +51,7 @@ interface State {
     hash?: string;
     attestationResult: boolean | null;
     deviceVerified: boolean;
-    status: '' |
-    'require_firmware_upgrade' |
-    'require_app_upgrade' |
-    'connected' |
-    'unpaired' |
-    'pairingFailed' |
-    'uninitialized' |
-    'seeded' |
-    'initialized';
+    status: '' | TStatus;
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
@@ -176,7 +168,7 @@ class BitBox02 extends Component<Props, State> {
   private onStatusChanged = () => {
     const { showWizard, unlockOnly, appStatus } = this.state;
     const { sidebarStatus } = panelStore.state;
-    apiGet(this.apiPrefix() + '/status').then(status => {
+    getStatus(this.props.deviceID).then(status => {
       const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
       if (restoreSidebar) {
         setSidebarStatus('');
