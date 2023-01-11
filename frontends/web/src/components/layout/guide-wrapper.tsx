@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,25 @@
  * limitations under the License.
  */
 
-export { Header } from './header';
-export { Main } from './main';
-export { Column, ColumnButtons, Grid } from './grid';
-export { Footer } from './footer';
-export { GuidedContent, GuideWrapper } from './guide-wrapper';
+import { ReactNode } from 'react';
+import styles from './guide-wrapper.module.css';
+
+type TProps = {
+  children: ReactNode;
+}
+
+export const GuideWrapper = ({ children }: TProps) => {
+  return (
+    <div className={styles.contentWithGuide}>
+      {children}
+    </div>
+  );
+};
+
+export const GuidedContent = ({ children }: TProps) => {
+  return (
+    <div className={styles.container}>
+      {children}
+    </div>
+  );
+};
