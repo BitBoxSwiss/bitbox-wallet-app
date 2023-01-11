@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, setDeviceName, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, setDeviceName, VersionInfo, verifyAttestation, TStatus, verifyChannelHash } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -202,10 +202,6 @@ class BitBox02 extends Component<Props, State> {
     }
     this.unsubscribe();
   }
-
-  private channelVerify = (ok: boolean) => {
-    apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
-  };
 
   private uninitializedStep = () => {
     this.setState({ appStatus: '' });
@@ -515,7 +511,7 @@ class BitBox02 extends Component<Props, State> {
                 deviceVerified ? (
                   <Button
                     primary
-                    onClick={() => this.channelVerify(true)}>
+                    onClick={() => verifyChannelHash(deviceID, true)}>
                     {t('button.continue')}
                   </Button>
                 ) : (
