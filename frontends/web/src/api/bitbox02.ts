@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,4 +138,11 @@ type TChannelHash = {
 
 export const getChannelHash = (deviceID: string): Promise<TChannelHash> => {
   return apiGet(`devices/bitbox02/${deviceID}/channel-hash`);
+};
+
+export const verifyChannelHash = (
+  deviceID: string,
+  ok: boolean,
+): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/channel-hash-verify`, ok);
 };
