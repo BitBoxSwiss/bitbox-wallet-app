@@ -71,7 +71,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const account = findAccount(accounts, code);
   const name = getCryptoName(t('buy.info.crypto'), account);
 
-  const hasMoreThanOneExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length > 1 : false;
+  const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
 
   // link locale detection to regionList to having it happen only once page load.
   // can't use `useLoad` because `detect` function returns void.
@@ -101,13 +101,15 @@ export const Exchange = ({ code, accounts }: TProps) => {
     const exchangesWithBestDeal = findBestDeal(deals, lowestFee);
 
     setAllExchanges(exchangesWithBestDeal);
-  }, [selectedRegion, showMoonpay, showPocket, exchangeDeals, hasMoreThanOneExchange]);
+  }, [selectedRegion, showMoonpay, showPocket, exchangeDeals]);
 
   useEffect(() => {
-    if (!hasMoreThanOneExchange && allExchangeDeals) {
-      setSelectedExchange(allExchangeDeals.exchanges[0].exchangeName);
+    if (hasOnlyOneSupportedExchange && allExchangeDeals && selectedRegion !== '') {
+      const exchange = allExchangeDeals.exchanges.filter(exchange => exchange.supported);
+      //there's only one exchange at this point, which is the "supported" one.
+      setSelectedExchange(exchange[0].exchangeName);
     }
-  }, [hasMoreThanOneExchange, allExchangeDeals]);
+  }, [hasOnlyOneSupportedExchange, allExchangeDeals, selectedRegion]);
 
   // update exchange list when:
   // - pocket/moonpay supported async calls return
@@ -202,7 +204,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
                       id={exchange.exchangeName}
                       exchangeName={exchange.exchangeName}
                       deals={exchange.deals}
-                      checked={selectedExchange === exchange.exchangeName || !hasMoreThanOneExchange}
+                      checked={selectedExchange === exchange.exchangeName}
                       onChange={() => setSelectedExchange(exchange.exchangeName)}
                       onClickInfoButton={setInfo}
                     />
