@@ -63,11 +63,14 @@ export const getMoonpayBuyInfo = (code: string) => {
   };
 };
 
+export type ExchangeErrorCode = 'userAbort' | 'addressNotFound';
+
 export type AddressSignResponse = {
-  status?: 'success' | 'abort';
+  success: boolean;
   signature: string;
   address: string;
-  error: string;
+  errorMessage?: string;
+  errorCode?: ExchangeErrorCode;
 }
 
 
@@ -77,8 +80,8 @@ export const signAddress = (format: string, msg: string, accountCode: AccountCod
 
 export type AddressVerificationResponse = {
   success: boolean;
-  error?: string;
-  errorCode?: string;
+  errorMessage?: string;
+  errorCode?: ExchangeErrorCode;
 }
 
 export const verifyAddress = (address: string, accountCode: AccountCode): Promise<AddressVerificationResponse> => {

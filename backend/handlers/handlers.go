@@ -1164,15 +1164,15 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interf
 	}
 
 	type response struct {
-		Success   bool   `json:"success"`
-		Error     string `json:"error,omitempty"`
-		ErrorCode string `json:"errorCode,omitempty"`
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
 	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
 	if err != nil {
 		handlers.log.Error(err)
-		return response{Success: false, Error: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
 	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
@@ -1181,7 +1181,7 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interf
 		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}, nil
 		}
-		return response{Success: false, Error: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true}, nil
 
@@ -1197,35 +1197,32 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 		return nil, errp.WithStack(err)
 	}
 
-	var response struct {
-		Status    string `json:"status"`
-		Address   string `json:"address"`
-		Signature string `json:"signature"`
-		Error     string `json:"error"`
+	type response struct {
+		Success      bool   `json:"success"`
+		Address      string `json:"address"`
+		Signature    string `json:"signature"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
 	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
 	if err != nil {
 		handlers.log.Error(err)
-		response.Error = err.Error()
-		return response, nil
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 
-	response.Address, response.Signature, err = exchanges.PocketWidgetSignAddress(
+	address, signature, err := exchanges.PocketWidgetSignAddress(
 		account,
 		request.Msg,
 		request.Format)
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
-			response.Status = "abort"
-		} else {
-			handlers.log.WithField("code", account.Config().Code).Error(err)
-			response.Error = err.Error()
+			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
 		}
-	} else {
-		response.Status = "success"
+		handlers.log.WithField("code", account.Config().Code).Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
-	return response, nil
+	return response{Success: true, Address: address, Signature: signature}, nil
 }
 
 func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
