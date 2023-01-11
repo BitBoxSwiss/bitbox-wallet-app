@@ -1106,9 +1106,15 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 		return nil, err
 	}
 
+	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
+	if len(lang) == 0 {
+		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// to retrieve that.
+		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
+	}
 	params := exchanges.BuyMoonpayParams{
 		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
-		Lang: handlers.backend.Config().AppConfig().Backend.UserLanguage,
+		Lang: lang,
 	}
 	buy, err := exchanges.MoonpayInfo(acct, params)
 	if err != nil {
