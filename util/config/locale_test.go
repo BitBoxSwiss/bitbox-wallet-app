@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMainLocaleFromNative(t *testing.T) {
@@ -25,8 +26,6 @@ func TestMainLocaleFromNative(t *testing.T) {
 	results := []string{"it", "en", "fr"}
 
 	for i, locale := range locales {
-		if config.MainLocaleFromNative(locale) != results[i] {
-			t.Errorf("MainLocaleFromNative(%s) = %s; expected %s", locale, config.MainLocaleFromNative(locale), results[i])
-		}
+		assert.Equal(t, results[i], config.MainLocaleFromNative(locale))
 	}
 }
