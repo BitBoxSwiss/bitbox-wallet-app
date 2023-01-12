@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, setDeviceName, VersionInfo, verifyAttestation, TStatus, verifyChannelHash } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, setDeviceName, VersionInfo, verifyAttestation, TStatus, verifyChannelHash } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -243,13 +243,16 @@ class BitBox02 extends Component<Props, State> {
         title: this.props.t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
         text: this.props.t('bitbox02Wizard.stepInsertSD.insertSDCard'),
       } });
-      return apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
-        this.setState({ sdCardInserted: success, waitDialog: undefined });
-        if (success) {
+      return insertSDCard(this.props.deviceID).then((response) => {
+        this.setState({
+          sdCardInserted: response.success,
+          waitDialog: undefined,
+        });
+        if (response.success) {
           return true;
         }
-        if (errorMessage) {
-          alertUser(errorMessage, { asDialog: false });
+        if (response.message) {
+          alertUser(response.message, { asDialog: false });
         }
         return false;
       });

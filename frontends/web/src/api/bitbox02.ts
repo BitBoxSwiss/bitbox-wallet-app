@@ -50,6 +50,12 @@ export const checkSDCard = (
   return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`);
 };
 
+export const insertSDCard = (
+  deviceID: string,
+): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/insert-sdcard`);
+};
+
 export const setDeviceName = (
   deviceID: string,
   newDeviceName: string,
