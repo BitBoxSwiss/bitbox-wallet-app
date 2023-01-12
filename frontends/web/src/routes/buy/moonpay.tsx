@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
 import { MoonpayTerms } from './moonpay-terms';
-import style from './moonpay.module.css';
+import style from './terms.module.css';
 
 type TProps = {
     accounts: IAccount[];
@@ -49,7 +49,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
 
   useEffect(() => {
     if (config) {
-      setAgreedTerms(config.frontend.skipBuyDisclaimer);
+      setAgreedTerms(config.frontend.skipMoonpayDisclaimer);
     }
   }, [config]);
 

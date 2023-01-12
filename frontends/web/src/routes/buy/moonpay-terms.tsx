@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import { Button, Checkbox } from '../../components/forms';
 import { setConfig } from '../../utils/config';
 import { IAccount } from '../../api/account';
 import A from '../../components/anchor/anchor';
-import style from './moonpay.module.css';
+import style from './terms.module.css';
 
 type TProps = {
   account: IAccount;
@@ -35,7 +35,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
   const name = getCryptoName(t('buy.info.crypto'), account);
 
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipBuyDisclaimer: e.target.checked } });
+    setConfig({ frontend: { skipMoonpayDisclaimer: e.target.checked } });
   };
 
   return (
