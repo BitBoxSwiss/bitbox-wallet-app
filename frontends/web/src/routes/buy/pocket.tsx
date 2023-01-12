@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { signAddress, getPocketURL } from '../../api/exchanges';
+import { getConfig } from '../../api/backend';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
+import { PocketTerms } from './pocket-terms';
 import { useLoad } from '../../hooks/api';
 import { alertUser } from '../../components/alert/Alert';
 import Guide from './guide';
@@ -29,22 +31,27 @@ interface TProps {
     code: string;
 }
 
-// TODO:
-// - add T&C
 export const Pocket = ({ code }: TProps) => {
   const { t } = useTranslation();
 
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
 
   const iframeURL = useLoad(getPocketURL(code));
-
+  const config = useLoad(getConfig);
 
   const ref = createRef<HTMLDivElement>();
   const iframeRef = createRef<HTMLIFrameElement>();
   var resizeTimerID: any = undefined;
 
   const name = 'Bitcoin';
+
+  useEffect(() => {
+    if (config) {
+      setAgreedTerms(config.frontend.skipPocketDisclaimer);
+    }
+  }, [config]);
 
   useEffect(() => {
     onResize();
@@ -127,22 +134,28 @@ export const Pocket = ({ code }: TProps) => {
           <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
         </div>
         <div ref={ref} className="innerContainer">
-          <div className="noSpace" style={{ height }}>
-            {!iframeLoaded && <Spinner text={t('loading')} /> }
-            <iframe
-              onLoad={() => {
-                setIframeLoaded(true);
-              }}
-              ref={iframeRef}
-              title="Pocket"
-              width="100%"
-              height={height}
-              frameBorder="0"
-              className={style.iframe}
-              allow="camera; payment"
-              src={iframeURL}>
-            </iframe>
-          </div>
+          { !agreedTerms ? (
+            <PocketTerms
+              onAgreedTerms={() => setAgreedTerms(true)}
+            />
+          ) : (
+            <div className="noSpace" style={{ height }}>
+              {!iframeLoaded && <Spinner text={t('loading')} /> }
+              <iframe
+                onLoad={() => {
+                  setIframeLoaded(true);
+                }}
+                ref={iframeRef}
+                title="Pocket"
+                width="100%"
+                height={height}
+                frameBorder="0"
+                className={style.iframe}
+                allow="camera; payment"
+                src={iframeURL}>
+              </iframe>
+            </div>
+          )}
         </div>
       </div>
       <Guide name={name} />
