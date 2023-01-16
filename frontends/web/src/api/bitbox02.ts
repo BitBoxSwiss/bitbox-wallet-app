@@ -152,3 +152,9 @@ export const verifyChannelHash = (
 ): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/channel-hash-verify`, ok);
 };
+
+export const setPassword = (
+  deviceID: string,
+): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/set-password`);
+};
