@@ -16,7 +16,7 @@
  */
 
 import React, { Component, createRef } from 'react';
-import { CloseXDark } from '../icon';
+import { CloseXWhite } from '../icon';
 import style from './dialog.module.css';
 interface Props {
     title?: string;
@@ -219,7 +219,7 @@ class Dialog extends Component<Props, State> {
                 <h3 className={style.title}>{title}</h3>
                 { onClose ? (
                   <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
-                    <CloseXDark />
+                    <CloseXWhite />
                   </button>
                 ) : null }
               </div>

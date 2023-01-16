@@ -43,7 +43,7 @@
 
 .dot::before {
     background: var(--color-primary);
-    border: 4px solid white;
+    border: 4px solid var(--background-secondary);
     border-radius: 50%;
     content: "";
     display: inline-block;
@@ -60,7 +60,7 @@
 }
 
 .dot::after {
-    border-top: 5px solid white;
+    border-top: 5px solid var(--background-secondary);
     content: "";
     position: absolute;
     top: 6px;

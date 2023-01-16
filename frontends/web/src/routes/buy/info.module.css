@@ -19,7 +19,7 @@
 }
 
 .disclaimer {
-  background-color: white;
+  background-color: var(--background-secondary);
   font-family: var(--font-family);
   flex-shrink: 1;
   flex-basis: 70%;

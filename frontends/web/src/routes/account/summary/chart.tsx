@@ -164,16 +164,16 @@ class Chart extends Component<Props, State> {
               visible: false,
             },
             horzLines: {
-              color: '#dedede',
+              color: '#333333',
               style: LineStyle.Solid,
               visible: !this.state.isMobile,
             },
           },
           layout: {
-            backgroundColor: '#F5F5F5',
+            backgroundColor: '#1D1D1B',
             fontSize: 11,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-            textColor: '#1D1D1B',
+            textColor: '#F5F5F5',
           },
           leftPriceScale: {
             borderVisible: false,
@@ -204,8 +204,8 @@ class Chart extends Component<Props, State> {
         priceFormat: {
           type: 'volume',
         },
-        topColor: '#DFF1FF',
-        bottomColor: '#F5F5F5',
+        topColor: '#5E94BF',
+        bottomColor: '#1D1D1B',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
