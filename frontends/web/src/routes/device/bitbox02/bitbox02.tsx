@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, setDeviceName, VersionInfo, verifyAttestation, TStatus, verifyChannelHash } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -151,10 +151,6 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private apiPrefix = () => {
-    return 'devices/bitbox02/' + this.props.deviceID;
-  };
-
   private handleGetStarted = () => {
     route('/account-summary', true);
   };
@@ -264,9 +260,9 @@ class BitBox02 extends Component<Props, State> {
       settingPassword: true,
       createWalletStatus: 'setPassword',
     });
-    apiPost(this.apiPrefix() + '/set-password').then(({ code, success }) => {
-      if (!success) {
-        if (code === errUserAbort) {
+    setPassword(this.props.deviceID).then((response) => {
+      if (!response.success) {
+        if (response.code === errUserAbort) {
           // On user abort, just go back to the first screen. This is a bit lazy, as we should show
           // a screen to ask the user to go back or try again.
           this.setState({
