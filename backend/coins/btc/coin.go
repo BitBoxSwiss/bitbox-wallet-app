@@ -109,7 +109,8 @@ func (coin *Coin) Initialize() {
 		}
 
 		db, err := headersdb.NewDB(
-			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)))
+			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)),
+			coin.log)
 		if err != nil {
 			coin.log.WithError(err).Panic("Could not open headers DB")
 		}

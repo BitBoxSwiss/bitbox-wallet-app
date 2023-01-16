@@ -17,7 +17,7 @@ package bitbox02bootloader
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
@@ -33,7 +33,7 @@ func TestBundledFirmware(t *testing.T) {
 	require.True(t, len(binary) >= magicLen+sigDataLen)
 	require.Equal(t, []byte{0x65, 0x3f, 0x36, 0x2b}, binary[:magicLen])
 	hash := sha256.Sum256(binary[magicLen+sigDataLen:])
-	expectedHash, err := ioutil.ReadFile("assets/firmware.sha256")
+	expectedHash, err := os.ReadFile("assets/firmware.sha256")
 	require.NoError(t, err)
 	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
 
@@ -42,7 +42,7 @@ func TestBundledFirmware(t *testing.T) {
 	require.True(t, len(binary) >= 4+sigDataLen)
 	require.Equal(t, []byte{0x11, 0x23, 0x3b, 0x0b}, binary[:magicLen])
 	hash = sha256.Sum256(binary[magicLen+sigDataLen:])
-	expectedHash, err = ioutil.ReadFile("assets/firmware-btc.sha256")
+	expectedHash, err = os.ReadFile("assets/firmware-btc.sha256")
 	require.NoError(t, err)
 	require.Equal(t, string(expectedHash), hex.EncodeToString(hash[:]))
 }

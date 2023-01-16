@@ -1,9 +1,11 @@
 # github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6
+## explicit
 github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
+## explicit
 github.com/aead/siphash
 # github.com/btcsuite/btcd v0.23.1
-## explicit
+## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
 github.com/btcsuite/btcd/btcjson
@@ -14,12 +16,12 @@ github.com/btcsuite/btcd/mining
 github.com/btcsuite/btcd/txscript
 github.com/btcsuite/btcd/wire
 # github.com/btcsuite/btcd/btcec/v2 v2.2.1
-## explicit
+## explicit; go 1.17
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
 # github.com/btcsuite/btcd/btcutil v1.1.2
-## explicit
+## explicit; go 1.16
 github.com/btcsuite/btcd/btcutil
 github.com/btcsuite/btcd/btcutil/base58
 github.com/btcsuite/btcd/btcutil/bech32
@@ -28,24 +30,29 @@ github.com/btcsuite/btcd/btcutil/gcs/builder
 github.com/btcsuite/btcd/btcutil/hdkeychain
 github.com/btcsuite/btcd/btcutil/txsort
 # github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
-## explicit
+## explicit; go 1.17
 github.com/btcsuite/btcd/chaincfg/chainhash
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
+## explicit
 github.com/btcsuite/btclog
 # github.com/cespare/cp v1.1.1
 ## explicit
 # github.com/davecgh/go-spew v1.1.1
+## explicit
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.8.0
+## explicit; go 1.17
 github.com/deckarep/golang-set
 # github.com/decred/dcrd/crypto/blake256 v1.0.0
+## explicit; go 1.11
 github.com/decred/dcrd/crypto/blake256
 # github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1
+## explicit; go 1.16
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
 # github.com/digitalbitbox/bitbox02-api-go v0.0.0-20221027102202-8c31f236c498
-## explicit
+## explicit; go 1.13
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
 github.com/digitalbitbox/bitbox02-api-go/api/firmware
@@ -53,8 +60,14 @@ github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages
 github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid
 github.com/digitalbitbox/bitbox02-api-go/util/errp
 github.com/digitalbitbox/bitbox02-api-go/util/semver
+# github.com/digitalbitbox/block-client-go v0.0.0-20221208180325-288e450fea98
+## explicit; go 1.19
+github.com/digitalbitbox/block-client-go/electrum
+github.com/digitalbitbox/block-client-go/electrum/types
+github.com/digitalbitbox/block-client-go/jsonrpc
+github.com/digitalbitbox/block-client-go/jsonrpc/types
 # github.com/ethereum/go-ethereum v1.10.21
-## explicit
+## explicit; go 1.17
 github.com/ethereum/go-ethereum
 github.com/ethereum/go-ethereum/accounts
 github.com/ethereum/go-ethereum/accounts/abi
@@ -81,23 +94,26 @@ github.com/ethereum/go-ethereum/rlp/internal/rlpstruct
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/signer/core/apitypes
 # github.com/flynn/noise v1.0.0
-## explicit
+## explicit; go 1.16
 github.com/flynn/noise
 # github.com/go-ole/go-ole v1.2.1
+## explicit
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
 # github.com/go-stack/stack v1.8.0
+## explicit
 github.com/go-stack/stack
 # github.com/google/uuid v1.2.0
+## explicit
 github.com/google/uuid
 # github.com/gorilla/mux v1.8.0
-## explicit
+## explicit; go 1.12
 github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
-## explicit
+## explicit; go 1.12
 github.com/gorilla/websocket
 # github.com/karalabe/usb v0.0.2
-## explicit
+## explicit; go 1.12
 github.com/karalabe/usb
 github.com/karalabe/usb/hidapi
 github.com/karalabe/usb/hidapi/hidapi
@@ -108,14 +124,16 @@ github.com/karalabe/usb/libusb
 github.com/karalabe/usb/libusb/libusb
 github.com/karalabe/usb/libusb/libusb/os
 # github.com/kkdai/bstream v1.0.0
-## explicit
+## explicit; go 1.6
 github.com/kkdai/bstream
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
+## explicit
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
+## explicit
 github.com/pmezard/go-difflib/difflib
 # github.com/prometheus/tsdb v0.10.0
 ## explicit
@@ -123,6 +141,7 @@ github.com/pmezard/go-difflib/difflib
 ## explicit
 github.com/rjeczalik/notify
 # github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible
+## explicit
 github.com/shirou/gopsutil/cpu
 github.com/shirou/gopsutil/internal/common
 # github.com/sirupsen/logrus v1.2.0
@@ -133,24 +152,26 @@ github.com/sirupsen/logrus
 github.com/skip2/go-qrcode
 github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
-# github.com/stretchr/objx v0.2.0
-## explicit
+# github.com/stretchr/objx v0.5.0
+## explicit; go 1.12
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.7.2
-## explicit
+# github.com/stretchr/testify v1.8.1
+## explicit; go 1.13
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
 github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
 # github.com/tklauser/go-sysconf v0.3.5
+## explicit; go 1.13
 github.com/tklauser/go-sysconf
 # github.com/tklauser/numcpus v0.2.2
+## explicit; go 1.11
 github.com/tklauser/numcpus
 # go.etcd.io/bbolt v1.3.6
-## explicit
+## explicit; go 1.12
 go.etcd.io/bbolt
 # golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-## explicit
+## explicit; go 1.17
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
 golang.org/x/crypto/chacha20
@@ -165,18 +186,21 @@ golang.org/x/crypto/scrypt
 golang.org/x/crypto/sha3
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20220607020251-c690dde0001d
-## explicit
+## explicit; go 1.17
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
 # golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+## explicit; go 1.17
 golang.org/x/term
 # google.golang.org/protobuf v1.28.1
+## explicit; go 1.11
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire
 google.golang.org/protobuf/internal/descfmt
@@ -203,6 +227,8 @@ google.golang.org/protobuf/reflect/protoregistry
 google.golang.org/protobuf/runtime/protoiface
 google.golang.org/protobuf/runtime/protoimpl
 # gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
+## explicit
 gopkg.in/natefinch/npipe.v2
 # gopkg.in/yaml.v3 v3.0.1
+## explicit
 gopkg.in/yaml.v3

@@ -27,3 +27,25 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+
+# Ignore unfinished locales
+/frontends/web/src/locales/
+# Except the following:
+!/frontends/web/src/locales/ar/
+!/frontends/web/src/locales/bg/
+!/frontends/web/src/locales/de/
+!/frontends/web/src/locales/en/
+!/frontends/web/src/locales/es/
+!/frontends/web/src/locales/fa/
+!/frontends/web/src/locales/fr/
+!/frontends/web/src/locales/he/
+!/frontends/web/src/locales/hi/
+!/frontends/web/src/locales/it/
+!/frontends/web/src/locales/ja/
+!/frontends/web/src/locales/ms/
+!/frontends/web/src/locales/nl/
+!/frontends/web/src/locales/pt/
+!/frontends/web/src/locales/ru/
+!/frontends/web/src/locales/sl/
+!/frontends/web/src/locales/tr/
+!/frontends/web/src/locales/zh/

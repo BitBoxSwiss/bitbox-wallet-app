@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, SubscriptionCallback } from './subscribe';
+import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { CoinCode } from './account';
 import { ISuccess } from './backend';
 import { apiPost } from '../utils/request';
 
 export type BtcUnit = 'default' | 'sat';
 
-interface Status {
+export type TStatus = {
     targetHeight: number;
     tip: number;
     tipAtInitTime: number;
@@ -29,7 +29,7 @@ interface Status {
 }
 
 export const subscribeCoinHeaders = (coinCode: CoinCode) => (
-  (cb: SubscriptionCallback<Status>) => (
+  (cb: TSubscriptionCallback<TStatus>) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
 );

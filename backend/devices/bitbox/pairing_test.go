@@ -17,7 +17,6 @@ package bitbox
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -27,6 +26,7 @@ import (
 	eventpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -69,10 +69,7 @@ func TestChannel(t *testing.T) {
 }
 
 func TestFinishPairing(t *testing.T) {
-	okTempDir, err := ioutil.TempDir("", "dbb_device_test")
-	if err != nil {
-		t.Fatal(err)
-	}
+	okTempDir := test.TstTempDir("dbb_device_test")
 	defer func() { _ = os.RemoveAll(okTempDir) }()
 
 	tt := []struct {

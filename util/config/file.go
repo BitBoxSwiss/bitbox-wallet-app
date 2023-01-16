@@ -16,7 +16,6 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -51,7 +50,7 @@ func (file *File) Remove() error {
 
 // read reads the config file and returns its data (or an error if the config file does not exist).
 func (file *File) read() ([]byte, error) {
-	return ioutil.ReadFile(file.Path())
+	return os.ReadFile(file.Path())
 }
 
 // ReadJSON reads the config file as JSON to the given object. Make sure the config file exists!
@@ -68,7 +67,7 @@ func (file *File) write(data []byte) error {
 	if err := os.MkdirAll(file.dir, 0700); err != nil {
 		return err
 	}
-	return ioutil.WriteFile(file.Path(), data, 0600)
+	return os.WriteFile(file.Path(), data, 0600)
 }
 
 // WriteJSON writes the given object as JSON to the config file.

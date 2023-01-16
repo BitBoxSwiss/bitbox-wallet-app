@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,3 +19,4 @@ export { Header } from './header';
 export { Main } from './main';
 export { Column, ColumnButtons, Grid } from './grid';
 export { Footer } from './footer';
+export { GuidedContent, GuideWrapper } from './guide-wrapper';

@@ -27,7 +27,7 @@ body {
 
 hr {
     background: none;
-    border-color: var(--color-mediumgray) transparent;
+    border-color: var(--background-quaternary) transparent;
     border-style: solid;
     border-width: 1px 0 0 0;
     margin: var(--spacing-large) 0;

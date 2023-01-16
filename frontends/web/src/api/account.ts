@@ -99,12 +99,12 @@ export type TSigningConfiguration = {
     ethereumSimple: TEthereumSimple;
 }
 
-export interface ISigningConfigurationList {
+export type TSigningConfigurationList = null | {
     signingConfigurations: TSigningConfiguration[];
 }
 
 export const getInfo = (code: AccountCode) => {
-  return (): Promise<ISigningConfigurationList> => {
+  return (): Promise<TSigningConfigurationList> => {
     return apiGet(`account/${code}/info`);
   };
 };
@@ -225,7 +225,7 @@ export interface ReceiveAddressList {
 }
 
 export const getReceiveAddressList = (code: AccountCode) => {
-  return (): Promise<ReceiveAddressList[]> => {
+  return (): Promise<ReceiveAddressList[] | null> => {
     return apiGet(`account/${code}/receive-addresses`);
   };
 };

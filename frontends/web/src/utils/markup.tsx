@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { createElement } from 'react';
+import React, { Fragment, createElement } from 'react';
 
 type TMarkupProps = {
     tagName: keyof JSX.IntrinsicElements;
@@ -46,17 +46,23 @@ export function SimpleMarkup({ tagName, markup, ...props }: TMarkupProps) {
   return createElement(tagName, props, simpleMarkupChunks[1], createElement('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
 }
 
+type TMultiMarkupProps = {
+  withBreaks?: boolean;
+} & TMarkupProps;
+
 /**
  * **<MultilineMarkup>** splits a text by newline and renders each
  * line with the `<SimmpleMarkup>` component.
  */
-
-export const MultilineMarkup = ({ tagName, markup, ...props }: TMarkupProps) => {
-  return <>
-    {
-      markup.split('\n').map((line: string, i: number) => (
-        <SimpleMarkup key={`${line}-${i}`} tagName={tagName} markup={line} {...props} />
-      ))
-    }
-  </>;
+export const MultilineMarkup = ({ tagName, markup, withBreaks, ...props }: TMultiMarkupProps) => {
+  return (
+    <>
+      { markup.split('\n').map((line: string, i: number) => (
+        <Fragment key={`${line}-${i}`}>
+          <SimpleMarkup tagName={tagName} markup={line} {...props} />
+          {withBreaks && (<br />)}
+        </Fragment>
+      )) }
+    </>
+  );
 };

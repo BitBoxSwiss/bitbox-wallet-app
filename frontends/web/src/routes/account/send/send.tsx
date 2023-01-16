@@ -160,29 +160,32 @@ class Send extends Component<Props, State> {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
       }
     });
-    this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
-      switch (type) {
-      case 'device':
-        switch (data) {
-        case 'signProgress':
-          this.setState({ signProgress: meta, signConfirm: false });
+    this.unsubscribe = apiWebsocket((payload) => {
+      if ('type' in payload) {
+        const { data, meta, type } = payload;
+        switch (type) {
+        case 'device':
+          switch (data) {
+          case 'signProgress':
+            this.setState({ signProgress: meta, signConfirm: false });
+            break;
+          case 'signConfirm':
+            this.setState({ signConfirm: true });
+            break;
+          }
           break;
-        case 'signConfirm':
-          this.setState({ signConfirm: true });
-          break;
-        }
-        break;
-      case 'account':
-        switch (data) {
-        case 'syncdone':
-          if (this.props.code) {
-            accountApi.getBalance(this.props.code)
-              .then(balance => this.setState({ balance }))
-              .catch(console.error);
+        case 'account':
+          switch (data) {
+          case 'syncdone':
+            if (this.props.code) {
+              accountApi.getBalance(this.props.code)
+                .then(balance => this.setState({ balance }))
+                .catch(console.error);
+            }
+            break;
           }
           break;
         }
-        break;
       }
     });
   }
@@ -225,7 +228,9 @@ class Send extends Component<Props, State> {
     if (e.keyCode === 27) {
       if (this.state.activeScanQR) {
         this.toggleScanQR();
-      } else {
+        return;
+      }
+      if (!this.state.activeCoinControl) {
         route(`/account/${this.props.code}`);
       }
     }
@@ -450,8 +455,10 @@ class Send extends Component<Props, State> {
   private sendToSelf = (event: React.SyntheticEvent) => {
     accountApi.getReceiveAddressList(this.getAccount()!.code)()
       .then(receiveAddresses => {
-        this.setState({ recipientAddress: receiveAddresses[0].addresses[0].address });
-        this.handleFormChange(event);
+        if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
+          this.setState({ recipientAddress: receiveAddresses[0].addresses[0].address });
+          this.handleFormChange(event);
+        }
       })
       .catch(console.error);
   };

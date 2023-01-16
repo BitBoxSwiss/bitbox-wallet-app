@@ -24,11 +24,15 @@
     justify-content: center;
 }
 
+/* this will be applied if fullscreen is false */
 .fill {
+    align-self: center;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    padding-bottom: var(--space-default);
+    padding: 0 var(--space-default) var(--space-default) var(--space-default);
+    max-width: var(--content-width);
+    width: 100%;
 }
 
 .inner {
@@ -39,6 +43,10 @@
     padding-bottom: var(--space-half);
     padding-top: var(--space-half);
     width: 480px;
+}
+.fill .inner {
+    margin: 0;
+    width: 100%;
 }
 .inner.fit {
     flex-shrink: 0;
@@ -94,6 +102,9 @@
     padding-right: var(--space-default);
 }
 @media (max-width: 768px) {
+    .fill {
+        padding: 0 0 var(--space-default) 0;
+    }
     .header {
         padding-left: var(--space-half);
         padding-top: var(--space-default);
@@ -104,12 +115,18 @@
         margin-bottom: var(--space-half);
         padding-top: var(--space-half);
     }
+    .fill .header {
+        padding-top: 0;
+    }
 }
 @media (max-width: 1199px) {
     .header {
         padding-top: var(--space-large);
     }
     .smallHeader {
+        padding-top: 0;
+    }
+    .fill .header {
         padding-top: 0;
     }
     .dialog .header {
@@ -253,5 +270,50 @@
     }
     .inner footer p {
         --size-default: 14px;
+    }
+}
+
+.footer {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: var(--space-default) auto 0 auto;
+    max-width: var(--content-width);
+    padding: 0;
+    width: 100%;
+}
+.fullscreen .footer {
+    margin: var(--space-default) auto;
+    padding: 0 var(--space-default);
+}
+
+.footer p {
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+    margin: 0;
+}
+
+.footer img {
+    width: 120px;
+    margin: 0 auto 0 0;
+}
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 0 var(--space-half);
+        margin: var(--space-half) 0 0 0;
+    }
+    .fullscreen .footer {
+        margin: var(--space-half) 0;
+    }
+
+    .footer p {
+        text-align: right;
+        font-size: var(--size-small);
+    }
+
+    .footer img {
+        width: 80px;
     }
 }

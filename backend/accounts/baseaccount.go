@@ -21,6 +21,7 @@ import (
 	"os"
 	"path"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
@@ -74,7 +75,7 @@ type BaseAccount struct {
 
 	// synced indicates whether the account has loaded and finished the initial sync of the
 	// addresses.
-	synced  bool
+	synced  atomic.Bool
 	offline error
 
 	// notes handles transaction notes.
@@ -101,8 +102,7 @@ func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *B
 	account.Synchronizer = synchronizer.NewSynchronizer(
 		func() { config.OnEvent(EventSyncStarted) },
 		func() {
-			if !account.synced {
-				account.synced = true
+			if account.synced.CompareAndSwap(false, true) {
 				config.OnEvent(EventStatusChanged)
 			}
 			config.OnEvent(EventSyncDone)
@@ -124,17 +124,17 @@ func (account *BaseAccount) Coin() coin.Coin {
 
 // Synced implements Interface.
 func (account *BaseAccount) Synced() bool {
-	return account.synced
+	return account.synced.Load()
 }
 
 // Close stops the account.
 func (account *BaseAccount) Close() {
-	account.synced = false
+	account.synced.Store(false)
 }
 
 // ResetSynced sets synced to false.
 func (account *BaseAccount) ResetSynced() {
-	account.synced = false
+	account.synced.Store(false)
 }
 
 // Offline implements Interface.

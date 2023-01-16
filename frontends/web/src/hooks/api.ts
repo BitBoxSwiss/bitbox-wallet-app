@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 
 import { DependencyList, useEffect, useState } from 'react';
-import { SubscriptionCallback } from '../api/subscribe';
-import { Unsubscribe } from '../utils/event';
-import { useMountedRef } from './utils';
+import { TSubscriptionCallback, TUnsubscribe } from '../api/subscribe';
+import { useMountedRef } from './mount';
 
 /**
  * useSubscribe is a hook to subscribe to a subscription function.
@@ -25,21 +24,23 @@ import { useMountedRef } from './utils';
  * re-renders on every update.
  */
 export const useSubscribe = <T>(
-  subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe)
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
 ): (T | undefined) => {
-  const [respose, setResponse] = useState<T>();
+  const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
+  const subscribe = () => {
+    return subscription((data) => {
+      if (mounted.current) {
+        setResponse(data);
+      }
+    });
+  };
   useEffect(
-    () => (
-      subscription((data) => {
-        if (mounted.current) {
-          setResponse(data);
-        }
-      })
-    ), // we pass no dependencies because it's only suscribed once
+    () => subscribe(),
+    // empty dependencies because it's only subscribed once
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
-  return respose;
+  return response;
 };
 
 /**
@@ -51,23 +52,24 @@ export const useLoad = <T>(
   apiCall: (() => Promise<T>) | null,
   dependencies?: DependencyList,
 ): (T | undefined) => {
-  const [respose, setResponse] = useState<T>();
+  const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
-  useEffect(
-    () => {
-      if (apiCall === null) {
-        return;
+  const load = () => {
+    if (apiCall === null) {
+      return;
+    }
+    apiCall().then((data) => {
+      if (mounted.current) {
+        setResponse(data);
       }
-      apiCall().then((data) => {
-        if (mounted.current) {
-          setResponse(data);
-        }
-      });
-    },
+    });
+  };
+  useEffect(
+    () => load(),
     // By default no dependencies are passed to only query once
     dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
   );
-  return respose;
+  return response;
 };
 
 /**
@@ -78,9 +80,9 @@ export const useLoad = <T>(
  */
 export const useSync = <T>(
   apiCall: () => Promise<T>,
-  subscription: ((callback: SubscriptionCallback<T>) => Unsubscribe),
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
 ): (T | undefined) => {
-  const [respose, setResponse] = useState<T>();
+  const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const onData = (data: T) => {
     if (mounted.current) {
@@ -93,5 +95,5 @@ export const useSync = <T>(
       return subscription(onData);
     }, // we pass no dependencies because it's only queried once
     []); // eslint-disable-line react-hooks/exhaustive-deps
-  return respose;
+  return response;
 };

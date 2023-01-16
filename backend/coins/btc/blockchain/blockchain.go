@@ -92,8 +92,23 @@ type Header struct {
 	BlockHeight int
 }
 
+// HeadersResult is returned by Headers().
+type HeadersResult struct {
+	// Headers are the returned headers.
+	Headers []*wire.BlockHeader
+	// Max is the maximum number of headers the server will return in a single request.
+	Max int
+}
+
+// GetMerkleResult is returned by GetMerkle().
+type GetMerkleResult struct {
+	Merkle []TXHash
+	Pos    int
+}
+
 // Interface is the interface to a blockchain index backend. Currently geared to Electrum, though
 // other backends can implement the same interface.
+//
 //go:generate mockery --name Interface
 type Interface interface {
 	ScriptHashGetHistory(ScriptHashHex) (TxHistory, error)
@@ -103,8 +118,8 @@ type Interface interface {
 	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee() (btcutil.Amount, error)
 	EstimateFee(int) (btcutil.Amount, error)
-	Headers(int, int, func([]*wire.BlockHeader, int))
-	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
+	Headers(int, int) (*HeadersResult, error)
+	GetMerkle(chainhash.Hash, int) (*GetMerkleResult, error)
 	Close()
 	ConnectionError() error
 	RegisterOnConnectionErrorChangedEvent(func(error))

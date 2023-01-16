@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	_ "embed" // Needed for the go:embed directives below.
-	"io/ioutil"
+	"io"
 
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
@@ -39,5 +39,5 @@ func BundledFirmware() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ioutil.ReadAll(gz)
+	return io.ReadAll(gz)
 }

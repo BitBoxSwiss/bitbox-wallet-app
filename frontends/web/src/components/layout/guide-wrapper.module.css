@@ -1,0 +1,15 @@
+.contentWithGuide {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: auto;
+  position: relative;
+  width: 100%;
+}

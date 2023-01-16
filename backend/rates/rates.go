@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -278,7 +277,7 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 			return errp.Newf("bad response code %d", res.StatusCode)
 		}
 		const max = 10240
-		responseBody, err := ioutil.ReadAll(io.LimitReader(res.Body, max+1))
+		responseBody, err := io.ReadAll(io.LimitReader(res.Body, max+1))
 		if err != nil {
 			return errp.WithStack(err)
 		}

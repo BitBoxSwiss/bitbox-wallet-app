@@ -18,7 +18,7 @@ package etherscan
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -71,7 +71,7 @@ func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
 	if response.StatusCode != http.StatusOK {
 		return errp.Newf("expected 200 OK, got %d", response.StatusCode)
 	}
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return errp.WithStack(err)
 	}

@@ -18,6 +18,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
@@ -31,6 +32,7 @@ type AddressChain struct {
 	addresses            []*AccountAddress
 	addressesLookup      map[blockchain.ScriptHashHex]*AccountAddress
 	addressesLock        locker.Locker
+	isAddressUsed        func(*AccountAddress) (bool, error)
 	log                  *logrus.Entry
 }
 
@@ -40,6 +42,7 @@ func NewAddressChain(
 	net *chaincfg.Params,
 	gapLimit int,
 	chainIndex uint32,
+	isAddressUsed func(*AccountAddress) (bool, error),
 	log *logrus.Entry,
 ) *AddressChain {
 	return &AddressChain{
@@ -49,6 +52,7 @@ func NewAddressChain(
 		chainIndex:           chainIndex,
 		addresses:            []*AccountAddress{},
 		addressesLookup:      map[blockchain.ScriptHashHex]*AccountAddress{},
+		isAddressUsed:        isAddressUsed,
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "chain-index": chainIndex,
 			"configuration": accountConfiguration.String()}),
@@ -57,13 +61,16 @@ func NewAddressChain(
 
 // GetUnused returns the last `gapLimit` unused addresses. EnsureAddresses() must be called
 // beforehand.
-func (addresses *AddressChain) GetUnused() []*AccountAddress {
+func (addresses *AddressChain) GetUnused() ([]*AccountAddress, error) {
 	defer addresses.addressesLock.RLock()()
-	unusedTailCount := addresses.unusedTailCount()
-	if unusedTailCount < addresses.gapLimit {
-		addresses.log.Panic("Concurrency error: Addresses not synced correctly")
+	unusedTailCount, err := addresses.unusedTailCount()
+	if err != nil {
+		return nil, err
 	}
-	return addresses.addresses[len(addresses.addresses)-unusedTailCount:]
+	if unusedTailCount < addresses.gapLimit {
+		return nil, errp.New("concurrency error: Addresses not synced correctly")
+	}
+	return addresses.addresses[len(addresses.addresses)-unusedTailCount:], nil
 }
 
 // addAddress appends a new address at the end of the chain.
@@ -82,16 +89,20 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 }
 
 // unusedTailCount returns the number of unused addresses at the end of the chain.
-func (addresses *AddressChain) unusedTailCount() int {
+func (addresses *AddressChain) unusedTailCount() (int, error) {
 	count := 0
 	for i := len(addresses.addresses) - 1; i >= 0; i-- {
-		if addresses.addresses[i].isUsed() {
+		used, err := addresses.isAddressUsed(addresses.addresses[i])
+		if err != nil {
+			return 0, err
+		}
+		if used {
 			break
 		}
 		count++
 	}
 	addresses.log.WithField("tail-count", count).Debug("Unused tail count")
-	return count
+	return count, nil
 }
 
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
@@ -103,12 +114,15 @@ func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHa
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
 // ones, and returns the new addresses.
-func (addresses *AddressChain) EnsureAddresses() []*AccountAddress {
+func (addresses *AddressChain) EnsureAddresses() ([]*AccountAddress, error) {
 	defer addresses.addressesLock.Lock()()
 	addedAddresses := []*AccountAddress{}
-	unusedAddressCount := addresses.unusedTailCount()
+	unusedAddressCount, err := addresses.unusedTailCount()
+	if err != nil {
+		return nil, err
+	}
 	for i := 0; i < addresses.gapLimit-unusedAddressCount; i++ {
 		addedAddresses = append(addedAddresses, addresses.addAddress())
 	}
-	return addedAddresses
+	return addedAddresses, nil
 }

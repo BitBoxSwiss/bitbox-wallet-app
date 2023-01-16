@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { subscribe, IUnsubscribe } from '../utils/event-legacy';
+import { subscribe, TUnsubscribe } from '../utils/event-legacy';
 
 export const statusChanged = (
   code: string,
   cb: (code: string) => void,
-): IUnsubscribe => {
+): TUnsubscribe => {
   const unsubscribe = subscribe('statusChanged', data => {
     if (data.type === 'account' && data.code === code) {
       cb(code);
@@ -31,7 +31,7 @@ export const statusChanged = (
 export const syncdone = (
   code: string,
   cb: (code: string) => void,
-): IUnsubscribe => {
+): TUnsubscribe => {
   return subscribe('syncdone', data => {
     if (data.type === 'account' && data.code === code) {
       cb(code);

@@ -49,6 +49,7 @@ const (
 )
 
 // Interface represents the public API of this package.
+//
 //go:generate mockery -name Interface
 type Interface interface {
 	Initialize()
@@ -183,11 +184,6 @@ func (headers *Headers) Initialize() {
 	headers.kickChan <- struct{}{}
 }
 
-type batchInfo struct {
-	blockHeaders []*wire.BlockHeader
-	max          int
-}
-
 func (headers *Headers) download() {
 	defer func() {
 		// Only for testing.
@@ -207,17 +203,18 @@ func (headers *Headers) download() {
 		tip, err := db.Tip()
 		if err != nil {
 			// TODO
-			panic(err)
+			return
 		}
-		batchChan := make(chan batchInfo)
-		headers.blockchain.Headers(
-			tip+1, headers.headersPerBatch,
-			func(blockHeaders []*wire.BlockHeader, max int) {
-				batchChan <- batchInfo{blockHeaders, max}
-			})
-		batch := <-batchChan
-		if err := headers.processBatch(db, tip, batch.blockHeaders, batch.max); err != nil {
-			headers.log.WithError(err).Panic("processBatch")
+		headersResult, err := headers.blockchain.Headers(tip+1, headers.headersPerBatch)
+		if err != nil {
+			// TODO
+			headers.log.WithError(err).Error("blockchain.Headers")
+			return
+		}
+		if err := headers.processBatch(db, tip, headersResult.Headers, headersResult.Max); err != nil {
+			// TODO
+			headers.log.WithError(err).Error("processBatch")
+			return
 		}
 	}
 
@@ -257,9 +254,16 @@ func (headers *Headers) getTarget(db DBInterface, index int) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
-	last, err := db.HeaderByHeight((chunkIndex+1)*blocksPerRetarget - 1)
+	if first == nil {
+		return nil, errp.Newf("header at %d not found", firstIndex)
+	}
+	lastIndex := (chunkIndex+1)*blocksPerRetarget - 1
+	last, err := db.HeaderByHeight(lastIndex)
 	if err != nil {
 		return nil, err
+	}
+	if last == nil {
+		return nil, errp.Newf("header at %d not found", lastIndex)
 	}
 	lastTarget := btcdBlockchain.CompactToBig(last.Bits)
 	timespan := last.Timestamp.Unix() - first.Timestamp.Unix()
@@ -313,6 +317,9 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 		previousHeader, err := db.HeaderByHeight(tip - 1)
 		if err != nil {
 			return err
+		}
+		if previousHeader == nil {
+			return errp.Newf("header at %d not found", tip-1)
 		}
 		prevBlock := previousHeader.BlockHash()
 		if header.PrevBlock != prevBlock {
@@ -470,6 +477,9 @@ func (headers *Headers) Status() (*Status, error) {
 	header, err := headers.db.HeaderByHeight(tip)
 	if err != nil {
 		return nil, err
+	}
+	if header == nil {
+		return nil, errp.Newf("header at %d not found", tip)
 	}
 	var tipHashHex blockchain.TXHash
 	if header != nil {

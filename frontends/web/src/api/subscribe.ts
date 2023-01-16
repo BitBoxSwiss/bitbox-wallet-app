@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-import { apiSubscribe, Event, Unsubscribe } from '../utils/event';
+import { apiSubscribe, TEvent, TUnsubscribe } from '../utils/event';
 import { apiGet } from '../utils/request';
 
-export type SubscriptionCallback<T> = (eventObject: T) => void
+export type { TUnsubscribe };
+
+export type TSubscriptionCallback<T> = (eventObject: T) => void;
 
 /**
  * Subscribes the given function on an endpoint on which the backend
  * can push data through. This should be mostly used within api.
  * Note there is a subscibe-legacy.ts module that supports older events.
  */
-
 export function subscribeEndpoint<T>(
   endpoint: string,
-  cb: SubscriptionCallback<T>,
-): Unsubscribe {
-  return apiSubscribe(endpoint, (event: Event) => {
+  cb: TSubscriptionCallback<T>,
+): TUnsubscribe {
+  return apiSubscribe(endpoint, (event: TEvent) => {
     switch (event.action) {
     case 'replace':
       cb(event.object);
@@ -52,9 +53,8 @@ export function subscribeEndpoint<T>(
  * the connection to the backend is lost.
  * See utils/websocket.js
  */
-
 export const backendConnected = (
   cb: (connected: boolean) => void
-): Unsubscribe => {
+): TUnsubscribe => {
   return subscribeEndpoint('backend/connected', cb);
 };

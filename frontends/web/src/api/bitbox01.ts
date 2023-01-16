@@ -16,7 +16,7 @@
 
 import { apiGet } from '../utils/request';
 
-type DeviceInfo = {
+export type DeviceInfo = {
   bootlock: boolean;
   id: string;
   lock: boolean;

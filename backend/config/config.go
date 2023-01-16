@@ -17,7 +17,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
@@ -30,6 +30,13 @@ type ServerInfo struct {
 	Server  string `json:"server"`
 	TLS     bool   `json:"tls"`
 	PEMCert string `json:"pemCert"`
+}
+
+func (s *ServerInfo) String() string {
+	if s.TLS {
+		return s.Server + ":s"
+	}
+	return s.Server + ":p"
 }
 
 // btcCoinConfig holds configurations specific to a btc-based coin.
@@ -180,6 +187,11 @@ func NewDefaultAppConfig() AppConfig {
 						TLS:     false,
 						PEMCert: "",
 					},
+					{
+						Server:  "127.0.0.1:52002",
+						TLS:     false,
+						PEMCert: "",
+					},
 				},
 			},
 			LTC: btcCoinConfig{
@@ -287,14 +299,14 @@ func (config *Config) SetTBTCElectrumServers(electrumAddress, electrumCert strin
 }
 
 func (config *Config) load() {
-	jsonBytes, err := ioutil.ReadFile(config.appConfigFilename)
+	jsonBytes, err := os.ReadFile(config.appConfigFilename)
 	if err != nil {
 		return
 	}
 	if err := json.Unmarshal(jsonBytes, &config.appConfig); err != nil {
 		return
 	}
-	jsonBytes, err = ioutil.ReadFile(config.accountsConfigFilename)
+	jsonBytes, err = os.ReadFile(config.accountsConfigFilename)
 	if err != nil {
 		return
 	}
@@ -337,7 +349,7 @@ func (config *Config) save(filename string, conf interface{}) error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
+	return errp.WithStack(os.WriteFile(filename, jsonBytes, 0644)) // #nosec G306
 }
 
 // migrateFiatList moves fiatList from appconf.Frontend to appconf.Backend.

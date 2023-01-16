@@ -18,7 +18,7 @@ import { DependencyList, useEffect, useState } from 'react';
 import { TDevices } from '../api/devices';
 import { checkSDCard } from '../api/bitbox02';
 import { getDeviceInfo as getBitBox01DeviceInfo } from '../api/bitbox01';
-import { useMountedRef } from './utils';
+import { useMountedRef } from './mount';
 
 /**
  * useSDCard hook to check if one of the devices has a SDCard plugged in

@@ -33,10 +33,10 @@ envinit:
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.18/bin
+#  - add to $PATH: /usr/local/opt/go@1.19/bin
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-	brew install go@1.18
+	brew install go@1.19
 	brew install qt@5
 	$(MAKE) envinit
 servewallet:
@@ -44,14 +44,14 @@ servewallet:
 servewallet-mainnet:
 	go run -mod=vendor ./cmd/servewallet -mainnet
 servewallet-regtest:
-	rm -f appfolder.dev/cache/headers-rbtc.bin && go run -mod=vendor ./cmd/servewallet -regtest
+	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && go run -mod=vendor ./cmd/servewallet -regtest
 servewallet-prodservers:
 	go run -mod=vendor ./cmd/servewallet -devservers=false
 buildweb:
 	node --version
 	npm --version
 	rm -rf ${WEBROOT}/build
-	cd ${WEBROOT} && npm install
+	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run build
 webdev:
 	cd ${WEBROOT} && $(MAKE) dev

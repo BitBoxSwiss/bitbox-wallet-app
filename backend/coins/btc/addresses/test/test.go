@@ -31,7 +31,8 @@ var (
 )
 
 // NewAddressChain returns an AddressChain for convenience in testing.
-func NewAddressChain() (*signing.Configuration, *addresses.AddressChain) {
+func NewAddressChain(
+	isAddressUsed func(*addresses.AccountAddress) (bool, error)) (*signing.Configuration, *addresses.AddressChain) {
 	log := logging.Get().WithGroup("addresses_test")
 	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), net)
 	if err != nil {
@@ -47,7 +48,7 @@ func NewAddressChain() (*signing.Configuration, *addresses.AddressChain) {
 	}
 	configuration := signing.NewBitcoinConfiguration(
 		signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, xpub)
-	return configuration, addresses.NewAddressChain(configuration, net, 20, 0, log)
+	return configuration, addresses.NewAddressChain(configuration, net, 20, 0, isAddressUsed, log)
 }
 
 // GetAddress returns a dummy address for a given address type.

@@ -17,12 +17,12 @@ package cert
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -64,21 +64,19 @@ func (s *certTestSuite) TestNewCertificate() {
 func (s *certTestSuite) TestSavingCertAsPEM() {
 	privateKey, _ := generateRSAPrivateKey()
 	certificate, _ := createSelfSignedCertificate(privateKey, s.log)
-	f, err := ioutil.TempFile(".", "cert_test.pem")
-	require.NoError(s.T(), err)
-	temporaryFile := f.Name()
+	temporaryFile := test.TstTempFile("cert_test.pem")
 	defer func() {
-		if _, err = os.Stat(temporaryFile); !os.IsNotExist(err) {
+		if _, err := os.Stat(temporaryFile); !os.IsNotExist(err) {
 			require.NoError(s.T(), err)
 			err = os.Remove(temporaryFile)
 			require.NoError(s.T(), err)
 		}
 	}()
-	err = saveAsPEM(f.Name(), derToPem("CERTIFICATE", certificate))
+	err := saveAsPEM(temporaryFile, derToPem("CERTIFICATE", certificate))
 	require.NoError(s.T(), err)
-	_, err = os.Stat(f.Name())
+	_, err = os.Stat(temporaryFile)
 	require.NoError(s.T(), err)
-	pemBytes, err := ioutil.ReadFile(f.Name())
+	pemBytes, err := os.ReadFile(temporaryFile)
 	require.NoError(s.T(), err)
 	pemBlock, rest := pem.Decode(pemBytes)
 	require.NotNil(s.T(), pemBlock)

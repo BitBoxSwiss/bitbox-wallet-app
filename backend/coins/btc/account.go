@@ -20,7 +20,6 @@ import (
 	"os"
 	"path"
 	"sort"
-	"sync"
 	"sync/atomic"
 
 	"github.com/btcsuite/btcd/btcutil"
@@ -75,7 +74,6 @@ func (sa subaccounts) signingConfigurations() signing.Configurations {
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	*accounts.BaseAccount
-	locker.Locker
 
 	coin *Coin
 	// folder for this specific account. It is a subfolder of dbFolder. Full path.
@@ -84,6 +82,7 @@ type Account struct {
 	forceGapLimits *types.GapLimits
 	notifier       accounts.Notifier
 
+	// Once the account is initialized, this variable is only read.
 	subaccounts subaccounts
 	// How many addresses were synced already during the initial sync. This value is emitted as an
 	// event when it changes. This counter can overshoot if an address is updated more than once
@@ -99,15 +98,17 @@ type Account struct {
 	activeTxProposal     *maketx.TxProposal
 	activeTxProposalLock locker.Locker
 
-	feeTargets []*FeeTarget
+	feeTargets     []*FeeTarget
+	feeTargetsLock locker.Locker
 	// Access this only via getMinRelayFeeRate(). sat/kB.
-	minRelayFeeRate   *btcutil.Amount
-	minRelayFeeRateMu sync.Mutex
+	minRelayFeeRate     *btcutil.Amount
+	minRelayFeeRateLock locker.Locker
 
 	// true when initialized (Initialize() was called).
-	initialized bool
+	initialized     bool
+	initializedLock locker.Locker
 
-	fatalError bool
+	fatalError atomic.Bool
 
 	closed     bool
 	closedLock locker.Locker
@@ -189,70 +190,63 @@ func (account *Account) defaultGapLimits(signingConfiguration *signing.Configura
 // one set of gap limits is used for all subaccounts for simplicity.
 func (account *Account) gapLimits(
 	signingConfiguration *signing.Configuration) (types.GapLimits, error) {
-	dbTx, err := account.db.Begin()
-	if err != nil {
-		return types.GapLimits{}, err
-	}
-	defer dbTx.Rollback()
-
 	if account.forceGapLimits != nil {
 		account.log.Infof(
 			"persisting gap limits: receive=%d, change=%d",
 			account.forceGapLimits.Receive,
 			account.forceGapLimits.Change,
 		)
-		if err := dbTx.PutGapLimits(*account.forceGapLimits); err != nil {
+		err := transactions.DBUpdate(account.db, func(dbTx transactions.DBTxInterface) error {
+			return dbTx.PutGapLimits(*account.forceGapLimits)
+		})
+		if err != nil {
 			return types.GapLimits{}, err
 		}
-		defer func() {
-			if err := dbTx.Commit(); err != nil {
-				account.log.WithError(err).Error("failed to persist gap limits")
-			}
-		}()
 	}
 
 	defaultLimits := account.defaultGapLimits(signingConfiguration)
 
-	limits, err := dbTx.GapLimits()
-	if err != nil {
-		return types.GapLimits{}, err
-	}
-	if limits.Receive < defaultLimits.Receive {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("receive gap limit increased to minimum of %d", defaultLimits.Receive)
+	return transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (types.GapLimits, error) {
+		limits, err := dbTx.GapLimits()
+		if err != nil {
+			return types.GapLimits{}, err
 		}
-		limits.Receive = defaultLimits.Receive
-	}
-	if limits.Receive > maxGapLimit {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("receive gap limit decreased to maximum of %d", maxGapLimit)
+		if limits.Receive < defaultLimits.Receive {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("receive gap limit increased to minimum of %d", defaultLimits.Receive)
+			}
+			limits.Receive = defaultLimits.Receive
 		}
-		limits.Receive = maxGapLimit
-	}
-	if limits.Change < defaultLimits.Change {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("change gap limit increased to minimum of %d", defaultLimits.Change)
+		if limits.Receive > maxGapLimit {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("receive gap limit decreased to maximum of %d", maxGapLimit)
+			}
+			limits.Receive = maxGapLimit
 		}
-		limits.Change = defaultLimits.Change
-	}
-	if limits.Change > maxGapLimit {
-		if account.forceGapLimits != nil { // log only when it's interesting
-			account.log.Infof("change gap limit decreased to maximum of %d", maxGapLimit)
+		if limits.Change < defaultLimits.Change {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("change gap limit increased to minimum of %d", defaultLimits.Change)
+			}
+			limits.Change = defaultLimits.Change
 		}
-		limits.Change = maxGapLimit
-	}
-	if receiveAddressesLimit > limits.Receive {
-		panic("receive address limit must be smaller")
-	}
-	return limits, nil
+		if limits.Change > maxGapLimit {
+			if account.forceGapLimits != nil { // log only when it's interesting
+				account.log.Infof("change gap limit decreased to maximum of %d", maxGapLimit)
+			}
+			limits.Change = maxGapLimit
+		}
+		if receiveAddressesLimit > limits.Receive {
+			panic("receive address limit must be smaller")
+		}
+		return limits, nil
+	})
 }
 
 // getMinRelayFeeRate fetches the min relay fee from the server and returns it. The value is cached
 // so that subsequent calls are instant. This is important as this function can be called many times
 // in succession when validating tx proposals.
 func (account *Account) getMinRelayFeeRate() (btcutil.Amount, error) {
-	account.minRelayFeeRateMu.Lock()
-	defer account.minRelayFeeRateMu.Unlock()
+	defer account.minRelayFeeRateLock.Lock()()
 	cached := account.minRelayFeeRate
 	if cached != nil {
 		return *cached, nil
@@ -267,12 +261,23 @@ func (account *Account) getMinRelayFeeRate() (btcutil.Amount, error) {
 	return feeRate, nil
 }
 
+func (account *Account) isInitialized() bool {
+	defer account.initializedLock.RLock()()
+	return account.initialized
+}
+
 // Initialize initializes the account.
 func (account *Account) Initialize() error {
 	if account.isClosed() {
 		return errp.New("Initialize: account was closed, init only works once.")
 	}
-	defer account.Lock()()
+
+	// Early return that does not require a write-lock.
+	if account.isInitialized() {
+		return nil
+	}
+
+	defer account.initializedLock.Lock()()
 	if account.initialized {
 		return nil
 	}
@@ -338,9 +343,9 @@ func (account *Account) Initialize() error {
 		account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
 		subacc.receiveAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.isAddressUsed, account.log)
 		subacc.changeAddresses = addresses.NewAddressChain(
-			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
+			signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.isAddressUsed, account.log)
 
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
@@ -373,8 +378,12 @@ func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte
 	}
 }
 
-// Info returns account info, such as the signing configuration (xpubs).
+// Info returns account info, such as the signing configuration (xpubs). Returns nil if the account
+// is not initialized.
 func (account *Account) Info() *accounts.Info {
+	if !account.isInitialized() {
+		return nil
+	}
 	// The internal extended key representation always uses the same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
 	signingConfigurations := make([]*signing.Configuration, len(account.subaccounts))
@@ -417,7 +426,7 @@ func (account *Account) onNewHeader(header *blockchain.Header) {
 
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
-	return account.fatalError
+	return account.fatalError.Load()
 }
 
 // Close stops the account.
@@ -458,7 +467,7 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 func (account *Account) updateFeeTargets() {
-	defer account.Lock()()
+	defer account.feeTargetsLock.Lock()()
 	for _, feeTarget := range account.feeTargets {
 		feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
 		if err != nil {
@@ -483,7 +492,7 @@ func (account *Account) updateFeeTargets() {
 
 // FeeTargets returns the fee targets and the default fee target.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
-	defer account.RLock()()
+	defer account.feeTargetsLock.RLock()()
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
 	feeTargets := []accounts.FeeTarget{}
@@ -515,10 +524,15 @@ outer:
 
 // Balance implements the interface.
 func (account *Account) Balance() (*accounts.Balance, error) {
-	if account.fatalError {
+	if account.fatalError.Load() {
 		return nil, errp.New("can't call Balance() after a fatal error")
 	}
-	return account.transactions.Balance(), nil
+	balance, err := account.transactions.Balance()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	return balance, nil
 }
 
 func (account *Account) incAndEmitSyncCounter() {
@@ -532,6 +546,20 @@ func (account *Account) incAndEmitSyncCounter() {
 	}
 }
 
+func (account *Account) getAddressHistory(address *addresses.AccountAddress) (blockchain.TxHistory, error) {
+	return transactions.DBView(account.db, func(dbTx transactions.DBTxInterface) (blockchain.TxHistory, error) {
+		return dbTx.AddressHistory(address.PubkeyScriptHashHex())
+	})
+}
+
+func (account *Account) isAddressUsed(address *addresses.AccountAddress) (bool, error) {
+	history, err := account.getAddressHistory(address)
+	if err != nil {
+		return false, err
+	}
+	return len(history) > 0, nil
+}
+
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
@@ -540,10 +568,16 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		account.log.Debug("Ignoring result of ScriptHashSubscribe after the account was closed")
 		return
 	}
-	defer account.Lock()()
-	if status == address.HistoryStatus {
+	addressHistory, err := account.getAddressHistory(address)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	if status == addressHistory.Status() {
 		account.incAndEmitSyncCounter()
-		// Address didn't change.
+		// Address didn't change.  Note: there is a potential race condition where to concurrent
+		// onAddressStatus calls with the same `status` can pass this check and continue below, but
+		// that only leads to too much work (downloading the history again), not an invalid state.
 		return
 	}
 
@@ -554,15 +588,11 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	if err != nil {
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
-		account.fatalError = true
+		account.fatalError.Store(true)
 		account.Config().OnEvent(accounts.EventStatusChanged)
 		return
 	}
 
-	address.HistoryStatus = history.Status()
-	if address.HistoryStatus != status {
-		account.log.Warning("client status should match after sync")
-	}
 	account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 	account.incAndEmitSyncCounter()
 	account.ensureAddresses()
@@ -580,21 +610,18 @@ func (account *Account) ensureAddresses() {
 
 	defer account.Synchronizer.IncRequestsCounter()()
 
-	dbTx, err := account.db.Begin()
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	defer dbTx.Rollback()
-
 	syncSequence := func(addressChain *addresses.AddressChain) error {
 		for {
-			newAddresses := addressChain.EnsureAddresses()
+			newAddresses, err := addressChain.EnsureAddresses()
+			if err != nil {
+				// TODO
+				panic(err)
+			}
 			if len(newAddresses) == 0 {
 				break
 			}
 			for _, address := range newAddresses {
-				if err := account.subscribeAddress(dbTx, address); err != nil {
+				if err := account.subscribeAddress(address); err != nil {
 					return errp.Wrap(err, "Failed to subscribe to address")
 				}
 			}
@@ -615,14 +642,7 @@ func (account *Account) ensureAddresses() {
 	}
 }
 
-func (account *Account) subscribeAddress(
-	dbTx transactions.DBTxInterface, address *addresses.AccountAddress) error {
-	addressHistory, err := dbTx.AddressHistory(address.PubkeyScriptHashHex())
-	if err != nil {
-		return err
-	}
-	address.HistoryStatus = addressHistory.Status()
-
+func (account *Account) subscribeAddress(address *addresses.AccountAddress) error {
 	account.coin.Blockchain().ScriptHashSubscribe(
 		func() func(error) {
 			done := account.Synchronizer.IncRequestsCounter()
@@ -635,7 +655,7 @@ func (account *Account) subscribeAddress(
 		},
 		address.PubkeyScriptHashHex(),
 		func(status string) {
-			account.onAddressStatus(address, status)
+			go account.onAddressStatus(address, status)
 		},
 	)
 	return nil
@@ -643,10 +663,13 @@ func (account *Account) subscribeAddress(
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
-	if account.fatalError {
+	if !account.isInitialized() {
+		return nil, errp.New("account not initialized")
+	}
+	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
-	return account.transactions.Transactions(
+	txs, err := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			for _, subacc := range account.subaccounts {
 				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
@@ -654,19 +677,31 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 				}
 			}
 			return false
-		}), nil
+		})
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	return txs, nil
 }
 
-// GetUnusedReceiveAddresses returns a number of unused addresses.
+// GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.
 func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
+	if !account.isInitialized() {
+		return nil
+	}
 	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
 	addresses := make([]accounts.AddressList, len(account.subaccounts))
 	for subaccIdx, subacc := range account.subaccounts {
 		scriptType := subacc.signingConfiguration.ScriptType()
 		addresses[subaccIdx].ScriptType = &scriptType
-		for idx, address := range subacc.receiveAddresses.GetUnused() {
+		unusedAddresses, err := subacc.receiveAddresses.GetUnused()
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		for idx, address := range unusedAddresses {
 			if idx >= receiveAddressesLimit {
 				// Limit to gap limit for receive addresses, even if the actual limit is higher when
 				// scanning.
@@ -682,11 +717,10 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
-	if !account.initialized {
+	if !account.isInitialized() {
 		return false, errp.New("account must be initialized")
 	}
 	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
 	var address *addresses.AccountAddress
 	for _, subacc := range account.subaccounts {
@@ -710,9 +744,6 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 
 // CanVerifyAddresses wraps Keystores().CanVerifyAddresses(), see that function for documentation.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
-	if !account.initialized {
-		return false, false, errp.New("account must be initialized")
-	}
 	return account.Config().Keystore.CanVerifyAddress(account.Coin())
 }
 
@@ -740,9 +771,13 @@ type SpendableOutput struct {
 // SpendableOutputs returns the utxo set, sorted by the value descending.
 func (account *Account) SpendableOutputs() []*SpendableOutput {
 	account.Synchronizer.WaitSynchronized()
-	defer account.RLock()()
 	result := []*SpendableOutput{}
-	for outPoint, txOut := range account.transactions.SpendableOutputs() {
+	utxos, err := account.transactions.SpendableOutputs()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	for outPoint, txOut := range utxos {
 		result = append(
 			result,
 			&SpendableOutput{
@@ -760,6 +795,10 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 //
 // signingConfigIndex refers to the subaccount / signing config.
 func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, error) {
+	if !account.isInitialized() {
+		return false, errp.New("account not initialized")
+	}
+
 	keystore := account.Config().Keystore
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(

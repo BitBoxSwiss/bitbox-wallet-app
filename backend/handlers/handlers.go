@@ -805,11 +805,18 @@ func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) (interface{}
 	}
 
 	if err := handlers.backend.CheckElectrumServer(&serverInfo); err != nil {
+		handlers.log.
+			WithError(err).
+			WithField("server-info", serverInfo.String()).
+			Info("checking electrum connection failed")
 		return map[string]interface{}{
 			"success":      false,
 			"errorMessage": err.Error(),
 		}, nil
 	}
+	handlers.log.
+		WithField("server-info", serverInfo.String()).
+		Info("checking electrum connection succeeded")
 	return map[string]interface{}{
 		"success": true,
 	}, nil

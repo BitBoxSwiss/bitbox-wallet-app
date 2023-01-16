@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	_ "embed" // Needed for the go:embed directives below.
-	"io/ioutil"
+	"io"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
@@ -68,5 +68,5 @@ func bundledFirmware(product bitbox02common.Product) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ioutil.ReadAll(gz)
+	return io.ReadAll(gz)
 }

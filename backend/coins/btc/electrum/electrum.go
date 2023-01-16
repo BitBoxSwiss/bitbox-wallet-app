@@ -30,6 +30,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	"github.com/digitalbitbox/block-client-go/electrum"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
 )
@@ -45,8 +46,8 @@ func SetClientSoftwareVersion(v *semver.SemVer) {
 // establishConnection connects to a backend and returns an rpc client
 // or an error if the connection could not be established.
 func establishConnection(
-	serverInfo *config.ServerInfo, dialer proxy.Dialer) (io.ReadWriteCloser, error) {
-	var conn io.ReadWriteCloser
+	serverInfo *config.ServerInfo, dialer proxy.Dialer) (net.Conn, error) {
+	var conn net.Conn
 	if serverInfo.TLS {
 		var err error
 		conn, err = newTLSConnection(serverInfo.Server, serverInfo.PEMCert, dialer)
@@ -201,50 +202,17 @@ func DownloadCert(server string, dialer proxy.Dialer) (string, error) {
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func CheckElectrumServer(serverInfo *config.ServerInfo, log *logrus.Entry, dialer proxy.Dialer) error {
-	backendName := serverInfo.Server
-	if serverInfo.TLS {
-		backendName += ":s"
-	} else {
-		backendName += ":p"
-	}
-	backends := []*jsonrpc.Backend{
-		{
-			Name: backendName, // used for logs only
-			EstablishConnection: func() (io.ReadWriteCloser, error) {
-				return establishConnection(serverInfo, dialer)
-			},
+	client, err := electrum.Connect(&electrum.Options{
+		SoftwareVersion: client.SoftwareVersion,
+		MethodTimeout:   30 * time.Second,
+		PingInterval:    -1,
+		Dial: func() (net.Conn, error) {
+			return establishConnection(serverInfo, dialer)
 		},
-	}
-	conn, err := backends[0].EstablishConnection()
+	})
 	if err != nil {
 		return err
 	}
-	_ = conn.Close()
-
-	// receives nil on success
-	errChan := make(chan error)
-
-	// Simple check if the server is an electrum server.
-	jsonrpcClient := jsonrpc.NewRPCClient(
-		backends,
-		func(err error) {
-			select {
-			case errChan <- err:
-			default:
-			}
-		},
-		log,
-	)
-	electrumClient := client.NewElectrumClient(jsonrpcClient, log)
-	// We have two sources of errors, general communication errors and method specific errors.
-	// We receive the first one that comes back.
-	defer electrumClient.Close()
-	go func() {
-		err := electrumClient.CheckConnection()
-		select {
-		case errChan <- err:
-		default:
-		}
-	}()
-	return <-errChan
+	client.Close()
+	return nil
 }
