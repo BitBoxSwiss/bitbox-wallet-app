@@ -310,6 +310,41 @@
       "creditCard": "Credit card",
       "fast": "Fast",
       "fee": "fee",
+      "infoContent": {
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "Bank Transfer: {{fee}}%",
+            "creditDebitCard": "Credit/debit card: {{fee}}%",
+            "learnMore": "Learn more about Moonpay",
+            "title": "Fees"
+          },
+          "fullCurrenciesList": "See full list of currencies here",
+          "payment": {
+            "asteriskText": "* Not available for US residents",
+            "bankTransfer": "Bank transfer*",
+            "bankTransferDetails": {
+              "pix": "PIX (BR transactions in Brazil only)",
+              "sepa": "SEPA and SEPA Instant (EUR transactions in SEPA countries only)",
+              "uk": "UK Faster Payments (GBP transactions in the UK only)"
+            },
+            "creditDebitCard": "Credit/debit Card",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa and Maestro"
+            },
+            "learnMore": "See more details about payment methods",
+            "title": "Payment methods"
+          },
+          "supportedCurrencies": "Supports all major fiat currencies: USD, EUR, CHF, and more."
+        },
+        "pocket": {
+          "fee": "Fee: {{fee}}%",
+          "learnMore": "Learn more about Pocket",
+          "supportedBankTransfers": "Supports CHF SEPA and EUR instant SEPA bank transfers"
+        },
+        "region": {
+          "title": "Select the region your bank account is registered in to see which options are available to you."
+        }
+      },
       "noExchanges": "Sorry, there are no available exchanges in this region.",
       "region": "Region",
       "selectRegion": "Select region",

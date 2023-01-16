@@ -14,75 +14,82 @@
  * limitations under the License.
  */
 
+import { useTranslation } from 'react-i18next';
 import A from '../../../components/anchor/anchor';
 import { Info } from '../types';
 import style from './infocontent.module.css';
 
-type TInfoContentProps = { info: Info };
+type TInfoContentProps = {info: Info, cardFee?: number, bankTransferFee?: number};
+type TMoonPayInfo = {cardFee?: number, bankTransferFee?: number};
+type TPocketInfo = { bankTransferFee?: number };
 
-export const MoonPayInfo = () => {
+export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
+  const { t } = useTranslation();
+  const formattedCardFee = cardFee && cardFee * 100;
+  const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
-      <p>Supports all major fiat currencies: USD, EUR, CHF and more.</p>
+      <p>{t('buy.exchange.infoContent.moonpay.supportedCurrencies')}</p>
       <br />
-      <p><A href="https://support.moonpay.com/hc/en-gb/articles/360011931457-Which-fiat-currencies-are-supported-">See full list of currencies here</A></p>
+      <p><A href="https://support.moonpay.com/hc/en-gb/articles/360011931457-Which-fiat-currencies-are-supported-">{t('buy.exchange.infoContent.moonpay.fullCurrenciesList')}</A></p>
       <br />
-      <p><b>Payments methods</b></p>
+      <p><b>{t('buy.exchange.infoContent.moonpay.payment.title')}</b></p>
       <br />
-      <p>Credit/debit Card</p>
+      <p>{t('buy.exchange.infoContent.moonpay.payment.creditDebitCard')}</p>
       <ul>
-        <li>Amex, Mastercard, Visa and Maestro</li>
-        <li>Apple Pay/Android Pay</li>
-        <li>Bank transfer*
-          <ul>
-            <li>SEPA and SEPA Instant (EUR transactions in SEPA countries only)</li>
-            <li>UK Faster Payments (GBP transactions in the UK only)</li>
-            <li>PIX (BR transactions in Brazil only)</li>
-          </ul>
-        </li>
+        <li>{t('buy.exchange.infoContent.moonpay.payment.creditDebitCardDetails.cards')}</li>
+      </ul>
+      <p>{t('buy.exchange.infoContent.moonpay.payment.bankTransfer')}</p>
+      <ul>
+        <li>{t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.sepa')}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.uk')}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.payment.bankTransferDetails.pix')}</li>
+      </ul>
+      <br/>
+      <p><i>{t('buy.exchange.infoContent.moonpay.payment.asteriskText')}</i></p>
+      <br />
+      <p><A href="https://support.moonpay.com/hc/en-gb/articles/4406210084113-What-payment-methods-do-you-support-">{t('buy.exchange.infoContent.moonpay.payment.learnMore')}</A></p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.moonpay.fees.title')}</b></p>
+      <ul>
+        <li>{t('buy.exchange.infoContent.moonpay.fees.creditDebitCard', { fee: formattedCardFee })}</li>
+        <li>{t('buy.exchange.infoContent.moonpay.fees.bankTransfer', { fee: formattedBankTransferFee })}</li>
       </ul>
       <br />
-      <p><i>* Not available for US residents</i></p>
-      <br />
-      <p><A href="https://support.moonpay.com/hc/en-gb/articles/4406210084113-What-payment-methods-do-you-support-">See more details about payment methods</A></p>
-      <br />
-      <p><b>Fees</b></p>
-      <ul>
-        <li>Credit/debit card: 4.9%</li>
-        <li>Bank transfer: 1.9%</li>
-      </ul>
-      <br />
-      <p><A href="https://www.moonpay.com/">Learn more about MoonPay</A></p>
+      <p><A href="https://www.moonpay.com/">{t('buy.exchange.infoContent.moonpay.fees.learnMore')}</A></p>
     </div>
   );
 };
 
-export const PocketInfo = () => {
+export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
+  const { t } = useTranslation();
+  const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
-      <p>Supports CHF and SEPA (EUR) transfers.</p>
-      <p>Fee: 1.5%</p>
+      <p>{t('buy.exchange.infoContent.pocket.supportedBankTransfers')}</p>
+      <p>{t('buy.exchange.infoContent.pocket.fee', { fee: formattedBankTransferFee })}</p>
       <br/>
-      <p><A href="https://pocketbitcoin.com/">Learn more about Pocket</A></p>
+      <p><A href="https://pocketbitcoin.com/">{t('buy.exchange.infoContent.pocket.learnMore')}</A></p>
     </div>
   );
 };
 
 const RegionInfo = () => {
+  const { t } = useTranslation();
   return (
     <div>
-      <p>Region Info</p>
+      <p>{t('buy.exchange.infoContent.region.title')}</p>
     </div>
   );
 };
 
 
-export const InfoContent = ({ info }: TInfoContentProps) => {
+export const InfoContent = ({ info, cardFee, bankTransferFee }: TInfoContentProps) => {
   switch (info) {
   case 'moonpay':
-    return <MoonPayInfo />;
+    return <MoonPayInfo cardFee={cardFee} bankTransferFee={bankTransferFee} />;
   case 'pocket':
-    return <PocketInfo />;
+    return <PocketInfo bankTransferFee={bankTransferFee} />;
   case 'region':
     return <RegionInfo />;
   }
