@@ -155,13 +155,17 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   const noExchangeAvailable = !showMoonpay && !showPocket;
 
+  /*These are fees that will be shown in the "info dialog" when user clicks on the "Info" button*/
+  const infoFeesDetail = exchangeDeals?.exchanges.find(exchange => exchange.exchangeName === info)?.deals;
+  const cardFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'card')?.fee;
+  const bankTransferFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
 
 
   return (
     <div className="contentWithGuide">
       <div className="container">
         <Dialog medium title={info && info !== 'region' ? getFormattedName(info) : t('buy.exchange.region')} onClose={() => setInfo(undefined)} open={!!info}>
-          {info && <InfoContent info={info} />}
+          {info && <InfoContent info={info} cardFee={cardFee} bankTransferFee={bankTransferFee} />}
         </Dialog>
         <div className="innerContainer scrollableContainer">
           <Header title={<h2>{t('buy.exchange.title', { name })}</h2>} />
