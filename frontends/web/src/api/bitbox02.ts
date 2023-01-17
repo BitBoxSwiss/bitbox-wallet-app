@@ -116,6 +116,16 @@ export const checkBackup = (
     });
 };
 
+export const createBackup = (deviceID: string): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/backups/create`)
+    .then((response: FailResponse | SuccessResponse) => {
+      if (!response.success) {
+        return Promise.reject(response);
+      }
+      return Promise.resolve();
+    });
+};
+
 export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/upgrade-firmware`);
 };
