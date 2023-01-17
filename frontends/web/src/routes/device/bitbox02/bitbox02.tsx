@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -317,12 +317,12 @@ class BitBox02 extends Component<Props, State> {
         title: this.props.t('bitbox02Interact.confirmDate'),
         text: this.props.t('bitbox02Interact.confirmDateText'),
       } });
-      apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
-        if (!success) {
+
+      createBackup(this.props.deviceID)
+        .then(() => this.setState({ creatingBackup: false, waitDialog: undefined }))
+        .catch(() => {
           alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        }
-        this.setState({ creatingBackup: false, waitDialog: undefined });
-      });
+        });
     });
   };
 

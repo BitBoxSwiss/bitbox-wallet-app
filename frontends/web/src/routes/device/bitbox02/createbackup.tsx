@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 
 import { Component } from 'react';
+import { createBackup } from '../../../api/bitbox02';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
@@ -42,12 +43,11 @@ class Create extends Component<Props, State> {
 
   private createBackup = () => {
     this.setState({ creatingBackup: true });
-    apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
-      if (!success) {
+    createBackup(this.props.deviceID)
+      .then(() => this.setState({ creatingBackup: false, disabled: false }))
+      .catch(() => {
         alertUser(this.props.t('backup.create.fail'));
-      }
-      this.setState({ creatingBackup: false, disabled: false });
-    });
+      });
   };
 
   private maybeCreateBackup = () => {
