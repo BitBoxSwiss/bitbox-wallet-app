@@ -25,11 +25,17 @@ import (
 )
 
 const (
-	// pocketWidgetTestURL is the url of the pocket widget in test environment.
-	pocketWidgetTestURL = "https://widget.staging.pocketbitcoin.com/widget_mjxWDmSUkMvdQdXDCeHrjC"
+	// pocketMainTestURL is the url of the pocket test environment.
+	pocketMainTestURL = "https://widget.staging.pocketbitcoin.com"
 
-	// pocketWidgetLiveURL is the url of the pocket widget in production environment.
-	pocketWidgetLiveURL = "https://widget.pocketbitcoin.com/widget_vqx25E6kzvGBYGjN2QoXVH"
+	// pocketWidgetTest is the url of the pocket widget in test environment.
+	pocketWidgetTest = "widget_mjxWDmSUkMvdQdXDCeHrjC"
+
+	// pocketMainLiceURL is the url of the pocket production environment.
+	pocketMainLiveURL = "https://widget.pocketbitcoin.com"
+
+	// pocketWidgetLive is the url of the pocket widget in production environment.
+	pocketWidgetLive = "widget_vqx25E6kzvGBYGjN2QoXVH"
 
 	// pocketAPILiveURL is the base url of pocket API in production environment.
 	pocketAPILiveURL = "https://widget.pocketbitcoin.com/api"
@@ -46,13 +52,13 @@ type PocketRegion struct {
 
 // PocketURL returns the url needed to incorporate the widget in the frontend, verifying
 // if the account is mainnet or testnet.
-func PocketURL(acct accounts.Interface) (string, error) {
+func PocketURL(acct accounts.Interface, locale string) (string, error) {
 	apiURL := ""
 	switch acct.Coin().Code() {
 	case coin.CodeBTC:
-		apiURL = pocketWidgetLiveURL
+		apiURL = pocketMainLiveURL + "/" + locale + "/" + pocketWidgetLive
 	case coin.CodeTBTC:
-		apiURL = pocketWidgetTestURL
+		apiURL = pocketMainTestURL + "/" + locale + "/" + pocketWidgetTest
 	default:
 		err := fmt.Errorf("unsupported cryptocurrency code %q", acct.Coin().Code())
 		return "", err
