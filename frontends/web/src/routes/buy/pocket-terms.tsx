@@ -45,21 +45,26 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
 
         <h2 className={style.title}>{t('buy.pocket.security.title')}</h2>
         <p>{t('buy.pocket.security.p1')}</p>
-        <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
-          {t('buy.pocket.security.link')}
-        </A>
-
+        <p>
+          <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
+            {t('buy.pocket.security.link')}
+          </A>
+        </p>
         <h2 className={style.title}>{t('buy.pocket.kyc.title')}</h2>
         <p>{t('buy.pocket.kyc.p1')}</p>
-        <A className={style.link} href="https://pocketbitcoin.com/faq">
-          {t('buy.pocket.kyc.link')}
-        </A>
+        <p>
+          <A className={style.link} href="https://pocketbitcoin.com/faq">
+            {t('buy.pocket.kyc.link')}
+          </A>
+        </p>
 
         <h2 className={style.title}>{t('buy.pocket.data.title')}</h2>
         <p>{t('buy.pocket.data.p1')}</p>
-        <A className={style.link} href="https://pocketbitcoin.com/policy/privacy">
-          {t('buy.pocket.data.link')}
-        </A>
+        <p>
+          <A className={style.link} href="https://pocketbitcoin.com/policy/privacy">
+            {t('buy.pocket.data.link')}
+          </A>
+        </p>
       </div>
       <div className="text-center m-bottom-quarter">
         <Checkbox

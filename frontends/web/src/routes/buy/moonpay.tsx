@@ -111,7 +111,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
           )}
         </div>
       </div>
-      <Guide name={name} />
+      <Guide name={name} exchange={'moonpay'}/>
     </div>
   );
 };

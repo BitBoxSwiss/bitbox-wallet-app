@@ -20,10 +20,24 @@ import { Guide } from '../../components/guide/guide';
 
 interface BuyGuideProps {
   name: string;
+  exchange?: 'pocket' | 'moonpay';
 }
 
-export default function BuyGuide({ name }: BuyGuideProps) {
+export default function BuyGuide({ name, exchange }: BuyGuideProps) {
   const { t } = useTranslation();
+
+  const pocketLink = {
+    text: t('buy.pocket.data.link'),
+    url: 'https://pocketbitcoin.com/policy/privacy',
+  };
+
+  const moonpayLink = {
+    text: t('buy.info.disclaimer.privacyPolicy'),
+    url: 'https://www.moonpay.com/privacy_policy',
+  };
+
+  const privacyLink = exchange === 'pocket' ? pocketLink : moonpayLink;
+
   return (
     <Guide>
       <Entry key="guide.buy.security" entry={{
@@ -31,15 +45,12 @@ export default function BuyGuide({ name }: BuyGuideProps) {
           text: t('buy.info.disclaimer.security.link'),
           url: 'https://shiftcrypto.ch/bitbox02/threat-model/',
         },
-        text: t('buy.info.disclaimer.security.description', { name }),
+        text: t('buy.info.disclaimer.security.descriptionGeneric', { name }),
         title: t('buy.info.disclaimer.security.title'),
       }} shown={true} />
       <Entry key="guide.buy.protection" entry={{
-        link: {
-          text: t('buy.info.disclaimer.privacyPolicy'),
-          url: 'https://www.moonpay.com/privacy_policy',
-        },
-        text: t('buy.info.disclaimer.protection.description', { name }),
+        link: exchange ? privacyLink : undefined,
+        text: t('buy.info.disclaimer.protection.descriptionGeneric', { name }),
         title: t('buy.info.disclaimer.protection.title'),
       }} />
       <Entry key="guide.buy.exchanges" entry={{

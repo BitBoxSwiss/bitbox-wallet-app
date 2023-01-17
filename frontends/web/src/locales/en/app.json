@@ -375,10 +375,12 @@
         "privacyPolicy": "MoonPay privacy policy",
         "protection": {
           "description": "The BitBoxApp does not collect any data when buying {{name}}, the incoming funds are treated like a regular transaction. MoonPay needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
+          "descriptionGeneric": "The BitBoxApp does not collect any data when buying {{name}}, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
           "title": "Data protection"
         },
         "security": {
-          "description": "When you buy {{name}} via MoonPay, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "description": "When you buy {{name}} via MoonPay, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric": "When you buy {{name}} via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
