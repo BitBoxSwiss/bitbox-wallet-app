@@ -16,10 +16,11 @@
 
 import { useTranslation } from 'react-i18next';
 import { route } from '../../../utils/route';
-import { Coin, IBalance } from '../../../api/account';
+import { CoinWithSAT, IBalance } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { Balances } from '../summary/accountssummary';
 import styles from './buyReceiveCTA.module.css';
+import { isBitcoinCoin } from '../utils';
 
 type TBuyReceiveCTAProps = {
   balanceList?: [string, IBalance][];
@@ -27,9 +28,8 @@ type TBuyReceiveCTAProps = {
   unit?: string;
 };
 
-type CoinWithSAT = Coin | 'sat' | 'tsat';
-
 export const BuyReceiveCTA = ({ code, unit, balanceList }: TBuyReceiveCTAProps) => {
+  const formattedUnit = isBitcoinCoin(unit as CoinWithSAT) ? 'BTC' : unit;
   const { t } = useTranslation();
   const onBuyCTA = () => route(code ? `/buy/exchange/${code}` : '/buy/info');
   const onReceiveCTA = () => {
@@ -47,13 +47,12 @@ export const BuyReceiveCTA = ({ code, unit, balanceList }: TBuyReceiveCTAProps) 
       <h3 className="subTitle">{t('accountInfo.buyCTA.information.looksEmpty')}</h3>
       <h3 className="subTitle">{t('accountInfo.buyCTA.information.start')}</h3>
       <div className={styles.container}>
-        {balanceList && <Button primary onClick={onReceiveCTA}>{unit ? t('receive.title', { accountName: unit }) : t('receive.title', { accountName: t('buy.info.crypto') })}</Button>}
-        <Button primary onClick={onBuyCTA}>{unit ? t('accountInfo.buyCTA.buy', { unit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>
+        {balanceList && <Button primary onClick={onReceiveCTA}>{formattedUnit ? t('receive.title', { accountName: formattedUnit }) : t('receive.title', { accountName: t('buy.info.crypto') })}</Button>}
+        <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>
       </div>
     </div>);
 };
 
-const isBitcoinCoin = (coin: CoinWithSAT) => (coin === 'BTC') || (coin === 'TBTC') || (coin === 'sat') || (coin === 'tsat');
 
 export const AddBuyReceiveOnEmptyBalances = ({ balances }: {balances?: Balances}) => {
   if (balances === undefined) {
