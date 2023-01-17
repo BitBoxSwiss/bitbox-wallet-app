@@ -1,9 +1,0 @@
-.main {
-    margin-bottom: calc(var(--space-default) * 2);
-}
-
-.main > * {
-    margin-right: 0 !important;
-    text-align: center;
-    font-weight: 400;
-}

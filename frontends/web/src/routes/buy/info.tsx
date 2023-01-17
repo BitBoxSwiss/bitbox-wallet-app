@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { route } from '../../utils/route';
 import { AccountCode, IAccount } from '../../api/account';
 import { getExchangeBuySupported } from '../../api/exchanges';
 import Guide from './guide';
-import { Header } from '../../components/layout';
+import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Button, Select } from '../../components/forms';
 import { findAccount, getCryptoName } from '../account/utils';
-import style from './info.module.css';
-
+import { AccountSelector } from '../../components/accountSelector/accountselector';
+import { View, ViewContent } from '../../components/view/view';
 interface BuyInfoProps {
     accounts: IAccount[];
     code: string;
@@ -58,6 +57,14 @@ class BuyInfo extends Component<Props, State> {
     }
   };
 
+  private handleProceed = () => {
+    route(`/buy/exchange/${this.state.selected}`);
+  };
+
+  private handleChangeAccount = (selected: string) => {
+    this.setState({ selected });
+  };
+
   private checkSupportedCoins = () => {
     Promise.all(
       this.props.accounts.map((account) => (
@@ -88,41 +95,23 @@ class BuyInfo extends Component<Props, State> {
     const name = getCryptoName(t('buy.info.crypto'), account);
 
     return (
-      <div className="contentWithGuide">
-        <div className="container">
-          <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
-          <div className="innerContainer">
-            { options.length === 0 ? (
-              <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
-            ) : (
-              <div className="content narrow isVerticallyCentered">
-                <h1 className={style.title}>{t('buy.title', { name })}</h1>
-                <Select
-                  options={[{
-                    text: t('buy.info.selectLabel'),
-                    disabled: true,
-                    value: 'choose',
-                  },
-                  ...options]
-                  }
-                  onChange={(e: React.SyntheticEvent) => this.setState({ selected: (e.target as HTMLSelectElement).value })}
-                  value={selected || 'choose'}
-                  id="coinAndAccountCode"
-                />
-                <div className="buttons text-center m-bottom-xxlarge">
-                  <Button
-                    primary
-                    onClick={() => route(`/buy/exchange/${selected}`)}
-                    disabled={!selected}>
-                    {t('buy.info.next')}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <Guide name={name} />
-      </div>
+      <Main>
+        <GuideWrapper>
+          <GuidedContent>
+            <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+            <View width="550px" verticallyCentered fullscreen={false}>
+              <ViewContent>
+                { options.length === 0 ? (
+                  <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
+                ) : (
+                  <AccountSelector title={t('buy.title', { name })} options={options} selected={selected} onChange={this.handleChangeAccount} onProceed={this.handleProceed} />
+                )}
+              </ViewContent>
+            </View>
+          </GuidedContent>
+          <Guide name={name} />
+        </GuideWrapper>
+      </Main>
     );
   }
 }
