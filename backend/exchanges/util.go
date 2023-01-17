@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -41,7 +40,7 @@ func APIGet(httpClient *http.Client, endpoint string, result interface{}) error 
 		return errp.Newf("%s - bad response code %d", endpoint, res.StatusCode)
 	}
 	const max = 81920
-	responseBody, err := ioutil.ReadAll(io.LimitReader(res.Body, max+1))
+	responseBody, err := io.ReadAll(io.LimitReader(res.Body, max+1))
 	if err != nil {
 		return errp.WithStack(err)
 	}
