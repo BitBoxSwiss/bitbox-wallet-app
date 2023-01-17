@@ -36,7 +36,7 @@ import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { apiGet } from '../../utils/request';
-import { BuyCTA } from './info/buyCTA';
+import { BuyReceiveCTA } from './info/buyReceiveCTA';
 import { isBitcoinBased } from './utils';
 import { ActionButtons } from './actionButtons';
 import style from './account.module.css';
@@ -187,11 +187,13 @@ export function Account({
 
   const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
-  const showBuyButton = exchangeBuySupported
-    && balance
+  const isAccountEmpty = balance
     && !balance.hasAvailable
     && !balance.hasIncoming
-    && transactions && transactions.length === 0;
+    && transactions
+    && transactions.length === 0;
+
+  const showBuyButton = exchangeBuySupported && isAccountEmpty;
 
   const actionButtonsProps = {
     code,
@@ -217,11 +219,6 @@ export function Account({
         )}
         <div className="innerContainer scrollableContainer">
           <div className="content padded">
-            { showBuyButton && (
-              <BuyCTA
-                code={code}
-                unit={balance.available.unit} />
-            )}
 
             <div className="flex flex-column flex-reverse-mobile">
               <label className="labelXLarge flex-self-start-mobile hide-on-small">
@@ -232,10 +229,16 @@ export function Account({
                 <label className="labelXLarge flex-self-start-mobile show-on-small">
                   {t('accountSummary.availableBalance')}
                 </label>
-                <ActionButtons {...actionButtonsProps} />
+                {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </div>
-
+            {showBuyButton && (
+              <BuyReceiveCTA
+                code={code}
+                unit={balance.available.unit}
+                balanceList={[[code, balance]]}
+              />
+            )}
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
               <Spinner guideExists text={
                 (status.fatalError && t('account.fatalError'))
@@ -247,12 +250,14 @@ export function Account({
                   || ''
               } />
             ) : (
-              <Transactions
-                accountCode={code}
-                handleExport={exportAccount}
-                explorerURL={account.blockExplorerTxPrefix}
-                transactions={transactions}
-              />
+              <>
+                {!isAccountEmpty && <Transactions
+                  accountCode={code}
+                  handleExport={exportAccount}
+                  explorerURL={account.blockExplorerTxPrefix}
+                  transactions={transactions}
+                /> }
+              </>
             ) }
           </div>
         </div>

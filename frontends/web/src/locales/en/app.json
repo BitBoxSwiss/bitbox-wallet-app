@@ -1158,6 +1158,7 @@
       "p2wpkh": "Native Segwit (default)",
       "p2wpkh-p2sh": "Wrapped Segwit (compatible format)"
     },
+    "selectAccount": "Select account",
     "showFull": "Show and verify full address on device",
     "taprootWarning": "Note: Taproot is a new Bitcoin feature and is not yet widely adopted. Funds received on Taproot addresses may not be visible in third party watch-only wallets. Many wallets and exchanges are not yet able to send to Taproot addresses.",
     "title": "Receive {{accountName}}",
