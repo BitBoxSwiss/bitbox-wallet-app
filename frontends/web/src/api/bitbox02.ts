@@ -134,6 +134,16 @@ export const showMnemonic = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
 };
 
+export const restoreFromMnemonic = (deviceID: string): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/restore-from-mnemonic`)
+    .then((response: FailResponse | SuccessResponse) => {
+      if (!response.success) {
+        return Promise.reject(response);
+      }
+      return Promise.resolve();
+    });
+};
+
 export type TStatus = 'connected'
   | 'initialized'
   | 'pairingFailed'
