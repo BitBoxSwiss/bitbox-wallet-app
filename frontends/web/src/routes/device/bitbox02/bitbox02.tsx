@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -27,7 +27,6 @@ import { Button, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../../components/alert/Alert';
 import { store as panelStore } from '../../../components/guide/guide';
@@ -360,18 +359,12 @@ class BitBox02 extends Component<Props, State> {
       title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
       text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
     } });
-    apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
-      if (!success) {
+    restoreFromMnemonic(this.props.deviceID)
+      .then(() => this.setState({ appStatus: 'restoreFromMnemonic' }))
+      .catch(() => {
         alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'), { asDialog: false });
-      } else {
-        this.setState({
-          appStatus: 'restoreFromMnemonic',
-        });
-      }
-      this.setState({
-        waitDialog: undefined,
-      });
-    });
+      })
+      .finally(() => this.setState({ waitDialog: undefined }));
   };
 
   private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
