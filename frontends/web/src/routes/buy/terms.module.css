@@ -1,18 +1,3 @@
-.container {
-    margin-top: calc(var(--space-default) * 1.5);
-}
-
-.iframe {
-    max-width: 100%;
-    position: relative;
-    z-index: 3000;
-}
-
-.header {
-    position: relative;
-    z-index: 2200;
-}
-
 .disclaimerContainer {
   align-items: center;
   display: flex;
@@ -35,9 +20,10 @@
 
 .disclaimer {
   background-color: white;
+  flex-basis: 100%;
   font-family: var(--font-family);
+  flex-grow: 0;
   flex-shrink: 1;
-  flex-basis: 70%;
   margin: var(--space-default) 0;
   max-width: 660px;
   overflow: auto;

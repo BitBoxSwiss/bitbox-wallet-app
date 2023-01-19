@@ -133,13 +133,13 @@ export const Pocket = ({ code }: TProps) => {
         <div className={style.header}>
           <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
         </div>
-        <div ref={ref} className="innerContainer">
+        <div ref={ref} className={style.container}>
           { !agreedTerms ? (
             <PocketTerms
               onAgreedTerms={() => setAgreedTerms(true)}
             />
           ) : (
-            <div className="noSpace" style={{ height }}>
+            <div style={{ height }}>
               {!iframeLoaded && <Spinner text={t('loading')} /> }
               <iframe
                 onLoad={() => {

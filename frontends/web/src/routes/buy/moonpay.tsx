@@ -26,7 +26,7 @@ import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
 import { MoonpayTerms } from './moonpay-terms';
-import style from './terms.module.css';
+import style from './iframe.module.css';
 
 type TProps = {
     accounts: IAccount[];
@@ -77,38 +77,39 @@ export const Moonpay = ({ accounts, code }: TProps) => {
   }
 
   return (
-
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
             <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
           </div>
-          { !agreedTerms ? (
-            <MoonpayTerms
-              account={account}
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
-          ) : (
-            <div ref={ref} className="iframeContainer">
-              {!iframeLoaded && <Spinner text={t('loading')} />}
-              { moonpay && (
-                <iframe
-                  onLoad={() => {
-                    setIframeLoaded(true);
-                    onResize();
-                  }}
-                  title="Moonpay"
-                  width="100%"
-                  height={height}
-                  frameBorder="0"
-                  className={style.iframe}
-                  allow="camera; payment"
-                  src={`${moonpay.url}&colorCode=%235E94BF`}>
-                </iframe>
-              )}
-            </div>
-          )}
+          <div ref={ref} className={style.container}>
+            { !agreedTerms ? (
+              <MoonpayTerms
+                account={account}
+                onAgreedTerms={() => setAgreedTerms(true)}
+              />
+            ) : (
+              <div style={{ height }}>
+                {!iframeLoaded && <Spinner text={t('loading')} />}
+                { moonpay && (
+                  <iframe
+                    onLoad={() => {
+                      setIframeLoaded(true);
+                      onResize();
+                    }}
+                    title="Moonpay"
+                    width="100%"
+                    height={height}
+                    frameBorder="0"
+                    className={style.iframe}
+                    allow="camera; payment"
+                    src={`${moonpay.url}&colorCode=%235E94BF`}>
+                  </iframe>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <Guide name={name} />
