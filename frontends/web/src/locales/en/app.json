@@ -408,6 +408,7 @@
         "p2": "Please note that Pocket’s exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
         "title": "Payment methods and fees"
       },
+      "previousTransactions": "The transaction history of this account is not empty. Sharing this account will make all its past and future transactions visible for Pocket. Proceed anyway?",
       "security": {
         "link": "BitBox02 security threat model",
         "p1": "When you buy bitcoin via Pocket, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in. However we work together to improve security by using a two factor authentication mechanism to verify the address you are receiving to.",

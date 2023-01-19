@@ -16,10 +16,13 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
-import { MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
+import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../api/backend';
+import { getTransactionList } from '../../api/account';
 import { Dialog } from '../../components/dialog/dialog';
+import { confirmation } from '../../components/confirm/Confirm';
 import { verifyAddress, signAddress, getPocketURL } from '../../api/exchanges';
+import { getInfo } from '../../api/account';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { PocketTerms } from './pocket-terms';
@@ -42,11 +45,12 @@ export const Pocket = ({ code }: TProps) => {
 
   const iframeURL = useLoad(getPocketURL(code));
   const config = useLoad(getConfig);
+  const accountInfo = useLoad(getInfo(code));
 
   const ref = createRef<HTMLDivElement>();
   const iframeRef = createRef<HTMLIFrameElement>();
-  var signing = false;
-  var resizeTimerID: any = undefined;
+  let signing = false;
+  let resizeTimerID: any = undefined;
 
   const name = 'Bitcoin';
 
@@ -79,62 +83,6 @@ export const Pocket = ({ code }: TProps) => {
     }, 200);
   };
 
-  const onMessage = (e: MessageEvent) => {
-    if (!iframeURL || !code) {
-      return;
-    }
-
-    // verify the origin of the received message
-    if (e.origin !== new URL(iframeURL).origin) {
-      return;
-    }
-
-    // handle address request from moonpay
-    try {
-      const message = parseMessage(e.data);
-      if (message.type === V0MessageType.RequestAddress && message.withMessageSignature && !signing) {
-        signing = true;
-        const addressType = message.withScriptType ? String(message.withScriptType) : '';
-        signAddress(
-          addressType,
-          String(message.withMessageSignature),
-          code)
-          .then(response => {
-            signing = false;
-            if (response.success) {
-              sendAddress(response.address, response.signature);
-            } else {
-              if (response.errorCode !== 'userAbort') {
-                alertUser(t('genericError'));
-                console.log('error: ' + response.errorMessage);
-              }
-            }
-          });
-      }
-      if (message.type === V0MessageType.VerifyAddress && !verifying) {
-        setVerifying(true);
-        verifyAddress(message.bitcoinAddress, code)
-          .then(response => {
-            setVerifying(false);
-            if (!response.success) {
-              if (response.errorCode === 'addressNotFound') {
-                // This should not happen, unless the user receives a tx on the same address between the message signing
-                // and the address verification.
-                alertUser(t('buy.pocket.usedAddress', { address:  message.bitcoinAddress }));
-              } else {
-                alertUser(t('genericError'));
-                console.log('error: ' + response.errorMessage);
-              }
-            }
-          });
-      }
-    } catch (e) {
-      console.log(e);
-      // ignore messages that could not be parsed
-      // probably not intended for us, anyway
-    }
-  };
-
   const sendAddress = (address: string, sig: string) => {
     const { current } = iframeRef;
 
@@ -150,6 +98,113 @@ export const Pocket = ({ code }: TProps) => {
     });
 
     current.contentWindow?.postMessage(message, '*');
+  };
+
+  const handleRequestAddress = (message: RequestAddressV0Message) => {
+    signing = true;
+    const addressType = message.withScriptType ? String(message.withScriptType) : '';
+    const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
+    signAddress(
+      addressType,
+      withMessageSignature,
+      code)
+      .then(response => {
+        signing = false;
+        if (response.success) {
+          sendAddress(response.address, response.signature);
+        } else {
+          if (response.errorCode !== 'userAbort') {
+            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+            console.log('error: ' + response.errorMessage);
+          }
+        }
+      });
+
+  };
+
+  const handleVerifyAddress = (address: string) => {
+    setVerifying(true);
+    verifyAddress(address, code)
+      .then(response => {
+        setVerifying(false);
+        if (!response.success) {
+          if (response.errorCode === 'addressNotFound') {
+            // This should not happen, unless the user receives a tx on the same address between the message signing
+            // and the address verification.
+            alertUser(t('buy.pocket.usedAddress', { address:  address }));
+          } else {
+            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
+            console.log('error: ' + response.errorMessage);
+          }
+        }
+      });
+  };
+
+  const sendXpub = () => {
+    if (accountInfo) {
+      const bitcoinSimple = accountInfo.signingConfigurations[0].bitcoinSimple;
+      if (bitcoinSimple) {
+        const xpub = bitcoinSimple.keyInfo.xpub;
+        const { current } = iframeRef;
+        if (!current) {
+          return;
+        }
+        const message = serializeMessage({
+          version: MessageVersion.V0,
+          type: V0MessageType.ExtendedPublicKey,
+          extendedPublicKey: xpub,
+        });
+        current.contentWindow?.postMessage(message, '*');
+      }
+    }
+  };
+
+  const handleRequestXpub = () => {
+    getTransactionList(code).then(txs => {
+      if (txs.length > 0) {
+        confirmation(t('buy.pocket.previousTransactions'), result => {
+          if (result) {
+            sendXpub();
+          }
+        });
+      } else {
+        sendXpub();
+      }
+    });
+  };
+
+  const onMessage = (m: MessageEvent) => {
+    if (!iframeURL || !code) {
+      return;
+    }
+
+    // verify the origin of the received message
+    if (m.origin !== new URL(iframeURL).origin) {
+      return;
+    }
+
+    // handle requests from Pocket
+    try {
+      const message = parseMessage(m.data);
+      switch (message.type) {
+      case V0MessageType.RequestAddress:
+        if (!signing) {
+          handleRequestAddress(message);
+        }
+        break;
+      case V0MessageType.VerifyAddress:
+        if (!verifying) {
+          handleVerifyAddress(message.bitcoinAddress);
+        }
+        break;
+      case V0MessageType.RequestExtendedPublicKey:
+        handleRequestXpub();
+      }
+    } catch (e) {
+      console.log(e);
+      // ignore messages that could not be parsed
+      // probably not intended for us, anyway
+    }
   };
 
   return (
