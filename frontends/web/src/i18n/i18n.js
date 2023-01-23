@@ -34,7 +34,8 @@ import appTranslationsES from '../locales/es/app.json';
 import appTranslationsSL from '../locales/sl/app.json';
 import appTranslationsHE from '../locales/he/app.json';
 import appTranslationsIT from '../locales/it/app.json';
-import { languageFromConfig, localeMainLanguage } from './config';
+import { languageFromConfig } from './config';
+import { localeMainLanguage } from './utils';
 import { apiGet } from '../utils/request';
 import { setConfig } from '../utils/config';
 
