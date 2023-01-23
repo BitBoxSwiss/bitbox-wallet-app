@@ -31,6 +31,9 @@
     .header .title {
         --size-subheader: 16px;
     }
+    .modal {
+        margin-left: var(--sidebar-width-large);
+    }
     .modal .contentContainer p {
         --size-default: 14px;
     }
