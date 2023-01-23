@@ -1,6 +1,13 @@
 .container {
-    margin-top: calc(var(--space-default) * 1.5);
+    display: flex;
+    flex-basis: 100%;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
+
 
 .iframe {
     max-width: 100%;
