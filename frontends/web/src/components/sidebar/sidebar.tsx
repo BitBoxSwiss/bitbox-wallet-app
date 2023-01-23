@@ -212,7 +212,7 @@ class Sidebar extends Component<Props> {
           { deviceIDs.map(deviceID => (
             <div key={deviceID} className={style.sidebarItem}>
               <NavLink
-                to={`/device/${deviceID}`}
+                to={`/device-settings/${deviceID}`}
                 className={({ isActive }) => isActive ? style.sidebarActive : ''}
                 title={t('sidebar.device')}
                 onClick={this.handleSidebarItemClick}>

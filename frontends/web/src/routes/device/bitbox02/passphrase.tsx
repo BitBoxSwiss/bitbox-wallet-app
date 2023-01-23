@@ -86,14 +86,14 @@ class Passphrase extends Component<Props, State> {
         });
       })
       .catch((e) => {
-        route(`/device/${deviceID}`);
+        route(`/device-settings/${deviceID}`);
         alertUser(t(`passphrase.error.e${e.code}`, {
           defaultValue: e.message || t('genericError'),
         }));
       });
   };
 
-  private stopInfo = () => route(`/device/${this.props.deviceID}`);
+  private stopInfo = () => route(`/device-settings/${this.props.deviceID}`);
 
   private continueInfo = () => {
     if (this.state.infoStep === 0) {

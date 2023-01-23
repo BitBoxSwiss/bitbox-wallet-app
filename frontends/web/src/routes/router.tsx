@@ -10,6 +10,7 @@ import { Receive } from './account/receive';
 import { Send } from './account/send/send';
 import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
+import { SettingsSwitch } from './device/settingsswitch';
 import ManageBackups from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { Exchanges } from './exchanges/exchanges';
@@ -45,6 +46,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const Device = <InjectParams>
     <DeviceSwitch
       key={devicesKey('device-switch')}
+      deviceID={null}
+      devices={devices} />
+  </InjectParams>;
+
+  const DeviceSettings = <InjectParams>
+    <SettingsSwitch
+      key={devicesKey('settings-switch')}
       deviceID={null}
       devices={devices} />
   </InjectParams>;
@@ -99,6 +107,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <Route path="/">
       <Route index element={Homepage} />
       <Route path="device/:deviceID" element={Device} />
+      <Route path="device-settings/:deviceID" element={DeviceSettings} />
       <Route path="account/:code">
         <Route index element={Acc} />
         <Route path="send" element={AccSend} />
