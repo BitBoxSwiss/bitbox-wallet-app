@@ -238,30 +238,27 @@ class Settings extends Component<Props, State> {
                             <h3 className="subTitle">{t('settings.info.title')}</h3>
                             <div className="box slim divide m-bottom-large">
                               { version !== undefined && update !== undefined ? (
-                                <div>
-                                  { update ? (
-                                    <SettingsButton
-                                      optionalText={version}
-                                      secondaryText={
-                                        <>
-                                          {t('settings.info.out-of-date')}
-                                          {' '}
-                                          <RedDot />
-                                        </>
-                                      }
-                                      disabled={false}
-                                      onClick={() => update && apiPost('open', updatePath)}>
-                                      {t('settings.info.version')}
-                                    </SettingsButton>) : (
-                                    <SettingsItem
-                                      optionalText={version}
-                                      optionalIcon={<Checked/>}>
-                                      {t('settings.info.up-to-date')}
-                                    </SettingsItem>
-                                  )
-                                  }
-                                </div>
-                              ) : <Skeleton />}
+                                update ? (
+                                  <SettingsButton
+                                    optionalText={version}
+                                    secondaryText={
+                                      <>
+                                        {t('settings.info.out-of-date')}
+                                        {' '}
+                                        <RedDot />
+                                      </>
+                                    }
+                                    disabled={false}
+                                    onClick={() => update && apiPost('open', updatePath)}>
+                                    {t('settings.info.version')}
+                                  </SettingsButton>) : (
+                                  <SettingsItem
+                                    optionalText={version}
+                                    optionalIcon={<Checked/>}>
+                                    {t('settings.info.up-to-date')}
+                                  </SettingsItem>
+                                )
+                              ) : <Skeleton fontSize="var(--item-height)" />}
                             </div>
                           </div>
                           { manageAccountsLen ? (
