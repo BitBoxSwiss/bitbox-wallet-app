@@ -158,7 +158,7 @@ export const Pocket = ({ code }: TProps) => {
           )}
         </div>
       </div>
-      <Guide name={name} />
+      <Guide name={name} exchange={'pocket'}/>
     </div>
   );
 };
