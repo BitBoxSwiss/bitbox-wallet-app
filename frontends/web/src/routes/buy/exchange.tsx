@@ -24,7 +24,8 @@ import Guide from './guide';
 import { findAccount, getCryptoName } from '../account/utils';
 import { route } from '../../utils/route';
 import { useLoad } from '../../hooks/api';
-import { languageFromConfig, localeMainLanguage } from '../../i18n/config';
+import { languageFromConfig } from '../../i18n/config';
+import { localeMainLanguage, getRegionNameFromLocale } from '../../i18n/utils';
 import { findLowestFee, findBestDeal, getFormattedName } from './utils';
 import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -34,6 +35,9 @@ import { InfoButton } from '../../components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
 import { Globe } from '../../components/icon';
 import style from './exchange.module.css';
+import { getNativeLocale } from '../../api/nativelocale';
+import { setConfig } from '../../utils/config';
+import { getConfig } from '../../api/backend';
 
 type TProps = {
     code: string;
@@ -66,7 +70,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
+  const nativeLocale = useLoad(getNativeLocale);
   const supportedExchanges = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
+  const config = useLoad(getConfig);
 
   const account = findAccount(accounts, code);
   const name = getCryptoName(t('buy.info.crypto'), account);
@@ -81,14 +87,26 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   // update region Select component when `regionList` or `locale` gets populated.
   useEffect(() => {
-    if (!regionList || !locale) {
+    if (!regionList || !locale || !config || !nativeLocale) {
       return;
     }
     const regionNames = new Intl.DisplayNames([locale], { type: 'region' });
     const regions = regionList.regions.map(region => ({ value: region.code, text: regionNames.of(region.code) } as TOption));
+
     regions.sort((a, b) => a.text.localeCompare(b.text, locale));
     setRegions(regions);
-  }, [regionList, locale]);
+
+    if (config.frontend.selectedExchangeRegion) {
+      setSelectedRegion(config.frontend.selectedExchangeRegion);
+      return;
+    }
+
+    const userRegion = getRegionNameFromLocale(nativeLocale);
+    //Region is available in the list
+    const regionAvailable = !!(regionList.regions.find(region => region.code === userRegion));
+    //Pre-selecting the region
+    setSelectedRegion(regionAvailable ? userRegion : '');
+  }, [regionList, locale, config, nativeLocale]);
 
   useEffect(() => {
     if (!exchangeDeals) {
@@ -153,6 +171,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
     route(`/buy/${selectedExchange}/${code}`);
   };
 
+  const handleChangeRegion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedRegion = e.target.value;
+    setSelectedRegion(selectedRegion);
+    setConfig({ frontend: { selectedExchangeRegion: selectedRegion } });
+  };
+
   const noExchangeAvailable = !showMoonpay && !showPocket;
 
   /*These are fees that will be shown in the "info dialog" when user clicks on the "Info" button*/
@@ -187,7 +211,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
                       ...regions]
                       }
                       value={selectedRegion || ''}
-                      onChange={(e: React.SyntheticEvent) => setSelectedRegion((e.target as HTMLSelectElement).value)}
+                      onChange={handleChangeRegion}
                       id="exchangeRegions"
                     />
 
