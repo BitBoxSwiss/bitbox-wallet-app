@@ -19,19 +19,15 @@ import { useTranslation } from 'react-i18next';
 import { load } from '../../decorators/load';
 import { runningInAndroid } from '../../utils/env';
 import { TUpdateFile } from '../../api/version';
-import A from '../anchor/anchor';
 import Status from '../status/status';
+import { AppDownloadLink } from '../appdownloadlink/appdownloadlink';
 
 type TProps = {
     file: TUpdateFile | null;
 }
 
-export const updatePath: string = 'https://shiftcrypto.ch/download/?source=bitboxapp';
-
 const Update = ({ file }: TProps) => {
   const { t } = useTranslation();
-  const downloadElement = <A href={updatePath}>{t('button.download')}</A>;
-
   return file && (
     <Status dismissable={`update-${file.version}`} type="info">
       {t('app.upgrade', {
@@ -41,7 +37,7 @@ const Update = ({ file }: TProps) => {
       {file.description}
       {' '}
       {/* Don't show download link on Android because they should update from stores */}
-      {!runningInAndroid() && downloadElement}
+      {!runningInAndroid() && <AppDownloadLink />}
     </Status>
   );
 };
