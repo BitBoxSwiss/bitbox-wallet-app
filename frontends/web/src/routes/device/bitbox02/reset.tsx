@@ -85,7 +85,7 @@ class Reset extends Component<Props, State> {
         <Dialog
           open={activeDialog}
           title={t('reset.title')}
-          onClose={this.abort}
+          onClose={() => this.setState({ activeDialog: false, understand: false })}
           disabledClose={isConfirming}
           small>
           <div className="columnsContainer half">
