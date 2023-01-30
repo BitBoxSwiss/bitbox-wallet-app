@@ -29,6 +29,7 @@ type TViewProps = {
     minHeight?: string;
     onClose?: () => void;
     textCenter?: boolean;
+    verticallyCentered?: boolean;
     width?: string;
     withBottomBar?: boolean;
 };
@@ -41,6 +42,7 @@ type TViewProps = {
  * @param minHeight optional minimum height, useful for keeping content area same size through multiple views
  * @param onClose if a callback is provided it will render a close button that triggers the callback
  * @param textCenter centers all text content in the view
+ * @param verticallyCentered centers all text content in the view, has no effect in dialog mode
  * @param width can be used to overwrite the default width of the inner area
  * @param withBottomBar enables a footer with some logo and language switch
  */
@@ -52,11 +54,14 @@ export const View = ({
   minHeight,
   onClose,
   textCenter,
+  verticallyCentered = false,
   width,
   withBottomBar,
 }: TViewProps) => {
   const containerClasses = `${
     style[fullscreen ? 'fullscreen' : 'fill']
+  } ${
+    verticallyCentered ? style.verticallyCentered : ''
   } ${
     dialog ? style.dialog : ''
   }`;

@@ -65,8 +65,9 @@ const Alert = () => {
       <View
         key="alert-overlay"
         dialog={asDialog}
+        fullscreen
         textCenter={!asDialog}
-        fullscreen>
+        verticallyCentered>
         <ViewHeader title={<MultilineMarkup tagName="span" markup={message} />} />
         <ViewButtons>
           <Button

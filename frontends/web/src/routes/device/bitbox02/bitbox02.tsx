@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -436,6 +436,7 @@ class BitBox02 extends Component<Props, State> {
         <View
           key="wait-view"
           fullscreen
+          verticallyCentered
           textCenter>
           <ViewHeader title={waitDialog.title}>
             <p>{waitDialog.text ? waitDialog.text : t('bitbox02Interact.followInstructions')}</p>
@@ -455,13 +456,14 @@ class BitBox02 extends Component<Props, State> {
             key="connection"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
-            width="600px">
+            width="690px">
             <ViewHeader title={t('button.unlock')}>
               <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
             </ViewHeader>
             <ViewContent fullWidth>
-              {attestationResult === false ? (
+              {attestationResult === true ? (
                 <Status>
                   {t('bitbox02Wizard.attestationFailed')}
                 </Status>
@@ -477,6 +479,7 @@ class BitBox02 extends Component<Props, State> {
             key="pairing"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="670px">
             <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
@@ -519,6 +522,7 @@ class BitBox02 extends Component<Props, State> {
             key="uninitialized-pairing"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="950px">
             <ViewHeader title={t('bitbox02Wizard.stepUninitialized.title')}>
@@ -570,6 +574,7 @@ class BitBox02 extends Component<Props, State> {
               fullscreen
               textCenter
               withBottomBar
+              verticallyCentered
               width="600px">
               <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
                 {!sdCardInserted && (
@@ -613,6 +618,7 @@ class BitBox02 extends Component<Props, State> {
             key="create-wallet"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="600px">
             <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
@@ -635,6 +641,7 @@ class BitBox02 extends Component<Props, State> {
               key="create-backup"
               fullscreen
               textCenter
+              verticallyCentered
               withBottomBar
               width="700px">
               <ViewHeader title={t('backup.create.title')}>
@@ -690,6 +697,7 @@ class BitBox02 extends Component<Props, State> {
             key="restore"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('backup.restore.confirmTitle')}>
@@ -717,6 +725,7 @@ class BitBox02 extends Component<Props, State> {
             key="set-password"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('backup.restore.confirmTitle')}>
@@ -751,6 +760,7 @@ class BitBox02 extends Component<Props, State> {
             fitContent
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar>
             <ViewHeader title={t('bitbox02Wizard.success.title')}>
               <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
@@ -771,6 +781,7 @@ class BitBox02 extends Component<Props, State> {
             key="backup-success"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
@@ -798,6 +809,7 @@ class BitBox02 extends Component<Props, State> {
             key="backup-mnemonic-success"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
