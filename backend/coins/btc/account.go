@@ -468,6 +468,11 @@ func (account *Account) Notifier() accounts.Notifier {
 
 func (account *Account) updateFeeTargets() {
 	defer account.feeTargetsLock.Lock()()
+	var minRelayFeeRate *btcutil.Amount
+	minRelayFeeRateVal, err := account.getMinRelayFeeRate()
+	if err == nil {
+		minRelayFeeRate = &minRelayFeeRateVal
+	}
 	for _, feeTarget := range account.feeTargets {
 		feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
 		if err != nil {
@@ -475,13 +480,18 @@ func (account *Account) updateFeeTargets() {
 				account.log.WithField("fee-target", feeTarget.blocks).
 					Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 			}
-			minRelayFeeRate, err := account.getMinRelayFeeRate()
-			if err != nil {
+			if minRelayFeeRate == nil {
 				account.log.WithField("fee-target", feeTarget.blocks).
 					Warning("Minimum relay fee could not be determined")
 				continue
 			}
-			feeRatePerKb = minRelayFeeRate
+			feeRatePerKb = *minRelayFeeRate
+		}
+		// If the minrelayfee is available the estimated fee rate is smaller than the minrelayfee,
+		// we use the minrelayfee instead. If the minrelayfee is unknown, we leave the fee
+		// estimation as is, hoping it will be enough for a transaction to get relayed.
+		if minRelayFeeRate != nil && feeRatePerKb < *minRelayFeeRate {
+			feeRatePerKb = *minRelayFeeRate
 		}
 		feeTarget.feeRatePerKb = &feeRatePerKb
 		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
