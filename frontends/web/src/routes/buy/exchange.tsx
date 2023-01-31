@@ -15,6 +15,7 @@
  */
 import 'flag-icons';
 import React, { useState, useEffect } from 'react';
+import i18n from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
 import { Button, Select, ButtonLink } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
@@ -24,8 +25,7 @@ import Guide from './guide';
 import { findAccount, getCryptoName } from '../account/utils';
 import { route } from '../../utils/route';
 import { useLoad } from '../../hooks/api';
-import { languageFromConfig } from '../../i18n/config';
-import { localeMainLanguage, getRegionNameFromLocale } from '../../i18n/utils';
+import { getRegionNameFromLocale } from '../../i18n/utils';
 import { findLowestFee, findBestDeal, getFormattedName } from './utils';
 import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -35,7 +35,6 @@ import { InfoButton } from '../../components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
 import { Globe } from '../../components/icon';
 import style from './exchange.module.css';
-import { getNativeLocale } from '../../api/nativelocale';
 import { setConfig } from '../../utils/config';
 import { getConfig } from '../../api/backend';
 
@@ -64,13 +63,11 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedExchange, setSelectedExchange] = useState('');
   const [regions, setRegions] = useState<TOption[]>([]);
-  const [locale, setLocale] = useState('');
   const [allExchangeDeals, setAllExchanges] = useState<FrontendExchangeDealsList>();
   const [info, setInfo] = useState<Info>();
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
-  const nativeLocale = useLoad(getNativeLocale);
   const supportedExchanges = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
   const config = useLoad(getConfig);
 
@@ -79,21 +76,15 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
 
-  // link locale detection to regionList to having it happen only once page load.
-  // can't use `useLoad` because `detect` function returns void.
+  // update region Select component when `regionList` or `config` gets populated.
   useEffect(() => {
-    languageFromConfig.detect((locale: string) => setLocale(localeMainLanguage(locale)));
-  }, [regionList]);
-
-  // update region Select component when `regionList` or `locale` gets populated.
-  useEffect(() => {
-    if (!regionList || !locale || !config || !nativeLocale) {
+    if (!regionList || !config) {
       return;
     }
-    const regionNames = new Intl.DisplayNames([locale], { type: 'region' });
+    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
     const regions = regionList.regions.map(region => ({ value: region.code, text: regionNames.of(region.code) } as TOption));
 
-    regions.sort((a, b) => a.text.localeCompare(b.text, locale));
+    regions.sort((a, b) => a.text.localeCompare(b.text, i18n.language));
     setRegions(regions);
 
     if (config.frontend.selectedExchangeRegion) {
@@ -101,12 +92,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
       return;
     }
 
-    const userRegion = getRegionNameFromLocale(nativeLocale);
+    const userRegion = getRegionNameFromLocale(i18n.language);
     //Region is available in the list
     const regionAvailable = !!(regionList.regions.find(region => region.code === userRegion));
     //Pre-selecting the region
     setSelectedRegion(regionAvailable ? userRegion : '');
-  }, [regionList, locale, config, nativeLocale]);
+  }, [regionList, config]);
 
   useEffect(() => {
     if (!exchangeDeals) {
