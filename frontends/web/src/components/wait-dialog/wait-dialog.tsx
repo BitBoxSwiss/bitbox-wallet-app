@@ -139,7 +139,7 @@ class WaitDialog extends Component<Props, State> {
         className={style.overlay}
         ref={this.overlay}
         style={{ zIndex: 10001 }}>
-        <div className={style.modal} ref={this.modal}>
+        <div className={[style.modal, style.open].join(' ')} ref={this.modal}>
           {
             title && (
               <div className={style.header}>

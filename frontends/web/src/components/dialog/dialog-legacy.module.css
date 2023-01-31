@@ -1,0 +1,247 @@
+.overlay {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--bg-transparent-dark);
+    z-index: 4010;
+    opacity: 0;
+}
+
+.overlay.activeOverlay {
+    opacity: 1;
+}
+
+.modal {
+    background-color: white;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 2px;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+    text-align: left;
+    max-height: 100vh;
+    overflow: auto;
+    opacity: 0;
+}
+
+.modal.activeModal {
+    opacity: 1;
+}
+
+.active {}
+
+.modal.small {
+    max-width: 340px;
+    width: 100%;
+}
+
+.modal.medium {
+    /* long enough to fit a bc1... address in the receive screen on desktop */
+    max-width: 520px;
+    width: 100%;
+}
+
+.modal.large {
+    max-width: 800px;
+    width: 100%;
+}
+
+.header {
+    height: var(--item-height);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--space-half);
+    border-bottom: solid 1px var(--color-lightgray);
+}
+
+.header.centered {
+    justify-content: center;
+}
+
+.header .title {
+    margin: 0;
+    font-size: var(--size-subheader);
+    font-weight: 400;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    padding: 0;
+    width: auto !important;
+}
+
+.closeButton:focus {
+    outline: none;
+}
+
+.closeButton:disabled {
+    color: var(--color-secondary);
+}
+
+.header .closeButton,
+.header .closeButton img {
+    width: 18px;
+    height: 18px;
+}
+
+.contentContainer {
+    font-size: var(--size-default);
+    font-weight: 400;
+    padding: var(--space-half);
+}
+
+.contentContainer.slim {
+    padding: 0;
+}
+
+.contentContainer.padded {
+    padding: var(--space-default);
+}
+
+.content p {
+    word-break: break-word;
+}
+
+.actions button,
+.actions a,
+.small .actions button,
+.small .actions a {
+    width: 100%;
+}
+
+.actions > *:not(:last-child),
+.small .actions > *:not(:last-child) {
+    margin-bottom: var(--space-quarter);
+}
+
+.actions {
+    margin-top: var(--space-quarter);
+}
+
+
+/* WAIT DIALOG */
+.confirmationLabel {
+    position: relative;
+    line-height: 1.3;
+    font-size: var(--size-default);
+    font-weight: 400;
+    margin-top: var(--space-half);
+    padding-left: 24px;
+}
+
+.confirmationLabelNumber {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+}
+
+.disabledLabel,
+.disabledLabel span {
+    color: var(--color-mediumgray) !important;
+}
+
+.noStep {
+    padding-left: 0;
+}
+
+.confirmationInstructions {
+    margin: 0;
+    padding: var(--space-half) 0 var(--space-quarter) 0;
+}
+
+.confirmationInstructions > div {
+  width: 50%;
+}
+
+.confirmationInstructions p {
+    line-height: 1;
+    margin-top: var(--space-quarter);
+}
+
+.confirmationInstructions.confirm {
+    text-align: center;
+    font-size: var(--size-subheader);
+    padding: var(--space-half) calc(var(--space-half) * 1.5);
+}
+
+.image {
+    height: 120px;
+    margin-right: var(--space-half);
+}
+
+.modalContent p {
+    font-size: var(--size-default);
+    font-weight: 400;
+}
+
+.modalContent > *:first-child {
+    margin-top: 0;
+}
+
+.detail {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--item-height);
+    padding: var(--space-half);
+}
+
+.detail:not(:first-child) {
+    border-top: solid 1px var(--color-lightgray);
+}
+
+.detail label {
+    white-space: nowrap;
+    margin-right: var(--space-half) !important;
+}
+
+.detail label,
+.detail p {
+    margin: 0;
+    line-height: 1;
+}
+
+.detail.description > span {
+    text-align: right;
+}
+
+.buttons {
+    padding: var(--space-quarter);
+}
+
+.buttons button:first-child {
+    margin-right: 10px;
+}
+
+.buttons button {
+    width: 50%;
+}
+
+.dialogButtons {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    margin-top: var(--space-default);
+}
+.dialogButtons > *:only-child {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .modal {
+        padding: 0;
+    }
+
+    .contentContainer.padded {
+        padding: var(--space-half);
+    }
+}

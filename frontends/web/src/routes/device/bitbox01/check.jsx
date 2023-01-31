@@ -17,7 +17,7 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../components/forms';
-import { Dialog } from '../../../components/dialog/dialog';
+import { DialogLegacy } from '../../../components/dialog/dialog-legacy';
 import { PasswordSingleInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
 // TODO: use DialogButtons
@@ -92,37 +92,40 @@ class Check extends Component {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.check')}
         </Button>
-        <Dialog
-          open={activeDialog}
-          title={t('backup.check.title')}
-          onClose={this.abort}>
-          { message ? (
-            <div>
-              <p style={{ minHeight: '3rem' }}>{message}</p>
-              <div className={style.actions}>
-                <Button transparent onClick={this.abort}>
-                  {t('button.back')}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={this.check}>
-              <PasswordSingleInput
-                label={t('backup.check.password.label')}
-                placeholder={t('backup.check.password.placeholder')}
-                showLabel={t('backup.check.password.showLabel')}
-                onValidPassword={this.setValidPassword} />
-              <div className={style.actions}>
-                <Button type="submit" primary disabled={!this.validate()}>
-                  {t('button.check')}
-                </Button>
-                <Button transparent onClick={this.abort}>
-                  {t('button.back')}
-                </Button>
-              </div>
-            </form>
-          )}
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy
+              title={t('backup.check.title')}
+              onClose={this.abort}>
+              { message ? (
+                <div>
+                  <p style={{ minHeight: '3rem' }}>{message}</p>
+                  <div className={style.actions}>
+                    <Button transparent onClick={this.abort}>
+                      {t('button.back')}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={this.check}>
+                  <PasswordSingleInput
+                    label={t('backup.check.password.label')}
+                    placeholder={t('backup.check.password.placeholder')}
+                    showLabel={t('backup.check.password.showLabel')}
+                    onValidPassword={this.setValidPassword} />
+                  <div className={style.actions}>
+                    <Button type="submit" primary disabled={!this.validate()}>
+                      {t('button.check')}
+                    </Button>
+                    <Button transparent onClick={this.abort}>
+                      {t('button.back')}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </DialogLegacy>
+          )
+        }
       </div>
     );
   }

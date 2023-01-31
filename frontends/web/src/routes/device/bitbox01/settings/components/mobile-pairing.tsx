@@ -20,7 +20,7 @@ import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { confirmation } from '../../../../../components/confirm/Confirm';
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
 import { Button } from '../../../../../components/forms';
 import { QRCode } from '../../../../../components/qrcode/qrcode';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
@@ -215,26 +215,29 @@ class MobilePairing extends Component<Props, State> {
             (hasMobileChannel && !paired) ? t('pairing.reconnectOnly.button') : t('pairing.button')
           )}
         </SettingsButton>
-        <Dialog
-          open={!!status}
-          title={t('pairing.title')}
-          onClose={this.abort}
-          medium>
-          <div className="flex flex-column flex-center flex-items-center">
-            {
-              channel ? (
-                content
-              ) : (
-                <p>{t('loading')}</p>
-              )
-            }
-          </div>
-          <DialogButtons>
-            <Button transparent onClick={this.abort}>
-              {t('button.back')}
-            </Button>
-          </DialogButtons>
-        </Dialog>
+        {
+          status && (
+            <DialogLegacy
+              title={t('pairing.title')}
+              onClose={this.abort}
+              medium>
+              <div className="flex flex-column flex-center flex-items-center">
+                {
+                  channel ? (
+                    content
+                  ) : (
+                    <p>{t('loading')}</p>
+                  )
+                }
+              </div>
+              <DialogButtons>
+                <Button transparent onClick={this.abort}>
+                  {t('button.back')}
+                </Button>
+              </DialogButtons>
+            </DialogLegacy>
+          )
+        }
       </div>
     );
   }
