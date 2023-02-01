@@ -225,14 +225,8 @@ class Send extends Component<Props, State> {
   };
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (e.keyCode === 27) {
-      if (this.state.activeScanQR) {
-        this.toggleScanQR();
-        return;
-      }
-      if (!this.state.activeCoinControl) {
-        route(`/account/${this.props.code}`);
-      }
+    if (e.keyCode === 27 && !this.state.activeCoinControl && !this.state.activeScanQR) {
+      route(`/account/${this.props.code}`);
     }
   };
 

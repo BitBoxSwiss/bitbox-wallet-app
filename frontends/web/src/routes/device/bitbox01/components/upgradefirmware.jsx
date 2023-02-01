@@ -18,7 +18,7 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../../../../components/dialog/dialog-legacy';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../../utils/request';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
@@ -89,19 +89,23 @@ class UpgradeFirmware extends Component {
             </SettingsButton>
           )
         }
-        <Dialog open={activeDialog} title={t('upgradeFirmware.title')}>
-          <p className="m-top-none">{t('upgradeFirmware.description', {
-            currentVersion, newVersion
-          })}</p>
-          <DialogButtons>
-            <Button primary onClick={this.upgradeFirmware}>
-              {t('button.upgrade')}
-            </Button>
-            <Button transparent onClick={this.abort}>
-              {t('button.back')}
-            </Button>
-          </DialogButtons>
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy title={t('upgradeFirmware.title')}>
+              <p className="m-top-none">{t('upgradeFirmware.description', {
+                currentVersion, newVersion
+              })}</p>
+              <DialogButtons>
+                <Button primary onClick={this.upgradeFirmware}>
+                  {t('button.upgrade')}
+                </Button>
+                <Button transparent onClick={this.abort}>
+                  {t('button.back')}
+                </Button>
+              </DialogButtons>
+            </DialogLegacy>
+          )
+        }
         {
           isConfirming && (
             <WaitDialog title={t('upgradeFirmware.title')} includeDefault={!unlocked}>

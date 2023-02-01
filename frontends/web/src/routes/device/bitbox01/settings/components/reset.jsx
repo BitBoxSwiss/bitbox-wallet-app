@@ -19,7 +19,7 @@ import { Component } from 'react';
 import { route } from '../../../../../utils/route';
 import { withTranslation } from 'react-i18next';
 import { Button, Checkbox } from '../../../../../components/forms';
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
@@ -84,34 +84,37 @@ class Reset extends Component {
         <SettingsButton danger onClick={() => this.setState({ activeDialog: true })}>
           {t('reset.title')}
         </SettingsButton>
-        <Dialog
-          active={activeDialog}
-          title={t('reset.title')}
-          onClose={this.abort}>
-          <p>
-            {t('reset.description')}
-          </p>
-          <PasswordInput
-            idPrefix="pin"
-            label={t('initialize.input.label')}
-            value={pin}
-            onInput={this.setValidPIN} />
-          <div className={style.agreements}>
-            <Checkbox
-              id="funds_access"
-              label={t('reset.understand')}
-              checked={understand}
-              onChange={this.handleUnderstandChange} />
-          </div>
-          <DialogButtons>
-            <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
-              {t('reset.title')}
-            </Button>
-            <Button transparent onClick={this.abort} disabled={isConfirming}>
-              {t('button.back')}
-            </Button>
-          </DialogButtons>
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy
+              title={t('reset.title')}
+              onClose={this.abort}>
+              <p>
+                {t('reset.description')}
+              </p>
+              <PasswordInput
+                idPrefix="pin"
+                label={t('initialize.input.label')}
+                value={pin}
+                onInput={this.setValidPIN} />
+              <div className={style.agreements}>
+                <Checkbox
+                  id="funds_access"
+                  label={t('reset.understand')}
+                  checked={understand}
+                  onChange={this.handleUnderstandChange} />
+              </div>
+              <DialogButtons>
+                <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
+                  {t('reset.title')}
+                </Button>
+                <Button transparent onClick={this.abort} disabled={isConfirming}>
+                  {t('button.back')}
+                </Button>
+              </DialogButtons>
+            </DialogLegacy>
+          )
+        }
         { isConfirming ? (
           <WaitDialog title={t('reset.title')} />
         ) : null }

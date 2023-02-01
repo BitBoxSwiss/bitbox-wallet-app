@@ -17,7 +17,7 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SimpleMarkup } from '../../utils/markup';
-import { Dialog, DialogButtons } from '../dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../dialog/dialog-legacy';
 import { Button } from '../forms';
 
 type TCallback = (response: boolean) => void;
@@ -60,8 +60,10 @@ export const Confirm = () => {
   };
 
   const { message, active, customButtonText } = state;
-
-  return <Dialog open={active} title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
+  if (!active) {
+    return null;
+  }
+  return <DialogLegacy title={t('dialog.confirmTitle')} onClose={() => respond(false)}>
     <div className="columnsContainer half">
       <div className="columns">
         <div className="column">
@@ -77,10 +79,9 @@ export const Confirm = () => {
         </div>
       </div>
     </div>
-
     <DialogButtons>
       <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
       <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
     </DialogButtons>
-  </Dialog>;
+  </DialogLegacy>;
 };
