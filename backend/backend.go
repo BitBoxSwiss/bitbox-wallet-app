@@ -310,10 +310,7 @@ mCMuGBNHsbrs6rI1hbI4Qq6GYazLaDRqdCufTA==
 	case coinpkg.CodeBTC:
 		return []*config.ServerInfo{{Server: "btc1.shiftcrypto.dev:50001", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeTBTC:
-		return []*config.ServerInfo{
-			{Server: "tbtc1.shiftcrypto.dev:51001", TLS: true, PEMCert: devShiftCA},
-			{Server: "tbtc2.shiftcrypto.dev:51002", TLS: true, PEMCert: devShiftCA},
-		}
+		return []*config.ServerInfo{{Server: "tbtc1.shiftcrypto.dev:51001", TLS: true, PEMCert: devShiftCA}}
 	case coinpkg.CodeRBTC:
 		return []*config.ServerInfo{
 			{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""},

@@ -18,7 +18,7 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
-import { Dialog } from '../../../../../components/dialog/dialog';
+import { DialogLegacy } from '../../../../../components/dialog/dialog-legacy';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../../utils/request';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
@@ -69,22 +69,25 @@ class DeviceLock extends Component {
           optionalText={t(`deviceSettings.pairing.lock.${lock}`)}>
           {t('deviceLock.button')}
         </SettingsButton>
-        <Dialog
-          open={activeDialog}
-          title={t('deviceLock.title')}
-          onClose={this.abort}>
-          <p>{t('deviceLock.condition1')}</p>
-          <p>{t('deviceLock.condition2')}</p>
-          <p>{t('deviceLock.condition3')}</p>
-          <div className={style.actions}>
-            <Button danger onClick={this.resetDevice}>
-              {t('deviceLock.confirm')}
-            </Button>
-            <Button transparent onClick={this.abort}>
-              {t('button.back')}
-            </Button>
-          </div>
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy
+              title={t('deviceLock.title')}
+              onClose={this.abort}>
+              <p>{t('deviceLock.condition1')}</p>
+              <p>{t('deviceLock.condition2')}</p>
+              <p>{t('deviceLock.condition3')}</p>
+              <div className={style.actions}>
+                <Button danger onClick={this.resetDevice}>
+                  {t('deviceLock.confirm')}
+                </Button>
+                <Button transparent onClick={this.abort}>
+                  {t('button.back')}
+                </Button>
+              </div>
+            </DialogLegacy>
+          )
+        }
         {
           isConfirming && (
             <WaitDialog title={t('deviceLock.title')} />

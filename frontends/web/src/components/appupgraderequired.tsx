@@ -16,7 +16,7 @@
  */
 
 import { translate, TranslateProps } from '../decorators/translate';
-import A from './anchor/anchor';
+import { AppDownloadLink } from './appdownloadlink/appdownloadlink';
 
 function AppUpgradeRequired({ t }: TranslateProps) {
   return (
@@ -27,9 +27,7 @@ function AppUpgradeRequired({ t }: TranslateProps) {
             <div className="box large">
               <p className="m-top-none">{t('device.appUpradeRequired')}</p>
               <div className="buttons m-top-half">
-                <A href="https://shiftcrypto.ch/download/?source=bitboxapp" className="text-medium text-blue">
-                  {t('button.download')}
-                </A>
+                <AppDownloadLink className="text-medium text-blue" />
               </div>
             </div>
           </div>

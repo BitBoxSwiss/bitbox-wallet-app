@@ -20,7 +20,7 @@ import { route } from '../../../utils/route';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../../components/alert/Alert';
-import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../../../components/dialog/dialog-legacy';
 import { Button, Checkbox } from '../../../components/forms';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Spinner } from '../../../components/spinner/Spinner';
@@ -134,42 +134,45 @@ class Restore extends Component<Props, State> {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.restore')}
         </Button>
-        <Dialog
-          open={activeDialog}
-          title={t('backup.restore.title')}
-          disableEscape={isConfirming || isLoading}
-          onClose={this.abort}>
-          <form onSubmit={this.restore}>
-            <PasswordRepeatInput
-              label={t('backup.restore.password.label')}
-              placeholder={t('backup.restore.password.placeholder')}
-              repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}
-              showLabel={t('backup.restore.password.showLabel')}
-              onValidPassword={this.setValidPassword} />
-            <div className={style.agreements}>
-              <Checkbox
-                id="funds_access"
-                label={t('backup.restore.understand')}
-                checked={understand}
-                onChange={this.handleUnderstandChange} />
-            </div>
-            <DialogButtons>
-              <Button
-                type="submit"
-                danger={requireConfirmation}
-                primary={!requireConfirmation}
-                disabled={!understand || !this.validate() || isConfirming}>
-                {t('button.restore')}
-              </Button>
-              <Button
-                transparent
-                onClick={this.abort}
-                disabled={isConfirming}>
-                {t('button.back')}
-              </Button>
-            </DialogButtons>
-          </form>
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy
+              title={t('backup.restore.title')}
+              disableEscape={isConfirming || isLoading}
+              onClose={this.abort}>
+              <form onSubmit={this.restore}>
+                <PasswordRepeatInput
+                  label={t('backup.restore.password.label')}
+                  placeholder={t('backup.restore.password.placeholder')}
+                  repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}
+                  showLabel={t('backup.restore.password.showLabel')}
+                  onValidPassword={this.setValidPassword} />
+                <div className={style.agreements}>
+                  <Checkbox
+                    id="funds_access"
+                    label={t('backup.restore.understand')}
+                    checked={understand}
+                    onChange={this.handleUnderstandChange} />
+                </div>
+                <DialogButtons>
+                  <Button
+                    type="submit"
+                    danger={requireConfirmation}
+                    primary={!requireConfirmation}
+                    disabled={!understand || !this.validate() || isConfirming}>
+                    {t('button.restore')}
+                  </Button>
+                  <Button
+                    transparent
+                    onClick={this.abort}
+                    disabled={isConfirming}>
+                    {t('button.back')}
+                  </Button>
+                </DialogButtons>
+              </form>
+            </DialogLegacy>
+          )
+        }
         {
           (isConfirming && requireConfirmation) && (
             <WaitDialog title={t('backup.restore.confirmTitle')} />

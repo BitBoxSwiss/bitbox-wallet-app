@@ -17,7 +17,7 @@
 
 import React, { Component, createRef } from 'react';
 import { CloseXDark } from '../icon';
-import style from './dialog.module.css';
+import style from './dialog-legacy.module.css';
 interface Props {
     title?: string;
     small?: boolean;
@@ -29,41 +29,26 @@ interface Props {
     onClose?: (e?: Event) => void;
     disabledClose?: boolean;
     children: React.ReactNode;
-    open: boolean;
 }
 
 interface State {
-  currentTab: number;
-  renderDialog: boolean;
+    active: boolean;
+    currentTab: number;
 }
 
-class Dialog extends Component<Props, State> {
+class DialogLegacy extends Component<Props, State> {
   private overlay = createRef<HTMLDivElement>();
   private modal = createRef<HTMLDivElement>();
   private modalContent = createRef<HTMLDivElement>();
   private focusableChildren!: NodeListOf<HTMLElement>;
-  private timerId: any;
 
   public state: State = {
+    active: false,
     currentTab: 0,
-    renderDialog: false,
   };
 
-  public componentDidUpdate(prevProps: Readonly<Props>): void {
-    const { open } = this.props;
-
-    if (open && !prevProps.open) {
-      this.setState({ renderDialog: true }, () => {
-        this.activate();
-      });
-      return;
-    }
-
-
-    if (!open && prevProps.open) {
-      this.deactivate(false);
-      return;
-    }
+  public componentDidMount() {
+    setTimeout(this.activate, 10);
   }
 
   public componentWillUnmount() {
@@ -103,19 +88,6 @@ class Dialog extends Component<Props, State> {
     });
   };
 
-  private deactivateModal = (fireOnCloseProp: boolean) => {
-    if (!this.modal.current || !this.overlay.current) {
-      return;
-    }
-    this.overlay.current.classList.remove(style.closingOverlay);
-    this.setState({ currentTab: 0, renderDialog: false }, () => {
-      document.removeEventListener('keydown', this.handleKeyDown);
-      if (this.props.onClose && fireOnCloseProp) {
-        this.props.onClose();
-      }
-    });
-  };
-
   private getNextIndex(isNext: boolean) {
     const { currentTab } = this.state;
     const focusables = Array.from(this.focusableChildren);
@@ -132,7 +104,7 @@ class Dialog extends Component<Props, State> {
     const isEsc = e.keyCode === 27;
     const isTab = e.keyCode === 9;
     if (!disableEscape && isEsc) {
-      this.deactivate(true);
+      this.deactivate();
     } else if (isTab) {
       e.preventDefault();
     }
@@ -143,41 +115,27 @@ class Dialog extends Component<Props, State> {
     }
   };
 
-  private deactivate = (fireOnCloseProp: boolean) => {
+  private deactivate = () => {
     if (!this.modal.current || !this.overlay.current) {
       return;
     }
-
-    if (this.timerId) {
-      clearTimeout(this.timerId);
-    }
-
-    this.modal.current?.classList.remove(style.open);
+    this.modal.current.classList.remove(style.activeModal);
     this.overlay.current.classList.remove(style.activeOverlay);
-    this.overlay.current.classList.add(style.closingOverlay);
-    this.timerId = setTimeout(() => {
-      this.deactivateModal(fireOnCloseProp);
-    }, 300);
+    this.setState({ active: false, currentTab: 0 }, () => {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    });
   };
 
   private activate = () => {
-    this.setState({ renderDialog: true }, () => {
+    this.setState({ active: true }, () => {
       if (!this.modal.current || !this.overlay.current) {
         return;
       }
-
-      if (this.timerId) {
-        clearTimeout(this.timerId);
-      }
-
       this.overlay.current.classList.add(style.activeOverlay);
-
-      // Minor delay
-      this.timerId = setTimeout(() => {
-        this.modal.current?.classList.add(style.open);
-      }, 10);
-
-
+      this.modal.current.classList.add(style.activeModal);
       this.focusWithin();
       this.focusFirst();
     });
@@ -195,17 +153,11 @@ class Dialog extends Component<Props, State> {
       disabledClose,
       children,
     } = this.props;
-    const { renderDialog } = this.state;
     const isSmall = small ? style.small : '';
     const isMedium = medium ? style.medium : '';
     const isLarge = large ? style.large : '';
     const isSlim = slim ? style.slim : '';
     const isCentered = centered && !onClose ? style.centered : '';
-
-    if (!renderDialog) {
-      return null;
-    }
-
     return (
       <div className={style.overlay} ref={this.overlay}>
         <div
@@ -216,9 +168,7 @@ class Dialog extends Component<Props, State> {
               <div className={[style.header, isCentered].join(' ')}>
                 <h3 className={style.title}>{title}</h3>
                 { onClose ? (
-                  <button className={style.closeButton} onClick={() => {
-                    this.deactivate(true);
-                  }} disabled={disabledClose}>
+                  <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
                     <CloseXDark />
                   </button>
                 ) : null }
@@ -267,4 +217,4 @@ function DialogButtons({ children }: DialogButtonsProps) {
   );
 }
 
-export { Dialog, DialogButtons };
+export { DialogLegacy, DialogButtons };
