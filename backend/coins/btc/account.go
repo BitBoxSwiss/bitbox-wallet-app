@@ -42,6 +42,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	electrumTypes "github.com/digitalbitbox/block-client-go/electrum/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -350,7 +351,7 @@ func (account *Account) Initialize() error {
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
 	account.ensureAddresses()
-	account.coin.Blockchain().HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
+	account.coin.Blockchain().HeadersSubscribe(account.onNewHeader)
 
 	return account.BaseAccount.Initialize(accountIdentifier)
 }
@@ -414,12 +415,12 @@ func (account *Account) Info() *accounts.Info {
 	}
 }
 
-func (account *Account) onNewHeader(header *blockchain.Header) {
+func (account *Account) onNewHeader(header *electrumTypes.Header) {
 	if account.isClosed() {
 		account.log.Debug("Ignoring new header after the account was closed")
 		return
 	}
-	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
+	account.log.WithField("block-height", header.Height).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
 }
@@ -654,15 +655,7 @@ func (account *Account) ensureAddresses() {
 
 func (account *Account) subscribeAddress(address *addresses.AccountAddress) error {
 	account.coin.Blockchain().ScriptHashSubscribe(
-		func() func(error) {
-			done := account.Synchronizer.IncRequestsCounter()
-			return func(err error) {
-				done()
-				if err != nil {
-					panic(err)
-				}
-			}
-		},
+		account.Synchronizer.IncRequestsCounter,
 		address.PubkeyScriptHashHex(),
 		func(status string) {
 			go account.onAddressStatus(address, status)

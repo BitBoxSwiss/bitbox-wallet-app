@@ -12,6 +12,8 @@ import (
 
 	testing "testing"
 
+	types "github.com/digitalbitbox/block-client-go/electrum/types"
+
 	wire "github.com/btcsuite/btcd/wire"
 )
 
@@ -106,9 +108,9 @@ func (_m *Interface) Headers(_a0 int, _a1 int) (*blockchain.HeadersResult, error
 	return r0, r1
 }
 
-// HeadersSubscribe provides a mock function with given fields: _a0, _a1
-func (_m *Interface) HeadersSubscribe(_a0 func() func(error), _a1 func(*blockchain.Header)) {
-	_m.Called(_a0, _a1)
+// HeadersSubscribe provides a mock function with given fields: _a0
+func (_m *Interface) HeadersSubscribe(_a0 func(*types.Header)) {
+	_m.Called(_a0)
 }
 
 // RegisterOnConnectionErrorChangedEvent provides a mock function with given fields: _a0
@@ -161,7 +163,7 @@ func (_m *Interface) ScriptHashGetHistory(_a0 blockchain.ScriptHashHex) (blockch
 }
 
 // ScriptHashSubscribe provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashSubscribe(_a0 func() func(error), _a1 blockchain.ScriptHashHex, _a2 func(string)) {
+func (_m *Interface) ScriptHashSubscribe(_a0 func() func(), _a1 blockchain.ScriptHashHex, _a2 func(string)) {
 	_m.Called(_a0, _a1, _a2)
 }
 

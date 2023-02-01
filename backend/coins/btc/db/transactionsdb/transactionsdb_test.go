@@ -393,17 +393,16 @@ func TestAddressHistory(t *testing.T) {
 			0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66,
 		}
 		txHistory1 := blockchain.TxHistory{
-			{Height: 10, TXHash: blockchain.TXHash(hash1_1), Fee: nil},
-			{Height: 20, TXHash: blockchain.TXHash(hash1_2), Fee: nil},
+			{Height: 10, TXHash: blockchain.TXHash(hash1_1)},
+			{Height: 20, TXHash: blockchain.TXHash(hash1_2)},
 		}
 		const key2 = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-		fee := int64(4234)
 		hash2 := [32]byte{
 			0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88,
 			0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88,
 		}
 		txHistory2 := blockchain.TxHistory{
-			{Height: 15, TXHash: blockchain.TXHash(hash2), Fee: &fee},
+			{Height: 15, TXHash: blockchain.TXHash(hash2)},
 		}
 
 		// Does not exist yet.
@@ -416,11 +415,11 @@ func TestAddressHistory(t *testing.T) {
 
 		// Test actual db store against fixtures to ensure compatibility does not break
 		require.Equal(t,
-			`[{"height":10,"tx_hash":"5555555555555555555555555555555555555555555555555555555555555555","fee":null},{"height":20,"tx_hash":"6666666666666666666666666666666666666666666666666666666666666666","fee":null}]`,
+			`[{"height":10,"tx_hash":"5555555555555555555555555555555555555555555555555555555555555555"},{"height":20,"tx_hash":"6666666666666666666666666666666666666666666666666666666666666666"}]`,
 			string(getRawValue(tx, "addressHistories", []byte(key1))),
 		)
 		require.Equal(t,
-			`[{"height":15,"tx_hash":"8888888888888888888888888888888888888888888888888888888888888888","fee":4234}]`,
+			`[{"height":15,"tx_hash":"8888888888888888888888888888888888888888888888888888888888888888"}]`,
 			string(getRawValue(tx, "addressHistories", []byte(key2))),
 		)
 

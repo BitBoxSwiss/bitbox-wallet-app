@@ -29,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/block-client-go/electrum/types"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/scrypt"
 )
@@ -175,10 +176,9 @@ func (headers *Headers) Initialize() {
 	headers.tipAtInitTime = headers.tip()
 	headers.log.Infof("last tip loaded: %d", headers.tipAtInitTime)
 	go headers.download()
-	headers.blockchain.HeadersSubscribe(
-		nil,
-		func(header *blockchain.Header) {
-			headers.update(header.BlockHeight)
+	go headers.blockchain.HeadersSubscribe(
+		func(header *types.Header) {
+			headers.update(header.Height)
 		},
 	)
 	headers.kickChan <- struct{}{}
