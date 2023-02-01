@@ -413,6 +413,8 @@
         "p1": "When you buy bitcoin via Pocket, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in. However we work together to improve security by using a two factor authentication mechanism to verify the address you are receiving to.",
         "title": "Security model"
       },
+      "usedAddress": "The address {{address}} has been already used, please start again.",
+      "verifyBitBox02": "Please verify that the address you received via email matches the one displayed on your device. If possible, you should open the email on a second device for better security.",
       "welcome": {
         "p1": "We partner with Pocket to offer you a seamless way to buy bitcoin directly within the BitBoxApp. It's just a few clicks.",
         "p2": "Pocket is a Swiss platform that makes it quick and easy to buy bitcoin in most of Europe (anywhere where SEPA bank transfers are supported).",

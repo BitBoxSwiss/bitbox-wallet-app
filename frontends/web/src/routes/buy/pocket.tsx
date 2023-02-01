@@ -17,8 +17,9 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
-import { signAddress, getPocketURL } from '../../api/exchanges';
 import { getConfig } from '../../api/backend';
+import { Dialog } from '../../components/dialog/dialog';
+import { verifyAddress, signAddress, getPocketURL } from '../../api/exchanges';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { PocketTerms } from './pocket-terms';
@@ -37,12 +38,14 @@ export const Pocket = ({ code }: TProps) => {
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const iframeURL = useLoad(getPocketURL(code));
   const config = useLoad(getConfig);
 
   const ref = createRef<HTMLDivElement>();
   const iframeRef = createRef<HTMLIFrameElement>();
+  var signing = false;
   var resizeTimerID: any = undefined;
 
   const name = 'Bitcoin';
@@ -89,17 +92,39 @@ export const Pocket = ({ code }: TProps) => {
     // handle address request from moonpay
     try {
       const message = parseMessage(e.data);
-      if (message.type === V0MessageType.RequestAddress && message.withMessageSignature) {
+      if (message.type === V0MessageType.RequestAddress && message.withMessageSignature && !signing) {
+        signing = true;
+        const addressType = message.withScriptType ? String(message.withScriptType) : '';
         signAddress(
-          message.withScriptType ? message.withScriptType : 'p2wpkh',
+          addressType,
           String(message.withMessageSignature),
           code)
           .then(response => {
-            if (response.status === 'abort') {
-              // TODO notify to the widget with a message?
-              alertUser('Message signing aborted by the user');
-            } else {
+            signing = false;
+            if (response.success) {
               sendAddress(response.address, response.signature);
+            } else {
+              if (response.errorCode !== 'userAbort') {
+                alertUser(t('genericError'));
+                console.log('error: ' + response.errorMessage);
+              }
+            }
+          });
+      }
+      if (message.type === V0MessageType.VerifyAddress && !verifying) {
+        setVerifying(true);
+        verifyAddress(message.bitcoinAddress, code)
+          .then(response => {
+            setVerifying(false);
+            if (!response.success) {
+              if (response.errorCode === 'addressNotFound') {
+                // This should not happen, unless the user receives a tx on the same address between the message signing
+                // and the address verification.
+                alertUser(t('buy.pocket.usedAddress', { address:  message.bitcoinAddress }));
+              } else {
+                alertUser(t('genericError'));
+                console.log('error: ' + response.errorMessage);
+              }
             }
           });
       }
@@ -156,6 +181,13 @@ export const Pocket = ({ code }: TProps) => {
               </iframe>
             </div>
           )}
+          <Dialog
+            open={verifying}
+            title={t('receive.verifyBitBox02')}
+            disableEscape={true}
+            medium centered>
+            <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div>
+          </Dialog>
         </div>
       </div>
       <Guide name={name} exchange={'pocket'}/>
