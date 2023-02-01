@@ -34,9 +34,10 @@ import { Dialog } from '../../components/dialog/dialog';
 import { InfoButton } from '../../components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
 import { Globe } from '../../components/icon';
-import style from './exchange.module.css';
+import { getNativeLocale } from '../../api/nativelocale';
 import { setConfig } from '../../utils/config';
 import { getConfig } from '../../api/backend';
+import style from './exchange.module.css';
 
 type TProps = {
     code: string;
@@ -68,6 +69,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
+  const nativeLocale = useLoad(getNativeLocale);
   const supportedExchanges = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
   const config = useLoad(getConfig);
 
@@ -92,12 +94,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
       return;
     }
 
-    const userRegion = getRegionNameFromLocale(i18n.language);
+    const userRegion = getRegionNameFromLocale(nativeLocale || '');
     //Region is available in the list
     const regionAvailable = !!(regionList.regions.find(region => region.code === userRegion));
     //Pre-selecting the region
     setSelectedRegion(regionAvailable ? userRegion : '');
-  }, [regionList, config]);
+  }, [regionList, config, nativeLocale]);
 
   useEffect(() => {
     if (!exchangeDeals) {
@@ -201,7 +203,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
                       },
                       ...regions]
                       }
-                      value={selectedRegion || ''}
+                      value={selectedRegion}
                       onChange={handleChangeRegion}
                       id="exchangeRegions"
                     />
