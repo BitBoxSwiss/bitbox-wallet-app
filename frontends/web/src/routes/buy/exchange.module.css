@@ -92,6 +92,9 @@
     margin-left: calc((var(--space-eight) + var(--space-quarter)));
 }
 
+.radioButtonsContainer {
+    min-height: 180px;
+}
 
 .title {
     font-size: 2rem;
