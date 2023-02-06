@@ -333,6 +333,11 @@ func (backend *Backend) defaultElectrumXServers(code coinpkg.Code) []*config.Ser
 	return backend.defaultProdServers(code)
 }
 
+// DevServers returns the value of the `devservers` flag.
+func (backend *Backend) DevServers() bool {
+	return backend.arguments.DevServers()
+}
+
 // Coin returns the coin with the given code or an error if no such coin exists.
 func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	defer backend.coinsLock.Lock()()

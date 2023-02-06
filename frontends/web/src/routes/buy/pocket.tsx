@@ -43,7 +43,7 @@ export const Pocket = ({ code }: TProps) => {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const iframeURL = useLoad(getPocketURL(code));
+  const iframeURL = useLoad(getPocketURL);
   const config = useLoad(getConfig);
   const accountInfo = useLoad(getInfo(code));
 
