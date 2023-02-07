@@ -175,7 +175,7 @@ class Initialize extends Component<Props, State> {
           </div>
           {
             status === stateEnum.WAITING && (
-              <Spinner text={t('initialize.creating')} />
+              <Spinner guideExists={false} text={t('initialize.creating')} />
             )
           }
         </div>

@@ -81,7 +81,7 @@ class BuyInfo extends Component<Props, State> {
       options,
     } = this.state;
     if (options === undefined) {
-      return <Spinner text={t('loading')} />;
+      return <Spinner guideExists={false} text={t('loading')} />;
     }
 
     const account = findAccount(accounts, code);

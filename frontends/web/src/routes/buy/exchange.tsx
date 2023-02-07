@@ -253,7 +253,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
                   </div>}
                 </div>
               </>
-            ) : <Spinner/>}
+            ) : <Spinner guideExists/>}
           </div>
         </div>
       </div>

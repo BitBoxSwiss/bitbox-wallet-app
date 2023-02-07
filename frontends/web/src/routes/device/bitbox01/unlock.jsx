@@ -100,7 +100,7 @@ class Unlock extends Component {
       submissionState = <p>{t('unlock.description')}</p>;
       break;
     case stateEnum.WAITING:
-      submissionState = <Spinner text={t('unlock.unlocking')} />;
+      submissionState = <Spinner guideExists text={t('unlock.unlocking')} />;
       break;
     case stateEnum.ERROR:
       submissionState = (

@@ -237,7 +237,7 @@ export function Account({
             </div>
 
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
-              <Spinner text={
+              <Spinner guideExists text={
                 (status.fatalError && t('account.fatalError'))
                   || offlineErrorTextLines.join('\n')
                   || (!status.synced &&

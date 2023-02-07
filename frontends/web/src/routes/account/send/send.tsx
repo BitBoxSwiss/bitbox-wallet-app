@@ -855,7 +855,7 @@ class Send extends Component<Props, State> {
             open={activeScanQR}
             title={t('send.scanQR')}
             onClose={this.toggleScanQR}>
-            {videoLoading && <Spinner />}
+            {videoLoading && <Spinner guideExists />}
             <video
               id="video"
               width={400}
