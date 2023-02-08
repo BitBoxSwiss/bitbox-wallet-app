@@ -44,7 +44,7 @@ function Banner({ banner, i18n, t }: TProps) {
     return null;
   }
   return banner && (
-    <Status dismissable="" type="info">
+    <Status dismissable="" type="warning">
       { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
       { banner.link && (
         <A href={banner.link.href}>
