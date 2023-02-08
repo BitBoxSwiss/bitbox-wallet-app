@@ -65,20 +65,12 @@ type PocketRegion struct {
 }
 
 // PocketURL returns the url needed to incorporate the widget in the frontend, verifying
-// if the account is mainnet or testnet.
-func PocketURL(acct accounts.Interface, locale string) (string, error) {
-	apiURL := ""
-	switch acct.Coin().Code() {
-	case coin.CodeBTC:
-		apiURL = pocketMainLiveURL + "/" + locale + "/" + pocketWidgetLive
-	case coin.CodeTBTC:
-		apiURL = pocketMainTestURL + "/" + locale + "/" + pocketWidgetTest
-	default:
-		err := fmt.Errorf("unsupported cryptocurrency code %q", acct.Coin().Code())
-		return "", err
-
+// if the `devservers` argument is enabled.
+func PocketURL(devServers bool, locale string) string {
+	if devServers {
+		return pocketMainTestURL + "/" + locale + "/" + pocketWidgetTest
 	}
-	return apiURL, nil
+	return pocketMainLiveURL + "/" + locale + "/" + pocketWidgetLive
 }
 
 // IsPocketSupported is true if coin.Code is supported by Pocket.

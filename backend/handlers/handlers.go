@@ -68,6 +68,7 @@ type Backend interface {
 	observable.Interface
 
 	Config() *config.Config
+	DevServers() bool
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
@@ -209,7 +210,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/pocket/api-url/{code}", handlers.getExchangePocketURL).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouter(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
@@ -1130,15 +1131,6 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 }
 
 func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, error) {
-	type errorResult struct {
-		Error string `json:"error"`
-	}
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}, nil
-	}
-
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
 		// userLanguace config is empty if the set locale matches the system locale, so we have
@@ -1146,11 +1138,7 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, er
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
 
-	url, err := exchanges.PocketURL(acct, lang)
-	if err != nil {
-		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}, nil
-	}
+	url := exchanges.PocketURL(handlers.backend.DevServers(), lang)
 	return url, nil
 }
 

@@ -88,10 +88,8 @@ export const verifyAddress = (address: string, accountCode: AccountCode): Promis
   return apiPost('exchange/pocket/verify-address', { address, accountCode });
 };
 
-export const getPocketURL = (accountCode: string) => {
-  return (): Promise<string> => {
-    return apiGet(`exchange/pocket/api-url/${accountCode}`);
-  };
+export const getPocketURL = (): Promise<string> => {
+  return apiGet('exchange/pocket/api-url');
 };
 
 export type SupportedExchanges= {

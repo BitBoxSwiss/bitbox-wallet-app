@@ -51,7 +51,10 @@ type Arguments struct {
 	// devmode stores whether the application is in dev mode
 	devmode bool
 
-	//devservers stores wether the app should connect to the dev servers. The devservers configuration is not persisted when switching back to production.
+	// devservers stores wether the app should connect to the dev servers.
+	// This also applies to the Pocket widget environment: if devserver is true, the widget
+	// will be loaded from the staging environment, otherwise from production.
+	// The devservers configuration is not persisted when switching back to production.
 	devservers bool
 
 	// gapLimits optionally forces the gap limits used in btc/ltc.
