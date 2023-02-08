@@ -165,7 +165,7 @@ export const Pocket = ({ code }: TProps) => {
             />
           ) : (
             <div style={{ height }}>
-              {!iframeLoaded && <Spinner text={t('loading')} /> }
+              {!iframeLoaded && <Spinner guideExists={false} text={t('loading')} /> }
               <iframe
                 onLoad={() => {
                   setIframeLoaded(true);

@@ -213,7 +213,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
                   <InfoButton onClick={() => setInfo('region')} />
                 </div>
 
-                <div>
+                <div className={style.radioButtonsContainer}>
                   {noExchangeAvailable && (
                     <p className={style.noExchangeText}>{t('buy.exchange.noExchanges')}</p>
                   )}
