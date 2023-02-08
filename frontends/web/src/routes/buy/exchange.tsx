@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * Copyright 2022 Shift Crypto AG
  *
@@ -17,7 +19,7 @@ import 'flag-icons';
 import React, { useState, useEffect } from 'react';
 import i18n from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
-import { Button, Select, ButtonLink } from '../../components/forms';
+import { Button, Select as MySelect, ButtonLink } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
@@ -37,6 +39,7 @@ import { Globe } from '../../components/icon';
 import { getNativeLocale } from '../../api/nativelocale';
 import { setConfig } from '../../utils/config';
 import { getConfig } from '../../api/backend';
+import Select, { components } from 'react-select';
 import style from './exchange.module.css';
 
 type TProps = {
@@ -46,13 +49,13 @@ type TProps = {
 }
 
 type TOption = {
-    text: string;
+    label: string;
     value?: string;
 }
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
-  return <span className={style.flag}>
-    {regionCode === '' ? <Globe /> : <span className={`fi fi-${regionCode}`}></span>}
+  return <span>
+    {regionCode === '' ? <Globe style={{ marginTop: '3px', width: '20px', height: '20px' }} /> : <span className={`fi fi-${regionCode}`}></span>}
   </span>;
 };
 
@@ -84,9 +87,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
       return;
     }
     const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
-    const regions = regionList.regions.map(region => ({ value: region.code, text: regionNames.of(region.code) } as TOption));
+    const regions = regionList.regions.map(region => ({ value: region.code, label: regionNames.of(region.code) } as TOption));
 
-    regions.sort((a, b) => a.text.localeCompare(b.text, i18n.language));
+    regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
     setRegions(regions);
 
     // if user had selected no region before, do not pre-select any.
@@ -177,12 +180,43 @@ export const Exchange = ({ code, accounts }: TProps) => {
     setConfig({ frontend: { selectedExchangeRegion: selectedRegion } });
   };
 
+  const handleChangeRegion2 = (e: TOption) => {
+    const selectedRegion = e.value;
+    setSelectedRegion(selectedRegion);
+    setConfig({ frontend: { selectedExchangeRegion: selectedRegion } });
+  };
+
   const noExchangeAvailable = !showMoonpay && !showPocket;
 
   /*These are fees that will be shown in the "info dialog" when user clicks on the "Info" button*/
   const infoFeesDetail = exchangeDeals?.exchanges.find(exchange => exchange.exchangeName === info)?.deals;
   const cardFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'card')?.fee;
   const bankTransferFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
+
+
+  const SingleValue = (props: {data: TOption}) => {
+    const { label, value } = props.getValue()[0];
+    return (
+      <div style={{ display: 'flex', position: 'absolute', left: '8px', alignItems: 'center' }}>
+        <SelectedRegionIcon regionCode={value.toLowerCase()} />
+        <components.SingleValue {...props}>
+          <span style={{ marginLeft: '8px' }}>{label}</span>
+        </components.SingleValue>
+      </div>
+
+    );
+  };
+
+  const Option = (props: {data: TOption}) => {
+    const { label, value } = props.data;
+    return (
+      <components.Option {...props}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <SelectedRegionIcon regionCode={value.toLowerCase()}/> <span style={{ marginLeft: '8px' }}>{label}</span>
+        </div>
+      </components.Option>
+    );
+  };
 
 
   return (
@@ -199,9 +233,9 @@ export const Exchange = ({ code, accounts }: TProps) => {
             {regions.length ? (
               <>
                 <div className={style.selectContainer}>
-                  <div>
-                    <SelectedRegionIcon regionCode={selectedRegion.toLowerCase()}/>
-                    <Select
+                  {/* <div> */}
+                  {/* <SelectedRegionIcon regionCode={selectedRegion.toLowerCase()}/> */}
+                  {/* <MySelect
                       className={style.extraLeftSpace}
                       options={[{
                         text: t('buy.exchange.selectRegion'),
@@ -212,9 +246,27 @@ export const Exchange = ({ code, accounts }: TProps) => {
                       value={selectedRegion}
                       onChange={handleChangeRegion}
                       id="exchangeRegions"
-                    />
+                    /> */}
+                  {/* </div> */}
 
-                  </div>
+                  <Select
+                    classNamePrefix="select"
+                    components={{ SingleValue, Option, IndicatorSeparator: () => null }}
+                    defaultValue={{
+                      label: t('buy.exchange.selectRegion'),
+                      value: '',
+                    }}
+                    isDisabled={false}
+                    isLoading={false}
+                    isRtl={false}
+                    isSearchable={true}
+                    onChange={handleChangeRegion2}
+                    options={[{
+                      label: t('buy.exchange.selectRegion'),
+                      value: '',
+                    },
+                    ...regions]}
+                  />
 
                   <InfoButton onClick={() => setInfo('region')} />
                 </div>

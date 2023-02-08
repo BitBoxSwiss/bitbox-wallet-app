@@ -97,3 +97,7 @@
     margin-bottom: var(--space-default);
     text-align: center;
 }
+
+:global(.select__input-container) {
+    padding-left: 29px;
+}
