@@ -347,7 +347,7 @@
       },
       "noExchanges": "Sorry, there are no available exchanges in this region.",
       "region": "Region",
-      "selectRegion": "Select region",
+      "selectRegion": "Not specified",
       "title": "Buy {{name}}"
     },
     "info": {

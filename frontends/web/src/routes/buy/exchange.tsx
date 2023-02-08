@@ -89,11 +89,18 @@ export const Exchange = ({ code, accounts }: TProps) => {
     regions.sort((a, b) => a.text.localeCompare(b.text, i18n.language));
     setRegions(regions);
 
+    // if user had selected no region before, do not pre-select any.
+    if (config.frontend.selectedExchangeRegion === '') {
+      return;
+    }
+
     if (config.frontend.selectedExchangeRegion) {
+      // pre-select config region
       setSelectedRegion(config.frontend.selectedExchangeRegion);
       return;
     }
 
+    // user never selected a region preference, will derive it from native locale.
     const userRegion = getRegionNameFromLocale(nativeLocale || '');
     //Region is available in the list
     const regionAvailable = !!(regionList.regions.find(region => region.code === userRegion));
@@ -198,7 +205,6 @@ export const Exchange = ({ code, accounts }: TProps) => {
                       className={style.extraLeftSpace}
                       options={[{
                         text: t('buy.exchange.selectRegion'),
-                        disabled: true,
                         value: '',
                       },
                       ...regions]
@@ -221,7 +227,6 @@ export const Exchange = ({ code, accounts }: TProps) => {
                   <div>
                     {!noExchangeAvailable && allExchangeDeals && allExchangeDeals.exchanges.map(exchange => exchange.supported && (<ExchangeSelectionRadio
                       key={exchange.exchangeName}
-                      disabled={!selectedRegion}
                       id={exchange.exchangeName}
                       exchangeName={exchange.exchangeName}
                       deals={exchange.deals}
