@@ -231,7 +231,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 		arguments.NewArguments(
 			test.TstTempDir("appfolder"),
 			testing, regtest,
-			false, false,
+			false,
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
