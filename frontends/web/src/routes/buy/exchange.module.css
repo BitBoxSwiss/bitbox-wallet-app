@@ -20,13 +20,7 @@
 
 .buttonsContainer {
     display: flex;
-    margin-top: var(--space-default);
-}
-
-.buttonsContainer a, .buttonsContainer button{
-    height: 0px;
-    min-width: 0 !important;
-    padding: 18px 24px;
+    margin-top: var(--space-half);
 }
 
 .container {
