@@ -466,8 +466,9 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 		return nil, errp.WithStack(errors.ErrFeesNotAvailable)
 	}
 
-	// Make sure account.balance is up to date for calculations below.
-	account.Synchronizer.WaitSynchronized()
+	if !account.Synced() {
+		return nil, errp.WithStack(errors.ErrAccountNotsynced)
+	}
 
 	var value *big.Int
 	if args.Amount.SendAll() {
