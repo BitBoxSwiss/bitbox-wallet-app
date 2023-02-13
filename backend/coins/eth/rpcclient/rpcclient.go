@@ -25,6 +25,7 @@ import (
 )
 
 // Interface can be implemented to provide an Ethereum rpc client.
+//
 //go:generate moq -pkg mocks -out mocks/rpcclient.go . Interface
 type Interface interface {
 	TransactionReceiptWithBlockNumber(

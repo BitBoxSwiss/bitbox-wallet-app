@@ -38,7 +38,7 @@ const (
 	TxTypeSendSelf TxType = "sendSelf"
 )
 
-// TxStatus is the the status of the tx and helps the frontend show the appropriate information.
+// TxStatus is the status of the tx and helps the frontend show the appropriate information.
 type TxStatus string
 
 const (
@@ -123,7 +123,7 @@ type TransactionData struct {
 	Nonce *uint64
 }
 
-// isConfirmed returns true if the transaction has has at least one confirmation.
+// isConfirmed returns true if the transaction has at least one confirmation.
 func (tx *TransactionData) isConfirmed() bool {
 	return tx.Height > 0
 }

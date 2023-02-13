@@ -86,6 +86,7 @@ const (
 )
 
 // CommunicationInterface contains functions needed to communicate with the device.
+//
 //go:generate mockery -name CommunicationInterface
 type CommunicationInterface interface {
 	SendPlain(string) (map[string]interface{}, error)
@@ -588,7 +589,7 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 }
 
 // CheckBackup uses the provided backup file and recovery password to check if they correspond to
-//the current wallet. Returns true if it matches, false if not.
+// the current wallet. Returns true if it matches, false if not.
 func (dbb *Device) CheckBackup(backupPassword, filename string) (bool, error) {
 	if backupPassword == "" {
 		return false, errp.New("invalid password")

@@ -59,7 +59,7 @@ type Coin struct {
 }
 
 // NewCoin creates a new coin with the given parameters.
-// transactionsSource: can be nil, in which case transactions will not be be processed (in other
+// transactionsSource: can be nil, in which case transactions will not be processed (in other
 // words, account.Transactions() will always be empty apart from the outgoing transactions which //
 // are stored in the local database).
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).

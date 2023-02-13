@@ -38,7 +38,7 @@ func NewAmountFromInt64(amount int64) Amount {
 }
 
 // NewAmountFromString parses a user given coin amount, converting it from the default coin unit to
-// the the smallest unit.
+// the smallest unit.
 func NewAmountFromString(s string, unit *big.Int) (Amount, error) {
 	// big.Rat parsing accepts rationals like "2/3". Exclude those, we only want decimals.
 	if strings.ContainsRune(s, '/') {

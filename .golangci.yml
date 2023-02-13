@@ -131,6 +131,9 @@ linters:
     - makezero
     - nolintlint
     - gocyclo
+    - nosnakecase
+    - interfacebloat
+    - revive
   disable-all: false
 
 issues:
