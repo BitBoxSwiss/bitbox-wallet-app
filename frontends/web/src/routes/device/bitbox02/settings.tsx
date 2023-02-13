@@ -62,7 +62,10 @@ export const Settings = ({ deviceID }: TProps) => {
       <GuideWrapper>
         <GuidedContent>
           <Header title={<h2>{t('sidebar.device')}</h2>} />
-          <View fullscreen={false} withBottomBar>
+          <View
+            fullscreen={false}
+            verticallyCentered={false}
+            withBottomBar>
             <ViewContent>
               <Grid>
                 <Column>
