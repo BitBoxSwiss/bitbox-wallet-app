@@ -103,7 +103,6 @@ func main() {
 
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
-	devmode := flag.Bool("devmode", true, "switch to dev mode")
 	devservers := flag.Bool("devservers", true, "switch to dev servers")
 	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses")
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses")
@@ -135,7 +134,6 @@ func main() {
 			config.AppDir(),
 			!*mainnet,
 			*regtest,
-			*devmode,
 			*devservers,
 			gapLimits,
 		),

@@ -39,6 +39,8 @@ var (
 	// ErrFeeTooLow is returned when the custom fee the user entered is too low to be able to
 	// broadcast the transaction.
 	ErrFeeTooLow = TxValidationError("feeTooLow")
+	// ErrAccountNotsynced is used when the account sync has not successfully finished.
+	ErrAccountNotsynced = TxValidationError("accountNotSynced")
 
 	// ErrNotAvailable is returned if data required is not available yet. Example: the headers are
 	// not synced yet, which is a prerequisite to making a timeseries of the portfolio.

@@ -34,7 +34,6 @@ const INFO_STEPS_ENABLE = 5;
 const INFO_STEPS_DISABLE = 0;
 
 const CONTENT_MIN_HEIGHT = '38em';
-const CONTENT_WIDTH = '740px';
 
 interface MnemonicPassphraseButtonProps {
     deviceID: string;
@@ -129,7 +128,7 @@ class Passphrase extends Component<Props, State> {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
+          verticallyCentered>
           <ViewHeader title={t('passphrase.intro.title')} />
           <ViewContent>
             <MultilineMarkup tagName="p" markup={t('passphrase.intro.message')} />
@@ -151,7 +150,7 @@ class Passphrase extends Component<Props, State> {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
+          verticallyCentered>
           <ViewHeader title={t('passphrase.what.title')} />
           <ViewContent>
             <MultilineMarkup tagName="p" markup={t('passphrase.what.message')} />
@@ -173,7 +172,7 @@ class Passphrase extends Component<Props, State> {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
+          verticallyCentered>
           <ViewHeader title={t('passphrase.why.title')} />
           <ViewContent>
             <MultilineMarkup tagName="p" markup={t('passphrase.why.message')} />
@@ -195,7 +194,7 @@ class Passphrase extends Component<Props, State> {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
+          verticallyCentered>
           <ViewHeader title={t('passphrase.considerations.title')} />
           <ViewContent>
             <MultilineMarkup tagName="p" markup={t('passphrase.considerations.message')} />
@@ -217,7 +216,7 @@ class Passphrase extends Component<Props, State> {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
+          verticallyCentered>
           <ViewHeader title={t('passphrase.how.title')} />
           <ViewContent>
             <MultilineMarkup tagName="p" markup={t('passphrase.how.message')} />
@@ -239,7 +238,7 @@ class Passphrase extends Component<Props, State> {
           fullscreen
           minHeight={CONTENT_MIN_HEIGHT}
           onClose={this.stopInfo}
-          width={CONTENT_WIDTH}>
+          verticallyCentered>
           <ViewHeader title={t('passphrase.summary.title')} />
           <ViewContent>
             <ul>
@@ -281,7 +280,7 @@ class Passphrase extends Component<Props, State> {
         fullscreen
         minHeight={CONTENT_MIN_HEIGHT}
         onClose={this.stopInfo}
-        width={CONTENT_WIDTH}>
+        verticallyCentered>
         <ViewHeader title={t('passphrase.disable')} />
         <ViewContent>
           <MultilineMarkup tagName="p" markup={t('passphrase.disableInfo.message')} />
@@ -317,7 +316,7 @@ class Passphrase extends Component<Props, State> {
             fullscreen
             minHeight={CONTENT_MIN_HEIGHT}
             textCenter
-            width={CONTENT_WIDTH}>
+            verticallyCentered>
             <ViewHeader
               title={t(passphraseEnabled
                 ? 'passphrase.progressDisable.title'
@@ -337,7 +336,7 @@ class Passphrase extends Component<Props, State> {
           <View
             key="progress"
             fullscreen
-            width={CONTENT_WIDTH}>
+            verticallyCentered>
             <ViewHeader
               small
               title={t(passphraseEnabled

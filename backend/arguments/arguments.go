@@ -48,9 +48,6 @@ type Arguments struct {
 	// Testing stores whether the application is for regtest.
 	regtest bool
 
-	// devmode stores whether the application is in dev mode
-	devmode bool
-
 	// devservers stores wether the app should connect to the dev servers.
 	// This also applies to the Pocket widget environment: if devserver is true, the widget
 	// will be loaded from the staging environment, otherwise from production.
@@ -69,7 +66,6 @@ func NewArguments(
 	mainDirectoryPath string,
 	testing bool,
 	regtest bool,
-	devmode bool,
 	devservers bool,
 	gapLimits *btctypes.GapLimits,
 ) *Arguments {
@@ -103,7 +99,6 @@ func NewArguments(
 		accountsConfigFilename: path.Join(mainDirectoryPath, "accounts.json"),
 		testing:                testing,
 		regtest:                regtest,
-		devmode:                devmode,
 		devservers:             devservers,
 		gapLimits:              gapLimits,
 		log:                    log,
@@ -150,11 +145,6 @@ func (arguments *Arguments) NotesDirectoryPath() string {
 // Testing returns whether the backend is for testing only.
 func (arguments *Arguments) Testing() bool {
 	return arguments.testing
-}
-
-// DevMode returns whether the backend is in developer mode.
-func (arguments *Arguments) DevMode() bool {
-	return arguments.devmode
 }
 
 // DevServers returns whether the backend should use the development servers.

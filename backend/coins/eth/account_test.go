@@ -101,6 +101,7 @@ func newAccount(t *testing.T) *Account {
 func TestTxProposal(t *testing.T) {
 	acct := newAccount(t)
 	defer acct.Close()
+	acct.Synchronizer.WaitSynchronized()
 
 	t.Run("valid", func(t *testing.T) {
 		value, fee, total, err := acct.TxProposal(&accounts.TxProposalArgs{

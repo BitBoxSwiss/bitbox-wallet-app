@@ -15,10 +15,10 @@
  */
 
 import { Component } from 'react';
+import { restoreBackup } from '../../../api/bitbox02';
 import Toast from '../../../components/toast/Toast';
 import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../components/backup';
 import backupStyle from '../components/backups.module.css';
 import { Button } from '../../../components/forms';
@@ -72,18 +72,16 @@ class Backups extends Component<Props, State> {
     if (this.props.backupOnBeforeRestore) {
       this.props.backupOnBeforeRestore(backup);
     }
-    apiPost(
-      'devices/bitbox02/' + this.props.deviceID + '/backups/restore',
-      this.state.selectedBackup).then(({ success }) => {
-      this.setState({
-        restoring: false,
-        errorText: success ? '' : this.props.t('backup.restore.error.general'),
+    restoreBackup(this.props.deviceID, this.state.selectedBackup)
+      .then(({ success }) => {
+        this.setState({
+          restoring: false,
+          errorText: success ? '' : this.props.t('backup.restore.error.general'),
+        });
+        if (this.props.backupOnAfterRestore) {
+          this.props.backupOnAfterRestore(success);
+        }
       });
-      if (this.props.backupOnAfterRestore) {
-        this.props.backupOnAfterRestore(success);
-      }
-    },
-    );
   };
 
   public render() {
