@@ -205,8 +205,14 @@ func (handlers *Handlers) postCheckBackup(r *http.Request) (interface{}, error) 
 
 func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, error) {
 	var backupID string
+
+	type response struct {
+		Success bool   `json:"success"`
+		Message string `json:"message,omitempty"`
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&backupID); err != nil {
-		return nil, errp.WithStack(err)
+		return response{Success: false, Message: err.Error()}, nil
 	}
 	if err := handlers.device.RestoreBackup(backupID); err != nil {
 		return maybeBB02Err(err, handlers.log), nil

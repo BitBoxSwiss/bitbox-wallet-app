@@ -222,7 +222,6 @@ func Serve(
 			testnet,
 			false,
 			false,
-			false,
 			gapLimits,
 		),
 		backendEnvironment)

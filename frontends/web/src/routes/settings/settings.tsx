@@ -21,7 +21,6 @@ import { route } from '../../utils/route';
 import { alertUser } from '../../components/alert/Alert';
 import { Badge } from '../../components/badge/badge';
 import { Skeleton } from '../../components/skeleton/skeleton';
-import { updatePath } from '../../components/update/update';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
@@ -40,6 +39,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import { setBtcUnit, BtcUnit } from '../../api/coins';
 import { TUpdateFile, getVersion, getUpdate } from '../../api/version';
 import { FiatSelection } from './components/fiat/fiat';
+import { downloadLinkByLanguage } from '../../components/appdownloadlink/appdownloadlink';
 import style from './settings.module.css';
 
 interface SettingsProps {
@@ -238,30 +238,28 @@ class Settings extends Component<Props, State> {
                             <h3 className="subTitle">{t('settings.info.title')}</h3>
                             <div className="box slim divide m-bottom-large">
                               { version !== undefined && update !== undefined ? (
-                                <div>
-                                  { update ? (
-                                    <SettingsButton
-                                      optionalText={version}
-                                      secondaryText={
-                                        <>
-                                          {t('settings.info.out-of-date')}
-                                          {' '}
-                                          <RedDot />
-                                        </>
-                                      }
-                                      disabled={false}
-                                      onClick={() => update && apiPost('open', updatePath)}>
-                                      {t('settings.info.version')}
-                                    </SettingsButton>) : (
-                                    <SettingsItem
-                                      optionalText={version}
-                                      optionalIcon={<Checked/>}>
-                                      {t('settings.info.up-to-date')}
-                                    </SettingsItem>
-                                  )
-                                  }
-                                </div>
-                              ) : <Skeleton />}
+                                update ? (
+                                  <SettingsButton
+                                    optionalText={version}
+                                    secondaryText={
+                                      <>
+                                        {t('settings.info.out-of-date')}
+                                        {' '}
+                                        <RedDot />
+                                      </>
+                                    }
+                                    disabled={false}
+                                    onClick={() => update && apiPost('open', downloadLinkByLanguage())}>
+                                    {t('settings.info.version')}
+                                  </SettingsButton>
+                                ) : (
+                                  <SettingsItem
+                                    optionalText={version}
+                                    optionalIcon={<Checked/>}>
+                                    {t('settings.info.up-to-date')}
+                                  </SettingsItem>
+                                )
+                              ) : <Skeleton fontSize="var(--item-height)" />}
                             </div>
                           </div>
                           { manageAccountsLen ? (

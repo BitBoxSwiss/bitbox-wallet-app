@@ -19,7 +19,7 @@ import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput, PasswordRepeatInput } from '../../../../../components/password';
 import { apiPost } from '../../../../../utils/request';
@@ -94,34 +94,37 @@ class ChangePIN extends Component {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.changepin')}
         </SettingsButton>
-        <Dialog
-          open={activeDialog}
-          title={t('button.changepin')}
-          onClose={this.abort}>
-          <form onSubmit={this.changePin}>
-            <PasswordInput
-              idPrefix="oldPIN"
-              label={t('changePin.oldLabel')}
-              value={oldPIN}
-              onInput={this.setValidOldPIN} />
-            {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
-            <PasswordRepeatInput
-              idPrefix="newPIN"
-              pattern="^.{4,}$"
-              label={t('initialize.input.label')}
-              repeatLabel={t('initialize.input.labelRepeat')}
-              repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-              onValidPassword={this.setValidNewPIN} />
-            <DialogButtons>
-              <Button type="submit" danger disabled={!this.validate() || isConfirming}>
-                {t('button.changepin')}
-              </Button>
-              <Button transparent onClick={this.abort} disabled={isConfirming}>
-                {t('button.back')}
-              </Button>
-            </DialogButtons>
-          </form>
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy
+              title={t('button.changepin')}
+              onClose={this.abort}>
+              <form onSubmit={this.changePin}>
+                <PasswordInput
+                  idPrefix="oldPIN"
+                  label={t('changePin.oldLabel')}
+                  value={oldPIN}
+                  onInput={this.setValidOldPIN} />
+                {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
+                <PasswordRepeatInput
+                  idPrefix="newPIN"
+                  pattern="^.{4,}$"
+                  label={t('initialize.input.label')}
+                  repeatLabel={t('initialize.input.labelRepeat')}
+                  repeatPlaceholder={t('initialize.input.placeholderRepeat')}
+                  onValidPassword={this.setValidNewPIN} />
+                <DialogButtons>
+                  <Button type="submit" danger disabled={!this.validate() || isConfirming}>
+                    {t('button.changepin')}
+                  </Button>
+                  <Button transparent onClick={this.abort} disabled={isConfirming}>
+                    {t('button.back')}
+                  </Button>
+                </DialogButtons>
+              </form>
+            </DialogLegacy>
+          )
+        }
         {
           isConfirming && (
             <WaitDialog title={t('button.changepin')} />

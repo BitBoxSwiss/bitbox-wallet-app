@@ -111,15 +111,16 @@ Description of the translation issue:
           <div className={style.content}>
             {children}
             <div className={style.entry}>
+              {t('guide.appendix.text')}
+              {' '}
+              <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
+              <br />
+              <br />
               Translation feedback:
               {' '}
               <A href={this.getEmailText()}>
                 translations@shiftcrypto.ch
               </A>
-              <br />
-              {t('guide.appendix.text')}
-              {' '}
-              <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
             </div>
           </div>
         </div>

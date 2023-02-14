@@ -18,7 +18,7 @@ import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 import { apiPost } from '../../../../../utils/request';
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
+import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
 import { CopyableInput } from '../../../../../components/copy/Copy';
 import { SettingsButton } from '../../../../../components/settingsButton/settingsButton';
 
@@ -55,21 +55,27 @@ class RandomNumber extends Component {
         <SettingsButton onClick={this.getRandomNumber}>
           {t('random.button')}
         </SettingsButton>
-        <Dialog open={!!(active && number)} title="Generate Random Number" onClose={this.abort}>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                <p>{t('random.description', {
-                  bits: number.length * 4
-                })}</p>
-                <CopyableInput value={number} flexibleHeight />
+        {
+          // @ts-ignore Object is possibly 'undefined'.
+          active && number ? (
+            <DialogLegacy title="Generate Random Number" onClose={this.abort}>
+              <div className="columnsContainer half">
+                <div className="columns">
+                  <div className="column">
+                    <p>{t('random.description', {
+                      // @ts-ignore
+                      bits: number.length * 4
+                    })}</p>
+                    <CopyableInput value={number} flexibleHeight />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <DialogButtons>
-            <Button primary onClick={this.abort}>{t('button.ok')}</Button>
-          </DialogButtons>
-        </Dialog>
+              <DialogButtons>
+                <Button primary onClick={this.abort}>{t('button.ok')}</Button>
+              </DialogButtons>
+            </DialogLegacy>
+          ) : null
+        }
       </div>
     );
   }

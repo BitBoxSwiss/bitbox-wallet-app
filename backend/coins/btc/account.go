@@ -42,6 +42,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	electrumTypes "github.com/digitalbitbox/block-client-go/electrum/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -350,7 +351,7 @@ func (account *Account) Initialize() error {
 		account.subaccounts = append(account.subaccounts, subacc)
 	}
 	account.ensureAddresses()
-	account.coin.Blockchain().HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
+	account.coin.Blockchain().HeadersSubscribe(account.onNewHeader)
 
 	return account.BaseAccount.Initialize(accountIdentifier)
 }
@@ -414,12 +415,12 @@ func (account *Account) Info() *accounts.Info {
 	}
 }
 
-func (account *Account) onNewHeader(header *blockchain.Header) {
+func (account *Account) onNewHeader(header *electrumTypes.Header) {
 	if account.isClosed() {
 		account.log.Debug("Ignoring new header after the account was closed")
 		return
 	}
-	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
+	account.log.WithField("block-height", header.Height).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
 }
@@ -468,6 +469,11 @@ func (account *Account) Notifier() accounts.Notifier {
 
 func (account *Account) updateFeeTargets() {
 	defer account.feeTargetsLock.Lock()()
+	var minRelayFeeRate *btcutil.Amount
+	minRelayFeeRateVal, err := account.getMinRelayFeeRate()
+	if err == nil {
+		minRelayFeeRate = &minRelayFeeRateVal
+	}
 	for _, feeTarget := range account.feeTargets {
 		feeRatePerKb, err := account.coin.Blockchain().EstimateFee(feeTarget.blocks)
 		if err != nil {
@@ -475,13 +481,18 @@ func (account *Account) updateFeeTargets() {
 				account.log.WithField("fee-target", feeTarget.blocks).
 					Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 			}
-			minRelayFeeRate, err := account.getMinRelayFeeRate()
-			if err != nil {
+			if minRelayFeeRate == nil {
 				account.log.WithField("fee-target", feeTarget.blocks).
 					Warning("Minimum relay fee could not be determined")
 				continue
 			}
-			feeRatePerKb = minRelayFeeRate
+			feeRatePerKb = *minRelayFeeRate
+		}
+		// If the minrelayfee is available the estimated fee rate is smaller than the minrelayfee,
+		// we use the minrelayfee instead. If the minrelayfee is unknown, we leave the fee
+		// estimation as is, hoping it will be enough for a transaction to get relayed.
+		if minRelayFeeRate != nil && feeRatePerKb < *minRelayFeeRate {
+			feeRatePerKb = *minRelayFeeRate
 		}
 		feeTarget.feeRatePerKb = &feeRatePerKb
 		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
@@ -644,15 +655,7 @@ func (account *Account) ensureAddresses() {
 
 func (account *Account) subscribeAddress(address *addresses.AccountAddress) error {
 	account.coin.Blockchain().ScriptHashSubscribe(
-		func() func(error) {
-			done := account.Synchronizer.IncRequestsCounter()
-			return func(err error) {
-				done()
-				if err != nil {
-					panic(err)
-				}
-			}
-		},
+		account.Synchronizer.IncRequestsCounter,
 		address.PubkeyScriptHashHex(),
 		func(status string) {
 			go account.onAddressStatus(address, status)

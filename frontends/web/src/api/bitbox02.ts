@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,12 @@ export const checkSDCard = (
   deviceID: string,
 ): Promise<boolean> => {
   return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`);
+};
+
+export const insertSDCard = (
+  deviceID: string,
+): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/insert-sdcard`);
 };
 
 export const setDeviceName = (
@@ -110,10 +116,72 @@ export const checkBackup = (
     });
 };
 
+export const createBackup = (deviceID: string): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/backups/create`)
+    .then((response: FailResponse | SuccessResponse) => {
+      if (!response.success) {
+        return Promise.reject(response);
+      }
+      return Promise.resolve();
+    });
+};
+
+export const restoreBackup = (
+  deviceID: string,
+  selectedBackup: string,
+): Promise<FailResponse | SuccessResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/backups/restore`, selectedBackup);
+};
+
 export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/upgrade-firmware`);
 };
 
 export const showMnemonic = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
+};
+
+export const restoreFromMnemonic = (deviceID: string): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/restore-from-mnemonic`)
+    .then((response: FailResponse | SuccessResponse) => {
+      if (!response.success) {
+        return Promise.reject(response);
+      }
+      return Promise.resolve();
+    });
+};
+
+export type TStatus = 'connected'
+  | 'initialized'
+  | 'pairingFailed'
+  | 'require_firmware_upgrade'
+  | 'require_app_upgrade'
+  | 'seeded'
+  | 'unpaired'
+  | 'uninitialized';
+
+export const getStatus = (deviceID: string): Promise<TStatus> => {
+  return apiGet(`devices/bitbox02/${deviceID}/status`);
+};
+
+type TChannelHash = {
+  hash: string;
+  deviceVerified: boolean;
+};
+
+export const getChannelHash = (deviceID: string): Promise<TChannelHash> => {
+  return apiGet(`devices/bitbox02/${deviceID}/channel-hash`);
+};
+
+export const verifyChannelHash = (
+  deviceID: string,
+  ok: boolean,
+): Promise<void> => {
+  return apiPost(`devices/bitbox02/${deviceID}/channel-hash-verify`, ok);
+};
+
+export const setPassword = (
+  deviceID: string,
+): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/set-password`);
 };

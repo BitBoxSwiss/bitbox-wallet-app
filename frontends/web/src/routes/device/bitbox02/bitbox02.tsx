@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getVersion, setDeviceName, VersionInfo, verifyAttestation } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -27,7 +27,6 @@ import { Button, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../../components/alert/Alert';
 import { store as panelStore } from '../../../components/guide/guide';
@@ -51,15 +50,7 @@ interface State {
     hash?: string;
     attestationResult: boolean | null;
     deviceVerified: boolean;
-    status: '' |
-    'require_firmware_upgrade' |
-    'require_app_upgrade' |
-    'connected' |
-    'unpaired' |
-    'pairingFailed' |
-    'uninitialized' |
-    'seeded' |
-    'initialized';
+    status: '' | TStatus;
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
@@ -159,16 +150,12 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private apiPrefix = () => {
-    return 'devices/bitbox02/' + this.props.deviceID;
-  };
-
   private handleGetStarted = () => {
     route('/account-summary', true);
   };
 
   private onChannelHashChanged = () => {
-    apiGet(this.apiPrefix() + '/channel-hash').then(({ hash, deviceVerified }) => {
+    getChannelHash(this.props.deviceID).then(({ hash, deviceVerified }) => {
       this.setState({ hash, deviceVerified });
     });
   };
@@ -176,7 +163,7 @@ class BitBox02 extends Component<Props, State> {
   private onStatusChanged = () => {
     const { showWizard, unlockOnly, appStatus } = this.state;
     const { sidebarStatus } = panelStore.state;
-    apiGet(this.apiPrefix() + '/status').then(status => {
+    getStatus(this.props.deviceID).then(status => {
       const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
       if (restoreSidebar) {
         setSidebarStatus('');
@@ -210,10 +197,6 @@ class BitBox02 extends Component<Props, State> {
     }
     this.unsubscribe();
   }
-
-  private channelVerify = (ok: boolean) => {
-    apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
-  };
 
   private uninitializedStep = () => {
     this.setState({ appStatus: '' });
@@ -255,13 +238,16 @@ class BitBox02 extends Component<Props, State> {
         title: this.props.t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
         text: this.props.t('bitbox02Wizard.stepInsertSD.insertSDCard'),
       } });
-      return apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
-        this.setState({ sdCardInserted: success, waitDialog: undefined });
-        if (success) {
+      return insertSDCard(this.props.deviceID).then((response) => {
+        this.setState({
+          sdCardInserted: response.success,
+          waitDialog: undefined,
+        });
+        if (response.success) {
           return true;
         }
-        if (errorMessage) {
-          alertUser(errorMessage, { asDialog: false });
+        if (response.message) {
+          alertUser(response.message, { asDialog: false });
         }
         return false;
       });
@@ -273,9 +259,9 @@ class BitBox02 extends Component<Props, State> {
       settingPassword: true,
       createWalletStatus: 'setPassword',
     });
-    apiPost(this.apiPrefix() + '/set-password').then(({ code, success }) => {
-      if (!success) {
-        if (code === errUserAbort) {
+    setPassword(this.props.deviceID).then((response) => {
+      if (!response.success) {
+        if (response.code === errUserAbort) {
           // On user abort, just go back to the first screen. This is a bit lazy, as we should show
           // a screen to ask the user to go back or try again.
           this.setState({
@@ -330,12 +316,12 @@ class BitBox02 extends Component<Props, State> {
         title: this.props.t('bitbox02Interact.confirmDate'),
         text: this.props.t('bitbox02Interact.confirmDateText'),
       } });
-      apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
-        if (!success) {
+
+      createBackup(this.props.deviceID)
+        .then(() => this.setState({ creatingBackup: false, waitDialog: undefined }))
+        .catch(() => {
           alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        }
-        this.setState({ creatingBackup: false, waitDialog: undefined });
-      });
+        });
     });
   };
 
@@ -373,18 +359,12 @@ class BitBox02 extends Component<Props, State> {
       title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
       text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
     } });
-    apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
-      if (!success) {
+    restoreFromMnemonic(this.props.deviceID)
+      .then(() => this.setState({ appStatus: 'restoreFromMnemonic' }))
+      .catch(() => {
         alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'), { asDialog: false });
-      } else {
-        this.setState({
-          appStatus: 'restoreFromMnemonic',
-        });
-      }
-      this.setState({
-        waitDialog: undefined,
-      });
-    });
+      })
+      .finally(() => this.setState({ waitDialog: undefined }));
   };
 
   private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
@@ -456,6 +436,7 @@ class BitBox02 extends Component<Props, State> {
         <View
           key="wait-view"
           fullscreen
+          verticallyCentered
           textCenter>
           <ViewHeader title={waitDialog.title}>
             <p>{waitDialog.text ? waitDialog.text : t('bitbox02Interact.followInstructions')}</p>
@@ -475,13 +456,14 @@ class BitBox02 extends Component<Props, State> {
             key="connection"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
-            width="600px">
+            width="690px">
             <ViewHeader title={t('button.unlock')}>
               <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
             </ViewHeader>
             <ViewContent fullWidth>
-              {attestationResult === false ? (
+              {attestationResult === true ? (
                 <Status>
                   {t('bitbox02Wizard.attestationFailed')}
                 </Status>
@@ -497,6 +479,7 @@ class BitBox02 extends Component<Props, State> {
             key="pairing"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="670px">
             <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
@@ -523,7 +506,7 @@ class BitBox02 extends Component<Props, State> {
                 deviceVerified ? (
                   <Button
                     primary
-                    onClick={() => this.channelVerify(true)}>
+                    onClick={() => verifyChannelHash(deviceID, true)}>
                     {t('button.continue')}
                   </Button>
                 ) : (
@@ -539,6 +522,7 @@ class BitBox02 extends Component<Props, State> {
             key="uninitialized-pairing"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="950px">
             <ViewHeader title={t('bitbox02Wizard.stepUninitialized.title')}>
@@ -590,6 +574,7 @@ class BitBox02 extends Component<Props, State> {
               fullscreen
               textCenter
               withBottomBar
+              verticallyCentered
               width="600px">
               <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
                 {!sdCardInserted && (
@@ -633,6 +618,7 @@ class BitBox02 extends Component<Props, State> {
             key="create-wallet"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="600px">
             <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
@@ -655,6 +641,7 @@ class BitBox02 extends Component<Props, State> {
               key="create-backup"
               fullscreen
               textCenter
+              verticallyCentered
               withBottomBar
               width="700px">
               <ViewHeader title={t('backup.create.title')}>
@@ -710,6 +697,7 @@ class BitBox02 extends Component<Props, State> {
             key="restore"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('backup.restore.confirmTitle')}>
@@ -737,6 +725,7 @@ class BitBox02 extends Component<Props, State> {
             key="set-password"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('backup.restore.confirmTitle')}>
@@ -771,6 +760,7 @@ class BitBox02 extends Component<Props, State> {
             fitContent
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar>
             <ViewHeader title={t('bitbox02Wizard.success.title')}>
               <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
@@ -791,6 +781,7 @@ class BitBox02 extends Component<Props, State> {
             key="backup-success"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
@@ -818,6 +809,7 @@ class BitBox02 extends Component<Props, State> {
             key="backup-mnemonic-success"
             fullscreen
             textCenter
+            verticallyCentered
             withBottomBar
             width="700px">
             <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />

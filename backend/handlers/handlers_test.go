@@ -63,7 +63,6 @@ func TestGetNativeLocale(t *testing.T) {
 		test.TstTempDir("getnativelocale"),
 		true,  // testing
 		false, // regtest
-		false, // devmode
 		true,  // devservers
 		nil,   // gap limits
 	)
@@ -98,7 +97,6 @@ func TestListRoutes(t *testing.T) {
 	connectionData := handlers.NewConnectionData(8082, "")
 	backend, err := backend.NewBackend(arguments.NewArguments(
 		test.TstTempDir("bitbox-wallet-listroutes-"),
-		false,
 		false,
 		false,
 		false,

@@ -30,6 +30,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/digitalbitbox/block-client-go/electrum/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -61,8 +62,7 @@ func (s *testSuite) SetupTest() {
 		explorer, socksproxy.NewSocksProxy(false, ""))
 	blockchainMock := &blockchainMock.BlockchainMock{}
 	blockchainMock.MockHeadersSubscribe = func(
-		setup func() func(error),
-		result func(*blockchain.Header)) {
+		result func(*types.Header)) {
 
 	}
 	s.coin.TstSetMakeBlockchain(func() blockchain.Interface { return blockchainMock })

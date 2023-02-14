@@ -53,8 +53,8 @@ github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/digitalbitbox/bitbox02-api-go v0.0.0-20221027102202-8c31f236c498 h1:rmgofU3d2ZKU4mYzAfve9g3rmjJ7SVwg1uh+AgwqDt8=
 github.com/digitalbitbox/bitbox02-api-go v0.0.0-20221027102202-8c31f236c498/go.mod h1:4HNNrzUZC3ew0iuD40MoGp6wAhcDw1UtGYBRjJkJF/k=
-github.com/digitalbitbox/block-client-go v0.0.0-20221208180325-288e450fea98 h1:VLnp2KUCUxQRvPGib7qIVf2eW6edzHivRgkc63UiL7w=
-github.com/digitalbitbox/block-client-go v0.0.0-20221208180325-288e450fea98/go.mod h1:GvmItOHUQJD0Dx0o2ZPgKpwI9XP9JGAo5bTV0B2kbN8=
+github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d h1:hRjtOvL6k8Ie08XVUwzDNCSlP4wbwboVh1lkEtv0R40=
+github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d/go.mod h1:GvmItOHUQJD0Dx0o2ZPgKpwI9XP9JGAo5bTV0B2kbN8=
 github.com/edsrzf/mmap-go v1.0.0 h1:CEBF7HpRnUCSJgGUb5h1Gm7e3VkmVDrR8lvWVLtrOFw=
 github.com/ethereum/go-ethereum v1.10.21 h1:5lqsEx92ZaZzRyOqBEXux4/UR06m296RGzN3ol3teJY=
 github.com/ethereum/go-ethereum v1.10.21/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=

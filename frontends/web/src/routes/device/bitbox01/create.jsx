@@ -20,7 +20,7 @@ import { Button, Input } from '../../../components/forms';
 import { PasswordInput } from '../../../components/password';
 import { alertUser } from '../../../components/alert/Alert';
 import { apiPost } from '../../../utils/request';
-import { Dialog } from '../../../components/dialog/dialog';
+import { DialogLegacy } from '../../../components/dialog/dialog-legacy';
 // TODO: use DialogButtons
 import style from '../../../components/dialog/dialog.module.css';
 
@@ -86,35 +86,38 @@ class Create extends Component {
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.create')}
         </Button>
-        <Dialog
-          open={activeDialog}
-          title={t('backup.create.title')}
-          onClose={this.abort}>
-          <form onSubmit={this.create}>
-            <Input
-              autoFocus
-              id="backupName"
-              label={t('backup.create.name.label')}
-              placeholder={t('backup.create.name.placeholder')}
-              onInput={this.handleFormChange}
-              value={backupName} />
-            <p>{t('backup.create.info')}</p>
-            <PasswordInput
-              id="recoveryPassword"
-              label={t('backup.create.password.label')}
-              placeholder={t('backup.create.password.placeholder')}
-              onInput={this.handleFormChange}
-              value={recoveryPassword} />
-            <div className={style.actions}>
-              <Button type="submit" primary disabled={waiting || !this.validate()}>
-                {t('button.create')}
-              </Button>
-              <Button transparent onClick={this.abort}>
-                {t('button.abort')}
-              </Button>
-            </div>
-          </form>
-        </Dialog>
+        {
+          activeDialog && (
+            <DialogLegacy
+              title={t('backup.create.title')}
+              onClose={this.abort}>
+              <form onSubmit={this.create}>
+                <Input
+                  autoFocus
+                  id="backupName"
+                  label={t('backup.create.name.label')}
+                  placeholder={t('backup.create.name.placeholder')}
+                  onInput={this.handleFormChange}
+                  value={backupName} />
+                <p>{t('backup.create.info')}</p>
+                <PasswordInput
+                  id="recoveryPassword"
+                  label={t('backup.create.password.label')}
+                  placeholder={t('backup.create.password.placeholder')}
+                  onInput={this.handleFormChange}
+                  value={recoveryPassword} />
+                <div className={style.actions}>
+                  <Button type="submit" primary disabled={waiting || !this.validate()}>
+                    {t('button.create')}
+                  </Button>
+                  <Button transparent onClick={this.abort}>
+                    {t('button.abort')}
+                  </Button>
+                </div>
+              </form>
+            </DialogLegacy>
+          )
+        }
       </div>
     );
   }

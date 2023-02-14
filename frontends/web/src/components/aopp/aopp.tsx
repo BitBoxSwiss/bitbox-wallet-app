@@ -103,7 +103,11 @@ class Aopp extends Component<Props, State> {
     switch (aopp.state) {
     case 'error':
       return (
-        <View fullscreen textCenter>
+        <View
+          fullscreen
+          textCenter
+          verticallyCentered
+          width="580px">
           <ViewHeader title={t('aopp.errorTitle')}>
             <p>{domain(aopp.callback)}</p>
           </ViewHeader>
@@ -123,7 +127,11 @@ class Aopp extends Component<Props, State> {
       return null;
     case 'user-approval':
       return (
-        <View fullscreen textCenter>
+        <View
+          fullscreen
+          textCenter
+          verticallyCentered
+          width="580px">
           <ViewHeader title={t('aopp.title')} withAppLogo />
           <ViewContent>
             <Vasp prominent
@@ -154,7 +162,11 @@ class Aopp extends Component<Props, State> {
       });
       return (
         <form onSubmit={this.chooseAccount}>
-          <View fullscreen textCenter>
+          <View
+            fullscreen
+            textCenter
+            verticallyCentered
+            width="580px">
             <ViewHeader title={t('aopp.title')}>
               <Vasp hostname={domain(aopp.callback)} />
             </ViewHeader>
@@ -176,7 +188,11 @@ class Aopp extends Component<Props, State> {
     }
     case 'syncing':
       return (
-        <View fullscreen textCenter>
+        <View
+          fullscreen
+          textCenter
+          verticallyCentered
+          width="580px">
           <ViewHeader title={t('aopp.title')}>
             <Vasp hostname={domain(aopp.callback)} />
           </ViewHeader>
@@ -190,7 +206,11 @@ class Aopp extends Component<Props, State> {
       );
     case 'signing':
       return (
-        <View fullscreen textCenter>
+        <View
+          fullscreen
+          textCenter
+          verticallyCentered
+          width="580px">
           <ViewHeader small title={t('aopp.title')}>
             <Vasp hostname={domain(aopp.callback)} />
           </ViewHeader>
@@ -212,7 +232,12 @@ class Aopp extends Component<Props, State> {
       );
     case 'success':
       return (
-        <View fitContent fullscreen textCenter>
+        <View
+          fitContent
+          fullscreen
+          textCenter
+          verticallyCentered
+          width="580px">
           <ViewContent withIcon="success">
             <p className={styles.successText}>{t('aopp.success.title')}</p>
             <p className={styles.proceed}>
