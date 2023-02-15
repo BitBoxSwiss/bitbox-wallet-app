@@ -499,7 +499,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 			From: account.address.Address,
 			To:   &contractAddress,
 			Gas:  0,
-			// Gas price has to be 0 for the the Etherscan EstimateGas call to succeed.
+			// Gas price has to be 0 for the Etherscan EstimateGas call to succeed.
 			GasPrice: big.NewInt(0),
 			Value:    big.NewInt(0),
 			Data:     erc20ContractData,

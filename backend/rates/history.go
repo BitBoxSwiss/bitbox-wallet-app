@@ -264,7 +264,7 @@ func (updater *RateUpdater) fetchGeckoMarketRange(ctx context.Context, coin, fia
 			"vs_currency": {gfiat},
 		}
 		endpoint := fmt.Sprintf("%s/coins/%s/market_chart/range?%s", updater.coingeckoURL, gcoin, param.Encode())
-		req, err := http.NewRequest("GET", endpoint, nil)
+		req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 		if err != nil {
 			return err
 		}

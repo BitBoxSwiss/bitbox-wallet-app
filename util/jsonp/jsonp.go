@@ -25,7 +25,7 @@ func MustMarshal(value interface{}) []byte {
 	return jsonBytes
 }
 
-// MustUnmarshal decodes json that that cannot fail. Panics on a decoding error.
+// MustUnmarshal decodes json that cannot fail. Panics on a decoding error.
 func MustUnmarshal(jsonBytes []byte, value interface{}) {
 	if err := json.Unmarshal(jsonBytes, value); err != nil {
 		panic(err)

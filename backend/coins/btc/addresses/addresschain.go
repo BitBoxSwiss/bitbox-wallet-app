@@ -112,7 +112,7 @@ func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHa
 	return addresses.addressesLookup[hashHex]
 }
 
-// EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
+// EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused
 // ones, and returns the new addresses.
 func (addresses *AddressChain) EnsureAddresses() ([]*AccountAddress, error) {
 	defer addresses.addressesLock.Lock()()

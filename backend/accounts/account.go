@@ -83,7 +83,7 @@ type Interface interface {
 	VerifyAddress(addressID string) (bool, error)
 
 	TxNote(txID string) string
-	// ProposeTxnote stores a note. The note is is persisted in the notes database upon calling
+	// ProposeTxnote stores a note. The note is persisted in the notes database upon calling
 	// SendTx(). This function must be called before `SendTx()`.
 	ProposeTxNote(string)
 	// SetTxNote sets a tx note and refreshes the account.

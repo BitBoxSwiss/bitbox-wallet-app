@@ -621,7 +621,7 @@ func (account *Account) ensureAddresses() {
 
 	defer account.Synchronizer.IncRequestsCounter()()
 
-	syncSequence := func(addressChain *addresses.AddressChain) error {
+	syncSequence := func(addressChain *addresses.AddressChain) {
 		for {
 			newAddresses, err := addressChain.EnsureAddresses()
 			if err != nil {
@@ -632,28 +632,17 @@ func (account *Account) ensureAddresses() {
 				break
 			}
 			for _, address := range newAddresses {
-				if err := account.subscribeAddress(address); err != nil {
-					return errp.Wrap(err, "Failed to subscribe to address")
-				}
+				account.subscribeAddress(address)
 			}
 		}
-		return nil
 	}
 	for _, subacc := range account.subaccounts {
-		if err := syncSequence(subacc.receiveAddresses); err != nil {
-			account.log.WithError(err).Panic(err)
-			// TODO
-			panic(err)
-		}
-		if err := syncSequence(subacc.changeAddresses); err != nil {
-			account.log.WithError(err).Panic(err)
-			// TODO
-			panic(err)
-		}
+		syncSequence(subacc.receiveAddresses)
+		syncSequence(subacc.changeAddresses)
 	}
 }
 
-func (account *Account) subscribeAddress(address *addresses.AccountAddress) error {
+func (account *Account) subscribeAddress(address *addresses.AccountAddress) {
 	account.coin.Blockchain().ScriptHashSubscribe(
 		account.Synchronizer.IncRequestsCounter,
 		address.PubkeyScriptHashHex(),
@@ -661,7 +650,6 @@ func (account *Account) subscribeAddress(address *addresses.AccountAddress) erro
 			go account.onAddressStatus(address, status)
 		},
 	)
-	return nil
 }
 
 // Transactions implements accounts.Interface.

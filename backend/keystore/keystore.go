@@ -38,6 +38,7 @@ const (
 var ErrSigningAborted = errors.New("signing aborted by user")
 
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
+//
 //go:generate moq -pkg mocks -out mocks/keystore.go . Keystore
 type Keystore interface {
 	// Type denotes the type of the keystore.

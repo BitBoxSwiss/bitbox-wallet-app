@@ -32,19 +32,20 @@ import (
 // backendEnv is a backend environment implementation for testing.
 //
 // TODO: Move this to the test pkg. Unfortunately, there's imports cycle:
-//   $ go vet ./backend/...
-//   import cycle not allowed in test
-//   package github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb (test)
-//           imports github.com/digitalbitbox/bitbox-wallet-app/util/test
-//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
-//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
-//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc
-//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb
-//   import cycle not allowed in test
-//   package github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox (test)
-//           imports github.com/digitalbitbox/bitbox-wallet-app/util/test
-//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
-//           imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
+//
+//	$ go vet ./backend/...
+//	import cycle not allowed in test
+//	package github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb (test)
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/util/test
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb
+//	import cycle not allowed in test
+//	package github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox (test)
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/util/test
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb
+//	        imports github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox
 type backendEnv struct {
 	Locale string // returned by NativeLocale
 }
@@ -74,7 +75,7 @@ func TestGetNativeLocale(t *testing.T) {
 	defer back.Close()
 
 	h := handlers.NewHandlers(back, handlers.NewConnectionData(0, ""))
-	r := httptest.NewRequest("GET", "/api/native-locale", nil)
+	r := httptest.NewRequest(http.MethodGet, "/api/native-locale", nil)
 	w := httptest.NewRecorder()
 	h.Router.ServeHTTP(w, r)
 	res := w.Result()
