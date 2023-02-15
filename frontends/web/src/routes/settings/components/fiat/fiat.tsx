@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,9 @@ import {
   store,
   unselectFiat,
 } from '../../../../components/rates/rates';
-import { Toggle } from '../../../../components/toggle/toggle';
+import { SettingsToggle } from '../../../../components/settingsButton/settingsToggle';
 import { share } from '../../../../decorators/share';
 import { translate, TranslateProps } from '../../../../decorators/translate';
-import parentStyle from '../../settings.module.css';
 import style from './fiat.module.css';
 
 function changeSelected(event: React.SyntheticEvent): void {
@@ -58,44 +57,39 @@ function Selection({
     <div>
       <h3 className="subTitle">{t('fiat.title')}</h3>
       <div className="box slim">
-        {
-          currencies.map((currency, index) => {
-            const main = currency === active;
-            const toggled = selected.includes(currency);
-            return (
-              <div key={currency} className={parentStyle.setting}>
-                <p className="m-none">
-                  {currency}
-                  {' '}
-                  {main && (
-                    <small className={style.defaultFiat}>
-                      {t('fiat.default')}
-                    </small>
-                  )}
-                </p>
-                {
-                  toggled && (
-                    <button
-                      className={style.star}
-                      title={t(main ? 'fiat.default' : 'fiat.setDefault', { code: currency })}
-                      data-code={currency}
-                      onClick={setDefault}>
-                      { main ? <Star /> : <StarInactive /> }
-                    </button>
-                  )
-                }
-                <Toggle
-                  key={currency}
-                  name="fiat"
-                  id={`fiat-${index}`}
-                  checked={toggled}
-                  disabled={main}
-                  onChange={changeSelected}
-                  value={currency} />
-              </div>
-            );
-          })
-        }
+        { currencies.map((currency, index) => {
+          const main = currency === active;
+          const toggled = selected.includes(currency);
+          return (
+            <SettingsToggle
+              key={currency}
+              name="fiat"
+              id={`fiat-${index}`}
+              checked={toggled}
+              disabled={main}
+              onChange={changeSelected}
+              value={currency}>
+              <p className="m-none">
+                {currency}
+                {' '}
+                {main && (
+                  <small className={style.defaultFiat}>
+                    {t('fiat.default')}
+                  </small>
+                )}
+              </p>
+              {toggled && (
+                <button
+                  className={style.star}
+                  title={t(main ? 'fiat.default' : 'fiat.setDefault', { code: currency })}
+                  data-code={currency}
+                  onClick={setDefault}>
+                  { main ? <Star /> : <StarInactive /> }
+                </button>
+              )}
+            </SettingsToggle>
+          );
+        }) }
       </div>
     </div>
   );

@@ -8,10 +8,6 @@
     padding: 10px var(--space-half);
 }
 
-.setting > label {
-    flex-shrink: 0;
-}
-
 .coinLogo {
     position: relative;
     z-index: 2;
