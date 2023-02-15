@@ -40,6 +40,7 @@ import { setBtcUnit, BtcUnit } from '../../api/coins';
 import { TUpdateFile, getVersion, getUpdate } from '../../api/version';
 import { FiatSelection } from './components/fiat/fiat';
 import { downloadLinkByLanguage } from '../../components/appdownloadlink/appdownloadlink';
+import { DarkModeToggle } from '../../components/darkmode/darkmodetoggle';
 import { SettingsToggle } from '../../components/settingsButton/settingsToggle';
 
 interface SettingsProps {
@@ -260,6 +261,7 @@ class Settings extends Component<Props, State> {
                                   </SettingsItem>
                                 )
                               ) : <Skeleton fontSize="var(--item-height)" />}
+                              <DarkModeToggle />
                             </div>
                           </div>
                           { manageAccountsLen ? (
