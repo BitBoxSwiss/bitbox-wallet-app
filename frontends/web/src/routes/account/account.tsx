@@ -22,7 +22,7 @@ import { useLoad } from '../../hooks/api';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
-import { isMoonpayBuySupported } from '../../api/backend';
+import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
 import { useSDCard } from '../../hooks/sdcard';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
@@ -60,6 +60,7 @@ export function Account({
   const [transactions, setTransactions] = useState<accountApi.ITransaction[]>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [stateCode, setStateCode] = useState<string>();
+  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
 
   useEffect(() => {
     apiGet('config').then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
@@ -131,8 +132,6 @@ export function Account({
     return () => unsubscribe(unsubscribeList);
   }, [code, onAccountChanged, onStatusChanged, status]);
 
-  const moonpayBuySupported = useLoad(isMoonpayBuySupported(code));
-
   function exportAccount() {
     if (status === undefined || status.fatalError) {
       return;
@@ -186,7 +185,9 @@ export function Account({
     }
   }
 
-  const showBuyButton = moonpayBuySupported
+  const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+
+  const showBuyButton = exchangeBuySupported
     && balance
     && !balance.hasAvailable
     && !balance.hasIncoming
@@ -195,7 +196,7 @@ export function Account({
   const actionButtonsProps = {
     code,
     canSend,
-    moonpayBuySupported
+    exchangeBuySupported
   };
 
   return (

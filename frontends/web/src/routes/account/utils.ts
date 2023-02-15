@@ -15,7 +15,18 @@
  * limitations under the License.
  */
 
-import { CoinCode, ScriptType } from '../../api/account';
+import { CoinCode, ScriptType, IAccount } from '../../api/account';
+
+export function findAccount(accounts: IAccount[], accountCode: string): IAccount | undefined {
+  return accounts.find(({ code }) => accountCode === code);
+}
+
+export function getCryptoName(cryptoLabel: string, account?: IAccount): string {
+  if (account && isBitcoinOnly(account.coinCode)) {
+    return 'Bitcoin';
+  }
+  return cryptoLabel;
+}
 
 export function isBitcoinOnly(coinCode: CoinCode): boolean {
   switch (coinCode) {

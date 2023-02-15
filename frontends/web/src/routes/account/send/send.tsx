@@ -39,7 +39,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import { isBitcoinBased, customFeeUnit, isBitcoinOnly } from '../utils';
+import { isBitcoinBased, customFeeUnit, isBitcoinOnly, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
 import style from './send.module.css';
 import { SelectedUTXO, UTXOs, UTXOsClass } from './utxos';
@@ -474,10 +474,10 @@ class Send extends Component<Props, State> {
   };
 
   private getAccount = (): accountApi.IAccount | undefined => {
-    if (!this.props.accounts) {
+    if (!this.props.code) {
       return undefined;
     }
-    return this.props.accounts.find(({ code }) => code === this.props.code);
+    return findAccount(this.props.accounts, this.props.code);
   };
 
   private toggleCoinControl = () => {

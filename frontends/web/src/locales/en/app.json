@@ -304,6 +304,52 @@
     "upgrade": "Upgrade"
   },
   "buy": {
+    "exchange": {
+      "bankTransfer": "Bank transfer",
+      "bestDeal": "Best deal",
+      "creditCard": "Credit card",
+      "fast": "Fast",
+      "fee": "fee",
+      "infoContent": {
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "Bank Transfer: {{fee}}%",
+            "creditDebitCard": "Credit/debit card: {{fee}}%",
+            "learnMore": "Learn more about Moonpay",
+            "title": "Fees"
+          },
+          "fullCurrenciesList": "See full list of currencies here",
+          "payment": {
+            "asteriskText": "* Not available for US residents",
+            "bankTransfer": "Bank transfer*",
+            "bankTransferDetails": {
+              "pix": "PIX (BR transactions in Brazil only)",
+              "sepa": "SEPA and SEPA Instant (EUR transactions in SEPA countries only)",
+              "uk": "UK Faster Payments (GBP transactions in the UK only)"
+            },
+            "creditDebitCard": "Credit/debit Card",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa and Maestro"
+            },
+            "learnMore": "See more details about payment methods",
+            "title": "Payment methods"
+          },
+          "supportedCurrencies": "Supports all major fiat currencies: USD, EUR, CHF, and more."
+        },
+        "pocket": {
+          "fee": "Fee: {{fee}}%",
+          "learnMore": "Learn more about Pocket",
+          "supportedBankTransfers": "Supports CHF SEPA and EUR instant SEPA bank transfers"
+        },
+        "region": {
+          "title": "Select the region your bank account is registered in to see which options are available to you."
+        }
+      },
+      "noExchanges": "Sorry, there are no available exchanges in this region.",
+      "region": "Region",
+      "selectRegion": "Not specified",
+      "title": "Buy {{name}}"
+    },
     "info": {
       "continue": "Agree and continue",
       "crypto": "crypto",
@@ -329,10 +375,12 @@
         "privacyPolicy": "MoonPay privacy policy",
         "protection": {
           "description": "The BitBoxApp does not collect any data when buying {{name}}, the incoming funds are treated like a regular transaction. MoonPay needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
+          "descriptionGeneric": "The BitBoxApp does not collect any data when buying {{name}}, the incoming funds are treated like a regular transaction. However partner exchanges need to collect some information to operate. Please refer to their respective privacy policies to see in more detail how the data is handled.",
           "title": "Data protection"
         },
         "security": {
-          "description": "When you buy {{name}} via MoonPay, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "description": "When you buy {{name}} via MoonPay, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
+          "descriptionGeneric": "When you buy {{name}} via a partner exchange, you are using an external service. This service is out of scope of the BitBox02 security threat model and relies on the safety and security of the environment which the BitBoxApp software is running in.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -343,6 +391,37 @@
       "selectPlaceholder": "Select a coin",
       "skip": "Do not show again",
       "title": "Buy {{name}}"
+    },
+    "pocket": {
+      "data": {
+        "link": "Pocket privacy policy",
+        "p1": "The BitBoxApp does not collect any data when buying bitcoin, the incoming funds are treated like a regular transaction. Pocket needs to collect some personal data to operate. Their Privacy Policy explains in detail how that data is handled.",
+        "title": "Data protection"
+      },
+      "kyc": {
+        "link": "Read Pocket FAQs",
+        "p1": "Pocket tries to keep KYC to a minimum. For purchases under 900 EUR (1000 CHF) a day, no additional documents are required. For purchases over this amount, you will need to schedule a call with Pocket to complete the necessary KYC/AML process.",
+        "title": "KYC/AML"
+      },
+      "payment": {
+        "p1": "You can buy bitcoin instantly with Pocket via SEPA bank transfer. The fee is 1.5% and the bitcoin is deposited to your wallet as soon as possible after Pocket receives the bank transfer (usually within the same day).",
+        "p2": "Please note that Pocket’s exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
+        "title": "Payment methods and fees"
+      },
+      "previousTransactions": "The transaction history of this account is not empty. Sharing this account will make all its past and future transactions visible for Pocket. Proceed anyway?",
+      "security": {
+        "link": "BitBox02 security threat model",
+        "p1": "When you buy bitcoin via Pocket, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in. However we work together to improve security by using a two factor authentication mechanism to verify the address you are receiving to.",
+        "title": "Security model"
+      },
+      "usedAddress": "The address {{address}} has been already used, please start again.",
+      "verifyBitBox02": "Please verify that the address you received via email matches the one displayed on your device. If possible, you should open the email on a second device for better security.",
+      "welcome": {
+        "p1": "We partner with Pocket to offer you a seamless way to buy bitcoin directly within the BitBoxApp. It's just a few clicks.",
+        "p2": "Pocket is a Swiss platform that makes it quick and easy to buy bitcoin in most of Europe (anywhere where SEPA bank transfers are supported).",
+        "p3": "With Pocket, you can also do regular buys through standing bank orders, so you can DCA (dollar-cost averaging) with ease.",
+        "title": "Welcome to your one stop shop for buying bitcoin"
+      }
     },
     "title": "Buy {{name}}"
   },

@@ -16,12 +16,14 @@
   },
   "dependencies": {
     "@zxing/library": "0.18.3",
+    "flag-icons": "^6.6.6",
     "i18next": "21.6.16",
     "lightweight-charts": "3.8.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-i18next": "11.16.8",
-    "react-router-dom": "6.3.0"
+    "react-router-dom": "6.3.0",
+    "request-address": "0.0.6"
   },
   "eslintConfig": {
     "extends": [

@@ -5,6 +5,8 @@ import { TDevices } from '../api/devices';
 import { AddAccount } from './account/add/add';
 import { Moonpay } from './buy/moonpay';
 import { BuyInfo } from './buy/info';
+import { Exchange } from './buy/exchange';
+import { Pocket } from './buy/pocket';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
 import { Send } from './account/send/send';
@@ -79,6 +81,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const BuyInfoEl = <InjectParams>
     <BuyInfo
+      code={''}
       accounts={activeAccounts} />
   </InjectParams>;
 
@@ -86,6 +89,17 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <Moonpay
       code={''}
       accounts={activeAccounts} />
+  </InjectParams>;
+
+  const ExchangeEl = <InjectParams>
+    <Exchange
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
+  const PocketEl = <InjectParams>
+    <Pocket
+      code={''} />
   </InjectParams>;
 
   const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
@@ -113,6 +127,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path=":code" element={BuyInfoEl} />
         </Route>
         <Route path="moonpay/:code" element={MoonpayEl} />
+        <Route path="pocket/:code" element={PocketEl} />
+        <Route path="exchange/:code" element={ExchangeEl} />
       </Route>
       <Route path="exchanges" element={<Exchanges />} />
       <Route path="passphrase/:deviceID" element={PassphraseEl} />
