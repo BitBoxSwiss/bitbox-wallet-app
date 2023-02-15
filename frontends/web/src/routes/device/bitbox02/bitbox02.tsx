@@ -456,7 +456,7 @@ class BitBox02 extends Component<Props, State> {
               <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
             </ViewHeader>
             <ViewContent fullWidth>
-              {attestationResult === true ? (
+              {attestationResult === false ? (
                 <Status>
                   {t('bitbox02Wizard.attestationFailed')}
                 </Status>
