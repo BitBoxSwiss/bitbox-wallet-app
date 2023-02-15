@@ -115,13 +115,15 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 
 // PocketWidgetSignAddress returns an unused address and makes the user sign a message to prove ownership.
 // Input params:
-// 	`account` is the account from which the address is derived, and that will be linked to the Pocket order.
-// 	`message` is the message that will be signed by the user with the private key linked to the address.
+//
+//	`account` is the account from which the address is derived, and that will be linked to the Pocket order.
+//	`message` is the message that will be signed by the user with the private key linked to the address.
 //	`format` is the script type that should be used in the address derivation, as received by the widget
 //		(see https://github.com/pocketbitcoin/request-address#requestaddressv0messagescripttype).
 //		If format is empty, native segwit type is used as a fallback.
 //
 // Returned values:
+//
 //	#1: is the first unused address corresponding to the account and the script type identified by the input values.
 //	#2: base64 encoding of the message signature, obtained using the private key linked to the address.
 //	#3: is an optional error that could be generated during the execution of the function.
@@ -163,8 +165,9 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 
 // PocketWidgetVerifyAddress allows the user to verify an address for the Pocket Iframe workflow.
 // Input params:
-// 	`account` is the account from which the address is derived, and that will be linked to the Pocket order.
-// 	`address` is the address to be verified. It should be the same address previously returned by
+//
+//	`account` is the account from which the address is derived, and that will be linked to the Pocket order.
+//	`address` is the address to be verified. It should be the same address previously returned by
 //		`PocketWidgetSignAddress`. Since this should be the first unused address, this function ranges
 //		among them to retrieve the ID needed for the verification.
 func PocketWidgetVerifyAddress(account accounts.Interface, address string) error {
