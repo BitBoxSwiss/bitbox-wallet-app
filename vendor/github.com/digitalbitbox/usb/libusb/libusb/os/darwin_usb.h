@@ -29,7 +29,7 @@
 
 /* IOUSBInterfaceInferface */
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED < 120000) // Before macOS 12 Monterey
+#if (MAC_OS_X_VERSION_MIN_REQUIRED < 120000) // Before macOS 12 Monterey
    #define kIOMainPortDefault kIOMasterPortDefault
 #endif
 
@@ -163,7 +163,7 @@ struct darwin_cached_device {
   char                  sys_path[21];
   usb_device_t        **device;
   int                   open_count;
-  UInt8                 first_config, active_config, port;  
+  UInt8                 first_config, active_config, port;
   int                   can_enumerate;
   int                   refcount;
 };
