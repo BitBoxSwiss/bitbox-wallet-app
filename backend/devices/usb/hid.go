@@ -17,6 +17,7 @@ package usb
 import (
 	"encoding/hex"
 	"io"
+	"runtime"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	hid "github.com/digitalbitbox/usb"
@@ -66,13 +67,44 @@ func (info hidDeviceInfo) Identifier() string {
 	return hex.EncodeToString([]byte(info.DeviceInfo.Path))
 }
 
+// karalabeUsbReportIDFix wraps the karalabe/hid device ReadWriteCloser to prepend the zero-byte
+// report ID for platforms other than Windows as a workaround to the karalabe/usb package, which
+// only prepends it on Windows. See the Write() method for more details.
+type karalabeUsbReportIDFix struct {
+	device io.ReadWriteCloser
+}
+
+func (k *karalabeUsbReportIDFix) Read(p []byte) (int, error) {
+	return k.device.Read(p)
+}
+
+func (k *karalabeUsbReportIDFix) Write(p []byte) (int, error) {
+	if runtime.GOOS != "windows" {
+		// packets have a 0 byte report ID in front. The karalabe usb library adds it
+		// automatically for windows, and not for unix, as there, it is stripped by the signal11
+		// hid library. We have to add it (to be stripped by signal11), otherwise a zero that is
+		// actually part of the packet would be stripped, leading to a corrupt packet. Our
+		// packets could start with a zero if e.g. the 4-bytes CID starts with a zero byte
+		//
+		// See
+		// - https://github.com/karalabe/usb/blob/87927bb2c8544d009d8ac7350b1ac892b60c8115/hid_enabled.go#L126-L128.
+		// - https://github.com/karalabe/usb/blob/87927bb2c8544d009d8ac7350b1ac892b60c8115/hidapi/libusb/hid.c#L1003-L1007
+		p = append([]byte{0}, p...)
+	}
+	return k.device.Write(p)
+}
+
+func (k *karalabeUsbReportIDFix) Close() error {
+	return k.device.Close()
+}
+
 // Open implements DeviceInfo.
 func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
 	device, err := info.DeviceInfo.Open()
 	if err != nil {
 		return nil, err
 	}
-	return device, nil
+	return &karalabeUsbReportIDFix{device}, nil
 }
 
 // DeviceInfos returns a slice of all recognized devices.
