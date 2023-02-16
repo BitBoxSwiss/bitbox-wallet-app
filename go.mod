@@ -9,11 +9,11 @@ require (
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
 	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20221027102202-8c31f236c498
 	github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d
+	github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff
 	github.com/ethereum/go-ethereum v1.10.21
 	github.com/flynn/noise v1.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2
-	github.com/karalabe/usb v0.0.2
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.2.0
 	github.com/skip2/go-qrcode v0.0.0-20170812161211-695fc75a0973

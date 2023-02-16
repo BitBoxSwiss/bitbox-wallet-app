@@ -19,7 +19,7 @@ import (
 	"io"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	hid "github.com/karalabe/usb"
+	hid "github.com/digitalbitbox/usb"
 )
 
 type hidDeviceInfo struct {

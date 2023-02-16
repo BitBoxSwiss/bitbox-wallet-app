@@ -1,0 +1,4 @@
+FROM golang:latest
+
+ADD . $GOPATH/src/github.com/digitalbitbox/usb
+RUN cd $GOPATH/src/github.com/digitalbitbox/usb && go install
