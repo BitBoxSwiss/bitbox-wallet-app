@@ -476,36 +476,39 @@ class BitBox02 extends Component<Props, State> {
             withBottomBar
             width="670px">
             <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
+              { (attestationResult === false && status !== 'pairingFailed') && (
+                <Status key="attestation" type="warning">
+                  {t('bitbox02Wizard.attestationFailed')}
+                </Status>
+              )}
               { status === 'pairingFailed' ? (
-                <Status type="warning">
+                <Status key="pairingFailed" type="warning">
                   {t('bitbox02Wizard.pairing.failed')}
                 </Status>
               ) : (
-                <p>{t('bitbox02Wizard.stepUnpaired.verify')}</p>
-              )}
-              { (attestationResult === false && status !== 'pairingFailed') && (
-                <Status type="warning">
-                  {t('bitbox02Wizard.attestationFailed')}
-                </Status>
+                <p>
+                  { deviceVerified
+                    ? t('bitbox02Wizard.pairing.paired')
+                    : t('bitbox02Wizard.pairing.unpaired') }
+                </p>
               )}
             </ViewHeader>
             <ViewContent fullWidth>
               { status !== 'pairingFailed' && (
-                <pre>{hash}</pre>
+                <>
+                  <pre>{hash}</pre>
+                  { !deviceVerified && <PointToBitBox02 /> }
+                </>
               )}
             </ViewContent>
             <ViewButtons>
-              {status !== 'pairingFailed' ? (
-                deviceVerified ? (
-                  <Button
-                    primary
-                    onClick={() => verifyChannelHash(deviceID, true)}>
-                    {t('button.continue')}
-                  </Button>
-                ) : (
-                  <PointToBitBox02 />
-                )
-              ) : null}
+              { (status !== 'pairingFailed' && deviceVerified) && (
+                <Button
+                  primary
+                  onClick={() => verifyChannelHash(deviceID, true)}>
+                  {t('button.continue')}
+                </Button>
+              )}
             </ViewButtons>
           </View>
         )}

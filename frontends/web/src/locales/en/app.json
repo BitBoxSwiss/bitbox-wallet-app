@@ -216,9 +216,9 @@
     "noPasswordMatch": "Passwords did not match, please try again.",
     "pairing": {
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
-      "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
+      "paired": "You have confirmed the following code on your device. Please continue.",
       "title": "Verify pairing code",
-      "unpaired": "A new BitBox02 has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch underneath the check mark on your BitBox02 and then click the button below to continue."
+      "unpaired": "An unpaired BitBox02 has been detected. Please verify the pairing code matches what is shown on your BitBox02."
     },
     "restoreFromMnemonic": {
       "failed": "Restoring from recovery words failed, please try again."
@@ -260,9 +260,6 @@
       "restoreMicroSD": "Restore from microSD card",
       "restoreMnemonic": "Restore from recovery words",
       "title": "Setup your BitBox02"
-    },
-    "stepUnpaired": {
-      "verify": "Please verify the pairing code matches what is shown on your BitBox02."
     },
     "success": {
       "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
