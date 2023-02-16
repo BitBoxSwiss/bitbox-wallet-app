@@ -1,9 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## 4.36.0
 - Re-style header for a better space utilisation
 - Re-style sidebar navigation on mobile (portrait) to be full-screen for better space utilisation and a more modern look
 - Automatically recover from a corrupt headers database (caused e.g. by the computer shutting down during a database write)
+- Integration of Pocket Bitcoin, making it easy to buy Bitcoin within the app. You can share a single address or an xpub.
 
 ## 4.35.1
 - Fix issue where the app sometimes shows a blank screen after unlock
