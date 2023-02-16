@@ -501,6 +501,10 @@ class Send extends Component<Props, State> {
       address = url.pathname;
       if (this.isBitcoinBased()) {
         amount = url.searchParams.get('amount') || '';
+        if (amount && this.state.btcUnit === 'sat') {
+          // convert expected amount in BTC to sat
+          amount = `${Number(amount) * 100_000_000}`;
+        }
       }
     } catch {
       address = uri;
