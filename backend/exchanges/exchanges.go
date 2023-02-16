@@ -63,7 +63,7 @@ type ExchangeRegionList struct {
 }
 
 // ExchangeRegion contains the ISO 3166-1 alpha-2 code of a specific region and a boolean
-//for each exchange, indicating if that exchange is enabled for the region.
+// for each exchange, indicating if that exchange is enabled for the region.
 type ExchangeRegion struct {
 	Code             string `json:"code"`
 	IsMoonpayEnabled bool   `json:"isMoonpayEnabled"`

@@ -26,7 +26,7 @@ import (
 // APIGet performs a HTTP Get call to a given endpoint and unmarshal the result
 // populating a given object.
 func APIGet(httpClient *http.Client, endpoint string, result interface{}) error {
-	req, err := http.NewRequest("GET", endpoint, nil)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return errp.WithStack(err)
 	}
