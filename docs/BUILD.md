@@ -3,11 +3,11 @@ systems may be possible but it is explicitly unsupported. The following
 platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
-* Debian GNU/Linux: Stretch and Buster
-* Ubuntu: 14.04, 16.04, 17.10, and 18.04
-* Fedora: 26, 27, 28, and 29
-* MacOS: 10.13
-* Windows: Windows 7, Windows 10
+* Debian GNU/Linux: Stretch and Buster or newer
+* Ubuntu: 18.04+
+* Fedora: 26+
+* MacOS: 10.13+
+* Windows: Windows 7+
 
 ## Debian, Ubuntu, and Fedora GNU/Linux with Docker
 
