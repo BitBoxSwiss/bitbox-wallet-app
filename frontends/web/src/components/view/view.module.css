@@ -214,6 +214,8 @@
 .content .largeIcon {
     margin: var(--space-half) auto;
     max-height: 100%;
+    max-width: 280px;
+    min-width: 80px;
     width: 50%;
 }
 @media (max-width: 768px) {
