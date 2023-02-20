@@ -180,7 +180,7 @@ class Restore extends Component<Props, State> {
         }
         {
           isLoading && (
-            <Spinner text={t('backup.restore.restoring')} />
+            <Spinner guideExists={false} text={t('backup.restore.restoring')} />
           )
         }
       </span>
