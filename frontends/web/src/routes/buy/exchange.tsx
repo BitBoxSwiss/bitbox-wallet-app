@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import 'flag-icons';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import i18n from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
-import { Button, Select, ButtonLink } from '../../components/forms';
+import { Button, ButtonLink } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
@@ -33,28 +33,17 @@ import { Info, FrontendExchangeDealsList } from './types';
 import { Dialog } from '../../components/dialog/dialog';
 import { InfoButton } from '../../components/infobutton/infobutton';
 import { InfoContent } from './components/infocontent';
-import { Globe } from '../../components/icon';
 import { getNativeLocale } from '../../api/nativelocale';
 import { setConfig } from '../../utils/config';
 import { getConfig } from '../../api/backend';
+import { SingleValue } from 'react-select';
 import style from './exchange.module.css';
+import { CountrySelect, TOption } from './components/countryselect';
 
 type TProps = {
     code: string;
     accounts: IAccount[];
-
 }
-
-type TOption = {
-    text: string;
-    value?: string;
-}
-
-const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
-  return <span className={style.flag}>
-    {regionCode === '' ? <Globe /> : <span className={`fi fi-${regionCode}`}></span>}
-  </span>;
-};
 
 export const Exchange = ({ code, accounts }: TProps) => {
   const { t } = useTranslation();
@@ -83,10 +72,10 @@ export const Exchange = ({ code, accounts }: TProps) => {
     if (!regionList || !config) {
       return;
     }
-    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' });
-    const regions = regionList.regions.map(region => ({ value: region.code, text: regionNames.of(region.code) } as TOption));
+    const regionNames = new Intl.DisplayNames([i18n.language], { type: 'region' }) || '';
+    const regions = regionList.regions.map(region => ({ value: region.code, label: regionNames.of(region.code) } as TOption));
 
-    regions.sort((a, b) => a.text.localeCompare(b.text, i18n.language));
+    regions.sort((a, b) => a.label.localeCompare(b.label, i18n.language));
     setRegions(regions);
 
     // if user had selected no region before, do not pre-select any.
@@ -171,10 +160,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
     route(`/buy/${selectedExchange}/${code}`);
   };
 
-  const handleChangeRegion = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedRegion = e.target.value;
-    setSelectedRegion(selectedRegion);
-    setConfig({ frontend: { selectedExchangeRegion: selectedRegion } });
+  const handleChangeRegion = (newValue: SingleValue<TOption>) => {
+    if (newValue) {
+      const selectedRegion = newValue.value;
+      setSelectedRegion(selectedRegion);
+      setConfig({ frontend: { selectedExchangeRegion: selectedRegion } });
+    }
   };
 
   const noExchangeAvailable = !showMoonpay && !showPocket;
@@ -183,7 +174,6 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const infoFeesDetail = exchangeDeals?.exchanges.find(exchange => exchange.exchangeName === info)?.deals;
   const cardFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'card')?.fee;
   const bankTransferFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
-
 
   return (
     <div className="contentWithGuide">
@@ -199,23 +189,11 @@ export const Exchange = ({ code, accounts }: TProps) => {
             {regions.length ? (
               <>
                 <div className={style.selectContainer}>
-                  <div>
-                    <SelectedRegionIcon regionCode={selectedRegion.toLowerCase()}/>
-                    <Select
-                      className={style.extraLeftSpace}
-                      options={[{
-                        text: t('buy.exchange.selectRegion'),
-                        value: '',
-                      },
-                      ...regions]
-                      }
-                      value={selectedRegion}
-                      onChange={handleChangeRegion}
-                      id="exchangeRegions"
-                    />
-
-                  </div>
-
+                  <CountrySelect
+                    onChangeRegion={handleChangeRegion}
+                    regions={regions}
+                    selectedRegion={selectedRegion}
+                  />
                   <InfoButton onClick={() => setInfo('region')} />
                 </div>
 

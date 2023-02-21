@@ -1,0 +1,42 @@
+.dropdown {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-labelledby='chevron down' color='%23777'%3E%3Cdefs/%3E%3Cpolyline points='6 10 12 16 18 10'/%3E%3C/svg%3E%0A");
+    background-repeat: no-repeat;
+    font-weight: 400;
+    height: calc(var(--space-quarter) * 3);
+    padding: 0 calc(var(--space-half) + var(--space-eight));
+}
+
+.flag {
+    font-size: 20px;
+}
+
+.globe {
+    margin-top: 3px;
+    width: 26px;
+    height: 22px;
+}
+
+.optionsContainer {
+    align-items: center;
+    display: flex;
+}
+
+.select :global(.react-select__control) {
+    padding: var(--space-quarter) var(--space-eight);
+}
+
+.select :global(.react-select__input-container) {
+    padding-left: var(--space-default);
+}
+
+.selectLabelText {
+    margin-left: 6px;
+}
+
+.singleValueContainer {
+    align-items: center;
+    display: flex;
+    left: var(--space-quarter);
+    position: absolute;
+}
