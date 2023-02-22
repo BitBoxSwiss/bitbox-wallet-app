@@ -1,0 +1,15 @@
+.container {
+    display: flex;
+    justify-content: center;
+}
+.container > button:first-child {
+    margin-right: var(--space-half);
+}
+.main {
+    padding: calc(var(--space-default) * 1.5) 0;
+}
+
+.main > * {
+    margin-right: 0 !important;
+    text-align: center;
+}

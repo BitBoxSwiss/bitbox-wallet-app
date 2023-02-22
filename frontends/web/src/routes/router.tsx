@@ -19,6 +19,7 @@ import { ElectrumSettings } from './settings/electrum';
 import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
+import { ReceiveAccountsSelector } from './accounts/select-receive';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -109,6 +110,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     devices={devices}
   /></InjectParams>;
 
+  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
+
   return <Routes>
     <Route path="/">
       <Route index element={Homepage} />
@@ -133,6 +136,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       <Route path="exchanges" element={<Exchanges />} />
       <Route path="passphrase/:deviceID" element={PassphraseEl} />
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
+      <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
       <Route path="settings">
         <Route index element={<Settings manageAccountsLen={accounts.length} deviceIDs={deviceIDs} />} />
         <Route path="electrum" element={<ElectrumSettings />} />

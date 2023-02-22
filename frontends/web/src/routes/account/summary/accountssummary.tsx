@@ -29,7 +29,7 @@ import Logo from '../../../components/icon/logo';
 import Spinner from '../../../components/spinner/ascii';
 import { debug } from '../../../utils/env';
 import { Chart } from './chart';
-import { AddBuyOnEmptyBalances } from '../info/buyCTA';
+import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { apiPost } from '../../../utils/request';
 import style from './accountssummary.module.css';
 import { route } from '../../../utils/route';
@@ -326,7 +326,7 @@ class AccountsSummary extends Component<Props, State> {
                 data={data}
                 noDataPlaceholder={
                   (accounts.length === Object.keys(balances || {}).length) ? (
-                    <AddBuyOnEmptyBalances balances={balances} />
+                    <AddBuyReceiveOnEmptyBalances balances={balances} />
                   ) : undefined
                 } />
               <div className={style.balanceTable}>
