@@ -21,7 +21,7 @@ env:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
   # Keep this in sync with default in scripts/travis-ci.sh.
-  CI_IMAGE: ghcr.io/digitalbitbox/bitbox-wallet-app-ci:16
+  CI_IMAGE: ghcr.io/digitalbitbox/bitbox-wallet-app-ci:17
   TRAVIS_BUILD_DIR: ${{github.workspace}}
 
 jobs:
@@ -103,7 +103,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
       - name: Build macOS app
         run: >
           ./scripts/travis-ci.sh qt-osx;
