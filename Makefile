@@ -88,7 +88,7 @@ clean:
 	cd frontends/qt && $(MAKE) clean
 	cd frontends/android && $(MAKE) clean
 dockerinit:
-	docker build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
+	./scripts/container.sh build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
 dockerdev:
 	./scripts/dockerdev.sh
 locize-push:

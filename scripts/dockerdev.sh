@@ -15,26 +15,40 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+if [ -n "$CONTAINER_RUNTIME" ]; then
+  RUNTIME="$CONTAINER_RUNTIME"
+elif command -v podman &>/dev/null; then
+  RUNTIME=podman
+else
+  RUNTIME=docker
+fi
+
 dockerdev () {
     local container_name=bitbox-wallet-dev
 
-    if ! docker images | grep -q bitbox-wallet-app; then
+    if ! $RUNTIME images | grep -q bitbox-wallet-app; then
         echo "No bitbox-wallet docker image found! Maybe you need to run 'make dockerinit'?" >&2
         exit 1
     fi
 
+    USERFLAG=""
+    if [ "$RUNTIME" = "docker" ] ; then
+        # Only needed for docker - see the comment below.
+        USERFLAG="--user=dockeruser"
+    fi
+
     # If already running, enter the container.
-    if docker ps | grep -q $container_name; then
-        docker exec --user=dockeruser -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
+    if $RUNTIME ps | grep -q $container_name; then
+        $RUNTIME exec $USERFLAG -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
         return
     fi
 
-    if docker ps -a | grep -q $container_name; then
-        docker rm $container_name
+    if $RUNTIME ps -a | grep -q $container_name; then
+        $RUNTIME rm $container_name
     fi
 
     local repo_path="$DIR/.."
-    docker run \
+    $RUNTIME run \
            --detach \
            --privileged -v /dev/bus/usb:/dev/bus/usb \
            --interactive --tty \
@@ -45,10 +59,13 @@ dockerdev () {
            -v $repo_path:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
            shiftcrypto/bitbox-wallet-app bash
 
-    # Use same user/group id as on the host, so that files are not created as root in the mounted
-    # volume.
-    docker exec -it $container_name groupadd -g `id -g` dockergroup
-    docker exec -it $container_name useradd --create-home -u `id -u` -g dockergroup dockeruser
+    if [ "$RUNTIME" = "docker" ] ; then
+        # Use same user/group id as on the host, so that files are not created as root in the
+        # mounted volume. Only needed for Docker. On rootless podman, the host user maps to the
+        # container root user.
+        $RUNTIME exec -it "$CONTAINER_NAME" groupadd -o -g "$(id -g)" dockergroup
+        $RUNTIME exec -it "$CONTAINER_NAME" useradd -u "$(id -u)" -m -g dockergroup dockeruser
+    fi
 
     # Call a second time to enter the container.
     dockerdev
