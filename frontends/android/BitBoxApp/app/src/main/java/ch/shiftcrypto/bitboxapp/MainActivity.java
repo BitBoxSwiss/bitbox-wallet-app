@@ -5,15 +5,18 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.os.IBinder;
 import android.os.Process;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -58,6 +61,27 @@ public class MainActivity extends AppCompatActivity {
 
     // stores the request from onPermissionRequest until the user has granted or denied the permission.
     private PermissionRequest webViewpermissionRequest;
+
+    GoService goService;
+
+    // Connection to bind with GoService
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            GoService.GoServiceBinder binder = (GoService.GoServiceBinder) service;
+            goService = binder.getService();
+            Util.log("Bind connection completed!");
+            startServer();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            goService = null;
+            Util.log("Bind connection unexpectedly closed!");
+        }
+    };
 
     private class JavascriptBridge {
         private Context context;
@@ -119,9 +143,15 @@ public class MainActivity extends AppCompatActivity {
         // For onramp iframe'd widgets like MoonPay.
         CookieManager.getInstance().setAcceptThirdPartyCookies(vw, true);
 
-        // GoModel invokes the Go backend. It is in a ViewModel so it only runs once, not every time
-        // onCreate is called (on a configuration change like orientation change)
+        // GoModel manages the Go backend. It is in a ViewModel so it only runs once, not every time
+        // onCreate is called (on a configuration change like orientation change).
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+
+        // The backend is run inside GoService, to avoid (as much as possible) latency errors due to
+        // the scheduling when the app is out of focus.
+        Intent intent = new Intent(this, GoService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
         goViewModel.setMessageHandlers(
                 new Handler() {
                     @Override
@@ -237,6 +267,11 @@ public class MainActivity extends AppCompatActivity {
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
         this.updateDevice();
+    }
+
+    private void startServer() {
+        final GoViewModel gVM = ViewModelProviders.of(this).get(GoViewModel.class);
+        goService.startServer(getApplicationContext().getFilesDir().getAbsolutePath(), gVM.getGoEnvironment(), gVM.getGoAPI());
     }
 
     private static String readRawText(InputStream inputStream) throws IOException {
@@ -372,9 +407,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart() {
+        // This is here so that if the GoService gets killed while the app is in background it
+        // will be started again.
+        if (goService == null) {
+            Intent intent = new Intent(this, GoService.class);
+            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        }
+        super.onRestart();
+    }
+
+    @Override
     protected void onDestroy() {
-        super.onDestroy();
         Util.log("lifecycle: onDestroy");
+        goService.stopServer();
+        super.onDestroy();
     }
 
     @Override
