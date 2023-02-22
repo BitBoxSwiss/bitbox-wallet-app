@@ -25,8 +25,8 @@ interface BackupsListItemProps {
     disabled?: boolean;
     backup: Backup;
     selectedBackup?: string;
-    handleChange: (value: string) => void;
-    onFocus: (event: React.SyntheticEvent) => void;
+    handleChange?: (value: string) => void;
+    onFocus?: (event: React.SyntheticEvent) => void;
     radio: boolean;
 }
 
@@ -52,7 +52,7 @@ class BackupsListItem extends Component<Props> {
         <Radio
           disabled={!!disabled}
           checked={selectedBackup === backup.id}
-          onChange={(event: React.SyntheticEvent) => handleChange((event.target as HTMLInputElement).value)}
+          onChange={(event: React.SyntheticEvent) => handleChange && handleChange((event.target as HTMLInputElement).value)}
           id={backup.id}
           label={backup.name && backup.name !== '' ? backup.name : backup.id}
           value={backup.id}

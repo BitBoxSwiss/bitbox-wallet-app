@@ -96,8 +96,6 @@ class Check extends Component<Props, State> {
             { foundBackup !== undefined && (
               <BackupsListItem
                 backup={foundBackup}
-                handleChange={() => undefined}
-                onFocus={() => undefined}
                 radio={false} />
             )}
             <DialogButtons>
