@@ -46,22 +46,30 @@ class Check extends Component<Props, State> {
   };
 
   private checkBackup = async () => {
+    const { t } = this.props;
+    this.setState({ message: t('backup.check.confirmTitle') });
     try {
       const backupID = await bitbox02API.checkBackup(this.props.deviceID, true);
       const foundBackup = this.props.backups.find((backup: Backup) => backup.id === backupID);
       if (!foundBackup) {
-        alertUser(this.props.t('unknownError', { errorMessage: 'Not found' }));
+        alertUser(t('unknownError', { errorMessage: 'Not found' }));
         return;
       }
       this.setState({
-        foundBackup,
         activeDialog: true,
-        message: this.props.t('backup.check.success'),
+        foundBackup,
       });
       await bitbox02API.checkBackup(this.props.deviceID, false);
-      this.setState({ userVerified: true });
+      this.setState({
+        message: t('backup.check.success'),
+        userVerified: true,
+      });
     } catch {
-      this.setState({ activeDialog: true, message: this.props.t('backup.check.notOK'), userVerified: true });
+      this.setState({
+        activeDialog: true,
+        message: t('backup.check.notOK'),
+        userVerified: true,
+      });
     }
   };
 
