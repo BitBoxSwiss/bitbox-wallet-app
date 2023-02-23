@@ -235,7 +235,6 @@
       "unlock": "Enter BitBox02 password to unlock."
     },
     "stepCreate": {
-      "buttonBack": "Go back",
       "description": "This name is used as the device name and for the backup.",
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",

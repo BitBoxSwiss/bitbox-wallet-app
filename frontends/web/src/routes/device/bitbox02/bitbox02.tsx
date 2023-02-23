@@ -602,7 +602,7 @@ class BitBox02 extends Component<Props, State> {
                   onClick={() => this.setState({ appStatus: '' })}
                   transparent
                   type="button">
-                  {t('bitbox02Wizard.stepCreate.buttonBack')}
+                  {t('button.back')}
                 </Button>
               </ViewButtons>
             </View>
