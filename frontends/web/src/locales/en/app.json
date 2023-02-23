@@ -240,7 +240,7 @@
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
       "title": "Choose BitBox02 name",
-      "toastMicroSD": "Please make sure your microSD card is inserted in your BitBox02."
+      "toastMicroSD": "Please insert your microSD card into your BitBox02 which will be used to store a backup of the wallet."
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Please remove the microSD card from your BitBox02 and store it in a secure location.",
