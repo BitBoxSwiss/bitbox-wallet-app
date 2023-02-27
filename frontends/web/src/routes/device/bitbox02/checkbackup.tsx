@@ -46,66 +46,70 @@ class Check extends Component<Props, State> {
   };
 
   private checkBackup = async () => {
+    const { backups, deviceID, t } = this.props;
+    this.setState({ message: t('backup.check.confirmTitle') });
     try {
-      const backupID = await bitbox02API.checkBackup(this.props.deviceID, true);
-      const foundBackup = this.props.backups.find((backup: Backup) => backup.id === backupID);
+      const backupID = await bitbox02API.checkBackup(deviceID, true);
+      const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
       if (!foundBackup) {
-        alertUser(this.props.t('unknownError', { errorMessage: 'Not found' }));
+        alertUser(t('unknownError', { errorMessage: 'Not found' }));
         return;
       }
       this.setState({
-        foundBackup,
         activeDialog: true,
-        message: this.props.t('backup.check.success'),
+        foundBackup,
       });
-      await bitbox02API.checkBackup(this.props.deviceID, false);
-      this.setState({ userVerified: true });
+      await bitbox02API.checkBackup(deviceID, false);
+      this.setState({
+        message: t('backup.check.success'),
+        userVerified: true,
+      });
     } catch {
-      this.setState({ activeDialog: true, message: this.props.t('backup.check.notOK'), userVerified: true });
+      this.setState({
+        activeDialog: true,
+        message: t('backup.check.notOK'),
+        userVerified: true,
+      });
     }
   };
 
-  private abort = () => {
-    this.setState({ activeDialog: false, userVerified: false });
-  };
-
   public render() {
-    const { t } = this.props;
+    const { disabled, t } = this.props;
     const { activeDialog, message, foundBackup, userVerified } = this.state;
     return (
       <div>
         <Button
           primary
-          disabled={this.props.disabled}
+          disabled={disabled}
           onClick={this.checkBackup}
         >
           {t('button.check')}
         </Button>
         <Dialog open={activeDialog} title={message}>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                {
-                  foundBackup !== undefined && (
-                    <BackupsListItem
-                      backup={foundBackup}
-                      handleChange={() => undefined}
-                      onFocus={() => undefined}
-                      radio={false} />
-                  )
-                }
-              </div>
-            </div>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            this.setState({
+              activeDialog: false,
+              userVerified: false,
+            });
+          }}>
+            { foundBackup !== undefined && (
+              <BackupsListItem
+                backup={foundBackup}
+                radio={false} />
+            )}
             <DialogButtons>
-              <Button
-                primary
-                onClick={this.abort}
-                disabled={!userVerified}
-              >
-                { userVerified ? t('button.ok') : t('accountInfo.verify') }
-              </Button>
+              {userVerified && (
+                <Button
+                  autoFocus
+                  disabled={!userVerified}
+                  primary
+                  type="submit">
+                  { userVerified ? t('button.ok') : t('accountInfo.verify') }
+                </Button>
+              )}
             </DialogButtons>
-          </div>
+          </form>
         </Dialog>
       </div>
     );
