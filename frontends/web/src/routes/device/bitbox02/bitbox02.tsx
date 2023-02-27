@@ -573,12 +573,12 @@ class BitBox02 extends Component<Props, State> {
               verticallyCentered
               width="600px">
               <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
+                <p>{t('bitbox02Wizard.stepCreate.description')}</p>
                 {!sdCardInserted && (
                   <Status type="warning">
                     <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
                   </Status>
                 )}
-                <p>{t('bitbox02Wizard.stepCreate.description')}</p>
               </ViewHeader>
               <ViewContent>
                 <Input
