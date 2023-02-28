@@ -15,9 +15,10 @@
  */
 import 'flag-icons';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import i18n from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
-import { Button, ButtonLink } from '../../components/forms';
+import { Button } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';
 import { IAccount } from '../../api/account';
 import { Header } from '../../components/layout';
@@ -61,6 +62,7 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const nativeLocale = useLoad(getNativeLocale);
   const supportedExchanges = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
   const config = useLoad(getConfig);
+  const navigate = useNavigate();
 
   const account = findAccount(accounts, code);
   const name = getCryptoName(t('buy.info.crypto'), account);
@@ -175,6 +177,17 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const cardFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'card')?.fee;
   const bankTransferFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
 
+  const handleGoBack = () => {
+    if (accounts.length > 1) {
+      return navigate(-1);
+    }
+
+    // Has to navigate 2 pages back.
+    // Otherwise, users with only 1 account
+    // will be redireted back to this page.
+    navigate(-2);
+  };
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -216,12 +229,12 @@ export const Exchange = ({ code, accounts }: TProps) => {
                   </div>
 
                   {!noExchangeAvailable && <div className={style.buttonsContainer}>
-                    <ButtonLink
+                    <Button
                       className={style.buttonBack}
                       secondary
-                      to={'/buy/info'}>
+                      onClick={handleGoBack}>
                       {t('button.back')}
-                    </ButtonLink>
+                    </Button>
                     <Button
                       primary
                       disabled={!selectedExchange}
