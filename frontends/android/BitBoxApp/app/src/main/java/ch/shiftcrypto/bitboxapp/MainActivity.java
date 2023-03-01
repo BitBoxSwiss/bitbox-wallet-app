@@ -38,8 +38,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import goserver.Goserver;
@@ -173,15 +175,22 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            public boolean shouldOverrideUrlLoading(WebView view,  WebResourceRequest request) {
                 // Block navigating to any external site inside the app.
                 // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
+                String url = request.getUrl().toString();
+
                 try {
-                    // Allow opening in external browser instead, for links clicked in an onramp widget.
-                    Pattern pattern = Pattern.compile("^file:///buy/.*$");
-                    if (pattern.matcher(view.getUrl()).matches()) {
-                        Util.systemOpen(getApplication(), url);
-                        return true;
+                    // Allow opening in external browser instead, for listed domains.
+                    List<Pattern> patterns = new ArrayList<>();
+                    patterns.add(Pattern.compile("^(.*\\.)?pocketbitcoin\\.com$"));
+                    patterns.add(Pattern.compile("^(.*\\.)?moonpay\\.com$"));
+
+                    for (Pattern pattern : patterns) {
+                        if (pattern.matcher(request.getUrl().getHost()).matches()) {
+                            Util.systemOpen(getApplication(), url);
+                            return true;
+                        }
                     }
                 } catch(Exception e) {
                 }
