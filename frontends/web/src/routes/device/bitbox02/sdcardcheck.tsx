@@ -16,7 +16,7 @@
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { TranslateProps } from '../../../decorators/translate';
-import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
+import { View, ViewButtons, ViewHeader } from '../../../components/view/view';
 import { Button, ButtonLink } from '../../../components/forms';
 import { checkSDCard } from '../../../api/bitbox02';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,7 @@ type SDCardCheckProps = {
 
 type TProps = SDCardCheckProps & TranslateProps;
 
-const SDCardCheck = ({ deviceID, children }: TProps) => {
+export const SDCardCheck = ({ deviceID, children }: TProps) => {
   const { t } = useTranslation();
   const [sdCardInserted, setSdCardInserted] = useState<boolean | undefined>();
   const check = useCallback(() => checkSDCard(deviceID).then(setSdCardInserted), [deviceID]);
@@ -37,38 +37,33 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
     check();
   }, [check]);
 
-
   // pending check-sdcard request
   if (sdCardInserted === undefined) {
     return null;
   }
 
-  return (
-    <div>
-      {!sdCardInserted ?
-        <Dialog open={!sdCardInserted} title="Check your device" small>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                <p>{t('backup.insert')}</p>
-              </div>
-            </div>
-          </div>
-          <DialogButtons>
-            <Button
-              primary
-              onClick={check}>
-              {t('button.ok')}
-            </Button>
-            <ButtonLink
-              transparent
-              to={`/device/${deviceID}`}>
-              {t('button.back')}
-            </ButtonLink>
-          </DialogButtons>
-        </Dialog> : children}
-    </div>
+  return sdCardInserted ? (
+    children
+  ) : (
+    <View
+      dialog
+      fullscreen
+      verticallyCentered>
+      <ViewHeader title="Check your device">
+        <p>{t('backup.insert')}</p>
+      </ViewHeader>
+      <ViewButtons>
+        <Button
+          primary
+          onClick={check}>
+          {t('button.ok')}
+        </Button>
+        <ButtonLink
+          transparent
+          to={`/device/${deviceID}`}>
+          {t('button.back')}
+        </ButtonLink>
+      </ViewButtons>
+    </View>
   );
 };
-
-export { SDCardCheck };
