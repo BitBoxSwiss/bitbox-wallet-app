@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { CoinCode, ScriptType, IAccount } from '../../api/account';
+import { CoinCode, ScriptType, IAccount, CoinWithSAT } from '../../api/account';
 
 export function findAccount(accounts: IAccount[], accountCode: string): IAccount | undefined {
   return accounts.find(({ code }) => accountCode === code);
@@ -37,6 +37,8 @@ export function isBitcoinOnly(coinCode: CoinCode): boolean {
     return false;
   }
 }
+
+export const isBitcoinCoin = (coin: CoinWithSAT) => (coin === 'BTC') || (coin === 'TBTC') || (coin === 'sat') || (coin === 'tsat');
 
 export function isBitcoinBased(coinCode: CoinCode): boolean {
   switch (coinCode) {

@@ -31,6 +31,9 @@ export type TestnetCoin = 'TBTC' | 'TLTC' | 'GOETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
+export type CoinWithSAT = Coin | 'sat' | 'tsat';
+
+
 export interface IActiveToken {
     tokenCode: string;
     accountCode: AccountCode;

@@ -16,28 +16,24 @@
 
 import { Component } from 'react';
 import { route } from '../../utils/route';
-import { AccountCode, IAccount } from '../../api/account';
+import { IAccount } from '../../api/account';
 import { getExchangeBuySupported } from '../../api/exchanges';
+import { getBalance } from '../../api/account';
 import Guide from './guide';
+import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { findAccount, getCryptoName } from '../account/utils';
-import { AccountSelector } from '../../components/accountSelector/accountselector';
 import { View, ViewContent } from '../../components/view/view';
 interface BuyInfoProps {
     accounts: IAccount[];
     code: string;
 }
 
-interface Option {
-    text: string;
-    value: AccountCode;
-}
-
 interface State {
     selected?: string;
-    options?: Option[]
+    options?: TOption[]
 }
 
 type Props = BuyInfoProps & TranslateProps;
@@ -65,6 +61,7 @@ class BuyInfo extends Component<Props, State> {
     this.setState({ selected });
   };
 
+
   private checkSupportedCoins = () => {
     Promise.all(
       this.props.accounts.map((account) => (
@@ -72,13 +69,25 @@ class BuyInfo extends Component<Props, State> {
           .then(supported => (supported.exchanges.length ? account : false))
       ))
     )
-      .then(results => results.filter(result => result))
-    // @ts-ignore
-      .then(accounts => accounts.map(({ isToken, name, coinName, code }) => ({ text: isToken || name === coinName ? name : `${name} (${coinName})`, value: code })))
+      .then(results => results.filter(result => result) as IAccount[])
+      .then(accounts => accounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false })))
       .then(options => {
+        //setting options without balance
         this.setState({ options }, this.maybeProceed);
+        //asynchronously fetching each account's balance
+        this.getBalances(options);
       })
       .catch(console.error);
+  };
+
+  private getBalances = (options: TOption[]) => {
+    Promise.all(options.map((option) => (
+      getBalance(option.value).then(balance => {
+        return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
+      })
+    ))).then(options => {
+      this.setState({ options });
+    });
   };
 
   public render() {
@@ -87,6 +96,7 @@ class BuyInfo extends Component<Props, State> {
       selected,
       options,
     } = this.state;
+
     if (options === undefined) {
       return <Spinner guideExists={false} text={t('loading')} />;
     }
