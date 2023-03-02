@@ -43,10 +43,15 @@ export const Settings = ({ deviceID }: TProps) => {
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
   const [attestation, setAttestation] = useState<boolean | null>(null);
   useEffect(() => {
-    getDeviceInfo(deviceID).then(setDeviceInfo).catch(error => {
-      console.error(error);
-      alertUser(t('genericError'));
-    });
+    getDeviceInfo(deviceID)
+      .then(result => {
+        if (!result.success) {
+          alertUser(t('genericError'));
+          return;
+        }
+        setDeviceInfo(result.deviceInfo);
+      })
+      .catch(console.error);
     verifyAttestation(deviceID).then(setAttestation);
   }, [deviceID, t]);
 

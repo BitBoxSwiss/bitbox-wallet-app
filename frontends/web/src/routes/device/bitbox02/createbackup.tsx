@@ -35,31 +35,34 @@ export const Create = ({ deviceID }: TProps) => {
   const createBackup = () => {
     setCreatingBackup(true);
     createBackupAPI(deviceID)
-      .then(() => {
+      .then((result) => {
         setCreatingBackup(false);
         setDisabled(false);
+        if (!result.success) {
+          alertUser(t('backup.create.fail'));
+        }
       })
-      .catch(() => {
-        setCreatingBackup(false);
-        setDisabled(false);
-        alertUser(t('backup.create.fail'));
-      });
+      .catch(console.error);
   };
 
   const maybeCreateBackup = async () => {
     setDisabled(true);
-    const check = await checkBackup(deviceID, true).catch(console.error);
-    if (check) {
-      confirmation(t('backup.create.alreadyExists'), result => {
-        if (result) {
-          createBackup();
-        } else {
-          setDisabled(false);
-        }
-      });
-      return;
+    try {
+      const check = await checkBackup(deviceID, true);
+      if (check.success) {
+        confirmation(t('backup.create.alreadyExists'), result => {
+          if (result) {
+            createBackup();
+          } else {
+            setDisabled(false);
+          }
+        });
+        return;
+      }
+      createBackup();
+    } catch (error) {
+      console.error(error);
     }
-    createBackup();
   };
 
   return (

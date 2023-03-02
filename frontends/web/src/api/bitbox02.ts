@@ -37,15 +37,9 @@ export const resetDevice = (deviceID: string): Promise<SuccessResponse | FailRes
 };
 
 export const getDeviceInfo = (
-  deviceID: string
-): Promise<DeviceInfo> => {
-  return apiGet(`devices/bitbox02/${deviceID}/info`)
-    .then((response: DeviceInfoResponse | FailResponse) => {
-      if (!response.success) {
-        return Promise.reject(response);
-      }
-      return Promise.resolve(response.deviceInfo);
-    });
+  deviceID: string,
+): Promise<DeviceInfoResponse | FailResponse> => {
+  return apiGet(`devices/bitbox02/${deviceID}/info`);
 };
 
 export const checkSDCard = (
@@ -63,16 +57,10 @@ export const insertSDCard = (
 export const setDeviceName = (
   deviceID: string,
   newDeviceName: string,
-): Promise<void> => {
+): Promise<SuccessResponse | FailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/set-device-name`, {
     name: newDeviceName
-  })
-    .then((response: SuccessResponse | FailResponse) => {
-      if (!response.success) {
-        return Promise.reject(response);
-      }
-      return Promise.resolve();
-    });
+  });
 };
 
 export type VersionInfo = {
@@ -91,14 +79,8 @@ export const getVersion = (
 export const setMnemonicPassphraseEnabled = (
   deviceID: string,
   enabled: boolean,
-): Promise<void | FailResponse> => {
-  return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled)
-    .then((response: SuccessResponse | FailResponse) => {
-      if (!response.success) {
-        return Promise.reject(response);
-      }
-      return Promise.resolve();
-    });
+): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled);
 };
 
 export const verifyAttestation = (
@@ -110,24 +92,14 @@ export const verifyAttestation = (
 export const checkBackup = (
   deviceID: string,
   silent: boolean,
-): Promise<string> => {
-  return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent })
-    .then((response: FailResponse | (SuccessResponse & { backupID: string; })) => {
-      if (response.success) {
-        return response.backupID;
-      }
-      throw response;
-    });
+): Promise<FailResponse | (SuccessResponse & { backupID: string; })> => {
+  return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent });
 };
 
-export const createBackup = (deviceID: string): Promise<void> => {
-  return apiPost(`devices/bitbox02/${deviceID}/backups/create`)
-    .then((response: FailResponse | SuccessResponse) => {
-      if (!response.success) {
-        return Promise.reject(response);
-      }
-      return Promise.resolve();
-    });
+export const createBackup = (
+  deviceID: string,
+): Promise<FailResponse | SuccessResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/backups/create`);
 };
 
 export const restoreBackup = (
@@ -145,14 +117,10 @@ export const showMnemonic = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
 };
 
-export const restoreFromMnemonic = (deviceID: string): Promise<void> => {
-  return apiPost(`devices/bitbox02/${deviceID}/restore-from-mnemonic`)
-    .then((response: FailResponse | SuccessResponse) => {
-      if (!response.success) {
-        return Promise.reject(response);
-      }
-      return Promise.resolve();
-    });
+export const restoreFromMnemonic = (
+  deviceID: string,
+): Promise<FailResponse | SuccessResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/restore-from-mnemonic`);
 };
 
 export type TStatus = 'connected'

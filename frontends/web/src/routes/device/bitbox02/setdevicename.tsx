@@ -45,11 +45,18 @@ export const SetDeviceName = ({
   const updateName = async () => {
     setInProgress(true);
     try {
-      await setDeviceName(deviceID, name);
-      const { name: newDeviceName } = await getDeviceInfo(deviceID);
-      setCurrentName(newDeviceName);
-    } catch (e) {
+      const setNameResult = await setDeviceName(deviceID, name);
+      if (!setNameResult.success) {
+        throw new Error(setNameResult.message);
+      }
+      const deviceInfoResult = await getDeviceInfo(deviceID);
+      if (!deviceInfoResult.success) {
+        throw new Error(deviceInfoResult.message);
+      }
+      setCurrentName(deviceInfoResult.deviceInfo.name);
+    } catch (error) {
       alertUser('Device name could not be set');
+      console.error(error);
     } finally {
       setActive(false);
       setInProgress(false);
