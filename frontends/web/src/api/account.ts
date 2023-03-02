@@ -123,6 +123,7 @@ export interface ISummary {
     chartTotal: number | null;
     formattedChartTotal: string | null;
     chartIsUpToDate: boolean; // only valid if chartDataMissing is false
+    lastTimestamp: number;
 }
 
 export const getSummary = (): Promise<ISummary> => {

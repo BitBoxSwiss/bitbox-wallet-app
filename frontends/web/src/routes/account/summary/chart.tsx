@@ -75,6 +75,7 @@ class Chart extends Component<Props, State> {
       chartTotal: null,
       formattedChartTotal: null,
       chartIsUpToDate: false,
+      lastTimestamp: 0,
     }
   };
 
@@ -139,9 +140,9 @@ class Chart extends Component<Props, State> {
   };
 
   private createChart = () => {
-    const { data: { chartIsUpToDate, chartDataMissing } } = this.props;
+    const { data: { chartDataMissing } } = this.props;
     const darkmode = getDarkmode();
-    if (this.ref.current && this.hasData() && (chartIsUpToDate && !chartDataMissing)) {
+    if (this.ref.current && this.hasData() && !chartDataMissing) {
       if (!this.chart) {
         const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
         const chartHeight = !this.state.isMobile ? this.height : this.mobileHeight;
@@ -411,8 +412,6 @@ class Chart extends Component<Props, State> {
     });
   };
 
-
-
   private renderDate = (date: number) => {
     return new Date(date).toLocaleString(
       this.props.i18n.language,
@@ -432,7 +431,7 @@ class Chart extends Component<Props, State> {
     const {
       t,
       data: {
-        chartDataDaily,
+        lastTimestamp,
         chartDataMissing,
         chartFiat,
         chartIsUpToDate,
@@ -505,13 +504,15 @@ class Chart extends Component<Props, State> {
           {!isMobile && <Filters {...chartFiltersProps} />}
         </header>
         <div className={styles.chartCanvas} style={{ minHeight: chartHeight }}>
-          {(!chartIsUpToDate || chartDataMissing) ? (
+          {chartDataMissing ? (
             <div className={styles.chartUpdatingMessage} style={{ height: chartHeight }}>
-              {chartDataDaily === undefined
-                ? t('chart.dataMissing')
-                : t('chart.dataUpdating')}
+              {t('chart.dataMissing')}
             </div>
-          ) : hasData ? null : noDataPlaceholder}
+          ) : hasData ? !chartIsUpToDate && (
+            <div className={styles.chartUpdatingMessage}>
+              {t('chart.dataOldTimestamp', { time: new Date(lastTimestamp).toLocaleString(this.props.i18n.language), })}
+            </div>
+          ) : noDataPlaceholder}
           <div ref={this.ref} className={styles.invisible}></div>
           <span
             ref={this.refToolTip}

@@ -72,6 +72,8 @@ type Chart struct {
 	FormattedTotal string `json:"formattedChartTotal"`
 	// Only valid if DataMissing is false
 	IsUpToDate bool `json:"chartIsUpToDate"`
+	// Latest rate timestamp available among all enabled coins.
+	LastTimestamp int64 `json:"lastTimestamp"`
 }
 
 func (backend *Backend) addChartData(
@@ -125,6 +127,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		backend.log.Info("ChartDataMissing, until is zero")
 	}
 	isUpToDate := time.Since(until) < 2*time.Hour
+	lastTimestamp := until.UnixMilli()
 
 	formatBtcAsSat := util.FormatBtcAsSat(backend.Config().AppConfig().Backend.BtcUnit)
 
@@ -316,5 +319,6 @@ func (backend *Backend) ChartData() (*Chart, error) {
 		Total:          chartTotal,
 		FormattedTotal: formattedChartTotal,
 		IsUpToDate:     isUpToDate,
+		LastTimestamp:  lastTimestamp,
 	}, nil
 }
