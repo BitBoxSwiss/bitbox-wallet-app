@@ -16,14 +16,9 @@
  */
 
 import { apiGet } from '../utils/request';
+import { i18nextFormat } from './utils';
 
 const defaultUserLanguage = 'en';
-
-// A hack around https://github.com/i18next/i18next/issues/1484 which ignores
-// underscore "_" as tag separator.
-function i18nextFormat(locale) {
-  return locale.replace('_', '-');
-}
 
 export const languageFromConfig = {
   type: 'languageDetector',

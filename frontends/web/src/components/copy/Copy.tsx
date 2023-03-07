@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import { Component, createRef } from 'react';
-import { translate, TranslateProps } from '../../decorators/translate';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Copy } from '../icon/icon';
 import style from './Copy.module.css';
 
-interface CopyableInputProps {
+type TProps = {
     alignLeft?: boolean;
     alignRight?: boolean;
     borderLess?: boolean;
@@ -30,29 +30,24 @@ interface CopyableInputProps {
     value: string;
 }
 
-type Props = CopyableInputProps & TranslateProps;
+export const CopyableInput = ({ alignLeft, alignRight, borderLess, value, className, disabled, flexibleHeight }: TProps) => {
+  const [success, setSuccess] = useState(false);
+  const { t } = useTranslation();
 
-interface State {
-    success: boolean;
-}
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-class CopyableInput extends Component<Props, State> {
-  public readonly state: State = {
-    success: false,
-  };
+  useEffect(() => {
+    setHeight();
+  }, []);
 
-  private textArea = createRef<HTMLTextAreaElement>();
+  useEffect(() => {
+    if (success) {
+      setTimeout(() => setSuccess(false), 1500);
+    }
+  }, [success]);
 
-  public componentDidMount() {
-    this.setHeight();
-  }
-
-  public componentDidUpdate() {
-    this.setHeight();
-  }
-
-  private setHeight() {
-    const textarea = this.textArea.current;
+  const setHeight = () => {
+    const textarea = textAreaRef.current;
     if (!textarea) {
       return;
     }
@@ -60,57 +55,46 @@ class CopyableInput extends Component<Props, State> {
     const units = Number(fontSize.replace('px', '')) + 2;
     textarea.setAttribute('rows', '1');
     textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
-  }
+  };
 
-  private onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
+  const onFocus = (e: React.SyntheticEvent<HTMLTextAreaElement, FocusEvent>) => {
     e.currentTarget.focus();
   };
 
-  private copy = () => {
-    this.textArea.current?.select();
+  const copy = () => {
+    textAreaRef.current?.select();
     if (document.execCommand('copy')) {
-      this.setState({ success: true }, () => {
-        setTimeout(() => this.setState({ success: false }), 1500);
-      });
+      setSuccess(true);
     }
   };
 
-  public render() {
-    const { alignLeft, alignRight, borderLess, t, value, className, disabled, flexibleHeight } = this.props;
-    const { success } = this.state;
-    const copyButton = disabled ? null : (
+  return (<div className={[
+    'flex flex-row flex-start flex-items-start',
+    style.container,
+    className ? className : ''
+  ].join(' ')}>
+    <textarea
+      disabled={disabled}
+      readOnly
+      onFocus={onFocus}
+      value={value}
+      ref={textAreaRef}
+      rows={1}
+      className={[
+        style.inputField,
+        flexibleHeight && style.flexibleHeight,
+        alignLeft && style.alignLeft,
+        alignRight && style.alignRight,
+        borderLess && style.borderLess,
+      ].join(' ')} />
+    {disabled ? null : (
       <button
-        onClick={this.copy}
+        onClick={copy}
         className={[style.button, success && style.success, 'ignore'].join(' ')}
         title={t('button.copy')}>
         {success ? <Check /> : <Copy />}
       </button>
-    );
-    return (
-      <div className={[
-        'flex flex-row flex-start flex-items-start',
-        style.container,
-        className ? className : ''
-      ].join(' ')}>
-        <textarea
-          disabled={disabled}
-          readOnly
-          onFocus={this.onFocus}
-          value={value}
-          ref={this.textArea}
-          rows={1}
-          className={[
-            style.inputField,
-            flexibleHeight && style.flexibleHeight,
-            alignLeft && style.alignLeft,
-            alignRight && style.alignRight,
-            borderLess && style.borderLess,
-          ].join(' ')} />
-        {copyButton}
-      </div>
-    );
-  }
-}
+    )}
+  </div>);
+};
 
-const TranslatedCopyableInput = translate()(CopyableInput);
-export { TranslatedCopyableInput as CopyableInput };

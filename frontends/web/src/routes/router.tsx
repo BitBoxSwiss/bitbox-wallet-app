@@ -5,6 +5,8 @@ import { TDevices } from '../api/devices';
 import { AddAccount } from './account/add/add';
 import { Moonpay } from './buy/moonpay';
 import { BuyInfo } from './buy/info';
+import { Exchange } from './buy/exchange';
+import { Pocket } from './buy/pocket';
 import { Info } from './account/info/info';
 import { Receive } from './account/receive';
 import { Send } from './account/send/send';
@@ -17,6 +19,7 @@ import { ElectrumSettings } from './settings/electrum';
 import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
+import { ReceiveAccountsSelector } from './accounts/select-receive';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -79,6 +82,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const BuyInfoEl = <InjectParams>
     <BuyInfo
+      code={''}
       accounts={activeAccounts} />
   </InjectParams>;
 
@@ -88,12 +92,25 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       accounts={activeAccounts} />
   </InjectParams>;
 
+  const ExchangeEl = <InjectParams>
+    <Exchange
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
+  const PocketEl = <InjectParams>
+    <Pocket
+      code={''} />
+  </InjectParams>;
+
   const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
 
   const ManageBackupsEl = <InjectParams><ManageBackups
     key={devicesKey('manage-backups')}
     devices={devices}
   /></InjectParams>;
+
+  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
 
   return <Routes>
     <Route path="/">
@@ -113,10 +130,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path=":code" element={BuyInfoEl} />
         </Route>
         <Route path="moonpay/:code" element={MoonpayEl} />
+        <Route path="pocket/:code" element={PocketEl} />
+        <Route path="exchange/:code" element={ExchangeEl} />
       </Route>
       <Route path="exchanges" element={<Exchanges />} />
       <Route path="passphrase/:deviceID" element={PassphraseEl} />
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
+      <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
       <Route path="settings">
         <Route index element={<Settings manageAccountsLen={accounts.length} deviceIDs={deviceIDs} />} />
         <Route path="electrum" element={<ElectrumSettings />} />

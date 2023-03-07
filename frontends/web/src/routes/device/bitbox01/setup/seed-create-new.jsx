@@ -129,9 +129,9 @@ class SeedCreateNew extends Component {
   renderSpinner() {
     switch (this.state.status) {
     case STATUS.CHECKING:
-      return (<Spinner text={this.props.t('checkSDcard')} />);
+      return (<Spinner guideExists={false} text={this.props.t('checkSDcard')} />);
     case STATUS.CREATING:
-      return (<Spinner text={this.props.t('seed.creating')} />);
+      return (<Spinner guideExists={false} text={this.props.t('seed.creating')} />);
     default:
       return null;
     }

@@ -20,9 +20,9 @@ env:
   # See docs for more details:
   # https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images
   #
-  # Keep this in sync with default in scripts/travis-ci.sh.
-  CI_IMAGE: ghcr.io/digitalbitbox/bitbox-wallet-app-ci:15
-  TRAVIS_BUILD_DIR: ${{github.workspace}}
+  # Keep this in sync with default in scripts/github-ci.sh.
+  CI_IMAGE: ghcr.io/digitalbitbox/bitbox-wallet-app-ci:17
+  GITHUB_BUILD_DIR: ${{github.workspace}}
 
 jobs:
   test-lint:
@@ -35,9 +35,9 @@ jobs:
       - name: Run CI script
         # The script also runs golang-ci but it's ok: doesn't take too long and may be useful
         # to keep its linter errors in this log, too.
-        run: ./scripts/travis-ci.sh ci
+        run: ./scripts/github-ci.sh ci
         env:
-          TRAVIS_OS_NAME: linux
+          OS_NAME: linux
   android:
     runs-on: ubuntu-18.04
     steps:
@@ -51,9 +51,9 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
       - name: Build Android
-        run: ./scripts/travis-ci.sh android
+        run: ./scripts/github-ci.sh android
         env:
-          TRAVIS_OS_NAME: linux
+          OS_NAME: linux
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
@@ -67,9 +67,9 @@ jobs:
         with:
           submodules: recursive
       - name: Build Qt-Linux
-        run: ./scripts/travis-ci.sh qt-linux
+        run: ./scripts/github-ci.sh qt-linux
         env:
-          TRAVIS_OS_NAME: linux
+          OS_NAME: linux
       - name: Upload AppImage
         uses: actions/upload-artifact@v2
         with:
@@ -103,12 +103,12 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
       - name: Build macOS app
         run: >
-          ./scripts/travis-ci.sh qt-osx;
+          ./scripts/github-ci.sh qt-osx;
         env:
-          TRAVIS_OS_NAME: osx
+          OS_NAME: osx
       - name: Archive app
         run: >
           pushd ~/go/src/github.com/digitalbitbox/bitbox-wallet-app/frontends/qt/build/osx;

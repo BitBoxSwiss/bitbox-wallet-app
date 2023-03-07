@@ -56,6 +56,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -67,6 +68,7 @@ type Backend interface {
 	observable.Interface
 
 	Config() *config.Config
+	DevServers() bool
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
@@ -102,6 +104,8 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accounts.Code)
+	GetAccountFromCode(code string) (accounts.Interface, error)
+	HTTPClient() *http.Client
 }
 
 // Handlers provides a web api to the backend.
@@ -202,8 +206,13 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
-	getAPIRouter(apiRouter)("/exchange/moonpay/buy-supported/{code}", handlers.getExchangeMoonpayBuySupported).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/moonpay/buy/{code}", handlers.getExchangeMoonpayBuy).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
+	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
+	getAPIRouter(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
@@ -1032,54 +1041,82 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	return path, nil
 }
 
-func (handlers *Handlers) getExchangeMoonpayBuySupported(r *http.Request) (interface{}, error) {
-	acctCode := mux.Vars(r)["code"]
-	// TODO: Refactor to make use of a map.
-	var acct accounts.Interface
-	for _, a := range handlers.backend.Accounts() {
-		if !a.Config().Active {
-			continue
-		}
-		if string(a.Config().Code) == acctCode {
-			acct = a
-			break
-		}
+func (handlers *Handlers) getExchangesByRegion(r *http.Request) (interface{}, error) {
+	type errorResult struct {
+		Error string `json:"error"`
 	}
-	// TODO: Offline() can be removed from here once there is a unified way of initializing accounts
-	// and showing sync status, offline/fatal states, etc.
-	return acct != nil && acct.Offline() == nil && exchanges.IsMoonpaySupported(acct.Coin().Code()), nil
+
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Error: err.Error()}, nil
+	}
+
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if !accountValid {
+		handlers.log.Error("Account not valid")
+		return errorResult{Error: "Account not valid"}, nil
+	}
+
+	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient()), nil
 }
 
-func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
-	return handlers.backend.AOPP(), nil
+func (handlers *Handlers) getExchangeDeals(r *http.Request) (interface{}, error) {
+	type exchangeDealsList struct {
+		Exchanges []exchanges.ExchangeDeals `json:"exchanges"`
+	}
+
+	return exchangeDealsList{
+		Exchanges: []exchanges.ExchangeDeals{
+			exchanges.PocketDeals(),
+			exchanges.MoonpayDeals(),
+		},
+	}, nil
 }
 
-func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, error) {
-	acctCode := accounts.Code(mux.Vars(r)["code"])
-	// TODO: Refactor to make use of a map.
-	var acct accounts.Interface
-	for _, a := range handlers.backend.Accounts() {
-		if !a.Config().Active {
-			continue
-		}
-		if a.Config().Code == acctCode {
-			acct = a
-			break
-		}
-	}
-	if acct == nil {
-		return nil, fmt.Errorf("unknown account code %q", acctCode)
+func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{}, error) {
+	type supportedExchanges struct {
+		Exchanges []string `json:"exchanges"`
 	}
 
-	if err := acct.Initialize(); err != nil {
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
 		return nil, err
 	}
 
+	supported := supportedExchanges{Exchanges: []string{}}
+	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
+	if !accountValid {
+		return supported, nil
+	}
+
+	if exchanges.IsMoonpaySupported(acct.Coin().Code()) {
+		supported.Exchanges = append(supported.Exchanges, exchanges.MoonpayName)
+	}
+	if exchanges.IsPocketSupported(acct) {
+		supported.Exchanges = append(supported.Exchanges, exchanges.PocketName)
+	}
+
+	return supported, nil
+}
+
+func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {
+	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	if err != nil {
+		return nil, err
+	}
+
+	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
+	if len(lang) == 0 {
+		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// to retrieve that.
+		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
+	}
 	params := exchanges.BuyMoonpayParams{
 		Fiat: handlers.backend.Config().AppConfig().Backend.MainFiat,
-		Lang: handlers.backend.Config().AppConfig().Backend.UserLanguage,
+		Lang: lang,
 	}
-	buy, err := exchanges.BuyMoonpay(acct, params)
+	buy, err := exchanges.MoonpayInfo(acct, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1091,6 +1128,93 @@ func (handlers *Handlers) getExchangeMoonpayBuy(r *http.Request) (interface{}, e
 		Address: buy.Address,
 	}
 	return resp, nil
+}
+
+func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, error) {
+	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
+	if len(lang) == 0 {
+		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// to retrieve that.
+		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
+	}
+
+	url := exchanges.PocketURL(handlers.backend.DevServers(), lang)
+	return url, nil
+}
+
+func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		AccountCode string `json:"accountCode"`
+		Address     string `json:"address"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
+	if err != nil {
+		handlers.log.Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
+	if err != nil {
+		handlers.log.WithField("code", account.Config().Code).Error(err)
+		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
+			return response{Success: false, ErrorCode: string(errCode)}, nil
+		}
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true}, nil
+
+}
+
+func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interface{}, error) {
+	var request struct {
+		AccountCode string `json:"accountCode"`
+		Msg         string `json:"msg"`
+		Format      string `json:"format"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		Address      string `json:"address"`
+		Signature    string `json:"signature"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+		ErrorCode    string `json:"errorCode,omitempty"`
+	}
+
+	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
+	if err != nil {
+		handlers.log.Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+
+	address, signature, err := exchanges.PocketWidgetSignAddress(
+		account,
+		request.Msg,
+		request.Format)
+	if err != nil {
+		if firmware.IsErrorAbort(err) {
+			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
+		}
+		handlers.log.WithField("code", account.Config().Code).Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	return response{Success: true, Address: address, Signature: signature}, nil
+}
+
+func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
+	return handlers.backend.AOPP(), nil
 }
 
 func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interface{}, error) {

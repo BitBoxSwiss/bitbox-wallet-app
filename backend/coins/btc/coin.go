@@ -243,7 +243,7 @@ func (coin *Coin) SmallestUnit() string {
 	}
 }
 
-// DecodeAddress decodes a btc/ltc address, checking that that the format matches the account coin
+// DecodeAddress decodes a btc/ltc address, checking that the format matches the account coin
 // type.
 func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
 	btcAddress, err := btcutil.DecodeAddress(address, coin.Net())

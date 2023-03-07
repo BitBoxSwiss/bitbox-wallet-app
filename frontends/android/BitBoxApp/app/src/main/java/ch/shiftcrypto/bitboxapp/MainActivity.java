@@ -5,15 +5,18 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.os.IBinder;
 import android.os.Process;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -38,8 +41,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import goserver.Goserver;
@@ -58,6 +63,27 @@ public class MainActivity extends AppCompatActivity {
 
     // stores the request from onPermissionRequest until the user has granted or denied the permission.
     private PermissionRequest webViewpermissionRequest;
+
+    GoService goService;
+
+    // Connection to bind with GoService
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            GoService.GoServiceBinder binder = (GoService.GoServiceBinder) service;
+            goService = binder.getService();
+            Util.log("Bind connection completed!");
+            startServer();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            goService = null;
+            Util.log("Bind connection unexpectedly closed!");
+        }
+    };
 
     private class JavascriptBridge {
         private Context context;
@@ -119,9 +145,15 @@ public class MainActivity extends AppCompatActivity {
         // For onramp iframe'd widgets like MoonPay.
         CookieManager.getInstance().setAcceptThirdPartyCookies(vw, true);
 
-        // GoModel invokes the Go backend. It is in a ViewModel so it only runs once, not every time
-        // onCreate is called (on a configuration change like orientation change)
+        // GoModel manages the Go backend. It is in a ViewModel so it only runs once, not every time
+        // onCreate is called (on a configuration change like orientation change).
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+
+        // The backend is run inside GoService, to avoid (as much as possible) latency errors due to
+        // the scheduling when the app is out of focus.
+        Intent intent = new Intent(this, GoService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
         goViewModel.setMessageHandlers(
                 new Handler() {
                     @Override
@@ -173,15 +205,22 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            public boolean shouldOverrideUrlLoading(WebView view,  WebResourceRequest request) {
                 // Block navigating to any external site inside the app.
                 // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
+                String url = request.getUrl().toString();
+
                 try {
-                    // Allow opening in external browser instead, for links clicked in an onramp widget.
-                    Pattern pattern = Pattern.compile("^file:///buy/.*$");
-                    if (pattern.matcher(view.getUrl()).matches()) {
-                        Util.systemOpen(getApplication(), url);
-                        return true;
+                    // Allow opening in external browser instead, for listed domains.
+                    List<Pattern> patterns = new ArrayList<>();
+                    patterns.add(Pattern.compile("^(.*\\.)?pocketbitcoin\\.com$"));
+                    patterns.add(Pattern.compile("^(.*\\.)?moonpay\\.com$"));
+
+                    for (Pattern pattern : patterns) {
+                        if (pattern.matcher(request.getUrl().getHost()).matches()) {
+                            Util.systemOpen(getApplication(), url);
+                            return true;
+                        }
                     }
                 } catch(Exception e) {
                 }
@@ -237,6 +276,11 @@ public class MainActivity extends AppCompatActivity {
         // We call updateDevice() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
         this.updateDevice();
+    }
+
+    private void startServer() {
+        final GoViewModel gVM = ViewModelProviders.of(this).get(GoViewModel.class);
+        goService.startServer(getApplicationContext().getFilesDir().getAbsolutePath(), gVM.getGoEnvironment(), gVM.getGoAPI());
     }
 
     private static String readRawText(InputStream inputStream) throws IOException {
@@ -372,9 +416,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart() {
+        // This is here so that if the GoService gets killed while the app is in background it
+        // will be started again.
+        if (goService == null) {
+            Intent intent = new Intent(this, GoService.class);
+            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        }
+        super.onRestart();
+    }
+
+    @Override
     protected void onDestroy() {
-        super.onDestroy();
         Util.log("lifecycle: onDestroy");
+        super.onDestroy();
     }
 
     @Override

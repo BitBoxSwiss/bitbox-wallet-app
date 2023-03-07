@@ -21,7 +21,7 @@ catch:
 	@echo "Choose a make target."
 envinit:
 	# Keep golangci-lint version in sync with what's in .github/workflows/ci.yml.
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.46.1
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.51.1
 	go install github.com/vektra/mockery/v2@latest
 	go install github.com/matryer/moq@latest
 	go install golang.org/x/tools/cmd/goimports@latest
@@ -33,10 +33,10 @@ envinit:
 # Initializiation on MacOS
 #  - run make from $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 #  - additional dependencies: Qt 5.15 & Xcode command line tools
-#  - add to $PATH: /usr/local/opt/go@1.19/bin
+#  - add to $PATH: /usr/local/opt/go@1.20/bin
 osx-init:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-	brew install go@1.19
+	brew install go@1.20
 	brew install qt@5
 	$(MAKE) envinit
 servewallet:
@@ -47,6 +47,8 @@ servewallet-regtest:
 	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && go run -mod=vendor ./cmd/servewallet -regtest
 servewallet-prodservers:
 	go run -mod=vendor ./cmd/servewallet -devservers=false
+servewallet-mainnet-prodservers:
+	go run -mod=vendor ./cmd/servewallet -mainnet -devservers=false
 buildweb:
 	node --version
 	npm --version
@@ -86,7 +88,7 @@ clean:
 	cd frontends/qt && $(MAKE) clean
 	cd frontends/android && $(MAKE) clean
 dockerinit:
-	docker build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
+	./scripts/container.sh build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
 dockerdev:
 	./scripts/dockerdev.sh
 locize-push:

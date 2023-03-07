@@ -16,17 +16,16 @@
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { share } from '../../decorators/share';
-import { SharedProps, store, toggle as toggleGuide } from '../guide/guide';
+import { toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
 import { Menu } from '../icon';
 import style from './Spinner.module.css';
 
-type SpinnerProps = {
-    text?: string;
+type TProps = {
+  text?: string;
+  guideExists: boolean;
 }
 
-type TProps = SpinnerProps & SharedProps;
 
 const Spinner = ({ text, guideExists }: TProps) => {
   const { t } = useTranslation();
@@ -89,5 +88,4 @@ const Spinner = ({ text, guideExists }: TProps) => {
   );
 };
 
-const SharedSpinner = share<SharedProps, SpinnerProps>(store)(Spinner);
-export { SharedSpinner as Spinner };
+export { Spinner };

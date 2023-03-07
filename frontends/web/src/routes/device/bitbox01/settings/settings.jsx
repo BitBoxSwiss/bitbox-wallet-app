@@ -210,7 +210,7 @@ class Settings extends Component {
                 </div>
               </div>
             </div>
-            { spinner && <Spinner text={t('deviceSettings.loading')} /> }
+            { spinner && <Spinner guideExists text={t('deviceSettings.loading')} /> }
           </div>
         </div>
         <Guide>

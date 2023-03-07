@@ -1,0 +1,10 @@
+.button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: absolute;
+    right: calc(var(--space-default) * -1);
+    top: 50%;
+    transform: translateY(-50%);
+}

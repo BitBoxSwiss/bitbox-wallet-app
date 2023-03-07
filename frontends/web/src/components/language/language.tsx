@@ -94,6 +94,7 @@ const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
   return (
     <div>
       <button
+        type="button"
         title="Select Language"
         className={style.link}
         onClick={() => setActiveDialog(true)}>
@@ -119,6 +120,7 @@ const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
             const selected = selectedIndex === i;
             return (
               <button
+                type="button"
                 key={language.code}
                 className={[style.language, selected ? style.selected : ''].join(' ')}
                 onClick={() => changeLanguage(language.code, i)}

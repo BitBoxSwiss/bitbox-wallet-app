@@ -21,10 +21,10 @@ import style from './account.module.css';
 type TProps = {
     canSend?: boolean;
     code: string;
-    moonpayBuySupported?: boolean;
+    exchangeBuySupported?: boolean;
 }
 
-export const ActionButtons = ({ canSend, code, moonpayBuySupported }: TProps) => {
+export const ActionButtons = ({ canSend, code, exchangeBuySupported }: TProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.actionsContainer}>
@@ -40,7 +40,7 @@ export const ActionButtons = ({ canSend, code, moonpayBuySupported }: TProps) =>
       <Link key="receive" to={`/account/${code}/receive`} className={style.receive}>
         <span>{t('button.receive')}</span>
       </Link>
-      { moonpayBuySupported && (
+      { exchangeBuySupported && (
         <Link key="buy" to={`/buy/info/${code}`} className={style.buy}>
           <span>{t('button.buy')}</span>
         </Link>

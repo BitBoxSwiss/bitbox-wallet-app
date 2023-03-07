@@ -14,103 +14,81 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { useState } from 'react';
 import * as bitbox02API from '../../../api/bitbox02';
-import { translate, TranslateProps } from '../../../decorators/translate';
 import { Backup, BackupsListItem } from '../components/backup';
 import { alertUser } from '../../../components/alert/Alert';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button } from '../../../components/forms';
+import { useTranslation } from 'react-i18next';
 
-interface CheckProps {
+type TProps = {
     deviceID: string;
     backups: Backup[];
     disabled: boolean;
 }
 
-type Props = CheckProps & TranslateProps;
+export const Check = ({ deviceID, backups, disabled }: TProps) => {
+  const [activeDialog, setActiveDialog] = useState(false);
+  const [message, setMessage] = useState('');
+  const [foundBackup, setFoundBackup] = useState<Backup>();
+  const [userVerified, setUserVerified] = useState(false);
+  const { t } = useTranslation();
 
-interface State {
-    activeDialog: boolean;
-    message: string;
-    foundBackup?: Backup;
-    userVerified: boolean;
-}
-
-class Check extends Component<Props, State> {
-  public readonly state: State = {
-    activeDialog: false,
-    message: '',
-    foundBackup: undefined,
-    userVerified: false,
-  };
-
-  private checkBackup = async () => {
+  const checkBackup = async () => {
+    setMessage(t('backup.check.confirmTitle'));
     try {
-      const backupID = await bitbox02API.checkBackup(this.props.deviceID, true);
-      const foundBackup = this.props.backups.find((backup: Backup) => backup.id === backupID);
+      const backupID = await bitbox02API.checkBackup(deviceID, true);
+      const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
       if (!foundBackup) {
-        alertUser(this.props.t('unknownError', { errorMessage: 'Not found' }));
+        alertUser(t('unknownError', { errorMessage: 'Not found' }));
         return;
       }
-      this.setState({
-        foundBackup,
-        activeDialog: true,
-        message: this.props.t('backup.check.success'),
-      });
-      await bitbox02API.checkBackup(this.props.deviceID, false);
-      this.setState({ userVerified: true });
+      setActiveDialog(true);
+      setFoundBackup(foundBackup);
+      await bitbox02API.checkBackup(deviceID, false);
+      setMessage(t('backup.check.success'));
+      setUserVerified(true);
     } catch {
-      this.setState({ activeDialog: true, message: this.props.t('backup.check.notOK'), userVerified: true });
+      setActiveDialog(true);
+      setMessage(t('backup.check.notOK'));
+      setUserVerified(true);
     }
   };
 
-  private abort = () => {
-    this.setState({ activeDialog: false, userVerified: false });
-  };
-
-  public render() {
-    const { t } = this.props;
-    const { activeDialog, message, foundBackup, userVerified } = this.state;
-    return (
-      <div>
-        <Button
-          primary
-          disabled={this.props.disabled}
-          onClick={this.checkBackup}
-        >
-          {t('button.check')}
-        </Button>
-        <Dialog open={activeDialog} title={message}>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                {
-                  foundBackup !== undefined && (
-                    <BackupsListItem
-                      backup={foundBackup}
-                      handleChange={() => undefined}
-                      onFocus={() => undefined}
-                      radio={false} />
-                  )
-                }
-              </div>
-            </div>
-            <DialogButtons>
+  return (
+    <div>
+      <Button
+        primary
+        disabled={disabled}
+        onClick={checkBackup}
+      >
+        {t('button.check')}
+      </Button>
+      <Dialog open={activeDialog} title={message}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          setActiveDialog(false);
+          setUserVerified(false);
+        }}>
+          { foundBackup !== undefined && (
+            <BackupsListItem
+              backup={foundBackup}
+              radio={false} />
+          )}
+          <DialogButtons>
+            {userVerified && (
               <Button
-                primary
-                onClick={this.abort}
+                autoFocus
                 disabled={!userVerified}
-              >
+                primary
+                type="submit">
                 { userVerified ? t('button.ok') : t('accountInfo.verify') }
               </Button>
-            </DialogButtons>
-          </div>
-        </Dialog>
-      </div>
-    );
-  }
-}
-
-const HOC = translate()(Check);
-export { HOC as Check };
+            )}
+          </DialogButtons>
+        </form>
+      </Dialog>
+    </div>
+  );
+};

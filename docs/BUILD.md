@@ -3,11 +3,11 @@ systems may be possible but it is explicitly unsupported. The following
 platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
-* Debian GNU/Linux: Stretch and Buster
-* Ubuntu: 14.04, 16.04, 17.10, and 18.04
-* Fedora: 26, 27, 28, and 29
-* MacOS: 10.13
-* Windows: Windows 7, Windows 10
+* Debian GNU/Linux: Stretch and Buster or newer
+* Ubuntu: 18.04+
+* Fedora: 26+
+* MacOS: 10.13+
+* Windows: Windows 7+
 
 ## Debian, Ubuntu, and Fedora GNU/Linux with Docker
 
@@ -30,11 +30,11 @@ Build artifacts:
 
 ## MacOS
 
-Make sure you have `qt@5/bin`, `go@1.19/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
+Make sure you have `qt@5/bin`, `go@1.20/bin` and `go/bin` in your PATH, i.e. add to your `.zshrc`
 
 ```bash
 export PATH="$PATH:/usr/local/opt/qt@5/bin"
-export PATH="$PATH:/usr/local/opt/go@1.19/bin"
+export PATH="$PATH:/usr/local/opt/go@1.20/bin"
 export PATH="$PATH:$HOME/go/bin"
 ```
 
@@ -65,7 +65,7 @@ $  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --pass
 ## Windows
 
 The build requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`, `Microsoft Visual Studio 2019`,
-`go 1.19`, `node@14`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
+`go 1.20`, `node@14`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
 

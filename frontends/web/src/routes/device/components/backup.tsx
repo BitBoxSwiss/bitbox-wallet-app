@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,60 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
-import { translate, TranslateProps } from '../../../decorators/translate';
+import i18n from '../../../i18n/i18n';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { Radio } from '../../../components/forms';
 import style from './backups.module.css';
 
-interface BackupsListItemProps {
-    disabled?: boolean;
-    backup: Backup;
-    selectedBackup?: string;
-    handleChange: (value: string) => void;
-    onFocus: (event: React.SyntheticEvent) => void;
-    radio: boolean;
-}
+export type Backup = {
+  id: string;
+  date: string;
+  name: string;
+};
 
-export interface Backup {
-    id: string;
-    date: string;
-    name: string;
-}
+type Props = {
+  backup: Backup;
+  disabled?: boolean;
+  handleChange?: (value: string) => void;
+  onFocus?: (event: React.SyntheticEvent) => void;
+  radio: boolean;
+  selectedBackup?: string;
+};
 
-type Props = BackupsListItemProps & TranslateProps;
-
-class BackupsListItem extends Component<Props> {
-  public render() {
-    const { disabled, backup, selectedBackup, handleChange, onFocus, radio } = this.props;
-    let date = '';
-    if (backup.date && backup.date !== '') {
-      date = convertDateToLocaleString(backup.date, this.props.i18n.language);
-    } else {
-      date = 'unknown';
-    }
-    return (
-      radio ?
-        <Radio
-          disabled={!!disabled}
-          checked={selectedBackup === backup.id}
-          onChange={(event: React.SyntheticEvent) => handleChange((event.target as HTMLInputElement).value)}
-          id={backup.id}
-          label={backup.name && backup.name !== '' ? backup.name : backup.id}
-          value={backup.id}
-          onFocus={onFocus}
-          className={style.backupItem}>
-          <span className="text-small text-gray">{date}</span>
-          <span className="text-small text-gray">ID: {backup.id}</span>
-        </Radio> :
-        <div>
-          <div className="text-medium m-bottom-quarter">{backup.name}</div>
-          <div className={style.backupID}>ID: {backup.id}</div>
-          <div className="text-small text-gray">{date}</div>
-        </div>
-    );
+export const BackupsListItem = ({
+  backup,
+  disabled,
+  handleChange,
+  onFocus,
+  radio,
+  selectedBackup,
+}: Props) => {
+  let date = '';
+  if (backup.date && backup.date !== '') {
+    date = convertDateToLocaleString(backup.date, i18n.language);
+  } else {
+    date = 'unknown';
   }
-}
-
-const TranslatedBackupsListItem = translate()(BackupsListItem);
-export { TranslatedBackupsListItem as BackupsListItem };
+  return radio ? (
+    <Radio
+      disabled={!!disabled}
+      checked={selectedBackup === backup.id}
+      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        handleChange && handleChange(event.target.value);
+      }}
+      id={backup.id}
+      label={backup.name && backup.name !== '' ? backup.name : backup.id}
+      value={backup.id}
+      onFocus={onFocus}
+      className={style.backupItem}>
+      <span className="text-small text-gray">{date}</span>
+      <span className="text-small text-gray">ID: {backup.id}</span>
+    </Radio>
+  ) : (
+    <div>
+      <div className="text-medium m-bottom-quarter">{backup.name}</div>
+      <div className={style.backupID}>ID: {backup.id}</div>
+      <div className="text-small text-gray">{date}</div>
+    </div>
+  );
+};

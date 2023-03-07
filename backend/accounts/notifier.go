@@ -15,6 +15,7 @@
 package accounts
 
 // Notifier juggles transaction IDs for the purpose of notifications and unread counts.
+//
 //go:generate mockery -name Notifier
 type Notifier interface {
 	// Put adds the id to the 'unnotified' set, unless it is already in the 'seen' set.

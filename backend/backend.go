@@ -1,5 +1,5 @@
 // Copyright 2018 Shift Devices AG
-// Copyright 2020 Shift Crypto AG
+// Copyright 2022 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package backend
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -79,6 +80,8 @@ var fixedURLWhitelist = []string{
 	"https://support.moonpay.io/",
 	"https://help.moonpay.io/",
 	"https://help.moonpay.com/",
+	// PocketBitcoin
+	"https://pocketbitcoin.com/",
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
@@ -330,6 +333,11 @@ func (backend *Backend) defaultElectrumXServers(code coinpkg.Code) []*config.Ser
 	return backend.defaultProdServers(code)
 }
 
+// DevServers returns the value of the `devservers` flag.
+func (backend *Backend) DevServers() bool {
+	return backend.arguments.DevServers()
+}
+
 // Coin returns the coin with the given code or an error if no such coin exists.
 func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	defer backend.coinsLock.Lock()()
@@ -449,6 +457,11 @@ func (backend *Backend) Start() <-chan interface{} {
 // DevicesRegistered returns a map of device IDs to device of registered devices.
 func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 	return backend.devices
+}
+
+// HTTPClient is a getter method for the HTTPClient instance.
+func (backend *Backend) HTTPClient() *http.Client {
+	return backend.httpClient
 }
 
 // Keystore returns the keystore registered at this backend, or nil if no keystore is registered.
@@ -682,4 +695,30 @@ func (backend *Backend) HandleURI(uri string) {
 	default:
 		backend.log.Warningf("Unknown URI scheme: %s", uri)
 	}
+}
+
+// GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
+// if found. It also initialize the account before returning it.
+func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, error) {
+	acctCode := accounts.Code(code)
+	// TODO: Refactor to make use of a map.
+	var acct accounts.Interface
+	for _, a := range backend.Accounts() {
+		if !a.Config().Active {
+			continue
+		}
+		if a.Config().Code == acctCode {
+			acct = a
+			break
+		}
+	}
+	if acct == nil {
+		return nil, fmt.Errorf("unknown account code %q", acctCode)
+	}
+
+	if err := acct.Initialize(); err != nil {
+		return nil, err
+	}
+
+	return acct, nil
 }

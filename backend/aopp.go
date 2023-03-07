@@ -61,7 +61,7 @@ const (
 	// Nothing is happening, we are waiting for an AOPP request.
 	aoppStateInactive aoppState = "inactive"
 	// The user is prompted to continue or cancel a new AOPP request. This is always the first state
-	// when a new AOPP request is is handled.
+	// when a new AOPP request is handled.
 	aoppStateUserApproval aoppState = "user-approval"
 	// No keystore is connected, so we are waiting for the user to insert and unlock their
 	// device. This state is skipped if a keystore already exists.

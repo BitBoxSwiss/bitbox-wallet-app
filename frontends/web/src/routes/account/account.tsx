@@ -22,7 +22,7 @@ import { useLoad } from '../../hooks/api';
 import * as accountApi from '../../api/account';
 import { syncAddressesCount } from '../../api/accountsync';
 import { TDevices } from '../../api/devices';
-import { isMoonpayBuySupported } from '../../api/backend';
+import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
 import { useSDCard } from '../../hooks/sdcard';
 import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { statusChanged, syncdone } from '../../api/subscribe-legacy';
@@ -36,7 +36,7 @@ import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { apiGet } from '../../utils/request';
-import { BuyCTA } from './info/buyCTA';
+import { BuyReceiveCTA } from './info/buyReceiveCTA';
 import { isBitcoinBased } from './utils';
 import { ActionButtons } from './actionButtons';
 import style from './account.module.css';
@@ -60,6 +60,7 @@ export function Account({
   const [transactions, setTransactions] = useState<accountApi.ITransaction[]>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [stateCode, setStateCode] = useState<string>();
+  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
 
   useEffect(() => {
     apiGet('config').then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
@@ -131,8 +132,6 @@ export function Account({
     return () => unsubscribe(unsubscribeList);
   }, [code, onAccountChanged, onStatusChanged, status]);
 
-  const moonpayBuySupported = useLoad(isMoonpayBuySupported(code));
-
   function exportAccount() {
     if (status === undefined || status.fatalError) {
       return;
@@ -186,16 +185,20 @@ export function Account({
     }
   }
 
-  const showBuyButton = moonpayBuySupported
-    && balance
+  const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
+
+  const isAccountEmpty = balance
     && !balance.hasAvailable
     && !balance.hasIncoming
-    && transactions && transactions.length === 0;
+    && transactions
+    && transactions.length === 0;
+
+  const showBuyButton = exchangeBuySupported && isAccountEmpty;
 
   const actionButtonsProps = {
     code,
     canSend,
-    moonpayBuySupported
+    exchangeBuySupported
   };
 
   return (
@@ -216,11 +219,6 @@ export function Account({
         )}
         <div className="innerContainer scrollableContainer">
           <div className="content padded">
-            { showBuyButton && (
-              <BuyCTA
-                code={code}
-                unit={balance.available.unit} />
-            )}
 
             <div className="flex flex-column flex-reverse-mobile">
               <label className="labelXLarge flex-self-start-mobile hide-on-small">
@@ -231,12 +229,18 @@ export function Account({
                 <label className="labelXLarge flex-self-start-mobile show-on-small">
                   {t('accountSummary.availableBalance')}
                 </label>
-                <ActionButtons {...actionButtonsProps} />
+                {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </div>
-
+            {showBuyButton && (
+              <BuyReceiveCTA
+                code={code}
+                unit={balance.available.unit}
+                balanceList={[[code, balance]]}
+              />
+            )}
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
-              <Spinner text={
+              <Spinner guideExists text={
                 (status.fatalError && t('account.fatalError'))
                   || offlineErrorTextLines.join('\n')
                   || (!status.synced &&
@@ -246,12 +250,14 @@ export function Account({
                   || ''
               } />
             ) : (
-              <Transactions
-                accountCode={code}
-                handleExport={exportAccount}
-                explorerURL={account.blockExplorerTxPrefix}
-                transactions={transactions}
-              />
+              <>
+                {!isAccountEmpty && <Transactions
+                  accountCode={code}
+                  handleExport={exportAccount}
+                  explorerURL={account.blockExplorerTxPrefix}
+                  transactions={transactions}
+                /> }
+              </>
             ) }
           </div>
         </div>

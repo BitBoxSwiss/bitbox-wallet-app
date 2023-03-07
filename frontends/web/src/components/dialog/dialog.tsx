@@ -49,13 +49,17 @@ class Dialog extends Component<Props, State> {
     renderDialog: false,
   };
 
+  public componentDidMount(): void {
+    if (this.props.open) {
+      this.activate();
+    }
+  }
+
   public componentDidUpdate(prevProps: Readonly<Props>): void {
     const { open } = this.props;
 
     if (open && !prevProps.open) {
-      this.setState({ renderDialog: true }, () => {
-        this.activate();
-      });
+      this.activate();
       return;
     }
 

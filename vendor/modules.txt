@@ -67,6 +67,17 @@ github.com/digitalbitbox/block-client-go/electrum/types
 github.com/digitalbitbox/block-client-go/failover
 github.com/digitalbitbox/block-client-go/jsonrpc
 github.com/digitalbitbox/block-client-go/jsonrpc/types
+# github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff
+## explicit; go 1.12
+github.com/digitalbitbox/usb
+github.com/digitalbitbox/usb/hidapi
+github.com/digitalbitbox/usb/hidapi/hidapi
+github.com/digitalbitbox/usb/hidapi/libusb
+github.com/digitalbitbox/usb/hidapi/mac
+github.com/digitalbitbox/usb/hidapi/windows
+github.com/digitalbitbox/usb/libusb
+github.com/digitalbitbox/usb/libusb/libusb
+github.com/digitalbitbox/usb/libusb/libusb/os
 # github.com/ethereum/go-ethereum v1.10.21
 ## explicit; go 1.17
 github.com/ethereum/go-ethereum
@@ -113,17 +124,6 @@ github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 ## explicit; go 1.12
 github.com/gorilla/websocket
-# github.com/karalabe/usb v0.0.2
-## explicit; go 1.12
-github.com/karalabe/usb
-github.com/karalabe/usb/hidapi
-github.com/karalabe/usb/hidapi/hidapi
-github.com/karalabe/usb/hidapi/libusb
-github.com/karalabe/usb/hidapi/mac
-github.com/karalabe/usb/hidapi/windows
-github.com/karalabe/usb/libusb
-github.com/karalabe/usb/libusb/libusb
-github.com/karalabe/usb/libusb/libusb/os
 # github.com/kkdai/bstream v1.0.0
 ## explicit; go 1.6
 github.com/kkdai/bstream

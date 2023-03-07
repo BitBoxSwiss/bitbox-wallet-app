@@ -177,7 +177,7 @@ func (updater *RateUpdater) LatestPriceForPair(coinUnit, fiat string) (float64, 
 // The returned value may be imprecise if at arg matches no timestamp exactly.
 // In this case, linear interpolation is used as an approximation.
 // If no data is available with the given args, HistoricalPriceAt returns 0.
-// The latest rates can lag behind by many minutes (5-30min). Use `LatestPrice` get get the latest
+// The latest rates can lag behind by many minutes (5-30min). Use `LatestPrice` get the latest
 // rates.
 func (updater *RateUpdater) HistoricalPriceAt(coin, fiat string, at time.Time) float64 {
 	updater.historyMu.RLock()
@@ -257,7 +257,7 @@ func (updater *RateUpdater) updateLast(ctx context.Context) {
 		"vs_currencies": {simplePriceAllCurrencies},
 	}
 	endpoint := fmt.Sprintf("%s/simple/price?%s", updater.coingeckoURL, param.Encode())
-	req, err := http.NewRequest("GET", endpoint, nil)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		updater.log.WithError(err).Error("could not create request")
 		updater.last = nil
