@@ -165,10 +165,8 @@ public:
 
 int main(int argc, char *argv[])
 {
-// Enable auto HiDPI scaling on Windows only for now.
-#if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    // Enable auto HiDPI scaling to correctly manage scale factor on bigger screens
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
 
 // QT configuration parameters which change the attack surface for memory
 // corruption vulnerabilities

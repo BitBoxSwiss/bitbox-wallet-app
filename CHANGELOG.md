@@ -1,5 +1,8 @@
 # Changelog
 
+## [Unreleased]
+- Enable auto HiDPI scaling to correctly manage scale factor on high density screens
+
 ## 4.36.0
 - Re-style header for a better space utilisation
 - Re-style sidebar navigation on mobile (portrait) to be full-screen for better space utilisation and a more modern look
