@@ -4,14 +4,6 @@
     "exportTransactions": "Eksport Transaksi ke Folder Muat Turun sebagai Fail CSV",
     "fatalError": "Terdapat kesilapan yang tidak dijangka.",
     "incoming": "Masuk",
-    "info": {
-      "btc-p2pkh": "Ini adalah akaun Bitcoin Legacy. Adalah disyorkan bahawa anda menggunakan akaun Segwit Bitcoin, kerana bayaran rangkaian yang lebih rendah.",
-      "btc-p2wpkh": "Ini adalah akaun Bitcoin Native Segwit, dengan yuran rangkaian yang lebih rendah. Ia menggunakan format alamat Bech32, yang belum disokong secara meluas. Gunakan ini hanya jika anda ingin mencuba teknologi bleeding edge.",
-      "btc-p2wpkh-p2sh": "Ini adalah akaun Segwit Bitcoin, dan disyorkan kerana yuran rangkaian yang lebih rendah. Jika anda baru naik taraf dari aplikasi sebelumnya, wang anda dapat dilihat dalam akaun Bitcoin Legacy, yang dapat diaktifkan dalam tetapan. Jika anda ingin mencuba teknologi canggih dengan yuran rangkaian yang lebih rendah, pergi ke Tetapan dan aktifkan akaun Bitcoin Native Segwit, yang menggunakan format alamat Bech32.",
-      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
-      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
-    },
     "initializing": "Mendapatkan maklumat dari blockchain ...",
     "reconnecting": "Sambungan hilang, mencuba menyambung kembali..."
   },
@@ -140,7 +132,6 @@
       "title": "Inisialisasi BitBox anda"
     },
     "pairing": {
-      "confirmButton": "Sahkan dan Teruskan",
       "failed": "Pasangan tidak berjaya disahkan. Sila tancap ulang BitBox02 anda.",
       "paired": "Anda telah mengesahkan pada peranti anda bahawa kod sepadan. Jika ini betul, anda boleh meneruskan dengan mengklik butang di bawah.",
       "title": "Sahkan Kod Pasangan",
@@ -308,10 +299,6 @@
         "title": "Apa itu Public Key Lanjutan?"
       }
     },
-    "accountLegacyConvert": {
-      "text": "Pergi ke akaun Bitcoin, pilih terima dan salin alamat. Kembali ke akaun Legacy anda, klik hantar, tampal alamat yang disalin dan tandakan hantar semua. Kemudian tanda tangan dan hantar untuk memindahkan semua syiling anda dalam satu transaksi.",
-      "title": "Bagaimana untuk mengalihkan duit syiling saya keluar dari akaun Legacy?"
-    },
     "accountRates": {
       "text": "Kadar pertukaran dikemas kini setiap minit oleh CoinGecko.",
       "title": "Kadar mana yang digunakan?"
@@ -457,24 +444,6 @@
       }
     },
     "settings": {
-      "btc-p2pkh": {
-        "text": "Ini menggunakan format transaksi lama, yang telah digantikan oleh alamat dan format daripada Segwit. Jika dahulu anda menggunakan BitBox dengan aplikasi desktop lama, ini adalah akaun yang mengandung duit syiling anda sekarang. Untuk menjimatkan bayaran pada masa hadapan, pindahkan ke akaun Bitcoin dengan transaksi ke alamat dalam akaun Bitcoin atau Bitcoin bech32.",
-        "title": "Apa itu Bitcoin Legacy?"
-      },
-      "btc-p2sh": {
-        "link": {
-          "text": "Segregated Witness Benefits"
-        },
-        "text": "Ini adalah akaun segerak yang serasi (p2sh-p2wpkh). Ia menggunakan format transaksi baru yang menjimatkan yuran rangkaian anda. Format alamat adalah serupa dengan Legacy, dan dengan itu boleh digunakan dengan semua wallet / pertukaran / perkhidmatan Bitcoin yang sedia ada.",
-        "title": "Apa itu akaun Bitcoin?"
-      },
-      "btc-p2wpkh": {
-        "link": {
-          "text": "Pengambilan Bech32"
-        },
-        "text": "Untuk meraih faedah penuh yuran rangkaian Segwit yang lebih murah, Bitcoin bech32 harus digunakan. Ia menggunakan format alamat baru bernama bech32, akan tetapi format ini belum boleh diterima di mana-mana.",
-        "title": "Apa itu Bitcoin bech32?"
-      },
       "servers": {
         "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CoinGecko. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
         "title": "Server mana yang digunakan aplikasi ini?"
@@ -544,7 +513,6 @@
       "e102": "Kata laluan peranti mestilah mengandung sekurang-kurangnya 4 aksara."
     },
     "info": {
-      "button": "Teruskan",
       "description1": "Pilih kata laluan peranti anda. Ini akan digunakan untuk membuka kunci BitBox anda.",
       "description2": "Anda boleh menggunakan nombor, huruf dan simbol. Kata laluan yang lebih panjang memberikan keselamatan yang lebih tinggi",
       "description3": "Jika anda kehilangan kata laluan peranti, anda perlu menetapkan semula peranti anda dan memulihkan backup wallet anda.",
@@ -638,7 +606,6 @@
   },
   "securityInformation": {
     "create": {
-      "button": "Teruskan",
       "description1": "Sebelum menetapkan peranti anda, disarankan agar anda dalam persekitaran yang selamat.",
       "description2": "Anda akan diminta untuk membuat dua kata laluan.",
       "description3": "Yang pertama adalah <strong> kata laluan peranti </strong> yang digunakan untuk membuka peranti BitBox anda dan boleh diubah kemudian.",
@@ -647,7 +614,6 @@
       "title": "Maklumat Keselamatan"
     },
     "restore": {
-      "button": "Teruskan",
       "description1": "Anda akan diminta untuk memasukkan kad micro SD yang digunakan untuk menyimpan backup.",
       "description2": "Untuk memulihkan peranti, anda memerlukan kata laluan pemulihan anda.",
       "description3": "Sila berhati-hati semasa memasukkan kata laluan pemulihan. Sebarang kata laluan yang anda masukkan akan membuat wallet yang sah. Jika anda memasukkan kata laluan yang salah, anda mungkin akan mendapatkan baki wallet yang tidak anda harapkan.",
@@ -688,7 +654,6 @@
       "e200": "Untuk memulihkan wallet dari backup memerlukan kad micro SD."
     },
     "info": {
-      "button": "Teruskan",
       "description1": "Masukkan kad micro SD ke BitBox dan klik \"Teruskan\"",
       "description2": "Pilih backup pada dan klik \"Simpan semula\"",
       "description3": "Masukkan kata laluan pemulihan",

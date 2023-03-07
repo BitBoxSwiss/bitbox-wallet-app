@@ -5,14 +5,6 @@
     "exportTransactions": "Transacties als CSV bestand naar de downloads map exporteren",
     "fatalError": "Er is een onverwachte fout opgetreden",
     "incoming": "Inkomende",
-    "info": {
-      "btc-p2pkh": "Dit is een 'legacy' Bitcoin account. We raden aan om een SegWit account te gebruiken zodat je lagere netwerkkosten betaalt.",
-      "btc-p2wpkh": "Deze 'Native SegWit' Bitcoin account zorgt ervoor dat je de laagst mogelijke netwerkkosten betaalt.",
-      "btc-p2wpkh-p2sh": "Dit is een Segwit Bitcoin account, we raden deze aan voor lagere netwerkkosten. Als je zojuist bent geüpgradet van de vorige app, kun je je coins in de Bitcoin Legacy account vinden, die je kunt inschakelen in de instellingen. Als je de modernste technologie wilt gebruiken en nog meer wilt besparen op netwerkkosten, ga je naar Instellingen en schakel je een Native Segwit Bitcoin account in, die het Bech32 adresformaat gebruikt",
-      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
-      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
-    },
     "initializing": "Blockchain wordt gesynchroniseerd",
     "maybeProxyError": "De Tor Proxy staat ingeschakeld. Zorg ervoor dat deze correct werkt, of schakel de proxy-instelling uit.",
     "reconnecting": "Verbinding verbroken, opnieuw aan het verbinden...",
@@ -223,7 +215,6 @@
     "insertSDCard": "<strong>Zorg ervoor dat je een microSD kaart in je BitBox02 hebt zitten</strong>",
     "noPasswordMatch": "De wachtwoorden kwamen niet overeen, probeer het op nieuw.",
     "pairing": {
-      "confirmButton": "Verder",
       "failed": "Koppeling niet bevestigd. Plug je BitBox opnieuw in.",
       "paired": "Je hebt op je BitBox bevestigd dat de code overeenkomt. Als dit klopt, kun je verdergaan door op onderstaande knop te kliken.",
       "title": "Verifieer koppelcode",
@@ -244,8 +235,6 @@
       "unlock": "Voer je BitBox02 wachtwoord in om te ontgrendelen."
     },
     "stepCreate": {
-      "buttonBack": "Ga terug",
-      "buttonContinue": "Verder",
       "description": "Deze naam wordt gebruikt als apparaatnaam en voor de backup",
       "nameLabel": "BitBox02 naam",
       "namePlaceholder": "Mijn BitBox02",
@@ -270,9 +259,6 @@
       "restoreMicroSD": "Herstel met microSD kaart",
       "restoreMnemonic": "Herstel met herstelwoorden",
       "title": "Stel je BitBox02 in"
-    },
-    "stepUnpaired": {
-      "verify": "Verifieer dat de koppelcode overeenkomt met wat er op je BitBox02 staat."
     },
     "success": {
       "text": "Gefeliciteerd! Je BitBox02 is nu klaar om te gebruiken.\nVoor meer informatie over het gebruik van de BitBoxApp check je de applicatiehulp door op het icoon rechtsbovenin te klikken.",
@@ -314,6 +300,70 @@
     "upgrade": "Upgraden"
   },
   "buy": {
+    "exchange": {
+      "bankTransfer": "Bankoverschrijving",
+      "bestDeal": "Beste deal",
+      "creditCard": "Creditcard",
+      "fast": "Snel",
+      "fee": "transactiekosten",
+      "infoContent": {
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "Bankoverschrijving: {{fee}}%",
+            "creditDebitCard": "Creditcard:  {{fee}}%",
+            "learnMore": "Lees meer over Moonpay",
+            "title": "Transactiekosten"
+          },
+          "fullCurrenciesList": "Bekijk hier de hele Valutalijst",
+          "payment": {
+            "asteriskText": "* Niet beschikbaar voor inwoners van de VS",
+            "bankTransfer": "Bankoverschrijving*",
+            "bankTransferDetails": {
+              "pix": "PIX (Alleen in Brazilië)",
+              "sepa": "SEPA en SEPA Instant (Alleen EUR-transacties in SEPA landen)",
+              "uk": "UK Faster Payments (Alleen GBP transacties in het VK)"
+            },
+            "creditDebitCard": "Credit/debitkaart",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa en Maestro"
+            },
+            "learnMore": "Zie meer details over betaalmethodes",
+            "title": "Betaalmethodes"
+          },
+          "supportedCurrencies": "Ondersteunt alle grote fiat-valuta: USD, EUR, CHF en meer"
+        },
+        "pocket": {
+          "fees": {
+            "info": "Bankoverschrijving: {{fee}}%",
+            "title": "Transactiekosten"
+          },
+          "learnMore": "Lees meer over Pocket",
+          "payment": {
+            "bankTransfer": "Bankoverschrijving",
+            "bankTransferDetails": {
+              "sepa": "SEPA en SEPA Instant (Alleen EUR-transacties in SEPA landen)",
+              "sic": "Swiss Interbank Clearing (CHF-transacties alleen in CH/LI)",
+              "uk": "UK Faster Payments (Alleen GBP transacties in het VK)"
+            },
+            "bankTransferReccuring": "Hoe stel ik terugkerende aankopen in met een doorlopende opdracht?",
+            "title": "Betaalmethodes"
+          },
+          "supportedCurrencies": "Ondersteunt Europese valuta: EUR, GBP en CHF.",
+          "verification": {
+            "info": "Vereist alleen identiteitsverificatie boven dagelijkse en jaarlijkse drempels.",
+            "link": "Vind hier de huidige drempels",
+            "title": "Identiteit verificatie"
+          }
+        },
+        "region": {
+          "title": "Selecteer het land waarin je bankrekening is geregistreerd om de beschikbare opties te zien"
+        }
+      },
+      "noExchanges": "Sorry, er zijn geen exchanges beschikbaar in jouw regio",
+      "region": "Regio",
+      "selectRegion": "Niet aangegeven",
+      "title": "Koop {{name}}"
+    },
     "info": {
       "continue": "Akkoord, verder",
       "crypto": "crypto",
@@ -339,10 +389,12 @@
         "privacyPolicy": "MoonPay privacy policy",
         "protection": {
           "description": "De BitBoxApp verzamelt geen data als je {{name}} koopt, de inkomende transactie wordt als gewone transactie behandeld. MoonPay moet wat persoonlijke data verzamelen om je hun diensten aan te bieden. Hun privacy policy legt in detail uit hoe die data behandeld wordt.",
+          "descriptionGeneric": "De BitBoxApp verzamelt geen informatie van je als je {{name}} koopt. De inkomende transactie wordt als een normale transactie behandeld. Onze partner-exchanges moeten echter wat informatie verzamelen om hun diensten te kunnen verlenen. Zie hun respectievelijke privacybeleid voor meer informatie over hoe ze met je data omgaan.",
           "title": "Databescherming."
         },
         "security": {
           "description": "Als je {{name}} koopt via MoonPay, gebruik je een externe dienst. Deze dienst valt buiten het BitBox02 Beveiligings- en bedreigingsmodel en vertrouwt op de beveiliging van de omgeving waarin de BitBoxApp draait.",
+          "descriptionGeneric": "Als je {{name}} koopt via een van onze partner-exchanges, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait.",
           "link": "Beveiliging- en bedreigingsmodel",
           "title": "Bedreigingsmodel"
         },
@@ -353,6 +405,37 @@
       "selectPlaceholder": "Selecteer een coin",
       "skip": "Niet nog eens weergeven",
       "title": "Koop {{name}}"
+    },
+    "pocket": {
+      "data": {
+        "link": "Pocket's privacybeleid",
+        "p1": "De BitBoxApp verzamelt geen informatie van je als je bitcoin koopt. De inkomende transactie wordt als een normale transactie behandeld. Moet echter wat informatie verzamelen om hun diensten te kunnen verlenen. Pocket's privacybeleid legt in detail uit hoe ze met je data omgaan.",
+        "title": "Databescherming"
+      },
+      "kyc": {
+        "link": "Lees de Pocket-FAQs",
+        "p1": "Pocket probeert KYC tot een minimum te beperken. Voor aankopen van minder dan 900EUR (1000 CHF) per dag, is het uploaden van identificatie-documenten niet nodig. Als je meer dan dit wilt kopen, zul je een gesprek met Pocket in moeten plannen om de benodigde KYC/AML-procedure te doorlopen.",
+        "title": "KYC/AML"
+      },
+      "payment": {
+        "p1": "Je kunt bij Pocket direct bitcoin kopen met een simpele SEPA bankoverschrijving. De transactiekosten hiervoor zijn 1.5%, en de bitcoin wordt direct naar je BitBox gestuurd (zodra Pocket de bankoverschrijving heeft ontvangen - meestal dezelfde dag nog).",
+        "p2": "Let er op dat de wisselkoers die Pocket hanteert verschillend kan zijn dan die in de BitBoxApp wordt aangegeven, wat een klein verschil in de hoeveelheden kan opleveren.",
+        "title": "Betaalmethodes en transactiekosten"
+      },
+      "previousTransactions": "Je deelt een bestaande en gebruikte account met Pocket. Als je dit doet kunnen ze je volledige transactiegeschiedenis en alle toekomstige transacties inzien. Wil je toch doorgaan?",
+      "security": {
+        "link": "BitBox02 beveiligings- en bedreigingsmodel",
+        "p1": "Als je bitcoin koopt via Pocket, gebruik je een externe dienst. Deze diensten vallen buiten het beveiligings- en bedreigingsmodel van de BitBox02 en zijn afhankelijk van de veiligheid van de omgeving waarin de BitBoxApp software draait. We werken echter samen met Pocket om de beveiliging te verbeteren door het adres waar je op ontvangt te controleren met een tweefactor-authenticatiemechanisme.",
+        "title": "Beveiligingsmodel"
+      },
+      "usedAddress": "Het adres {{address}} is al gebruikt, probeer het opnieuw met een nieuw adres.",
+      "verifyBitBox02": "Verifieer alsjeblieft of het adres wat je via de mail is toegestuurd hetzelfde is als het adres dat op je BitBox wordt weergegeven. Als het kan, is het het beste om de email op een tweede apparaat te openen.",
+      "welcome": {
+        "p1": "Met Pocket kun je binnen een paar kliks direct in de BitBoxApp bitcoin kopen.",
+        "p2": "Pocket is een Zwitsers platform wat het makkelijk en snel maakt om bitcoin te kopen in bijna heel Europa (overal waar SEPA bankoverschrijvingen beschikbaar zijn).",
+        "p3": "Met Pocket kun je ook regelmatige aankopen doen door een herhaalopdracht in te stellen bij je bank, zodat je makkelijk een DCA (dollar-cost-averaging) spaarplan in kunt stellen.",
+        "title": "Welkom bij je one-stop-shop voor bitcoin-aankopen"
+      }
     },
     "title": "Koop {{name}}"
   },
@@ -394,11 +477,13 @@
   },
   "deviceSettings": {
     "firmware": {
+      "firmwareVersion": "Firmware-versie",
       "newVersion": {
         "label": "Beschikbare versie"
       },
       "title": "Firmware",
       "upToDate": "Je BitBox is up-to-date",
+      "upgradeAvailable": "Een nieuwe upgrade is beschikbaar",
       "version": {
         "label": "Versie"
       }
@@ -489,15 +574,8 @@
     "appVersion": "App versie:"
   },
   "generic": {
-    "and": "en",
-    "applying": "Configuratie toepassen",
-    "confirmToContinue": "Bevestig om door te gaan.",
-    "description": "Omschrijving",
-    "enable_false": "Uitschakelen",
-    "enable_true": "Inschakelen",
     "enabled_false": "Uitgeschakeld",
-    "enabled_true": "Ingeschakeld",
-    "success": "Succes"
+    "enabled_true": "Ingeschakeld"
   },
   "genericError": "Er is een fout opgetreden. Start de applicatie opnieuw op als je problemen tegenkomt.",
   "goal": {
@@ -560,10 +638,6 @@
         "text": "Een uitgebreide publieke sleutel is de bron waaruit alle ontvangstadressen van een account gemaakt worden. \n\nHet wordt hier weergegeven voor geavanceerde gebruikers en voor ondersteuning van watch-only wallets zoals Electrum of Sentinel. Als je verschillende adrestypes gebruikt, noteer dan alle verschillende XPUB-formaten in de watch-only wallet om al je coins te kunnen zien.\n\nLet op dat niet alle externe wallets nog Taproot ondersteunen. ",
         "title": "Wat is een uitgebreide publieke sleutel?"
       }
-    },
-    "accountLegacyConvert": {
-      "text": "Ga naar je Bitcoin-account, klik op 'ontvangen' en kopieer het adres. Ga terug naar je legacy-account, klik op verzenden, plak het gekopieerde adres en klik op 'alles verzenden'. Onderteken de transactie en klik op verzenen om al je coins in één enkele transactie te versturen.",
-      "title": "Hoe kan ik mijn coins uit de legacy-account verplaatsen?"
     },
     "accountRates": {
       "text": "We vernieuwen de wisselkoers iedere minuut gebaseerd op de wisselkoersen van CoinGecko.",
@@ -710,6 +784,26 @@
       "text": "Klik op de 'exporteren' knop en open de downloads map. Hier vind je een .csv export bestand. Klik op onderstaande link, upload je BitBox .csv bestand en importeer de data om het in je CoinTracking porfoliomanager te gebruiken en je belastingaangifte te genereren.",
       "title": "Hoe importeer ik mijn transacties in CoinTracking?"
     },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Lees meer over de authenticiteits-check"
+        },
+        "text": "De BitBoxApp doet een authenticiteitscheck om er zeker van te zijn dat je BitBox echt is. Deze check wordt lokaal uitgevoerd en benodigt geen verbinding naar externe servers.",
+        "title": "Hoe werkt de authenticiteitscheck?"
+      },
+      "name": {
+        "text": "Dit is de naam van je wallet en van je backup. De naam wordt gebruikt voor toekomstige backups en kan ook gebruikt worden om verschillende wallets te onderscheiden. Deze kun je op ieder moment veranderen, maar backups die je hiervoor gemaakt hebt zullen nog steeds de oude naam gebruiken.",
+        "title": "Waar wordt de BitBox02-naam voor gebruikt?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Lees meer over de secure chip"
+        },
+        "text": "Deze informatie toont het modelnummer van de secure chip. De het nieuwste model is de ATECC608B, die verbeterde beveiligings-eigenschappen heeft vergleken met oudere modellen.",
+        "title": "Waarom wordt het secure chip modelnummer getoond?"
+      }
+    },
     "exchanges": {
       "commission": {
         "text": "Deze pagina gebruikt sponsorlinks waar mogelijk. Niet alle exchanges hebben een sponsorprogramma. Of een exchange dit heeft, heeft geen invloed op onze beslissing om ze op deze lijst te zetten.",
@@ -814,24 +908,6 @@
       }
     },
     "settings": {
-      "btc-p2pkh": {
-        "text": "Een account die een ouderwets transactieformat gebruikt, die op dit moment achterhaald is door segwit-adressen en transactieformats. Als je je BitBox met de oude desktopapp hebt gebruikt, dan staan je coins op dit account. We raden aan om je coins naar een Bitcoin-Bech32 account te verplaatsen om in de toekomst op transactiekosten te besparen.",
-        "title": "Wat is Bitcoin Legacy?"
-      },
-      "btc-p2sh": {
-        "link": {
-          "text": "Segwit voordelen"
-        },
-        "text": "Dit is een segwit-compatibiliteitsadres (P2SH-P2WPKH). Het gebruikt een nieuw transactieformat dat bespaart op netwerkkosten. Dit adresformat lijkt op dat van Legacy, en kan gebruikt worden met alle Bitcoin wallets, exchanges en diensten.",
-        "title": "Wat is dit Bitcoin account?"
-      },
-      "btc-p2wpkh": {
-        "link": {
-          "text": "Bech32 adoptie"
-        },
-        "text": "Gebruik het nieuwe bech32 adresformaat om van alle voordelen die SegWit biedt te profiteren. Enkele exchanges ondersteunen SegWit nog niet.",
-        "title": "Wat is Bitcoin bech32?"
-      },
       "sats": {
         "text": "Een Satoshi (of \"sat\" in het kort) is de kleinst mogelijke eenheid op het bitcoinnetwerk. Een satoshi is één honderdmiljoenste bitcoin (0.00 000 001 BTC). Het is vernoemd naar de maker van Bitcoin, Satoshi Nakamoto.",
         "title": "Wat is een Satoshi?"
@@ -845,6 +921,10 @@
     "toggle": {
       "close": "Gids sluiten",
       "open": "Gids"
+    },
+    "trackingModePortfolioChart": {
+      "text": "Op de desktop kun je je muiscursor over de grafiek heen bewegen. Op je telefoon gebruik je je vinger om horizontaal over de grafiek te slepen.",
+      "title": "Hoe kan ik de historische waardes op de grafiek inzien?"
     },
     "unlock": {
       "forgotDevicePassword": {
@@ -909,7 +989,6 @@
       "e102": "Het apparaatwachtwoord moet ten minste vier karakters bevatten."
     },
     "info": {
-      "button": "Verder",
       "description1": "Kies je apparaatwachtwoord. Dit wordt gebruikt om je BitBox te ontgrendelen.",
       "description2": "Je kunt nummers, letters en symbolen gebruiken. Langere wachtwoorden bieden je meer veiligheid.",
       "description3": "Als je je apparaatwachtwoord kwijtraakt moet je je BitBox resetten met je backup.",
@@ -934,7 +1013,6 @@
   },
   "loading": "laden...",
   "manageAccounts": {
-    "addAccount": "$t(addAccount.title)",
     "editAccount": "Bewerken",
     "editAccountNameTitle": "Accountnaam bewerken",
     "noAccounts": "Geen accounts gevonden",
@@ -1097,6 +1175,7 @@
       "p2wpkh": "Native Segwit (standaard)",
       "p2wpkh-p2sh": "Wrapped Segwit (compatibiliteitsformaat)"
     },
+    "selectAccount": "Selecteer rekening",
     "showFull": "Toon het volledige adres op je BitBox om te verifiëren",
     "taprootWarning": "Let op: Taproot is een nieuwe adressoort in Bitcoin en wordt nog niet op grote schaal gebruikt. Het kan bijvoorbeeld zijn dat bitcoin die op een Taproot-adres ontvangen wordt, niet weergegeven wordt in andere watch-only wallets. Veel andere wallets en exchanges kunnen ook nog niet naar Taproot-adressen zenden.",
     "title": "Krijg {{accountName}}",
@@ -1117,7 +1196,6 @@
   },
   "securityInformation": {
     "create": {
-      "button": "Verder",
       "description1": "We raden je aan om je apparaat in te stellen in een veilige omgeving. Het belangrijkste is dat andere mensen niet kunnen zien welk wachtwoord je keist.",
       "description2": "Je wordt gevraagd om twee wachtwoorden aan te maken.",
       "description3": "Het eerste is het <strong>apparaatwachtwoord</strong>, wat je BitBox ontgrendeld. Dit kan later veranderd worden.",
@@ -1126,7 +1204,6 @@
       "title": "Beveiligingsinformatie"
     },
     "restore": {
-      "button": "Verder",
       "description1": "Je wordt gevraagd om de microSD kaart die je gebruikt hebt om je backup te maken in te voeren.",
       "description2": "Om je apparaat te herstellen, heb je je herstelwachtwoord nodig.",
       "description3": "Zorg ervoor dat je het juiste herstelwachtwoord invoert. Ongeacht wat je hier invoert, maak je een valide wallet aan. Als je een verkeerd wachtwoord invoert, krijg je waarschijnlijk een nieuwe, lege wallet te zien.",
@@ -1167,7 +1244,6 @@
       "e200": "Voor het herstellen van een backup is de microSD kaart nodig"
     },
     "info": {
-      "button": "Verder",
       "description1": "Voer de microSD kaart in de BitBox in en klik op \"verder\"",
       "description2": "Kies een backup en klik op \"herstellen\"",
       "description3": "Voer het herstelwachtwoord in",
