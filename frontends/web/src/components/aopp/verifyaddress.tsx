@@ -14,53 +14,35 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as accountAPI from '../../api/account';
-import { translate, TranslateProps } from '../../decorators/translate';
 import { Button } from '../forms';
 import { WaitDialog } from '../wait-dialog/wait-dialog';
 
-interface State {
-    verifying: boolean;
-}
-
-interface VerifyAddressProps {
+type TProps = {
     accountCode: string;
     address: string;
     addressID: string;
 }
 
-type Props = VerifyAddressProps & TranslateProps;
-
-class VerifyAddress extends Component<Props, State> {
-  public readonly state: State = {
-    verifying: false,
+export const VerifyAddress = ({ accountCode, address, addressID }: TProps) => {
+  const [verifying, setVerifying] = useState(false);
+  const { t } = useTranslation();
+  const verifyAddress = async () => {
+    setVerifying(true);
+    await accountAPI.verifyAddress(accountCode, addressID);
+    setVerifying(false);
   };
 
-  private verifyAddress = () => {
-    this.setState({ verifying: true });
-    accountAPI.verifyAddress(this.props.accountCode, this.props.addressID).then(() => {
-      this.setState({ verifying: false });
-    });
-  };
-
-  public render() {
-    const { t, address } = this.props;
-    const { verifying } = this.state;
-    return (
-      <div className="flex flex-column">
-        <Button secondary onClick={this.verifyAddress}>
-          {t('receive.verifyBitBox02')}
-        </Button>
-        { verifying ? (
-          <WaitDialog title={t('receive.verifyBitBox02')}>
-            { address }
-          </WaitDialog>
-        ) : null }
-      </div>
-    );
-  }
-}
-
-const translateHOC = translate()(VerifyAddress);
-export { translateHOC as VerifyAddress };
+  return <div className="flex flex-column">
+    <Button secondary onClick={verifyAddress}>
+      {t('receive.verifyBitBox02')}
+    </Button>
+    { verifying ? (
+      <WaitDialog title={t('receive.verifyBitBox02')}>
+        { address }
+      </WaitDialog>
+    ) : null }
+  </div>;
+};
