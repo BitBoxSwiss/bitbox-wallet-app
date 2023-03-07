@@ -5,14 +5,6 @@
     "exportTransactions": "Esporta transazioni in formato CSV nella cartella download",
     "fatalError": "Si è verificato un errore inatteso",
     "incoming": "In entrata",
-    "info": {
-      "btc-p2pkh": "Questo è un account Bitcoin legacy. Si raccomanda invece di utilizzare un account di tipo Bitcoin Segwit, che comporta commissioni di rete inferiori.",
-      "btc-p2wpkh": "Questo account Bitcoin Segwit Nativo incorre in commissioni di rete ancora più basse grazie al formato di indirizzo Bech32. È una tecnologia all'avanguardia ma non ancora ampiamente supportata.",
-      "btc-p2wpkh-p2sh": "Questo è un account Bitcoin Segwit ed è raccomandato per commissioni di rete più basse. Se hai appena effettuato un aggiornamento dalla precedente app, puoi trovare i tuoi fondi nell'account Bitcoin Legacy, che puoi abilitare nelle impostazioni. Se vuoi provare una tecnologia all'avanguardia e risparmiare ancora di più sulle commissioni di rete, vai su Impostazioni e attiva un account Bitcoin Segwit Nativo, che utilizza il formato di indirizzo Bech32.",
-      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
-      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
-    },
     "initializing": "Raccolgo informazioni dalla blockchain",
     "maybeProxyError": "Proxy Tor attivato. Assicurati che il tuo proxy Tor funzioni correttamente, oppure disabilita l'impostazione del proxy.",
     "reconnecting": "Connessione persa, provo a riconnettermi...",
@@ -30,7 +22,7 @@
     },
     "extendedPublicKey": "Chiave pubblica estesa",
     "label": "Informazioni sull'account",
-    "scriptType": "Tipo di scrypt",
+    "scriptType": "Tipo di script",
     "title": "Informazioni sull'account",
     "verify": "Verifica sul dispositivo",
     "xpubTypeChangeBtn": {
@@ -223,11 +215,10 @@
     "insertSDCard": "<strong>Assicurati di aver inserito la scheda microSD nel tuo BitBox02.</strong>",
     "noPasswordMatch": "Le password non corrispondono. Riprovare.",
     "pairing": {
-      "confirmButton": "Continua",
       "failed": "Abbinamento non confermato. Ricollega il tuo BitBox02.",
-      "paired": "Hai confermato sul tuo dispositivo che il codice corrisponde. Se è corretto, puoi continuare facendo clic sul pulsante qui sotto.",
+      "paired": "Hai confermato il seguente codice sul tuo dispositivo. Puoi continuare.",
       "title": "Verifica il codice di abbinamento",
-      "unpaired": "È stato rilevato un nuovo BitBox02. Si prega di verificare che il seguente codice corrisponde a quello mostrato sul tuo dispositivo. Se il codice corrisponde, tocca sotto il segno di spunta sul tuo BitBox02 e poi clicca sul pulsante qui sotto per continuare."
+      "unpaired": "È stato rilevato un nuovo BitBox02. Si prega di verificare che il seguente codice corrisponda a quello mostrato sul tuo dispositivo. Se il codice corrisponde, tocca sotto il segno di spunta sul tuo BitBox02 e poi clicca sul pulsante qui sotto per continuare."
     },
     "restoreFromMnemonic": {
       "failed": "Ripristino con parole di recupero non riuscito. Riprovare."
@@ -244,8 +235,6 @@
       "unlock": "Inserisci la password del BitBox02 per sbloccare."
     },
     "stepCreate": {
-      "buttonBack": "Indietro",
-      "buttonContinue": "Continua",
       "description": "Questo nome viene utilizzato come nome del dispositivo e per il backup.",
       "nameLabel": "Nome del BitBox02",
       "namePlaceholder": "Il mio BitBox02",
@@ -270,9 +259,6 @@
       "restoreMicroSD": "Ripristina dalla scheda microSD",
       "restoreMnemonic": "Ripristina utilizzando le parole di recupero",
       "title": "Configurare il BitBox02"
-    },
-    "stepUnpaired": {
-      "verify": "Verifica che il codice di abbinamento corrisponda a quanto visualizzato sul tuo BitBox02."
     },
     "success": {
       "text": "Urrà! Il tuo BitBox02 è ora pronto all'uso. \n\nPer ulteriori informazioni su come utilizzare la BitBoxApp, si prega di utilizzare la guida in-app cliccando sul punto di domanda in alto a destra.",
@@ -314,6 +300,70 @@
     "upgrade": "Aggiorna"
   },
   "buy": {
+    "exchange": {
+      "bankTransfer": "Bonifico bancario",
+      "bestDeal": "Miglior prezzo",
+      "creditCard": "Carta di credito",
+      "fast": "Rapido",
+      "fee": "commissione",
+      "infoContent": {
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "Bonifico Bancario: {{fee}}%",
+            "creditDebitCard": "Carta di debito/credito: {{fee}}%",
+            "learnMore": "Scopri di più su Moonpay",
+            "title": "Commissioni"
+          },
+          "fullCurrenciesList": "Vedi la lista completa di valute qui",
+          "payment": {
+            "asteriskText": "* Non disponibile per i residenti in US",
+            "bankTransfer": "Bonifico bancario*",
+            "bankTransferDetails": {
+              "pix": "PIX (Transazioni BR esclusivamente in Brasile)",
+              "sepa": "SEPA e SEPA istantaneo (transazioni EUR esclusivamente in Paesi SEPA)",
+              "uk": "UK Faster Payments (transazioni GBP esclusivamente in UK)"
+            },
+            "creditDebitCard": "Carta di credito/debito",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa e Maestro"
+            },
+            "learnMore": "Vedi più dettagli sui metodi di pagamento",
+            "title": "Metodi di pagamento"
+          },
+          "supportedCurrencies": "Supporta tutte le principali valute fiat: USD, EUR, CHF, and altre."
+        },
+        "pocket": {
+          "fees": {
+            "info": "Bonifico bancario: {{fee}}%",
+            "title": "Commissioni"
+          },
+          "learnMore": "Scopri di più su Pocket",
+          "payment": {
+            "bankTransfer": "Bonifico bancario",
+            "bankTransferDetails": {
+              "sepa": "SEPA e SEPA istantaneo (per le transazioni in EUR nei Paesi SEPA)",
+              "sic": "Swiss Interbank Clearing (per le transazioni in CHF in CH/LI)",
+              "uk": "UK Faster Payments (per le transazioni GBP in UK)"
+            },
+            "bankTransferReccuring": "Come impostare degli acquisti ricorrenti tramite un ordine permanente?",
+            "title": "Metodi di pagamento"
+          },
+          "supportedCurrencies": "Supporta le seguenti valute Europee: EUR, GBP e CHF",
+          "verification": {
+            "info": "Richiede una verifica dell'identità solamente al di sopra delle soglie giornaliere ed annuali",
+            "link": "Trova le soglie aggiornate qui",
+            "title": "Verifica dell'identità"
+          }
+        },
+        "region": {
+          "title": "Selezione il Paese in cui hai registrato il tuo conto bancario per vedere le opzioni disponibili per te."
+        }
+      },
+      "noExchanges": "Mi dispiace, non ci sono exchange disponibili in questo Paese",
+      "region": "Paese",
+      "selectRegion": "Non specificato",
+      "title": "Compra {{name}}"
+    },
     "info": {
       "continue": "Accetta e continua",
       "crypto": "crypto",
@@ -339,10 +389,12 @@
         "privacyPolicy": "Privacy policy di MoonPay",
         "protection": {
           "description": "La BitBoxApp non raccoglie alcun dato quando si acquista {{name}} ed i fondi in entrata sono trattati come una normale transazione. MoonPay ha bisogno di raccogliere alcuni dati personali per operare. La loro privacy policy spiega in dettaglio come questi dati vengono gestiti.",
+          "descriptionGeneric": "BitBoxApp non registra nessun dato durante l'acquisto di {{name}}, i fondi in entrata sono trattati come comuni transazioni. Ciò nonostante, gli exchange partner hanno bisogno di alcune informazioni per poter operare. Fai riferimento alle rispettive privacy policy per verificare come i dati vengono gestiti.",
           "title": "Protezione dei dati"
         },
         "security": {
           "description": "Quando acquisti {{name}} tramite MoonPay, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \"Securiy Threat model\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
+          "descriptionGeneric": "Quando acquisti {{name}} tramite un exchange partner, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \"Securiy Threat model\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione.",
           "link": "Security threat model",
           "title": "Security model"
         },
@@ -353,6 +405,37 @@
       "selectPlaceholder": "Seleziona una valuta",
       "skip": "Non mostrare più",
       "title": "Acquista {{name}}"
+    },
+    "pocket": {
+      "data": {
+        "link": "Privacy policy di Pocket",
+        "p1": "BitBoxApp non registra nessun dato durante l'acquisto di Bitcoin, i fondi in entrata sono trattati come comuni transazioni. Pocket ha bisogno di alcune informazioni personali per poter operare. La loro privacy policy spiega in dettaglio come i dati vengono gestiti.",
+        "title": "Protezione dei dati"
+      },
+      "kyc": {
+        "link": "Leggi le FAQ di Pocket",
+        "p1": "Pocket cerca di mantenere al minimo il KYC. Per acquisti al di sotto dei 900 EUR (1000 CHF) al giorno, non è necessario nessun documento aggiuntivo. Per acquisti di importi superiori, sarà necessario programmare una call con Pocket per completare le necessarie procedure KYC/AML.",
+        "title": "KYC/AML"
+      },
+      "payment": {
+        "p1": "Puoi comprare Bitcoin istantaneamente con Pocket tramite un bonifico bancario SEPA. La commissione è del 1,5% e i Bitcoin vengono depositati sul tuo BitBox appena possibile una volta che Pocket ha ricevuto il bonifico (di solito in giornata).",
+        "p2": "Si prega di notare che i tassi di scambio utilizzati da Pocket potrebbero differire da quelli utilizzati nella BitBoxApp, risultando in importi leggermente diversi.",
+        "title": "Metodi di pagamento e commissioni"
+      },
+      "previousTransactions": "Lo storico di transazioni di questo account non è vuoto. Condividere questo account renderà tutte le transazioni passate e future visibili per Pocket. Procedere comunque? ",
+      "security": {
+        "link": "\"BitBox02 security threat model\"",
+        "p1": "Quando acquisti Bitcoin tramite Pocket, stai usando un servizio esterno. Questo servizio è fuori dall'ambito del \"Securiy Threat model\" del BitBox02 e si affida al grado di sicurezza dell'ambiente in cui il software BitBoxApp è in esecuzione. Comunque, lavoriamo insieme per migliorare la sicurezza utilizzando un meccanismo di autenticazione a due fattori per verificare il tuo indirizzo di ricezione.",
+        "title": "Modello di sicurezza "
+      },
+      "usedAddress": "L'indirizzo {{address}} è già stato utilizzato, per favore ricomincia da capo con un nuovo indirizzo.",
+      "verifyBitBox02": "Per favore, verifica che l'indirizzo che hai ricevuto via email corrisponda a quello visualizzato sul tuo BitBox. Se possibile, dovresti aprire la mail su un secondo dispositivo per maggiore sicurezza.",
+      "welcome": {
+        "p1": "Collaboriamo con Pocket per offrirti un modo fluido per acquistare Bitcoin direttamente nella BitBoxApp. Sono solo pochi click.",
+        "p2": "Pocket è una piattaforma Svizzera che rende semplice e veloce acquistare Bitcoin in gran parte dell'Europa (ovunque un bonifico bancario SEPA sia supportato).",
+        "p3": "Con Pocket, puoi anche acquistare regolarmente tramite singoli bonifici bancari, quindi puoi fare DCA (dollar-cost averaging) con semplicità.",
+        "title": "Benvenuto nel tuo sportello unico per l'acquisto di Bitcoin"
+      }
     },
     "title": "Acquista {{name}}"
   },
@@ -394,16 +477,23 @@
   },
   "deviceSettings": {
     "firmware": {
+      "firmwareVersion": "Versione Firmware",
       "newVersion": {
         "label": "Versione disponibile"
       },
       "title": "Firmware",
       "upToDate": "Il tuo dispositivo è aggiornato",
+      "upgradeAvailable": "Nuovo upgrade disponibile",
       "version": {
         "label": "Versione"
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "Verifica di autenticità fallita",
+        "label": "Verifica di autenticità",
+        "true": "Il tuo Bitbox02 è autentico"
+      },
       "sdcard": {
         "false": "Non inserita",
         "label": "carta microSD",
@@ -484,15 +574,8 @@
     "appVersion": "Versione dell'app:"
   },
   "generic": {
-    "and": "e",
-    "applying": "Applicazione della configurazione",
-    "confirmToContinue": "Confermare per continuare.",
-    "description": "Descrizione",
-    "enable_false": "Disattiva",
-    "enable_true": "Attiva",
     "enabled_false": "Disabilitato",
-    "enabled_true": "Abilitato",
-    "success": "Successo"
+    "enabled_true": "Abilitato"
   },
   "genericError": "Si è verificato un errore. Se noti qualche problema, riavvia l'applicazione.",
   "goal": {
@@ -555,10 +638,6 @@
         "text": "Una chiave pubblica estesa è una chiave \"root\" da cui derivano tutti gli indirizzi di ricezione di un account. \n\nÈ fornita qui per un uso avanzato e per l'interoperabilità con portafogli watch-only, come Electrum o Sentinel. Se hai ricevuto su diversi tipi di indirizzo, importa tutti i diversi formati xpub nel portafoglio watch-only per vedere tutte le tue valute.\n\nNota bene: i portafogli di terze parti potrebbero non supportare ancora gli xpub di Taproot.",
         "title": "Cos'è una chiave pubblica estesa?"
       }
-    },
-    "accountLegacyConvert": {
-      "text": "Vai all'account Bitcoin, seleziona ricevi e copia l'indirizzo. Torna al tuo account Legacy, clicca su invia, incolla l'indirizzo copiato e seleziona invia tutto. Infine firma e invia per spostare tutti i tuoi fondi in una sola transazione.",
-      "title": "Come posso spostare i miei fondi dall'account Legacy?"
     },
     "accountRates": {
       "text": "Aggiorniamo i tassi di cambio ogni minuto da CoinGecko.",
@@ -705,6 +784,26 @@
       "text": "Fai clic sul pulsante \"Esporta\" e apri la cartella dei download dove troverai l'esportazione CSV. Quindi fai clic sul link sottostante, carica il tuo file CSV BitBox e importa i dati per utilizzarli nel tuo gestore del portafoglio CoinTracking e per creare le tue dichiarazioni fiscali.\n",
       "title": "Come importo le mie transazioni in CoinTracking?"
     },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Leggi di più sulla verifica di autenticità"
+        },
+        "text": "La BitBoxApp effettua una verifica di autenticità sul BitBox02 per assicurarsi che il dispositivo sia autentico. La verifica viene eseguita localmente e non si connette a nessun server",
+        "title": "Come funziona la verifica di autenticità?"
+      },
+      "name": {
+        "text": "Questo è il nome del tuo portafoglio e del backup. Il nome è utilizzato per i backup futuri e può essere utilizzato per distinguere tra differenti portafogli. Può essere cambiato in ogni momento, ma tieni presente che i backup fatti prima del cambio avranno il nome precedente.",
+        "title": "Per cosa è utilizzato il nome del BitBox02?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Leggi di più sul secure chip"
+        },
+        "text": "Questa informazione mostra il modello del secure chip. Quello più aggiornato è ATECC608B, con funzionalità di sicurezza migliorate rispetto ai modelli precedenti.",
+        "title": "Perchè mostrare il modello del secure chip?"
+      }
+    },
     "exchanges": {
       "commission": {
         "text": "Questa pagina usa link di affiliazione dove disponibili. Tuttavia, non tutti gli exchange elencati hanno un programma di affiliazione. Il fatto che uno scambio ne offra uno non influenza la nostra decisione di elencarlo.",
@@ -809,23 +908,9 @@
       }
     },
     "settings": {
-      "btc-p2pkh": {
-        "text": "Un account che utilizza un vecchio formato di transazione, ora sostituito dai formati di indirizzo e transazione Segwit. Se hai usato il BitBox con la vecchia applicazione desktop allora questo account conterrà i tuoi fondi. Ti consigliamo di trasferire i tuoi fondi su un account Bitcoin o Bitcoin bech32 per risparmiare sulle spese di transazione.",
-        "title": "Cos'è Bitcoin Legacy"
-      },
-      "btc-p2sh": {
-        "link": {
-          "text": "Benefici di Segregated Witness"
-        },
-        "text": "",
-        "title": "Cos'è un account Bitcoin?"
-      },
-      "btc-p2wpkh": {
-        "link": {
-          "text": "Adozione di Bech32"
-        },
-        "text": "Usa il nuovo formato di indirizzo Bitcoin bech32 per trarre il massimo vantaggio dalle tariffe di rete più economiche di Segwit. Ricorda che questo formato non è ancora accettato ovunque.",
-        "title": "Cos'è Bitcoin bech32"
+      "sats": {
+        "text": "Un Satoshi ('sat' in breve) è la più piccola unità di Bitcoin. Un Satoshi è un centomilionesimo di Bitcoin (0.00000001 BTC). E' stato chiamato così in omaggio al creatore di Bitcoin, Satoshi Nakamoto.",
+        "title": "Cos'è un Satoshi? "
       },
       "servers": {
         "text": "Questa app comunica con i server Shift Crypto per controllare gli aggiornamenti, caricare le transazioni e inviare informazioni alle app mobili abbinate.\nL'app recupera anche gli ultimi tassi di cambio da CoinGecko. Tutte le conversioni sono calcolate localmente, il che significa che nessun dato sull'importo della tua transazione viene mai trasmesso.\nNota: Per Ethereum e i Token ERC20, usiamo le API di Etherscan.io.",
@@ -836,6 +921,10 @@
     "toggle": {
       "close": "Chiudi guida",
       "open": "Guida"
+    },
+    "trackingModePortfolioChart": {
+      "text": "Su Desktop, sposta il cursore sopra al grafico. Da mobile, tieni il dito premuto sul grafico e spostalo orizzontalmente.",
+      "title": "Come visualizzare lo storico dei prezzi sul grafico? "
     },
     "unlock": {
       "forgotDevicePassword": {
@@ -900,7 +989,6 @@
       "e102": "La password del dispositivo deve essere composta da almeno 4 caratteri."
     },
     "info": {
-      "button": "Continua",
       "description1": "Scegli la password del tuo dispositivo. Questa sarà usata per sbloccare il tuo BitBox.",
       "description2": "Puoi usare numeri, lettere e simboli. Password più lunghe offrono maggiore sicurezza.",
       "description3": "Se perdi la password del dispositivo, dovrai resettare il tuo dispositivo e ripristinare il backup del portafoglio.",
@@ -925,7 +1013,6 @@
   },
   "loading": "caricamento...",
   "manageAccounts": {
-    "addAccount": "$t(addAccount.title)",
     "editAccount": "Modifica",
     "editAccountNameTitle": "Modifica il nome dell'account",
     "noAccounts": "Nessun account trovato",
@@ -1088,6 +1175,7 @@
       "p2wpkh": "Native Segwit (predefinito)",
       "p2wpkh-p2sh": "Wrapped Segwit (formato compatibile)"
     },
+    "selectAccount": "Scegli un account",
     "showFull": "Mostra e verifica l'indirizzo completo sul dispositivo",
     "taprootWarning": "Nota: Taproot è una nuova funzione di Bitcoin e non è ancora ampiamente adottata. I fondi ricevuti sugli indirizzi Taproot potrebbero non essere visibili nei portafogli di terze parti. Molti portafogli e exchange non sono ancora in grado di inviare ad indirizzi Taproot.",
     "title": "Ricevi {{accountName}}",
@@ -1108,7 +1196,6 @@
   },
   "securityInformation": {
     "create": {
-      "button": "Contina",
       "description1": "Ti consigliamo di impostare il tuo dispositivo in un ambiente sicuro, cioè lontano da altre persone che potrebbero vedere la password che hai scelto.",
       "description2": "Ti verrà chiesto di creare due password.",
       "description3": "La prima è la <strong>password del dispositivo</strong> che sblocca il tuo dispositivo BitBox e può essere cambiata in seguito.",
@@ -1117,7 +1204,6 @@
       "title": "Informazioni di sicurezza"
     },
     "restore": {
-      "button": "Continua",
       "description1": "Ti verrà chiesto di inserire la scheda microSD che hai usato per memorizzare il tuo backup.",
       "description2": "Per ripristinare il tuo dispositivo avrai bisogno della tua password di recupero. ",
       "description3": "Fai attenzione quando inserisci la password di recupero. Qualsiasi password inserita creerà un portafoglio valido. Se inserisci la password sbagliata, potrebbe esserti mostrato un saldo del portafoglio che non ti aspetti.",
@@ -1158,7 +1244,6 @@
       "e200": "Il ripristino di un portafoglio da un backup richiede la scheda microSD."
     },
     "info": {
-      "button": "Continua",
       "description1": "Inserire la scheda microSD nel BitBox e cliccare su \"Continua\".",
       "description2": "Scegliete un backup e cliccate su \"Ripristina\".",
       "description3": "Inserisci la password di recupero",
@@ -1189,6 +1274,7 @@
       "total": "Totale"
     },
     "error": {
+      "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo portafoglio.",
       "feeTooLow": "commissione troppo bassa",
       "feesNotAvailable": "Impossibile stimare le commissioni\n",
       "insufficientFunds": "fondi insufficienti.",
@@ -1277,10 +1363,17 @@
       "fee": "Abilitare commissioni personalizzate",
       "setProxyAddress": "Imposta indirizzo proxy",
       "title": "Impostazioni avanzate",
-      "useProxy": "Abilita il proxy per tor"
+      "useProxy": "Abilita il proxy per tor",
+      "useSats": "Mostra i valori BTC in Satoshi"
     },
     "header": {
       "home": "Home"
+    },
+    "info": {
+      "out-of-date": "Nuovo aggiornamento disponibile",
+      "title": "Informazioni",
+      "up-to-date": "La tua app è aggiornata",
+      "version": "Versione App"
     },
     "restart": "Si prega di riavviare la BitBoxApp affinché le modifiche abbiano effetto.",
     "services": {
@@ -1321,6 +1414,7 @@
       "date": "Data",
       "fiat": "Fiat",
       "fiatAmount": "Importo fiat",
+      "fiatAtTime": "Fiat al tempo della transazione",
       "status": "Status",
       "type": "Tipo"
     },

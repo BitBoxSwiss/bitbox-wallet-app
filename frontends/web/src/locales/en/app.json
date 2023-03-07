@@ -414,11 +414,11 @@
       },
       "kyc": {
         "link": "Read Pocket FAQs",
-        "p1": "Pocket tries to keep KYC to a minimum. For purchases under 900 EUR (1000 CHF) a day, no additional documents are required. For purchases over this amount, you will need to schedule a call with Pocket to complete the necessary KYC/AML process.",
+        "p1": "Pocket tries to keep KYC to a minimum. For purchases under 950 EUR (1000 CHF) a day, no additional documents are required. For purchases over this amount, you will need to schedule a call with Pocket to complete the necessary KYC/AML process.",
         "title": "KYC/AML"
       },
       "payment": {
-        "p1": "You can buy bitcoin instantly with Pocket via SEPA bank transfer. The fee is 1.5% and the bitcoin is deposited to your wallet as soon as possible after Pocket receives the bank transfer (usually within the same day).",
+        "p1": "You can buy bitcoin instantly with Pocket via SEPA bank transfer. The fee is 1.5% and the bitcoin is deposited to your BitBox as soon as possible after Pocket receives the bank transfer (usually within the same day).",
         "p2": "Please note that Pocket’s exchange rates can differ from the ones used in the BitBoxApp, resulting in slightly different amounts.",
         "title": "Payment methods and fees"
       },
@@ -428,8 +428,8 @@
         "p1": "When you buy bitcoin via Pocket, you are using an external service. This service is out of scope of the BitBox02 Security Threat model and relies on the safety and security of the environment which the BitBoxApp software is running in. However we work together to improve security by using a two factor authentication mechanism to verify the address you are receiving to.",
         "title": "Security model"
       },
-      "usedAddress": "The address {{address}} has been already used, please start again.",
-      "verifyBitBox02": "Please verify that the address you received via email matches the one displayed on your device. If possible, you should open the email on a second device for better security.",
+      "usedAddress": "The address {{address}} has been already used, please start again with a new address.",
+      "verifyBitBox02": "Please verify that the address you received via email matches the one displayed on your Bitbox. If possible, you should open the email on a second device for better security.",
       "welcome": {
         "p1": "We partner with Pocket to offer you a seamless way to buy bitcoin directly within the BitBoxApp. It's just a few clicks.",
         "p2": "Pocket is a Swiss platform that makes it quick and easy to buy bitcoin in most of Europe (anywhere where SEPA bank transfers are supported).",

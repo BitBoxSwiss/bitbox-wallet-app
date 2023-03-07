@@ -4,14 +4,6 @@
     "exportTransactions": "将交易导出为CSV文件并下载文件夹",
     "fatalError": "出现意外错误",
     "incoming": "传入",
-    "info": {
-      "btc-p2pkh": "这是一个legacy的比特币账户。建议您使用Segwit比特币帐户，因为它的网络手续费(矿工费)更低。",
-      "btc-p2wpkh": "这是比特币的Native Segwit账户，(相比比特币的Segwit账户)只需更低的网络手续费用(矿工费)。它采用Bech32地址格式，但该地址格式尚未得到广泛支持(请确保您在了解原理的基础上进行使用)。而如果您仍然想尝试前沿技术，可以考虑使用它。",
-      "btc-p2wpkh-p2sh": "这是一个Segwit比特币帐户，建议用于降低网络费用。如果您刚刚从之前的应用程序升级，则可以在比特币遗留帐户中找到您的资金，您可以在设置中启用该帐户。如果您想尝试尖端技术并节省更多网络费用，请转到设置并启用使用Bech32地址格式的Native Segwit比特币帐户。",
-      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
-      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
-    },
     "initializing": "正在从区块链网络中获取信息",
     "reconnecting": "链接断开，尝试重新链接"
   },
@@ -152,7 +144,6 @@
     },
     "insertSDCard": "<strong>请确保您的BitBox02设备上已插入了microSD卡。</strong>",
     "pairing": {
-      "confirmButton": "确认 & 继续",
       "failed": "未确认的配对。请重新插入您的BitBox02。",
       "paired": "您已在设备上确认代码匹配。如果确认无误，则可以单击下面的按钮以继续。",
       "title": "配对码验证中",
@@ -173,8 +164,6 @@
       "unlock": "输入BitBox02密码进行解锁。"
     },
     "stepCreate": {
-      "buttonBack": "退回",
-      "buttonContinue": "继续",
       "nameLabel": "BitBox02名称",
       "namePlaceholder": "我的BitBox02",
       "title": "选择BitBox02名称",
@@ -194,9 +183,6 @@
       "restoreMicroSD": "从microSD卡还原",
       "restoreMnemonic": "通过助记词还原",
       "title": "设置您的BitBox02"
-    },
-    "stepUnpaired": {
-      "verify": "请确认该配对代码与BitBox02设备上显示的代码是相同的。"
     },
     "success": {
       "text": "太棒了！您可以开始使用BitBox02了。\n\n如需获取如何使用BitBoxApp的信息，请单击右上角的问号访问应用程序指南。",
@@ -314,11 +300,6 @@
   "footer": {
     "appVersion": "App版本"
   },
-  "generic": {
-    "applying": "应用配置",
-    "confirmToContinue": "请确认以继续。",
-    "description": "说明"
-  },
   "genericError": "发生错误。如果发现任何问题，请重新启动应用程序。",
   "goal": {
     "buttons": {
@@ -368,10 +349,6 @@
         "text": "扩展公钥是帐户中所有接收地址的根密钥。\n此处提供扩展公钥供高级用户使用，以及与watch-only(仅限查阅)类型的钱包进行互操作,例如Electrum或Sentinel。",
         "title": "什么是扩展公钥？"
       }
-    },
-    "accountLegacyConvert": {
-      "text": "转到Bitcoin比特币帐户，选择接收并复制地址。返回您的legacy帐户，单击发送，粘贴复制的地址，然后勾选全部发送。最后进行签名并将您的所有数字货币通过一次交易全部发送。",
-      "title": "如何将我的数字货币从Legacy帐户中移出？"
     },
     "accountRates": {
       "text": "我们每分钟都会通过CoinGecko更新汇率。",
@@ -522,24 +499,6 @@
       }
     },
     "settings": {
-      "btc-p2pkh": {
-        "text": "使用旧交易格式的帐户，现在已被隔离见证Segwit地址和交易格式取代。如果您将BitBox与旧的电脑桌面应用程序一起使用，则此帐户将包含您的数字货币。我们建议您将数字货币转移到Bitcoin或Bitcoin bech32帐户，以节省交易费用。",
-        "title": "什么是Bitcoin Legacy?"
-      },
-      "btc-p2sh": {
-        "link": {
-          "text": "隔离见证(Segregated witness)的好处"
-        },
-        "text": "这是一个向后兼容的segwit隔离见证帐户（p2sh-p2wpkh）。它使用一种新的交易格式，可以节省您的网络费用。这种地址格式与legacy账户格式类似，因此可以被所有现有的Bitcoin比特币钱包/交易所/服务进行采用。",
-        "title": "什么是Bitcoin账户？"
-      },
-      "btc-p2wpkh": {
-        "link": {
-          "text": "Bech32的采用范围"
-        },
-        "text": "使用新的比特币Bitcoin bech32地址格式，可以享受segwit隔离见证带来的便宜网络费用。请记住，该地址格式尚未被所有应用(钱包/交易所等)接受。",
-        "title": "什么是Bitcoin bech32？"
-      },
       "servers": {
         "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CoinGecko检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
@@ -613,7 +572,6 @@
       "e102": "设备密码必须至少包含4个字符。"
     },
     "info": {
-      "button": "继续",
       "description1": "选择您的设备密码。这将用于解锁您的BitBox。",
       "description2": "您可以使用数字，字母 & 符号。更长密码可以提供更高的安全性",
       "description3": "如果您丢失了设备密码，则必须重置设备并还原钱包备份。",
@@ -715,7 +673,6 @@
   },
   "securityInformation": {
     "create": {
-      "button": "继续",
       "description1": "设置设备之前，建议您在安全的环境中进行设置。",
       "description2": "系统将要求您创建两个密码。",
       "description3": "首先是 <strong>设备密码</strong> 即可解锁您的BitBox设备，该密码以后可以进行更改。",
@@ -724,7 +681,6 @@
       "title": "安全信息"
     },
     "restore": {
-      "button": "继续",
       "description1": "系统将要求您插入用于存储备份的microSD卡。",
       "description2": "要恢复设备，您将需要使用恢复密码。 ",
       "description3": "输入恢复密码时请小心。您输入的任何密码都会创建一个有效的钱包。如果输入错误的密码，可能会看到您不期望的钱包余额。",
@@ -765,7 +721,6 @@
       "e200": "通过备份还原钱包需要用到microSD卡。"
     },
     "info": {
-      "button": "继续",
       "description1": "将microSD卡插入BitBox，然后单击“继续”",
       "description2": "选择一个备份，然后单击“还原”",
       "description3": "输入恢复密码",

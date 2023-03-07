@@ -4,14 +4,6 @@
     "exportTransactions": "İşlemleri İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
     "fatalError": "Beklenmeyen bir hata oluştu.",
     "incoming": "Gelen",
-    "info": {
-      "btc-p2pkh": "Bu eski bir Bitcoin hesabıdır. Ağ ücretlerini düşürdüğü için Segwit Bitcoin hesabını kullanmanız önerilir.",
-      "btc-p2wpkh": "Bu Yerel Segwit Bitcoin hesabı, bech32 adres formatı aracılığıyla daha düşük ağ ücretlerine olanak sağlıyor. Son teknolojiyi kullanıyor ancak henüz desteklenmiyor.",
-      "btc-p2wpkh-p2sh": "Bu bir Segwit Bitcoin hesabıdır ve daha düşük ağ ücretleri için önerilir. Önceki uygulamadan yeni yükselttiyseniz, fonlarınızı ayarlarda etkinleştirebileceğiniz Bitcoin Legacy hesabında bulabilirsiniz. En son teknolojiyi denemek ve daha fazla ağ ücreti kazanmak istiyorsanız, Ayarlar'a gidin ve Bech32 adres biçimini kullanan bir Yerel Segwit Bitcoin hesabını etkinleştirin.",
-      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
-      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
-    },
     "initializing": "Blockchain'den bilgi alınıyor…",
     "reconnecting": "Bağlantı koptu, yeniden bağlantı kuruluyor..."
   },
@@ -152,7 +144,6 @@
     },
     "insertSDCard": "<strong>Lütfen BitBox02 cihazınıza takılı bir microSD kartın olduğundan emin olun.</strong>",
     "pairing": {
-      "confirmButton": "Devam et",
       "failed": "Onaylanmamış eşleştirme. Lütfen BitBox02'nizi değiştirin.",
       "paired": "Cihazınızda kodun eşleştiğini onayladınız. Bu doğruysa, aşağıdaki düğmeye tıklayarak devam edebilirsiniz.",
       "title": "Eşleştirme Kodunu Doğrulayın",
@@ -173,8 +164,6 @@
       "unlock": "Kilidi açmak için BitBox02 şifresini girin."
     },
     "stepCreate": {
-      "buttonBack": "Geri dön",
-      "buttonContinue": "Devam et",
       "nameLabel": "BitBox02 adı",
       "namePlaceholder": "Benim BitBox02 cüzdanım",
       "title": "BitBox02 adını seçin",
@@ -194,9 +183,6 @@
       "restoreMicroSD": "MicroSD karttan geri yükle",
       "restoreMnemonic": "Anımsatıcıdan geri yükle",
       "title": "BitBox02 cihazınızı kurun"
-    },
-    "stepUnpaired": {
-      "verify": "Lütfen eşleme kodunun BitBox02’de gösterilenlerle eşleştiğini doğrulayın."
     },
     "success": {
       "text": "Yaşasın! BitBox02'niz artık kullanıma hazır.\n\nBitBox Uygulaması'nın nasıl kullanılacağı hakkında daha fazla bilgi için, lütfen sağ üst köşedeki soru işaretini tıklayarak uygulama içi kılavuzunu kullanın.",
@@ -314,11 +300,6 @@
   "footer": {
     "appVersion": "Uygulama Sürümü:"
   },
-  "generic": {
-    "applying": "Yapılandırma uygulanıyor",
-    "confirmToContinue": "Lütfen devam etmek için onaylayın.",
-    "description": "Açıklama"
-  },
   "genericError": "Bir hata oluştu. Herhangi bir sorunla karşılaşırsanız, lütfen uygulamayı yeniden başlatın.",
   "goal": {
     "buttons": {
@@ -368,10 +349,6 @@
         "text": "Genişletilmiş bir genel anahtar, bir hesabın tüm alıcı adreslerinin türetildiği bir kök anahtardır.\nBurada Electrum veya Sentinel gibi yalnızca izlemek için olan cüzdanlarla ileri düzeyde kullanım ve birlikte çalışabilirlik için sağlanmıştır.",
         "title": "Genişletilmiş genel anahtar nedir?"
       }
-    },
-    "accountLegacyConvert": {
-      "text": "Bitcoin hesabına gidin, adresi seçin ve adresi kopyalayın. Eski hesabınıza geri dönün, gönder düğmesine tıklayın, kopyalanan adresi yapıştırın ve tümünü gönder seçeneğini işaretleyin. Ardından tüm paralarınızı tek bir işlemde taşımak için imzalayın ve gönderin.",
-      "title": "Paralarımı Legacy hesabından nasıl çıkarabilirim?"
     },
     "accountRates": {
       "text": "Kripto para kurlarını her dakika CoinGecko'dan güncelliyoruz.",
@@ -521,24 +498,6 @@
       }
     },
     "settings": {
-      "btc-p2pkh": {
-        "text": "Eski bir işlem formatı kullanan ve artık Segwit adresi ve işlem formatları tarafından değiştirilen bir hesap. BitBox'ı eski masaüstü uygulamasıyla kullandıysanız, bu hesap paralarınızı içerecektir. İşlem ücretlerinden tasarruf etmek için paralarınızı bir Bitcoin veya Bitcoin bech32 hesabına aktarmanızı öneririz.",
-        "title": "Bitcoin Legacy nedir?"
-      },
-      "btc-p2sh": {
-        "link": {
-          "text": "SegWit'in Faydaları"
-        },
-        "text": "Bu geriye dönük uyumlu bir segwit hesabıdır (p2sh-p2wpkh). Size ağ ücretlerinden tasarruf sağlayan yeni bir işlem biçimi kullanır. Adres formatı eskilere benzer ve mevcut tüm Bitcoin cüzdan/ borsa/servislerle birlikte kullanılabilir.",
-        "title": "Bitcoin hesabı nedir?"
-      },
-      "btc-p2wpkh": {
-        "link": {
-          "text": "Bech32 adaptasyonu"
-        },
-        "text": "Segwit'in daha ucuz ağ ücretlerinden tam olarak yararlanmak için yeni Bitcoin Bech32 adres biçimini kullanın. Bu formatın henüz her yerde kabul edilmediğini unutmayın.",
-        "title": "Bitcoin bech32 nedir?"
-      },
       "servers": {
         "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CoinGecko'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
         "title": "Bu uygulama hangi sunucularla konuşuyor?"
@@ -612,7 +571,6 @@
       "e102": "Cihaz şifresi en az 4 karakterden oluşmalıdır."
     },
     "info": {
-      "button": "Devam et",
       "description1": "Cihaz şifrenizi seçin. Bu, BitBox'ınızın kilidini açmak için kullanılacaktır.",
       "description2": "Sayıları, harfleri ve sembolleri kullanabilirsiniz. Daha uzun şifreler daha yüksek güvenlik sunar.",
       "description3": "Cihaz şifresini kaybederseniz, cihazınızı sıfırlamanız ve cüzdan yedeklemenizi geri yüklemeniz gerekir.",
@@ -714,7 +672,6 @@
   },
   "securityInformation": {
     "create": {
-      "button": "Devam et",
       "description1": "Cihazınızı kurmadan önce bunu güvenli bir ortamda yapmanız önerilir.",
       "description2": "Sizden iki şifre oluşturmanız istenecektir.",
       "description3": "İlki <strong>cihaz parolası</strong>. Bu şifre BitBox cihazınızın kilidini açar ve daha sonra değiştirilebilir.",
@@ -723,7 +680,6 @@
       "title": "Güvenlik Uyarısı"
     },
     "restore": {
-      "button": "Devam et",
       "description1": "Yedeklemenizi saklamak için kullandığınız mikro SD kartı takmanız istenecektir.",
       "description2": "Cihazınızı geri yüklemek için kurtarma şifrenizin olması gerekir. ",
       "description3": "Lütfen kurtarma şifresini girerken dikkatli olun. Girdiğiniz herhangi bir şifre geçerli bir cüzdan yaratacaktır. Yanlış şifre girerseniz, beklemediğiniz bir cüzdan bakiyesi gösterilebilir.",
@@ -764,7 +720,6 @@
       "e200": "Bir cüzdanı yedekten geri yüklemek için mikro SD kart gerekir."
     },
     "info": {
-      "button": "Devam et",
       "description1": "Mikro SD kartı BitBox'a takın ve \"Devam Et\" öğesine tıklayın",
       "description2": "Bir yedekleme seçin ve \"Geri Yükle\" öğesini seçin",
       "description3": "Kurtarma şifresini girin",
