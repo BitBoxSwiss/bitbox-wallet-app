@@ -122,7 +122,7 @@ export const Settings = ({ deviceID }: TProps) => {
                     </SettingsButton>
                   ) : <Skeleton fontSize="var(--item-height)" /> }
                   { versionInfo && versionInfo.canGotoStartupSettings ? (
-                    <GotoStartupSettings apiPrefix={apiPrefix} />
+                    <GotoStartupSettings deviceID={deviceID} />
                   ) : <Skeleton fontSize="var(--item-height)" /> }
                 </Column>
               </Grid>
