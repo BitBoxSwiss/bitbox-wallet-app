@@ -63,13 +63,46 @@ export const MoonPayInfo = ({ cardFee, bankTransferFee }: TMoonPayInfo) => {
 
 export const PocketInfo = ({ bankTransferFee }: TPocketInfo) => {
   const { t } = useTranslation();
-  const formattedBankTransferFee = bankTransferFee && bankTransferFee * 100;
+  const fee = bankTransferFee && bankTransferFee * 100;
   return (
     <div className={style.container}>
-      <p>{t('buy.exchange.infoContent.pocket.supportedBankTransfers')}</p>
-      <p>{t('buy.exchange.infoContent.pocket.fee', { fee: formattedBankTransferFee })}</p>
+      <p>{t('buy.exchange.infoContent.pocket.supportedCurrencies')}</p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.pocket.payment.title')}</b></p>
+      <br />
+      <p>{t('buy.exchange.infoContent.pocket.payment.bankTransfer')}</p>
+      <ul>
+        <li>{t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.sepa')}</li>
+        <li>{t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.uk')}</li>
+        <li>{t('buy.exchange.infoContent.pocket.payment.bankTransferDetails.sic')}</li>
+      </ul>
       <br/>
-      <p><A href="https://pocketbitcoin.com/">{t('buy.exchange.infoContent.pocket.learnMore')}</A></p>
+      <p>
+        <A href="https://pocketbitcoin.com/faq/how-do-I-set-up-my-standing-order">
+          {t('buy.exchange.infoContent.pocket.payment.bankTransferReccuring')}
+        </A>
+      </p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.pocket.verification.title')}</b></p>
+      <br />
+      <p>{t('buy.exchange.infoContent.pocket.verification.info')}</p>
+      <br />
+      <p>
+        <A href="https://pocketbitcoin.com/faq/are-there-any-limits-with-pocket">
+          {t('buy.exchange.infoContent.pocket.verification.link')}
+        </A>
+      </p>
+      <br />
+      <p><b>{t('buy.exchange.infoContent.pocket.fees.title')}</b></p>
+      <ul>
+        <li>{t('buy.exchange.infoContent.pocket.fees.info', { fee })}</li>
+      </ul>
+      <br />
+      <p>
+        <A href="https://pocketbitcoin.com/">
+          {t('buy.exchange.infoContent.pocket.learnMore')}
+        </A>
+      </p>
     </div>
   );
 };
