@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { BtcUnit } from '../../../api/coins';
@@ -42,7 +42,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, customFeeUnit, isBitcoinOnly, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
 import style from './send.module.css';
-import { SelectedUTXO, UTXOs, UTXOsClass } from './utxos';
+import { TSelectedUTXOs, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
 
 interface SendProps {
@@ -95,8 +95,7 @@ interface State {
 }
 
 class Send extends Component<Props, State> {
-  private utxos = createRef<UTXOsClass>();
-  private selectedUTXOs: SelectedUTXO = {};
+  private selectedUTXOs: TSelectedUTXOs = {};
   private unsubscribe!: () => void;
   private qrCodeReader?: BrowserQRCodeReader;
 
@@ -251,9 +250,7 @@ class Send extends Component<Props, State> {
           note: '',
           customFee: '',
         });
-        if (this.utxos.current) {
-          this.utxos.current.clear();
-        }
+        this.selectedUTXOs = {};
         setTimeout(() => this.setState({
           isSent: false,
           isConfirming: false,
@@ -464,7 +461,7 @@ class Send extends Component<Props, State> {
     );
   };
 
-  private onSelectedUTXOsChange = (selectedUTXOs: SelectedUTXO) => {
+  private onSelectedUTXOsChange = (selectedUTXOs: TSelectedUTXOs) => {
     this.selectedUTXOs = selectedUTXOs;
     this.validateAndDisplayFee(true);
   };
@@ -482,8 +479,8 @@ class Send extends Component<Props, State> {
 
   private toggleCoinControl = () => {
     this.setState(({ activeCoinControl }) => {
-      if (activeCoinControl && this.utxos.current) {
-        this.utxos.current.clear();
+      if (activeCoinControl) {
+        this.selectedUTXOs = {};
       }
       return { activeCoinControl: !activeCoinControl };
     });
@@ -623,18 +620,14 @@ class Send extends Component<Props, State> {
                 <label className="labelXLarge">{t('send.availableBalance')}</label>
               </div>
               <Balance balance={balance} noRotateFiat/>
-              {
-                coinControl && (
-                  <UTXOs
-                    accountCode={account.code}
-                    active={activeCoinControl}
-                    explorerURL={account.blockExplorerTxPrefix}
-                    onClose={this.deactivateCoinControl}
-                    onChange={this.onSelectedUTXOsChange}
-                    ref={this.utxos}
-                  />
-                )
-              }
+              { coinControl && (
+                <UTXOs
+                  accountCode={account.code}
+                  active={activeCoinControl}
+                  explorerURL={account.blockExplorerTxPrefix}
+                  onClose={this.deactivateCoinControl}
+                  onChange={this.onSelectedUTXOsChange} />
+              ) }
               <div className={`flex flex-row flex-between ${style.container}`}>
                 <label className="labelXLarge">{t('send.transactionDetails')}</label>
                 { coinControl && (

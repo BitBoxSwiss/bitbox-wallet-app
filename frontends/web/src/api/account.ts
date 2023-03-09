@@ -280,16 +280,16 @@ export const verifyAddress = (code: AccountCode, addressID: string): Promise<boo
   return apiPost(`account/${code}/verify-address`, addressID);
 };
 
-export interface UTXO {
-    outPoint: string;
-    txId: string;
-    txOutput: number;
-    address: string;
-    amount: IAmount;
-    scriptType: ScriptType;
-}
+export type TUTXO = {
+  outPoint: string;
+  txId: string;
+  txOutput: number;
+  address: string;
+  amount: IAmount;
+  scriptType: ScriptType;
+};
 
-export const getUTXOs = (code: AccountCode): Promise<UTXO[]> => {
+export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
   return apiGet(`account/${code}/utxos`);
 };
 
