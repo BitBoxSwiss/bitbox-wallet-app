@@ -206,8 +206,10 @@ export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
   return apiPost(`account/${code}/export`);
 };
 
-export const getCanVerifyXPub = (code: AccountCode): Promise<boolean> => {
-  return apiGet(`account/${code}/can-verify-extended-public-key`);
+export const getCanVerifyXPub = (code: AccountCode) => {
+  return (): Promise<boolean> => {
+    return apiGet(`account/${code}/can-verify-extended-public-key`);
+  };
 };
 
 export const verifyXPub = (
