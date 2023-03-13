@@ -1,26 +1,18 @@
-import { Component } from 'react';
+import { ReactNode } from 'react';
 import style from './settingsButton.module.css';
 
-interface SettingsItemProps {
-    optionalText?: string | null;
-    optionalIcon?: JSX.Element;
+type TProps = {
+  optionalText?: string;
+  optionalIcon?: JSX.Element;
+  children: ReactNode;
 }
+export const SettingsItem = ({ optionalText, optionalIcon, children }: TProps) => {
+  return (
+    <div className={[style.container, style.item].join(' ')}>
+      {children}
+      {optionalText && <span className={style.optionalText}>{optionalText}</span>}
+      {optionalIcon}
+    </div>
+  );
 
-class SettingsItem extends Component<SettingsItemProps> {
-  public render() {
-    const { optionalText, optionalIcon, children } = this.props;
-    return (
-      <div className={[style.container, style.item].join(' ')}>
-        {children}
-        {
-          optionalText && (
-            <span className={style.optionalText}>{optionalText}</span>
-          )
-        }
-        {optionalIcon}
-      </div>
-    );
-  }
-}
-
-export { SettingsItem };
+};
