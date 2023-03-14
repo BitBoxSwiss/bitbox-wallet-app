@@ -31,7 +31,7 @@ type TBuyReceiveCTAProps = {
 export const BuyReceiveCTA = ({ code, unit, balanceList }: TBuyReceiveCTAProps) => {
   const formattedUnit = isBitcoinCoin(unit as CoinWithSAT) ? 'BTC' : unit;
   const { t } = useTranslation();
-  const onBuyCTA = () => route(code ? `/buy/exchange/${code}` : '/buy/info');
+  const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {
