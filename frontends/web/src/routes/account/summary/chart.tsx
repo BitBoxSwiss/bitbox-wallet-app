@@ -23,6 +23,7 @@ import { formatNumber } from '../../../components/rates/rates';
 import { bitcoinRemoveTrailingZeroes } from '../../../utils/trailing-zeroes';
 import styles from './chart.module.css';
 import Filters from './filters';
+import { getDarkmode } from '../../../components/darkmode/darkmode';
 import { TChartDisplay, TChartFiltersProps } from './types';
 
 export interface FormattedLineData extends LineData {
@@ -139,6 +140,7 @@ class Chart extends Component<Props, State> {
 
   private createChart = () => {
     const { data: { chartIsUpToDate, chartDataMissing } } = this.props;
+    const darkmode = getDarkmode();
     if (this.ref.current && this.hasData() && (chartIsUpToDate && !chartDataMissing)) {
       if (!this.chart) {
         const chartWidth = !this.state.isMobile ? this.ref.current.offsetWidth : document.body.clientWidth;
@@ -164,16 +166,16 @@ class Chart extends Component<Props, State> {
               visible: false,
             },
             horzLines: {
-              color: '#333333',
+              color: darkmode ? '#333333' : '#dedede',
               style: LineStyle.Solid,
               visible: !this.state.isMobile,
             },
           },
           layout: {
-            backgroundColor: '#1D1D1B',
+            backgroundColor: darkmode ? '#1D1D1B' : '#F5F5F5',
             fontSize: 11,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-            textColor: '#F5F5F5',
+            textColor: darkmode ? '#F5F5F5' : '#1D1D1B',
           },
           leftPriceScale: {
             borderVisible: false,
@@ -204,8 +206,8 @@ class Chart extends Component<Props, State> {
         priceFormat: {
           type: 'volume',
         },
-        topColor: '#5E94BF',
-        bottomColor: '#1D1D1B',
+        topColor: darkmode ? '#5E94BF' : '#DFF1FF',
+        bottomColor: darkmode ? '#1D1D1B' : '#F5F5F5',
         lineColor: 'rgba(94, 148, 192, 1)',
         crosshairMarkerRadius: 6,
       });
