@@ -1,6 +1,6 @@
 .balance, .balanceSingleValue{
     margin-left: auto;
-    color: var(--color-gray);
+    color: var(--color-secondary);
 }
 
 .balanceSingleValue {
@@ -20,11 +20,33 @@
     margin-bottom: var(--space-half);
 }
 
+.select :global(.react-select__menu) {
+    background-color: var(--background-dark);
+}
+
+.select :global(.react-select__option) {
+    background-color: var(--background-dark);
+}
+
+.select :global(.react-select__option):hover, 
+.select :global(.react-select__option--is-selected) {
+    background-color: var(--background);
+}
+
+.select :global(.react-select__option--is-disabled) span {
+    color: var(--color-secondary);
+}
+
+.select :global(.react-select__option--is-disabled):hover {
+    background-color: transparent;
+}
+
 .select :global(.react-select__option--is-selected) .balance {
     color: var(--color-white);
 }
 
 .select :global(.react-select__control) {
+    background-color: var(--background);
     padding: var(--space-quarter) var(--space-eight);
 }
 
@@ -45,9 +67,10 @@
 }
 
 
-.valueContainer{
-    display: flex;
+.valueContainer {
     align-items: center;
+    color: var(--color-alt);
+    display: flex;
 }
 
 .valueContainer > img {
