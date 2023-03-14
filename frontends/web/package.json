@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@zxing/library": "0.18.3",
-    "flag-icons": "^6.6.6",
+    "flag-icons": "file:node_vendor/flag-icons",
     "i18next": "21.6.16",
     "lightweight-charts": "3.8.0",
     "react": "17.0.2",
