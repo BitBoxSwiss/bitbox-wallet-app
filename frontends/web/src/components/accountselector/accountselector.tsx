@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { FunctionComponent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, IAccount } from '../../api/account';
 import { Button } from '../forms';
 import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
-import { FunctionComponent } from 'react';
 import Logo from '../icon/logo';
 import styles from './accountselector.module.css';
 
@@ -80,6 +79,12 @@ const DropdownIndicator: FunctionComponent<DropdownIndicatorProps<TOption>> = (p
 
 export const AccountSelector = ({ title, options, selected, onChange, onProceed }: TAccountSelector) => {
   const { t } = useTranslation();
+  const [selectedAccount, setSelectedAccount] = useState<TOption>();
+
+  useEffect(() => {
+    setSelectedAccount(options.find(opt => opt.value === selected));
+  }, [options, selected]);
+
   return (
     <>
       <h1 className="title text-center">{title}</h1>
@@ -87,14 +92,11 @@ export const AccountSelector = ({ title, options, selected, onChange, onProceed 
         className={styles.select}
         classNamePrefix="react-select"
         components={{ DropdownIndicator, SingleValue: SelectSingleValue, Option: SelectOption, IndicatorSeparator: () => null }}
-        defaultValue={selected === '' ?
-          {
-            label: t('buy.info.selectLabel'),
-            value: 'choose',
-            disabled: true
-          } :
-          options.find(opt => opt.value === selected)
-        }
+        value={selected === '' ? {
+          label: t('buy.info.selectLabel'),
+          value: 'choose',
+          disabled: true
+        } : selectedAccount}
         isSearchable={false}
         onChange={(e) => {
           const value = (e as SingleValue<TOption>)?.value || '';
