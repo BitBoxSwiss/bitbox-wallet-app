@@ -22,7 +22,25 @@
     display: flex;
 }
 
+.select :global(.react-select__single-value) {
+    color: var(--color-alt);
+}
+
+.select :global(.react-select__menu) {
+    background-color: var(--background-secondary);
+}
+
+.select :global(.react-select__option) {
+    background-color: var(--background-secondary);
+}
+
+.select :global(.react-select__option):hover, 
+.select :global(.react-select__option--is-selected) {
+    background-color: var(--background);
+}
+
 .select :global(.react-select__control) {
+    background-color: var(--background);
     padding: var(--space-quarter) var(--space-eight);
 }
 

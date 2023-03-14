@@ -21,11 +21,11 @@
 }
 
 .select :global(.react-select__menu) {
-    background-color: var(--background-dark);
+    background-color: var(--background-secondary);
 }
 
 .select :global(.react-select__option) {
-    background-color: var(--background-dark);
+    background-color: var(--background-secondary);
 }
 
 .select :global(.react-select__option):hover, 
@@ -42,7 +42,7 @@
 }
 
 .select :global(.react-select__option--is-selected) .balance {
-    color: var(--color-white);
+    color: var(--color-alt);
 }
 
 .select :global(.react-select__control) {
