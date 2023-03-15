@@ -3,7 +3,7 @@
     <g id="d" transform="translate(0 -36)">
       <g id="c">
         <g id="b">
-          <path id="a" fill="#fff" d="M0-5L-1.5-.2l2.8.9z"/>
+          <path id="a" fill="#fff" d="M0-5l-1 5 2 1z"/>
           <use xlink:href="#a" width="180" height="120" transform="scale(-1 1)"/>
         </g>
         <use xlink:href="#b" width="180" height="120" transform="rotate(72)"/>

@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-jo" viewBox="0 0 640 480">
   <defs>
     <clipPath id="a">
-      <path fill-opacity=".7" d="M-117.8 0h682.6v512h-682.6z"/>
+      <path d="M-118 0h683v512h-683z"/>
     </clipPath>
   </defs>
-  <g clip-path="url(#a)" transform="translate(110.5) scale(.9375)">
-    <g fill-rule="evenodd" stroke-width="1pt">
-      <path d="M-117.8 0h1024v170.7h-1024z"/>
-      <path fill="#fff" d="M-117.8 170.7h1024v170.6h-1024z"/>
-      <path fill="#090" d="M-117.8 341.3h1024V512h-1024z"/>
-      <path fill="red" d="M-117.8 512l512-256-512-256v512z"/>
-      <path fill="#fff" d="M24.5 289l5.7-24.9H4.7l23-11-15.9-19.9 23 11 5.6-24.8 5.7 24.9L69 233.2l-16 19.9 23 11H50.6l5.7 24.9-15.9-20z"/>
+  <g clip-path="url(#a)" transform="translate(111) scale(.9375)">
+    <g fill-rule="evenodd">
+      <path d="M-118 0H906v171H-118z"/>
+      <path fill="#fff" d="M-118 171H906v170H-118z"/>
+      <path fill="#090" d="M-118 341H906v171H-118z"/>
+      <path fill="red" d="M-118 512l512-256L-118 0v512z"/>
+      <path fill="#fff" d="M25 289l5-25H5l23-11-16-20 23 11 5-25 6 25 23-11-16 20 23 11H51l5 25-16-20z"/>
     </g>
   </g>
 </svg>

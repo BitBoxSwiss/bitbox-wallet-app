@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-kp" viewBox="0 0 640 480">
   <defs>
     <clipPath id="a">
-      <path fill-opacity=".7" d="M5 .1h682.6V512H5.1z"/>
+      <path d="M5 0h683v512H5z"/>
     </clipPath>
   </defs>
-  <g fill-rule="evenodd" clip-path="url(#a)" transform="translate(-4.8 -.1) scale(.93768)">
-    <path fill="#fff" stroke="#000" d="M776 511.5H-76V.5h852z"/>
-    <path fill="#3e5698" d="M776 419H-76v92.5h852z"/>
-    <path fill="#c60000" d="M776 397.6H-76V114.4h852z"/>
-    <path fill="#3e5698" d="M776 .6H-76V93h852z"/>
-    <path fill="#fff" d="M328.5 256c0 63.5-53 115-118.6 115S91.3 319.5 91.3 256s53-114.8 118.6-114.8c65.5 0 118.6 51.4 118.6 114.9z"/>
-    <path fill="#c40000" d="M175.8 270.6l-57-40.7 71-.2 22.7-66.4 21.1 66.1 71-.4-57.9 41.2 21.3 66.1-57-40.7-58 41.3z"/>
+  <g fill-rule="evenodd" clip-path="url(#a)" transform="translate(-5) scale(.93768)">
+    <path fill="#fff" stroke="#000" d="M776 512H-76V1h852z"/>
+    <path fill="#3e5698" d="M776 419H-76v93h852z"/>
+    <path fill="#c60000" d="M776 398H-76V114h852z"/>
+    <path fill="#3e5698" d="M776 1H-76v92h852z"/>
+    <path fill="#fff" d="M329 256c0 64-53 115-119 115S91 320 91 256s53-115 119-115c65 0 118 52 118 115z"/>
+    <path fill="#c40000" d="M176 271l-57-41h71l23-67 21 66h71l-58 41 21 66-57-40-58 41z"/>
   </g>
 </svg>
