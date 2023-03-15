@@ -36,6 +36,7 @@ import i18nEditorActive from './i18n/i18n';
 import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
+import { Darkmode } from './components/darkmode/darkmode';
 
  interface State {
      accounts: IAccount[];
@@ -183,6 +184,7 @@ class App extends Component<Props, State> {
     const activeAccounts = this.activeAccounts();
     return (
       <ConnectedApp>
+        <Darkmode />
         <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
           <Sidebar
             accounts={activeAccounts}
