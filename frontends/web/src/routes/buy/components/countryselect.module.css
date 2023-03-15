@@ -22,6 +22,10 @@
     display: flex;
 }
 
+.select :global(.react-select__input-container){
+    color: var(--color-alt);
+}
+
 .select :global(.react-select__single-value) {
     color: var(--color-alt);
 }
