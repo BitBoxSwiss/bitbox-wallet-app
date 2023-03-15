@@ -1,7 +1,3 @@
-.column {
-    margin-bottom: var(--space-default);
-}
-
 .columnAsCard {
     background-color: var(--background-secondary);
     padding: var(--space-default);
@@ -11,7 +7,7 @@
     margin-top: 0;
 }
 
-.columnButtons button {
+.columnButtons:not(.columnButtonsInline) button {
     width: 100%;
 }
 
@@ -19,12 +15,24 @@
     margin-top: var(--space-quarter);
 }
 
+.columnButtonsInline {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: var(--space-half);
+}
+
 @media (min-width: 769px) {
     .grid {
         display: grid;
         gap: var(--space-default);
-        grid-template-columns: repeat(2, 1fr);
         grid-auto-rows: minmax(100px, auto);
+    }
+
+    .grid-columns-1 {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    .grid-columns-2 {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .column {

@@ -19,11 +19,12 @@ import style from './grid.module.css';
 
 type TGridProps = {
   children: ReactNode;
+  col?: '1' | '2';
 }
 
-export const Grid = ({ children }: TGridProps) => {
+export const Grid = ({ children, col }: TGridProps) => {
   return (
-    <section className={style.grid}>
+    <section className={`${style.grid} ${style[`grid-columns-${col || 2}`]}`}>
       {children}
     </section>
   );
@@ -31,15 +32,17 @@ export const Grid = ({ children }: TGridProps) => {
 
 type TColumnProps = {
   asCard?: boolean;
+  className?: string;
   children: ReactNode;
 }
 
 export const Column = ({
   asCard,
   children,
+  className,
 }: TColumnProps) => {
   return (
-    <div className={`${style.column} ${asCard ? style.columnAsCard : ''}`}>
+    <div className={`${style.column} ${asCard ? style.columnAsCard : ''} ${className || ''}`}>
       {children}
     </div>
   );
@@ -47,11 +50,20 @@ export const Column = ({
 
 type TColumnButtonsProps = {
   children: ReactNode;
+  className?: string;
+  inline?: boolean;
 }
 
-export const ColumnButtons = ({ children }: TColumnButtonsProps) => {
+export const ColumnButtons = ({
+  children,
+  className = '',
+  inline,
+}: TColumnButtonsProps) => {
+  const classNames = `${style.columnButtons} ${
+    inline ? style.columnButtonsInline : ''
+  } ${className}`;
   return (
-    <div className={style.columnButtons}>
+    <div className={classNames}>
       {children}
     </div>
   );
