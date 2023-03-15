@@ -1,23 +1,9 @@
-.amount {
-    position: relative;
-    line-height: 1;
-    margin: 0;
-}
-
-.unit {
-    color: var(--color-secondary);
-}
-
 .pendingBalance {
     margin: 0;
     padding-top: var(--space-half);
     color: var(--color-secondary);
     font-size: var(--size-small);
     line-height: 1;
-}
-
-.balanceConversion {
-    padding-left: var(--spacing-default);
 }
 
 .balanceTable {
@@ -32,12 +18,6 @@
 .balanceTable tr {
     display: inline-block;
     vertical-align: bottom;
-}
-
-.balanceTable th {
-    text-transform: uppercase;
-    text-align: left;
-    padding-bottom: 0;
 }
 
 .balanceTable td {
@@ -62,14 +42,6 @@
     padding-right: var(--space-half);
 }
 
-.balanceTable .incomingRow {
-    display: block;
-}
-
-.balanceTable .incomingRow td {
-    font-size: var(--size-small) !important;
-}
-
 @media (max-width: 768px) {
     .balance {
         text-align: center;
@@ -85,39 +57,4 @@
     .balanceTable td {
         font-size: var(--size-subheader);
     }
-}
-
-.accountName {
-    position: relative;
-    display: inline-flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.accountName span {
-    font-size: 14px;
-    color: var(--color-secondary);
-    line-height: 1;
-    margin-right: var(--spacing-half);
-}
-
-.accountName a {
-    position: absolute;
-    right: -18px;
-    display: inline-block;
-    text-decoration: none;
-    background-color: var(--color-blue);
-    color: var(--color-alt);
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    font-size: 12px;
-    border-radius: 50%;
-    text-align: center;
-}
-
-.accountInfo {
-    height: var(--size-medium);
 }
