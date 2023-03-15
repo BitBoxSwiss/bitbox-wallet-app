@@ -30,7 +30,7 @@ import { Dialog } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { Header } from '../../../components/layout';
+import { Column, ColumnButtons, Grid, Header } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Spinner } from '../../../components/spinner/Spinner';
 import Status from '../../../components/status/status';
@@ -641,113 +641,109 @@ class Send extends Component<Props, State> {
                   <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
                 )}
               </div>
-              <div className="box large m-bottom-default">
-                <div className="columnsContainer">
-                  <div className="columns">
-                    <div className="column">
-                      <Input
-                        label={t('send.address.label')}
-                        placeholder={t('send.address.placeholder')}
-                        id="recipientAddress"
-                        error={addressError}
-                        onInput={this.handleFormChange}
-                        value={recipientAddress}
-                        className={hasCamera ? style.inputWithIcon : ''}
-                        labelSection={debug ? (
-                          <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
-                                                        Send to self
-                          </span>
-                        ) : undefined}
-                        autoFocus>
-                        {
-                          hasCamera && (
-                            <button onClick={this.toggleScanQR} className={style.qrButton}>
-                              <img src={qrcodeIcon} />
-                            </button>
-                          )
-                        }
-                      </Input>
-                    </div>
-                  </div>
-                  <div className="columns">
-                    <div className="column column-1-2">
-                      <Input
-                        type="number"
-                        step="any"
-                        min="0"
-                        label={balance ? balance.available.unit : t('send.amount.label')}
-                        id="amount"
-                        onInput={this.handleFormChange}
-                        disabled={sendAll}
-                        error={amountError}
-                        value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
-                        placeholder={t('send.amount.placeholder')}
-                        labelSection={
-                          <Checkbox
-                            label={t(this.hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
-                            id="sendAll"
-                            onChange={this.handleFormChange}
-                            checked={sendAll}
-                            className={style.maxAmount} />
-                        } />
-                    </div>
-                    <div className="column column-1-2">
-                      <Input
-                        type="number"
-                        step="any"
-                        min="0"
-                        label={baseCurrencyUnit}
-                        id="fiatAmount"
-                        onInput={this.handleFiatInput}
-                        disabled={sendAll}
-                        error={amountError}
-                        value={fiatAmount}
-                        placeholder={t('send.amount.placeholder')} />
-                    </div>
-                  </div>
-                  <div className="columns">
-                    <div className="column column-1-2 m-bottom-half">
-                      <FeeTargets
-                        accountCode={account.code}
-                        coinCode={account.coinCode}
-                        disabled={!amount && !sendAll}
-                        fiatUnit={baseCurrencyUnit}
-                        proposedFee={proposedFee}
-                        customFee={customFee}
-                        showCalculatingFeeLabel={isUpdatingProposal}
-                        onFeeTargetChange={this.feeTargetChange}
-                        onCustomFee={customFee => this.setState({ customFee }, this.validateAndDisplayFee)}
-                        error={feeError}/>
-                    </div>
-                    <div className="column column-1-2">
-                      <Input
-                        label={t('note.title')}
-                        labelSection={
-                          <span className={style.labelDescription}>
-                            {t('note.input.description')}
-                          </span>
-                        }
-                        id="note"
-                        onInput={this.handleNoteInput}
-                        value={note}
-                        placeholder={t('note.input.placeholder')} />
-                    </div>
-                  </div>
-                </div>
-                <div className="buttons ignore reverse m-top-none">
-                  <Button
-                    primary
-                    onClick={this.send}
-                    disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
-                    {t('send.button')}
-                  </Button>
-                  <ButtonLink
-                    transparent
-                    to={`/account/${code}`}>
-                    {t('button.back')}
-                  </ButtonLink>
-                </div>
-              </div>
+              <Grid col="1">
+                <Column>
+                  <Input
+                    label={t('send.address.label')}
+                    placeholder={t('send.address.placeholder')}
+                    id="recipientAddress"
+                    error={addressError}
+                    onInput={this.handleFormChange}
+                    value={recipientAddress}
+                    className={hasCamera ? style.inputWithIcon : ''}
+                    labelSection={debug ? (
+                      <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
+                        Send to self
+                      </span>
+                    ) : undefined}
+                    autoFocus>
+                    { hasCamera && (
+                      <button onClick={this.toggleScanQR} className={style.qrButton}>
+                        <img src={qrcodeIcon} />
+                      </button>
+                    )}
+                  </Input>
+                </Column>
+              </Grid>
+              <Grid>
+                <Column>
+                  <Input
+                    type="number"
+                    step="any"
+                    min="0"
+                    label={balance ? balance.available.unit : t('send.amount.label')}
+                    id="amount"
+                    onInput={this.handleFormChange}
+                    disabled={sendAll}
+                    error={amountError}
+                    value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
+                    placeholder={t('send.amount.placeholder')}
+                    labelSection={
+                      <Checkbox
+                        label={t(this.hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
+                        id="sendAll"
+                        onChange={this.handleFormChange}
+                        checked={sendAll}
+                        className={style.maxAmount} />
+                    } />
+                </Column>
+                <Column>
+                  <Input
+                    type="number"
+                    step="any"
+                    min="0"
+                    label={baseCurrencyUnit}
+                    id="fiatAmount"
+                    onInput={this.handleFiatInput}
+                    disabled={sendAll}
+                    error={amountError}
+                    value={fiatAmount}
+                    placeholder={t('send.amount.placeholder')} />
+                </Column>
+              </Grid>
+              <Grid>
+                <Column>
+                  <FeeTargets
+                    accountCode={account.code}
+                    coinCode={account.coinCode}
+                    disabled={!amount && !sendAll}
+                    fiatUnit={baseCurrencyUnit}
+                    proposedFee={proposedFee}
+                    customFee={customFee}
+                    showCalculatingFeeLabel={isUpdatingProposal}
+                    onFeeTargetChange={this.feeTargetChange}
+                    onCustomFee={customFee => this.setState({ customFee }, this.validateAndDisplayFee)}
+                    error={feeError} />
+                </Column>
+                <Column>
+                  <Input
+                    label={t('note.title')}
+                    labelSection={
+                      <span className={style.labelDescription}>
+                        {t('note.input.description')}
+                      </span>
+                    }
+                    id="note"
+                    onInput={this.handleNoteInput}
+                    value={note}
+                    placeholder={t('note.input.placeholder')} />
+                  <ColumnButtons
+                    className="m-top-default m-bottom-xlarge"
+                    inline>
+                    <Button
+                      primary
+                      onClick={this.send}
+                      disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
+                      {t('send.button')}
+                    </Button>
+                    <ButtonLink
+                      transparent
+                      to={`/account/${code}`}>
+                      {t('button.back')}
+                    </ButtonLink>
+                  </ColumnButtons>
+                </Column>
+              </Grid>
             </div>
           </div>
           {
