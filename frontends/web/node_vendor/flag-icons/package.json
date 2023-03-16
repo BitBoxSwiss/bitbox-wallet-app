@@ -9,10 +9,7 @@
     "url": "http://github.com/lipis/flag-icons"
   },
   "scripts": {
-    "build:dev": "lessc less/flag-icons.less > css/flag-icons.css",
-    "build:min": "lessc -x less/flag-icons.less > css/flag-icons.min.css",
-    "build": "yarn build:dev && yarn build:min",
-    "fix": "yarn prettier --write",
+    "start": "npm run svgo:all",
     "ids": "python3 flag-ids.py",
     "svgo:all": "find flags | grep '\\.svg$' | xargs -Iz -n 1 npm run svgo z && npm run ids",
     "svgo:min": "find flags | grep '\\.svg$' | xargs -Iz -n 1 svgo z && npm run ids",
