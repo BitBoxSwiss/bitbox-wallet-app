@@ -1,3 +1,21 @@
+fork of 6.6.6 (https://github.com/lipis/flag-icons/commit/6dfe532a007525fc2066015eff0e1c0fab5e31f2)
+
+with the following changes:
+- smaller minified version with less precission
+- removed unused 1x1 flags, sass, less and minified CSS
+- remove cefta
+
+applied upstream changes (unreleased):
+- transparent np flag (https://github.com/lipis/flag-icons/commit/156838a296451807ba33c4c1c28f491e0fa19e7b)
+- fix colors of cu flag (https://github.com/lipis/flag-icons/commit/2b15ede6c66cd434e8cf5b7cbcd008368c36439a)
+- add white background to dg and io flags (https://github.com/lipis/flag-icons/commit/a108610f6372e5ba4c8a8f80cab39f88c676a742)
+- fix do flag (https://github.com/lipis/flag-icons/commit/fee45226808177f4efabd4dba63c15239efd72a6)
+- fix kz flag (https://github.com/lipis/flag-icons/commit/a6c215825966b5d3bf704033c896df47cd0b7b76)
+- fix ag flag (https://github.com/lipis/flag-icons/commit/92628159a927ca03b7336295e3c88e2fae8d514a)
+- fix my flag (https://github.com/lipis/flag-icons/commit/8d4410f4eae3e53b5fbca8152b1fd3a02b905063)
+- remove mix-blend-mode ge flag (https://github.com/lipis/flag-icons/commit/67045023ae58d565c2d62736fef73c49c7c56ef4)
+- correct green color in sa flag (https://github.com/lipis/flag-icons/commit/5c37e436109d289aa60b1d3c7a2d1f8e4c616276)
+
 # flag-icons
 
 > A curated collection of all country flags in SVG — plus the CSS for easier integration. See the [demo](https://flagicons.lipis.dev).

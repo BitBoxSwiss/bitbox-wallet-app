@@ -1,7 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-my" viewBox="0 0 640 480">
-  <path fill="#c00" d="M0 0h640v480H0z"/>
-  <path fill="#fff" d="M1 40h639v38H1zm0 79h639v38H1zm0 78h639v39H1z"/>
-  <path fill="#006" d="M0 1h320v280H0z"/>
-  <path fill="#fc0" d="M208 74l6 41 23-34-13 39 36-21-28 30 41-3-39 15 38 14-40-3 28 30-36-21 12 40-23-34-6 40-5-40-23 34 12-40-36 21 28-30-41 3 39-14-38-15 41 3-29-30 36 21-12-40 23 35zm-34 1a71 71 0 100 131 80 80 0 110-130z"/>
-  <path fill="#fff" d="M1 276h639v39H1zm0 78h639v39H1zm-1 88h639v38H0z"/>
+  <g clip-path="url(#a)">
+    <path fill="#C00" d="M0 0h640v480H0V0Z"/>
+    <path fill="#C00" d="M0 0h640v34H0z"/>
+    <path fill="#fff" d="M0 34h640v35H0z"/>
+    <path fill="#C00" d="M0 69h640v34H0z"/>
+    <path fill="#fff" d="M0 103h640v34H0z"/>
+    <path fill="#C00" d="M0 137h640v34H0z"/>
+    <path fill="#fff" d="M0 171h640v35H0z"/>
+    <path fill="#C00" d="M0 206h640v34H0z"/>
+    <path fill="#fff" d="M0 240h640v34H0z"/>
+    <path fill="#C00" d="M0 274h640v35H0z"/>
+    <path fill="#fff" d="M0 309h640v34H0z"/>
+    <path fill="#C00" d="M0 343h640v34H0z"/>
+    <path fill="#fff" d="M0 377h640v34H0z"/>
+    <path fill="#C00" d="M0 411h640v35H0z"/>
+    <path fill="#fff" d="M0 446h640v34H0z"/>
+    <path fill="#006" d="M0 1h320v274H0V1Z"/>
+    <path fill="#FC0" d="m208 74 6 41 23-34-13 39 36-21-28 30 41-3-39 15 38 14-40-3 28 30-36-21 12 40-23-34-6 40-5-40-23 34 12-40-36 21 28-30-41 3 39-14-38-15 41 3-29-30 36 21-12-40 23 35 6-41Zm-34 1a71 71 0 0 0-100 66 71 71 0 0 0 100 65 80 80 0 0 1-83 6 80 80 0 0 1-43-72 80 80 0 0 1 126-64Z"/>
+  </g>
+  <defs>
+    <clipPath id="a">
+      <path fill="#fff" d="M0 0h640v480H0z"/>
+    </clipPath>
+  </defs>
 </svg>

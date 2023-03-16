@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-ag" viewBox="0 0 640 480">
   <defs>
     <clipPath id="a">
-      <path d="M-80 0h683v512H-80z"/>
+      <path fill-opacity=".7" d="M-80 0h683v512H-80z"/>
     </clipPath>
   </defs>
   <g fill-rule="evenodd" clip-path="url(#a)" transform="translate(75) scale(.9375)">
-    <path fill="#fff" d="M-120 0h763v512h-763z"/>
-    <path d="M-118 1h761v216h-761z"/>
-    <path fill="#0061ff" d="M21 203h505v114H21z"/>
-    <path fill="#e20000" d="M643 2v510H262L643 2zm-762 0v510h381L-119 2z"/>
-    <path fill="#ffd600" d="M440 203l-76-19 65-49-80 11 41-69-71 41 13-81-48 64-19-74-22 76-47-65 13 83-70-43 41 70-78-13 64 48-80 20h354z"/>
+    <path fill="#fff" d="M-80 0h683v512H-80V0Z"/>
+    <path d="M-80 0h683v205H-80V0Z"/>
+    <path fill="#0072c6" d="M21 203h480v112H21V203Z"/>
+    <path fill="#ce1126" d="M603 0v512H262L603 0ZM-80 0v512h342L-80 0Z"/>
+    <path fill="#fcd116" d="m440 203-76-19 65-49-80 11 41-69-71 41 13-81-48 64-19-74-22 76-47-65 13 83-70-43 41 70-78-13 64 48-80 20h354z"/>
   </g>
 </svg>
