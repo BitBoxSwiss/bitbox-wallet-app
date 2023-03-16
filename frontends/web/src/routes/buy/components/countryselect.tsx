@@ -33,9 +33,15 @@ type TProps = {
 }
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
-  return <span>
-    {regionCode === '' ? <Globe className={styles.globe} /> : <span className={`fi fi-${regionCode} ${styles.flag}`}></span>}
-  </span>;
+  const squareFlag = ['ch', 'np', 'va'].includes(regionCode) ? 'fis' : '';
+  return (
+    <span>
+      { regionCode === ''
+        ? (<Globe className={styles.globe} />)
+        : (<span className={`fi fi-${regionCode} ${styles.flag} ${squareFlag}`}></span>)
+      }
+    </span>
+  );
 };
 
 const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
