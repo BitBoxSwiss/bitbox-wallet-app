@@ -30,14 +30,16 @@ import (
 var funcCalls chan func()
 
 func init() {
-	funcCalls = make(chan func())
-	go func() {
-		runtime.LockOSThread()
-		for {
-			f := <-funcCalls
-			f()
-		}
-	}()
+	if runtime.GOOS == "darwin" {
+		funcCalls = make(chan func())
+		go func() {
+			runtime.LockOSThread()
+			for {
+				f := <-funcCalls
+				f()
+			}
+		}()
+	}
 }
 
 type funcCallResult[T any] struct {
@@ -128,29 +130,37 @@ func (s singleThreadedDevice) Close() error {
 
 // Open implements DeviceInfo.
 func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
-	ch := make(chan funcCallResult[hid.Device])
-	funcCalls <- func() {
-		device, err := info.DeviceInfo.Open()
-		ch <- funcCallResult[hid.Device]{device, err}
+	if runtime.GOOS == "darwin" {
+		ch := make(chan funcCallResult[hid.Device])
+		funcCalls <- func() {
+			device, err := info.DeviceInfo.Open()
+			ch <- funcCallResult[hid.Device]{device, err}
+		}
+		result := <-ch
+		if result.err != nil {
+			return nil, result.err
+		}
+		return singleThreadedDevice{device: result.value}, nil
 	}
-	result := <-ch
-	if result.err != nil {
-		return nil, result.err
-	}
-
-	return singleThreadedDevice{device: result.value}, nil
+	return info.DeviceInfo.Open()
 }
 
 // DeviceInfos returns a slice of all recognized devices.
 func DeviceInfos() []DeviceInfo {
 	deviceInfosFiltered := []DeviceInfo{}
 
+	var result funcCallResult[[]hid.DeviceInfo]
 	ch := make(chan funcCallResult[[]hid.DeviceInfo])
-	funcCalls <- func() {
+	if runtime.GOOS == "darwin" {
+		funcCalls <- func() {
+			di, err := hid.EnumerateHid(0, 0)
+			ch <- funcCallResult[[]hid.DeviceInfo]{di, err}
+		}
+		result = <-ch
+	} else {
 		di, err := hid.EnumerateHid(0, 0)
-		ch <- funcCallResult[[]hid.DeviceInfo]{di, err}
+		result = funcCallResult[[]hid.DeviceInfo]{di, err}
 	}
-	result := <-ch
 	// The library never actually returns an error in this functions.
 	if result.err != nil {
 		logging.Get().WithError(result.err).Error("EnumerateHid() returned an error")
