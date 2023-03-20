@@ -529,7 +529,7 @@ class BitBox02 extends Component<Props, State> {
             </ViewHeader>
             <ViewContent>
               <Grid>
-                <Column asCard>
+                <Column asCard className="m-bottom-default">
                   <h3 className="title">{t('button.create')}</h3>
                   <p>{t('bitbox02Wizard.stepUninitialized.create')}</p>
                   <ColumnButtons>
@@ -541,7 +541,7 @@ class BitBox02 extends Component<Props, State> {
                     </Button>
                   </ColumnButtons>
                 </Column>
-                <Column asCard>
+                <Column asCard className="m-bottom-default">
                   <h3 className="title">{t('button.restore')}</h3>
                   <p>{t('bitbox02Wizard.stepUninitialized.restore')}</p>
                   <ColumnButtons>

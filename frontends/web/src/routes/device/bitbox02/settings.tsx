@@ -68,7 +68,7 @@ export const Settings = ({ deviceID }: TProps) => {
             withBottomBar>
             <ViewContent>
               <Grid>
-                <Column>
+                <Column className="m-bottom-default">
                   <h3 className="subTitle">{t('deviceSettings.secrets.title')}</h3>
                   <SettingsButton onClick={() => route(`/manage-backups/${deviceID}`)}>
                     {t('deviceSettings.secrets.manageBackups')}
@@ -76,7 +76,7 @@ export const Settings = ({ deviceID }: TProps) => {
                   <ShowMnemonic deviceID={deviceID} />
                   <Reset apiPrefix={apiPrefix} />
                 </Column>
-                <Column>
+                <Column className="m-bottom-default">
                   <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
                   { deviceInfo ? (
                     <SetDeviceName
@@ -98,7 +98,7 @@ export const Settings = ({ deviceID }: TProps) => {
                 </Column>
               </Grid>
               <Grid>
-                <Column>
+                <Column className="m-bottom-default">
                   <h3 className="subTitle">{t('deviceSettings.firmware.title')}</h3>
                   { versionInfo && versionInfo.canUpgrade ? (
                     <UpgradeButton
@@ -112,7 +112,7 @@ export const Settings = ({ deviceID }: TProps) => {
                     </SettingsItem>
                   ) : <Skeleton fontSize="var(--item-height)" />}
                 </Column>
-                <Column>
+                <Column className="m-bottom-default">
                   <h3 className="subTitle">{t('settings.expert.title')}</h3>
                   { deviceInfo ? (
                     <SettingsButton onClick={routeToPassphrase}>

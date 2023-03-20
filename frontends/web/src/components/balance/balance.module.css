@@ -1,32 +1,10 @@
-.amount {
-    position: relative;
-    line-height: 1;
-    margin: 0;
-}
-
-.unit {
-    color: var(--color-secondary);
-}
-
-.pendingBalance {
-    margin: 0;
-    padding-top: var(--space-half);
-    color: var(--color-secondary);
-    font-size: var(--size-small);
-    line-height: 1;
-}
-
-.balanceConversion {
-    padding-left: var(--spacing-default);
-}
-
 .balanceTable {
-    border-spacing: 0;
+    align-items: flex-end;
     border-collapse: collapse;
-    position: relative;
+    border-spacing: 0;
     display: flex;
     flex-direction: row;
-    align-items: flex-end;
+    position: relative;
 }
 
 .balanceTable tr {
@@ -34,18 +12,12 @@
     vertical-align: bottom;
 }
 
-.balanceTable th {
-    text-transform: uppercase;
-    text-align: left;
-    padding-bottom: 0;
-}
-
 .balanceTable td {
     font-size: var(--size-large);
     font-weight: 400;
-    line-height: 1;
-    vertical-align: baseline;
+    line-height: 1.2;
     padding: 0;
+    vertical-align: baseline;
 }
 
 .balanceTable td:last-child {
@@ -62,22 +34,28 @@
     padding-right: var(--space-half);
 }
 
-.balanceTable .incomingRow {
-    display: block;
-}
-
-.balanceTable .incomingRow td {
-    font-size: var(--size-small) !important;
+.pendingBalance {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    line-height: 1;
+    margin: 0;
+    padding-top: var(--space-half);
 }
 
 @media (max-width: 768px) {
-    .balance {
-        text-align: center;
-    }
 
     .balanceTable {
         display: inline-block;
         margin: 0 auto;
+    }
+
+    .balanceTable td {
+        font-size: var(--size-large-mobile);
+        line-height: 1.5;
+    }
+
+    .pendingBalance {
+        padding-top: var(--space-quarter);
     }
 }
 
@@ -85,39 +63,4 @@
     .balanceTable td {
         font-size: var(--size-subheader);
     }
-}
-
-.accountName {
-    position: relative;
-    display: inline-flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.accountName span {
-    font-size: 14px;
-    color: var(--color-secondary);
-    line-height: 1;
-    margin-right: var(--spacing-half);
-}
-
-.accountName a {
-    position: absolute;
-    right: -18px;
-    display: inline-block;
-    text-decoration: none;
-    background-color: var(--color-blue);
-    color: var(--color-alt);
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    font-size: 12px;
-    border-radius: 50%;
-    text-align: center;
-}
-
-.accountInfo {
-    height: var(--size-medium);
 }
