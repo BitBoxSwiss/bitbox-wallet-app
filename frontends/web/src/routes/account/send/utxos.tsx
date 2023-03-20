@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,92 +15,72 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
-import * as accountApi from '../../../api/account';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  allScriptTypes,
+  getUTXOs,
+  ScriptType,
+  TUTXO,
+} from '../../../api/account';
+import { syncdone } from '../../../api/subscribe-legacy';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
-import { ExpandOpen } from '../../../components/icon/icon';
+import { ExpandOpen } from '../../../components/icon';
 import { FiatConversion } from '../../../components/rates/rates';
-import { translate, TranslateProps } from '../../../decorators/translate';
 import { getScriptName } from '../utils';
-import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
-import { syncdone } from '../../../api/subscribe-legacy';
 import style from './utxos.module.css';
 
-interface UTXOsProps {
-    accountCode: string;
-    active: boolean;
-    explorerURL: string;
-    onChange: (selectedUTXO: SelectedUTXO) => void;
-    onClose: () => void;
-    // eslint-disable-next-line react/no-unused-prop-types
-    ref?: React.RefObject<any> // WithTranslation doesn't add ref prop correctly
-}
+export type TSelectedUTXOs = {
+  [key: string]: boolean;
+};
 
-export interface SelectedUTXO {
-    [key: string]: boolean;
-}
+type Props = {
+  accountCode: string;
+  active: boolean;
+  explorerURL: string;
+  onChange: (selectedUTXO: TSelectedUTXOs) => void;
+  onClose: () => void;
+};
 
-export type Props = UTXOsProps & TranslateProps;
+export const UTXOs = ({
+  accountCode,
+  active,
+  explorerURL,
+  onChange,
+  onClose,
+}: Props) => {
+  const { t } = useTranslation();
+  const [utxos, setUtxos] = useState<TUTXO[]>([]);
+  const [selectedUTXOs, setSelectedUTXOs] = useState<TSelectedUTXOs>({});
 
-interface State {
-    utxos: accountApi.UTXO[];
-    selectedUTXOs: SelectedUTXO;
-}
+  useEffect(() => {
+    getUTXOs(accountCode).then(setUtxos);
+    return () => setUtxos([]);
+  }, [accountCode]);
 
-export class UTXOsClass extends Component<Props, State> {
-  public readonly state: State = {
-    utxos: [],
-    selectedUTXOs: {},
-  };
-
-  private subscriptions: UnsubscribeList = [];
-
-  public componentDidMount() {
-    this.getUTXOs();
-    this.subscribe();
-  }
-
-  public componentWillUnmount() {
-    unsubscribe(this.subscriptions);
-  }
-
-  private subscribe() {
-    this.subscriptions.push(
-      syncdone(this.props.accountCode, () => this.getUTXOs()),
-    );
-  }
-
-  private getUTXOs() {
-    accountApi.getUTXOs(this.props.accountCode).then(utxos => {
-      this.setState({ utxos });
+  useEffect(() => {
+    const unsubscribe = syncdone(accountCode, () => {
+      getUTXOs(accountCode).then(setUtxos);
     });
-  }
+    return () => unsubscribe();
+  }, [accountCode]);
 
-  public clear = () => {
-    this.setState({ selectedUTXOs: {} }, () => {
-      this.props.onChange(this.state.selectedUTXOs);
-    });
-  };
-
-  private handleUTXOChange = (event: React.SyntheticEvent) => {
+  const handleUTXOChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
     const outPoint = target.dataset.outpoint as string;
-    const selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
+    const proposedUTXOs = Object.assign({}, selectedUTXOs);
     if (target.checked) {
-      selectedUTXOs[outPoint] = true;
+      proposedUTXOs[outPoint] = true;
     } else {
-      delete selectedUTXOs[outPoint];
+      delete proposedUTXOs[outPoint];
     }
-    this.setState({ selectedUTXOs }, () => {
-      this.props.onChange(selectedUTXOs);
-    });
+    setSelectedUTXOs(proposedUTXOs);
+    onChange(proposedUTXOs);
   };
 
-  private renderUTXOs = (scriptType: accountApi.ScriptType) => {
-    const { t, explorerURL } = this.props;
-    const { utxos, selectedUTXOs } = this.state;
+  const renderUTXOs = (scriptType: ScriptType) => {
     const filteredUTXOs = utxos.filter(utxo => utxo.scriptType === scriptType);
     if (filteredUTXOs.length === 0) {
       return null;
@@ -114,7 +95,7 @@ export class UTXOsClass extends Component<Props, State> {
                 checked={!!selectedUTXOs[utxo.outPoint]}
                 id={'utxo-' + utxo.outPoint}
                 data-outpoint={utxo.outPoint}
-                onChange={this.handleUTXOChange}>
+                onChange={handleUTXOChange}>
                 <div className={style.utxoContent}>
                   <div className={style.utxoData}>
                     <div className={style.amounts}>
@@ -159,22 +140,20 @@ export class UTXOsClass extends Component<Props, State> {
     );
   };
 
-  public render() {
-    const { t, active, onClose } = this.props;
-    return (
-      <Dialog open={active} title={t('send.coincontrol.title')} large onClose={onClose}>
-        <div>
-          { accountApi.allScriptTypes.map(this.renderUTXOs) }
-          <div className="buttons text-center m-top-none m-bottom-half">
-            <Button primary onClick={onClose}>
-              {t('button.continue')}
-            </Button>
-          </div>
+  return (
+    <Dialog
+      open={active}
+      title={t('send.coincontrol.title')}
+      large
+      onClose={onClose}>
+      <div>
+        { allScriptTypes.map(renderUTXOs) }
+        <div className="buttons text-center m-top-none m-bottom-half">
+          <Button primary onClick={onClose}>
+            {t('button.continue')}
+          </Button>
         </div>
-      </Dialog>
-    );
-  }
-}
-
-const TranslatedUTXOs = translate(undefined, { withRef: true })(UTXOsClass);
-export { TranslatedUTXOs as UTXOs };
+      </div>
+    </Dialog>
+  );
+};
