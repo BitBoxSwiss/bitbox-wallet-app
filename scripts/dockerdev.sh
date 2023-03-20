@@ -63,8 +63,8 @@ dockerdev () {
         # Use same user/group id as on the host, so that files are not created as root in the
         # mounted volume. Only needed for Docker. On rootless podman, the host user maps to the
         # container root user.
-        $RUNTIME exec -it "$CONTAINER_NAME" groupadd -o -g "$(id -g)" dockergroup
-        $RUNTIME exec -it "$CONTAINER_NAME" useradd -u "$(id -u)" -m -g dockergroup dockeruser
+        $RUNTIME exec -it "$container_name" groupadd -o -g "$(id -g)" dockergroup
+        $RUNTIME exec -it "$container_name" useradd -u "$(id -u)" -m -g dockergroup dockeruser
     fi
 
     # Call a second time to enter the container.
