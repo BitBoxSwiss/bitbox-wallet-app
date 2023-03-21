@@ -384,6 +384,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
 	if err != nil {
+		handlers.log.WithError(err).Error("Failed to send transaction")
 		result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
 		if err.Error() == etherscan.ERC20GasErr {
 			result["errorCode"] = errors.ERC20InsufficientGasFunds.Error()
