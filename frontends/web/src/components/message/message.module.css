@@ -12,6 +12,11 @@
     overflow: hidden;
 }
 
+.message.small {
+    flex-shrink: 1;
+    font-size: var(--size-default);
+}
+
 .message img {
     margin-right: var(--spacing-default);
 }

@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Enable auto HiDPI scaling to correctly manage scale factor on high density screens
+- Bitcoin: enable setting a custom fee if the fee rate estimations are unavailable
 
 ## 4.36.0
 - Re-style header for a better space utilisation

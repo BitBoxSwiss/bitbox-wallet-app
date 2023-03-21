@@ -526,9 +526,14 @@ outer:
 		feeTargets = append(feeTargets, feeTarget)
 	}
 	// If the default fee level was dropped, use the cheapest.
+	// If no fee targets are available, use custom (the user can manually enter a fee rate).
 	defaultFee := accounts.DefaultFeeTarget
-	if !defaultAvailable && len(feeTargets) != 0 {
-		defaultFee = feeTargets[0].Code()
+	if !defaultAvailable {
+		if len(feeTargets) != 0 {
+			defaultFee = feeTargets[0].Code()
+		} else {
+			defaultFee = accounts.FeeTargetCodeCustom
+		}
 	}
 	return feeTargets, defaultFee
 }
