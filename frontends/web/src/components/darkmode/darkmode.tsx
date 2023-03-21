@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
-import { useMediaQuery } from '../../hooks/mediaquery';
-import { getConfig } from '../../api/backend';
+import { useDarkmode } from '../../hooks/darkmode';
 
 let darkmode: boolean | undefined;
 
@@ -32,23 +30,8 @@ export const setDarkmode = (dark: boolean) => {
 };
 
 export const Darkmode = () => {
-  const osPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-
-  useEffect(() => {
-    getConfig()
-      .then(config => {
-        // use config if it exists
-        if ('darkmode' in config.frontend) {
-          setDarkmode(config.frontend.darkmode);
-          return;
-        }
-        // else use mode from OS
-        setDarkmode(osPrefersDarkMode);
-      })
-      .catch(console.error);
-
-  }, [osPrefersDarkMode]);
-
+  const mode = useDarkmode();
+  setDarkmode(mode);
   return null;
 };
 

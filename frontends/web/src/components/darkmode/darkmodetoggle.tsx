@@ -29,7 +29,6 @@ export const DarkModeToggle = () => {
   const osPrefersDarkmode = useMediaQuery('(prefers-color-scheme: dark)');
 
   useEffect(() => {
-
     getConfig()
       .then(config => {
         // use config if it exists
@@ -41,9 +40,6 @@ export const DarkModeToggle = () => {
         setDarkmode(osPrefersDarkmode);
       })
       .catch(console.error);
-
-    // else use mode from OS
-    setDarkmode(osPrefersDarkmode);
   }, [config, osPrefersDarkmode]);
 
   useEffect(() => setGlobalDarkmode(darkmode), [darkmode]);

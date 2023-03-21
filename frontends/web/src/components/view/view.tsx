@@ -15,9 +15,10 @@
  */
 
 import { FunctionComponent, ReactNode } from 'react';
+import { useDarkmode } from '../../hooks/darkmode';
 import { LanguageSwitch } from '../language/language';
 import { Version } from '../layout/version';
-import { AppLogo, SwissMadeOpenSource } from '../icon/logo';
+import { AppLogo, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../icon/logo';
 import { AnimatedChecked, Close } from '../icon/icon';
 import style from './view.module.css';
 
@@ -58,6 +59,7 @@ export const View = ({
   width,
   withBottomBar,
 }: TViewProps) => {
+  const darkmode = useDarkmode();
   const containerClasses = `${
     style[fullscreen ? 'fullscreen' : 'fill']
   } ${
@@ -91,7 +93,7 @@ export const View = ({
       {withBottomBar && (
         <div style={{ marginTop: 'auto' }}>
           <footer className={style.footer}>
-            <SwissMadeOpenSource />
+            {darkmode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
             <div className="m-right-half hide-on-small">
               <Version />
             </div>
