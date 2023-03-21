@@ -21,6 +21,8 @@
     --color-blue: #5E94BF;
     --color-lightblue: #73A5CD;
     --color-light-skyblue: #ECF7FF;
+    --color-electric-blue: #2684FF;
+    --color-powder-blue: #DEEBFF;
     --color-blue-alt: #91BFCF;
     --color-orange: #F5A04C;
     --color-olive: #908B00;
@@ -111,6 +113,8 @@
     --background-focus: var(--color-light-skyblue);
     --background-tertiary: var(--color-gray-alt);
     --background-quaternary: var(--color-mediumgray);
+    --background-custom-select-hover: var(--color-powder-blue);
+    --background-custom-select-selected: var(--color-electric-blue);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -131,6 +135,8 @@
         --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-dark);
         --background-quaternary: var(--color-dark);
+        --background-custom-select-hover: var(--color-dark);
+        --background-custom-select-selected: var(--color-dark);
     }
 }
 @media (prefers-color-scheme: light) {
@@ -151,6 +157,8 @@
         --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-dark);
         --background-quaternary: var(--color-dark);
+        --background-custom-select-hover: var(--color-dark);
+        --background-custom-select-selected: var(--color-dark);
     }
 }
 
