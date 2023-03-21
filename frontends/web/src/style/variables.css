@@ -108,6 +108,7 @@
     --bg-transparent-dark: rgba(0, 0, 0, 0.4);
     --background-secondary: var(--color-white);
     --background-dark: var(--color-softblack);
+    --background-focus: var(--color-light-skyblue);
     --background-tertiary: var(--color-gray-alt);
     --background-quaternary: var(--color-mediumgray);
 }
@@ -127,6 +128,7 @@
         --bg-transparent-dark: rgba(0, 0, 0, 0.4);
         --background-secondary: var(--color-softblack);
         --background-dark: var(--color-softblack);
+        --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-dark);
         --background-quaternary: var(--color-dark);
     }
@@ -146,6 +148,7 @@
         --bg-transparent-dark: rgba(0, 0, 0, 0.4);
         --background-secondary: var(--color-softblack);
         --background-dark: var(--color-softblack);
+        --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-dark);
         --background-quaternary: var(--color-dark);
     }

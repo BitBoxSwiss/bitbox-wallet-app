@@ -23,12 +23,12 @@ import arrowCircleLeftSVG from './assets/icons/arrow-circle-left.svg';
 import arrowCircleLeftActiveSVG from './assets/icons/arrow-circle-left-active.svg';
 import arrowCircleRightSVG from './assets/icons/arrow-circle-right.svg';
 import arrowCircleRightActiveSVG from './assets/icons/arrow-circle-right-active.svg';
-import bankSVG from './assets/icons/bank.svg';
+import bankLightSVG from './assets/icons/bank-light.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
 import cancelSVG from './assets/icons/cancel.svg';
-import creditCardSVG from './assets/icons/credit-card.svg';
+import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
@@ -113,14 +113,14 @@ export const ArrowCirlceLeft = (props: ImgProps) => (<img src={arrowCircleLeftSV
 export const ArrowCirlceLeftActive = (props: ImgProps) => (<img src={arrowCircleLeftActiveSVG} draggable={false} {...props} />);
 export const ArrowCirlceRight = (props: ImgProps) => (<img src={arrowCircleRightSVG} draggable={false} {...props} />);
 export const ArrowCirlceRightActive = (props: ImgProps) => (<img src={arrowCircleRightActiveSVG} draggable={false} {...props} />);
-export const Bank = (props: ImgProps) => (<img src={bankSVG} draggable={false} {...props} />);
+export const Bank = (props: ImgProps) => (<img src={bankLightSVG} draggable={false} {...props} />);
 export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={false} {...props} />);
 // check icon on a green circle
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
 // simple check for copy component
 export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
-export const CreditCard = (props: ImgProps) => (<img src={creditCardSVG} draggable={false} {...props} />);
+export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} draggable={false} {...props} />);
 export const RedDot = (props: ImgProps) => (<img src={redDotSVG} draggable={false} {...props} />);
 export const Copy = (props: ImgProps) => (<img src={copySVG} draggable={false} {...props} />);
 export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false} {...props} />);

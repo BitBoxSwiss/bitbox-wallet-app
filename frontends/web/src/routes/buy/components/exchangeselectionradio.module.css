@@ -63,8 +63,8 @@
 
 .radio {
     --size-default: 14px;
-    background-color: #fff;
-    border: 1px solid var(--color-light);
+    background-color: var(--background);
+    border: 1px solid var(--color-secondary);
     display: block;
     padding: 8px;
 }
@@ -129,7 +129,7 @@
 /* checked */
 
 .radio[aria-checked="true"] {
-    background-color: var(--color-light-skyblue);
+    background-color: var(--background-focus);
 }
 
 .radio input:checked + label::before {
