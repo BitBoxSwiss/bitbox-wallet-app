@@ -20,6 +20,21 @@ import { Alert, alertUser } from './Alert';
 
 describe('Alert', () => {
 
+  beforeAll(() => {
+    window.matchMedia = window.matchMedia || function(query) {
+      return {
+        matches: false,
+        media: query,
+        onchange: null,
+        // addListener: jest.fn(), // deprecated
+        // removeListener: jest.fn(), // deprecated
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      };
+    };
+  });
+
   function renderAlert() {
     return render(<Alert/>, { wrapper: I18NWrapper });
   }

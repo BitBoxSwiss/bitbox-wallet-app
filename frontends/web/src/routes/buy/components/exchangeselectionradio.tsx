@@ -16,12 +16,13 @@
 
 import { Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bank, CreditCard } from '../../../components/icon';
+import { Bank, BankDark, CreditCard, CreditCardDark } from '../../../components/icon';
 import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
 import { getFormattedName } from '../utils';
 import { BestDeal, Fast } from './buytags';
 import { InfoButton } from '../../../components/infobutton/infobutton';
 import style from './exchangeselectionradio.module.css';
+import { useDarkmode } from '../../../hooks/darkmode';
 
 type RadioProps = {
   deals: ExchangeDealsWithSupported['deals'];
@@ -35,17 +36,22 @@ type TPaymentMethodProps = { methodName: ExchangeDealWithBestDeal['payment'] };
 
 const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   const { t } = useTranslation();
+  const darkmode = useDarkmode();
   switch (methodName) {
   case 'bank-transfer':
-    return (<span>
-      <Bank />
-      <p className={style.paymentMethodName}>{t('buy.exchange.bankTransfer')}</p>
-    </span>);
+    return (
+      <span>
+        {darkmode ? <Bank /> : <BankDark />}
+        <p className={style.paymentMethodName}>{t('buy.exchange.bankTransfer')}</p>
+      </span>
+    );
   case 'card':
-    return (<span>
-      <CreditCard />
-      <p className={style.paymentMethodName}>{t('buy.exchange.creditCard')}</p>
-    </span>);
+    return (
+      <span>
+        {darkmode ? <CreditCard /> : <CreditCardDark />}
+        <p className={style.paymentMethodName}>{t('buy.exchange.creditCard')}</p>
+      </span>
+    );
   default:
     return <>{methodName}</>;
   }

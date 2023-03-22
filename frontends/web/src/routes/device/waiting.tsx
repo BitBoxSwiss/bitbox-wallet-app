@@ -18,10 +18,11 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/i18n';
 import { useLoad } from '../../hooks/api';
+import { useDarkmode } from '../../hooks/darkmode';
 import { getTesting } from '../../api/backend';
 import { Entry } from '../../components/guide/entry';
 import { Guide, store as panelStore } from '../../components/guide/guide';
-import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
+import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { setSidebarStatus } from '../../components/sidebar/sidebar';
 import { debug } from '../../utils/env';
@@ -31,6 +32,7 @@ import style from './bitbox01/bitbox01.module.css';
 export const Waiting = () => {
   const { t } = useTranslation();
   const testing = useLoad(debug ? getTesting : () => Promise.resolve(false));
+  const darkmode = useDarkmode();
 
   useEffect(() => {
     const { sidebarStatus } = panelStore.state;
@@ -45,7 +47,7 @@ export const Waiting = () => {
         <Header title={<h2>{t('welcome.title')}</h2>} />
         <div className="content padded narrow isVerticallyCentered">
           <div>
-            <AppLogo />
+            {darkmode ? (<AppLogoInverted />) : (<AppLogo />)}
             <div className="box large">
               <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
               <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
@@ -60,7 +62,7 @@ export const Waiting = () => {
           </div>
         </div>
         <Footer>
-          <SwissMadeOpenSource />
+          {darkmode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
         </Footer>
       </div>
       <Guide>

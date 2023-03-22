@@ -399,3 +399,8 @@
         display: initial;
     }
 }
+
+.light-mode .show-in-darkmode,
+.dark-mode .show-in-lightmode {
+    display: none;
+}
