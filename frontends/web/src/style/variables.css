@@ -34,7 +34,6 @@
     --color-warning: var(--color-softred);
     --color-error: var(--color-swissred);
     --color-danger: var(--color-error);
-    --color-disabled: var(--color-gray);
 
     /* font sizes */
     --size-extra-large: 2.2rem;
@@ -95,6 +94,10 @@
 
 :root,
 .light-mode {
+
+    /* status colors*/
+    --color-disabled: var(--color-mediumgray);
+
     /* font colors */
     /* all fonts should use these colors and not from the main colors directly */
     --color-default: var(--color-dark);
@@ -119,6 +122,9 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
+        /* status colors*/
+        --color-disabled: var(--color-gray);
+        
         /* font colors */
         --color-default: var(--color-lightgray);
         --color-primary: var(--color-blue);
@@ -141,6 +147,9 @@
 }
 @media (prefers-color-scheme: light) {
     .dark-mode {
+        /* status colors*/
+        --color-disabled: var(--color-gray);
+
         /* font colors */
         --color-default: var(--color-lightgray);
         --color-primary: var(--color-blue);
