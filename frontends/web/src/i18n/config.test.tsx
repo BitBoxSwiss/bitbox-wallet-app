@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import './matchmedia.mock';
 jest.mock('./i18n');
 jest.mock('../utils/request');
 
