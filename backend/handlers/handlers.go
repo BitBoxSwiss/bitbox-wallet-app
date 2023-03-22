@@ -197,8 +197,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convertToPlainFiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
@@ -737,7 +737,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(from))
 	if err != nil {
-		logrus.Error(err.Error())
+		handlers.log.WithError(err).Error("Could not get coin " + from)
 		return map[string]interface{}{
 			"success": false,
 		}, nil
@@ -745,7 +745,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 
 	coinAmount, err := currentCoin.ParseAmount(amount)
 	if err != nil {
-		logrus.Error(err.Error())
+		handlers.log.WithError(err).Error("Error parsing amount " + amount)
 		return map[string]interface{}{
 			"success": false,
 		}, nil

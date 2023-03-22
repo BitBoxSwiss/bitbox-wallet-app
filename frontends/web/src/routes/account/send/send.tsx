@@ -414,7 +414,7 @@ class Send extends Component<Props, State> {
   private convertToFiat = (value?: string | boolean) => {
     if (value) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convertToPlainFiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
+      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
         .then(data => {
           if (data.success) {
             this.setState({ fiatAmount: data.fiatAmount });
@@ -430,7 +430,7 @@ class Send extends Component<Props, State> {
   private convertFromFiat = (value: string) => {
     if (value) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
+      apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
         .then(data => {
           if (data.success) {
             this.setState({ amount: data.amount });
