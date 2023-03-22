@@ -45,6 +45,10 @@
     max-width: 26px;
 }
 
+.dark-mode .caretDown {
+    fill: white;
+}
+
 @keyframes fadeinout {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.1; }
