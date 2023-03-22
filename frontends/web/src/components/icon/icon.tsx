@@ -36,6 +36,7 @@ import closeXWhiteSVG from './assets/icons/close-x-white.svg';
 import closeXDarkSVG from './assets/icons/close-x-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
+import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import warningPNG from './assets/icons/warning.png';
 import starSVG from './assets/icons/star.svg';
@@ -128,6 +129,7 @@ export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} dragg
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
 export const Globe = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
+export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const Menu = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);

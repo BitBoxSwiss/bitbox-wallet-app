@@ -67,8 +67,8 @@ export const AppLogoInverted = (props: GenericProps) => <img {...props} draggabl
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = ({ large: boolean, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''}`} />;
-export const SwissMadeOpenSourceDark = ({ large: boolean, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''}`} />;
+export const SwissMadeOpenSource = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
+export const SwissMadeOpenSourceDark = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
     [property: string]: string[];

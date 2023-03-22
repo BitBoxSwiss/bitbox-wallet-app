@@ -43,7 +43,8 @@ class Header extends Component<Props> {
       <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
         <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
           <div className={style.sidebarToggler} onClick={toggleSidebar}>
-            <Menu />
+            <Menu className="show-in-lightmode" />
+            <Menu className="show-in-darkmode" />
           </div>
           <div className={style.title}>{title}</div>
           <div className={style.children}>

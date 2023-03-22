@@ -26,7 +26,7 @@ import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { updateRatesConfig } from '../../components/rates/rates';
-import { SwissMadeOpenSource } from '../../components/icon/logo';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import { Footer, Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
@@ -358,7 +358,8 @@ class Settings extends Component<Props, State> {
               }
             </div>
             <Footer>
-              <SwissMadeOpenSource />
+              <SwissMadeOpenSource className="show-in-lightmode" />
+              <SwissMadeOpenSourceDark className="show-in-darkmode" />
             </Footer>
           </div>
         </div>
