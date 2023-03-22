@@ -16,7 +16,7 @@
 
 import { Component, SyntheticEvent } from 'react';
 import { Button } from '../../../../components/forms';
-import { SwissMadeOpenSource } from '../../../../components/icon/logo';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon/logo';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
@@ -24,6 +24,7 @@ import { PasswordRepeatInput } from '../../../../components/password';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 import { apiPost } from '../../../../utils/request';
+import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 const stateEnum = Object.freeze({
@@ -169,7 +170,7 @@ class Initialize extends Component<Props, State> {
               {formSubmissionState}
               {content}
               <div className="text-center m-top-large">
-                <SwissMadeOpenSource large />
+                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
               </div>
             </div>
           </div>

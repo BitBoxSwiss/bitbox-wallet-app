@@ -16,12 +16,13 @@
 
 import { Component } from 'react';
 import { Button } from '../../../../components/forms';
-import { Alert, SwissMadeOpenSource } from '../../../../components/icon';
+import { Alert, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Message } from '../../../../components/message/message';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 import { SimpleMarkup } from '../../../../utils/markup';
+import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 interface SecurityInformationProps {
@@ -108,7 +109,7 @@ class SecurityInformation extends Component<Props, State> {
                 )
               }
               <div className="text-center m-top-large">
-                <SwissMadeOpenSource large />
+                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
               </div>
             </div>
           </div>

@@ -17,9 +17,10 @@
 import { Component } from 'react';
 import { withTranslation } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import { SwissMadeOpenSource } from '../../../../components/icon/logo';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon/logo';
 import { Header } from '../../../../components/layout';
 import { LanguageSwitch } from '../../../../components/language/language';
+import { getDarkmode } from '../../../../components/darkmode/darkmode';
 
 class Goal extends Component {
   render() {
@@ -48,7 +49,7 @@ class Goal extends Component {
                 </div>
               </div>
               <div className="text-center m-top-large">
-                <SwissMadeOpenSource large />
+                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
               </div>
             </div>
           </div>

@@ -22,10 +22,11 @@ import { apiPost } from '../../../../utils/request';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { Button, Input, Checkbox } from '../../../../components/forms';
 import { Message } from '../../../../components/message/message';
-import { SwissMadeOpenSource, Alert, Warning } from '../../../../components/icon';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark, Alert, Warning } from '../../../../components/icon';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { LanguageSwitch } from '../../../../components/language/language';
+import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
@@ -245,7 +246,7 @@ class SeedCreateNew extends Component {
               }
               {content}
               <div className="text-center m-top-large">
-                <SwissMadeOpenSource large />
+                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
               </div>
             </div>
           </div>
