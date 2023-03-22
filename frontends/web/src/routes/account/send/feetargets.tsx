@@ -18,6 +18,7 @@
 import React, { Component, createRef } from 'react';
 import * as accountApi from '../../../api/account';
 import { Input, Select } from '../../../components/forms';
+import { Message } from '../../../components/message/message';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '../utils';
@@ -50,12 +51,14 @@ interface Options {
 interface State {
     feeTarget: string;
     options: Options[] | null;
+    noFeeTargets: boolean;
 }
 
 class FeeTargets extends Component<Props, State> {
   public readonly state: State = {
     feeTarget: '',
     options: null,
+    noFeeTargets: false,
   };
 
   private input = createRef<HTMLInputElement & {autofocus: boolean}>();
@@ -74,7 +77,8 @@ class FeeTargets extends Component<Props, State> {
   private updateFeeTargets = (accountCode: accountApi.AccountCode) => {
     accountApi.getFeeTargetList(accountCode)
       .then(({ feeTargets, defaultFeeTarget }) => {
-        const expert = this.props.config.frontend.expertFee;
+
+        const expert = this.props.config.frontend.expertFee || feeTargets.length === 0;
         const options = feeTargets.map(({ code, feeRateInfo }) => ({
           value: code,
           text: this.props.t(`send.feeTarget.label.${code}`) + (expert && feeRateInfo ? ` (${feeRateInfo})` : ''),
@@ -87,6 +91,9 @@ class FeeTargets extends Component<Props, State> {
         }
         this.setState({ options });
         this.setFeeTarget(defaultFeeTarget);
+        if (feeTargets.length === 0) {
+          this.setState({ noFeeTargets: true });
+        }
       })
       .catch(console.error);
   };
@@ -133,6 +140,7 @@ class FeeTargets extends Component<Props, State> {
     const {
       feeTarget,
       options,
+      noFeeTargets,
     } = this.state;
     if (options === null) {
       return (
@@ -172,6 +180,11 @@ class FeeTargets extends Component<Props, State> {
             )
           ) : (
             <div className={style.rowCustomFee}>
+              { noFeeTargets ? (
+                <Message small type="warning">
+                  {t('send.noFeeTargets')}
+                </Message>
+              ) : null }
               <div className={style.column}>
                 <Select
                   className={style.priority}

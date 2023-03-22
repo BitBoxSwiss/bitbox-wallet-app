@@ -19,12 +19,14 @@ import styles from './message.module.css';
 
 export interface Props {
     hidden?: boolean;
+    small?: boolean;
     type?: 'message' | 'success' | 'info' | 'warning' | 'error';
     children: ReactNode;
 }
 
 export function Message({
   hidden,
+  small,
   type = 'message',
   children,
 }: Props) {
@@ -32,7 +34,7 @@ export function Message({
     return null;
   }
   return (
-    <div className={styles[type]}>
+    <div className={`${styles[type]} ${small ? styles.small : ''}`}>
       {children}
     </div>
   );
