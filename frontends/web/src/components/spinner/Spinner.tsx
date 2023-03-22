@@ -18,7 +18,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
-import { Menu } from '../icon';
+import { MenuDark } from '../icon';
 import style from './Spinner.module.css';
 
 type TProps = {
@@ -45,7 +45,7 @@ const Spinner = ({ text, guideExists }: TProps) => {
       <div className={style.togglersContainer}>
         <div className={style.togglerContainer}>
           <div className={style.toggler} onClick={toggleSidebar}>
-            <Menu />
+            <MenuDark />
           </div>
         </div>
         {
