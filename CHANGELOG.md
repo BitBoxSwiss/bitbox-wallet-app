@@ -3,6 +3,7 @@
 ## [Unreleased]
 - Enable auto HiDPI scaling to correctly manage scale factor on high density screens
 - Bitcoin: enable setting a custom fee if the fee rate estimations are unavailable
+- Added dark mode: app will default to the mode set by the system preferences but can be overwritten in the settings.
 
 ## 4.36.1
 - Fix USB communication issue on Windows
