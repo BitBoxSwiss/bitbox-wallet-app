@@ -95,6 +95,11 @@
   border-color: var(--background-quaternary);
   color: var(--color-alt);
 }
+:global(.dark-mode) .filters button[disabled] {
+  background: var(--background-secondary);
+  border-color: var(--background-secondary);
+  color: var(--color-disabled);
+}
 
 .arrow svg {
   margin-right: .25rem;
