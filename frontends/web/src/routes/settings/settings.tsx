@@ -266,7 +266,7 @@ class Settings extends Component<Props, State> {
                           </div>
                           { manageAccountsLen ? (
                             <div>
-                              <h3 className="subTitle">Accounts</h3>
+                              <h3 className="subTitle">{t('settings.accounts')}</h3>
                               <div className="box slim divide m-bottom-large">
                                 <SettingsButton
                                   onClick={() => route('/settings/manage-accounts', true)}
