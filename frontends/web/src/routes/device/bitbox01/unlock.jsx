@@ -20,12 +20,13 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
 import { Message } from '../../../components/message/message';
-import { AppLogo, SwissMadeOpenSource } from '../../../components/icon/logo';
+import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header, Footer } from '../../../components/layout';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { withTranslation } from 'react-i18next';
+import { getDarkmode } from '../../../components/darkmode/darkmode';
 
 const stateEnum = Object.freeze({
   DEFAULT: 'default',
@@ -117,13 +118,14 @@ class Unlock extends Component {
       break;
     }
 
+    const darkmode = getDarkmode();
     return (
       <div className="contentWithGuide">
         <div className="container">
           <div className="innerContainer scrollableContainer">
             <Header title={<h2>{t('welcome.title')}</h2>} />
             <div className="content narrow padded isVerticallyCentered">
-              <AppLogo />
+              {darkmode ? <AppLogoInverted /> : <AppLogo />}
               <div className="box large">
                 {submissionState}
                 {
@@ -154,7 +156,7 @@ class Unlock extends Component {
               </div>
             </div>
             <Footer>
-              <SwissMadeOpenSource />
+              {darkmode ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
             </Footer>
           </div>
         </div>

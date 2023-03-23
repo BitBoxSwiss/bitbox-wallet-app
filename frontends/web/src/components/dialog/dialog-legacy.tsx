@@ -16,7 +16,7 @@
  */
 
 import React, { Component, createRef } from 'react';
-import { CloseXDark } from '../icon';
+import { CloseXDark, CloseXWhite } from '../icon';
 import style from './dialog-legacy.module.css';
 interface Props {
     title?: string;
@@ -169,7 +169,8 @@ class DialogLegacy extends Component<Props, State> {
                 <h3 className={style.title}>{title}</h3>
                 { onClose ? (
                   <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
-                    <CloseXDark />
+                    <CloseXDark className="show-in-lightmode" />
+                    <CloseXWhite className="show-in-darkmode" />
                   </button>
                 ) : null }
               </div>

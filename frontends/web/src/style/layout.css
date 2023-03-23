@@ -234,7 +234,7 @@
 }
 
 .box.slim.divide > *:not(:first-child) {
-    border-top: solid 1px var(--color-lightgray);
+    border-top: solid 1px var(--background);
 }
 
 .box .buttons {
@@ -398,4 +398,9 @@
     .show-on-small {
         display: initial;
     }
+}
+
+.light-mode .show-in-darkmode,
+.dark-mode .show-in-lightmode {
+    display: none;
 }

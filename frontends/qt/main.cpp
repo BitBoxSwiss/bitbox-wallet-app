@@ -168,6 +168,11 @@ int main(int argc, char *argv[])
     // Enable auto HiDPI scaling to correctly manage scale factor on bigger screens
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+    // Make `@media (prefers-color-scheme: light/dark)` CSS rules work.
+    // See https://github.com/qutebrowser/qutebrowser/issues/5915#issuecomment-737115530
+    // This might only be needed for Qt 5.15.2, should revisit this when updating Qt.
+    qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=preferredColorScheme=1");
+
 // QT configuration parameters which change the attack surface for memory
 // corruption vulnerabilities
 #if QT_VERSION >= QT_VERSION_CHECK(5,8,0)

@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
 import style from './toggle.module.css';
 
-type ToggleProps = {
+export type TToggleProps = {
   checked: boolean;
   className?: string;
   disabled?: boolean;
@@ -11,7 +11,7 @@ type ToggleProps = {
   value?: string;
 };
 
-export const Toggle = (props: ToggleProps) => {
+export const Toggle = (props: TToggleProps) => {
   return (
     <label className={style.container}>
       <input

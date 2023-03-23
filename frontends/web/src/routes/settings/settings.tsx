@@ -26,7 +26,7 @@ import { Button, Input } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { updateRatesConfig } from '../../components/rates/rates';
-import { SwissMadeOpenSource } from '../../components/icon/logo';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import { Footer, Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
@@ -40,7 +40,8 @@ import { setBtcUnit, BtcUnit } from '../../api/coins';
 import { TUpdateFile, getVersion, getUpdate } from '../../api/version';
 import { FiatSelection } from './components/fiat/fiat';
 import { downloadLinkByLanguage } from '../../components/appdownloadlink/appdownloadlink';
-import style from './settings.module.css';
+import { DarkModeToggle } from '../../components/darkmode/darkmodetoggle';
+import { SettingsToggle } from '../../components/settingsButton/settingsToggle';
 
 interface SettingsProps {
     manageAccountsLen: number;
@@ -260,6 +261,7 @@ class Settings extends Component<Props, State> {
                                   </SettingsItem>
                                 )
                               ) : <Skeleton fontSize="var(--item-height)" />}
+                              <DarkModeToggle />
                             </div>
                           </div>
                           { manageAccountsLen ? (
@@ -277,16 +279,16 @@ class Settings extends Component<Props, State> {
                           ) : null}
                           <h3 className="subTitle">{t('settings.expert.title')}</h3>
                           <div className="box slim divide m-bottom-large">
-                            <div className={style.setting}>
-                              <div>
-                                <p className="m-none">{t('settings.expert.fee')}</p>
-                              </div>
-                              <Toggle
-                                checked={config.frontend.expertFee}
-                                id="expertFee"
-                                onChange={this.handleToggleFrontendSetting} />
-                            </div>
-                            <div className={style.setting}>
+                            <SettingsToggle
+                              checked={config.frontend.expertFee}
+                              id="expertFee"
+                              onChange={this.handleToggleFrontendSetting}>
+                              {t('settings.expert.fee')}
+                            </SettingsToggle>
+                            <SettingsToggle
+                              checked={config.frontend.coinControl}
+                              id="coinControl"
+                              onChange={this.handleToggleFrontendSetting}>
                               <div>
                                 <p className="m-none">{t('settings.expert.coinControl')}</p>
                                 <p className="m-none">
@@ -294,20 +296,13 @@ class Settings extends Component<Props, State> {
                                   <Badge type="generic" className="m-left-quarter">LTC</Badge>
                                 </p>
                               </div>
-                              <Toggle
-                                checked={config.frontend.coinControl}
-                                id="coinControl"
-                                onChange={this.handleToggleFrontendSetting} />
-                            </div>
-                            <div className={style.setting}>
-                              <div>
-                                <p className="m-none">{t('settings.expert.useSats')}</p>
-                              </div>
-                              <Toggle
-                                checked={config.backend.btcUnit === 'sat'}
-                                id="satsUnit"
-                                onChange={this.handleToggleSatsUnit} />
-                            </div>
+                            </SettingsToggle>
+                            <SettingsToggle
+                              checked={config.backend.btcUnit === 'sat'}
+                              id="satsUnit"
+                              onChange={this.handleToggleSatsUnit}>
+                              {t('settings.expert.useSats')}
+                            </SettingsToggle>
                             <SettingsButton
                               onClick={this.showProxyDialog}
                               optionalText={t('generic.enabled', { context: config.backend.proxy.useProxy.toString() })}>
@@ -363,7 +358,8 @@ class Settings extends Component<Props, State> {
               }
             </div>
             <Footer>
-              <SwissMadeOpenSource />
+              <SwissMadeOpenSource className="show-in-lightmode" />
+              <SwissMadeOpenSourceDark className="show-in-darkmode" />
             </Footer>
           </div>
         </div>

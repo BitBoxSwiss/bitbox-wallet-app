@@ -21,19 +21,12 @@
     --color-blue: #5E94BF;
     --color-lightblue: #73A5CD;
     --color-light-skyblue: #ECF7FF;
+    --color-electric-blue: #2684FF;
+    --color-powder-blue: #DEEBFF;
     --color-blue-alt: #91BFCF;
     --color-orange: #F5A04C;
     --color-olive: #908B00;
     --color-lightorange: #F9AC60;
-
-    /* font colors */
-    /* all fonts should use these colors and not from the main colors directly */
-    --color-default: var(--color-dark);
-    --color-primary: var(--color-blue);
-    --color-secondary: var(--color-gray);
-    --color-light: var(--color-mediumgray);
-    --color-alt: var(--color-white);
-    --color-tertiary: var(--color-gray-alt);
 
     /* status colors */
     --color-success: var(--color-green);
@@ -41,16 +34,6 @@
     --color-warning: var(--color-softred);
     --color-error: var(--color-swissred);
     --color-danger: var(--color-error);
-    --color-disabled: var(--color-mediumgray);
-
-    /* background colors */
-    /* all backgrounds should use these colors and not from the main colors directly */
-    --background: var(--color-lightgray);
-    --bg-transparent-dark: rgba(0, 0, 0, 0.4);
-    --background-secondary: var(--color-white);
-    --background-dark: var(--color-softblack);
-    --background-tertiary: var(--color-gray-alt);
-    --background-quaternary: var(--color-mediumgray);
 
     /* font sizes */
     --size-extra-large: 2.2rem;
@@ -109,6 +92,84 @@
     --guide-width: 350px;
 }
 
+:root,
+.light-mode {
+
+    /* status colors*/
+    --color-disabled: var(--color-mediumgray);
+
+    /* font colors */
+    /* all fonts should use these colors and not from the main colors directly */
+    --color-default: var(--color-dark);
+    --color-primary: var(--color-blue);
+    --color-secondary: var(--color-gray);
+    --color-light: var(--color-mediumgray);
+    --color-alt: var(--color-white);
+    --color-tertiary: var(--color-gray-alt);
+
+    /* background colors */
+    /* all backgrounds should use these colors and not from the main colors directly */
+    --background: var(--color-lightgray);
+    --bg-transparent-dark: rgba(0, 0, 0, 0.4);
+    --background-secondary: var(--color-white);
+    --background-dark: var(--color-softblack);
+    --background-focus: var(--color-light-skyblue);
+    --background-tertiary: var(--color-gray-alt);
+    --background-quaternary: var(--color-mediumgray);
+    --background-custom-select-hover: var(--color-powder-blue);
+    --background-custom-select-selected: var(--color-electric-blue);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* status colors*/
+        --color-disabled: var(--color-gray);
+        
+        /* font colors */
+        --color-default: var(--color-lightgray);
+        --color-primary: var(--color-blue);
+        --color-secondary: var(--color-gray-alt);
+        --color-light: var(--color-mediumgray);
+        --color-alt: var(--color-white);
+        --color-tertiary: var(--color-gray-alt);
+
+        /* background colors */
+        --background: var(--color-dark);
+        --bg-transparent-dark: rgba(0, 0, 0, 0.4);
+        --background-secondary: var(--color-softblack);
+        --background-dark: var(--color-softblack);
+        --background-focus: var(--color-softblack);
+        --background-tertiary: var(--color-dark);
+        --background-quaternary: var(--color-dark);
+        --background-custom-select-hover: var(--color-dark);
+        --background-custom-select-selected: var(--color-dark);
+    }
+}
+@media (prefers-color-scheme: light) {
+    .dark-mode {
+        /* status colors*/
+        --color-disabled: var(--color-gray);
+
+        /* font colors */
+        --color-default: var(--color-lightgray);
+        --color-primary: var(--color-blue);
+        --color-secondary: var(--color-gray-alt);
+        --color-light: var(--color-mediumgray);
+        --color-alt: var(--color-white);
+        --color-tertiary: var(--color-gray-alt);
+
+        /* background colors */
+        --background: var(--color-dark);
+        --bg-transparent-dark: rgba(0, 0, 0, 0.4);
+        --background-secondary: var(--color-softblack);
+        --background-dark: var(--color-softblack);
+        --background-focus: var(--color-softblack);
+        --background-tertiary: var(--color-dark);
+        --background-quaternary: var(--color-dark);
+        --background-custom-select-hover: var(--color-dark);
+        --background-custom-select-selected: var(--color-dark);
+    }
+}
 
 @media (max-width: 1199px) {
     :root {

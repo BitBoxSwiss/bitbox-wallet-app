@@ -21,10 +21,11 @@ import { getDeviceInfo } from '../../../../api/bitbox01';
 import { Button } from '../../../../components/forms';
 import { Backups } from '../backups';
 import { Message } from '../../../../components/message/message';
-import { SwissMadeOpenSource, Alert } from '../../../../components/icon';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark, Alert } from '../../../../components/icon';
 import { Header } from '../../../../components/layout';
 import { Spinner } from '../../../../components/spinner/Spinner';
 import { LanguageSwitch } from '../../../../components/language/language';
+import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 const STATUS = Object.freeze({
@@ -142,7 +143,7 @@ class SeedRestore extends Component {
                 )
               }
               <div className="text-center m-top-large">
-                <SwissMadeOpenSource large />
+                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
               </div>
             </div>
           </div>

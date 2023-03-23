@@ -5,6 +5,13 @@ label {
     user-select: none;
 }
 
+input[type="password"],
+input[type="text"],
+textarea {
+    color: var(--color-default);
+    background: var(--background-secondary);
+}
+
 .label,
 label,
 dt {

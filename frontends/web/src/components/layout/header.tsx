@@ -18,7 +18,7 @@ import React, { Component } from 'react';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { SharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
-import { GuideActive, Menu } from '../icon';
+import { GuideActive, MenuLight, MenuDark } from '../icon';
 import { toggleSidebar } from '../sidebar/sidebar';
 import style from './header.module.css';
 
@@ -43,7 +43,8 @@ class Header extends Component<Props> {
       <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
         <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
           <div className={style.sidebarToggler} onClick={toggleSidebar}>
-            <Menu />
+            <MenuDark className="show-in-lightmode" />
+            <MenuLight className="show-in-darkmode" />
           </div>
           <div className={style.title}>{title}</div>
           <div className={style.children}>

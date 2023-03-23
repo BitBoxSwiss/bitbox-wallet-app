@@ -19,10 +19,10 @@ import A from '../../components/anchor/anchor';
 import { Button } from '../../components/forms/button';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { SwissMadeOpenSource } from '../../components/icon/logo';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { translate, TranslateProps } from '../../decorators/translate';
-
+import { getDarkmode } from '../../components/darkmode/darkmode';
 import externalIcon from './assets/external-link.svg';
 import { data, ExchangeData, Method, Region } from './exchanges-data';
 import styles from './exchanges.module.css';
@@ -142,7 +142,7 @@ class Exchanges extends Component<Props, State> {
               </div>
             </div>
             <Footer>
-              <SwissMadeOpenSource />
+              {getDarkmode() ? <SwissMadeOpenSourceDark /> : <SwissMadeOpenSource />}
             </Footer>
           </div>
         </div>

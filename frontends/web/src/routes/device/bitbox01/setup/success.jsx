@@ -17,10 +17,11 @@
 import { Component } from 'react';
 import { route } from '../../../../utils/route';
 import { withTranslation } from 'react-i18next';
-import { SwissMadeOpenSource } from '../../../../components/icon';
+import { SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
 import { Header } from '../../../../components/layout';
 import { Button } from '../../../../components/forms';
+import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 class Success extends Component {
@@ -65,7 +66,7 @@ class Success extends Component {
                 </div>
               </div>
               <div className="text-center m-top-large">
-                <SwissMadeOpenSource large />
+                {getDarkmode() ? <SwissMadeOpenSourceDark large /> : <SwissMadeOpenSource large />}
               </div>
             </div>
           </div>

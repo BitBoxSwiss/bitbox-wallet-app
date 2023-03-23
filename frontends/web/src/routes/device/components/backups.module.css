@@ -3,8 +3,8 @@
 }
 
 .backupsList {
-    background: white;
-    border: 1px solid white;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-secondary);
     display: flex;
     flex-direction: column;
     text-align: left;
@@ -27,7 +27,7 @@
 }
 
 .item:not(:first-child) {
-    border-top: solid 1px var(--color-lightgray);
+    border-top: solid 1px var(--background);
 }
 
 .item label {

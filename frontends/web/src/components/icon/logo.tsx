@@ -23,13 +23,15 @@ import BitBoxLogo from './assets/bitbox-logo.svg';
 import BitBoxSwissInvertedLogo from './assets/bitbox-swisscross-inverted-logo.svg';
 import BitBoxSwissLogo from './assets/bitbox-swisscross-logo.svg';
 import BitBox02Logo from './assets/bitbox02-logo.svg';
+import BitBox02InvertedLogo from './assets/bitbox02inverted-logo.svg';
 import BTC from './assets/btc-color.svg';
 import BTC_GREY from './assets/btc-white.svg';
 import ETH from './assets/eth-color.svg';
 import ETH_GREY from './assets/eth-white.svg';
 import LTC from './assets/ltc-color.svg';
 import LTC_GREY from './assets/ltc-white.svg';
-import SwissOpenSource from './assets/swiss_made_open_source.svg';
+import SwissOpenSourceLight from './assets/swiss-made-open-source-light.svg';
+import SwissOpenSourceDark from './assets/swiss-made-open-source-dark.svg';
 
 import BAT from './assets/bat-color.svg';
 import BAT_GREY from './assets/bat-white.svg';
@@ -61,12 +63,14 @@ interface GenericProps {
 
 export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
 export const BitBox02 = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" className={style.logo} />;
+export const BitBox02Inverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02InvertedLogo} alt="BitBox02" className={style.logo} />;
 export const AppLogo = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoImg} alt="BitBox" className={style.logo} />;
 export const AppLogoInverted = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="Shift Crypto" className={style.logo} />;
-export const SwissMadeOpenSource = ({ large: boolean, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
+export const SwissMadeOpenSource = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceLight} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
+export const SwissMadeOpenSourceDark = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
     [property: string]: string[];

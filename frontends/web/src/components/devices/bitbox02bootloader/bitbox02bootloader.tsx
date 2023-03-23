@@ -21,9 +21,10 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
-import { BitBox02 } from '../../icon/logo';
+import { BitBox02, BitBox02Inverted } from '../../icon/logo';
 import Status from '../../status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
+import { getDarkmode } from '../../darkmode/darkmode';
 
 interface BitBox02BootloaderProps {
     deviceID: string;
@@ -192,7 +193,7 @@ class BitBox02Bootloader extends Component<Props, State> {
     }
     return (
       <CenteredContent>
-        <BitBox02 />
+        {getDarkmode() ? <BitBox02Inverted /> : <BitBox02 />}
         {status.errMsg && (
           <Status type="warning">{status.errMsg}</Status>
         )}
