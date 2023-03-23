@@ -1333,6 +1333,7 @@
   },
   "settings": {
     "accounts": "Accounts",
+    "appearance": "Appearance",
     "electrum": {
       "add": "Add a server",
       "add-server": "Add",
