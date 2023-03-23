@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-import { BitBox02Stylized, CaretDown } from './icon';
+import { useDarkmode } from '../../hooks/darkmode';
+import { BitBox02StylizedDark, BitBox02StylizedLight, CaretDown } from './icon';
 import style from './combined.module.css';
 
-export const PointToBitBox02 = () => (
-  <div className={style.point2bitbox02}>
-    <CaretDown className={style.caret} />
-    <BitBox02Stylized className={style.bitbox02} />
-  </div>
-);
+export const PointToBitBox02 = () => {
+  const darkmode = useDarkmode();
+  return (
+    <div className={style.point2bitbox02}>
+      <CaretDown className={style.caret} />
+      { darkmode
+        ? (<BitBox02StylizedLight className={style.bitbox02} />)
+        : (<BitBox02StylizedDark className={style.bitbox02} />)
+      }
+    </div>
+  );
+};
