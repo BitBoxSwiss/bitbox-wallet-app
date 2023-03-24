@@ -119,10 +119,13 @@ func (c *client) TransactionBroadcast(transaction *wire.MsgTx) error {
 	_ = transaction.BtcEncode(rawTx, 0, wire.WitnessEncoding)
 	rawTxHex := hex.EncodeToString(rawTx.Bytes())
 	txID, err := c.client.TransactionBroadcast(context.Background(), rawTxHex)
-	if txID != transaction.TxHash().String() {
-		return errp.New("Response is unexpected (expected TX hash)")
+	if err != nil {
+		return err
 	}
-	return err
+	if txID != transaction.TxHash().String() {
+		return errp.New("Response is unexpected (transaction hash mismatch)")
+	}
+	return nil
 }
 
 func (c *client) TransactionGet(txHash chainhash.Hash) (*wire.MsgTx, error) {
