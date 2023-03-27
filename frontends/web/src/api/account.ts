@@ -33,7 +33,6 @@ export type Coin = MainnetCoin | TestnetCoin;
 
 export type CoinWithSAT = Coin | 'sat' | 'tsat';
 
-
 export interface IActiveToken {
     tokenCode: string;
     accountCode: AccountCode;
@@ -304,4 +303,18 @@ export const hasSecureOutput = (code: AccountCode) => {
   return (): Promise<TSecureOutput> => {
     return apiGet(`account/${code}/has-secure-output`);
   };
+};
+
+export type TAddAccount = {
+  success: boolean;
+  accountCode?: string;
+  errorCode?: 'accountAlreadyExists' | 'accountLimitReached';
+  errorMessage?: string;
+}
+
+export const addAccount = (coinCode: string, name: string): Promise<TAddAccount> => {
+  return apiPost('account-add', {
+    coinCode,
+    name,
+  });
 };
