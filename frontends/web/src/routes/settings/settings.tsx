@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,12 +261,11 @@ class Settings extends Component<Props, State> {
                                   </SettingsItem>
                                 )
                               ) : <Skeleton fontSize="var(--item-height)" />}
-                              <DarkModeToggle />
                             </div>
                           </div>
                           { manageAccountsLen ? (
                             <div>
-                              <h3 className="subTitle">Accounts</h3>
+                              <h3 className="subTitle">{t('settings.accounts')}</h3>
                               <div className="box slim divide m-bottom-large">
                                 <SettingsButton
                                   onClick={() => route('/settings/manage-accounts', true)}
@@ -277,6 +276,16 @@ class Settings extends Component<Props, State> {
                               </div>
                             </div>
                           ) : null}
+                          <h3 className="subTitle">{t('settings.appearance')}</h3>
+                          <div className="box slim divide m-bottom-large">
+                            <DarkModeToggle />
+                            <SettingsToggle
+                              checked={config.backend.btcUnit === 'sat'}
+                              id="satsUnit"
+                              onChange={this.handleToggleSatsUnit}>
+                              {t('settings.expert.useSats')}
+                            </SettingsToggle>
+                          </div>
                           <h3 className="subTitle">{t('settings.expert.title')}</h3>
                           <div className="box slim divide m-bottom-large">
                             <SettingsToggle
@@ -296,12 +305,6 @@ class Settings extends Component<Props, State> {
                                   <Badge type="generic" className="m-left-quarter">LTC</Badge>
                                 </p>
                               </div>
-                            </SettingsToggle>
-                            <SettingsToggle
-                              checked={config.backend.btcUnit === 'sat'}
-                              id="satsUnit"
-                              onChange={this.handleToggleSatsUnit}>
-                              {t('settings.expert.useSats')}
                             </SettingsToggle>
                             <SettingsButton
                               onClick={this.showProxyDialog}
