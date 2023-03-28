@@ -524,6 +524,9 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 	accounts := []*accountJSON{}
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 	for _, account := range handlers.backend.Accounts() {
+		if account.Config().Config.HiddenBecauseUnused {
+			continue
+		}
 		var activeTokens []activeToken
 		if account.Coin().Code() == coinpkg.CodeETH {
 			persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
@@ -587,7 +590,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
 
 	for _, account := range handlers.backend.Accounts() {
-		if account.Config().Config.Inactive {
+		if account.Config().Config.Inactive || account.Config().Config.HiddenBecauseUnused {
 			continue
 		}
 		if account.FatalError() {

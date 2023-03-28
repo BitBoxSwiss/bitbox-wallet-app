@@ -16,6 +16,7 @@ package backend
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -281,6 +282,41 @@ func (backend *Backend) createAndPersistAccountConfig(
 	}
 }
 
+// findHiddenAccount finds the first (lowest account number) account which is hidden because it is
+// unused. Returns nil if no such account exists.
+func findHiddenAccount(
+	coinCode coinpkg.Code,
+	keystore keystore.Keystore,
+	accountsConfig *config.AccountsConfig) (*config.Account, error) {
+	rootFingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return nil, err
+	}
+	smallestHiddenAccountNumber := uint16(math.MaxUint16)
+	var result *config.Account
+
+	for _, account := range accountsConfig.Accounts {
+		if coinCode != account.CoinCode {
+			continue
+		}
+		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
+			continue
+		}
+		if len(account.SigningConfigurations) == 0 {
+			continue
+		}
+		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
+		if err != nil {
+			continue
+		}
+		if account.HiddenBecauseUnused && accountNumber < smallestHiddenAccountNumber {
+			smallestHiddenAccountNumber = accountNumber
+			result = account
+		}
+	}
+	return result, nil
+}
+
 // nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
 // account number of the new account.
 func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accountsConfig *config.AccountsConfig) (uint16, error) {
@@ -321,6 +357,16 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 // along with a suggested name for the account.
 func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) (string, bool) {
 	conf := backend.config.AccountsConfig()
+	// If there is an unused hidden account, that one would be activated when adding a new
+	// account. See `CreateAndPersistAccountConfig` for details.
+	hiddenAccount, err := findHiddenAccount(coinCode, keystore, &conf)
+	if err != nil {
+		return "", false
+	}
+	if hiddenAccount != nil {
+		return hiddenAccount.Name, true
+	}
+	// Otherwise a new account will be added.
 	accountNumber, err := nextAccountNumber(coinCode, keystore, &conf)
 	if err != nil {
 		return "", false
@@ -335,11 +381,28 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
 // adds it to the accounts database. The next account number, which is part of the BIP44 keypath, is
 // determined automatically to be the increment of the highest existing account.
+//
+// If there is an unused hidden account, we activate (unhide) and return that one instead of
+// creating a new account. Such unused hidden accounts are added during accounts discovery, and are
+// marked hidden so that they can be scanned in the background without the user seeing it. If the
+// user adds an account, we simply activate such an account that was already prepared.
+//
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
 	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error) {
 	var accountCode accountsTypes.Code
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		hiddenAccount, err := findHiddenAccount(coinCode, keystore, accountsConfig)
+		if err != nil {
+			return err
+		}
+		if hiddenAccount != nil {
+			hiddenAccount.HiddenBecauseUnused = false
+			hiddenAccount.Name = name
+			accountCode = hiddenAccount.Code
+			return nil
+		}
+		// Otherwise we create a new account.
 		nextAccountNumber, err := nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
 			return err
@@ -480,6 +543,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 			erc20Config := &config.Account{
 				Inactive:              persistedConfig.Inactive,
+				HiddenBecauseUnused:   persistedConfig.HiddenBecauseUnused,
 				CoinCode:              erc20CoinCode,
 				Name:                  tokenName,
 				Code:                  erc20AccountCode,
@@ -876,10 +940,12 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 			return errp.Newf("could not find account")
 		}
 		acct.Used = true
+		acct.HiddenBecauseUnused = false
 		return nil
 	})
 	if err != nil {
 		log.WithError(err).Error("checkAccountUsed")
 		return
 	}
+	backend.emitAccountsStatusChanged()
 }
