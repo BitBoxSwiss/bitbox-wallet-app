@@ -22,6 +22,7 @@
 - Fix issue where the app sometimes shows a blank screen after unlock
 
 ## 4.35.0
+- Bundle BitBox02 firmware version v9.13.1
 - Add Arabic translation
 - Render number of blocks scanned and percentage progress using fixed-width digits for a more stable UI
 - Transaction details: show fiat value at time of transaction
