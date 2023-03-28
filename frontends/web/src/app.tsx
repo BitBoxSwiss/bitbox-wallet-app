@@ -37,6 +37,7 @@ import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
+import { DarkModeProvider } from './contexts/DarkmodeProvider';
 
  interface State {
      accounts: IAccount[];
@@ -184,28 +185,30 @@ class App extends Component<Props, State> {
     const activeAccounts = this.activeAccounts();
     return (
       <ConnectedApp>
-        <Darkmode />
-        <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
-          <Sidebar
-            accounts={activeAccounts}
-            deviceIDs={deviceIDs} />
-          <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
-            <Update />
-            <Banner msgKey="bitbox01" />
-            <MobileDataWarning />
-            <Aopp />
-            <AppRouter
-              accounts={accounts}
-              activeAccounts={activeAccounts}
-              deviceIDs={deviceIDs}
-              devices={devices}
-              devicesKey={this.devicesKey}
-            />
-            <RouterWatcher onChange={this.handleRoute} />
+        <DarkModeProvider>
+          <Darkmode />
+          <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
+            <Sidebar
+              accounts={activeAccounts}
+              deviceIDs={deviceIDs} />
+            <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
+              <Update />
+              <Banner msgKey="bitbox01" />
+              <MobileDataWarning />
+              <Aopp />
+              <AppRouter
+                accounts={accounts}
+                activeAccounts={activeAccounts}
+                deviceIDs={deviceIDs}
+                devices={devices}
+                devicesKey={this.devicesKey}
+              />
+              <RouterWatcher onChange={this.handleRoute} />
+            </div>
+            <Alert />
+            <Confirm />
           </div>
-          <Alert />
-          <Confirm />
-        </div>
+        </DarkModeProvider>
       </ConnectedApp>
     );
   }

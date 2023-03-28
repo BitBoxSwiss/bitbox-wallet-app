@@ -15,30 +15,19 @@
  */
 
 import { useDarkmode } from '../../hooks/darkmode';
-import { setDarkTheme } from '../../api/darktheme';
 
 let darkmode: boolean | undefined;
 
-export const setDarkmode = (dark: boolean) => {
-  setDarkTheme(dark);
-  if (dark) {
-    document.body.classList.add('dark-mode');
-    document.body.classList.remove('light-mode');
-  } else {
-    document.body.classList.remove('dark-mode');
-    document.body.classList.add('light-mode');
-  }
-  darkmode = dark;
-};
-
 export const Darkmode = () => {
-  const mode = useDarkmode();
-  setDarkmode(mode);
+  const { isDarkMode } = useDarkmode();
+  darkmode = isDarkMode;
   return null;
 };
-
 /**
- * get darkmode, only usefull for conditional rendering
+ * Retrieve dark mode state for
+ * conditional rendering in class
+ * components. Use `useDarkmode`
+ * hook for functional components.
  * @returns {boolean} darkmode
  */
 export const getDarkmode = () => darkmode;

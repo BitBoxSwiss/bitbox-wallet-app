@@ -14,67 +14,19 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../hooks/api';
-import { useMediaQuery } from '../../hooks/mediaquery';
-import { getConfig, setConfig } from '../../api/backend';
 import { SettingsToggle } from '../../components/settingsButton/settingsToggle';
-import { setDarkmode as setGlobalDarkmode } from './darkmode';
+import { useDarkmode } from '../../hooks/darkmode';
 
 export const DarkModeToggle = () => {
-  const [darkmode, setDarkmode] = useState(false);
   const { t } = useTranslation();
-  const config = useLoad(getConfig);
-  const osPrefersDarkmode = useMediaQuery('(prefers-color-scheme: dark)');
-
-  useEffect(() => {
-    getConfig()
-      .then(config => {
-        // use config if it exists
-        if ('darkmode' in config.frontend) {
-          setDarkmode(config.frontend.darkmode);
-          return;
-        }
-        // else use mode from OS
-        setDarkmode(osPrefersDarkmode);
-      })
-      .catch(console.error);
-  }, [config, osPrefersDarkmode]);
-
-  useEffect(() => setGlobalDarkmode(darkmode), [darkmode]);
-
-  const handleDarkmodeChange = (event: React.SyntheticEvent) => {
-    const target = event.target as HTMLInputElement;
-    setDarkmode(target.checked);
-    getConfig()
-      .then(config => {
-        if (osPrefersDarkmode === target.checked) {
-          // remove darkmode from config, so it use the same mode as the OS
-          const { darkmode, ...frontend } = config.frontend;
-          setConfig({
-            backend: config.backend,
-            frontend,
-          });
-        } else {
-          // darkmode is different from OS, save to config
-          setConfig({
-            backend: config.backend,
-            frontend: {
-              ...config.frontend,
-              darkmode: target.checked,
-            }
-          });
-        }
-      })
-      .catch(console.error);
-  };
+  const { isDarkMode, toggleDarkmode } = useDarkmode();
 
   return (
     <SettingsToggle
-      checked={darkmode}
+      checked={isDarkMode}
       id="darkMode"
-      onChange={handleDarkmodeChange}>
+      onChange={() => toggleDarkmode(!isDarkMode)}>
       {t('darkmode.toggle')}
     </SettingsToggle>
   );

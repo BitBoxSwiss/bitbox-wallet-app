@@ -36,19 +36,19 @@ type TPaymentMethodProps = { methodName: ExchangeDealWithBestDeal['payment'] };
 
 const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   const { t } = useTranslation();
-  const darkmode = useDarkmode();
+  const { isDarkMode } = useDarkmode();
   switch (methodName) {
   case 'bank-transfer':
     return (
       <span>
-        {darkmode ? <Bank /> : <BankDark />}
+        {isDarkMode ? <Bank /> : <BankDark />}
         <p className={style.paymentMethodName}>{t('buy.exchange.bankTransfer')}</p>
       </span>
     );
   case 'card':
     return (
       <span>
-        {darkmode ? <CreditCard /> : <CreditCardDark />}
+        {isDarkMode ? <CreditCard /> : <CreditCardDark />}
         <p className={style.paymentMethodName}>{t('buy.exchange.creditCard')}</p>
       </span>
     );
