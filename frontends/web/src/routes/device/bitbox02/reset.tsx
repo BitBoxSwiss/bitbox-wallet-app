@@ -15,111 +15,86 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, Component } from 'react';
-import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
+import { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { alertUser } from '../../../components/alert/Alert';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
 import { SettingsButton } from '../../../components/settingsButton/settingsButton';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
+import { resetDevice } from '../../../api/bitbox02';
 
-interface ResetProps {
-    apiPrefix: string;
+type TProps = {
+    deviceID: string;
 }
 
-type Props = ResetProps & TranslateProps;
+export const Reset = ({ deviceID }: TProps) => {
+  const [understand, setUnderstand] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [activeDialog, setActiveDialog] = useState(false);
+  const { t } = useTranslation();
 
-interface State {
-    understand: boolean;
-    isConfirming: boolean;
-    activeDialog: boolean;
-}
-
-class Reset extends Component<Props, State> {
-  public readonly state: State = {
-    understand: false,
-    isConfirming: false,
-    activeDialog: false,
+  const reset = async () => {
+    setActiveDialog(false);
+    setIsConfirming(true);
+    const responseData = await resetDevice(deviceID);
+    abort();
+    if (!responseData.success) {
+      alertUser(t('reset.notReset'));
+    }
   };
 
-  private reset = () => {
-    this.setState({
-      activeDialog: false,
-      isConfirming: true,
-    });
-    apiPost(this.props.apiPrefix + '/reset').then(data => {
-      this.abort();
-      if (!data.success) {
-        alertUser(this.props.t('reset.notReset'));
-      }
-    });
+  const abort = () => {
+    setUnderstand(false);
+    setIsConfirming(false);
+    setActiveDialog(false);
   };
 
-  private handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ understand: e.target.checked });
+  const handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUnderstand(e.target.checked);
   };
-
-  private abort = () => {
-    this.setState({
-      understand: false,
-      isConfirming: false,
-      activeDialog: false,
-    });
-  };
-
-  public render() {
-    const { t } = this.props;
-    const {
-      understand,
-      isConfirming,
-      activeDialog,
-    } = this.state;
-    return (
-      <div>
-        <SettingsButton
-          danger
-          onClick={() => this.setState({ activeDialog: true })}>
-          {t('reset.title')}
-        </SettingsButton>
-        <Dialog
-          open={activeDialog}
-          title={t('reset.title')}
-          onClose={this.abort}
-          disabledClose={isConfirming}
-          small>
-          <div className="columnsContainer half">
-            <div className="columns">
-              <div className="column">
-                <p>{t('reset.description')}</p>
-                <div>
-                  <Checkbox
-                    id="reset_understand"
-                    label={t('reset.understandBB02')}
-                    checked={understand}
-                    onChange={this.handleUnderstandChange} />
-                </div>
+  return (
+    <div>
+      <SettingsButton
+        danger
+        onClick={() => setActiveDialog(true)}>
+        {t('reset.title')}
+      </SettingsButton>
+      <Dialog
+        open={activeDialog}
+        title={t('reset.title')}
+        onClose={abort}
+        disabledClose={isConfirming}
+        small>
+        <div className="columnsContainer half">
+          <div className="columns">
+            <div className="column">
+              <p>{t('reset.description')}</p>
+              <div>
+                <Checkbox
+                  id="reset_understand"
+                  label={t('reset.understandBB02')}
+                  checked={understand}
+                  onChange={handleUnderstandChange} />
               </div>
             </div>
           </div>
-          <DialogButtons>
-            <Button danger disabled={!understand} onClick={this.reset}>
-              {t('reset.title')}
-            </Button>
-          </DialogButtons>
-        </Dialog>
-        {
-          isConfirming && (
-            <WaitDialog
-              title={t('reset.title')} >
-              {t('bitbox02Interact.followInstructions')}
-            </WaitDialog>
-          )
-        }
-      </div>
-    );
-  }
-}
+        </div>
+        <DialogButtons>
+          <Button danger disabled={!understand} onClick={reset}>
+            {t('reset.title')}
+          </Button>
+        </DialogButtons>
+      </Dialog>
+      {
+        isConfirming && (
+          <WaitDialog
+            title={t('reset.title')} >
+            {t('bitbox02Interact.followInstructions')}
+          </WaitDialog>
+        )
+      }
+    </div>
+  );
+};
 
-const HOC = translate()(Reset);
-export { HOC as Reset };

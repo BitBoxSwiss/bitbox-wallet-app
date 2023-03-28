@@ -51,7 +51,6 @@ export const Settings = ({ deviceID }: TProps) => {
   }, [deviceID, t]);
 
   const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
-  const apiPrefix = 'devices/bitbox02/' + deviceID;
 
   const routeToPassphrase = () => {
     route(`/passphrase/${deviceID}`);
@@ -74,7 +73,7 @@ export const Settings = ({ deviceID }: TProps) => {
                     {t('deviceSettings.secrets.manageBackups')}
                   </SettingsButton>
                   <ShowMnemonic deviceID={deviceID} />
-                  <Reset apiPrefix={apiPrefix} />
+                  <Reset deviceID={deviceID} />
                 </Column>
                 <Column className="m-bottom-default">
                   <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>

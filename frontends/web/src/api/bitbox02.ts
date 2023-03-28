@@ -32,6 +32,10 @@ type DeviceInfoResponse = SuccessResponse & {
     deviceInfo: DeviceInfo;
 };
 
+export const resetDevice = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/reset`);
+};
+
 export const getDeviceInfo = (
   deviceID: string
 ): Promise<DeviceInfo> => {
