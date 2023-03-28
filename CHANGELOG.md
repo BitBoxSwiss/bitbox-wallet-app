@@ -1,6 +1,7 @@
 # Changelog
 
 ## 4.37.0
+- Bundle BitBox02 firmware version v9.14.0
 - Enable auto HiDPI scaling to correctly manage scale factor on high density screens
 - Bitcoin: enable setting a custom fee if the fee rate estimations are unavailable
 - Add dark mode: app will default to the mode set by the system preferences but can be overwritten in the settings
