@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.Locale;
 
@@ -26,7 +27,7 @@ import goserver.GoReadWriteCloserInterface;
 
 public class GoViewModel extends AndroidViewModel {
 
-    private class GoDeviceInfo implements GoDeviceInfoInterface {
+      private class GoDeviceInfo implements GoDeviceInfoInterface {
         private UsbDevice device;
         public GoDeviceInfo(UsbDevice device) {
             this.device = device;
@@ -148,6 +149,11 @@ public class GoViewModel extends AndroidViewModel {
             }
             return locale.toString();
         }
+
+        public void setDarkTheme(boolean isDark) {
+            Util.log("Set Dark Theme GoViewModel - isdark: " + isDark);
+            GoViewModel.this.isDarkTheme.postValue(isDark);
+        }
     }
 
     public class Response {
@@ -176,6 +182,15 @@ public class GoViewModel extends AndroidViewModel {
         }
     }
 
+     private MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
+
+     public MutableLiveData<Boolean> getIsDarkTheme() {
+         return isDarkTheme;
+     }
+
+     public void setIsDarkTheme(Boolean isDark) {
+         this.isDarkTheme.postValue(isDark);
+    }
     private GoEnvironment goEnvironment;
     private GoAPI goAPI;
 

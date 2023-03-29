@@ -61,6 +61,10 @@ func (e environment) GetSaveFilename(string) string {
 	return ""
 }
 
+func (e environment) SetDarkTheme(bool) {
+	// nothing to do here.
+}
+
 // TestServeShutdownServe checks that you can call Serve twice in a row.
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(

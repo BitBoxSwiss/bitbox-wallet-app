@@ -168,6 +168,7 @@ func serve(
 				filename := C.GoString(cFilename)
 				return filename
 			},
+			SetDarkThemeFunc: func(bool) {},
 		},
 	)
 }
