@@ -14,51 +14,34 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import { testRegister } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { PasswordSingleInput } from '../../../components/password';
-import { apiPost } from '../../../utils/request';
 
-interface SkipForTestingProps {
-    show: boolean;
-}
-
-interface SkipForTestingState {
-    testPIN: string;
-}
-
-export class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState> {
-  public readonly state: SkipForTestingState = {
-    testPIN: '',
-  };
-
-  private registerTestingDevice = (e: React.SyntheticEvent) => {
-    apiPost('test/register', { pin: this.state.testPIN });
+export const SkipForTesting = () => {
+  const [testPIN, setTestPIN] = useState('');
+  const registerTestingDevice = async (e: React.SyntheticEvent) => {
+    await testRegister(testPIN);
     e.preventDefault();
   };
-
-  private handleFormChange = (value: string) => {
-    this.setState({ testPIN: value });
+  const handleFormChange = (value: string) => {
+    setTestPIN(value);
   };
 
-  public render() {
-    const { show } = this.props;
-    const { testPIN } = this.state;
-    if (!show) {
-      return null;
-    }
-    return (
-      <form onSubmit={this.registerTestingDevice} style={{ flexGrow: 0, maxWidth: 400, width: '100%', alignSelf: 'center' }}>
-        <PasswordSingleInput
-          type="password"
-          autoFocus
-          label="Test Password"
-          onValidPassword={this.handleFormChange}
-          value={testPIN} />
-        <Button type="submit" secondary>
-                    Skip for Testing
-        </Button>
-      </form>
-    );
-  }
-}
+
+  return (
+    <form onSubmit={registerTestingDevice} style={{ flexGrow: 0, maxWidth: 400, width: '100%', alignSelf: 'center' }}>
+      <PasswordSingleInput
+        type="password"
+        autoFocus
+        label="Test Password"
+        onValidPassword={handleFormChange}
+        value={testPIN} />
+      <Button type="submit" secondary>
+        Skip for Testing
+      </Button>
+    </form>
+  );
+
+};
