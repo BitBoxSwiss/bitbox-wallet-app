@@ -57,6 +57,7 @@
       "title": "Select cryptocurrency"
     },
     "success": {
+      "addAnotherAccount": "Add another account",
       "message": "<strong>{{accountName}}</strong> has now been added to your accounts.",
       "nextButton": "Done",
       "step": "Finished",
