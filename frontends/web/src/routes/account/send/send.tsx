@@ -22,7 +22,8 @@ import { BtcUnit } from '../../../api/coins';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { Checked, Cancel } from '../../../components/icon/icon';
-import qrcodeIcon from '../../../assets/icons/qrcode.png';
+import qrcodeIconDark from '../../../assets/icons/qrcode-dark.png';
+import qrcodeIconLight from '../../../assets/icons/qrcode-light.png';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
@@ -652,7 +653,8 @@ class Send extends Component<Props, State> {
                     autoFocus>
                     { hasCamera && (
                       <button onClick={this.toggleScanQR} className={style.qrButton}>
-                        <img src={qrcodeIcon} />
+                        <img className="show-in-lightmode" src={qrcodeIconDark} />
+                        <img className="show-in-darkmode" src={qrcodeIconLight} />
                       </button>
                     )}
                   </Input>
