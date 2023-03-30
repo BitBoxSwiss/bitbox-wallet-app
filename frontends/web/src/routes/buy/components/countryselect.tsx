@@ -17,7 +17,8 @@
 import { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
-import { Globe } from '../../../components/icon';
+import { useDarkmode } from '../../../hooks/darkmode';
+import { GlobeDark, GlobeLight } from '../../../components/icon';
 import i18n from '../../../i18n/i18n';
 import styles from './countryselect.module.css';
 
@@ -33,9 +34,13 @@ type TProps = {
 }
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
-  return <span>
-    {regionCode === '' ? <Globe className={styles.globe} /> : <span className={`fi fi-${regionCode} ${styles.flag}`}></span>}
-  </span>;
+  const darkmode = useDarkmode();
+  const globe = darkmode ? <GlobeLight className={styles.globe} /> : <GlobeDark className={styles.globe} />;
+  return (
+    <span>
+      {regionCode === '' ? globe : <span className={`fi fi-${regionCode} ${styles.flag}`}></span>}
+    </span>
+  );
 };
 
 const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
