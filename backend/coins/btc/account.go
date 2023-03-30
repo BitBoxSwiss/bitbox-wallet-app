@@ -665,7 +665,7 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
-	txs, err := account.transactions.Transactions(
+	return account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			for _, subacc := range account.subaccounts {
 				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
@@ -674,11 +674,6 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 			}
 			return false
 		})
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	return txs, nil
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.

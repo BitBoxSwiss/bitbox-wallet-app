@@ -16,7 +16,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { ITransaction } from '../../api/account';
+import { TTransactions } from '../../api/account';
 import A from '../../components/anchor/anchor';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
@@ -25,7 +25,7 @@ import style from './transactions.module.css';
 type TProps = {
     accountCode: string;
     explorerURL: string;
-    transactions?: ITransaction[];
+    transactions?: TTransactions;
     handleExport: () => void;
 };
 
@@ -62,8 +62,8 @@ export const Transactions = ({
         <div className={style.currency}>{t('transaction.details.amount')}</div>
         <div className={style.action}>&nbsp;</div>
       </div>
-      { (transactions && transactions.length > 0)
-        ? transactions.map((props, index) => (
+      { (transactions && transactions.success && transactions.list.length > 0)
+        ? transactions.list.map((props, index) => (
           <Transaction
             accountCode={accountCode}
             key={props.internalID}
@@ -72,7 +72,11 @@ export const Transactions = ({
             {...props} />
         )) : (
           <div className={`flex flex-row flex-center ${style.empty}`}>
-            <p>{t('transactions.placeholder')}</p>
+            { transactions && !transactions.success ? (
+              <p>{t('transactions.errorLoadTransactions')}</p>
+            ) : (
+              <p>{t('transactions.placeholder')}</p>
+            ) }
           </div>
         ) }
     </div>

@@ -57,7 +57,7 @@ export function Account({
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [status, setStatus] = useState<accountApi.IStatus>();
   const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
-  const [transactions, setTransactions] = useState<accountApi.ITransaction[]>();
+  const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
   const [stateCode, setStateCode] = useState<string>();
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
@@ -191,7 +191,8 @@ export function Account({
     && !balance.hasAvailable
     && !balance.hasIncoming
     && transactions
-    && transactions.length === 0;
+    && transactions.success
+    && transactions.list.length === 0;
 
   const showBuyButton = exchangeBuySupported && isAccountEmpty;
 
@@ -266,7 +267,7 @@ export function Account({
         account={account}
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
-        hasTransactions={transactions !== undefined && transactions.length > 0}
+        hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
         hasNoBalance={balance && balance.available.amount === '0'} />
     </div>
   );
