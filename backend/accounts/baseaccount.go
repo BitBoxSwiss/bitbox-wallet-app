@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -38,23 +39,15 @@ import (
 
 // AccountConfig holds account configuration.
 type AccountConfig struct {
-	// Active, if false, does not load the account in the sidebar, portfolio, etc.
-	Active bool
-	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
-	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
-	Code types.Code
-	// Name returns a human readable long name.
-	Name string
-	// DBFolder is the folder for all accounts. Full path.
+	Config   *config.Account
 	DBFolder string
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
-	NotesFolder           string
-	Keystore              keystore.Keystore
-	OnEvent               func(types.Event)
-	RateUpdater           *rates.RateUpdater
-	SigningConfigurations signing.Configurations
-	GetNotifier           func(signing.Configurations) Notifier
-	GetSaveFilename       func(suggestedFilename string) string
+	NotesFolder     string
+	Keystore        keystore.Keystore
+	OnEvent         func(types.Event)
+	RateUpdater     *rates.RateUpdater
+	GetNotifier     func(signing.Configurations) Notifier
+	GetSaveFilename func(suggestedFilename string) string
 	// Opens a file in a default application. The filename is not checked.
 	UnsafeSystemOpen func(filename string) error
 	// BtcCurrencyUnit is the unit which should be used to format fiat amounts values expressed in BTC..
@@ -160,10 +153,10 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 
 	// Append legacy notes (notes stored in files based on obsolete account identifiers). Account
 	// identifiers changed from v4.27.0 to v4.28.0.
-	if len(account.Config().SigningConfigurations) == 0 {
+	if len(account.Config().Config.Configurations) == 0 {
 		return nil
 	}
-	accountNumber, err := account.Config().SigningConfigurations[0].AccountNumber()
+	accountNumber, err := account.Config().Config.Configurations[0].AccountNumber()
 	if err != nil {
 		return nil
 	}
@@ -172,13 +165,13 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 		return nil
 	}
 
-	legacyConfigurations := signing.ConvertToLegacyConfigurations(account.Config().SigningConfigurations)
+	legacyConfigurations := signing.ConvertToLegacyConfigurations(account.Config().Config.Configurations)
 	var legacyAccountIdentifiers []string
 	switch account.coin.Code() {
 	case coin.CodeBTC, coin.CodeTBTC, coin.CodeLTC, coin.CodeTLTC:
 		legacyAccountIdentifiers = []string{fmt.Sprintf("account-%s-%s", legacyConfigurations.Hash(), account.coin.Code())}
 		// Also consider split accounts:
-		for _, cfg := range account.Config().SigningConfigurations {
+		for _, cfg := range account.Config().Config.Configurations {
 			legacyConfigurations := signing.ConvertToLegacyConfigurations(signing.Configurations{cfg})
 			legacyAccountIdentifier := fmt.Sprintf("account-%s-%s-%s", legacyConfigurations.Hash(), account.coin.Code(), cfg.ScriptType())
 			legacyAccountIdentifiers = append(

@@ -153,7 +153,7 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	var accounts []account
 	var filteredDueToScriptType bool
 	for _, acct := range backend.accounts {
-		if !acct.Config().Active {
+		if acct.Config().Config.Inactive {
 			continue
 		}
 		if acct.Coin().Code() != backend.aopp.coinCode {
@@ -162,14 +162,14 @@ func (backend *Backend) aoppKeystoreRegistered() {
 		// Filter for the requested script type.
 		if acct.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
 			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
-			if !ok || acct.Config().SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
+			if !ok || acct.Config().Config.Configurations.FindScriptType(expectedScriptType) == -1 {
 				filteredDueToScriptType = true
 				continue
 			}
 		}
 		accounts = append(accounts, account{
-			Name: acct.Config().Name,
-			Code: acct.Config().Code,
+			Name: acct.Config().Config.Name,
+			Code: acct.Config().Config.Code,
 		})
 	}
 
@@ -277,7 +277,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	log := backend.log.WithField("accountCode", code)
 	var account accounts.Interface
 	for _, acct := range backend.accounts {
-		if acct.Config().Code == code {
+		if acct.Config().Config.Code == code {
 			account = acct
 			break
 		}
@@ -290,7 +290,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	if err := account.Initialize(); err != nil {
 		log.
 			WithError(err).
-			WithField("code", account.Config().Code).
+			WithField("code", account.Config().Config.Code).
 			Error("could not initialize account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
@@ -307,7 +307,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 			backend.aoppSetError(errAOPPUnknown)
 			return
 		}
-		signingConfigIdx = account.Config().SigningConfigurations.FindScriptType(expectedScriptType)
+		signingConfigIdx = account.Config().Config.Configurations.FindScriptType(expectedScriptType)
 		if signingConfigIdx == -1 {
 			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
 			backend.aoppSetError(errAOPPUnknown)
@@ -327,7 +327,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 		sig, err := backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
-			account.Config().SigningConfigurations[signingConfigIdx].ScriptType(),
+			account.Config().Config.Configurations[signingConfigIdx].ScriptType(),
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {

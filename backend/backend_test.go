@@ -116,7 +116,7 @@ func TestRegisterKeystore(t *testing.T) {
 
 func lookup(accts []accounts.Interface, code accountsTypes.Code) accounts.Interface {
 	for _, acct := range accts {
-		if acct.Config().Code == code {
+		if acct.Config().Config.Code == code {
 			return acct
 		}
 	}
@@ -187,8 +187,8 @@ func TestAccounts(t *testing.T) {
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	require.Len(t, b.Accounts(), 6)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[4].Config().Code)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[5].Config().Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[4].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[5].Config().Config.Code)
 
 	// 4) Deactivate an ETH token
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))
@@ -197,19 +197,19 @@ func TestAccounts(t *testing.T) {
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	require.Len(t, b.Accounts(), 5)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Config.Code)
 
 	// 5) Rename an account
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH"))
 	require.Equal(t, "My ETH", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Name)
+	require.Equal(t, "My ETH", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Name)
 
 	// 6) Deactivate an ETH account - it also deactivates the tokens.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.False(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Active)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
 
 	// 7) Rename an inactive account.
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
 	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH Renamed", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Name)
+	require.Equal(t, "My ETH Renamed", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Name)
 }

@@ -26,6 +26,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
@@ -53,18 +54,20 @@ func TestBaseAccount(t *testing.T) {
 
 	const accountIdentifier = "test-account-identifier"
 	cfg := &AccountConfig{
-		Code:        "test",
-		Name:        "Test",
-		DBFolder:    test.TstTempDir("baseaccount_test_dbfolder"),
-		NotesFolder: test.TstTempDir("baseaccount_test_notesfolder"),
-		Keystore:    nil,
-		OnEvent:     func(event types.Event) { events <- event },
-		RateUpdater: nil,
-		SigningConfigurations: signing.Configurations{
-			signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+		Config: &config.Account{
+			Code: "test",
+			Name: "Test",
+			Configurations: signing.Configurations{
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+			},
 		},
+		DBFolder:        test.TstTempDir("baseaccount_test_dbfolder"),
+		NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder"),
+		Keystore:        nil,
+		OnEvent:         func(event types.Event) { events <- event },
+		RateUpdater:     nil,
 		GetNotifier:     nil,
 		GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
 	}

@@ -252,7 +252,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage"`
 	}
-	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Code)
+	name := fmt.Sprintf("%s-%s-export.csv", time.Now().Format("2006-01-02-at-15-04-05"), handlers.account.Config().Config.Code)
 	downloadsDir, err := config.DownloadsDir()
 	if err != nil {
 		handlers.log.WithError(err).Error("error exporting account")

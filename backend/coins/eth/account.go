@@ -100,7 +100,7 @@ func NewAccount(
 	log *logrus.Entry,
 ) *Account {
 	log = log.WithField("group", "eth").
-		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Code, "name": config.Name})
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": config.Config.Code, "name": config.Config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
@@ -153,7 +153,7 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations := account.Config().SigningConfigurations
+	signingConfigurations := account.Config().Config.Configurations
 	if len(signingConfigurations) != 1 {
 		return errp.New("Ethereum only supports one signing config")
 	}
@@ -162,7 +162,7 @@ func (account *Account) Initialize() error {
 	account.signingConfiguration = signingConfiguration
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Code)
+	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Config.Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)

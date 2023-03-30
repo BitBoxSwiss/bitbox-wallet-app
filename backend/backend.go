@@ -261,7 +261,7 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 	if unnotifiedCount != 0 {
 		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
 			"count":       unnotifiedCount,
-			"accountName": account.Config().Name,
+			"accountName": account.Config().Config.Name,
 		}}
 
 		if err := notifier.MarkAllNotified(); err != nil {
@@ -710,10 +710,10 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range backend.Accounts() {
-		if !a.Config().Active {
+		if a.Config().Config.Inactive {
 			continue
 		}
-		if a.Config().Code == acctCode {
+		if a.Config().Config.Code == acctCode {
 			acct = a
 			break
 		}

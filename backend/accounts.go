@@ -379,32 +379,25 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) createAndAddAccount(
-	coin coinpkg.Coin,
-	code accountsTypes.Code,
-	name string,
-	signingConfigurations signing.Configurations,
-	active bool,
-	activeTokens []string,
-) {
+func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
-		Active:      active,
-		Code:        code,
-		Name:        name,
+		Config:      persistedConfig,
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
 		Keystore:    backend.keystore,
 		OnEvent: func(event accountsTypes.Event) {
-			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+			backend.events <- AccountEvent{
+				Type: "account", Code: persistedConfig.Code,
+				Data: string(event),
+			}
 			if account != nil && event == accountsTypes.EventSyncDone {
 				backend.notifyNewTxs(account)
 			}
 		},
-		RateUpdater:           backend.ratesUpdater,
-		SigningConfigurations: signingConfigurations,
+		RateUpdater: backend.ratesUpdater,
 		GetNotifier: func(configurations signing.Configurations) accounts.Notifier {
-			return backend.notifier.ForAccount(code)
+			return backend.notifier.ForAccount(persistedConfig.Code)
 		},
 		GetSaveFilename:  backend.environment.GetSaveFilename,
 		UnsafeSystemOpen: backend.environment.SystemOpen,
@@ -425,23 +418,34 @@ func (backend *Backend) createAndAddAccount(
 		backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.
-		for _, erc20TokenCode := range activeTokens {
-			token, err := backend.Coin(coinpkg.Code(erc20TokenCode))
+		for _, erc20TokenCode := range persistedConfig.ActiveTokens {
+			erc20CoinCode := coinpkg.Code(erc20TokenCode)
+			token, err := backend.Coin(erc20CoinCode)
 			if err != nil {
 				backend.log.WithError(err).Error("could not find ERC20 token")
 				continue
 			}
-			erc20AccountCode := Erc20AccountCode(code, erc20TokenCode)
+			erc20AccountCode := Erc20AccountCode(persistedConfig.Code, erc20TokenCode)
 
 			tokenName := token.Name()
 
-			accountNumber, err := accountConfig.SigningConfigurations[0].AccountNumber()
+			accountNumber, err := accountConfig.Config.Configurations[0].AccountNumber()
 			if err != nil {
 				backend.log.WithError(err).Error("could not get account number")
 			} else if accountNumber > 0 {
 				tokenName = fmt.Sprintf("%s %d", tokenName, accountNumber+1)
 			}
-			backend.createAndAddAccount(token, erc20AccountCode, tokenName, signingConfigurations, active, nil)
+
+			erc20Config := &config.Account{
+				Inactive:       persistedConfig.Inactive,
+				CoinCode:       erc20CoinCode,
+				Name:           tokenName,
+				Code:           erc20AccountCode,
+				Configurations: persistedConfig.Configurations,
+				ActiveTokens:   nil,
+			}
+
+			backend.createAndAddAccount(token, erc20Config)
 		}
 	default:
 		panic("unknown coin type")
@@ -634,6 +638,7 @@ func (backend *Backend) initPersistedAccounts() {
 	persistedAccounts := backend.config.AccountsConfig()
 outer:
 	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnected) {
+		account := account
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
@@ -653,8 +658,7 @@ outer:
 			}
 		}
 
-		backend.createAndAddAccount(
-			coin, account.Code, account.Name, account.Configurations, !account.Inactive, account.ActiveTokens)
+		backend.createAndAddAccount(coin, account)
 	}
 }
 

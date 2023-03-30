@@ -241,11 +241,11 @@ func NewHandlers(
 	}
 
 	backend.OnAccountInit(func(account accounts.Interface) {
-		log.WithField("code", account.Config().Code).Debug("Initializing account")
-		getAccountHandlers(account.Config().Code).Init(account)
+		log.WithField("code", account.Config().Config.Code).Debug("Initializing account")
+		getAccountHandlers(account.Config().Config.Code).Init(account)
 	})
 	backend.OnAccountUninit(func(account accounts.Interface) {
-		getAccountHandlers(account.Config().Code).Uninit()
+		getAccountHandlers(account.Config().Config.Code).Uninit()
 	})
 
 	deviceHandlersMap := map[string]*bitboxHandlers.Handlers{}
@@ -347,12 +347,12 @@ func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *acc
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
-		Active:                account.Config().Active,
+		Active:                !account.Config().Config.Inactive,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
-		Code:                  account.Config().Code,
-		Name:                  account.Config().Name,
+		Code:                  account.Config().Config.Code,
+		Name:                  account.Config().Config.Name,
 		IsToken:               isToken,
 		ActiveTokens:          activeTokens,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
@@ -501,15 +501,15 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 	for _, account := range handlers.backend.Accounts() {
 		var activeTokens []activeToken
 		if account.Coin().Code() == coinpkg.CodeETH {
-			persistedAccount := persistedAccounts.Lookup(account.Config().Code)
+			persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
 			if persistedAccount == nil {
-				handlers.log.WithField("code", account.Config().Code).Error("account not found in accounts database")
+				handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
 				continue
 			}
 			for _, tokenCode := range persistedAccount.ActiveTokens {
 				activeTokens = append(activeTokens, activeToken{
 					TokenCode:   tokenCode,
-					AccountCode: backend.Erc20AccountCode(account.Config().Code, tokenCode),
+					AccountCode: backend.Erc20AccountCode(account.Config().Config.Code, tokenCode),
 				})
 			}
 		}
@@ -562,7 +562,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
 
 	for _, account := range handlers.backend.Accounts() {
-		if !account.Config().Active {
+		if account.Config().Config.Inactive {
 			continue
 		}
 		if account.FatalError() {
@@ -1047,7 +1047,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	}
 
 	for _, account := range handlers.backend.Accounts() {
-		if !account.Config().Active {
+		if account.Config().Config.Inactive {
 			continue
 		}
 		if account.FatalError() {
@@ -1058,7 +1058,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			return nil, err
 		}
 		coin := account.Coin().Code()
-		accountName := account.Config().Name
+		accountName := account.Config().Config.Name
 		balance, err := account.Balance()
 		if err != nil {
 			return nil, err
@@ -1211,7 +1211,7 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interf
 
 	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
 	if err != nil {
-		handlers.log.WithField("code", account.Config().Code).Error(err)
+		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}, nil
 		}
@@ -1253,7 +1253,7 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 		if firmware.IsErrorAbort(err) {
 			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
 		}
-		handlers.log.WithField("code", account.Config().Code).Error(err)
+		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true, Address: address, Signature: signature}, nil
