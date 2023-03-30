@@ -131,5 +131,7 @@ func (b *BlockchainMock) ConnectionError() error {
 
 // RegisterOnConnectionErrorChangedEvent implements Interface.
 func (b *BlockchainMock) RegisterOnConnectionErrorChangedEvent(f func(error)) {
-	b.MockRegisterOnConnectionErrorChangedEvent(f)
+	if b.MockRegisterOnConnectionErrorChangedEvent != nil {
+		b.MockRegisterOnConnectionErrorChangedEvent(f)
+	}
 }

@@ -94,6 +94,12 @@ func NewCoin(
 	return coin
 }
 
+// TstSetMakeBlockchain must only be used in unit tests to provide a mock instance for the
+// blockchain interface.
+func (coin *Coin) TstSetMakeBlockchain(f func() blockchain.Interface) {
+	coin.makeBlockchain = f
+}
+
 // Initialize implements coinpkg.Coin.
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
