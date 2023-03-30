@@ -25,6 +25,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -84,7 +85,7 @@ func newAccount(t *testing.T) *Account {
 			Name:                  "accountname",
 			DBFolder:              dbFolder,
 			Keystore:              nil,
-			OnEvent:               func(accounts.Event) {},
+			OnEvent:               func(accountsTypes.Event) {},
 			RateUpdater:           nil,
 			SigningConfigurations: signingConfigurations,
 			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },

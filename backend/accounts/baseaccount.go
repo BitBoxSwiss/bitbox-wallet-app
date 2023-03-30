@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/notes"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -53,7 +54,7 @@ type AccountConfig struct {
 	// NotesFolder is the folder where the transaction notes are stored. Full path.
 	NotesFolder           string
 	Keystore              keystore.Keystore
-	OnEvent               func(Event)
+	OnEvent               func(types.Event)
 	RateUpdater           *rates.RateUpdater
 	SigningConfigurations signing.Configurations
 	GetNotifier           func(signing.Configurations) Notifier
@@ -100,12 +101,12 @@ func NewBaseAccount(config *AccountConfig, coin coin.Coin, log *logrus.Entry) *B
 		log:    log,
 	}
 	account.Synchronizer = synchronizer.NewSynchronizer(
-		func() { config.OnEvent(EventSyncStarted) },
+		func() { config.OnEvent(types.EventSyncStarted) },
 		func() {
 			if account.synced.CompareAndSwap(false, true) {
-				config.OnEvent(EventStatusChanged)
+				config.OnEvent(types.EventStatusChanged)
 			}
-			config.OnEvent(EventSyncDone)
+			config.OnEvent(types.EventSyncDone)
 		},
 		log,
 	)
@@ -146,7 +147,7 @@ func (account *BaseAccount) Offline() error {
 // changed.
 func (account *BaseAccount) SetOffline(offline error) {
 	account.offline = offline
-	account.config.OnEvent(EventStatusChanged)
+	account.config.OnEvent(types.EventStatusChanged)
 }
 
 // Initialize initializes the account. `accountIdentifier` is used as part of the filename of
@@ -214,7 +215,7 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 	if account.config.RateUpdater != nil {
 		account.config.RateUpdater.Observe(func(e observable.Event) {
 			if e.Subject == rates.RatesEventSubject {
-				account.config.OnEvent(EventSyncDone)
+				account.config.OnEvent(types.EventSyncDone)
 			}
 		})
 	}
@@ -254,7 +255,7 @@ func (account *BaseAccount) SetTxNote(txID string, note string) error {
 		}
 	}
 	// Prompt refresh.
-	account.config.OnEvent(EventStatusChanged)
+	account.config.OnEvent(types.EventStatusChanged)
 	return nil
 }
 

@@ -28,6 +28,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
@@ -413,7 +414,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	close(account.quitChan)
-	account.Config().OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accountsTypes.EventStatusChanged)
 }
 
 // Notifier implements accounts.Interface.

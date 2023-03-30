@@ -21,6 +21,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
@@ -394,9 +395,9 @@ func (backend *Backend) createAndAddAccount(
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
 		Keystore:    backend.keystore,
-		OnEvent: func(event accounts.Event) {
+		OnEvent: func(event accountsTypes.Event) {
 			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
-			if account != nil && event == accounts.EventSyncDone {
+			if account != nil && event == accountsTypes.EventSyncDone {
 				backend.notifyNewTxs(account)
 			}
 		},

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -32,8 +33,8 @@ import (
 )
 
 func TestBaseAccount(t *testing.T) {
-	events := make(chan Event, 100)
-	checkEvent := func() Event {
+	events := make(chan types.Event, 100)
+	checkEvent := func() types.Event {
 		select {
 		case ev := <-events:
 			return ev
@@ -57,7 +58,7 @@ func TestBaseAccount(t *testing.T) {
 		DBFolder:    test.TstTempDir("baseaccount_test_dbfolder"),
 		NotesFolder: test.TstTempDir("baseaccount_test_notesfolder"),
 		Keystore:    nil,
-		OnEvent:     func(event Event) { events <- event },
+		OnEvent:     func(event types.Event) { events <- event },
 		RateUpdater: nil,
 		SigningConfigurations: signing.Configurations{
 			signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
@@ -117,18 +118,18 @@ func TestBaseAccount(t *testing.T) {
 	t.Run("synchronizer", func(t *testing.T) {
 		require.False(t, account.Synced())
 		done := account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, EventSyncStarted, checkEvent())
+		require.Equal(t, types.EventSyncStarted, checkEvent())
 		require.False(t, account.Synced())
 		done()
-		require.Equal(t, EventStatusChanged, checkEvent()) // synced changed
-		require.Equal(t, EventSyncDone, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent()) // synced changed
+		require.Equal(t, types.EventSyncDone, checkEvent())
 		require.True(t, account.Synced())
 
 		// no status changed event when syncing again (syncing is already true)
 		done = account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, EventSyncStarted, checkEvent())
+		require.Equal(t, types.EventSyncStarted, checkEvent())
 		done()
-		require.Equal(t, EventSyncDone, checkEvent())
+		require.Equal(t, types.EventSyncDone, checkEvent())
 
 		account.ResetSynced()
 		require.False(t, account.Synced())
@@ -140,10 +141,10 @@ func TestBaseAccount(t *testing.T) {
 		require.NoError(t, account.Offline())
 		account.SetOffline(errors.New("error"))
 		require.Error(t, account.Offline())
-		require.Equal(t, EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent())
 		account.SetOffline(nil)
 		require.NoError(t, account.Offline())
-		require.Equal(t, EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent())
 	})
 
 	t.Run("notes", func(t *testing.T) {
@@ -154,7 +155,7 @@ func TestBaseAccount(t *testing.T) {
 		require.Equal(t, "", account.GetAndClearProposedTxNote())
 
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
-		require.Equal(t, EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent())
 		require.Equal(t, "another test note", account.TxNote("test-tx-id"))
 
 		// Test notes migration from v4.27.0 to v4.28.0

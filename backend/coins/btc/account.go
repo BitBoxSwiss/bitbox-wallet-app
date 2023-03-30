@@ -28,6 +28,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
@@ -325,7 +326,7 @@ func (account *Account) Initialize() error {
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.Config().OnEvent(accounts.EventHeadersSynced)
+			account.Config().OnEvent(accountsTypes.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
@@ -453,7 +454,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 
-	account.Config().OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accountsTypes.EventStatusChanged)
 	account.closed = true
 }
 
@@ -497,7 +498,7 @@ func (account *Account) updateFeeTargets() {
 		feeTarget.feeRatePerKb = &feeRatePerKb
 		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 			"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-		account.Config().OnEvent(accounts.EventFeeTargetsChanged)
+		account.Config().OnEvent(accountsTypes.EventFeeTargetsChanged)
 	}
 }
 
@@ -605,7 +606,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
 		account.fatalError.Store(true)
-		account.Config().OnEvent(accounts.EventStatusChanged)
+		account.Config().OnEvent(accountsTypes.EventStatusChanged)
 		return
 	}
 
