@@ -172,6 +172,7 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Current device name",
+      "error": "Device name could not be set",
       "input": "BitBox02 name",
       "placeholder": "New device name",
       "title": "Set BitBox02 name"

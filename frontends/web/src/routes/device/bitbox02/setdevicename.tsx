@@ -55,7 +55,7 @@ export const SetDeviceName = ({
       }
       setCurrentName(deviceInfoResult.deviceInfo.name);
     } catch (error) {
-      alertUser('Device name could not be set');
+      alertUser(t('bitbox02Settings.deviceName.error'));
       console.error(error);
     } finally {
       setActive(false);
