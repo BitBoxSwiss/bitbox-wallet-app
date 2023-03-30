@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -44,8 +45,8 @@ var aoppBTCScriptTypeMap = map[string]signing.ScriptType{
 }
 
 type account struct {
-	Name string        `json:"name"`
-	Code accounts.Code `json:"code"`
+	Name string             `json:"name"`
+	Code accountsTypes.Code `json:"code"`
 }
 
 // aoppState is the current state of an AOPP request. See The values below.
@@ -88,7 +89,7 @@ type AOPP struct {
 	Accounts []account `json:"accounts"`
 	// AccountCode is the code of the chosen account from which an address will be taken. Only
 	// applies for states after (and excluding) `aoppStateChoosingAccount`.
-	AccountCode accounts.Code `json:"accountCode"`
+	AccountCode accountsTypes.Code `json:"accountCode"`
 	// Address that will be delivered to the requesting party via the callback. Only applies if
 	// State == aoppStateSigning or aoppStateSuccess.
 	Address string `json:"address"`
@@ -264,7 +265,7 @@ func (backend *Backend) AOPPApprove() {
 
 // aoppChooseAccount is called when an AOPP request is being processed and an account should be
 // selected. `accountsAndKeystoreLock` must be held when calling this function.
-func (backend *Backend) aoppChooseAccount(code accounts.Code) {
+func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	if backend.aopp.State != aoppStateChoosingAccount {
 		return
 	}
@@ -394,7 +395,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 
 // AOPPChooseAccount is called when an AOPP request is being processed and the user has chosen an
 // account.
-func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
+func (backend *Backend) AOPPChooseAccount(code accountsTypes.Code) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.aoppChooseAccount(code)
 }

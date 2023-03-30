@@ -22,7 +22,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
@@ -93,7 +93,7 @@ func TestAOPPSuccess(t *testing.T) {
 		scriptType  *signing.ScriptType
 		address     string
 		addressID   string
-		accountCode accounts.Code
+		accountCode accountsTypes.Code
 		accountName string
 	}{
 		{

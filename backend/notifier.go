@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"go.etcd.io/bbolt"
 )
@@ -48,11 +49,11 @@ func (notifier *Notifier) Close() error {
 
 type notifierForAccount struct {
 	db          *bbolt.DB
-	accountCode accounts.Code
+	accountCode accountsTypes.Code
 }
 
 // ForAccount returns a Notifier for a specific account.
-func (notifier *Notifier) ForAccount(accountCode accounts.Code) accounts.Notifier {
+func (notifier *Notifier) ForAccount(accountCode accountsTypes.Code) accounts.Notifier {
 	return &notifierForAccount{db: notifier.db, accountCode: accountCode}
 }
 

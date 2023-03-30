@@ -168,7 +168,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 	name string,
 	keystore keystore.Keystore,
 	activeTokens []string,
-	accountsConfig *config.AccountsConfig) (accounts.Code, error) {
+	accountsConfig *config.AccountsConfig) (accountsTypes.Code, error) {
 	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
 		return "", err
@@ -296,8 +296,8 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // determined automatically to be the increment of the highest existing account.
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
-	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accounts.Code, error) {
-	var accountCode accounts.Code
+	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error) {
+	var accountCode accountsTypes.Code
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		nextAccountNumber, err := nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
@@ -315,7 +315,7 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 }
 
 // SetAccountActive activates/deactivates an account.
-func (backend *Backend) SetAccountActive(accountCode accounts.Code, active bool) error {
+func (backend *Backend) SetAccountActive(accountCode accountsTypes.Code, active bool) error {
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
@@ -333,7 +333,7 @@ func (backend *Backend) SetAccountActive(accountCode accounts.Code, active bool)
 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token
 // code, e.g. "eth-erc20-usdt", "eth-erc20-bat", etc.
-func (backend *Backend) SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error {
+func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error {
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		acct := accountsConfig.Lookup(accountCode)
 		if acct == nil {
@@ -349,7 +349,7 @@ func (backend *Backend) SetTokenActive(accountCode accounts.Code, tokenCode stri
 }
 
 // RenameAccount renames an account in the accounts database.
-func (backend *Backend) RenameAccount(accountCode accounts.Code, name string) error {
+func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name string) error {
 	if name == "" {
 		return errp.New("Name cannot be empty")
 	}
@@ -381,7 +381,7 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(
 	coin coinpkg.Coin,
-	code accounts.Code,
+	code accountsTypes.Code,
 	name string,
 	signingConfigurations signing.Configurations,
 	active bool,
@@ -493,7 +493,7 @@ type scriptTypeWithKeypath struct {
 func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
-	code accounts.Code,
+	code accountsTypes.Code,
 	name string,
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
@@ -569,7 +569,7 @@ func (backend *Backend) persistBTCAccountConfig(
 func (backend *Backend) persistETHAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
-	code accounts.Code,
+	code accountsTypes.Code,
 	keypath string,
 	name string,
 	activeTokens []string,

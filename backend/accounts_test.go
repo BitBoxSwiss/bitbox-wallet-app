@@ -23,6 +23,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
@@ -93,7 +94,7 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
 	}
 	sortAccounts(accts)
-	expectedOrder := []accounts.Code{
+	expectedOrder := []accountsTypes.Code{
 		"acct-btc-1",
 		"acct-btc-2",
 		"acct-btc-3",
@@ -729,7 +730,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	acct := b.Accounts()[0]
 	_, ok := acct.(*btc.Account)
 	require.True(t, ok)
-	require.Equal(t, accounts.Code("test-btc-account-code"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-btc-account-code"), acct.Config().Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Bitcoin account name", acct.Config().Name)
 
@@ -748,7 +749,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	acct = b.Accounts()[1]
 	_, ok = acct.(*btc.Account)
 	require.True(t, ok)
-	require.Equal(t, accounts.Code("test-ltc-account-code"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-ltc-account-code"), acct.Config().Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Litecoin account name", acct.Config().Name)
 
@@ -769,14 +770,14 @@ func TestCreateAndAddAccount(t *testing.T) {
 	_, ok = acct.(*eth.Account)
 	require.True(t, ok)
 	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
-	require.Equal(t, accounts.Code("test-eth-account-code"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-eth-account-code"), acct.Config().Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Ethereum account name", acct.Config().Name)
 	acct = b.Accounts()[3]
 	_, ok = acct.(*eth.Account)
 	require.True(t, ok)
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
-	require.Equal(t, accounts.Code("test-eth-account-code-eth-erc20-mkr"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-eth-account-code-eth-erc20-mkr"), acct.Config().Code)
 	require.Equal(t, "Maker", acct.Config().Name)
 
 	// Add another Ethereum account with some active ERC20 tokens.
@@ -796,20 +797,20 @@ func TestCreateAndAddAccount(t *testing.T) {
 	_, ok = acct.(*eth.Account)
 	require.True(t, ok)
 	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
-	require.Equal(t, accounts.Code("test-eth-account-code-2"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-eth-account-code-2"), acct.Config().Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Ethereum account name 2", acct.Config().Name)
 	acct = b.Accounts()[5]
 	_, ok = acct.(*eth.Account)
 	require.True(t, ok)
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
-	require.Equal(t, accounts.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Code)
 	require.Equal(t, "Tether USD 2", acct.Config().Name)
 	acct = b.Accounts()[6]
 	_, ok = acct.(*eth.Account)
 	require.True(t, ok)
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
-	require.Equal(t, accounts.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Code)
+	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Code)
 	require.Equal(t, "Basic Attention Token 2", acct.Config().Name)
 }
 

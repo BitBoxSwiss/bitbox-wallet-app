@@ -36,17 +36,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Code is a globally unique account code. It is used for example as a name in databases (e.g. cache
-// database, transaction notes database, etc).
-type Code string
-
 // AccountConfig holds account configuration.
 type AccountConfig struct {
 	// Active, if false, does not load the account in the sidebar, portfolio, etc.
 	Active bool
 	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
 	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
-	Code Code
+	Code types.Code
 	// Name returns a human readable long name.
 	Name string
 	// DBFolder is the folder for all accounts. Full path.
