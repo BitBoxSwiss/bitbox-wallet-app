@@ -91,6 +91,16 @@ func NewCoin(
 	}
 }
 
+// TstSetClient must only be used in unit tests to mock the RPC client.
+func (coin *Coin) TstSetClient(client rpcclient.Interface) {
+	coin.client = client
+}
+
+// TstSetTransactionsSource must only be used in unit tests to mock the transactions source.
+func (coin *Coin) TstSetTransactionsSource(ts TransactionsSource) {
+	coin.transactionsSource = ts
+}
+
 // Net returns the network (mainnet, testnet, etc.).
 func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 

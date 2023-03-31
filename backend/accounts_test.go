@@ -15,7 +15,9 @@
 package backend
 
 import (
+	"context"
 	"errors"
+	"math/big"
 	"testing"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
@@ -23,9 +25,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	blockchainMocks "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
@@ -33,6 +39,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -225,17 +233,66 @@ func (e environment) GetSaveFilename(string) string {
 	return ""
 }
 
+type mockTransactionsSource struct {
+}
+
+func (m *mockTransactionsSource) Transactions(
+	blockTipHeight *big.Int,
+	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
+	[]*accounts.TransactionData, error) {
+	return []*accounts.TransactionData{}, nil
+}
+
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
 	b, err := NewBackend(
 		arguments.NewArguments(
 			test.TstTempDir("appfolder"),
 			testing, regtest,
-			false,
+			true,
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
+
+	// avoid hitting real API for BTC coins.
+	for _, code := range []coinpkg.Code{
+		coinpkg.CodeBTC,
+		coinpkg.CodeTBTC,
+		coinpkg.CodeRBTC,
+		coinpkg.CodeLTC,
+		coinpkg.CodeTLTC,
+	} {
+		c, err := b.Coin(code)
+		require.NoError(t, err)
+		c.(*btc.Coin).TstSetMakeBlockchain(func() blockchain.Interface {
+			return &blockchainMocks.BlockchainMock{}
+		})
+	}
+
+	// avoid hitting real API for ETH coins.
+	for _, code := range []coinpkg.Code{
+		coinpkg.CodeETH,
+		coinpkg.CodeGOETH,
+	} {
+		c, err := b.Coin(code)
+		require.NoError(t, err)
+		c.(*eth.Coin).TstSetClient(&mocks.InterfaceMock{
+			EstimateGasFunc: func(ctx context.Context, call ethereum.CallMsg) (uint64, error) {
+				return 21000, nil
+			},
+			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
+				return big.NewInt(100), nil
+			},
+			BalanceFunc: func(ctx context.Context, account common.Address) (*big.Int, error) {
+				return big.NewInt(1e18), nil
+			},
+			PendingNonceAtFunc: func(ctx context.Context, account common.Address) (uint64, error) {
+				return 0, nil
+			},
+		})
+		c.(*eth.Coin).TstSetTransactionsSource(&mockTransactionsSource{})
+	}
 	require.NoError(t, err)
 	return b
 }
