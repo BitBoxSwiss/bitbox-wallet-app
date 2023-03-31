@@ -42,6 +42,17 @@ const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 // limit, but simply use a hard limit for simplicity.
 const accountsHardLimit = 5
 
+type accountsList []accounts.Interface
+
+func (a accountsList) lookup(code accountsTypes.Code) accounts.Interface {
+	for _, acct := range a {
+		if acct.Config().Config.Code == code {
+			return acct
+		}
+	}
+	return nil
+}
+
 // sortAccounts sorts the accounts in-place by 1) coin 2) account number.
 func sortAccounts(accounts []*config.Account) {
 	compareCoin := func(coin1, coin2 coinpkg.Code) int {
@@ -364,7 +375,11 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	if err != nil {
 		return err
 	}
-	backend.ReinitializeAccounts()
+	acct := backend.accounts.lookup(accountCode)
+	if acct != nil {
+		acct.Config().Config.Name = name
+		backend.emitAccountsStatusChanged()
+	}
 	return nil
 }
 
