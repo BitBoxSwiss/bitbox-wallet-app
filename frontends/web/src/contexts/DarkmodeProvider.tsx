@@ -16,7 +16,8 @@
 
 import { useState, useEffect, ReactNode, useCallback } from 'react';
 import { getConfig, setConfig } from '../api/backend';
-import { setDarkTheme } from '../api/darktheme';
+import { setDarkTheme, detectDarkTheme } from '../api/darktheme';
+import { runningInAndroid } from '../utils/env';
 import { useMediaQuery } from '../hooks/mediaquery';
 import DarkModeContext from './DarkmodeContext';
 
@@ -26,7 +27,7 @@ type TProps = {
 
 export const DarkModeProvider = ({ children }: TProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const osPrefersDarkmode = useMediaQuery('(prefers-color-scheme: dark)');
+  const androidPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   const setAppTheme = useCallback(() => {
     setDarkTheme(isDarkMode);
@@ -43,26 +44,35 @@ export const DarkModeProvider = ({ children }: TProps) => {
     getConfig()
       .then(config => {
         // use config if it exists
-        if ('darkmode' in config.frontend) {
+        if (!!config.frontend && 'darkmode' in config.frontend) {
           setIsDarkMode(config.frontend.darkmode);
           return;
         }
         // else use mode from OS
-        setIsDarkMode(osPrefersDarkmode);
-
+        if (runningInAndroid()) {
+          setIsDarkMode(androidPrefersDarkMode);
+        } else {
+          detectDarkTheme().then(setIsDarkMode);
+        }
       })
       .catch(console.error);
-  }, [osPrefersDarkmode]);
+  }, [androidPrefersDarkMode]);
 
   useEffect(() => {
     setAppTheme();
   }, [isDarkMode, setAppTheme]);
 
   const toggleDarkmode = (darkmode: boolean) => {
-    setIsDarkMode(!isDarkMode);
+    setIsDarkMode(darkmode);
     getConfig()
-      .then(config => {
-        if (osPrefersDarkmode === darkmode) {
+      .then(async config => {
+        let preferredDarkMode;
+        if (runningInAndroid()) {
+          preferredDarkMode = androidPrefersDarkMode;
+        } else {
+          preferredDarkMode = await detectDarkTheme();
+        }
+        if (preferredDarkMode === darkmode) {
           // remove darkmode from config, so it use the same mode as the OS
           const { darkmode, ...frontend } = config.frontend;
           setConfig({
@@ -88,5 +98,3 @@ export const DarkModeProvider = ({ children }: TProps) => {
     </DarkModeContext.Provider>
   );
 };
-
-
