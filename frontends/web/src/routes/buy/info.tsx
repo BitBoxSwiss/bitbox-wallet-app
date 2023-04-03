@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import { IAccount } from '../../api/account';
 import { getExchangeBuySupported } from '../../api/exchanges';
@@ -23,108 +24,101 @@ import Guide from './guide';
 import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { translate, TranslateProps } from '../../decorators/translate';
 import { findAccount, getCryptoName } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
-interface BuyInfoProps {
+
+type TProps = {
     accounts: IAccount[];
     code: string;
 }
 
-interface State {
-    selected?: string;
-    options?: TOption[]
-}
+export const BuyInfo = ({ code, accounts }: TProps) => {
+  const [selected, setSelected] = useState<string>(code);
+  const [options, setOptions] = useState<TOption[]>();
 
-type Props = BuyInfoProps & TranslateProps;
+  const { t } = useTranslation();
 
-class BuyInfo extends Component<Props, State> {
-  public readonly state: State = {
-    selected: this.props.code,
-  };
-
-  componentDidMount = () => {
-    this.checkSupportedCoins();
-  };
-
-  private maybeProceed = () => {
-    if (this.state.options !== undefined && this.state.options.length === 1) {
-      route(`/buy/exchange/${this.state.options[0].value}`);
+  const checkSupportedCoins = useCallback(async () => {
+    try {
+      const accountsWithFalsyValue = await Promise.all(
+        accounts.map(async (account) => {
+          const supported = await getExchangeBuySupported(account.code)();
+          return supported.exchanges.length ? account : false;
+        })
+      );
+      const supportedAccounts =
+        (accountsWithFalsyValue.filter(result => result) as IAccount[]);
+      const options =
+        supportedAccounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false }));
+      setOptions(options);
+      getBalances(options);
+    } catch (e) {
+      console.error(e);
     }
+
+  }, [accounts]);
+
+  const maybeProceed = useCallback(() => {
+    if (options !== undefined && options.length === 1) {
+      route(`/buy/exchange/${options[0].value}`);
+    }
+  }, [options]);
+
+  const handleChangeAccount = (selected: string) => {
+    setSelected(selected);
   };
 
-  private handleProceed = () => {
-    route(`/buy/exchange/${this.state.selected}`);
-  };
+  useEffect(() => {
+    checkSupportedCoins();
+  }, [checkSupportedCoins]);
 
-  private handleChangeAccount = (selected: string) => {
-    this.setState({ selected });
-  };
+  useEffect(() => {
+    maybeProceed();
+  }, [maybeProceed, options]);
 
 
-  private checkSupportedCoins = () => {
-    Promise.all(
-      this.props.accounts.map((account) => (
-        getExchangeBuySupported(account.code)()
-          .then(supported => (supported.exchanges.length ? account : false))
-      ))
-    )
-      .then(results => results.filter(result => result) as IAccount[])
-      .then(accounts => accounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false })))
-      .then(options => {
-        //setting options without balance
-        this.setState({ options }, this.maybeProceed);
-        //asynchronously fetching each account's balance
-        this.getBalances(options);
-      })
-      .catch(console.error);
-  };
-
-  private getBalances = (options: TOption[]) => {
+  const getBalances = (options: TOption[]) => {
     Promise.all(options.map((option) => (
       getBalance(option.value).then(balance => {
         return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
       })
     ))).then(options => {
-      this.setState({ options });
+      setOptions(options);
     });
   };
 
-  public render() {
-    const { t, accounts, code } = this.props;
-    const {
-      selected,
-      options,
-    } = this.state;
-
-    if (options === undefined) {
-      return <Spinner guideExists={false} text={t('loading')} />;
-    }
-
-    const account = findAccount(accounts, code);
-    const name = getCryptoName(t('buy.info.crypto'), account);
-
-    return (
-      <Main>
-        <GuideWrapper>
-          <GuidedContent>
-            <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
-            <View width="550px" verticallyCentered fullscreen={false}>
-              <ViewContent>
-                { options.length === 0 ? (
-                  <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
-                ) : (
-                  <AccountSelector title={t('buy.title', { name })} options={options} selected={selected} onChange={this.handleChangeAccount} onProceed={this.handleProceed} />
-                )}
-              </ViewContent>
-            </View>
-          </GuidedContent>
-          <Guide name={name} />
-        </GuideWrapper>
-      </Main>
-    );
+  const handleProceed = () => {
+    route(`/buy/exchange/${selected}`);
+  };
+  if (options === undefined) {
+    return <Spinner guideExists={false} text={t('loading')} />;
   }
-}
 
-const HOC = translate()(BuyInfo);
-export { HOC as BuyInfo };
+  const account = findAccount(accounts, code);
+  const name = getCryptoName(t('buy.info.crypto'), account);
+
+  return (
+    <Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+          <View width="550px" verticallyCentered fullscreen={false}>
+            <ViewContent>
+              { options.length === 0 ? (
+                <div className="content narrow isVerticallyCentered">{t('accountSummary.noAccount')}</div>
+              ) : (
+                <AccountSelector
+                  title={t('buy.title', { name })}
+                  options={options}
+                  selected={selected}
+                  onChange={handleChangeAccount}
+                  onProceed={handleProceed} />
+              )}
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <Guide name={name} />
+      </GuideWrapper>
+    </Main>
+  );
+};
