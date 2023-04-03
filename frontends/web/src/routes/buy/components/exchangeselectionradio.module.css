@@ -132,6 +132,11 @@
     background-color: var(--background-focus);
 }
 
+.radio:focus {
+    position: relative;
+    z-index: 2;
+}
+
 .radio input:checked + label::before {
     background-color: var(--background-secondary);
 }
