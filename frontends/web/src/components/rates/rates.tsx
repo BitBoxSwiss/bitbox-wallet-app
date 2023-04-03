@@ -17,12 +17,13 @@
 
 import { Fiat, ConversionUnit, IAmount } from '../../api/account';
 import { BtcUnit } from '../../api/coins';
+import { reinitializeAccounts } from '../../api/backend';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
 import { bitcoinRemoveTrailingZeroes } from '../../utils/trailing-zeroes';
 import { equal } from '../../utils/equal';
-import { apiGet, apiPost } from '../../utils/request';
+import { apiGet } from '../../utils/request';
 import style from './rates.module.css';
 
 export interface SharedProps {
@@ -78,7 +79,7 @@ export function selectFiat(fiat: Fiat): void {
       store.setState({ selected });
       // Need to reconfigure currency exchange rates updater
       // which is done during accounts reset.
-      apiPost('accounts/reinitialize');
+      reinitializeAccounts();
     });
 }
 
@@ -89,7 +90,7 @@ export function unselectFiat(fiat: Fiat): void {
       store.setState({ selected });
       // Need to reconfigure currency exchange rates updater
       // which is done during accounts reset.
-      apiPost('accounts/reinitialize');
+      reinitializeAccounts();
     });
 }
 
