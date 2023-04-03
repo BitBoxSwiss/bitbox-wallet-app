@@ -15,10 +15,12 @@
  */
 
 import { useDarkmode } from '../../hooks/darkmode';
+import { setDarkTheme } from '../../api/darktheme';
 
 let darkmode: boolean | undefined;
 
 export const setDarkmode = (dark: boolean) => {
+  setDarkTheme(dark);
   if (dark) {
     document.body.classList.add('dark-mode');
     document.body.classList.remove('light-mode');

@@ -137,6 +137,9 @@ type Environment interface {
 	// `suggestedFilename` is the proposed/default destination.
 	// The function should return the empty string if the user aborted the process.
 	GetSaveFilename(suggestedFilename string) string
+	// SetDarkTheme allows to handle theme setting change at environment level. Can be used e.g. to
+	// update status bar color on Mobile.
+	SetDarkTheme(bool)
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.

@@ -98,6 +98,11 @@ func (webdevEnvironment) GetSaveFilename(suggestedFilename string) string {
 	return suggestedFilename
 }
 
+// SetDarkTheme implements backend.Environment.
+func (webdevEnvironment) SetDarkTheme(isDark bool) {
+	// nothing to do here.
+}
+
 func main() {
 	config.SetAppDir("appfolder.dev")
 

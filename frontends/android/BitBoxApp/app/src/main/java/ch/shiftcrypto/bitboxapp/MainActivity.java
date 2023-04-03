@@ -1,5 +1,7 @@
 package ch.shiftcrypto.bitboxapp;
 
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -16,26 +18,30 @@ import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
-import android.os.IBinder;
-import android.os.Process;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.os.Handler;
-import android.os.Message;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Process;
+import android.view.View;
+import android.view.WindowManager;
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebChromeClient;
-import android.webkit.ConsoleMessage;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -130,7 +136,36 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig){
+        int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                // Night mode is not active, we're using the light theme
+                setDarkTheme(false);
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                // Night mode is active, we're using dark theme
+                setDarkTheme(true);
+                break;
+        }
         super.onConfigurationChanged(newConfig);
+    }
+
+    public void setDarkTheme(boolean isDark) {
+        int flags = getWindow().getDecorView().getSystemUiVisibility(); // get current flag
+        if (isDark) {
+            Util.log("Dark theme");
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // remove LIGHT_STATUS_BAR to flag
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        } else {
+            Util.log("Light theme");
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;   // add LIGHT_STATUS_BAR to flag
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        }
     }
 
     @SuppressLint("HandlerLeak")
@@ -140,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         Util.log("lifecycle: onCreate");
 
         getSupportActionBar().hide(); // hide title bar with app name.
+        onConfigurationChanged(getResources().getConfiguration());
         setContentView(R.layout.activity_main);
         final WebView vw = (WebView)findViewById(R.id.vw);
         // For onramp iframe'd widgets like MoonPay.
@@ -312,6 +348,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Util.log("lifecycle: onStart");
+        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+        goViewModel.getIsDarkTheme().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isDarkTheme) {
+                setDarkTheme(isDarkTheme);
+            }
+        });
+
     }
 
     @Override

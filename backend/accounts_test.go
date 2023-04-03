@@ -243,6 +243,10 @@ func (m *mockTransactionsSource) Transactions(
 	return []*accounts.TransactionData{}, nil
 }
 
+func (e environment) SetDarkTheme(bool) {
+	// nothing to do here.
+}
+
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
 	b, err := NewBackend(

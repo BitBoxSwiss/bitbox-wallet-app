@@ -145,6 +145,7 @@ type BackendEnvironment struct {
 	// preferred UI language.
 	NativeLocaleFunc    func() string
 	GetSaveFilenameFunc func(string) string
+	SetDarkThemeFunc    func(bool)
 }
 
 // NotifyUser implements backend.Environment.
@@ -192,6 +193,12 @@ func (env *BackendEnvironment) GetSaveFilename(suggestedFilename string) string 
 		return env.GetSaveFilenameFunc(suggestedFilename)
 	}
 	return ""
+}
+
+func (env *BackendEnvironment) SetDarkTheme(isDark bool) {
+	if env.SetDarkThemeFunc != nil {
+		env.SetDarkThemeFunc(isDark)
+	}
 }
 
 // Serve serves the BitBox API for use in a native client.

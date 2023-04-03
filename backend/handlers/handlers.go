@@ -180,6 +180,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkThemeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
@@ -420,6 +421,15 @@ func (handlers *Handlers) getBannersHandler(r *http.Request) (interface{}, error
 
 func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) (interface{}, error) {
 	return handlers.backend.Environment().UsingMobileData(), nil
+}
+
+func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, error) {
+	var isDark bool
+	if err := json.NewDecoder(r.Body).Decode(&isDark); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	handlers.backend.Environment().SetDarkTheme(isDark)
+	return nil, nil
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
