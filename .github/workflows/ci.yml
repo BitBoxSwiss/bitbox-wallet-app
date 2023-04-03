@@ -26,7 +26,7 @@ env:
 
 jobs:
   test-lint:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
         with:
@@ -39,7 +39,7 @@ jobs:
         env:
           OS_NAME: linux
   android:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
@@ -60,7 +60,7 @@ jobs:
           path: frontends/android/BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
           name: BitBoxApp-android-${{github.sha}}.apk
   qt-linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
