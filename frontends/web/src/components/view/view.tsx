@@ -59,7 +59,7 @@ export const View = ({
   width,
   withBottomBar,
 }: TViewProps) => {
-  const darkmode = useDarkmode();
+  const { isDarkMode } = useDarkmode();
   const containerClasses = `${
     style[fullscreen ? 'fullscreen' : 'fill']
   } ${
@@ -93,7 +93,7 @@ export const View = ({
       {withBottomBar && (
         <div style={{ marginTop: 'auto' }}>
           <footer className={style.footer}>
-            {darkmode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
+            {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
             <div className="m-right-half hide-on-small">
               <Version />
             </div>

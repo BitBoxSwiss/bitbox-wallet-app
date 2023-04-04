@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-import { useContext } from 'react';
-import DarkModeContext from '../contexts/DarkmodeContext';
+import { createContext } from 'react';
 
-/**
-Hook that manages the app's dark mode state.
-For class components, use `getDarkmode()`.
-@return {Object} An object with a boolean `isDarkMode`
-which is the dark mode state of the app, and
-`toggleDarkMode` function to toggle the state.
-*/
-export const useDarkmode = () => {
-  const { isDarkMode, toggleDarkmode } = useContext(DarkModeContext);
-  return { isDarkMode, toggleDarkmode };
-};
+type DarkModeContextProps = {
+  isDarkMode: boolean;
+  toggleDarkmode: (darkmode: boolean) => void;
+}
+
+const DarkModeContext = createContext<DarkModeContextProps>({} as DarkModeContextProps);
+
+export default DarkModeContext;

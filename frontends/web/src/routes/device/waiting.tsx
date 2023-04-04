@@ -32,7 +32,7 @@ import style from './bitbox01/bitbox01.module.css';
 export const Waiting = () => {
   const { t } = useTranslation();
   const testing = useLoad(debug ? getTesting : () => Promise.resolve(false));
-  const darkmode = useDarkmode();
+  const { isDarkMode } = useDarkmode();
 
   useEffect(() => {
     const { sidebarStatus } = panelStore.state;
@@ -47,7 +47,7 @@ export const Waiting = () => {
         <Header title={<h2>{t('welcome.title')}</h2>} />
         <div className="content padded narrow isVerticallyCentered">
           <div>
-            {darkmode ? (<AppLogoInverted />) : (<AppLogo />)}
+            {isDarkMode ? (<AppLogoInverted />) : (<AppLogo />)}
             <div className="box large">
               <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
               <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
@@ -62,7 +62,7 @@ export const Waiting = () => {
           </div>
         </div>
         <Footer>
-          {darkmode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
+          {isDarkMode ? (<SwissMadeOpenSourceDark />) : (<SwissMadeOpenSource />)}
         </Footer>
       </div>
       <Guide>
