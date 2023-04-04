@@ -318,3 +318,7 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
     name,
   });
 };
+
+export const testRegister = (pin: string): Promise<null> => {
+  return apiPost('test/register', { pin });
+};

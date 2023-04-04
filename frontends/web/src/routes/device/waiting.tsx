@@ -55,7 +55,7 @@ export const Waiting = () => {
             {
               testing && (
                 <div className={style.testingContainer}>
-                  <SkipForTesting show />
+                  <SkipForTesting />
                 </div>
               )
             }
