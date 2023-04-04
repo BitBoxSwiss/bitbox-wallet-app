@@ -14,7 +14,6 @@ import { AccountsSummary } from './account/summary/accountssummary';
 import { DeviceSwitch } from './device/deviceswitch';
 import ManageBackups from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
-import { Exchanges } from './exchanges/exchanges';
 import { ElectrumSettings } from './settings/electrum';
 import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
@@ -133,7 +132,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="pocket/:code" element={PocketEl} />
         <Route path="exchange/:code" element={ExchangeEl} />
       </Route>
-      <Route path="exchanges" element={<Exchanges />} />
       <Route path="passphrase/:deviceID" element={PassphraseEl} />
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
