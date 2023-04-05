@@ -21,7 +21,7 @@ import { reinitializeAccounts } from '../../api/backend';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
-import { bitcoinRemoveTrailingZeroes } from '../../utils/trailing-zeroes';
+import { Amount } from '../../components/amount/amount';
 import { equal } from '../../utils/equal';
 import { apiGet } from '../../utils/request';
 import style from './rates.module.css';
@@ -128,27 +128,25 @@ function Conversion({
   btcUnit,
 }: TProps) {
 
-  let formattedValue = '---';
+  let formattedAmount = <>{'---'}</>;
   let isAvailable = false;
-
-  // amount.conversions[active] can be empty in recent transactions.
-  if (amount && amount.conversions && amount.conversions[active] && amount.conversions[active] !== '') {
-    isAvailable = true;
-    formattedValue = amount.conversions[active];
-    if (noBtcZeroes) {
-      formattedValue = bitcoinRemoveTrailingZeroes(formattedValue, active);
-    }
-  }
 
   var activeUnit: ConversionUnit = active;
   if (active === 'BTC' && btcUnit === 'sat') {
     activeUnit = 'sat';
   }
 
+  // amount.conversions[active] can be empty in recent transactions.
+  if (amount && amount.conversions && amount.conversions[active] && amount.conversions[active] !== '') {
+    isAvailable = true;
+    formattedAmount = <Amount amount={amount.conversions[active]} unit={activeUnit} removeBtcTrailingZeroes={!!noBtcZeroes}/>;
+  }
+
+
   if (tableRow) {
     return (
       <tr className={unstyled ? '' : style.fiatRow}>
-        <td className={unstyled ? '' : style.availableFiatAmount}>{formattedValue}</td>
+        <td className={unstyled ? '' : style.availableFiatAmount}>{formattedAmount}</td>
         {
           !noAction && (
             <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{activeUnit}</td>
@@ -165,7 +163,7 @@ function Conversion({
   return (
     <span className={ `${style.rates} ${!isAvailable ? style.notAvailable : ''}`}>
       {isAvailable ? sign : ''}
-      {formattedValue}
+      {formattedAmount}
       {' '}
       {
         !skipUnit && !noAction && (

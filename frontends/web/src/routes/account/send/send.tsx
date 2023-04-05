@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
+import { Amount } from '../../../components/amount/amount';
 import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, customFeeUnit, isBitcoinOnly, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
@@ -771,14 +772,18 @@ class Send extends Component<Props, State> {
                   <label>{t('send.amount.label')}</label>
                   <p>
                     <span key="proposedAmount">
-                      {(proposedAmount && proposedAmount.amount) || 'N/A'}
+                      {(proposedAmount &&
+                        <Amount amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
                       {' '}
                       <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
                     </span>
                     {
                       proposedAmount && proposedAmount.conversions && (
-                        <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} <small>{baseCurrencyUnit}</small></span>
-                      )
+                        <span>
+                          <span className="text-gray"> / </span>
+                          <Amount amount={proposedAmount.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
+                          {' '}<small>{baseCurrencyUnit}</small>
+                        </span>)
                     }
                   </p>
                 </div>
@@ -792,14 +797,16 @@ class Send extends Component<Props, State> {
                   <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
                   <p>
                     <span key="amount">
-                      {(proposedFee && proposedFee.amount) || 'N/A'}
+                      {(proposedFee &&
+                        <Amount amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'}
                       {' '}
                       <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
                     </span>
                     {proposedFee && proposedFee.conversions && (
                       <span key="conversation">
                         <span className="text-gray"> / </span>
-                        {proposedFee.conversions[fiatUnit]} <small>{baseCurrencyUnit}</small>
+                        <Amount amount={proposedFee.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
+                        {' '}<small>{baseCurrencyUnit}</small>
                       </span>
                     )}
                     {customFee ? (
@@ -826,12 +833,19 @@ class Send extends Component<Props, State> {
                   <label>{t('send.confirm.total')}</label>
                   <p>
                     <span>
-                      <strong>{(proposedTotal && proposedTotal.amount) || 'N/A'}</strong>
+                      <strong>
+                        {(proposedTotal &&
+                        <Amount amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
+                      </strong>
                       {' '}
                       <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
                     </span>
                     {(proposedTotal && proposedTotal.conversions) && (
-                      <span> <span className="text-gray">/</span> <strong>{proposedTotal.conversions[fiatUnit]}</strong> <small>{baseCurrencyUnit}</small></span>
+                      <span>
+                        <span className="text-gray"> / </span>
+                        <strong><Amount amount={proposedTotal.conversions[fiatUnit]} unit={baseCurrencyUnit}/></strong>
+                        {' '}<small>{baseCurrencyUnit}</small>
+                      </span>
                     )}
                   </p>
                 </div>

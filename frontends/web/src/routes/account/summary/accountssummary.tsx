@@ -33,6 +33,7 @@ import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { apiPost } from '../../../utils/request';
 import style from './accountssummary.module.css';
 import { route } from '../../../utils/route';
+import { Amount } from '../../../components/amount/amount';
 import { Skeleton } from '../../../components/skeleton/skeleton';
 
 interface AccountSummaryProps {
@@ -214,7 +215,7 @@ class AccountsSummary extends Component<Props, State> {
           { nameCol }
           <td data-label={t('accountSummary.balance')}>
             <span className={style.summaryTableBalance}>
-              {balance.available.amount}{' '}
+              <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
               <span className={style.coinUnit}>{balance.available.unit}</span>
             </span>
           </td>
@@ -262,7 +263,9 @@ class AccountsSummary extends Component<Props, State> {
         { nameCol }
         <td data-label={t('accountSummary.balance')}>
           <span className={style.summaryTableBalance}>
-            <strong>{balance.amount}</strong>
+            <strong>
+              <Amount amount={balance.amount} unit={balance.unit}/>
+            </strong>
             {' '}
             <span className={style.coinUnit}>{balance.unit}</span>
           </span>
@@ -363,7 +366,7 @@ class AccountsSummary extends Component<Props, State> {
                         {(data && data.formattedChartTotal !== null) ? (
                           <>
                             <strong>
-                              {data.formattedChartTotal}
+                              <Amount amount={data.formattedChartTotal} unit={data.chartFiat}/>
                             </strong>
                             {' '}
                             <span className={style.coinUnit}>
