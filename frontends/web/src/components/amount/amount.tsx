@@ -40,6 +40,18 @@ export const Amount = ({ amount, unit, removeBtcTrailingZeroes }: TProps) => {
     return <span data-testid={'amountBlocks'}>{blocks.reverse()}</span>;
   };
 
+  const formatBtc = (amount: string): JSX.Element => {
+    const dot = amount.indexOf('.');
+    if (dot === -1) {
+      return <>{amount}</>;
+    }
+    return <span data-testid={'amountBlocks'}>
+      <span>{amount.slice(0, dot + 3)}</span>
+      <span className={style.space}>{amount.slice(dot + 3, dot + 6)}</span>
+      <span className={style.space}>{amount.slice(dot + 6, dot + 9)}</span>
+    </span>;
+  };
+
   switch (unit) {
   case 'BTC':
   case 'TBTC':
@@ -47,8 +59,9 @@ export const Amount = ({ amount, unit, removeBtcTrailingZeroes }: TProps) => {
   case 'TLTC':
     if (removeBtcTrailingZeroes && amount.includes('.')) {
       return <>{amount.replace(/\.?0+$/, '')}</>;
+    } else {
+      return formatBtc(amount);
     }
-    break;
   case 'sat':
   case 'tsat':
     return formatSats(amount);
