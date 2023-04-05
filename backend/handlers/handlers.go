@@ -197,13 +197,14 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convertToPlainFiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
+	getAPIRouter(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
@@ -700,6 +701,35 @@ func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) 
 	return handlers.backend.RatesUpdater().LatestPrice(), nil
 }
 
+func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success bool   `json:"success"`
+		Amount  string `json:"amount"`
+	}
+
+	amount := r.URL.Query().Get("amount")
+	amountRat, valid := new(big.Rat).SetString(amount)
+	if !valid {
+		return response{
+			Success: false,
+		}, nil
+	}
+
+	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
+	if err != nil {
+		handlers.log.WithError(err).Error("Could not get coin " + coinpkg.CodeBTC)
+		return response{
+			Success: false,
+		}, nil
+	}
+
+	coinAmount := btcCoin.SetAmount(amountRat, false)
+	return response{
+		Success: true,
+		Amount:  btcCoin.FormatAmount(coinAmount, false),
+	}, nil
+}
+
 func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interface{}, error) {
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
@@ -707,7 +737,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 
 	currentCoin, err := handlers.backend.Coin(coinpkg.Code(from))
 	if err != nil {
-		logrus.Error(err.Error())
+		handlers.log.WithError(err).Error("Could not get coin " + from)
 		return map[string]interface{}{
 			"success": false,
 		}, nil
@@ -715,7 +745,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 
 	coinAmount, err := currentCoin.ParseAmount(amount)
 	if err != nil {
-		logrus.Error(err.Error())
+		handlers.log.WithError(err).Error("Error parsing amount " + amount)
 		return map[string]interface{}{
 			"success": false,
 		}, nil

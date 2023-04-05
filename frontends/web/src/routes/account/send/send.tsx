@@ -18,7 +18,7 @@
 import React, { Component } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
-import { BtcUnit } from '../../../api/coins';
+import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { Checked, Cancel } from '../../../components/icon/icon';
@@ -414,7 +414,7 @@ class Send extends Component<Props, State> {
   private convertToFiat = (value?: string | boolean) => {
     if (value) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convertToPlainFiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
+      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
         .then(data => {
           if (data.success) {
             this.setState({ fiatAmount: data.fiatAmount });
@@ -430,7 +430,7 @@ class Send extends Component<Props, State> {
   private convertFromFiat = (value: string) => {
     if (value) {
       const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
+      apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
         .then(data => {
           if (data.success) {
             this.setState({ amount: data.amount });
@@ -487,7 +487,7 @@ class Send extends Component<Props, State> {
     });
   };
 
-  private parseQRResult = (uri: string) => {
+  private async parseQRResult(uri: string) {
     let address;
     let amount = '';
     try {
@@ -508,14 +508,28 @@ class Send extends Component<Props, State> {
       sendAll: false,
       fiatAmount: ''
     } as Pick<State, keyof State>;
+
+    const coinCode = this.getAccount()!.coinCode;
     if (amount) {
-      updateState['amount'] = amount;
+      if (coinCode === 'btc' || coinCode === 'tbtc') {
+        const result = await parseExternalBtcAmount(amount);
+        if (result.success) {
+          updateState['amount'] = result.amount;
+        } else {
+          updateState['amountError'] = this.props.t('send.error.invalidAmount');
+          this.setState(updateState);
+          return;
+        }
+      } else {
+        updateState['amount'] = amount;
+      }
     }
+
     this.setState(updateState, () => {
       this.convertToFiat(this.state.amount);
       this.validateAndDisplayFee(true);
     });
-  };
+  }
 
   private toggleScanQR = () => {
     if (this.state.activeScanQR) {
