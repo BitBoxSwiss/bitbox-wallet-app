@@ -34,8 +34,8 @@ type TProps = {
 }
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {
-  const darkmode = useDarkmode();
-  const globe = darkmode ? <GlobeLight className={styles.globe} /> : <GlobeDark className={styles.globe} />;
+  const { isDarkMode } = useDarkmode();
+  const globe = isDarkMode ? <GlobeLight className={styles.globe} /> : <GlobeDark className={styles.globe} />;
   return (
     <span>
       {regionCode === '' ? globe : <span className={`fi fi-${regionCode} ${styles.flag}`}></span>}
