@@ -549,26 +549,6 @@
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
     "aoppVersion": "Unknown version."
   },
-  "exchanges": {
-    "method": "Select your payment method",
-    "methods": {
-      "BT": "Bank transfer",
-      "CC": "Credit card",
-      "DCA": "Recurring",
-      "P2P": "Peer-to-peer",
-      "SW": "Crypto swap"
-    },
-    "nomatch": "no exchanges match your criteria",
-    "region": "Choose your region",
-    "regions": {
-      "AF": "Africa",
-      "APAC": "Asia Pacific",
-      "EU": "Europe",
-      "LA": "Latin America",
-      "NA": "North America"
-    },
-    "title": "Buy & sell"
-  },
   "fiat": {
     "default": "default",
     "setDefault": "Set {{code}} as default",
@@ -775,15 +755,6 @@
         "title": "How to securely pair with your phone"
       }
     },
-    "buy": {
-      "exchanges": {
-        "link": {
-          "text": "List of exchanges"
-        },
-        "text": "Here is a list of ones we recommend depending on your region and purchasing preferences.",
-        "title": "Looking for an exchange?"
-      }
-    },
     "cointracking": {
       "text": "Click the \"Export\" button and open the downloads folder where you will find the CSV export. Then click the link below, upload your BitBox CSV file and import the data in order to use it for your CoinTracking portfolio manager and to create your tax reports.",
       "title": "How to import my transactions into CoinTracking?"
@@ -806,20 +777,6 @@
         },
         "text": "This information shows the model number of the secure chip, the most up to date chip is ATECC608B with improved security features compared to older models.",
         "title": "Why show the secure chip model?"
-      }
-    },
-    "exchanges": {
-      "commission": {
-        "text": "This page uses affiliate links where available. However, not all listed exchanges have an affiliate program. Whether an exchange offers one does not influence our decision to list them.",
-        "title": "Do you get a commission when I buy Bitcoin at one of these services?"
-      },
-      "description": {
-        "text": "This page shows you a selection of our favourite places to buy Bitcoin and other cryptocurrencies.\nAt the top of the page you can choose your region and your desired payment method to filter the options.",
-        "title": "What can I see on this page?"
-      },
-      "whichService": {
-        "text": "That depends on your location and your needs.\nFirst select your region and then choose your preferred suitable payment method.\nBank transfer: for larger orders.\nCredit Card: for smaller and faster orders. However, fees are higher than other methods.\nRecurring: automatically buy coins every week/month.\nCrypto Swap: exchange one cryptocurrency for another.\nPeer to Peer: buy coins more privately directly from another person.",
-        "title": "Which service should I use?"
       }
     },
     "receive": {

@@ -53,14 +53,6 @@ export default function BuyGuide({ name, exchange }: BuyGuideProps) {
         text: t('buy.info.disclaimer.protection.descriptionGeneric', { name }),
         title: t('buy.info.disclaimer.protection.title'),
       }} />
-      <Entry key="guide.buy.exchanges" entry={{
-        link: {
-          text: t('guide.buy.exchanges.link.text'),
-          url: '/exchanges',
-        },
-        text: t('guide.buy.exchanges.text'),
-        title: t('guide.buy.exchanges.title'),
-      }} />
     </Guide>
   );
 }
