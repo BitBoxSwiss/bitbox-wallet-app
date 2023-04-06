@@ -140,6 +140,8 @@ type Environment interface {
 	// SetDarkTheme allows to handle theme setting change at environment level. Can be used e.g. to
 	// update status bar color on Mobile.
 	SetDarkTheme(bool)
+	// DetectDarkTheme returns true if the dark theme is enabled at OS level.
+	DetectDarkTheme() bool
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.

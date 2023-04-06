@@ -91,6 +91,7 @@ type GoEnvironmentInterface interface {
 	UsingMobileData() bool
 	NativeLocale() string
 	SetDarkTheme(bool)
+	DetectDarkTheme() bool
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -197,7 +198,8 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 				// On Android, we don't yet support exporting files. Implement this once needed.
 				return ""
 			},
-			SetDarkThemeFunc: environment.SetDarkTheme,
+			SetDarkThemeFunc:    environment.SetDarkTheme,
+			DetectDarkThemeFunc: environment.DetectDarkTheme,
 		},
 	)
 }

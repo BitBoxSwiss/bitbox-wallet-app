@@ -103,6 +103,13 @@ func (webdevEnvironment) SetDarkTheme(isDark bool) {
 	// nothing to do here.
 }
 
+// DetectDarkTheme implements backend.Environment.
+func (webdevEnvironment) DetectDarkTheme() bool {
+	// dark theme detection is not implemented in webdev. If needed pls check the
+	// implementation in frontends/qt/server/server.go
+	return false
+}
+
 func main() {
 	config.SetAppDir("appfolder.dev")
 

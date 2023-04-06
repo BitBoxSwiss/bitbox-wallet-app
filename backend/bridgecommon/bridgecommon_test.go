@@ -65,6 +65,10 @@ func (e environment) SetDarkTheme(bool) {
 	// nothing to do here.
 }
 
+func (e environment) DetectDarkTheme() bool {
+	return false
+}
+
 // TestServeShutdownServe checks that you can call Serve twice in a row.
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(

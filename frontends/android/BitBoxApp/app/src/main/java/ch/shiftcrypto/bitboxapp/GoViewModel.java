@@ -154,6 +154,11 @@ public class GoViewModel extends AndroidViewModel {
             Util.log("Set Dark Theme GoViewModel - isdark: " + isDark);
             GoViewModel.this.isDarkTheme.postValue(isDark);
         }
+
+        public boolean detectDarkTheme() {
+            // nothing to do here: Dark theme is detected in the frontend using media queries.
+            return false;
+        }
     }
 
     public class Response {
