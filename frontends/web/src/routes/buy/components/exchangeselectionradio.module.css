@@ -63,8 +63,8 @@
 
 .radio {
     --size-default: 14px;
-    background-color: var(--background);
-    border: 1px solid var(--color-secondary);
+    background-color: var(--background-secondary);
+    border: 1px solid var(--background-quaternary);
     display: block;
     padding: 8px;
 }
