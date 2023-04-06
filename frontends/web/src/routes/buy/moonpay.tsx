@@ -18,6 +18,7 @@
 import { useState, useEffect, createRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
+import { useDarkmode } from '../../hooks/darkmode';
 import { IAccount } from '../../api/account';
 import { getConfig } from '../../api/backend';
 import { getMoonpayBuyInfo } from '../../api/exchanges';
@@ -38,6 +39,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [height, setHeight] = useState(0);
+  const { isDarkMode } = useDarkmode();
 
   const config = useLoad(getConfig);
   const moonpay = useLoad(getMoonpayBuyInfo(code));
@@ -104,7 +106,7 @@ export const Moonpay = ({ accounts, code }: TProps) => {
                     frameBorder="0"
                     className={style.iframe}
                     allow="camera; payment"
-                    src={`${moonpay.url}&colorCode=%235E94BF`}>
+                    src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
                   </iframe>
                 )}
               </div>
