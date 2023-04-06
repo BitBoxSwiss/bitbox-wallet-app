@@ -446,7 +446,6 @@
   },
   "chart": {
     "dataMissing": "Gathering historical data... stay tuned.",
-    "dataOldTimestamp": "Historical exchange rates updating. The chart is not displaying data after {{time}}.",
     "dataUpdating": "updating data…",
     "filter": {
       "all": "All",

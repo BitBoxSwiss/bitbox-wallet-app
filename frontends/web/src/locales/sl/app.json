@@ -545,26 +545,6 @@
     "aoppUnsupportedKeystore": "Povezana naprava ne more podpisati sporočil za to sredstvo",
     "aoppVersion": "Neznana različica"
   },
-  "exchanges": {
-    "method": "Izberite željen način plačila",
-    "methods": {
-      "BT": "Bančno nakazilo",
-      "CC": "Kreditna kartica",
-      "DCA": "Ponavljajoče",
-      "P2P": "Medsebojno",
-      "SW": "Kripto za kripto"
-    },
-    "nomatch": "Nobena storitev ne ustreza vašim kriterijem",
-    "region": "Izberite vašo regijo",
-    "regions": {
-      "AF": "Afrika",
-      "APAC": "Azija Pacifik",
-      "EU": "Evropa",
-      "LA": "Latinska Amerika",
-      "NA": "Severna Amerika"
-    },
-    "title": "Kupite & Prodajte"
-  },
   "fiat": {
     "default": "Privzeto",
     "setDefault": "Nastavite {{code}} kot privzeto",
@@ -771,15 +751,6 @@
         "title": "Kako varno uparite BitBox01 s telefonom"
       }
     },
-    "buy": {
-      "exchanges": {
-        "link": {
-          "text": "Seznam menjalnic"
-        },
-        "text": "Tu je seznam tistih, ki jih priporočamo glede na vašo regijo in nakupne preference.",
-        "title": "Iščete kripto menjalnico?"
-      }
-    },
     "cointracking": {
       "text": "Kliknite gumb \"Izvozi\" in odprite mapo za prenose, v kateri boste našli izvoz v .CSV datoteki. Nato kliknite spodnjo povezavo, naložite to .CSV datoteko in uvozite podatke, da jih boste lahko uporabili za storitev CoinTracking in za pripravo davčnih poročil (samo za določene države!).",
       "title": "Kako uvozim svoje transakcije v storitev CoinTracking?"
@@ -802,20 +773,6 @@
         },
         "text": "Tu prikazujemo številko modela varnega čipa. Najsodobnejši čip je ATECC608B z izboljšanimi varnostnimi funkcijami v primerjavi s starejšimi modeli.",
         "title": "Zakaj prikazujemo model varnega čipa?"
-      }
-    },
-    "exchanges": {
-      "commission": {
-        "text": "Na seznamu so tudi \"affiliate\" povezave, kjer so nam pač na voljo. Ali nam menjalnice oz. posredniki omogočajo provizijo za posredovanje ali ne, ni bilo merilo za uvrstitev na ta seznam.",
-        "title": "Ali vi prejmete provizijo za moj nakup na eni izmed ponujenih storitev?"
-      },
-      "description": {
-        "text": "Stran prikazuje naš izbor lokacij za nakup Bitcoin in drugih kriptovalut. ",
-        "title": "Kaj prikazuje ta stran?"
-      },
-      "whichService": {
-        "text": "To je odvisno od vaše lokacije in vaših potreb.\nNajprej izberite svojo regijo in nato izberite želeni način plačila.\nBančno nakazilo: za večja naročila.\nKreditna kartica: za manjša in hitrejša naročila. Bodite pozorni na morebitne višje provizije, kot pri drugih metodah.\nPonavljajoče (kot npr. trajnik): samodejno kupujte kovance vsak teden / mesec.\nKripto za kripto: zamenjajte eno kriptovaluto za drugo.\nMedsebojno: kupite kovance bolj zasebno, neposredno od druge osebe (peer-to-peer).",
-        "title": "Katero storitev naj uporabim?"
       }
     },
     "receive": {

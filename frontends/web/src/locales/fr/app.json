@@ -545,26 +545,6 @@
     "aoppUnsupportedKeystore": "L’appareil connecté ne peut pas signer de messages pour cet asset.",
     "aoppVersion": "Version inconnue."
   },
-  "exchanges": {
-    "method": "Sélectionnez votre mode de paiement",
-    "methods": {
-      "BT": "Virement bancaire",
-      "CC": "Carte de crédit",
-      "DCA": "Récurrent",
-      "P2P": "Pair-à-pair",
-      "SW": "Crypto swap"
-    },
-    "nomatch": "aucun exchange ne correspond à vos critères",
-    "region": "Sélectionnez votre zone géographique",
-    "regions": {
-      "AF": "Afrique",
-      "APAC": "Asie-Pacifique",
-      "EU": "Europe",
-      "LA": "Amérique Latine",
-      "NA": "Amérique du Nord"
-    },
-    "title": "Achat et vente"
-  },
   "fiat": {
     "default": "défaut",
     "setDefault": "Définir {{code}} comme paramètre par défaut",
@@ -771,15 +751,6 @@
         "title": "Comment appairer votre téléphone en toute sécurité ?"
       }
     },
-    "buy": {
-      "exchanges": {
-        "link": {
-          "text": "Liste des exchanges"
-        },
-        "text": "Voici une liste de ceux que nous recommandons en fonction de votre région et de vos préférences d'achat.",
-        "title": "Vous recherchez un exchange ?"
-      }
-    },
     "cointracking": {
       "text": "Cliquez sur le bouton \"Exporter\" et ouvrez le dossier de téléchargement où vous trouverez l'exportation CSV. Cliquez ensuite sur le lien ci-dessous, téléchargez votre fichier CSV BitBox et importez les données afin de les utiliser avec votre gestionnaire de portefeuille CoinTracking et pour créer vos déclaration fiscales.",
       "title": "Comment importer mes transactions dans CoinTracking ?"
@@ -802,20 +773,6 @@
         },
         "text": "Cette information indique le modèle de la puce sécurisée. La puce la plus récente est l'ATECC608B, qui bénéficie de caractéristiques de sécurité renforcées comparativement aux précédents modèles.",
         "title": "Pourquoi indiquer le modèle de puce sécurisée?"
-      }
-    },
-    "exchanges": {
-      "commission": {
-        "text": "Cette page utilise des liens d'affiliation quand ceux-ci sont disponibles. Cependant, tous les exchanges répertoriés ne disposent pas d'un système de d'affiliation. Le fait qu'un exchange en offre un ou non ne conditionne pas notre décision de le répertorier.",
-        "title": "Touchez-vous une commission quand j'achète du Bitcoin via l'un de ces services ?"
-      },
-      "description": {
-        "text": "Cette page vous indique une sélection de nos sites favoris pour acheter du Bitcoin et d'autres crypto-monnaies.\nEn haut de la page, vous pouvez choisir votre zone géographique et le mode de paiement souhaité afin de filtrer les options.",
-        "title": "Qu'est-ce que je peux voir sur cette page?"
-      },
-      "whichService": {
-        "text": "Cela dépend de votre localisation et de vos besoins.\nSélectionnez d'abord votre zone géographique, puis choisissez le mode de paiement qui vous convient le mieux.\nVirement bancaire : pour les commandes plus importantes.\nCarte de crédit : pour les commandes plus petites et plus rapides. Cependant, les frais sont plus élevés que pour les autres méthodes.\nRécurrent : pour acheter automatiquement des coins (monnaie) chaque semaine/mois.\nCrypto Swap : échange d'une crypto-monnaie contre une autre.\nPair à pair : acheter des coins (monaie) de façon plus confidentielle directement auprès d'une autre personne.",
-        "title": "Quel service dois-je utiliser ?"
       }
     },
     "receive": {

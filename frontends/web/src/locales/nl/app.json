@@ -545,26 +545,6 @@
     "aoppUnsupportedKeystore": "Het verbonden apparaat kan voor deze crypto geen berichten ondertekenen.",
     "aoppVersion": "Onbekende versie."
   },
-  "exchanges": {
-    "method": "Selecteer je betaalwijze.",
-    "methods": {
-      "BT": "Bankoverschrijving",
-      "CC": "Creditcard",
-      "DCA": "Herhalende",
-      "P2P": "Peer-to-peer",
-      "SW": "Crypto uitwisseling"
-    },
-    "nomatch": "Geen exchanges komen overeen met je criteria",
-    "region": "Kies jouw regio",
-    "regions": {
-      "AF": "Afrika",
-      "APAC": "Pacifisch Azië",
-      "EU": "Europa",
-      "LA": "Latijns-Amerika",
-      "NA": "Noord-America"
-    },
-    "title": "Koop & verkoop"
-  },
   "fiat": {
     "default": "Standaard",
     "setDefault": "Stel {{code}} in als standaard",
@@ -771,15 +751,6 @@
         "title": "Hoe koppel ik mijn mobiele telefoon?"
       }
     },
-    "buy": {
-      "exchanges": {
-        "link": {
-          "text": "Lijst van exchanges."
-        },
-        "text": "Dit zijn de exchanges die wij aanraden op basis van je regio en aankoopsvoorkeuren.",
-        "title": "Op zoek naar een exchange?"
-      }
-    },
     "cointracking": {
       "text": "Klik op de 'exporteren' knop en open de downloads map. Hier vind je een .csv export bestand. Klik op onderstaande link, upload je BitBox .csv bestand en importeer de data om het in je CoinTracking porfoliomanager te gebruiken en je belastingaangifte te genereren.",
       "title": "Hoe importeer ik mijn transacties in CoinTracking?"
@@ -802,20 +773,6 @@
         },
         "text": "Deze informatie toont het modelnummer van de secure chip. De het nieuwste model is de ATECC608B, die verbeterde beveiligings-eigenschappen heeft vergleken met oudere modellen.",
         "title": "Waarom wordt het secure chip modelnummer getoond?"
-      }
-    },
-    "exchanges": {
-      "commission": {
-        "text": "Deze pagina gebruikt sponsorlinks waar mogelijk. Niet alle exchanges hebben een sponsorprogramma. Of een exchange dit heeft, heeft geen invloed op onze beslissing om ze op deze lijst te zetten.",
-        "title": "Krijgen jullie een commissie als ik Bitcoin koop bij één van deze exchanges?"
-      },
-      "description": {
-        "text": "Deze pagina toont een aantal van onze favoriete plekken om Bitcoin en andere cryptovaluta te kopen. \nBovenaan de pagina kun je je regio en je gewenste betaalmethode kiezen om de opties te filteren.",
-        "title": "Wat zie ik op deze pagina?"
-      },
-      "whichService": {
-        "text": "Dat is afhankelijk van je locatie en wat je wensen zijn.\nKies eerst je regio en dan je gewenste betaalmethode.\nBankoverschrijving: voor grotere aankopen\nCreditcard: voor kleinere, snellere aankopen. Transactiekosten zijn wel hoger.\nHerhalend: koop automatisch een vast bedrag per week/maand\nCrypto swap: wissel de ene cryptovaluta om voor een andere\nPeer to peer: koop crypto met meer privacy van ander particuleren",
-        "title": "Welke exchange zou ik moeten gebruiken?"
       }
     },
     "receive": {
