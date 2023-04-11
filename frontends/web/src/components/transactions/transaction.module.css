@@ -129,26 +129,6 @@
     margin-left: var(--space-quarter);
 }
 
-.confirmations {
-
-}
-
-.gas {
-
-}
-
-.weight {
-
-}
-
-.virtualSize {
-
-}
-
-.size {
-
-}
-
 .fee {
     min-width: 140px;
 }
@@ -192,26 +172,27 @@
 .editButton {
     background: none;
     border: none;
+    height: 20px;
     margin-right: var(--space-half);
     padding: 0;
     -webkit-appearance: none;
+    width: 20px;
 }
 
-.editButton svg {
+.editButton:focus {
+    outline: none;
+}
+
+.editButton img {
+    opacity: 0.4;
     vertical-align: text-bottom;
+    outline: none;
 }
 
-.editButton path,
-.editButton polyline {
-    stroke: var(--background-tertiary);
+.editButton:hover img {
+    opacity: 0.55;
 }
 
-.editButton:focus path,
-.editButton:hover path,
-.editButton:focus polyline,
-.editButton:hover polyline {
-    stroke: var(--color-secondary);
-}
 
 .detail:not(:first-child) {
     border-top: solid 1px var(--background);

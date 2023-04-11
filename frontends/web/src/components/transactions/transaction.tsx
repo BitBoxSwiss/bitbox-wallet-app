@@ -22,12 +22,13 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { CopyableInput } from '../copy/Copy';
-import { ExpandIcon } from '../icon/icon';
+import { Edit, EditLight, ExpandIcon, Save, SaveLight } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
-import { ArrowIn, ArrowOut, ArrowSelf, Edit, Save } from './components/icons';
+import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
 import style from './transaction.module.css';
 import parentStyle from './transactions.module.css';
+import { getDarkmode } from '../darkmode/darkmode';
 
 interface State {
     transactionDialog: boolean;
@@ -151,6 +152,8 @@ class Transaction extends Component<Props, State> {
       failed: t('transaction.status.failed'),
     }[status];
     const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
+    const darkmode = getDarkmode();
+
     return (
       <div className={[style.container, index === 0 ? style.first : ''].join(' ')}>
         <div className={[parentStyle.columns, style.row].join(' ')}>
@@ -249,7 +252,11 @@ class Transaction extends Component<Props, State> {
                 title={t(`transaction.note.${editMode ? 'save' : 'edit'}`)}
                 type="button"
                 ref={this.editButton}>
-                {editMode ? <Save /> : <Edit />}
+                {
+                  editMode
+                    ? darkmode ? <SaveLight /> : <Save />
+                    : darkmode ? <EditLight /> : <Edit />
+                }
               </button>
             </form>
             <div className={style.detail}>
