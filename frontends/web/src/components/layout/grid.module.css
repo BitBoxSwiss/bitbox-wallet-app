@@ -18,7 +18,10 @@
 .columnButtonsInline {
     display: flex;
     flex-direction: row-reverse;
-    gap: var(--space-half);
+}
+
+.columnButtonsInline > *:not(:first-child) {
+    margin-right: var(--space-half);
 }
 
 @media (min-width: 769px) {
