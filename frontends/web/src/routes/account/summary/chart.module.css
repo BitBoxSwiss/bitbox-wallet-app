@@ -12,11 +12,11 @@
   align-items: center;
   color: var(--color-tertiary);
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
+  padding: 0 var(--space-half);
   text-align: center;
 }
-
 
 .chart header {
   display: flex;
