@@ -26,7 +26,7 @@ const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
 	EventStatusChanged Event = "statusChanged"
 
-	// EventAttestationCheckDone is fired when the the attestation signature check is completed. In
+	// EventAttestationCheckDone is fired when the attestation signature check is completed. In
 	// case of failure, the user should be alerted, before they enter the password.
 	EventAttestationCheckDone Event = "attestationCheckDone"
 )
