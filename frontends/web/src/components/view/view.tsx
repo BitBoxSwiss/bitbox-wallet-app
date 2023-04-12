@@ -18,7 +18,7 @@ import { FunctionComponent, ReactNode } from 'react';
 import { useDarkmode } from '../../hooks/darkmode';
 import { LanguageSwitch } from '../language/language';
 import { Version } from '../layout/version';
-import { AppLogo, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../icon/logo';
+import { AppLogo, AppLogoInverted, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../icon/logo';
 import { AnimatedChecked, Close } from '../icon/icon';
 import style from './view.module.css';
 
@@ -162,10 +162,13 @@ export const ViewHeader: FunctionComponent<THeaderProps> = ({
   title,
   withAppLogo,
 }) => {
+  const { isDarkMode } = useDarkmode();
   const headerStyles = small ? `${style.header} ${style.smallHeader}` : style.header;
   return (
     <header className={headerStyles}>
-      {withAppLogo && <AppLogo />}
+      {withAppLogo && (
+        isDarkMode ? <AppLogoInverted /> : <AppLogo />
+      )}
       <h1 className={style.title}>{title}</h1>
       {children}
     </header>
