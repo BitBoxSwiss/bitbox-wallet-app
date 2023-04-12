@@ -15,6 +15,7 @@
 package firmware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
@@ -69,6 +70,8 @@ func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 		break
 	}
 
+	var lastQueryTime time.Time
+
 	for {
 		switch status {
 		case hwwRspAck:
@@ -76,8 +79,17 @@ func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 		case hwwRspBusy:
 			return nil, errp.New("unexpected hwwRspBusy response")
 		case hwwRspNack:
+			if lastQueryTime.IsZero() {
+				device.log.Debug("unexpected NACK response in first loop iteration")
+			} else {
+				device.log.Debug(
+					fmt.Sprintf(
+						"unexpected NACK response; last successful query was %v ago",
+						time.Since(lastQueryTime)))
+			}
 			return nil, errp.New("unexpected NACK response")
 		case hwwRspNotready:
+			lastQueryTime = time.Now()
 			time.Sleep(200 * time.Millisecond)
 			responseBytes, err := device.communication.Query([]byte(hwwReqRetry))
 			if err != nil {

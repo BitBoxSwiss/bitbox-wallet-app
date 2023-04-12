@@ -310,7 +310,7 @@ func (device *Device) UpgradeFirmware(firmware []byte) error {
 	return device.Reboot()
 }
 
-// Erased returns true if the the device contains no firmware.
+// Erased returns true if the device contains no firmware.
 func (device *Device) Erased() (bool, error) {
 	// We check by comparing the device reported firmware hash. If erased, the firmware is all
 	// '\xFF'.
