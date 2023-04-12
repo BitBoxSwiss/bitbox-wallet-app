@@ -545,26 +545,6 @@
     "aoppUnsupportedKeystore": "O dispositivo conectado não pode assinar mensagens para este ativo.",
     "aoppVersion": "Versão desconhecida."
   },
-  "exchanges": {
-    "method": "Selecione sua forma de pagamento",
-    "methods": {
-      "BT": "Transferência bancária",
-      "CC": "Cartão de crédito",
-      "DCA": "Recorrente",
-      "P2P": "Peer-to-peer",
-      "SW": "Crypto swap"
-    },
-    "nomatch": "nenhuma corretora corresponde ao seu critério",
-    "region": "Escolha sua região",
-    "regions": {
-      "AF": "África",
-      "APAC": "Ásia-Pacífico",
-      "EU": "Europa",
-      "LA": "América Latina",
-      "NA": "América do Norte"
-    },
-    "title": "Comprar & vender"
-  },
   "fiat": {
     "default": "padrão",
     "setDefault": "Definir {{code}} como padrão",
@@ -771,15 +751,6 @@
         "title": "Como emparelhar de forma segura com o seu telefone"
       }
     },
-    "buy": {
-      "exchanges": {
-        "link": {
-          "text": "Lista de corretoras"
-        },
-        "text": "Aqui está uma lista das que nós recomendamos dependendo da sua região ou da sua preferência de compra.",
-        "title": "Procurando por uma corretora?"
-      }
-    },
     "cointracking": {
       "text": "Clique no botão \"Exportar\" e abra a pasta de downloads onde você ira encontrar seu arquivo CSV exportado. Depois clique no link abaixo, faça upload do arquivo CSV BitBox e importe ele a fim de usar os dados no seu Gerenciador de rastreamento de moeda e poderá criar seus relatórios de taxa.",
       "title": "Como importar minhas transações para a CoinTracking?"
@@ -802,20 +773,6 @@
         },
         "text": "Esta informação mostra o número do modelo do chip seguro, o chip mais atualizado é o ATECC608B com recursos de segurança aprimorados em comparação com modelos mais antigos.",
         "title": "Por que mostrar o modelo de chip seguro?"
-      }
-    },
-    "exchanges": {
-      "commission": {
-        "text": "Esta página usa links afiliados, quando disponíveis. No entanto, nem todas as exchanges listadas possuem um programa de afiliados. O fato de uma exchange oferecer não influencia nossa decisão de listá-la.",
-        "title": "Vocês recebem comissão quando compro Bitcoin em um desses serviços?"
-      },
-      "description": {
-        "text": "Esta página mostra uma seleção de nossos lugares favoritos para comprar Bitcoin e outras criptomoedas.\nNo topo da página você pode escolher sua região e a forma de pagamento desejada para filtrar as opções.",
-        "title": "O que posso ver nesta página?"
-      },
-      "whichService": {
-        "text": "Isso depende da sua localização e das suas necessidades.\nPrimeiro selecione sua região e, em seguida, escolha o método de pagamento adequado de sua preferência.\nTransferência bancária: para pedidos maiores.\nCartão de crédito: para pedidos menores e mais rápidos. No entanto, as taxas são mais altas do que outros métodos.\nRecorrente: compre moedas automaticamente a cada semana / mês.\nCrypto Swap: troca uma criptomoeda por outra.\nPeer to Peer: compre moedas de forma mais privada, diretamente de outra pessoa.",
-        "title": "Qual serviço devo usar?"
       }
     },
     "receive": {

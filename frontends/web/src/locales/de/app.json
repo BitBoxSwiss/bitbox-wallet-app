@@ -57,6 +57,7 @@
       "title": "Kryptowährung wählen"
     },
     "success": {
+      "addAnotherAccount": "Neues Konto hinzufügen",
       "message": "<strong>{{accountName}}</strong> wurde zu deinen Konten hinzugefügt.",
       "nextButton": "Fertig",
       "step": "Erledigt",
@@ -464,6 +465,9 @@
     "infoWhenPaired": "Zuerst auf deinem gepaarten Mobiltelefon und dann auf deiner BitBox"
   },
   "confirmOnDevice": "Bitte bestätige auf deinem Gerät.",
+  "darkmode": {
+    "toggle": "Dark mode"
+  },
   "device": {
     "appUpradeRequired": "Deine BitBox ist mit dieser Desktopanwendung nicht kompatibel. Bitte lade die neueste Version herunter und installiere diese.."
   },
@@ -544,26 +548,6 @@
     "aoppUnsupportedFormat": "Es sind keine Konten verfügbar, die das angeforderte Adressformat unterstützen.",
     "aoppUnsupportedKeystore": "Das verbundene Gerät kann keine Nachrichten für diese Kryptowährung signieren.",
     "aoppVersion": "Unbekannte Version."
-  },
-  "exchanges": {
-    "method": "Zahlungsmethode wählen",
-    "methods": {
-      "BT": "Überweisung",
-      "CC": "Kreditkarte",
-      "DCA": "Wiederkehrend",
-      "P2P": "Peer-to-peer\n",
-      "SW": "Crypto swap"
-    },
-    "nomatch": "Keine Börse entspricht deinen Kriterien",
-    "region": "Region wählen",
-    "regions": {
-      "AF": "Afrika",
-      "APAC": "Asien-Pazifik",
-      "EU": "Europa",
-      "LA": "Lateinamerika",
-      "NA": "Nordamerika"
-    },
-    "title": "Kaufen & Verkaufen"
   },
   "fiat": {
     "default": "Standard",
@@ -771,15 +755,6 @@
         "title": "So, koppelst du dein Telefon sicher mit der BitBox"
       }
     },
-    "buy": {
-      "exchanges": {
-        "link": {
-          "text": "Liste der Börsen"
-        },
-        "text": "Hier findest du eine Liste der von uns empfohlenen Börsen, abhängig von deiner Region und deiner bevorzugten Zahlungsmethode.",
-        "title": "Auf der Suche nach einer Börse?"
-      }
-    },
     "cointracking": {
       "text": "Klicke auf \"Exportieren\" und öffne den Download-Ordner. Dort findest du die exportierte CSV Datei. Klicke dann auf den untenstehenden Link, lade deine BitBox-CSV-Datei hoch und importiere die Daten, um sie für deinen CoinTracking-Portfoliomanager zu verwenden und deine Steuerberichte zu erstellen.",
       "title": "Wie importiere ich meine Transaktionen in CoinTracking?"
@@ -802,20 +777,6 @@
         },
         "text": "Diese Information zeigt die Modellnummer des Sicherheitschips. Der aktuellste Chip ist der ATECC608B mit verbesserten Sicherheitsfunktionen im Vergleich zu älteren Modellen.",
         "title": "Warum das Modell des Secure-Chips anzeigen?"
-      }
-    },
-    "exchanges": {
-      "commission": {
-        "text": "Diese Seite verwendet Affiliate-Links, sofern verfügbar. Allerdings haben nicht alle Börsen ein Partnerprogramm. Ob eine Börse dies anbietet, hat keinen Einfluss auf unsere Entscheidung sie hier aufzuführen.",
-        "title": "Erhaltet ihr eine Provision, wenn ich Bitcoin bei einem dieser Dienste kaufe?"
-      },
-      "description": {
-        "text": "Diese Seite zeigt dir eine Auswahl unserer Lieblingsbörsen zum Kaufen von Bitcoin und anderen Kryptowährungen an.\nOben kannst du Region und die gewünschte Zahlungsmethode auswählen, um die Optionen zu filtern.",
-        "title": "Was kann ich auf dieser Seite sehen?"
-      },
-      "whichService": {
-        "text": "Das hängt von deinem Standort und Bedürfnissen ab.\nWähle zuerst eine Region und dann deine bevorzugte Zahlungsmethode aus.\nÜberweisung: Für größere Beträge.\nKreditkarte: Schnell, aber nur für kleinere Beträgen geeignet, da die Gebühren höher sind.\nWiederkehrend: Kaufe automatisch jede Woche / jeden Monat Bitcoin.\nCrypto Swap: Tausche eine Kryptowährung gegen eine andere.\nPeer-to-Peer: Kaufe Bitcoin privat direkt von einer anderen Person.",
-        "title": "Welchen Dienst soll ich verwenden?"
       }
     },
     "receive": {
@@ -1316,6 +1277,7 @@
     },
     "maximum": "Alles senden",
     "maximumSelectedCoins": "Ausgewählte Coins senden",
+    "noFeeTargets": "Gebührenschätzungen sind derzeit nicht verfügbar. Bitte versuche es später erneut oder gib eine benutzerdefinierte Gebühr ein.",
     "priority": "Priorität",
     "scanQR": "QR Code scannen",
     "signprogress": {
@@ -1328,6 +1290,8 @@
     "transactionDetails": "Transaktionsdetails"
   },
   "settings": {
+    "accounts": "Konten",
+    "appearance": "Aussehen",
     "electrum": {
       "add": "Server hinzufügen",
       "add-server": "Hinzufügen",
