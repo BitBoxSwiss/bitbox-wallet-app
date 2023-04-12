@@ -54,7 +54,6 @@ import "C"
 import (
 	"flag"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 	"unsafe"
@@ -94,74 +93,6 @@ func handleURI(uri *C.char) {
 
 func matchDarkTheme(themeName string) bool {
 	return strings.Contains(strings.ToLower(themeName), "dark")
-}
-
-// detect theme used by OS and return true if it's dark
-func detectDarkTheme() bool {
-	log := logging.Get().WithGroup("server")
-	switch myos := runtime.GOOS; myos {
-	case "darwin":
-		cmd := exec.Command("defaults", "read", "-g", "AppleInterfaceStyle")
-		out, err := cmd.Output()
-		if err == nil {
-			log.Info("MacOS theme: " + string(out))
-			if strings.TrimSpace(string(out)) == "Dark" {
-				return true
-			}
-		}
-	case "linux":
-		// Try KDE first, since Kubuntu can also have `gsettings` and that can lead to wrong results
-		cmd := exec.Command("kreadconfig5", "--file", os.ExpandEnv("$HOME/.config/kdeglobals"), "--group", "General", "--key", "ColorScheme")
-		out, err := cmd.Output()
-		if err == nil {
-			log.Info("kde theme: " + string(out))
-			if matchDarkTheme(string(out)) {
-				return true
-			}
-		}
-
-		// Try Gnome/Ubuntu
-		cmd = exec.Command("gsettings", "get", "org.gnome.desktop.interface", "color-scheme")
-		out, err = cmd.Output()
-		if err == nil {
-			log.Info("Gnome/Ubuntu theme: " + string(out))
-			if matchDarkTheme(string(out)) {
-				return true
-			}
-		}
-
-		// Try Cinnamon
-		cmd = exec.Command("gsettings", "get", "org.cinnamon.desktop.interface", "gtk-theme")
-		out, err = cmd.Output()
-		if err == nil {
-			log.Info("Cinnamon theme: " + string(out))
-			if matchDarkTheme(string(out)) {
-				return true
-			}
-		}
-
-		// Try XFCE4
-		cmd = exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName")
-		out, err = cmd.Output()
-		if err == nil {
-			log.Info("xfce theme: " + string(out))
-			if matchDarkTheme(string(out)) {
-				return true
-			}
-		}
-	case "windows":
-		const regKey = `HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize`
-		const regName = `AppsUseLightTheme`
-		cmd := exec.Command("reg", "query", regKey, "/v", regName)
-		out, err := cmd.Output()
-		if err == nil {
-			log.Info("windows theme: " + string(out))
-			if strings.Contains(string(out), "0x0") {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 //export serve
