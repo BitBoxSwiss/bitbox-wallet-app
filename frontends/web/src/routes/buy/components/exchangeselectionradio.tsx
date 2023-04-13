@@ -40,16 +40,16 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
   switch (methodName) {
   case 'bank-transfer':
     return (
-      <span>
+      <span className={style.paymentMethodName}>
         {isDarkMode ? <Bank /> : <BankDark />}
-        <p className={style.paymentMethodName}>{t('buy.exchange.bankTransfer')}</p>
+        {t('buy.exchange.bankTransfer')}
       </span>
     );
   case 'card':
     return (
-      <span>
+      <span className={style.paymentMethodName}>
         {isDarkMode ? <CreditCard /> : <CreditCardDark />}
-        <p className={style.paymentMethodName}>{t('buy.exchange.creditCard')}</p>
+        {t('buy.exchange.creditCard')}
       </span>
     );
   default:
