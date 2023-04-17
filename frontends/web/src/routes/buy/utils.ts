@@ -15,7 +15,8 @@
  */
 
 import { FrontendExchangeDealsList, Info } from './types';
-
+import { IAccount } from '../../api/account';
+import { getExchangeBuySupported } from '../../api/exchanges';
 /**
  * Finds the lowest fee among all `supported`
  * exchange providers for a given region.
@@ -63,4 +64,17 @@ export function getFormattedName(name: Omit<Info, 'region'>) {
   case 'pocket':
     return 'Pocket';
   }
+}
+
+/**
+ * Filters a given accounts list, keeping only the accounts supported by at least one exchange.
+ */
+export async function getExchangeSupportedAccounts(accounts: IAccount[]): Promise<IAccount[]> {
+  const accountsWithFalsyValue = await Promise.all(
+    accounts.map(async (account) => {
+      const supported = await getExchangeBuySupported(account.code)();
+      return supported.exchanges.length ? account : false;
+    })
+  );
+  return accountsWithFalsyValue.filter(result => result) as IAccount[];
 }

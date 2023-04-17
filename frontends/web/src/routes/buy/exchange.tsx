@@ -15,7 +15,6 @@
  */
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import i18n from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/forms';
@@ -27,7 +26,7 @@ import { findAccount, getCryptoName } from '../account/utils';
 import { route } from '../../utils/route';
 import { useLoad } from '../../hooks/api';
 import { getRegionNameFromLocale } from '../../i18n/utils';
-import { findLowestFee, findBestDeal, getFormattedName } from './utils';
+import { findLowestFee, findBestDeal, getFormattedName, getExchangeSupportedAccounts } from './utils';
 import { ExchangeSelectionRadio } from './components/exchangeselectionradio';
 import { Spinner } from '../../components/spinner/Spinner';
 import { Info, FrontendExchangeDealsList } from './types';
@@ -56,18 +55,23 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const [regions, setRegions] = useState<TOption[]>([]);
   const [allExchangeDeals, setAllExchanges] = useState<FrontendExchangeDealsList>();
   const [info, setInfo] = useState<Info>();
+  const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>([]);
 
   const regionList = useLoad(exchangesAPI.getExchangesByRegion(code));
   const exchangeDeals = useLoad(exchangesAPI.getExchangeDeals);
   const nativeLocale = useLoad(getNativeLocale);
   const supportedExchanges = useLoad<exchangesAPI.SupportedExchanges>(exchangesAPI.getExchangeBuySupported(code));
   const config = useLoad(getConfig);
-  const navigate = useNavigate();
 
   const account = findAccount(accounts, code);
   const name = getCryptoName(t('buy.info.crypto'), account);
 
   const hasOnlyOneSupportedExchange = allExchangeDeals ? allExchangeDeals.exchanges.filter(exchange => exchange.supported).length === 1 : false;
+
+  // get the list of accounts supported by exchanges, needed to correctly handle back button.
+  useEffect(() => {
+    getExchangeSupportedAccounts(accounts).then(setSupportedAccounts);
+  }, [accounts]);
 
   // update region Select component when `regionList` or `config` gets populated.
   useEffect(() => {
@@ -177,17 +181,6 @@ export const Exchange = ({ code, accounts }: TProps) => {
   const cardFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'card')?.fee;
   const bankTransferFee = infoFeesDetail && infoFeesDetail.find(feeDetail => feeDetail.payment === 'bank-transfer')?.fee;
 
-  const handleGoBack = () => {
-    if (accounts.length > 1) {
-      return navigate(-1);
-    }
-
-    // Has to navigate 2 pages back.
-    // Otherwise, users with only 1 account
-    // will be redireted back to this page.
-    navigate(-2);
-  };
-
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -229,12 +222,13 @@ export const Exchange = ({ code, accounts }: TProps) => {
                   </div>
 
                   {!noExchangeAvailable && <div className={style.buttonsContainer}>
+                    {supportedAccounts.length > 1 &&
                     <Button
                       className={style.buttonBack}
                       secondary
-                      onClick={handleGoBack}>
+                      onClick={() => route('/buy/info')}>
                       {t('button.back')}
-                    </Button>
+                    </Button>}
                     <Button
                       primary
                       disabled={!selectedExchange}

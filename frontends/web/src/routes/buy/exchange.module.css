@@ -21,6 +21,7 @@
 .buttonsContainer {
     display: flex;
     margin-top: var(--space-half);
+    justify-content: center;
 }
 
 .container {

@@ -18,7 +18,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import { IAccount } from '../../api/account';
-import { getExchangeBuySupported } from '../../api/exchanges';
+import { getExchangeSupportedAccounts } from './utils';
 import { getBalance } from '../../api/account';
 import Guide from './guide';
 import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
@@ -40,14 +40,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
 
   const checkSupportedCoins = useCallback(async () => {
     try {
-      const accountsWithFalsyValue = await Promise.all(
-        accounts.map(async (account) => {
-          const supported = await getExchangeBuySupported(account.code)();
-          return supported.exchanges.length ? account : false;
-        })
-      );
-      const supportedAccounts =
-        (accountsWithFalsyValue.filter(result => result) as IAccount[]);
+      const supportedAccounts = await getExchangeSupportedAccounts(accounts);
       const options =
         supportedAccounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false }));
       setOptions(options);
