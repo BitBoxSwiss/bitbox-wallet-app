@@ -50,7 +50,9 @@
     font-weight: 400;
     line-height: 22px;
     margin: 0;
-    margin-left: var(--space-quarter);
+}
+.paymentMethodName img {
+    margin-right: var(--space-quarter);
 }
 
 .paymentMethodContainer:not(:first-child) {
@@ -58,7 +60,8 @@
 }
 
 .paymentMethodContainer > span {
-    width: 124px;
+    flex-basis: 124px;
+    flex-grow: 1;
 }
 
 .radio {
