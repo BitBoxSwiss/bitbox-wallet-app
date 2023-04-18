@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import style from './settingsItemContainer.module.css';
+import styles from './settingsItemContainer.module.css';
 
 interface SettingsButtonProps {
     onClick?: () => void;
@@ -14,14 +14,15 @@ export const SettingsItemContainer = ({
   secondaryText,
   extraComponent
 }: SettingsButtonProps) => {
+  const notButton = onClick === undefined;
   return (
     <button
-      className={style.container}
+      className={`${styles.container} ${notButton ? `${styles.notButton}` : ''}`}
       onClick={onClick}>
       <span>
-        <p className={style.primaryText}>{settingName}</p>
+        <p className={styles.primaryText}>{settingName}</p>
         { secondaryText ? (
-          <p className={style.secondaryText}>{secondaryText}</p>
+          <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }
       </span>
       {extraComponent ? extraComponent : null}

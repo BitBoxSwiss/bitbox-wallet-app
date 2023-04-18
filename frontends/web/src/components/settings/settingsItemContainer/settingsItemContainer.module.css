@@ -29,3 +29,11 @@
     margin: 0;
     color: var(--color-default);
 }
+
+.notButton:hover {
+    cursor: default;
+}
+
+.notButton:focus {
+    outline: none;
+}
