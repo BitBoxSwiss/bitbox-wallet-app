@@ -3,6 +3,6 @@
     flex-direction: column;
 }
 
-.contentContainer > button {
+.contentContainer > button:not(:last-child) {
     margin-bottom: var(--size-default);
 }

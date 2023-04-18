@@ -17,7 +17,6 @@ export const DisplaySatsToggleSetting = () => {
   useEffect(() => {
     if (fetchedConfig) {
       setDisplayAsSAT(fetchedConfig.backend.btcUnit === 'sat');
-      console.log({ fetchedConfig });
     }
   }, [fetchedConfig]);
 
@@ -44,7 +43,7 @@ export const DisplaySatsToggleSetting = () => {
     <>
       <SettingsItemContainer
         settingName={t('settings.expert.useSats')}
-        secondaryText="Enable or disabled Satoshis."
+        secondaryText="Enable or disable Satoshis."
         extraComponent={
           <>
             {displayAsSAT !== undefined ? <Toggle
