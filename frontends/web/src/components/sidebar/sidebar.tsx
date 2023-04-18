@@ -236,6 +236,19 @@ class Sidebar extends Component<Props> {
               <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
             </NavLink>
           </div>
+          <div key="settings-new" className={style.sidebarItem}>
+            <NavLink
+              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              to={'/new-settings/appearance'}
+              title={t('sidebar.settings')}
+              onClick={this.handleSidebarItemClick}>
+              <div className="stacked">
+                <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
+                <img draggable={false} src={settings} alt={t('sidebar.settings')} />
+              </div>
+              <span className={style.sidebarLabel}>{t('sidebar.settings')} New</span>
+            </NavLink>
+          </div>
           {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
             <div key="eject" className={style.sidebarItem}>
               <a href="#" onClick={eject}>
