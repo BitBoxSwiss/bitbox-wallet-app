@@ -17,7 +17,7 @@ package backend
 import (
 	"fmt"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
@@ -33,18 +33,18 @@ import (
 
 // regularAccountCode returns an account code based on a keystore root fingerprint, a coin code and
 // an account number.
-func regularAccountCode(rootFingerprint []byte, coinCode coin.Code, accountNumber uint16) accounts.Code {
-	return accounts.Code(fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber))
+func regularAccountCode(rootFingerprint []byte, coinCode coin.Code, accountNumber uint16) accountsTypes.Code {
+	return accountsTypes.Code(fmt.Sprintf("v0-%x-%s-%d", rootFingerprint, coinCode, accountNumber))
 }
 
 // splitAccountCode returns an account code for split accounts, made by exploding a unified account
 // into one account per signing configuration. This only applies to BTC/LTC.
-func splitAccountCode(parentCode accounts.Code, scriptType signing.ScriptType) accounts.Code {
-	return accounts.Code(fmt.Sprintf("%s-%s", parentCode, scriptType))
+func splitAccountCode(parentCode accountsTypes.Code, scriptType signing.ScriptType) accountsTypes.Code {
+	return accountsTypes.Code(fmt.Sprintf("%s-%s", parentCode, scriptType))
 }
 
 // Erc20AccountCode returns the account code used for an ERC20 token.
 // It is derived from the account code of the parent ETH account and the token code.
-func Erc20AccountCode(ethereumAccountCode accounts.Code, tokenCode string) accounts.Code {
-	return accounts.Code(fmt.Sprintf("%s-%s", ethereumAccountCode, tokenCode))
+func Erc20AccountCode(ethereumAccountCode accountsTypes.Code, tokenCode string) accountsTypes.Code {
+	return accountsTypes.Code(fmt.Sprintf("%s-%s", ethereumAccountCode, tokenCode))
 }

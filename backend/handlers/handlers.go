@@ -31,6 +31,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
@@ -96,14 +97,14 @@ type Backend interface {
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
 	CanAddAccount(coinpkg.Code, keystore.Keystore) (string, bool)
-	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accounts.Code, error)
-	SetAccountActive(accountCode accounts.Code, active bool) error
-	SetTokenActive(accountCode accounts.Code, tokenCode string, active bool) error
-	RenameAccount(accountCode accounts.Code, name string) error
+	CreateAndPersistAccountConfig(coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error)
+	SetAccountActive(accountCode accountsTypes.Code, active bool) error
+	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
+	RenameAccount(accountCode accountsTypes.Code, name string) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
-	AOPPChooseAccount(code accounts.Code)
+	AOPPChooseAccount(code accountsTypes.Code)
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
 }
@@ -226,8 +227,8 @@ func NewHandlers(
 
 	handlersMapLock := locker.Locker{}
 
-	accountHandlersMap := map[accounts.Code]*accountHandlers.Handlers{}
-	getAccountHandlers := func(accountCode accounts.Code) *accountHandlers.Handlers {
+	accountHandlersMap := map[accountsTypes.Code]*accountHandlers.Handlers{}
+	getAccountHandlers := func(accountCode accountsTypes.Code) *accountHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
 			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
@@ -240,11 +241,11 @@ func NewHandlers(
 	}
 
 	backend.OnAccountInit(func(account accounts.Interface) {
-		log.WithField("code", account.Config().Code).Debug("Initializing account")
-		getAccountHandlers(account.Config().Code).Init(account)
+		log.WithField("code", account.Config().Config.Code).Debug("Initializing account")
+		getAccountHandlers(account.Config().Config.Code).Init(account)
 	})
 	backend.OnAccountUninit(func(account accounts.Interface) {
-		getAccountHandlers(account.Config().Code).Uninit()
+		getAccountHandlers(account.Config().Config.Code).Uninit()
 	})
 
 	deviceHandlersMap := map[string]*bitboxHandlers.Handlers{}
@@ -327,31 +328,31 @@ type activeToken struct {
 	TokenCode string `json:"tokenCode"`
 	// AccountCode is the code of the account, which is not the same as the TokenCode, as there can
 	// be many accounts for the same token.
-	AccountCode accounts.Code `json:"accountCode"`
+	AccountCode accountsTypes.Code `json:"accountCode"`
 }
 
 type accountJSON struct {
-	Active                bool          `json:"active"`
-	CoinCode              coinpkg.Code  `json:"coinCode"`
-	CoinUnit              string        `json:"coinUnit"`
-	CoinName              string        `json:"coinName"`
-	Code                  accounts.Code `json:"code"`
-	Name                  string        `json:"name"`
-	IsToken               bool          `json:"isToken"`
-	ActiveTokens          []activeToken `json:"activeTokens,omitempty"`
-	BlockExplorerTxPrefix string        `json:"blockExplorerTxPrefix"`
+	Active                bool               `json:"active"`
+	CoinCode              coinpkg.Code       `json:"coinCode"`
+	CoinUnit              string             `json:"coinUnit"`
+	CoinName              string             `json:"coinName"`
+	Code                  accountsTypes.Code `json:"code"`
+	Name                  string             `json:"name"`
+	IsToken               bool               `json:"isToken"`
+	ActiveTokens          []activeToken      `json:"activeTokens,omitempty"`
+	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
 func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
-		Active:                account.Config().Active,
+		Active:                !account.Config().Config.Inactive,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
-		Code:                  account.Config().Code,
-		Name:                  account.Config().Name,
+		Code:                  account.Config().Config.Code,
+		Name:                  account.Config().Config.Name,
 		IsToken:               isToken,
 		ActiveTokens:          activeTokens,
 		BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
@@ -453,10 +454,10 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	}
 
 	type response struct {
-		Success      bool          `json:"success"`
-		AccountCode  accounts.Code `json:"accountCode,omitempty"`
-		ErrorMessage string        `json:"errorMessage,omitempty"`
-		ErrorCode    string        `json:"errorCode,omitempty"`
+		Success      bool               `json:"success"`
+		AccountCode  accountsTypes.Code `json:"accountCode,omitempty"`
+		ErrorMessage string             `json:"errorMessage,omitempty"`
+		ErrorCode    string             `json:"errorCode,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
@@ -500,15 +501,15 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 	for _, account := range handlers.backend.Accounts() {
 		var activeTokens []activeToken
 		if account.Coin().Code() == coinpkg.CodeETH {
-			persistedAccount := persistedAccounts.Lookup(account.Config().Code)
+			persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
 			if persistedAccount == nil {
-				handlers.log.WithField("code", account.Config().Code).Error("account not found in accounts database")
+				handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
 				continue
 			}
 			for _, tokenCode := range persistedAccount.ActiveTokens {
 				activeTokens = append(activeTokens, activeToken{
 					TokenCode:   tokenCode,
-					AccountCode: backend.Erc20AccountCode(account.Config().Code, tokenCode),
+					AccountCode: backend.Erc20AccountCode(account.Config().Config.Code, tokenCode),
 				})
 			}
 		}
@@ -561,7 +562,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 	totalAmount := make(map[coin.Code]accountHandlers.FormattedAmount)
 
 	for _, account := range handlers.backend.Accounts() {
-		if !account.Config().Active {
+		if account.Config().Config.Inactive {
 			continue
 		}
 		if account.FatalError() {
@@ -608,8 +609,8 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 
 func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interface{}, error) {
 	var jsonBody struct {
-		AccountCode accounts.Code `json:"accountCode"`
-		Active      bool          `json:"active"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Active      bool               `json:"active"`
 	}
 
 	type response struct {
@@ -628,9 +629,9 @@ func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interfac
 
 func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{}, error) {
 	var jsonBody struct {
-		AccountCode accounts.Code `json:"accountCode"`
-		TokenCode   string        `json:"tokenCode"`
-		Active      bool          `json:"active"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		TokenCode   string             `json:"tokenCode"`
+		Active      bool               `json:"active"`
 	}
 
 	type response struct {
@@ -649,8 +650,8 @@ func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{
 
 func (handlers *Handlers) postRenameAccountHandler(r *http.Request) (interface{}, error) {
 	var jsonBody struct {
-		AccountCode accounts.Code `json:"accountCode"`
-		Name        string        `json:"name"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Name        string             `json:"name"`
 	}
 
 	type response struct {
@@ -1046,7 +1047,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	}
 
 	for _, account := range handlers.backend.Accounts() {
-		if !account.Config().Active {
+		if account.Config().Config.Inactive {
 			continue
 		}
 		if account.FatalError() {
@@ -1057,7 +1058,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			return nil, err
 		}
 		coin := account.Coin().Code()
-		accountName := account.Config().Name
+		accountName := account.Config().Config.Name
 		balance, err := account.Balance()
 		if err != nil {
 			return nil, err
@@ -1210,7 +1211,7 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interf
 
 	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
 	if err != nil {
-		handlers.log.WithField("code", account.Config().Code).Error(err)
+		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}, nil
 		}
@@ -1252,7 +1253,7 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 		if firmware.IsErrorAbort(err) {
 			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
 		}
-		handlers.log.WithField("code", account.Config().Code).Error(err)
+		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		return response{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	return response{Success: true, Address: address, Signature: signature}, nil
@@ -1264,7 +1265,7 @@ func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
 
 func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interface{}, error) {
 	var request struct {
-		AccountCode accounts.Code `json:"accountCode"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, errp.WithStack(err)

@@ -23,10 +23,12 @@ import (
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMock "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
@@ -65,15 +67,17 @@ func TestAccount(t *testing.T) {
 
 	account := btc.NewAccount(
 		&accounts.AccountConfig{
-			Code:                  "accountcode",
-			Name:                  "accountname",
-			DBFolder:              dbFolder,
-			Keystore:              nil,
-			OnEvent:               func(accounts.Event) {},
-			RateUpdater:           nil,
-			SigningConfigurations: signingConfigurations,
-			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
-			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
+			Config: &config.Account{
+				Code:                  "accountcode",
+				Name:                  "accountname",
+				SigningConfigurations: signingConfigurations,
+			},
+			DBFolder:        dbFolder,
+			Keystore:        nil,
+			OnEvent:         func(accountsTypes.Event) {},
+			RateUpdater:     nil,
+			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
 		},
 		coin, nil,
 		logging.Get().WithGroup("account_test"),

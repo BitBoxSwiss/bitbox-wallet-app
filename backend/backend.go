@@ -25,6 +25,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -106,9 +107,9 @@ type deviceEvent struct {
 
 // AccountEvent models an event triggered by an account.
 type AccountEvent struct {
-	Type string        `json:"type"`
-	Code accounts.Code `json:"code"`
-	Data string        `json:"data"`
+	Type string             `json:"type"`
+	Code accountsTypes.Code `json:"code"`
+	Data string             `json:"data"`
 }
 
 // Environment represents functionality where the implementation depends on the environment the app
@@ -260,7 +261,7 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 	if unnotifiedCount != 0 {
 		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
 			"count":       unnotifiedCount,
-			"accountName": account.Config().Name,
+			"accountName": account.Config().Config.Name,
 		}}
 
 		if err := notifier.MarkAllNotified(); err != nil {
@@ -495,7 +496,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 			log.WithError(err).Error("Could not retrieve root fingerprint")
 			return false
 		}
-		return account.Configurations.ContainsRootFingerprint(fingerprint)
+		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
@@ -705,14 +706,14 @@ func (backend *Backend) HandleURI(uri string) {
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
 // if found. It also initialize the account before returning it.
 func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, error) {
-	acctCode := accounts.Code(code)
+	acctCode := accountsTypes.Code(code)
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range backend.Accounts() {
-		if !a.Config().Active {
+		if a.Config().Config.Inactive {
 			continue
 		}
-		if a.Config().Code == acctCode {
+		if a.Config().Config.Code == acctCode {
 			acct = a
 			break
 		}

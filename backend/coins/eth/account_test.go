@@ -25,8 +25,10 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -80,15 +82,17 @@ func newAccount(t *testing.T) *Account {
 	coin := NewCoin(client, coin.CodeGOETH, "Goerli", "GOETH", "GOETH", params.GoerliChainConfig, "", nil, nil)
 	acct := NewAccount(
 		&accounts.AccountConfig{
-			Code:                  "accountcode",
-			Name:                  "accountname",
-			DBFolder:              dbFolder,
-			Keystore:              nil,
-			OnEvent:               func(accounts.Event) {},
-			RateUpdater:           nil,
-			SigningConfigurations: signingConfigurations,
-			GetNotifier:           func(signing.Configurations) accounts.Notifier { return nil },
-			GetSaveFilename:       func(suggestedFilename string) string { return suggestedFilename },
+			Config: &config.Account{
+				Code:                  "accountcode",
+				Name:                  "accountname",
+				SigningConfigurations: signingConfigurations,
+			},
+			DBFolder:        dbFolder,
+			Keystore:        nil,
+			OnEvent:         func(accountsTypes.Event) {},
+			RateUpdater:     nil,
+			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
+			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
 		},
 		coin,
 		&http.Client{},

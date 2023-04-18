@@ -23,8 +23,10 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
@@ -32,8 +34,8 @@ import (
 )
 
 func TestBaseAccount(t *testing.T) {
-	events := make(chan Event, 100)
-	checkEvent := func() Event {
+	events := make(chan types.Event, 100)
+	checkEvent := func() types.Event {
 		select {
 		case ev := <-events:
 			return ev
@@ -52,18 +54,20 @@ func TestBaseAccount(t *testing.T) {
 
 	const accountIdentifier = "test-account-identifier"
 	cfg := &AccountConfig{
-		Code:        "test",
-		Name:        "Test",
-		DBFolder:    test.TstTempDir("baseaccount_test_dbfolder"),
-		NotesFolder: test.TstTempDir("baseaccount_test_notesfolder"),
-		Keystore:    nil,
-		OnEvent:     func(event Event) { events <- event },
-		RateUpdater: nil,
-		SigningConfigurations: signing.Configurations{
-			signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
-			signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+		Config: &config.Account{
+			Code: "test",
+			Name: "Test",
+			SigningConfigurations: signing.Configurations{
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
+			},
 		},
+		DBFolder:        test.TstTempDir("baseaccount_test_dbfolder"),
+		NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder"),
+		Keystore:        nil,
+		OnEvent:         func(event types.Event) { events <- event },
+		RateUpdater:     nil,
 		GetNotifier:     nil,
 		GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
 	}
@@ -117,18 +121,18 @@ func TestBaseAccount(t *testing.T) {
 	t.Run("synchronizer", func(t *testing.T) {
 		require.False(t, account.Synced())
 		done := account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, EventSyncStarted, checkEvent())
+		require.Equal(t, types.EventSyncStarted, checkEvent())
 		require.False(t, account.Synced())
 		done()
-		require.Equal(t, EventStatusChanged, checkEvent()) // synced changed
-		require.Equal(t, EventSyncDone, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent()) // synced changed
+		require.Equal(t, types.EventSyncDone, checkEvent())
 		require.True(t, account.Synced())
 
 		// no status changed event when syncing again (syncing is already true)
 		done = account.Synchronizer.IncRequestsCounter()
-		require.Equal(t, EventSyncStarted, checkEvent())
+		require.Equal(t, types.EventSyncStarted, checkEvent())
 		done()
-		require.Equal(t, EventSyncDone, checkEvent())
+		require.Equal(t, types.EventSyncDone, checkEvent())
 
 		account.ResetSynced()
 		require.False(t, account.Synced())
@@ -140,10 +144,10 @@ func TestBaseAccount(t *testing.T) {
 		require.NoError(t, account.Offline())
 		account.SetOffline(errors.New("error"))
 		require.Error(t, account.Offline())
-		require.Equal(t, EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent())
 		account.SetOffline(nil)
 		require.NoError(t, account.Offline())
-		require.Equal(t, EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent())
 	})
 
 	t.Run("notes", func(t *testing.T) {
@@ -154,7 +158,7 @@ func TestBaseAccount(t *testing.T) {
 		require.Equal(t, "", account.GetAndClearProposedTxNote())
 
 		require.NoError(t, account.SetTxNote("test-tx-id", "another test note"))
-		require.Equal(t, EventStatusChanged, checkEvent())
+		require.Equal(t, types.EventStatusChanged, checkEvent())
 		require.Equal(t, "another test note", account.TxNote("test-tx-id"))
 
 		// Test notes migration from v4.27.0 to v4.28.0

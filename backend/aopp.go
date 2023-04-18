@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -44,8 +45,8 @@ var aoppBTCScriptTypeMap = map[string]signing.ScriptType{
 }
 
 type account struct {
-	Name string        `json:"name"`
-	Code accounts.Code `json:"code"`
+	Name string             `json:"name"`
+	Code accountsTypes.Code `json:"code"`
 }
 
 // aoppState is the current state of an AOPP request. See The values below.
@@ -88,7 +89,7 @@ type AOPP struct {
 	Accounts []account `json:"accounts"`
 	// AccountCode is the code of the chosen account from which an address will be taken. Only
 	// applies for states after (and excluding) `aoppStateChoosingAccount`.
-	AccountCode accounts.Code `json:"accountCode"`
+	AccountCode accountsTypes.Code `json:"accountCode"`
 	// Address that will be delivered to the requesting party via the callback. Only applies if
 	// State == aoppStateSigning or aoppStateSuccess.
 	Address string `json:"address"`
@@ -152,7 +153,7 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	var accounts []account
 	var filteredDueToScriptType bool
 	for _, acct := range backend.accounts {
-		if !acct.Config().Active {
+		if acct.Config().Config.Inactive {
 			continue
 		}
 		if acct.Coin().Code() != backend.aopp.coinCode {
@@ -161,14 +162,14 @@ func (backend *Backend) aoppKeystoreRegistered() {
 		// Filter for the requested script type.
 		if acct.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
 			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
-			if !ok || acct.Config().SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
+			if !ok || acct.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
 				filteredDueToScriptType = true
 				continue
 			}
 		}
 		accounts = append(accounts, account{
-			Name: acct.Config().Name,
-			Code: acct.Config().Code,
+			Name: acct.Config().Config.Name,
+			Code: acct.Config().Config.Code,
 		})
 	}
 
@@ -264,7 +265,7 @@ func (backend *Backend) AOPPApprove() {
 
 // aoppChooseAccount is called when an AOPP request is being processed and an account should be
 // selected. `accountsAndKeystoreLock` must be held when calling this function.
-func (backend *Backend) aoppChooseAccount(code accounts.Code) {
+func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 	if backend.aopp.State != aoppStateChoosingAccount {
 		return
 	}
@@ -276,7 +277,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 	log := backend.log.WithField("accountCode", code)
 	var account accounts.Interface
 	for _, acct := range backend.accounts {
-		if acct.Config().Code == code {
+		if acct.Config().Config.Code == code {
 			account = acct
 			break
 		}
@@ -289,7 +290,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 	if err := account.Initialize(); err != nil {
 		log.
 			WithError(err).
-			WithField("code", account.Config().Code).
+			WithField("code", account.Config().Config.Code).
 			Error("could not initialize account")
 		backend.aoppSetError(errAOPPUnknown)
 		return
@@ -306,7 +307,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 			backend.aoppSetError(errAOPPUnknown)
 			return
 		}
-		signingConfigIdx = account.Config().SigningConfigurations.FindScriptType(expectedScriptType)
+		signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
 		if signingConfigIdx == -1 {
 			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
 			backend.aoppSetError(errAOPPUnknown)
@@ -326,7 +327,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 		sig, err := backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
-			account.Config().SigningConfigurations[signingConfigIdx].ScriptType(),
+			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {
@@ -394,7 +395,7 @@ func (backend *Backend) aoppChooseAccount(code accounts.Code) {
 
 // AOPPChooseAccount is called when an AOPP request is being processed and the user has chosen an
 // account.
-func (backend *Backend) AOPPChooseAccount(code accounts.Code) {
+func (backend *Backend) AOPPChooseAccount(code accountsTypes.Code) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.aoppChooseAccount(code)
 }

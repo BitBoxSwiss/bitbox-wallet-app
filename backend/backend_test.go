@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
@@ -113,9 +114,9 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
 }
 
-func lookup(accts []accounts.Interface, code accounts.Code) accounts.Interface {
+func lookup(accts []accounts.Interface, code accountsTypes.Code) accounts.Interface {
 	for _, acct := range accts {
-		if acct.Config().Code == code {
+		if acct.Config().Config.Code == code {
 			return acct
 		}
 	}
@@ -174,7 +175,7 @@ func TestAccounts(t *testing.T) {
 	// 2) Add a second BTC account
 	acctCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "A second Bitcoin account", ks)
 	require.NoError(t, err)
-	require.Equal(t, accounts.Code("v0-55555555-btc-1"), acctCode)
+	require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), acctCode)
 	require.Len(t, b.Accounts(), 4)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 4)
 
@@ -186,8 +187,8 @@ func TestAccounts(t *testing.T) {
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	require.Len(t, b.Accounts(), 6)
-	require.Equal(t, accounts.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[4].Config().Code)
-	require.Equal(t, accounts.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[5].Config().Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[4].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[5].Config().Config.Code)
 
 	// 4) Deactivate an ETH token
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))
@@ -196,19 +197,19 @@ func TestAccounts(t *testing.T) {
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	require.Len(t, b.Accounts(), 5)
-	require.Equal(t, accounts.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Config.Code)
 
 	// 5) Rename an account
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH"))
 	require.Equal(t, "My ETH", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Name)
+	require.Equal(t, "My ETH", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Name)
 
 	// 6) Deactivate an ETH account - it also deactivates the tokens.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.False(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Active)
+	require.True(t, lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
 
 	// 7) Rename an inactive account.
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH Renamed"))
 	require.Equal(t, "My ETH Renamed", b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").Name)
-	require.Equal(t, "My ETH Renamed", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Name)
+	require.Equal(t, "My ETH Renamed", lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Name)
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
@@ -127,7 +128,7 @@ func NewAccount(
 	log *logrus.Entry,
 ) *Account {
 	log = log.WithField("group", "btc").
-		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Code, "name": config.Name})
+		WithFields(logrus.Fields{"coin": coin.String(), "code": config.Config.Code, "name": config.Config.Name})
 	log.Debug("Creating new account")
 
 	account := &Account{
@@ -150,7 +151,7 @@ func NewAccount(
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Code)
+	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.Config().Config.Code)
 }
 
 // FilesFolder implements accounts.Interface.
@@ -284,13 +285,13 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations := account.Config().SigningConfigurations
+	signingConfigurations := account.Config().Config.SigningConfigurations
 	if len(signingConfigurations) == 0 {
 		return errp.New("There must be a least one signing configuration")
 	}
 	account.notifier = account.Config().GetNotifier(signingConfigurations)
 
-	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Code)
+	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Config.Code)
 	account.dbSubfolder = path.Join(account.Config().DBFolder, accountIdentifier)
 	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
 		return errp.WithStack(err)
@@ -325,7 +326,7 @@ func (account *Account) Initialize() error {
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.Config().OnEvent(accounts.EventHeadersSynced)
+			account.Config().OnEvent(accountsTypes.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
@@ -453,7 +454,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 
-	account.Config().OnEvent(accounts.EventStatusChanged)
+	account.Config().OnEvent(accountsTypes.EventStatusChanged)
 	account.closed = true
 }
 
@@ -497,7 +498,7 @@ func (account *Account) updateFeeTargets() {
 		feeTarget.feeRatePerKb = &feeRatePerKb
 		account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 			"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-		account.Config().OnEvent(accounts.EventFeeTargetsChanged)
+		account.Config().OnEvent(accountsTypes.EventFeeTargetsChanged)
 	}
 }
 
@@ -555,7 +556,7 @@ func (account *Account) incAndEmitSyncCounter() {
 	if !account.Synced() {
 		synced := atomic.AddUint32(&account.syncedAddressesCount, 1)
 		account.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Config().Code),
+			Subject: fmt.Sprintf("account/%s/synced-addresses-count", account.Config().Config.Code),
 			Action:  action.Replace,
 			Object:  synced,
 		})
@@ -605,7 +606,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		// We are not closing client.blockchain here, as it is reused per coin with
 		// different accounts.
 		account.fatalError.Store(true)
-		account.Config().OnEvent(accounts.EventStatusChanged)
+		account.Config().OnEvent(accountsTypes.EventStatusChanged)
 		return
 	}
 
