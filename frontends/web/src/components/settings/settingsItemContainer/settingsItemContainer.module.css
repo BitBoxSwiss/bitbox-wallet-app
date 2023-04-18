@@ -1,0 +1,31 @@
+.container {
+    width: 100%;
+    min-width: 230px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    text-align:left;
+    border: none;
+    background-color: var(--background-secondary);
+    font-size: var(--size-default);
+    font-weight: 400;
+    padding: 16px 24px;
+    cursor: pointer;
+}
+
+.secondaryText {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin: 0;
+    margin-top: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.primaryText {
+    font-size: 16px;
+    margin: 0;
+    color: var(--color-default);
+}
