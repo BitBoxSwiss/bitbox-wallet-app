@@ -57,39 +57,49 @@ class Passphrase extends Component<Props, State> {
 
   public componentDidMount() {
     getDeviceInfo(this.props.deviceID)
-      .then(({ mnemonicPassphraseEnabled }) => this.setState({
-        // before enabling/disabling we show 1 or more pages to inform about the feature
-        // each page has a continue button that jumps to the next or finally toggles passphrase
-        // infoStep counts down in decreasing order
-        infoStep: mnemonicPassphraseEnabled
-          ? INFO_STEPS_DISABLE
-          : INFO_STEPS_ENABLE,
-        passphraseEnabled: mnemonicPassphraseEnabled,
-      }))
-      .catch(error => {
-        console.error(error);
-        alertUser(this.props.t('genericError'));
-      });
+      .then(result => {
+        if (!result.success) {
+          console.error(result.message);
+          alertUser(this.props.t('genericError'));
+          return;
+        }
+        const { mnemonicPassphraseEnabled } = result.deviceInfo;
+        this.setState({
+          // before enabling/disabling we show 1 or more pages to inform about the feature
+          // each page has a continue button that jumps to the next or finally toggles passphrase
+          // infoStep counts down in decreasing order
+          infoStep: mnemonicPassphraseEnabled
+            ? INFO_STEPS_DISABLE
+            : INFO_STEPS_ENABLE,
+          passphraseEnabled: mnemonicPassphraseEnabled,
+        });
+      })
+      .catch(console.error);
   }
 
-  private togglePassphrase = () => {
+  private togglePassphrase = async () => {
     const { deviceID, t } = this.props;
     const enable = !this.state.passphraseEnabled;
     this.setState({ status: 'progress' });
-    setMnemonicPassphraseEnabled(deviceID, enable)
-      .then(() => getDeviceInfo(deviceID))
-      .then(({ mnemonicPassphraseEnabled }) => {
+    try {
+      const result = await setMnemonicPassphraseEnabled(deviceID, enable);
+      if (!result.success) {
+        route(`/device/${deviceID}`);
+        alertUser(t(`passphrase.error.e${result.code}`, {
+          defaultValue: result.message || t('genericError'),
+        }));
+        return;
+      }
+      const deviceInfoResult = await getDeviceInfo(deviceID);
+      if (deviceInfoResult.success) {
         this.setState({
-          passphraseEnabled: mnemonicPassphraseEnabled,
+          passphraseEnabled: deviceInfoResult.deviceInfo.mnemonicPassphraseEnabled,
           status: 'success',
         });
-      })
-      .catch((e) => {
-        route(`/device/${deviceID}`);
-        alertUser(t(`passphrase.error.e${e.code}`, {
-          defaultValue: e.message || t('genericError'),
-        }));
-      });
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   private stopInfo = () => route(`/device/${this.props.deviceID}`);

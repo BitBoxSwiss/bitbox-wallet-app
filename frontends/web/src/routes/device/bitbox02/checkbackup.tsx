@@ -38,21 +38,28 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const checkBackup = async () => {
     setMessage(t('backup.check.confirmTitle'));
     try {
-      const backupID = await bitbox02API.checkBackup(deviceID, true);
-      const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
-      if (!foundBackup) {
-        alertUser(t('unknownError', { errorMessage: 'Not found' }));
+      const result = await bitbox02API.checkBackup(deviceID, true);
+      if (result.success) {
+        const { backupID } = result;
+        const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
+        if (!foundBackup) {
+          alertUser(t('unknownError', { errorMessage: 'Not found' }));
+          return;
+        }
+        setActiveDialog(true);
+        setFoundBackup(foundBackup);
+      }
+      const check = await bitbox02API.checkBackup(deviceID, false);
+      if (!check.success) {
+        setActiveDialog(true);
+        setMessage(t('backup.check.notOK'));
+        setUserVerified(true);
         return;
       }
-      setActiveDialog(true);
-      setFoundBackup(foundBackup);
-      await bitbox02API.checkBackup(deviceID, false);
       setMessage(t('backup.check.success'));
       setUserVerified(true);
-    } catch {
-      setActiveDialog(true);
-      setMessage(t('backup.check.notOK'));
-      setUserVerified(true);
+    } catch (error) {
+      console.error(error);
     }
   };
 

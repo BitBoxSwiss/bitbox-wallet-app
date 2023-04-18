@@ -325,39 +325,46 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private setDeviceName = (event: FormEvent) => {
+    const { deviceID, t } = this.props;
     event.preventDefault();
     this.setState({
-      waitDialog: { title: this.props.t('bitbox02Interact.confirmName') }
-    }, () => {
-      setDeviceName(this.props.deviceID, this.state.deviceName)
-        .then(() => {
-          this.setState(
-            { waitDialog: undefined },
-            () => this.setPassword(),
-          );
-        })
-        .catch(result => {
-          if (result.message) {
-            alertUser(result.message, {
-              asDialog: false,
-              callback: () => this.setState({ waitDialog: undefined }),
-            });
-          }
-        });
+      waitDialog: { title: t('bitbox02Interact.confirmName') }
+    }, async () => {
+      try {
+        const result = await setDeviceName(deviceID, this.state.deviceName);
+        if (!result.success) {
+          alertUser(result.message || t('genericError'), {
+            asDialog: false,
+            callback: () => this.setState({ waitDialog: undefined }),
+          });
+          return;
+        }
+        this.setState(
+          { waitDialog: undefined },
+          () => this.setPassword(),
+        );
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
-  private restoreFromMnemonic = () => {
+  private restoreFromMnemonic = async () => {
     this.setState({ waitDialog: {
       title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
       text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
     } });
-    restoreFromMnemonic(this.props.deviceID)
-      .then(() => this.setState({ appStatus: 'restoreFromMnemonic' }))
-      .catch(() => {
+    try {
+      const { success } = await restoreFromMnemonic(this.props.deviceID);
+      if (!success) {
         alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'), { asDialog: false });
-      })
-      .finally(() => this.setState({ waitDialog: undefined }));
+      } else {
+        this.setState({ appStatus: 'restoreFromMnemonic' });
+      }
+      this.setState({ waitDialog: undefined });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
