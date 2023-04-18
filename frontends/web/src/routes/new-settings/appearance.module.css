@@ -1,0 +1,8 @@
+.contentContainer { 
+    display: flex;
+    flex-direction: column;
+}
+
+.contentContainer > button {
+    margin-bottom: var(--size-default);
+}
