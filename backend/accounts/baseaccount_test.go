@@ -57,7 +57,7 @@ func TestBaseAccount(t *testing.T) {
 		Config: &config.Account{
 			Code: "test",
 			Name: "Test",
-			Configurations: signing.Configurations{
+			SigningConfigurations: signing.Configurations{
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, []byte{1, 2, 3, 4}, derivationPath, extendedPublicKey),

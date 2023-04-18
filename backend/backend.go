@@ -496,7 +496,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 			log.WithError(err).Error("Could not retrieve root fingerprint")
 			return false
 		}
-		return account.Configurations.ContainsRootFingerprint(fingerprint)
+		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)

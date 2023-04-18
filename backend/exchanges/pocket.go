@@ -144,7 +144,7 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 		err := fmt.Errorf("Unknown format:  %s", format)
 		return "", "", err
 	}
-	signingConfigIdx := account.Config().Config.Configurations.FindScriptType(expectedScriptType)
+	signingConfigIdx := account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
 	if signingConfigIdx == -1 {
 		err := fmt.Errorf("Unknown format: %s", format)
 		return "", "", err
@@ -154,7 +154,7 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 	sig, err := account.Config().Keystore.SignBTCMessage(
 		[]byte(message),
 		addr.AbsoluteKeypath(),
-		account.Config().Config.Configurations[signingConfigIdx].ScriptType(),
+		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
 	)
 	if err != nil {
 		return "", "", err

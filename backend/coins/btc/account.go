@@ -285,7 +285,7 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations := account.Config().Config.Configurations
+	signingConfigurations := account.Config().Config.SigningConfigurations
 	if len(signingConfigurations) == 0 {
 		return errp.New("There must be a least one signing configuration")
 	}

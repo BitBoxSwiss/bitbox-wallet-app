@@ -26,11 +26,11 @@ import (
 type Account struct {
 	// Inactive is true if the account should not be loaded in the sidebar and portfolio. It will
 	// still be shown in 'Manage accounts'.
-	Inactive       bool                   `json:"inactive"`
-	CoinCode       coin.Code              `json:"coinCode"`
-	Name           string                 `json:"name"`
-	Code           accountsTypes.Code     `json:"code"`
-	Configurations signing.Configurations `json:"configurations"`
+	Inactive              bool                   `json:"inactive"`
+	CoinCode              coin.Code              `json:"coinCode"`
+	Name                  string                 `json:"name"`
+	Code                  accountsTypes.Code     `json:"code"`
+	SigningConfigurations signing.Configurations `json:"configurations"`
 	// ActiveTokens list the tokens that should be loaded along with the account.  Currently, this
 	// only applies to ETH, and the elements are ERC20 token codes (e.g. "eth-erc20-usdt",
 	// "eth-erc20-bat", etc).

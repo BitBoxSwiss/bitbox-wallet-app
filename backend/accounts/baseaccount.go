@@ -153,10 +153,10 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 
 	// Append legacy notes (notes stored in files based on obsolete account identifiers). Account
 	// identifiers changed from v4.27.0 to v4.28.0.
-	if len(account.Config().Config.Configurations) == 0 {
+	if len(account.Config().Config.SigningConfigurations) == 0 {
 		return nil
 	}
-	accountNumber, err := account.Config().Config.Configurations[0].AccountNumber()
+	accountNumber, err := account.Config().Config.SigningConfigurations[0].AccountNumber()
 	if err != nil {
 		return nil
 	}
@@ -165,13 +165,13 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 		return nil
 	}
 
-	legacyConfigurations := signing.ConvertToLegacyConfigurations(account.Config().Config.Configurations)
+	legacyConfigurations := signing.ConvertToLegacyConfigurations(account.Config().Config.SigningConfigurations)
 	var legacyAccountIdentifiers []string
 	switch account.coin.Code() {
 	case coin.CodeBTC, coin.CodeTBTC, coin.CodeLTC, coin.CodeTLTC:
 		legacyAccountIdentifiers = []string{fmt.Sprintf("account-%s-%s", legacyConfigurations.Hash(), account.coin.Code())}
 		// Also consider split accounts:
-		for _, cfg := range account.Config().Config.Configurations {
+		for _, cfg := range account.Config().Config.SigningConfigurations {
 			legacyConfigurations := signing.ConvertToLegacyConfigurations(signing.Configurations{cfg})
 			legacyAccountIdentifier := fmt.Sprintf("account-%s-%s-%s", legacyConfigurations.Hash(), account.coin.Code(), cfg.ScriptType())
 			legacyAccountIdentifiers = append(

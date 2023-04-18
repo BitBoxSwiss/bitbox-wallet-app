@@ -65,9 +65,9 @@ func sortAccounts(accounts []*config.Account) {
 		acct1 := accounts[i]
 		acct2 := accounts[j]
 		coinCmp := compareCoin(acct1.CoinCode, acct2.CoinCode)
-		if coinCmp == 0 && len(acct1.Configurations) > 0 && len(acct2.Configurations) > 0 {
-			signingCfg1 := acct1.Configurations[0]
-			signingCfg2 := acct2.Configurations[0]
+		if coinCmp == 0 && len(acct1.SigningConfigurations) > 0 && len(acct2.SigningConfigurations) > 0 {
+			signingCfg1 := acct1.SigningConfigurations[0]
+			signingCfg2 := acct2.SigningConfigurations[0]
 			// An error should never happen here, but if it does, we just sort as if it was account
 			// number 0.
 			accountNumber1, _ := signingCfg1.AccountNumber()
@@ -252,13 +252,13 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 		if coinCode != account.CoinCode {
 			continue
 		}
-		if !account.Configurations.ContainsRootFingerprint(rootFingerprint) {
+		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
 			continue
 		}
-		if len(account.Configurations) == 0 {
+		if len(account.SigningConfigurations) == 0 {
 			continue
 		}
-		accountNumber, err := account.Configurations[0].AccountNumber()
+		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
 		if err != nil {
 			continue
 		}
@@ -429,7 +429,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 			tokenName := token.Name()
 
-			accountNumber, err := accountConfig.Config.Configurations[0].AccountNumber()
+			accountNumber, err := accountConfig.Config.SigningConfigurations[0].AccountNumber()
 			if err != nil {
 				backend.log.WithError(err).Error("could not get account number")
 			} else if accountNumber > 0 {
@@ -437,12 +437,12 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 			}
 
 			erc20Config := &config.Account{
-				Inactive:       persistedConfig.Inactive,
-				CoinCode:       erc20CoinCode,
-				Name:           tokenName,
-				Code:           erc20AccountCode,
-				Configurations: persistedConfig.Configurations,
-				ActiveTokens:   nil,
+				Inactive:              persistedConfig.Inactive,
+				CoinCode:              erc20CoinCode,
+				Name:                  tokenName,
+				Code:                  erc20AccountCode,
+				SigningConfigurations: persistedConfig.SigningConfigurations,
+				ActiveTokens:          nil,
 			}
 
 			backend.createAndAddAccount(token, erc20Config)
@@ -474,8 +474,8 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 		if account.CoinCode == account2.CoinCode {
 			// We detect a duplicate account (subaccount in a unified account) if any of the
 			// configurations is already present.
-			for _, config := range account.Configurations {
-				for _, config2 := range account2.Configurations {
+			for _, config := range account.SigningConfigurations {
+				for _, config2 := range account2.SigningConfigurations {
 					if config.ExtendedPublicKey().String() == config2.ExtendedPublicKey().String() {
 						return errp.WithStack(ErrAccountAlreadyExists)
 					}
@@ -540,10 +540,10 @@ func (backend *Backend) persistBTCAccountConfig(
 
 	if keystore.SupportsUnifiedAccounts() {
 		return backend.persistAccount(config.Account{
-			CoinCode:       coin.Code(),
-			Name:           name,
-			Code:           code,
-			Configurations: signingConfigurations,
+			CoinCode:              coin.Code(),
+			Name:                  name,
+			Code:                  code,
+			SigningConfigurations: signingConfigurations,
 		}, accountsConfig)
 	}
 
@@ -558,10 +558,10 @@ func (backend *Backend) persistBTCAccountConfig(
 		}
 
 		err := backend.persistAccount(config.Account{
-			CoinCode:       coin.Code(),
-			Name:           suffixedName,
-			Code:           splitAccountCode(code, cfg.ScriptType()),
-			Configurations: signing.Configurations{cfg},
+			CoinCode:              coin.Code(),
+			Name:                  suffixedName,
+			Code:                  splitAccountCode(code, cfg.ScriptType()),
+			SigningConfigurations: signing.Configurations{cfg},
 		}, accountsConfig)
 		if err != nil {
 			return err
@@ -612,11 +612,11 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	return backend.persistAccount(config.Account{
-		CoinCode:       coin.Code(),
-		Name:           name,
-		Code:           code,
-		Configurations: signingConfigurations,
-		ActiveTokens:   activeTokens,
+		CoinCode:              coin.Code(),
+		Name:                  name,
+		Code:                  code,
+		SigningConfigurations: signingConfigurations,
+		ActiveTokens:          activeTokens,
 	}, accountsConfig)
 }
 
@@ -632,7 +632,7 @@ func (backend *Backend) initPersistedAccounts() {
 		return
 	}
 	keystoreConnected := func(account *config.Account) bool {
-		return account.Configurations.ContainsRootFingerprint(rootFingerprint)
+		return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
 	}
 
 	persistedAccounts := backend.config.AccountsConfig()
@@ -647,7 +647,7 @@ outer:
 		}
 		switch coin.(type) {
 		case *btc.Coin:
-			for _, cfg := range account.Configurations {
+			for _, cfg := range account.SigningConfigurations {
 				if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
 					continue outer
 				}
@@ -731,7 +731,7 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 				return err
 			}
 			if keystore.SupportsAccount(coin, signing.ScriptTypeP2TR) &&
-				account.Configurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
+				account.SigningConfigurations.FindScriptType(signing.ScriptTypeP2TR) == -1 {
 				rootFingerprint, err := backend.keystore.RootFingerprint()
 				if err != nil {
 					return err
@@ -740,7 +740,7 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 				if account.CoinCode == coinpkg.CodeBTC {
 					bip44Coin = hardenedKeystart
 				}
-				accountNumber, err := account.Configurations[0].AccountNumber()
+				accountNumber, err := account.SigningConfigurations[0].AccountNumber()
 				if err != nil {
 					return err
 				}
@@ -752,8 +752,8 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 				if err != nil {
 					return err
 				}
-				account.Configurations = append(
-					account.Configurations,
+				account.SigningConfigurations = append(
+					account.SigningConfigurations,
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2TR,
 						rootFingerprint,

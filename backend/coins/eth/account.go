@@ -153,7 +153,7 @@ func (account *Account) Initialize() error {
 	}
 	account.initialized = true
 
-	signingConfigurations := account.Config().Config.Configurations
+	signingConfigurations := account.Config().Config.SigningConfigurations
 	if len(signingConfigurations) != 1 {
 		return errp.New("Ethereum only supports one signing config")
 	}

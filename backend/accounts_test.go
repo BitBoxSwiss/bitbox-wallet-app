@@ -83,11 +83,11 @@ func TestSortAccounts(t *testing.T) {
 	}
 
 	accts := []*config.Account{
-		{Code: "acct-eth-2", CoinCode: coinpkg.CodeETH, Configurations: ethConfig("m/44'/60'/0'/0/1")},
-		{Code: "acct-eth-1", CoinCode: coinpkg.CodeETH, Configurations: ethConfig("m/44'/60'/0'/0/0")},
-		{Code: "acct-btc-1", CoinCode: coinpkg.CodeBTC, Configurations: btcConfig("m/84'/0'/0'")},
-		{Code: "acct-btc-3", CoinCode: coinpkg.CodeBTC, Configurations: btcConfig("m/84'/0'/2'")},
-		{Code: "acct-btc-2", CoinCode: coinpkg.CodeBTC, Configurations: btcConfig("m/84'/0'/1'")},
+		{Code: "acct-eth-2", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig("m/44'/60'/0'/0/1")},
+		{Code: "acct-eth-1", CoinCode: coinpkg.CodeETH, SigningConfigurations: ethConfig("m/44'/60'/0'/0/0")},
+		{Code: "acct-btc-1", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/0'")},
+		{Code: "acct-btc-3", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/2'")},
+		{Code: "acct-btc-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/1'")},
 		{Code: "acct-goeth", CoinCode: coinpkg.CodeGOETH},
 		{Code: "acct-ltc", CoinCode: coinpkg.CodeLTC},
 		{Code: "acct-tltc", CoinCode: coinpkg.CodeTLTC},
@@ -134,7 +134,7 @@ func TestNextAccountNumber(t *testing.T) {
 		Accounts: []config.Account{
 			{
 				CoinCode: coinpkg.CodeBTC,
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2WPKH,
 						fingerprint1,
@@ -145,7 +145,7 @@ func TestNextAccountNumber(t *testing.T) {
 			},
 			{
 				CoinCode: coinpkg.CodeBTC,
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2WPKHP2SH,
 						fingerprint1,
@@ -156,7 +156,7 @@ func TestNextAccountNumber(t *testing.T) {
 			},
 			{
 				CoinCode: coinpkg.CodeTBTC,
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2WPKH,
 						fingerprint1,
@@ -167,7 +167,7 @@ func TestNextAccountNumber(t *testing.T) {
 			},
 			{
 				CoinCode: coinpkg.CodeTBTC,
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2WPKH,
 						fingerprint2,
@@ -445,7 +445,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, fingerprint, mustKeypath("m/86'/0'/0'"), mustXKey("xpub6CC9Tsi4eJvmRsGuXwKBfHDWUWN66voNeZFmXRJhYZS6yYgXKZmtz5qnxK9WL2FZP8uF3abyFZ29d7RfMks4FjCCu4LMh3edyeCoyEFuZLZ")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/0'/0'"), mustXKey("xpub6CUmEcJb7juvnw7fFYybCwvCJuPSEdhTWZCep9X1DBznwB8RRKTYBUidbEPJ9L7ExjrXhem9S759cX3BpzSUSoP2rWh9vqumJ9MPSAbi98F")),
@@ -467,7 +467,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/2'/0'"), mustXKey("xpub6CrhULuXbYzo7gXNhSNZ6tzgfMWpwRFEisekvFfuWLtpXcV4jfvWf5yCuhRBvhZoisH4JCVp4ddGEi7XF2QE2S4N8pMkirJbp7N2TF5p5qQ")),
 				},
@@ -488,7 +488,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "eth",
 				Name:     "ethereum 1",
 				Code:     "v0-55555555-eth-0",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/0"), mustXKey("xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E")),
 				},
 			},
@@ -508,7 +508,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "btc",
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/1'"), mustXKey("xpub6Cxa67Bfe1Aw7YVtdqKPYLhSkf7omb7WkGXQzof15VXbAZKVct1caHHK55UQN2Fnojbp2okiBCbGXyQSRzMQ6XKJJeeM2jAt6FR8K8ckA88")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2TR, fingerprint, mustKeypath("m/86'/0'/1'"), mustXKey("xpub6CC9Tsi4eJvmSBj5xoU4sKnFGF9nF8qwExB3axxu2F7oWKFH5RucWQUfrgVGfnTDr6p5acBGpAqAMKb2A7ek8SbAUvDEXtvj37pM1S9X2km")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/0'/1'"), mustXKey("xpub6CUmEcJb7juvpvNs2hKMc9BP1n82ixzUb4jyHUdYzSLmnXru3nb4hhGsfS23WRx8hgJLxMxZ7WcBGzTiYfiANUQZe3TVFghLrxvA2Ls7u4a")),
@@ -530,7 +530,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/1'"), mustXKey("xpub6DReBHtKxgeZJJrrhPEHz9kzEZU1BaQ4kPQ2J1tfjA9DMBKT2bor1ynoAPCsxdyJyZrYK5YsYmkknV5KPtpKeVb2HMX6iQ9wjpAhNSANGiA")),
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/2'/1'"), mustXKey("xpub6CrhULuXbYzo8Lk2iJY5dr6mWjHBKQuohcP99HcioFiouGuEBWEJDMbgLDD89hvJiT1wD94FnuQcSzE4QsxWDv2AQbiitk7EbNvE8mmT17M")),
 				},
@@ -551,7 +551,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/1"), mustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
 				},
 			},
@@ -578,7 +578,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "btc",
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 				},
 			},
@@ -589,7 +589,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/0'/0'"), mustXKey("xpub6CUmEcJb7juvnw7fFYybCwvCJuPSEdhTWZCep9X1DBznwB8RRKTYBUidbEPJ9L7ExjrXhem9S759cX3BpzSUSoP2rWh9vqumJ9MPSAbi98F")),
 				},
 			},
@@ -600,7 +600,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "btc",
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2PKH, fingerprint, mustKeypath("m/44'/0'/0'"), mustXKey("xpub6D7KuxJsw7N2LtWPQKy6Tqs8vFyKudiDqcx6mtsFXT6FDb8oLcUYRjf7G4Qx8CK4DAQ4kN98n7uDCKmazxaHYLNjwDbJ1nKmDm6QEQCwkGC")),
 				},
 			},
@@ -621,7 +621,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "ltc",
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 				},
 			},
@@ -632,7 +632,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
-				Configurations: signing.Configurations{
+				SigningConfigurations: signing.Configurations{
 					signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKHP2SH, fingerprint, mustKeypath("m/49'/2'/0'"), mustXKey("xpub6CrhULuXbYzo7gXNhSNZ6tzgfMWpwRFEisekvFfuWLtpXcV4jfvWf5yCuhRBvhZoisH4JCVp4ddGEi7XF2QE2S4N8pMkirJbp7N2TF5p5qQ")),
 				},
 			},
@@ -723,7 +723,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		&config.Account{
 			Code: "test-btc-account-code",
 			Name: "Bitcoin account name",
-			Configurations: signing.Configurations{
+			SigningConfigurations: signing.Configurations{
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/0'/0'"), mustXKey("xpub6Cxa67Bfe1Aw5VvLM1Ppua9x28CXH1zUYoAuBzFRjR6hWnA6aUcny84KYkeVcZWnWXxKSkxCEyMA8xic54ydBPWm5oziXpsXq6nX8FELMQn")),
 			},
 		},
@@ -744,7 +744,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		&config.Account{
 			Code: "test-ltc-account-code",
 			Name: "Litecoin account name",
-			Configurations: signing.Configurations{
+			SigningConfigurations: signing.Configurations{
 				signing.NewBitcoinConfiguration(signing.ScriptTypeP2WPKH, fingerprint, mustKeypath("m/84'/2'/0'"), mustXKey("xpub6DReBHtKxgeZGBKTaaF1GjeBHa8dZwQpRfgYr3kxt782s8KKqio2pR6piBsiqHEPF7Rg3onMkwt9XrSxNTuW4N1VBjVbn6DQ3GPCBEUgtgP")),
 			},
 		},
@@ -765,7 +765,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 		&config.Account{
 			Code: "test-eth-account-code",
 			Name: "Ethereum account name",
-			Configurations: signing.Configurations{
+			SigningConfigurations: signing.Configurations{
 				signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/0"), mustXKey("xpub6GP83vJASH1kS7dQPWXFjVHDfYajopbG8U3j8peBH67CRCnb8QmDxZJfWpbgCQNHAzCDJ4MyVYjoh7Yv9yo7PQuZ9YyktgrtD9vmeo67Y4E")),
 			},
 			ActiveTokens: []string{"eth-erc20-mkr"},
@@ -796,7 +796,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 			Code: "test-eth-account-code-2",
 			Name: "Ethereum account name 2",
 
-			Configurations: signing.Configurations{
+			SigningConfigurations: signing.Configurations{
 				signing.NewEthereumConfiguration(fingerprint, mustKeypath("m/44'/60'/0'/0/1"), mustXKey("xpub6GP83vJASH1kUpndXSe3e942omyTYSPKaav6shfic7Lc3rFJR9ctA3AXaTf7rX7PuSZNUnaqj4hiqgnRXr26jitBz4jLhmFURtVxDykHbQm")),
 			},
 			ActiveTokens: []string{"eth-erc20-usdt", "eth-erc20-bat"},
@@ -1058,16 +1058,16 @@ func TestTaprootUpgrade(t *testing.T) {
 	ltcAccount := lookup(b.Accounts(), "v0-55555555-ltc-0")
 	require.NotNil(t, ltcAccount)
 	require.Equal(t, coinpkg.CodeBTC, btcAccount.Coin().Code())
-	require.Len(t, btcAccount.Config().Config.Configurations, 2)
-	require.Len(t, ltcAccount.Config().Config.Configurations, 2)
+	require.Len(t, btcAccount.Config().Config.SigningConfigurations, 2)
+	require.Len(t, ltcAccount.Config().Config.SigningConfigurations, 2)
 	require.Equal(t,
-		signing.ScriptTypeP2WPKH, btcAccount.Config().Config.Configurations[0].ScriptType())
+		signing.ScriptTypeP2WPKH, btcAccount.Config().Config.SigningConfigurations[0].ScriptType())
 	require.Equal(t,
-		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().Config.Configurations[1].ScriptType())
+		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().Config.SigningConfigurations[1].ScriptType())
 	// Same for the persisted account config.
 	require.Equal(t,
-		btcAccount.Config().Config.Configurations,
-		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Configurations)
+		btcAccount.Config().Config.SigningConfigurations,
+		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").SigningConfigurations)
 
 	// "Unplug", then insert an updated keystore with taproot support.
 	b.DeregisterKeystore()
@@ -1079,17 +1079,17 @@ func TestTaprootUpgrade(t *testing.T) {
 	ltcAccount = lookup(b.Accounts(), "v0-55555555-ltc-0")
 	require.NotNil(t, ltcAccount)
 	require.Equal(t, coinpkg.CodeBTC, b.Accounts()[0].Coin().Code())
-	require.Len(t, btcAccount.Config().Config.Configurations, 3)
+	require.Len(t, btcAccount.Config().Config.SigningConfigurations, 3)
 	// LTC (coin with no taproot support) unchanged.
-	require.Len(t, ltcAccount.Config().Config.Configurations, 2)
+	require.Len(t, ltcAccount.Config().Config.SigningConfigurations, 2)
 	require.Equal(t,
-		signing.ScriptTypeP2WPKH, btcAccount.Config().Config.Configurations[0].ScriptType())
+		signing.ScriptTypeP2WPKH, btcAccount.Config().Config.SigningConfigurations[0].ScriptType())
 	require.Equal(t,
-		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().Config.Configurations[1].ScriptType())
+		signing.ScriptTypeP2WPKHP2SH, btcAccount.Config().Config.SigningConfigurations[1].ScriptType())
 	require.Equal(t,
-		signing.ScriptTypeP2TR, btcAccount.Config().Config.Configurations[2].ScriptType())
+		signing.ScriptTypeP2TR, btcAccount.Config().Config.SigningConfigurations[2].ScriptType())
 	// Same for the persisted account config.
 	require.Equal(t,
-		btcAccount.Config().Config.Configurations,
-		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Configurations)
+		btcAccount.Config().Config.SigningConfigurations,
+		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").SigningConfigurations)
 }

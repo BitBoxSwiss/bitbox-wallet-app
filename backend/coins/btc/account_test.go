@@ -68,9 +68,9 @@ func TestAccount(t *testing.T) {
 	account := btc.NewAccount(
 		&accounts.AccountConfig{
 			Config: &config.Account{
-				Code:           "accountcode",
-				Name:           "accountname",
-				Configurations: signingConfigurations,
+				Code:                  "accountcode",
+				Name:                  "accountname",
+				SigningConfigurations: signingConfigurations,
 			},
 			DBFolder:        dbFolder,
 			Keystore:        nil,

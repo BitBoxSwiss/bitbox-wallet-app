@@ -162,7 +162,7 @@ func (backend *Backend) aoppKeystoreRegistered() {
 		// Filter for the requested script type.
 		if acct.Coin().Code() == coinpkg.CodeBTC && backend.aopp.format != "any" {
 			expectedScriptType, ok := aoppBTCScriptTypeMap[backend.aopp.format]
-			if !ok || acct.Config().Config.Configurations.FindScriptType(expectedScriptType) == -1 {
+			if !ok || acct.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType) == -1 {
 				filteredDueToScriptType = true
 				continue
 			}
@@ -307,7 +307,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 			backend.aoppSetError(errAOPPUnknown)
 			return
 		}
-		signingConfigIdx = account.Config().Config.Configurations.FindScriptType(expectedScriptType)
+		signingConfigIdx = account.Config().Config.SigningConfigurations.FindScriptType(expectedScriptType)
 		if signingConfigIdx == -1 {
 			log.Errorf("Unknown aopp format param %s", backend.aopp.format)
 			backend.aoppSetError(errAOPPUnknown)
@@ -327,7 +327,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 		sig, err := backend.keystore.SignBTCMessage(
 			[]byte(backend.aopp.Message),
 			addr.AbsoluteKeypath(),
-			account.Config().Config.Configurations[signingConfigIdx].ScriptType(),
+			account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),
 		)
 		if err != nil {
 			if firmware.IsErrorAbort(err) {
