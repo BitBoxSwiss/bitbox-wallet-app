@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { Dialog } from '../dialog/dialog';
 import { TActiveLanguageCodes, TLanguagesList } from './types';
 import style from './language.module.css';
+import { getSelectedIndex } from '../../utils/language';
 
 type TLanguageSwitchProps = {
     languages?: TLanguagesList;
@@ -46,32 +47,6 @@ const defaultLanguages = [
   { code: 'tr', display: 'Türkçe' },
   { code: 'zh', display: '中文' },
 ] as TLanguagesList;
-
-const getSelectedIndex = (languages: TLanguagesList, i18n: Ii18n) => {
-  const lang = i18n.language;
-
-  // Check for exact match first.
-  let index = languages.findIndex(({ code }) => code === lang);
-
-  // A locale may contain region and other sub tags.
-  // Try with a relaxed match, only the first component.
-  if (index === -1 && lang.indexOf('-') > 0) {
-    const tag = lang.slice(0, lang.indexOf('-'));
-    index = languages.findIndex(({ code }) => code === tag);
-  }
-
-  if (index === -1 && lang.indexOf('_') > 0) {
-    const tag = lang.slice(0, lang.indexOf('_'));
-    index = languages.findIndex(({ code }) => code === tag);
-  }
-
-  // Give up. We tried.
-  if (index === -1) {
-    return 0;
-  }
-
-  return index;
-};
 
 const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
 
