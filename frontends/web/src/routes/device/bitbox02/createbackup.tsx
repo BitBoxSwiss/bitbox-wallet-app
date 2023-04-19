@@ -34,7 +34,7 @@ export const Create = ({ deviceID }: TProps) => {
 
   const createBackup = () => {
     setCreatingBackup(true);
-    createBackupAPI(deviceID)
+    createBackupAPI(deviceID, 'sdcard')
       .then((result) => {
         setCreatingBackup(false);
         setDisabled(false);
