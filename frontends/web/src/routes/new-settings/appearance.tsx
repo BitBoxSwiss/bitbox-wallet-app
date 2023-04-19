@@ -6,6 +6,7 @@ import { DefaultCurrencySetting } from './components/settingsItems/defaultCurren
 import { DisplaySatsToggleSetting } from './components/settingsItems/displaySatsToggleSetting';
 import style from './appearance.module.css';
 import { LanguageDropdownSetting } from './components/settingsItems/languageDropdownSetting';
+import { ActiveCurrenciesDropdownSetting } from './components/settingsItems/activeCurrenciesDropdownSetting';
 
 const ContentContainer = ({ children }: {children: ReactNode}) => <div className={style.contentContainer}>{children}</div>;
 
@@ -17,6 +18,7 @@ export const Appearance = () => {
         <ViewContent>
           <ContentContainer>
             <DefaultCurrencySetting />
+            <ActiveCurrenciesDropdownSetting />
             <LanguageDropdownSetting />
             <DarkmodeToggleSetting />
             <DisplaySatsToggleSetting />
