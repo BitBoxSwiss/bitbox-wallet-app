@@ -2,7 +2,3 @@
     display: flex;
     flex-direction: column;
 }
-
-.contentContainer > button:not(:last-child) {
-    margin-bottom: var(--size-default);
-}
