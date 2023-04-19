@@ -15,7 +15,7 @@ type TSelectProps = {
   handleChange: (fiat: Fiat) => void;
 }
 
-const Selector = ({ options, handleChange }: TSelectProps) => <Select
+const ReactSelect = ({ options, handleChange }: TSelectProps) => <Select
   className={styles.select}
   classNamePrefix="react-select"
   defaultValue={{ label: store.state.active, value: store.state.active }}
@@ -35,7 +35,7 @@ export const DefaultCurrencySetting = () => {
     <SettingsItemContainer
       settingName="Default Currency"
       secondaryText="Select your default currency."
-      extraComponent={<Selector options={formattedCurrencies} handleChange={setActiveFiat}/>}
+      extraComponent={<ReactSelect options={formattedCurrencies} handleChange={setActiveFiat}/>}
     />
   );
 };
