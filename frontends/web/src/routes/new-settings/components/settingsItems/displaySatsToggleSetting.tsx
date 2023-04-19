@@ -1,13 +1,13 @@
-import { Toggle } from '../../toggle/toggle';
-import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
-import { useTranslation } from 'react-i18next';
-import { useLoad } from '../../../hooks/api';
-import { getConfig } from '../../../api/backend';
-import { setConfig } from '../../../utils/config';
-import { updateRatesConfig } from '../../rates/rates';
-import { BtcUnit, setBtcUnit } from '../../../api/coins';
 import { useEffect, useState } from 'react';
-import { alertUser } from '../../alert/Alert';
+import { useTranslation } from 'react-i18next';
+import { Toggle } from '../../../../components/toggle/toggle';
+import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
+import { useLoad } from '../../../../hooks/api';
+import { getConfig } from '../../../../api/backend';
+import { setConfig } from '../../../../utils/config';
+import { updateRatesConfig } from '../../../../components/rates/rates';
+import { BtcUnit, setBtcUnit } from '../../../../api/coins';
+import { alertUser } from '../../../../components/alert/Alert';
 
 export const DisplaySatsToggleSetting = () => {
   const { t } = useTranslation();

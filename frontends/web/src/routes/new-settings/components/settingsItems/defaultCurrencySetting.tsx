@@ -1,8 +1,8 @@
 import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
 import Select from 'react-select';
-import { store } from '../../rates/rates';
-import { currencies, setActiveFiat } from '../../rates/rates';
-import { Fiat } from '../../../api/account';
+import { store } from '../../../../components/rates/rates';
+import { currencies, setActiveFiat } from '../../../../components/rates/rates';
+import { Fiat } from '../../../../api/account';
 import styles from './defaultCurrencySetting.module.css';
 
 type SelectOption = {
