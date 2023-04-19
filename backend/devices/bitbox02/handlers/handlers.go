@@ -161,8 +161,21 @@ func (handlers *Handlers) postSetPassword(r *http.Request) (interface{}, error) 
 }
 
 func (handlers *Handlers) postCreateBackup(r *http.Request) (interface{}, error) {
-	if err := handlers.device.CreateBackup(); err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+	var backupMethod string
+	if err := json.NewDecoder(r.Body).Decode(&backupMethod); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	switch backupMethod {
+	case "sdcard":
+		if err := handlers.device.CreateBackup(); err != nil {
+			return maybeBB02Err(err, handlers.log), nil
+		}
+	case "recovery-words":
+		if err := handlers.device.ShowMnemonic(); err != nil {
+			return maybeBB02Err(err, handlers.log), nil
+		}
+	default:
+		return map[string]interface{}{"success": false}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }
@@ -284,11 +297,20 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error
 		NewVersion             string `json:"newVersion"`
 		CanUpgrade             bool   `json:"canUpgrade"`
 		CanGotoStartupSettings bool   `json:"canGotoStartupSettings"`
+		// If true, creating a backup using the mnemonic recovery words instead of the microSD card
+		// is supported in the initial setup.
+		//
+		// If false, the backup must be performed using the microSD card in the initial setup.
+		//
+		// This has no influence over whether one can display the recovery words after the initial
+		// setup - that is always possible regardless of this value.
+		CanBackupWithRecoveryWords bool `json:"canBackupWithRecoveryWords"`
 	}{
-		CurrentVersion:         currentVersion.String(),
-		NewVersion:             newVersion.String(),
-		CanUpgrade:             newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
-		CanGotoStartupSettings: currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
+		CurrentVersion:             currentVersion.String(),
+		NewVersion:                 newVersion.String(),
+		CanUpgrade:                 newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+		CanGotoStartupSettings:     currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
+		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
 	}, nil
 }
 

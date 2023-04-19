@@ -68,6 +68,14 @@ export type VersionInfo = {
     currentVersion: string;
     canUpgrade: boolean;
     canGotoStartupSettings: boolean;
+    // If true, creating a backup using the mnemonic recovery words instead of the microSD card
+    // is supported in the initial setup.
+    //
+    // If false, the backup must be performed using the microSD card in the initial setup.
+    //
+    // This has no influence over whether one can display the recovery words after the initial
+    // setup - that is always possible regardless of this value.
+    canBackupWithRecoveryWords: boolean;
 }
 
 export const getVersion = (
@@ -96,10 +104,13 @@ export const checkBackup = (
   return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent });
 };
 
+// The 'recovery-words' method is only allowed if `canBackupWithRecoveryWords` returned by
+// `getVersion()` is true.
 export const createBackup = (
   deviceID: string,
+  method: 'sdcard' | 'recovery-words',
 ): Promise<FailResponse | SuccessResponse> => {
-  return apiPost(`devices/bitbox02/${deviceID}/backups/create`);
+  return apiPost(`devices/bitbox02/${deviceID}/backups/create`, method);
 };
 
 export const restoreBackup = (
