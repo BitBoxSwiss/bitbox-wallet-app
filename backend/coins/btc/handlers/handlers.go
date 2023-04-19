@@ -220,14 +220,19 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 }
 
 func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, error) {
-	result := []Transaction{}
+	var result struct {
+		Success      bool          `json:"success"`
+		Transactions []Transaction `json:"list"`
+	}
 	txs, err := handlers.account.Transactions()
 	if err != nil {
-		return nil, err
+		return result, nil
 	}
+	result.Transactions = []Transaction{}
 	for _, txInfo := range txs {
-		result = append(result, handlers.getTxInfoJSON(txInfo, false))
+		result.Transactions = append(result.Transactions, handlers.getTxInfoJSON(txInfo, false))
 	}
+	result.Success = true
 	return result, nil
 }
 

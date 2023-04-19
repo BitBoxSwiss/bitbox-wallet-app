@@ -161,7 +161,11 @@ export const Pocket = ({ code }: TProps) => {
 
   const handleRequestXpub = () => {
     getTransactionList(code).then(txs => {
-      if (txs.length > 0) {
+      if (!txs.success) {
+        alertUser(t('transactions.errorLoadTransactions'));
+        return;
+      }
+      if (txs.list.length > 0) {
         confirmation(t('buy.pocket.previousTransactions'), result => {
           if (result) {
             sendXpub();

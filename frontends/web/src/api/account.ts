@@ -176,6 +176,8 @@ export interface ITransaction {
     weight: number;
 }
 
+export type TTransactions = { success: false } | { success: true; list: ITransaction[]; };
+
 export interface INoteTx {
     internalTxID: string;
     note: string;
@@ -188,7 +190,7 @@ export const postNotesTx = (code: AccountCode, {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
-export const getTransactionList = (code: AccountCode): Promise<ITransaction[]> => {
+export const getTransactionList = (code: AccountCode): Promise<TTransactions> => {
   return apiGet(`account/${code}/transactions`);
 };
 
