@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import styles from './settingsItemContainer.module.css';
 
-interface SettingsButtonProps {
+type TProps = {
     onClick?: () => void;
     settingName: string;
     secondaryText?: string | JSX.Element;
@@ -13,19 +13,34 @@ export const SettingsItemContainer = ({
   settingName,
   secondaryText,
   extraComponent
-}: SettingsButtonProps) => {
+}: TProps) => {
   const notButton = onClick === undefined;
-  return (
-    <button
-      className={`${styles.container} ${notButton ? `${styles.notButton}` : ''}`}
-      onClick={onClick}>
+
+  const content =
+    (<>
       <span>
         <p className={styles.primaryText}>{settingName}</p>
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }
       </span>
-      {extraComponent ? extraComponent : null}
-    </button>
+      {extraComponent ? extraComponent : null }
+    </>
+    );
+
+  // render as div when it's notButton
+  // otherwise, render as button
+  return (
+    <>
+      {notButton ?
+        <div className={`${styles.container} ${styles.notButton}`} >
+          {content}
+        </div> :
+        <button
+          className={styles.container}
+          onClick={onClick}>
+          {content}
+        </button> }
+    </>
   );
 };

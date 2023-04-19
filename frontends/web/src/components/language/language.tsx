@@ -16,7 +16,6 @@
  */
 
 import { useState } from 'react';
-import { i18n as Ii18n } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../dialog/dialog';
 import { TActiveLanguageCodes, TLanguagesList } from './types';
