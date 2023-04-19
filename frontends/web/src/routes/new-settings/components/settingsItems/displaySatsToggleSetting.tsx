@@ -46,10 +46,16 @@ export const DisplaySatsToggleSetting = () => {
         secondaryText="Enable or disable Satoshis."
         extraComponent={
           <>
-            {displayAsSAT !== undefined ? <Toggle
-              checked={displayAsSAT}
-              onChange={handleToggleSatsUnit}
-            /> : null}
+            {
+              displayAsSAT !== undefined ?
+                (
+                  <Toggle
+                    checked={displayAsSAT}
+                    onChange={handleToggleSatsUnit}
+                  />
+                ) :
+                null
+            }
           </>
         }
       />
