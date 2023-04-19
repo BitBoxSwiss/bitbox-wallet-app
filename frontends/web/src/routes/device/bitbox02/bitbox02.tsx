@@ -16,14 +16,16 @@
  */
 
 import React, { Component, FormEvent } from 'react';
-import { Backup } from '../components/backup';
 import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
+import { FailResponse, SuccessResponse } from '../../../api/response';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
+import { Backup } from '../components/backup';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Checkbox, Input } from '../../../components/forms';
+import { Toggle } from '../../../components/toggle/toggle';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -52,7 +54,7 @@ interface State {
     deviceVerified: boolean;
     status: '' | TStatus;
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
-    createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
+    createWalletStatus: 'intro' | 'setPassword' | 'createBackup' | 'createWords';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     settingPassword: boolean;
     creatingBackup: boolean;
@@ -72,6 +74,7 @@ interface State {
         text?: string;
     };
     selectedBackup?: Backup;
+    backupType: 'sdcard' | 'recovery-words'
 }
 
 class BitBox02 extends Component<Props, State> {
@@ -97,6 +100,7 @@ class BitBox02 extends Component<Props, State> {
       agreement4: false,
       agreement5: false,
       waitDialog: undefined,
+      backupType: 'sdcard',
     };
   }
 
@@ -196,9 +200,11 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private createWalletStep = () => {
-    this.checkSDCard().then(sdCardInserted => {
-      this.setState({ sdCardInserted });
-    });
+    if (this.state.backupType === 'sdcard') {
+      this.checkSDCard().then(sdCardInserted => {
+        this.setState({ sdCardInserted });
+      });
+    }
     this.setState({
       appStatus: 'createWallet',
       createWalletStatus: 'intro',
@@ -261,6 +267,7 @@ class BitBox02 extends Component<Props, State> {
             appStatus: '',
             errorText: undefined,
             settingPassword: false,
+            backupType: 'sdcard',
           });
         } else {
           this.setState({
@@ -273,7 +280,16 @@ class BitBox02 extends Component<Props, State> {
         // show noPasswordMatch error and do NOT continue to createBackup
         return;
       }
-      this.setState({ settingPassword: false, createWalletStatus: 'createBackup' });
+      const withSDCard = this.state.backupType === 'sdcard';
+      this.setState({
+        settingPassword: false,
+        createWalletStatus: withSDCard ? 'createBackup' : 'createWords',
+      }, () => {
+        // sdcard backup shows warnings first, recovery words goes directly to createBackup
+        if (!withSDCard) {
+          this.createBackup();
+        }
+      });
     });
   };
 
@@ -299,29 +315,52 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private createBackup = () => {
-    this.insertSDCard().then(success1 => {
-      if (!success1) {
-        alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        return;
-      }
-
-      this.setState({ creatingBackup: true, waitDialog: {
-        title: this.props.t('bitbox02Interact.confirmDate'),
-        text: this.props.t('bitbox02Interact.confirmDateText'),
-      } });
-      createBackup(this.props.deviceID, 'sdcard')
-        .then((result) => {
-          if (!result.success) {
-            if (result.code === 104) {
-              alertUser(this.props.t('bitbox02Wizard.createBackupAborted'), { asDialog: false });
-            } else {
-              alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-            }
-          }
-          this.setState({ creatingBackup: false, waitDialog: undefined });
-        })
+    const { deviceID, t } = this.props;
+    switch (this.state.backupType) {
+    case 'recovery-words':
+      this.setState({
+        creatingBackup: true,
+        waitDialog: {
+          title: t('backup.create.title'),
+          text: t('bitbox02Wizard.stepBackup.createBackup_withoutSdcard'),
+        }
+      });
+      createBackup(deviceID, 'recovery-words')
+        .then(this.createBackupDone)
         .catch(console.error);
-    });
+      break;
+    case 'sdcard':
+      this.insertSDCard().then(success => {
+        if (!success) {
+          alertUser(t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
+          return;
+        }
+        this.setState({
+          creatingBackup: true,
+          waitDialog: {
+            title: t('bitbox02Interact.confirmDate'),
+            text: t('bitbox02Interact.confirmDateText'),
+          }
+        });
+        createBackup(deviceID, 'sdcard')
+          .then(this.createBackupDone)
+          .catch(console.error);
+      });
+      break;
+    }
+  };
+
+  private createBackupDone = (result: SuccessResponse | FailResponse) => {
+    if (!result.success) {
+      if (result.code === 104) {
+        alertUser(this.props.t('bitbox02Wizard.createBackupAborted'), { asDialog: false });
+      } else {
+        alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
+      }
+      this.setState({ appStatus: '', creatingBackup: false, waitDialog: undefined });
+      return;
+    }
+    this.setState({ creatingBackup: false, waitDialog: undefined });
   };
 
   private handleDeviceNameInput = (event: Event) => {
@@ -407,6 +446,7 @@ class BitBox02 extends Component<Props, State> {
       agreement5,
       waitDialog,
       selectedBackup,
+      backupType,
     } = this.state;
 
     if (status === '') {
@@ -526,7 +566,7 @@ class BitBox02 extends Component<Props, State> {
           </View>
         )}
 
-        { (!unlockOnly && status === 'uninitialized' && appStatus === '') && (
+        { (!unlockOnly && appStatus === '') && (
           <View
             key="uninitialized-pairing"
             fullscreen
@@ -553,6 +593,22 @@ class BitBox02 extends Component<Props, State> {
                       {t('seed.create')}
                     </Button>
                   </ColumnButtons>
+                  {/* <Button transparent onClick={() => this.setState({ backupType: 'recovery-words' })}>
+                    <small>
+                      Advanced settings
+                    </small>
+                  </Button> */}
+                  <div className="m-top-quarter">
+                    <small>Use words</small>
+                    {' '}
+                    <Toggle
+                      checked={this.state.backupType === 'recovery-words'}
+                      id="togggle-show-firmware-hash"
+                      onChange={() => this.setState(({ backupType }) => ({
+                        backupType: backupType === 'sdcard' ? 'recovery-words' : 'sdcard'
+                      }))}
+                      className="text-medium" />
+                  </div>
                 </Column>
                 <Column asCard className="m-bottom-default">
                   <h3 className="title">{t('button.restore')}</h3>
@@ -586,9 +642,14 @@ class BitBox02 extends Component<Props, State> {
               verticallyCentered
               width="600px">
               <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
-                <p>{t('bitbox02Wizard.stepCreate.description')}</p>
-                {!sdCardInserted && (
-                  <Status type="warning">
+                <p>
+                  { backupType === 'sdcard'
+                    ? t('bitbox02Wizard.stepCreate.description')
+                    : t('bitbox02Wizard.stepCreate.description_withoutSdcard')
+                  }
+                </p>
+                {backupType === 'sdcard' && !sdCardInserted && (
+                  <Status type="warning" className="m-bottom-half">
                     <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
                   </Status>
                 )}
@@ -700,6 +761,7 @@ class BitBox02 extends Component<Props, State> {
             </View>
           </form>
         )}
+
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
           <View
@@ -750,7 +812,7 @@ class BitBox02 extends Component<Props, State> {
                       createdDateTime: convertDateToLocaleString(selectedBackup.date, this.props.i18n.language),
                     })}/>
                     <p className="text-small text-ellipsis">
-                                            ID:&nbsp;{selectedBackup.id}
+                      ID:&nbsp;{selectedBackup.id}
                     </p>
                   </div>
                 ) : null
@@ -775,7 +837,12 @@ class BitBox02 extends Component<Props, State> {
               <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
             </ViewHeader>
             <ViewContent withIcon="success">
-              <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
+              <p>
+                { backupType === 'sdcard'
+                  ? t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')
+                  : t('bitbox02Wizard.stepCreateSuccess.secureLocation')
+                }
+              </p>
             </ViewContent>
             <ViewButtons>
               <Button primary onClick={this.handleGetStarted}>

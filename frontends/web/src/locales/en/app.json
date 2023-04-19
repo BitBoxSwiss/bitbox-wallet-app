@@ -228,7 +228,8 @@
     },
     "stepBackup": {
       "beforeProceed": "Before proceeding, please read these important security considerations:",
-      "createBackup": "You will now create a backup on your microSD card."
+      "createBackup": "You will now create a backup on your microSD card.",
+      "createBackup_withoutSdcard": "Follow the instructions on the device to create a backup with the recovery words."
     },
     "stepBackupSuccess": {
       "fundsSafe": "To keep your funds safe, please remember the following:",
@@ -239,6 +240,7 @@
     },
     "stepCreate": {
       "description": "This name is used as the device name and for the backup.",
+      "description_withoutSdcard": "This name is used as the device name.",
       "nameLabel": "BitBox02 name",
       "namePlaceholder": "My BitBox02",
       "title": "Choose BitBox02 name",
@@ -246,6 +248,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Please remove the microSD card from your BitBox02 and store it in a secure location.",
+      "secureLocation": "Please store the backup in a secure location.",
       "success": "You’ve successfully created your backup."
     },
     "stepInsertSD": {
