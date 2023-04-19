@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { TActiveLanguageCodes, TLanguage, TLanguagesList } from '../../../../components/language/types';
 import Select from 'react-select';
 import styles from './defaultCurrencySetting.module.css';
+import { getSelectedIndex } from '../../../../utils/language';
 
 type SelectOption = {
   label: string;
@@ -53,31 +54,6 @@ const ReactSelect = ({ options, handleChange, selectedLanguage }: TSelectProps) 
 />;
 
 export const LanguageDropdownSetting = () => {
-  const getSelectedIndex = (languages: TLanguagesList, i18n: Ii18n) => {
-    const lang = i18n.language;
-
-    // Check for exact match first.
-    let index = languages.findIndex(({ code }) => code === lang);
-
-    // A locale may contain region and other sub tags.
-    // Try with a relaxed match, only the first component.
-    if (index === -1 && lang.indexOf('-') > 0) {
-      const tag = lang.slice(0, lang.indexOf('-'));
-      index = languages.findIndex(({ code }) => code === tag);
-    }
-
-    if (index === -1 && lang.indexOf('_') > 0) {
-      const tag = lang.slice(0, lang.indexOf('_'));
-      index = languages.findIndex(({ code }) => code === tag);
-    }
-
-    // Give up. We tried.
-    if (index === -1) {
-      return 0;
-    }
-
-    return index;
-  };
   const { i18n } = useTranslation();
   const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
