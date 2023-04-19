@@ -29,7 +29,7 @@ const ReactSelect = ({ options, handleChange }: TSelectProps) => <Select
   options={options}
 />;
 
-export const DefaultCurrencySetting = () => {
+export const DefaultCurrencyDropdownSetting = () => {
   const formattedCurrencies = currencies.map((currency) => ({ label: currency, value: currency }));
   return (
     <SettingsItemContainer
