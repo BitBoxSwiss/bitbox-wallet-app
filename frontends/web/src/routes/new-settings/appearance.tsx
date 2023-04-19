@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { View, ViewContent } from '../../components/view/view';
 import { Header, Main } from '../../components/layout';
 import { DarkmodeToggleSetting } from './components/settingsItems/darkmodeToggleSetting';
-import { DefaultCurrencySetting } from './components/settingsItems/defaultCurrencySetting';
+import { DefaultCurrencyDropdownSetting } from './components/settingsItems/defaultCurrencyDropdownSetting';
 import { DisplaySatsToggleSetting } from './components/settingsItems/displaySatsToggleSetting';
 import style from './appearance.module.css';
 import { LanguageDropdownSetting } from './components/settingsItems/languageDropdownSetting';
@@ -17,7 +17,7 @@ export const Appearance = () => {
       <View fullscreen={false}>
         <ViewContent>
           <ContentContainer>
-            <DefaultCurrencySetting />
+            <DefaultCurrencyDropdownSetting />
             <ActiveCurrenciesDropdownSetting />
             <LanguageDropdownSetting />
             <DarkmodeToggleSetting />
