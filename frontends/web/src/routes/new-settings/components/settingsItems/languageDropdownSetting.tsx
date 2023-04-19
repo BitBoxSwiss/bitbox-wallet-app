@@ -1,7 +1,7 @@
 import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
 import { i18n as Ii18n } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { TActiveLanguageCodes, TLanguage, TLanguagesList } from '../../language/types';
+import { TActiveLanguageCodes, TLanguage, TLanguagesList } from '../../../../components/language/types';
 import Select from 'react-select';
 import styles from './defaultCurrencySetting.module.css';
 
@@ -84,7 +84,7 @@ export const LanguageDropdownSetting = () => {
   return (
     <SettingsItemContainer
       settingName="Language"
-      secondaryText="Which language you want the BitBoxApp to use"
+      secondaryText="Which language you want the BitBoxApp to use."
       extraComponent={<ReactSelect options={formattedLanguages} handleChange={i18n.changeLanguage} selectedLanguage={selectedLanguage} />}
     />
   );
