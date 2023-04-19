@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
 import { View, ViewContent } from '../../components/view/view';
 import { Header, Main } from '../../components/layout';
-import { DarkmodeToggleSetting } from './components/settingsItems/darkmodeToggleSetting';
-import { DefaultCurrencyDropdownSetting } from './components/settingsItems/defaultCurrencyDropdownSetting';
-import { DisplaySatsToggleSetting } from './components/settingsItems/displaySatsToggleSetting';
+import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
+import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
+import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
+import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
+import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
 import style from './appearance.module.css';
-import { LanguageDropdownSetting } from './components/settingsItems/languageDropdownSetting';
-import { ActiveCurrenciesDropdownSetting } from './components/settingsItems/activeCurrenciesDropdownSetting';
 
 const ContentContainer = ({ children }: {children: ReactNode}) => <div className={style.contentContainer}>{children}</div>;
 
