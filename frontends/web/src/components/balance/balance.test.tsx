@@ -15,13 +15,14 @@
  */
 
 import { render } from '@testing-library/react';
-import { IBalance } from '../../api/account';
+import { TBalanceResult } from '../../api/account';
 import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 import { Balance } from './balance';
 
 describe('components/balance/balance', () => {
   it('renders balance properly', () => {
-    const MOCK_BALANCE: IBalance = {
+    const MOCK_BALANCE: TBalanceResult = {
+      success: true,
       hasAvailable: true,
       hasIncoming: true,
       available: {

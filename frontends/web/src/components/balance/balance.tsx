@@ -16,13 +16,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { IBalance } from '../../api/account';
+import { TBalanceResult } from '../../api/account';
 import { FiatConversion } from '../../components/rates/rates';
 import { bitcoinRemoveTrailingZeroes } from '../../utils/trailing-zeroes';
 import style from './balance.module.css';
 
 type TProps = {
-    balance?: IBalance;
+    balance?: TBalanceResult;
     noRotateFiat?: boolean;
 }
 
@@ -34,6 +34,11 @@ export const Balance = ({
   if (!balance) {
     return (
       <header className={style.balance}></header>
+    );
+  }
+  if (!balance.success) {
+    return (
+      <header className={style.balance}>{t('account.balanceError')}</header>
     );
   }
 

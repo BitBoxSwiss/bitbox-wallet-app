@@ -326,16 +326,24 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
+	var result struct {
+		Success      bool            `json:"success"`
+		HasAvailable bool            `json:"hasAvailable"`
+		Available    FormattedAmount `json:"available"`
+		HasIncoming  bool            `json:"hasIncoming"`
+		Incoming     FormattedAmount `json:"incoming"`
+	}
 	balance, err := handlers.account.Balance()
 	if err != nil {
-		return nil, err
+		handlers.log.WithError(err).Error("Error getting account balance")
+		return result, nil
 	}
-	return map[string]interface{}{
-		"hasAvailable": balance.Available().BigInt().Sign() > 0,
-		"available":    handlers.formatAmountAsJSON(balance.Available(), false),
-		"hasIncoming":  balance.Incoming().BigInt().Sign() > 0,
-		"incoming":     handlers.formatAmountAsJSON(balance.Incoming(), false),
-	}, nil
+	result.Success = true
+	result.HasAvailable = balance.Available().BigInt().Sign() > 0
+	result.Available = handlers.formatAmountAsJSON(balance.Available(), false)
+	result.HasIncoming = balance.Incoming().BigInt().Sign() > 0
+	result.Incoming = handlers.formatAmountAsJSON(balance.Incoming(), false)
+	return result, nil
 }
 
 type sendTxInput struct {
