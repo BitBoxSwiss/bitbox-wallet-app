@@ -48,7 +48,9 @@ func (device *Device) CreateBackup() error {
 	if !ok {
 		return errp.New("unexpected response")
 	}
-	device.changeStatus(StatusInitialized)
+	if device.status == StatusSeeded {
+		device.changeStatus(StatusInitialized)
+	}
 	return nil
 }
 

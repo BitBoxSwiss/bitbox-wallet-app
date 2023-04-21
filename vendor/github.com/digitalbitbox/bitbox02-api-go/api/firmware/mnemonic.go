@@ -37,6 +37,9 @@ func (device *Device) ShowMnemonic() error {
 	if !ok {
 		return errp.New("unexpected response")
 	}
+	if device.status == StatusSeeded {
+		device.changeStatus(StatusInitialized)
+	}
 	return nil
 }
 
