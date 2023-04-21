@@ -4,7 +4,7 @@ github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
-# github.com/btcsuite/btcd v0.23.1
+# github.com/btcsuite/btcd v0.23.4
 ## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
@@ -51,7 +51,7 @@ github.com/decred/dcrd/crypto/blake256
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230403145434-d71ecec2b7ad
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230421031421-e7f12bcd9a9a
 ## explicit; go 1.13
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common

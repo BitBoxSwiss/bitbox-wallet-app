@@ -3,11 +3,11 @@ module github.com/digitalbitbox/bitbox-wallet-app
 go 1.19
 
 require (
-	github.com/btcsuite/btcd v0.23.1
+	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcec/v2 v2.2.1
 	github.com/btcsuite/btcd/btcutil v1.1.2
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230403145434-d71ecec2b7ad
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230421031421-e7f12bcd9a9a
 	github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d
 	github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff
 	github.com/ethereum/go-ethereum v1.10.21

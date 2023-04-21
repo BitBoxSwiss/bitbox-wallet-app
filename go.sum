@@ -11,8 +11,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
 github.com/btcsuite/btcd v0.22.0-beta.0.20220111032746-97732e52810c/go.mod h1:tjmYdS6MLJ5/s0Fj4DbLgSbDHbEqLJrtnHecBFkdz5M=
 github.com/btcsuite/btcd v0.23.0/go.mod h1:0QJIIN1wwIXF/3G/m87gIwGniDMDQqjVn4SZgnFpsYY=
-github.com/btcsuite/btcd v0.23.1 h1:IB8cVQcC2X5mHbnfirLG5IZnkWYNTPlLZVrxUYSotbE=
-github.com/btcsuite/btcd v0.23.1/go.mod h1:0QJIIN1wwIXF/3G/m87gIwGniDMDQqjVn4SZgnFpsYY=
+github.com/btcsuite/btcd v0.23.4 h1:IzV6qqkfwbItOS/sg/aDfPDsjPP8twrCOE2R93hxMlQ=
+github.com/btcsuite/btcd v0.23.4/go.mod h1:0QJIIN1wwIXF/3G/m87gIwGniDMDQqjVn4SZgnFpsYY=
 github.com/btcsuite/btcd/btcec/v2 v2.1.0/go.mod h1:2VzYrv4Gm4apmbVVsSq5bqf1Ec8v56E48Vt0Y/umPgA=
 github.com/btcsuite/btcd/btcec/v2 v2.1.3/go.mod h1:ctjw4H1kknNJmRN4iP1R7bTQ+v3GJkZBd6mui8ZsAZE=
 github.com/btcsuite/btcd/btcec/v2 v2.2.1 h1:xP60mv8fvp+0khmrN0zTdPC3cNm24rfeE6lh2R/Yv3E=
@@ -51,8 +51,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 h1:YLtO71vCjJRCBcrPMtQ9nqBsqpA1
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1/go.mod h1:hyedUtir6IdtD/7lIxGeCxkaw7y45JueMRL4DIyJDKs=
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230403145434-d71ecec2b7ad h1:b6Syq3D/31bOEKjcJN1PVp95Ts7ZK0xixiqUPXtaXoQ=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230403145434-d71ecec2b7ad/go.mod h1:4HNNrzUZC3ew0iuD40MoGp6wAhcDw1UtGYBRjJkJF/k=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230421031421-e7f12bcd9a9a h1:OvlfoDTni2yXk+6YvoNT2KkJU6bp45fUBgN11aGlzeY=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230421031421-e7f12bcd9a9a/go.mod h1:FA63g3SOdHI8nPAJjKP7owPicmaav83FE0kCNvizVWk=
 github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d h1:hRjtOvL6k8Ie08XVUwzDNCSlP4wbwboVh1lkEtv0R40=
 github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d/go.mod h1:GvmItOHUQJD0Dx0o2ZPgKpwI9XP9JGAo5bTV0B2kbN8=
 github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff h1:2SjR45Wi7pjTnfEE1HEqVN0o+nxeyf9hvMLbI7aEEuM=

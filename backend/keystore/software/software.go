@@ -198,7 +198,7 @@ func (keystore *Keystore) SignTransaction(
 		}
 
 		if address.Configuration.ScriptType() == signing.ScriptTypeP2TR {
-			prv = txscript.TweakTaprootPrivKey(prv, nil)
+			prv = txscript.TweakTaprootPrivKey(*prv, nil)
 			signatureHash, err := txscript.CalcTaprootSignatureHash(
 				btcProposedTx.SigHashes, txscript.SigHashDefault, transaction,
 				index, btcProposedTx.PreviousOutputs)
