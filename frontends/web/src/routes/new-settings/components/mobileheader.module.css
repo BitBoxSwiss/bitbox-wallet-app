@@ -1,0 +1,21 @@
+.container {
+    align-items: center;
+    display: flex;
+    margin-bottom: var(--space-default);
+    position: relative;
+}
+
+.backButton {
+    color: var(--color-default);
+    display: block;
+    text-decoration: none;
+}
+
+.headerText {
+    font-size: var(--size-title);
+    font-weight: 400;
+    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
