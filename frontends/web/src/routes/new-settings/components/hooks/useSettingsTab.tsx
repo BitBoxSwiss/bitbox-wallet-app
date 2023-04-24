@@ -1,5 +1,6 @@
 import { Main, Header } from '../../../../components/layout';
 import { View, ViewContent } from '../../../../components/view/view';
+import Tabs from '../tabs';
 
 const useSettingsTab = (Component: () => JSX.Element) => {
   const ComponentWithTabs = () => (
@@ -7,6 +8,7 @@ const useSettingsTab = (Component: () => JSX.Element) => {
       <Header title={<h2>Settings</h2>} />
       <View fullscreen={false}>
         <ViewContent>
+          <Tabs />
           <Component />
         </ViewContent>
       </View>
