@@ -1,4 +1,4 @@
-import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
+import { SettingsItem } from '../settingsItem/settingsItem';
 import Select from 'react-select';
 import { store, setActiveFiat } from '../../../../components/rates/rates';
 import { Fiat } from '../../../../api/account';
@@ -32,7 +32,7 @@ export const DefaultCurrencyDropdownSetting = () => {
   const formattedCurrencies = store.state.selected.map((currency) => ({ label: currency, value: currency }));
 
   return (
-    <SettingsItemContainer
+    <SettingsItem
       settingName="Default Currency"
       secondaryText="Select your default currency."
       extraComponent={<ReactSelect options={formattedCurrencies} handleChange={setActiveFiat}/>}

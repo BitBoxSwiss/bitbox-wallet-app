@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '../../../../components/toggle/toggle';
-import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
+import { SettingsItem } from '../settingsItem/settingsItem';
 import { useLoad } from '../../../../hooks/api';
 import { getConfig } from '../../../../api/backend';
 import { setConfig } from '../../../../utils/config';
@@ -41,7 +41,7 @@ export const DisplaySatsToggleSetting = () => {
 
   return (
     <>
-      <SettingsItemContainer
+      <SettingsItem
         settingName={t('settings.expert.useSats')}
         secondaryText="Enable or disable Satoshis."
         extraComponent={

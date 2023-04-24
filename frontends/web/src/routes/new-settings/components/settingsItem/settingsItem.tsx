@@ -1,18 +1,21 @@
 import { ReactNode } from 'react';
-import styles from './settingsItemContainer.module.css';
+import styles from './settingsItem.module.css';
 
 type TProps = {
+  className?: string
     onClick?: () => void;
     settingName: string;
     secondaryText?: string | JSX.Element;
-    extraComponent?: ReactNode;
+  extraComponent?: ReactNode;
+
 }
 
-export const SettingsItemContainer = ({
+export const SettingsItem = ({
+  className,
   onClick,
   settingName,
   secondaryText,
-  extraComponent
+  extraComponent,
 }: TProps) => {
   const notButton = onClick === undefined;
 
@@ -33,11 +36,11 @@ export const SettingsItemContainer = ({
   return (
     <>
       {notButton ?
-        <div className={`${styles.container} ${styles.notButton}`} >
+        <div className={`${styles.container} ${styles.notButton} ${className}`} >
           {content}
         </div> :
         <button
-          className={styles.container}
+          className={`${styles.container} ${className}`}
           onClick={onClick}>
           {content}
         </button> }

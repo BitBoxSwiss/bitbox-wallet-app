@@ -39,3 +39,9 @@
 .notButton:focus {
     outline: none;
 }
+
+@media (max-width: 768px) { 
+    .container {
+         margin-bottom: 0;
+    }
+}

@@ -1,0 +1,37 @@
+import { useEffect } from 'react';
+import { View, ViewContent } from '../../components/view/view';
+import { Header, Main } from '../../components/layout';
+import { route } from '../../utils/route';
+import { useMediaQuery } from '../../hooks/mediaquery';
+import { Tabs } from './components/tabs';
+
+type TProps = {
+  deviceIDs: string[]
+}
+
+/**
+ * The "index" page of the settings
+ * that will only be shown on Mobile.
+ *
+ * The data will be the same as the "tabs"
+ * we see on Desktop, as it's the equivalent
+ * of "tabs" on Mobile.
+ **/
+export const MobileSettings = ({ deviceIDs }: TProps) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  useEffect(() => {
+    if (!isMobile) {
+      route('/new-settings/appearance');
+    }
+  }, [isMobile]);
+  return (
+    <Main>
+      <Header title={<h2>Settings</h2>} />
+      <View fullscreen={false}>
+        <ViewContent>
+          <Tabs deviceIDs={deviceIDs} />
+        </ViewContent>
+      </View>
+    </Main>
+  );
+};
