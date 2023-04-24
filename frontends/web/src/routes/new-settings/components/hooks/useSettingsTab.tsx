@@ -1,6 +1,7 @@
 import { Main, Header } from '../../../../components/layout';
 import { View, ViewContent } from '../../../../components/view/view';
 import { Tabs } from '../tabs';
+import { MobileHeader } from '../mobileheader';
 import { useTranslation } from 'react-i18next';
 
 export type TTab = {
@@ -25,6 +26,9 @@ const useSettingsTab = (Component: () => JSX.Element) => {
       <div className="hide-on-small"><Header title={<h2>Settings</h2>} /></div>
       <View fullscreen={false}>
         <ViewContent>
+          <div className="show-on-small">
+            <MobileHeader settingsTabsDetail={settingsTabsDetail} />
+          </div>
           <div className="hide-on-small">
             <Tabs settingsTabsDetail={settingsTabsDetail} />
           </div>
