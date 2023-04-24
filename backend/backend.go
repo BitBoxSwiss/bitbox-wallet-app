@@ -161,8 +161,8 @@ type Backend struct {
 	devices map[string]device.Interface
 
 	accountsAndKeystoreLock locker.Locker
+	accounts                accountsList
 	// keystore is nil if no keystore is connected.
-	accounts []accounts.Interface
 	keystore keystore.Keystore
 	aopp     AOPP
 
