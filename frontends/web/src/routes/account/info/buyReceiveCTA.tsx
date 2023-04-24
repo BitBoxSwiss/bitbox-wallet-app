@@ -16,14 +16,14 @@
 
 import { useTranslation } from 'react-i18next';
 import { route } from '../../../utils/route';
-import { CoinWithSAT, IBalance } from '../../../api/account';
+import { CoinWithSAT, TBalanceResult } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { Balances } from '../summary/accountssummary';
 import styles from './buyReceiveCTA.module.css';
 import { isBitcoinCoin } from '../utils';
 
 type TBuyReceiveCTAProps = {
-  balanceList?: [string, IBalance][];
+  balanceList?: [string, TBalanceResult][];
   code?: string;
   unit?: string;
 };
@@ -59,10 +59,10 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances }: {balances?: Balances}
     return null;
   }
   const balanceList = Object.entries(balances);
-  if (balanceList.some(entry => entry[1].hasAvailable)) {
+  if (balanceList.some(entry => !entry[1].success || entry[1].hasAvailable)) {
     return null;
   }
-  if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
+  if (balanceList.every(entry => entry[1].success && isBitcoinCoin(entry[1].available.unit))) {
     return <BuyReceiveCTA code={balanceList[0][0]} unit={'BTC'} balanceList={balanceList} />;
   }
   return <BuyReceiveCTA balanceList={balanceList} />;

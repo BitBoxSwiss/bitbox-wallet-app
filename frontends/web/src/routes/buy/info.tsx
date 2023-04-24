@@ -38,6 +38,21 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
 
   const { t } = useTranslation();
 
+  const getBalances = useCallback((options: TOption[]) => {
+    Promise.all(options.map((option) => (
+      getBalance(option.value).then(balance => {
+        return {
+          ...option,
+          balance: balance.success ?
+            `${balance.available.amount} ${balance.available.unit}` :
+            t('account.balanceError'),
+        };
+      })
+    ))).then(options => {
+      setOptions(options);
+    });
+  }, [t]);
+
   const checkSupportedCoins = useCallback(async () => {
     try {
       const supportedAccounts = await getExchangeSupportedAccounts(accounts);
@@ -49,7 +64,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       console.error(e);
     }
 
-  }, [accounts]);
+  }, [accounts, getBalances]);
 
   const maybeProceed = useCallback(() => {
     if (options !== undefined && options.length === 1) {
@@ -68,17 +83,6 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   useEffect(() => {
     maybeProceed();
   }, [maybeProceed, options]);
-
-
-  const getBalances = (options: TOption[]) => {
-    Promise.all(options.map((option) => (
-      getBalance(option.value).then(balance => {
-        return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
-      })
-    ))).then(options => {
-      setOptions(options);
-    });
-  };
 
   const handleProceed = () => {
     route(`/buy/exchange/${selected}`);

@@ -544,12 +544,7 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Balance() after a fatal error")
 	}
-	balance, err := account.transactions.Balance()
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	return balance, nil
+	return account.transactions.Balance()
 }
 
 func (account *Account) incAndEmitSyncCounter() {

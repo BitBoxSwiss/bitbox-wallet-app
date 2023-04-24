@@ -54,7 +54,7 @@ export function Account({
 }: Props) {
   const { t } = useTranslation();
 
-  const [balance, setBalance] = useState<accountApi.IBalance>();
+  const [balance, setBalance] = useState<accountApi.TBalanceResult>();
   const [status, setStatus] = useState<accountApi.IStatus>();
   const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
@@ -166,7 +166,7 @@ export function Account({
     return null;
   }
 
-  const canSend = balance && balance.hasAvailable;
+  const canSend = balance && balance.success && balance.hasAvailable;
 
   const initializingSpinnerText =
     (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
@@ -188,6 +188,7 @@ export function Account({
   const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
   const isAccountEmpty = balance
+    && balance.success
     && !balance.hasAvailable
     && !balance.hasIncoming
     && transactions
@@ -265,10 +266,10 @@ export function Account({
       </div>
       <AccountGuide
         account={account}
-        unit={balance?.available.unit}
-        hasIncomingBalance={balance && balance.hasIncoming}
+        unit={balance?.success ? balance?.available.unit : undefined}
+        hasIncomingBalance={balance && balance.success && balance.hasIncoming}
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'} />
+        hasNoBalance={balance && balance.success && balance.available.amount === '0'} />
     </div>
   );
 }

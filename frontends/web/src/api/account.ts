@@ -15,6 +15,7 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
+import { SuccessResponse } from './response';
 import { ChartData } from '../routes/account/summary/chart';
 
 export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth';
@@ -151,7 +152,9 @@ export interface IBalance {
     incoming: IAmount;
 }
 
-export const getBalance = (code: AccountCode): Promise<IBalance> => {
+export type TBalanceResult = { success: false } | (SuccessResponse & IBalance);
+
+export const getBalance = (code: AccountCode): Promise<TBalanceResult> => {
   return apiGet(`account/${code}/balance`);
 };
 

@@ -40,7 +40,7 @@ interface AccountSummaryProps {
 }
 
 export interface Balances {
-    [code: string]: accountApi.IBalance;
+    [code: string]: accountApi.TBalanceResult;
 }
 
 interface SyncStatus {
@@ -214,12 +214,17 @@ class AccountsSummary extends Component<Props, State> {
           { nameCol }
           <td data-label={t('accountSummary.balance')}>
             <span className={style.summaryTableBalance}>
-              {balance.available.amount}{' '}
-              <span className={style.coinUnit}>{balance.available.unit}</span>
+              { balance.success ? (
+                <>
+                  {balance.available.amount}{' '}
+                  <span className={style.coinUnit}>{balance.available.unit}</span>
+                </>
+              ) : <>{t('account.balanceError')}</>
+              }
             </span>
           </td>
           <td data-label={t('accountSummary.fiatBalance')}>
-            <FiatConversion amount={balance.available} noAction={true} />
+            { balance.success && <FiatConversion amount={balance.available} noAction={true} /> }
           </td>
         </tr>
       );

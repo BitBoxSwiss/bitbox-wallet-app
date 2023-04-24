@@ -1,5 +1,6 @@
 {
   "account": {
+    "balanceError": "Error retrieving balance",
     "disconnect": "Connection lost. Retrying…",
     "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",

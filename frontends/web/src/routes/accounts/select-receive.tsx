@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBalance, IAccount } from '../../api/account';
 import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
@@ -31,13 +31,26 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
   const [code, setCode] = useState('');
   const { t } = useTranslation();
 
+  const getBalances = useCallback(async (options: TOption[]) => {
+    return Promise.all(options.map((option) => (
+      getBalance(option.value).then(balance => {
+        return {
+          ...option,
+          balance: balance.success ?
+            `${balance.available.amount} ${balance.available.unit}` :
+            t('account.balanceError'),
+        };
+      })
+    )));
+  }, [t]);
+
   useEffect(() => {
     const options = activeAccounts.map(account => ({ label: account.name, value: account.code, disabled: false, coinCode: account.coinCode } as TOption));
     //setting options without balance
     setOptions(options);
     //asynchronously fetching each account's balance
     getBalances(options).then(options => setOptions(options));
-  }, [activeAccounts]);
+  }, [activeAccounts, getBalances]);
 
   const handleProceed = () => {
     route(`/account/${code}/receive`);
@@ -46,14 +59,6 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
   const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
 
   const title = t('receive.title', { accountName: hasOnlyBTCAccounts ? 'Bitcoin' : t('buy.info.crypto') });
-
-  const getBalances = async (options: TOption[]) => {
-    return Promise.all(options.map((option) => (
-      getBalance(option.value).then(balance => {
-        return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
-      })
-    )));
-  };
 
   return (
     <>
@@ -67,4 +72,3 @@ export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSele
 
   );
 };
-

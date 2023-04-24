@@ -62,7 +62,7 @@ type Props = SendProps & TranslateProps;
 
 interface State {
     account?: accountApi.IAccount;
-    balance?: accountApi.IBalance;
+    balance?: accountApi.TBalanceResult;
     proposedFee?: accountApi.IAmount;
     proposedTotal?: accountApi.IAmount;
     recipientAddress: string;
@@ -680,7 +680,7 @@ class Send extends Component<Props, State> {
                     type="number"
                     step="any"
                     min="0"
-                    label={balance ? balance.available.unit : t('send.amount.label')}
+                    label={balance && balance.success ? balance.available.unit : t('send.amount.label')}
                     id="amount"
                     onInput={this.handleFormChange}
                     disabled={sendAll}
