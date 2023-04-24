@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    padding-left: var(--space-half);
+    margin: var(--space-default) 0;
+    margin-top: 0;
+}
+
+.container a {
+    margin-right: var(--space-default);
+    font-size: var(--size-subheader);
+    text-decoration: none;
+}
+
+.container a.active{
+    padding-bottom: var(--space-half);
+    border-bottom: 2px solid var(--color-blue);
+}
