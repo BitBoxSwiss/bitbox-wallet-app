@@ -10,7 +10,7 @@ type SelectOption = {
 }
 
 type TSelectProps = {
-  options: SelectOption[]
+  options: SelectOption[];
   selectedCurrencies: SelectOption[];
 }
 

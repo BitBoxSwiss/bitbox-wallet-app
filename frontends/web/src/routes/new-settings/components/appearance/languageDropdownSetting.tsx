@@ -11,7 +11,7 @@ type SelectOption = {
 }
 
 type TSelectProps = {
-  options: SelectOption[]
+  options: SelectOption[];
   handleChange: (langCode: TActiveLanguageCodes) => void;
   selectedLanguage: TLanguage;
 }
