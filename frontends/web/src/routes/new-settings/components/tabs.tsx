@@ -1,24 +1,16 @@
-import styles from './tabs.module.css';
 import { NavLink } from 'react-router-dom';
+import { TTab } from './hooks/useSettingsTab';
+import styles from './tabs.module.css';
 
-type TTab = {
-    url: string;
-    tabName: string;
+type TProps = {
+  settingsTabsDetail: TTab[];
 }
 
-const Tabs = () => {
-
-  const settingsTabs: TTab[] = [
-    { url: '/new-settings/appearance', tabName: 'Appearance' },
-    { url: '/new-settings/manage-accounts', tabName: 'Manage accounts' },
-    { url: '/new-settings/device-settings', tabName: 'Device settings' },
-    { url: '/new-settings/advanced-settings', tabName: 'Advanced settings' },
-    { url: '/new-settings/about', tabName: 'About' },
-  ];
+export const Tabs = ({ settingsTabsDetail }: TProps) => {
 
   return (
     <div className={styles.container}>
-      {settingsTabs.map(tab => (
+      {settingsTabsDetail.map(tab => (
         <NavLink
           className={({ isActive }) => isActive ? styles.active : ''}
           to={tab.url}
@@ -29,5 +21,3 @@ const Tabs = () => {
     </div>
   );
 };
-
-export default Tabs;
