@@ -62,6 +62,37 @@ func mustXKey(key string) *hdkeychain.ExtendedKey {
 	return xkey
 }
 
+// A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
+// legacy P2PKH.
+func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
+	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
+	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
+	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
+	keystoreHelper := software.NewKeystore(rootKey)
+
+	return &keystoremock.KeystoreMock{
+		RootFingerprintFunc: func() ([]byte, error) {
+			return fingerprint, nil
+		},
+		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+			switch coin.(type) {
+			case *btc.Coin:
+				scriptType := meta.(signing.ScriptType)
+				return scriptType != signing.ScriptTypeP2PKH
+			default:
+				return true
+			}
+		},
+		SupportsMultipleAccountsFunc: func() bool {
+			return true
+		},
+		SupportsUnifiedAccountsFunc: func() bool {
+			return true
+		},
+		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+	}
+}
+
 func TestSortAccounts(t *testing.T) {
 	xpub, err := hdkeychain.NewMaster(make([]byte, 32), &chaincfg.TestNet3Params)
 	require.NoError(t, err)
@@ -146,7 +177,7 @@ func TestNextAccountNumber(t *testing.T) {
 	require.NoError(t, err)
 
 	accountsConfig := &config.AccountsConfig{
-		Accounts: []config.Account{
+		Accounts: []*config.Account{
 			{
 				CoinCode: coinpkg.CodeBTC,
 				SigningConfigurations: signing.Configurations{
@@ -389,34 +420,12 @@ func TestSupportedCoins(t *testing.T) {
 }
 
 func TestCreateAndPersistAccountConfig(t *testing.T) {
+	bitbox02LikeKeystore := makeBitbox02LikeKeystore()
+
+	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
-	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
-
-	// A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
-	// legacy P2PKH.
-	bitbox02LikeKeystore := &keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return fingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
-				return true
-			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
 
 	// A keystore with a similar config to a BitBox01 - supports legacy P2PKH, but no unified
 	// accounts or multiple accounts. Ethereum is also not supported.
@@ -911,35 +920,7 @@ func TestAccountSupported(t *testing.T) {
 }
 
 func TestInactiveAccount(t *testing.T) {
-	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
-	keystoreHelper := software.NewKeystore(rootKey)
-	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
-
-	// A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
-	// legacy P2PKH.
-	bitbox02LikeKeystore := &keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return fingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
-				return true
-			}
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
-
+	bitbox02LikeKeystore := makeBitbox02LikeKeystore()
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -1107,4 +1088,15 @@ func TestTaprootUpgrade(t *testing.T) {
 	require.Equal(t,
 		btcAccount.Config().Config.SigningConfigurations,
 		b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").SigningConfigurations)
+}
+
+func TestRenameAccount(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	b.registerKeystore(makeBitbox02LikeKeystore())
+
+	require.NoError(t, b.RenameAccount("v0-55555555-btc-0", "renamed"))
+	require.Equal(t, "renamed", b.accounts.lookup("v0-55555555-btc-0").Config().Config.Name)
+	require.Equal(t, "renamed", b.config.AccountsConfig().Lookup("v0-55555555-btc-0").Name)
 }

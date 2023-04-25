@@ -58,21 +58,20 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 
 // AccountsConfig persists the list of accounts added to the app.
 type AccountsConfig struct {
-	Accounts []Account `json:"accounts"`
+	Accounts []*Account `json:"accounts"`
 }
 
 // newDefaultAccountsonfig returns the default accounts config.
 func newDefaultAccountsonfig() AccountsConfig {
 	return AccountsConfig{
-		Accounts: []Account{},
+		Accounts: []*Account{},
 	}
 }
 
 // Lookup returns the account with the given code, or nil if no such account exists.
 // A reference is returned, so the account can be modified by the caller.
 func (cfg AccountsConfig) Lookup(code accountsTypes.Code) *Account {
-	for i := range cfg.Accounts {
-		acct := &cfg.Accounts[i]
+	for _, acct := range cfg.Accounts {
 		if acct.Code == code {
 			return acct
 		}

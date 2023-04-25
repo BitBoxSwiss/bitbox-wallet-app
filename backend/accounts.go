@@ -126,8 +126,7 @@ func sortAccounts(accounts []accounts.Interface) {
 // accounts are not loaded in mainnet and vice versa.
 func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.Account) bool) []*config.Account {
 	var accounts []*config.Account
-	for idx := range accountsConfig.Accounts {
-		account := &accountsConfig.Accounts[idx]
+	for _, account := range accountsConfig.Accounts {
 		if !backend.arguments.Regtest() {
 			if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
 				// Don't load testnet accounts when running normally, nor mainnet accounts when running
@@ -406,11 +405,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	if err != nil {
 		return err
 	}
-	acct := backend.accounts.lookup(accountCode)
-	if acct != nil {
-		acct.Config().Config.Name = name
-		backend.emitAccountsStatusChanged()
-	}
+	backend.emitAccountsStatusChanged()
 	return nil
 }
 
@@ -511,8 +506,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	if account.Name == "" {
 		return errp.New("Account name cannot be empty")
 	}
-	for idx := range accountsConfig.Accounts {
-		account2 := &accountsConfig.Accounts[idx]
+	for _, account2 := range accountsConfig.Accounts {
 		if account.Code == account2.Code {
 			backend.log.Errorf("An account with same code exists: %s", account.Code)
 			return errp.WithStack(ErrAccountAlreadyExists)
@@ -530,7 +524,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 
 		}
 	}
-	accountsConfig.Accounts = append(accountsConfig.Accounts, account)
+	accountsConfig.Accounts = append(accountsConfig.Accounts, &account)
 	return nil
 }
 
