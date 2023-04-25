@@ -5,7 +5,7 @@ import { LanguageDropdownSetting } from './components/appearance/languageDropdow
 import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
 import useSettingsTab from './components/hooks/useSettingsTab';
 
-const ApperanceWithoutTabs = () => {
+const AppearanceWithoutTabs = () => {
   return (
     <>
       <DefaultCurrencyDropdownSetting />
@@ -18,7 +18,7 @@ const ApperanceWithoutTabs = () => {
 };
 
 export const Appearance = () => {
-  const WithTabs = useSettingsTab(ApperanceWithoutTabs);
+  const WithTabs = useSettingsTab(AppearanceWithoutTabs);
   return (
     <WithTabs />
   );
