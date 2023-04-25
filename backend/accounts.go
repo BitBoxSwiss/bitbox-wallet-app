@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
@@ -42,37 +43,79 @@ const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 // limit, but simply use a hard limit for simplicity.
 const accountsHardLimit = 5
 
-// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
-func sortAccounts(accounts []*config.Account) {
-	compareCoin := func(coin1, coin2 coinpkg.Code) int {
-		order := map[coinpkg.Code]int{
-			coinpkg.CodeBTC:   0,
-			coinpkg.CodeTBTC:  1,
-			coinpkg.CodeLTC:   2,
-			coinpkg.CodeTLTC:  3,
-			coinpkg.CodeETH:   4,
-			coinpkg.CodeGOETH: 6,
+type accountsList []accounts.Interface
+
+func (a accountsList) lookup(code accountsTypes.Code) accounts.Interface {
+	for _, acct := range a {
+		if acct.Config().Config.Code == code {
+			return acct
 		}
-		order1, ok1 := order[coin1]
-		order2, ok2 := order[coin2]
+	}
+	return nil
+}
+
+// sortAccounts sorts the accounts in-place by 1) coin 2) account number.
+func sortAccounts(accounts []accounts.Interface) {
+	compareCoin := func(coin1, coin2 coinpkg.Coin) int {
+		getOrder := func(c coinpkg.Coin) (int, bool) {
+			order, ok := map[coinpkg.Code]int{
+				coinpkg.CodeBTC:  0,
+				coinpkg.CodeTBTC: 1,
+				coinpkg.CodeLTC:  2,
+				coinpkg.CodeTLTC: 3,
+			}[c.Code()]
+			if ok {
+				return order, true
+			}
+			// We want to sort ETH and ERC20 tokens with the same priority even though they have
+			// different coin codes, so we use the chain ID.
+			ethCoin, ok := c.(*eth.Coin)
+			if ok {
+				switch ethCoin.ChainID() {
+				case params.MainnetChainConfig.ChainID.Uint64():
+					return 4, true
+				case params.GoerliChainConfig.ChainID.Uint64():
+					return 5, true
+				}
+			}
+			return 0, false
+		}
+		order1, ok1 := getOrder(coin1)
+		order2, ok2 := getOrder(coin2)
 		if !ok1 || !ok2 {
 			// In case we deal with a coin we didn't specify, we fallback to ordering by coin code.
-			return strings.Compare(string(coin1), string(coin2))
+			return strings.Compare(string(coin1.Code()), string(coin2.Code()))
 		}
 		return order1 - order2
 	}
 	less := func(i, j int) bool {
 		acct1 := accounts[i]
 		acct2 := accounts[j]
-		coinCmp := compareCoin(acct1.CoinCode, acct2.CoinCode)
-		if coinCmp == 0 && len(acct1.SigningConfigurations) > 0 && len(acct2.SigningConfigurations) > 0 {
-			signingCfg1 := acct1.SigningConfigurations[0]
-			signingCfg2 := acct2.SigningConfigurations[0]
+		coinCmp := compareCoin(acct1.Coin(), acct2.Coin())
+		if coinCmp == 0 && len(acct1.Config().Config.SigningConfigurations) > 0 && len(acct2.Config().Config.SigningConfigurations) > 0 {
+			signingCfg1 := acct1.Config().Config.SigningConfigurations[0]
+			signingCfg2 := acct2.Config().Config.SigningConfigurations[0]
 			// An error should never happen here, but if it does, we just sort as if it was account
 			// number 0.
 			accountNumber1, _ := signingCfg1.AccountNumber()
 			accountNumber2, _ := signingCfg2.AccountNumber()
-			return accountNumber1 < accountNumber2
+			if accountNumber1 != accountNumber2 {
+				return accountNumber1 < accountNumber2
+			}
+			// Same coin, same account number: for ETH coins, put regular account first, followed by
+			// its children ERC20 token accounts.
+			ethCoin1, ok1 := acct1.Coin().(*eth.Coin)
+			ethCoin2, ok2 := acct2.Coin().(*eth.Coin)
+			if ok1 && ok2 {
+				if ethCoin1.ERC20Token() != nil && ethCoin2.ERC20Token() != nil {
+					// ERC20 tokens sorted by code.
+					return acct1.Config().Config.Code < acct2.Config().Config.Code
+				}
+				// ETH parent account comes before its ERC20 tokens.
+				return ethCoin2.ERC20Token() != nil
+			}
+			// Unspecified account ordering: default to ordering by code.
+			return acct1.Config().Config.Code < acct2.Config().Config.Code
 		}
 		return coinCmp < 0
 	}
@@ -109,7 +152,6 @@ func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, fi
 		}
 		accounts = append(accounts, account)
 	}
-	sortAccounts(accounts)
 	return accounts
 }
 
@@ -364,7 +406,11 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	if err != nil {
 		return err
 	}
-	backend.ReinitializeAccounts()
+	acct := backend.accounts.lookup(accountCode)
+	if acct != nil {
+		acct.Config().Config.Name = name
+		backend.emitAccountsStatusChanged()
+	}
 	return nil
 }
 

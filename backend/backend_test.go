@@ -187,8 +187,8 @@ func TestAccounts(t *testing.T) {
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
 	require.Len(t, b.Accounts(), 6)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[4].Config().Config.Code)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[5].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Config.Code)
+	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[5].Config().Config.Code)
 
 	// 4) Deactivate an ETH token
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))

@@ -22,8 +22,8 @@ import { PasswordSingleInput } from '../../../components/password';
 export const SkipForTesting = () => {
   const [testPIN, setTestPIN] = useState('');
   const registerTestingDevice = async (e: React.SyntheticEvent) => {
-    await testRegister(testPIN);
     e.preventDefault();
+    await testRegister(testPIN);
   };
   const handleFormChange = (value: string) => {
     setTestPIN(value);

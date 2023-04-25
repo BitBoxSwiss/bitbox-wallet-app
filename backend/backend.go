@@ -161,8 +161,8 @@ type Backend struct {
 	devices map[string]device.Interface
 
 	accountsAndKeystoreLock locker.Locker
+	accounts                accountsList
 	// keystore is nil if no keystore is connected.
-	accounts []accounts.Interface
 	keystore keystore.Keystore
 	aopp     AOPP
 
@@ -410,6 +410,7 @@ func (backend *Backend) Testing() bool {
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() []accounts.Interface {
 	defer backend.accountsAndKeystoreLock.RLock()()
+	sortAccounts(backend.accounts)
 	return backend.accounts
 }
 
