@@ -135,6 +135,11 @@ func (account *Account) FilesFolder() string {
 	return account.dbSubfolder
 }
 
+func (account *Account) isClosed() bool {
+	defer account.initializedLock.RLock()()
+	return account.quitChan == nil
+}
+
 func (account *Account) isInitialized() bool {
 	defer account.initializedLock.RLock()()
 	return account.initialized
@@ -142,12 +147,18 @@ func (account *Account) isInitialized() bool {
 
 // Initialize implements accounts.Interface.
 func (account *Account) Initialize() error {
-	// Early return that does not require a write-lock.
+	// Early returns that do not require a write-lock.
+	if account.isClosed() {
+		return errp.New("Initialize: account was closed, init only works once.")
+	}
 	if account.isInitialized() {
 		return nil
 	}
 
 	defer account.initializedLock.Lock()()
+	if account.quitChan == nil {
+		return errp.New("Initialize: account was closed, init only works once.")
+	}
 	if account.initialized {
 		return nil
 	}
@@ -403,9 +414,8 @@ func (account *Account) FatalError() bool {
 
 // Close implements accounts.Interface.
 func (account *Account) Close() {
+	defer account.initializedLock.Lock()()
 	account.BaseAccount.Close()
-	account.log.Info("Waiting to close account")
-	account.Synchronizer.WaitSynchronized()
 	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
@@ -414,6 +424,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	close(account.quitChan)
+	account.quitChan = nil
 	account.Config().OnEvent(accountsTypes.EventStatusChanged)
 }
 

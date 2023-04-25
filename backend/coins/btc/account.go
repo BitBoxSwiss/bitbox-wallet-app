@@ -112,8 +112,7 @@ type Account struct {
 
 	fatalError atomic.Bool
 
-	closed     bool
-	closedLock locker.Locker
+	closed bool
 
 	log *logrus.Entry
 }
@@ -270,16 +269,18 @@ func (account *Account) isInitialized() bool {
 
 // Initialize initializes the account.
 func (account *Account) Initialize() error {
+	// Early returns that do not require a write-lock.
 	if account.isClosed() {
 		return errp.New("Initialize: account was closed, init only works once.")
 	}
-
-	// Early return that does not require a write-lock.
 	if account.isInitialized() {
 		return nil
 	}
 
 	defer account.initializedLock.Lock()()
+	if account.closed {
+		return errp.New("Initialize: account was closed, init only works once.")
+	}
 	if account.initialized {
 		return nil
 	}
@@ -322,7 +323,6 @@ func (account *Account) Initialize() error {
 	account.coin.Initialize()
 	account.SetOffline(account.coin.Blockchain().ConnectionError())
 	account.coin.Blockchain().RegisterOnConnectionErrorChangedEvent(onConnectionStatusChanged)
-
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
@@ -433,7 +433,7 @@ func (account *Account) FatalError() bool {
 
 // Close stops the account.
 func (account *Account) Close() {
-	defer account.closedLock.Lock()()
+	defer account.initializedLock.Lock()()
 	if account.closed {
 		account.log.Debug("account aleady closed")
 		return
@@ -459,7 +459,7 @@ func (account *Account) Close() {
 }
 
 func (account *Account) isClosed() bool {
-	defer account.closedLock.RLock()()
+	defer account.initializedLock.RLock()()
 	return account.closed
 }
 
@@ -609,6 +609,11 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 		account.Config().OnEvent(accountsTypes.EventStatusChanged)
 		return
 	}
+	// Safe some work in case account was closed in the meantime.
+	if account.isClosed() {
+		account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
+		return
+	}
 
 	account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 	account.incAndEmitSyncCounter()
@@ -620,11 +625,6 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
 func (account *Account) ensureAddresses() {
-	if account.isClosed() {
-		account.log.Debug("Stopping ensureAddresses as the account was closed")
-		return
-	}
-
 	defer account.Synchronizer.IncRequestsCounter()()
 
 	syncSequence := func(addressChain *addresses.AddressChain) {
