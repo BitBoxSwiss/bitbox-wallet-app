@@ -24,6 +24,8 @@ import (
 
 // Account holds information related to an account.
 type Account struct {
+	// Used is true if the account has a transaction history.
+	Used bool `json:"used"`
 	// Inactive is true if the account should not be loaded in the sidebar and portfolio. It will
 	// still be shown in 'Manage accounts'.
 	Inactive              bool                   `json:"inactive"`

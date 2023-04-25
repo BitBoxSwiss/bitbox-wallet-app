@@ -417,6 +417,7 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
 	}
+	go backend.checkAccountUsed(account)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -852,4 +853,33 @@ func (backend *Backend) uninitAccounts() {
 		account.Close()
 	}
 	backend.accounts = []accounts.Interface{}
+}
+
+func (backend *Backend) checkAccountUsed(account accounts.Interface) {
+	log := backend.log.WithField("accountCode", account.Config().Config.Code)
+	if err := account.Initialize(); err != nil {
+		log.WithError(err).Error("error initializing account")
+		return
+	}
+	txs, err := account.Transactions()
+	if err != nil {
+		log.WithError(err).Error("discoverAccount")
+		return
+	}
+	if len(txs) == 0 {
+		return
+	}
+	log.Info("marking account as used")
+	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(account.Config().Config.Code)
+		if acct == nil {
+			return errp.Newf("could not find account")
+		}
+		acct.Used = true
+		return nil
+	})
+	if err != nil {
+		log.WithError(err).Error("checkAccountUsed")
+		return
+	}
 }
