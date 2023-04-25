@@ -6,9 +6,17 @@
 }
 
 .backButton {
+    background-color: transparent;
+    border: none;
     color: var(--color-default);
     display: block;
+    font-size: var(--size-title);
+    padding: var(--space-quarter);
     text-decoration: none;
+}
+
+.backButton:focus {
+    outline: none;
 }
 
 .headerText {
