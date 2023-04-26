@@ -45,6 +45,7 @@ import guideSVG from './assets/icons/guide.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import warningPNG from './assets/icons/warning.png';
+import rightChevronSVG from './assets/icons/right-chevron.svg';
 import saveSVG from './assets/icons/save.svg';
 import saveLightSVG from './assets/icons/save-light.svg';
 import starSVG from './assets/icons/star.svg';
@@ -146,6 +147,7 @@ export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
+export const RightChevron = (props: ImgProps) => (<img src={rightChevronSVG} draggable={false} {...props} />);
 export const Save = (props: ImgProps) => (<img src={saveSVG} draggable={false} {...props} />);
 export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);

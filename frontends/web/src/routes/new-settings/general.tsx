@@ -21,22 +21,27 @@ export const GeneralSettings = () => {
           <SettingsItemContainer
             settingName="Appearance"
             onClick={() => route('/new-settings/appearance')}
+            showRightChevron
           />
           <SettingsItemContainer
             settingName="Manage Accounts"
             onClick={() => route('/new-settings/manage-accounts')}
+            showRightChevron
           />
           <SettingsItemContainer
             settingName="Device Settings"
             onClick={() => route('/new-settings/device-settings')}
+            showRightChevron
           />
           <SettingsItemContainer
             settingName="Advanced Settings"
             onClick={() => route('/new-settings/advanced-settings')}
+            showRightChevron
           />
           <SettingsItemContainer
             settingName="About"
             onClick={() => route('/new-settings/about')}
+            showRightChevron
           />
         </ViewContent>
 
