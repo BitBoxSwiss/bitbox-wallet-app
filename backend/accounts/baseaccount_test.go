@@ -106,8 +106,11 @@ func TestBaseAccount(t *testing.T) {
 		CodeFunc: func() coin.Code {
 			return coin.CodeTBTC
 		},
-		SmallestUnitFunc: func() string {
-			return "satoshi"
+		GetFormatUnitFunc: func(bool) string {
+			return "sat"
+		},
+		FormatAmountFunc: func(amount coin.Amount, isFee bool) string {
+			return amount.BigInt().String()
 		},
 	}
 	account := NewBaseAccount(cfg, mockCoin, logging.Get().WithGroup("baseaccount_test"))
@@ -195,8 +198,8 @@ func TestBaseAccount(t *testing.T) {
 		timestamp := time.Date(2020, 2, 30, 16, 44, 20, 0, time.UTC)
 		require.Equal(t,
 			header+
-				`2020-03-01T16:44:20Z,sent,123,satoshi,101,some-address,some-tx-id,"some note, with a comma"
-2020-03-01T16:44:20Z,sent_to_yourself,456,satoshi,,another-address,some-tx-id,"some note, with a comma"
+				`2020-03-01T16:44:20Z,sent,123,sat,101,some-address,some-tx-id,"some note, with a comma"
+2020-03-01T16:44:20Z,sent_to_yourself,456,sat,,another-address,some-tx-id,"some note, with a comma"
 `,
 			export([]*TransactionData{
 				{

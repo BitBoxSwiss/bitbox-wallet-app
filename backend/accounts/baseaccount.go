@@ -286,9 +286,9 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 		feeString := ""
 		fee := transaction.Fee
 		if fee != nil {
-			feeString = fee.BigInt().String()
+			feeString = account.Coin().FormatAmount(*fee, true)
 		}
-		unit := account.Coin().SmallestUnit()
+		unit := account.Coin().GetFormatUnit(false)
 		timeString := ""
 		if transaction.Timestamp != nil {
 			timeString = transaction.Timestamp.Format(time.RFC3339)
@@ -300,7 +300,7 @@ func (account *BaseAccount) ExportCSV(w io.Writer, transactions []*TransactionDa
 			err := writer.Write([]string{
 				timeString,
 				transactionType,
-				addressAndAmount.Amount.BigInt().String(),
+				account.Coin().FormatAmount(addressAndAmount.Amount, false),
 				unit,
 				feeString,
 				addressAndAmount.Address,
