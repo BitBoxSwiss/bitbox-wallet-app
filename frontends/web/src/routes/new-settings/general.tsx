@@ -1,10 +1,17 @@
+import { useEffect } from 'react';
 import { View, ViewContent } from '../../components/view/view';
 import { Header, Main } from '../../components/layout';
 import { SettingsItemContainer } from './components/settingsItemContainer/settingsItemContainer';
 import { route } from '../../utils/route';
+import { useMediaQuery } from '../../hooks/mediaquery';
 
 export const GeneralSettings = () => {
-
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  useEffect(() => {
+    if (!isMobile) {
+      route('/new-settings/appearance');
+    }
+  }, [isMobile]);
   return (
     <Main>
       <Header title={<h2>Settings</h2>} />
