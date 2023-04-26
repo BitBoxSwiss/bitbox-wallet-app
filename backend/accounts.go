@@ -447,7 +447,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		account = btc.NewAccount(
+		account = backend.makeBtcAccount(
 			accountConfig,
 			specificCoin,
 			backend.arguments.GapLimits(),
@@ -455,7 +455,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		)
 		backend.addAccount(account)
 	case *eth.Coin:
-		account = eth.NewAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
+		account = backend.makeEthAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
 		backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.

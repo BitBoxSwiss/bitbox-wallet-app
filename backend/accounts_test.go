@@ -18,14 +18,17 @@ import (
 	"context"
 	"errors"
 	"math/big"
+	"net/http"
 	"testing"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsMocks "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/mocks"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	blockchainMocks "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
@@ -39,9 +42,12 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -309,6 +315,82 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 		environment{},
 	)
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
+
+	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
+		return &accountsMocks.InterfaceMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				return nil
+			},
+			CoinFunc: func() coinpkg.Coin {
+				return coin
+			},
+			ConfigFunc: func() *accounts.AccountConfig {
+				return config
+			},
+			InitializeFunc: func() error {
+				return nil
+			},
+			TransactionsFunc: func() (accounts.OrderedTransactions, error) {
+				return nil, nil
+			},
+			GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+				result := []accounts.AddressList{}
+				for _, signingConfig := range config.Config.SigningConfigurations {
+					addressChain := addresses.NewAddressChain(
+						signingConfig,
+						coin.Net(), 20, 0,
+						func(*addresses.AccountAddress) (bool, error) {
+							return false, nil
+						},
+						log)
+					addresses, err := addressChain.EnsureAddresses()
+					require.NoError(t, err)
+					scriptType := signingConfig.ScriptType()
+					result = append(result, accounts.AddressList{
+						ScriptType: &scriptType,
+						Addresses: []accounts.Address{
+							addresses[0],
+						},
+					})
+
+				}
+				return result
+			},
+			CloseFunc: func() {},
+		}
+	}
+	b.makeEthAccount = func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+		return &accountsMocks.InterfaceMock{
+			ObserveFunc: func(func(observable.Event)) func() {
+				return nil
+			},
+			CoinFunc: func() coinpkg.Coin {
+				return coin
+			},
+			ConfigFunc: func() *accounts.AccountConfig {
+				return config
+			},
+			InitializeFunc: func() error {
+				return nil
+			},
+			TransactionsFunc: func() (accounts.OrderedTransactions, error) {
+				return nil, nil
+			},
+			GetUnusedReceiveAddressesFunc: func() []accounts.AddressList {
+				return []accounts.AddressList{
+					{
+						Addresses: []accounts.Address{
+							eth.Address{
+								Address: crypto.PubkeyToAddress(
+									*config.Config.SigningConfigurations[0].PublicKey().ToECDSA()),
+							},
+						},
+					},
+				}
+			},
+			CloseFunc: func() {},
+		}
+	}
 
 	// avoid hitting real API for BTC coins.
 	for _, code := range []coinpkg.Code{
@@ -755,8 +837,6 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Len(t, b.accounts, 1)
 	// Check some properties of the newly added account.
 	acct := b.accounts[0]
-	_, ok := acct.(*btc.Account)
-	require.True(t, ok)
 	require.Equal(t, accountsTypes.Code("test-btc-account-code"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Bitcoin account name", acct.Config().Config.Name)
@@ -776,8 +856,6 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Len(t, b.accounts, 2)
 	// Check some properties of the newly added account.
 	acct = b.accounts[1]
-	_, ok = acct.(*btc.Account)
-	require.True(t, ok)
 	require.Equal(t, accountsTypes.Code("test-ltc-account-code"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Litecoin account name", acct.Config().Config.Name)
@@ -799,15 +877,11 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Len(t, b.accounts, 4)
 	// Check some properties of the newly added account.
 	acct = b.accounts[2]
-	_, ok = acct.(*eth.Account)
-	require.True(t, ok)
 	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Ethereum account name", acct.Config().Config.Name)
 	acct = b.accounts[3]
-	_, ok = acct.(*eth.Account)
-	require.True(t, ok)
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-eth-erc20-mkr"), acct.Config().Config.Code)
 	require.Equal(t, "Maker", acct.Config().Config.Name)
@@ -830,21 +904,15 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Len(t, b.accounts, 7)
 	// Check some properties of the newly added accounts.
 	acct = b.accounts[4]
-	_, ok = acct.(*eth.Account)
-	require.True(t, ok)
 	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Ethereum account name 2", acct.Config().Config.Name)
 	acct = b.accounts[5]
-	_, ok = acct.(*eth.Account)
-	require.True(t, ok)
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Config.Code)
 	require.Equal(t, "Tether USD 2", acct.Config().Config.Name)
 	acct = b.accounts[6]
-	_, ok = acct.(*eth.Account)
-	require.True(t, ok)
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Config.Code)
 	require.Equal(t, "Basic Attention Token 2", acct.Config().Config.Name)
