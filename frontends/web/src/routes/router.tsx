@@ -20,6 +20,7 @@ import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './new-settings/appearance';
+import { GeneralSettings } from './new-settings/general';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -142,6 +143,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} />} />
       </Route>
       <Route path="new-settings">
+        <Route index element={<GeneralSettings />} />
         <Route path="appearance" element={<Appearance />} />
       </Route>
     </Route>
