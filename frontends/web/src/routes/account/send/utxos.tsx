@@ -28,6 +28,7 @@ import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
 import { ExpandOpen } from '../../../components/icon';
+import { Amount } from '../../../components/amount/amount';
 import { FiatConversion } from '../../../components/rates/rates';
 import { getScriptName } from '../utils';
 import style from './utxos.module.css';
@@ -100,7 +101,7 @@ export const UTXOs = ({
                   <div className={style.utxoData}>
                     <div className={style.amounts}>
                       <span className={style.amount}>
-                        {utxo.amount.amount}
+                        <Amount amount={utxo.amount.amount} unit={utxo.amount.unit}/>
                         {' '}
                         <span className={style.unit}>
                           {utxo.amount.unit}

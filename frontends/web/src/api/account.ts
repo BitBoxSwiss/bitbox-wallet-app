@@ -25,13 +25,7 @@ export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'EUR' | 'GBP'
 
 export type ConversionUnit = Fiat | 'sat'
 
-export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
-
-export type TestnetCoin = 'TBTC' | 'TLTC' | 'GOETH';
-
-export type Coin = MainnetCoin | TestnetCoin;
-
-export type CoinWithSAT = Coin | 'sat' | 'tsat';
+export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'GOETH';
 
 export interface IActiveToken {
     tokenCode: string;
@@ -141,7 +135,7 @@ export type Conversions = {
 export interface IAmount {
     amount: string;
     conversions?: Conversions;
-    unit: Coin;
+    unit: CoinUnit;
 }
 
 export interface IBalance {

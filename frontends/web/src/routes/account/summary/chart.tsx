@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { Skeleton } from '../../../components/skeleton/skeleton';
 import { formatNumber } from '../../../components/rates/rates';
-import { bitcoinRemoveTrailingZeroes } from '../../../utils/trailing-zeroes';
+import { Amount } from '../../../components/amount/amount';
 import styles from './chart.module.css';
 import Filters from './filters';
 import { getDarkmode } from '../../../components/darkmode/darkmode';
@@ -471,7 +471,7 @@ class Chart extends Component<Props, State> {
             <div className={styles.totalValue}>
               {formattedChartTotal !== null ? (
                 // remove trailing zeroes for BTC fiat total
-                bitcoinRemoveTrailingZeroes(!showMobileTotalValue ? formattedChartTotal : toolTipValue, chartFiat)
+                <Amount amount={!showMobileTotalValue ? formattedChartTotal : toolTipValue} unit={chartFiat} removeBtcTrailingZeroes/>
               ) : (
                 <Skeleton minWidth="220px" />
               )}
@@ -522,7 +522,7 @@ class Chart extends Component<Props, State> {
             {toolTipValue !== undefined ? (
               <span>
                 <h2 className={styles.toolTipValue}>
-                  {toolTipValue}
+                  <Amount amount={toolTipValue} unit={chartFiat}/>
                   <span className={styles.toolTipUnit}>{chartFiat}</span>
                 </h2>
                 <span className={styles.toolTipTime}>

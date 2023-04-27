@@ -25,6 +25,7 @@ import { CopyableInput } from '../copy/Copy';
 import { Edit, EditLight, ExpandIcon, Save, SaveLight } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
+import { Amount } from '../../components/amount/amount';
 import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
 import style from './transaction.module.css';
 import parentStyle from './transactions.module.css';
@@ -214,7 +215,8 @@ class Transaction extends Component<Props, State> {
               <span
                 className={`${style.amount} ${style.amountOverflow}`}
                 data-unit={` ${amount.unit}`}>
-                {sign}{amount.amount}
+                {sign}
+                <Amount amount={amount.amount} unit={amount.unit}/>
                 <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
               </span>
             </div>
@@ -312,7 +314,10 @@ class Transaction extends Component<Props, State> {
             <div className={style.detail}>
               <label>{t('transaction.details.amount')}</label>
               <p className={typeClassName}>
-                <span className={style.amount}>{sign}{amount.amount}</span>
+                <span className={style.amount}>
+                  {sign}
+                  <Amount amount={amount.amount} unit={amount.unit}/>
+                </span>
                 {' '}
                 <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
               </p>
@@ -322,7 +327,7 @@ class Transaction extends Component<Props, State> {
               {
                 transactionInfo.fee && transactionInfo.fee.amount ? (
                   <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
-                    {transactionInfo.fee.amount}
+                    <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit}/>
                     {' '}
                     <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
                   </p>
