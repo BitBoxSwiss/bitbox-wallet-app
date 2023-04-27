@@ -100,27 +100,46 @@ describe('Amount formatting', () => {
         const { container } = render(<Amount amount="10.00000000" unit={coin} removeBtcTrailingZeroes/>);
         expect(container).toHaveTextContent('10');
       });
-      it('10.12300000 ' + coin + ' with removeBtcTrailingZeroes enabled becomes 10.123', () => {
-        const { container } = render(<Amount amount="10.12300000" unit={coin} removeBtcTrailingZeroes/>);
-        expect(container).toHaveTextContent('10.123');
+      it('12345.12300000 ' + coin + ' with removeBtcTrailingZeroes enabled becomes 12345.123', () => {
+        const { container } = render(<Amount amount="12345.12300000" unit={coin} removeBtcTrailingZeroes/>);
+        expect(container).toHaveTextContent('12345.123');
       });
       it('42 ' + coin + ' with removeBtcTrailingZeroes enabled stays 42', () => {
         const { container } = render(<Amount amount="42" unit={coin} removeBtcTrailingZeroes/>);
         expect(container).toHaveTextContent('42');
       });
-      it('10.00000000 ' + coin + ' with removeBtcTrailingZeroes disabled stays 10.00000000', () => {
-        const { container } = render(<Amount amount="10.00000000" unit={coin}/>);
-        expect(container).toHaveTextContent('10.00000000');
+      it('0.12345678 ' + coin + ' with removeBtcTrailingZeroes enabled stays 0.12345678', () => {
+        const { container } = render(<Amount amount="0.12345678" unit={coin} removeBtcTrailingZeroes/>);
+        expect(container).toHaveTextContent('0.12345678');
       });
-      it('10.12300000 ' + coin + ' with removeBtcTrailingZeroes disabled stays 10.12300000', () => {
-        const { container } = render(<Amount amount="10.12300000" unit={coin}/>);
-        expect(container).toHaveTextContent('10.12300000');
+      it('10.00000000 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
+        const { getByTestId } = render(<Amount amount="10.00000000" unit={coin}/>);
+        const blocks = getByTestId('amountBlocks');
+        expect(blocks.innerHTML).toBe(
+          '<span>10.00</span>' +
+          '<span class="space">000</span>' +
+          '<span class="space">000</span>');
+      });
+      it('12345.12300000 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
+        const { getByTestId } = render(<Amount amount="12345.12300000" unit={coin}/>);
+        const blocks = getByTestId('amountBlocks');
+        expect(blocks.innerHTML).toBe(
+          '<span>12345.12</span>' +
+          '<span class="space">300</span>' +
+          '<span class="space">000</span>');
       });
       it('42 ' + coin + ' with removeBtcTrailingZeroes disabled stays 42', () => {
         const { container } = render(<Amount amount="42" unit={coin}/>);
         expect(container).toHaveTextContent('42');
       });
-
+      it('0.12345678 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
+        const { getByTestId } = render(<Amount amount="0.12345678" unit={coin}/>);
+        const blocks = getByTestId('amountBlocks');
+        expect(blocks.innerHTML).toBe(
+          '<span>0.12</span>' +
+          '<span class="space">345</span>' +
+          '<span class="space">678</span>');
+      });
     });
   });
 
