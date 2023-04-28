@@ -170,6 +170,7 @@ func NewHandlers(
 		}
 	}
 
+	// Prefer this over `getAPIRouter` and return errors using the `{ success: false, ...}` pattern.
 	getAPIRouterNoError := func(subrouter *mux.Router) func(string, func(*http.Request) interface{}) *mux.Route {
 		return func(path string, f func(*http.Request) interface{}) *mux.Route {
 			return subrouter.Handle(
