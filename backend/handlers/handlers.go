@@ -185,7 +185,7 @@ func NewHandlers(
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	getAPIRouter(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
@@ -373,17 +373,27 @@ func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *acc
 	}
 }
 
-func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getQRCodeHandler(r *http.Request) interface{} {
+	type result struct {
+		Success bool   `json:"success"`
+		Message string `json:"message"`
+		Data    string `json:"data"`
+	}
 	data := r.URL.Query().Get("data")
 	qr, err := qrcode.New(data, qrcode.Medium)
 	if err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithError(err).Error("getQRCodeHandler")
+		return result{Success: false, Message: err.Error()}
 	}
 	bytes, err := qr.PNG(256)
 	if err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithError(err).Error("getQRCodeHandler")
+		return result{Success: false, Message: err.Error()}
 	}
-	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes), nil
+	return result{
+		Success: true,
+		Data:    "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes),
+	}
 }
 
 func (handlers *Handlers) getAppConfigHandler(_ *http.Request) interface{} {
