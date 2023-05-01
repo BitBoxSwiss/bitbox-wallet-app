@@ -4,6 +4,7 @@ import { TTab } from './hooks/useSettingsTab';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeftDark, ChevronLeftLight } from '../../../components/icon';
 import { useDarkmode } from '../../../hooks/darkmode';
+import { route } from '../../../utils/route';
 
 type TProps = {
   settingsTabsDetail: TTab[];
@@ -20,6 +21,7 @@ export const MobileHeader = ({ settingsTabsDetail }: TProps) => {
 
   const handleClick = () => {
     //goes to the 'general settings' page
+    route('/new-settings');
   };
   return (
     <div className={styles.container}>
