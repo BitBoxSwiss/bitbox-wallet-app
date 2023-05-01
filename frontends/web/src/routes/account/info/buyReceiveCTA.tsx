@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { route } from '../../../utils/route';
-import { CoinWithSAT, IBalance } from '../../../api/account';
+import { CoinUnit, IBalance } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { Balances } from '../summary/accountssummary';
 import styles from './buyReceiveCTA.module.css';
@@ -29,7 +29,7 @@ type TBuyReceiveCTAProps = {
 };
 
 export const BuyReceiveCTA = ({ code, unit, balanceList }: TBuyReceiveCTAProps) => {
-  const formattedUnit = isBitcoinCoin(unit as CoinWithSAT) ? 'BTC' : unit;
+  const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
   const { t } = useTranslation();
   const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
   const onReceiveCTA = () => {

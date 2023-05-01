@@ -728,7 +728,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	defer b.Close()
 	fingerprint := []byte{0x55, 0x55, 0x55, 0x55}
 
-	require.Equal(t, []accounts.Interface{}, b.accounts)
+	require.Equal(t, accountsList{}, b.accounts)
 
 	// Add a Bitcoin account.
 	coin, err := b.Coin(coinpkg.CodeBTC)
