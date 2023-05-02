@@ -4,7 +4,7 @@ import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSet
 import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultCurrencyDropdownSetting';
 import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
-import { ActiveCurrenciesDropdownSetting } from './components/appearance/activeCurrenciesDropdownSetting';
+import { ActiveCurrenciesDropdownSettingWithStore } from './components/appearance/activeCurrenciesDropdownSetting';
 
 export const Appearance = () => {
   return (
@@ -13,7 +13,7 @@ export const Appearance = () => {
       <View fullscreen={false}>
         <ViewContent>
           <DefaultCurrencyDropdownSetting />
-          <ActiveCurrenciesDropdownSetting />
+          <ActiveCurrenciesDropdownSettingWithStore />
           <LanguageDropdownSetting />
           <DarkmodeToggleSetting />
           <DisplaySatsToggleSetting />

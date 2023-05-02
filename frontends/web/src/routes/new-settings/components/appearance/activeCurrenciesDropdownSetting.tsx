@@ -1,8 +1,9 @@
 import Select, { ActionMeta, MultiValue, MultiValueRemoveProps, components } from 'react-select';
 import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
-import { currencies, store, selectFiat, unselectFiat } from '../../../../components/rates/rates';
+import { currencies, store, selectFiat, unselectFiat, SharedProps } from '../../../../components/rates/rates';
 import { Fiat } from '../../../../api/account';
 import styles from './defaultCurrencySetting.module.css';
+import { share } from '../../../../decorators/share';
 
 type SelectOption = {
   label: Fiat;
@@ -11,13 +12,15 @@ type SelectOption = {
 
 type TSelectProps = {
   options: SelectOption[];
-  selectedCurrencies: SelectOption[];
-}
+} & SharedProps;
 
-const ReactSelect = ({ options, selectedCurrencies }: TSelectProps) => {
+const ReactSelect = ({ options, active, selected }: TSelectProps) => {
+  const selectedCurrencies = selected.length > 0 ? selected?.map(currency => ({ label: currency, value: currency })) : [];
+
   const MultiValueRemove = (props: MultiValueRemoveProps<SelectOption>) => {
+    const currency = props.data.value;
     return (
-      selectedCurrencies.length > 1 ?
+      currency !== active ?
         <components.MultiValueRemove {...props}>
           {'X'}
         </components.MultiValueRemove>
@@ -51,15 +54,16 @@ const ReactSelect = ({ options, selectedCurrencies }: TSelectProps) => {
     />);
 };
 
-export const ActiveCurrenciesDropdownSetting = () => {
-  const selectedCurrencies = store.state.selected.length > 0 ? store.state.selected.map(currency => ({ label: currency, value: currency, isFixed: true })) : [];
+export const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
   const formattedCurrencies = currencies.map((currency) => ({ label: currency, value: currency }));
 
   return (
     <SettingsItemContainer
       settingName="Active Currencies"
-      secondaryText="Which language you want the BitBoxApp to use."
-      extraComponent={<ReactSelect options={formattedCurrencies} selectedCurrencies={selectedCurrencies} />}
+      secondaryText="These additional currencies can be toggled through on your account page."
+      extraComponent={<ReactSelect options={formattedCurrencies} active={active} selected={selected} />}
     />
   );
 };
+
+export const ActiveCurrenciesDropdownSettingWithStore = share<SharedProps>(store)(ActiveCurrenciesDropdownSetting);
