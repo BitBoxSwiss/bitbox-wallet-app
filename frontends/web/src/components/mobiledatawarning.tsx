@@ -28,7 +28,7 @@ export const MobileDataWarning = () => {
   }
   return (
     <Status
-      dismissable="mobile-data-warning"
+      dismissible="mobile-data-warning"
       type="warning"
       hidden={!isUsingMobileData}>
       {t('mobile.usingMobileDataWarning')}

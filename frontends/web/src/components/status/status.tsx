@@ -15,98 +15,77 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
-import { apiGet, apiPost } from '../../utils/request';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { CloseXWhite } from '../icon';
 import style from './status.module.css';
+import { getConfig } from '../../api/backend';
+import { setConfig } from '../../api/backend';
 
-interface State {
-    show: boolean;
-}
 
-interface StatusProps {
+
+type TPRops = {
     hidden?: boolean;
     type?: 'success' | 'warning' | 'info';
     // used as keyName in the config if dismissing the status should be persisted, so it is not
-    // shown again. Use an empty string if it should be dismissable without storing it in the
+    // shown again. Use an empty string if it should be dismissible without storing it in the
     // config, so the status will be shown again the next time.
-    dismissable?: string;
+    dismissible?: string;
     className?: string;
+    children: ReactNode;
 }
 
-type Props = StatusProps;
+const Status = ({
+  hidden,
+  type = 'warning',
+  dismissible,
+  className,
+  children,
+}: TPRops) => {
+  const [show, setShow] = useState(true);
 
-export default class Status extends Component<Props, State> {
-  public readonly state: State = {
-    show: true,
+  const checkConfig = useCallback(async () => {
+    if (dismissible) {
+      const config = await getConfig();
+      setShow(!config ? true : !config.frontend[dismissible]);
+    }
+  }, [dismissible]);
+
+  useEffect(() => {
+    checkConfig();
+  }, [checkConfig]);
+
+  const dismiss = async () => {
+    if (!dismissible) {
+      return;
+    }
+    const config = await getConfig();
+    const newConf = {
+      ...config,
+      frontend: {
+        ...config.frontend,
+        [dismissible]: true,
+      },
+    };
+    setConfig(newConf);
+    setShow(false);
   };
 
-  public componentDidMount() {
-    this.checkConfig();
+  if (hidden || !show) {
+    return null;
   }
-
-  public componentDidUpdate(prevProps: Props) {
-    if (this.props.dismissable !== prevProps.dismissable) {
-      this.checkConfig();
-    }
-  }
-
-  private checkConfig() {
-    if (this.props.dismissable) {
-      apiGet('config').then(({ frontend }) => {
-        if (!this.props.dismissable) {
-          return;
-        }
-        this.setState({
-          show: !frontend ? true : !frontend[this.props.dismissable],
-        });
-      });
-    }
-  }
-
-  private dismiss = () => {
-    apiGet('config').then(config => {
-      if (!this.props.dismissable) {
-        return;
-      }
-      const newConf = {
-        ...config,
-        frontend: {
-          ...config.frontend,
-          [this.props.dismissable]: true,
-        },
-      };
-      apiPost('config', newConf);
-    });
-    this.setState({
-      show: false,
-    });
-  };
-
-  public render() {
-    const {
-      children,
-      className,
-      dismissable,
-      hidden,
-      type = 'warning',
-    } = this.props;
-    const { show } = this.state;
-    if (hidden || !show) {
-      return null;
-    }
-    return (
-      <div className={[style.container, style[type], className ? className : '', dismissable ? style.withCloseBtn : ''].join(' ')}>
-        <div className={style.status}>
-          {children}
-          <button
-            hidden={!dismissable}
-            className={`${style.close} ${style[`close-${type}`]}`}
-            onClick={this.dismiss}>
-            <CloseXWhite />
-          </button>
-        </div>
+  return (
+    <div className={[style.container, style[type], className ? className : '', dismissible ? style.withCloseBtn : ''].join(' ')}>
+      <div className={style.status}>
+        {children}
+        <button
+          hidden={!dismissible}
+          className={`${style.close} ${style[`close-${type}`]}`}
+          onClick={dismiss}>
+          <CloseXWhite />
+        </button>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default Status;
