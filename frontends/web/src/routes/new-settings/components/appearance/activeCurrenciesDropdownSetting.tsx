@@ -12,7 +12,7 @@ type SelectOption = {
 
 type TSelectProps = {
   options: SelectOption[];
-} & Omit<SharedProps, 'btcUnit'>
+} & SharedProps;
 
 const ReactSelect = ({ options, active, selected }: TSelectProps) => {
   const selectedCurrencies = selected.length > 0 ? selected?.map(currency => ({ label: currency, value: currency })) : [];

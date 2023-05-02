@@ -1,7 +1,6 @@
 import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
 import Select from 'react-select';
-import { store } from '../../../../components/rates/rates';
-import { setActiveFiat } from '../../../../components/rates/rates';
+import { store, setActiveFiat } from '../../../../components/rates/rates';
 import { Fiat } from '../../../../api/account';
 import styles from './defaultCurrencySetting.module.css';
 

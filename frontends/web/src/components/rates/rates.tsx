@@ -30,7 +30,7 @@ export interface SharedProps {
     active: Fiat;
     // eslint-disable-next-line react/no-unused-prop-types
     selected: Fiat[];
-    btcUnit: BtcUnit;
+    btcUnit?: BtcUnit;
 }
 
 export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
