@@ -1,6 +1,6 @@
 import Select, { ActionMeta, MultiValue, MultiValueRemoveProps, components } from 'react-select';
-import { SettingsItemContainer } from '../settingsItemContainer/settingsItemContainer';
 import { currencies, store, selectFiat, unselectFiat, SharedProps } from '../../../../components/rates/rates';
+import { SettingsItem } from '../settingsItem/settingsItem';
 import { Fiat } from '../../../../api/account';
 import styles from './defaultCurrencySetting.module.css';
 import { share } from '../../../../decorators/share';
@@ -54,11 +54,11 @@ const ReactSelect = ({ options, active, selected }: TSelectProps) => {
     />);
 };
 
-export const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
+const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
   const formattedCurrencies = currencies.map((currency) => ({ label: currency, value: currency }));
 
   return (
-    <SettingsItemContainer
+    <SettingsItem
       settingName="Active Currencies"
       secondaryText="These additional currencies can be toggled through on your account page."
       extraComponent={<ReactSelect options={formattedCurrencies} active={active} selected={selected} />}

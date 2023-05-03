@@ -20,6 +20,7 @@ import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './new-settings/appearance';
+import { MobileSettings } from './new-settings/mobile-settings';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -110,6 +111,18 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     devices={devices}
   /></InjectParams>;
 
+  const MobileSettingsEl = <InjectParams>
+    <MobileSettings
+      deviceIDs={deviceIDs}
+    />
+  </InjectParams>;
+
+  const AppearanceEl = <InjectParams>
+    <Appearance
+      deviceIDs={deviceIDs}
+    />
+  </InjectParams>;
+
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
 
   return <Routes>
@@ -142,7 +155,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} />} />
       </Route>
       <Route path="new-settings">
-        <Route path="appearance" element={<Appearance />} />
+        <Route index element={MobileSettingsEl} />
+        <Route path="appearance" element={AppearanceEl} />
       </Route>
     </Route>
   </Routes>;
