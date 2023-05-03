@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
-import i18nEditorActive from './i18n/i18n';
 import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
@@ -187,7 +186,7 @@ class App extends Component<Props, State> {
       <ConnectedApp>
         <DarkModeProvider>
           <Darkmode />
-          <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
+          <div className="app">
             <Sidebar
               accounts={activeAccounts}
               deviceIDs={deviceIDs} />

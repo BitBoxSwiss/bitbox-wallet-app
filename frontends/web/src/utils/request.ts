@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import i18n from '../i18n/i18n';
+import { i18n } from '../i18n/i18n';
 import { alertUser } from '../components/alert/Alert';
 import { call } from './transport-qt';
 import { androidCall } from './transport-android';

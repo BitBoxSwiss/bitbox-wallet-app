@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 
 import i18n from 'i18next';
+import { getNativeLocale } from '../api/nativelocale';
 import appTranslationsAR from '../locales/ar/app.json';
 import appTranslationsDE from '../locales/de/app.json';
 import appTranslationsEN from '../locales/en/app.json';
@@ -36,7 +37,6 @@ import appTranslationsHE from '../locales/he/app.json';
 import appTranslationsIT from '../locales/it/app.json';
 import { languageFromConfig } from './config';
 import { localeMainLanguage } from './utils';
-import { apiGet } from '../utils/request';
 import { setConfig } from '../utils/config';
 
 const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
@@ -96,7 +96,7 @@ i18n.on('languageChanged', (lng) => {
   // Since userLanguage is stored in the backend config as a string,
   // setting it to null here in JS turns it into an empty string "" in Go backend.
   // This is ok since we're just checking for a truthy value in the language detector.
-  return apiGet('native-locale').then((nativeLocale) => {
+  return getNativeLocale().then((nativeLocale) => {
     let match = lng === nativeLocale;
     if (!match) {
       // There are too many combinations. So, we compare only the main
@@ -110,4 +110,4 @@ i18n.on('languageChanged', (lng) => {
   });
 });
 
-export default i18n;
+export { i18n };

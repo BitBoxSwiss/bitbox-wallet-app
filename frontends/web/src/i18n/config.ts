@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
+import { LanguageDetectorAsyncModule } from 'i18next';
 import { apiGet } from '../utils/request';
 import { i18nextFormat } from './utils';
 
 const defaultUserLanguage = 'en';
 
-export const languageFromConfig = {
+export const languageFromConfig: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
   async: true,
   detect: (cb) => {

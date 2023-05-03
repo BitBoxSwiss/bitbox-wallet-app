@@ -17,7 +17,7 @@
 jest.mock('../utils/request');
 
 import { apiGet, apiPost } from '../utils/request';
-import i18n from './i18n';
+import { i18n } from './i18n';
 
 describe('i18n', () => {
   describe('languageChanged', () => {
