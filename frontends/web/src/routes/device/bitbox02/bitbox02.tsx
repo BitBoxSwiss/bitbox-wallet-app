@@ -107,9 +107,6 @@ class BitBox02 extends Component<Props, State> {
       this.setState({ versionInfo });
     });
     this.updateAttestationCheck();
-    this.checkSDCard().then(sdCardInserted => {
-      this.setState({ sdCardInserted });
-    });
     this.onChannelHashChanged();
     this.onStatusChanged();
     this.unsubscribe = apiWebsocket((payload) => {
@@ -196,7 +193,7 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private createWalletStep = () => {
-    this.checkSDCard().then(sdCardInserted => {
+    checkSDCard(this.props.deviceID).then(sdCardInserted => {
       this.setState({ sdCardInserted });
     });
     this.setState({
@@ -217,12 +214,8 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private checkSDCard = () => {
-    return checkSDCard(this.props.deviceID);
-  };
-
   private insertSDCard = () => {
-    return this.checkSDCard().then(sdCardInserted => {
+    return checkSDCard(this.props.deviceID).then(sdCardInserted => {
       this.setState({ sdCardInserted });
       if (sdCardInserted) {
         return true;
