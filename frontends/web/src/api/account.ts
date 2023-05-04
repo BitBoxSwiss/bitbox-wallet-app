@@ -27,6 +27,14 @@ export type ConversionUnit = Fiat | 'sat'
 
 export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'GOETH';
 
+export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'SAI' | 'DAI';
+
+export type Terc20Token = {
+  code: string;
+  name: string;
+  unit: ERC20TokenUnit;
+};
+
 export interface IActiveToken {
     tokenCode: string;
     accountCode: AccountCode;
