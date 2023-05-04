@@ -128,47 +128,46 @@ class ManageAccounts extends Component<Props, State> {
     }));
   };
 
-  private erc20TokenCodes = {
-    'eth-erc20-usdt': 'Tether USD',
-    'eth-erc20-usdc': 'USD Coin',
-    'eth-erc20-link': 'Chainlink',
-    'eth-erc20-bat': 'Basic Attention Token',
-    'eth-erc20-mkr': 'Maker',
-    'eth-erc20-zrx': '0x',
-    'eth-erc20-wbtc': 'Wrapped Bitcoin',
-    'eth-erc20-paxg': 'Pax Gold',
-    'eth-erc20-sai0x89d2': 'Sai',
-    'eth-erc20-dai0x6b17': 'Dai',
-  };
+  private erc20Tokens: accountAPI.Terc20Token[] = [
+    { code: 'eth-erc20-usdt', name: 'Tether USD', unit: 'USDT' },
+    { code: 'eth-erc20-usdc', name: 'USD Coin', unit: 'USDC' },
+    { code: 'eth-erc20-link', name: 'Chainlink', unit: 'LINK' },
+    { code: 'eth-erc20-bat', name: 'Basic Attention Token', unit: 'BAT' },
+    { code: 'eth-erc20-mkr', name: 'Maker', unit: 'MKR' },
+    { code: 'eth-erc20-zrx', name: '0x', unit: 'ZRX' },
+    { code: 'eth-erc20-wbtc', name: 'Wrapped Bitcoin', unit: 'WBTC' },
+    { code: 'eth-erc20-paxg', name: 'Pax Gold', unit: 'PAXG' },
+    { code: 'eth-erc20-sai0x89d2', name: 'Sai', unit: 'SAI' },
+    { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
+  ];
 
   private renderTokens = (ethAccountCode: string, activeTokens?: accountAPI.IActiveToken[]) => {
-    return Object.entries(this.erc20TokenCodes)
-      .map(([tokenCode, name]) => {
-        const activeToken = (activeTokens || []).find(t => t.tokenCode === tokenCode);
-        const active = activeToken !== undefined;
-        return (
-          <div key={tokenCode}
-            className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
-            <div
-              className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
-              onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
-              <Logo
-                active={active}
-                alt={name}
-                className={style.tokenIcon}
-                coinCode={tokenCode}
-                stacked />
-              <span className={style.tokenName}>
-                {name}
-              </span>
-            </div>
-            <Toggle
-              checked={active}
-              id={tokenCode}
-              onChange={() => this.toggleToken(ethAccountCode, tokenCode, !active)} />
+    return this.erc20Tokens.map(token => {
+      const activeToken = (activeTokens || []).find(t => t.tokenCode === token.code);
+      const active = activeToken !== undefined;
+      return (
+        <div key={token.code}
+          className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
+          <div
+            className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
+            onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
+            <Logo
+              active={active}
+              alt={token.name}
+              className={style.tokenIcon}
+              coinCode={token.code}
+              stacked />
+            <span className={style.tokenName}>
+              {token.name} ({token.unit})
+            </span>
           </div>
-        );
-      });
+          <Toggle
+            checked={active}
+            id={token.code}
+            onChange={() => this.toggleToken(ethAccountCode, token.code, !active)} />
+        </div>
+      );
+    });
   };
 
   private toggleToken = (ethAccountCode: string, tokenCode: string, active: boolean) => {
