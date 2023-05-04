@@ -206,6 +206,7 @@
       "point3": "Create a backup",
       "text": "Ok, let's create a new wallet!"
     },
+    "createBackupAborted": "Creating backup aborted.",
     "createBackupFailed": "Creating backup failed, try again.",
     "initialize": {
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
