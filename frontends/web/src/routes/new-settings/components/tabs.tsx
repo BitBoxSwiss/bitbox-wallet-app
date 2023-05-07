@@ -10,6 +10,7 @@ import styles from './tabs.module.css';
 type TWithSettingsTabsProps = {
   children: ReactNode
   deviceIDs: string[]
+  hasAccounts: boolean;
   hideMobileMenu?: boolean;
   subPageTitle: string;
 }
@@ -22,17 +23,24 @@ type TTab = {
 
 type TTabs = {
   deviceIDs: string[];
+  hasAccounts: boolean;
   hideMobileMenu?: boolean;
 }
 
-export const WithSettingsTabs = ({ children, deviceIDs, hideMobileMenu, subPageTitle }: TWithSettingsTabsProps) => {
+export const WithSettingsTabs = ({
+  children,
+  deviceIDs,
+  hideMobileMenu,
+  hasAccounts,
+  subPageTitle
+}: TWithSettingsTabsProps) => {
   return (
     <>
       <div className="show-on-small">
         <MobileHeader subPageTitle={subPageTitle} />
       </div>
       <div className="hide-on-small">
-        <Tabs hideMobileMenu={hideMobileMenu} deviceIDs={deviceIDs} />
+        <Tabs hideMobileMenu={hideMobileMenu} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
       </div>
       {children}
     </>
@@ -63,17 +71,17 @@ export const Tab = ({ name, url, hideMobileMenu }: TTab) => {
   );
 };
 
-export const Tabs = ({ deviceIDs, hideMobileMenu }: TTabs) => {
+export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
   const { t } = useTranslation();
   return (
     <div className={styles.container}>
-      <Tab hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/new-settings/appearance" />
-      <Tab hideMobileMenu={hideMobileMenu} name={'Manage accounts'} url="/new-settings/manage-accounts"/>
+      <Tab key="appearance" hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/new-settings/appearance" />
+      {hasAccounts ? <Tab key="manage-accounts" hideMobileMenu={hideMobileMenu} name={'Manage accounts'} url="/settings/manage-accounts" /> : null}
       {deviceIDs.map(id => (
-        <Tab hideMobileMenu={hideMobileMenu} name={'Device settings'} key={id} url={`/device/${id}`} />
+        <Tab hideMobileMenu={hideMobileMenu} name={'Device settings'} key={`device-${id}`} url={`/device/${id}`} />
       )) }
-      <Tab hideMobileMenu={hideMobileMenu} name={'Advanced settings'} url="/new-settings/advanced-settings" />
-      <Tab hideMobileMenu={hideMobileMenu} name={t('settings.about')} url="/new-settings/about" />
+      <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={'Advanced settings'} url="/new-settings/advanced-settings" />
+      <Tab key="about" hideMobileMenu={hideMobileMenu} name={'About'} url="/new-settings/about" />
     </div>
   );
 };

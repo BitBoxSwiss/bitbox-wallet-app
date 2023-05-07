@@ -41,6 +41,7 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
 };
 
 export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+  const hasAccounts = accounts.length > 0;
   const Homepage = <DeviceSwitch
     key={devicesKey('device-switch-default')}
     deviceID={null}
@@ -115,18 +116,22 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const MobileSettingsEl = <InjectParams>
     <MobileSettings
       deviceIDs={deviceIDs}
+      hasAccounts={hasAccounts}
+
     />
   </InjectParams>;
 
   const AppearanceEl = <InjectParams>
     <Appearance
       deviceIDs={deviceIDs}
+      hasAccounts={hasAccounts}
     />
   </InjectParams>;
 
   const AboutEl = <InjectParams>
     <About
       deviceIDs={deviceIDs}
+      hasAccounts={hasAccounts}
     />
   </InjectParams>;
 
