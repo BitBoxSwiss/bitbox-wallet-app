@@ -1292,6 +1292,7 @@
     "transactionDetails": "Transaction details"
   },
   "settings": {
+    "about": "About",
     "accounts": "Accounts",
     "appearance": "Appearance",
     "electrum": {

@@ -2,12 +2,11 @@ import { ReactNode } from 'react';
 import styles from './settingsItem.module.css';
 
 type TProps = {
-  className?: string
+    className?: string
     onClick?: () => void;
     settingName: string;
     secondaryText?: string | JSX.Element;
-  extraComponent?: ReactNode;
-
+    extraComponent?: ReactNode;
 }
 
 export const SettingsItem = ({
