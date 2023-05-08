@@ -7,19 +7,16 @@ import { DisplaySatsToggleSetting } from './components/appearance/displaySatsTog
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSettingWithStore } from './components/appearance/activeCurrenciesDropdownSetting';
 import { WithSettingsTabs } from './components/tabs';
+import { TPagePropsWithSettingsTabs } from './type';
 
-type TProps = {
-  deviceIDs: string[]
-}
-
-export const Appearance = ({ deviceIDs }: TProps) => {
+export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
     <Main>
       <div className="hide-on-small"><Header title={<h2>{t('sidebar.settings')}</h2>} /></div>
       <View fullscreen={false}>
         <ViewContent>
-          <WithSettingsTabs subPageTitle={t('settings.appearance')} hideMobileMenu deviceIDs={deviceIDs}>
+          <WithSettingsTabs subPageTitle={t('settings.appearance')} hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
             <DefaultCurrencyDropdownSetting />
             <ActiveCurrenciesDropdownSettingWithStore />
             <LanguageDropdownSetting />

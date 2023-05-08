@@ -4,10 +4,7 @@ import { Header, Main } from '../../components/layout';
 import { route } from '../../utils/route';
 import { useMediaQuery } from '../../hooks/mediaquery';
 import { Tabs } from './components/tabs';
-
-type TProps = {
-  deviceIDs: string[]
-}
+import { TPagePropsWithSettingsTabs } from './type';
 
 /**
  * The "index" page of the settings
@@ -17,7 +14,7 @@ type TProps = {
  * we see on Desktop, as it's the equivalent
  * of "tabs" on Mobile.
  **/
-export const MobileSettings = ({ deviceIDs }: TProps) => {
+export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   useEffect(() => {
     if (!isMobile) {
@@ -29,7 +26,7 @@ export const MobileSettings = ({ deviceIDs }: TProps) => {
       <Header title={<h2>Settings</h2>} />
       <View fullscreen={false}>
         <ViewContent>
-          <Tabs deviceIDs={deviceIDs} />
+          <Tabs deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
         </ViewContent>
       </View>
     </Main>
