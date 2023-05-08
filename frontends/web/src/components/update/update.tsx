@@ -29,7 +29,7 @@ type TProps = {
 const Update = ({ file }: TProps) => {
   const { t } = useTranslation();
   return file && (
-    <Status dismissable={`update-${file.version}`} type="info">
+    <Status dismissible={`update-${file.version}`} type="info">
       {t('app.upgrade', {
         current: file.current,
         version: file.version,
