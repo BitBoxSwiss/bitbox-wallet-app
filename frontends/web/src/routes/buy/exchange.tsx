@@ -15,7 +15,7 @@
  */
 import 'flag-icons';
 import { useState, useEffect } from 'react';
-import i18n from '../../i18n/i18n';
+import { i18n } from '../../i18n/i18n';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/forms';
 import * as exchangesAPI from '../../api/exchanges';

@@ -20,7 +20,7 @@ import ReactDOM from 'react-dom';
 import { I18nextProvider } from 'react-i18next';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './app';
-import i18n from './i18n/i18n';
+import { i18n } from './i18n/i18n';
 import './style/index.css';
 
 
