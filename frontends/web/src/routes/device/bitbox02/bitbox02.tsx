@@ -310,10 +310,17 @@ class BitBox02 extends Component<Props, State> {
         text: this.props.t('bitbox02Interact.confirmDateText'),
       } });
       createBackup(this.props.deviceID, 'sdcard')
-        .then(() => this.setState({ creatingBackup: false, waitDialog: undefined }))
-        .catch(() => {
-          alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        });
+        .then((result) => {
+          if (!result.success) {
+            if (result.code === 104) {
+              alertUser(this.props.t('bitbox02Wizard.createBackupAborted'), { asDialog: false });
+            } else {
+              alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
+            }
+          }
+          this.setState({ creatingBackup: false, waitDialog: undefined });
+        })
+        .catch(console.error);
     });
   };
 
