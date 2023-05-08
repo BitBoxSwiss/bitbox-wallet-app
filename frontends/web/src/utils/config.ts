@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +17,19 @@
 
 import { apiGet, apiPost } from './request';
 
-// expects an object with a backend or frontend key
-// i.e. { frontend: { language }}
-// returns a promise and passes the new config
-let pendingConfig = {};
-export function setConfig(object) {
+type TConfig = {
+  backend?: unknown;
+  frontend?: unknown;
+};
+
+let pendingConfig: TConfig = {};
+
+/**
+ * expects an object with a backend or frontend key
+ * i.e. { frontend: { language }}
+ * returns a promise and passes the new config
+ */
+export const setConfig = (object: TConfig) => {
   return apiGet('config')
     .then((currentConfig = {}) => {
       const nextConfig = Object.assign(currentConfig, {
@@ -34,4 +43,4 @@ export function setConfig(object) {
           return nextConfig;
         });
     });
-}
+};
