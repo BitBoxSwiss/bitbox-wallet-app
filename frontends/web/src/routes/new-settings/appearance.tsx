@@ -19,7 +19,7 @@ export const Appearance = ({ deviceIDs }: TProps) => {
       <div className="hide-on-small"><Header title={<h2>{t('sidebar.settings')}</h2>} /></div>
       <View fullscreen={false}>
         <ViewContent>
-          <WithSettingsTabs subPageTitle={'Appearance'} hideMobileMenu deviceIDs={deviceIDs}>
+          <WithSettingsTabs subPageTitle={t('settings.appearance')} hideMobileMenu deviceIDs={deviceIDs}>
             <DefaultCurrencyDropdownSetting />
             <ActiveCurrenciesDropdownSettingWithStore />
             <LanguageDropdownSetting />

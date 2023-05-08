@@ -73,7 +73,7 @@ export const Tabs = ({ deviceIDs, hideMobileMenu }: TTabs) => {
         <Tab hideMobileMenu={hideMobileMenu} name={'Device settings'} key={id} url={`/device/${id}`} />
       )) }
       <Tab hideMobileMenu={hideMobileMenu} name={'Advanced settings'} url="/new-settings/advanced-settings" />
-      <Tab hideMobileMenu={hideMobileMenu} name={'About'} url="/new-settings/about" />
+      <Tab hideMobileMenu={hideMobileMenu} name={t('settings.about')} url="/new-settings/about" />
     </div>
   );
 };

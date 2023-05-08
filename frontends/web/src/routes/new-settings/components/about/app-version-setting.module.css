@@ -1,0 +1,13 @@
+.version {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin: 0;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.versionContainer {
+    display: flex;
+    align-items: center;
+}
