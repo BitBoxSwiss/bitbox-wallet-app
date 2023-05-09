@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
 import * as accountApi from '../../../api/account';
 import { syncAddressesCount } from '../../../api/accountsync';
-import { apiWebsocket, TPayload, TUnsubscribe } from '../../../utils/websocket';
+import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
@@ -80,24 +80,16 @@ class AccountsSummary extends Component<Props, State> {
     exported: '',
     totalBalancePerCoin: undefined,
   };
-  private unsubscribe?: TUnsubscribe;
   private unsubscribeList: UnsubscribeList = [];
 
-  public async componentDidMount() {
-    const { accounts } = this.props;
-    this.unsubscribe = apiWebsocket(this.onEvent);
-    const summaryPromise = this.getAccountSummary();
-    const promises = accounts.map(account => {
-      this.unsubscribeList.push(syncAddressesCount(account.code, this.onSyncAddressesCount));
-      return this.onStatusChanged(account.code, true);
-    });
-    const totalBalancePerCoinPromise = this.getAccountsTotalBalance();
-    await Promise.all([...promises, totalBalancePerCoinPromise, summaryPromise]);
+  public componentDidMount() {
+    this.getAccountSummary();
+    this.subscribe(true);
+    this.getAccountsTotalBalance();
   }
 
   public componentWillUnmount() {
     window.clearTimeout(this.summaryReqTimerID);
-    this.unsubscribe && this.unsubscribe();
     unsubscribe(this.unsubscribeList);
   }
 
@@ -106,15 +98,20 @@ class AccountsSummary extends Component<Props, State> {
     if (this.props.accounts.length === prevProps.accounts.length) {
       return;
     }
-    unsubscribe(this.unsubscribeList);
-    this.props.accounts.map(account => {
-      this.unsubscribeList.push(syncAddressesCount(account.code, this.onSyncAddressesCount));
-      return this.onStatusChanged(account.code);
-    });
+    this.subscribe();
   }
 
+  private subscribe = (initial?: boolean) => {
+    unsubscribe(this.unsubscribeList);
+    this.unsubscribeList.push(apiWebsocket(this.onEvent));
+    this.props.accounts.forEach(account => {
+      this.unsubscribeList.push(syncAddressesCount(account.code, this.onSyncAddressesCount));
+      this.onStatusChanged(account.code, initial);
+    });
+  };
+
   private getAccountSummary = () => {
-    return accountApi.getSummary().then(data => {
+    accountApi.getSummary().then(data => {
       this.setState({ data }, () => {
         if (this.summaryReqTimerID) {
           return;
@@ -196,7 +193,7 @@ class AccountsSummary extends Component<Props, State> {
     if (initial) {
       return;
     }
-    return await this.getAccountsTotalBalance();
+    this.getAccountsTotalBalance();
   }
 
   private export = () => {
