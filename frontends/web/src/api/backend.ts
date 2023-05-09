@@ -71,3 +71,7 @@ export const getConfig = (): Promise<any> => {
 export const setConfig = (config: any): Promise<null> => {
   return apiPost('config', config);
 };
+
+export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
+  return apiPost('socksproxy/check', proxyAddress);
+};

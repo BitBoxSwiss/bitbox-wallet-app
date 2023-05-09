@@ -22,6 +22,7 @@ import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './new-settings/appearance';
 import { MobileSettings } from './new-settings/mobile-settings';
 import { About } from './new-settings/about';
+import { AdvancedSettings } from './new-settings/advanced-settings';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -135,6 +136,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     />
   </InjectParams>;
 
+  const AdvancedSettingsEl = <InjectParams>
+    <AdvancedSettings
+      deviceIDs={deviceIDs}
+      hasAccounts={hasAccounts}
+    />
+  </InjectParams>;
+
   const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
 
   return <Routes>
@@ -170,6 +178,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route index element={MobileSettingsEl} />
         <Route path="appearance" element={AppearanceEl} />
         <Route path="about" element={AboutEl} />
+        <Route path="advanced-settings" element={AdvancedSettingsEl} />
       </Route>
     </Route>
   </Routes>;
