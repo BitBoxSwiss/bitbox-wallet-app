@@ -17,8 +17,10 @@
 
 import { Component, PropsWithChildren } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
 import * as accountApi from '../../../api/account';
-import { apiWebsocket, TPayload } from '../../../utils/websocket';
+import { syncAddressesCount } from '../../../api/accountsync';
+import { apiWebsocket, TPayload, TUnsubscribe } from '../../../utils/websocket';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Entry } from '../../../components/guide/entry';
@@ -45,7 +47,7 @@ export interface Balances {
 }
 
 interface SyncStatus {
-    [code: string]: string;
+    [code: string]: number;
 }
 
 interface State {
@@ -78,20 +80,25 @@ class AccountsSummary extends Component<Props, State> {
     exported: '',
     totalBalancePerCoin: undefined,
   };
-  private unsubscribe!: () => void;
+  private unsubscribe?: TUnsubscribe;
+  private unsubscribeList: UnsubscribeList = [];
 
   public async componentDidMount() {
     const { accounts } = this.props;
     this.unsubscribe = apiWebsocket(this.onEvent);
     const summaryPromise = this.getAccountSummary();
-    const promises = accounts.map(account => this.onStatusChanged(account.code, true));
+    const promises = accounts.map(account => {
+      this.unsubscribeList.push(syncAddressesCount(account.code, this.onSyncAddressesCount));
+      return this.onStatusChanged(account.code, true);
+    });
     const totalBalancePerCoinPromise = this.getAccountsTotalBalance();
     await Promise.all([...promises, totalBalancePerCoinPromise, summaryPromise]);
   }
 
   public componentWillUnmount() {
     window.clearTimeout(this.summaryReqTimerID);
-    this.unsubscribe();
+    this.unsubscribe && this.unsubscribe();
+    unsubscribe(this.unsubscribeList);
   }
 
   public componentDidUpdate(prevProps: Props) {
@@ -99,7 +106,11 @@ class AccountsSummary extends Component<Props, State> {
     if (this.props.accounts.length === prevProps.accounts.length) {
       return;
     }
-    this.props.accounts.map(account => this.onStatusChanged(account.code));
+    unsubscribe(this.unsubscribeList);
+    this.props.accounts.map(account => {
+      this.unsubscribeList.push(syncAddressesCount(account.code, this.onSyncAddressesCount));
+      return this.onStatusChanged(account.code);
+    });
   }
 
   private getAccountSummary = () => {
@@ -132,19 +143,21 @@ class AccountsSummary extends Component<Props, State> {
     }, {} as TAccountCoinMap);
   };
 
-  private onEvent = (payload: TPayload) => {
-    if ('subject' in payload) {
-      const { object, subject } = payload;
-      for (const account of this.props.accounts) {
-        if (subject === 'account/' + account.code + '/synced-addresses-count') {
-          this.setState(state => {
-            const syncStatus = { ...state.syncStatus };
-            syncStatus[account.code] = object;
-            return { syncStatus };
-          });
+  private onSyncAddressesCount = (
+    code: string,
+    syncedAddressesCount: number,
+  ) => {
+    this.setState(({ syncStatus }) => {
+      return {
+        syncStatus: {
+          ...syncStatus,
+          [code]: syncedAddressesCount,
         }
-      }
-    }
+      };
+    });
+  };
+
+  private onEvent = (payload: TPayload) => {
     if ('type' in payload) {
       const { code, data, type } = payload;
       if (type === 'account') {
