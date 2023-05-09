@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { subscribeEndpoint, TUnsubscribe } from './subscribe';
+import { TUnsubscribe } from '../utils/transport-common';
+import { subscribeEndpoint } from './subscribe';
+import { subscribe as subscibeLegacy } from '../utils/event-legacy';
 import { IAccount } from './account';
 
 /**
@@ -41,5 +43,37 @@ export const syncAddressesCount = (
     data: number,
   ) => {
     cb(code, data);
+  });
+};
+
+/**
+ * Fired when status of an account changed, mostly
+ * used as event to call accountApi.getStatus(code).
+ * Returns a method to unsubscribe.
+ */
+export const statusChanged = (
+  code: string,
+  cb: (code: string) => void,
+): TUnsubscribe => {
+  const unsubscribe = subscibeLegacy('statusChanged', data => {
+    if (data.type === 'account' && data.code === code) {
+      cb(code);
+    }
+  });
+  return unsubscribe;
+};
+
+/**
+ * Fired when the account is fully synced.
+ * Returns a method to unsubscribe.
+ */
+export const syncdone = (
+  code: string,
+  cb: (code: string) => void,
+): TUnsubscribe => {
+  return subscibeLegacy('syncdone', data => {
+    if (data.type === 'account' && data.code === code) {
+      cb(code);
+    }
   });
 };
