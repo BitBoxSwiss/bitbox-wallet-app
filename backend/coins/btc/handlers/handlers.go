@@ -319,6 +319,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 				"amount":     handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
 				"address":    output.Address.EncodeForHumans(),
 				"scriptType": output.Address.Configuration.ScriptType(),
+				"note":       handlers.account.TxNote(output.OutPoint.Hash.String()),
 			})
 	}
 

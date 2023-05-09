@@ -97,6 +97,11 @@ export const UTXOs = ({
                 id={'utxo-' + utxo.outPoint}
                 data-outpoint={utxo.outPoint}
                 onChange={handleUTXOChange}>
+                {utxo.note && (
+                  <div className={style.note}>
+                    <strong>{utxo.note}{' '}</strong>
+                  </div>
+                )}
                 <div className={style.utxoContent}>
                   <div className={style.utxoData}>
                     <div className={style.amounts}>

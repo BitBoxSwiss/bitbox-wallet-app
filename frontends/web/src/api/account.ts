@@ -292,6 +292,7 @@ export type TUTXO = {
   txOutput: number;
   address: string;
   amount: IAmount;
+  note: string;
   scriptType: ScriptType;
 };
 
