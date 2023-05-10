@@ -18,6 +18,8 @@
 import React, { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
 import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
+import { attestationCheckDone, channelHashChanged, statusChanged } from '../../../api/devicessync';
+import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { MultilineMarkup } from '../../../utils/markup';
 import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
@@ -27,7 +29,6 @@ import { Button, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../../components/alert/Alert';
 import { store as panelStore } from '../../../components/guide/guide';
 import { setSidebarStatus } from '../../../components/sidebar/sidebar';
@@ -100,38 +101,21 @@ class BitBox02 extends Component<Props, State> {
     };
   }
 
-  private unsubscribe!: () => void;
+  private unsubscribeList: UnsubscribeList = [];
 
   public componentDidMount() {
-    getVersion(this.props.deviceID).then(versionInfo => {
+    const { deviceID } = this.props;
+    getVersion(deviceID).then(versionInfo => {
       this.setState({ versionInfo });
     });
     this.updateAttestationCheck();
     this.onChannelHashChanged();
     this.onStatusChanged();
-    this.unsubscribe = apiWebsocket((payload) => {
-      if ('type' in payload) {
-        const { type, data, deviceID } = payload;
-        switch (type) {
-        case 'device':
-          if (deviceID !== this.props.deviceID) {
-            return;
-          }
-          switch (data) {
-          case 'channelHashChanged':
-            this.onChannelHashChanged();
-            break;
-          case 'statusChanged':
-            this.onStatusChanged();
-            break;
-          case 'attestationCheckDone':
-            this.updateAttestationCheck();
-            break;
-          }
-          break;
-        }
-      }
-    });
+    this.unsubscribeList = [
+      statusChanged(deviceID, this.onStatusChanged),
+      channelHashChanged(deviceID, this.onChannelHashChanged),
+      attestationCheckDone(deviceID, this.updateAttestationCheck),
+    ];
   }
 
   private updateAttestationCheck = () => {
@@ -185,7 +169,7 @@ class BitBox02 extends Component<Props, State> {
     if (['forceHidden', 'forceCollapsed'].includes(sidebarStatus)) {
       setSidebarStatus('');
     }
-    this.unsubscribe();
+    unsubscribe(this.unsubscribeList);
   }
 
   private uninitializedStep = () => {

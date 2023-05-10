@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 import { subscribeEndpoint, TUnsubscribe } from './subscribe';
+import { subscribe as subscribeLegacy } from '../utils/event-legacy';
 import { TDevices } from './devices';
 
 /**
@@ -26,4 +27,53 @@ export const syncDeviceList = (
   cb: (accounts: TDevices,) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('devices/registered', cb);
+};
+
+/**
+ * Fires when status of a device changed, mostly
+ * used as event to call bitbox02.getStatus(deviceID).
+ * Returns a method to unsubscribe.
+ */
+export const statusChanged = (
+  deviceID: string,
+  cb: (deviceID: string) => void,
+): TUnsubscribe => {
+  const unsubscribe = subscribeLegacy('statusChanged', event => {
+    if (event.type === 'device' && event.deviceID === deviceID) {
+      cb(deviceID);
+    }
+  });
+  return unsubscribe;
+};
+
+/**
+ * Fires when attestation hash of a device changed.
+ * Returns a method to unsubscribe.
+ */
+export const channelHashChanged = (
+  deviceID: string,
+  cb: (deviceID: string) => void,
+): TUnsubscribe => {
+  const unsubscribe = subscribeLegacy('channelHashChanged', event => {
+    if (event.type === 'device' && event.deviceID === deviceID) {
+      cb(deviceID);
+    }
+  });
+  return unsubscribe;
+};
+
+/**
+ * Fires when attestation check of a device is done.
+ * Returns a method to unsubscribe.
+ */
+export const attestationCheckDone = (
+  deviceID: string,
+  cb: (deviceID: string) => void,
+): TUnsubscribe => {
+  const unsubscribe = subscribeLegacy('attestationCheckDone', event => {
+    if (event.type === 'device' && event.deviceID === deviceID) {
+      cb(deviceID);
+    }
+  });
+  return unsubscribe;
 };
