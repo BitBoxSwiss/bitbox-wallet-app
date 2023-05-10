@@ -106,6 +106,7 @@
     --color-light: var(--color-mediumgray);
     --color-alt: var(--color-white);
     --color-tertiary: var(--color-gray-alt);
+    --color-custom-select-border: var(--color-lightgray);
 
     /* background colors */
     /* all backgrounds should use these colors and not from the main colors directly */
@@ -132,6 +133,7 @@
         --color-light: var(--color-mediumgray);
         --color-alt: var(--color-white);
         --color-tertiary: var(--color-gray-alt);
+        --color-custom-select-border: var(--color-gray);
 
         /* background colors */
         --background: var(--color-dark);
@@ -157,6 +159,7 @@
         --color-light: var(--color-mediumgray);
         --color-alt: var(--color-white);
         --color-tertiary: var(--color-gray-alt);
+        --color-custom-select-border: var(--color-gray);
 
         /* background colors */
         --background: var(--color-dark);

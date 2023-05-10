@@ -1,20 +1,8 @@
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { useTranslation } from 'react-i18next';
-import { TActiveLanguageCodes, TLanguage, TLanguagesList } from '../../../../components/language/types';
-import Select from 'react-select';
-import styles from './defaultCurrencySetting.module.css';
+import { TLanguagesList } from '../../../../components/language/types';
 import { getSelectedIndex } from '../../../../utils/language';
-
-type SelectOption = {
-  label: string;
-  value: TActiveLanguageCodes;
-}
-
-type TSelectProps = {
-  options: SelectOption[];
-  handleChange: (langCode: TActiveLanguageCodes) => void;
-  selectedLanguage: TLanguage;
-}
+import { SingleDropdown } from '../singledropdown/singledropdown';
 
 const defaultLanguages: TLanguagesList = [
   { code: 'ar', display: 'العربية' },
@@ -37,21 +25,6 @@ const defaultLanguages: TLanguagesList = [
   { code: 'zh', display: '中文' },
 ];
 
-
-const ReactSelect = ({ options, handleChange, selectedLanguage }: TSelectProps) => <Select
-  className={styles.select}
-  classNamePrefix="react-select"
-  isSearchable={true}
-  defaultValue={{ label: selectedLanguage.display, value: selectedLanguage.code }}
-  onChange={(selected) => {
-    if (selected) {
-      handleChange(selected.value as TActiveLanguageCodes);
-    }
-  }
-  }
-  options={options}
-/>;
-
 export const LanguageDropdownSetting = () => {
   const { i18n } = useTranslation();
   const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
@@ -60,7 +33,13 @@ export const LanguageDropdownSetting = () => {
     <SettingsItem
       settingName="Language"
       secondaryText="Which language you want the BitBoxApp to use."
-      extraComponent={<ReactSelect options={formattedLanguages} handleChange={i18n.changeLanguage} selectedLanguage={selectedLanguage} />}
+      extraComponent={
+        <SingleDropdown
+          options={formattedLanguages}
+          handleChange={i18n.changeLanguage}
+          defaultValue={{ label: selectedLanguage.display, value: selectedLanguage.code }}
+        />
+      }
     />
   );
 };
