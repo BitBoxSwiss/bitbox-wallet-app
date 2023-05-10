@@ -30,8 +30,6 @@ import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { alertUser } from '../../../components/alert/Alert';
-import { store as panelStore } from '../../../components/guide/guide';
-import { setSidebarStatus } from '../../../components/sidebar/sidebar';
 import Status from '../../../components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
@@ -135,15 +133,8 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private onStatusChanged = () => {
-    const { showWizard, unlockOnly, appStatus } = this.state;
-    const { sidebarStatus } = panelStore.state;
+    const { showWizard, unlockOnly } = this.state;
     getStatus(this.props.deviceID).then(status => {
-      const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
-      if (restoreSidebar) {
-        setSidebarStatus('');
-      } else if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
-        setSidebarStatus('forceHidden');
-      }
       if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
         this.setState({ showWizard: true });
       }
@@ -165,10 +156,6 @@ class BitBox02 extends Component<Props, State> {
   };
 
   public componentWillUnmount() {
-    const { sidebarStatus } = panelStore.state;
-    if (['forceHidden', 'forceCollapsed'].includes(sidebarStatus)) {
-      setSidebarStatus('');
-    }
     unsubscribe(this.unsubscribeList);
   }
 
