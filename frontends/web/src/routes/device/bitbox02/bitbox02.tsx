@@ -36,6 +36,7 @@ import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
+import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 import style from './bitbox02.module.css';
 
 interface BitBox02Props {
@@ -269,6 +270,7 @@ class BitBox02 extends Component<Props, State> {
         return;
       }
 
+      // TODO: creatingBackup is only used to disable the button in checklist, move to checklist?
       this.setState({ creatingBackup: true, waitDialog: {
         title: this.props.t('bitbox02Interact.confirmDate'),
         text: this.props.t('bitbox02Interact.confirmDateText'),
@@ -673,8 +675,7 @@ class BitBox02 extends Component<Props, State> {
             verticallyCentered
             withBottomBar
             width="700px">
-            <ViewHeader title={t('backup.restore.confirmTitle')}>
-            </ViewHeader>
+            <ViewHeader title={t('backup.restore.confirmTitle')} />
             <ViewContent>
               <BackupsV2
                 deviceID={deviceID}
@@ -728,81 +729,14 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (appStatus === 'createWallet' && status === 'initialized') && (
-          <View
-            key="success"
-            fitContent
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar>
-            <ViewHeader title={t('bitbox02Wizard.success.title')}>
-              <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
-            </ViewHeader>
-            <ViewContent withIcon="success">
-              <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
-            </ViewContent>
-            <ViewButtons>
-              <Button primary onClick={this.handleGetStarted}>
-                {t('success.getstarted')}
-              </Button>
-            </ViewButtons>
-          </View>
+          <CreateWalletSuccess key="success" onContinue={this.handleGetStarted} />
         )}
-
         { (appStatus === 'restoreBackup' && status === 'initialized') && (
-          <View
-            key="backup-success"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
-            <ViewContent textAlign="left">
-              <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
-              <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
-              <ul>
-                <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
-              </ul>
-            </ViewContent>
-            <ViewButtons>
-              <Button primary onClick={this.handleGetStarted}>
-                {t('success.getstarted')}
-              </Button>
-            </ViewButtons>
-          </View>
+          <RestoreFromSDCardSuccess key="backup-success" onContinue={this.handleGetStarted} />
         )}
-
         { (appStatus === 'restoreFromMnemonic' && status === 'initialized') && (
-          <View
-            key="backup-mnemonic-success"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
-            <ViewContent textAlign="left">
-              <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
-              <ul>
-                <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
-              </ul>
-            </ViewContent>
-            <ViewButtons>
-              <Button primary onClick={this.handleGetStarted}>
-                {t('success.getstarted')}
-              </Button>
-            </ViewButtons>
-          </View>
+          <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={this.handleGetStarted} />
         )}
-
       </Main>
     );
   }
