@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:18.04 as qt5base
+FROM ubuntu:20.04 as qt5base
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -56,7 +56,7 @@ RUN apt-get -y install --no-install-recommends \
     libfontconfig1-dev \
     libcap-dev \
     libbz2-dev \
-    libgcrypt11-dev \
+    libgcrypt20-dev \
     libpci-dev \
     libnss3-dev \
     libxcursor-dev \
@@ -77,6 +77,7 @@ RUN apt-get -y install --no-install-recommends \
     libxss-dev \
     libasound2-dev \
     libgstreamer1.0-dev \
+    libwayland-dev \
     libgstreamer-plugins-base1.0-dev
 
 # Get the source code
@@ -108,11 +109,13 @@ RUN cd /tmp/qt5 && make -j1
 
 RUN cd /tmp/qt5 && make install
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND noninteractive
 
 COPY --from=qt5base /opt/qt5 /opt/qt5
 
 Run apt-get update
 
 # This is needed for compiling apps depending on the qt5 libs.
-RUN apt-get -y install --no-install-recommends libxcb-xinerama0 libxcb-xkb-dev libxcb-render-util0 libxcb-image0 libxcb-keysyms1 libxcb-icccm4 libcups2 libgl1-mesa-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libxi-dev libxcursor-dev libxrender-dev libxss-dev libxcomposite-dev libasound2-dev libxtst-dev libxslt-dev libnss3-dev libicu-dev
+RUN apt-get -y install --no-install-recommends libxcb-xinerama0 libxcb-xkb-dev libxcb-render-util0 libxcb-image0 libxcb-keysyms1 libxcb-icccm4 libxcb-randr0 libxcb-shape0 libxcb-xinput0 libcups2 libgl1-mesa-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libxi-dev libxcursor-dev libxrender-dev libxss-dev libxcomposite-dev libasound2-dev libxtst-dev libxslt-dev libnss3-dev libicu-dev libpcre2-16-0
