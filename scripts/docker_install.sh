@@ -58,7 +58,7 @@ cd /opt && \
 # Install fpm to create deb/rpm packages
 apt-get install -y --no-install-recommends \
         ruby ruby-dev build-essential rpm
-gem install --no-ri --no-rdoc fpm
+gem install --no-document fpm
 
 # Needed for Android.
 apt-get install -y --no-install-recommends default-jdk

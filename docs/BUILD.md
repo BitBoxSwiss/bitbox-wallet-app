@@ -4,7 +4,7 @@ platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
 * Debian GNU/Linux: Stretch and Buster or newer
-* Ubuntu: 18.04+
+* Ubuntu: 20.04+
 * Fedora: 26+
 * MacOS: 10.13+
 * Windows: Windows 7+
