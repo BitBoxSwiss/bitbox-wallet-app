@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, FormEvent } from 'react';
+import { Component } from 'react';
 import { Backup } from '../components/backup';
 import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
 import { attestationCheckDone, channelHashChanged, statusChanged } from '../../../api/devicessync';
@@ -23,7 +23,7 @@ import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button, Input } from '../../../components/forms';
+import { Button } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -34,10 +34,10 @@ import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
+import { SetDeviceName } from './setup/name';
 import { RestoreFromSDCardBackup } from './setup/restore';
 import { ChecklistWalletCreate } from './setup/checklist';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
-import style from './bitbox02.module.css';
 
 interface BitBox02Props {
     deviceID: string;
@@ -56,7 +56,6 @@ interface State {
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     sdCardInserted?: boolean;
     errorText?: string;
-    deviceName: string;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
@@ -79,7 +78,6 @@ class BitBox02 extends Component<Props, State> {
       appStatus: '',
       createWalletStatus: 'intro',
       restoreBackupStatus: 'intro',
-      deviceName: '',
       unlockOnly: true,
       showWizard: false,
       waitDialog: undefined,
@@ -153,7 +151,6 @@ class BitBox02 extends Component<Props, State> {
     this.setState({
       appStatus: 'createWallet',
       createWalletStatus: 'intro',
-      deviceName: '',
     });
   };
 
@@ -267,20 +264,13 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private handleDeviceNameInput = (event: Event) => {
-    const target = (event.target as HTMLInputElement);
-    const value: string = target.value;
-    this.setState({ deviceName: value });
-  };
-
-  private setDeviceName = (event: FormEvent) => {
+  private setDeviceName = (deviceName: string) => {
     const { deviceID, t } = this.props;
-    event.preventDefault();
     this.setState({
       waitDialog: { title: t('bitbox02Interact.confirmName') }
     }, async () => {
       try {
-        const result = await setDeviceName(deviceID, this.state.deviceName);
+        const result = await setDeviceName(deviceID, deviceName);
         if (!result.success) {
           alertUser(result.message || t('genericError'), {
             asDialog: false,
@@ -331,7 +321,6 @@ class BitBox02 extends Component<Props, State> {
       unlockOnly,
       showWizard,
       sdCardInserted,
-      deviceName,
       waitDialog,
       selectedBackup,
     } = this.state;
@@ -499,56 +488,15 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'intro') && (
-          <form
-            key="intro-pairing"
-            onSubmit={this.setDeviceName}>
-            <View
-              fullscreen
-              textCenter
-              withBottomBar
-              verticallyCentered
-              width="600px">
-              <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
-                <p>{t('bitbox02Wizard.stepCreate.description')}</p>
-                {!sdCardInserted && (
-                  <Status type="warning">
-                    <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
-                  </Status>
-                )}
-              </ViewHeader>
-              <ViewContent>
-                <Input
-                  autoFocus
-                  className={style.wizardLabel}
-                  label={t('bitbox02Wizard.stepCreate.nameLabel')}
-                  pattern="^.{0,63}$"
-                  onInput={this.handleDeviceNameInput}
-                  placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
-                  value={deviceName}
-                  id="deviceName" />
-              </ViewContent>
-              <ViewButtons>
-                <Button
-                  disabled={!deviceName}
-                  primary
-                  type="submit">
-                  {t('button.continue')}
-                </Button>
-                <Button
-                  onClick={() => this.setState({ appStatus: '' })}
-                  transparent
-                  type="button">
-                  {t('button.back')}
-                </Button>
-              </ViewButtons>
-            </View>
-          </form>
+          <SetDeviceName
+            key="set-devicename"
+            sdCardInserted={sdCardInserted}
+            onDeviceName={this.setDeviceName}
+            onBack={() => this.setState({ appStatus: '' })} />
         )}
-
         { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'setPassword') && (
           <SetPassword key="create-wallet" errorText={errorText} />
         )}
-
         { (!unlockOnly && appStatus === 'createWallet' && status === 'seeded' && createWalletStatus === 'createBackup') && (
           <ChecklistWalletCreate key="create-backup" onContinue={this.createBackup} />
         )}
