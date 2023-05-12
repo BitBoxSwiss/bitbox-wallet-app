@@ -20,8 +20,6 @@ import { Backup } from '../components/backup';
 import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
 import { attestationCheckDone, channelHashChanged, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
-import { MultilineMarkup } from '../../../utils/markup';
-import { convertDateToLocaleString } from '../../../utils/date';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
@@ -36,6 +34,7 @@ import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
+import { SetPassword, SetPasswordWithBackup } from './setup/password';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 import style from './bitbox02.module.css';
 
@@ -695,37 +694,10 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized' && restoreBackupStatus === 'setPassword') && (
-          <View
+          <SetPasswordWithBackup
             key="set-password"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('backup.restore.confirmTitle')}>
-              {errorText ? (
-                <Status type="warning">
-                  <span>{errorText}</span>
-                </Status>
-              ) : (
-                selectedBackup ? (
-                  <div>
-                    <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
-                      backupName: selectedBackup.name,
-                      createdDateTime: convertDateToLocaleString(selectedBackup.date, this.props.i18n.language),
-                    })}/>
-                    <p className="text-small text-ellipsis">
-                                            ID:&nbsp;{selectedBackup.id}
-                    </p>
-                  </div>
-                ) : null
-              )}
-            </ViewHeader>
-            <ViewContent>
-              <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
-              <PasswordEntry />
-            </ViewContent>
-          </View>
+            errorText={errorText}
+            forBackup={selectedBackup} />
         )}
 
         { (appStatus === 'createWallet' && status === 'initialized') && (
