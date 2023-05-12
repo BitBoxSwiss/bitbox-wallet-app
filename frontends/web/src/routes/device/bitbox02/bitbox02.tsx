@@ -24,14 +24,13 @@ import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Main } from '../../../components/layout';
-import { View, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { alertUser } from '../../../components/alert/Alert';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
-import { PointToBitBox02 } from '../../../components/icon';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
+import { Wait } from './setup/wait';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
 import { SetupOptions } from './setup/choose';
 import { SetDeviceName } from './setup/name';
@@ -337,18 +336,10 @@ class BitBox02 extends Component<Props, State> {
     }
     if (waitDialog) {
       return (
-        <View
+        <Wait
           key="wait-view"
-          fullscreen
-          verticallyCentered
-          textCenter>
-          <ViewHeader title={waitDialog.title}>
-            <p>{waitDialog.text ? waitDialog.text : t('bitbox02Interact.followInstructions')}</p>
-          </ViewHeader>
-          <ViewContent>
-            <PointToBitBox02 />
-          </ViewContent>
-        </View>
+          title={waitDialog.title}
+          text={waitDialog.text} />
       );
     }
 
