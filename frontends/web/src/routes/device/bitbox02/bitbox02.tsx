@@ -24,7 +24,7 @@ import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button } from '../../../components/forms';
-import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
+import { Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { alertUser } from '../../../components/alert/Alert';
@@ -32,8 +32,9 @@ import Status from '../../../components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
-import { Info, PointToBitBox02 } from '../../../components/icon';
+import { PointToBitBox02 } from '../../../components/icon';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
+import { SetupOptions } from './setup/choose';
 import { SetDeviceName } from './setup/name';
 import { RestoreFromSDCardBackup } from './setup/restore';
 import { ChecklistWalletCreate } from './setup/checklist';
@@ -144,7 +145,7 @@ class BitBox02 extends Component<Props, State> {
     unsubscribe(this.unsubscribeList);
   }
 
-  private createWalletStep = () => {
+  private createWallet = () => {
     checkSDCard(this.props.deviceID).then(sdCardInserted => {
       this.setState({ sdCardInserted });
     });
@@ -154,7 +155,7 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private restoreBackupStep = () => {
+  private restoreBackup = () => {
     this.insertSDCard().then(success => {
       if (success) {
         this.setState({
@@ -216,13 +217,6 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private restoreBackup = () => {
-    this.insertSDCard();
-    this.setState({
-      restoreBackupStatus: 'restore',
-    });
-  };
-
   private onSelectBackup = (backup: Backup) => {
     this.setState({
       restoreBackupStatus: 'setPassword',
@@ -232,7 +226,10 @@ class BitBox02 extends Component<Props, State> {
 
   private onRestoreBackup = (success: boolean) => {
     if (!success) {
-      this.restoreBackup();
+      this.insertSDCard();
+      this.setState({
+        restoreBackupStatus: 'restore',
+      });
     }
     this.setState({ selectedBackup: undefined });
   };
@@ -442,49 +439,21 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (!unlockOnly && status === 'uninitialized' && appStatus === '') && (
-          <View
-            key="uninitialized-pairing"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="950px">
-            <ViewHeader title={t('bitbox02Wizard.stepUninitialized.title')}>
-              <p>
-                <Info style={{ marginRight: '.5em', verticalAlign: 'text-bottom', height: '1.2em' }} />
-                {t('bitbox02Wizard.initialize.tip')}
-              </p>
-            </ViewHeader>
-            <ViewContent>
-              <Grid>
-                <Column asCard className="m-bottom-default">
-                  <h3 className="title">{t('button.create')}</h3>
-                  <p>{t('bitbox02Wizard.stepUninitialized.create')}</p>
-                  <ColumnButtons>
-                    <Button primary onClick={this.createWalletStep}>
-                      {t('seed.create')}
-                    </Button>
-                  </ColumnButtons>
-                </Column>
-                <Column asCard className="m-bottom-default">
-                  <h3 className="title">{t('button.restore')}</h3>
-                  <p>{t('bitbox02Wizard.stepUninitialized.restore')}</p>
-                  <ColumnButtons>
-                    <Button
-                      secondary
-                      onClick={this.restoreBackupStep}>
-                      {t('bitbox02Wizard.stepUninitialized.restoreMicroSD')}
-                    </Button>
-                    <Button
-                      secondary
-                      onClick={this.restoreFromMnemonic}>
-                      {t('bitbox02Wizard.stepUninitialized.restoreMnemonic')}
-                    </Button>
-                  </ColumnButtons>
-                </Column>
-              </Grid>
-            </ViewContent>
-          </View>
+          <SetupOptions
+            key="choose-setup"
+            onSelectSetup={(option) => {
+              switch (option) {
+              case 'create-wallet':
+                this.createWallet();
+                break;
+              case 'restore-sdcard':
+                this.restoreBackup();
+                break;
+              case 'restore-mnemonic':
+                this.restoreFromMnemonic();
+                break;
+              }
+            }} />
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'intro') && (
