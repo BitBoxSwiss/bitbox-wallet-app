@@ -2,16 +2,3 @@
 .wizardLabel label {
     font-size: var(--size-wizard-text) !important;
 }
-
-.wizardCheckbox label {
-    font-size: var(--size-wizard-text) !important;
-    line-height: 1.4;
-}
-
-.wizardCheckbox label::before {
-    top: 2px !important;
-}
-
-.wizardCheckbox label::after {
-    top: 6px !important;
-}

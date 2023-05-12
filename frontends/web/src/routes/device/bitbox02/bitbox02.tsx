@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component, FormEvent } from 'react';
+import { Component, FormEvent } from 'react';
 import { Backup } from '../components/backup';
 import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
 import { attestationCheckDone, channelHashChanged, statusChanged } from '../../../api/devicessync';
@@ -23,7 +23,7 @@ import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button, Checkbox, Input } from '../../../components/forms';
+import { Button, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -35,6 +35,7 @@ import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
+import { ChecklistWalletCreate } from './setup/checklist';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 import style from './bitbox02.module.css';
 
@@ -61,11 +62,6 @@ interface State {
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
-    agreement1: boolean;
-    agreement2: boolean;
-    agreement3: boolean;
-    agreement4: boolean;
-    agreement5: boolean;
     waitDialog?: {
         title: string;
         text?: string;
@@ -90,11 +86,6 @@ class BitBox02 extends Component<Props, State> {
       deviceName: '',
       unlockOnly: true,
       showWizard: false,
-      agreement1: false,
-      agreement2: false,
-      agreement3: false,
-      agreement4: false,
-      agreement5: false,
       waitDialog: undefined,
     };
   }
@@ -338,15 +329,6 @@ class BitBox02 extends Component<Props, State> {
     }
   };
 
-  private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
-        type TAgreements = 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
-        const target = event.target as HTMLInputElement;
-        const key = target.id;
-        this.setState({
-          [key as TAgreements]: target.checked
-        } as unknown as Pick<State, keyof State>);
-  };
-
   public render() {
     const { t, deviceID } = this.props;
     const {
@@ -365,11 +347,6 @@ class BitBox02 extends Component<Props, State> {
       showWizard,
       sdCardInserted,
       deviceName,
-      agreement1,
-      agreement2,
-      agreement3,
-      agreement4,
-      agreement5,
       waitDialog,
       selectedBackup,
     } = this.state;
@@ -419,7 +396,6 @@ class BitBox02 extends Component<Props, State> {
       );
     }
 
-    const readDisclaimers = agreement1 && agreement2 && agreement3 && agreement4 && agreement5;
     return (
       <Main>
         { (status === 'connected') ? (
@@ -588,82 +564,14 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'setPassword') && (
-          <View
-            key="create-wallet"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="600px">
-            <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
-              {errorText && (
-                <Status type="warning">
-                  <span>{errorText}</span>
-                </Status>
-              )}
-              <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
-            </ViewHeader>
-            <ViewContent>
-              <PasswordEntry />
-            </ViewContent>
-          </View>
+          <SetPassword key="create-wallet" errorText={errorText} />
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && status === 'seeded' && createWalletStatus === 'createBackup') && (
-          <form>
-            <View
-              key="create-backup"
-              fullscreen
-              textCenter
-              verticallyCentered
-              withBottomBar
-              width="700px">
-              <ViewHeader title={t('backup.create.title')}>
-                <p>{t('bitbox02Wizard.stepBackup.createBackup')}</p>
-              </ViewHeader>
-              <ViewContent textAlign="left">
-                <p>{t('bitbox02Wizard.stepBackup.beforeProceed')}</p>
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement1"
-                  checked={agreement1}
-                  label={t('bitbox02Wizard.backup.userConfirmation1')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement2"
-                  checked={agreement2}
-                  label={t('bitbox02Wizard.backup.userConfirmation2')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement3"
-                  checked={agreement3}
-                  label={t('bitbox02Wizard.backup.userConfirmation3')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement4"
-                  checked={agreement4}
-                  label={t('bitbox02Wizard.backup.userConfirmation4')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement5"
-                  checked={agreement5}
-                  label={t('bitbox02Wizard.backup.userConfirmation5')} />
-              </ViewContent>
-              <ViewButtons>
-                <Button
-                  primary
-                  onClick={this.createBackup}
-                  disabled={creatingBackup || !readDisclaimers}>
-                  {t('button.continue')}
-                </Button>
-              </ViewButtons>
-            </View>
-          </form>
+          <ChecklistWalletCreate
+            key="create-backup"
+            creatingBackup={creatingBackup}
+            onContinue={this.createBackup} />
         )}
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
