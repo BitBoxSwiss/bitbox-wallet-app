@@ -55,7 +55,6 @@ interface State {
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     settingPassword: boolean;
-    creatingBackup: boolean;
     sdCardInserted?: boolean;
     errorText?: string;
     deviceName: string;
@@ -78,7 +77,6 @@ class BitBox02 extends Component<Props, State> {
       deviceVerified: false,
       status: '',
       settingPassword: false,
-      creatingBackup: false,
       sdCardInserted: undefined,
       appStatus: '',
       createWalletStatus: 'intro',
@@ -259,12 +257,12 @@ class BitBox02 extends Component<Props, State> {
         alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
         return;
       }
-
-      // TODO: creatingBackup is only used to disable the button in checklist, move to checklist?
-      this.setState({ creatingBackup: true, waitDialog: {
-        title: this.props.t('bitbox02Interact.confirmDate'),
-        text: this.props.t('bitbox02Interact.confirmDateText'),
-      } });
+      this.setState({
+        waitDialog: {
+          title: this.props.t('bitbox02Interact.confirmDate'),
+          text: this.props.t('bitbox02Interact.confirmDateText'),
+        }
+      });
       createBackup(this.props.deviceID, 'sdcard')
         .then((result) => {
           if (!result.success) {
@@ -274,7 +272,7 @@ class BitBox02 extends Component<Props, State> {
               alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
             }
           }
-          this.setState({ creatingBackup: false, waitDialog: undefined });
+          this.setState({ waitDialog: undefined });
         })
         .catch(console.error);
     });
@@ -340,7 +338,6 @@ class BitBox02 extends Component<Props, State> {
       createWalletStatus,
       restoreBackupStatus,
       settingPassword,
-      creatingBackup,
       deviceVerified,
       errorText,
       unlockOnly,
@@ -568,10 +565,7 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (!unlockOnly && appStatus === 'createWallet' && status === 'seeded' && createWalletStatus === 'createBackup') && (
-          <ChecklistWalletCreate
-            key="create-backup"
-            creatingBackup={creatingBackup}
-            onContinue={this.createBackup} />
+          <ChecklistWalletCreate key="create-backup" onContinue={this.createBackup} />
         )}
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (

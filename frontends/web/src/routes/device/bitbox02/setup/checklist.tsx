@@ -21,20 +21,25 @@ import { Button, Checkbox } from '../../../../components/forms';
 import style from './checklist.module.css';
 
 type Props = {
-  creatingBackup: boolean;
   onContinue: () => void;
 }
 
-export const ChecklistWalletCreate = ({
-  creatingBackup,
-  onContinue,
-}: Props) => {
+export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
   const { t } = useTranslation();
   const [agree1, setAgree1] = useState(false);
   const [agree2, setAgree2] = useState(false);
   const [agree3, setAgree3] = useState(false);
   const [agree4, setAgree4] = useState(false);
   const [agree5, setAgree5] = useState(false);
+
+  const handleContinue = () => {
+    setAgree1(false);
+    setAgree2(false);
+    setAgree3(false);
+    setAgree4(false);
+    setAgree5(false);
+    onContinue();
+  };
 
   return (
     <form>
@@ -83,8 +88,8 @@ export const ChecklistWalletCreate = ({
         <ViewButtons>
           <Button
             primary
-            onClick={onContinue}
-            disabled={creatingBackup || !(agree1 && agree2 && agree3 && agree4 && agree5)}>
+            onClick={handleContinue}
+            disabled={!(agree1 && agree2 && agree3 && agree4 && agree5)}>
             {t('button.continue')}
           </Button>
         </ViewButtons>
