@@ -30,11 +30,11 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { alertUser } from '../../../components/alert/Alert';
 import Status from '../../../components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
-import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
+import { RestoreFromSDCardBackup } from './setup/restore';
 import { ChecklistWalletCreate } from './setup/checklist';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 import style from './bitbox02.module.css';
@@ -147,10 +147,6 @@ class BitBox02 extends Component<Props, State> {
   public componentWillUnmount() {
     unsubscribe(this.unsubscribeList);
   }
-
-  private uninitializedStep = () => {
-    this.setState({ appStatus: '' });
-  };
 
   private createWalletStep = () => {
     checkSDCard(this.props.deviceID).then(sdCardInserted => {
@@ -567,34 +563,17 @@ class BitBox02 extends Component<Props, State> {
         { (!unlockOnly && appStatus === 'createWallet' && status === 'seeded' && createWalletStatus === 'createBackup') && (
           <ChecklistWalletCreate key="create-backup" onContinue={this.createBackup} />
         )}
+
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
-          <View
-            key="restore"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('backup.restore.confirmTitle')} />
-            <ViewContent>
-              <BackupsV2
-                deviceID={deviceID}
-                showRestore={true}
-                showRadio={true}
-                onSelectBackup={this.onSelectBackup}
-                onRestoreBackup={this.onRestoreBackup}>
-                <Button
-                  transparent
-                  onClick={this.uninitializedStep}
-                  disabled={settingPassword}>
-                  {t('button.back')}
-                </Button>
-              </BackupsV2>
-            </ViewContent>
-          </View>
+          <RestoreFromSDCardBackup
+            key="restore-backup"
+            deviceID={deviceID}
+            settingPassword={settingPassword}
+            onSelectBackup={this.onSelectBackup}
+            onRestoreBackup={this.onRestoreBackup}
+            onBack={() => this.setState({ appStatus: '' })} />
         )}
-
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized' && restoreBackupStatus === 'setPassword') && (
           <SetPasswordWithBackup
             key="set-password"
