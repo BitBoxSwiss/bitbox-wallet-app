@@ -27,11 +27,10 @@ import { Main } from '../../../components/layout';
 import { View, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { alertUser } from '../../../components/alert/Alert';
-import Status from '../../../components/status/status';
-import { PasswordEntry } from './components/password-entry/password-entry';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { PointToBitBox02 } from '../../../components/icon';
+import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
 import { SetupOptions } from './setup/choose';
@@ -356,26 +355,9 @@ class BitBox02 extends Component<Props, State> {
     return (
       <Main>
         { (status === 'connected') ? (
-          <View
-            key="connection"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="690px">
-            <ViewHeader title={t('button.unlock')}>
-              <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
-            </ViewHeader>
-            <ViewContent fullWidth>
-              {attestation === false ? (
-                <Status>
-                  {t('bitbox02Wizard.attestationFailed')}
-                </Status>
-              ) : (
-                <PasswordEntry />
-              )}
-            </ViewContent>
-          </View>
+          <Unlock
+            key="unlock"
+            attestation={attestation} />
         ) : null }
 
         { (status === 'unpaired' || status === 'pairingFailed') && (
