@@ -17,8 +17,8 @@
 
 import { Component } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, createBackup } from '../../../api/bitbox02';
-import { attestationCheckDone, channelHashChanged, statusChanged } from '../../../api/devicessync';
+import { checkSDCard, errUserAbort, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, createBackup } from '../../../api/bitbox02';
+import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
@@ -48,9 +48,7 @@ type Props = BitBox02Props & TranslateProps;
 
 interface State {
     versionInfo?: VersionInfo;
-    hash?: string;
     attestation: boolean | null;
-    deviceVerified: boolean;
     status: '' | TStatus;
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
@@ -71,9 +69,7 @@ class BitBox02 extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      hash: undefined,
       attestation: null,
-      deviceVerified: false,
       status: '',
       sdCardInserted: undefined,
       appStatus: '',
@@ -93,11 +89,9 @@ class BitBox02 extends Component<Props, State> {
       this.setState({ versionInfo });
     });
     this.updateAttestationCheck();
-    this.onChannelHashChanged();
     this.onStatusChanged();
     this.unsubscribeList = [
       statusChanged(deviceID, this.onStatusChanged),
-      channelHashChanged(deviceID, this.onChannelHashChanged),
       attestationCheckDone(deviceID, this.updateAttestationCheck),
     ];
   }
@@ -110,12 +104,6 @@ class BitBox02 extends Component<Props, State> {
 
   private handleGetStarted = () => {
     route('/account-summary', true);
-  };
-
-  private onChannelHashChanged = () => {
-    getChannelHash(this.props.deviceID).then(({ hash, deviceVerified }) => {
-      this.setState({ hash, deviceVerified });
-    });
   };
 
   private onStatusChanged = () => {
@@ -308,12 +296,10 @@ class BitBox02 extends Component<Props, State> {
     const {
       attestation,
       versionInfo,
-      hash,
       status,
       appStatus,
       createWalletStatus,
       restoreBackupStatus,
-      deviceVerified,
       errorText,
       unlockOnly,
       showWizard,
@@ -397,9 +383,7 @@ class BitBox02 extends Component<Props, State> {
             key="pairing"
             deviceID={deviceID}
             attestation={attestation}
-            pairingFailed={status === 'pairingFailed'}
-            hash={hash}
-            deviceVerified={deviceVerified} />
+            pairingFailed={status === 'pairingFailed'} />
         )}
 
         { (!unlockOnly && status === 'uninitialized' && appStatus === '') && (

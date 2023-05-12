@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { verifyChannelHash } from '../../../../api/bitbox02';
+import { getChannelHash, verifyChannelHash } from '../../../../api/bitbox02';
+import { channelHashChanged } from '../../../../api/devicessync';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
 import Status from '../../../../components/status/status';
 import { PointToBitBox02 } from '../../../../components/icon';
@@ -25,32 +27,41 @@ type Props = {
   attestation: boolean | null;
   deviceID: string;
   pairingFailed: boolean;
-  hash: string | undefined;
-  deviceVerified: boolean;
 }
 
 export const Pairing = ({
   attestation,
   deviceID,
   pairingFailed,
-  hash,
-  deviceVerified,
 }: Props) => {
   const { t } = useTranslation();
+  const [hash, setHash] = useState('');
+  const [deviceVerified, setDeviceVerified] = useState(false);
+
+  const onChannelHashChanged = useCallback(() => {
+    getChannelHash(deviceID).then(({ hash, deviceVerified }) => {
+      setHash(hash);
+      setDeviceVerified(deviceVerified);
+    });
+  }, [deviceID]);
+
+  useEffect(onChannelHashChanged, [deviceID, onChannelHashChanged]);
+
+  // subscribe to channeHashChanged, this needs to call onChannelHashChanged
+  // as it is only a notification and does not actually pass the data from the backend
+  useEffect(() => {
+    // returns unsubscribe callback to unmount this component
+    return channelHashChanged(deviceID, onChannelHashChanged);
+  }, [deviceID, onChannelHashChanged]);
+
   return (
     <View
-      key="pairing"
       fullscreen
       textCenter
       verticallyCentered
       withBottomBar
       width="670px">
       <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
-        { (attestation === false && !pairingFailed) && (
-          <Status key="attestation" type="warning">
-            {t('bitbox02Wizard.attestationFailed')}
-          </Status>
-        )}
         { pairingFailed ? (
           <Status key="pairingFailed" type="warning">
             {t('bitbox02Wizard.pairing.failed')}
@@ -64,6 +75,11 @@ export const Pairing = ({
         )}
       </ViewHeader>
       <ViewContent fullWidth>
+        { (attestation === false && !pairingFailed) && (
+          <Status type="warning" className="m-bottom-half">
+            {t('bitbox02Wizard.attestationFailed')}
+          </Status>
+        )}
         { !pairingFailed && (
           <>
             <pre>{hash}</pre>
