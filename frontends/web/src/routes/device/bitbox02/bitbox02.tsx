@@ -54,7 +54,6 @@ interface State {
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
-    settingPassword: boolean;
     sdCardInserted?: boolean;
     errorText?: string;
     deviceName: string;
@@ -76,7 +75,6 @@ class BitBox02 extends Component<Props, State> {
       attestationResult: null,
       deviceVerified: false,
       status: '',
-      settingPassword: false,
       sdCardInserted: undefined,
       appStatus: '',
       createWalletStatus: 'intro',
@@ -197,10 +195,7 @@ class BitBox02 extends Component<Props, State> {
   };
 
   private setPassword = () => {
-    this.setState({
-      settingPassword: true,
-      createWalletStatus: 'setPassword',
-    });
+    this.setState({ createWalletStatus: 'setPassword' });
     setPassword(this.props.deviceID).then((response) => {
       if (!response.success) {
         if (response.code === errUserAbort) {
@@ -209,12 +204,10 @@ class BitBox02 extends Component<Props, State> {
           this.setState({
             appStatus: '',
             errorText: undefined,
-            settingPassword: false,
           });
         } else {
           this.setState({
             errorText: this.props.t('bitbox02Wizard.noPasswordMatch'),
-            settingPassword: false,
           }, () => {
             this.setPassword();
           });
@@ -222,7 +215,7 @@ class BitBox02 extends Component<Props, State> {
         // show noPasswordMatch error and do NOT continue to createBackup
         return;
       }
-      this.setState({ settingPassword: false, createWalletStatus: 'createBackup' });
+      this.setState({ createWalletStatus: 'createBackup' });
     });
   };
 
@@ -333,7 +326,6 @@ class BitBox02 extends Component<Props, State> {
       appStatus,
       createWalletStatus,
       restoreBackupStatus,
-      settingPassword,
       deviceVerified,
       errorText,
       unlockOnly,
@@ -480,10 +472,7 @@ class BitBox02 extends Component<Props, State> {
                   <h3 className="title">{t('button.create')}</h3>
                   <p>{t('bitbox02Wizard.stepUninitialized.create')}</p>
                   <ColumnButtons>
-                    <Button
-                      primary
-                      onClick={this.createWalletStep}
-                      disabled={settingPassword}>
+                    <Button primary onClick={this.createWalletStep}>
                       {t('seed.create')}
                     </Button>
                   </ColumnButtons>
@@ -569,7 +558,6 @@ class BitBox02 extends Component<Props, State> {
           <RestoreFromSDCardBackup
             key="restore-backup"
             deviceID={deviceID}
-            settingPassword={settingPassword}
             onSelectBackup={this.onSelectBackup}
             onRestoreBackup={this.onRestoreBackup}
             onBack={() => this.setState({ appStatus: '' })} />

@@ -22,7 +22,6 @@ import { Button } from '../../../../components/forms';
 
 type Props = {
   deviceID: string;
-  settingPassword: boolean;
   onSelectBackup: (backup: Backup) => void;
   onRestoreBackup: (success: boolean) => void;
   onBack: () => void;
@@ -30,7 +29,6 @@ type Props = {
 
 export const RestoreFromSDCardBackup = ({
   deviceID,
-  settingPassword,
   onSelectBackup,
   onRestoreBackup,
   onBack,
@@ -53,8 +51,7 @@ export const RestoreFromSDCardBackup = ({
           onRestoreBackup={onRestoreBackup}>
           <Button
             transparent
-            onClick={onBack}
-            disabled={settingPassword}>
+            onClick={onBack}>
             {t('button.back')}
           </Button>
         </BackupsV2>
