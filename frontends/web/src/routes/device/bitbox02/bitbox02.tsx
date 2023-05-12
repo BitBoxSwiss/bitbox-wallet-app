@@ -237,14 +237,14 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
-  private backupOnBeforeRestore = (backup: Backup) => {
+  private onSelectBackup = (backup: Backup) => {
     this.setState({
       restoreBackupStatus: 'setPassword',
       selectedBackup: backup,
     });
   };
 
-  private backupOnAfterRestore = (success: boolean) => {
+  private onRestoreBackup = (success: boolean) => {
     if (!success) {
       this.restoreBackup();
     }
@@ -582,8 +582,8 @@ class BitBox02 extends Component<Props, State> {
                 deviceID={deviceID}
                 showRestore={true}
                 showRadio={true}
-                backupOnBeforeRestore={this.backupOnBeforeRestore}
-                backupOnAfterRestore={this.backupOnAfterRestore}>
+                onSelectBackup={this.onSelectBackup}
+                onRestoreBackup={this.onRestoreBackup}>
                 <Button
                   transparent
                   onClick={this.uninitializedStep}
