@@ -17,15 +17,14 @@
 
 import { Component } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
+import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, createBackup } from '../../../api/bitbox02';
 import { attestationCheckDone, channelHashChanged, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button } from '../../../components/forms';
 import { Main } from '../../../components/layout';
-import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
+import { View, ViewContent, ViewHeader } from '../../../components/view/view';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { alertUser } from '../../../components/alert/Alert';
 import Status from '../../../components/status/status';
@@ -33,6 +32,7 @@ import { PasswordEntry } from './components/password-entry/password-entry';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { PointToBitBox02 } from '../../../components/icon';
+import { Pairing } from './setup/pairing';
 import { SetPassword, SetPasswordWithBackup } from './setup/password';
 import { SetupOptions } from './setup/choose';
 import { SetDeviceName } from './setup/name';
@@ -49,7 +49,7 @@ type Props = BitBox02Props & TranslateProps;
 interface State {
     versionInfo?: VersionInfo;
     hash?: string;
-    attestationResult: boolean | null;
+    attestation: boolean | null;
     deviceVerified: boolean;
     status: '' | TStatus;
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
@@ -72,7 +72,7 @@ class BitBox02 extends Component<Props, State> {
     super(props);
     this.state = {
       hash: undefined,
-      attestationResult: null,
+      attestation: null,
       deviceVerified: false,
       status: '',
       sdCardInserted: undefined,
@@ -103,8 +103,8 @@ class BitBox02 extends Component<Props, State> {
   }
 
   private updateAttestationCheck = () => {
-    verifyAttestation(this.props.deviceID).then(attestationResult => {
-      this.setState({ attestationResult });
+    verifyAttestation(this.props.deviceID).then(attestation => {
+      this.setState({ attestation });
     });
   };
 
@@ -306,7 +306,7 @@ class BitBox02 extends Component<Props, State> {
   public render() {
     const { t, deviceID } = this.props;
     const {
-      attestationResult,
+      attestation,
       versionInfo,
       hash,
       status,
@@ -381,7 +381,7 @@ class BitBox02 extends Component<Props, State> {
               <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
             </ViewHeader>
             <ViewContent fullWidth>
-              {attestationResult === false ? (
+              {attestation === false ? (
                 <Status>
                   {t('bitbox02Wizard.attestationFailed')}
                 </Status>
@@ -392,50 +392,14 @@ class BitBox02 extends Component<Props, State> {
           </View>
         ) : null }
 
-        {(status === 'unpaired' || status === 'pairingFailed') && (
-          <View
+        { (status === 'unpaired' || status === 'pairingFailed') && (
+          <Pairing
             key="pairing"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="670px">
-            <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
-              { (attestationResult === false && status !== 'pairingFailed') && (
-                <Status key="attestation" type="warning">
-                  {t('bitbox02Wizard.attestationFailed')}
-                </Status>
-              )}
-              { status === 'pairingFailed' ? (
-                <Status key="pairingFailed" type="warning">
-                  {t('bitbox02Wizard.pairing.failed')}
-                </Status>
-              ) : (
-                <p>
-                  { deviceVerified
-                    ? t('bitbox02Wizard.pairing.paired')
-                    : t('bitbox02Wizard.pairing.unpaired') }
-                </p>
-              )}
-            </ViewHeader>
-            <ViewContent fullWidth>
-              { status !== 'pairingFailed' && (
-                <>
-                  <pre>{hash}</pre>
-                  { !deviceVerified && <PointToBitBox02 /> }
-                </>
-              )}
-            </ViewContent>
-            <ViewButtons>
-              { (status !== 'pairingFailed' && deviceVerified) && (
-                <Button
-                  primary
-                  onClick={() => verifyChannelHash(deviceID, true)}>
-                  {t('button.continue')}
-                </Button>
-              )}
-            </ViewButtons>
-          </View>
+            deviceID={deviceID}
+            attestation={attestation}
+            pairingFailed={status === 'pairingFailed'}
+            hash={hash}
+            deviceVerified={deviceVerified} />
         )}
 
         { (!unlockOnly && status === 'uninitialized' && appStatus === '') && (
