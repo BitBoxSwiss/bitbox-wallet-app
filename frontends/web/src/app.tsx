@@ -116,7 +116,7 @@ class App extends Component<Props, State> {
           return;
         }
         // without accounts route to device settings for unlock, pair, create, restore etc.
-        route(`/device/${newDeviceIDList[0]}`, true);
+        route(`new-settings/device-settings/${newDeviceIDList[0]}`, true);
         return;
       }
       // unplugged

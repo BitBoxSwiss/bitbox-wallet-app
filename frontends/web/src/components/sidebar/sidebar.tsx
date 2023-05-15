@@ -23,7 +23,7 @@ import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-import deviceSettings from '../../assets/icons/wallet-light.svg';
+// import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { SharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
 import { subscribe } from '../../decorators/subscribe';
@@ -209,7 +209,7 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null }
-          { deviceIDs.map(deviceID => (
+          {/* { deviceIDs.map(deviceID => (
             <div key={deviceID} className={style.sidebarItem}>
               <NavLink
                 to={`/device/${deviceID}`}
@@ -222,7 +222,7 @@ class Sidebar extends Component<Props> {
                 <span className={style.sidebarLabel}>{t('sidebar.device')}</span>
               </NavLink>
             </div>
-          )) }
+          )) } */}
           <div key="settings" className={style.sidebarItem}>
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}

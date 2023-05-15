@@ -53,7 +53,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     <DeviceSwitch
       key={devicesKey('device-switch')}
       deviceID={null}
-      devices={devices} />
+      devices={devices}
+    />
   </InjectParams>;
 
   const Acc = <InjectParams>
@@ -148,7 +149,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   return <Routes>
     <Route path="/">
       <Route index element={Homepage} />
-      <Route path="device/:deviceID" element={Device} />
       <Route path="account/:code">
         <Route index element={Acc} />
         <Route path="send" element={AccSend} />
@@ -178,6 +178,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route index element={MobileSettingsEl} />
         <Route path="appearance" element={AppearanceEl} />
         <Route path="about" element={AboutEl} />
+        <Route path="device-settings/:deviceID" element={Device} />
         <Route path="advanced-settings" element={AdvancedSettingsEl} />
       </Route>
     </Route>

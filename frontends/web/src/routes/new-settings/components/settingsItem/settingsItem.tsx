@@ -20,14 +20,14 @@ import styles from './settingsItem.module.css';
 type TProps = {
     className?: string
     onClick?: () => void;
-    settingName: string;
-    secondaryText?: string | JSX.Element;
+    settingName: string | ReactNode;
+    secondaryText?: string;
     displayedValue?: string;
     extraComponent?: ReactNode;
 }
 
 export const SettingsItem = ({
-  className,
+  className = '',
   onClick,
   settingName,
   secondaryText,
@@ -46,7 +46,7 @@ export const SettingsItem = ({
   const content =
     (<>
       <span>
-        <p className={styles.primaryText}>{settingName}</p>
+        {typeof settingName === 'string' ? <p className={styles.primaryText}>{settingName}</p> : settingName }
         { secondaryText ? (
           <p className={styles.secondaryText}>{secondaryText}</p>
         ) : null }
@@ -60,11 +60,11 @@ export const SettingsItem = ({
   return (
     <>
       {notButton ?
-        <div className={`${styles.container} ${styles.notButton} ${className}`} >
+        <div className={`${styles.container} ${className}`} >
           {content}
         </div> :
         <button
-          className={`${styles.container} ${className}`}
+          className={`${styles.container} ${styles.isButton} ${className}`}
           onClick={onClick}>
           {content}
         </button> }

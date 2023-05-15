@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-import { useLoad } from '../../../../hooks/api';
 import { useTranslation } from 'react-i18next';
-import { getUpdate, getVersion } from '../../../../api/version';
 import { SettingsItem } from '../settingsItem/settingsItem';
-import { Checked, RedDot } from '../../../../components/icon';
+import { ChevronRightDark } from '../../../../components/icon';
+import { route } from '../../../../utils/route';
 
-export const AppVersion = () => {
+type TProps = {
+  deviceID: string;
+}
+
+const ManageBackupSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
-
-  const version = useLoad(getVersion);
-  const update = useLoad(getUpdate);
-
-  const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
-
-  const icon = !!update ? <RedDot width={18} height={18} /> : <Checked />;
-  const versionNumber = !!version ? version : '-';
-
   return (
-    <SettingsItem settingName="App version" secondaryText={secondaryText} displayedValue={versionNumber} extraComponent={icon} />
+    <SettingsItem
+      onClick={() => route(`/manage-backups/${deviceID}`)}
+      settingName={t('backup.title')}
+      secondaryText={t('deviceSettings.backups.manageBackups.description')}
+      extraComponent={<ChevronRightDark />}
+    />
   );
 };
+
+
+export { ManageBackupSetting };

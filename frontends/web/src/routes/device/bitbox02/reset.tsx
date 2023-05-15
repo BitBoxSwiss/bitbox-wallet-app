@@ -53,6 +53,7 @@ export const Reset = ({ deviceID }: TProps) => {
   const handleUnderstandChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUnderstand(e.target.checked);
   };
+
   return (
     <div>
       <SettingsButton

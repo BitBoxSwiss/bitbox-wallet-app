@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-import { useLoad } from '../../../../hooks/api';
 import { useTranslation } from 'react-i18next';
-import { getUpdate, getVersion } from '../../../../api/version';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Checked, RedDot } from '../../../../components/icon';
 
-export const AppVersion = () => {
+type TProps = {
+    attestation: boolean;
+}
+
+const AttestationCheckSetting = ({ attestation }: TProps) => {
   const { t } = useTranslation();
-
-  const version = useLoad(getVersion);
-  const update = useLoad(getUpdate);
-
-  const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
-
-  const icon = !!update ? <RedDot width={18} height={18} /> : <Checked />;
-  const versionNumber = !!version ? version : '-';
-
+  const icon = attestation ? <Checked /> : <RedDot width={20} height={20} />;
   return (
-    <SettingsItem settingName="App version" secondaryText={secondaryText} displayedValue={versionNumber} extraComponent={icon} />
+    <SettingsItem
+      settingName={t('deviceSettings.hardware.attestation.label')}
+      secondaryText={t('deviceSettings.deviceInformation.attestation.description')}
+      extraComponent={icon}
+      displayedValue={t(`deviceSettings.hardware.attestation.${attestation}`)}
+    />
   );
 };
+
+export { AttestationCheckSetting };

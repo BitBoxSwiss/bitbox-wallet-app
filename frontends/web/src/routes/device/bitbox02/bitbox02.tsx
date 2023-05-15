@@ -34,9 +34,9 @@ import { setSidebarStatus } from '../../../components/sidebar/sidebar';
 import Status from '../../../components/status/status';
 import { PasswordEntry } from './components/password-entry/password-entry';
 import { BackupsV2 } from './backups';
-import { Settings } from './settings';
-import { UpgradeButton } from './upgradebutton';
 import { Info, PointToBitBox02 } from '../../../components/icon';
+import { BB02Settings } from '../../new-settings/bb02-settings';
+import { FirmwareSetting } from '../../new-settings/components/device-settings/firmware-setting';
 import style from './bitbox02.module.css';
 
 interface BitBox02Props {
@@ -420,13 +420,11 @@ class BitBox02 extends Component<Props, State> {
         <CenteredContent>
           <div className="box large">
             <p>{t('upgradeFirmware.label')}</p>
-            <div className="buttons">
-              <UpgradeButton
-                asButton
-                deviceID={deviceID}
-                versionInfo={versionInfo}
-              />
-            </div>
+            <FirmwareSetting
+              asButton
+              deviceID={deviceID}
+              versionInfo={versionInfo}
+            />
           </div>
         </CenteredContent>
       );
@@ -435,7 +433,7 @@ class BitBox02 extends Component<Props, State> {
       return <AppUpgradeRequired/>;
     }
     if (!showWizard) {
-      return <Settings deviceID={deviceID}/>;
+      return <BB02Settings deviceID={deviceID} deviceIDs={[deviceID]} hasAccounts />;
     }
     if (waitDialog) {
       return (

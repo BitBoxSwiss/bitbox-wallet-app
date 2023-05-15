@@ -94,7 +94,7 @@ export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
       <Tab key="appearance" hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/new-settings/appearance" />
       {hasAccounts ? <Tab key="manage-accounts" hideMobileMenu={hideMobileMenu} name={'Manage accounts'} url="/settings/manage-accounts" /> : null}
       {deviceIDs.map(id => (
-        <Tab hideMobileMenu={hideMobileMenu} name={'Device settings'} key={`device-${id}`} url={`/device/${id}`} />
+        <Tab hideMobileMenu={hideMobileMenu} name={'Device settings'} key={`device-${id}`} url={`/new-settings/device-settings/${id}`} />
       )) }
       <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={'Advanced settings'} url="/new-settings/advanced-settings" />
       <Tab key="about" hideMobileMenu={hideMobileMenu} name={'About'} url="/new-settings/about" />
