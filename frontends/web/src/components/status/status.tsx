@@ -18,10 +18,7 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { CloseXWhite } from '../icon';
 import style from './status.module.css';
-import { getConfig } from '../../api/backend';
-import { setConfig } from '../../api/backend';
-
-
+import { getConfig, setConfig } from '../../utils/config';
 
 type TPRops = {
     hidden?: boolean;
@@ -58,15 +55,11 @@ const Status = ({
     if (!dismissible) {
       return;
     }
-    const config = await getConfig();
-    const newConf = {
-      ...config,
+    setConfig({
       frontend: {
-        ...config.frontend,
         [dismissible]: true,
-      },
-    };
-    setConfig(newConf);
+      }
+    });
     setShow(false);
   };
 

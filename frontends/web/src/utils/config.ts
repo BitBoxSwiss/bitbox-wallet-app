@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { apiGet, apiPost } from './request';
+import { getConfig, setConfig as setConfigInternalApi } from '../api/backend';
 
 type TConfig = {
   backend?: unknown;
@@ -25,19 +25,26 @@ type TConfig = {
 let pendingConfig: TConfig = {};
 
 /**
- * expects an object with a backend or frontend key
- * i.e. { frontend: { language }}
+ * get current configs
+ * i.e. await getConfig()
+ * returns a promise with backend and frontend configs
+ */
+export { getConfig };
+
+/**
+ * expects an object with a backend or frontend config
+ * i.e. await setConfig({ frontend: { language }})
  * returns a promise and passes the new config
  */
 export const setConfig = (object: TConfig) => {
-  return apiGet('config')
+  return getConfig()
     .then((currentConfig = {}) => {
       const nextConfig = Object.assign(currentConfig, {
         backend: Object.assign({}, currentConfig.backend, pendingConfig.backend, object.backend),
         frontend: Object.assign({}, currentConfig.frontend, pendingConfig.frontend, object.frontend)
       });
       pendingConfig = nextConfig;
-      return apiPost('config', nextConfig)
+      return setConfigInternalApi(nextConfig)
         .then(() => {
           pendingConfig = {};
           return nextConfig;
