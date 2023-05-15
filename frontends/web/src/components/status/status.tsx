@@ -16,9 +16,9 @@
  */
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { getConfig, setConfig } from '../../utils/config';
 import { CloseXWhite } from '../icon';
 import style from './status.module.css';
-import { getConfig, setConfig } from '../../utils/config';
 
 type TPRops = {
     hidden?: boolean;
