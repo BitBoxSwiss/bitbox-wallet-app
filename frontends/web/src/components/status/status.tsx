@@ -31,7 +31,7 @@ type TPRops = {
     children: ReactNode;
 }
 
-const Status = ({
+export const Status = ({
   hidden,
   type = 'warning',
   dismissible,
@@ -80,5 +80,3 @@ const Status = ({
     </div>
   );
 };
-
-export default Status;

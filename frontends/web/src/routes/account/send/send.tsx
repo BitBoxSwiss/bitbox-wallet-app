@@ -35,7 +35,7 @@ import { Guide } from '../../../components/guide/guide';
 import { Column, ColumnButtons, Grid, Header } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Spinner } from '../../../components/spinner/Spinner';
-import Status from '../../../components/status/status';
+import { Status } from '../../../components/status/status';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
