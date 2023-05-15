@@ -1294,6 +1294,7 @@
   "settings": {
     "about": "About",
     "accounts": "Accounts",
+    "advancedSettings": "Advanced Settings",
     "appearance": "Appearance",
     "electrum": {
       "add": "Add a server",
@@ -1325,9 +1326,11 @@
     "expert": {
       "coinControl": "Enable coin control",
       "electrum": {
+        "description": "You can connect to your own Electrum full node.",
         "title": "Connect your own full node"
       },
       "fee": "Enable custom fees",
+      "feeDescription": "Lets you enter your own fee when sending.",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",

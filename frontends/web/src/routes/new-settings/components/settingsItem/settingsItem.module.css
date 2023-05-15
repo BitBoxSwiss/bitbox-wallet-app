@@ -17,6 +17,31 @@
     margin-bottom: var(--size-default);
 }
 
+
+.primaryText {
+    font-size: 16px;
+    margin: 0;
+    color: var(--color-default);
+}
+
+
+.rightContentContainer {
+    display: flex;
+    align-items: center;
+}
+
+.displayedValue {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.displayedValue.withMargin {
+    margin-right: var(--space-quarter);
+}
+
 .secondaryText {
     color: var(--color-secondary);
     font-size: 14px;
@@ -26,22 +51,8 @@
     text-overflow: ellipsis;
 }
 
-.primaryText {
-    font-size: 16px;
-    margin: 0;
-    color: var(--color-default);
-}
-
-.notButton:hover {
-    cursor: default;
-}
-
-.notButton:focus {
-    outline: none;
-}
-
 @media (max-width: 768px) { 
     .container {
-         margin-bottom: 0;
+         margin-bottom: 2px;
     }
 }
