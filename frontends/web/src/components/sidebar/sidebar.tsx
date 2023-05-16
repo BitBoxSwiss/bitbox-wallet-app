@@ -156,7 +156,7 @@ class Sidebar extends Component<Props> {
       activeSidebar,
       sidebarStatus,
     } = this.props;
-    const hidden = ['forceHidden', 'forceCollapsed'].includes(sidebarStatus);
+    const hidden = sidebarStatus === 'forceHidden';
     const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
     return (
       <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>

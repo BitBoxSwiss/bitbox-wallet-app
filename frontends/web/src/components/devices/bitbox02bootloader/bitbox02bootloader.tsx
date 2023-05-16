@@ -15,10 +15,10 @@
  */
 
 import { Component } from 'react';
+import { statusChanged } from '../../../api/devicessync';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
-import { apiWebsocket } from '../../../utils/websocket';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
 import { BitBox02, BitBox02Inverted } from '../../icon/logo';
@@ -71,23 +71,7 @@ class BitBox02Bootloader extends Component<Props, State> {
 
   public componentDidMount() {
     this.onStatusChanged();
-    this.unsubscribe = apiWebsocket((payload) => {
-      if ('type' in payload) {
-        const { data, deviceID, type } = payload;
-        switch (type) {
-        case 'device':
-          if (deviceID !== this.props.deviceID) {
-            return;
-          }
-          switch (data) {
-          case 'statusChanged':
-            this.onStatusChanged();
-            break;
-          }
-          break;
-        }
-      }
-    });
+    this.unsubscribe = statusChanged(this.props.deviceID, this.onStatusChanged);
   }
 
   public componentWillUnmount() {
