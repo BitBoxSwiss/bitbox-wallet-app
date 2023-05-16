@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Checked, RedDot } from '../../../../components/icon';
+import { verifyAttestation } from '../../../../api/bitbox02';
+import { StyledSkeleton } from '../../bb02-settings';
 
 type TProps = {
-    attestation: boolean;
+  deviceID: string;
 }
 
-const AttestationCheckSetting = ({ attestation }: TProps) => {
+const AttestationCheckSetting = ({ deviceID }: TProps) => {
+  const [attestation, setAttestation] = useState<boolean | null>(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    verifyAttestation(deviceID).then(setAttestation);
+  }, [deviceID]);
+
   const icon = attestation ? <Checked /> : <RedDot width={20} height={20} />;
+
+  if (attestation === null) {
+    return <StyledSkeleton />;
+  }
+
   return (
     <SettingsItem
       settingName={t('deviceSettings.hardware.attestation.label')}

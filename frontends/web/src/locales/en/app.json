@@ -482,6 +482,40 @@
     "title": "Enable two factor authorization (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Create or verify your microSD card backup."
+      },
+      "showRecoveryWords": {
+        "description": "Show and verify 24 recovery words."
+      },
+      "title": "Backups"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "The BitBoxApp checks if your device is authentic."
+      },
+      "deviceName": {
+        "description": "Change the name of your device."
+      },
+      "securechip": {
+        "description": "The model of the secure chip."
+      },
+      "title": "Device information"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Reset your device to factory settings. This deletes your wallet!",
+        "title": "Factory reset"
+      },
+      "goToStartupSettings": {
+        "description": "Enters the bootloader of the BitBox02. Can enable firmware hash from here."
+      },
+      "passphrase": {
+        "description": "Enable or disable the passphrase feature.",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Firmware Version",
       "newVersion": {
@@ -530,40 +564,6 @@
     "secrets": {
       "manageBackups": "Manage backups",
       "title": "Secrets"
-    },
-    "backups": {
-      "title": "Backups",
-      "manageBackups": {
-        "description": "Create or verify your microSD card backup."
-      },
-      "showRecoveryWords": {
-        "description": "Show and verify 24 recovery words."
-      }
-    },
-    "deviceInformation": {
-      "title": "Device information",
-      "deviceName": {
-        "description": "Change the name of your device."
-      },
-      "attestation": {
-        "description": "The BitBoxApp checks if your device is authentic."
-      },
-      "securechip": {
-        "description": "The model of the secure chip."
-      }
-    },
-    "expert": {
-      "passphrase": {
-        "title": "Passphrase",
-        "description": "Enable or disable the passphrase feature."
-
-      },
-      "goToStartupSettings": {
-        "description": "Enters the bootloader of the BitBox02. Can enable firmware hash from here."
-      },
-      "factoryReset": {
-        "description": "Reset your device to factory settings. This deletes your wallet!"
-      }
     }
   },
   "deviceTampered": "Has your BitBox been supplied with a recovery password? If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",

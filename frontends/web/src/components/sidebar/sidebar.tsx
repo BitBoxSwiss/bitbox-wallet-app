@@ -23,7 +23,6 @@ import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-// import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { SharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
 import { subscribe } from '../../decorators/subscribe';
@@ -33,8 +32,8 @@ import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
-import style from './sidebar.module.css';
 import { isBitcoinOnly } from '../../routes/account/utils';
+import style from './sidebar.module.css';
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -209,33 +208,6 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null }
-          {/* { deviceIDs.map(deviceID => (
-            <div key={deviceID} className={style.sidebarItem}>
-              <NavLink
-                to={`/device/${deviceID}`}
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
-                title={t('sidebar.device')}
-                onClick={this.handleSidebarItemClick}>
-                <div className={style.single}>
-                  <img draggable={false} src={deviceSettings} alt={t('sidebar.device')} />
-                </div>
-                <span className={style.sidebarLabel}>{t('sidebar.device')}</span>
-              </NavLink>
-            </div>
-          )) } */}
-          <div key="settings" className={style.sidebarItem}>
-            <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
-              to={'/settings'}
-              title={t('sidebar.settings')}
-              onClick={this.handleSidebarItemClick}>
-              <div className="stacked">
-                <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
-                <img draggable={false} src={settings} alt={t('sidebar.settings')} />
-              </div>
-              <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
-            </NavLink>
-          </div>
           <div key="settings-new" className={style.sidebarItem}>
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
@@ -246,7 +218,7 @@ class Sidebar extends Component<Props> {
                 <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
                 <img draggable={false} src={settings} alt={t('sidebar.settings')} />
               </div>
-              <span className={style.sidebarLabel}>{t('sidebar.settings')} New</span>
+              <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
             </NavLink>
           </div>
           {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (

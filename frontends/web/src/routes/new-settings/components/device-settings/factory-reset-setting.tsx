@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ const FactoryResetSetting = ({ deviceID }: TProps) => {
 
   const settingName = <div className={styles.settingNameContainer}>
     <WarningOutlined width={16} height={16} />
-    <p className={styles.settingName}>Factory Reset</p>
+    <p className={styles.settingName}>{t('deviceSettings.expert.factoryReset.title')}</p>
   </div>;
 
   return (

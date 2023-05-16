@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import { ManageBackupSetting } from './components/device-settings/manage-backup-
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
 import { PassphraseSetting } from './components/device-settings/passphrase-setting';
-import { DeviceInfo, getDeviceInfo, getVersion, verifyAttestation } from '../../api/bitbox02';
+import { DeviceInfo, getDeviceInfo, getVersion } from '../../api/bitbox02';
 import { alertUser } from '../../components/alert/Alert';
 import { Skeleton } from '../../components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
@@ -42,7 +42,7 @@ type TProps = {
 
 type TWrapperProps = TProps & TPagePropsWithSettingsTabs;
 
-const StyledSkeleton = () => {
+export const StyledSkeleton = () => {
   return (
     <div className={styles.skeletonWrapper}>
       <Skeleton fontSize="var(--item-height-xlarge)" />
@@ -75,7 +75,6 @@ const Content = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
-  const [attestation, setAttestation] = useState<boolean | null>(null);
   const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
 
   useEffect(() => {
@@ -88,7 +87,6 @@ const Content = ({ deviceID }: TProps) => {
         setDeviceInfo(result.deviceInfo);
       })
       .catch(console.error);
-    verifyAttestation(deviceID).then(setAttestation);
   }, [deviceID, t]);
 
   return (
@@ -104,12 +102,7 @@ const Content = ({ deviceID }: TProps) => {
       <div className={styles.section}>
         <h3 className="subTitle">{t('deviceSettings.deviceInformation.title')}</h3>
         {deviceInfo ? <DeviceNameSetting deviceName={deviceInfo.name} deviceID={deviceID} /> : null }
-        {
-          attestation !== null ?
-            <AttestationCheckSetting attestation={attestation} />
-            :
-            <StyledSkeleton />
-        }
+        <AttestationCheckSetting deviceID={deviceID} />
         {
           versionInfo ?
             <FirmwareSetting

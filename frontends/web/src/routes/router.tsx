@@ -47,6 +47,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     key={devicesKey('device-switch-default')}
     deviceID={null}
     devices={devices}
+    hasAccounts={hasAccounts}
   />;
 
   const Device = <InjectParams>
@@ -54,6 +55,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       key={devicesKey('device-switch')}
       deviceID={null}
       devices={devices}
+      hasAccounts={hasAccounts}
     />
   </InjectParams>;
 

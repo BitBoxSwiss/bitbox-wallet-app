@@ -40,7 +40,9 @@ import { FirmwareSetting } from '../../new-settings/components/device-settings/f
 import style from './bitbox02.module.css';
 
 interface BitBox02Props {
-    deviceID: string;
+  deviceID: string;
+  deviceIDs: string[];
+  hasAccounts: boolean;
 }
 
 type Props = BitBox02Props & TranslateProps;
@@ -383,7 +385,7 @@ class BitBox02 extends Component<Props, State> {
   };
 
   public render() {
-    const { t, deviceID } = this.props;
+    const { t, deviceID, hasAccounts, deviceIDs } = this.props;
     const {
       attestationResult,
       versionInfo,
@@ -433,7 +435,7 @@ class BitBox02 extends Component<Props, State> {
       return <AppUpgradeRequired/>;
     }
     if (!showWizard) {
-      return <BB02Settings deviceID={deviceID} deviceIDs={[deviceID]} hasAccounts />;
+      return <BB02Settings deviceID={deviceID} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />;
     }
     if (waitDialog) {
       return (

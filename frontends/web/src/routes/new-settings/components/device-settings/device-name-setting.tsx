@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useRef, useState, RefObject, ChangeEvent } from 'react';
+import { useRef, useState, ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
@@ -34,7 +34,6 @@ type TDialogProps = {
   onClose: () => void;
   currentName: string;
   onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  inputRef: RefObject<HTMLInputElement>;
   name: string;
   handleUpdateName: () => void;
 }
@@ -50,7 +49,6 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
   const [currentName, setCurrentName] = useState(deviceName);
   const [name, setName] = useState('');
   const [inProgress, setInProgress] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const updateName = async () => {
     setInProgress(true);
@@ -92,7 +90,6 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
         onClose={handleCloseDialog}
         currentName={currentName}
         onInputChange={(e) => setName(e.target.value)}
-        inputRef={inputRef}
         name={name}
         handleUpdateName={updateName}
       />
@@ -101,8 +98,10 @@ const DeviceNameSetting = ({ deviceName, deviceID }: TDeviceNameSettingProps) =>
   );
 };
 
-const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, inputRef, name, handleUpdateName }: TDialogProps) => {
+const SetDeviceNameDialog = ({ open, onClose, currentName, onInputChange, name, handleUpdateName }: TDialogProps) => {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <Dialog
       open={open}
