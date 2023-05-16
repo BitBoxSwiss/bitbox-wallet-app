@@ -16,7 +16,7 @@
 
 import { TUnsubscribe } from '../utils/transport-common';
 import { subscribeEndpoint } from './subscribe';
-import { subscribe as subscibeLegacy } from '../utils/event-legacy';
+import { subscribe as subscribeLegacy } from '../utils/event-legacy';
 import { IAccount } from './account';
 
 /**
@@ -55,8 +55,8 @@ export const statusChanged = (
   code: string,
   cb: (code: string) => void,
 ): TUnsubscribe => {
-  const unsubscribe = subscibeLegacy('statusChanged', data => {
-    if (data.type === 'account' && data.code === code) {
+  const unsubscribe = subscribeLegacy('statusChanged', event => {
+    if (event.type === 'account' && event.code === code) {
       cb(code);
     }
   });
@@ -71,8 +71,8 @@ export const syncdone = (
   code: string,
   cb: (code: string) => void,
 ): TUnsubscribe => {
-  return subscibeLegacy('syncdone', data => {
-    if (data.type === 'account' && data.code === code) {
+  return subscribeLegacy('syncdone', event => {
+    if (event.type === 'account' && event.code === code) {
       cb(code);
     }
   });
