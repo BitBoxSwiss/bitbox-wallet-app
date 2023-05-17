@@ -45,6 +45,7 @@ class Settings extends Component {
     name: null,
     spinner: true,
     sdcard: false,
+    serial: '',
     pairing: false,
     mobileChannel: false,
     connected: false,
@@ -59,6 +60,7 @@ class Settings extends Component {
         new_hidden_wallet,
         pairing,
         sdcard,
+        serial,
         version,
       }) => {
         this.setState({
@@ -68,6 +70,7 @@ class Settings extends Component {
           newHiddenWallet: new_hidden_wallet,
           pairing,
           sdcard,
+          serial,
           spinner: false,
         });
       });
@@ -124,6 +127,7 @@ class Settings extends Component {
       name,
       spinner,
       sdcard,
+      serial,
       pairing,
       mobileChannel,
       connected,
@@ -200,6 +204,9 @@ class Settings extends Component {
                   <div className="column column-1-2">
                     <h3 className="subTitle">{t('deviceSettings.hardware.title')}</h3>
                     <div className="box slim divide">
+                      <SettingsItem optionalText={serial}>
+                        Serial number
+                      </SettingsItem>
                       <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard}`)}>
                         {t('deviceSettings.hardware.sdcard.label')}
                       </SettingsItem>
