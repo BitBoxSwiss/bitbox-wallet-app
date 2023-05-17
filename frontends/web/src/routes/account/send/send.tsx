@@ -18,6 +18,7 @@
 import React, { Component } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
+import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
@@ -46,10 +47,11 @@ import { FeeTargets } from './feetargets';
 import style from './send.module.css';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
+import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
-    code?: string;
+    code: string;
     devices: TDevices;
     deviceIDs: string[];
 }
@@ -98,7 +100,7 @@ interface State {
 
 class Send extends Component<Props, State> {
   private selectedUTXOs: TSelectedUTXOs = {};
-  private unsubscribe!: () => void;
+  private unsubscribeList: UnsubscribeList = [];
   private qrCodeReader?: BrowserQRCodeReader;
 
   // pendingProposals keeps all requests that have been made
@@ -161,34 +163,31 @@ class Send extends Component<Props, State> {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
       }
     });
-    this.unsubscribe = apiWebsocket((payload) => {
-      if ('type' in payload) {
-        const { data, meta, type } = payload;
-        switch (type) {
-        case 'device':
-          switch (data) {
-          case 'signProgress':
-            this.setState({ signProgress: meta, signConfirm: false });
-            break;
-          case 'signConfirm':
-            this.setState({ signConfirm: true });
-            break;
-          }
-          break;
-        case 'account':
-          switch (data) {
-          case 'syncdone':
-            if (this.props.code) {
-              accountApi.getBalance(this.props.code)
-                .then(balance => this.setState({ balance }))
-                .catch(console.error);
+
+    this.unsubscribeList = [
+      apiWebsocket((payload) => {
+        if ('type' in payload) {
+          const { data, meta, type } = payload;
+          switch (type) {
+          case 'device':
+            switch (data) {
+            case 'signProgress':
+              this.setState({ signProgress: meta, signConfirm: false });
+              break;
+            case 'signConfirm':
+              this.setState({ signConfirm: true });
+              break;
             }
             break;
           }
-          break;
         }
-      }
-    });
+      }),
+      syncdone(this.props.code, (code) => {
+        accountApi.getBalance(code)
+          .then(balance => this.setState({ balance }))
+          .catch(console.error);
+      }),
+    ];
   }
 
   public UNSAFE_componentWillMount() {
@@ -209,9 +208,7 @@ class Send extends Component<Props, State> {
 
   public componentWillUnmount() {
     this.unregisterEvents();
-    if (this.unsubscribe) {
-      this.unsubscribe();
-    }
+    unsubscribe(this.unsubscribeList);
     if (this.qrCodeReader) {
       this.qrCodeReader.reset();
     }

@@ -23,7 +23,7 @@ import {
   ScriptType,
   TUTXO,
 } from '../../../api/account';
-import { syncdone } from '../../../api/subscribe-legacy';
+import { syncdone } from '../../../api/accountsync';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
