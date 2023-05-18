@@ -38,7 +38,7 @@
     font-size: var(--size-small);
     color: var(--color-secondary);
     white-space: nowrap;
-    max-width: 150px;
+    max-width: 300px;
     text-overflow: ellipsis;
     overflow: hidden;
 }
