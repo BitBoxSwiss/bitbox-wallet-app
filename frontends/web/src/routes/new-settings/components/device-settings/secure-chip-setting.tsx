@@ -16,23 +16,20 @@
 
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
-import { ChevronRightDark } from '../../../../components/icon';
-import { route } from '../../../../utils/route';
 
-export const ConnectFullNodeSetting = () => {
+type TProps = {
+    secureChipModel: string;
+}
+
+const SecureChipSetting = ({ secureChipModel }: TProps) => {
   const { t } = useTranslation();
-
   return (
     <SettingsItem
-      settingName={t('settings.expert.electrum.title')}
-      onClick={() => route('/settings/electrum')}
-      secondaryText={t('settings.expert.electrum.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
+      settingName={t('deviceSettings.hardware.securechip')}
+      secondaryText={t('deviceSettings.deviceInformation.securechip.description')}
+      displayedValue={secureChipModel}
     />
   );
 };
+
+export { SecureChipSetting };

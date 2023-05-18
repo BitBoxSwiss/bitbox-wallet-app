@@ -1,0 +1,7 @@
+.asButton {
+    background-color: var(--background-blue);
+}
+
+.asButton p {
+    color: var(--color-white);
+}

@@ -19,20 +19,21 @@ import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 import { route } from '../../../../utils/route';
 
-export const ConnectFullNodeSetting = () => {
-  const { t } = useTranslation();
+type TProps = {
+  deviceID: string;
+}
 
+const ManageBackupSetting = ({ deviceID }: TProps) => {
+  const { t } = useTranslation();
   return (
     <SettingsItem
-      settingName={t('settings.expert.electrum.title')}
-      onClick={() => route('/settings/electrum')}
-      secondaryText={t('settings.expert.electrum.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
+      onClick={() => route(`/manage-backups/${deviceID}`)}
+      settingName={t('backup.title')}
+      secondaryText={t('deviceSettings.backups.manageBackups.description')}
+      extraComponent={<ChevronRightDark />}
     />
   );
 };
+
+
+export { ManageBackupSetting };

@@ -19,20 +19,24 @@ import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 import { route } from '../../../../utils/route';
 
-export const ConnectFullNodeSetting = () => {
-  const { t } = useTranslation();
+type TProps = {
+    deviceID: string;
+    passphraseEnabled: boolean;
+}
 
+const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
+  const { t } = useTranslation();
   return (
     <SettingsItem
-      settingName={t('settings.expert.electrum.title')}
-      onClick={() => route('/settings/electrum')}
-      secondaryText={t('settings.expert.electrum.description')}
-      extraComponent={
-        <ChevronRightDark
-          width={24}
-          height={24}
-        />
-      }
+      onClick={() => route(`/passphrase/${deviceID}`)}
+      settingName={t('deviceSettings.expert.passphrase.title')}
+      secondaryText={t('deviceSettings.expert.passphrase.description')}
+      displayedValue={ passphraseEnabled
+        ? t('generic.enabled_true')
+        : t('generic.enabled_false')}
+      extraComponent={<ChevronRightDark />}
     />
   );
 };
+
+export { PassphraseSetting };

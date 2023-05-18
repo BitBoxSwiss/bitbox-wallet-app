@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,8 @@ export const AppVersion = () => {
   const version = useLoad(getVersion);
   const update = useLoad(getUpdate);
 
-  const secondaryText = !!update ? // app is out-dated
-    (<>
-      {t('settings.info.out-of-date')}
-    </>) :
-    (<>
-      {t('settings.info.up-to-date')}
-    </>);
+  const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
+
   const icon = !!update ? <RedDot width={18} height={18} /> : <Checked />;
   const versionNumber = !!version ? version : '-';
 
