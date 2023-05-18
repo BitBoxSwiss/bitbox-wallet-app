@@ -29,9 +29,10 @@ export const SkipForTesting = () => {
     setTestPIN(value);
   };
 
-
   return (
-    <form onSubmit={registerTestingDevice} style={{ flexGrow: 0, maxWidth: 400, width: '100%', alignSelf: 'center' }}>
+    <form
+      style={{ marginTop: '3rem' }}
+      onSubmit={registerTestingDevice}>
       <PasswordSingleInput
         type="password"
         autoFocus

@@ -1443,8 +1443,7 @@
   },
   "welcome": {
     "getStarted": "Let's get started by installing firmware on your BitBox02.",
-    "insertBitBox02": "For the BitBox02, please tap the device to continue.",
-    "insertDevice": "Please connect your device to get started",
+    "message": "Plug in your BitBox and tap the device to get started",
     "title": "Welcome"
   }
 }

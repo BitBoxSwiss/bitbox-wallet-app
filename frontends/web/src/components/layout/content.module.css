@@ -1,0 +1,6 @@
+.subtitle {
+  font-size: var(--size-subheader);
+  font-weight: 400;
+  line-height: 1.375;
+  margin: 0 0 calc(var(--space-half) * 1.5) 0;
+}
