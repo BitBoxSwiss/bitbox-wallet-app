@@ -108,6 +108,12 @@
     opacity: 0.4;    
 }
 
+@media (min-width: 1200px) {
+    .sidebarToggler {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
     .container .header {
         padding: 0 var(--space-half);
