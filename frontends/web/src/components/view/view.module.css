@@ -47,6 +47,9 @@
     margin-bottom: auto;
     margin-top: auto;
 }
+.verticallyCenteredWithBottomBar .inner {
+    margin-top: auto;
+}
 .inner.fit {
     flex-shrink: 0;
     max-height: 100%;

@@ -63,7 +63,11 @@ export const View = ({
   const containerClasses = `${
     style[fullscreen ? 'fullscreen' : 'fill']
   } ${
-    verticallyCentered ? style.verticallyCentered : ''
+    verticallyCentered ?
+      withBottomBar
+        ? style.verticallyCenteredWithBottomBar
+        : style.verticallyCentered
+      : ''
   } ${
     dialog ? style.dialog : ''
   }`;
