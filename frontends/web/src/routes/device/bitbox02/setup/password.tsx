@@ -50,12 +50,11 @@ export const SetPassword = ({ errorText }: Props) => {
   );
 };
 
-type PropsWithBackup = Props & {
+type PropsWithBackup = {
   forBackup?: Backup;
 }
 
 export const SetPasswordWithBackup = ({
-  errorText,
   forBackup,
 }: PropsWithBackup) => {
   const { i18n, t } = useTranslation();
@@ -67,25 +66,19 @@ export const SetPasswordWithBackup = ({
       withBottomBar
       width="700px">
       <ViewHeader title={t('backup.restore.confirmTitle')}>
-        {errorText ? (
-          <Status type="warning">
-            <span>{errorText}</span>
-          </Status>
-        ) : (
-          forBackup ? (
-            <div>
-              <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
-                backupName: forBackup.name,
-                createdDateTime: convertDateToLocaleString(forBackup.date, i18n.language),
-              })}/>
-              <p className="text-small text-ellipsis">
-                ID:
-                {' '}
-                {forBackup.id}
-              </p>
-            </div>
-          ) : null
-        )}
+        { forBackup ? (
+          <div>
+            <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
+              backupName: forBackup.name,
+              createdDateTime: convertDateToLocaleString(forBackup.date, i18n.language),
+            })}/>
+            <p className="text-small text-ellipsis">
+              ID:
+              {' '}
+              {forBackup.id}
+            </p>
+          </div>
+        ) : null }
       </ViewHeader>
       <ViewContent>
         <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>

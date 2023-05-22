@@ -17,7 +17,7 @@
 
 import { Component } from 'react';
 import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, createBackup } from '../../../api/bitbox02';
+import { checkSDCard, getStatus, getVersion, insertSDCard, restoreFromMnemonic, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
 import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
@@ -31,11 +31,10 @@ import { UpgradeButton } from './upgradebutton';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { Wait } from './setup/wait';
-import { SetPassword, SetPasswordWithBackup } from './setup/password';
+import { SetPasswordWithBackup } from './setup/password';
 import { SetupOptions } from './setup/choose';
-import { SetDeviceName } from './setup/name';
 import { RestoreFromSDCardBackup } from './setup/restore';
-import { ChecklistWalletCreate } from './setup/checklist';
+import { CreateWallet } from './setup/wallet-create';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
 interface BitBox02Props {
@@ -48,11 +47,8 @@ interface State {
     versionInfo?: VersionInfo;
     attestation: boolean | null;
     status: '' | TStatus;
-    appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
-    createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
+    appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | '';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
-    sdCardInserted?: boolean;
-    errorText?: string;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
@@ -69,9 +65,7 @@ class BitBox02 extends Component<Props, State> {
     this.state = {
       attestation: null,
       status: '',
-      sdCardInserted: undefined,
       appStatus: '',
-      createWalletStatus: 'intro',
       restoreBackupStatus: 'intro',
       unlockOnly: true,
       showWizard: false,
@@ -116,10 +110,7 @@ class BitBox02 extends Component<Props, State> {
       if (status === 'seeded') {
         this.setState({ appStatus: 'createWallet' });
       }
-      this.setState({
-        status,
-        errorText: undefined,
-      });
+      this.setState({ status });
       if (status === 'initialized' && unlockOnly && showWizard) {
         // bitbox is unlocked, now route to / and wait for incoming accounts
         route('/', true);
@@ -132,13 +123,7 @@ class BitBox02 extends Component<Props, State> {
   }
 
   private createWallet = () => {
-    checkSDCard(this.props.deviceID).then(sdCardInserted => {
-      this.setState({ sdCardInserted });
-    });
-    this.setState({
-      appStatus: 'createWallet',
-      createWalletStatus: 'intro',
-    });
+    this.setState({ appStatus: 'createWallet' });
   };
 
   private restoreBackup = () => {
@@ -154,7 +139,6 @@ class BitBox02 extends Component<Props, State> {
 
   private insertSDCard = () => {
     return checkSDCard(this.props.deviceID).then(sdCardInserted => {
-      this.setState({ sdCardInserted });
       if (sdCardInserted) {
         return true;
       }
@@ -164,7 +148,6 @@ class BitBox02 extends Component<Props, State> {
       } });
       return insertSDCard(this.props.deviceID).then((response) => {
         this.setState({
-          sdCardInserted: response.success,
           waitDialog: undefined,
         });
         if (response.success) {
@@ -175,31 +158,6 @@ class BitBox02 extends Component<Props, State> {
         }
         return false;
       });
-    });
-  };
-
-  private setPassword = () => {
-    this.setState({ createWalletStatus: 'setPassword' });
-    setPassword(this.props.deviceID).then((response) => {
-      if (!response.success) {
-        if (response.code === errUserAbort) {
-          // On user abort, just go back to the first screen. This is a bit lazy, as we should show
-          // a screen to ask the user to go back or try again.
-          this.setState({
-            appStatus: '',
-            errorText: undefined,
-          });
-        } else {
-          this.setState({
-            errorText: this.props.t('bitbox02Wizard.noPasswordMatch'),
-          }, () => {
-            this.setPassword();
-          });
-        }
-        // show noPasswordMatch error and do NOT continue to createBackup
-        return;
-      }
-      this.setState({ createWalletStatus: 'createBackup' });
     });
   };
 
@@ -218,57 +176,6 @@ class BitBox02 extends Component<Props, State> {
       });
     }
     this.setState({ selectedBackup: undefined });
-  };
-
-  private createBackup = () => {
-    this.insertSDCard().then(success1 => {
-      if (!success1) {
-        alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        return;
-      }
-      this.setState({
-        waitDialog: {
-          title: this.props.t('bitbox02Interact.confirmDate'),
-          text: this.props.t('bitbox02Interact.confirmDateText'),
-        }
-      });
-      createBackup(this.props.deviceID, 'sdcard')
-        .then((result) => {
-          if (!result.success) {
-            if (result.code === 104) {
-              alertUser(this.props.t('bitbox02Wizard.createBackupAborted'), { asDialog: false });
-            } else {
-              alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-            }
-          }
-          this.setState({ waitDialog: undefined });
-        })
-        .catch(console.error);
-    });
-  };
-
-  private setDeviceName = (deviceName: string) => {
-    const { deviceID, t } = this.props;
-    this.setState({
-      waitDialog: { title: t('bitbox02Interact.confirmName') }
-    }, async () => {
-      try {
-        const result = await setDeviceName(deviceID, deviceName);
-        if (!result.success) {
-          alertUser(result.message || t('genericError'), {
-            asDialog: false,
-            callback: () => this.setState({ waitDialog: undefined }),
-          });
-          return;
-        }
-        this.setState(
-          { waitDialog: undefined },
-          () => this.setPassword(),
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    });
   };
 
   private restoreFromMnemonic = async () => {
@@ -296,12 +203,9 @@ class BitBox02 extends Component<Props, State> {
       versionInfo,
       status,
       appStatus,
-      createWalletStatus,
       restoreBackupStatus,
-      errorText,
       unlockOnly,
       showWizard,
-      sdCardInserted,
       waitDialog,
       selectedBackup,
     } = this.state;
@@ -377,18 +281,11 @@ class BitBox02 extends Component<Props, State> {
             }} />
         )}
 
-        { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'intro') && (
-          <SetDeviceName
-            key="set-devicename"
-            sdCardInserted={sdCardInserted}
-            onDeviceName={this.setDeviceName}
-            onBack={() => this.setState({ appStatus: '' })} />
-        )}
-        { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'setPassword') && (
-          <SetPassword key="create-wallet" errorText={errorText} />
-        )}
-        { (!unlockOnly && appStatus === 'createWallet' && status === 'seeded' && createWalletStatus === 'createBackup') && (
-          <ChecklistWalletCreate key="create-backup" onContinue={this.createBackup} />
+        { (!unlockOnly && appStatus === 'createWallet') && (
+          <CreateWallet
+            deviceID={deviceID}
+            isSeeded={status === 'seeded'}
+            onAbort={() => this.setState({ appStatus: '' })} />
         )}
 
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
@@ -401,10 +298,7 @@ class BitBox02 extends Component<Props, State> {
             onBack={() => this.setState({ appStatus: '' })} />
         )}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized' && restoreBackupStatus === 'setPassword') && (
-          <SetPasswordWithBackup
-            key="set-password"
-            errorText={errorText}
-            forBackup={selectedBackup} />
+          <SetPasswordWithBackup key="set-password" forBackup={selectedBackup} />
         )}
 
         { (appStatus === 'createWallet' && status === 'initialized') && (
