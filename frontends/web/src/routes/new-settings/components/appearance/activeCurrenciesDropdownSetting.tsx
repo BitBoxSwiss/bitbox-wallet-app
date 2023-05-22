@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import { useEffect, useState } from 'react';
 import Select, { ActionMeta, MultiValue, MultiValueRemoveProps, components } from 'react-select';
 import { currencies, store, selectFiat, unselectFiat, SharedProps } from '../../../../components/rates/rates';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Fiat } from '../../../../api/account';
-import styles from './defaultCurrencySetting.module.css';
 import { share } from '../../../../decorators/share';
 
 type SelectOption = {
@@ -31,7 +31,14 @@ type TSelectProps = {
 } & SharedProps;
 
 const ReactSelect = ({ options, active, selected }: TSelectProps) => {
-  const selectedCurrencies = selected.length > 0 ? selected?.map(currency => ({ label: currency, value: currency })) : [];
+  const [selectedCurrencies, setSelectedCurrencies] = useState<SelectOption[]>([]);
+
+  useEffect(() => {
+    if (selected.length > 0) {
+      const formattedSelectedCurrencies = selected.map(currency => ({ label: currency, value: currency }));
+      setSelectedCurrencies(formattedSelectedCurrencies);
+    }
+  }, [selected]);
 
   const MultiValueRemove = (props: MultiValueRemoveProps<SelectOption>) => {
     const currency = props.data.value;
@@ -46,13 +53,12 @@ const ReactSelect = ({ options, active, selected }: TSelectProps) => {
 
   return (
     <Select
-      className={styles.select}
       classNamePrefix="react-select"
       isSearchable
       isClearable={false}
       components={{ MultiValueRemove }}
       isMulti
-      defaultValue={selectedCurrencies}
+      value={selectedCurrencies}
       onChange={(selectedFiats: MultiValue<SelectOption>, meta: ActionMeta<SelectOption>) => {
         switch (meta.action) {
         case 'remove-value':
@@ -72,12 +78,16 @@ const ReactSelect = ({ options, active, selected }: TSelectProps) => {
 
 const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
   const formattedCurrencies = currencies.map((currency) => ({ label: currency, value: currency }));
-
   return (
     <SettingsItem
       settingName="Active Currencies"
       secondaryText="These additional currencies can be toggled through on your account page."
-      extraComponent={<ReactSelect options={formattedCurrencies} active={active} selected={selected} />}
+      extraComponent={
+        <ReactSelect
+          options={formattedCurrencies}
+          active={active}
+          selected={selected}
+        />}
     />
   );
 };
