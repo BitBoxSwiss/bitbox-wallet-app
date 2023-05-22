@@ -16,19 +16,19 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { load } from '../../decorators/load';
 import { runningInAndroid } from '../../utils/env';
-import { TUpdateFile } from '../../api/version';
+import { getUpdate } from '../../api/version';
 import Status from '../status/status';
 import { AppDownloadLink } from '../appdownloadlink/appdownloadlink';
+import { useLoad } from '../../hooks/api';
 
-type TProps = {
-    file: TUpdateFile | null;
-}
-
-const Update = ({ file }: TProps) => {
+export const Update = () => {
   const { t } = useTranslation();
-  return file && (
+  const file = useLoad(getUpdate);
+  if (!file) {
+    return null;
+  }
+  return (
     <Status dismissible={`update-${file.version}`} type="info">
       {t('app.upgrade', {
         current: file.current,
@@ -41,7 +41,3 @@ const Update = ({ file }: TProps) => {
     </Status>
   );
 };
-
-const HOC = load<TProps>({ file: 'update' })(Update);
-
-export { HOC as Update };
