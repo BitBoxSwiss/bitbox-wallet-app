@@ -1,3 +1,8 @@
+
+.addAccountBtn {
+    margin-bottom: var(--spacing-default);
+}
+
 .setting {
     align-items: center;
     display: flex;
@@ -18,8 +23,6 @@
     display: flex;
     flex-grow: 1;
 }
-
-.accountName {}
 
 .editBtn {
     background: transparent;
@@ -101,8 +104,6 @@
     display: inline-block;
     padding-left: 20px;
 }
-
-.tokenActive {}
 
 .tokenInactive {
     color: var(--color-tertiary);
