@@ -642,7 +642,7 @@
       "title": "How is the total amount calculated?"
     },
     "accountSummaryDescription": {
-      "text": "Here you can see the performance of your portfolio over time. A summary of your individual crypro accounts is displayed under the chart.",
+      "text": "Here you can see the performance of your portfolio over time. A summary of your individual crypto accounts is displayed under the chart.",
       "title": "What does this page show me?"
     },
     "accountTransactionAttributesBTC": {
@@ -783,7 +783,7 @@
     },
     "receive": {
       "address": {
-        "text": "You can give the address to others to send you some coins. Just make sure you are sending to the correct address.",
+        "text": "You can give the address to others to send you some coins. Just make sure they are sending to the correct address.",
         "title": "What do I do with an address?"
       },
       "addressChange": {

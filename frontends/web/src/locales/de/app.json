@@ -640,7 +640,7 @@
       "title": "Wie berechnet sich der Gesamtbetrag?"
     },
     "accountSummaryDescription": {
-      "text": "Hier kannst du den Ertrag deines Portfolios im Zeitverlauf sehen. Eine Zusammenfassung deiner individuellen Konten wird unten in der Tabelle angezeigt.",
+      "text": "Hier kannst du die Entwicklung deines Portfolios im Laufe der Zeit sehen. Eine Übersicht über deine einzelnen Krypto-Konten wird unter dem Diagramm angezeigt.",
       "title": "Was kann ich auf dieser Seite sehen?"
     },
     "accountTransactionAttributesBTC": {
@@ -781,7 +781,7 @@
     },
     "receive": {
       "address": {
-        "text": "Diese Adresse kannst du weitergeben damit dir jemand Coins senden kann. ",
+        "text": "Du kannst die Adresse an andere weitergeben, damit sie dir Coins schicken können. Achte darauf, dass sie an die richtige Adresse schicken.",
         "title": "Was mache ich mit einer Adresse?"
       },
       "addressChange": {
@@ -1291,7 +1291,7 @@
   },
   "settings": {
     "accounts": "Konten",
-    "appearance": "Aussehen",
+    "appearance": "Design",
     "electrum": {
       "add": "Server hinzufügen",
       "add-server": "Hinzufügen",
