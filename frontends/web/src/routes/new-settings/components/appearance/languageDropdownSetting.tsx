@@ -49,6 +49,7 @@ export const LanguageDropdownSetting = () => {
     <SettingsItem
       settingName="Language"
       secondaryText="Which language you want the BitBoxApp to use."
+      collapseOnSmall
       extraComponent={
         <SingleDropdown
           options={formattedLanguages}

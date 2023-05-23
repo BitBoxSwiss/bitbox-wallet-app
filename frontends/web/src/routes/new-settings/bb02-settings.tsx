@@ -106,7 +106,6 @@ const Content = ({ deviceID }: TProps) => {
         {
           versionInfo ?
             <FirmwareSetting
-              asButton
               deviceID={deviceID}
               versionInfo={versionInfo}
             /> :

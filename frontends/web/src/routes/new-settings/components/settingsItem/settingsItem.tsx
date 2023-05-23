@@ -18,27 +18,37 @@ import { ReactNode } from 'react';
 import styles from './settingsItem.module.css';
 
 type TProps = {
-    className?: string
-    onClick?: () => void;
-    settingName: string | ReactNode;
-    secondaryText?: string;
-    displayedValue?: string;
-    extraComponent?: ReactNode;
+  className?: string
+  collapseOnSmall?: boolean;
+  displayedValue?: string;
+  extraComponent?: ReactNode;
+  hideDisplayedValueOnSmall?: boolean;
+  onClick?: () => void;
+  secondaryText?: string;
+  settingName: string | ReactNode;
 }
 
 export const SettingsItem = ({
   className = '',
-  onClick,
-  settingName,
-  secondaryText,
+  collapseOnSmall = false,
   displayedValue = '',
   extraComponent,
+  hideDisplayedValueOnSmall = false,
+  onClick,
+  secondaryText,
+  settingName,
 }: TProps) => {
   const notButton = onClick === undefined;
 
   const rightContent = (
     <div className={styles.rightContentContainer}>
-      <p className={`${styles.displayedValue} ${extraComponent ? `${styles.withMargin}` : ''}`}>{displayedValue}</p>
+      <p className={
+        `
+        ${styles.displayedValue}
+        ${extraComponent ? styles.withMargin : ''}
+        ${hideDisplayedValueOnSmall ? styles.hideDisplayedValueOnSmall : ''}
+       `}
+      >{displayedValue}</p>
       {extraComponent ? extraComponent : null }
     </div>
   );
@@ -60,7 +70,10 @@ export const SettingsItem = ({
   return (
     <>
       {notButton ?
-        <div className={`${styles.container} ${className}`} >
+        <div className={
+          `${styles.container} ${className} 
+          ${collapseOnSmall ? styles.collapse : ''}`
+        } >
           {content}
         </div> :
         <button
