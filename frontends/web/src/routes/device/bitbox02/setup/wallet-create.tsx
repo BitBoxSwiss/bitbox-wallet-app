@@ -17,6 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02 from '../../../../api/bitbox02';
+import { useMountedRef } from '../../../../hooks/mount';
 import { alertUser } from '../../../../components/alert/Alert';
 import { Wait } from './wait';
 import { ChecklistWalletCreate } from './checklist';
@@ -42,6 +43,7 @@ export const CreateWallet = ({
   onAbort,
 }: Props) => {
   const { t } = useTranslation();
+  const isMounted = useMountedRef();
   const [status, setStatus] = useState<TCreateWalletStatus>('intro');
   const [errorText, setErrorText] = useState('');
   const [waitView, setWaitView] = useState<TWait>();
@@ -63,7 +65,9 @@ export const CreateWallet = ({
           onAbort();
         } else {
           setErrorText(t('bitbox02Wizard.noPasswordMatch'));
-          ensurePassword();
+          if (isMounted.current) {
+            ensurePassword();
+          }
         }
         // show error and do NOT continue to createBackup
         return;
