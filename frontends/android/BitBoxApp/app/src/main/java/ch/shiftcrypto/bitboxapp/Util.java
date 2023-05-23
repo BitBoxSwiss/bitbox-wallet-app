@@ -16,6 +16,6 @@ public class Util {
     }
 
     public static void log(String msg) {
-        Log.d("ch.shiftcrypto.bitboxapp", msg);
+        Log.d("bitboxapp", msg);
     }
 }
