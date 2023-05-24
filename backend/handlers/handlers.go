@@ -170,59 +170,73 @@ func NewHandlers(
 		}
 	}
 
+	getAPIRouterNoError := func(subrouter *mux.Router) func(string, func(*http.Request) interface{}) *mux.Route {
+		return func(path string, f func(*http.Request) interface{}) *mux.Route {
+			return subrouter.Handle(
+				path,
+				ensureAPITokenValid(
+					handlers.apiMiddleware(
+						connData.isDev(),
+						func(r *http.Request) (interface{}, error) {
+							return f(r), nil
+						}),
+					connData, log))
+		}
+	}
+
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	getAPIRouter(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/native-locale", handlers.getNativeLocaleHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/native-locale", handlers.getNativeLocaleHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/notify-user", handlers.postNotifyHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkThemeHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/detect-dark-theme", handlers.getDetectDarkThemeHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkThemeHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/total-balance", handlers.getAccountsTotalBalanceHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
-	getAPIRouter(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiatHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/convert-to-plain-fiat", handlers.getConvertToPlainFiatHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/convert-from-fiat", handlers.getConvertFromFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus(coinpkg.CodeTBTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus(coinpkg.CodeLTC)).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus(coinpkg.CodeBTC)).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
-	getAPIRouter(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
-	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
-	getAPIRouter(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/coins/btc/set-unit", handlers.postBtcFormatUnit).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/coins/btc/parse-external-amount", handlers.getBTCParseExternalAmount).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/socksproxy/check", handlers.postSocksProxyCheck).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/exchange/by-region/{code}", handlers.getExchangesByRegion).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/deals", handlers.getExchangeDeals).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/buy-supported/{code}", handlers.getExchangeBuySupported).Methods("GET")
 	getAPIRouter(apiRouter)("/exchange/moonpay/buy-info/{code}", handlers.getExchangeMoonpayBuyInfo).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
-	getAPIRouter(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
-	getAPIRouter(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
-	getAPIRouter(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
 
-	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
+	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
 
 	handlersMapLock := locker.Locker{}
@@ -263,7 +277,7 @@ func NewHandlers(
 	getBitBox02Handlers := func(deviceID string) *bitbox02Handlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := bitbox02HandlersMap[deviceID]; !ok {
-			bitbox02HandlersMap[deviceID] = bitbox02Handlers.NewHandlers(getAPIRouter(
+			bitbox02HandlersMap[deviceID] = bitbox02Handlers.NewHandlers(getAPIRouterNoError(
 				apiRouter.PathPrefix(fmt.Sprintf("/devices/bitbox02/%s", deviceID)).Subrouter(),
 			), log)
 		}
@@ -359,25 +373,35 @@ func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *acc
 	}
 }
 
-func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getQRCodeHandler(r *http.Request) interface{} {
+	type result struct {
+		Success bool   `json:"success"`
+		Message string `json:"message"`
+		Data    string `json:"data"`
+	}
 	data := r.URL.Query().Get("data")
 	qr, err := qrcode.New(data, qrcode.Medium)
 	if err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithError(err).Error("getQRCodeHandler")
+		return result{Success: false, Message: err.Error()}
 	}
 	bytes, err := qr.PNG(256)
 	if err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithError(err).Error("getQRCodeHandler")
+		return result{Success: false, Message: err.Error()}
 	}
-	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes), nil
+	return result{
+		Success: true,
+		Data:    "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes),
+	}
 }
 
-func (handlers *Handlers) getAppConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Config().AppConfig(), nil
+func (handlers *Handlers) getAppConfigHandler(_ *http.Request) interface{} {
+	return handlers.backend.Config().AppConfig()
 }
 
-func (handlers *Handlers) getDefaultConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.DefaultAppConfig(), nil
+func (handlers *Handlers) getDefaultConfigHandler(_ *http.Request) interface{} {
+	return handlers.backend.DefaultAppConfig()
 }
 
 func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, error) {
@@ -391,8 +415,8 @@ func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, er
 // getNativeLocaleHandler returns user preferred UI language as reported
 // by the native app layer.
 // The response value may be invalid or unsupported by the app.
-func (handlers *Handlers) getNativeLocaleHandler(*http.Request) (interface{}, error) {
-	return handlers.backend.Environment().NativeLocale(), nil
+func (handlers *Handlers) getNativeLocaleHandler(*http.Request) interface{} {
+	return handlers.backend.Environment().NativeLocale()
 }
 
 func (handlers *Handlers) postNotifyHandler(r *http.Request) (interface{}, error) {
@@ -414,16 +438,16 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	return nil, handlers.backend.SystemOpen(url)
 }
 
-func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.CheckForUpdateIgnoringErrors(), nil
+func (handlers *Handlers) getUpdateHandler(_ *http.Request) interface{} {
+	return handlers.backend.CheckForUpdateIgnoringErrors()
 }
 
-func (handlers *Handlers) getBannersHandler(r *http.Request) (interface{}, error) {
-	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"])), nil
+func (handlers *Handlers) getBannersHandler(r *http.Request) interface{} {
+	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"]))
 }
 
-func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) (interface{}, error) {
-	return handlers.backend.Environment().UsingMobileData(), nil
+func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) interface{} {
+	return handlers.backend.Environment().UsingMobileData()
 }
 
 func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, error) {
@@ -435,19 +459,19 @@ func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, er
 	return nil, nil
 }
 
-func (handlers *Handlers) getDetectDarkThemeHandler(r *http.Request) (interface{}, error) {
-	return handlers.backend.Environment().DetectDarkTheme(), nil
+func (handlers *Handlers) getDetectDarkThemeHandler(r *http.Request) interface{} {
+	return handlers.backend.Environment().DetectDarkTheme()
 }
 
-func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
-	return backend.Version.String(), nil
+func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
+	return backend.Version.String()
 }
 
-func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Testing(), nil
+func (handlers *Handlers) getTestingHandler(_ *http.Request) interface{} {
+	return handlers.backend.Testing()
 }
 
-func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAddAccountHandler(r *http.Request) interface{} {
 	var jsonBody struct {
 		CoinCode coinpkg.Code `json:"coinCode"`
 		Name     string       `json:"name"`
@@ -461,26 +485,26 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	keystore := handlers.backend.Keystore()
 	if keystore == nil {
-		return response{Success: false, ErrorMessage: "Keystore not found"}, nil
+		return response{Success: false, ErrorMessage: "Keystore not found"}
 	}
 
 	accountCode, err := handlers.backend.CreateAndPersistAccountConfig(jsonBody.CoinCode, jsonBody.Name, keystore)
 	if err != nil {
 		handlers.log.WithError(err).Error("Could not add account")
 		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
-			return response{Success: false, ErrorCode: string(errCode)}, nil
+			return response{Success: false, ErrorCode: string(errCode)}
 		}
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return response{Success: true, AccountCode: accountCode}, nil
+	return response{Success: true, AccountCode: accountCode}
 }
 
-func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getKeystoresHandler(_ *http.Request) interface{} {
 	type json struct {
 		Type keystore.Type `json:"type"`
 	}
@@ -492,10 +516,10 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, err
 			Type: keystore.Type(),
 		})
 	}
-	return keystores, nil
+	return keystores
 }
 
-func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 	accounts := []*accountJSON{}
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
 	for _, account := range handlers.backend.Accounts() {
@@ -515,10 +539,10 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 		}
 		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}
-	return accounts, nil
+	return accounts
 }
 
-func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
@@ -529,7 +553,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false}, nil
+		return response{Success: false}
 	}
 
 	unit := request.Unit
@@ -537,13 +561,13 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error
 	// update BTC format unit for Coins
 	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
-		return response{Success: false}, nil
+		return response{Success: false}
 	}
 	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
 	btcCoin, err = handlers.backend.Coin(coinpkg.CodeTBTC)
 	if err != nil {
-		return response{Success: false}, nil
+		return response{Success: false}
 	}
 	btcCoin.(*btc.Coin).SetFormatUnit(unit)
 
@@ -552,7 +576,7 @@ func (handlers *Handlers) postBtcFormatUnit(r *http.Request) (interface{}, error
 		account.Config().BtcCurrencyUnit = unit
 	}
 
-	return response{Success: true}, nil
+	return response{Success: true}
 }
 
 func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (interface{}, error) {
@@ -607,7 +631,7 @@ func (handlers *Handlers) getAccountsTotalBalanceHandler(_ *http.Request) (inter
 	return totalAmount, nil
 }
 
-func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 		Active      bool               `json:"active"`
@@ -619,15 +643,15 @@ func (handlers *Handlers) postSetAccountActiveHandler(r *http.Request) (interfac
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.SetAccountActive(jsonBody.AccountCode, jsonBody.Active); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return response{Success: true}, nil
+	return response{Success: true}
 }
 
-func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 		TokenCode   string             `json:"tokenCode"`
@@ -640,15 +664,15 @@ func (handlers *Handlers) postSetTokenActiveHandler(r *http.Request) (interface{
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.SetTokenActive(jsonBody.AccountCode, jsonBody.TokenCode, jsonBody.Active); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return response{Success: true}, nil
+	return response{Success: true}
 }
 
-func (handlers *Handlers) postRenameAccountHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
 		Name        string             `json:"name"`
@@ -661,28 +685,28 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) (interface{}
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	if err := handlers.backend.RenameAccount(jsonBody.AccountCode, jsonBody.Name); err != nil {
 		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
-			return response{Success: false, ErrorCode: string(errCode)}, nil
+			return response{Success: false, ErrorCode: string(errCode)}
 		}
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return response{Success: true}, nil
+	return response{Success: true}
 }
 
-func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) interface{} {
 	handlers.backend.ReinitializeAccounts()
-	return nil, nil
+	return nil
 }
 
-func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) interface{} {
 	jsonDevices := map[string]string{}
 	for deviceID, device := range handlers.backend.DevicesRegistered() {
 		jsonDevices[deviceID] = device.ProductName()
 	}
-	return jsonDevices, nil
+	return jsonDevices
 }
 
 func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
@@ -698,16 +722,16 @@ func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (inte
 	return nil, nil
 }
 
-func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) interface{} {
 	handlers.backend.DeregisterKeystore()
-	return nil, nil
+	return nil
 }
 
-func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.RatesUpdater().LatestPrice(), nil
+func (handlers *Handlers) getRatesHandler(_ *http.Request) interface{} {
+	return handlers.backend.RatesUpdater().LatestPrice()
 }
 
-func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{} {
 	type response struct {
 		Success bool   `json:"success"`
 		Amount  string `json:"amount"`
@@ -718,7 +742,7 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) (interface{
 	if !valid {
 		return response{
 			Success: false,
-		}, nil
+		}
 	}
 
 	btcCoin, err := handlers.backend.Coin(coinpkg.CodeBTC)
@@ -726,17 +750,17 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) (interface{
 		handlers.log.WithError(err).Error("Could not get coin " + coinpkg.CodeBTC)
 		return response{
 			Success: false,
-		}, nil
+		}
 	}
 
 	coinAmount := btcCoin.SetAmount(amountRat, false)
 	return response{
 		Success: true,
 		Amount:  btcCoin.FormatAmount(coinAmount, false),
-	}, nil
+	}
 }
 
-func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interface{} {
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
@@ -746,7 +770,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 		handlers.log.WithError(err).Error("Could not get coin " + from)
 		return map[string]interface{}{
 			"success": false,
-		}, nil
+		}
 	}
 
 	coinAmount, err := currentCoin.ParseAmount(amount)
@@ -754,7 +778,7 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 		handlers.log.WithError(err).Error("Error parsing amount " + amount)
 		return map[string]interface{}{
 			"success": false,
-		}, nil
+		}
 	}
 
 	coinUnitAmount := new(big.Rat).SetFloat64(currentCoin.ToUnit(coinAmount, false))
@@ -768,10 +792,10 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) (interfa
 	return map[string]interface{}{
 		"success":    true,
 		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, to, util.FormatBtcAsSat(btcUnit)),
-	}, nil
+	}
 }
 
-func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) interface{} {
 	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
@@ -780,7 +804,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 		return map[string]interface{}{
 			"success": false,
 			"errMsg":  "internal error",
-		}, nil
+		}
 	}
 
 	fiatStr := r.URL.Query().Get("amount")
@@ -789,7 +813,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 		return map[string]interface{}{
 			"success": false,
 			"errMsg":  "invalid amount",
-		}, nil
+		}
 	}
 
 	unit := currentCoin.Unit(isFee)
@@ -813,7 +837,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	return map[string]interface{}{
 		"success": true,
 		"amount":  currentCoin.FormatAmount(result, false),
-	}, nil
+	}
 }
 
 func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Request) (interface{}, error) {
@@ -826,28 +850,34 @@ func (handlers *Handlers) getHeadersStatus(coinCode coinpkg.Code) func(*http.Req
 	}
 }
 
-func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) interface{} {
 	var server string
 	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
-		return nil, errp.WithStack(err)
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}
 	}
 	pemCert, err := handlers.backend.DownloadCert(server)
 	if err != nil {
 		return map[string]interface{}{
 			"success":      false,
 			"errorMessage": err.Error(),
-		}, nil
+		}
 	}
 	return map[string]interface{}{
 		"success": true,
 		"pemCert": pemCert,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) interface{} {
 	var serverInfo config.ServerInfo
 	if err := json.NewDecoder(r.Body).Decode(&serverInfo); err != nil {
-		return nil, errp.WithStack(err)
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}
 	}
 
 	if err := handlers.backend.CheckElectrumServer(&serverInfo); err != nil {
@@ -858,25 +888,28 @@ func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) (interface{}
 		return map[string]interface{}{
 			"success":      false,
 			"errorMessage": err.Error(),
-		}, nil
+		}
 	}
 	handlers.log.
 		WithField("server-info", serverInfo.String()).
 		Info("checking electrum connection succeeded")
 	return map[string]interface{}{
 		"success": true,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postSocksProxyCheck(r *http.Request) (interface{}, error) {
-	var endpoint string
-	if err := json.NewDecoder(r.Body).Decode(&endpoint); err != nil {
-		return nil, errp.WithStack(err)
-	}
-
+func (handlers *Handlers) postSocksProxyCheck(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	var endpoint string
+	if err := json.NewDecoder(r.Body).Decode(&endpoint); err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
 	}
 
 	err := socksproxy.NewSocksProxy(true, endpoint).Validate()
@@ -884,11 +917,11 @@ func (handlers *Handlers) postSocksProxyCheck(r *http.Request) (interface{}, err
 		return response{
 			Success:      false,
 			ErrorMessage: err.Error(),
-		}, nil
+		}
 	}
 	return response{
 		Success: true,
-	}, nil
+	}
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
@@ -979,7 +1012,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 // getSupportedCoinsHandler returns an array of coin codes for which you can add an account.
 // Exactly one keystore must be connected, otherwise an empty array is returned.
-func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) interface{} {
 	type element struct {
 		CoinCode             coinpkg.Code `json:"coinCode"`
 		Name                 string       `json:"name"`
@@ -988,7 +1021,7 @@ func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}
 	}
 	keystore := handlers.backend.Keystore()
 	if keystore == nil {
-		return []string{}, nil
+		return []string{}
 	}
 	var result []element
 	for _, coinCode := range handlers.backend.SupportedCoins(keystore) {
@@ -1004,7 +1037,7 @@ func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) (interface{}
 			SuggestedAccountName: suggestedAccountName,
 		})
 	}
-	return result, nil
+	return result
 }
 
 func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}, error) {
@@ -1087,7 +1120,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	return path, nil
 }
 
-func (handlers *Handlers) getExchangesByRegion(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 	type errorResult struct {
 		Error string `json:"error"`
 	}
@@ -1095,19 +1128,19 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) (interface{}, er
 	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
 	if err != nil {
 		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}, nil
+		return errorResult{Error: err.Error()}
 	}
 
 	accountValid := acct != nil && acct.Offline() == nil && !acct.FatalError()
 	if !accountValid {
 		handlers.log.Error("Account not valid")
-		return errorResult{Error: "Account not valid"}, nil
+		return errorResult{Error: "Account not valid"}
 	}
 
-	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient()), nil
+	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient())
 }
 
-func (handlers *Handlers) getExchangeDeals(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	type exchangeDealsList struct {
 		Exchanges []exchanges.ExchangeDeals `json:"exchanges"`
 	}
@@ -1117,7 +1150,7 @@ func (handlers *Handlers) getExchangeDeals(r *http.Request) (interface{}, error)
 			exchanges.PocketDeals(),
 			exchanges.MoonpayDeals(),
 		},
-	}, nil
+	}
 }
 
 func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{}, error) {
@@ -1176,7 +1209,7 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 	return resp, nil
 }
 
-func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
 		// userLanguace config is empty if the set locale matches the system locale, so we have
@@ -1185,52 +1218,43 @@ func (handlers *Handlers) getExchangePocketURL(r *http.Request) (interface{}, er
 	}
 
 	url := exchanges.PocketURL(handlers.backend.DevServers(), lang)
-	return url, nil
+	return url
 }
 
-func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) (interface{}, error) {
-	var request struct {
-		AccountCode string `json:"accountCode"`
-		Address     string `json:"address"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, errp.WithStack(err)
-	}
-
+func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
 		ErrorMessage string `json:"errorMessage,omitempty"`
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
+	var request struct {
+		AccountCode string `json:"accountCode"`
+		Address     string `json:"address"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
 	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
 	if err != nil {
 		handlers.log.Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	err = exchanges.PocketWidgetVerifyAddress(account, request.Address)
 	if err != nil {
 		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
 		if errCode, ok := errp.Cause(err).(exchanges.ErrorCode); ok {
-			return response{Success: false, ErrorCode: string(errCode)}, nil
+			return response{Success: false, ErrorCode: string(errCode)}
 		}
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return response{Success: true}, nil
+	return response{Success: true}
 
 }
 
-func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interface{}, error) {
-	var request struct {
-		AccountCode string `json:"accountCode"`
-		Msg         string `json:"msg"`
-		Format      string `json:"format"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, errp.WithStack(err)
-	}
-
+func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
 		Address      string `json:"address"`
@@ -1239,10 +1263,19 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 		ErrorCode    string `json:"errorCode,omitempty"`
 	}
 
+	var request struct {
+		AccountCode string `json:"accountCode"`
+		Msg         string `json:"msg"`
+		Format      string `json:"format"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
 	account, err := handlers.backend.GetAccountFromCode(request.AccountCode)
 	if err != nil {
 		handlers.log.Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
 	address, signature, err := exchanges.PocketWidgetSignAddress(
@@ -1251,16 +1284,16 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) (interfac
 		request.Format)
 	if err != nil {
 		if firmware.IsErrorAbort(err) {
-			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}, nil
+			return response{Success: false, ErrorCode: string(exchanges.ErrUserAbort)}
 		}
 		handlers.log.WithField("code", account.Config().Config.Code).Error(err)
-		return response{Success: false, ErrorMessage: err.Error()}, nil
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	return response{Success: true, Address: address, Signature: signature}, nil
+	return response{Success: true, Address: address, Signature: signature}
 }
 
-func (handlers *Handlers) getAOPPHandler(r *http.Request) (interface{}, error) {
-	return handlers.backend.AOPP(), nil
+func (handlers *Handlers) getAOPPHandler(r *http.Request) interface{} {
+	return handlers.backend.AOPP()
 }
 
 func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interface{}, error) {
@@ -1275,12 +1308,12 @@ func (handlers *Handlers) postAOPPChooseAccountHandler(r *http.Request) (interfa
 	return nil, nil
 }
 
-func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPCancel()
-	return nil, nil
+	return nil
 }
 
-func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
-	return nil, nil
+	return nil
 }
