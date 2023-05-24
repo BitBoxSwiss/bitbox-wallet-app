@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02 from '../../../../api/bitbox02';
 import { useMountedRef } from '../../../../hooks/mount';
@@ -23,13 +23,9 @@ import { Wait } from './wait';
 import { ChecklistWalletCreate } from './checklist';
 import { SetDeviceName } from './name';
 import { SetPassword } from './password';
+import { WithSDCard } from './sdcard';
 
-type TCreateWalletStatus = 'intro' | 'setPassword' | 'createBackup';
-
-type TWait = {
-  title: string;
-  text?: string;
-};
+type TCreateWalletStatus = 'intro' | 'setName' | 'setPassword' | 'showDisclaimer' | 'createBackup';
 
 type Props = {
   deviceID: string;
@@ -46,12 +42,6 @@ export const CreateWallet = ({
   const isMounted = useMountedRef();
   const [status, setStatus] = useState<TCreateWalletStatus>('intro');
   const [errorText, setErrorText] = useState('');
-  const [waitView, setWaitView] = useState<TWait>();
-  const [hasSDCard, setSDCard] = useState<boolean>();
-
-  useEffect(() => {
-    bitbox02.checkSDCard(deviceID).then(setSDCard);
-  }, [deviceID]);
 
   const ensurePassword = async () => {
     setStatus('setPassword');
@@ -73,68 +63,35 @@ export const CreateWallet = ({
         return;
       }
       setErrorText('');
-      setStatus('createBackup');
+      setStatus('showDisclaimer');
     } catch (error) {
       console.error(error);
     }
   };
 
   const setDeviceName = async (deviceName: string) => {
-    setWaitView({ title: t('bitbox02Interact.confirmName') });
+    setStatus('setName');
     try {
       const result = await bitbox02.setDeviceName(deviceID, deviceName);
       if (!result.success) {
         alertUser(result.message || t('genericError'), {
           asDialog: false,
-          callback: () => setWaitView(undefined),
+          callback: () => onAbort(),
         });
         return;
       }
-      setWaitView(undefined);
       ensurePassword();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const ensureSDCard = async () => {
-    try {
-      const sdCardInserted = await bitbox02.checkSDCard(deviceID);
-      if (sdCardInserted) {
-        return true;
-      }
-      setWaitView({
-        title: t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
-        text: t('bitbox02Wizard.stepInsertSD.insertSDCard'),
-      });
-      const result = await bitbox02.insertSDCard(deviceID);
-      setWaitView(undefined);
-      if (result.success) {
-        return true;
-      }
-      if (result.message) {
-        alertUser(result.message, { asDialog: false });
-      }
-      return false;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const createBackup = async () => {
+    setStatus('createBackup');
     try {
-      const result1 = await ensureSDCard();
-      if (!result1) {
-        alertUser(t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        return;
-      }
-      setWaitView({
-        title: t('bitbox02Interact.confirmDate'),
-        text: t('bitbox02Interact.confirmDateText'),
-      });
-      const result2 = await bitbox02.createBackup(deviceID, 'sdcard');
-      if (!result2.success) {
-        if (result2.code === bitbox02.errUserAbort) {
+      const result = await bitbox02.createBackup(deviceID, 'sdcard');
+      if (!result.success) {
+        if (result.code === bitbox02.errUserAbort) {
           alertUser(t('bitbox02Wizard.createBackupAborted'), {
             asDialog: false,
             callback: () => onAbort(),
@@ -143,25 +100,26 @@ export const CreateWallet = ({
           alertUser(t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
         }
       }
-      setWaitView(undefined);
     } catch (error) {
       console.error(error);
     }
   };
 
-  if (waitView) {
-    return (
-      <Wait
-        key="wait-view"
-        title={waitView.title}
-        text={waitView.text} />
-    );
-  }
-
-  if (status === 'createBackup' && isSeeded) {
-    return (
-      <ChecklistWalletCreate key="create-backup" onContinue={createBackup} />
-    );
+  if (isSeeded) {
+    if (status === 'showDisclaimer') {
+      return (
+        <WithSDCard deviceID={deviceID}>
+          <ChecklistWalletCreate key="create-backup" onContinue={createBackup} />
+        </WithSDCard>
+      );
+    }
+    if (status === 'createBackup') {
+      return (
+        <Wait
+          title={t('bitbox02Interact.confirmDate')}
+          text={t('bitbox02Interact.confirmDateText')} />
+      );
+    }
   }
 
   switch (status) {
@@ -169,9 +127,13 @@ export const CreateWallet = ({
     return (
       <SetDeviceName
         key="set-devicename"
-        sdCardInserted={hasSDCard}
+        deviceID={deviceID}
         onDeviceName={setDeviceName}
         onBack={onAbort} />
+    );
+  case 'setName':
+    return (
+      <Wait title={t('bitbox02Interact.confirmName')} />
     );
   case 'setPassword':
     return (

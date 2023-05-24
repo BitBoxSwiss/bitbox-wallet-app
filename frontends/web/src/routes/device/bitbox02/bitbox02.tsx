@@ -16,8 +16,7 @@
  */
 
 import { Component } from 'react';
-import { Backup } from '../components/backup';
-import { checkSDCard, getStatus, getVersion, insertSDCard, restoreFromMnemonic, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
+import { getStatus, getVersion, restoreFromMnemonic, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
 import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
@@ -31,10 +30,9 @@ import { UpgradeButton } from './upgradebutton';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { Wait } from './setup/wait';
-import { SetPasswordWithBackup } from './setup/password';
 import { SetupOptions } from './setup/choose';
-import { RestoreFromSDCardBackup } from './setup/restore';
 import { CreateWallet } from './setup/wallet-create';
+import { RestoreFromSDCard } from './setup/wallet-restore';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
 interface BitBox02Props {
@@ -48,7 +46,6 @@ interface State {
     attestation: boolean | null;
     status: '' | TStatus;
     appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | '';
-    restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
@@ -56,7 +53,6 @@ interface State {
         title: string;
         text?: string;
     };
-    selectedBackup?: Backup;
 }
 
 class BitBox02 extends Component<Props, State> {
@@ -66,7 +62,6 @@ class BitBox02 extends Component<Props, State> {
       attestation: null,
       status: '',
       appStatus: '',
-      restoreBackupStatus: 'intro',
       unlockOnly: true,
       showWizard: false,
       waitDialog: undefined,
@@ -122,62 +117,6 @@ class BitBox02 extends Component<Props, State> {
     unsubscribe(this.unsubscribeList);
   }
 
-  private createWallet = () => {
-    this.setState({ appStatus: 'createWallet' });
-  };
-
-  private restoreBackup = () => {
-    this.insertSDCard().then(success => {
-      if (success) {
-        this.setState({
-          appStatus: 'restoreBackup',
-          restoreBackupStatus: 'restore',
-        });
-      }
-    });
-  };
-
-  private insertSDCard = () => {
-    return checkSDCard(this.props.deviceID).then(sdCardInserted => {
-      if (sdCardInserted) {
-        return true;
-      }
-      this.setState({ waitDialog: {
-        title: this.props.t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
-        text: this.props.t('bitbox02Wizard.stepInsertSD.insertSDCard'),
-      } });
-      return insertSDCard(this.props.deviceID).then((response) => {
-        this.setState({
-          waitDialog: undefined,
-        });
-        if (response.success) {
-          return true;
-        }
-        if (response.message) {
-          alertUser(response.message, { asDialog: false });
-        }
-        return false;
-      });
-    });
-  };
-
-  private onSelectBackup = (backup: Backup) => {
-    this.setState({
-      restoreBackupStatus: 'setPassword',
-      selectedBackup: backup,
-    });
-  };
-
-  private onRestoreBackup = (success: boolean) => {
-    if (!success) {
-      this.insertSDCard();
-      this.setState({
-        restoreBackupStatus: 'restore',
-      });
-    }
-    this.setState({ selectedBackup: undefined });
-  };
-
   private restoreFromMnemonic = async () => {
     this.setState({ waitDialog: {
       title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
@@ -203,11 +142,9 @@ class BitBox02 extends Component<Props, State> {
       versionInfo,
       status,
       appStatus,
-      restoreBackupStatus,
       unlockOnly,
       showWizard,
       waitDialog,
-      selectedBackup,
     } = this.state;
 
     if (status === '') {
@@ -269,10 +206,10 @@ class BitBox02 extends Component<Props, State> {
             onSelectSetup={(option) => {
               switch (option) {
               case 'create-wallet':
-                this.createWallet();
+                this.setState({ appStatus: 'createWallet' });
                 break;
               case 'restore-sdcard':
-                this.restoreBackup();
+                this.setState({ appStatus: 'restoreBackup' });
                 break;
               case 'restore-mnemonic':
                 this.restoreFromMnemonic();
@@ -290,15 +227,10 @@ class BitBox02 extends Component<Props, State> {
 
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
-          <RestoreFromSDCardBackup
-            key="restore-backup"
+          <RestoreFromSDCard
+            key="restore"
             deviceID={deviceID}
-            onSelectBackup={this.onSelectBackup}
-            onRestoreBackup={this.onRestoreBackup}
-            onBack={() => this.setState({ appStatus: '' })} />
-        )}
-        { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized' && restoreBackupStatus === 'setPassword') && (
-          <SetPasswordWithBackup key="set-password" forBackup={selectedBackup} />
+            onAbort={() => this.setState({ appStatus: '' })} />
         )}
 
         { (appStatus === 'createWallet' && status === 'initialized') && (
