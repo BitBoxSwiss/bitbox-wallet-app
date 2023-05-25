@@ -135,7 +135,10 @@ export const CreateWallet = ({
       const result2 = await bitbox02.createBackup(deviceID, 'sdcard');
       if (!result2.success) {
         if (result2.code === bitbox02.errUserAbort) {
-          alertUser(t('bitbox02Wizard.createBackupAborted'), { asDialog: false });
+          alertUser(t('bitbox02Wizard.createBackupAborted'), {
+            asDialog: false,
+            callback: () => onAbort(),
+          });
         } else {
           alertUser(t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
         }
