@@ -25,7 +25,7 @@ import { Button, Checkbox } from '../../../components/forms';
 import { alertUser } from '../../../components/alert/Alert';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
 import { PointToBitBox02 } from '../../../components/icon';
-import Status from '../../../components/status/status';
+import { Status } from '../../../components/status/status';
 
 // enabling has 6 dialogs with information
 const INFO_STEPS_ENABLE = 5;

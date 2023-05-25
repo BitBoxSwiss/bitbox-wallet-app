@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
 import { useDarkmode } from '../../hooks/darkmode';
 import { IAccount } from '../../api/account';
-import { getConfig } from '../../api/backend';
+import { getConfig } from '../../utils/config';
 import { getMoonpayBuyInfo } from '../../api/exchanges';
 import Guide from './guide';
 import { Header } from '../../components/layout';

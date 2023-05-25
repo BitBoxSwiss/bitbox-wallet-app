@@ -18,7 +18,7 @@
 import { useTranslation } from 'react-i18next';
 import { useSync } from '../hooks/api';
 import { getUsingMobileData, subscribeUsingMobileData } from '../api/mobiledata';
-import Status from './status/status';
+import { Status } from './status/status';
 
 export const MobileDataWarning = () => {
   const { t } = useTranslation();

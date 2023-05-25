@@ -66,11 +66,3 @@ export const getQRCode = (data: string) => {
 export const getDefaultConfig = (): Promise<any> => {
   return apiGet('config/default');
 };
-
-export const getConfig = (): Promise<any> => {
-  return apiGet('config');
-};
-
-export const setConfig = (config: any): Promise<null> => {
-  return apiPost('config', config);
-};

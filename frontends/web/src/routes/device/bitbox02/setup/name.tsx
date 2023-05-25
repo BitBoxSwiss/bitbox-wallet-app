@@ -17,7 +17,7 @@
 import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
-import Status from '../../../../components/status/status';
+import { Status } from '../../../../components/status/status';
 import { Button, Input } from '../../../../components/forms';
 import style from './name.module.css';
 

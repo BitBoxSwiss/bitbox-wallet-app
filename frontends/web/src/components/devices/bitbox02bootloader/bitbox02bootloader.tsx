@@ -22,7 +22,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
 import { BitBox02, BitBox02Inverted } from '../../icon/logo';
-import Status from '../../status/status';
+import { Status } from '../../status/status';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 import { getDarkmode } from '../../darkmode/darkmode';
 

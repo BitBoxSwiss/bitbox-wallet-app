@@ -32,7 +32,7 @@ import { HeadersSync } from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
 import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
-import Status from '../../components/status/status';
+import { Status } from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { apiGet } from '../../utils/request';
 import { BuyReceiveCTA } from './info/buyReceiveCTA';
