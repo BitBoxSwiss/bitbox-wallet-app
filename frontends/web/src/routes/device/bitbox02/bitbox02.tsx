@@ -263,7 +263,7 @@ class BitBox02 extends Component<Props, State> {
             pairingFailed={status === 'pairingFailed'} />
         )}
 
-        { (!unlockOnly && status === 'uninitialized' && appStatus === '') && (
+        { (!unlockOnly && appStatus === '') && (
           <SetupOptions
             key="choose-setup"
             onSelectSetup={(option) => {
