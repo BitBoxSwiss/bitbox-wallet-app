@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { restoreFromMnemonic } from '../../../../api/bitbox02';
+import { alertUser } from '../../../../components/alert/Alert';
 import { Backup } from '../../components/backup';
 import { SetPasswordWithBackup } from './password';
 import { RestoreFromSDCardBackup } from './restore';
 import { WithSDCard } from './sdcard';
+import { Wait } from './wait';
 
 type Props = {
   deviceID: string;
@@ -61,4 +65,30 @@ export const RestoreFromSDCard = ({
       <SetPasswordWithBackup forBackup={backup} />
     );
   }
+};
+
+export const RestoreFromMnemonic = ({
+  deviceID,
+  onAbort,
+}: Props) => {
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    restoreFromMnemonic(deviceID)
+      .then(result => {
+        if (!result.success) {
+          alertUser(t('bitbox02Wizard.restoreFromMnemonic.failed'), {
+            asDialog: false,
+            callback: () => onAbort(),
+          });
+        }
+      })
+      .catch(console.error);
+  }, [deviceID, onAbort, t]);
+
+  return (
+    <Wait
+      title={t('bitbox02Interact.followInstructionsMnemonicTitle')}
+      text={t('bitbox02Interact.followInstructionsMnemonic')} />
+  );
 };

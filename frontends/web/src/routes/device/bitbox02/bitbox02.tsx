@@ -16,7 +16,7 @@
  */
 
 import { Component } from 'react';
-import { getStatus, getVersion, restoreFromMnemonic, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
+import { getStatus, getVersion, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
 import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
@@ -24,7 +24,6 @@ import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Main } from '../../../components/layout';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { alertUser } from '../../../components/alert/Alert';
 import { Settings } from './settings';
 import { UpgradeButton } from './upgradebutton';
 import { Unlock } from './unlock';
@@ -32,7 +31,7 @@ import { Pairing } from './setup/pairing';
 import { Wait } from './setup/wait';
 import { SetupOptions } from './setup/choose';
 import { CreateWallet } from './setup/wallet-create';
-import { RestoreFromSDCard } from './setup/wallet-restore';
+import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
 interface BitBox02Props {
@@ -117,24 +116,6 @@ class BitBox02 extends Component<Props, State> {
     unsubscribe(this.unsubscribeList);
   }
 
-  private restoreFromMnemonic = async () => {
-    this.setState({ waitDialog: {
-      title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
-      text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
-    } });
-    try {
-      const { success } = await restoreFromMnemonic(this.props.deviceID);
-      if (!success) {
-        alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'), { asDialog: false });
-      } else {
-        this.setState({ appStatus: 'restoreFromMnemonic' });
-      }
-      this.setState({ waitDialog: undefined });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   public render() {
     const { t, deviceID } = this.props;
     const {
@@ -212,7 +193,7 @@ class BitBox02 extends Component<Props, State> {
                 this.setState({ appStatus: 'restoreBackup' });
                 break;
               case 'restore-mnemonic':
-                this.restoreFromMnemonic();
+                this.setState({ appStatus: 'restoreFromMnemonic' });
                 break;
               }
             }} />
@@ -228,7 +209,14 @@ class BitBox02 extends Component<Props, State> {
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
           <RestoreFromSDCard
-            key="restore"
+            key="restore-sdcard"
+            deviceID={deviceID}
+            onAbort={() => this.setState({ appStatus: '' })} />
+        )}
+
+        { (!unlockOnly && appStatus === 'restoreFromMnemonic' && status !== 'initialized') && (
+          <RestoreFromMnemonic
+            key="restore-mnemonic"
             deviceID={deviceID}
             onAbort={() => this.setState({ appStatus: '' })} />
         )}
