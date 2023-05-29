@@ -23,6 +23,7 @@
     --color-light-skyblue: #ECF7FF;
     --color-electric-blue: #2684FF;
     --color-powder-blue: #DEEBFF;
+    --color-pale-ice-blue: #E6F7FF;
     --color-blue-alt: #91BFCF;
     --color-orange: #F5A04C;
     --color-olive: #908B00;
@@ -120,7 +121,7 @@
     --background-tertiary: var(--color-gray-alt);
     --background-quaternary: var(--color-mediumgray);
     --background-custom-select-hover: var(--color-powder-blue);
-    --background-custom-select-selected: var(--color-electric-blue);
+    --background-custom-select-selected: var(--color-pale-ice-blue);
 }
 
 @media (prefers-color-scheme: dark) {

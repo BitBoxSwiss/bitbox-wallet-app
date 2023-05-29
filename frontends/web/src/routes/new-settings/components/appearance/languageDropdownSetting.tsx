@@ -18,7 +18,7 @@ import { SettingsItem } from '../settingsItem/settingsItem';
 import { useTranslation } from 'react-i18next';
 import { TLanguagesList } from '../../../../components/language/types';
 import { getSelectedIndex } from '../../../../utils/language';
-import { SingleDropdown } from '../singledropdown/singledropdown';
+import { SingleDropdown } from '../dropdowns/singledropdown';
 
 const defaultLanguages: TLanguagesList = [
   { code: 'ar', display: 'العربية' },

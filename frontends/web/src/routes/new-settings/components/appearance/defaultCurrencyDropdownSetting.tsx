@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import { currencies, selectFiat, setActiveFiat, store } from '../../../../components/rates/rates';
-import { SingleDropdown } from '../singledropdown/singledropdown';
+import { defaultValueLabel, formattedCurrencies, selectFiat, setActiveFiat, store } from '../../../../components/rates/rates';
+import { SingleDropdown } from '../dropdowns/singledropdown';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Fiat } from '../../../../api/account';
 
 export const DefaultCurrencyDropdownSetting = () => {
-  const formattedCurrencies = currencies.map((currency) => ({ label: currency, value: currency }));
-
   return (
     <SettingsItem
       settingName="Default Currency"
@@ -36,7 +34,10 @@ export const DefaultCurrencyDropdownSetting = () => {
               selectFiat(fiat);
             }
           }}
-          defaultValue={{ label: store.state.active, value: store.state.active }}
+          defaultValue={{
+            label: defaultValueLabel,
+            value: store.state.active
+          }}
         />
       }
     />

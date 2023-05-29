@@ -33,7 +33,31 @@ export interface SharedProps {
     btcUnit?: BtcUnit;
 }
 
+export type FiatWithDisplayName = {
+  currency: Fiat,
+  displayName: string
+}
+
 export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
+export const currenciesWithDisplayName: FiatWithDisplayName[] = [
+  { currency: 'AUD', displayName: 'Australian dollar' },
+  { currency: 'BRL', displayName: 'Brazilian real' },
+  { currency: 'CAD', displayName: 'Canadian dollar' },
+  { currency: 'CHF', displayName: 'Swiss franc' },
+  { currency: 'CNY', displayName: 'Chinese yuan' },
+  { currency: 'EUR', displayName: 'Euro' },
+  { currency: 'GBP', displayName: 'British pound' },
+  { currency: 'HKD', displayName: 'Hong Kong dollar' },
+  { currency: 'ILS', displayName: 'Israeli new shekel' },
+  { currency: 'JPY', displayName: 'Japanese yen' },
+  { currency: 'KRW', displayName: 'South Korean won' },
+  { currency: 'NOK', displayName: 'Norwegian krone' },
+  { currency: 'RUB', displayName: 'Russian ruble' },
+  { currency: 'SEK', displayName: 'Swedish krona' },
+  { currency: 'SGD', displayName: 'Singapore dollar' },
+  { currency: 'USD', displayName: 'United States dollar' },
+  { currency: 'BTC', displayName: 'Bitcoin' }
+];
 
 export const store = new Store<SharedProps>({
   active: 'USD',
@@ -178,5 +202,10 @@ function Conversion({
     </span>
   );
 }
+
+export const formattedCurrencies = currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency }));
+
+const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === store.state.active)?.displayName;
+export const defaultValueLabel = valueLabel ? `${valueLabel} (${store.state.active})` : store.state.active;
 
 export const FiatConversion = share<SharedProps, TProvidedProps>(store)(Conversion);
