@@ -80,6 +80,7 @@ const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
   const formattedCurrencies = currencies.map((currency) => ({ label: currency, value: currency }));
   return (
     <SettingsItem
+      collapseOnSmall
       settingName="Active Currencies"
       secondaryText="These additional currencies can be toggled through on your account page."
       extraComponent={
@@ -87,7 +88,8 @@ const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
           options={formattedCurrencies}
           active={active}
           selected={selected}
-        />}
+        />
+      }
     />
   );
 };

@@ -59,5 +59,35 @@
     .container {
          height: auto;
          margin-bottom: 2px;
+         min-width: 100%;
     }
+
+    .rightContentContainer {
+        margin-top: var(--space-quarter);
+    }
+
+    .secondaryText {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    
+    .container.collapse {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .container.collapse .displayedValue.withMargin {
+        margin-right: 0;
+    }
+
+    .container.collapse .rightContentContainer {
+        width: 100%
+    }
+
+    .hideDisplayedValueOnSmall {
+        display: none;
+    }
+    
 }

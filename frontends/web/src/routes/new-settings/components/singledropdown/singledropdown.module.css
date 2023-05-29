@@ -48,3 +48,9 @@
 .select :global(.react-select__option--is-selected) .optionValue {
     color: var(--color-alt);
 }
+
+@media (max-width: 560px) {
+    .select {
+        width: 100%;
+    }
+}

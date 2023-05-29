@@ -26,6 +26,7 @@ export const DefaultCurrencyDropdownSetting = () => {
     <SettingsItem
       settingName="Default Currency"
       secondaryText="Select your default currency."
+      collapseOnSmall
       extraComponent={
         <SingleDropdown
           options={formattedCurrencies}
