@@ -21,6 +21,9 @@ import * as accountApi from '../../../api/account';
 import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
 import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import { syncAddressesCount } from '../../../api/accountsync';
+import { TDevices } from '../../../api/devices';
+import { useSDCard } from '../../../hooks/sdcard';
+import { Status } from '../../../components/status/status';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Check } from '../../../components/icon/icon';
@@ -34,6 +37,7 @@ import { apiPost } from '../../../utils/request';
 
 type TProps = {
     accounts: accountApi.IAccount[];
+    devices: TDevices;
 };
 
 export type Balances = {
@@ -46,6 +50,7 @@ export type SyncStatus = {
 
 export function AccountsSummary({
   accounts,
+  devices,
 }: TProps) {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
@@ -57,6 +62,8 @@ export function AccountsSummary({
   const [balances, setBalances] = useState<Balances>();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>();
   const [exported, setExported] = useState('');
+
+  const hasCard = useSDCard(devices);
 
   const getAccountSummary = async () => {
     // replace previous timer if present
@@ -184,6 +191,9 @@ export function AccountsSummary({
     <div className="contentWithGuide">
       <div className="container">
         <div className="innerContainer scrollableContainer">
+          <Status hidden={!hasCard} type="warning">
+            {t('warning.sdcard')}
+          </Status>
           <Header title={<h2>{t('accountSummary.title')}</h2>}>
             { debug && (
               exported ? (
