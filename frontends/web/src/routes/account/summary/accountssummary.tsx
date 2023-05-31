@@ -25,18 +25,12 @@ import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
 import { Check } from '../../../components/icon/icon';
 import { Chart } from './chart';
+import { SummaryBalance } from './summarybalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
-import { Amount } from '../../../components/amount/amount';
-import { Skeleton } from '../../../components/skeleton/skeleton';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { debug } from '../../../utils/env';
 import { apiPost } from '../../../utils/request';
-import Logo from '../../../components/icon/logo';
-import Spinner from '../../../components/spinner/ascii';
-import { FiatConversion } from '../../../components/rates/rates';
-import { route } from '../../../utils/route';
-import style from './accountssummary.module.css';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -46,21 +40,8 @@ export type Balances = {
     [code: string]: accountApi.IBalance;
 };
 
-type SyncStatus = {
+export type SyncStatus = {
     [code: string]: number;
-};
-
-type BalanceRowProps = {
-    code: accountApi.AccountCode;
-    name: string;
-    balance?: accountApi.IAmount;
-    coinUnit: string;
-    coinCode: accountApi.CoinCode;
-    coinName: string;
-};
-
-type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
 };
 
 export function AccountsSummary({
@@ -71,35 +52,32 @@ export function AccountsSummary({
   const unsubscribeList = useRef<UnsubscribeList>([]);
   const firstRender = useRef(true);
 
-  const [data, setData] = useState<accountApi.ISummary>();
+  const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [totalBalancePerCoin, setTotalBalancePerCoin] = useState<accountApi.ITotalBalance>();
   const [balances, setBalances] = useState<Balances>();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>();
   const [exported, setExported] = useState('');
 
-  const getAccountSummary = () => {
+  const getAccountSummary = async () => {
     // replace previous timer if present
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
     }
-    accountApi.getSummary().then(setData).catch(console.error);
-  };
-
-  const getAccountsTotalBalance = () => {
     try {
-      accountApi.getAccountsTotalBalance().then(setTotalBalancePerCoin);
+      const summaryData = await accountApi.getSummary();
+      setSummaryData(summaryData);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const getAccountsPerCoin = () => {
-    return accounts.reduce((accountPerCoin, account) => {
-      accountPerCoin[account.coinCode]
-        ? accountPerCoin[account.coinCode].push(account)
-        : accountPerCoin[account.coinCode] = [account];
-      return accountPerCoin;
-    }, {} as TAccountCoinMap);
+  const getAccountsTotalBalance = async () => {
+    try {
+      const totalBalance = await accountApi.getAccountsTotalBalance();
+      setTotalBalancePerCoin(totalBalance);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const onSyncAddressesCount = useCallback((
@@ -157,8 +135,13 @@ export function AccountsSummary({
     });
   }, [onSyncAddressesCount, onStatusChanged, onEvent, accounts]);
 
-  const exportSummary = () => {
-    accountApi.exportSummary().then(setExported).catch(console.error);
+  const exportSummary = async () => {
+    try {
+      const exportResult = await accountApi.exportSummary();
+      setExported(exportResult);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // fetch accounts summary and balance on the first render.
@@ -179,9 +162,9 @@ export function AccountsSummary({
       window.clearTimeout(summaryReqTimerID.current);
     }
     // set new timer
-    const delay = (!data || data.chartDataMissing) ? 1000 : 10000;
+    const delay = (!summaryData || summaryData.chartDataMissing) ? 1000 : 10000;
     summaryReqTimerID.current = window.setTimeout(getAccountSummary, delay);
-  }, [data]);
+  }, [summaryData]);
 
   // update subscriptions on account change.
   useEffect(() => {
@@ -196,110 +179,6 @@ export function AccountsSummary({
       unsubscribe(currentUnsubscribeList);
     };
   }, []);
-
-  // TODO move
-  const balanceRow = (
-    { code, name, coinCode }: BalanceRowProps,
-  ) => {
-    const balance = balances ? balances[code] : undefined;
-    const nameCol = (
-      <td
-        className={style.clickable}
-        data-label={t('accountSummary.name')}
-        onClick={() => route(`/account/${code}`)}>
-        <div className={style.coinName}>
-          <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
-          {name}
-        </div>
-      </td>
-    );
-    if (balance) {
-      return (
-        <tr key={`${code}_balance`}>
-          { nameCol }
-          <td data-label={t('accountSummary.balance')}>
-            <span className={style.summaryTableBalance}>
-              <Amount amount={balance.available.amount} unit={balance.available.unit}/>{' '}
-              <span className={style.coinUnit}>{balance.available.unit}</span>
-            </span>
-          </td>
-          <td data-label={t('accountSummary.fiatBalance')}>
-            <FiatConversion amount={balance.available} noAction={true} />
-          </td>
-        </tr>
-      );
-    }
-    const accountSyncStatus = syncStatus && syncStatus[code];
-    return (
-      <tr key={`${code}_syncing`}>
-        { nameCol }
-        <td colSpan={2} className={style.syncText}>
-          { t('account.syncedAddressesCount', {
-            count: accountSyncStatus?.toString(),
-            defaultValue: 0,
-          } as any) }
-          <Spinner />
-        </td>
-      </tr>
-    );
-  };
-
-  // TODO move
-  const subTotalRow = ({ coinCode, coinName, balance }: BalanceRowProps) => {
-    const nameCol = (
-      <td data-label={t('accountSummary.total')}>
-        <div className={style.coinName}>
-          <Logo className={style.coincode} coinCode={coinCode} active={true} alt={coinCode} />
-          <strong className={style.showOnTableView}>
-            {t('accountSummary.subtotalWithCoinName', { coinName })}
-          </strong>
-          <strong className={style.showInCollapsedView}>
-            { coinName }
-          </strong>
-        </div>
-      </td>
-    );
-    if (!balance) {
-      return null;
-    }
-    return (
-      <tr key={`${coinCode}_subtotal`} className={style.subTotal}>
-        { nameCol }
-        <td data-label={t('accountSummary.balance')}>
-          <span className={style.summaryTableBalance}>
-            <strong>
-              <Amount amount={balance.amount} unit={balance.unit}/>
-            </strong>
-            {' '}
-            <span className={style.coinUnit}>{balance.unit}</span>
-          </span>
-        </td>
-        <td data-label={t('accountSummary.fiatBalance')}>
-          <strong>
-            <FiatConversion amount={balance} noAction={true} />
-          </strong>
-        </td>
-      </tr>
-    );
-  };
-
-  // TODO move
-  const renderAccountSummary = () => {
-    const accountsPerCoin = getAccountsPerCoin();
-    const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
-    return coins.map(coinCode => {
-      if (accountsPerCoin[coinCode]?.length > 1) {
-        return [
-          ...accountsPerCoin[coinCode].map(account => balanceRow(account)),
-          subTotalRow({
-            ...accountsPerCoin[coinCode][0],
-            balance: totalBalancePerCoin && totalBalancePerCoin[coinCode],
-          }),
-        ];
-      }
-      return accountsPerCoin[coinCode].map(account => balanceRow(account));
-    });
-  };
 
   return (
     <div className="contentWithGuide">
@@ -327,59 +206,19 @@ export function AccountsSummary({
           </Header>
           <div className="content padded">
             <Chart
-              data={data}
+              data={summaryData}
               noDataPlaceholder={
                 (accounts.length === Object.keys(balances || {}).length) ? (
                   <AddBuyReceiveOnEmptyBalances balances={balances} />
                 ) : undefined
               } />
-            <div className={style.balanceTable}>
-              <table className={style.table}>
-                <colgroup>
-                  <col width="33%" />
-                  <col width="33%" />
-                  <col width="*" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>{t('accountSummary.name')}</th>
-                    <th>{t('accountSummary.balance')}</th>
-                    <th>{t('accountSummary.fiatBalance')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  { accounts.length > 0 ? (
-                    renderAccountSummary()
-                  ) : (
-                    <tr>
-                      <td colSpan={3} className={style.noAccount}>
-                        {t('accountSummary.noAccount')}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <th>
-                      <strong>{t('accountSummary.total')}</strong>
-                    </th>
-                    <td colSpan={2}>
-                      {(data && data.formattedChartTotal !== null) ? (
-                        <>
-                          <strong>
-                            <Amount amount={data.formattedChartTotal} unit={data.chartFiat}/>
-                          </strong>
-                          {' '}
-                          <span className={style.coinUnit}>
-                            {data.chartFiat}
-                          </span>
-                        </>
-                      ) : (<Skeleton />) }
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+            <SummaryBalance
+              accounts={accounts}
+              summaryData={summaryData}
+              totalBalancePerCoin={totalBalancePerCoin}
+              balances={balances}
+              syncStatus={syncStatus}
+            />
           </div>
         </div>
       </div>
