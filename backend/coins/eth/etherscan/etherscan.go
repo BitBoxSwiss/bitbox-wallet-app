@@ -167,6 +167,7 @@ func (tx *Transaction) TransactionData(isERC20 bool) *accounts.TransactionData {
 		Addresses:                tx.addresses(),
 		Gas:                      tx.jsonTransaction.GasUsed.BigInt().Uint64(),
 		Nonce:                    &nonce,
+		IsErc20:                  isERC20,
 	}
 }
 

@@ -119,8 +119,9 @@ type TransactionData struct {
 
 	// --- Fields only used for ETH follow
 
-	Gas   uint64
-	Nonce *uint64
+	Gas     uint64
+	Nonce   *uint64
+	IsErc20 bool
 }
 
 // isConfirmed returns true if the transaction has at least one confirmation.
