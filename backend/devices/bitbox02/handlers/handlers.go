@@ -38,7 +38,7 @@ type BitBox02 interface {
 	ChannelHashVerify(ok bool)
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
-	SetPassword() error
+	SetPassword(seedLen int) error
 	CreateBackup() error
 	ListBackups() ([]*firmware.Backup, error)
 	CheckBackup(bool) (string, error)
@@ -153,7 +153,11 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postSetPassword(r *http.Request) interface{} {
-	if err := handlers.device.SetPassword(); err != nil {
+	var seedLen int
+	if err := json.NewDecoder(r.Body).Decode(&seedLen); err != nil {
+		return map[string]interface{}{"success": false}
+	}
+	if err := handlers.device.SetPassword(seedLen); err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
 	return map[string]interface{}{"success": true}
@@ -305,12 +309,16 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 		// This has no influence over whether one can display the recovery words after the initial
 		// setup - that is always possible regardless of this value.
 		CanBackupWithRecoveryWords bool `json:"canBackupWithRecoveryWords"`
+		// If true, it is possible to create a 12-word seed by passing `16` as `seedLen` to
+		// `SetPassword()`. Otherwise, only `32` is allowed, corresponding to 24 words.
+		CanCreate12Words bool `json:"canCreate12Words"`
 	}{
 		CurrentVersion:             currentVersion.String(),
 		NewVersion:                 newVersion.String(),
 		CanUpgrade:                 newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
 		CanGotoStartupSettings:     currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
+		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 	}
 }
 

@@ -17,6 +17,7 @@ package firmware
 import (
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
 // SetDeviceName sends a request to the device using protobuf to set the device name.
@@ -76,14 +77,23 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 
 // SetPassword invokes the set password workflow on the device. Should be called only if
 // deviceInfo.Initialized is false.
-func (device *Device) SetPassword() error {
+//
+// `seed_len` must be exactly 16 or 32, creating a 16-byte or a 32-byte seed, corresponding to 12
+// resp. 24 BIP39 recovery words.
+func (device *Device) SetPassword(seedLen int) error {
+	if seedLen != 16 && seedLen != 32 {
+		return errp.New("invalid seedLen")
+	}
+	if seedLen == 16 && !device.version.AtLeast(semver.NewSemVer(9, 6, 0)) {
+		return UnsupportedError("9.6.0")
+	}
 	if device.status == StatusInitialized {
 		return errp.New("invalid status")
 	}
 	request := &messages.Request{
 		Request: &messages.Request_SetPassword{
 			SetPassword: &messages.SetPasswordRequest{
-				Entropy: bytesOrPanic(32),
+				Entropy: bytesOrPanic(seedLen),
 			},
 		},
 	}

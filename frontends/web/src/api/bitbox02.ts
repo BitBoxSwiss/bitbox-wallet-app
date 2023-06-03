@@ -76,6 +76,7 @@ export type VersionInfo = {
     // This has no influence over whether one can display the recovery words after the initial
     // setup - that is always possible regardless of this value.
     canBackupWithRecoveryWords: boolean;
+    canCreate12Words: boolean;
 }
 
 export const getVersion = (
@@ -165,6 +166,7 @@ export const verifyChannelHash = (
 
 export const setPassword = (
   deviceID: string,
+  seedLen: 16 | 32,
 ): Promise<SuccessResponse | FailResponse> => {
-  return apiPost(`devices/bitbox02/${deviceID}/set-password`);
+  return apiPost(`devices/bitbox02/${deviceID}/set-password`, seedLen);
 };
