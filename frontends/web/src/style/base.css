@@ -81,9 +81,7 @@ dl dd {
 }
 
 img,
-button,
-label,
-.label {
+button {
     user-select: none;
 }
 

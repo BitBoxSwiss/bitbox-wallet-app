@@ -29,7 +29,7 @@ import { UpgradeButton } from './upgradebutton';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { Wait } from './setup/wait';
-import { SetupOptions } from './setup/choose';
+import { SetupOptions, TWalletCreateOptions, TWalletSetupChoices } from './setup/choose';
 import { CreateWallet } from './setup/wallet-create';
 import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
@@ -44,7 +44,8 @@ interface State {
     versionInfo?: VersionInfo;
     attestation: boolean | null;
     status: '' | TStatus;
-    appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | '';
+    appStatus: '' | TWalletSetupChoices;
+    createOptions?: TWalletCreateOptions;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
@@ -109,6 +110,13 @@ class BitBox02 extends Component<Props, State> {
     });
   };
 
+  private handleAbort = () => {
+    this.setState({
+      appStatus: '',
+      createOptions: undefined,
+    });
+  };
+
   public componentWillUnmount() {
     unsubscribe(this.unsubscribeList);
   }
@@ -117,6 +125,7 @@ class BitBox02 extends Component<Props, State> {
     const { t, deviceID } = this.props;
     const {
       attestation,
+      createOptions,
       versionInfo,
       status,
       appStatus,
@@ -181,50 +190,44 @@ class BitBox02 extends Component<Props, State> {
         { (!unlockOnly && appStatus === '') && (
           <SetupOptions
             key="choose-setup"
-            onSelectSetup={(option) => {
-              switch (option) {
-              case 'create-wallet':
-                this.setState({ appStatus: 'createWallet' });
-                break;
-              case 'restore-sdcard':
-                this.setState({ appStatus: 'restoreBackup' });
-                break;
-              case 'restore-mnemonic':
-                this.setState({ appStatus: 'restoreFromMnemonic' });
-                break;
-              }
-            }} />
+            versionInfo={versionInfo}
+            onSelectSetup={(
+              type: TWalletSetupChoices,
+              createOptions?: TWalletCreateOptions,
+            ) => this.setState({ appStatus: type, createOptions })} />
         )}
 
-        { (!unlockOnly && appStatus === 'createWallet') && (
+        { (!unlockOnly && appStatus === 'create-wallet') && (
           <CreateWallet
+            backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
+            backupSeedLength={createOptions?.with12Words ? 16 : 32}
             deviceID={deviceID}
             isSeeded={status === 'seeded'}
-            onAbort={() => this.setState({ appStatus: '' })} />
+            onAbort={this.handleAbort} />
         )}
 
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
-        { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
+        { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'initialized') && (
           <RestoreFromSDCard
             key="restore-sdcard"
             deviceID={deviceID}
-            onAbort={() => this.setState({ appStatus: '' })} />
+            onAbort={this.handleAbort} />
         )}
 
-        { (!unlockOnly && appStatus === 'restoreFromMnemonic' && status !== 'initialized') && (
+        { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'initialized') && (
           <RestoreFromMnemonic
             key="restore-mnemonic"
             deviceID={deviceID}
-            onAbort={() => this.setState({ appStatus: '' })} />
+            onAbort={this.handleAbort} />
         )}
 
-        { (appStatus === 'createWallet' && status === 'initialized') && (
+        { (appStatus === 'create-wallet' && status === 'initialized') && (
           <CreateWalletSuccess key="success" onContinue={this.handleGetStarted} />
         )}
-        { (appStatus === 'restoreBackup' && status === 'initialized') && (
+        { (appStatus === 'restore-sdcard' && status === 'initialized') && (
           <RestoreFromSDCardSuccess key="backup-success" onContinue={this.handleGetStarted} />
         )}
-        { (appStatus === 'restoreFromMnemonic' && status === 'initialized') && (
+        { (appStatus === 'restore-mnemonic' && status === 'initialized') && (
           <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={this.handleGetStarted} />
         )}
       </Main>

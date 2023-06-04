@@ -136,7 +136,7 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "showMnemonic": {
-      "description": "You will be presented with 24 recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "description": "You will be presented with your recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
       "title": "Show recovery words"
     },
     "title": "Manage backups"
@@ -165,6 +165,8 @@
     "confirmDate": "Confirm today's date on your BitBox02",
     "confirmDateText": "This date will be used to create your backup.",
     "confirmName": "Confirm name on BitBox02",
+    "confirmWords": "Write down the {{amount}} recovery words on your BitBox02",
+    "confirmWordsText": "After that the BitBox02 ask you to confirm each word to verify that the backup is correct.",
     "followInstructions": "Please follow the instructions on your BitBox02.",
     "followInstructionsMnemonic": "Follow the instructions on your BitBox02 to enter the recovery words from your backup and restore your wallet.",
     "followInstructionsMnemonicTitle": "Restore from recovery words"
@@ -184,6 +186,16 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Advanced options",
+      "outOfDate": "Firmware out of date for this feature",
+      "seed12WordLabel": "Create 12-word instead of 24-word seed",
+      "seed12WordText_1": "By default the BitBox02 uses a 24-word seed. Both seed lengths are secure against brute forcing in practice. Some users may prefer the convenience of the 12-word seed instead.",
+      "seed12WordText_2": "Please note that the number of words cannot be changed after creating the wallet.",
+      "skipSDCardLabel": "Skip microSD card backup and write down recovery words instead",
+      "skipSDCardText": "You always have the option to create a microSD card backup and write your recovery words after setup. This can be done from settings.",
+      "title": "Advanced backup options"
+    },
     "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@shiftcrypto.ch if this persists.",
     "backup": {
       "point1": "Select a backup on the microSD card",
@@ -196,7 +208,8 @@
       "userConfirmation2": "My backup is not password protected. Anyone with access to it can access my wallet.",
       "userConfirmation3": "If I lose or damage my BitBox02, the only way to recover my funds is to restore from my backup.",
       "userConfirmation4": "If I lose or damage both my backup and my BitBox02 then my funds will be lost.",
-      "userConfirmation5": "I should not insert my microSD card backup into a computer, phone, printer or any device other than a BitBox02."
+      "userConfirmation5": "I should not insert my microSD card backup into a computer, phone, printer or any device other than a BitBox02.",
+      "userConfirmation5mnemonic": "I should not put my recovery words in a computer, phone, printer or any device other than a BitBox02."
     },
     "create": {
       "button": "Name device & continue",
@@ -230,7 +243,8 @@
     },
     "stepBackup": {
       "beforeProceed": "Before proceeding, please read these important security considerations:",
-      "createBackup": "You will now create a backup on your microSD card."
+      "createBackup": "You will now create a backup on your microSD card.",
+      "createBackupMnemonic": "You will now write down the recovery words."
     },
     "stepBackupSuccess": {
       "fundsSafe": "To keep your funds safe, please remember the following:",
@@ -1052,7 +1066,7 @@
   "passphrase": {
     "considerations": {
       "button": "Backup considerations",
-      "message": "The passphrase adds a layer of protection to your wallet backup (microSD card or 24 words). If someone has access to your backup they will also need the passphrase to access your wallet.\n\nHowever, this means you will need <strong>both the passphrase + wallet backup</strong> to restore your passphrase-enabled wallet, in case your BitBox02 is lost or broken. If you forget or lose your passphrase, you will lose access to all the coins on that wallet.\n\nWhen storing your passphrase, consider putting it in a separate location than your backup. That way if someone finds your backup they don’t find your passphrase as well.",
+      "message": "The passphrase adds a layer of protection to your wallet backup (microSD card or recovery words). If someone has access to your backup they will also need the passphrase to access your wallet.\n\nHowever, this means you will need <strong>both the passphrase + wallet backup</strong> to restore your passphrase-enabled wallet, in case your BitBox02 is lost or broken. If you forget or lose your passphrase, you will lose access to all the coins on that wallet.\n\nWhen storing your passphrase, consider putting it in a separate location than your backup. That way if someone finds your backup they don’t find your passphrase as well.",
       "title": "Backup considerations"
     },
     "disable": "Disable passphrase",
@@ -1109,12 +1123,12 @@
     },
     "what": {
       "button": "Learn how this works",
-      "message": "A wallet is created (derived) from a very big random number, also known as a seed. This seed is created when you first set up your BitBox02 and is backed up with the microSD card or 24 words. Anyone who has access to the seed has full control over the funds on that wallet.\n\nA passphrase is an <strong>optional secret</strong>, added to the seed. When using a passphrase, each passphrase creates a new wallet based on the seed + passphrase (optional secret). A passphrase can be anything: letters, words, special characters or it can even be empty. The default wallet is in fact derived from the seed + empty passphrase.\n\nThe passphrase is part of the BIP39 standard, which means it is compatible with all wallets that support the same standard.",
+      "message": "A wallet is created (derived) from a very big random number, also known as a seed. This seed is created when you first set up your BitBox02 and is backed up with the microSD card or recovery words. Anyone who has access to the seed has full control over the funds on that wallet.\n\nA passphrase is an <strong>optional secret</strong>, added to the seed. When using a passphrase, each passphrase creates a new wallet based on the seed + passphrase (optional secret). A passphrase can be anything: letters, words, special characters or it can even be empty. The default wallet is in fact derived from the seed + empty passphrase.\n\nThe passphrase is part of the BIP39 standard, which means it is compatible with all wallets that support the same standard.",
       "title": "What is a passphrase?"
     },
     "why": {
       "button": "Why use a passphrase",
-      "message": "The BitBox02 protects the seed against extraction from the device itself, but the backup (microSD card or 24 words) gives full access to the wallet. That is why it should be stored in a secure location!\n\nSince a passphrase creates a new wallet using your existing seed, the passphrase-wallet requires both your <strong>backup AND passphrase to restore</strong>. The benefit of this is if someone finds your backup, they still need the passphrase to access the passphrase-wallet.\n\nAdditionally, the passphrase feature allows you to create multiple wallets on the same device, or “hidden wallets” in addition to the default one.",
+      "message": "The BitBox02 protects the seed against extraction from the device itself, but the backup (microSD card or recovery words) gives full access to the wallet. That is why it should be stored in a secure location!\n\nSince a passphrase creates a new wallet using your existing seed, the passphrase-wallet requires both your <strong>backup AND passphrase to restore</strong>. The benefit of this is if someone finds your backup, they still need the passphrase to access the passphrase-wallet.\n\nAdditionally, the passphrase feature allows you to create multiple wallets on the same device, or “hidden wallets” in addition to the default one.",
       "title": "Why use a passphrase?"
     }
   },

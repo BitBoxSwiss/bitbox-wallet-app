@@ -67,7 +67,7 @@ export const SetDeviceName = ({
             </Status>
           )}
         </ViewHeader>
-        <ViewContent>
+        <ViewContent minHeight="90px">
           <Input
             autoFocus
             className={style.wizardLabel}
