@@ -49,10 +49,11 @@ export const CreateWallet = ({
       const result = await bitbox02.setPassword(deviceID, 32);
       if (!result.success) {
         if (result.code === bitbox02.errUserAbort) {
-          // On user abort, just go back to the first screen. This is a bit lazy, as we should show
-          // a screen to ask the user to go back or try again.
+          alertUser(t('bitbox02Wizard.stepPassword.e104'), {
+            asDialog: false,
+            callback: () => onAbort(),
+          });
           setErrorText('');
-          onAbort();
         } else {
           setErrorText(t('bitbox02Wizard.noPasswordMatch'));
           if (isMounted.current) {
@@ -74,7 +75,10 @@ export const CreateWallet = ({
     try {
       const result = await bitbox02.setDeviceName(deviceID, deviceName);
       if (!result.success) {
-        alertUser(result.message || t('genericError'), {
+        const errorText = result.code === bitbox02.errUserAbort
+          ? t('bitbox02Settings.deviceName.error_104')
+          : result.message;
+        alertUser(errorText || t('genericError'), {
           asDialog: false,
           callback: () => onAbort(),
         });

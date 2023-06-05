@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { restoreFromMnemonic } from '../../../../api/bitbox02';
+import { restoreFromMnemonic, errUserAbort } from '../../../../api/bitbox02';
 import { alertUser } from '../../../../components/alert/Alert';
 import { Backup } from '../../components/backup';
 import { SetPasswordWithBackup } from './password';
@@ -77,7 +77,10 @@ export const RestoreFromMnemonic = ({
     restoreFromMnemonic(deviceID)
       .then(result => {
         if (!result.success) {
-          alertUser(t('bitbox02Wizard.restoreFromMnemonic.failed'), {
+          const errorText = result.code === errUserAbort
+            ? t('bitbox02Wizard.restoreFromMnemonic.e104')
+            : t('bitbox02Wizard.restoreFromMnemonic.failed');
+          alertUser(errorText, {
             asDialog: false,
             callback: () => onAbort(),
           });
