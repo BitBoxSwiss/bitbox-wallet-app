@@ -18,7 +18,7 @@ apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
 # add repository for node/npm
-curl -sL https://deb.nodesource.com/setup_14.x | bash -
+curl -sL https://deb.nodesource.com/setup_18.x | bash -
 
 apt-get install -y --no-install-recommends \
     clang \
@@ -42,7 +42,7 @@ apt-get install -y --no-install-recommends \
         libxkbcommon-x11-dev \
         libxrandr-dev
 
-npm install -g npm@8.3.0
+npm install -g npm@9.6.5
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
@@ -58,9 +58,9 @@ cd /opt && \
 # Install fpm to create deb/rpm packages
 apt-get install -y --no-install-recommends \
         ruby ruby-dev build-essential rpm
-gem install --no-ri --no-rdoc fpm
+gem install --no-document fpm
 
 # Needed for Android.
-apt-get install -y --no-install-recommends default-jdk
+apt-get install -y --no-install-recommends openjdk-17-jdk
 # Keep versions in sync with build.gradle and frontends/android/Makefile.
 /opt/android-sdk/cmdline-tools/tools/bin/sdkmanager "ndk;21.2.6472646" "platforms;android-33" "build-tools;33.0.0" "platform-tools"

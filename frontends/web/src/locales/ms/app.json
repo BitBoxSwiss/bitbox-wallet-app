@@ -636,6 +636,9 @@
       "text": "Jumlah keseluruhan ialah jumlah semua akaun crypto anda. Kadar pertukaran diperoleh daripada coingecko.com.\n\nNota: Jika anda menggunakan MyEtherWallet untuk token yang tidak disokong dalam BitBoxApp, ia tidak akan dimasukkan dalam jumlah yang dipaparkan.",
       "title": "Bagaimanakah jumlah keseluruhan dikira?"
     },
+    "accountSummaryDescription": {
+      "title": "Apa yang dipaparkan di sini?"
+    },
     "accountTransactionAttributesBTC": {
       "text": "Saiz maya: Digunakan untuk menentukan yuran rangkaian. Anda telah berjaya menyimpan yuran jika ia lebih kecil daripada saiz transaksi.\nSaiz: Saiz transaksi yang sebenarnya dalam bait apabila disirikan mengikuti blockchan yang mendasarinya.\nBerat: Diperkenalkan dengan Segwit, itu adalah metrik baru untuk menilai saiz transaksi dan blok. Setiap bait saksi yang dipisahkan dianggap sebagai satu, semua yang lain sebagai empat unit berat. Dibandingkan satu megabyte dalam saiz sebenarnya, had saiz blok kini adalah empat juta unit berat.",
       "title": "Butiran transaksi yang berkaitan dengan Bitcoin"
@@ -747,6 +750,27 @@
         "title": "Bagaimana memasangkan dengan selamat telefon anda"
       }
     },
+    "cointracking": {
+      "title": "Bagaimana untuk mengimport urus niaga saya ke dalam CoinTracking?"
+    },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Baca lebih lanjut mengenai semakan ketulenan"
+        },
+        "text": "BitBoxApp menjalankan semakan pengesahan pada BitBox02 untuk mengesahkan sama ada peranti itu tulen. Semakan dilakukan secara tempatan dan tidak bersambung ke mana-mana pelayan.",
+        "title": "Bagaimanakah semakan ketulenan berfungsi?"
+      },
+      "name": {
+        "title": "Apakah nama BitBox02 digunakan?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Baca lebih lanjut mengenai cip selamat"
+        },
+        "title": "Mengapa tunjukkan model cip selamat?"
+      }
+    },
     "receive": {
       "address": {
         "text": "Berikan kepada orang lain untuk menghantarkan anda beberapa syiling.\n(Sentiasa sahkan alamat secara mandiri, contohnya dengan panggilan telefon.)",
@@ -756,9 +780,18 @@
         "text": "Selepas alamat digunakan dalam sebuah transaksi, alamat baru akan ditambah ke senarai untuk menggantikannya. Setiap masa terdapat 20 alamat yang belum digunakan dalam senarai.",
         "title": "Bila alamat berubah?"
       },
+      "addressFormats": {
+        "title": "Bilakah saya menggunakan \"Tukar jenis alamat\"?"
+      },
       "howVerify": {
         "text": "Klik ikon BitBox pada bar sisi di sebelah kiri dan lihat bahagian Pemasangan. Panduan akan dikemas kini dan anda boleh terus mengikuti arahan dari sana.",
         "title": "Bagaimana saya dapat mengesahkan alamat dengan selamat?"
+      },
+      "plugout": {
+        "title": "Adakah saya perlu membiarkan BitBox saya dipalamkan semasa menerima?"
+      },
+      "why20": {
+        "title": "Mengapa hanya 20 alamat?"
       },
       "whyMany": {
         "text": "Untuk sebab-sebab privasi dan keselamatan, anda tidak perlu menyerahkan alamat yang sama dua kali. Klik 'Berikut' untuk mendapatkan alamat baru untuk tujuan yang berbeza. Anda boleh menjana hingga 20 alamat dalam satu masa. Semua alamat diperoleh dari biji backup tunggal anda. (Bayangkan alamat seperti nombor invois.)",
@@ -770,6 +803,9 @@
       }
     },
     "send": {
+      "change": {
+        "title": "Bagaimanakah output perubahan ditentukan?"
+      },
       "fee": {
         "text": "Yuran ini didasarkan pada saiz data transaksi dan bukan jumlahnya. Sasaran yuran dikira oleh algoritma pengiraan yuran Bitcoin Core untuk setiap keutamaan rangkaian yang anda pilih. Mereka ditunjukkan jika mereka mempunyai nilai yang berbeza dari sasaran di bawah.\nEkonomi: 24 blok (sekitar 4 jam untuk Bitcoin, 1 jam untuk Litecoin)\nRendah: 12 blok (sekitar 2 jam untuk Bitcoin, 30 minit untuk Litecoin)\nNormal: 6 blok (sekitar 1 jam untuk Bitcoin, 15 minit untuk Litecoin)\nTinggi: 2 blok (sekitar 20 minit untuk Bitcoin, 5 minit untuk Litecoin)\n(Blok mengambil purata sepuluh minit untuk Bitcoin (2.5 minit di Litecoin) untuk melombong dan beban rangkaian mungkin berbeza-beza untuk tempoh di atas.)",
         "title": "Bagaimanakah bayaran ditentukan?"
@@ -794,12 +830,22 @@
       }
     },
     "settings": {
+      "sats": {
+        "title": "Apa itu Satoshi?"
+      },
       "servers": {
         "text": "Aplikasi ini berkomunikasi dengan server Shift Crypto untuk memeriksa kemas kini, memuat transaksi, dan menghantar maklumat ke aplikasi mudah alih yang telah dipasangkan.\nDi samping itu, ia mengambil kadar pertukaran terkini dari CoinGecko. (Penukaran dikira secara tempatan, tiada wang anda yang dihantar)",
         "title": "Server mana yang digunakan aplikasi ini?"
       }
     },
     "title": "Panduan",
+    "toggle": {
+      "close": "Tutup panduan",
+      "open": "Panduan"
+    },
+    "trackingModePortfolioChart": {
+      "title": "Bagaimana untuk melihat nilai sejarah pada carta?"
+    },
     "unlock": {
       "forgotDevicePassword": {
         "text": "Anda perlu menetapkan semula peranti dan memulihkan wallet dari backup dengan menggunakan kata laluan pemulihan.",
@@ -886,6 +932,17 @@
     "successEnable": "Berjaya menyahaktifkan wallet legacy tersembunyi. Pasang semula BitBox anda dan masukkan kata laluan peranti tersembunyi untuk mengakses wallet legacy tersembunyi warisan."
   },
   "loading": "memuatkan ...",
+  "manageAccounts": {
+    "editAccount": "Sunting",
+    "editAccountNameTitle": "Sunting nama akaun",
+    "noAccounts": "tiada akaun ditemui",
+    "settings": {
+      "hideTokens": "Sembunyikan token",
+      "showTokens": "Tunjukkan token ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Tambah dan tunjukkan/sembunyikan akaun",
+    "title": "Urus akaun"
+  },
   "notification": {
     "newTxs_one": "{{count}} transaksi baru di: {{accountName}}"
   },
@@ -940,9 +997,14 @@
   },
   "receive": {
     "label": "Alamat anda",
+    "scriptType": {
+      "p2wpkh-p2sh": "Wrapped Segwit (format yang serasi)"
+    },
+    "selectAccount": "Pilih akaun",
     "showFull": "Tunjukkan dan sahkan alamat lengkap",
     "title": "Dapatkan syiling",
     "verify": "Sahkan alamat dengan selamat",
+    "verifyBitBox02": "Sahkan alamat pada BitBox02",
     "verifyInstruction": "Sila sahkan bahawa alamat berikut sepadan dengan yang dipaparkan pada peranti anda.",
     "warning": {
       "secureOutput": "Sila pasangkan BitBox anda dengan peranti mobile anda untuk menghidupkan pengesahan alamat selamat. Pergi ke 'Urus Peranti' pada bar sisi."
@@ -952,7 +1014,8 @@
     "description": "Semua data pada peranti akan dihapus. Itu termasuk Private Key anda!",
     "notReset": "Peranti BELUM ditetapkan semula.",
     "title": "Tetapkan semula peranti",
-    "understand": "Saya mempunyai backup dan mengetahui kata laluan pemulihan saya"
+    "understand": "Saya mempunyai backup dan mengetahui kata laluan pemulihan saya",
+    "understandBB02": "Saya mempunyai sandaran yang sah"
   },
   "securityInformation": {
     "create": {
@@ -1021,6 +1084,7 @@
       "label": "Jumlah",
       "placeholder": "Masukkan jumlah"
     },
+    "availableBalance": "Baki yang ada",
     "button": "Tandatangan dan Hantar",
     "coincontrol": {
       "address": "Alamat",
@@ -1047,10 +1111,17 @@
       "description": {
         "economy": "24 blok (sekitar 4 jam untuk Bitcoin, 1 jam untuk Litecoin)",
         "high": "2 blok (sekitar 20 minit untuk Bitcoin, 5 minit untuk Litecoin)",
+        "high_ltc": "5 minit (2 blok)",
         "low": "12 blok (sekitar 2 jam untuk Bitcoin, 30 minit untuk Litecoin)",
-        "normal": "6 blok (sekitar 1 jam untuk Bitcoin, 15 minit untuk Litecoin)"
+        "low_eth": "5 minit atau kurang",
+        "low_ltc": "30 minit (12 blok)",
+        "normal": "6 blok (sekitar 1 jam untuk Bitcoin, 15 minit untuk Litecoin)",
+        "normal_eth": "2 minit atau kurang",
+        "normal_ltc": "15 minit (6 blok)"
       },
+      "estimate": "Anggaran masa pengesahan:",
       "label": {
+        "custom": "Adat",
         "economy": "ekonomi",
         "high": "tinggi",
         "low": "rendah",
@@ -1059,6 +1130,7 @@
       "placeholder": "Mengira bayaran anggaran ..."
     },
     "maximum": "Hantar semua",
+    "maximumSelectedCoins": "Hantar syiling terpilih",
     "scanQR": "Imbas Kod QR",
     "signprogress": {
       "description": "Ini adalah transaksi yang mengandung banyak data. Untuk menandatangani transaksi dengan sepenuhnya, anda akan diminta untuk mengesahkan sebanyak {{steps}} kali.",

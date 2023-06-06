@@ -1,0 +1,13 @@
+/* TODO: ideally fontsize of those labels would just use the default from View component */
+.wizardCheckbox label {
+  font-size: var(--size-wizard-text) !important;
+  line-height: 1.4;
+}
+
+.wizardCheckbox label::before {
+  top: 2px !important;
+}
+
+.wizardCheckbox label::after {
+  top: 6px !important;
+}
