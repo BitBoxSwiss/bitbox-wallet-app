@@ -64,6 +64,7 @@ describe('routes/account/send/feetargets', () => {
             CAD: '0.02',
             CHF: '0.01',
             CNY: '0.08',
+            CZK: '0.06',
             EUR: '0.02',
             GBP: '0.02',
             HKD: '19880',

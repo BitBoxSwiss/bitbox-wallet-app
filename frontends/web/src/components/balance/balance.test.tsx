@@ -38,6 +38,7 @@ describe('components/balance/balance', () => {
           CAD: '512',
           CHF: '512',
           CNY: '512',
+          CZK: '512',
           EUR: '512',
           GBP: '512',
           HKD: '512',
