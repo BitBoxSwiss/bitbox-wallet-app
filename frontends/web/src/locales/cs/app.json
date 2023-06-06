@@ -4,7 +4,7 @@
     "export": "Export",
     "exportTransactions": "Export transakcí do složky ke stažení jako soubor CSV",
     "fatalError": "Došlo k neočekávané chybě.",
-    "incoming": "Přicházející transakce.",
+    "incoming": "Přicházející",
     "initializing": "Získávání informací z blockchainu...",
     "maybeProxyError": "Tor proxy aktivní. Ujistěte se, že proxy server Tor běží správně, nebo nastavení proxy serveru deaktivujte.",
     "reconnecting": "Ztráta spojení. Pokus o opětovné připojení...",
@@ -1151,7 +1151,7 @@
   "reset": {
     "description": "Všechna data v zařízení budou odstraněna. Včetně vašeho soukromého klíče!",
     "notReset": "Zařízení nebylo resetováno",
-    "title": "Resetovat zařízení na tovární nastavení",
+    "title": "Resetovat zařízení do továrního nastavení",
     "understand": "Mám zálohu a znám heslo pro obnovení",
     "understandBB02": "Mám platnou zálohu"
   },
@@ -1372,7 +1372,7 @@
   "transaction": {
     "confirmation": "Konfirmace",
     "details": {
-      "activity": "Informace o činnosti",
+      "activity": "Přehled aktivit",
       "address": "Adresa",
       "amount": "Částka",
       "date": "Datum",
