@@ -1078,7 +1078,7 @@
       "title": "Passphrase abilitata"
     },
     "successEnabled": {
-      "message": "Passphrase opzionale <strong>successivamente disabilitata</strong>!\n\nNon verrà più richiesto di fornire una passphrase.",
+      "message": "Passphrase opzionale <strong>disabilitata con successo</strong>!\n\nNon verrà più richiesto di fornire una passphrase.",
       "messageEnd": "Ricollegare ora il BitBox02.\n",
       "tips": "Suggerimenti",
       "tipsList": [
@@ -1221,7 +1221,7 @@
     "availableBalance": "Saldo disponibile",
     "button": "Controlla",
     "coincontrol": {
-      "address": "Indirzizzo",
+      "address": "Indirizzo",
       "outpoint": "Outpoint",
       "title": "Invia da un output"
     },
