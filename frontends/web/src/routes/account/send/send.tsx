@@ -454,6 +454,7 @@ class Send extends Component<Props, State> {
   };
 
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
+    console.log('ASD');
     this.setState(
       { feeTarget, customFee: '' },
       () => this.validateAndDisplayFee(this.state.sendAll),

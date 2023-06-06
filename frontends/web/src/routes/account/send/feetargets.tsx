@@ -228,7 +228,7 @@ class FeeTargets extends Component<Props, State> {
                 <p className={style.feeProposed}>
                   {t('send.fee.label')}:
                   {' '}
-                  {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : proposeFeeText}
+                  {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : `${proposeFeeText} asu`}
                 </p>
               ) : null)}
               { !isCustom ? (

@@ -22,6 +22,7 @@ import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { NewSend } from './account/send/new-send';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -73,6 +74,14 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const AccSend = <InjectParams>
     <Send
+      code={'' /* dummy to satisfy TS */}
+      devices={devices}
+      deviceIDs={deviceIDs}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
+  const AccSend2 = <InjectParams>
+    <NewSend
       code={'' /* dummy to satisfy TS */}
       devices={devices}
       deviceIDs={deviceIDs}
@@ -160,6 +169,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       <Route path="account/:code">
         <Route index element={Acc} />
         <Route path="send" element={AccSend} />
+        <Route path="send2" element={AccSend2} />
         <Route path="receive" element={AccReceive} />
         <Route path="info" element={AccInfo} />
       </Route>
