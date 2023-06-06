@@ -1,6 +1,5 @@
 .container {
     display: flex;
-    padding-left: var(--space-half);
     margin-bottom: var(--space-default);
 }
 
@@ -11,7 +10,7 @@
 }
 
 .container a.active {
-    padding-bottom: var(--space-half);
+    padding-bottom: var(--space-quarter);
     border-bottom: 2px solid var(--color-blue);
 }
 

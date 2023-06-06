@@ -51,6 +51,7 @@
 
 @media (max-width: 560px) {
     .select {
+        margin-top: var(--space-quarter);
         width: 100%;
     }
 }

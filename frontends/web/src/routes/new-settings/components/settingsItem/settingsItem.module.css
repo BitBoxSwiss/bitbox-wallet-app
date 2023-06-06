@@ -50,7 +50,7 @@
     color: var(--color-secondary);
     font-size: 14px;
     margin: 0;
-    margin-top: 16px;
+    margin-top: var(--space-quarter);
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -58,12 +58,8 @@
 @media (max-width: 768px) { 
     .container {
          height: auto;
-         margin-bottom: 2px;
+         margin-bottom: 5px;
          min-width: 100%;
-    }
-
-    .rightContentContainer {
-        margin-top: var(--space-quarter);
     }
 
     .secondaryText {
