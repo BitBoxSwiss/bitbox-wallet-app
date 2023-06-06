@@ -33,7 +33,7 @@ export interface SharedProps {
     btcUnit: BtcUnit;
 }
 
-export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
+export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'PLN', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
 
 export const store = new Store<SharedProps>({
   active: 'USD',

@@ -3,6 +3,8 @@
 ## Unreleased
 - Improve sats amount readability adding thousands separator
 - Update minimum supported buntu version to 20.04+
+- Add support for Czech Crown (CZK)
+- Add support for Zloty (PLN)
 
 ## 4.37.0
 - Bundle BitBox02 firmware version v9.14.0
