@@ -180,7 +180,7 @@ class BitBox02 extends Component<Props, State> {
 
   private setPassword = () => {
     this.setState({ createWalletStatus: 'setPassword' });
-    setPassword(this.props.deviceID).then((response) => {
+    setPassword(this.props.deviceID, 32).then((response) => {
       if (!response.success) {
         if (response.code === errUserAbort) {
           // On user abort, just go back to the first screen. This is a bit lazy, as we should show
