@@ -77,7 +77,10 @@ export const DarkModeProvider = ({ children }: TProps) => {
           const { darkmode, ...frontend } = config.frontend;
           setConfig({
             backend: config.backend,
-            frontend,
+            frontend: {
+              ...frontend,
+              darkmode: undefined,
+            },
           });
         } else {
           // darkmode is different from OS, save to config
