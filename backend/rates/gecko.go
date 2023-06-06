@@ -99,6 +99,7 @@ var (
 		"BRL": "brl",
 		"NOK": "nok",
 		"SEK": "sek",
+		"PLN": "pln",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
@@ -121,5 +122,6 @@ var (
 		"brl": "BRL",
 		"nok": "NOK",
 		"sek": "SEK",
+		"pln": "PLN",
 	}
 )

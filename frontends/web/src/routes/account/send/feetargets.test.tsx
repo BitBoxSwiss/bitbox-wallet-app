@@ -71,6 +71,7 @@ describe('routes/account/send/feetargets', () => {
             ILS: '0.02',
             JPY: '1.30',
             KRW: '14.43',
+            PLN: '2',
             RUB: '0.88',
             SEK: '0.1',
             SGD: '32233',

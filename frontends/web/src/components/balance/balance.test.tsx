@@ -45,6 +45,7 @@ describe('components/balance/balance', () => {
           JPY: '512',
           KRW: '512',
           NOK: '512',
+          PLN: '512',
           RUB: '512',
           SEK: '512',
           SGD: '512',
