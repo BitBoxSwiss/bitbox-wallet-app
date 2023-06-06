@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Status } from '../../../../components/status/status';
 import { Button, Input } from '../../../../components/forms';
 import style from './name.module.css';
+import { checkSDCard } from '../../../../api/bitbox02';
 
 type Props = {
-  sdCardInserted: boolean | undefined;
+  deviceID: string;
   onDeviceName: (name: string) => void;
   onBack: () => void;
 }
 
 export const SetDeviceName = ({
-  sdCardInserted,
+  deviceID,
   onDeviceName,
   onBack,
 }: Props) => {
   const { t } = useTranslation();
   const [deviceName, setDeviceName] = useState('');
+  const [hasSDCard, setSDCard] = useState<boolean>();
+
+  useEffect(() => {
+    checkSDCard(deviceID).then(setSDCard);
+  }, [deviceID]);
 
   const handleDeviceNameInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
@@ -55,7 +61,7 @@ export const SetDeviceName = ({
         width="600px">
         <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
           <p>{t('bitbox02Wizard.stepCreate.description')}</p>
-          {sdCardInserted === false && (
+          {hasSDCard === false && (
             <Status className="m-bottom-half" type="warning">
               <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
             </Status>
