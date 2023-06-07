@@ -101,9 +101,6 @@ class BitBox02 extends Component<Props, State> {
       if (unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
         this.setState({ unlockOnly: false });
       }
-      if (status === 'seeded') {
-        this.setState({ appStatus: 'createWallet' });
-      }
       this.setState({ status });
       if (status === 'initialized' && unlockOnly && showWizard) {
         // bitbox is unlocked, now route to / and wait for incoming accounts
