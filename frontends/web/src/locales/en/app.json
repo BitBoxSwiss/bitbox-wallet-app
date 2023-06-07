@@ -173,6 +173,7 @@
     "deviceName": {
       "current": "Current device name",
       "error": "Device name could not be set",
+      "error_104": "Confirming device name was aborted on device.",
       "input": "BitBox02 name",
       "placeholder": "New device name",
       "title": "Set BitBox02 name"
@@ -224,6 +225,7 @@
       "unpaired": "An unpaired BitBox02 has been detected. Please verify the pairing code matches what is shown on your BitBox02."
     },
     "restoreFromMnemonic": {
+      "e104": "Restoring from recovery words was canceled.",
       "failed": "Restoring from recovery words failed, please try again."
     },
     "stepBackup": {
@@ -253,6 +255,7 @@
       "insertSDcardTitle": "Insert microSD card"
     },
     "stepPassword": {
+      "e104": "Setting password was canceled.",
       "title": "Set BitBox02 password",
       "useControls": "Use the controls on your BitBox02 to set a password."
     },
