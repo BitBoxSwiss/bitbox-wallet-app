@@ -1,0 +1,1447 @@
+{
+  "account": {
+    "disconnect": "Ztráta spojení. Pokus o opětovné připojení...",
+    "export": "Export",
+    "exportTransactions": "Export transakcí do složky ke stažení jako soubor CSV",
+    "fatalError": "Došlo k neočekávané chybě.",
+    "incoming": "Přicházející transakce.",
+    "initializing": "Získávání informací z blockchainu...",
+    "maybeProxyError": "Tor proxy aktivní. Ujistěte se, že proxy server Tor běží správně, nebo nastavení proxy serveru deaktivujte.",
+    "reconnecting": "Ztráta spojení. Pokus o opětovné připojení...",
+    "syncedAddressesCount": "Naskenováno {{count}} adres"
+  },
+  "accountInfo": {
+    "address": "Adresa",
+    "buyCTA": {
+      "buy": "Koupit  {{unit}}",
+      "buyCrypto": "Koupit Krypto",
+      "information": {
+        "looksEmpty": "Zdá se, že tato peněženka je prázdná.",
+        "start": "Začněte vkladem do peněženky, nebo nákupem přímo v BitBoxApp."
+      }
+    },
+    "extendedPublicKey": "Veřejný klíč",
+    "label": "Detaily účtu",
+    "scriptType": "Typ účtu",
+    "title": "Detaily účtu",
+    "verify": "Ověřte na zařízení",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "Zobrazit legacy P2PKH veřejný klíč",
+      "p2tr": "Zobrazit Taproot",
+      "p2wpkh": "Zobrazit nativní Segwit",
+      "p2wpkh-p2sh": "Zobrazit starší Segwit veřejný klíč"
+    },
+    "xpubTypeInfo": "Aktuálně se zobrazuje {{scriptType}} veřejný klíč ({{current}} z {{numberOfXPubs}})"
+  },
+  "accountSummary": {
+    "availableBalance": "Dostupný zůstatek",
+    "balance": "Zůstatek",
+    "exportSummary": "Exportovat přehled účtů do složky ke stažení jako soubor CSV",
+    "fiatBalance": "Fiat zůstatek",
+    "name": "Název účtu",
+    "noAccount": "Žádné účty k zobrazení.",
+    "subtotalWithCoinName": "Celkem ({{coinName}})",
+    "title": "Moje portfolio",
+    "total": "Celkem",
+    "transactionHistory": "Transakční historie"
+  },
+  "addAccount": {
+    "chooseName": {
+      "nextButton": "Přidat účet",
+      "step": "Pojmenujte účet",
+      "title": "Pojmenujte svůj účet"
+    },
+    "selectCoin": {
+      "nextButton": "Další",
+      "step": "Vybrat kryptoměnu",
+      "title": "Vybrat kryptoměnu"
+    },
+    "success": {
+      "addAnotherAccount": "Přidat další účet",
+      "message": "<strong>{{accountName}}</strong> byl nyní přidán k vašim účtům.",
+      "nextButton": "Hotovo",
+      "step": "Dokončeno",
+      "title": "Účet přidán"
+    },
+    "title": "Přidat účet"
+  },
+  "aopp": {
+    "addressRequest": "{{host}} požaduje přijímací adresu.",
+    "addressRequestWithLogo": "požaduje přijímací adresu.",
+    "banner": "Probíhá žádost o adresu.",
+    "errorTitle": "Chyba při požadavku na adresu ",
+    "labelAddress": "Adresa",
+    "labelMessage": "Zpráva",
+    "reverifyInfoText": "Ověřit adresu",
+    "signing": "Chcete-li pokračovat, podepište zprávu na svém BitBoxu",
+    "success": {
+      "message": "Pokračovat na {{host}}",
+      "title": "Adresa byla úspěšně odeslána"
+    },
+    "syncing": "Synchronizace účtu, vyčkejte prosím.",
+    "title": "Požadavek na adresu"
+  },
+  "app": {
+    "upgrade": "K dispozici je nová verze této aplikace! Aktualizuje prosím z {{current}} na {{version}}."
+  },
+  "backup": {
+    "check": {
+      "checking": "Kontrola zálohy...",
+      "confirmTitle": "Zkontrolovat zálohu",
+      "notOK": "Záloha NEODPOVÍDÁ peněžence.",
+      "ok": "Záloha odpovídá peněžence.",
+      "password": {
+        "label": "Heslo pro obnovení",
+        "placeholder": "Heslo pro obnovení",
+        "showLabel": "heslo pro obnovení"
+      },
+      "success": "Záloha byla úspěšně ověřena:",
+      "title": "Zkontrolovat zálohu"
+    },
+    "create": {
+      "alreadyExists": "Již máte platnou zálohu. Chcete ji znovu vytvořit?",
+      "fail": "Vytvoření zálohy SELHALO!",
+      "info": "Pro ověření zadejte heslo pro obnovení aktuální peněženky.",
+      "name": {
+        "label": "Název zálohy",
+        "placeholder": "Pojmenujte prosím zálohu"
+      },
+      "password": {
+        "label": "Heslo pro obnovení",
+        "placeholder": "Zadejte prosím heslo pro obnovení"
+      },
+      "title": "Vytvořit zálohu",
+      "verificationFailed": "Heslo pro obnovení se NESHODUJE s aktuální peněženkou. Záloha byla vytvořena. Pro opětovné ověření hesla pro obnovení použijte funkci \"Zkontrolovat zálohu\"."
+    },
+    "description": "Vyberte <strong>soubor zálohy peněženky</strong>",
+    "insert": "Pro správu záloh prosím vložte microSD kartu.",
+    "insertButton": "Vložil jsem microSD kartu.",
+    "list": "Vaše zálohy na microSD kartě",
+    "noBackups": "Na této microSD kartě nejsou žádné zálohy.",
+    "restore": {
+      "confirmTitle": "Obnovit ze zálohy",
+      "error": {
+        "e200": "Karta microSD nenalezena",
+        "general": "Chyba při obnově ze zálohy"
+      },
+      "password": {
+        "label": "Heslo pro obnovení nebo skryté heslo pro obnovení",
+        "placeholder": "Heslo pro obnovení",
+        "repeatPlaceholder": "Zopakujte heslo pro obnovení",
+        "showLabel": "Heslo pro obnovení"
+      },
+      "restoring": "Obnova ze zálohy...",
+      "selectedBackup": "<strong>{{backupName}}</strong> vytvořena {{createdDateTime}} bude obnovena.",
+      "title": "Obnovit",
+      "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
+    },
+    "showMnemonic": {
+      "description": "Zobrazí se vám 24 slov pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.\n",
+      "title": "Zobrazit slova pro obnovu"
+    },
+    "title": "Spravovat zálohy"
+  },
+  "bb02Bootloader": {
+    "abort": "Neaktualizovat - zpět",
+    "abort_noUpgrade": "Zpět",
+    "advanced": {
+      "label": "Rozšířená nastavení",
+      "toggleShowFirmwareHash": "Zobrazit hash firmwaru při každém spuštění"
+    },
+    "flipscreen": "Otoč obrazovku",
+    "orientation": "Špatná orientace zařízení?",
+    "success": "Aktualizace úspěšná! Pokračování za {{rebootSeconds}} sekund...",
+    "success_install": "Instalace proběhla úspěšně! Pokračování za {{rebootSeconds}} sekund..."
+  },
+  "bitbox": {
+    "error": {
+      "e10000": "Heslo pro aktuální zařízení není správné.",
+      "e10001": "Nepodařilo se nahradit heslo zařízení",
+      "e102": "Heslo musí obsahovat alespoň 4 znaky.",
+      "e112": "Skryté heslo zařízení nemůže být stejné jako heslo hlavního zařízení."
+    }
+  },
+  "bitbox02Interact": {
+    "confirmDate": "Potvrďte dnešní datum na svém BitBox02",
+    "confirmDateText": "Toto datum se použije pro vytvoření zálohy.",
+    "confirmName": "Potvrďte název na BitBox02",
+    "followInstructions": "Postupujte podle pokynů na vašem BitBox02.",
+    "followInstructionsMnemonic": "Postupujte dle pokynů na Vašem BitBox02 – zadejte slova pro obnovení z vaší zálohy a obnovte peněženku.",
+    "followInstructionsMnemonicTitle": "Obnovit ze slov pro obnovení"
+  },
+  "bitbox02Settings": {
+    "deviceName": {
+      "current": "Aktuální název zařízení",
+      "input": "Název BitBox02",
+      "placeholder": "Nový název zařízení",
+      "title": "Nastavit název pro BitBox02"
+    },
+    "gotoStartupSettings": {
+      "description": "Tím se zařízení BitBox02 restartuje a vstoupí do nastavení při spuštění.",
+      "title": "Přejít do nastavení při spuštění"
+    }
+  },
+  "bitbox02Wizard": {
+    "attestationFailed": "Kontrola originality selhala, což mohlo být způsobeno restartováním aplikace v době, kdy zařízení čekalo na vstup uživatele. Znovu se připojte a zkuste to znovu. Pokud tento problém přetrvává, obraťte se prosím na support@shiftcrypto.ch.",
+    "backup": {
+      "point1": "Vyberte zálohu na microSD kartě",
+      "point2": "Nastavit heslo pro zařízení",
+      "restoreText": "Ok, obnovíme ze zálohy!",
+      "text1": "Skvělé, vaše heslo pro BitBox02 je nyní nastaveno a peněženka vytvořena. Nyní je čas vytvořit první zálohu. Ujistěte se, že je vaše microSD karta vložena do vašeho BitBox02 a pokračujte.",
+      "text2": "Vytvořte zálohu podle pokynů na obrazovce zařízení.",
+      "text3": "Po vytvoření zálohy vyjměte microSD kartu a uložte ji na <strong>bezpečné místo</strong>. Obsah microSD karty není chráněn heslem. Nikdy jej nevkládejte do jiného zařízení než do vašeho BitBox02.",
+      "userConfirmation1": "Zálohu bych měl uložit na bezpečném místě.",
+      "userConfirmation2": "Moje záloha není chráněna heslem. Kdokoli, kdo k ní má přístup, má přístup k mé peněžence.",
+      "userConfirmation3": "Pokud ztratím nebo poškodím svůj BitBox02, jediný způsob, jak získat zpět své prostředky, je obnovit peněženku ze zálohy.",
+      "userConfirmation4": "Pokud ztratím nebo poškodím zálohu i BitBox02, přijdu o své prostředky.",
+      "userConfirmation5": "MicroSD kartu s mou zálohou bych neměl vkládat do počítače, telefonu, tiskárny nebo jiného zařízení než BitBox02."
+    },
+    "create": {
+      "button": "Pojmenujte zařízení a pokračujte",
+      "info": "Zde jsou základní kroky, které je třeba udělat pro nastavení vašeho BitBoxu: ",
+      "inputTitle": "Název peněženky",
+      "point1": "Pojmenujte své zařízení",
+      "point2": "Nastavte heslo pro své zařízení",
+      "point3": "Vytvořit zálohu",
+      "text": "Ok, pojďme vytvořit novou peněženku!"
+    },
+    "createBackupFailed": "Vytvoření zálohy se nezdařilo, zkuste to znovu.",
+    "initialize": {
+      "passwordText": "Nyní nastavíme heslo pro vaše zařízení. K zadání a výběru hesla použijte ovládací prvky na BitBoxu.",
+      "passwordTitle": "Nastavte heslo pro svůj BitBox",
+      "text": "Váš BitBox02 byl úspěšně spárován! Nyní inicializujeme vaše zařízení. Začněte výběrem vytvořit novou peněženku nebo obnovit peněženku ze zálohy. <strong>Ujistěte se, že je v Bitboxu vložena microSD karta</strong>",
+      "tip": "Doporučujeme, abyste pokračovali na bezpečném místě.",
+      "title": "Inicializujte svůj BitBox"
+    },
+    "insertSDCard": "<strong>Ujistěte se, že je ve vašem BitBoxu vložena microSD karta.</strong>",
+    "noPasswordMatch": "Hesla se neshodují, zkuste to prosím znovu.",
+    "pairing": {
+      "failed": "Spárování nepotvrzeno. Znovu připojte svůj BitBox02.",
+      "paired": "Na svém zařízení jste potvrdili následující kód. Prosím pokračujte.",
+      "title": "Ověřte párovací kód",
+      "unpaired": "Byl zjištěn nespárovaný BitBox02. Prosím ověřte, že párovací kód odpovídá tomu, co je zobrazeno na vašem BitBoxu."
+    },
+    "restoreFromMnemonic": {
+      "failed": "Obnovení ze slov pro obnovení se nezdařilo, zkuste to prosím znovu."
+    },
+    "stepBackup": {
+      "beforeProceed": "Než budete pokračovat, přečtěte si tato důležitá bezpečnostní opatření:",
+      "createBackup": "Nyní vytvoříte zálohu na microSD kartě."
+    },
+    "stepBackupSuccess": {
+      "fundsSafe": "Aby byly vaše prostředky v bezpečí, mějte na paměti následující:",
+      "title": "Záloha obnovena!"
+    },
+    "stepConnected": {
+      "unlock": "Pro odemknutí zadejte heslo."
+    },
+    "stepCreate": {
+      "description": "Tento název se používá jako název zařízení a pro zálohu.",
+      "nameLabel": "Název BitBox02",
+      "namePlaceholder": "Můj BitBox02",
+      "title": "Vyberte název pro BitBox02",
+      "toastMicroSD": "Vložte prosím svou microSD kartu do vašeho BitBox02, která bude použita k uložení zálohy peněženky."
+    },
+    "stepCreateSuccess": {
+      "removeMicroSD": "Vyjměte microSD kartu z vašeho BitBox02 a uložte ji na bezpečné místo.",
+      "success": "Vaše záloha byla úspěšně vytvořena."
+    },
+    "stepInsertSD": {
+      "insertSDCard": "Chcete-li pokračovat, vložte do svého BitBox02 microSD kartu.",
+      "insertSDcardTitle": "Vložte microSD kartu"
+    },
+    "stepPassword": {
+      "title": "Nastavte heslo pro váš Bitbox02",
+      "useControls": "K nastavení hesla použijte ovládací prvky na vašem BitBox02."
+    },
+    "stepUninitialized": {
+      "create": "Chci nastavit nový BitBox02.",
+      "restore": "Chci obnovit svou peněženku ze zálohy.",
+      "restoreMicroSD": "Obnovit z microSD karty",
+      "restoreMnemonic": "Obnovit ze slov pro obnovení",
+      "title": "Nastavte svůj BitBox02"
+    },
+    "success": {
+      "text": "Hurá! Váš BitBox02 je nyní připraven k použití.\n\nChcete-li získat další informace o tom, jak používat BitBoxApp, použijte průvodce v aplikaci kliknutím na otazník v pravém horním rohu.",
+      "title": "Jste připraveni!"
+    }
+  },
+  "blink": {
+    "button": "Blik"
+  },
+  "bootloader": {
+    "button": "Nyní aktualizujte firmware",
+    "button_install": "Nyní nainstalujte firmware",
+    "progress": "Aktualizace: {{progress}}%",
+    "progress_install": "Instalace: {{progress}}%",
+    "success": "Aktualizace proběhla úspěšně! Zařízení znovu zapojte. Tentokrát se tlačítka nedotýkejte."
+  },
+  "button": {
+    "abort": "Zrušit",
+    "back": "Zpět",
+    "buy": "Koupit",
+    "changepin": "Změňit heslo zařízení",
+    "check": "Zkontrolovat zálohu",
+    "continue": "Pokračovat",
+    "copy": "Kopírovat",
+    "create": "Vytvořit",
+    "dismiss": "Odmítnout",
+    "done": "Hotovo",
+    "download": "Stáhnout",
+    "hiddenwallet": "Vytvořit skrytou peněženku",
+    "next": "Další",
+    "ok": "OK",
+    "previous": "Předchozí",
+    "receive": "Přijmout",
+    "restore": "Obnovit",
+    "select": "Vybrat",
+    "send": "Poslat",
+    "unlock": "Odemknout",
+    "update": "Aktualizovat",
+    "upgrade": "Aktualizovat"
+  },
+  "buy": {
+    "exchange": {
+      "bankTransfer": "Bankovní převod",
+      "bestDeal": "Nejvýhodnější nabídka",
+      "creditCard": "Kreditní karta",
+      "fast": "Rychle",
+      "fee": "poplatek",
+      "infoContent": {
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "Bankovní převod: {{fee}}%",
+            "creditDebitCard": "Kreditní / Debetní karta: {{fee}}%",
+            "learnMore": "Zjistěte více o Moonpay",
+            "title": "Poplatky"
+          },
+          "fullCurrenciesList": "Kompletní seznam měn naleznete zde",
+          "payment": {
+            "asteriskText": "* Není k dispozici pro rezidenty USA",
+            "bankTransfer": "Bankovní převod*",
+            "bankTransferDetails": {
+              "pix": "PIX (transakce BR pouze v Brazílii)",
+              "sepa": "SEPA a SEPA Instant (transakce v EUR pouze v zemích SEPA)",
+              "uk": "Faster Payments - Spojené království (transakce v GBP pouze ve Spojeném království)"
+            },
+            "creditDebitCard": "Kreditní / Debetní karta",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa a Maestro"
+            },
+            "learnMore": "Další podrobnosti o způsobech platby",
+            "title": "Platební metody"
+          },
+          "supportedCurrencies": "Podpora všech hlavních fiat měn: USD, EUR, CHF a další."
+        },
+        "pocket": {
+          "fees": {
+            "info": "Bankovní převod: {{fee}}%",
+            "title": "Poplatky"
+          },
+          "learnMore": "Zjistěte více o službě Pocket",
+          "payment": {
+            "bankTransfer": "Bankovní převod",
+            "bankTransferDetails": {
+              "sepa": "SEPA a SEPA Instant (transakce v EUR pouze v zemích SEPA)",
+              "sic": "Swiss Interbank Clearing (transakce v CHF pouze v CH/LI)",
+              "uk": "Faster Payments - Spojené království (transakce v GBP pouze ve Spojeném království)"
+            },
+            "bankTransferReccuring": "Jak nastavit opakované nákupy pomocí trvalého příkazu?",
+            "title": "Platební metody"
+          },
+          "supportedCurrencies": "Podpora evropských měn: EUR, GBP a CHF.",
+          "verification": {
+            "info": "Vyžaduje ověření identity pouze pokud jsou překročeny denní a roční limity.",
+            "link": "Aktuální limity zde",
+            "title": "Ověření identity"
+          }
+        },
+        "region": {
+          "title": "Vyberte oblast, ve které je váš bankovní účet registrován, a zjistěte, které možnosti máte k dispozici."
+        }
+      },
+      "noExchanges": "Je nám líto, ale v této oblasti nejsou k dispozici žádné burzy.",
+      "region": "Oblast",
+      "selectRegion": "Není uvedeno",
+      "title": "Koupit {{name}}"
+    },
+    "info": {
+      "continue": "Souhlasím, pokračovat",
+      "crypto": "krypto",
+      "disclaimer": {
+        "intro": [
+          "Spolupracujeme s MoonPay, abychom vám nabídli bezproblémový způsob nákupu {{name}} přímo v BitBoxApp. Je to jen pár kliknutí.",
+          "MoonPay je platforma, která usnadňuje a urychluje nákup {{name}} ve více než 160 zemích."
+        ],
+        "payment": {
+          "details": "{{name}} si můžete okamžitě zakoupit přes MoonPay pomocí následujících platebních metod. Nákupy kreditní nebo debetní kartou jsou okamžité a pohodlné, ale dražší kvůli zvýšenému riziku chargebacku. Pro větší částky doporučujeme použít možnost bankovního převodu. Minimální poplatek je 4 USD/EUR nebo ekvivalentní částka.",
+          "footnote": "Vezměte prosím na vědomí, že směnné kurzy MoonPay se mohou lišit od kurzů používaných v BitBoxApp, což vede k mírně odlišným částkám.",
+          "table": {
+            "1_description": "Nejnižší poplatky, může trvat až tři pracovní dny",
+            "1_method": "Bankovní převody (SEPA)",
+            "2_description": "Vyšší poplatky, ale rychlé a okamžité",
+            "2_method": "Kreditní a debetní karty",
+            "description": "Popis",
+            "fee": "Poplatek",
+            "method": "Metoda"
+          },
+          "title": "Platební metody a poplatky"
+        },
+        "privacyPolicy": "Zásady ochrany osobních údajů MoonPay",
+        "protection": {
+          "description": "BitBoxApp při nákupu {{name}} neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. MoonPay potřebuje ke své činnosti shromažďovat některé osobní údaje. Jejich Zásady ochrany osobních údajů podrobně vysvětlují, jak je s těmito údaji nakládáno.",
+          "descriptionGeneric": "BitBoxApp při nákupu {{name}} neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Partnerské burzy však ke svému fungování potřebují shromažďovat určité informace. Podrobnější informace o tom, jak je s daty nakládáno, naleznete v jejich zásadách ochrany osobních údajů.",
+          "title": "Ochrana dat"
+        },
+        "security": {
+          "description": "Při nákupu {{name}} přes MoonPay využíváte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštena BitBoxApp.",
+          "descriptionGeneric": "Při nákupu {{name}} prostřednictvím partnerské burzy využíváte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštena BitBoxApp.",
+          "link": "Model bezpečnostních hrozeb",
+          "title": "Bezpečnostní model"
+        },
+        "title": "Vítejte ve vašem obchodě pro nákup {{name}}"
+      },
+      "next": "Další",
+      "selectLabel": "Vyberte svůj účet",
+      "selectPlaceholder": "Vyberte měnu",
+      "skip": "Znovu nezobrazovat",
+      "title": "Koupit {{name}}"
+    },
+    "pocket": {
+      "data": {
+        "link": "Zásady ochrany osobních údajů Pocket",
+        "p1": "BitBoxApp při nákupu bitcoinů neshromažďuje žádné údaje, s příchozími prostředky se zachází jako s běžnou transakcí. Pocket potřebuje ke svému fungování shromažďovat některé osobní údaje. Jejich zásady ochrany osobních údajů podrobně vysvětlují, jak se s těmito údaji nakládá.",
+        "title": "Ochrana dat"
+      },
+      "kyc": {
+        "link": "Přečtěte si Pocket FAQ",
+        "p1": "Pocket se snaží omezit KYC na minimum. U nákupů do 950 EUR (1000 CHF) denně nejsou vyžadovány žádné další dokumenty. Při nákupech nad tuto částku si budete muset s Pocket domluvit hovor, abyste mohli dokončit potřebný proces KYC/AML.",
+        "title": "KYC/AML"
+      },
+      "payment": {
+        "p1": "Bitcoin si můžete koupit okamžitě pomocí služby Pocket bankovním převodem SEPA. Poplatek činí 1,5 % a bitcoiny jsou poslány do vašeho BitBoxu ihned poté, co Pocket obdrží bankovní převod (obvykle během téhož dne).",
+        "p2": "Upozorňujeme, že směnné kurzy v aplikaci Pocket se mohou lišit od kurzů používaných v aplikaci BitBoxApp, což vede k mírně odlišným částkám.",
+        "title": "Platební metody a poplatky"
+      },
+      "previousTransactions": "Historie transakcí tohoto účtu není prázdná. Sdílením tohoto účtu se všechny jeho minulé a budoucí transakce stanou viditelnými pro Pocket. Pokračovat?",
+      "security": {
+        "link": "Model bezpečnostních hrozeb BitBox02",
+        "p1": "Při nákupu bitcoinů přes Pocket používáte externí službu. Tato služba je mimo oblast působnosti modelu bezpečnostních hrozeb BitBox02 a spoléhá se na bezpečnost a zabezpečení prostředí, ve kterém je spuštěn BitBoxApp. Společně pracujeme na zvýšení bezpečnosti pomocí dvoufaktorového ověřovacího mechanismu, který ověřuje adresu, na kterou přijímáte.",
+        "title": "Bezpečnostní model"
+      },
+      "usedAddress": "Adresa {{address}} již byla použita, začněte prosím znovu s novou adresou.",
+      "verifyBitBox02": "Zkontrolujte, zda adresa, kterou jste obdrželi e-mailem, odpovídá adrese zobrazené na vašem Bitboxu. Pokud je to možné, měli byste e-mail otevřít na druhém zařízení kvůli lepšímu zabezpečení.",
+      "welcome": {
+        "p1": "Spolupracujeme se společností Pocket, abychom vám nabídli bezproblémový způsob nákupu bitcoinů přímo v BitBoxApp. Je to jen pár kliknutí.",
+        "p2": "Pocket je švýcarská platforma, která umožňuje rychlý a snadný nákup bitcoinů ve většině Evropy (kdekoli, kde jsou podporovány bankovní převody SEPA).",
+        "p3": "S Pocket můžete také provádět pravidelné nákupy prostřednictvím trvalých bankovních příkazů, takže můžete snadno zprůměrovat své náklady (DCA - dollar-cost averaging).",
+        "title": "Vítejte ve svém obchodě pro nákup bitcoinů"
+      }
+    },
+    "title": "Koupit {{name}}"
+  },
+  "changePin": {
+    "newTitle": "Nové heslo zařízení",
+    "oldLabel": "Aktuální heslo zařízení"
+  },
+  "chart": {
+    "dataMissing": "Sbíráme historická data... zůstaňte s námi.",
+    "dataUpdating": "aktualizace dat...",
+    "filter": {
+      "all": "Všechny",
+      "month": "Měsíc",
+      "week": "Týden",
+      "year": "Rok"
+    }
+  },
+  "checkSDcard": "kontrola microSD karty",
+  "clickHere": "Klikněte zde.",
+  "confirm": {
+    "abortInfo": "Klepněte na ",
+    "abortInfoRedText": "zrušit",
+    "approveInfo": "Podržte 4 a více sekund ",
+    "approveInfoGreenText": "potvrdit",
+    "info": "Pokračujte na svém BitBoxu. ",
+    "infoWhenPaired": "Nejprve na spárovaném mobilu a poté na vašem BitBoxu"
+  },
+  "confirmOnDevice": "Potvrďte na svém zařízení.",
+  "darkmode": {
+    "toggle": "Tmavý režim"
+  },
+  "device": {
+    "appUpradeRequired": "Váš BitBox není kompatibilní s touto aplikací. Stáhněte si a nainstalujte nejnovější verzi."
+  },
+  "deviceLock": {
+    "button": "Aktivovat dvoufaktorovou autorizaci (2FA)",
+    "condition1": "Máte zálohu?",
+    "condition2": "Funguje ověření mobilní aplikace?",
+    "condition3": "2FA ZABRÁNÍ zálohování a párování s mobilní aplikaci. Pro ukončení 2FA je nutné zařízení RESETOVAT!",
+    "confirm": "Aktivovat dvoufaktorovou autorizaci (2FA)",
+    "title": "Aktivovat dvoufaktorovou autorizaci (2FA)"
+  },
+  "deviceSettings": {
+    "firmware": {
+      "firmwareVersion": "Verze firmwaru",
+      "newVersion": {
+        "label": "Dostupná verze"
+      },
+      "title": "Firmware",
+      "upToDate": "Vaše zařízení je aktuální",
+      "upgradeAvailable": "K dispozici je nová aktualizace",
+      "version": {
+        "label": "Verze"
+      }
+    },
+    "hardware": {
+      "attestation": {
+        "false": "Kontrola pravosti se nezdařila",
+        "label": "Kontrola pravosti",
+        "true": "Váš BitBox02 je autentický"
+      },
+      "sdcard": {
+        "false": "Není vložena",
+        "label": "microSD karta",
+        "true": "Vložena"
+      },
+      "securechip": "Bezpečný čip",
+      "title": "Hardware"
+    },
+    "loading": "Načítání informací o zařízení…",
+    "pairing": {
+      "lock": {
+        "false": "Vypnuto",
+        "label": "Dvoufaktorová autorizace (2FA)",
+        "true": "Zapnuto"
+      },
+      "mobile": {
+        "false": "Zavřeno",
+        "label": "Mobilní aplikace",
+        "true": "Otevřeno"
+      },
+      "status": {
+        "false": "Nespárováno",
+        "label": "Stav",
+        "true": "Spárováno"
+      },
+      "title": "Párování"
+    },
+    "secrets": {
+      "manageBackups": "Spravovat zálohy",
+      "title": "Secrets"
+    }
+  },
+  "deviceTampered": "Bylo k vašemu BitBoxu dodáno heslo pro obnovení? Pokud ano, zastavte proces nastavení a okamžitě kontaktujte podporu. Společnost Shift vám nikdy neposkytne hotovou peněženku ani vám nedá doporučení ohledně hesla.",
+  "dialog": {
+    "cancel": "Zrušit",
+    "confirm": "Potvrdit",
+    "confirmTitle": "Potvrzení"
+  },
+  "error": {
+    "accountAlreadyExists": "Účet již existuje.",
+    "accountLimitReached": "Nelze přidat účet. Maximální počet účtů pro tuto měnu byl dosažen.",
+    "aoppCallback": "Při doručování adresy na {{host}} došlo k chybě.",
+    "aoppInvalidRequest": "Neplatný požadavek.",
+    "aoppNoAccounts": "Nejsou k dispozici žádné účty.",
+    "aoppSigningAborted": "Žádost o potvrzení vlastnictví adresy zrušena.",
+    "aoppUnknown": "Nastala neznámá chyba.",
+    "aoppUnsupportedAsset": "Toto aktivum není podporováno.",
+    "aoppUnsupportedFormat": "Nejsou k dispozici žádné účty, které by podporovaly požadovaný formát adresy.",
+    "aoppUnsupportedKeystore": "Připojené zařízení nemůže podepisovat zprávy pro toto aktivum.",
+    "aoppVersion": "Neznámá verze."
+  },
+  "fiat": {
+    "default": "výchozí",
+    "setDefault": "Nastavit {{code}} jako výchozí",
+    "title": "Měny"
+  },
+  "footer": {
+    "appVersion": "Verze aplikace:"
+  },
+  "generic": {
+    "enabled_false": "Vypnuto",
+    "enabled_true": "Zapnuto"
+  },
+  "genericError": "Došlo k chybě. Pokud zaznamenáte nějaké problémy, restartujte prosím aplikaci.",
+  "goal": {
+    "buttons": {
+      "create": "Vytvořit novou peněženku",
+      "restore": "Obnovte peněženku ze zálohy"
+    },
+    "paragraph": "Vyberte prosím jednu z následujících možností:",
+    "step": {
+      "1": {
+        "title": "Informace o zabezpečení"
+      },
+      "2": {
+        "description": "Nastavit heslo zařízení",
+        "title": "Zařízení"
+      },
+      "3-create": {
+        "description": "Vytvořit novou peněženku",
+        "title": "Peněženka"
+      },
+      "3-restore": {
+        "description": "ze zálohy",
+        "title": "Obnovit"
+      },
+      "4-create": {
+        "title": "Přehled"
+      },
+      "4-restore": {
+        "title": "Přehled"
+      }
+    }
+  },
+  "guide": {
+    "accountDescription": {
+      "text": "V přehledu účtu se zobrazuje disponibilní zůstatek a příchozí a odchozí transakce. Více informací o jednotlivých typech účtů najdete v našem průvodci v části \"Nastavení\". ",
+      "title": "Co se mi na této stránce zobrazuje?"
+    },
+    "accountFiat": {
+      "text": "Ano. Kliknutím na libovolný ticker můžete volit mezi fiat měnami. Seznam měn můžete změnit v nastavení.",
+      "title": "Mohu zobrazit jiné směnné kurzy?"
+    },
+    "accountIncomingBalance": {
+      "text": "Přicházející transakce zahrnují částky, které vám byly převedeny, ale ještě nebyly potvrzeny sítí.",
+      "title": "Co znamená přicházející transakce?"
+    },
+    "accountInfo": {
+      "multipleXPubs": {
+        "text": "Každý xpub je svázán se zobrazeným typem: buď \"Native Segwit (bech32)\", \"Wrapped Segwit\" nebo \"Taproot\" (pouze u Bitcoinu). Jedná se o typy skriptů, které používá {{coinName}}. BitBoxApp je kombinuje a podporuje více typů skriptů v rámci jednoho účtu. Protože každý typ skriptu dává jiný xpub, existuje více xpubů pro jeden účet.\n\nPokud soustavně přijímáte na výchozí adrese (Native Segwit), potřebujete pouze \"bech32\" xpub. Pokud však přijímáte prostředky také na \"Wrapped Segwit\" nebo \"Taproot\", musíte používat také další veřejné klíče \"Wrapped Segwit\", xpub respektive \"Taproot\" xpub.",
+        "title": "Proč existuje více xpubů?"
+      },
+      "privacy": {
+        "text": "U tohoto konkrétního účtu odhaluje xpub veřejný klíč celou finanční historii, zůstatek na účtu a všechny budoucí transakce. Xpub však nikomu neumožňuje utrácet vaše prostředky.\n\nPokud xpub někomu předáte, měli byste si být vědomi toho, že tato osoba nebo společnost může vidět všechny ostatní transakce tohoto účtu. Proto je dobré používat tento účet pouze k tomuto účelu a ostatní prostředky držet na jiných účtech.",
+        "title": "Musím svůj xpub držet v tajnosti?"
+      },
+      "verify": {
+        "text": "Ano, vždy je dobré si xpub překontrolovat. Pokud z tohoto xpubu bude někdo jiný generovat adresy a posílat vám peníze, je to obzvlášť důležité. Musíte ho ověřit na zařízení, abyste se ujistili, že tento xpub patří vám; jinak by všechny prostředky mohly jít na nesprávné adresy.",
+        "title": "Musím ověřit xpub na zařízení?"
+      },
+      "xpub": {
+        "text": "Veřejný klíč (xpub) je základní klíč, z něhož jsou odvozeny všechny adresy účtu.\n\nJe zde uveden pro pokročilé používání a interoperabilitu s peněženkami určenými pouze pro sledování (watch-only wallets), jako je Electrum nebo Sentinel. Pokud jste přijímali na různé typy adres, importujte prosím všechny různé formáty xpubů do watch-only peněženky, abyste viděli všechny své prostředky.\n\nUpozorňujeme, že peněženky třetích stran nemusí zatím podporovat Taproot xpub.",
+        "title": "Co je veřejný klíč (xpub)?"
+      }
+    },
+    "accountRates": {
+      "text": "Směnné kurzy aktualizujeme každou minutu z CoinGecko.",
+      "title": "Jaké směnné kurzy platí?"
+    },
+    "accountReload": {
+      "text": "To není potřeba. Informace o transakci se aktualizují automaticky.",
+      "title": "Mohu znovu načíst historii transakcí?"
+    },
+    "accountSendDisabled": {
+      "text": "Tlačítko „Odeslat“ se aktivuje, když je váš zůstatek vyšší než nula.",
+      "title": "Proč nemůžu poslat žádný {{unit}}?"
+    },
+    "accountSummaryAmount": {
+      "text": "Celková částka je součtem všech vašich účtů. Směnné kurzy jsou získávány z coingecko.com.\n\nPoznámka: Pokud používáte MyEtherWallet pro tokeny, které nejsou podporovány v aplikaci BitBoxApp, nebudou do zobrazené částky zahrnuty.",
+      "title": "Jak se vypočítá celková částka?"
+    },
+    "accountSummaryDescription": {
+      "text": "Zde můžete sledovat výkonnost svého portfolia v průběhu času. Pod grafem se zobrazuje přehled vašich jednotlivých účtů.",
+      "title": "Co se mi na této stránce zobrazuje?"
+    },
+    "accountTransactionAttributesBTC": {
+      "text": "Virtuální velikost: Určuje síťový poplatek. Úspěšně jste ušetřili na poplatcích, pokud je menší než velikost transakce.\nVelikost: Skutečná velikost transakce v bajtech při serializaci podle příslušného blockchainu.\nVáha: Nová metrika zavedená se Segwitem pro vyhodnocování velikosti transakcí a bloků. Každý byte segregovaného svědka {segregated witness) se počítá jako jedna, vše ostatní jako čtyři jednotky váhy. Místo jednoho megabajtu ve skutečné velikosti je nyní limit velikosti bloku čtyři miliony váhových jednotek.",
+      "title": "A co podrobnosti transakce specifické pro bitcoiny?"
+    },
+    "accountTransactionAttributesGeneric": {
+      "text": "Potvrzení: Vaše první transakce je nepotvrzená, dokud ji těžař nezařadí do bloku, poté má jedno potvrzení. Každý další blok v síti přidává k vaší transakci další potvrzení. Obecně platí, že obchodníci a další účastníci sítě akceptují transakce jako vypořádané s minimem tří až šesti potvrzení.\nID transakce: Jedinečné identifikační číslo, které umožňuje vyhledat transakci v blok exploreru.\nPoplatek: Těžařům se platí transakční poplatek jako pobídka k zahrnutí transakcí do bloků, které vytěží. Chcete-li se dozvědět více, klikněte na tlačítko odeslat.",
+      "title": "Jaké jsou informace v detailech transakce?"
+    },
+    "accountTransactionConfirmation": {
+      "text": "Transakce odeslaná do sítě, ale dosud nepotvrzená.",
+      "title": "Co je to čekající transakce?"
+    },
+    "accountTransactionLabel": {
+      "text": "Je to adresa, ze které jste obdrželi prostředky nebo na kterou jste je odeslali.",
+      "title": "Jaká adresa se zobrazuje u každé transakce?"
+    },
+    "accountTransactionTime": {
+      "text": "Doba potvrzení transakce v blockchainu.",
+      "title": "Jaký čas se zobrazuje?"
+    },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "Každá měna může mít maximálně pět účtů.",
+        "title": "Kolik účtů mohu vytvořit?"
+      },
+      "howtoAddTokens": {
+        "text": "Tokeny využívající standard ERC20 jsou vázány na konkrétní účet Etherea. Chcete-li aktivovat nebo deaktivovat konkrétní token, otevřete obrazovku \"Správa účtů\", rozbalte svůj účet Ethereum a zapněte nebo vypněte požadovaný token.",
+        "title": "Jak mohu přidat další tokeny?"
+      },
+      "moveFunds": {
+        "text": "Ano, ale protože jsou účty nezávislé, musíte své prostředky poslat pomocí běžné transakce.",
+        "title": "Mohu přesouvat prostředky mezi účty?"
+      },
+      "recoverAccounts": {
+        "text": "Ano, BitBoxApp vytváří účty pomocí zavedených standardů kompatibilních s většinou ostatních kryptopeněženek.",
+        "title": "Mohu obnovit své účty v jiných peněženkách?"
+      },
+      "whatAreAccounts": {
+        "text": "Vaše peněženka umí spravovat více účtů jedné měny. Účty jsou užitečné, když chcete mít prostředky oddělené.",
+        "title": "Co jsou účty?"
+      },
+      "whyIsThisUseful": {
+        "text": "Účty jsou skvělé pro správu prostředků pro různé osoby nebo účely, protože jsou oddělené. Můžete také sdílet veřejný klíč (xpub) účtu, aniž byste prozradili cokoli o svých ostatních účtech. To vám umožňuje opakovaně přijímat finanční prostředky bez opakovaného používání adres, například při pobírání mzdy nebo pravidelném nákupu kryptoměn.",
+        "title": "Proč je to užitečné?"
+      }
+    },
+    "appendix": {
+      "link": "Kontaktujte nás!",
+      "text": "Další otázka?"
+    },
+    "backups": {
+      "check": {
+        "text": "\"Zkontrolovat zálohu\" umožňuje ověřit, zda máte funkční zálohu odpovídající vaší aktuální peněžence. Lze ji také použít k ověření, zda máte stále správné heslo pro obnovení. Můžete zkontrolovat hlavní heslo pro obnovení nebo skryté heslo pro obnovení.",
+        "title": "Co je to „Zkontrolovat zálohu“?"
+      },
+      "encrypt": {
+        "text": "Ne, ale k získání peněženky z uloženého seedu {slov pro obnovení) je nutné vaše heslo pro obnovení.",
+        "title": "Mohu zálohu zaheslovat?"
+      },
+      "howOften": {
+        "text": "Záloha se generuje automaticky při vytvoření nové peněženky. Novou zálohu musíte vytvořit pouze v případě, že microSD kartu ztratíte nebo poškodíte, nebo pokud chcete jako zálohu použít více microSD karet.\nPo uskutečnění transakcí nemusíte vytvářet nové zálohy. Všechna data transakcí lze znovu vytvořit pomocí jediné zálohy, která byla pro vás automaticky vytvořena.",
+        "title": "Jak často musím vytvářet zálohu?"
+      },
+      "whatIsABackup": {
+        "text": "Jedná se o kopii obnovovacího seedu na microSD kartě. Seed {slova pro obnovení) spolu s heslem pro obnovení vytváří vaši peněženku.",
+        "title": "Co je záloha?"
+      }
+    },
+    "backupsBB02": {
+      "check": {
+        "text": "„Zkontrolovat zálohu“ vám umožňuje ověřit, že máte funkční zálohu odpovídající vaší aktuální peněžence.",
+        "title": "Co je to „Zkontrolovat zálohu“?"
+      },
+      "encrypt": {
+        "text": "Ne. microSD kartu uchovávejte v bezpečí, protože obsahuje nezašifrovaný obnovovací seed k obnovení peněženky. Pokud si přejete chránit seed heslem, můžete aktivovat volitelnou přístupovou frázi v expertním nastavení v části \"Správa zařízení\".",
+        "title": "Mohu zálohu zašifrovat?"
+      },
+      "whatIsABackup": {
+        "text": "Jedná se o kopii obnovovacího seedu na microSD kartě.",
+        "title": "Co je záloha?"
+      }
+    },
+    "bitbox": {
+      "2FA": {
+        "text": "Když je aktivní funkce 2FA, musí být všechny transakce schváleny na spárovaném mobilním telefonu, aby bylo možné utrácet prostředky. Do mobilní aplikace je odesláno zašifrované jednorázové číslo, které je tam dešifrováno a po stisknutí tlačítka Přijmout je odesláno zpět do BitBoxu. Tato komunikace se zařízením probíhá prostřednictvím kanálu mezi mobilním telefonem a touto desktopovou aplikací vytvořeného během párování.\n\nPřed zapnutím funkce 2FA nezapomeňte zálohovat peněženku a spárovat mobilní aplikaci. Po aktivování jsou microSD slot a párování s mobilní aplikací vypnuty. Lze je znovu aktivovat resetováním BitBoxu, čímž se zařízení vymaže.",
+        "title": "Jak funguje dvoufaktorová autorizace (2FA)?"
+      },
+      "disable2FA": {
+        "text": "Chcete-li 2FA deaktivovat, musíte resetovat BitBox a poté obnovit peněženku ze zálohy. Ujistěte se, že stále máte microSD kartu se zálohou a že si stále pamatujete heslo pro obnovení. Poté stiskněte tlačítko \"Resetovat zařízení\". Nastavte nové heslo zařízení a zvolte 'Nebo obnovit ze zálohy'. Vyberte zálohu peněženky, klikněte na 'Obnovit' a zadejte heslo pro obnovení, které jste použili při vytváření peněženky.",
+        "title": "Jak mohu deaktivovat dvoufaktorovou autorizaci (2FA)?"
+      },
+      "ejectBitbox": {
+        "text": "BitBox můžete kdykoli odpojit, aniž byste jej museli nejprve vysunout.",
+        "title": "Jak mohu vysunout BitBox?"
+      },
+      "ejectSD": {
+        "text": "MicroSD kartu můžete z BitBoxu kdykoli vyjmout, pokud právě nevytváříte nebo neobnovujete zálohu.",
+        "title": "Jak mohu microSD kartu vysunout?"
+      },
+      "hiddenWallet": {
+        "text": "Jedná se o druhou peněženku na stejném zařízení chráněnou jiným heslem zařízení a heslem pro obnovení, které můžete použít pro hodnověrné popření (plausible deniability). Pro normální i skrytou peněženku se používá stejný seed, takže není třeba žádné další zálohování.",
+        "title": "Co je to skrytá peněženka?"
+      },
+      "legacyHiddenWallet": {
+        "text": "Nejprve klikněte na níže uvedené tlačítko (je k dispozici, pokud je BitBox odemčen hlavním heslem zařízení a funkce 2FA je vypnutá), poté Bitbox znovu připojte a odemkněte jej skrytým heslem.",
+        "title": "Jak se dostanu k legacy skryté peněžence?"
+      },
+      "pairing": {
+        "text": "Po stažení naší mobilní aplikace pro iOS nebo Android naskenujete zobrazený QR kód, čímž se vytvoří zabezpečený kanál mezi mobilní aplikací a touto aplikací. Po naskenování postupujte podle pokynů v mobilní aplikaci.",
+        "title": "Jak bezpečně spárovat s telefonem"
+      }
+    },
+    "cointracking": {
+      "text": "Klikněte na tlačítko \"Export\" a otevřete složku se staženými soubory, kde najdete export CSV. Poté klikněte na níže uvedený odkaz, nahrajte svůj BitBox CSV soubor a importujte data, abyste je mohli použít pro správce portfolia CoinTracking a pro vytváření daňových výkazů.",
+      "title": "Jak importovat mé transakce do služby CoinTracking?"
+    },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Přečtěte si více o kontrole pravosti"
+        },
+        "text": "BitBoxApp provede atestační kontrolu BitBox02, aby ověřila, zda je zařízení pravé. Kontrola se provádí lokálně a nepřipojuje se k žádným serverům.",
+        "title": "Jak probíhá kontrola pravosti?"
+      },
+      "name": {
+        "text": "Jedná se o název vaší peněženky a zálohy. Název se používá pro budoucí zálohy a může sloužit k rozlišení různých peněženek. Lze jej kdykoli změnit, ale mějte na paměti, že zálohy vytvořené před změnou budou stále používat předchozí název.",
+        "title": "K čemu slouží název BitBoxu?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Další informace o bezpečném čipu"
+        },
+        "text": "Tato informace zobrazuje číslo modelu zabezpečeného čipu, nejnovější čip je ATECC608B s vylepšenými bezpečnostními funkcemi ve srovnání se staršími modely.",
+        "title": "Proč zobrazovat model bezpečného čipu?"
+      }
+    },
+    "receive": {
+      "address": {
+        "text": "Adresu můžete dát ostatním, aby vám poslali nějaké prostředky. Jen se ujistěte, že je posílají na správnou adresu.",
+        "title": "Co mohu dělat s adresou?"
+      },
+      "addressChange": {
+        "text": "Jakmile provedete transakci, do seznamu se automaticky přidá nová adresa, takže je vždy k dispozici 20 adres, které nikdy neobdržely žádné prostředky.",
+        "title": "Kdy se adresy mění?"
+      },
+      "addressFormats": {
+        "text": "Ve výchozím nastavení je typ adresy Native Segwit. Tento typ adresy je široce rozšířený mezi ostatními peněženkami/burzami poskytuje nejlepší sazby poplatků za každodenní transakce. Můžete si však také zvolit odesílání na Taproot (jen pro Bitcoin), což je nejnovější typ adresy, který však ještě nemusí být všude podporován. Případně, pokud máte problémy s odesíláním na Native Segwit (výchozí typ), můžete zkusit přejít na starší typ adresy Wrapped Segwit, který může být kompatibilní s více peněženkami/burzami.",
+        "title": "Kdy mám použít \"Změnit typ adresy\"?"
+      },
+      "howVerify": {
+        "text": "V případě BitBox01 klikněte na ikonu BitBox v postranním panelu vlevo a podívejte se do části Párování. Průvodce se aktualizuje a vy můžete pokračovat podle pokynů odtud.\nU BitBox02 můžete adresy ověřit přímo v zařízení během procesu odesílání/přijímání.",
+        "title": "Jak mohu bezpečně ověřit adresu?"
+      },
+      "plugout": {
+        "text": "Ne, po odeslání prostředků na adresu BitBoxu nemusíte nechávat BitBox připojený. Svůj BitBox můžete kdykoli odpojit.",
+        "title": "Musím nechat svůj BitBox během přijímání zapojený?"
+      },
+      "why20": {
+        "text": "Během spuštění aplikace generuje adresy odvozené z vašeho seedu a zjišťuje, zda obdržely prostředky. Protože aplikace může generovat téměř nekonečné množství adres, mohla by zjišťováním zůstatku strávit roky. Aby se toto hledání omezilo, zastaví se, jakmile uvidí 20 adres, které nikdy neobdržely žádné prostředky. To je \"gap limit\" a 20 je de facto standard, i když toto číslo je libovolné. Z těchto 20 adres si můžete vybrat.",
+        "title": "Proč jenom 20 adres?"
+      },
+      "whyMany": {
+        "text": "V zájmu zachování soukromí a bezpečnosti nikdy pro přijímaní nepoužívejte stejnou adresu dvakrát. Pokud jste adresu použili, klikněte na šipku vpravo pro novou adresu. Najednou můžete vygenerovat až 20 adres. Představte si adresy jako čísla faktur. Všechny adresy jsou odvozeny z vašeho jediného obnovovacího seedu.",
+        "title": "Proč tolik adres?"
+      },
+      "whyVerify": {
+        "text": "Neměli byste věřit, že váš počítač generuje a zobrazuje autentické adresy. Jeho útočná plocha (attack surface) jej činí podstatně zranitelnějším než hardwarovou peněženku. U BitBox01 Tlačítko pro ověření adresy bezpečně odešle adresu do spárovaného mobilního telefonu, ze kterého můžete také naskenovat a ověřit kód QR. U BitBox02 lze adresu ověřit přímo na displeji BitBoxu.",
+        "title": "Proč bych měl adresu bezpečně ověřit?"
+      }
+    },
+    "send": {
+      "change": {
+        "text": "Zůstatek bude vrácen na adresu Taproot, pokud máte alespoň jedno  Taproot UTXO. Pokud použijete coin control, bude zůstatek vrácen na adresu Taproot, pokud je mezi vybranými UTXO alespoň jedno Taproot UTXO. Ve všech ostatních případech se změna vrátí na nativní adresu Segwit.",
+        "title": "Jak se určuje change output (hodnota zůstatku)?"
+      },
+      "fee": {
+        "text": "Poplatek se odvíjí od velikosti dat transakce, nikoli od její výše. Cílové hodnoty poplatků jsou vypočítávány algoritmem pro odhad poplatků v Bitcoin Core pro každou vámi zvolenou prioritu sítě. Jsou zobrazeny, pokud mají jinou hodnotu než cíl uvedený níže.\nÚsporné: 24 bloků (přibližně 4 hodiny u Bitcoinu, 1 hodina u Litecoinu).\nNízké: 12 bloků (přibližně 2 hodiny pro Bitcoin, 30 minut pro Litecoin).\nNormální: 6 bloků (přibližně 1 hodina pro Bitcoin, 15 minut pro Litecoin).\nVysoké: 2 bloky (přibližně 20 minut pro Bitcoin, 5 minut pro Litecoin)\n(Vytěžení jednoho bloku trvá u Bitcoinu v průměru deset minut (u Litecoinu 2,5 minuty) a zatížení sítě se může ve výše uvedených obdobích značně lišit).",
+        "title": "Jak se určuje poplatek?"
+      },
+      "plugout": {
+        "text": "Ne, jakmile provedete transakci, nemusíte nechávat svůj BitBox připojený. Můžete svůj BitBox kdykoli odpojit.",
+        "title": "Musím nechat svůj BitBox během odesílání připojený?"
+      },
+      "priority": {
+        "text": "Čím vyšší poplatek jste ochotni zaplatit, tím rychleji je obvykle vaše transakce potvrzena sítí.",
+        "title": "Co je to priorita sítě (network priority)?"
+      },
+      "revert": {
+        "text": "Jakmile je transakce podepsána a odeslána (tj. vyslána do sítě), nelze ji již vrátit zpět. Před podpisem transakce (včetně poplatku) ji pořádně ověřte!\nPokud příjemce znáte a je ochoten vám poslat stejnou částku (po odečtení transakčních poplatků) zpět, můžete mu poslat novou přijímací adresu.",
+        "title": "Mohu transakci vrátit zpět?"
+      },
+      "whyFee": {
+        "text": "Transakce soutěží o jejich potvrzení těžařem. Těžaři vybírají transakce, které mají být zařazeny do blockchainu, na základě jejich poplatků.\nTěžaři hlasují o historii transakcí. Protože neexistuje důvěryhodná třetí strana, která by vynucovala jeden hlas na osobu (což je celý smysl blockchainů), hlasují těžaři o transakcích tak, že obětují nákladný zdroj, jako je výpočetní výkon. Jako odměnu za svou práci si mohou nárokovat nově vytvořené mince a poplatek za všechny zahrnuté transakce.",
+        "title": "Proč se platí síťový poplatek?"
+      }
+    },
+    "settings-electrum": {
+      "connection": {
+        "text": "Pokud se k uzlu hodláte připojit pouze tehdy, když jste ve stejné síti (např. domácí wifi), pak vám postačí běžná síťová komunikace.\nV takovém případě je vhodné, aby váš Electrum server poskytoval certifikát TLS pro šifrování komunikace.\nPokud se hodláte k uzlu připojit odkudkoli, je lepší volbou použití sítě Tor. V takovém případě není certifikát TLS nutný.",
+        "title": "Mám použít clearnet TCP, TLS nebo Tor?"
+      },
+      "instructions": {
+        "link": {
+          "text": "Průvodce pro připojení uzlu"
+        },
+        "text": "Úplný návod naleznete v našem průvodci:",
+        "title": "Jak připojím BitBoxApp k vlastnímu uzlu?"
+      },
+      "options": {
+        "text": "Existuje více možností, jak provozovat vlastní uzel, například zakoupit hotové zařízení, postavit si vlastní nebo používat Bitcoin Core.\nPokud chcete k uzlu připojit BitBoxApp, ujistěte se, že na něm běží server Electrum. Jedná se o specializovaný program, který umožňuje  peněžence komunikovat s vaším uzlem.\nMezi podporované možnosti patří Electrs, Electrum Personal Server (EPS) nebo Bitcoin Wallet Tracker (BTW).",
+        "title": "Jaké jsou možnosti provozování uzlu?"
+      },
+      "tor": {
+        "text": "Tor je zkratka pro \"The Onion Router\", což je bezplatný software s open source kódem, který nabízí mnoho výhod v oblasti ochrany soukromí a je užitečný zejména při používání Bitcoinu.\nPokud se hodláte připojit k uzlu prostřednictvím Toru, ujistěte se, že je Tor na vašem počítači nainstalován, a poté aktivujte Tor Proxy v nastavení BitBoxApp.\nU většiny operačních systémů existují dva způsoby, jak Tor spustit:\n1. Prohlížeč Tor: Stáhněte si a otevřete prohlížeč Tor Browser. To umožní aplikaci BitBoxApp připojit se k síti Tor nastavením portu 9150 v nastavení proxy serveru Tor.\n2. Služba Tor na pozadí: nainstalujte Tor daemon, který vždy běží na pozadí. BitBoxApp se pak může připojit nastavením portu 9050 v nastavení proxy serveru Tor.",
+        "title": "Co je Tor, Tor proxy a jaký port mám použít?"
+      },
+      "what": {
+        "text": "Peněženku je možné provozovat s vlastním uzlem namísto serverů Shift.",
+        "title": "Co to je?"
+      },
+      "why": {
+        "text": "Provozování vlastního uzlu není nutné, ale zlepšuje soukromí a snižuje potřebu důvěřovat někomu jinému.\nZaprvé to znamená, že používáte Bitcoin soukroměji, protože BitBoxApp se nebude připojovat k našim serverům, aby získala historii vašich transakcí; místo toho bude tyto informace získávat z vašeho vlastního uzlu.\nZa druhé, spuštění vlastního uzlu znamená, že váš uzel sám ověřuje všechny transakce a zajišťuje tak dodržování pravidel konsensu (consensus rules).",
+        "title": "Proč bych měl provozovat vlastní uzel?"
+      }
+    },
+    "settings": {
+      "sats": {
+        "text": "Satoshi (zkráceně \"sat\") je nejmenší jednotka bitcoinu. Jeden satoshi je jedna stamiliontina bitcoinu (0,00000001 BTC). Je pojmenována po tvůrci bitcoinu Satoshi Nakamotovi.",
+        "title": "Co je to Satoshi?"
+      },
+      "servers": {
+        "text": "Tato aplikace komunikuje se servery Shift Crypto a kontroluje aktualizace, načítá transakce a odesílá informace spárovaným mobilním aplikacím.\nAplikace také načítá nejnovější směnné kurzy z CoinGecko. Všechny konverze se počítají lokálně, což znamená, že se nikdy neodesílají žádné údaje o výši vaší transakce.\nPoznámka: Pro tokeny Ethereum a ERC20 používáme Etherscan.io API.",
+        "title": "S kterými servery tato aplikace komunikuje?"
+      }
+    },
+    "title": "Průvodce",
+    "toggle": {
+      "close": "Zavřít průvodce",
+      "open": "Průvodce"
+    },
+    "trackingModePortfolioChart": {
+      "text": "Na počítači najeďte kurzorem na graf. Na mobilním telefonu podržte prst na grafu a potáhněte vodorovně.",
+      "title": "Jak zobrazit historické hodnoty na grafu?"
+    },
+    "unlock": {
+      "forgotDevicePassword": {
+        "text": "Musíte zařízení resetovat a obnovit peněženku ze zálohy pomocí hesla pro obnovení.",
+        "title": "Co mám dělat, když jsem zapomněl heslo k zařízení?"
+      },
+      "reset": {
+        "text": "Zadejte 15krát špatné heslo zařízení. Několik posledních pokusů vyžaduje dlouhý dotyk na zařízení.",
+        "title": "Jak resetuji zařízení?"
+      }
+    },
+    "waiting": {
+      "deviceNotRecognized": {
+        "text": "Zařízení by mělo po připojení jednou bliknout. Ujistěte se, že je zapojeno správnou stranou. Pokud máte potíže, kontaktujte nás prostřednictvím níže uvedeného odkazu.\n\nZařízení BitBox01 není podporováno v mobilních zařízeních. K připojení zařízení BitBox01 použijte aplikaci BitBoxApp na stolním počítači.",
+        "title": "Můj BitBox01 nebyl rozpoznán"
+      },
+      "getDevice": {
+        "link": {
+          "text": "Objednejte si BitBox"
+        },
+        "text": "BitBox si můžete zakoupit v našem internetovém obchodě:",
+        "title": "Jak si mohu zařízení pořídit?"
+      },
+      "internet": {
+        "text": "Ano, k synchronizaci peněženky, odesílání transakcí a načítání nejnovějších směnných kurzů je nutné připojení k internetu.",
+        "title": "Vyžaduje tato aplikace připojení k internetu?"
+      },
+      "lostDevice": {
+        "link": {
+          "text": "Centrum zálohování"
+        },
+        "text": "Své účty můžete obnovit na novém BitBoxu nebo v našem centru zálohování.",
+        "title": "Ztratil jsem zařízení. Co teď?"
+      },
+      "useWithoutDevice": {
+        "text": "V současné době to bohužel není možné.",
+        "title": "Mohu aplikaci používat i bez zařízení?"
+      },
+      "welcome": {
+        "text": "Děkujeme za používání této aplikace vytvořené společností Shift Crypto ve Švýcarsku. Jsme rádi za jakýkoli příspěvek, o který se s námi podělíte. Poskytněte prosím zpětnou vazbu pomocí odkazu v dolní části.",
+        "title": "Vítejte v BitBoxApp!"
+      }
+    }
+  },
+  "headerssync": {
+    "blocksSynced": "{{blocks}} bloků zesynchronizováno"
+  },
+  "hiddenWallet": {
+    "info1HTML": "Pro účely hodnověrného popření (plausible deniability) lze skrytou peněženku vytvořit na základě kombinace <strong>odlišného</strong> hesla zařízení + hesla pro obnovení.",
+    "info2HTML": "Níže definujte heslo zařízení a heslo pro obnovení, které chcete přiřadit ke své skryté peněžence. Heslo zařízení a heslo pro obnovení musí být <strong>odlišné</strong> od těch, které jste definovali pro svou primární peněženku.",
+    "passwordLabel": "Skryté heslo pro obnovení",
+    "passwordPlaceholder": "Potvrďte prosím skryté heslo pro obnovení",
+    "pinLabel": "Heslo pro skryté zařízení",
+    "pinRepeatLabel": "Zopakujte heslo pro skryté zařízení",
+    "pinRepeatPlaceholder": "Potvrďte prosím heslo pro skryté zařízení",
+    "success": "Skrytá peněženka byla úspěšně vytvořena. Znovu připojte svůj BitBox, abyste jej odemkli."
+  },
+  "initialize": {
+    "create": "Nastavit heslo zařízení",
+    "creating": "Nastavování hesla zařízení…",
+    "error": {
+      "e102": "Heslo zařízení musí obsahovat alespoň 4 znaky."
+    },
+    "info": {
+      "description1": "Zvolte heslo zařízení. To bude použito k odemknutí vašeho BitBoxu.",
+      "description2": "Můžete používat čísla, písmena a symboly. Delší hesla poskytují vyšší bezpečnost.",
+      "description3": "Pokud heslo k zařízení ztratíte, budete muset zařízení resetovat a obnovit ze zálohy.",
+      "subtitle": "Nyní nastavíte heslo svého zařízení",
+      "title": "Inicializace zařízení"
+    },
+    "input": {
+      "label": "Heslo zařízení",
+      "labelRepeat": "Opakujte heslo zařízení",
+      "placeholderRepeat": "Potvrďte heslo zařízení"
+    }
+  },
+  "invalidFormat": "Nesprávný formát",
+  "language": {
+    "title": "Zvolte jazyk"
+  },
+  "legacyhiddenwallet": {
+    "disable": "Deaktivovat legacy skrytou peněženku",
+    "enable": "Aktivovat legacy skrytou peněženku",
+    "successDisable": "Úspěšně deaktivována legacy skrytá peněženka.",
+    "successEnable": "Starší legacy peněženka byla úspěšně aktivována. Znovu zapojte svůj BitBox a zadejte heslo skrytého zařízení pro přístup k legacy skryté peněžence."
+  },
+  "loading": "načítání…",
+  "manageAccounts": {
+    "editAccount": "Upravit",
+    "editAccountNameTitle": "Upravit název účtu",
+    "noAccounts": "nebyly nalezeny žádné účty",
+    "settings": {
+      "hideTokens": "Skrýt tokeny",
+      "showTokens": "Zobrazit tokeny ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Přidat a zobrazit/skrýt účty",
+    "title": "Spravovat účty"
+  },
+  "mobile": {
+    "usingMobileDataWarning": "Využití mobilních dat: tato aplikace může po odemčení účtu stáhnout až několik set megabajtů dat z blockchainu. Abyste se vyhnuli používání mobilních dat, připojte se k Wi-Fi. Po jejím zavření se tato zpráva již nebude zobrazovat."
+  },
+  "note": {
+    "input": {
+      "description": "(volitelný)",
+      "placeholder": "Přidat poznámku…"
+    },
+    "title": "Poznámka"
+  },
+  "notification": {
+    "newTxs_one": "Nová transakce v: {{accountName}}",
+    "newTxs_other": "{{count}} nové transakce v: {{accountName}}"
+  },
+  "pairing": {
+    "aborted": {
+      "text": "Párování bylo z mobilní aplikace zrušeno.",
+      "title": "Zrušeno"
+    },
+    "button": "Spárovat mobilní aplikaci",
+    "confirm": "Jste si jisti, že chcete spárovat svůj BitBox? Pamatujte, že poté je k provedení transakce vyžadován mobilní telefon.",
+    "connectOnly": {
+      "button": "Připojte mobilní aplikaci",
+      "title": "Naskenujte pomocí naší mobilní aplikace výběrem položky \"Připojit k nové aplikaci\"."
+    },
+    "error": {
+      "text": "Něco se pokazilo. Začněte prosím znovu.",
+      "title": "Chyba"
+    },
+    "pullFailed": {
+      "text": "Nepodařilo se stáhnout zprávu z mobilního telefonu prostřednictvím serveru. Server může být offline, kontaktujte prosím podporu.",
+      "title": "Vytažení se nezdařilo"
+    },
+    "reconnectOnly": {
+      "button": "Znovu připojte mobilní aplikaci"
+    },
+    "scanningFailed": {
+      "text": "Mobilní telefon nebyl schopen zprávu úspěšně naskenovat. Zkuste to prosím znovu.",
+      "title": "Skenování se nezdařilo "
+    },
+    "start": {
+      "hideAppQRCode": "Skrýt QR kód",
+      "revealAppQRCode": "Zobrazit QR kód",
+      "step1": "Pokud mobilní aplikaci nemáte, můžete naskenovat QR kód pro Apple App Store nebo Google Play Store podle toho, který telefon máte.",
+      "step2": "Naskenujte pomocí naší mobilní aplikace, kterou najdete pod názvem \"Digital Bitbox 2FA\" v obchodech s aplikacemi pro iOS a Android:"
+    },
+    "started": {
+      "text": "Nyní postupujte podle pokynů v mobilní aplikaci.",
+      "title": "Skvělý"
+    },
+    "success": {
+      "text": "Gratulujeme, úspěšně jste spárovali svůj BitBox s mobilní aplikací!",
+      "title": "Hotovo"
+    },
+    "timeout": {
+      "text": "Párování se po dvou minutách přerušilo. Pokud chcete ještě spárovat mobilní aplikaci, spusťte ji znovu.",
+      "title": "Timeout"
+    },
+    "title": "Párování mobilního telefonu"
+  },
+  "passphrase": {
+    "considerations": {
+      "button": "Úvahy ohledně zálohování",
+      "message": "Přístupová fráze přidává vrstvu ochrany k vaší záloze peněženky (obnovovací seed uložen na microSD kartě nebo 24 slov). Pokud má někdo přístup k vaší záloze, bude k přístupu do peněženky potřebovat také přístupovou frázi.\n\nTo však znamená, že v případě ztráty nebo rozbití vašeho BitBoxu budete potřebovat <strong>i přístupovou frázi i zálohu peněženky</strong> pro obnovení vaší peněženky s přístupovou frází. Pokud zapomenete nebo ztratíte svou přístupovou frázi, ztratíte přístup ke všem prostředkům v této peněžence.\n\nPři ukládání přístupové fráze zvažte její umístění na jiné místo než kde máte zálohu. Pokud někdo najde vaši zálohu, nenajde tak vaši přístupovou frázi.",
+      "title": "Úvahy ohledně zálohování"
+    },
+    "disable": "Deaktivovat přístupovou frázi",
+    "disableInfo": {
+      "button": "Deaktivovat",
+      "message": "Po vypnutí přístupové fráze již nebudete po odemknutí BitBoxu vyzváni k zadání přístupové fráze. Proto vstoupíte do své výchozí peněženky.\n\nVeškeré prostředky ve vaší peněžence s přístupovou frází budou stále v této peněžence, avšak nebudete k nim mít přístup, protože po odemknutí vašeho BitBoxu otevřete svou výchozí peněženku.\n\nPro opětovný přístup k vašim peněženkám s přístupovou frází jednoduše znovu zapněte funkci přístupové fráze a po odemknutí BitBoxu zadejte příslušnou přístupovou frázi.\n\n<strong>Tip:</strong> Do své výchozí peněženky můžete přistoupit i ponecháním prázdné přístupové fráze, když ji máte aktivovanou."
+    },
+    "enable": "Aktivovat přístupovou frázi",
+    "error": {
+      "e104": "Změna nastavení přístupové fráze byla zrušena."
+    },
+    "how": {
+      "button": "Jak to vypadá",
+      "message": "A přístupová fráze nefunguje jako heslo, na které jste zvyklí. Pokud heslo zadáte chybně, nebudete na to upozorněni. Je to proto, že <strong>každá přístupová fráze vytváří jinou, avšak platnou peněženku.</strong> To znamená, že můžete používat více přístupových frází pro libovolný počet peněženek. Každá peněženka je však přístupná pouze po zadání příslušné přístupové fráze.\n\nPo připojení BitBoxu budete jako obvykle vyzváni k zadání hesla zařízení. Poté budete vyzváni k zadání přístupové fráze.\n\nPo zadání přístupové fráze se zobrazí vámi zadaná přístupová fráze. To proto, abyste mohli potvrdit, že jste ji zadali správně.",
+      "title": "Jak to funguje"
+    },
+    "intro": {
+      "message": "Přístupová fráze poskytuje další vrstvu zabezpečení nad vaší peněženkou.\nPojďme se naučit, jak to funguje.",
+      "title": "Nastavení přístupové fráze"
+    },
+    "progressDisable": {
+      "message": "Potvrďte na svém BitBoxu, že chcete <strong>deaktivovat</strong> volitelnou přístupovou frázi.",
+      "title": "Potvrďte na zařízení"
+    },
+    "progressEnable": {
+      "message": "Potvrďte na svém BitBoxu, že chcete <strong>aktivovat</strong> volitelnou přístupovou frázi.",
+      "title": "Potvrďte na zařízení"
+    },
+    "successDisabled": {
+      "message": "Volitelná přístupová fráze <strong>byla úspěšně aktivována</strong>!\nOd této chvíle budete vyzváni k zadání přístupové fráze.",
+      "messageEnd": "Nyní znovu připojte BitBox02.",
+      "title": "Přístupová fráze aktivní"
+    },
+    "successEnabled": {
+      "message": "Volitelná přístupová fráze <strong>byla úspěšně deaktivována</strong>!\n\nJiž nebudete vyzváni k zadání přístupové fráze.",
+      "messageEnd": "Nyní znovu připojte svůj BitBox02.",
+      "tips": "Tipy",
+      "tipsList": [
+        "Doporučujeme nejprve odeslat malou částku do peněženky s přístupovou frází. Poté odpojte a znovu zapojte BitBox02 a zadejte heslo a přístupovou frázi. Pokud jste zadali přístupovou frázi správně, měli byste prostředky vidět ve své peněžence.",
+        "Pokud chcete vstoupit do své původní peněženky bez přístupové fráze, můžete to provést tak, že po výzvě k zadání přístupové fráze nezadáte nic. Nebo můžete funkci přístupové fráze vypnout."
+      ],
+      "title": "Přístupová fráze deaktivována"
+    },
+    "summary": {
+      "button": "Aktivovat přístupovou frázi",
+      "title": "Přehled",
+      "understand": "Rozumím fungování přístupové fráze a rizikům s tím spojeným.",
+      "understandList": [
+        "Přístupová fráze představuje další vrstvu zabezpečení nad vaší zálohou.",
+        "Zadáním jiné přístupové fráze se vždy vygeneruje jiná peněženka.",
+        "K obnovení peněženky potřebujete <strong>přístupovou frázi i zálohu</strong>.",
+        "Pokud zapomenete přístupovou frázi, nebudete mít ke svým prostředkům přístup."
+      ]
+    },
+    "what": {
+      "button": "Přečtěte si, jak to funguje",
+      "message": "Peněženka je vytvořena (odvozena) z velmi velkého náhodného čísla, známého také jako seed. Tento seed je vytvořen při prvním nastavení BitBoxu a je zálohován pomocí karty microSD a nebo prostřednictvím uložení 24 slov. Každý, kdo má přístup k seedu, má plnou kontrolu nad prostředky v této peněžence.\n\nPřístupová fráze je <strong>volitelné tajemství</strong>, které se přidává k seedu. Při použití přístupové fráze se při každém použití vytvoří nová peněženka na základě seedu + přístupové fráze (nepovinného tajemství). Passphrase může být jakákoli: písmena, slova, speciální znaky nebo může být i prázdná. Výchozí peněženka je ve skutečnosti odvozena od seedu + prázdné přístupové fráze.\n\nPřístupová fráze je součástí standardu BIP39, což znamená, že je kompatibilní se všemi peněženkami, které tento standard podporují.",
+      "title": "Co je přístupová fráze?"
+    },
+    "why": {
+      "button": "Proč používat přístupovou frázi",
+      "message": "BitBox02 chrání seed před stažením ze samotného zařízení, ale záloha (microSD karta nebo 24 slov) umožňuje plný přístup k peněžence. Proto by měla být uložena na bezpečném místě!\n\nVzhledem k tomu, že přístupová fráze vytváří novou peněženku pomocí vašeho stávajícího seedu, vyžaduje peněženka s přístupovou frází k obnovení <strong>zálohu i přístupovou frázi</strong>. Výhodou je, že pokud někdo najde vaši zálohu, bude k přístupu do peněženky s přístupovou frází stále potřebovat přístupovou frázi.\n\nFunkce přístupové fráze navíc umožňuje vytvořit na stejném zařízení více peněženek nebo \"skrytých peněženek\" kromě té výchozí.",
+      "title": "Proč používat přístupovou frázi?"
+    }
+  },
+  "password": {
+    "show": "Zobrazit {{label}}",
+    "warning": {
+      "caps": "VAROVÁNÍ: Caps Lock (⇪) je zapnutý",
+      "paste": "pro vložení textu povolte \"ZOBRAZIT {{label}}\""
+    }
+  },
+  "random": {
+    "button": "Vygenerujovat náhodné číslo",
+    "description": "Váš BitBox vygeneroval následující {{bits}}-bit náhodné číslo:"
+  },
+  "receive": {
+    "changeScriptType": "Změňit typ adresy",
+    "label": "Vaše adresa",
+    "onlyThisCoin": {
+      "description": "Chcete-li přijímat další tokeny, aktivujte je v nastavení. Pokud vložíte jiné tokeny, nemusí být přístupné.",
+      "warning": "Ujistěte se, že přijímáte pouze {{coinName}} na této adrese."
+    },
+    "scriptType": {
+      "p2tr": "Taproot (nejnovější formát)",
+      "p2wpkh": "Nativní Segwit (výchozí)",
+      "p2wpkh-p2sh": "Wrapped Segwit (kompatibilní formát)"
+    },
+    "selectAccount": "Vybrat účet",
+    "showFull": "Zobrazit a ověřit celou adresu na zařízení",
+    "taprootWarning": "Poznámka: Taproot je nová funkce Bitcoinu a zatím není široce používána. Prostředky přijaté na adresy Taproot nemusí být viditelné v peněženkách třetích stran, které jsou určeny pouze pro sledování (watch-only wallets). Mnoho peněženek a burz zatím není schopno posílat na adresy Taproot.",
+    "title": "Přijmout {{accountName}}",
+    "verify": "Bezpečně ověřit adresu",
+    "verifyBitBox01": "Ověřit adresu v mobilní aplikaci",
+    "verifyBitBox02": "Ověřit adresu na BitBox02",
+    "verifyInstruction": "Zkontrolujte, zda se následující adresa shoduje s adresou zobrazenou na vašem zařízení.",
+    "warning": {
+      "secureOutput": "Spárujte prosím svůj BitBox s mobilním zařízením, abyste mohli bezpečně ověřit adresu. Přejděte na \"Spravovat zařízení\" v postranním panelu."
+    }
+  },
+  "reset": {
+    "description": "Všechna data v zařízení budou odstraněna. Včetně vašeho soukromého klíče!",
+    "notReset": "Zařízení nebylo resetováno",
+    "title": "Resetovat zařízení na tovární nastavení",
+    "understand": "Mám zálohu a znám heslo pro obnovení",
+    "understandBB02": "Mám platnou zálohu"
+  },
+  "securityInformation": {
+    "create": {
+      "description1": "Doporučujeme nastavovat zařízení v bezpečném prostředí, to znamená mimo dosah dalších osob, které by mohly vidět vámi zvolené heslo.",
+      "description2": "Budete vyzváni k vytvoření dvou hesel.",
+      "description3": "První je <strong>heslo zařízení</strong>, které odemkne váš BitBox a které lze později změnit.",
+      "description4": "Druhým je <strong>heslo pro obnovení</strong>, které odemkne vaši peněženku. Toto heslo nelze později změnit.",
+      "description5": "Peněženka, kterou vytvoříte, bude zálohována do souboru na dodané microSD kartě. Ten můžete v případě nouze použít k obnovení svých prostředků pomocí hesla pro obnovení.",
+      "title": "Informace o zabezpečení"
+    },
+    "restore": {
+      "description1": "Budete vyzváni k vložení microSD karty, kterou jste použili k uložení zálohy.",
+      "description2": "K obnovení zařízení budete potřebovat heslo pro obnovení. ",
+      "description3": "Při zadávání hesla pro obnovení buďte opatrní. Jakékoli zadané heslo vytvoří platnou peněženku. Pokud zadáte špatné heslo, může se vám zobrazit zůstatek peněženky, který neočekáváte.",
+      "title": "Informace o zabezpečení"
+    }
+  },
+  "seed": {
+    "agreements": {
+      "funds-access": "Pokud zapomenu heslo pro obnovení, ZTRATÍM přístup ke svým finančním prostředkům.",
+      "password-change": "Heslo pro obnovení NEMŮŽU později změnit",
+      "password-required": "Heslo pro obnovení je nutné pro obnovení peněženky ze zálohy."
+    },
+    "create": "Vytvořit peněženku",
+    "creating": "Vytváření peněženky",
+    "description": "Rozumím, že:",
+    "error": {
+      "e102": "Heslo musí obsahovat alespoň 4 znaky.",
+      "e200": "Pro vytvoření peněženky je třeba do BitBoxu vložit microSD kartu, aby se mohla automaticky vytvořit záloha."
+    },
+    "info": {
+      "button": "Nastavit heslo pro obnovení",
+      "description1": "Vložte microSD kartu do zařízení BitBox",
+      "description2": "Zvolte heslo pro obnovení peněženky a vyberte možnost \"Nastavit heslo pro obnovení\".",
+      "description3": "Zálohování na microSD kartu a heslo pro obnovení je jedinou metodou, jak obnovit své prostředky v případě ztráty nebo krádeže BitBoxu.",
+      "description4": "Heslo pro obnovení nelze později změnit bez převodu finančních prostředků.",
+      "title": "Vytvořit novou peněženku"
+    },
+    "password": {
+      "label": "Heslo pro obnovení",
+      "repeatPlaceholder": "Zopakujte heslo pro obnovení"
+    },
+    "walletName": {
+      "label": "Název peněženky"
+    }
+  },
+  "seedRestore": {
+    "error": {
+      "e200": "Obnovení peněženky ze zálohy vyžaduje microSD kartu."
+    },
+    "info": {
+      "description1": "Vložte microSD kartu do BitBoxu a klikněte na tlačítko \"Pokračovat\".",
+      "description2": "Vyberte zálohu a klikněte na tlačítko \"Obnovit\".",
+      "description3": "Zadejte heslo pro obnovení",
+      "description4": "Je zapotřebí potvrdit, abyste si uvědomili, že nesprávné heslo vytvoří jinou peněženku.",
+      "title": "Jak obnovit peněženku ze zálohy"
+    }
+  },
+  "send": {
+    "abort": "Transakce byla zrušena.",
+    "address": {
+      "label": "Adresa přijemce",
+      "placeholder": "Zadejte adresu"
+    },
+    "amount": {
+      "label": "Částka",
+      "placeholder": "Zadejte částku"
+    },
+    "availableBalance": "Dostupný zůstatek",
+    "button": "Překontrolování",
+    "coincontrol": {
+      "address": "Adresa",
+      "outpoint": "Outpoint",
+      "title": "Odeslat z outputu"
+    },
+    "confirm": {
+      "selected-coins": "Vybrané mince",
+      "title": "Potvrďte a odešlete transakci",
+      "total": "Celkem"
+    },
+    "error": {
+      "erc20InsufficientGasFunds": "Zdá se, že nemáte dostatek etherů na zaplacení této ERC20 transakce. Ujistěte se prosím, že máte v peněžence dostatek etherů.",
+      "feeTooLow": "poplatek příliš nízký",
+      "feesNotAvailable": "Nelze odhadnout poplatky",
+      "insufficientFunds": "nedostatek finančních prostředků",
+      "invalidAddress": "neplatná adresa",
+      "invalidAmount": "neplatná částka",
+      "invalidData": "neplatná data"
+    },
+    "fee": {
+      "customPlaceholder": "Zadejte částku",
+      "label": "Síťový poplatek",
+      "placeholder": "Není dostupný"
+    },
+    "feeTarget": {
+      "customLabel": "Výše poplatku",
+      "customLabel_eth": "Gas cena",
+      "description": {
+        "economy": "4 hodiny (24 bloků)",
+        "economy_eth": "30 minut nebo méně",
+        "economy_ltc": "1 hodina (24 bloků)",
+        "high": "20 minut (2 bloky)",
+        "high_eth": "30 sekund nebo méně",
+        "high_ltc": "5 minut (2 bloky)",
+        "low": "2 hodiny (12 bloků)",
+        "low_eth": "5 minut nebo méně",
+        "low_ltc": "30 minut (12 bloků)",
+        "normal": "1 hodina (6 bloků)",
+        "normal_eth": "2 minuty nebo méně",
+        "normal_ltc": "15 minut (6 bloků)"
+      },
+      "estimate": "Odhadovaný čas potvrzení:",
+      "label": {
+        "custom": "Vlastní",
+        "economy": "Úsporný",
+        "high": "Vysoký",
+        "low": "Nízký",
+        "normal": "Normální"
+      },
+      "placeholder": "Výpočet poplatku…"
+    },
+    "maximum": "Poslat vše",
+    "maximumSelectedCoins": "Poslat vybrané mince",
+    "noFeeTargets": "Odhady výše poplatků nejsou v současné době k dispozici. Zkuste to prosím později nebo zadejte vlastní poplatek.",
+    "priority": "Priorita",
+    "scanQR": "Naskenujte QR kód",
+    "signprogress": {
+      "description": "Jedná se o transakci obsahující velké množství dat. Chcete-li transakci plně podepsat, budete vyzváni k potvrzení {{steps}}krát.",
+      "label": "Průběh"
+    },
+    "success": "Transakce byla podepsána a odeslána.",
+    "title": "Poslat {{accountName}}",
+    "toggleCoinControl": "Přepnout na coin control",
+    "transactionDetails": "Detaily transakce"
+  },
+  "settings": {
+    "accounts": "Účty",
+    "appearance": "Vzhled",
+    "electrum": {
+      "add": "Přidat server",
+      "add-server": "Přidat",
+      "check": "Kontrola",
+      "checkFailed": "Kontrola selhala",
+      "checkSuccess": "Úspěšně navázáno spojení s {{host}}",
+      "checking": "Kontroluji",
+      "download-cert": "Stáhnout vzdálený certifikát",
+      "remove-server": "Odstranit",
+      "removeConfirm": "Odstranit {{server}}?",
+      "reset": "Obnovit do základního nastavení",
+      "resetConfirm": "Chcete odebrat všechny servery a nainstalovat výchozí servery?",
+      "servers": "Servery",
+      "step1": "1",
+      "step1-text": "Zadejte endpoint.",
+      "step2": "2",
+      "step2-text": "Zadejte certifikát řetězce certifikátů serveru. Případně stáhněte vzdálený certifikát a vizuálně jej porovnejte.",
+      "step2-text-tcp": "Pokud nechcete používat TLS, můžete tento krok přeskočit.",
+      "step3": "3",
+      "step3-text": "Zkontrolujte připojení a přidejte server.",
+      "step4": "4",
+      "step4-text": "Restartujte peněženku. Pokud neodstraníte výchozí servery, bude váš vlastní uzel přidán jako nadbytečný.",
+      "title-btc": "Bitcoinové Electrum servery",
+      "title-ltc": "Litecoin Electrum servery",
+      "title-tbtc": "Bitcoin Testnet Electrum servery",
+      "title-tltc": "Litecoin Testnet Electrum servery"
+    },
+    "expert": {
+      "coinControl": "Aktivovat coin control",
+      "electrum": {
+        "title": "Připojte svůj vlastní uzel (full node)"
+      },
+      "fee": "Aktivovat vlastní poplatky",
+      "setProxyAddress": "Nastavit adresu proxy",
+      "title": "Expertní nastavení",
+      "useProxy": "Aktivovat tor proxy",
+      "useSats": "Zobrazit hodnoty BTC v satoshi"
+    },
+    "header": {
+      "home": "Domů"
+    },
+    "info": {
+      "out-of-date": "K dispozici je nová aktualizace",
+      "title": "Info",
+      "up-to-date": "Vaše aplikace je aktuální",
+      "version": "Verze aplikace"
+    },
+    "restart": "Restartujte BitBoxApp, aby se změny projevily.",
+    "services": {
+      "title": "Služby"
+    },
+    "success": "Aby se změny projevily, odpojte a znovu připojte BitBox.",
+    "title": "Nastavení"
+  },
+  "setup": "Nastavení zařízení",
+  "sidebar": {
+    "accounts": "Účty",
+    "addAccount": "Přidat účet",
+    "buy": "Koupit krypto",
+    "device": "Spravovat zařízení",
+    "leave": "Odejít",
+    "settings": "Nastavení"
+  },
+  "success": {
+    "create": {
+      "info1": "Vaše peněženka byla bezpečně zálohována na microSD kartu. Vyjměte ji a uschovejte v bezpečí.",
+      "info2": "Vytvořili jste bezpečné heslo zařízení, které odemyká BitBox.",
+      "info3": "Pro svou peněženku jste si vytvořili bezpečné heslo pro obnovení, které odemkne vaše prostředky a obnoví vaše zálohy.",
+      "summary": "Zde je shrnutí toho, co jste udělali",
+      "title": "Hotovo"
+    },
+    "getstarted": "Začněte",
+    "restore": {
+      "summary": "Úspěšně jste obnovili peněženku ze zálohy.",
+      "title": "Hotovo"
+    }
+  },
+  "transaction": {
+    "confirmation": "Konfirmace",
+    "details": {
+      "activity": "Informace o činnosti",
+      "address": "Adresa",
+      "amount": "Částka",
+      "date": "Datum",
+      "fiat": "Fiat",
+      "fiatAmount": "Částka ve fiatu",
+      "fiatAtTime": "Fiat v době transakce",
+      "status": "Stav",
+      "type": "Typ"
+    },
+    "explorer": "ID transakce",
+    "explorerTitle": "Otevřít v externím block exploreru",
+    "fee": "Poplatek",
+    "fiatHistorical": "Historický",
+    "gas": "Gas",
+    "note": {
+      "edit": "Upravit poznámku",
+      "save": "Uložit poznámku"
+    },
+    "pending": "Čekající transakce",
+    "size": "Velikost",
+    "status": {
+      "complete": "Dokončená",
+      "failed": "Neúspěšná",
+      "pending": "Čekající"
+    },
+    "tx": {
+      "received": "Přijata na",
+      "sent": "Odeslána na"
+    },
+    "vsize": "Virtuální velikost",
+    "weight": "Váha"
+  },
+  "transactions": {
+    "placeholder": "Zatím žádné transakce."
+  },
+  "unknownError": "Nastala neznámá chyba: {{errorMessage}}",
+  "unlock": {
+    "description": "Pro odemknutí zadejte heslo zařízení.",
+    "error": {
+      "e109_normal": "Nesprávné heslo. Zbývá ještě {{remainingAttempts}} pokusů, než bude zařízení resetováno.",
+      "e109_touch": "$t(unlock.error.e109_normal) Další přihlášení vyžaduje podržení dotykového tlačítka.",
+      "e113": "Vzhledem k mnoha pokusům o přihlášení vyžaduje další přihlášení podržení dotykového tlačítka po dobu 4 sekund."
+    },
+    "input": {
+      "label": "Heslo zařízení",
+      "placeholder": "Zadejte heslo zařízení pro odemknutí"
+    },
+    "unlocking": "Odemykání..."
+  },
+  "upgradeFirmware": {
+    "button": "Aktualizovat firmware",
+    "description": "Chcete aktualizovat firmware z {{currentVersion}} verze na {{newVersion}}?",
+    "label": "Váš BitBox vyžaduje upgrade firmwaru.",
+    "locked": "Chcete-li provést upgrade z {{currentVersion}} na {{newVersion}}, proveďte dlouhý dotyk.",
+    "title": "Upgradovat firmware",
+    "unlocked": "Bootloader je odemčený. Chcete-li pokračovat, prosím:",
+    "unlocked1": "Odpojte a znovu zapojte váš Bitbox",
+    "unlocked2": "Po opětovném zapojení vašeho BitBoxu se rozsvítí LED dioda.",
+    "unlocked3": "Když se rozsvítí LED dioda, klepněte na dotykové tlačítko"
+  },
+  "warning": {
+    "receivePairing": "Spárujte BitBox, abyste mohli bezpečně ověřit adresu. Přejděte na \"Spravovat zařízení\" v postranním panelu.",
+    "sdcard": "MicroSD kartu mějte uloženou odděleně od BitBoxu, pokud ovšem nechcete spravovat zálohy.",
+    "sendPairing": "Spárujte prosím BitBox a bezpečně ověřte údaje o transakci. Přejděte na \"Spravovat zařízení\" v postranním panelu."
+  },
+  "welcome": {
+    "getStarted": "Začněme instalací firmwaru na váš BitBox02.",
+    "insertBitBox02": "Pro BitBox02 klepněte na zařízení a pokračujte.",
+    "insertDevice": "Připojte své zařízení a začněte",
+    "title": "Vítejte"
+  }
+}

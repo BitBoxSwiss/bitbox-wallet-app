@@ -57,6 +57,7 @@
       "title": "Elija cryptomoneda"
     },
     "success": {
+      "addAnotherAccount": "Añadir otra cuenta",
       "message": "<strong>{{accountName}}</strong> ha sido ahora añadida a sus cuentas.",
       "nextButton": "Hecho",
       "step": "Finalizado",
@@ -218,7 +219,7 @@
       "failed": "Conexión no confirmada. Por favor vuelve a conectar tu BitBox02.",
       "paired": "Has confirmado el siguiente código en tu dispositivo.  Por favor continua.",
       "title": "Comprueba el código de conexión.",
-      "unpaired": "Se ha detectado un BitBox02 no emparejado. Verifique que el código de emparejamiento coincida con lo que se muestra en su BitBox02."
+      "unpaired": "Se ha detectado un BitBox02 no emparejado. Verifique que el código de emparejamiento coincida con lo que se muestra en su BitBox02. "
     },
     "restoreFromMnemonic": {
       "failed": "El restablecimiento desde tu clave de recuperación ha fallado, por favor vuelve a intentarlo."
@@ -239,7 +240,7 @@
       "nameLabel": "Nombre de la BitBox02",
       "namePlaceholder": "Mi BitBox02",
       "title": "Selecciona el nombre de la BitBox02",
-      "toastMicroSD": "Por favor, asegúrate de que tu tarjeta microSD está introducida en tu BitBox02."
+      "toastMicroSD": "Por favor, inserte su tarjeta microSD en su BitBox02 que se utilizará para almacenar una copia de seguridad de la billetera."
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox02 y guárdala en un lugar seguro. ",
@@ -334,7 +335,7 @@
         },
         "pocket": {
           "fees": {
-            "info": "Transferencia bancaria: {{fee}}%",
+            "info": "Transferencia bancaria: {{fee}}% ",
             "title": "Tasas"
           },
           "learnMore": "Más información sobre Pocket",
@@ -345,14 +346,14 @@
               "sic": "Swiss Interbank Clearing (transacciones en CHF solo en CH/LI)",
               "uk": "UK Faster Payments (transacciones en GBP sólo en el Reino Unido)"
             },
-            "bankTransferReccuring": "¿Cómo configurar compras recurrentes con una orden permanente?",
+            "bankTransferReccuring": "¿Cómo configurar compras recurrentes con una orden permanente? ",
             "title": "Formas de pago"
           },
-          "supportedCurrencies": "Admite monedas europeas: EUR, GBP y CHF.",
+          "supportedCurrencies": "Admite monedas europeas: EUR, GBP y CHF. ",
           "verification": {
-            "info": "Solo requiere verificación de identidad por encima de los umbrales diarios y anuales.",
-            "link": "Encuentre los umbrales actuales aquí",
-            "title": "Verificación de identidad"
+            "info": "Solo requiere verificación de identidad por encima de los puntos de inicio diarios y anuales. ",
+            "link": "Encuentre los puntos de inicio actuales aquí ",
+            "title": "Verificación de identidad "
           }
         },
         "region": {
@@ -414,11 +415,11 @@
       },
       "kyc": {
         "link": "Preguntas más frecuentes de Pocket",
-        "p1": "Pocket intenta reducir al mínimo los requisitos de identificación. Para compras inferiores a 900 EUR (1000 CHF) al día, no se requieren documentos adicionales. Para compras superiores a esta cantidad, tendrás que programar una llamada con Pocket para completar el proceso KYC/AML necesario.",
+        "p1": "Pocket intenta reducir al mínimo los requisitos de identificación. Para compras inferiores a 950 EUR (1000 CHF) al día, no se requieren documentos adicionales. Para compras superiores a esta cantidad, tendrás que programar una llamada con Pocket para completar el proceso KYC/AML necesario.",
         "title": "KYC/AML"
       },
       "payment": {
-        "p1": "Puedes comprar bitcoin instantáneamente con Pocket a través de una transferencia bancaria SEPA. La comisión es del 1,5% y el bitcoin se deposita en tu billetera lo antes posible después de que Pocket reciba la transferencia bancaria (normalmente en el mismo día).",
+        "p1": "Puedes comprar bitcoin instantáneamente con Pocket a través de una transferencia bancaria SEPA. La comisión es del 1,5% y el bitcoin se deposita en su BitBox lo antes posible después de que Pocket reciba la transferencia bancaria (normalmente en el mismo día).",
         "p2": "Tenga en cuenta que los tipos de cambio de Pocket pueden diferir de los utilizados en la BitBoxApp, dando lugar a importes ligeramente diferentes.",
         "title": "Formas de pago y tasas"
       },
@@ -428,8 +429,8 @@
         "p1": "Cuando compras bitcoin a través de Pocket, estás utilizando un servicio externo. Este servicio está fuera del alcance del modelo de amenaza de seguridad de BitBox02 y depende de la seguridad del entorno en el que se ejecuta el software de BitBoxApp. Sin embargo, trabajamos juntos para mejorar la seguridad utilizando un mecanismo de autenticación de dos factores para verificar la dirección a la que estás recibiendo.",
         "title": "Modelo de seguridad"
       },
-      "usedAddress": "La dirección {{address}} ya ha sido utilizada, por favor empiece de nuevo.",
-      "verifyBitBox02": "Compruebe que la dirección que ha recibido por correo electrónico coincide con la que aparece en su dispositivo. Si es posible, abre el correo electrónico en un segundo dispositivo para mayor seguridad.",
+      "usedAddress": "La dirección {{address}} ya ha sido utilizada, por favor comience de nuevo con una nueva dirección.",
+      "verifyBitBox02": "Compruebe que la dirección que ha recibido por correo electrónico coincide con la que aparece en su Bitbox. Si es posible, debería abrir el correo electrónico en un segundo dispositivo para mayor seguridad. ",
       "welcome": {
         "p1": "Nos asociamos con Pocket para ofrecerte una forma sencilla de comprar bitcoin directamente dentro de la BitBoxApp. Es sólo un par de clics.",
         "p2": "Pocket es una plataforma suiza que facilita y agiliza la compra de bitcoins en la mayor parte de Europa (en cualquier lugar donde se admitan transferencias bancarias SEPA).",
@@ -464,6 +465,9 @@
     "infoWhenPaired": "Primero en el móvil sincronizado y luego tu BitBox"
   },
   "confirmOnDevice": "Por favor confirma en tu dispositivo.",
+  "darkmode": {
+    "toggle": "Modo oscuro"
+  },
   "device": {
     "appUpradeRequired": "Tu BitBox no es compatible con esta aplicación de escritorio. Por favor descarga e instale la última versión."
   },
@@ -1132,7 +1136,7 @@
       "p2wpkh": "Native Segwit (por defecto)",
       "p2wpkh-p2sh": "Wrapped Segwit (formato compatible)"
     },
-    "selectAccount": "Seleccionar cuenta",
+    "selectAccount": "Seleccionar cuenta ",
     "showFull": "Muestra y verifica la dirección completa en el dispositivo",
     "taprootWarning": "Nota: Taproot es una nueva característica de Bitcoin y todavía no es ampliamente aceptada. Los fondos recibidos en direcciones Taproot pueden no ser mostradas en carteras de terceros. Muchas carteras y exchanges no pueden enviar a direcciones Taproot.",
     "title": "Recibe {{accountName}}",
@@ -1273,6 +1277,7 @@
     },
     "maximum": "Enviar todo",
     "maximumSelectedCoins": "Enviar monedas seleccionadas",
+    "noFeeTargets": "Las estimaciones de tarifas no están disponibles actualmente. Vuelva a intentarlo más tarde o introduzca una tarifa personalizada.",
     "priority": "Prioridad",
     "scanQR": "Escanear código QR",
     "signprogress": {
@@ -1285,6 +1290,8 @@
     "transactionDetails": "Detalles de la transacción"
   },
   "settings": {
+    "accounts": "Cuentas",
+    "appearance": "Apariencia",
     "electrum": {
       "add": "Añadir un servidor",
       "add-server": "Añadir",

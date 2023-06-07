@@ -28,8 +28,8 @@ export const QRCode = ({
   data,
   size = 256,
 }: TProps) => {
-  const src = useLoad(data !== undefined ? getQRCode(data) : null, [data]);
-  if (!src) {
+  const qrCode = useLoad(data !== undefined ? getQRCode(data) : null, [data]);
+  if (!qrCode) {
     if (data !== undefined) {
       return <div className={style.empty}></div>;
     }
@@ -39,7 +39,12 @@ export const QRCode = ({
       </svg>
     );
   }
+
+  if (!qrCode.success) {
+    return <div>{qrCode.message}</div>;
+  }
+
   return (
-    <img width={size} height={size} src={src} />
+    <img width={size} height={size} src={qrCode.data} />
   );
 };

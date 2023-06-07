@@ -56,7 +56,7 @@ dockerdev () {
            --add-host="dev.shiftcrypto.ch:176.9.28.202" \
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
-           -v $repo_path:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
+           -v "$repo_path":/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
            shiftcrypto/bitbox-wallet-app bash
 
     if [ "$RUNTIME" = "docker" ] ; then

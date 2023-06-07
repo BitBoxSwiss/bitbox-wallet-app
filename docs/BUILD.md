@@ -4,7 +4,7 @@ platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
 * Debian GNU/Linux: Stretch and Buster or newer
-* Ubuntu: 18.04+
+* Ubuntu: 20.04+
 * Fedora: 26+
 * MacOS: 10.13+
 * Windows: Windows 7+
@@ -65,7 +65,7 @@ $  xcrun altool --notarization-info NOTARIZATION_ID --username "APPLE_ID" --pass
 ## Windows
 
 The build requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`, `Microsoft Visual Studio 2019`,
-`go 1.20`, `node@14`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
+`go 1.20`, `node@18`, `QT 5.15.2` with `qtwebengine`, `nsis` and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
 

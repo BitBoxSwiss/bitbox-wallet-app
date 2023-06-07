@@ -23,7 +23,7 @@ import {
   ScriptType,
   TUTXO,
 } from '../../../api/account';
-import { syncdone } from '../../../api/subscribe-legacy';
+import { syncdone } from '../../../api/accountsync';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
@@ -97,6 +97,11 @@ export const UTXOs = ({
                 id={'utxo-' + utxo.outPoint}
                 data-outpoint={utxo.outPoint}
                 onChange={handleUTXOChange}>
+                {utxo.note && (
+                  <div className={style.note}>
+                    <strong>{utxo.note}{' '}</strong>
+                  </div>
+                )}
                 <div className={style.utxoContent}>
                   <div className={style.utxoData}>
                     <div className={style.amounts}>

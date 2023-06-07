@@ -109,7 +109,7 @@
 }
 
 @media (min-width: 1200px) {
-    .container:not(.forceCollapsed) .sidebarToggler {
+    .sidebarToggler {
         display: none;
     }
 }

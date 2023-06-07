@@ -24,7 +24,7 @@ import { TPagePropsWithSettingsTabs } from './type';
 import { EnableCustomFeesToggleSetting } from './components/advanced-settings/enable-custom-fees-toggle-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
-import { getConfig } from '../../api/backend';
+import { getConfig } from '../../utils/config';
 
 export type TProxyConfig = {
   proxyAddress: string;
@@ -46,7 +46,7 @@ export type TConfig = {
 
 export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
-  const fetchedConfig = useLoad(getConfig);
+  const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
 
   const frontendConfig = config?.frontend;

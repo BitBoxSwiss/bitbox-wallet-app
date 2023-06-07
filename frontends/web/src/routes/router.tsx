@@ -68,6 +68,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const AccSend = <InjectParams>
     <Send
+      code={'' /* dummy to satisfy TS */}
       devices={devices}
       deviceIDs={deviceIDs}
       accounts={activeAccounts} />

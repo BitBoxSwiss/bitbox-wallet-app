@@ -37,8 +37,8 @@ interface BackupsProps {
     showRestore?: boolean;
     showCreate?: boolean;
     showRadio: boolean;
-    backupOnBeforeRestore?: (backup: Backup) => void;
-    backupOnAfterRestore?: (success: boolean) => void;
+    onSelectBackup?: (backup: Backup) => void;
+    onRestoreBackup?: (success: boolean) => void;
 }
 
 type Props = SubscribedBackupsProps & BackupsProps & TranslateProps;
@@ -69,8 +69,8 @@ class Backups extends Component<Props, State> {
       return;
     }
     this.setState({ restoring: true });
-    if (this.props.backupOnBeforeRestore) {
-      this.props.backupOnBeforeRestore(backup);
+    if (this.props.onSelectBackup) {
+      this.props.onSelectBackup(backup);
     }
     restoreBackup(this.props.deviceID, this.state.selectedBackup)
       .then(({ success }) => {
@@ -78,8 +78,8 @@ class Backups extends Component<Props, State> {
           restoring: false,
           errorText: success ? '' : this.props.t('backup.restore.error.general'),
         });
-        if (this.props.backupOnAfterRestore) {
-          this.props.backupOnAfterRestore(success);
+        if (this.props.onRestoreBackup) {
+          this.props.onRestoreBackup(success);
         }
       });
   };
