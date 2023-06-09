@@ -910,12 +910,12 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Equal(t, "Ethereum account name 2", acct.Config().Config.Name)
 	acct = b.accounts[5]
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
-	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Config.Code)
-	require.Equal(t, "Tether USD 2", acct.Config().Config.Name)
-	acct = b.accounts[6]
-	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Config.Code)
 	require.Equal(t, "Basic Attention Token 2", acct.Config().Config.Name)
+	acct = b.accounts[6]
+	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
+	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Config.Code)
+	require.Equal(t, "Tether USD 2", acct.Config().Config.Name)
 }
 
 // TestAccountSupported tests that only accounts supported by a keystore are 1) persisted when the

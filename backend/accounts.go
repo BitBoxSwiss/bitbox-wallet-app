@@ -480,6 +480,8 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
+	sortAccounts(backend.accounts)
+
 	account.Observe(backend.Notify)
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
