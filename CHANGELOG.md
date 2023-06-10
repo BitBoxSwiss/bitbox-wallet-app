@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Automatically discover used Bitcoin and Litecoin accounts
 - Improve sats amount readability adding thousands separator
 - Update minimum supported buntu version to 20.04+
 - Add support for Czech Crown (CZK)
