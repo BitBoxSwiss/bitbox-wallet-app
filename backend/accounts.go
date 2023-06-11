@@ -15,7 +15,9 @@
 package backend
 
 import (
+	"encoding/hex"
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -126,8 +128,7 @@ func sortAccounts(accounts []accounts.Interface) {
 // accounts are not loaded in mainnet and vice versa.
 func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.Account) bool) []*config.Account {
 	var accounts []*config.Account
-	for idx := range accountsConfig.Accounts {
-		account := &accountsConfig.Accounts[idx]
+	for _, account := range accountsConfig.Accounts {
 		if !backend.arguments.Regtest() {
 			if _, isTestnet := coinpkg.TestnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
 				// Don't load testnet accounts when running normally, nor mainnet accounts when running
@@ -207,6 +208,7 @@ func defaultAccountName(coin coinpkg.Coin, accountNumber uint16) string {
 func (backend *Backend) createAndPersistAccountConfig(
 	coinCode coinpkg.Code,
 	accountNumber uint16,
+	hiddenBecauseUnused bool,
 	name string,
 	keystore keystore.Keystore,
 	activeTokens []string,
@@ -242,6 +244,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		}
 		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
+			hiddenBecauseUnused,
 			name,
 			[]scriptTypeWithKeypath{
 				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
@@ -258,6 +261,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 		}
 		return accountCode, backend.persistBTCAccountConfig(keystore, coin,
 			accountCode,
+			hiddenBecauseUnused,
 			name,
 			[]scriptTypeWithKeypath{
 				{signing.ScriptTypeP2WPKH, signing.NewAbsoluteKeypathFromUint32(84+hardenedKeystart, bip44Coin, accountNumberHardened)},
@@ -271,7 +275,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			bip44Coin = "60'"
 		}
 		return accountCode, backend.persistETHAccountConfig(
-			keystore, coin, accountCode,
+			keystore, coin, accountCode, hiddenBecauseUnused,
 			// TODO: Use []uint32 instead of a string keypath
 			fmt.Sprintf("m/44'/%s/0'/0/%d", bip44Coin, accountNumber),
 			name,
@@ -280,6 +284,41 @@ func (backend *Backend) createAndPersistAccountConfig(
 	default:
 		return "", errp.Newf("Unrecognized coin code: %s", coinCode)
 	}
+}
+
+// findHiddenAccount finds the first (lowest account number) account which is hidden because it is
+// unused. Returns nil if no such account exists.
+func findHiddenAccount(
+	coinCode coinpkg.Code,
+	keystore keystore.Keystore,
+	accountsConfig *config.AccountsConfig) (*config.Account, error) {
+	rootFingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return nil, err
+	}
+	smallestHiddenAccountNumber := uint16(math.MaxUint16)
+	var result *config.Account
+
+	for _, account := range accountsConfig.Accounts {
+		if coinCode != account.CoinCode {
+			continue
+		}
+		if !account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
+			continue
+		}
+		if len(account.SigningConfigurations) == 0 {
+			continue
+		}
+		accountNumber, err := account.SigningConfigurations[0].AccountNumber()
+		if err != nil {
+			continue
+		}
+		if account.HiddenBecauseUnused && accountNumber < smallestHiddenAccountNumber {
+			smallestHiddenAccountNumber = accountNumber
+			result = account
+		}
+	}
+	return result, nil
 }
 
 // nextAccountNumber checks if an account for the given coin can be added, and if so, returns the
@@ -322,6 +361,16 @@ func nextAccountNumber(coinCode coinpkg.Code, keystore keystore.Keystore, accoun
 // along with a suggested name for the account.
 func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.Keystore) (string, bool) {
 	conf := backend.config.AccountsConfig()
+	// If there is an unused hidden account, that one would be activated when adding a new
+	// account. See `CreateAndPersistAccountConfig` for details.
+	hiddenAccount, err := findHiddenAccount(coinCode, keystore, &conf)
+	if err != nil {
+		return "", false
+	}
+	if hiddenAccount != nil {
+		return hiddenAccount.Name, true
+	}
+	// Otherwise a new account will be added.
 	accountNumber, err := nextAccountNumber(coinCode, keystore, &conf)
 	if err != nil {
 		return "", false
@@ -336,17 +385,34 @@ func (backend *Backend) CanAddAccount(coinCode coinpkg.Code, keystore keystore.K
 // CreateAndPersistAccountConfig checks if an account for the given coin can be added, and if so,
 // adds it to the accounts database. The next account number, which is part of the BIP44 keypath, is
 // determined automatically to be the increment of the highest existing account.
+//
+// If there is an unused hidden account, we activate (unhide) and return that one instead of
+// creating a new account. Such unused hidden accounts are added during accounts discovery, and are
+// marked hidden so that they can be scanned in the background without the user seeing it. If the
+// user adds an account, we simply activate such an account that was already prepared.
+//
 // `name` is the account name, shown to the user. If empty, a default name will be set.
 func (backend *Backend) CreateAndPersistAccountConfig(
 	coinCode coinpkg.Code, name string, keystore keystore.Keystore) (accountsTypes.Code, error) {
 	var accountCode accountsTypes.Code
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		hiddenAccount, err := findHiddenAccount(coinCode, keystore, accountsConfig)
+		if err != nil {
+			return err
+		}
+		if hiddenAccount != nil {
+			hiddenAccount.HiddenBecauseUnused = false
+			hiddenAccount.Name = name
+			accountCode = hiddenAccount.Code
+			return nil
+		}
+		// Otherwise we create a new account.
 		nextAccountNumber, err := nextAccountNumber(coinCode, keystore, accountsConfig)
 		if err != nil {
 			return err
 		}
 		accountCode, err = backend.createAndPersistAccountConfig(
-			coinCode, nextAccountNumber, name, keystore, nil, accountsConfig)
+			coinCode, nextAccountNumber, false, name, keystore, nil, accountsConfig)
 		return err
 	})
 	if err != nil {
@@ -406,11 +472,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	if err != nil {
 		return err
 	}
-	acct := backend.accounts.lookup(accountCode)
-	if acct != nil {
-		acct.Config().Config.Name = name
-		backend.emitAccountsStatusChanged()
-	}
+	backend.emitAccountsStatusChanged()
 	return nil
 }
 
@@ -418,10 +480,13 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
+	sortAccounts(backend.accounts)
+
 	account.Observe(backend.Notify)
 	if backend.onAccountInit != nil {
 		backend.onAccountInit(account)
 	}
+	go backend.checkAccountUsed(account)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -452,7 +517,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		account = btc.NewAccount(
+		account = backend.makeBtcAccount(
 			accountConfig,
 			specificCoin,
 			backend.arguments.GapLimits(),
@@ -460,7 +525,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		)
 		backend.addAccount(account)
 	case *eth.Coin:
-		account = eth.NewAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
+		account = backend.makeEthAccount(accountConfig, specificCoin, backend.httpClient, backend.log)
 		backend.addAccount(account)
 
 		// Load ERC20 tokens enabled with this Ethereum account.
@@ -484,6 +549,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 
 			erc20Config := &config.Account{
 				Inactive:              persistedConfig.Inactive,
+				HiddenBecauseUnused:   persistedConfig.HiddenBecauseUnused,
 				CoinCode:              erc20CoinCode,
 				Name:                  tokenName,
 				Code:                  erc20AccountCode,
@@ -511,8 +577,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 	if account.Name == "" {
 		return errp.New("Account name cannot be empty")
 	}
-	for idx := range accountsConfig.Accounts {
-		account2 := &accountsConfig.Accounts[idx]
+	for _, account2 := range accountsConfig.Accounts {
 		if account.Code == account2.Code {
 			backend.log.Errorf("An account with same code exists: %s", account.Code)
 			return errp.WithStack(ErrAccountAlreadyExists)
@@ -530,7 +595,7 @@ func (backend *Backend) persistAccount(account config.Account, accountsConfig *c
 
 		}
 	}
-	accountsConfig.Accounts = append(accountsConfig.Accounts, account)
+	accountsConfig.Accounts = append(accountsConfig.Accounts, &account)
 	return nil
 }
 
@@ -544,6 +609,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
 	code accountsTypes.Code,
+	hiddenBecauseUnused bool,
 	name string,
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
@@ -586,6 +652,7 @@ func (backend *Backend) persistBTCAccountConfig(
 
 	if keystore.SupportsUnifiedAccounts() {
 		return backend.persistAccount(config.Account{
+			HiddenBecauseUnused:   hiddenBecauseUnused,
 			CoinCode:              coin.Code(),
 			Name:                  name,
 			Code:                  code,
@@ -604,6 +671,7 @@ func (backend *Backend) persistBTCAccountConfig(
 		}
 
 		err := backend.persistAccount(config.Account{
+			HiddenBecauseUnused:   hiddenBecauseUnused,
 			CoinCode:              coin.Code(),
 			Name:                  suffixedName,
 			Code:                  splitAccountCode(code, cfg.ScriptType()),
@@ -620,6 +688,7 @@ func (backend *Backend) persistETHAccountConfig(
 	keystore keystore.Keystore,
 	coin coinpkg.Coin,
 	code accountsTypes.Code,
+	hiddenBecauseUnused bool,
 	keypath string,
 	name string,
 	activeTokens []string,
@@ -658,6 +727,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	return backend.persistAccount(config.Account{
+		HiddenBecauseUnused:   hiddenBecauseUnused,
 		CoinCode:              coin.Code(),
 		Name:                  name,
 		Code:                  code,
@@ -720,14 +790,16 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinpkg.CodeRBTC) {
-				if _, err := backend.createAndPersistAccountConfig(coinpkg.CodeRBTC, 0, "", keystore, nil, accountsConfig); err != nil {
+				if _, err := backend.createAndPersistAccountConfig(
+					coinpkg.CodeRBTC, 0, false, "", keystore, nil, accountsConfig); err != nil {
 					return err
 				}
 			}
 		} else {
 			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH} {
 				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
-					if _, err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, nil, accountsConfig); err != nil {
+					if _, err := backend.createAndPersistAccountConfig(
+						coinCode, 0, false, "", keystore, nil, accountsConfig); err != nil {
 						return err
 
 					}
@@ -750,7 +822,8 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 					}
 				}
 
-				if _, err := backend.createAndPersistAccountConfig(coinCode, 0, "", keystore, activeTokens, accountsConfig); err != nil {
+				if _, err := backend.createAndPersistAccountConfig(
+					coinCode, 0, false, "", keystore, activeTokens, accountsConfig); err != nil {
 					return err
 				}
 			}
@@ -858,4 +931,160 @@ func (backend *Backend) uninitAccounts() {
 		account.Close()
 	}
 	backend.accounts = []accounts.Interface{}
+}
+
+// maybeAddHiddenUnusedAccounts adds a hidden account for scanning to facilitate accounts discovery.
+// A hidden account is added per coin if:
+//   - the highest account is used (so another one needs to be scanned) OR
+//   - there are less than 5 accounts: we need to always scan the first 5 accounts because we used
+//     to allow adding up to 5 accounts before we added the accounts discovery feature in v4.38.
+//
+// For now this only happens for btc/ltc, not for ETH.
+// Supporting ETH needs more care as we currently use Etherscan with a rate limit as the ETH backend.
+//
+// See https://github.com/bitcoin/bips/blob/3db736243cd01389a4dfd98738204df1856dc5b9/bip-0044.mediawiki#user-content-Account_discovery.
+//
+// We deviate from BIP-44 significantly in two ways:
+//
+//   - we always scan the first 5 accounts, as historically we allowed
+//     users to add that many accounts even if all of them were empty. We
+//     need to scan these as such gaps probably exist in the wild.
+//   - the accounts scan in BIP-44 is per script type (per purpose field in
+//     the BIP-44 keypath). Since we support unified accounts, we consider
+//     them together. This means that someone could have many accounts that
+//     all have coins on e.g. a P2WPKH address and none on a P2TR address,
+//     and still be able to receive to P2TR in the highest account. Such a P2TR
+//     account would not be discovered by other BIP44-compatible software.
+func (backend *Backend) maybeAddHiddenUnusedAccounts() {
+	defer backend.accountsAndKeystoreLock.Lock()()
+	if backend.keystore == nil {
+		return
+	}
+	// Only load accounts which belong to connected keystores.
+	rootFingerprint, err := backend.keystore.RootFingerprint()
+	if err != nil {
+		backend.log.WithError(err).Error("Could not retrieve root fingerprint")
+		return
+	}
+
+	do := func(cfg *config.AccountsConfig, coinCode coinpkg.Code) *accountsTypes.Code {
+		log := backend.log.
+			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
+			WithField("coinCode", coinCode)
+
+		maxAccountNumber := uint16(0)
+		var maxAccount *config.Account
+		for _, accountConfig := range cfg.Accounts {
+			if coinCode != accountConfig.CoinCode {
+				continue
+			}
+			if !accountConfig.SigningConfigurations.ContainsRootFingerprint(rootFingerprint) {
+				continue
+			}
+			accountNumber, err := accountConfig.SigningConfigurations[0].AccountNumber()
+			if err != nil {
+				continue
+			}
+			if maxAccount == nil || accountNumber > maxAccountNumber {
+				maxAccountNumber = accountNumber
+				maxAccount = accountConfig
+			}
+		}
+		if maxAccount == nil {
+			return nil
+		}
+		// Account scan gap limit:
+		// - Previous account must be used for the next one to be scanned, but:
+		// - The first 5 accounts are always scanned as before we had accounts discovery, the
+		//   BitBoxApp allowed manual creation of 5 accounts, so we need to always scan these.
+		if maxAccount.Used || maxAccountNumber < accountsHardLimit {
+			accountCode, err := backend.createAndPersistAccountConfig(
+				coinCode,
+				maxAccountNumber+1,
+				true,
+				"",
+				backend.keystore,
+				nil,
+				cfg,
+			)
+			if err != nil {
+				log.WithError(err).Error("adding hidden account failed")
+				return nil
+			}
+			log.
+				WithField("accountCode", accountCode).
+				WithField("accountNumber", maxAccountNumber+1).
+				Info("automatically created hidden account")
+			return &accountCode
+		}
+		return nil
+	}
+
+	// Enable accounts discovery for these coins.
+	coinCodes := []coinpkg.Code{
+		coinpkg.CodeBTC,
+		coinpkg.CodeTBTC,
+		coinpkg.CodeLTC,
+		coinpkg.CodeTLTC,
+	}
+	for _, coinCode := range coinCodes {
+		var newAccountCode *accountsTypes.Code
+		err = backend.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+			newAccountCode = do(cfg, coinCode)
+			return nil
+		})
+		if err != nil {
+			backend.log.
+				WithField("coinCode", coinCode).
+				WithError(err).
+				Error("maybeAddHiddenUnusedAccounts failed")
+			continue
+		}
+		if newAccountCode != nil {
+			coin, err := backend.Coin(coinCode)
+			if err != nil {
+				backend.log.Errorf("could not find coin %s", coinCode)
+				continue
+			}
+			accountConfig := backend.config.AccountsConfig().Lookup(*newAccountCode)
+			if accountConfig == nil {
+				backend.log.Errorf("could not find newly persisted account %s", *newAccountCode)
+				continue
+			}
+			backend.createAndAddAccount(coin, accountConfig)
+			backend.emitAccountsStatusChanged()
+		}
+	}
+}
+
+func (backend *Backend) checkAccountUsed(account accounts.Interface) {
+	log := backend.log.WithField("accountCode", account.Config().Config.Code)
+	if err := account.Initialize(); err != nil {
+		log.WithError(err).Error("error initializing account")
+		return
+	}
+	txs, err := account.Transactions()
+	if err != nil {
+		log.WithError(err).Error("discoverAccount")
+		return
+	}
+	if len(txs) == 0 {
+		return
+	}
+	log.Info("marking account as used")
+	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(account.Config().Config.Code)
+		if acct == nil {
+			return errp.Newf("could not find account")
+		}
+		acct.Used = true
+		acct.HiddenBecauseUnused = false
+		return nil
+	})
+	if err != nil {
+		log.WithError(err).Error("checkAccountUsed")
+		return
+	}
+	backend.emitAccountsStatusChanged()
+	backend.maybeAddHiddenUnusedAccounts()
 }

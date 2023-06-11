@@ -39,6 +39,8 @@ import (
 
 // AccountConfig holds account configuration.
 type AccountConfig struct {
+	// Pointer to persisted config. Do not modify this directly. Use
+	// `backend.config.ModifyAccountsConfig()` instead.
 	Config   *config.Account
 	DBFolder string
 	// NotesFolder is the folder where the transaction notes are stored. Full path.

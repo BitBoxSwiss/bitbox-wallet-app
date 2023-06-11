@@ -30,6 +30,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
@@ -164,6 +165,13 @@ type Backend struct {
 	keystore keystore.Keystore
 	aopp     AOPP
 
+	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
+	// overridden in unit tests for mocking.
+	makeBtcAccount func(*accounts.AccountConfig, *btc.Coin, *types.GapLimits, *logrus.Entry) accounts.Interface
+	// makeEthAccount creates an ETH account. In production this is `eth.NewAccount`, but can be
+	// overridden in unit tests for mocking.
+	makeEthAccount func(*accounts.AccountConfig, *eth.Coin, *http.Client, *logrus.Entry) accounts.Interface
+
 	onAccountInit   func(accounts.Interface)
 	onAccountUninit func(accounts.Interface)
 	onDeviceInit    func(device.Interface)
@@ -201,7 +209,15 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		coins:    map[coinpkg.Code]coinpkg.Coin{},
 		accounts: []accounts.Interface{},
 		aopp:     AOPP{State: aoppStateInactive},
-		log:      log,
+
+		makeBtcAccount: func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {
+			return btc.NewAccount(config, coin, gapLimits, log)
+		},
+		makeEthAccount: func(config *accounts.AccountConfig, coin *eth.Coin, httpClient *http.Client, log *logrus.Entry) accounts.Interface {
+			return eth.NewAccount(config, coin, httpClient, log)
+		},
+
+		log: log,
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
@@ -408,7 +424,6 @@ func (backend *Backend) Testing() bool {
 // Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() []accounts.Interface {
 	defer backend.accountsAndKeystoreLock.RLock()()
-	sortAccounts(backend.accounts)
 	return backend.accounts
 }
 
