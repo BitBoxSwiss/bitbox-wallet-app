@@ -17,7 +17,7 @@
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
-import Status from '../status/status';
+import { Status } from '../status/status';
 
 type TBannerInfo = {
     id: string;

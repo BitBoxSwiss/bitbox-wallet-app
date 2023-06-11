@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 
 import { Component, PropsWithChildren } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
 import * as accountApi from '../../../api/account';
+import { syncAddressesCount } from '../../../api/accountsync';
 import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
@@ -45,7 +47,7 @@ export interface Balances {
 }
 
 interface SyncStatus {
-    [code: string]: string;
+    [code: string]: number;
 }
 
 interface State {
@@ -78,20 +80,17 @@ class AccountsSummary extends Component<Props, State> {
     exported: '',
     totalBalancePerCoin: undefined,
   };
-  private unsubscribe!: () => void;
+  private unsubscribeList: UnsubscribeList = [];
 
-  public async componentDidMount() {
-    const { accounts } = this.props;
-    this.unsubscribe = apiWebsocket(this.onEvent);
-    const summaryPromise = this.getAccountSummary();
-    const promises = accounts.map(account => this.onStatusChanged(account.code, true));
-    const totalBalancePerCoinPromise = this.getAccountsTotalBalance();
-    await Promise.all([...promises, totalBalancePerCoinPromise, summaryPromise]);
+  public componentDidMount() {
+    this.getAccountSummary();
+    this.subscribe(true);
+    this.getAccountsTotalBalance();
   }
 
   public componentWillUnmount() {
     window.clearTimeout(this.summaryReqTimerID);
-    this.unsubscribe();
+    unsubscribe(this.unsubscribeList);
   }
 
   public componentDidUpdate(prevProps: Props) {
@@ -99,11 +98,20 @@ class AccountsSummary extends Component<Props, State> {
     if (this.props.accounts.length === prevProps.accounts.length) {
       return;
     }
-    this.props.accounts.map(account => this.onStatusChanged(account.code));
+    this.subscribe();
   }
 
+  private subscribe = (initial?: boolean) => {
+    unsubscribe(this.unsubscribeList);
+    this.unsubscribeList.push(apiWebsocket(this.onEvent));
+    this.props.accounts.forEach(account => {
+      this.unsubscribeList.push(syncAddressesCount(account.code, this.onSyncAddressesCount));
+      this.onStatusChanged(account.code, initial);
+    });
+  };
+
   private getAccountSummary = () => {
-    return accountApi.getSummary().then(data => {
+    accountApi.getSummary().then(data => {
       this.setState({ data }, () => {
         if (this.summaryReqTimerID) {
           return;
@@ -132,19 +140,21 @@ class AccountsSummary extends Component<Props, State> {
     }, {} as TAccountCoinMap);
   };
 
-  private onEvent = (payload: TPayload) => {
-    if ('subject' in payload) {
-      const { object, subject } = payload;
-      for (const account of this.props.accounts) {
-        if (subject === 'account/' + account.code + '/synced-addresses-count') {
-          this.setState(state => {
-            const syncStatus = { ...state.syncStatus };
-            syncStatus[account.code] = object;
-            return { syncStatus };
-          });
+  private onSyncAddressesCount = (
+    code: string,
+    syncedAddressesCount: number,
+  ) => {
+    this.setState(({ syncStatus }) => {
+      return {
+        syncStatus: {
+          ...syncStatus,
+          [code]: syncedAddressesCount,
         }
-      }
-    }
+      };
+    });
+  };
+
+  private onEvent = (payload: TPayload) => {
     if ('type' in payload) {
       const { code, data, type } = payload;
       if (type === 'account') {
@@ -183,7 +193,7 @@ class AccountsSummary extends Component<Props, State> {
     if (initial) {
       return;
     }
-    return await this.getAccountsTotalBalance();
+    this.getAccountsTotalBalance();
   }
 
   private export = () => {

@@ -38,26 +38,28 @@ export type FiatWithDisplayName = {
   displayName: string
 }
 
-export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
 export const currenciesWithDisplayName: FiatWithDisplayName[] = [
-  { currency: 'AUD', displayName: 'Australian dollar' },
-  { currency: 'BRL', displayName: 'Brazilian real' },
-  { currency: 'CAD', displayName: 'Canadian dollar' },
+  { currency: 'AUD', displayName: 'Australian Dollar' },
+  { currency: 'BRL', displayName: 'Brazilian Real' },
+  { currency: 'CAD', displayName: 'Canadian Dollar' },
   { currency: 'CHF', displayName: 'Swiss franc' },
-  { currency: 'CNY', displayName: 'Chinese yuan' },
+  { currency: 'CNY', displayName: 'Chinese Yuan' },
+  { currency: 'CZK', displayName: 'Czech Koruna' },
   { currency: 'EUR', displayName: 'Euro' },
-  { currency: 'GBP', displayName: 'British pound' },
-  { currency: 'HKD', displayName: 'Hong Kong dollar' },
-  { currency: 'ILS', displayName: 'Israeli new shekel' },
-  { currency: 'JPY', displayName: 'Japanese yen' },
-  { currency: 'KRW', displayName: 'South Korean won' },
-  { currency: 'NOK', displayName: 'Norwegian krone' },
+  { currency: 'GBP', displayName: 'British Pound' },
+  { currency: 'HKD', displayName: 'Hong Kong Dollar' },
+  { currency: 'ILS', displayName: 'Israeli New Shekel' },
+  { currency: 'JPY', displayName: 'Japanese Yen' },
+  { currency: 'KRW', displayName: 'South Korean Won' },
+  { currency: 'NOK', displayName: 'Norwegian Krone' },
+  { currency: 'PLN', displayName: 'Polish Zloty' },
   { currency: 'RUB', displayName: 'Russian ruble' },
-  { currency: 'SEK', displayName: 'Swedish krona' },
-  { currency: 'SGD', displayName: 'Singapore dollar' },
-  { currency: 'USD', displayName: 'United States dollar' },
+  { currency: 'SEK', displayName: 'Swedish Krona' },
+  { currency: 'SGD', displayName: 'Singapore Dollar' },
+  { currency: 'USD', displayName: 'United States Dollar' },
   { currency: 'BTC', displayName: 'Bitcoin' }
 ];
+export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'PLN', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
 
 export const store = new Store<SharedProps>({
   active: 'USD',

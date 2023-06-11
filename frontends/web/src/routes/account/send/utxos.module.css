@@ -21,11 +21,20 @@
     font-size: var(--size-subheader);
 }
 
+.note {
+    color: var(--color-default);
+    font-size: var(--size-subheader);
+    line-height: 1.5;
+    margin-top: -7px;
+    margin-bottom: var(--space-quarter);
+}
+
 .utxoData {
     flex-basis: auto;
     flex-grow: 1;
     flex-shrink: 1;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .utxoExplorer {
@@ -44,7 +53,6 @@
 }
 
 .amounts {
-    line-height: 1;
     padding-bottom: var(--space-quarter);
 }
 

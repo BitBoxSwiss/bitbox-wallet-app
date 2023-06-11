@@ -38,7 +38,7 @@ type BitBox02 interface {
 	ChannelHashVerify(ok bool)
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
-	SetPassword() error
+	SetPassword(seedLen int) error
 	CreateBackup() error
 	ListBackups() ([]*firmware.Backup, error)
 	CheckBackup(bool) (string, error)
@@ -63,7 +63,7 @@ type Handlers struct {
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
+	handleFunc func(string, func(*http.Request) interface{}) *mux.Route,
 	log *logrus.Entry,
 ) *Handlers {
 	handlers := &Handlers{log: log.WithField("device", "bitbox02")}
@@ -119,72 +119,76 @@ func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
 	return result
 }
 
-func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Status(), nil
+func (handlers *Handlers) getStatusHandler(_ *http.Request) interface{} {
+	return handlers.device.Status()
 }
 
-func (handlers *Handlers) getAttestationHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAttestationHandler(_ *http.Request) interface{} {
 	handlers.log.Debug("Attestation")
-	return handlers.device.Attestation(), nil
+	return handlers.device.Attestation()
 }
 
-func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getDeviceInfo(_ *http.Request) interface{} {
 	handlers.log.Debug("Get Device Info")
 	deviceInfo, err := handlers.device.DeviceInfo()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
 	return map[string]interface{}{
 		"success":    true,
 		"deviceInfo": deviceInfo,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSetDeviceName(r *http.Request) interface{} {
 	jsonBody := map[string]string{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
+		return map[string]interface{}{"success": false}
 	}
 	deviceName := jsonBody["name"]
 	if err := handlers.device.SetDeviceName(strings.TrimSpace(deviceName)); err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) postSetPassword(r *http.Request) (interface{}, error) {
-	if err := handlers.device.SetPassword(); err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+func (handlers *Handlers) postSetPassword(r *http.Request) interface{} {
+	var seedLen int
+	if err := json.NewDecoder(r.Body).Decode(&seedLen); err != nil {
+		return map[string]interface{}{"success": false}
 	}
-	return map[string]interface{}{"success": true}, nil
+	if err := handlers.device.SetPassword(seedLen); err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return map[string]interface{}{"success": true}
 
 }
 
-func (handlers *Handlers) postCreateBackup(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postCreateBackup(r *http.Request) interface{} {
 	var backupMethod string
 	if err := json.NewDecoder(r.Body).Decode(&backupMethod); err != nil {
-		return nil, errp.WithStack(err)
+		return map[string]interface{}{"success": false}
 	}
 	switch backupMethod {
 	case "sdcard":
 		if err := handlers.device.CreateBackup(); err != nil {
-			return maybeBB02Err(err, handlers.log), nil
+			return maybeBB02Err(err, handlers.log)
 		}
 	case "recovery-words":
 		if err := handlers.device.ShowMnemonic(); err != nil {
-			return maybeBB02Err(err, handlers.log), nil
+			return maybeBB02Err(err, handlers.log)
 		}
 	default:
-		return map[string]interface{}{"success": false}, nil
+		return map[string]interface{}{"success": false}
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getBackupsList(_ *http.Request) interface{} {
 	handlers.log.Debug("List backups ")
 	backups, err := handlers.device.ListBackups()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
 	result := []map[string]string{}
 	for _, backup := range backups {
@@ -197,26 +201,26 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
 	return map[string]interface{}{
 		"success": true,
 		"backups": result,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postCheckBackup(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postCheckBackup(r *http.Request) interface{} {
 	handlers.log.Debug("Checking Backup")
 	jsonBody := map[string]bool{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
+		return map[string]interface{}{"success": false}
 	}
 	backupID, err := handlers.device.CheckBackup(jsonBody["silent"])
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
 	return map[string]interface{}{
 		"success":  true,
 		"backupID": backupID,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postBackupsRestore(r *http.Request) interface{} {
 	var backupID string
 
 	type response struct {
@@ -225,70 +229,70 @@ func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, erro
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&backupID); err != nil {
-		return response{Success: false, Message: err.Error()}, nil
+		return response{Success: false, Message: err.Error()}
 	}
 	if err := handlers.device.RestoreBackup(backupID); err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getChannelHash(_ *http.Request) interface{} {
 	hash, deviceVerified := handlers.device.ChannelHash()
 	return map[string]interface{}{
 		"hash":           hash,
 		"deviceVerified": deviceVerified,
-	}, nil
+	}
 }
 
-func (handlers *Handlers) postChannelHashVerify(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postChannelHashVerify(r *http.Request) interface{} {
 	var verify bool
 	if err := json.NewDecoder(r.Body).Decode(&verify); err != nil {
-		return nil, errp.WithStack(err)
+		handlers.log.WithError(err).Panic("could not decode json body")
 	}
 	handlers.device.ChannelHashVerify(verify)
-	return nil, nil
+	return nil
 }
 
-func (handlers *Handlers) getCheckSDCard(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getCheckSDCard(_ *http.Request) interface{} {
 	handlers.log.Debug("Checking if SD Card is inserted")
 	sdCardInserted, err := handlers.device.CheckSDCard()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return sdCardInserted, nil
+	return sdCardInserted
 }
 
-func (handlers *Handlers) postInsertSDCard(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postInsertSDCard(r *http.Request) interface{} {
 	handlers.log.Debug("Insert SD Card if not inserted")
 	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_INSERT_CARD)
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) postRemoveSDCard(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRemoveSDCard(r *http.Request) interface{} {
 	handlers.log.Debug("Remove SD Card if inserted")
 	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_REMOVE_CARD)
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) interface{} {
 	var enabled bool
 	if err := json.NewDecoder(r.Body).Decode(&enabled); err != nil {
-		return nil, errp.WithStack(err)
+		return map[string]interface{}{"success": false}
 	}
 	if err := handlers.device.SetMnemonicPassphraseEnabled(enabled); err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getVersionHandler(_ *http.Request) interface{} {
 	currentVersion := handlers.device.Version()
 	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Product())
 
@@ -305,51 +309,55 @@ func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error
 		// This has no influence over whether one can display the recovery words after the initial
 		// setup - that is always possible regardless of this value.
 		CanBackupWithRecoveryWords bool `json:"canBackupWithRecoveryWords"`
+		// If true, it is possible to create a 12-word seed by passing `16` as `seedLen` to
+		// `SetPassword()`. Otherwise, only `32` is allowed, corresponding to 24 words.
+		CanCreate12Words bool `json:"canCreate12Words"`
 	}{
 		CurrentVersion:             currentVersion.String(),
 		NewVersion:                 newVersion.String(),
 		CanUpgrade:                 newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
 		CanGotoStartupSettings:     currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
 		CanBackupWithRecoveryWords: currentVersion.AtLeast(semver.NewSemVer(9, 13, 0)),
-	}, nil
+		CanCreate12Words:           currentVersion.AtLeast(semver.NewSemVer(9, 6, 0)),
+	}
 }
 
-func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) interface{} {
 	err := handlers.device.UpgradeFirmware()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return nil, nil
+	return nil
 }
 
-func (handlers *Handlers) postResetHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postResetHandler(_ *http.Request) interface{} {
 	err := handlers.device.Reset()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) interface{} {
 	err := handlers.device.ShowMnemonic()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) interface{} {
 	err := handlers.device.RestoreFromMnemonic()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }
 
-func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) interface{} {
 	err := handlers.device.GotoStartupSettings()
 	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
+		return maybeBB02Err(err, handlers.log)
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true}
 }

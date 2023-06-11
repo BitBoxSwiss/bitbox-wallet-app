@@ -15,29 +15,24 @@
  * limitations under the License.
  */
 
-import React, { Component, FormEvent } from 'react';
-import { Backup } from '../components/backup';
-import { checkSDCard, errUserAbort, getChannelHash, getStatus, getVersion, insertSDCard, restoreFromMnemonic, setDeviceName, setPassword, VersionInfo, verifyAttestation, TStatus, verifyChannelHash, createBackup } from '../../../api/bitbox02';
-import { MultilineMarkup } from '../../../utils/markup';
-import { convertDateToLocaleString } from '../../../utils/date';
+import { Component } from 'react';
+import { getStatus, getVersion, VersionInfo, verifyAttestation, TStatus } from '../../../api/bitbox02';
+import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
+import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button, Checkbox, Input } from '../../../components/forms';
-import { Column, ColumnButtons, Grid, Main } from '../../../components/layout';
-import { View, ViewButtons, ViewContent, ViewHeader } from '../../../components/view/view';
+import { Main } from '../../../components/layout';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiWebsocket } from '../../../utils/websocket';
-import { alertUser } from '../../../components/alert/Alert';
-import { store as panelStore } from '../../../components/guide/guide';
-import { setSidebarStatus } from '../../../components/sidebar/sidebar';
-import Status from '../../../components/status/status';
-import { PasswordEntry } from './components/password-entry/password-entry';
-import { BackupsV2 } from './backups';
-import { Info, PointToBitBox02 } from '../../../components/icon';
 import { BB02Settings } from '../../new-settings/bb02-settings';
 import { FirmwareSetting } from '../../new-settings/components/device-settings/firmware-setting';
-import style from './bitbox02.module.css';
+import { Unlock } from './unlock';
+import { Pairing } from './setup/pairing';
+import { Wait } from './setup/wait';
+import { SetupOptions } from './setup/choose';
+import { CreateWallet } from './setup/wallet-create';
+import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
+import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
 interface BitBox02Props {
   deviceID: string;
@@ -49,99 +44,49 @@ type Props = BitBox02Props & TranslateProps;
 
 interface State {
     versionInfo?: VersionInfo;
-    hash?: string;
-    attestationResult: boolean | null;
-    deviceVerified: boolean;
+    attestation: boolean | null;
     status: '' | TStatus;
-    appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | 'agreement' | 'complete' | '';
-    createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
-    restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
-    settingPassword: boolean;
-    creatingBackup: boolean;
-    sdCardInserted?: boolean;
-    errorText?: string;
-    deviceName: string;
+    appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | '';
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
-    agreement1: boolean;
-    agreement2: boolean;
-    agreement3: boolean;
-    agreement4: boolean;
-    agreement5: boolean;
     waitDialog?: {
         title: string;
         text?: string;
     };
-    selectedBackup?: Backup;
 }
 
 class BitBox02 extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      hash: undefined,
-      attestationResult: null,
-      deviceVerified: false,
+      attestation: null,
       status: '',
-      settingPassword: false,
-      creatingBackup: false,
-      sdCardInserted: undefined,
       appStatus: '',
-      createWalletStatus: 'intro',
-      restoreBackupStatus: 'intro',
-      deviceName: '',
       unlockOnly: true,
       showWizard: false,
-      agreement1: false,
-      agreement2: false,
-      agreement3: false,
-      agreement4: false,
-      agreement5: false,
       waitDialog: undefined,
     };
   }
 
-  private unsubscribe!: () => void;
+  private unsubscribeList: UnsubscribeList = [];
 
   public componentDidMount() {
-    getVersion(this.props.deviceID).then(versionInfo => {
+    const { deviceID } = this.props;
+    getVersion(deviceID).then(versionInfo => {
       this.setState({ versionInfo });
     });
     this.updateAttestationCheck();
-    this.checkSDCard().then(sdCardInserted => {
-      this.setState({ sdCardInserted });
-    });
-    this.onChannelHashChanged();
     this.onStatusChanged();
-    this.unsubscribe = apiWebsocket((payload) => {
-      if ('type' in payload) {
-        const { type, data, deviceID } = payload;
-        switch (type) {
-        case 'device':
-          if (deviceID !== this.props.deviceID) {
-            return;
-          }
-          switch (data) {
-          case 'channelHashChanged':
-            this.onChannelHashChanged();
-            break;
-          case 'statusChanged':
-            this.onStatusChanged();
-            break;
-          case 'attestationCheckDone':
-            this.updateAttestationCheck();
-            break;
-          }
-          break;
-        }
-      }
-    });
+    this.unsubscribeList = [
+      statusChanged(deviceID, this.onStatusChanged),
+      attestationCheckDone(deviceID, this.updateAttestationCheck),
+    ];
   }
 
   private updateAttestationCheck = () => {
-    verifyAttestation(this.props.deviceID).then(attestationResult => {
-      this.setState({ attestationResult });
+    verifyAttestation(this.props.deviceID).then(attestation => {
+      this.setState({ attestation });
     });
   };
 
@@ -149,22 +94,9 @@ class BitBox02 extends Component<Props, State> {
     route('/account-summary', true);
   };
 
-  private onChannelHashChanged = () => {
-    getChannelHash(this.props.deviceID).then(({ hash, deviceVerified }) => {
-      this.setState({ hash, deviceVerified });
-    });
-  };
-
   private onStatusChanged = () => {
-    const { showWizard, unlockOnly, appStatus } = this.state;
-    const { sidebarStatus } = panelStore.state;
+    const { showWizard, unlockOnly } = this.state;
     getStatus(this.props.deviceID).then(status => {
-      const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
-      if (restoreSidebar) {
-        setSidebarStatus('');
-      } else if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
-        setSidebarStatus('forceHidden');
-      }
       if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
         this.setState({ showWizard: true });
       }
@@ -174,10 +106,7 @@ class BitBox02 extends Component<Props, State> {
       if (status === 'seeded') {
         this.setState({ appStatus: 'createWallet' });
       }
-      this.setState({
-        status,
-        errorText: undefined,
-      });
+      this.setState({ status });
       if (status === 'initialized' && unlockOnly && showWizard) {
         // bitbox is unlocked, now route to / and wait for incoming accounts
         route('/', true);
@@ -186,229 +115,19 @@ class BitBox02 extends Component<Props, State> {
   };
 
   public componentWillUnmount() {
-    const { sidebarStatus } = panelStore.state;
-    if (['forceHidden', 'forceCollapsed'].includes(sidebarStatus)) {
-      setSidebarStatus('');
-    }
-    this.unsubscribe();
+    unsubscribe(this.unsubscribeList);
   }
-
-  private uninitializedStep = () => {
-    this.setState({ appStatus: '' });
-  };
-
-  private createWalletStep = () => {
-    this.checkSDCard().then(sdCardInserted => {
-      this.setState({ sdCardInserted });
-    });
-    this.setState({
-      appStatus: 'createWallet',
-      createWalletStatus: 'intro',
-      deviceName: '',
-    });
-  };
-
-  private restoreBackupStep = () => {
-    this.insertSDCard().then(success => {
-      if (success) {
-        this.setState({
-          appStatus: 'restoreBackup',
-          restoreBackupStatus: 'restore',
-        });
-      }
-    });
-  };
-
-  private checkSDCard = () => {
-    return checkSDCard(this.props.deviceID);
-  };
-
-  private insertSDCard = () => {
-    return this.checkSDCard().then(sdCardInserted => {
-      this.setState({ sdCardInserted });
-      if (sdCardInserted) {
-        return true;
-      }
-      this.setState({ waitDialog: {
-        title: this.props.t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
-        text: this.props.t('bitbox02Wizard.stepInsertSD.insertSDCard'),
-      } });
-      return insertSDCard(this.props.deviceID).then((response) => {
-        this.setState({
-          sdCardInserted: response.success,
-          waitDialog: undefined,
-        });
-        if (response.success) {
-          return true;
-        }
-        if (response.message) {
-          alertUser(response.message, { asDialog: false });
-        }
-        return false;
-      });
-    });
-  };
-
-  private setPassword = () => {
-    this.setState({
-      settingPassword: true,
-      createWalletStatus: 'setPassword',
-    });
-    setPassword(this.props.deviceID).then((response) => {
-      if (!response.success) {
-        if (response.code === errUserAbort) {
-          // On user abort, just go back to the first screen. This is a bit lazy, as we should show
-          // a screen to ask the user to go back or try again.
-          this.setState({
-            appStatus: '',
-            errorText: undefined,
-            settingPassword: false,
-          });
-        } else {
-          this.setState({
-            errorText: this.props.t('bitbox02Wizard.noPasswordMatch'),
-            settingPassword: false,
-          }, () => {
-            this.setPassword();
-          });
-        }
-        // show noPasswordMatch error and do NOT continue to createBackup
-        return;
-      }
-      this.setState({ settingPassword: false, createWalletStatus: 'createBackup' });
-    });
-  };
-
-  private restoreBackup = () => {
-    this.insertSDCard();
-    this.setState({
-      restoreBackupStatus: 'restore',
-    });
-  };
-
-  private backupOnBeforeRestore = (backup: Backup) => {
-    this.setState({
-      restoreBackupStatus: 'setPassword',
-      selectedBackup: backup,
-    });
-  };
-
-  private backupOnAfterRestore = (success: boolean) => {
-    if (!success) {
-      this.restoreBackup();
-    }
-    this.setState({ selectedBackup: undefined });
-  };
-
-  private createBackup = () => {
-    this.insertSDCard().then(success1 => {
-      if (!success1) {
-        alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-        return;
-      }
-
-      this.setState({ creatingBackup: true, waitDialog: {
-        title: this.props.t('bitbox02Interact.confirmDate'),
-        text: this.props.t('bitbox02Interact.confirmDateText'),
-      } });
-      createBackup(this.props.deviceID, 'sdcard')
-        .then((result) => {
-          if (!result.success) {
-            if (result.code === 104) {
-              alertUser(this.props.t('bitbox02Wizard.createBackupAborted'), { asDialog: false });
-            } else {
-              alertUser(this.props.t('bitbox02Wizard.createBackupFailed'), { asDialog: false });
-            }
-          }
-          this.setState({ creatingBackup: false, waitDialog: undefined });
-        })
-        .catch(console.error);
-    });
-  };
-
-  private handleDeviceNameInput = (event: Event) => {
-    const target = (event.target as HTMLInputElement);
-    const value: string = target.value;
-    this.setState({ deviceName: value });
-  };
-
-  private setDeviceName = (event: FormEvent) => {
-    const { deviceID, t } = this.props;
-    event.preventDefault();
-    this.setState({
-      waitDialog: { title: t('bitbox02Interact.confirmName') }
-    }, async () => {
-      try {
-        const result = await setDeviceName(deviceID, this.state.deviceName);
-        if (!result.success) {
-          alertUser(result.message || t('genericError'), {
-            asDialog: false,
-            callback: () => this.setState({ waitDialog: undefined }),
-          });
-          return;
-        }
-        this.setState(
-          { waitDialog: undefined },
-          () => this.setPassword(),
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    });
-  };
-
-  private restoreFromMnemonic = async () => {
-    this.setState({ waitDialog: {
-      title: this.props.t('bitbox02Interact.followInstructionsMnemonicTitle'),
-      text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
-    } });
-    try {
-      const { success } = await restoreFromMnemonic(this.props.deviceID);
-      if (!success) {
-        alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'), { asDialog: false });
-      } else {
-        this.setState({ appStatus: 'restoreFromMnemonic' });
-      }
-      this.setState({ waitDialog: undefined });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  private handleDisclaimerCheck = (event: React.SyntheticEvent) => {
-        type TAgreements = 'agreement1' | 'agreement2' | 'agreement3' | 'agreement4' | 'agreement5';
-        const target = event.target as HTMLInputElement;
-        const key = target.id;
-        this.setState({
-          [key as TAgreements]: target.checked
-        } as unknown as Pick<State, keyof State>);
-  };
 
   public render() {
     const { t, deviceID, hasAccounts, deviceIDs } = this.props;
     const {
-      attestationResult,
+      attestation,
       versionInfo,
-      hash,
       status,
       appStatus,
-      createWalletStatus,
-      restoreBackupStatus,
-      settingPassword,
-      creatingBackup,
-      deviceVerified,
-      errorText,
       unlockOnly,
       showWizard,
-      sdCardInserted,
-      deviceName,
-      agreement1,
-      agreement2,
-      agreement3,
-      agreement4,
-      agreement5,
       waitDialog,
-      selectedBackup,
     } = this.state;
 
     if (status === '') {
@@ -439,406 +158,78 @@ class BitBox02 extends Component<Props, State> {
     }
     if (waitDialog) {
       return (
-        <View
+        <Wait
           key="wait-view"
-          fullscreen
-          verticallyCentered
-          textCenter>
-          <ViewHeader title={waitDialog.title}>
-            <p>{waitDialog.text ? waitDialog.text : t('bitbox02Interact.followInstructions')}</p>
-          </ViewHeader>
-          <ViewContent>
-            <PointToBitBox02 />
-          </ViewContent>
-        </View>
+          title={waitDialog.title}
+          text={waitDialog.text} />
       );
     }
 
-    const readDisclaimers = agreement1 && agreement2 && agreement3 && agreement4 && agreement5;
     return (
       <Main>
         { (status === 'connected') ? (
-          <View
-            key="connection"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="690px">
-            <ViewHeader title={t('button.unlock')}>
-              <p>{t('bitbox02Wizard.stepConnected.unlock')}</p>
-            </ViewHeader>
-            <ViewContent fullWidth>
-              {attestationResult === false ? (
-                <Status>
-                  {t('bitbox02Wizard.attestationFailed')}
-                </Status>
-              ) : (
-                <PasswordEntry />
-              )}
-            </ViewContent>
-          </View>
+          <Unlock
+            key="unlock"
+            attestation={attestation} />
         ) : null }
 
-        {(status === 'unpaired' || status === 'pairingFailed') && (
-          <View
+        { (status === 'unpaired' || status === 'pairingFailed') && (
+          <Pairing
             key="pairing"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="670px">
-            <ViewHeader title={t('bitbox02Wizard.pairing.title')}>
-              { (attestationResult === false && status !== 'pairingFailed') && (
-                <Status key="attestation" type="warning">
-                  {t('bitbox02Wizard.attestationFailed')}
-                </Status>
-              )}
-              { status === 'pairingFailed' ? (
-                <Status key="pairingFailed" type="warning">
-                  {t('bitbox02Wizard.pairing.failed')}
-                </Status>
-              ) : (
-                <p>
-                  { deviceVerified
-                    ? t('bitbox02Wizard.pairing.paired')
-                    : t('bitbox02Wizard.pairing.unpaired') }
-                </p>
-              )}
-            </ViewHeader>
-            <ViewContent fullWidth>
-              { status !== 'pairingFailed' && (
-                <>
-                  <pre>{hash}</pre>
-                  { !deviceVerified && <PointToBitBox02 /> }
-                </>
-              )}
-            </ViewContent>
-            <ViewButtons>
-              { (status !== 'pairingFailed' && deviceVerified) && (
-                <Button
-                  primary
-                  onClick={() => verifyChannelHash(deviceID, true)}>
-                  {t('button.continue')}
-                </Button>
-              )}
-            </ViewButtons>
-          </View>
+            deviceID={deviceID}
+            attestation={attestation}
+            pairingFailed={status === 'pairingFailed'} />
         )}
 
-        { (!unlockOnly && status === 'uninitialized' && appStatus === '') && (
-          <View
-            key="uninitialized-pairing"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="950px">
-            <ViewHeader title={t('bitbox02Wizard.stepUninitialized.title')}>
-              <p>
-                <Info style={{ marginRight: '.5em', verticalAlign: 'text-bottom', height: '1.2em' }} />
-                {t('bitbox02Wizard.initialize.tip')}
-              </p>
-            </ViewHeader>
-            <ViewContent>
-              <Grid>
-                <Column asCard className="m-bottom-default">
-                  <h3 className="title">{t('button.create')}</h3>
-                  <p>{t('bitbox02Wizard.stepUninitialized.create')}</p>
-                  <ColumnButtons>
-                    <Button
-                      primary
-                      onClick={this.createWalletStep}
-                      disabled={settingPassword}>
-                      {t('seed.create')}
-                    </Button>
-                  </ColumnButtons>
-                </Column>
-                <Column asCard className="m-bottom-default">
-                  <h3 className="title">{t('button.restore')}</h3>
-                  <p>{t('bitbox02Wizard.stepUninitialized.restore')}</p>
-                  <ColumnButtons>
-                    <Button
-                      secondary
-                      onClick={this.restoreBackupStep}>
-                      {t('bitbox02Wizard.stepUninitialized.restoreMicroSD')}
-                    </Button>
-                    <Button
-                      secondary
-                      onClick={this.restoreFromMnemonic}>
-                      {t('bitbox02Wizard.stepUninitialized.restoreMnemonic')}
-                    </Button>
-                  </ColumnButtons>
-                </Column>
-              </Grid>
-            </ViewContent>
-          </View>
+        { (!unlockOnly && appStatus === '') && (
+          <SetupOptions
+            key="choose-setup"
+            onSelectSetup={(option) => {
+              switch (option) {
+              case 'create-wallet':
+                this.setState({ appStatus: 'createWallet' });
+                break;
+              case 'restore-sdcard':
+                this.setState({ appStatus: 'restoreBackup' });
+                break;
+              case 'restore-mnemonic':
+                this.setState({ appStatus: 'restoreFromMnemonic' });
+                break;
+              }
+            }} />
         )}
 
-        { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'intro') && (
-          <form
-            key="intro-pairing"
-            onSubmit={this.setDeviceName}>
-            <View
-              fullscreen
-              textCenter
-              withBottomBar
-              verticallyCentered
-              width="600px">
-              <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
-                <p>{t('bitbox02Wizard.stepCreate.description')}</p>
-                {!sdCardInserted && (
-                  <Status type="warning">
-                    <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
-                  </Status>
-                )}
-              </ViewHeader>
-              <ViewContent>
-                <Input
-                  autoFocus
-                  className={style.wizardLabel}
-                  label={t('bitbox02Wizard.stepCreate.nameLabel')}
-                  pattern="^.{0,63}$"
-                  onInput={this.handleDeviceNameInput}
-                  placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
-                  value={deviceName}
-                  id="deviceName" />
-              </ViewContent>
-              <ViewButtons>
-                <Button
-                  disabled={!deviceName}
-                  primary
-                  type="submit">
-                  {t('button.continue')}
-                </Button>
-                <Button
-                  onClick={() => this.setState({ appStatus: '' })}
-                  transparent
-                  type="button">
-                  {t('button.back')}
-                </Button>
-              </ViewButtons>
-            </View>
-          </form>
+        { (!unlockOnly && appStatus === 'createWallet') && (
+          <CreateWallet
+            deviceID={deviceID}
+            isSeeded={status === 'seeded'}
+            onAbort={() => this.setState({ appStatus: '' })} />
         )}
 
-        { (!unlockOnly && appStatus === 'createWallet' && createWalletStatus === 'setPassword') && (
-          <View
-            key="create-wallet"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="600px">
-            <ViewHeader title={t('bitbox02Wizard.stepPassword.title')}>
-              {errorText && (
-                <Status type="warning">
-                  <span>{errorText}</span>
-                </Status>
-              )}
-              <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
-            </ViewHeader>
-            <ViewContent>
-              <PasswordEntry />
-            </ViewContent>
-          </View>
-        )}
-
-        { (!unlockOnly && appStatus === 'createWallet' && status === 'seeded' && createWalletStatus === 'createBackup') && (
-          <form>
-            <View
-              key="create-backup"
-              fullscreen
-              textCenter
-              verticallyCentered
-              withBottomBar
-              width="700px">
-              <ViewHeader title={t('backup.create.title')}>
-                <p>{t('bitbox02Wizard.stepBackup.createBackup')}</p>
-              </ViewHeader>
-              <ViewContent textAlign="left">
-                <p>{t('bitbox02Wizard.stepBackup.beforeProceed')}</p>
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement1"
-                  checked={agreement1}
-                  label={t('bitbox02Wizard.backup.userConfirmation1')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement2"
-                  checked={agreement2}
-                  label={t('bitbox02Wizard.backup.userConfirmation2')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement3"
-                  checked={agreement3}
-                  label={t('bitbox02Wizard.backup.userConfirmation3')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement4"
-                  checked={agreement4}
-                  label={t('bitbox02Wizard.backup.userConfirmation4')} />
-                <Checkbox
-                  onChange={this.handleDisclaimerCheck}
-                  className={style.wizardCheckbox}
-                  id="agreement5"
-                  checked={agreement5}
-                  label={t('bitbox02Wizard.backup.userConfirmation5')} />
-              </ViewContent>
-              <ViewButtons>
-                <Button
-                  primary
-                  onClick={this.createBackup}
-                  disabled={creatingBackup || !readDisclaimers}>
-                  {t('button.continue')}
-                </Button>
-              </ViewButtons>
-            </View>
-          </form>
-        )}
         {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
         { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized') && (
-          <View
-            key="restore"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('backup.restore.confirmTitle')}>
-            </ViewHeader>
-            <ViewContent>
-              <BackupsV2
-                deviceID={deviceID}
-                showRestore={true}
-                showRadio={true}
-                backupOnBeforeRestore={this.backupOnBeforeRestore}
-                backupOnAfterRestore={this.backupOnAfterRestore}>
-                <Button
-                  transparent
-                  onClick={this.uninitializedStep}
-                  disabled={settingPassword}>
-                  {t('button.back')}
-                </Button>
-              </BackupsV2>
-            </ViewContent>
-          </View>
+          <RestoreFromSDCard
+            key="restore-sdcard"
+            deviceID={deviceID}
+            onAbort={() => this.setState({ appStatus: '' })} />
         )}
 
-        { (!unlockOnly && appStatus === 'restoreBackup' && status !== 'initialized' && restoreBackupStatus === 'setPassword') && (
-          <View
-            key="set-password"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('backup.restore.confirmTitle')}>
-              {errorText ? (
-                <Status type="warning">
-                  <span>{errorText}</span>
-                </Status>
-              ) : (
-                selectedBackup ? (
-                  <div>
-                    <MultilineMarkup tagName="div" markup={t('backup.restore.selectedBackup', {
-                      backupName: selectedBackup.name,
-                      createdDateTime: convertDateToLocaleString(selectedBackup.date, this.props.i18n.language),
-                    })}/>
-                    <p className="text-small text-ellipsis">
-                                            ID:&nbsp;{selectedBackup.id}
-                    </p>
-                  </div>
-                ) : null
-              )}
-            </ViewHeader>
-            <ViewContent>
-              <p>{t('bitbox02Wizard.stepPassword.useControls')}</p>
-              <PasswordEntry />
-            </ViewContent>
-          </View>
+        { (!unlockOnly && appStatus === 'restoreFromMnemonic' && status !== 'initialized') && (
+          <RestoreFromMnemonic
+            key="restore-mnemonic"
+            deviceID={deviceID}
+            onAbort={() => this.setState({ appStatus: '' })} />
         )}
 
         { (appStatus === 'createWallet' && status === 'initialized') && (
-          <View
-            key="success"
-            fitContent
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar>
-            <ViewHeader title={t('bitbox02Wizard.success.title')}>
-              <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
-            </ViewHeader>
-            <ViewContent withIcon="success">
-              <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
-            </ViewContent>
-            <ViewButtons>
-              <Button primary onClick={this.handleGetStarted}>
-                {t('success.getstarted')}
-              </Button>
-            </ViewButtons>
-          </View>
+          <CreateWalletSuccess key="success" onContinue={this.handleGetStarted} />
         )}
-
         { (appStatus === 'restoreBackup' && status === 'initialized') && (
-          <View
-            key="backup-success"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
-            <ViewContent textAlign="left">
-              <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
-              <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
-              <ul>
-                <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
-              </ul>
-            </ViewContent>
-            <ViewButtons>
-              <Button primary onClick={this.handleGetStarted}>
-                {t('success.getstarted')}
-              </Button>
-            </ViewButtons>
-          </View>
+          <RestoreFromSDCardSuccess key="backup-success" onContinue={this.handleGetStarted} />
         )}
-
         { (appStatus === 'restoreFromMnemonic' && status === 'initialized') && (
-          <View
-            key="backup-mnemonic-success"
-            fullscreen
-            textCenter
-            verticallyCentered
-            withBottomBar
-            width="700px">
-            <ViewHeader title={t('bitbox02Wizard.stepBackupSuccess.title')} />
-            <ViewContent textAlign="left">
-              <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
-              <ul>
-                <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
-                <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
-              </ul>
-            </ViewContent>
-            <ViewButtons>
-              <Button primary onClick={this.handleGetStarted}>
-                {t('success.getstarted')}
-              </Button>
-            </ViewButtons>
-          </View>
+          <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={this.handleGetStarted} />
         )}
-
       </Main>
     );
   }

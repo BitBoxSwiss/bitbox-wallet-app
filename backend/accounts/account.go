@@ -44,6 +44,8 @@ type TxProposalArgs struct {
 }
 
 // Interface is the API of a Account.
+//
+//go:generate moq -pkg mocks -out mocks/account.go . Interface
 type Interface interface {
 	observable.Interface
 

@@ -24,9 +24,15 @@ import (
 
 // Account holds information related to an account.
 type Account struct {
+	// Used is true if the account has a transaction history.
+	Used bool `json:"used"`
 	// Inactive is true if the account should not be loaded in the sidebar and portfolio. It will
 	// still be shown in 'Manage accounts'.
-	Inactive              bool                   `json:"inactive"`
+	Inactive bool `json:"inactive"`
+	// HiddenBecauseUnused is true if the account should not loaded in the sidebar and portfolio,
+	// and not be shown in 'Manage accounts', because the account is unused (has no transaction
+	// history). This is used to facilitate automatic discovery of used accounts.
+	HiddenBecauseUnused   bool                   `json:"hiddenBecauseUnused"`
 	CoinCode              coin.Code              `json:"coinCode"`
 	Name                  string                 `json:"name"`
 	Code                  accountsTypes.Code     `json:"code"`
@@ -58,21 +64,20 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 
 // AccountsConfig persists the list of accounts added to the app.
 type AccountsConfig struct {
-	Accounts []Account `json:"accounts"`
+	Accounts []*Account `json:"accounts"`
 }
 
 // newDefaultAccountsonfig returns the default accounts config.
 func newDefaultAccountsonfig() AccountsConfig {
 	return AccountsConfig{
-		Accounts: []Account{},
+		Accounts: []*Account{},
 	}
 }
 
 // Lookup returns the account with the given code, or nil if no such account exists.
 // A reference is returned, so the account can be modified by the caller.
 func (cfg AccountsConfig) Lookup(code accountsTypes.Code) *Account {
-	for i := range cfg.Accounts {
-		acct := &cfg.Accounts[i]
+	for _, acct := range cfg.Accounts {
 		if acct.Code == code {
 			return acct
 		}

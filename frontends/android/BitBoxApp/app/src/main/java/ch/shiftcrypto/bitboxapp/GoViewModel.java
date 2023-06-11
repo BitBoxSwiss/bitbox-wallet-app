@@ -67,7 +67,7 @@ public class GoViewModel extends AndroidViewModel {
                     }
                     public byte[] read(long n) throws Exception {
                         byte[] result = new byte[(int) n];
-                        long read = connection.bulkTransfer(endpointIn, result, result.length, 5000000);
+                        connection.bulkTransfer(endpointIn, result, result.length, 5000000);
                         return result;
                     }
                     public long write(byte[] p0) throws Exception{

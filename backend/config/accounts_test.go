@@ -23,7 +23,7 @@ import (
 
 func TestByCode(t *testing.T) {
 	cfg := AccountsConfig{
-		Accounts: []Account{
+		Accounts: []*Account{
 			{Code: "a"},
 			{Code: "b"},
 		},
