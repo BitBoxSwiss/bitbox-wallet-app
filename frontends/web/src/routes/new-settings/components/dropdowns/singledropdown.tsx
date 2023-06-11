@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { FC } from 'react';
-import Select, { components, DropdownIndicatorProps, SingleValue as SingleValueType, SingleValueProps, OptionProps } from 'react-select';
-import styles from './singledropdown.module.css';
+import Select, { components, DropdownIndicatorProps, SingleValueProps, OptionProps } from 'react-select';
+import dropdownStyles from './dropdowns.module.css';
 
 type TOption = {
     label: string;
@@ -29,33 +28,28 @@ type TSelectProps = {
     defaultValue: TOption;
 }
 
-const DropdownIndicator: FC<DropdownIndicatorProps<TOption>> = (props) => {
+const DropdownIndicator = (props: DropdownIndicatorProps<TOption, false>) => {
   return (
     <components.DropdownIndicator {...props}>
-      <div className={styles.dropdown} />
+      <div className={dropdownStyles.dropdown} />
     </components.DropdownIndicator>
   );
 };
 
-
-const Option: FC<OptionProps<TOption>> = (props) => {
+const Option = (props: OptionProps<TOption, false>) => {
   const { label } = props.data;
   return (
     <components.Option {...props}>
-      <div className={styles.valueContainer}>
-        <span className={styles.optionValue}>{label}</span>
-      </div>
+      <span>{label}</span>
     </components.Option>
   );
 };
 
-const SingleValue: FC<SingleValueProps<TOption>> = (props) => {
+const SingleValue = (props: SingleValueProps<TOption, false>) => {
   const { label } = props.data;
   return (
     <components.SingleValue {...props}>
-      <div className={styles.valueContainer}>
-        <span className={styles.singleValue}>{label}</span>
-      </div>
+      <span>{label}</span>
     </components.SingleValue>
   );
 };
@@ -64,14 +58,14 @@ const SingleValue: FC<SingleValueProps<TOption>> = (props) => {
 export const SingleDropdown = ({ options, handleChange, defaultValue }: TSelectProps) => {
   return (
     <Select
-      className={styles.select}
+      className={dropdownStyles.select}
       classNamePrefix="react-select"
       isSearchable={true}
       defaultValue={defaultValue}
       components={{ IndicatorSeparator: () => null, DropdownIndicator, SingleValue, Option }}
       onChange={(selected) => {
         if (selected) {
-          const value = (selected as SingleValueType<TOption>)?.value || '';
+          const value = selected?.value || '';
           handleChange(value);
         }
       }

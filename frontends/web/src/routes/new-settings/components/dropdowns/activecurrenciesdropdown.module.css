@@ -1,0 +1,59 @@
+.select :global(.react-select__input-container) {
+    position: absolute;
+    top: -2px;
+    left: 6px;
+}
+
+.select :global(.react-select__option) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/*displays only first 3 currencies, the rest gets hidden*/
+.select :global(.react-select__multi-value):nth-child(n + 4) {
+    display: none;
+}
+
+
+/*
+displays ', ' as a pseudo component for all currency component
+except the last displayed component (the 3rd currency component).
+
+The reason for :nth-last-child(2) instead of just :last-child is because there's an extra
+component created by react-select after the actual last currency component. 
+
+So, we're targetting the second to last component here, 
+which is the last selected currency in the DOM.
+*/
+.select:not(.hideMultiSelect) :global(.react-select__multi-value):not(:nth-last-child(2))::after {
+    content: ',';
+    padding-right: 2px;
+}
+
+/*
+displays '...' as a pseudo component of the 3rd currency and only when there's more than 3 selected.
+:nth-last-child(2) is used for the same reason as above
+*/
+.select:not(.hideMultiSelect) :global(.react-select__multi-value):nth-child(3):not(:nth-last-child(2))::after {
+    content: '\002026';
+}
+
+.select.hideMultiSelect :global(.react-select__multi-value) {
+    display: none;
+}
+
+.select :global(.react-select__value-container--is-multi) {
+    height: var(--item-height-xsmall);
+}
+
+.defaultCurrency:hover {
+    cursor: not-allowed;
+}
+
+.defaultLabel {
+    font-size: var(--size-small);
+    margin: 0;
+    text-transform: capitalize;
+}
