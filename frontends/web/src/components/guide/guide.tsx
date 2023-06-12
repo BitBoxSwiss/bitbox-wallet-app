@@ -101,7 +101,7 @@ class Guide extends Component<Props> {
             <div className={style.entry}>
               {t('guide.appendix.text')}
               {' '}
-              <A href="https://shiftcrypto.ch/contact">{t('guide.appendix.link')}</A>
+              <A href="https://bitbox.swiss/support/">{t('guide.appendix.link')}</A>
               <br />
               <br />
             </div>
