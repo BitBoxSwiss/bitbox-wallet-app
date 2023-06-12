@@ -87,7 +87,6 @@ var fixedURLWhitelist = []string{
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	// Others
 	"https://cointracking.info/import/bitbox/",
-	"mailto:translations@shiftcrypto.ch?",
 }
 
 type backendEvent struct {
