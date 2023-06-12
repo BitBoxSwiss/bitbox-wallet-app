@@ -390,21 +390,44 @@ func (account *Account) update() error {
 		}
 	}
 
+	var balance *big.Int
 	if account.coin.erc20Token != nil {
-		balance, err := account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
+		balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token)
 		if err != nil {
 			return errp.WithStack(err)
 		}
-		account.balance = coin.NewAmount(balance)
 	} else {
-		balance, err := account.coin.client.Balance(context.TODO(), account.address.Address)
+		balance, err = account.coin.client.Balance(context.TODO(), account.address.Address)
 		if err != nil {
 			return errp.WithStack(err)
 		}
-		account.balance = coin.NewAmount(balance)
 	}
 
+	pendingAmount := pendingTxsAmount(outgoingTransactionsData, account.coin.erc20Token != nil)
+	account.balance = coin.NewAmount(balance.Sub(balance, pendingAmount))
+
 	return nil
+}
+
+// pendingTxsAmount returns the total amount of pending transactions. Fees are not included for erc20 txs.
+func pendingTxsAmount(outgoingTransactionsData []*accounts.TransactionData, isErc20 bool) *big.Int {
+	pendingTxAmount := big.NewInt(0)
+	for _, tx := range outgoingTransactionsData {
+		if tx.Status == accounts.TxStatusPending {
+			// Skip sendSelf txs
+			if tx.Type == accounts.TxTypeSend {
+				pendingTxAmount = pendingTxAmount.Add(pendingTxAmount, tx.Amount.BigInt())
+			}
+			if !isErc20 {
+				// tx Fee is considered only for ETH transactions. For ERC20 tokens it should
+				// be subtracted to the balance of the related ETH account. This is not done at
+				// the moment, could be possibly fixed in the future migrating to BlockBook.
+				pendingTxAmount = pendingTxAmount.Add(pendingTxAmount, tx.Fee.BigInt())
+			}
+		}
+	}
+
+	return pendingTxAmount
 }
 
 // FatalError implements accounts.Interface.
