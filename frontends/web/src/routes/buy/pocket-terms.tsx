@@ -46,7 +46,7 @@ export const PocketTerms = ({ onAgreedTerms }: TProps) => {
         <h2 className={style.title}>{t('buy.pocket.security.title')}</h2>
         <p>{t('buy.pocket.security.p1')}</p>
         <p>
-          <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
+          <A className={style.link} href="https://bitbox.swiss/bitbox02/threat-model/">
             {t('buy.pocket.security.link')}
           </A>
         </p>

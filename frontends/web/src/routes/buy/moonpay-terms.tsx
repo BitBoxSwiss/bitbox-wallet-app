@@ -84,7 +84,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         </h2>
         <p>{t('buy.info.disclaimer.security.description', { name })}</p>
         <p>
-          <A className={style.link} href="https://shiftcrypto.ch/bitbox02/threat-model/">
+          <A className={style.link} href="https://bitbox.swiss/bitbox02/threat-model/">
             {t('buy.info.disclaimer.security.link')}
           </A>
         </p>
