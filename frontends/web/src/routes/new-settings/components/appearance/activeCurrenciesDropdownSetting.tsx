@@ -18,13 +18,15 @@ import { store, SharedProps, formattedCurrencies } from '../../../../components/
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { share } from '../../../../decorators/share';
 import { ActiveCurrenciesDropdown } from '../dropdowns/activecurrenciesdropdown';
+import { useTranslation } from 'react-i18next';
 
 const ActiveCurrenciesDropdownSetting = ({ selected, active }: SharedProps) => {
+  const { t } = useTranslation();
   return (
     <SettingsItem
       collapseOnSmall
-      settingName="Active Currencies"
-      secondaryText="These additional currencies can be toggled through on your account page."
+      settingName={t('newSettings.appearance.activeCurrencies.title')}
+      secondaryText={t('newSettings.appearance.activeCurrencies.description')}
       extraComponent={
         <ActiveCurrenciesDropdown
           options={formattedCurrencies}

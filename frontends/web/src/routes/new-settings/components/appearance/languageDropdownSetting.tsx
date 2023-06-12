@@ -42,13 +42,13 @@ const defaultLanguages: TLanguagesList = [
 ];
 
 export const LanguageDropdownSetting = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
   const formattedLanguages = defaultLanguages.map(lang => ({ label: lang.display, value: lang.code }));
   return (
     <SettingsItem
-      settingName="Language"
-      secondaryText="Which language you want the BitBoxApp to use."
+      settingName={t('newSettings.appearance.language.title')}
+      secondaryText={t('newSettings.appearance.language.description')}
       collapseOnSmall
       extraComponent={
         <SingleDropdown

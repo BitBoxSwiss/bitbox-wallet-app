@@ -41,7 +41,7 @@ export const EnableCoinControlSetting = ({ frontendConfig, onChangeConfig }: TPr
   return (
     <SettingsItem
       settingName={t('settings.expert.coinControl')}
-      secondaryText={t('settings.expert.coinControl')}
+      secondaryText={t('newSettings.advancedSettings.coinControl.description')}
       extraComponent={
         frontendConfig !== undefined ?
           <Toggle

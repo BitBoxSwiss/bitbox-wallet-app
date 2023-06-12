@@ -508,11 +508,11 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Reset your device to factory settings. This deletes your wallet!",
+        "description": "Reset your device to factory settings. This deletes the wallet on your BitBox02!",
         "title": "Factory reset"
       },
       "goToStartupSettings": {
-        "description": "Enters the bootloader of the BitBox02. Can enable firmware hash from here."
+        "description": "Enter the bootloader of the BitBox02. You can enable the firmware the hash from here."
       },
       "passphrase": {
         "description": "Enable or disable the passphrase feature.",
@@ -1026,6 +1026,44 @@
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "App version"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Select which UTXOs are part of a transaction to help improve privacy."
+      },
+      "customFees": {
+        "description": "Lets you enter your own fee when sending."
+      },
+      "torProxy": {
+        "description": "Connect over Tor for better privacy."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "These additional currencies can be toggled through on your account page.",
+        "title": "Active currencies"
+      },
+      "darkmode": {
+        "description": "See the BitBoxApp in dark mode."
+      },
+      "defaultCurrency": {
+        "description": "Select your default currency",
+        "title": "Default currency"
+      },
+      "language": {
+        "description": "Which language you want the BitBoxApp to use.",
+        "title": "Language"
+      },
+      "toggleSats": {
+        "description": "Enable or disable Satoshis."
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(optional)",
@@ -1367,7 +1405,6 @@
         "title": "Connect your own full node"
       },
       "fee": "Enable custom fees",
-      "feeDescription": "Lets you enter your own fee when sending.",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",

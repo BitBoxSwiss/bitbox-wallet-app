@@ -58,7 +58,7 @@ export const DisplaySatsToggleSetting = () => {
     <>
       <SettingsItem
         settingName={t('settings.expert.useSats')}
-        secondaryText="Enable or disable Satoshis."
+        secondaryText={t('newSettings.appearance.toggleSats.description')}
         extraComponent={
           <>
             {

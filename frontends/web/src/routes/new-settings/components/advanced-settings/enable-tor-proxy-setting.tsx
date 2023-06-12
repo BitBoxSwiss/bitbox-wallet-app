@@ -50,7 +50,7 @@ export const EnableTorProxySetting = ({ proxyConfig, onChangeConfig }: TProps) =
         className={styles.settingItem}
         settingName={t('settings.expert.useProxy')}
         onClick={() => setShowTorProxyDialog(true)}
-        secondaryText={t('settings.expert.useProxy')}
+        secondaryText={t('newSettings.advancedSettings.torProxy.description')}
         displayedValue={proxyEnabled ? t('generic.enabled_true') : t('generic.enabled_false')}
         extraComponent={<ChevronRightDark width={24} height={24} />}
       />

@@ -18,12 +18,14 @@ import { defaultValueLabel, formattedCurrencies, selectFiat, setActiveFiat, stor
 import { SingleDropdown } from '../dropdowns/singledropdown';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Fiat } from '../../../../api/account';
+import { useTranslation } from 'react-i18next';
 
 export const DefaultCurrencyDropdownSetting = () => {
+  const { t } = useTranslation();
   return (
     <SettingsItem
-      settingName="Default Currency"
-      secondaryText="Select your default currency."
+      settingName={t('newSettings.appearance.defaultCurrency.title')}
+      secondaryText={t('newSettings.appearance.defaultCurrency.description')}
       collapseOnSmall
       extraComponent={
         <SingleDropdown

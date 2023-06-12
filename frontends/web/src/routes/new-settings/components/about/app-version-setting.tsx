@@ -18,8 +18,8 @@ import { useLoad } from '../../../../hooks/api';
 import { useTranslation } from 'react-i18next';
 import { getUpdate, getVersion } from '../../../../api/version';
 import { SettingsItem } from '../settingsItem/settingsItem';
-import { Checked, RedDot } from '../../../../components/icon';
 import { StyledSkeleton } from '../../bb02-settings';
+import { Checked, RedDot } from '../../../../components/icon';
 import { apiPost } from '../../../../utils/request';
 import { downloadLinkByLanguage } from '../../../../components/appdownloadlink/appdownloadlink';
 
@@ -39,7 +39,7 @@ export const AppVersion = () => {
 
   return (
     <SettingsItem
-      settingName="App version"
+      settingName={t('newSettings.about.appVersion.title')}
       secondaryText={secondaryText}
       displayedValue={versionNumber}
       extraComponent={icon}
