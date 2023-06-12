@@ -211,7 +211,7 @@ class Sidebar extends Component<Props> {
           <div key="settings-new" className={style.sidebarItem}>
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
-              to={'/new-settings'}
+              to={'/settings'}
               title={t('sidebar.settings')}
               onClick={this.handleSidebarItemClick}>
               <div className="stacked">

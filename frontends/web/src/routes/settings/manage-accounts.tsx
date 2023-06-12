@@ -26,9 +26,9 @@ import { Toggle } from '../../components/toggle/toggle';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { WithSettingsTabs } from '../new-settings/components/tabs';
+import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
-import { MobileHeader } from '../new-settings/components/mobile-header';
+import { MobileHeader } from '../settings/components/mobile-header';
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {

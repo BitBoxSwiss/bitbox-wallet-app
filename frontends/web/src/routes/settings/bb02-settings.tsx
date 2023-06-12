@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { ViewContent, View } from '../../components/view/view';
 import { WithSettingsTabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './type';
+import { TPagePropsWithSettingsTabs } from './types';
 import { ManageBackupSetting } from './components/device-settings/manage-backup-setting';
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';

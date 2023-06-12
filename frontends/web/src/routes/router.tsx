@@ -15,14 +15,13 @@ import { DeviceSwitch } from './device/deviceswitch';
 import ManageBackups from './device/manage-backups/manage-backups';
 import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
-import { Settings } from './settings/settings';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
-import { Appearance } from './new-settings/appearance';
-import { MobileSettings } from './new-settings/mobile-settings';
-import { About } from './new-settings/about';
-import { AdvancedSettings } from './new-settings/advanced-settings';
+import { Appearance } from './settings/appearance';
+import { MobileSettings } from './settings/mobile-settings';
+import { About } from './settings/about';
+import { AdvancedSettings } from './settings/advanced-settings';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -173,16 +172,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
       <Route path="settings">
-        <Route index element={<Settings manageAccountsLen={accounts.length} deviceIDs={deviceIDs} />} />
-        <Route path="electrum" element={<ElectrumSettings />} />
-        <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} deviceIDs={deviceIDs} hasAccounts={hasAccounts}/>} />
-      </Route>
-      <Route path="new-settings">
         <Route index element={MobileSettingsEl} />
         <Route path="appearance" element={AppearanceEl} />
         <Route path="about" element={AboutEl} />
         <Route path="device-settings/:deviceID" element={Device} />
         <Route path="advanced-settings" element={AdvancedSettingsEl} />
+        <Route path="electrum" element={<ElectrumSettings />} />
+        <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} deviceIDs={deviceIDs} hasAccounts={hasAccounts}/>} />
       </Route>
     </Route>
   </Routes>;
