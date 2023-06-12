@@ -20,7 +20,7 @@ import * as bitbox02 from '../../../../api/bitbox02';
 import { useMountedRef } from '../../../../hooks/mount';
 import { alertUser } from '../../../../components/alert/Alert';
 import { Wait } from './wait';
-import { ChecklistWalletCreate } from './checklist';
+import { ChecklistWalletCreate, ChecklistWalletCreateMnemonic } from './checklist';
 import { SetDeviceName } from './name';
 import { SetPassword } from './password';
 import { WithSDCard } from './sdcard';
@@ -28,12 +28,16 @@ import { WithSDCard } from './sdcard';
 type TCreateWalletStatus = 'intro' | 'setName' | 'setPassword' | 'showDisclaimer' | 'createBackup';
 
 type Props = {
+  backupType: 'sdcard' | 'mnemonic';
+  backupSeedLength: 16 | 32;
   deviceID: string;
   isSeeded: boolean;
   onAbort: () => void;
 };
 
 export const CreateWallet = ({
+  backupType,
+  backupSeedLength,
   deviceID,
   isSeeded,
   onAbort,
@@ -46,7 +50,7 @@ export const CreateWallet = ({
   const ensurePassword = async () => {
     setStatus('setPassword');
     try {
-      const result = await bitbox02.setPassword(deviceID, 32);
+      const result = await bitbox02.setPassword(deviceID, backupSeedLength);
       if (!result.success) {
         if (result.code === bitbox02.errUserAbort) {
           alertUser(t('bitbox02Wizard.stepPassword.e104'), {
@@ -93,7 +97,10 @@ export const CreateWallet = ({
   const createBackup = async () => {
     setStatus('createBackup');
     try {
-      const result = await bitbox02.createBackup(deviceID, 'sdcard');
+      const result = await bitbox02.createBackup(
+        deviceID,
+        backupType === 'mnemonic' ? 'recovery-words' : 'sdcard',
+      );
       if (!result.success) {
         if (result.code === bitbox02.errUserAbort) {
           alertUser(t('bitbox02Wizard.createBackupAborted'), {
@@ -111,18 +118,36 @@ export const CreateWallet = ({
 
   if (isSeeded) {
     if (status === 'showDisclaimer') {
-      return (
-        <WithSDCard deviceID={deviceID}>
-          <ChecklistWalletCreate key="create-backup" onContinue={createBackup} />
-        </WithSDCard>
-      );
+      switch (backupType) {
+      case 'sdcard':
+        return (
+          <WithSDCard deviceID={deviceID}>
+            <ChecklistWalletCreate onContinue={createBackup} />
+          </WithSDCard>
+        );
+      case 'mnemonic':
+        return (
+          <ChecklistWalletCreateMnemonic onContinue={createBackup} />
+        );
+      }
     }
     if (status === 'createBackup') {
-      return (
-        <Wait
-          title={t('bitbox02Interact.confirmDate')}
-          text={t('bitbox02Interact.confirmDateText')} />
-      );
+      switch (backupType) {
+      case 'sdcard':
+        return (
+          <Wait
+            title={t('bitbox02Interact.confirmDate')}
+            text={t('bitbox02Interact.confirmDateText')} />
+        );
+      case 'mnemonic':
+        return (
+          <Wait
+            title={t('bitbox02Interact.confirmWords', {
+              amount: backupSeedLength === 16 ? '12' : '24'
+            })}
+            text={t('bitbox02Interact.confirmWordsText')} />
+        );
+      }
     }
   }
 
@@ -141,7 +166,8 @@ export const CreateWallet = ({
     );
   case 'setPassword':
     return (
-      <SetPassword key="create-wallet" errorText={errorText} />
+      <SetPassword
+        errorText={errorText} />
     );
   default:
     return null;

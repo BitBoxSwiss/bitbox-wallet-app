@@ -20,8 +20,27 @@
     flex-direction: row-reverse;
 }
 
-.columnButtonsInline > *:not(:first-child) {
+.columnButtonsInline > a:not(:first-child),
+.columnButtonsInline > button:not(:first-child) {
     margin-right: var(--space-half);
+    margin-top: 0;
+}
+
+.left {
+    text-align: left;
+}
+
+.center {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .columnAsCard {
+        padding: var(--space-half);
+    }
+    .columnAsCard + .columnAsCard {
+        margin-top: var(--space-default);
+    }
 }
 
 @media (min-width: 769px) {
