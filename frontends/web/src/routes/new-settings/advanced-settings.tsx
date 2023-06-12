@@ -22,6 +22,7 @@ import { View, ViewContent } from '../../components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './type';
 import { EnableCustomFeesToggleSetting } from './components/advanced-settings/enable-custom-fees-toggle-setting';
+import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { getConfig } from '../../utils/config';
@@ -33,6 +34,7 @@ export type TProxyConfig = {
 
 export type TFrontendConfig = {
   expertFee?: boolean;
+  coinControl?: boolean;
 }
 
 type TBackendConfig = {
@@ -68,6 +70,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
             subPageTitle={t('settings.advancedSettings')}
           >
             <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+            <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
             <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
             <ConnectFullNodeSetting />
           </WithSettingsTabs>
