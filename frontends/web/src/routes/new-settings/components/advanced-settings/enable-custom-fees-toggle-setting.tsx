@@ -41,7 +41,7 @@ export const EnableCustomFeesToggleSetting = ({ frontendConfig, onChangeConfig }
   return (
     <SettingsItem
       settingName={t('settings.expert.fee')}
-      secondaryText={t('settings.expert.feeDescription')}
+      secondaryText={t('newSettings.advancedSettings.customFees.description')}
       extraComponent={
         frontendConfig !== undefined ?
           <Toggle

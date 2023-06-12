@@ -212,7 +212,7 @@ class ManageAccounts extends Component<Props, State> {
     const accountList = this.renderAccounts();
     return (
       <Main>
-        <div className="hide-on-small"><Header title={<h2>{t('manageAccounts.title')}</h2>} /></div>
+        <div className="hide-on-small"><Header title={<h2>{t('settings.title')}</h2>} /></div>
         <View fullscreen={false}>
           <ViewContent>
             <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts} subPageTitle={t('manageAccounts.title')}>

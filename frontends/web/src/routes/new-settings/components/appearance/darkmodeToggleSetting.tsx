@@ -25,7 +25,7 @@ export const DarkmodeToggleSetting = () => {
   return (
     <SettingsItem
       settingName={t('darkmode.toggle')}
-      secondaryText="See the BitBoxApp in dark mode."
+      secondaryText={t('newSettings.appearance.darkmode.description')}
       extraComponent={<Toggle checked={isDarkMode} onChange={() => toggleDarkmode(!isDarkMode)} />}
     />
   );
