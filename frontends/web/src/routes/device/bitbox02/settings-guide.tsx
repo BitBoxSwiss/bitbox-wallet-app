@@ -27,7 +27,7 @@ export const ManageDeviceGuide = () => {
       <Entry key="guide.device.secure-chip" entry={{
         link: {
           text: t('guide.device.secure-chip.link.text'),
-          url: 'https://shiftcrypto.ch/blog/bitbox-05-2021-masnee-update/#check-your-secure-chip-variant'
+          url: 'https://bitbox.swiss/blog/bitbox-05-2021-masnee-update/#check-your-secure-chip-variant'
         },
         text: t('guide.device.secure-chip.text'),
         title: t('guide.device.secure-chip.title')
@@ -36,8 +36,8 @@ export const ManageDeviceGuide = () => {
         link: {
           text: t('guide.device.attestation.link.text'),
           url: (i18n.language === 'de')
-            ? 'https://shiftcrypto.ch/de/bitbox02/sicherheit/#device-authenticity-check'
-            : 'https://shiftcrypto.ch/bitbox02/security-features/#device-authenticity-check'
+            ? 'https://bitbox.swiss/de/bitbox02/sicherheit/#device-authenticity-check'
+            : 'https://bitbox.swiss/bitbox02/security-features/#device-authenticity-check'
         },
         text: t('guide.device.attestation.text'),
         title: t('guide.device.attestation.title')

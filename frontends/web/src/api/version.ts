@@ -17,7 +17,7 @@
 import { apiGet } from '../utils/request';
 
 /**
- * Describes the file that is loaded from 'https://shiftcrypto.ch/updates/desktop.json'.
+ * Describes the file that is loaded from 'https://bitbox.swiss/updates/desktop.json'.
  */
 export type TUpdateFile = {
     current: string;
