@@ -15,6 +15,6 @@
  */
 
 export const URL_CONSTANTS = {
-  DOWNLOAD_LINK_GLOBAL: 'https://shiftcrypto.ch/download/?source=bitboxapp',
-  DOWNLOAD_LINK_DE: 'https://shiftcrypto.ch/de/download/?source=bitboxapp'
+  DOWNLOAD_LINK_GLOBAL: 'https://bitbox.swiss/download/?source=bitboxapp',
+  DOWNLOAD_LINK_DE: 'https://bitbox.swiss/de/download/?source=bitboxapp'
 };

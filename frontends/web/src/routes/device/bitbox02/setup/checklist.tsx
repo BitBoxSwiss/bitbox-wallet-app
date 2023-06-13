@@ -97,3 +97,77 @@ export const ChecklistWalletCreate = ({ onContinue, }: Props) => {
     </form>
   );
 };
+
+export const ChecklistWalletCreateMnemonic = ({ onContinue, }: Props) => {
+  const { t } = useTranslation();
+  const [agree1, setAgree1] = useState(false);
+  const [agree2, setAgree2] = useState(false);
+  const [agree3, setAgree3] = useState(false);
+  const [agree4, setAgree4] = useState(false);
+  const [agree5, setAgree5] = useState(false);
+
+  const handleContinue = () => {
+    setAgree1(false);
+    setAgree2(false);
+    setAgree3(false);
+    setAgree4(false);
+    setAgree5(false);
+    onContinue();
+  };
+
+  return (
+    <form>
+      <View
+        fullscreen
+        textCenter
+        verticallyCentered
+        withBottomBar
+        width="700px">
+        <ViewHeader title={t('backup.create.title')}>
+          <p>{t('bitbox02Wizard.stepBackup.createBackupMnemonic')}</p>
+        </ViewHeader>
+        <ViewContent textAlign="left">
+          <p>{t('bitbox02Wizard.stepBackup.beforeProceed')}</p>
+          <Checkbox
+            onChange={() => setAgree1(!agree1)}
+            className={style.wizardCheckbox}
+            id="agreement1"
+            checked={agree1}
+            label={t('bitbox02Wizard.backup.userConfirmation1')} />
+          <Checkbox
+            onChange={() => setAgree2(!agree2)}
+            className={style.wizardCheckbox}
+            id="agreement2"
+            checked={agree2}
+            label={t('bitbox02Wizard.backup.userConfirmation2')} />
+          <Checkbox
+            onChange={() => setAgree3(!agree3)}
+            className={style.wizardCheckbox}
+            id="agreement3"
+            checked={agree3}
+            label={t('bitbox02Wizard.backup.userConfirmation3')} />
+          <Checkbox
+            onChange={() => setAgree4(!agree4)}
+            className={style.wizardCheckbox}
+            id="agreement4"
+            checked={agree4}
+            label={t('bitbox02Wizard.backup.userConfirmation4')} />
+          <Checkbox
+            onChange={() => setAgree5(!agree5)}
+            className={style.wizardCheckbox}
+            id="agreement5"
+            checked={agree5}
+            label={t('bitbox02Wizard.backup.userConfirmation5mnemonic')} />
+        </ViewContent>
+        <ViewButtons>
+          <Button
+            primary
+            onClick={handleContinue}
+            disabled={!(agree1 && agree2 && agree3 && agree4 && agree5)}>
+            {t('button.continue')}
+          </Button>
+        </ViewButtons>
+      </View>
+    </form>
+  );
+};

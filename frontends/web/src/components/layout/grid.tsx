@@ -20,11 +20,21 @@ import style from './grid.module.css';
 type TGridProps = {
   children: ReactNode;
   col?: '1' | '2';
+  textAlign?: 'center' | 'left';
 }
 
-export const Grid = ({ children, col }: TGridProps) => {
+export const Grid = ({
+  children,
+  col = '2',
+  textAlign,
+}: TGridProps) => {
+  const styles = `
+    ${style.grid}
+    ${style[`grid-columns-${col}`]}
+    ${textAlign !== undefined ? style[textAlign] : ''}
+  `;
   return (
-    <section className={`${style.grid} ${style[`grid-columns-${col || 2}`]}`}>
+    <section className={styles}>
       {children}
     </section>
   );

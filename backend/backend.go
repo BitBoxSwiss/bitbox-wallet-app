@@ -62,8 +62,8 @@ func init() {
 // adhoc URLs. See SystemOpen for details.
 var fixedURLWhitelist = []string{
 	// Shift Crypto owned domains.
-	"https://shiftcrypto.ch/",
-	"https://shiftcrypto.shop/",
+	"https://bitbox.swiss/",
+	"https://bitbox.shop/",
 	"https://shiftcrypto.support/",
 	// Exchange rates.
 	"https://www.coingecko.com/",
@@ -87,7 +87,6 @@ var fixedURLWhitelist = []string{
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
 	// Others
 	"https://cointracking.info/import/bitbox/",
-	"mailto:translations@shiftcrypto.ch?",
 }
 
 type backendEvent struct {

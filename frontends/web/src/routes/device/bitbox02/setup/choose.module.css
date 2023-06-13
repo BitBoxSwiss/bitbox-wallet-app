@@ -1,0 +1,18 @@
+.toggle {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.toggleLabel {
+  flex-grow: 1;
+  line-height: 1.4;
+  margin-bottom: 0;
+  padding-right: var(--space-half);
+}
+
+.textIcon {
+  height: 1.2em;
+  margin-right: 0.5em;
+  vertical-align: text-bottom;
+}
