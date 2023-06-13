@@ -499,6 +499,40 @@
     "title": "Enable two factor authorization (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Create or verify your microSD card backup."
+      },
+      "showRecoveryWords": {
+        "description": "Show and verify 24 recovery words."
+      },
+      "title": "Backups"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "The BitBoxApp checks if your device is authentic."
+      },
+      "deviceName": {
+        "description": "Change the name of your device."
+      },
+      "securechip": {
+        "description": "The model of the secure chip."
+      },
+      "title": "Device information"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Reset your device to factory settings. This deletes the wallet on your BitBox02!",
+        "title": "Factory reset"
+      },
+      "goToStartupSettings": {
+        "description": "Enter the bootloader of the BitBox02. You can enable the firmware the hash from here."
+      },
+      "passphrase": {
+        "description": "Enable or disable the passphrase feature.",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Firmware Version",
       "newVersion": {
@@ -1006,6 +1040,44 @@
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "App version"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Select which UTXOs are part of a transaction to help improve privacy."
+      },
+      "customFees": {
+        "description": "Lets you enter your own fee when sending."
+      },
+      "torProxy": {
+        "description": "Connect over Tor for better privacy."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "These additional currencies can be toggled through on your account page.",
+        "title": "Active currencies"
+      },
+      "darkmode": {
+        "description": "See the BitBoxApp in dark mode."
+      },
+      "defaultCurrency": {
+        "description": "Select your default currency",
+        "title": "Default currency"
+      },
+      "language": {
+        "description": "Which language you want the BitBoxApp to use.",
+        "title": "Language"
+      },
+      "toggleSats": {
+        "description": "Enable or disable Satoshis."
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(optional)",
@@ -1309,7 +1381,9 @@
     "transactionDetails": "Transaction details"
   },
   "settings": {
+    "about": "About",
     "accounts": "Accounts",
+    "advancedSettings": "Advanced Settings",
     "appearance": "Appearance",
     "electrum": {
       "add": "Add a server",
@@ -1341,6 +1415,7 @@
     "expert": {
       "coinControl": "Enable coin control",
       "electrum": {
+        "description": "You can connect to your own Electrum full node.",
         "title": "Connect your own full node"
       },
       "fee": "Enable custom fees",

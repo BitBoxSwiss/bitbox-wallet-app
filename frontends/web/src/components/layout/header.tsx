@@ -25,6 +25,7 @@ import style from './header.module.css';
 interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;
+    hideSidebarToggler?: boolean;
 }
 type Props = HeaderProps & SharedPanelProps & TranslateProps;
 
@@ -38,11 +39,11 @@ class Header extends Component<Props> {
   };
 
   public render() {
-    const { t, title, narrow, children, guideExists, shown, sidebarStatus } = this.props;
+    const { t, title, narrow, children, guideExists, shown, sidebarStatus, hideSidebarToggler } = this.props;
     return (
       <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
         <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
-          <div className={style.sidebarToggler} onClick={toggleSidebar}>
+          <div className={`${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
             <MenuDark className="show-in-lightmode" />
             <MenuLight className="show-in-darkmode" />
           </div>

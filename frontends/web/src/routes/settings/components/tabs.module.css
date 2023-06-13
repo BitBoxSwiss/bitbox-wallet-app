@@ -1,0 +1,24 @@
+.container {
+    display: flex;
+    margin-bottom: var(--space-default);
+}
+
+.container a {
+    margin-right: var(--space-default);
+    font-size: var(--size-subheader);
+    text-decoration: none;
+}
+
+.container a.active {
+    padding-bottom: var(--space-quarter);
+    border-bottom: 2px solid var(--color-blue);
+}
+
+@media (max-width: 768px) {
+    .container,
+    .container a,
+    .container a.active {
+        all: unset;
+    }
+}
+

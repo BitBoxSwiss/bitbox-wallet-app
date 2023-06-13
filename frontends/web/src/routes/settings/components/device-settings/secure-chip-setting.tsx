@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-import { render } from '@testing-library/react';
-import { Badge } from './badge';
+import { useTranslation } from 'react-i18next';
+import { SettingsItem } from '../settingsItem/settingsItem';
 
-describe('components/badge/badge', () => {
-  it('has correct class derived from its type and correct content', () => {
-    const { container } = render(<Badge type="generic">BTC</Badge>);
-    expect(container.firstChild).toHaveClass('generic');
-    expect(container).toHaveTextContent('BTC');
-  });
-});
+type TProps = {
+    secureChipModel: string;
+}
+
+const SecureChipSetting = ({ secureChipModel }: TProps) => {
+  const { t } = useTranslation();
+  return (
+    <SettingsItem
+      settingName={t('deviceSettings.hardware.securechip')}
+      secondaryText={t('deviceSettings.deviceInformation.securechip.description')}
+      displayedValue={secureChipModel}
+    />
+  );
+};
+
+export { SecureChipSetting };

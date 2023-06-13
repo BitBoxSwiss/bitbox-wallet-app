@@ -23,6 +23,7 @@
     --color-light-skyblue: #ECF7FF;
     --color-electric-blue: #2684FF;
     --color-powder-blue: #DEEBFF;
+    --color-pale-ice-blue: #E6F7FF;
     --color-blue-alt: #91BFCF;
     --color-orange: #F5A04C;
     --color-olive: #908B00;
@@ -66,6 +67,7 @@
     --item-height-small: 36px;
     --item-height: 52px;
     --item-height-large: 72px;
+    --item-height-xlarge: 84px;
 
     /* typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -106,10 +108,12 @@
     --color-light: var(--color-mediumgray);
     --color-alt: var(--color-white);
     --color-tertiary: var(--color-gray-alt);
+    --color-custom-select-border: var(--color-lightgray);
 
     /* background colors */
     /* all backgrounds should use these colors and not from the main colors directly */
     --background: var(--color-lightgray);
+    --background-blue: var(--color-blue);
     --bg-transparent-dark: rgba(0, 0, 0, 0.4);
     --background-secondary: var(--color-white);
     --background-dark: var(--color-softblack);
@@ -117,7 +121,7 @@
     --background-tertiary: var(--color-gray-alt);
     --background-quaternary: var(--color-mediumgray);
     --background-custom-select-hover: var(--color-powder-blue);
-    --background-custom-select-selected: var(--color-electric-blue);
+    --background-custom-select-selected: var(--color-pale-ice-blue);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -132,6 +136,7 @@
         --color-light: var(--color-mediumgray);
         --color-alt: var(--color-white);
         --color-tertiary: var(--color-gray-alt);
+        --color-custom-select-border: var(--color-gray);
 
         /* background colors */
         --background: var(--color-dark);
@@ -157,6 +162,7 @@
         --color-light: var(--color-mediumgray);
         --color-alt: var(--color-white);
         --color-tertiary: var(--color-gray-alt);
+        --color-custom-select-border: var(--color-gray);
 
         /* background colors */
         --background: var(--color-dark);

@@ -21,15 +21,19 @@ import * as backendAPI from '../../api/backend';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input } from '../../components/forms';
 import Logo from '../../components/icon/logo';
-import { Header } from '../../components/layout';
+import { Header, Main } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
-import Guide from './manage-account-guide';
+import { WithSettingsTabs } from './components/tabs';
+import { View, ViewContent } from '../../components/view/view';
+import { MobileHeader } from '../settings/components/mobile-header';
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
+  deviceIDs: string[];
+  hasAccounts: boolean;
 }
 
 type Props = ManageAccountsProps & TranslateProps;
@@ -74,7 +78,7 @@ class ManageAccounts extends Component<Props, State> {
             className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
             onClick={() => active && route(`/account/${account.code}`)}>
             <Logo className={`${style.coinLogo} m-right-half`} coinCode={account.coinCode} alt={account.coinUnit} />
-            <span className={style.accountName}>
+            <span>
               {account.name}
               {' '}
               <span className="unit">({account.coinUnit})</span>
@@ -147,7 +151,7 @@ class ManageAccounts extends Component<Props, State> {
       const active = activeToken !== undefined;
       return (
         <div key={token.code}
-          className={`${style.token} ${active ? style.tokenActive : style.tokenInactive}`}>
+          className={`${style.token} ${!active ? style.tokenInactive : ''}`}>
           <div
             className={`${style.acccountLink} ${active ? style.accountActive : ''}`}
             onClick={() => activeToken !== undefined && route(`/account/${activeToken.accountCode}`)}>
@@ -204,53 +208,58 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   public render() {
-    const { t } = this.props;
+    const { t, deviceIDs, hasAccounts } = this.props;
     const { editAccountCode, editAccountNewName, editErrorMessage } = this.state;
     const accountList = this.renderAccounts();
     return (
-      <div className="contentWithGuide">
-        <div className="container">
-          <div className="innerContainer scrollContainer">
-            <Header title={<h2>{t('manageAccounts.title')}</h2>} />
-            <div className="content">
-              <div className="columnsContainer">
-                <div className="buttons m-bottom-large m-top-large">
-                  <Button
-                    primary
-                    onClick={() => route('/add-account', true)}>
-                    {t('addAccount.title')}
-                  </Button>
-                </div>
+      <Main>
+        <Header
+          hideSidebarToggler
+          title={
+            <>
+              <h2 className="hide-on-small">{t('settings.title')}</h2>
+              <MobileHeader title={t('manageAccounts.title')} />
+            </>
+          } />
+        <View fullscreen={false}>
+          <ViewContent>
+            <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
+              <>
+                <Button
+                  className={style.addAccountBtn}
+                  primary
+                  onClick={() => route('/add-account', true)}>
+                  {t('addAccount.title')}
+                </Button>
                 <div className="box slim divide m-bottom-large">
                   { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
                 </div>
-              </div>
-              <Dialog
-                open={!!(editAccountCode)}
-                onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
-                title={t('manageAccounts.editAccountNameTitle')}>
-                <form onSubmit={this.updateAccountName}>
-                  <Message type="error" hidden={!editErrorMessage}>
-                    {editErrorMessage}
-                  </Message>
-                  <Input
-                    onInput={e => this.setState({ editAccountNewName: e.target.value })}
-                    value={editAccountNewName} />
-                  <DialogButtons>
-                    <Button
-                      disabled={!editAccountNewName}
-                      primary
-                      type="submit">
-                      {t('button.update')}
-                    </Button>
-                  </DialogButtons>
-                </form>
-              </Dialog>
-            </div>
-          </div>
-        </div>
-        <Guide />
-      </div>
+                <Dialog
+                  open={!!(editAccountCode)}
+                  onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
+                  title={t('manageAccounts.editAccountNameTitle')}>
+                  <form onSubmit={this.updateAccountName}>
+                    <Message type="error" hidden={!editErrorMessage}>
+                      {editErrorMessage}
+                    </Message>
+                    <Input
+                      onInput={e => this.setState({ editAccountNewName: e.target.value })}
+                      value={editAccountNewName} />
+                    <DialogButtons>
+                      <Button
+                        disabled={!editAccountNewName}
+                        primary
+                        type="submit">
+                        {t('button.update')}
+                      </Button>
+                    </DialogButtons>
+                  </form>
+                </Dialog>
+              </>
+            </WithSettingsTabs>
+          </ViewContent>
+        </View>
+      </Main>
     );
   }
 }

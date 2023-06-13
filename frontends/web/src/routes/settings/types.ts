@@ -19,3 +19,8 @@ export type TElectrumServer = {
   tls: boolean;
   pemCert: string;
 };
+
+export type TPagePropsWithSettingsTabs = {
+  deviceIDs: string[];
+  hasAccounts: boolean;
+};

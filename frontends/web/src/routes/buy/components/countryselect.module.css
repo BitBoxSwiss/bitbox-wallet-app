@@ -61,10 +61,6 @@
     margin-left: 6px;
 }
 
-.select :global(.react-select__option--is-selected) .selectLabelText {
-    color: var(--color-alt);
-}
-
 .singleValueContainer {
     align-items: center;
     display: flex;
