@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { defaultValueLabel, formattedCurrencies, selectFiat, setActiveFiat, store } from '../../../../components/rates/rates';
+import { currenciesWithDisplayName, formattedCurrencies, selectFiat, setActiveFiat, store } from '../../../../components/rates/rates';
 import { SingleDropdown } from '../dropdowns/singledropdown';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Fiat } from '../../../../api/account';
@@ -22,6 +22,8 @@ import { useTranslation } from 'react-i18next';
 
 export const DefaultCurrencyDropdownSetting = () => {
   const { t } = useTranslation();
+  const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === store.state.active)?.displayName;
+  const defaultValueLabel = valueLabel ? `${valueLabel} (${store.state.active})` : store.state.active;
   return (
     <SettingsItem
       settingName={t('newSettings.appearance.defaultCurrency.title')}
