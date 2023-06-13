@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
-import { Main, Header } from '../../components/layout';
+import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './type';
@@ -26,6 +26,9 @@ import { EnableCoinControlSetting } from './components/advanced-settings/enable-
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { getConfig } from '../../utils/config';
+import { MobileHeader } from './components/mobile-header';
+import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 
 export type TProxyConfig = {
   proxyAddress: string;
@@ -59,23 +62,47 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
   }, [fetchedConfig]);
 
   return (
-    <Main>
-      <div className="hide-on-small"><Header title={<h2>{t('sidebar.settings')}</h2>} /></div>
-      <View fullscreen={false}>
-        <ViewContent>
-          <WithSettingsTabs
-            deviceIDs={deviceIDs}
-            hideMobileMenu
-            hasAccounts={hasAccounts}
-            subPageTitle={t('settings.advancedSettings')}
-          >
-            <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-            <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
-            <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
-            <ConnectFullNodeSetting />
-          </WithSettingsTabs>
-        </ViewContent>
-      </View>
-    </Main>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            hideSidebarToggler
+            title={
+              <>
+                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
+                <MobileHeader withGuide title={t('settings.advancedSettings')} />
+              </>
+            } />
+          <View fullscreen={false}>
+            <ViewContent>
+              <WithSettingsTabs
+                deviceIDs={deviceIDs}
+                hideMobileMenu
+                hasAccounts={hasAccounts}
+              >
+                <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+                <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+                <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
+                <ConnectFullNodeSetting />
+              </WithSettingsTabs>
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
+      <AdvancedSettingsGuide />
+    </GuideWrapper>
+
+  );
+};
+
+
+const AdvancedSettingsGuide = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Guide>
+      <Entry key="guide.settings-electrum.why" entry={t('guide.settings-electrum.why')} />
+      <Entry key="guide.settings-electrum.tor" entry={t('guide.settings-electrum.tor')} />
+    </Guide>
   );
 };

@@ -20,19 +20,20 @@ import { route } from '../../../utils/route';
 import styles from './mobile-header.module.css';
 
 type TProps = {
-  subPageTitle: string;
+  title: string;
+  withGuide?: boolean;
 }
 
-export const MobileHeader = ({ subPageTitle }: TProps) => {
+export const MobileHeader = ({ title, withGuide = false }: TProps) => {
   const { t } = useTranslation();
   const handleClick = () => {
     //goes to the 'general settings' page
     route('/new-settings');
   };
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}>
       <button onClick={handleClick} className={styles.backButton}><ChevronLeftDark /> {t('button.back')}</button>
-      <h1 className={styles.headerText}>{subPageTitle}</h1>
+      <h1 className={styles.headerText}>{title}</h1>
     </div>
   );
 };

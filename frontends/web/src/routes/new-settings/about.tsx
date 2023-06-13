@@ -15,25 +15,50 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Main, Header } from '../../components/layout';
+import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { AppVersion } from './components/about/app-version-setting';
 import { TPagePropsWithSettingsTabs } from './type';
+import { MobileHeader } from './components/mobile-header';
+import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 
 
 export const About = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
-    <Main>
-      <div className="hide-on-small"><Header title={<h2>{t('sidebar.settings')}</h2>} /></div>
-      <View fullscreen={false}>
-        <ViewContent>
-          <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts} subPageTitle={t('settings.about')}>
-            <AppVersion />
-          </WithSettingsTabs>
-        </ViewContent>
-      </View>
-    </Main>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            hideSidebarToggler
+            title={
+              <>
+                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
+                <MobileHeader withGuide title={t('settings.about')} />
+              </>
+            } />
+          <View fullscreen={false}>
+            <ViewContent>
+              <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
+                <AppVersion />
+              </WithSettingsTabs>
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
+      <AboutGuide />
+    </GuideWrapper>
+  );
+};
+
+
+const AboutGuide = () => {
+  const { t } = useTranslation();
+  return (
+    <Guide>
+      <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
+    </Guide>
   );
 };

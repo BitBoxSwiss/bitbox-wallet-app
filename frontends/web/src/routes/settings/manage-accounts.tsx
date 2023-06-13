@@ -28,6 +28,7 @@ import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { WithSettingsTabs } from '../new-settings/components/tabs';
 import { View, ViewContent } from '../../components/view/view';
+import { MobileHeader } from '../new-settings/components/mobile-header';
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
@@ -212,10 +213,17 @@ class ManageAccounts extends Component<Props, State> {
     const accountList = this.renderAccounts();
     return (
       <Main>
-        <div className="hide-on-small"><Header title={<h2>{t('settings.title')}</h2>} /></div>
+        <Header
+          hideSidebarToggler
+          title={
+            <>
+              <h2 className="hide-on-small">{t('settings.title')}</h2>
+              <MobileHeader title={t('manageAccounts.title')} />
+            </>
+          } />
         <View fullscreen={false}>
           <ViewContent>
-            <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts} subPageTitle={t('manageAccounts.title')}>
+            <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
               <>
                 <Button
                   className={style.addAccountBtn}

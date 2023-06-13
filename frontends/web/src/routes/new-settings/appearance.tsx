@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Main, Header } from '../../components/layout';
+import { Main, Header, GuideWrapper, GuidedContent } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
 import { useTranslation } from 'react-i18next';
 import { DarkmodeToggleSetting } from './components/appearance/darkmodeToggleSetting';
@@ -24,23 +24,58 @@ import { LanguageDropdownSetting } from './components/appearance/languageDropdow
 import { ActiveCurrenciesDropdownSettingWithStore } from './components/appearance/activeCurrenciesDropdownSetting';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './type';
+import { MobileHeader } from './components/mobile-header';
+import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 
 export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const { t } = useTranslation();
   return (
-    <Main>
-      <div className="hide-on-small"><Header title={<h2>{t('sidebar.settings')}</h2>} /></div>
-      <View fullscreen={false}>
-        <ViewContent>
-          <WithSettingsTabs subPageTitle={t('settings.appearance')} hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
-            <DefaultCurrencyDropdownSetting />
-            <ActiveCurrenciesDropdownSettingWithStore />
-            <LanguageDropdownSetting />
-            <DarkmodeToggleSetting />
-            <DisplaySatsToggleSetting />
-          </WithSettingsTabs>
-        </ViewContent>
-      </View>
-    </Main>
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header
+            hideSidebarToggler
+            title={
+              <>
+                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
+                <MobileHeader withGuide title={t('settings.appearance')} />
+              </>
+            } />
+          <View fullscreen={false}>
+            <ViewContent>
+              <WithSettingsTabs hasAccounts={hasAccounts} hideMobileMenu deviceIDs={deviceIDs}>
+                <DefaultCurrencyDropdownSetting />
+                <ActiveCurrenciesDropdownSettingWithStore />
+                <LanguageDropdownSetting />
+                <DarkmodeToggleSetting />
+                <DisplaySatsToggleSetting />
+              </WithSettingsTabs>
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
+      <AppearanceGuide />
+    </GuideWrapper>
+
+  );
+};
+
+const AppearanceGuide = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Guide>
+      <Entry key="guide.settings.sats" entry={t('guide.settings.sats')} />
+      <Entry key="guide.accountRates" entry={{
+        link: {
+          text: 'www.coingecko.com',
+          url: 'https://www.coingecko.com/'
+        },
+        text: t('guide.accountRates.text'),
+        title: t('guide.accountRates.title')
+      }} />
+
+    </Guide>
   );
 };
