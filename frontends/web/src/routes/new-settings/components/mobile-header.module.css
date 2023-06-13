@@ -1,7 +1,6 @@
 .container {
     align-items: center;
-    display: flex;
-    margin-bottom: var(--space-default);
+    display: none;
     position: relative;
 }
 
@@ -36,4 +35,14 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.withGuide .headerText {
+    left: calc(50% + 37px);
+}
+
+@media (max-width: 768px) {
+    .container {
+        display: flex;
+    }
 }

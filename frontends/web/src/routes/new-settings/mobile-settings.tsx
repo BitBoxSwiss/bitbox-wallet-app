@@ -21,6 +21,7 @@ import { route } from '../../utils/route';
 import { useMediaQuery } from '../../hooks/mediaquery';
 import { Tabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './type';
+import { useTranslation } from 'react-i18next';
 
 /**
  * The "index" page of the settings
@@ -32,6 +33,7 @@ import { TPagePropsWithSettingsTabs } from './type';
  **/
 export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { t } = useTranslation();
   useEffect(() => {
     if (!isMobile) {
       route('/new-settings/appearance');
@@ -39,7 +41,7 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
   }, [isMobile]);
   return (
     <Main>
-      <Header title={<h2>Settings</h2>} />
+      <Header guideExists={false} title={<h2>{t('settings.title')}</h2>} />
       <View fullscreen={false}>
         <ViewContent>
           <Tabs deviceIDs={deviceIDs} hasAccounts={hasAccounts} />

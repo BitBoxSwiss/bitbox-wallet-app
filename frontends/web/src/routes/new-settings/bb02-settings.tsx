@@ -17,7 +17,7 @@
 import { useState, useEffect } from 'react';
 import { useLoad } from '../../hooks/api';
 import { useTranslation } from 'react-i18next';
-import { Header, Main } from '../../components/layout';
+import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { ViewContent, View } from '../../components/view/view';
 import { WithSettingsTabs } from './components/tabs';
 import { TPagePropsWithSettingsTabs } from './type';
@@ -34,6 +34,8 @@ import { SecureChipSetting } from './components/device-settings/secure-chip-sett
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
 import styles from './bb02-settings.module.css';
+import { ManageDeviceGuide } from '../device/bitbox02/settings-guide';
+import { MobileHeader } from './components/mobile-header';
 
 
 type TProps = {
@@ -54,19 +56,30 @@ const BB02Settings = ({ deviceID, deviceIDs, hasAccounts }: TWrapperProps) => {
   const { t } = useTranslation();
   return (
     <Main>
-      <div className="hide-on-small"><Header title={<h2>{t('sidebar.settings')}</h2>} /></div>
-      <View fullscreen={false}>
-        <ViewContent>
-          <WithSettingsTabs
-            deviceIDs={deviceIDs}
-            hideMobileMenu
-            hasAccounts={hasAccounts}
-            subPageTitle={t('settings.about')}
-          >
-            <Content deviceID={deviceID} />
-          </WithSettingsTabs>
-        </ViewContent>
-      </View>
+      <GuideWrapper>
+        <GuidedContent>
+          <Header
+            hideSidebarToggler
+            title={
+              <>
+                <h2 className="hide-on-small">{t('sidebar.settings')}</h2>
+                <MobileHeader withGuide title={t('sidebar.device')} />
+              </>
+            }/>
+          <View fullscreen={false}>
+            <ViewContent>
+              <WithSettingsTabs
+                deviceIDs={deviceIDs}
+                hideMobileMenu
+                hasAccounts={hasAccounts}
+              >
+                <Content deviceID={deviceID} />
+              </WithSettingsTabs>
+            </ViewContent>
+          </View>
+        </GuidedContent>
+        <ManageDeviceGuide />
+      </GuideWrapper>
     </Main>
   );
 };

@@ -115,6 +115,11 @@
 }
 
 @media (max-width: 768px) {
+
+    .sidebarToggler.hideSidebarToggler {
+        display: none;
+    }
+
     .container .header {
         padding: 0 var(--space-half);
     }

@@ -15,7 +15,6 @@
  */
 
 import { ReactNode } from 'react';
-import { MobileHeader } from './mobile-header';
 import { NavLink } from 'react-router-dom';
 import { route } from '../../../utils/route';
 import { SettingsItem } from './settingsItem/settingsItem';
@@ -28,7 +27,6 @@ type TWithSettingsTabsProps = {
   deviceIDs: string[]
   hasAccounts: boolean;
   hideMobileMenu?: boolean;
-  subPageTitle: string;
 }
 
 type TTab = {
@@ -48,13 +46,9 @@ export const WithSettingsTabs = ({
   deviceIDs,
   hideMobileMenu,
   hasAccounts,
-  subPageTitle
 }: TWithSettingsTabsProps) => {
   return (
     <>
-      <div className="show-on-small">
-        <MobileHeader subPageTitle={subPageTitle} />
-      </div>
       <div className="hide-on-small">
         <Tabs hideMobileMenu={hideMobileMenu} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
       </div>
@@ -92,12 +86,12 @@ export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
   return (
     <div className={styles.container}>
       <Tab key="appearance" hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/new-settings/appearance" />
-      {hasAccounts ? <Tab key="manage-accounts" hideMobileMenu={hideMobileMenu} name={'Manage accounts'} url="/settings/manage-accounts" /> : null}
+      {hasAccounts ? <Tab key="manage-accounts" hideMobileMenu={hideMobileMenu} name={t('manageAccounts.title')} url="/settings/manage-accounts" /> : null}
       {deviceIDs.map(id => (
         <Tab hideMobileMenu={hideMobileMenu} name={t('sidebar.device')} key={`device-${id}`} url={`/new-settings/device-settings/${id}`} />
       )) }
-      <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={'Advanced settings'} url="/new-settings/advanced-settings" />
-      <Tab key="about" hideMobileMenu={hideMobileMenu} name={'About'} url="/new-settings/about" />
+      <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={t('settings.advancedSettings')} url="/new-settings/advanced-settings" />
+      <Tab key="about" hideMobileMenu={hideMobileMenu} name={t('settings.about')} url="/new-settings/about" />
     </div>
   );
 };
