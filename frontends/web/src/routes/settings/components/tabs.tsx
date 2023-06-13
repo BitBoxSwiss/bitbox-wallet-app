@@ -85,13 +85,13 @@ export const Tabs = ({ deviceIDs, hideMobileMenu, hasAccounts }: TTabs) => {
   const { t } = useTranslation();
   return (
     <div className={styles.container}>
-      <Tab key="appearance" hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/new-settings/appearance" />
+      <Tab key="appearance" hideMobileMenu={hideMobileMenu} name={t('settings.appearance')} url="/settings/appearance" />
       {hasAccounts ? <Tab key="manage-accounts" hideMobileMenu={hideMobileMenu} name={t('manageAccounts.title')} url="/settings/manage-accounts" /> : null}
       {deviceIDs.map(id => (
-        <Tab hideMobileMenu={hideMobileMenu} name={t('sidebar.device')} key={`device-${id}`} url={`/new-settings/device-settings/${id}`} />
+        <Tab hideMobileMenu={hideMobileMenu} name={t('sidebar.device')} key={`device-${id}`} url={`/settings/device-settings/${id}`} />
       )) }
-      <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={t('settings.advancedSettings')} url="/new-settings/advanced-settings" />
-      <Tab key="about" hideMobileMenu={hideMobileMenu} name={t('settings.about')} url="/new-settings/about" />
+      <Tab key="advanced-settings" hideMobileMenu={hideMobileMenu} name={t('settings.advancedSettings')} url="/settings/advanced-settings" />
+      <Tab key="about" hideMobileMenu={hideMobileMenu} name={t('settings.about')} url="/settings/about" />
     </div>
   );
 };

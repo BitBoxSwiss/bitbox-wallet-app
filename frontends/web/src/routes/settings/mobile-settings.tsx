@@ -20,8 +20,8 @@ import { Header, Main } from '../../components/layout';
 import { route } from '../../utils/route';
 import { useMediaQuery } from '../../hooks/mediaquery';
 import { Tabs } from './components/tabs';
-import { TPagePropsWithSettingsTabs } from './type';
 import { useTranslation } from 'react-i18next';
+import { TPagePropsWithSettingsTabs } from './types';
 
 /**
  * The "index" page of the settings
@@ -36,7 +36,7 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
   const { t } = useTranslation();
   useEffect(() => {
     if (!isMobile) {
-      route('/new-settings/appearance');
+      route('/settings/appearance');
     }
   }, [isMobile]);
   return (

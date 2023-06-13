@@ -28,7 +28,7 @@ export const MobileHeader = ({ title, withGuide = false }: TProps) => {
   const { t } = useTranslation();
   const handleClick = () => {
     //goes to the 'general settings' page
-    route('/new-settings');
+    route('/settings');
   };
   return (
     <div className={`${styles.container} ${withGuide ? `${styles.withGuide}` : ''}`}>
