@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const bannersURL = "https://shiftcrypto.ch/updates/banners.json"
+const bannersURL = "https://bitbox.swiss/updates/banners.json"
 
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string

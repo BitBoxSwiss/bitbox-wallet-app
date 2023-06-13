@@ -28,7 +28,7 @@ export const Wait = ({ title, text }: Props) => {
   return (
     <View
       fullscreen
-      width="700px"
+      width="720px"
       verticallyCentered
       textCenter>
       <ViewHeader title={title}>

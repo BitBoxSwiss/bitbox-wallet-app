@@ -23,11 +23,11 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
-const updateFileURL = "https://shiftcrypto.ch/updates/desktop.json"
+const updateFileURL = "https://bitbox.swiss/updates/desktop.json"
 
 var (
 	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(4, 37, 0)
+	Version = semver.NewSemVer(4, 38, 0)
 )
 
 // UpdateFile is retrieved from the server.

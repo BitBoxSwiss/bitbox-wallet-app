@@ -43,7 +43,7 @@ export default function BuyGuide({ name, exchange }: BuyGuideProps) {
       <Entry key="guide.buy.security" entry={{
         link: {
           text: t('buy.info.disclaimer.security.link'),
-          url: 'https://shiftcrypto.ch/bitbox02/threat-model/',
+          url: 'https://bitbox.swiss/bitbox02/threat-model/',
         },
         text: t('buy.info.disclaimer.security.descriptionGeneric', { name }),
         title: t('buy.info.disclaimer.security.title'),
