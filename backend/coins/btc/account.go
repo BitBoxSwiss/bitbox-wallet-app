@@ -587,8 +587,12 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	}
 	addressHistory, err := account.getAddressHistory(address)
 	if err != nil {
+		if account.isClosed() {
+			account.log.WithError(err).Error("stopping sync because account was closed")
+			return
+		}
 		// TODO
-		panic(err)
+		account.log.WithError(err).Panic("getAddressHistory failed")
 	}
 	if status == addressHistory.Status() {
 		account.incAndEmitSyncCounter()
@@ -631,8 +635,12 @@ func (account *Account) ensureAddresses() {
 		for {
 			newAddresses, err := addressChain.EnsureAddresses()
 			if err != nil {
+				if account.isClosed() {
+					account.log.WithError(err).Error("stopping sync because account was closed")
+					return
+				}
 				// TODO
-				panic(err)
+				account.log.WithError(err).Panic("EnsureAddresses failed")
 			}
 			if len(newAddresses) == 0 {
 				break
