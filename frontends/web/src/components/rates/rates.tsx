@@ -207,7 +207,4 @@ function Conversion({
 
 export const formattedCurrencies = currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency }));
 
-const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === store.state.active)?.displayName;
-export const defaultValueLabel = valueLabel ? `${valueLabel} (${store.state.active})` : store.state.active;
-
 export const FiatConversion = share<SharedProps, TProvidedProps>(store)(Conversion);
