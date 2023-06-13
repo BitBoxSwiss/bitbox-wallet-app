@@ -15,11 +15,11 @@
 
 .container input[disabled] + .slider {
   cursor: default;
-  opacity: 0.4;
+  background-color: var(--color-disabled);
 }
 
 .slider {
-  background-color: var(--color-disabled);
+  background-color: var(--background-tertiary);
   border-radius: 2px;
   bottom: 0;
   cursor: pointer;
