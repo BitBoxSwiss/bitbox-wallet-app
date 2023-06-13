@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## 4.38.0
 - Automatically discover used Bitcoin and Litecoin accounts
 - Improve sats amount readability adding thousands separator
-- Update minimum supported buntu version to 20.04+
-- Add support for Czech Crown (CZK)
+- Update minimum supported Ubuntu version to 20.04+
+- Add support for Czech Crown (CZK) and add Czech translation
 - Add support for Zloty (PLN)
 - Add advanced setup with skip microSD card or 12-word seed options
 
