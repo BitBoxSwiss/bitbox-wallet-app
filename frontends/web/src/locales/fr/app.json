@@ -181,7 +181,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "L'authentification a échoué. Ceci est potentiellement dû au redémarrage de l'application alors que l'appareil attendait une saisie de la part de l'utilisateur. Veuillez vous reconnecter et essayer à nouveau. Si cela persiste, veuillez contacter support@shiftcrypto.ch",
+    "attestationFailed": "L'authentification a échoué. Ceci est potentiellement dû au redémarrage de l'application alors que l'appareil attendait une saisie de la part de l'utilisateur. Veuillez vous reconnecter et essayer à nouveau. Si cela persiste, veuillez contacter support@bitbox.swiss",
     "backup": {
       "point1": "Sélectionner une sauvegarde sur la carte micro SD",
       "point2": "Définir un mot de passe pour votre appareil",

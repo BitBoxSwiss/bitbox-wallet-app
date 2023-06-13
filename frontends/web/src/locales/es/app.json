@@ -182,7 +182,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "La comprobación genuina del dispositivo ha fallado, que puede ser debido al reinicio de la aplicación mientras el dispositivo estaba esperando la interacción por parte del usuario. Por favor conecte de nuevo y inténtelo otra vez. Por favor contacte con support@shiftcrypto.ch si el error persiste.",
+    "attestationFailed": "La comprobación genuina del dispositivo ha fallado, que puede ser debido al reinicio de la aplicación mientras el dispositivo estaba esperando la interacción por parte del usuario. Por favor conecte de nuevo y inténtelo otra vez. Por favor contacte con support@bitbox.swiss si el error persiste.",
     "backup": {
       "point1": "Selecciona una copia de seguridad de la tarjeta microSD",
       "point2": "Establece una contraseña para su dispositivo",

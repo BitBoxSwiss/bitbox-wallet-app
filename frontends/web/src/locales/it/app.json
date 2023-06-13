@@ -181,7 +181,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "L'attestazione del dispositivo non è riuscita. Ciò potrebbe essere dovuto al riavvio dell'app mentre il dispositivo stava aspettando l'input dell'utente. Si prega di ricollegarsi e riprovare. Contattare support@shiftcrypto.ch se l'errore persiste.",
+    "attestationFailed": "L'attestazione del dispositivo non è riuscita. Ciò potrebbe essere dovuto al riavvio dell'app mentre il dispositivo stava aspettando l'input dell'utente. Si prega di ricollegarsi e riprovare. Contattare support@bitbox.swiss se l'errore persiste.",
     "backup": {
       "point1": "Scegli un backup sulla carta microSD",
       "point2": "Imposta una password per il tuo dispositivo",

@@ -196,7 +196,7 @@
       "skipSDCardText": "You always have the option to create a microSD card backup and write your recovery words after setup. This can be done from settings.",
       "title": "Advanced backup options"
     },
-    "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@shiftcrypto.ch if this persists.",
+    "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@bitbox.swiss if this persists.",
     "backup": {
       "point1": "Select a backup on the microSD card",
       "point2": "Set a password for your device",
@@ -718,7 +718,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Each coin can have a maximum of five accounts.",
+        "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After five accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
         "title": "How many accounts can I create?"
       },
       "howtoAddTokens": {

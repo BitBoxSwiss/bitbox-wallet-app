@@ -182,7 +182,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Pengesahan peranti gagal. BitBox anda mungkin palsu atau terkompromi. Syiling di BitBox02 mungkin berisiko hilang. Sila hubungi support@shiftcrypto.ch dengan segera.",
+    "attestationFailed": "Pengesahan peranti gagal. BitBox anda mungkin palsu atau terkompromi. Syiling di BitBox02 mungkin berisiko hilang. Sila hubungi support@bitbox.swiss dengan segera.",
     "backup": {
       "point1": "Pilih backup pada kad microSD",
       "point2": "Tetapkan kata laluan untuk peranti anda",

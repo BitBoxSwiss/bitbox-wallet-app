@@ -181,7 +181,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Validiteitscheck niet gehaald. Dit kan gebeuren als de app opnieuw wordt opgestart terwijl de BitBox wachtte op input. Probeer de BitBox opnieuw te verbinden. Neem contact op met support@shiftcrypto.ch als dit probleem blijft voortbestaan.",
+    "attestationFailed": "Validiteitscheck niet gehaald. Dit kan gebeuren als de app opnieuw wordt opgestart terwijl de BitBox wachtte op input. Probeer de BitBox opnieuw te verbinden. Neem contact op met support@bitbox.swiss als dit probleem blijft voortbestaan.",
     "backup": {
       "point1": "Selecteer een backup op de microSD kaart",
       "point2": "Stel een wachtwoord in voor je apparaat",

@@ -182,7 +182,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Echtheitsprüfung fehlgeschlagen. Bitte stecke die BitBox aus und wieder ein.  Bitte kontaktiere support@shiftcrypto.ch, falls dieses Problem weiterhin besteht.",
+    "attestationFailed": "Echtheitsprüfung fehlgeschlagen. Bitte stecke die BitBox aus und wieder ein.  Bitte kontaktiere support@bitbox.swiss, falls dieses Problem weiterhin besteht.",
     "backup": {
       "point1": "Wähle ein Backup von der microSD Karte aus",
       "point2": "Setze ein Passwort für dein Gerät",

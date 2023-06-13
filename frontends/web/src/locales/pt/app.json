@@ -181,7 +181,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Falha na verificação do dispositivo, o que pode ter ocorrido ao reniciar o app enquanto o dispositivo estava esperando uma entrada do usuário. Por favor, reconecte e tente novamente. Entre em contato com support@shiftcrypto.ch se a falha persistir.",
+    "attestationFailed": "Falha na verificação do dispositivo, o que pode ter ocorrido ao reniciar o app enquanto o dispositivo estava esperando uma entrada do usuário. Por favor, reconecte e tente novamente. Entre em contato com support@bitbox.swiss se a falha persistir.",
     "backup": {
       "point1": "Selecione um backup no cartão microSD",
       "point2": "Defina uma senha para o seu dispositivo",
