@@ -196,7 +196,7 @@
       "skipSDCardText": "You always have the option to create a microSD card backup and write your recovery words after setup. This can be done from settings.",
       "title": "Advanced backup options"
     },
-    "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@shiftcrypto.ch if this persists.",
+    "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@bitbox.swiss if this persists.",
     "backup": {
       "point1": "Select a backup on the microSD card",
       "point2": "Set a password for your device",
@@ -499,6 +499,40 @@
     "title": "Enable two factor authorization (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Create or verify your microSD card backup."
+      },
+      "showRecoveryWords": {
+        "description": "Show and verify 24 recovery words."
+      },
+      "title": "Backups"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "The BitBoxApp checks if your device is authentic."
+      },
+      "deviceName": {
+        "description": "Change the name of your device."
+      },
+      "securechip": {
+        "description": "The model of the secure chip."
+      },
+      "title": "Device information"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Reset your device to factory settings. This deletes the wallet on your BitBox02!",
+        "title": "Factory reset"
+      },
+      "goToStartupSettings": {
+        "description": "Enter the bootloader of the BitBox02. You can enable the firmware the hash from here."
+      },
+      "passphrase": {
+        "description": "Enable or disable the passphrase feature.",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Firmware Version",
       "newVersion": {
@@ -684,7 +718,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Each coin can have a maximum of five accounts.",
+        "text": "Bitcoin and Litecoin can have an arbitrary amount of accounts. After five accounts, you can only add another account if the previous account has been used. \nOther coins can have a maximum of five accounts.",
         "title": "How many accounts can I create?"
       },
       "howtoAddTokens": {
@@ -1006,6 +1040,44 @@
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "App version"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Select which UTXOs are part of a transaction to help improve privacy."
+      },
+      "customFees": {
+        "description": "Lets you enter your own fee when sending."
+      },
+      "torProxy": {
+        "description": "Connect over Tor for better privacy."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "These additional currencies can be toggled through on your account page.",
+        "title": "Active currencies"
+      },
+      "darkmode": {
+        "description": "See the BitBoxApp in dark mode."
+      },
+      "defaultCurrency": {
+        "description": "Select your default currency",
+        "title": "Default currency"
+      },
+      "language": {
+        "description": "Which language you want the BitBoxApp to use.",
+        "title": "Language"
+      },
+      "toggleSats": {
+        "description": "Enable or disable Satoshis."
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(optional)",
@@ -1309,7 +1381,9 @@
     "transactionDetails": "Transaction details"
   },
   "settings": {
+    "about": "About",
     "accounts": "Accounts",
+    "advancedSettings": "Advanced Settings",
     "appearance": "Appearance",
     "electrum": {
       "add": "Add a server",
@@ -1341,6 +1415,7 @@
     "expert": {
       "coinControl": "Enable coin control",
       "electrum": {
+        "description": "You can connect to your own Electrum full node.",
         "title": "Connect your own full node"
       },
       "fee": "Enable custom fees",

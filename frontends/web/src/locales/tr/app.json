@@ -113,7 +113,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Cihaz onayı başarısız oldu. BitBox'ınız sahte veya tehlikede olabilir. BitBox02 üzerindeki paralar kaybolma riski altında olabilir. Lütfen acilen support@shiftcrypto.ch ile iletişime geçin.",
+    "attestationFailed": "Cihaz onayı başarısız oldu. BitBox'ınız sahte veya tehlikede olabilir. BitBox02 üzerindeki paralar kaybolma riski altında olabilir. Lütfen acilen support@bitbox.swiss ile iletişime geçin.",
     "backup": {
       "point1": "MicroSD karttan bir yedek seçin",
       "point2": "Cihazınız için bir şifre belirleyin",

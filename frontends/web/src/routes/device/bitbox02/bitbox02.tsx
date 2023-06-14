@@ -24,8 +24,8 @@ import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Main } from '../../../components/layout';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { Settings } from './settings';
-import { UpgradeButton } from './upgradebutton';
+import { BB02Settings } from '../../settings/bb02-settings';
+import { FirmwareSetting } from '../../settings/components/device-settings/firmware-setting';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { Wait } from './setup/wait';
@@ -35,7 +35,9 @@ import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
 interface BitBox02Props {
-    deviceID: string;
+  deviceID: string;
+  deviceIDs: string[];
+  hasAccounts: boolean;
 }
 
 type Props = BitBox02Props & TranslateProps;
@@ -122,7 +124,7 @@ class BitBox02 extends Component<Props, State> {
   }
 
   public render() {
-    const { t, deviceID } = this.props;
+    const { t, deviceID, hasAccounts, deviceIDs } = this.props;
     const {
       attestation,
       createOptions,
@@ -145,13 +147,11 @@ class BitBox02 extends Component<Props, State> {
         <CenteredContent>
           <div className="box large">
             <p>{t('upgradeFirmware.label')}</p>
-            <div className="buttons">
-              <UpgradeButton
-                asButton
-                deviceID={deviceID}
-                versionInfo={versionInfo}
-              />
-            </div>
+            <FirmwareSetting
+              asButton
+              deviceID={deviceID}
+              versionInfo={versionInfo}
+            />
           </div>
         </CenteredContent>
       );
@@ -160,7 +160,7 @@ class BitBox02 extends Component<Props, State> {
       return <AppUpgradeRequired/>;
     }
     if (!showWizard) {
-      return <Settings deviceID={deviceID}/>;
+      return <BB02Settings deviceID={deviceID} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />;
     }
     if (waitDialog) {
       return (

@@ -29,6 +29,8 @@ import bankLightSVG from './assets/icons/bank-light.svg';
 import buyInfoSVG from './assets/icons/buy-info.svg';
 import checkedSmallSVG from './assets/icons/checked-small.svg';
 import checkSVG from './assets/icons/check.svg';
+import chevronRightDark from './assets/icons/chevron-right-dark.svg';
+import chevronLeftDark from './assets/icons/chevron-left-dark.svg';
 import cancelSVG from './assets/icons/cancel.svg';
 import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
@@ -45,10 +47,12 @@ import guideSVG from './assets/icons/guide.svg';
 import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import warningPNG from './assets/icons/warning.png';
+import warningOutlinedSVG from './assets/icons/warning-outlined.svg';
 import saveSVG from './assets/icons/save.svg';
 import saveLightSVG from './assets/icons/save-light.svg';
 import starSVG from './assets/icons/star.svg';
 import starInactiveSVG from './assets/icons/star-inactive.svg';
+import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = () => (
@@ -130,6 +134,8 @@ export const BuyInfo = (props: ImgProps) => (<img src={buyInfoSVG} draggable={fa
 export const Checked = (props: ImgProps) => (<img src={checkedSmallSVG} draggable={false} {...props} />);
 // simple check for copy component
 export const Check = (props: ImgProps) => (<img src={checkSVG} draggable={false} {...props} />);
+export const ChevronLeftDark = (props: ImgProps) => (<img src={chevronLeftDark} draggable={false} {...props} />);
+export const ChevronRightDark = (props: ImgProps) => (<img src={chevronRightDark} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
 export const CreditCardDark = (props: ImgProps) => (<img src={creditCardDarkSVG} draggable={false} {...props} />);
 export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} draggable={false} {...props} />);
@@ -146,10 +152,12 @@ export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={
 export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={false} {...props} />);
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
+export const WarningOutlined = (props: ImgProps) => (<img src={warningOutlinedSVG} draggable={false} {...props} />);
 export const Save = (props: ImgProps) => (<img src={saveSVG} draggable={false} {...props} />);
 export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
 export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
+export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

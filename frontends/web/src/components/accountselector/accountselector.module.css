@@ -50,7 +50,7 @@
 }
 
 .select :global(.react-select__option--is-selected) .balance {
-    color: var(--color-alt);
+    color: var(--color-default);
 }
 
 .select :global(.react-select__control) {
@@ -81,7 +81,7 @@
 }
 
 .select :global(.react-select__option--is-selected) .selectLabelText {
-    color: var(--color-alt);
+    color: var(--color-default);
 }
 
 .valueContainer > img {

@@ -182,7 +182,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Kontrola originality selhala, což mohlo být způsobeno restartováním aplikace v době, kdy zařízení čekalo na vstup uživatele. Znovu se připojte a zkuste to znovu. Pokud tento problém přetrvává, obraťte se prosím na support@shiftcrypto.ch.",
+    "attestationFailed": "Kontrola originality selhala, což mohlo být způsobeno restartováním aplikace v době, kdy zařízení čekalo na vstup uživatele. Znovu se připojte a zkuste to znovu. Pokud tento problém přetrvává, obraťte se prosím na support@bitbox.swiss.",
     "backup": {
       "point1": "Vyberte zálohu na microSD kartě",
       "point2": "Nastavit heslo pro zařízení",

@@ -66,3 +66,7 @@ export const getQRCode = (data: string) => {
 export const getDefaultConfig = (): Promise<any> => {
   return apiGet('config/default');
 };
+
+export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
+  return apiPost('socksproxy/check', proxyAddress);
+};

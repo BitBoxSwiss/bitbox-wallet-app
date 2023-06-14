@@ -1,0 +1,89 @@
+.container {
+    height: var(--item-height-xlarge);
+    width: 100%;
+    min-width: 230px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    text-align:left;
+    border: none;
+    background-color: var(--background-secondary);
+    font-size: var(--size-default);
+    font-weight: 400;
+    padding: 16px 24px;
+    color: var(--color-dark);
+    margin-bottom: var(--size-default);
+}
+
+
+.primaryText {
+    color: var(--color-default);
+    font-size: 16px;
+    margin: 0;    
+}
+
+.isButton:hover {
+    cursor: pointer;
+}
+
+
+.rightContentContainer {
+    display: flex;
+    align-items: center;
+}
+
+.displayedValue {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.displayedValue.withMargin {
+    margin-right: var(--space-quarter);
+}
+
+.secondaryText {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin: 0;
+    margin-top: var(--space-quarter);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) { 
+    .container {
+         height: auto;
+         margin-bottom: 5px;
+         min-width: 100%;
+    }
+
+    .secondaryText {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    
+    .container.collapse {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .container.collapse .displayedValue.withMargin {
+        margin-right: 0;
+    }
+
+    .container.collapse .rightContentContainer {
+        width: 100%
+    }
+
+    .hideDisplayedValueOnSmall {
+        display: none;
+    }
+    
+}

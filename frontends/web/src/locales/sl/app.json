@@ -181,7 +181,7 @@
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Preverjanje ni uspelo, kar je lahko posledica ponovnega zagona aplikacije, medtem ko je naprava čakala na uporabniški vnos (dotik). Napravo znova vklopite in poskusite znova. Če težava ne izgine, se obrnite na support@shiftcrypto.ch (v angleščini).",
+    "attestationFailed": "Preverjanje ni uspelo, kar je lahko posledica ponovnega zagona aplikacije, medtem ko je naprava čakala na uporabniški vnos (dotik). Napravo znova vklopite in poskusite znova. Če težava ne izgine, se obrnite na support@bitbox.swiss (v angleščini).",
     "backup": {
       "point1": "Izberite arhivsko kopijo na microSD kartici",
       "point2": "Nastavite geslo za svojo napravo",

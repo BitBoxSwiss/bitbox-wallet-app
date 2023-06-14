@@ -84,7 +84,7 @@ class Passphrase extends Component<Props, State> {
     try {
       const result = await setMnemonicPassphraseEnabled(deviceID, enable);
       if (!result.success) {
-        route(`/device/${deviceID}`);
+        route(`/settings/device-settings/${deviceID}`);
         alertUser(t(`passphrase.error.e${result.code}`, {
           defaultValue: result.message || t('genericError'),
         }));
@@ -102,7 +102,7 @@ class Passphrase extends Component<Props, State> {
     }
   };
 
-  private stopInfo = () => route(`/device/${this.props.deviceID}`);
+  private stopInfo = () => route(`/settings/device-settings/${this.props.deviceID}`);
 
   private continueInfo = () => {
     if (this.state.infoStep === 0) {

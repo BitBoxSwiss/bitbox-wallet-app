@@ -16,9 +16,9 @@
 
 export type TActiveLanguageCodes = 'bg' | 'de' | 'en' | 'es'
     | 'fr' | 'hi' | 'it' | 'ja' | 'ms' | 'nl' | 'pt'
-    | 'ru' | 'sl' | 'tr' | 'zh';
+    | 'ru' | 'sl' | 'tr' | 'zh' | 'fa' | 'he'| 'ar';
 
-type TLanguage = {
+export type TLanguage = {
     code: TActiveLanguageCodes;
     display: string;
 };

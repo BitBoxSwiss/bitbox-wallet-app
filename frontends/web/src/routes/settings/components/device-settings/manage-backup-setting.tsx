@@ -15,19 +15,25 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { SettingsToggle } from '../../components/settingsButton/settingsToggle';
-import { useDarkmode } from '../../hooks/darkmode';
+import { SettingsItem } from '../settingsItem/settingsItem';
+import { ChevronRightDark } from '../../../../components/icon';
+import { route } from '../../../../utils/route';
 
-export const DarkModeToggle = () => {
+type TProps = {
+  deviceID: string;
+}
+
+const ManageBackupSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
-  const { isDarkMode, toggleDarkmode } = useDarkmode();
-
   return (
-    <SettingsToggle
-      checked={isDarkMode}
-      id="darkMode"
-      onChange={() => toggleDarkmode(!isDarkMode)}>
-      {t('darkmode.toggle')}
-    </SettingsToggle>
+    <SettingsItem
+      onClick={() => route(`/manage-backups/${deviceID}`)}
+      settingName={t('backup.title')}
+      secondaryText={t('deviceSettings.backups.manageBackups.description')}
+      extraComponent={<ChevronRightDark />}
+    />
   );
 };
+
+
+export { ManageBackupSetting };
