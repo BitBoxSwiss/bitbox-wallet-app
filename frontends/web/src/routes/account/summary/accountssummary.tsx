@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { apiWebsocket, TPayload } from '../../../utils/websocket';
+import { subscribeStatusChange, subscribeSyncdone } from '../../../api/accountsync';
 import { TDevices } from '../../../api/devices';
-import { useSDCard } from '../../../hooks/sdcard';
-import { Status } from '../../../components/status/status';
-import { Header } from '../../../components/layout';
-import { Chart } from './chart';
-import { SummaryBalance } from './summarybalance';
-import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
+import { Header } from '../../../components/layout';
+import { Status } from '../../../components/status/status';
+import { useSubscribeMap } from '../../../hooks/api';
+import { useSDCard } from '../../../hooks/sdcard';
+import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
+import { Chart } from './chart';
+import { SummaryBalance } from './summarybalance';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -74,7 +75,7 @@ export function AccountsSummary({
     }
   };
 
-  const onStatusChanged = useCallback(async (code: string, initial: boolean = false) => {
+  const onStatusChanged = useCallback(async (code: string, _?: string) => {
     const status = await accountApi.getStatus(code);
     if (status.disabled) {
       return;
@@ -87,28 +88,28 @@ export function AccountsSummary({
       ...prevBalances,
       [code]: balance
     }));
-    if (initial) {
+
+    if (firstRender.current) {
       return;
     }
+
+    getAccountSummary();
     getAccountsTotalBalance();
   }, []);
 
-  const onEvent = useCallback((payload: TPayload) => {
-    if ('type' in payload) {
-      const { code, data, type } = payload;
-      if (type === 'account') {
-        switch (data) {
-        case 'statusChanged':
-        case 'syncdone':
-          if (code) {
-            onStatusChanged(code);
-          }
-          getAccountSummary();
-          break;
-        }
-      }
-    }
-  }, [onStatusChanged]);
+  useSubscribeMap<accountApi.AccountCode, string>(
+    accounts.map((account) => account.code),
+    subscribeStatusChange,
+    onStatusChanged,
+    [accounts]
+  );
+
+  useSubscribeMap<accountApi.AccountCode, string>(
+    accounts.map((account) => account.code),
+    subscribeSyncdone,
+    onStatusChanged,
+    [accounts]
+  );
 
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
@@ -118,6 +119,13 @@ export function AccountsSummary({
       firstRender.current = false;
     };
   }, []);
+
+  // call onStatusChanged when accounts changes.
+  useEffect(() => {
+    accounts.forEach((account) => {
+      onStatusChanged(account.code);
+    });
+  }, [accounts, onStatusChanged]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
@@ -131,15 +139,6 @@ export function AccountsSummary({
       }
     };
   }, [summaryData]);
-
-  // update subscriptions on account change.
-  useEffect(() => {
-    const unsubscribe = apiWebsocket(onEvent);
-    accounts.forEach(account => {
-      onStatusChanged(account.code, firstRender.current);
-    });
-    return () => unsubscribe();
-  }, [onStatusChanged, onEvent, accounts]);
 
   return (
     <div className="contentWithGuide">

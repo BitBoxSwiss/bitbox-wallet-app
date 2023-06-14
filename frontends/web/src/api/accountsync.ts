@@ -15,9 +15,9 @@
  */
 
 import { TUnsubscribe } from '../utils/transport-common';
-import { subscribeEndpoint } from './subscribe';
+import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { subscribe as subscribeLegacy } from '../utils/event-legacy';
-import { IAccount } from './account';
+import { AccountCode, IAccount } from './account';
 
 /**
  * Subscribes the given function on the "account" event and receives the
@@ -29,6 +29,18 @@ export const syncAccountsList = (
 ): TUnsubscribe => {
   return subscribeEndpoint('accounts', cb);
 };
+
+/**
+ * Returns a function that subscribes a callback on an "account/<CODE>/synced-addresses-count"
+ * event to receive the progress of the address sync.
+ * Meant to be used with `useSubscribe` or `useSubscribeMap`.
+ */
+export const subscribeAddressesCount = (code: AccountCode) => (
+  (cb: TSubscriptionCallback<number>) => {
+		 return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
+      count: number,
+    ) => cb(count));
+  });
 
 /**
  * Subscribes the given function on an "account/<CODE>/synced-addresses-count" event
@@ -47,6 +59,22 @@ export const syncAddressesCount = (
 };
 
 /**
+ * Returns a function that subscribes a callback to be executed
+ * when a statusChanged event is fired for the passed account.
+ * Meant to be used with `useSubscribe` or `useSubscribeMap`.
+ */
+export const subscribeStatusChange = (code: AccountCode) => (
+  (cb: TSubscriptionCallback<string>) => {
+    const unsubscribe = subscribeLegacy('statusChanged', event => {
+      if (event.type === 'account' && event.code === code) {
+        cb(code);
+      }
+    });
+    return unsubscribe;
+  });
+
+
+/**
  * Fired when status of an account changed, mostly
  * used as event to call accountApi.getStatus(code).
  * Returns a method to unsubscribe.
@@ -62,6 +90,20 @@ export const statusChanged = (
   });
   return unsubscribe;
 };
+
+/**
+ * Returns a function that subscribes a callback to be executed
+ * when a syncdone event is fired for the passed account.
+ * Meant to be used with `useSubscribe` or `useSubscribeMap`.
+ */
+export const subscribeSyncdone = (code: AccountCode) => (
+  (cb: TSubscriptionCallback<string>) => {
+    return subscribeLegacy('syncdone', event => {
+      if (event.type === 'account' && event.code === code) {
+        cb(code);
+      }
+    });
+  });
 
 /**
  * Fired when the account is fully synced.

@@ -22,9 +22,8 @@ import { Amount } from '../../../components/amount/amount';
 import Spinner from '../../../components/spinner/ascii';
 import { FiatConversion } from '../../../components/rates/rates';
 import style from './accountssummary.module.css';
-import { useEffect, useRef, useState } from 'react';
-import { syncAddressesCount } from '../../../api/accountsync';
-import { TUnsubscribe } from '../../../utils/transport-common';
+import { subscribeAddressesCount } from '../../../api/accountsync';
+import { useSubscribe } from '../../../hooks/api';
 
 type TProps = {
   code: AccountCode;
@@ -37,26 +36,7 @@ export function BalanceRow (
   { code, name, coinCode, balance }: TProps
 ) {
   const { t } = useTranslation();
-
-  const [syncStatus, setSyncStatus] = useState<number>();
-
-  const unsubscribe = useRef<TUnsubscribe>();
-
-  const onSyncAddressesCount = (
-    _: string,
-    syncedAddressesCount: number,
-  ) => {
-    setSyncStatus(syncedAddressesCount);
-  };
-
-  useEffect(() => {
-    if (unsubscribe.current) {
-      unsubscribe.current();
-    }
-    unsubscribe.current = syncAddressesCount(code, onSyncAddressesCount);
-    return () => unsubscribe.current && unsubscribe.current();
-  }, [code]);
-
+  const syncStatus = useSubscribe(subscribeAddressesCount(code));
 
   const nameCol = (
     <td
