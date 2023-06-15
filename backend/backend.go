@@ -71,7 +71,7 @@ var fixedURLWhitelist = []string{
 	"https://blockstream.info/tx/",
 	"https://blockstream.info/testnet/tx/",
 	"https://sochain.com/tx/LTCTEST/",
-	"https://insight.litecore.io/tx/",
+	"https://blockchair.com/litecoin/transaction/",
 	"https://etherscan.io/tx/",
 	"https://goerli.etherscan.io/tx/",
 	// Moonpay onramp
@@ -387,7 +387,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
-			"https://insight.litecore.io/tx/", backend.socksProxy)
+			"https://blockchair.com/litecoin/transaction/", backend.socksProxy)
 	case code == coinpkg.CodeETH:
 		etherScan := etherscan.NewEtherScan("https://api.etherscan.io/api", backend.etherScanHTTPClient)
 		coin = eth.NewCoin(etherScan, code, "Ethereum", "ETH", "ETH", params.MainnetChainConfig,
