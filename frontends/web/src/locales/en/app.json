@@ -189,9 +189,9 @@
     "advanced": {
       "button": "Advanced options",
       "outOfDate": "Firmware out of date for this feature",
+      "seed12WordInfo": "Please note that the number of words cannot be changed after creating the wallet.",
       "seed12WordLabel": "Create 12-word instead of 24-word seed",
-      "seed12WordText_1": "By default the BitBox02 uses a 24-word seed. Both seed lengths are secure against brute forcing in practice. Some users may prefer the convenience of the 12-word seed instead.",
-      "seed12WordText_2": "Please note that the number of words cannot be changed after creating the wallet.",
+      "seed12WordText": "By default the BitBox02 uses a 24-word seed. Both seed lengths are secure against brute forcing in practice. Some users may prefer the convenience of the 12-word seed instead.",
       "skipSDCardLabel": "Skip microSD card backup and write down recovery words instead",
       "skipSDCardText": "You always have the option to create a microSD card backup and write your recovery words after setup. This can be done from settings.",
       "title": "Advanced backup options"
