@@ -70,7 +70,7 @@ var fixedURLWhitelist = []string{
 	// Block explorers.
 	"https://blockstream.info/tx/",
 	"https://blockstream.info/testnet/tx/",
-	"http://explorer.litecointools.com/tx/",
+	"https://sochain.com/tx/LTCTEST/",
 	"https://insight.litecore.io/tx/",
 	"https://etherscan.io/tx/",
 	"https://goerli.etherscan.io/tx/",
@@ -383,7 +383,7 @@ func (backend *Backend) Coin(code coinpkg.Code) (coinpkg.Coin, error) {
 	case code == coinpkg.CodeTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeTLTC, "Litecoin Testnet", "TLTC", coinpkg.BtcUnitDefault, &ltc.TestNet4Params, dbFolder, servers,
-			"http://explorer.litecointools.com/tx/", backend.socksProxy)
+			"https://sochain.com/tx/LTCTEST/", backend.socksProxy)
 	case code == coinpkg.CodeLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinpkg.CodeLTC, "Litecoin", "LTC", coinpkg.BtcUnitDefault, &ltc.MainNetParams, dbFolder, servers,
