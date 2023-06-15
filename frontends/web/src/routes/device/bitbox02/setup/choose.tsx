@@ -126,13 +126,13 @@ export const SetupOptions = ({
                 </div>
                 <p className="m-top-quarter m-bottom-default">
                   <small>
-                    {t('bitbox02Wizard.advanced.seed12WordText_1')}
+                    {t('bitbox02Wizard.advanced.seed12WordText')}
                   </small>
                 </p>
                 <p className="m-top-quarter m-bottom-default">
                   <small>
                     <Info className={style.textIcon} />
-                    {t('bitbox02Wizard.advanced.seed12WordText_2')}
+                    {t('bitbox02Wizard.advanced.seed12WordInfo')}
                   </small>
                 </p>
               </div>
