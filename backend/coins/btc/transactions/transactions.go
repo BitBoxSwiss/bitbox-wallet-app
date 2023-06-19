@@ -330,7 +330,7 @@ func (transactions *Transactions) getTransactionCached(
 	}
 	tx, err := transactions.blockchain.TransactionGet(txHash)
 	if err != nil {
-		panic(err)
+		transactions.log.WithError(err).Panic("TransactionGet failed")
 	}
 	return tx
 }
@@ -385,7 +385,7 @@ func (transactions *Transactions) txInfo(
 		spentOut, err := dbTx.Output(txIn.PreviousOutPoint)
 		if err != nil {
 			// TODO
-			panic(err)
+			transactions.log.WithError(err).Panic("Output() failed")
 		}
 		if spentOut != nil {
 			sumOurInputs += btcutil.Amount(spentOut.Value)
@@ -405,7 +405,7 @@ func (transactions *Transactions) txInfo(
 		})
 		if err != nil {
 			// TODO
-			panic(err)
+			transactions.log.WithError(err).Panic("Output() failed")
 		}
 		addressAndAmount := accounts.AddressAndAmount{
 			Address: transactions.outputToAddress(txOut.PkScript),
