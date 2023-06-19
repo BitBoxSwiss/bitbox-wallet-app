@@ -492,6 +492,7 @@ func (transactions *Transactions) txInfo(
 		Size:             int64(txInfo.Tx.SerializeSize()),
 		Weight:           btcdBlockchain.GetTransactionWeight(btcutilTx),
 		CreatedTimestamp: txInfo.CreatedTimestamp,
+		IsErc20:          false,
 	}
 }
 

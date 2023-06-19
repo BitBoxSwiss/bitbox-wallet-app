@@ -125,6 +125,7 @@ func (txh *TransactionWithMetadata) TransactionData(
 		Fee: txh.fee(),
 		// ERC20 token transaction pay fees in Ether.
 		FeeIsDifferentUnit:       erc20Token != nil,
+		IsErc20:                  erc20Token != nil,
 		Timestamp:                nil,
 		TxID:                     txh.TxID(),
 		InternalID:               txh.TxID(),

@@ -18,6 +18,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -230,6 +231,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	}
 	result.Transactions = []Transaction{}
 	for _, txInfo := range txs {
+		if txInfo.IsErc20 && big.NewInt(0).Cmp(txInfo.Amount.BigInt()) == 0 {
+			// skipping 0 amount erc20 txs to mitigate Address Poisoning attack
+			continue
+		}
 		result.Transactions = append(result.Transactions, handlers.getTxInfoJSON(txInfo, false))
 	}
 	result.Success = true
