@@ -132,10 +132,6 @@ export const getSummary = (): Promise<ISummary> => {
   return apiGet('account-summary');
 };
 
-export const exportSummary = (): Promise<string> => {
-  return apiPost('export-account-summary');
-};
-
 export type Conversions = {
     [key in Fiat]: string;
 }

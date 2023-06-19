@@ -22,16 +22,12 @@ import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import { TDevices } from '../../../api/devices';
 import { useSDCard } from '../../../hooks/sdcard';
 import { Status } from '../../../components/status/status';
-import A from '../../../components/anchor/anchor';
 import { Header } from '../../../components/layout';
-import { Check } from '../../../components/icon/icon';
 import { Chart } from './chart';
 import { SummaryBalance } from './summarybalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { debug } from '../../../utils/env';
-import { apiPost } from '../../../utils/request';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -53,7 +49,6 @@ export function AccountsSummary({
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [totalBalancePerCoin, setTotalBalancePerCoin] = useState<accountApi.ITotalBalance>();
   const [balances, setBalances] = useState<Balances>();
-  const [exported, setExported] = useState('');
 
   const hasCard = useSDCard(devices);
 
@@ -115,15 +110,6 @@ export function AccountsSummary({
     }
   }, [onStatusChanged]);
 
-  const exportSummary = async () => {
-    try {
-      const exportResult = await accountApi.exportSummary();
-      setExported(exportResult);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
     getAccountSummary();
@@ -162,26 +148,7 @@ export function AccountsSummary({
           <Status hidden={!hasCard} type="warning">
             {t('warning.sdcard')}
           </Status>
-          <Header title={<h2>{t('accountSummary.title')}</h2>}>
-            { debug && (
-              exported ? (
-                <A key="open" href="#" onClick={() => apiPost('open', exported)} title={exported} className="flex flex-row flex-start flex-items-center">
-                  <span>
-                    <Check style={{ marginRight: '5px !important' }} />
-                    <span>{t('account.openFile')}</span>
-                  </span>
-                </A>
-              ) : (
-                <a key="export" onClick={exportSummary} title={t('accountSummary.exportSummary')}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#699ec6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                </a>
-              )
-            )}
-          </Header>
+          <Header title={<h2>{t('accountSummary.title')}</h2>}/>
           <div className="content padded">
             <Chart
               data={summaryData}
