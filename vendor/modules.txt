@@ -4,7 +4,7 @@ github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
-# github.com/btcsuite/btcd v0.23.1
+# github.com/btcsuite/btcd v0.23.4
 ## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
@@ -35,6 +35,12 @@ github.com/btcsuite/btcd/chaincfg/chainhash
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
 ## explicit
 github.com/btcsuite/btclog
+# github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
+## explicit
+# github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
+## explicit
+# github.com/btcsuite/winsvc v1.0.0
+## explicit
 # github.com/cespare/cp v1.1.1
 ## explicit
 # github.com/davecgh/go-spew v1.1.1
@@ -51,6 +57,8 @@ github.com/decred/dcrd/crypto/blake256
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
+# github.com/decred/dcrd/lru v1.0.0
+## explicit; go 1.11
 # github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230403145434-d71ecec2b7ad
 ## explicit; go 1.13
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
@@ -115,6 +123,8 @@ github.com/go-ole/go-ole/oleutil
 # github.com/go-stack/stack v1.8.0
 ## explicit
 github.com/go-stack/stack
+# github.com/golang/snappy v0.0.4
+## explicit
 # github.com/google/uuid v1.2.0
 ## explicit
 github.com/google/uuid
@@ -124,6 +134,10 @@ github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.2
 ## explicit; go 1.12
 github.com/gorilla/websocket
+# github.com/jessevdk/go-flags v1.4.0
+## explicit
+# github.com/jrick/logrotate v1.0.0
+## explicit
 # github.com/kkdai/bstream v1.0.0
 ## explicit; go 1.6
 github.com/kkdai/bstream
@@ -162,6 +176,8 @@ github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
 github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
+# github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+## explicit; go 1.14
 # github.com/tklauser/go-sysconf v0.3.5
 ## explicit; go 1.13
 github.com/tklauser/go-sysconf

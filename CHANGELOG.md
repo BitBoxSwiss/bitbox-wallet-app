@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.37.1
+- Fix BitBoxApp crash when processing BTC/LTC transactions containing too large witness items
+
 ## 4.37.0
 - Bundle BitBox02 firmware version v9.14.0
 - Enable auto HiDPI scaling to correctly manage scale factor on high density screens
