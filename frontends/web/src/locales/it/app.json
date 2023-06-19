@@ -57,6 +57,7 @@
       "title": "Seleziona cryptovaluta"
     },
     "success": {
+      "addAnotherAccount": "Aggiungi un nuovo account",
       "message": "<strong>{{accountName}}</strong> è stato aggiunto ai tuoi account.",
       "nextButton": "Fatto",
       "step": "Finito",
@@ -135,7 +136,7 @@
       "understand": "Capisco che una password di recupero errata creerà un portafoglio diverso"
     },
     "showMnemonic": {
-      "description": "Ti verranno mostrate 24 parole di recupero, che formano un backup del tuo portafoglio. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
+      "description": "Ti verranno mostrate le parole di recupero, che formano un backup del tuo portafoglio. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
       "title": "Mostra le parole di recupero"
     },
     "title": "Gestisci i backup"
@@ -164,6 +165,8 @@
     "confirmDate": "Conferma la data di oggi sul tuo BitBox02",
     "confirmDateText": "Questa data sarà usata per creare il tuo backup.",
     "confirmName": "Conferma il nome sul BitBox02",
+    "confirmWords": "Prendi nota delle {{amount}} parole di recupero dal tuo BitBox02",
+    "confirmWordsText": "In seguito il BitBox02 ti chiederà di confermare ogni parola per verificare la correttezza del tuo backup.",
     "followInstructions": "Segui le istruzioni sul tuo BitBox02",
     "followInstructionsMnemonic": "Segui le istruzioni sul tuo BitBox02 per ripristinare utilizzando le parole di recupero.",
     "followInstructionsMnemonicTitle": "Ripristina da parole di recupero\n"
@@ -171,6 +174,8 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Nome attuale del dispositivo",
+      "error": "Non è stato possibile configurare il nome del dispositivo",
+      "error_104": "La conferma del nome del dispositivo è stata abortita sul dispositivo.",
       "input": "Nome del BitBox02",
       "placeholder": "Nuovo nome del dispositivo",
       "title": "Imposta il nome del BitBox02"
@@ -181,6 +186,16 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Opzioni avanzate",
+      "outOfDate": "Firmware non aggiornato per questa funzionalità",
+      "seed12WordInfo": "Attenzione, il numero di parole non potrà essere modificato dopo la creazione del portafogli.",
+      "seed12WordLabel": "Crea un seed da 12 parole invece di 24",
+      "seed12WordText": "Il BitBox02 di default usa un seed da 24 parole. All'atto pratico, entrambe le lunghezze del seed sono sicure contro attacchi di tipo brute force. Alcuni utenti potrebbero preferire la comodità di un seed da 12 parole.",
+      "skipSDCardLabel": "Salta il backup su microSD e sostituiscilo annotando le parole di recupero",
+      "skipSDCardText": "Hai sempre l'opzione di creare un backup su microSD e annotare le parole di recupero dopo il setup. Puoi farlo dalle impostazioni.",
+      "title": "Opzioni di backup avanzate"
+    },
     "attestationFailed": "L'attestazione del dispositivo non è riuscita. Ciò potrebbe essere dovuto al riavvio dell'app mentre il dispositivo stava aspettando l'input dell'utente. Si prega di ricollegarsi e riprovare. Contattare support@bitbox.swiss se l'errore persiste.",
     "backup": {
       "point1": "Scegli un backup sulla carta microSD",
@@ -193,7 +208,8 @@
       "userConfirmation2": "Il backup non è protetto da una password. Chiunque abbia accesso ad esso può accedere anche al mio portafoglio.",
       "userConfirmation3": "Se perdo o danneggio il mio BitBox02, l'unico modo per recuperare i miei fondi è ripristinare il backup.",
       "userConfirmation4": "Se perdo o danneggio sia il backup che il dispositivo BitBox02, i miei fondi andranno persi.",
-      "userConfirmation5": "Non devo inserire il mio backup su scheda microSD in un computer, telefono, stampante o qualsiasi altro dispositivo che non sia un BitBox02."
+      "userConfirmation5": "Non devo inserire il mio backup su scheda microSD in un computer, telefono, stampante o qualsiasi altro dispositivo che non sia un BitBox02.",
+      "userConfirmation5mnemonic": "Non devo inserire le mie parole di recupero in un computer, telefono, stampante o altro dispositivo diverso da BitBox02."
     },
     "create": {
       "button": "Assegnare un nome al dispositivo e continuare",
@@ -204,6 +220,7 @@
       "point3": "Crea un backup",
       "text": "Bene, ora creiamo un nuovo portafoglio!"
     },
+    "createBackupAborted": "Creazione del backup interrotta.",
     "createBackupFailed": "Creazione del backup fallita. Riprovare.",
     "initialize": {
       "passwordText": "Ora impostiamo la password del dispositivo. Usa i controlli sul tuo BitBox per scegliere i caratteri della password.",
@@ -221,11 +238,13 @@
       "unpaired": "È stato rilevato un nuovo BitBox02. Si prega di verificare che il seguente codice corrisponda a quello mostrato sul tuo dispositivo. Se il codice corrisponde, tocca sotto il segno di spunta sul tuo BitBox02 e poi clicca sul pulsante qui sotto per continuare."
     },
     "restoreFromMnemonic": {
+      "e104": "Il ripristino tramite parole di recupero è stato cancellato.",
       "failed": "Ripristino con parole di recupero non riuscito. Riprovare."
     },
     "stepBackup": {
       "beforeProceed": "Prima di procedere, leggi queste importanti considerazioni sulla sicurezza:",
-      "createBackup": "Ora si procede a creare un backup sulla scheda microSD."
+      "createBackup": "Ora si procede a creare un backup sulla scheda microSD.",
+      "createBackupMnemonic": "Scrivi le parole di recupero."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Per tenere i tuoi fondi al sicuro, ricordati quanto segue:",
@@ -239,7 +258,7 @@
       "nameLabel": "Nome del BitBox02",
       "namePlaceholder": "Il mio BitBox02",
       "title": "Scegli il nome del BitBox02",
-      "toastMicroSD": "Assicurati che la scheda microSD sia inserita nel tuo BitBox02."
+      "toastMicroSD": "Inserisci nel tuo BitBox02 la scheda microSD che sarà utilizzata per salvare un backup del tuo portafogli."
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Rimuovere la scheda microSD dal BitBox02 e conservarla in un luogo sicuro.",
@@ -250,6 +269,7 @@
       "insertSDcardTitle": "Inserire la scheda microSD"
     },
     "stepPassword": {
+      "e104": "L'impostazione della password è stata cancellata.",
       "title": "Impostare la password del BitBox02",
       "useControls": "Usa i controlli sul tuo BitBox02 per impostare la password."
     },
@@ -414,7 +434,7 @@
       },
       "kyc": {
         "link": "Leggi le FAQ di Pocket",
-        "p1": "Pocket cerca di mantenere al minimo il KYC. Per acquisti al di sotto dei 900 EUR (1000 CHF) al giorno, non è necessario nessun documento aggiuntivo. Per acquisti di importi superiori, sarà necessario programmare una call con Pocket per completare le necessarie procedure KYC/AML.",
+        "p1": "Pocket cerca di mantenere al minimo il KYC. Per acquisti al di sotto dei 950 EUR (1000 CHF) al giorno, non è necessario nessun documento aggiuntivo. Per acquisti di importi superiori, sarà necessario programmare una call con Pocket per completare le necessarie procedure KYC/AML.",
         "title": "KYC/AML"
       },
       "payment": {
@@ -464,6 +484,9 @@
     "infoWhenPaired": "Prima sul cellulare accoppiato e poi sul tuo BitBox"
   },
   "confirmOnDevice": "Conferma sul tuo dispositivo.",
+  "darkmode": {
+    "toggle": "Modalità scura"
+  },
   "device": {
     "appUpradeRequired": "Il tuo BitBox non è compatibile con questa versione dell'applicazione desktop. Installa l'ultima versione."
   },
@@ -476,6 +499,40 @@
     "title": "Abilita autenticazione a due fattori (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Crea o verifica il tuo backup su microSD."
+      },
+      "showRecoveryWords": {
+        "description": "Mostra e verifica le parole di recupero."
+      },
+      "title": "Backup"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "La BitBoxApp verifica che il tuo dispositivo sia autentico."
+      },
+      "deviceName": {
+        "description": "Modifica il nome del tuo dispositivo."
+      },
+      "securechip": {
+        "description": "Modello del secur chip."
+      },
+      "title": "Informazioni sul dispositivo"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Ripristina il tuo dispositivo alle impostazioni di fabbrica. Questo cancella il portafogli sul tuo BitBox02!",
+        "title": "Ripristino alle impostazioni di fabbrica"
+      },
+      "goToStartupSettings": {
+        "description": "Entra nel bootloader del BitBox02. Da qui puoi abilitare il firmware hash"
+      },
+      "passphrase": {
+        "description": "Abilita o disabilita la passphrase.",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Versione Firmware",
       "newVersion": {
@@ -636,7 +693,7 @@
       "title": "Come viene calcolato l'importo totale?"
     },
     "accountSummaryDescription": {
-      "text": "Qui pui vedere la performance del tuo portafoglio nel tempo. Sotto il grafico viene visualizzato un riepilogo dei diversi account.",
+      "text": "Qui pui vedere la performance del tuo portafogli nel tempo. Sotto il grafico viene visualizzato un riepilogo dei diversi account.",
       "title": "Cosa contiene questa pagina?"
     },
     "accountTransactionAttributesBTC": {
@@ -661,7 +718,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Ogni valuta può avere un massimo di cinque account.\n",
+        "text": "Non c'è un limite al numero di account Bitcoin e Litecoin supportati. Dopo il quinto account, potrai aggiungerne uno nuovo solo se il precedente è già stato utilizzato.\n",
         "title": "Quanti account posso creare?"
       },
       "howtoAddTokens": {
@@ -777,7 +834,7 @@
     },
     "receive": {
       "address": {
-        "text": "Puoi dare l'indirizzo ad altri per mandarti dei fondi. Assicurati di inviare all'indirizzo corretto.",
+        "text": "Puoi dare l'indirizzo ad altri per farti inviare dei fondi. Assicurati che stiano inviando all'indirizzo corretto.",
         "title": "Cosa devo fare con un indirizzo?"
       },
       "addressChange": {
@@ -983,6 +1040,44 @@
   "mobile": {
     "usingMobileDataWarning": "Utilizzo di dati mobili: dopo aver sbloccato un account questa app può scaricare fino a qualche centinaio di megabyte di dati dell'intestazione della blockchain. Si prega di connettersi al Wi-Fi per evitare di utilizzare i dati mobili. Dopo averlo chiuso, questo messaggio non verrà più visualizzato."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Versione dell'app"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Seleziona quali UTXOs fanno parte di una transazione per aiutarti ad aumentare la tua privacy."
+      },
+      "customFees": {
+        "description": "Ti permette di inserire una fee a tua discrezione all'invio."
+      },
+      "torProxy": {
+        "description": "Connettiti tramite Tor per una migliore privacy."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Puoi ruotare tra queste valute aggiuntive dalla pagina del tuo account.",
+        "title": "Valute attive"
+      },
+      "darkmode": {
+        "description": "Visualizza la BitBoxApp in modalità scura."
+      },
+      "defaultCurrency": {
+        "description": "Selezione la valuta di default",
+        "title": "Valuta di default"
+      },
+      "language": {
+        "description": "In che lingua preferisci visualizzare la BitBoxApp.",
+        "title": "Lingua"
+      },
+      "toggleSats": {
+        "description": "Abilita o disabilita i Satoshi"
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(facoltativo)",
@@ -1043,7 +1138,7 @@
   "passphrase": {
     "considerations": {
       "button": "Considerazioni sul backup\n",
-      "message": "La passphrase aggiunge un livello di protezione al backup del portafoglio (scheda microSD o 24 parole). Se qualcuno ha accesso al vostro backup, avrà bisogno anche della passphrase per accedere al vostro portafoglio.\n\nTuttavia, questo significa che saranno necessari <strong>sia la passphrase che il backup del portafoglio</strong> per ripristinare il portafoglio abilitato alla passphrase, nel caso in cui il BitBox02 venga perso o rotto. Se si dimentica o si perde la passphrase, si perde l'accesso a tutte le valute del portafoglio.\n\nQuando si memorizza la passphrase, si consiglia di conservarla in un luogo separato rispetto al backup. In questo modo, se qualcuno trova il backup, non troverà anche la passphrase.",
+      "message": "La passphrase aggiunge un livello di protezione al backup del portafoglio (scheda microSD o parole di recupero). Se qualcuno ha accesso al vostro backup, avrà bisogno anche della passphrase per accedere al vostro portafoglio.\n\nTuttavia, questo significa che saranno necessari <strong>sia la passphrase che il backup del portafoglio</strong> per ripristinare il portafoglio abilitato alla passphrase, nel caso in cui il BitBox02 venga perso o rotto. Se si dimentica o si perde la passphrase, si perde l'accesso a tutte le valute del portafoglio.\n\nQuando si memorizza la passphrase, si consiglia di conservarla in un luogo separato rispetto al backup. In questo modo, se qualcuno trova il backup, non troverà anche la passphrase.",
       "title": "Considerazioni sul backup"
     },
     "disable": "Disabilita la passphrase",
@@ -1100,12 +1195,12 @@
     },
     "what": {
       "button": "Scopri come funziona",
-      "message": "Un portafoglio viene creato (derivato) da un numero casuale molto grande, noto anche come seed. Questo seed viene creato quando si configura per la prima volta il BitBox02 e viene salvato nella scheda microSD o in 24 parole. Chiunque abbia accesso al seed ha il pieno controllo sui fondi di quel portafoglio.\n\nUna passphrase è un <strong>segreto opzionale</strong>, aggiunto al seed. Quando si usa una passphrase, ogni passphrase crea un nuovo portafoglio basato sul seed + passphrase (segreto opzionale). Una passphrase può essere qualsiasi cosa: lettere, parole, caratteri speciali o può anche essere vuota. Il portafoglio predefinito deriva infatti dal seed + passphrase vuota.\n\nLa passphrase fa parte dello standard BIP39, il che significa che è compatibile con tutti i portafogli che supportano lo stesso standard.",
+      "message": "Un portafoglio viene creato (derivato) da un numero casuale molto grande, noto anche come seed. Questo seed viene creato quando si configura per la prima volta il BitBox02 e viene salvato nella scheda microSD o in una lista di parole di recupero. Chiunque abbia accesso al seed ha il pieno controllo sui fondi di quel portafoglio.\n\nUna passphrase è un <strong>segreto opzionale</strong>, aggiunto al seed. Quando si usa una passphrase, ogni passphrase crea un nuovo portafoglio basato sul seed + passphrase (segreto opzionale). Una passphrase può essere qualsiasi cosa: lettere, parole, caratteri speciali o può anche essere vuota. Il portafoglio predefinito deriva infatti dal seed + passphrase vuota.\n\nLa passphrase fa parte dello standard BIP39, il che significa che è compatibile con tutti i portafogli che supportano lo stesso standard.",
       "title": "Cos'è una passphrase?"
     },
     "why": {
       "button": "Perchè usare una passphrase",
-      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o 24 parole) dà pieno accesso al portafoglio. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo portafoglio utilizzando il seed esistente, il portafoglio con l apassphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il vostro backup, ha comunque bisogno della passphrase per accedere al portafoglio con la passphrase.\n\nInoltre, la funzione passphrase consente di creare più portafogli sullo stesso dispositivo, o \"portafogli nascosti\", oltre a quello predefinito.",
+      "message": "BitBox02 protegge il seed dall'estrazione dal dispositivo stesso, ma il backup (scheda microSD o parole di recupero) dà pieno accesso al portafoglio. Per questo motivo deve essere conservato in un luogo sicuro!\n\nPoiché una passphrase crea un nuovo portafoglio utilizzando il seed esistente, il portafoglio con l apassphrase richiede sia il <strong>backup che la passphrase per il ripristino</strong>. Il vantaggio è che se qualcuno trova il vostro backup, ha comunque bisogno della passphrase per accedere al portafoglio con la passphrase.\n\nInoltre, la funzione passphrase consente di creare più portafogli sullo stesso dispositivo, o \"portafogli nascosti\", oltre a quello predefinito.",
       "title": "Perchè usare una passphrase?"
     }
   },
@@ -1273,6 +1368,7 @@
     },
     "maximum": "Invia tutto",
     "maximumSelectedCoins": "Invia le valute selezionate\n",
+    "noFeeTargets": "La stima delle fee al momento non è disponibile. Inserisci una fee a tua discrezione o riprova più tardi.",
     "priority": "Priorità",
     "scanQR": "Leggi il QR code",
     "signprogress": {
@@ -1285,6 +1381,10 @@
     "transactionDetails": "Dettagli della transazione"
   },
   "settings": {
+    "about": "About",
+    "accounts": "Accounts",
+    "advancedSettings": "Impostazioni avanzate",
+    "appearance": "Aspetto",
     "electrum": {
       "add": "Aggiungi un server",
       "add-server": "Aggiungi",
@@ -1315,6 +1415,7 @@
     "expert": {
       "coinControl": "Abilita \"coin control\"",
       "electrum": {
+        "description": "Puoi connetterti al tuo full node Electrum",
         "title": "Connetti il tuo full node"
       },
       "fee": "Abilitare commissioni personalizzate",
@@ -1399,6 +1500,7 @@
     "weight": "Peso"
   },
   "transactions": {
+    "errorLoadTransactions": "Si è verificato un errore nel carimento delle transazioni",
     "placeholder": "Nessuna transazione."
   },
   "unknownError": "Si è verificato un errore sconosciuto: {{errorMessage}}",

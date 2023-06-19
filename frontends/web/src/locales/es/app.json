@@ -165,6 +165,8 @@
     "confirmDate": "Confirma la fecha de hoy en tu BitBox02",
     "confirmDateText": "Esta fecha se utilizará para crear tu copia de seguridad.",
     "confirmName": "Confirma el nombre en tu BitBox02",
+    "confirmWords": "Escriba la {{amount}} de palabras recuperación de su BitBox02",
+    "confirmWordsText": "Después el BitBox02 te pedirá que confirmes cada palabra para verificar que la copia de seguridad es correcta.",
     "followInstructions": "Por favor, sigue las instrucciones en tu BitBox02",
     "followInstructionsMnemonic": "Sigue las instrucciones de tu BitBox02 para introducir las palabras de recuperación de tu copia de seguridad y restaurar tu billetera.",
     "followInstructionsMnemonicTitle": "Restaurar desde las palabras de recuperación"
@@ -172,6 +174,8 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Nombre del dispositivo actual",
+      "error": "No se ha podido establecer el nombre del dispositivo",
+      "error_104": "La confirmación del nombre del dispositivo fue abortada en el dispositivo.",
       "input": "Nombre de la BitBox02",
       "placeholder": "Nuevo nombre del dispositivo",
       "title": "Establece el nombre de la BitBox02"
@@ -182,6 +186,16 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Opciones avanzadas",
+      "outOfDate": "Firmware obsoleto para esta función",
+      "seed12WordInfo": "Tenga en cuenta que el número de palabras no se puede cambiar después de crear la billetera.",
+      "seed12WordLabel": "Crear semilla de 12 palabras en lugar de 24 palabras",
+      "seed12WordText": "Predeterminadamente, la BitBox02 utiliza una semilla de 24 palabras. Ambas longitudes de semilla son seguras contra la fuerza bruta en la práctica. Algunos usuarios pueden preferir la conveniencia de la semilla de 12 palabras.",
+      "skipSDCardLabel": "Omitir la copia de seguridad de la tarjeta microSD y escribir las palabras de recuperación en su lugar",
+      "skipSDCardText": "Siempre tienes la opción de crear una copia de seguridad de la tarjeta microSD o escribir tus palabras de recuperación después de la configuración. Esto se puede hacer desde los ajustes.",
+      "title": "Opciones avanzadas de copia de seguridad"
+    },
     "attestationFailed": "La comprobación genuina del dispositivo ha fallado, que puede ser debido al reinicio de la aplicación mientras el dispositivo estaba esperando la interacción por parte del usuario. Por favor conecte de nuevo y inténtelo otra vez. Por favor contacte con support@bitbox.swiss si el error persiste.",
     "backup": {
       "point1": "Selecciona una copia de seguridad de la tarjeta microSD",
@@ -194,7 +208,8 @@
       "userConfirmation2": "Mi copia de seguridad no está protegida por contraseña. Cualquiera con acceso a ella tiene acceso a mi billetera.",
       "userConfirmation3": "Si pierdo o daño mi BitBox02, la única forma de recuperar mis fondos es recuperar mi billetera desde mi copia de seguridad.",
       "userConfirmation4": "En caso de perder o dañar tanto mi copia de seguridad como mi BitBox02, mis fondos se habrán perdido.",
-      "userConfirmation5": "No debería insertar mi copia de seguridad de la tarjeta microSD en el ordenador, teléfono, impresora o en ningún otro dispositivo que no sea BitBox02."
+      "userConfirmation5": "No debería insertar mi copia de seguridad de la tarjeta microSD en el ordenador, teléfono, impresora o en ningún otro dispositivo que no sea BitBox02.",
+      "userConfirmation5mnemonic": "No debo poner mis palabras de recuperación en un computador, teléfono, impresora o cualquier otro dispositivo que no sea un BitBox02."
     },
     "create": {
       "button": "Dale un nombre al dispositivo y continua",
@@ -205,6 +220,7 @@
       "point3": "Crea una copia de seguridad",
       "text": "Ok, creemos un nueva billetera!"
     },
+    "createBackupAborted": "Creación de copia de seguridad abortada.",
     "createBackupFailed": "Creación de copia de seguridad fallida, vuelve a intentarlo.",
     "initialize": {
       "passwordText": "Ahora establezcamos una contraseña para tu dispositivo. Utiliza los controles en tu BitBox para introducir y escoger una contraseña.",
@@ -222,11 +238,13 @@
       "unpaired": "Se ha detectado un BitBox02 no emparejado. Verifique que el código de emparejamiento coincida con lo que se muestra en su BitBox02. "
     },
     "restoreFromMnemonic": {
+      "e104": "Se canceló la restauración desde las palabras de recuperación.",
       "failed": "El restablecimiento desde tu clave de recuperación ha fallado, por favor vuelve a intentarlo."
     },
     "stepBackup": {
       "beforeProceed": "Antes de continuar, por favor lee estas importantes consideraciones de seguridad:",
-      "createBackup": "Ahora crearás una copia de seguridad en tu tarjeta microSD."
+      "createBackup": "Ahora crearás una copia de seguridad en tu tarjeta microSD.",
+      "createBackupMnemonic": "Ahora escribirás las palabras de recuperación."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Para mantener seguros tus fondos, por favor recuerda lo siguiente:",
@@ -251,6 +269,7 @@
       "insertSDcardTitle": "Introduce la tarjeta microSD"
     },
     "stepPassword": {
+      "e104": "Se canceló la configuración de la contraseña.",
       "title": "Establece la contraseña de tu BitBox02",
       "useControls": "Utiliza los controles de tu BitBox02 para establecer la contraseña."
     },
@@ -480,6 +499,40 @@
     "title": "Activa autorización de dos factores (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Crea o verifica la copia de seguridad de tu tarjeta microSD."
+      },
+      "showRecoveryWords": {
+        "description": "Mostrar y verificar palabras de recuperación."
+      },
+      "title": "Copias de seguridad"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "La BitBoxApp comprueba si tu dispositivo es auténtico."
+      },
+      "deviceName": {
+        "description": "Cambia el nombre de tu dispositivo."
+      },
+      "securechip": {
+        "description": "El modelo del chip seguro."
+      },
+      "title": "Información del dispositivo"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Restablece tu dispositivo a los valores de fábrica. ¡Esto borra la billetera de tu BitBox02!",
+        "title": "Restablecimiento de fábrica"
+      },
+      "goToStartupSettings": {
+        "description": "Entra en el bootloader de la BitBox02. Puedes activar el hash del firmware desde aquí."
+      },
+      "passphrase": {
+        "description": "",
+        "title": "Contraseña"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Versión del firmware",
       "newVersion": {
@@ -987,6 +1040,44 @@
   "mobile": {
     "usingMobileDataWarning": "Uso de datos móviles: esta aplicación puede descargar hasta unos cientos de megabytes de datos de blockchain después de desbloquear una cuenta. Por favor, conéctate a una red Wi-Fi para evitar el uso de datos móviles. Después de descartarlo, este mensaje no se mostrará nuevamente.\n\n"
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Versión de la aplicación"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": ""
+      },
+      "customFees": {
+        "description": "Le permite introducir su propia tarifa al enviar."
+      },
+      "torProxy": {
+        "description": "Conéctate a través de Tor para mejorar la privacidad."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Estas monedas adicionales se pueden cambiar a través de la página de su cuenta.",
+        "title": "Divisas activas"
+      },
+      "darkmode": {
+        "description": "Ver la BitBoxApp en modo oscuro."
+      },
+      "defaultCurrency": {
+        "description": "Selecciona tu moneda predeterminada",
+        "title": "Moneda predeterminada"
+      },
+      "language": {
+        "description": "Qué idioma quieres que utilice la BitBoxApp.",
+        "title": "Idioma"
+      },
+      "toggleSats": {
+        "description": "Habilitar o deshabilitar Satoshis."
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(opcional)",
@@ -1290,7 +1381,9 @@
     "transactionDetails": "Detalles de la transacción"
   },
   "settings": {
+    "about": "Acerca de",
     "accounts": "Cuentas",
+    "advancedSettings": "Configuración Avanzada",
     "appearance": "Apariencia",
     "electrum": {
       "add": "Añadir un servidor",
@@ -1322,6 +1415,7 @@
     "expert": {
       "coinControl": "Activa control de monedas",
       "electrum": {
+        "description": "Puedes conectarte a tu propio nodo Electrum completo.",
         "title": "Conecta tu propio nodo completo"
       },
       "fee": "Activar tarifas de red personalizadas",
@@ -1406,6 +1500,7 @@
     "weight": "Peso"
   },
   "transactions": {
+    "errorLoadTransactions": "Se ha producido un error al cargar las transacciones",
     "placeholder": "Sin transacciones todavía."
   },
   "unknownError": "Ocurrió un error desconocido: {{errorMessage}}",

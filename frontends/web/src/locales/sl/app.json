@@ -57,6 +57,7 @@
       "title": "Izberi kriptovaluto"
     },
     "success": {
+      "addAnotherAccount": "Dodajte nov račun",
       "message": "<strong> {{accountName}} </strong> je zdaj dodan med vaše račune.",
       "nextButton": "OK",
       "step": "Zaklljučeno",
@@ -85,60 +86,60 @@
   },
   "backup": {
     "check": {
-      "checking": "Preverjam arhivsko kopijo...",
-      "confirmTitle": "Preverite arhivsko kopijo",
-      "notOK": "Arhivska kopija se NE ujema s trenutno denarnico.",
-      "ok": "Arhivska kopija se ujema z denarnico.",
+      "checking": "Preverjam varnostno kopijo...",
+      "confirmTitle": "Preverite varnostno kopijo",
+      "notOK": "Varnostna kopija se NE ujema s trenutno denarnico.",
+      "ok": "Varnostna kopija se ujema z denarnico.",
       "password": {
-        "label": "Geslo za obnovo arhivske kopije",
-        "placeholder": "Geslo za obnovo arhivske kopije",
-        "showLabel": "geslo za obnovo arhivske kopije"
+        "label": "Geslo za obnovo varnostne kopije",
+        "placeholder": "Geslo za obnovo varnostne kopije",
+        "showLabel": "geslo za obnovo varnostne kopije"
       },
-      "success": "Arhivska kopija uspešno preverjena:",
-      "title": "Preverite arhivsko kopijo"
+      "success": "Varnostna kopija uspešno preverjena:",
+      "title": "Preverite varnostno kopijo"
     },
     "create": {
-      "alreadyExists": "Arhivsko kopijo že imate. Ali jo ponovno želite ustvariti?",
+      "alreadyExists": "Veljavno varnostno kopijo že imate. Ali jo ponovno želite ustvariti?",
       "fail": "Ustvarjanje varnostne kopije NI uspelo!",
       "info": "Prosimo vnesite geslo za obnovo trenutne denarnice za potrditev.",
       "name": {
-        "label": "Ime arhivske kopije",
-        "placeholder": "Poimenujte arhivsko kopijo"
+        "label": "Ime varnostne kopije",
+        "placeholder": "Poimenujte varnostno kopijo"
       },
       "password": {
         "label": "Obnovitveno geslo",
         "placeholder": "Prosimo vnesite obnovitveno geslo"
       },
-      "title": "Ustvarite arhivsko kopijo - backup",
-      "verificationFailed": "Obnovitveno geslo se NE ujema s trenutno denarnico. Arhivska kopija je bila ustvarjena. Prosimo uporabite \"Preverite arhivsko kopijo\" da potrdite geslo za obnovo."
+      "title": "Ustvarite varnostno kopijo - backup",
+      "verificationFailed": "Obnovitveno geslo se NE ujema s trenutno denarnico. Varnostna kopija je bila ustvarjena. Prosimo uporabite \"Preverite varnostno kopijo\" da potrdite geslo za obnovo."
     },
-    "description": "Izberite <strong>datoteko z arhivsko kopijo denarnice</strong>",
-    "insert": "Prosimo vstavite microSD kartico za upravljanje z arhivskimi kopijami.",
+    "description": "Izberite <strong>datoteko z varnostno kopijo denarnice</strong>",
+    "insert": "Prosimo vstavite microSD kartico za upravljanje z varnostnimi kopijami.",
     "insertButton": "Vstavil sem microSD kartico",
     "list": "Varnostne kopije na microSD kartici",
-    "noBackups": "Na tej microSD kartici ni arhivskih kopij.",
+    "noBackups": "Na tej microSD kartici ni varnostnih kopij.",
     "restore": {
-      "confirmTitle": "Obnovite arhivsko kopijo",
+      "confirmTitle": "Obnovite varnostno kopijo",
       "error": {
         "e200": "MicroSD kartica ni bila zaznana",
-        "general": "Napaka pri obnovitvi arhivske kopije"
+        "general": "Napaka pri obnovitvi varnostne kopije"
       },
       "password": {
-        "label": "Geslo za obnovitev ali skrito geslo za obnovitev arhivske kopije",
+        "label": "Geslo za obnovitev ali skrito geslo za obnovitev varnostne kopije",
         "placeholder": "Geslo za obnovitev",
         "repeatPlaceholder": "Ponovite geslo za obnovitev",
         "showLabel": "Geslo za obnovitev"
       },
-      "restoring": "Obnavljanje arhivske kopije ...",
+      "restoring": "Obnavljanje varnostne kopije ...",
       "selectedBackup": "<strong>{{backupName}}</strong> ustvarjen {{createdDateTime}} bo obnovljen.",
       "title": "Obnovi",
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
     "showMnemonic": {
-      "description": "Prikazano vam bo do 24 besed, ki tvorijo arhivsko kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in jih ne fotografirajte.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta arhivska kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi.",
+      "description": "Prikazano vam bo do 24 besed, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in jih ne fotografirajte.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
       "title": "Prikaži seznam besed"
     },
-    "title": "Upravljanje arhivskih kopij"
+    "title": "Upravljanje varnostnih kopij"
   },
   "bb02Bootloader": {
     "abort": "Ne nadgradi - vrni me nazaj",
@@ -162,8 +163,10 @@
   },
   "bitbox02Interact": {
     "confirmDate": "Potrdite današnji datum na BitBox02",
-    "confirmDateText": "Vnešen datum bo uporabljen za kreiranje arhivske kopije.",
+    "confirmDateText": "Vnešen datum bo uporabljen za kreiranje varnostne kopije.",
     "confirmName": "Potrdite ime na zaslonu BitBox02",
+    "confirmWords": "Zapišite si {{amount}} obnovitvenih besed iz vašega BitBoxa",
+    "confirmWordsText": "Po tem koraku BitBox02 zahteva potrditev vsake besede na zaslonu, da se prepričate, da ste varnostno kopijo zapisali pravilno.",
     "followInstructions": "Prosimo upoštevajte navodila na zaslonu naprave.",
     "followInstructionsMnemonic": "Upoštevajte navodila za obnovitev iz seznama besed na napravi in obnovite denarnico.",
     "followInstructionsMnemonicTitle": "Obnovi iz seznama besed"
@@ -171,9 +174,11 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Trenutno ime naprave",
+      "error": "Imena naprave ni bilo mogoče nastaviti",
+      "error_104": "Potrditev imena je bilo prekinjeno na napravi",
       "input": "Novo ime",
       "placeholder": "Novo ime naprave",
-      "title": "Nastavite ime vaši BitBox02"
+      "title": "Nastavite ime tej napravi"
     },
     "gotoStartupSettings": {
       "description": "To bo znova zagnalo vaš BitBox02 in začelo nastavitev zagona.",
@@ -181,34 +186,46 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Napredne možnosti",
+      "outOfDate": "Strojna programska oprema (firmware) je prestara za to funkcijo",
+      "seed12WordInfo": "Število besed kasneje ni možno spremeniti.",
+      "seed12WordLabel": "Ustvari 12 besedno seme namesto 24 besednega",
+      "seed12WordText": "BitBox privzeto uporablja 24 besedno seme. Na voljo je tudi 12 besedno seme. Obe podprti dolžini semena sta dovolj varni proti strojnemu uganjevanju (brute force). ",
+      "skipSDCardLabel": "Ne ustvari varnostne kopije na micro SD kartico ampak prikaži semenske besede",
+      "skipSDCardText": "Kasneje lahko vedno ustvarite varnostno kopijo na micro SD kartico ali ponovno prikažete semenske besede. To opcijo najdete v Nastavitvah.",
+      "title": "Napredne možnosti arhivske kopije"
+    },
     "attestationFailed": "Preverjanje ni uspelo, kar je lahko posledica ponovnega zagona aplikacije, medtem ko je naprava čakala na uporabniški vnos (dotik). Napravo znova vklopite in poskusite znova. Če težava ne izgine, se obrnite na support@bitbox.swiss (v angleščini).",
     "backup": {
-      "point1": "Izberite arhivsko kopijo na microSD kartici",
+      "point1": "Izberite varnostno kopijo na microSD kartici",
       "point2": "Nastavite geslo za svojo napravo",
-      "restoreText": "Ok, obnovimo arhivsko kopijo!",
-      "text1": "Super, vaše geslo za BitBox02 je zdaj nastavljeno in denarnica je ustvarjena. Zdaj je čas, da ustvarite prvo arhivsko kopijo. Prepričajte se, da je vaša microSD kartica vstavljena v vaš BitBox02 in nato nadaljujte.",
-      "text2": "Če želite ustvariti arhivsko kopijo, sledite navodilom na zaslonu naprave.",
-      "text3": "Ko ustvarite arhivsko kopijo, odstranite microSD kartico in jo shranite na <strong>varno lokacijo</strong>. Vsebina kartice ni zaščitena z geslom. Nikoli je ne vstavljajte v nobeno drugo napravo, razen v vaš BitBox02.",
-      "userConfirmation1": "Arhivsko kopijo je potrebno hraniti na varnem mestu",
-      "userConfirmation2": "Moja arhivska kopija ni zaščitena z geslom. Vsak, ki ima dostop do njega, lahko dostopa do moje denarnice.",
-      "userConfirmation3": "Če izgubim ali poškodujem svoj BitBox02, je edini način, da povrnem svoja sredstva, obnovitev iz arhivske kopije.",
-      "userConfirmation4": "Če izgubim ali poškodujem tako arhivsko kopijo kot svoj BitBox02, potem bodo moja sredstva izgubljena.",
-      "userConfirmation5": "Ustvarjeno arhivsko kopijo na microSD kartici ne smem vtakniti v PC, telefon, tiskalnik ali katero koli drugo napravo razen v BitBox02."
+      "restoreText": "Ok, obnovimo varnostno kopijo!",
+      "text1": "Super, vaše geslo za BitBox02 je zdaj nastavljeno in denarnica je ustvarjena. Zdaj je čas, da ustvarite prvo varnostno kopijo. Prepričajte se, da je microSD kartica vstavljena v BitBox02 in nato nadaljujte.",
+      "text2": "Če želite ustvariti varnostno kopijo, sledite navodilom na zaslonu naprave.",
+      "text3": "Ko ustvarite varnostno kopijo, odstranite microSD kartico in jo shranite na <strong>varno lokacijo</strong>. Vsebina kartice ni zaščitena z geslom. Nikoli je ne vstavite v nobeno drugo napravo, razen v vaš BitBox02.",
+      "userConfirmation1": "Varnostno kopijo je potrebno hraniti na varnem mestu",
+      "userConfirmation2": "Moja varnostna kopija ni zaščitena z geslom. Vsak, ki ima dostop do nje, lahko dostopa do moje denarnice.",
+      "userConfirmation3": "Če izgubim ali poškodujem svoj BitBox02, je edini način, da povrnem svoja sredstva, obnovitev iz varnostne kopije.",
+      "userConfirmation4": "Če izgubim ali poškodujem tako varnostno kopijo kot svoj BitBox02, so moja sredstva izgubljena.",
+      "userConfirmation5": "Ustvarjeno varnostno kopijo na microSD kartici ne smem vtakniti v PC, telefon, tiskalnik ali katero koli drugo napravo razen v BitBox02.",
+      "userConfirmation5mnemonic": "Semenskih besed NE bom vpisoval v računalnike, telefone, tablice ali katere koli druge naprave, kot le v BitBox02."
     },
     "create": {
       "button": "Poimenujte napravo in nadaljujte",
       "info": "To so osnovni koraki, ki jih boste izvedli za nastavitev BitBoxa: ",
       "inputTitle": "Ime denarnice",
-      "point1": "Poimenujte svojo napravo",
+      "point1": "Poimenujte napravo",
       "point2": "Izberite si geslo za svojo napravo",
-      "point3": "Ustvarite arhivsko kopijo",
+      "point3": "Ustvarite varnostno kopijo",
       "text": "Ok, pa ustvarimo novo denarnico!"
     },
-    "createBackupFailed": "Ustvarjanje arhivske kopije ni uspelo, poskusite znova.",
+    "createBackupAborted": "Kreiranje varnostne kopije je prekinjeno.",
+    "createBackupFailed": "Ustvarjanje varnostne kopije ni uspelo, poskusite znova.",
     "initialize": {
       "passwordText": "Zdaj pa določite geslo za vašo napravo. Za vnos in izbiro gesla uporabite kontrolne drsnike na BitBoxu.",
       "passwordTitle": "Nastavite geslo za vaš BitBox",
-      "text": "Seznanjanje je bilo uspešno! Zdaj pa pripravimo vašo napravo. Začnite z ustvarjanjem nove denarnice ali obnovitvijo denarnice iz obstoječe arhivske kopije. <strong>Prepričajte se, da imate v BitBox02 vstavljeno microSD kartico </strong>",
+      "text": "Seznanjanje je bilo uspešno! Zdaj pa pripravimo vašo napravo. Začnite z ustvarjanjem nove denarnice ali obnovitvijo denarnice iz obstoječe varnostne kopije. <strong>Prepričajte se, da imate v BitBox02 vstavljeno microSD kartico </strong>",
       "tip": "Priporočamo vam, da te postopke opravite v varnem in zasebnem okolju.",
       "title": "Zaženite in nastavite BitBox02"
     },
@@ -221,15 +238,17 @@
       "unpaired": "Zaznana je bila nova BitBox02 naprava. Preverite, ali se prikazana koda ujema s tisto na zaslonu naprave."
     },
     "restoreFromMnemonic": {
+      "e104": "Ponastavitev iz semenskih besed je bilo ustavljeno.",
       "failed": "Obnova iz seznama besed ni uspela. Poskusite znova."
     },
     "stepBackup": {
       "beforeProceed": "Pred nadaljevanjem preberite naslednje pomembne varnostne vidike:",
-      "createBackup": "Zdaj boste ustvarili arhivsko kopijo na microSD kartici ."
+      "createBackup": "Zdaj boste ustvarili varnostno kopijo na microSD kartici .",
+      "createBackupMnemonic": "Zdaj zapišite semenske besede na papir ali jeklo"
     },
     "stepBackupSuccess": {
       "fundsSafe": "Če želite ohraniti sredstva varna, upoštevajte naslednje:",
-      "title": "Arhivska kopija obnovljena!"
+      "title": "Varnostna kopija obnovljena!"
     },
     "stepConnected": {
       "unlock": "Vnesite izbrano geslo, kot ponazarja video"
@@ -250,12 +269,13 @@
       "insertSDcardTitle": "Vstavite microSD kartico"
     },
     "stepPassword": {
+      "e104": "Nastavitev gesla je bila prekinjena.",
       "title": "Nastavite geslo za BitBox02",
       "useControls": "S pomočjo drsnikov na robu naprave si nastavite geslo."
     },
     "stepUninitialized": {
       "create": "Želim postaviti nov BitBox02.",
-      "restore": "Želim obnoviti denarnico iz arhivske kopije.",
+      "restore": "Želim obnoviti denarnico iz varnostne kopije.",
       "restoreMicroSD": "Obnovi iz microSD kartice",
       "restoreMnemonic": "Obnovi iz seznama besed",
       "title": "Nastavite svoj BitBox02"
@@ -280,12 +300,12 @@
     "back": "Nazaj",
     "buy": "Kupi",
     "changepin": "Spremenite geslo naprave",
-    "check": "Preverite arhivsko kopijo",
+    "check": "Preverite varnostno kopijo",
     "continue": "Nadaljujte",
     "copy": "Kopiraj",
     "create": "Ustvari",
     "dismiss": "Zavrnite",
-    "done": "Opravljeno",
+    "done": "Potrdi izbiro",
     "download": "Prenesi",
     "hiddenwallet": "Ustvarite skrito denarnico",
     "next": "Naprej",
@@ -464,24 +484,61 @@
     "infoWhenPaired": "Najprej na seznanjeni mobilni napravi in ​​nato na BitBoxu"
   },
   "confirmOnDevice": "Nadgradnjo potrdite na BitBox-u",
+  "darkmode": {
+    "toggle": "Temen način"
+  },
   "device": {
     "appUpradeRequired": "BitBox ni združljiv s to verzijo namizne aplikacije. Prenesite in namestite najnovejšo različico."
   },
   "deviceLock": {
     "button": "Omogočite dvofaktorsko avtentikacijo (2FA)",
-    "condition1": "Imate arhivsko kopijo?",
+    "condition1": "Imate varnostno kopijo?",
     "condition2": "Ali deluje preverjanje v mobilni aplikaciji?",
-    "condition3": "2FA ONEMOGOČA arhivske kopije in seznanjanje z mobilno aplikacijo. Naprava mora biti resetirana za izhod iz dvofaktorskega (2FA) načina!",
+    "condition3": "2FA ONEMOGOČA varnostne kopije in seznanjanje z mobilno aplikacijo. Naprava mora biti resetirana za izhod iz dvofaktorskega (2FA) načina!",
     "confirm": "Omogočite dvofaktorsko avtentikacijo (2FA)",
     "title": "Omogočite dvofaktorsko avtentikacijo (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Prikaži in preveri varnostno kopijo na Micro SD kartici."
+      },
+      "showRecoveryWords": {
+        "description": "Prikaži in potrdi semenske besede"
+      },
+      "title": "Varnostne kopije"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "BitBoxApp preverja, če je naprava avtentična."
+      },
+      "deviceName": {
+        "description": "Spremenite ime naprave"
+      },
+      "securechip": {
+        "description": "Model varnega čipa"
+      },
+      "title": "Informacije o napravi"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Ponastavite napravo na tovarniške nastavitve. Ta postopek izbriše denarnico na BitBoxu!",
+        "title": "Tovarniška nastavitev"
+      },
+      "goToStartupSettings": {
+        "description": "Vstopite v način \"bootloader\" na napravi. S tem lahko omogočite prikaz zgoščene vrednosti strojne programske opreme (firmware hash)."
+      },
+      "passphrase": {
+        "description": "Vklopi ali izklopi možnost geselske fraze",
+        "title": "Geselska fraza"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Različica strojne programske opreme (firmware)",
       "newVersion": {
         "label": "Razpoložljiva različica"
       },
-      "title": "Firmware (strojna programska oprema)",
+      "title": "Verzija strojne programske opreme (firmware)",
       "upToDate": "Vaša naprava je posodobljena",
       "upgradeAvailable": "Na voljo je nova nadgradnja",
       "version": {
@@ -491,7 +548,7 @@
     "hardware": {
       "attestation": {
         "false": "Preverjanje pristnosti ni uspelo",
-        "label": "Preverjanje prostnosti",
+        "label": "Preverjanje pristnosti",
         "true": "BitBox02 je pristen!"
       },
       "sdcard": {
@@ -500,7 +557,7 @@
         "true": "Vstavljena"
       },
       "securechip": "Verzija varnega čipa",
-      "title": "Hardware"
+      "title": "Naprava"
     },
     "loading": "Pridobivam informacije o napravi ...",
     "pairing": {
@@ -522,13 +579,13 @@
       "title": "Seznanjanje (uparitev)"
     },
     "secrets": {
-      "manageBackups": "Upravljanje arhivskih kopij",
+      "manageBackups": "Upravljanje varnostnih kopij",
       "title": "Varnost"
     }
   },
   "deviceTampered": "Ali ste prejeli BitBox skupaj z geslom za obnovitev?\nČe je tako, takoj zaustavite postopek namestitve in stopite v stik z nami.\nShift nikoli ne izroča pred-pripravljene denarnice ali pred pripravljenih gesel.",
   "dialog": {
-    "cancel": "Prekliči",
+    "cancel": "Nazaj",
     "confirm": "Potrdite",
     "confirmTitle": "Potrditev"
   },
@@ -561,7 +618,7 @@
   "goal": {
     "buttons": {
       "create": "Ustvarite novo denarnico",
-      "restore": "Obnovite denarnico iz arhivske kopije"
+      "restore": "Obnovite denarnico iz varnostne kopije"
     },
     "paragraph": "Izberite eno od naslednjih možnosti:",
     "step": {
@@ -577,7 +634,7 @@
         "title": "Denarnica"
       },
       "3-restore": {
-        "description": "iz arhivske kopije",
+        "description": "iz varnostkopije",
         "title": "Obnovi"
       },
       "4-create": {
@@ -636,7 +693,7 @@
       "title": "Kako se izračunava skupni znesek?"
     },
     "accountSummaryDescription": {
-      "text": "Tu si lahko ogledate gibanje vašega portfelja skozi čas. Povzetek vaših posameznih računov je prikazan pod grafom.",
+      "text": "Tu si lahko ogledate gibanje vašega skupnega portfelja skozi čas. Povzetek posameznih računov je prikazan pod grafom.",
       "title": "Kaj prikazuje ta stran?"
     },
     "accountTransactionAttributesBTC": {
@@ -661,7 +718,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Vsak kovanec ima lahko največ pet računov.",
+        "text": "Za Bitcoin in Litecoin lahko odprete več računov. Po petih odprtih računih, lahko dodate novega le če je zadnji že v uporabi. Pri vseh preostalih kovancih podpiramo največ pet računov.",
         "title": "Koliko računov lahko ustvarim?"
       },
       "howtoAddTokens": {
@@ -691,34 +748,34 @@
     },
     "backups": {
       "check": {
-        "text": "»Preverba arhivske kopije« služi preverjanju, ali imate pravilno ustvarjeno in aktualno arhivsko kopijo, ki ustreza vaši trenutni denarnici. To uporabite tudi za preverjanje vašega gesla za obnovitev in skritega gesla za obnovitev.",
-        "title": "Kaj je \"Preverba arhivske kopije\"?"
+        "text": "»Preverba varnostne kopije« služi preverjanju, ali imate pravilno ustvarjeno in aktualno varnostno kopijo, ki ustreza vaši trenutni denarnici. To uporabite tudi za preverjanje vašega gesla za obnovitev.",
+        "title": "Kaj je \"Preverba varnostne kopije\"?"
       },
       "encrypt": {
         "text": "Ne, vendar je geslo za obnovo potrebno za pridobitev denarnice iz shranjenega semena.",
-        "title": "Ali lahko kriptiram arhivsko kopijo?"
+        "title": "Ali lahko kriptiram varnostno kopijo?"
       },
       "howOften": {
-        "text": "Arhivska kopija se ustvari samodejno, ko ustvarite novo denarnico. Novo arhivsko kopijo morate ustvariti le v primeru, da je vaša microSD kartica z aktualno arhivsko kopijo izgubljena, poškodovana ali če želite več varnostnih kopij.\nPo posameznih transakcijah vam ni treba ustvarjati novih arhivskih kopij! \nVse vaše podatke o transakcijah, ki ste jih naredili po kreiranju arhivske kopije, lahko obnovite z eno samo arhivsko kopijo. Zato imamo mehanizem, da se ta avtomatsko ustvari takoj, ko se ustvari denarnica.",
-        "title": "Kako pogosto moram narediti arhivsko kopijo?"
+        "text": "Varnostna kopija se ustvari samodejno, ko ustvarite novo denarnico. Novo varnostno kopijo morate ustvariti le v primeru, če je vaša microSD kartica z aktualno varnostno kopijo izgubljena, poškodovana ali če želite več varnostnih kopij.\nPo posameznih transakcijah vam ni treba ustvarjati novih varnostnih kopij! \nVse transakcije, ki ste jih naredili po kreiranju varnostne kopije, lahko obnovite z eno samo varnostno kopijo.",
+        "title": "Kako pogosto moram narediti varnostno kopijo?"
       },
       "whatIsABackup": {
         "text": "Gre za kopijo semena ki jo naprava shrani na microSD kartico. Seme, skupaj z vašim geslom za obnovitev, ustvari denarnico.",
-        "title": "Kaj je arhivska kopija?"
+        "title": "Kaj je varnostna kopija?"
       }
     },
     "backupsBB02": {
       "check": {
-        "text": "To preverjanje vam omogoča, da ugotovite, ali imate delujočo arhivsko kopijo, ki ustreza trenutni denarnici.",
-        "title": "Kaj je \"Preveri arhivske kopije\"?"
+        "text": "To preverjanje vam omogoča, da ugotovite, ali imate delujočo varnostno kopijo, ki ustreza trenutni denarnici.",
+        "title": "Kaj je \"Preveri varnostne kopije\"?"
       },
       "encrypt": {
-        "text": "Ne. Prosimo, hranite microSD kartico na varnem mestu, saj vsebuje nešifrirano seme (seed) za obnovitev denarnice. Če želite zaščititi svoje seme s frazemskim geslom, lahko v naprednih nastavitvah v razdelku »Upravljanje naprave« omogočite frazemsko geslo.",
-        "title": "Ali lahko šifriram (kriptiram) arhivsko kopijo?"
+        "text": "Ne. Prosimo, hranite microSD kartico na varnem mestu, saj vsebuje nešifrirano seme (seed) za obnovitev denarnice. Če želite zaščititi svoje seme z geselsko frazo, jo lahko omogočite v naprednih nastavitvah v razdelku Upravljanje naprave.",
+        "title": "Ali lahko šifriram varnostno kopijo?"
       },
       "whatIsABackup": {
         "text": "Gre za kopijo semena na microSD kartici.",
-        "title": "Kaj je arhivska kopija?"
+        "title": "Kaj je varnostna kopija?"
       }
     },
     "bitbox": {
@@ -727,7 +784,7 @@
         "title": "Kako deluje dvofaktorska avtentikacija (2FA)?"
       },
       "disable2FA": {
-        "text": "Če želite onemogočiti 2FA, morate ponastaviti (resetirati) in s tem izbrisati denarnico na BitBox-u in jo nato obnoviti iz arhivske kopije. Prepričajte se, da imate še vedno microSD kartico z arhivsko kopijo in shranjeno veljavno in pravilno geslo za obnovo te denarnice.\nŠele nato pritisnite »Ponastavi napravo«. Nastavite novo geslo naprave in izberite »Obnovite arhivsko kopijo«. Izberite pravo arhivsko kopijo, ki ste jo naredili iz denarnice, kliknite »Obnovi« in vnesite geslo za obnovitev, ki ste ga kreirali pri ustvarjanju denarnice.",
+        "text": "Če želite onemogočiti 2FA, morate ponastaviti (resetirati) in s tem izbrisati denarnico na BitBox-u in jo nato obnoviti iz varnostne kopije. Prepričajte se, da imate še vedno microSD kartico z varnostno kopijo in shranjeno veljavno in pravilno geslo za obnovo te denarnice.\nŠele nato pritisnite »Ponastavi napravo«. Nastavite novo geslo naprave in izberite »Obnovite varnostno kopijo«. Izberite pravo varnostno kopijo, ki ste jo naredili iz denarnice, kliknite »Obnovi« in vnesite geslo za obnovitev, ki ste ga kreirali pri ustvarjanju denarnice.",
         "title": "Kako onemogočim dvo faktorsko avtentikacijo (2FA)?"
       },
       "ejectBitbox": {
@@ -771,13 +828,13 @@
         "link": {
           "text": "Preberite več o varnem čipu"
         },
-        "text": "Tu prikazujemo številko modela varnega čipa. Najsodobnejši čip je ATECC608B z izboljšanimi varnostnimi funkcijami v primerjavi s starejšimi modeli.",
+        "text": "Ker je verzija čipa dobra informacija o varnosti naprave. Najsodobnejši čip je ATECC608B z izboljšanimi varnostnimi funkcijami v primerjavi s starejšimi modeli.",
         "title": "Zakaj prikazujemo model varnega čipa?"
       }
     },
     "receive": {
       "address": {
-        "text": "Pošljite ali predajte ga drugim, da vam lahko nanj pošiljajo kovance.\n(Če je možno, pri prejemniku preverite ali je prejel enak naslov, kot ste mu ga poslali)",
+        "text": "Pošljite ali predajte ga drugim, da vam lahko nanj pošiljajo kovance.\nPriporočamo, da se s prejemnikom naslova prepričate, da je prejel enak naslov, kot ste mu ga poslali. Obstaja namreč možnost, da na poti do prejemnika naslova programska oprema zamenjala naslov s svojim.",
         "title": "Kaj lahko počnem z naslovom?"
       },
       "addressChange": {
@@ -797,11 +854,11 @@
         "title": "Je potrebno imeti BitBox02 priklopljen vse dokler ne prejmem sredstev?"
       },
       "why20": {
-        "text": "Med zagonom aplikacija ustvari naslove, pridobljene iz vašega semena, in preveri, ali so prejeli sredstva. Aplikacija lahko ustvari skoraj neskončno število naslovov in bi lahko porabila leta, da določi pravo stanje za vsak naslov.\nDa omejimo čas iskanja, se prikaz ustavi na prvih 20 najdenih naslovov, ki nikoli niso prejeli sredstev. To je \"omejitev vrzeli\" in 20 je de-facto standard, čeprav je število poljubno. To je 20 naslovov, med katerimi lahko izbirate.",
+        "text": "Med zagonom aplikacija ustvari naslove, pridobljene iz vašega semena, in preveri, ali so prejeli sredstva. Aplikacija lahko ustvari skoraj neskončno število naslovov in bi lahko porabila leta, da določi pravo stanje za vsak naslov.\nDa omejimo čas iskanja, se prikaz ustavi po prvih 20 najdenih naslovov, ki nikoli niso prejeli sredstev. To je namenska omejitev in 20 je de-facto standard, čeprav je število poljubno. To je 20 naslovov, med katerimi lahko izbirate.",
         "title": "Zakaj le 20 naslovov?"
       },
       "whyMany": {
-        "text": "Za ohranjanje vaše zasebnosti in varnosti nikoli ne uporabite istega naslova dvakrat. \nČe ste že uporabili naslov, kliknite na puščico v desno za nov naslov. Naenkrat lahko ustvarite do 20 naslovov. Na naslove lahko gledate, kot na številke izdanih računov. Vsi naslovi so pridobljeni iz istega arhivskega semena.",
+        "text": "Za ohranjanje vaše zasebnosti in varnosti nikoli ne uporabite istega naslova dvakrat. \nČe ste že uporabili naslov, kliknite na puščico v desno za nov naslov. Naenkrat lahko ustvarite do 20 naslovov. Na naslove lahko gledate, kot na številke izdanih računov. Vsi naslovi so pridobljeni iz istega semena.",
         "title": "Zakaj toliko naslovov?"
       },
       "whyVerify": {
@@ -911,7 +968,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Arhivske kopije"
+          "text": "Varnostne kopije"
         },
         "text": "Vaša sredstva lahko enostavno obnovite z novo BitBox denarnico ali z drugo BIP39 napravo. V pomoč smo spisali postopek v članku:",
         "title": "Izgubil sem napravo. Kaj pa zdaj?"
@@ -921,7 +978,7 @@
         "title": "Ali lahko aplikacijo uporabljam brez BitBoxa?"
       },
       "welcome": {
-        "text": "Podjetje Shift Crypto iz Švice se vam zahvaljuje, ker uporabljate BitBox App. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
+        "text": "Podjetje Shift Crypto iz Švice se vam zahvaljuje, ker uporabljate BitBoxApp. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
         "title": "Pozdravljeni v aplikaciji BitBox!"
       }
     }
@@ -930,7 +987,7 @@
     "blocksSynced": "{{blocks}} sinhroniziranje blokov"
   },
   "hiddenWallet": {
-    "info1HTML": "Za namene verodostojnega zanikanja (obstoja prave denarnice) lahko ustvarite skrito denarnico na podlagi <strong>drugačne (alternativne)</strong> kombinacije gesla in gesla za obnovitev arhivske kopije. ",
+    "info1HTML": "Za namene verodostojnega zanikanja (obstoja prave denarnice) lahko ustvarite skrito denarnico na podlagi <strong>drugačne (alternativne)</strong> kombinacije gesla in gesla za obnovitev varnostne kopije. ",
     "info2HTML": "Določite geslo naprave in geslo za obnovitev, ki ju želite povezati s spodnjo skrito denarnico. To geslo naprave in geslo za obnovitev morata biti <strong> drugačna </strong> od tistih, ki ste ju določili za primarno denarnico.",
     "passwordLabel": "Skrito geslo za obnovitev",
     "passwordPlaceholder": "Potrdite skrito geslo za obnovitev",
@@ -948,7 +1005,7 @@
     "info": {
       "description1": "Vpišite novo geslo naprave. To bo uporabljeno za odklepanje BitBox-a.",
       "description2": "Uporabite lahko številke, črke in simbole. Daljša gesla so varnejša.",
-      "description3": "Če izgubite geslo naprave, boste morali ponastaviti napravo in obnoviti arhivsko kopijo denarnice.",
+      "description3": "Če izgubite geslo naprave, boste morali ponastaviti napravo in obnoviti varnostno kopijo denarnice.",
       "subtitle": "Zdaj boste vpisali novo geslo naprave",
       "title": "Izvaja se prvi zagon vaše naprave"
     },
@@ -982,6 +1039,44 @@
   },
   "mobile": {
     "usingMobileDataWarning": "Uporaba podatkov na mobilni napravi: ta aplikacija lahko po odklepanju računa naloži do nekaj sto megabajtov podatkov. Če želite preprečiti uporabo mobilnih podatkov, se povežite z Wi-Fi omrežjem. \nTo sporočilo ne bo več prikazano, če ga ugasnete."
+  },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Verzija aplikacije"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Za večjo stopnnjo zasebnosti izberite kateri UTXO naj bo del transakcije."
+      },
+      "customFees": {
+        "description": "To vam omogoča vnos poljubne višine provizije za transakcijo."
+      },
+      "torProxy": {
+        "description": "Povežite se preko Tor omrežja za več zasebnosti."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Te dodatne valute lahko izmenjujoče prikazujete na strani računov.",
+        "title": "Aktivne valute"
+      },
+      "darkmode": {
+        "description": "BitBoxApp v temnem načinu"
+      },
+      "defaultCurrency": {
+        "description": "Izberite privzeto valuto",
+        "title": "Privzeta valuta"
+      },
+      "language": {
+        "description": "Izberite jezik, ki ga želite uporabiti v BitBoxApp-u.",
+        "title": "Jezik"
+      },
+      "toggleSats": {
+        "description": "Prikažite ali skrijte Satošije (sats)."
+      }
+    }
   },
   "note": {
     "input": {
@@ -1043,7 +1138,7 @@
   "passphrase": {
     "considerations": {
       "button": "",
-      "message": "Geselska fraza zagotavlja dodaten nivo zaščite varnostni kopiji vaše denarnice (bodisi na microSD kartici ali 24 besedam). Če nekdo pridobi dostop do vaše varnostne kopije (na kartici ali besede), bo za dostop do vaše denarnice potreboval tudi geselsko frazo.\n\nVendar to pomeni, da boste potrebovali <strong>oboje - geselsko frazo in varnostno kopijo denarnice</strong>, da bi obnovili tako zaščiteno denarnico, če se vaš BitBox02 izgubi ali pokvari. Če pozabite ali izgubite to geslo, boste izgubili dostop do vseh kovancev v tej denarnici!\n\nGeselsko frazo shranjujte ločeno od varnostne kopije. S tem preprečite vdor v denarnico, če nekdo najde le njeno varnostno kopijo.",
+      "message": "Geselska fraza zagotavlja dodaten nivo zaščite varnostni kopiji vaše denarnice (bodisi na microSD kartici ali 24 besedam). Če nekdo pridobi dostop do vaše varnostne kopije (na kartici ali besede), bo za dostop do vaše denarnice potreboval tudi geselsko frazo.\n\nTo pa pomeni, da boste potrebovali <strong>oboje - geselsko frazo in varnostno kopijo denarnice</strong>, da bi obnovili tako zaščiteno denarnico, če se vaš BitBox02 pokvari ali ga izgubite. Če pozabite ali izgubite to geslo, boste izgubili dostop do vseh kovancev v tej denarnici!\n\nGeselsko frazo shranjujte ločeno od varnostne kopije. S tem preprečite vdor v denarnico, če nekdo najde le njeno varnostno kopijo.",
       "title": "Razmislek o varnostni kopiji"
     },
     "disable": "Onemogoči geselsko frazo",
@@ -1092,7 +1187,7 @@
       "title": "Povzetek",
       "understand": "Razumem kako deluje geselska fraza in vsa povezana tveganja.",
       "understandList": [
-        "Geselska fraza je dodaten nivo zaščite za arhivsko/varnostno kopijo.",
+        "Geselska fraza je dodaten nivo zaščite za varnostno kopijo.",
         "Če vnesete različno geselsko frazo, boste vedno ustvarili različno denarnico.",
         "Za obnovitev denarnice potrebujete <strong>oboje, geselsko frazo in varnostno kopijo</strong>.",
         "Če pozabite ali izgubite svojo geselsko frazo, izgubite dostop do svojih kovancev."
@@ -1100,13 +1195,13 @@
     },
     "what": {
       "button": "Spoznajte kako to deluje",
-      "message": "Denarnica je ustvarjena (pridobljena) iz zelo velikega naključnega števila, znanega tudi kot seme (seed). To seme je ustvarjeno ob prvi nastavitvi naprave BitBox02 in je varnostno kopirano na microSD kartici  ali z 24 besedami. Vsakdo, ki ima dostop do semena, ima popoln nadzor nad sredstvi v tej denarnici.\n\nGeselska fraza ali passphrase je <strong>opcijska skrivnost</strong>, ki je dodana semenu. Pri uporabi geselske fraze vsaka ustvari novo denarnico na podlagi preračuna semena + geselske fraze. Geselska fraza je lahko karkoli: črke, besede, posebni znaki ali pa je lahko celo prazna. Privzeta denarnica dejansko izhaja iz semena + prazne fraze.\n\n\"Passphrase\" ali geselska fraza je del BIP39 priporočila, kar pomeni, da je kompatibilna z vsemi denarnicami, ki sledijo temu priporočilu (ali kvazi standardu)",
-      "title": "Kaj je frazemsko geslo?"
+      "message": "Denarnica je ustvarjena (pridobljena) iz zelo velikega naključnega števila, znanega tudi kot seme (seed). To seme je ustvarjeno ob prvi nastavitvi naprave BitBox02 in je varnostno kopirano na microSD kartici ali z 24 besedami. Vsakdo, ki ima dostop do semena, ima popoln nadzor nad sredstvi v tej denarnici.\n\nGeselska fraza ali passphrase je <strong>opcijska skrivnost</strong>, ki je dodana semenu. Pri uporabi geselske fraze vsaka ustvari novo denarnico na podlagi preračuna semena + geselske fraze. Geselska fraza je lahko karkoli: črke, besede, posebni znaki ali pa je lahko celo prazna. Privzeta denarnica dejansko izhaja iz semena + prazne fraze.\n\n\"Passphrase\" ali geselska fraza je del BIP39 priporočila, kar pomeni, da je kompatibilna z vsemi denarnicami, ki sledijo temu priporočilu (ali kvazi standardu)",
+      "title": "Kaj je geselska fraza?"
     },
     "why": {
-      "button": "Zakaj uporabiti frazemsko geslo?",
-      "message": "BitBox02 varuje seme (skrivnost, ki jo ustvari) pred odtujitvijo (kopiranjem) iz same naprave, vendar varnostna kopija (na microSD kartici ali izpis 24 besed) omogoča popoln dostop do denarnice. Zato jo je treba hraniti na varnem mestu!\n\nKer geselska fraza ustvari novo denarnico z uporabo vašega obstoječega semena, denarnica zaščitena s frazo za obnovo zahteva oboje <strong>varnostno kopijo in geselsko frazo</strong>. Prednost tega je, da če nekdo najde vašo varnostno kopijo (v obliki 24 besed ali na microSD kartici), za dostop do kovancev še vedno potrebuje geselsko frazo.\n\nPoleg tega, z uporabo več geselskih fraz lahko na eni napravi BitBox02 upravljate mnogo med seboj ločenih denarnic!",
-      "title": "Zakaj uporabiti frazemsko geslo?"
+      "button": "Zakaj uporabiti geselsko frazo?",
+      "message": "BitBox02 varuje seme (skrivnost, ki jo ustvari) pred odtujitvijo (kopiranjem) iz same naprave, vendar varnostna kopija (na microSD kartici ali izpis 24 besed) omogoča popoln dostop do denarnice. Zato jo je treba hraniti na varnem mestu!\n\nKer geselska fraza ustvari novo denarnico z uporabo vašega obstoječega semena, denarnica zaščitena s frazo za obnovo zahteva oboje <strong>varnostno kopijo in geselsko frazo</strong>. Prednost tega je, da če nekdo najde vašo varnostno kopijo (v obliki 24 besed ali na microSD kartici), za dostop do kovancev še vedno potrebuje geselsko frazo.\n\nPoleg tega lahko z uporabo več geselskih fraz na enem BitBox-u upravljate mnogo med seboj ločenih denarnic!",
+      "title": "Zakaj uporabiti geselsko frazo?"
     }
   },
   "password": {
@@ -1139,7 +1234,7 @@
     "verify": "Skrbno preverite naslov",
     "verifyBitBox01": "Preverite naslov v mobilni aplikaciji",
     "verifyBitBox02": "Preverite naslov na BitBox02",
-    "verifyInstruction": "Preverite, da se naslednji naslov ujema z naslovom, ki je prikazan na vaši napravi.",
+    "verifyInstruction": "Preverite, da se prikazan naslov ujema s tistim, ki je prikazan na BitBoxu in to potrdite na napravi.",
     "warning": {
       "secureOutput": "Prosimo, uparite BitBox z mobilno aplikacijo, da omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici."
     }
@@ -1148,8 +1243,8 @@
     "description": "Vsi podatki na napravi bodo izbrisani. To vključuje vaš zasebni ključ!",
     "notReset": "Naprava NI ponastavljena.",
     "title": "Ponastavi napravo (reset)",
-    "understand": "Imam arhivsko kopijo in poznam geslo za njeno obnovitev",
-    "understandBB02": "Imam veljavno arhivsko kopijo"
+    "understand": "Imam varnostno kopijo in poznam geslo za njeno obnovitev",
+    "understandBB02": "Imam veljavno varnostno kopijo"
   },
   "securityInformation": {
     "create": {
@@ -1161,7 +1256,7 @@
       "title": "Pomembne informacije"
     },
     "restore": {
-      "description1": "Vstaviti boste morali microSD kartico, ki ste jo uporabili za shranjevanje arhivske kopije.",
+      "description1": "Vstaviti boste morali microSD kartico, ki ste jo uporabili za shranjevanje varnostne kopije.",
       "description2": "Če želite obnoviti denarnico, boste potrebovali geslo za obnovitev.",
       "description3": "Bodite previdni in natančni pri vnosu gesla. Vsako geslo, ki ga vnesete, bo ustvarilo novo veljavno denarnico. Če vnesete napačno geslo, se vam bo verjetno prikazalo stanje denarnice, ki ga ne pričakujete.",
       "title": "Varnostne informacije"
@@ -1171,20 +1266,20 @@
     "agreements": {
       "funds-access": "da ostanem BREZ DOSTOPA do svojih sredstev, če pozabim to geslo!",
       "password-change": "pozneje NI MOŽNO spremeniti gesla za obnovitev!",
-      "password-required": "je to geslo potrebno za obnovitev denarnice iz arhivske kopije"
+      "password-required": "Obnovitveno geslo je potrebno za obnovitev denarnice iz varnostne kopije"
     },
     "create": "Ustvari denarnico",
     "creating": "Ustvarjanje denarnice",
     "description": "Razumem da:",
     "error": {
       "e102": "Geslo mora vsebovati najmanj 4 znake.",
-      "e200": "Za kreiranje nove denarnice morate v BitBox vstaviti microSD kartico. S tem omogočite samodejno kreiranje arhivske kopije."
+      "e200": "Za kreiranje nove denarnice morate v BitBox vstaviti microSD kartico. S tem omogočite samodejno kreiranje varnostne kopije."
     },
     "info": {
       "button": "Zdaj nastavite geslo za obnovo denarnice",
       "description1": "Vstavite microSD kartico v BitBox",
       "description2": "Ustvarite geslo za obnovitev denarnice in izberite \"Nastavi geslo za obnovitev\"",
-      "description3": "Arhivska kopija na microSD kartici in geslo za obnovitev je edina metoda za povrnitev sredstev v primeru izgubljenega, uničenega ali ukradene denarnice BitBox01.",
+      "description3": "Varnostna kopija na microSD kartici in geslo za obnovitev je edina metoda za povrnitev sredstev v primeru izgubljenega, uničenega ali ukradene denarnice BitBox01.",
       "description4": "Pozneje ni možno spremeniti gesla za obnovitev brez prenosa sredstev.",
       "title": "Ustvarite novo denarnico"
     },
@@ -1198,14 +1293,14 @@
   },
   "seedRestore": {
     "error": {
-      "e200": "Obnova oz. priklic denarnice iz arhivske kopije zahteva microSD kartico."
+      "e200": "Obnova oz. priklic denarnice iz varnostne kopije zahteva microSD kartico."
     },
     "info": {
       "description1": "Vstavite microSD kartico v BitBox in kliknite \"Nadaljujte\"",
-      "description2": "Izberite arhivsko kopijo in kliknite »Obnovi«",
+      "description2": "Izberite varnostno kopijo in kliknite »Obnovi«",
       "description3": "Vnesite geslo za obnovo",
       "description4": "Potrdite, da razumete, da bo napačno geslo ustvarilo drugo, novo denarnico.",
-      "title": "Kako obnoviti denarnico iz arhivske kopije"
+      "title": "Kako obnoviti denarnico iz varnostne kopije"
     }
   },
   "send": {
@@ -1273,6 +1368,7 @@
     },
     "maximum": "Pošlji vse",
     "maximumSelectedCoins": "Pošlji izbrane kovance",
+    "noFeeTargets": "Generirane provizije trenutno niso dostopne. Prosimo poizkusite ponovno ali vnesite poljubno višino provizije.",
     "priority": "Omrežnina",
     "scanQR": "Skenirajte QR kodo",
     "signprogress": {
@@ -1285,6 +1381,10 @@
     "transactionDetails": "Podrobnosti transakcije"
   },
   "settings": {
+    "about": "O nastavitvah",
+    "accounts": "Računi",
+    "advancedSettings": "Napredne nastavitve",
+    "appearance": "Izgled",
     "electrum": {
       "add": "Dodaj strežnik",
       "add-server": "Dodaj",
@@ -1315,6 +1415,7 @@
     "expert": {
       "coinControl": "Omogoči nadzor nad kovanci (Coin control)",
       "electrum": {
+        "description": "Povežete lahko svoje Electrum vozlišče.",
         "title": "Povežite svoje polno vozlišče"
       },
       "fee": "Omogoči provizije po meri",
@@ -1352,7 +1453,7 @@
     "create": {
       "info1": "Vaša denarnica je arhivirana na microSD kartico. \nOdstranite jo in jo varno shranite.",
       "info2": "Ustvarili ste varno geslo, ki odklene BitBox.",
-      "info3": "Ustvarili ste varno geslo za obnovitev denarnice, ki odklene sredstva in obnovi arhivske kopije.",
+      "info3": "Ustvarili ste varno geslo za obnovitev denarnice, ki odklene sredstva in obnovi varnostne kopije.",
       "summary": "Preberite povzetek storjenega:",
       "title": "Uspelo je!"
     },
@@ -1399,6 +1500,7 @@
     "weight": "Utež"
   },
   "transactions": {
+    "errorLoadTransactions": "Napaka pri nalaganju transakcij.",
     "placeholder": "Ni transakcij."
   },
   "unknownError": "Prišlo je do neznane napake: {{errorMessage}}",
@@ -1428,7 +1530,7 @@
   },
   "warning": {
     "receivePairing": "Prosimo, da seznanite BitBox01 s pametnim telefonom, da si omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici.",
-    "sdcard": "MicroSD kartico hranite ločeno od BitBoxa, razen ko upravljate z arhivskimi kopijami.",
+    "sdcard": "MicroSD kartico hranite ločeno od BitBoxa, razen ko upravljate z varnostnimi kopijami.",
     "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici."
   },
   "welcome": {
