@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { Balances, SyncStatus } from './accountssummary';
+import { Balances } from './accountssummary';
 import { BalanceRow } from './balancerow';
 import { SubTotalRow } from './subtotalrow';
 import { Amount } from '../../../components/amount/amount';
@@ -28,7 +28,6 @@ type TProps = {
   summaryData?: accountApi.ISummary,
   totalBalancePerCoin?: accountApi.ITotalBalance,
   balances?: Balances,
-  syncStatus?: SyncStatus,
 }
 
 type TAccountCoinMap = {
@@ -40,7 +39,6 @@ export function SummaryBalance ({
   summaryData,
   totalBalancePerCoin,
   balances,
-  syncStatus,
 }: TProps) {
   const { t } = useTranslation();
 
@@ -81,7 +79,6 @@ export function SummaryBalance ({
                   name={account.name}
                   coinCode={account.coinCode}
                   balance={balances && balances[account.code]}
-                  syncStatus={syncStatus && syncStatus[account.code]}
                 />
               );
               if (balanceRows?.length > 1) {

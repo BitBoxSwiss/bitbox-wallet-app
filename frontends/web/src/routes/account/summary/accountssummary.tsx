@@ -18,9 +18,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { unsubscribe, UnsubscribeList } from '../../../utils/subscriptions';
 import { apiWebsocket, TPayload } from '../../../utils/websocket';
-import { syncAddressesCount } from '../../../api/accountsync';
 import { TDevices } from '../../../api/devices';
 import { useSDCard } from '../../../hooks/sdcard';
 import { Status } from '../../../components/status/status';
@@ -44,23 +42,17 @@ export type Balances = {
     [code: string]: accountApi.IBalance;
 };
 
-export type SyncStatus = {
-    [code: string]: number;
-};
-
 export function AccountsSummary({
   accounts,
   devices,
 }: TProps) {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
-  const unsubscribeList = useRef<UnsubscribeList>([]);
   const firstRender = useRef(true);
 
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [totalBalancePerCoin, setTotalBalancePerCoin] = useState<accountApi.ITotalBalance>();
   const [balances, setBalances] = useState<Balances>();
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>();
   const [exported, setExported] = useState('');
 
   const hasCard = useSDCard(devices);
@@ -86,16 +78,6 @@ export function AccountsSummary({
       console.error(err);
     }
   };
-
-  const onSyncAddressesCount = useCallback((
-    code: string,
-    syncedAddressesCount: number,
-  ) => {
-    setSyncStatus((prevSyncStatus) => ({
-      ...prevSyncStatus,
-      [code]: syncedAddressesCount,
-    }));
-  }, []);
 
   const onStatusChanged = useCallback(async (code: string, initial: boolean = false) => {
     const status = await accountApi.getStatus(code);
@@ -133,15 +115,6 @@ export function AccountsSummary({
     }
   }, [onStatusChanged]);
 
-  const subscribe = useCallback(() => {
-    unsubscribe(unsubscribeList.current);
-    unsubscribeList.current.push(apiWebsocket(onEvent));
-    accounts.forEach(account => {
-      unsubscribeList.current.push(syncAddressesCount(account.code, onSyncAddressesCount));
-      onStatusChanged(account.code, firstRender.current);
-    });
-  }, [onSyncAddressesCount, onStatusChanged, onEvent, accounts]);
-
   const exportSummary = async () => {
     try {
       const exportResult = await accountApi.exportSummary();
@@ -153,39 +126,34 @@ export function AccountsSummary({
 
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
-    if (firstRender.current) {
-      getAccountSummary();
-      getAccountsTotalBalance();
-      return () => {
-        firstRender.current = false;
-      };
-    }
-  });
+    getAccountSummary();
+    getAccountsTotalBalance();
+    return () => {
+      firstRender.current = false;
+    };
+  }, []);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
-    // replace previous timer if present
-    if (summaryReqTimerID.current) {
-      window.clearTimeout(summaryReqTimerID.current);
-    }
     // set new timer
     const delay = (!summaryData || summaryData.chartDataMissing) ? 1000 : 10000;
     summaryReqTimerID.current = window.setTimeout(getAccountSummary, delay);
+    return () => {
+      // replace previous timer if present
+      if (summaryReqTimerID.current) {
+        window.clearTimeout(summaryReqTimerID.current);
+      }
+    };
   }, [summaryData]);
 
   // update subscriptions on account change.
   useEffect(() => {
-    subscribe();
-  }, [accounts, subscribe]);
-
-  // clear timer and subcription when unmounting the component.
-  useEffect(() => {
-    const currentUnsubscribeList = unsubscribeList.current;
-    return () => {
-      window.clearTimeout(summaryReqTimerID.current);
-      unsubscribe(currentUnsubscribeList);
-    };
-  }, []);
+    const unsubscribe = apiWebsocket(onEvent);
+    accounts.forEach(account => {
+      onStatusChanged(account.code, firstRender.current);
+    });
+    return () => unsubscribe();
+  }, [onStatusChanged, onEvent, accounts]);
 
   return (
     <div className="contentWithGuide">
@@ -227,7 +195,6 @@ export function AccountsSummary({
               summaryData={summaryData}
               totalBalancePerCoin={totalBalancePerCoin}
               balances={balances}
-              syncStatus={syncStatus}
             />
           </div>
         </div>
