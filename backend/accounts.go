@@ -1021,11 +1021,14 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 	}
 
 	// Enable accounts discovery for these coins.
-	coinCodes := []coinpkg.Code{
-		coinpkg.CodeBTC,
-		coinpkg.CodeTBTC,
-		coinpkg.CodeLTC,
-		coinpkg.CodeTLTC,
+	var coinCodes []coinpkg.Code
+	switch {
+	case backend.arguments.Regtest():
+		coinCodes = []coinpkg.Code{coinpkg.CodeRBTC}
+	case backend.arguments.Testing():
+		coinCodes = []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC}
+	default:
+		coinCodes = []coinpkg.Code{coinpkg.CodeBTC, coinpkg.CodeLTC}
 	}
 	for _, coinCode := range coinCodes {
 		var newAccountCode *accountsTypes.Code
