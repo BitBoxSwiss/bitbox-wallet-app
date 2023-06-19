@@ -21,7 +21,7 @@ import * as backendAPI from '../../api/backend';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input } from '../../components/forms';
 import Logo from '../../components/icon/logo';
-import { Header, Main } from '../../components/layout';
+import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
 import { Message } from '../../components/message/message';
@@ -29,7 +29,9 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
 import { MobileHeader } from '../settings/components/mobile-header';
+import Guide from './manage-account-guide';
 import style from './manage-accounts.module.css';
+
 
 interface ManageAccountsProps {
   deviceIDs: string[];
@@ -212,54 +214,60 @@ class ManageAccounts extends Component<Props, State> {
     const { editAccountCode, editAccountNewName, editErrorMessage } = this.state;
     const accountList = this.renderAccounts();
     return (
-      <Main>
-        <Header
-          hideSidebarToggler
-          title={
-            <>
-              <h2 className="hide-on-small">{t('settings.title')}</h2>
-              <MobileHeader title={t('manageAccounts.title')} />
-            </>
-          } />
-        <View fullscreen={false}>
-          <ViewContent>
-            <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
-              <>
-                <Button
-                  className={style.addAccountBtn}
-                  primary
-                  onClick={() => route('/add-account', true)}>
-                  {t('addAccount.title')}
-                </Button>
-                <div className="box slim divide m-bottom-large">
-                  { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
-                </div>
-                <Dialog
-                  open={!!(editAccountCode)}
-                  onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
-                  title={t('manageAccounts.editAccountNameTitle')}>
-                  <form onSubmit={this.updateAccountName}>
-                    <Message type="error" hidden={!editErrorMessage}>
-                      {editErrorMessage}
-                    </Message>
-                    <Input
-                      onInput={e => this.setState({ editAccountNewName: e.target.value })}
-                      value={editAccountNewName} />
-                    <DialogButtons>
-                      <Button
-                        disabled={!editAccountNewName}
-                        primary
-                        type="submit">
-                        {t('button.update')}
-                      </Button>
-                    </DialogButtons>
-                  </form>
-                </Dialog>
-              </>
-            </WithSettingsTabs>
-          </ViewContent>
-        </View>
-      </Main>
+      <GuideWrapper>
+        <GuidedContent>
+          <Main>
+            <Header
+              hideSidebarToggler
+              title={
+                <>
+                  <h2 className="hide-on-small">{t('settings.title')}</h2>
+                  <MobileHeader title={t('manageAccounts.title')} />
+                </>
+              } />
+            <View fullscreen={false}>
+              <ViewContent>
+                <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
+                  <>
+                    <Button
+                      className={style.addAccountBtn}
+                      primary
+                      onClick={() => route('/add-account', true)}>
+                      {t('addAccount.title')}
+                    </Button>
+                    <div className="box slim divide m-bottom-large">
+                      { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
+                    </div>
+                    <Dialog
+                      open={!!(editAccountCode)}
+                      onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
+                      title={t('manageAccounts.editAccountNameTitle')}>
+                      <form onSubmit={this.updateAccountName}>
+                        <Message type="error" hidden={!editErrorMessage}>
+                          {editErrorMessage}
+                        </Message>
+                        <Input
+                          onInput={e => this.setState({ editAccountNewName: e.target.value })}
+                          value={editAccountNewName} />
+                        <DialogButtons>
+                          <Button
+                            disabled={!editAccountNewName}
+                            primary
+                            type="submit">
+                            {t('button.update')}
+                          </Button>
+                        </DialogButtons>
+                      </form>
+                    </Dialog>
+                  </>
+                </WithSettingsTabs>
+              </ViewContent>
+            </View>
+          </Main>
+        </GuidedContent>
+        <Guide />
+      </GuideWrapper>
+
     );
   }
 }
