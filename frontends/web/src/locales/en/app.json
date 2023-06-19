@@ -165,8 +165,8 @@
     "confirmDate": "Confirm today's date on your BitBox02",
     "confirmDateText": "This date will be used to create your backup.",
     "confirmName": "Confirm name on BitBox02",
-    "confirmWords": "Write down the {{amount}} recovery words on your BitBox02",
-    "confirmWordsText": "After that the BitBox02 ask you to confirm each word to verify that the backup is correct.",
+    "confirmWords": "Write down the {{amount}} recovery words from your BitBox02",
+    "confirmWordsText": "After that the BitBox02 asks you to confirm each word to verify that the backup is correct.",
     "followInstructions": "Please follow the instructions on your BitBox02.",
     "followInstructionsMnemonic": "Follow the instructions on your BitBox02 to enter the recovery words from your backup and restore your wallet.",
     "followInstructionsMnemonicTitle": "Restore from recovery words"
@@ -193,7 +193,7 @@
       "seed12WordLabel": "Create 12-word instead of 24-word seed",
       "seed12WordText": "By default the BitBox02 uses a 24-word seed. Both seed lengths are secure against brute forcing in practice. Some users may prefer the convenience of the 12-word seed instead.",
       "skipSDCardLabel": "Skip microSD card backup and write down recovery words instead",
-      "skipSDCardText": "You always have the option to create a microSD card backup and write your recovery words after setup. This can be done from settings.",
+      "skipSDCardText": "You always have the option to create a microSD card backup or write your recovery words after setup. This can be done from settings.",
       "title": "Advanced backup options"
     },
     "attestationFailed": "Genuine check failed, which could be due to restarting the app while the device was waiting for user input. Please reconnect and try again. Please contact support@bitbox.swiss if this persists.",
@@ -504,7 +504,7 @@
         "description": "Create or verify your microSD card backup."
       },
       "showRecoveryWords": {
-        "description": "Show and verify 24 recovery words."
+        "description": "Show and verify recovery words."
       },
       "title": "Backups"
     },
@@ -526,7 +526,7 @@
         "title": "Factory reset"
       },
       "goToStartupSettings": {
-        "description": "Enter the bootloader of the BitBox02. You can enable the firmware the hash from here."
+        "description": "Enter the bootloader of the BitBox02. You can enable the firmware hash from here."
       },
       "passphrase": {
         "description": "Enable or disable the passphrase feature.",

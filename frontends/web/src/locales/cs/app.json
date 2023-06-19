@@ -136,7 +136,7 @@
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
     "showMnemonic": {
-      "description": "Zobrazí se vám 24 slov pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.\n",
+      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.\n",
       "title": "Zobrazit slova pro obnovu"
     },
     "title": "Spravovat zálohy"
@@ -165,6 +165,8 @@
     "confirmDate": "Potvrďte dnešní datum na svém BitBox02",
     "confirmDateText": "Toto datum se použije pro vytvoření zálohy.",
     "confirmName": "Potvrďte název na BitBox02",
+    "confirmWords": "Zapište si {{amount}} obnovovacích slov z vašeho BitBox02.",
+    "confirmWordsText": "Poté budete v BitBox02 vyzváni k potvrzení každého slova, abyste si ověřili správnost zálohy.",
     "followInstructions": "Postupujte podle pokynů na vašem BitBox02.",
     "followInstructionsMnemonic": "Postupujte dle pokynů na Vašem BitBox02 – zadejte slova pro obnovení z vaší zálohy a obnovte peněženku.",
     "followInstructionsMnemonicTitle": "Obnovit ze slov pro obnovení"
@@ -172,6 +174,8 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Aktuální název zařízení",
+      "error": "Název zařízení se nepodařilo nastavit",
+      "error_104": "Potvrzení názvu zařízení bylo na zařízení zrušeno.",
       "input": "Název BitBox02",
       "placeholder": "Nový název zařízení",
       "title": "Nastavit název pro BitBox02"
@@ -182,6 +186,14 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Pokročilé nastavení",
+      "outOfDate": "Firmware je pro tuto funkci zastaralý",
+      "seed12WordLabel": "Vytvořit 12slovný namísto 24slovného seed",
+      "skipSDCardLabel": "Přeskočte zálohování na microSD kartu a místo toho si zapište slova pro obnovení.",
+      "skipSDCardText": "Po nastavení máte vždy možnost vytvořit zálohu na microSD kartu nebo zapsat si slova pro obnovení. To lze provést v nastavení.",
+      "title": "Pokročilé možnosti zálohování"
+    },
     "attestationFailed": "Kontrola originality selhala, což mohlo být způsobeno restartováním aplikace v době, kdy zařízení čekalo na vstup uživatele. Znovu se připojte a zkuste to znovu. Pokud tento problém přetrvává, obraťte se prosím na support@bitbox.swiss.",
     "backup": {
       "point1": "Vyberte zálohu na microSD kartě",
@@ -194,7 +206,8 @@
       "userConfirmation2": "Moje záloha není chráněna heslem. Kdokoli, kdo k ní má přístup, má přístup k mé peněžence.",
       "userConfirmation3": "Pokud ztratím nebo poškodím svůj BitBox02, jediný způsob, jak získat zpět své prostředky, je obnovit peněženku ze zálohy.",
       "userConfirmation4": "Pokud ztratím nebo poškodím zálohu i BitBox02, přijdu o své prostředky.",
-      "userConfirmation5": "MicroSD kartu s mou zálohou bych neměl vkládat do počítače, telefonu, tiskárny nebo jiného zařízení než BitBox02."
+      "userConfirmation5": "MicroSD kartu s mou zálohou bych neměl vkládat do počítače, telefonu, tiskárny nebo jiného zařízení než BitBox02.",
+      "userConfirmation5mnemonic": "Neměl bych vkládat slova pro obnovení do počítače, telefonu, tiskárny nebo jiného zařízení, než je BitBox02."
     },
     "create": {
       "button": "Pojmenujte zařízení a pokračujte",
@@ -205,6 +218,7 @@
       "point3": "Vytvořit zálohu",
       "text": "Ok, pojďme vytvořit novou peněženku!"
     },
+    "createBackupAborted": "Vytváření zálohy bylo zrušeno.",
     "createBackupFailed": "Vytvoření zálohy se nezdařilo, zkuste to znovu.",
     "initialize": {
       "passwordText": "Nyní nastavíme heslo pro vaše zařízení. K zadání a výběru hesla použijte ovládací prvky na BitBoxu.",
@@ -222,11 +236,13 @@
       "unpaired": "Byl zjištěn nespárovaný BitBox02. Prosím ověřte, že párovací kód odpovídá tomu, co je zobrazeno na vašem BitBoxu."
     },
     "restoreFromMnemonic": {
+      "e104": "Obnovení ze slov pro obnovení bylo zrušeno.",
       "failed": "Obnovení ze slov pro obnovení se nezdařilo, zkuste to prosím znovu."
     },
     "stepBackup": {
       "beforeProceed": "Než budete pokračovat, přečtěte si tato důležitá bezpečnostní opatření:",
-      "createBackup": "Nyní vytvoříte zálohu na microSD kartě."
+      "createBackup": "Nyní vytvoříte zálohu na microSD kartě.",
+      "createBackupMnemonic": "Nyní si zapíšete slova pro obnovení."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Aby byly vaše prostředky v bezpečí, mějte na paměti následující:",
@@ -251,6 +267,7 @@
       "insertSDcardTitle": "Vložte microSD kartu"
     },
     "stepPassword": {
+      "e104": "Nastavení hesla bylo zrušeno.",
       "title": "Nastavte heslo pro váš Bitbox02",
       "useControls": "K nastavení hesla použijte ovládací prvky na vašem BitBox02."
     },
@@ -480,6 +497,40 @@
     "title": "Aktivovat dvoufaktorovou autorizaci (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Vytvořte nebo ověřte zálohu na microSD kartě."
+      },
+      "showRecoveryWords": {
+        "description": "Zobrazit a ověřit 24 slov pro obnovení."
+      },
+      "title": "Zálohy"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "BitBoxApp kontroluje, zda je vaše zařízení pravé."
+      },
+      "deviceName": {
+        "description": "Změňte název zařízení."
+      },
+      "securechip": {
+        "description": "Model bezpečného čipu."
+      },
+      "title": "Informace o zařízení"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Obnovte tovární nastavení zařízení. Tím se smaže peněženka z vašeho BitBox02!",
+        "title": "Obnovit do továrního nastavení"
+      },
+      "goToStartupSettings": {
+        "description": "Vstoupit do bootloaderu BitBox02. Zde můžete povolit hash firmwaru."
+      },
+      "passphrase": {
+        "description": "Aktivovat nebo deaktivovat funkci přístupové fráze.",
+        "title": "Přístupová fráze"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Verze firmwaru",
       "newVersion": {
@@ -665,7 +716,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Každá měna může mít maximálně pět účtů.",
+        "text": "Bitcoin a Litecoin mohou mít libovolné množství účtů. Po pěti účtech můžete přidat další účet pouze v případě, že předchozí účet byl použit. \nOstatní měny mohou mít maximálně pět účtů.",
         "title": "Kolik účtů mohu vytvořit?"
       },
       "howtoAddTokens": {
@@ -987,6 +1038,44 @@
   "mobile": {
     "usingMobileDataWarning": "Využití mobilních dat: tato aplikace může po odemčení účtu stáhnout až několik set megabajtů dat z blockchainu. Abyste se vyhnuli používání mobilních dat, připojte se k Wi-Fi. Po jejím zavření se tato zpráva již nebude zobrazovat."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Verze aplikace"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Vyberte, které UTXO jsou součástí transakce, abyste zlepšili soukromí."
+      },
+      "customFees": {
+        "description": "Umožňuje zadat vlastní poplatek při odesílání."
+      },
+      "torProxy": {
+        "description": "Připojte se přes Tor pro lepší soukromí."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Tyto další měny můžete přepínat na stránce svého účtu.",
+        "title": "Aktivní měny"
+      },
+      "darkmode": {
+        "description": "Podívejte se na BitBoxApp v tmavém režimu."
+      },
+      "defaultCurrency": {
+        "description": "Vyberte výchozí měnu",
+        "title": "Výchozí měna"
+      },
+      "language": {
+        "description": "Jaký jazyk chcete v BitBoxApp používat.",
+        "title": "Jazyk"
+      },
+      "toggleSats": {
+        "description": "Aktivovat nebo deaktivovat Satoshi."
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(volitelný)",
@@ -1047,7 +1136,7 @@
   "passphrase": {
     "considerations": {
       "button": "Úvahy ohledně zálohování",
-      "message": "Přístupová fráze přidává vrstvu ochrany k vaší záloze peněženky (obnovovací seed uložen na microSD kartě nebo 24 slov). Pokud má někdo přístup k vaší záloze, bude k přístupu do peněženky potřebovat také přístupovou frázi.\n\nTo však znamená, že v případě ztráty nebo rozbití vašeho BitBoxu budete potřebovat <strong>i přístupovou frázi i zálohu peněženky</strong> pro obnovení vaší peněženky s přístupovou frází. Pokud zapomenete nebo ztratíte svou přístupovou frázi, ztratíte přístup ke všem prostředkům v této peněžence.\n\nPři ukládání přístupové fráze zvažte její umístění na jiné místo než kde máte zálohu. Pokud někdo najde vaši zálohu, nenajde tak vaši přístupovou frázi.",
+      "message": "Přístupová fráze přidává vrstvu ochrany k vaší záloze peněženky (záloha na microSD kartě nebo obnovovací slova). Pokud má někdo přístup k vaší záloze, bude k přístupu do peněženky potřebovat také přístupovou frázi.\n\nTo však znamená, že v případě ztráty nebo rozbití vašeho BitBoxu budete potřebovat <strong>i přístupovou frázi i zálohu peněženky</strong> pro obnovení vaší peněženky s přístupovou frází. Pokud zapomenete nebo ztratíte svou přístupovou frázi, ztratíte přístup ke všem prostředkům v této peněžence.\n\nPři ukládání přístupové fráze zvažte její umístění na jiné místo než kde máte zálohu. Pokud někdo najde vaši zálohu, nenajde tak vaši přístupovou frázi.",
       "title": "Úvahy ohledně zálohování"
     },
     "disable": "Deaktivovat přístupovou frázi",
@@ -1104,12 +1193,12 @@
     },
     "what": {
       "button": "Přečtěte si, jak to funguje",
-      "message": "Peněženka je vytvořena (odvozena) z velmi velkého náhodného čísla, známého také jako seed. Tento seed je vytvořen při prvním nastavení BitBoxu a je zálohován pomocí karty microSD a nebo prostřednictvím uložení 24 slov. Každý, kdo má přístup k seedu, má plnou kontrolu nad prostředky v této peněžence.\n\nPřístupová fráze je <strong>volitelné tajemství</strong>, které se přidává k seedu. Při použití přístupové fráze se při každém použití vytvoří nová peněženka na základě seedu + přístupové fráze (nepovinného tajemství). Passphrase může být jakákoli: písmena, slova, speciální znaky nebo může být i prázdná. Výchozí peněženka je ve skutečnosti odvozena od seedu + prázdné přístupové fráze.\n\nPřístupová fráze je součástí standardu BIP39, což znamená, že je kompatibilní se všemi peněženkami, které tento standard podporují.",
+      "message": "Peněženka je vytvořena (odvozena) z velmi velkého náhodného čísla, známého také jako seed. Tento seed, nebo slova pro obnovení, je vytvořen při prvním nastavení BitBoxu a je zálohován pomocí microSD karty anebo prostřednictvím jiné zálohy (papír, steelwallet apod.). Každý, kdo má přístup k seedu, má plnou kontrolu nad prostředky v této peněžence.\n\nPřístupová fráze je <strong>volitelné tajemství</strong>, které se přidává k seedu. Při použití přístupové fráze se při každém použití vytvoří nová peněženka na základě seedu + přístupové fráze (nepovinného tajemství). Passphrase může být jakákoli: písmena, slova, speciální znaky nebo může být i prázdná. Výchozí peněženka je ve skutečnosti odvozena od seedu + prázdné přístupové fráze.\n\nPřístupová fráze je součástí standardu BIP39, což znamená, že je kompatibilní se všemi peněženkami, které tento standard podporují.",
       "title": "Co je přístupová fráze?"
     },
     "why": {
       "button": "Proč používat přístupovou frázi",
-      "message": "BitBox02 chrání seed před stažením ze samotného zařízení, ale záloha (microSD karta nebo 24 slov) umožňuje plný přístup k peněžence. Proto by měla být uložena na bezpečném místě!\n\nVzhledem k tomu, že přístupová fráze vytváří novou peněženku pomocí vašeho stávajícího seedu, vyžaduje peněženka s přístupovou frází k obnovení <strong>zálohu i přístupovou frázi</strong>. Výhodou je, že pokud někdo najde vaši zálohu, bude k přístupu do peněženky s přístupovou frází stále potřebovat přístupovou frázi.\n\nFunkce přístupové fráze navíc umožňuje vytvořit na stejném zařízení více peněženek nebo \"skrytých peněženek\" kromě té výchozí.",
+      "message": "BitBox02 chrání seed před stažením ze samotného zařízení, ale záloha (uložena na microSD kartě nebo obnovovací slova zapsaná na papíře) umožňuje plný přístup k peněžence. Proto by měla být uložena na bezpečném místě!\n\nVzhledem k tomu, že přístupová fráze vytváří novou peněženku pomocí vašeho stávajícího seedu, vyžaduje peněženka s přístupovou frází k obnovení <strong>zálohu i přístupovou frázi</strong>. Výhodou je, že pokud někdo najde vaši zálohu, bude k přístupu do peněženky s přístupovou frází stále potřebovat přístupovou frázi.\n\nFunkce přístupové fráze navíc umožňuje vytvořit na stejném zařízení více peněženek nebo \"skrytých peněženek\" kromě té výchozí.",
       "title": "Proč používat přístupovou frázi?"
     }
   },
@@ -1290,7 +1379,9 @@
     "transactionDetails": "Detaily transakce"
   },
   "settings": {
+    "about": "O aplikaci",
     "accounts": "Účty",
+    "advancedSettings": "Pokročilé nastavení",
     "appearance": "Vzhled",
     "electrum": {
       "add": "Přidat server",
@@ -1322,6 +1413,7 @@
     "expert": {
       "coinControl": "Aktivovat coin control",
       "electrum": {
+        "description": "Můžete se připojit ke svému vlastnímu Electrum uzlu (full node).",
         "title": "Připojte svůj vlastní uzel (full node)"
       },
       "fee": "Aktivovat vlastní poplatky",
@@ -1406,6 +1498,7 @@
     "weight": "Váha"
   },
   "transactions": {
+    "errorLoadTransactions": "Při načítání transakcí došlo k chybě",
     "placeholder": "Zatím žádné transakce."
   },
   "unknownError": "Nastala neznámá chyba: {{errorMessage}}",
