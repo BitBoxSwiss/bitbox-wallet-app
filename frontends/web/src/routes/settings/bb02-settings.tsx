@@ -114,7 +114,13 @@ const Content = ({ deviceID }: TProps) => {
       {/*"Device information" section*/}
       <div className={styles.section}>
         <h3 className="subTitle">{t('deviceSettings.deviceInformation.title')}</h3>
-        {deviceInfo ? <DeviceNameSetting deviceName={deviceInfo.name} deviceID={deviceID} /> : null }
+        {deviceInfo ?
+          <DeviceNameSetting
+            deviceName={deviceInfo.name}
+            deviceID={deviceID}
+          /> :
+          <StyledSkeleton />
+        }
         <AttestationCheckSetting deviceID={deviceID} />
         {
           versionInfo ?
