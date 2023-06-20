@@ -91,5 +91,5 @@ export function customFeeUnit(coinCode: CoinCode): string {
   if (isEthereumBased(coinCode)) {
     return 'Gwei';
   }
-  return 'gawk';
+  return '';
 }

@@ -121,7 +121,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const proposeTimeout = useRef<any>(null);
 
   const isBTCBased = () => {
-    const account = getAccount(); // Assuming getAccount is a function defined elsewhere
+    const account = getAccount();
     if (!account) {
       return false;
     }
@@ -131,16 +131,14 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
 
   const registerEvents = () => {
-    document.addEventListener('keydown', handleKeyDown); // Assuming handleKeyDown is a function defined elsewhere
+    document.addEventListener('keydown', handleKeyDown);
   };
 
   const unregisterEvents = () => {
     document.removeEventListener('keydown', handleKeyDown);
   };
 
-  // The rest of your functional component
 
-  // Use useCallback to avoid unnecessary re-renders if these functions are used as dependencies in useEffect or other similar hooks.
   const handleKeyDown = useCallback((e) => {
     if (e.keyCode === 27 && !state.activeCoinControl && !state.activeScanQR) {
       route(`/account/${code}`);
@@ -496,9 +494,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       recipientAddress: address,
       sendAll: false,
       fiatAmount: '',
-      amount: '',
-      amountError: ''
-    };
+    } as Pick<State, keyof State>;
 
     const account = getAccount(); // Replace with the correct method to get account
     const coinCode = account?.coinCode;
@@ -506,10 +502,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       if (coinCode === 'btc' || coinCode === 'tbtc') {
         const result = await parseExternalBtcAmount(amount);
         if (result.success) {
-          updateState.amount = result.amount;
+          updateState['amount'] = result.amount;
         } else {
-          updateState.amountError = t('send.error.invalidAmount');
-          setState({ ...state, ...updateState });
+          updateState['amountError'] = t('send.error.invalidAmount');
+          setState((prevState) => ({ ...prevState, ...updateState }));
           return;
         }
       } else {
@@ -517,9 +513,8 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       }
     }
 
-    setState({ ...state, ...updateState });
-    convertToFiat(state.amount);
-    validateAndDisplayFee(true);
+    setState((prevState) => ({ ...prevState, ...updateState }));
+    convertToFiat(updateState.amount);
   };
 
   const toggleScanQR = () => {
@@ -530,13 +525,16 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       }
       // should already be false, set by the catch function below. we do it again anyway, in
       // case it is not called consistently on each platform.
-      setState({ ...state, activeScanQR: false });
+      setState((prevState) => ({
+        ...prevState,
+        activeScanQR: false,
+      }));
     } else {
-      setState({
-        ...state,
+      setState((prevState) => ({
+        ...prevState,
         activeScanQR: true,
         videoLoading: true,
-      });
+      }));
     }
   };
 
@@ -551,22 +549,29 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   };
 
   useEffect(() => {
-    //Toggle scan QR
+
+    const decodeQR = async (qrCodeReaderRef: BrowserQRCodeReader) => {
+      try {
+        const result = await qrCodeReaderRef.decodeOnceFromVideoDevice(undefined, 'video');
+        setState((prevState) => ({ ...prevState, activeScanQR: false }));
+        parseQRResult(result.getText());
+        if (qrCodeReader.current) {
+          qrCodeReader.current.reset(); // release camera
+        }
+      } catch (error: any) {
+        if (error) {
+          // Can be translated
+          alertUser(error.message || error);
+        }
+        setState((prevState) => ({ ...prevState, activeScanQR: false }));
+      }
+    };
+
+    //From toggle scan QR
     if (state.activeScanQR && qrCodeReader.current) {
-      qrCodeReader.current.decodeFromInputVideoDevice(undefined, 'video')
-        .then(result => {
-          setState({ ...state, activeScanQR: false });
-          parseQRResult(result.getText());
-          qrCodeReader.current && qrCodeReader.current.reset(); // release camera
-        })
-        .catch((error) => {
-          if (error) {
-            alertUser(error.message || error);
-          }
-          setState({ ...state, activeScanQR: false });
-        });
+      decodeQR(qrCodeReader.current);
     }
-  }, [state.activeScanQR, qrCodeReader.current]); // Effect runs when activeScanQR or qrCodeReader.current changes
+  }, [state.activeScanQR]); // Effect runs when activeScanQR changes
 
   useEffect(() => {
     validateAndDisplayFee();
@@ -580,7 +585,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
   useEffect(() => {
     validateAndDisplayFee(true);
-  }, [state.sendAll, state.recipientAddress, state.amount]);
+  }, [state.sendAll, state.recipientAddress, state.fiatAmount]);
 
   useEffect(() => {
     // Corresponding to componentDidMount and UNSAFE_componentWillMount...
@@ -640,7 +645,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         qrCodeReader.current
           .getVideoInputDevices()
           .then(videoInputDevices => {
-            setState(prevState => ({ ...prevState, hasCamera: true }));
+            setState(prevState => ({ ...prevState, hasCamera: videoInputDevices.length > 0 }));
           });
       })
       .catch(console.error);
@@ -655,7 +660,9 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         qrCodeReader.current.reset();
       }
     };
-  }, []); // Empty array means this useEffect will run once on component mount and clean up on unmount
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {
     balance,
