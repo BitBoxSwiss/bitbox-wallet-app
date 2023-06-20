@@ -45,11 +45,9 @@
     padding: var(--space-quarter);
 }
 
-.utxoExplorer svg {
-    stroke: var(--color-blue);
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
+.utxoExplorer img {
+    width: 18px;
+    height: 18px;
 }
 
 .amounts {
