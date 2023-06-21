@@ -11,6 +11,7 @@
 - Add advanced setup with skip microSD card or 12-word seed options
 - Hide 0 amount ERC20 transactions to partially mitigate Address Poisoning Attack
 - Changed Litecoin block explorer to Blockchair
+- Show notes in coin control
 
 ## 4.37.0
 - Bundle BitBox02 firmware version v9.14.0
