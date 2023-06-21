@@ -2,7 +2,7 @@ import { FeeTargetCode, Fiat, IAmount } from '../../../api/account';
 import { BtcUnit } from '../../../api/coins';
 
 
-type TSignProgress = {
+export type TSignProgress = {
     steps: number;
     step: number;
   }

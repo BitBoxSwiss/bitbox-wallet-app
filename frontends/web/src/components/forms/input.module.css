@@ -62,7 +62,7 @@
 }
 
 .errorText {
-    color: var(--color-softred);
+    color: var(--color-softred) !important;
 }
 
 .errorText > span > span {

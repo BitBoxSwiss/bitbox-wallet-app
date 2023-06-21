@@ -40,7 +40,7 @@ export interface Props {
     type?: 'text' | 'password' | 'number';
     value: string | number;
     maxLength?: number;
-    labelSection?: JSX.Element | undefined;
+    labelSection?: React.ReactNode;
 }
 
 export default forwardRef<HTMLInputElement, Props>(function Input({
