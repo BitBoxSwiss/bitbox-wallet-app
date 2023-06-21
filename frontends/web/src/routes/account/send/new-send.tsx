@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { route } from '../../../utils/route';
-import { ConversionUnit, FeeTargetCode, Fiat, IAccount, IAmount, IBalance, getBalance, getReceiveAddressList, sendTx } from '../../../api/account';
+import { ConversionUnit, FeeTargetCode, IAccount, IAmount, IBalance, getBalance, getReceiveAddressList, sendTx } from '../../../api/account';
 import { findAccount, isBitcoinBased, customFeeUnit, isBitcoinOnly } from '../utils';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '../../../components/alert/Alert';
 import { apiGet, apiPost } from '../../../utils/request';
-import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
+import { parseExternalBtcAmount } from '../../../api/coins';
 import { store } from '../../../components/rates/rates';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { BrowserQRCodeReader } from '@zxing/library';
@@ -30,46 +30,8 @@ import qrcodeIconDark from '../../../assets/icons/qrcode-dark.png';
 import qrcodeIconLight from '../../../assets/icons/qrcode-light.png';
 import { debug } from '../../../utils/env';
 import { FeeTargets } from './feetargets';
+import { CameraState, CoinControlSettingsState, ErrorHandlingState, TransactionDetailsState, TransactionStatusState } from './types';
 import style from './send.module.css';
-interface SignProgress {
-  steps: number;
-  step: number;
-}
-
-interface State {
-  account?: IAccount;
-  balance?: IBalance;
-  proposedFee?: IAmount;
-  proposedTotal?: IAmount;
-  recipientAddress: string;
-  proposedAmount?: IAmount;
-  valid: boolean;
-  amount: string;
-  fiatAmount: string;
-  fiatUnit: Fiat;
-  sendAll: boolean;
-  feeTarget?: FeeTargetCode;
-  customFee: string;
-  isConfirming: boolean;
-  isSent: boolean;
-  isAborted: boolean;
-  isUpdatingProposal: boolean;
-  addressError?: string;
-  amountError?: string;
-  feeError?: string;
-  paired?: boolean;
-  noMobileChannelError?: boolean;
-  signProgress?: SignProgress;
-  // show visual BitBox in dialog when instructed to sign.
-  signConfirm: boolean;
-  coinControl: boolean;
-  btcUnit: BtcUnit;
-  activeCoinControl: boolean;
-  hasCamera: boolean;
-  activeScanQR: boolean;
-  videoLoading: boolean;
-  note: string;
-}
 
 interface SendProps {
   accounts: IAccount[];
@@ -80,39 +42,59 @@ interface SendProps {
 
 export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const { t } = useTranslation();
-  const [state, setState] = useState<State>({
-    account: undefined,
-    balance: undefined,
+
+
+  const [balance, setBalance] = useState<IBalance>();
+
+  // Transaction Details:
+  const [transactionDetails, setTransactionDetails] = useState<TransactionDetailsState>({
+    recipientAddress: '',
+    amount: '',
     proposedFee: undefined,
     proposedTotal: undefined,
-    recipientAddress: '',
     proposedAmount: undefined,
     valid: false,
-    amount: '',
     fiatAmount: '',
     fiatUnit: store.state.active,
     sendAll: false,
     feeTarget: undefined,
     customFee: '',
+  });
+
+  // Transaction Status:
+  const [transactionStatus, setTransactionStatus] = useState<TransactionStatusState>({
     isConfirming: false,
     isSent: false,
     isAborted: false,
     isUpdatingProposal: false,
+    signProgress: undefined,
+    signConfirm: false,
+  });
+
+  // Error Handling:
+  const [errorHandling, setErrorHandling] = useState<ErrorHandlingState>({
     addressError: undefined,
     amountError: undefined,
     feeError: undefined,
-    paired: undefined,
     noMobileChannelError: undefined,
-    signProgress: undefined,
-    signConfirm: false,
+  });
+
+  // Bitcoin Settings:
+  const [coinControlState, setCoinControlState] = useState<CoinControlSettingsState>({
     coinControl: false,
     btcUnit: 'default',
     activeCoinControl: false,
+  });
+
+  // Camera and QR Code:
+  const [cameraState, setCameraState] = useState<CameraState>({
     hasCamera: false,
     activeScanQR: false,
     videoLoading: false,
-    note: '',
   });
+
+  const [note, setNote] = useState('');
+  const [paired, setPaired] = useState<boolean>();
 
   const selectedUTXOs = useRef<TSelectedUTXOs>({});
   const unsubscribeList = useRef<UnsubscribeList>([]);
@@ -140,54 +122,62 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
 
   const handleKeyDown = useCallback((e) => {
-    if (e.keyCode === 27 && !state.activeCoinControl && !state.activeScanQR) {
+    if (e.keyCode === 27 && !coinControlState.activeCoinControl && !cameraState.activeScanQR) {
       route(`/account/${code}`);
     }
-  }, [state.activeCoinControl, state.activeScanQR, code]);
+  }, [coinControlState.activeCoinControl, cameraState.activeScanQR, code]);
 
   const send = () => {
-    if (state.noMobileChannelError) {
+    if (noMobileChannelError) {
       alertUser(t('warning.sendPairing'));
       return;
     }
-    setState(prevState => ({
-      ...prevState,
-      signProgress: undefined,
-      isConfirming: true
-    }));
+
+    setTransactionStatus((prevState) => ({ ...prevState, signProgress: undefined, isConfirming: true }));
+
 
     sendTx(getAccount()!.code).then(result => {
       if (result.success) {
-        setState(prevState => ({
+
+
+        setTransactionDetails((prevState) => ({
           ...prevState,
           sendAll: false,
-          isConfirming: false,
-          isSent: true,
-          recipientAddress: '',
           proposedAmount: undefined,
           proposedFee: undefined,
           proposedTotal: undefined,
+          recipientAddress: '',
           fiatAmount: '',
           amount: '',
-          note: '',
-          customFee: '',
+          customFee: ''
         }));
+
+
+        setTransactionStatus((prevState) => ({
+          ...prevState,
+          isConfirming: true,
+          isSent: true,
+
+        }));
+        setNote('');
 
         selectedUTXOs.current = {};
 
-        setTimeout(() => setState(prevState => ({
+        setTimeout(() => setTransactionStatus(prevState => ({
           ...prevState,
           isSent: false,
           isConfirming: false,
         })), 5000);
 
+
       } else if (result.aborted) {
-        setState(prevState => ({
+
+        setTransactionStatus(prevState => ({
           ...prevState,
           isAborted: true
         }));
 
-        setTimeout(() => setState(prevState => ({
+        setTimeout(() => setTransactionStatus(prevState => ({
           ...prevState,
           isAborted: false
         })), 5000);
@@ -205,36 +195,41 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     })
       .catch((error) => console.error(error))
       .then(() => {
-        // The following method allows pressing escape again.
-        setState(prevState => ({
+
+        setTransactionStatus(prevState => ({
           ...prevState,
           isConfirming: false,
           signProgress: undefined,
           signConfirm: false
         }));
+
       });
 
   };
 
   const txInput = () => ({
-    address: state.recipientAddress,
-    amount: state.amount,
-    feeTarget: state.feeTarget || '',
-    customFee: state.customFee,
-    sendAll: state.sendAll ? 'yes' : 'no',
+    address: transactionDetails.recipientAddress,
+    amount: transactionDetails.amount,
+    feeTarget: transactionDetails.feeTarget || '',
+    customFee: transactionDetails.customFee,
+    sendAll: transactionDetails.sendAll ? 'yes' : 'no',
     selectedUTXOs: Object.keys(selectedUTXOs.current),
   });
 
   const sendDisabled = () => {
     const input = txInput();
-    return !input.address || state.feeTarget === undefined || (input.sendAll === 'no' && !input.amount) || (state.feeTarget === 'custom' && !state.customFee);
+    return !input.address || transactionDetails.feeTarget === undefined || (input.sendAll === 'no' && !input.amount) || (transactionDetails.feeTarget === 'custom' && !transactionDetails.customFee);
   };
 
 
   const validateAndDisplayFee = (updateFiat = true) => {
-    setState(prevState => ({
+    setTransactionDetails(prevState => ({
       ...prevState,
       proposedTotal: undefined,
+    }));
+
+    setErrorHandling(prevState => ({
+      ...prevState,
       addressError: undefined,
       amountError: undefined,
       feeError: undefined,
@@ -250,7 +245,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       proposeTimeout.current = null;
     }
 
-    setState(prevState => ({
+    setTransactionStatus(prevState => ({
       ...prevState,
       isUpdatingProposal: true
     }));
@@ -266,7 +261,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
           pendingProposals.current.splice(pos, 1);
         })
         .catch(() => {
-          setState(prevState => ({ ...prevState, valid: false }));
+          setTransactionDetails(prevState => ({ ...prevState, valid: false }));
           pendingProposals.current.splice(pendingProposals.current.indexOf(propose), 1);
         });
       pendingProposals.current.push(propose);
@@ -276,7 +271,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const handleNoteInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
     apiPost('account/' + getAccount()!.code + '/propose-tx-note', target.value);
-    setState(prevState => ({ ...prevState, note: target.value }));
+    setNote(target.value);
 
   };
   const txProposal = (updateFiat: boolean, result: {
@@ -286,22 +281,29 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     success: boolean;
     total: IAmount;
 }) => {
-    setState(prevState => ({
+    setTransactionDetails(prevState => ({
       ...prevState,
       valid: result.success
     }));
 
+
     if (result.success) {
-      setState(prevState => ({
+      setTransactionDetails(prevState => ({
+        ...prevState,
+        proposedFee: result.fee,
+        proposedAmount: result.amount,
+        proposedTotal: result.total,
+      }));
+
+      setErrorHandling((prevState) => ({
         ...prevState,
         addressError: undefined,
         amountError: undefined,
         feeError: undefined,
-        proposedFee: result.fee,
-        proposedAmount: result.amount,
-        proposedTotal: result.total,
-        isUpdatingProposal: false,
       }));
+
+      setTransactionStatus(prevState => ({ ...prevState, isUpdatingProposal: false }));
+
 
       if (updateFiat) {
         convertToFiat(result.amount.amount);
@@ -310,33 +312,36 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       const errorCode = result.errorCode;
       switch (errorCode) {
       case 'invalidAddress':
-        setState(prevState => ({
+        setErrorHandling(prevState => ({
           ...prevState,
           addressError: t('send.error.invalidAddress')
         }));
         break;
       case 'invalidAmount':
       case 'insufficientFunds':
-        setState(prevState => ({
+        setErrorHandling(prevState => ({
           ...prevState,
           amountError: t(`send.error.${errorCode}`),
+        }));
+        setTransactionDetails(prevState => ({
+          ...prevState,
           proposedFee: undefined,
         }));
         break;
       case 'feeTooLow':
-        setState(prevState => ({
+        setErrorHandling(prevState => ({
           ...prevState,
           feeError: t('send.error.feeTooLow')
         }));
         break;
       case 'feesNotAvailable':
-        setState(prevState => ({
+        setErrorHandling(prevState => ({
           ...prevState,
           feeError: t('send.error.feesNotAvailable')
         }));
         break;
       default:
-        setState(prevState => ({
+        setTransactionDetails(prevState => ({
           ...prevState,
           proposedFee: undefined
         }));
@@ -345,7 +350,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
           alertUser(errorCode, { callback: registerEvents });
         }
       }
-      setState(prevState => ({
+      setTransactionStatus(prevState => ({
         ...prevState,
         isUpdatingProposal: false
       }));
@@ -362,25 +367,23 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
     if (target.id === 'sendAll') {
       if (!value) {
-        convertToFiat(state.amount);
+        convertToFiat(transactionDetails.amount);
       }
     } else if (target.id === 'amount') {
       convertToFiat(value);
     }
-
-    setState(prevState => ({
+    // according to the DOM/JSX
+    // target.ids are: recipientAddress || sendAll || amount
+    setTransactionDetails(prevState => ({
       ...prevState,
       [target.id]: value,
     }));
-
-
-
   };
 
 
   const handleFiatInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
-    setState((prevState) => ({
+    setTransactionDetails((prevState) => ({
       ...prevState,
       fiatAmount: value,
     }));
@@ -390,33 +393,35 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const convertToFiat = (value?: string | boolean) => {
     if (value) {
       const coinCode = getAccount()!.coinCode;
-      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${state.fiatUnit}&amount=${value}`)
+      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${transactionDetails.fiatUnit}&amount=${value}`)
         .then(data => {
           if (data.success) {
-            setState(prevState => ({ ...prevState, fiatAmount: data.fiatAmount }));
+            setTransactionDetails((prevState) => ({
+              ...prevState,
+              fiatAmount: data.fiatAmount,
+            }));
           } else {
-            setState(prevState => ({ ...prevState, amountError: t('send.error.invalidAmount') }));
+            setErrorHandling(prevState => ({ ...prevState, amountError: t('send.error.invalidAmount') }));
           }
         });
     } else {
-      setState(prevState => ({ ...prevState, fiatAmount: '' }));
+      setTransactionDetails(prevState => ({ ...prevState, fiatAmount: '' }));
     }
   };
 
   const convertFromFiat = (value: string) => {
     if (value) {
       const coinCode = getAccount()!.coinCode;
-      apiGet(`coins/convert-from-fiat?from=${state.fiatUnit}&to=${coinCode}&amount=${value}`)
+      apiGet(`coins/convert-from-fiat?from=${transactionDetails.fiatUnit}&to=${coinCode}&amount=${value}`)
         .then(data => {
           if (data.success) {
-            setState(prevState => ({ ...prevState, amount: data.amount }));
-            // validateAndDisplayFee(false);
+            setTransactionDetails(prevState => ({ ...prevState, amount: data.amount }));
           } else {
-            setState(prevState => ({ ...prevState, amountError: t('send.error.invalidAmount') }));
+            setErrorHandling(prevState => ({ ...prevState, amountError: t('send.error.invalidAmount') }));
           }
         });
     } else {
-      setState(prevState => ({ ...prevState, amount: '' }));
+      setTransactionDetails(prevState => ({ ...prevState, amount: '' }));
     }
   };
 
@@ -425,7 +430,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     getReceiveAddressList(getAccount()!.code)()
       .then(receiveAddresses => {
         if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-          setState(prevState => ({ ...prevState, recipientAddress: receiveAddresses[0].addresses[0].address }));
+          setTransactionDetails(prevState => ({
+            ...prevState,
+            recipientAddress: receiveAddresses[0].addresses[0].address
+          }));
           handleFormChange(event);
         }
       })
@@ -433,14 +441,15 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   };
 
   const feeTargetChange = (feeTarget: FeeTargetCode) => {
-    setState(prevState => ({
+    setTransactionDetails(prevState => ({
       ...prevState,
       feeTarget,
       customFee: ''
     }));
 
     // After updating state, call `validateAndDisplayFee`
-    validateAndDisplayFee(state.sendAll);
+
+    validateAndDisplayFee(transactionDetails.sendAll);
   };
 
   const onSelectedUTXOsChange = (selected: TSelectedUTXOs) => {
@@ -462,11 +471,8 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   };
 
   const toggleCoinControl = () => {
-    const toggled = !state.activeCoinControl;
-    setState(prevState => ({
-      ...prevState,
-      activeCoinControl: !prevState.activeCoinControl,
-    }));
+    const toggled = !coinControlState.activeCoinControl;
+    setCoinControlState(prevState => ({ ...prevState, activeCoinControl: !prevState.activeCoinControl }));
     if (toggled) {
       selectedUTXOs.current = {};
     }
@@ -494,7 +500,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       recipientAddress: address,
       sendAll: false,
       fiatAmount: '',
-    } as Pick<State, keyof State>;
+    } as Pick<TransactionDetailsState, keyof TransactionDetailsState>;
 
     const account = getAccount(); // Replace with the correct method to get account
     const coinCode = account?.coinCode;
@@ -504,33 +510,32 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         if (result.success) {
           updateState['amount'] = result.amount;
         } else {
-          updateState['amountError'] = t('send.error.invalidAmount');
-          setState((prevState) => ({ ...prevState, ...updateState }));
+          setTransactionDetails((prevState) => ({ ...prevState, ...updateState }));
+          setErrorHandling((prevState) => ({ ...prevState, amountError:  t('send.error.invalidAmount') }));
           return;
         }
       } else {
         updateState['amount'] = amount;
       }
     }
-
-    setState((prevState) => ({ ...prevState, ...updateState }));
+    setTransactionDetails((prevState) => ({ ...prevState, ...updateState }));
     convertToFiat(updateState.amount);
   };
 
   const toggleScanQR = () => {
-    if (state.activeScanQR) {
+    if (cameraState.activeScanQR) {
       if (qrCodeReader.current) {
         // release camera; invokes the catch function below.
         qrCodeReader.current.reset();
       }
       // should already be false, set by the catch function below. we do it again anyway, in
       // case it is not called consistently on each platform.
-      setState((prevState) => ({
+      setCameraState((prevState) => ({
         ...prevState,
         activeScanQR: false,
       }));
     } else {
-      setState((prevState) => ({
+      setCameraState((prevState) => ({
         ...prevState,
         activeScanQR: true,
         videoLoading: true,
@@ -540,12 +545,12 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
 
   const handleVideoLoad = () => {
-    setState(prevState => ({ ...prevState, videoLoading: false }));
+    setCameraState(prevState => ({ ...prevState, videoLoading: false }));
   };
 
 
   const deactivateCoinControl = () => {
-    setState(prevState => ({ ...prevState, activeCoinControl: false }));
+    setCoinControlState(prevState => ({ ...prevState, activeCoinControl: false }));
   };
 
   useEffect(() => {
@@ -553,7 +558,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     const decodeQR = async (qrCodeReaderRef: BrowserQRCodeReader) => {
       try {
         const result = await qrCodeReaderRef.decodeOnceFromVideoDevice(undefined, 'video');
-        setState((prevState) => ({ ...prevState, activeScanQR: false }));
+        setCameraState((prevState) => ({ ...prevState, activeScanQR: false }));
         parseQRResult(result.getText());
         if (qrCodeReader.current) {
           qrCodeReader.current.reset(); // release camera
@@ -563,35 +568,35 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
           // Can be translated
           alertUser(error.message || error);
         }
-        setState((prevState) => ({ ...prevState, activeScanQR: false }));
+        setCameraState((prevState) => ({ ...prevState, activeScanQR: false }));
       }
     };
 
     //From toggle scan QR
-    if (state.activeScanQR && qrCodeReader.current) {
+    if (cameraState.activeScanQR && qrCodeReader.current) {
       decodeQR(qrCodeReader.current);
     }
-  }, [state.activeScanQR]); // Effect runs when activeScanQR changes
+  }, [cameraState.activeScanQR]); // Effect runs when activeScanQR changes
 
   useEffect(() => {
     validateAndDisplayFee();
-  }, [state.customFee]);
+  }, [transactionDetails.customFee]);
 
   useEffect(() => {
-    if (state.amount) {
+    if (transactionDetails.amount) {
       validateAndDisplayFee(false);
     }
-  }, [state.amount]);
+  }, [transactionDetails.amount]);
 
   useEffect(() => {
     validateAndDisplayFee(true);
-  }, [state.sendAll, state.recipientAddress, state.fiatAmount]);
+  }, [transactionDetails.sendAll, transactionDetails.recipientAddress, transactionDetails.fiatAmount]);
 
   useEffect(() => {
     // Corresponding to componentDidMount and UNSAFE_componentWillMount...
     if (code) {
       getBalance(code)
-        .then(balance => setState(prevState => ({ ...prevState, balance })))
+        .then(balance => setBalance(balance))
         .catch(console.error);
     }
     if (deviceIDs.length > 0 && devices[deviceIDs[0]] === 'bitbox') {
@@ -601,14 +606,15 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
             const account = getAccount();
             const paired = mobileChannel && pairing;
             const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-            setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
+            setPaired(paired);
+            setErrorHandling(prevState => ({ ...prevState, noMobileChannelError }));
           });
       });
     }
     apiGet('config').then(config => {
-      setState(prevState => ({ ...prevState, btcUnit: config.backend.btcUnit }));
+      setCoinControlState(prevState => ({ ...prevState, btcUnit: config.backend.btcUnit }));
       if (isBTCBased()) {
-        setState(prevState => ({ ...prevState, coinControl: !!(config.frontend || {}).coinControl }));
+        setCoinControlState(prevState => ({ ...prevState, coinControl: !!(config.frontend || {}).coinControl }));
       }
     });
 
@@ -620,10 +626,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
           case 'device':
             switch (data) {
             case 'signProgress':
-              setState(prevState => ({ ...prevState, signProgress: meta, signConfirm: false }));
+              setTransactionStatus(prevState => ({ ...prevState, signProgress: meta, signConfirm: false }));
               break;
             case 'signConfirm':
-              setState(prevState => ({ ...prevState, signConfirm: true }));
+              setTransactionStatus(prevState => ({ ...prevState, signConfirm: true }));
               break;
             }
             break;
@@ -632,7 +638,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       }),
       syncdone(code, (code) => {
         getBalance(code)
-          .then(balance => setState(prevState => ({ ...prevState, balance })))
+          .then(balance => setBalance(balance))
           .catch(console.error);
       }),
     ];
@@ -645,7 +651,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         qrCodeReader.current
           .getVideoInputDevices()
           .then(videoInputDevices => {
-            setState(prevState => ({ ...prevState, hasCamera: videoInputDevices.length > 0 }));
+            setCameraState(prevState => ({ ...prevState, hasCamera: videoInputDevices.length > 0 }));
           });
       })
       .catch(console.error);
@@ -663,44 +669,33 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const { addressError, amountError, feeError, noMobileChannelError } = errorHandling;
   const {
-    balance,
+    recipientAddress,
+    amount,
     proposedFee,
     proposedTotal,
-    recipientAddress,
     proposedAmount,
     valid,
-    amount,
-    /* data, */
     fiatAmount,
     fiatUnit,
     sendAll,
     feeTarget,
     customFee,
-    isConfirming,
-    isSent,
-    isAborted,
-    isUpdatingProposal,
-    addressError,
-    amountError,
-    feeError,
-    paired,
-    signProgress,
-    signConfirm,
-    coinControl,
-    btcUnit,
-    activeCoinControl,
-    hasCamera,
-    activeScanQR,
-    videoLoading,
-    note,
-  } = state;
+  } = transactionDetails;
+
+  const { isConfirming, isSent, isAborted, isUpdatingProposal, signProgress, signConfirm } = transactionStatus;
+
+  const { coinControl, btcUnit, activeCoinControl } = coinControlState;
+
+  const { hasCamera, activeScanQR, videoLoading } = cameraState;
+
+
 
   const account = getAccount();
 
   if (!account) {
-    return <p>no account...</p>;
+    return null;
   }
   const confirmPrequel = (signProgress && signProgress.steps > 1) ? (
     <span>
@@ -716,290 +711,287 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const baseCurrencyUnit: ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
 
   return (
-    // JSX
-    <>
-      <div className="contentWithGuide">
-        <div className="container">
-          <Status type="warning" hidden={paired !== false}>
-            {t('warning.sendPairing')}
-          </Status>
-          <div className="innerContainer scrollableContainer">
-            <Header title={<h2>{t('send.title', { accountName: account.coinName })}</h2>} />
-            <div className="content padded">
-              <div>
-                <label className="labelXLarge">{t('send.availableBalance')}</label>
-              </div>
-              <Balance balance={balance} noRotateFiat/>
-              { coinControl && (
-                <UTXOs
-                  accountCode={account.code}
-                  active={activeCoinControl}
-                  explorerURL={account.blockExplorerTxPrefix}
-                  onClose={deactivateCoinControl}
-                  onChange={onSelectedUTXOsChange} />
-              ) }
-              <div className={`flex flex-row flex-between ${style.container}`}>
-                <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                { coinControl && (
-                  <A href="#" onClick={toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
-                )}
-              </div>
-              <Grid col="1">
-                <Column>
-                  <Input
-                    label={t('send.address.label')}
-                    placeholder={t('send.address.placeholder')}
-                    id="recipientAddress"
-                    error={addressError}
-                    onInput={handleFormChange}
-                    value={recipientAddress}
-                    className={hasCamera ? style.inputWithIcon : ''}
-                    labelSection={debug ? (
-                      <span id="sendToSelf" className={style.action} onClick={sendToSelf}>
-                        Send to self
-                      </span>
-                    ) : undefined}
-                    autoFocus>
-                    { hasCamera && (
-                      <button onClick={toggleScanQR} className={style.qrButton}>
-                        <img className="show-in-lightmode" src={qrcodeIconDark} />
-                        <img className="show-in-darkmode" src={qrcodeIconLight} />
-                      </button>
-                    )}
-                  </Input>
-                </Column>
-              </Grid>
-              <Grid>
-                <Column>
-                  <Input
-                    type="number"
-                    step="any"
-                    min="0"
-                    label={balance ? balance.available.unit : t('send.amount.label')}
-                    id="amount"
-                    onInput={handleFormChange}
-                    disabled={sendAll}
-                    error={amountError}
-                    value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
-                    placeholder={t('send.amount.placeholder')}
-                    labelSection={
-                      <Checkbox
-                        label={t(hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
-                        id="sendAll"
-                        onChange={handleFormChange}
-                        checked={sendAll}
-                        className={style.maxAmount} />
-                    } />
-                </Column>
-                <Column>
-                  <Input
-                    type="number"
-                    step="any"
-                    min="0"
-                    label={baseCurrencyUnit}
-                    id="fiatAmount"
-                    onInput={handleFiatInput}
-                    disabled={sendAll}
-                    error={amountError}
-                    value={fiatAmount}
-                    placeholder={t('send.amount.placeholder')} />
-                </Column>
-              </Grid>
-              <Grid>
-                <Column>
-                  <FeeTargets
-                    accountCode={account.code}
-                    coinCode={account.coinCode}
-                    disabled={!amount && !sendAll}
-                    fiatUnit={baseCurrencyUnit}
-                    proposedFee={proposedFee}
-                    customFee={customFee}
-                    showCalculatingFeeLabel={isUpdatingProposal}
-                    onFeeTargetChange={feeTargetChange}
-                    onCustomFee={customFee => setState(prevState => ({ ...prevState, customFee }))}
-                    error={feeError} />
-                </Column>
-                <Column>
-                  <Input
-                    label={t('note.title')}
-                    labelSection={
-                      <span className={style.labelDescription}>
-                        {t('note.input.description')}
-                      </span>
-                    }
-                    id="note"
-                    onInput={handleNoteInput}
-                    value={note}
-                    placeholder={t('note.input.placeholder')} />
-                  <ColumnButtons
-                    className="m-top-default m-bottom-xlarge"
-                    inline>
-                    <Button
-                      primary
-                      onClick={send}
-                      disabled={sendDisabled() || !valid || isUpdatingProposal}>
-                      {t('send.button')}
-                    </Button>
-                    <ButtonLink
-                      transparent
-                      to={`/account/${code}`}>
-                      {t('button.back')}
-                    </ButtonLink>
-                  </ColumnButtons>
-                </Column>
-              </Grid>
+    <div className="contentWithGuide">
+      <div className="container">
+        <Status type="warning" hidden={paired !== false}>
+          {t('warning.sendPairing')}
+        </Status>
+        <div className="innerContainer scrollableContainer">
+          <Header title={<h2>{t('send.title', { accountName: account.coinName })}</h2>} />
+          <div className="content padded">
+            <div>
+              <label className="labelXLarge">{t('send.availableBalance')}</label>
             </div>
+            <Balance balance={balance} noRotateFiat/>
+            { coinControl && (
+              <UTXOs
+                accountCode={account.code}
+                active={activeCoinControl}
+                explorerURL={account.blockExplorerTxPrefix}
+                onClose={deactivateCoinControl}
+                onChange={onSelectedUTXOsChange} />
+            ) }
+            <div className={`flex flex-row flex-between ${style.container}`}>
+              <label className="labelXLarge">{t('send.transactionDetails')}</label>
+              { coinControl && (
+                <A href="#" onClick={toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
+              )}
+            </div>
+            <Grid col="1">
+              <Column>
+                <Input
+                  label={t('send.address.label')}
+                  placeholder={t('send.address.placeholder')}
+                  id="recipientAddress"
+                  error={addressError}
+                  onInput={handleFormChange}
+                  value={recipientAddress}
+                  className={hasCamera ? style.inputWithIcon : ''}
+                  labelSection={debug ? (
+                    <span id="sendToSelf" className={style.action} onClick={sendToSelf}>
+                        Send to self
+                    </span>
+                  ) : undefined}
+                  autoFocus>
+                  { hasCamera && (
+                    <button onClick={toggleScanQR} className={style.qrButton}>
+                      <img className="show-in-lightmode" src={qrcodeIconDark} />
+                      <img className="show-in-darkmode" src={qrcodeIconLight} />
+                    </button>
+                  )}
+                </Input>
+              </Column>
+            </Grid>
+            <Grid>
+              <Column>
+                <Input
+                  type="number"
+                  step="any"
+                  min="0"
+                  label={balance ? balance.available.unit : t('send.amount.label')}
+                  id="amount"
+                  onInput={handleFormChange}
+                  disabled={sendAll}
+                  error={amountError}
+                  value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
+                  placeholder={t('send.amount.placeholder')}
+                  labelSection={
+                    <Checkbox
+                      label={t(hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
+                      id="sendAll"
+                      onChange={handleFormChange}
+                      checked={sendAll}
+                      className={style.maxAmount} />
+                  } />
+              </Column>
+              <Column>
+                <Input
+                  type="number"
+                  step="any"
+                  min="0"
+                  label={baseCurrencyUnit}
+                  id="fiatAmount"
+                  onInput={handleFiatInput}
+                  disabled={sendAll}
+                  error={amountError}
+                  value={fiatAmount}
+                  placeholder={t('send.amount.placeholder')} />
+              </Column>
+            </Grid>
+            <Grid>
+              <Column>
+                <FeeTargets
+                  accountCode={account.code}
+                  coinCode={account.coinCode}
+                  disabled={!amount && !sendAll}
+                  fiatUnit={baseCurrencyUnit}
+                  proposedFee={proposedFee}
+                  customFee={customFee}
+                  showCalculatingFeeLabel={isUpdatingProposal}
+                  onFeeTargetChange={feeTargetChange}
+                  onCustomFee={customFee => setTransactionDetails(prevState => ({ ...prevState, customFee }))}
+                  error={feeError} />
+              </Column>
+              <Column>
+                <Input
+                  label={t('note.title')}
+                  labelSection={
+                    <span className={style.labelDescription}>
+                      {t('note.input.description')}
+                    </span>
+                  }
+                  id="note"
+                  onInput={handleNoteInput}
+                  value={note}
+                  placeholder={t('note.input.placeholder')} />
+                <ColumnButtons
+                  className="m-top-default m-bottom-xlarge"
+                  inline>
+                  <Button
+                    primary
+                    onClick={send}
+                    disabled={sendDisabled() || !valid || isUpdatingProposal}>
+                    {t('send.button')}
+                  </Button>
+                  <ButtonLink
+                    transparent
+                    to={`/account/${code}`}>
+                    {t('button.back')}
+                  </ButtonLink>
+                </ColumnButtons>
+              </Column>
+            </Grid>
           </div>
-          {
-            isConfirming && (
-              <WaitDialog
-                title={t('send.confirm.title')}
-                prequel={confirmPrequel}
-                paired={paired}
-                touchConfirm={signConfirm}
-                includeDefault>
-                <div className={style.confirmItem}>
-                  <label>{t('send.address.label')}</label>
-                  <p>{recipientAddress || 'N/A'}</p>
-                </div>
-                <div className={style.confirmItem}>
-                  <label>{t('send.amount.label')}</label>
-                  <p>
-                    <span key="proposedAmount">
-                      {(proposedAmount &&
+        </div>
+        {
+          isConfirming && (
+            <WaitDialog
+              title={t('send.confirm.title')}
+              prequel={confirmPrequel}
+              paired={paired}
+              touchConfirm={signConfirm}
+              includeDefault>
+              <div className={style.confirmItem}>
+                <label>{t('send.address.label')}</label>
+                <p>{recipientAddress || 'N/A'}</p>
+              </div>
+              <div className={style.confirmItem}>
+                <label>{t('send.amount.label')}</label>
+                <p>
+                  <span key="proposedAmount">
+                    {(proposedAmount &&
                         <Amount amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-                      {' '}
-                      <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
-                    </span>
-                    {
-                      proposedAmount && proposedAmount.conversions && (
-                        <span>
-                          <span className="text-gray"> / </span>
-                          <Amount amount={proposedAmount.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
-                          {' '}<small>{baseCurrencyUnit}</small>
-                        </span>)
-                    }
-                  </p>
-                </div>
-                {note ? (
-                  <div className={style.confirmItem}>
-                    <label>{t('note.title')}</label>
-                    <p>{note}</p>
-                  </div>
-                ) : null}
-                <div className={style.confirmItem}>
-                  <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
-                  <p>
-                    <span key="amount">
-                      {(proposedFee &&
-                        <Amount amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'}
-                      {' '}
-                      <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
-                    </span>
-                    {proposedFee && proposedFee.conversions && (
-                      <span key="conversation">
-                        <span className="text-gray"> / </span>
-                        <Amount amount={proposedFee.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
-                        {' '}<small>{baseCurrencyUnit}</small>
-                      </span>
-                    )}
-                    {customFee ? (
-                      <span key="customFee">
-                        <br/>
-                        <small>({customFee} {customFeeUnit(account.coinCode)})</small>
-                      </span>
-                    ) : null}
-                  </p>
-                </div>
-                {
-                  hasSelectedUTXOs() && (
-                    <div className={[style.confirmItem].join(' ')}>
-                      <label>{t('send.confirm.selected-coins')}</label>
-                      {
-                        Object.keys(selectedUTXOs).map((uxto, i) => (
-                          <p className={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
-                        ))
-                      }
-                    </div>
-                  )
-                }
-                <div className={[style.confirmItem, style.total].join(' ')}>
-                  <label>{t('send.confirm.total')}</label>
-                  <p>
-                    <span>
-                      <strong>
-                        {(proposedTotal &&
-                        <Amount amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
-                      </strong>
-                      {' '}
-                      <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
-                    </span>
-                    {(proposedTotal && proposedTotal.conversions) && (
+                    {' '}
+                    <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
+                  </span>
+                  {
+                    proposedAmount && proposedAmount.conversions && (
                       <span>
                         <span className="text-gray"> / </span>
-                        <strong><Amount amount={proposedTotal.conversions[fiatUnit]} unit={baseCurrencyUnit}/></strong>
+                        <Amount amount={proposedAmount.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
                         {' '}<small>{baseCurrencyUnit}</small>
-                      </span>
-                    )}
-                  </p>
+                      </span>)
+                  }
+                </p>
+              </div>
+              {note ? (
+                <div className={style.confirmItem}>
+                  <label>{t('note.title')}</label>
+                  <p>{note}</p>
                 </div>
-              </WaitDialog>
-            )
-          }
-          {
-            isSent && (
-              <WaitDialog>
-                <div className="flex flex-row flex-center flex-items-center">
-                  <Checked style={{ height: 18, marginRight: '1rem' }} />{t('send.success')}
-                </div>
-              </WaitDialog>
-            )
-          }
-          {
-            isAborted && (
-              <WaitDialog>
-                <div className="flex flex-row flex-center flex-items-center">
-                  <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />{t('send.abort')}
-                </div>
-              </WaitDialog>
-            )
-          }
-          <Dialog
-            open={activeScanQR}
-            title={t('send.scanQR')}
-            onClose={toggleScanQR}>
-            {videoLoading && <Spinner guideExists />}
-            <video
-              id="video"
-              width={400}
-              height={300 /* fix height to avoid ugly resize effect after open */}
-              className={style.qrVideo}
-              onLoadedData={handleVideoLoad} />
-            <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-              <Button
-                secondary
-                onClick={toggleScanQR}>
-                {t('button.back')}
-              </Button>
-            </div>
-          </Dialog>
-        </div>
-        <Guide>
-          <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
-          { isBitcoinBased(account.coinCode) && (
-            <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
-          )}
-          { isBitcoinBased(account.coinCode) && (
-            <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
-          )}
-          { isBitcoinOnly(account.coinCode) && (
-            <Entry key="guide.send.change" entry={t('guide.send.change')} />
-          )}
-          <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
-          <Entry key="guide.send.plugout" entry={t('guide.send.plugout')} />
-        </Guide>
+              ) : null}
+              <div className={style.confirmItem}>
+                <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
+                <p>
+                  <span key="amount">
+                    {(proposedFee &&
+                        <Amount amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'}
+                    {' '}
+                    <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
+                  </span>
+                  {proposedFee && proposedFee.conversions && (
+                    <span key="conversation">
+                      <span className="text-gray"> / </span>
+                      <Amount amount={proposedFee.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
+                      {' '}<small>{baseCurrencyUnit}</small>
+                    </span>
+                  )}
+                  {customFee ? (
+                    <span key="customFee">
+                      <br/>
+                      <small>({customFee} {customFeeUnit(account.coinCode)})</small>
+                    </span>
+                  ) : null}
+                </p>
+              </div>
+              {
+                hasSelectedUTXOs() && (
+                  <div className={[style.confirmItem].join(' ')}>
+                    <label>{t('send.confirm.selected-coins')}</label>
+                    {
+                      Object.keys(selectedUTXOs).map((uxto, i) => (
+                        <p className={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
+                      ))
+                    }
+                  </div>
+                )
+              }
+              <div className={[style.confirmItem, style.total].join(' ')}>
+                <label>{t('send.confirm.total')}</label>
+                <p>
+                  <span>
+                    <strong>
+                      {(proposedTotal &&
+                        <Amount amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
+                    </strong>
+                    {' '}
+                    <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
+                  </span>
+                  {(proposedTotal && proposedTotal.conversions) && (
+                    <span>
+                      <span className="text-gray"> / </span>
+                      <strong><Amount amount={proposedTotal.conversions[fiatUnit]} unit={baseCurrencyUnit}/></strong>
+                      {' '}<small>{baseCurrencyUnit}</small>
+                    </span>
+                  )}
+                </p>
+              </div>
+            </WaitDialog>
+          )
+        }
+        {
+          isSent && (
+            <WaitDialog>
+              <div className="flex flex-row flex-center flex-items-center">
+                <Checked style={{ height: 18, marginRight: '1rem' }} />{t('send.success')}
+              </div>
+            </WaitDialog>
+          )
+        }
+        {
+          isAborted && (
+            <WaitDialog>
+              <div className="flex flex-row flex-center flex-items-center">
+                <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />{t('send.abort')}
+              </div>
+            </WaitDialog>
+          )
+        }
+        <Dialog
+          open={activeScanQR}
+          title={t('send.scanQR')}
+          onClose={toggleScanQR}>
+          {videoLoading && <Spinner guideExists />}
+          <video
+            id="video"
+            width={400}
+            height={300 /* fix height to avoid ugly resize effect after open */}
+            className={style.qrVideo}
+            onLoadedData={handleVideoLoad} />
+          <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
+            <Button
+              secondary
+              onClick={toggleScanQR}>
+              {t('button.back')}
+            </Button>
+          </div>
+        </Dialog>
       </div>
-    </>
+      <Guide>
+        <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
+        { isBitcoinBased(account.coinCode) && (
+          <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
+        )}
+        { isBitcoinBased(account.coinCode) && (
+          <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+        )}
+        { isBitcoinOnly(account.coinCode) && (
+          <Entry key="guide.send.change" entry={t('guide.send.change')} />
+        )}
+        <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
+        <Entry key="guide.send.plugout" entry={t('guide.send.plugout')} />
+      </Guide>
+    </div>
   );
 };
 
