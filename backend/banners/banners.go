@@ -30,6 +30,14 @@ const bannersURL = "https://bitbox.swiss/updates/banners.json"
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
 
+type TypeCode string
+
+const (
+	TypeWarning TypeCode = "warning"
+	TypeSuccess TypeCode = "success"
+	TypeInfo    TypeCode = "info"
+)
+
 const (
 	// KeyBitBox01 is the message key for the event when a BitBox01 gets connected.
 	KeyBitBox01 MessageKey = "bitbox01"
@@ -49,7 +57,8 @@ type Message struct {
 	} `json:"link"`
 	// Dismissible: if true the ID field will be the key of config.frontend map to keep
 	// trace of dismissed banners (see status.tsx for details).
-	Dismissible *bool `json:"dismissible"`
+	Dismissible *bool     `json:"dismissible"`
+	Type        *TypeCode `json:"type"`
 }
 
 // Banners fetches banner information from remote.

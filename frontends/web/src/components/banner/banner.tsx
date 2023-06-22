@@ -17,7 +17,7 @@
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
-import { Status } from '../status/status';
+import { Status, statusType } from '../status/status';
 
 type TBannerInfo = {
     id: string;
@@ -27,6 +27,7 @@ type TBannerInfo = {
         text?: string;
     };
     dismissible?: boolean;
+    type?: statusType;
 }
 
 type TLoadedProps = {
@@ -45,7 +46,9 @@ function Banner({ msgKey, banner, i18n, t }: TProps) {
     return null;
   }
   return banner && (
-    <Status dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''} type="warning">
+    <Status
+      dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
+      type={banner.type ? banner.type : 'warning'}>
       { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
       { banner.link && (
         <A href={banner.link.href}>
