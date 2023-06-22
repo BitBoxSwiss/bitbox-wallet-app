@@ -65,6 +65,12 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       accounts={activeAccounts} />
   </InjectParams>;
 
+  const AccountsSummaryEl = <InjectParams>
+    <AccountsSummary
+      devices={devices}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
   const AccSend = <InjectParams>
     <Send
       code={'' /* dummy to satisfy TS */}
@@ -158,7 +164,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="info" element={AccInfo} />
       </Route>
       <Route path="add-account" element={<AddAccount />} />
-      <Route path="account-summary" element={<AccountsSummary accounts={activeAccounts} />} />
+      <Route path="account-summary" element={AccountsSummaryEl} />
       <Route path="buy">
         <Route path="info" element={BuyInfoEl} >
           <Route index element={BuyInfoEl} />
