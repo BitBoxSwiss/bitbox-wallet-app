@@ -17,15 +17,17 @@
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
-import { Status } from '../status/status';
+import { Status, statusType } from '../status/status';
 
 type TBannerInfo = {
     id: string;
     message: { [key: string]: string; };
     link?: {
         href: string;
-        text: string;
+        text?: string;
     };
+    dismissible?: boolean;
+    type?: statusType;
 }
 
 type TLoadedProps = {
@@ -34,21 +36,23 @@ type TLoadedProps = {
 
 type TBannerProps = {
     // eslint-disable-next-line react/no-unused-prop-types
-    msgKey: 'bitbox01';
+    msgKey: 'bitbox01' | 'bitbox02';
 }
 
 type TProps = TLoadedProps & TBannerProps & TranslateProps;
 
-function Banner({ banner, i18n, t }: TProps) {
+function Banner({ msgKey, banner, i18n, t }: TProps) {
   if (!i18n.options.fallbackLng) {
     return null;
   }
   return banner && (
-    <Status dismissible="" type="warning">
+    <Status
+      dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
+      type={banner.type ? banner.type : 'warning'}>
       { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
       { banner.link && (
         <A href={banner.link.href}>
-          {t('clickHere')}
+          { banner.link.text || t('clickHere') }
         </A>
       )}
     </Status>

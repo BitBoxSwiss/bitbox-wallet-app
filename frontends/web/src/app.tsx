@@ -193,6 +193,7 @@ class App extends Component<Props, State> {
             <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
               <Update />
               <Banner msgKey="bitbox01" />
+              <Banner msgKey="bitbox02" />
               <MobileDataWarning />
               <Aopp />
               <AppRouter

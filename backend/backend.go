@@ -37,6 +37,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	deviceevent "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
@@ -598,6 +599,8 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	switch theDevice.ProductName() {
 	case bitbox.ProductName:
 		backend.banners.Activate(banners.KeyBitBox01)
+	case bitbox02.ProductName:
+		backend.banners.Activate(banners.KeyBitBox02)
 	}
 	return nil
 }

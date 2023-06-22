@@ -30,9 +30,18 @@ const bannersURL = "https://bitbox.swiss/updates/banners.json"
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
 
+type TypeCode string
+
+const (
+	TypeWarning TypeCode = "warning"
+	TypeSuccess TypeCode = "success"
+	TypeInfo    TypeCode = "info"
+)
+
 const (
 	// KeyBitBox01 is the message key for the event when a BitBox01 gets connected.
 	KeyBitBox01 MessageKey = "bitbox01"
+	KeyBitBox02 MessageKey = "bitbox02"
 )
 
 // Message is one entry in the banners json.
@@ -43,8 +52,13 @@ type Message struct {
 	ID string `json:"id"`
 	// Link, if present, will be appended to the message.
 	Link *struct {
-		Href string `json:"href"`
+		Href string  `json:"href"`
+		Text *string `json:"text"`
 	} `json:"link"`
+	// Dismissible: if true the ID field will be the key of config.frontend map to keep
+	// trace of dismissed banners (see status.tsx for details).
+	Dismissible *bool     `json:"dismissible"`
+	Type        *TypeCode `json:"type"`
 }
 
 // Banners fetches banner information from remote.
@@ -54,6 +68,7 @@ type Banners struct {
 	url     string
 	banners struct {
 		BitBox01 *Message `json:"bitbox01"`
+		BitBox02 *Message `json:"bitbox02"`
 	}
 
 	active map[MessageKey]struct{}
@@ -113,6 +128,8 @@ func (banners *Banners) GetMessage(key MessageKey) *Message {
 	switch key {
 	case KeyBitBox01:
 		return banners.banners.BitBox01
+	case KeyBitBox02:
+		return banners.banners.BitBox02
 	default:
 		banners.log.Errorf("unrecognized key: %s", key)
 		return nil
