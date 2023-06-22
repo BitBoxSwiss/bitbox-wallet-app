@@ -27,7 +27,7 @@ import { syncdone } from '../../../api/accountsync';
 import A from '../../../components/anchor/anchor';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, Checkbox } from '../../../components/forms';
-import { ExpandOpen } from '../../../components/icon';
+import { ExternalLink } from '../../../components/icon';
 import { Amount } from '../../../components/amount/amount';
 import { FiatConversion } from '../../../components/rates/rates';
 import { getScriptName } from '../utils';
@@ -135,7 +135,7 @@ export const UTXOs = ({
                     className={style.utxoExplorer}
                     href={explorerURL + utxo.txId}
                     title={t('transaction.explorerTitle')}>
-                    <ExpandOpen />
+                    <ExternalLink />
                   </A>
                 </div>
               </Checkbox>
