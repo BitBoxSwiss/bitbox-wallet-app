@@ -262,6 +262,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Please remove the microSD card from your BitBox02 and store it in a secure location.",
+      "storeMnemonic": "Please store your recovery words in a secure location",
       "success": "You’ve successfully created your backup."
     },
     "stepInsertSD": {

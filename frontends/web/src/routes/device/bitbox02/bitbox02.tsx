@@ -222,7 +222,10 @@ class BitBox02 extends Component<Props, State> {
         )}
 
         { (appStatus === 'create-wallet' && status === 'initialized') && (
-          <CreateWalletSuccess key="success" onContinue={this.handleGetStarted} />
+          <CreateWalletSuccess
+            key="success"
+            backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
+            onContinue={this.handleGetStarted} />
         )}
         { (appStatus === 'restore-sdcard' && status === 'initialized') && (
           <RestoreFromSDCardSuccess key="backup-success" onContinue={this.handleGetStarted} />
