@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,35 +18,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../dialog/dialog';
-import { TActiveLanguageCodes, TLanguagesList } from './types';
+import { defaultLanguages, TActiveLanguageCodes, TLanguagesList } from './types';
 import style from './language.module.css';
 import { getSelectedIndex } from '../../utils/language';
 
 type TLanguageSwitchProps = {
     languages?: TLanguagesList;
 }
-
-const defaultLanguages = [
-  { code: 'ar', display: 'العربية' },
-  { code: 'bg', display: 'България' },
-  { code: 'cs', display: 'Čeština' },
-  { code: 'de', display: 'Deutsch' },
-  { code: 'en', display: 'English' },
-  { code: 'es', display: 'Español' },
-  { code: 'fa', display: 'فارسی' },
-  { code: 'fr', display: 'Français' },
-  { code: 'he', display: 'עברית' },
-  { code: 'hi', display: 'हिन्दी ' },
-  { code: 'it', display: 'Italiano' },
-  { code: 'ja', display: '日本語' },
-  { code: 'ms', display: 'Bahasa Melayu' },
-  { code: 'nl', display: 'Nederlands' },
-  { code: 'pt', display: 'Português' },
-  { code: 'ru', display: 'Русский' },
-  { code: 'sl', display: 'Slovenščina' },
-  { code: 'tr', display: 'Türkçe' },
-  { code: 'zh', display: '中文' },
-] as TLanguagesList;
 
 const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {
 
