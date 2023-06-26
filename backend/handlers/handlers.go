@@ -17,17 +17,12 @@ package handlers
 
 import (
 	"encoding/base64"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
 	"net/http"
-	"os"
-	"path/filepath"
 	"runtime/debug"
-	"strings"
-	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -208,7 +203,6 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
@@ -1042,86 +1036,6 @@ func (handlers *Handlers) getSupportedCoinsHandler(_ *http.Request) interface{} 
 		})
 	}
 	return result
-}
-
-func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}, error) {
-	name := time.Now().Format("2006-01-02-at-15-04-05-") + "Accounts-Summary.csv"
-	downloadsDir, err := utilConfig.DownloadsDir()
-	if err != nil {
-		return nil, err
-	}
-	suggestedPath := filepath.Join(downloadsDir, name)
-	path := handlers.backend.Environment().GetSaveFilename(suggestedPath)
-	if path == "" {
-		return nil, nil
-	}
-	handlers.log.Infof("Export account summary %s.", path)
-
-	file, err := os.Create(path)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	defer func() {
-		err := file.Close()
-		if err != nil {
-			handlers.log.WithError(err).Error("Could not close the account summary file.")
-		}
-	}()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write([]string{
-		"Coin",
-		"Name",
-		"Balance",
-		"Unit",
-		"Type",
-		"Xpubs",
-	})
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-
-	for _, account := range handlers.backend.Accounts() {
-		if account.Config().Config.Inactive {
-			continue
-		}
-		if account.FatalError() {
-			continue
-		}
-		err := account.Initialize()
-		if err != nil {
-			return nil, err
-		}
-		coin := account.Coin().Code()
-		accountName := account.Config().Config.Name
-		balance, err := account.Balance()
-		if err != nil {
-			return nil, err
-		}
-		unit := account.Coin().SmallestUnit()
-		var accountType string
-		var xpubs []string
-		signingConfigurations := account.Info().SigningConfigurations
-		accountType = "xpubs"
-		for _, signingConfiguration := range signingConfigurations {
-			xpubs = append(xpubs, signingConfiguration.ExtendedPublicKey().String())
-		}
-
-		err = writer.Write([]string{
-			string(coin),
-			accountName,
-			balance.Available().BigInt().String(),
-			unit,
-			accountType,
-			strings.Join(xpubs, "; "),
-		})
-		if err != nil {
-			return nil, errp.WithStack(err)
-		}
-	}
-	return path, nil
 }
 
 func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
