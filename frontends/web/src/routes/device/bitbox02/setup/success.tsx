@@ -96,9 +96,10 @@ export const RestoreFromMnemonicSuccess = ({ onContinue }: Props) => {
         </p>
         <ul>
           <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
+          <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
           <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
           <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
-          <li>{t('bitbox02Wizard.backup.userConfirmation5')}</li>
+          <li>{t('bitbox02Wizard.backup.userConfirmation5mnemonic')}</li>
         </ul>
       </ViewContent>
       <ViewButtons>
