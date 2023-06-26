@@ -22,24 +22,22 @@ import { Button, Input } from '../../../../components/forms';
 import style from './name.module.css';
 import { checkSDCard } from '../../../../api/bitbox02';
 
-type Props = {
-  deviceID: string;
+type TProps = {
   onDeviceName: (name: string) => void;
   onBack: () => void;
 }
 
+type TSetDeviceNameProps = TProps & {
+  missingSDCardWarning?: boolean;
+}
+
 export const SetDeviceName = ({
-  deviceID,
   onDeviceName,
   onBack,
-}: Props) => {
+  missingSDCardWarning,
+}: TSetDeviceNameProps) => {
   const { t } = useTranslation();
   const [deviceName, setDeviceName] = useState('');
-  const [hasSDCard, setSDCard] = useState<boolean>();
-
-  useEffect(() => {
-    checkSDCard(deviceID).then(setSDCard);
-  }, [deviceID]);
 
   const handleDeviceNameInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
@@ -61,7 +59,7 @@ export const SetDeviceName = ({
         width="600px">
         <ViewHeader title={t('bitbox02Wizard.stepCreate.title')}>
           <p>{t('bitbox02Wizard.stepCreate.description')}</p>
-          {hasSDCard === false && (
+          {missingSDCardWarning && (
             <Status className="m-bottom-half" type="warning">
               <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
             </Status>
@@ -94,5 +92,28 @@ export const SetDeviceName = ({
         </ViewButtons>
       </View>
     </form>
+  );
+};
+
+type TPropsWithSDCard = TProps & {
+  deviceID: string;
+}
+
+export const SetDeviceNameWithSDCard = ({
+  deviceID,
+  onDeviceName,
+  onBack,
+}: TPropsWithSDCard) => {
+  const [hasSDCard, setSDCard] = useState<boolean>();
+
+  useEffect(() => {
+    checkSDCard(deviceID).then(setSDCard);
+  }, [deviceID]);
+
+  return (
+    <SetDeviceName
+      onDeviceName={onDeviceName}
+      onBack={onBack}
+      missingSDCardWarning={hasSDCard === false} />
   );
 };
