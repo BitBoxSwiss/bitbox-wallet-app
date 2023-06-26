@@ -18,11 +18,18 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Button } from '../../../../components/forms';
 
-type Props = {
+type TProps = {
   onContinue: () => void;
+};
+
+type TCreateProps = TProps & {
+  backupType: 'sdcard' | 'mnemonic';
 }
 
-export const CreateWalletSuccess = ({ onContinue }: Props) => {
+export const CreateWalletSuccess = ({
+  backupType,
+  onContinue,
+}: TCreateProps) => {
   const { t } = useTranslation();
   return (
     <View
@@ -35,7 +42,11 @@ export const CreateWalletSuccess = ({ onContinue }: Props) => {
         <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
       </ViewHeader>
       <ViewContent withIcon="success">
-        <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
+        <p>
+          { backupType === 'sdcard'
+            ? t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')
+            : t('bitbox02Wizard.stepCreateSuccess.storeMnemonic') }
+        </p>
       </ViewContent>
       <ViewButtons>
         <Button primary onClick={onContinue}>
@@ -46,7 +57,7 @@ export const CreateWalletSuccess = ({ onContinue }: Props) => {
   );
 };
 
-export const RestoreFromSDCardSuccess = ({ onContinue }: Props) => {
+export const RestoreFromSDCardSuccess = ({ onContinue }: TProps) => {
   const { t } = useTranslation();
   return (
     <View
@@ -80,7 +91,7 @@ export const RestoreFromSDCardSuccess = ({ onContinue }: Props) => {
   );
 };
 
-export const RestoreFromMnemonicSuccess = ({ onContinue }: Props) => {
+export const RestoreFromMnemonicSuccess = ({ onContinue }: TProps) => {
   const { t } = useTranslation();
   return (
     <View
