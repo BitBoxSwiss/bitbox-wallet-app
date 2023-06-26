@@ -21,7 +21,7 @@ import { useMountedRef } from '../../../../hooks/mount';
 import { alertUser } from '../../../../components/alert/Alert';
 import { Wait } from './wait';
 import { ChecklistWalletCreate, ChecklistWalletCreateMnemonic } from './checklist';
-import { SetDeviceName } from './name';
+import { SetDeviceName, SetDeviceNameWithSDCard } from './name';
 import { SetPassword } from './password';
 import { WithSDCard } from './sdcard';
 
@@ -153,13 +153,24 @@ export const CreateWallet = ({
 
   switch (status) {
   case 'intro':
-    return (
-      <SetDeviceName
-        key="set-devicename"
-        deviceID={deviceID}
-        onDeviceName={setDeviceName}
-        onBack={onAbort} />
-    );
+    switch (backupType) {
+    case 'sdcard':
+      return (
+        <SetDeviceNameWithSDCard
+          key="set-devicename-sdcard"
+          deviceID={deviceID}
+          onDeviceName={setDeviceName}
+          onBack={onAbort} />
+      );
+    case 'mnemonic':
+      return (
+        <SetDeviceName
+          key="set-devicename-mnemonic"
+          onDeviceName={setDeviceName}
+          onBack={onAbort} />
+      );
+    }
+    break;
   case 'setName':
     return (
       <Wait title={t('bitbox02Interact.confirmName')} />
