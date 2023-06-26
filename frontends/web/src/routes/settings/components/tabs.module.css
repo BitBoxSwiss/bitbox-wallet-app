@@ -1,6 +1,7 @@
 .container {
     display: flex;
     margin-bottom: var(--space-default);
+    word-break: keep-all;
 }
 
 .container a {
