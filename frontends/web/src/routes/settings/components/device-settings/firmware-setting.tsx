@@ -43,7 +43,7 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
   const [confirming, setConfirming] = useState(false);
   const canUpgrade = versionInfo.canUpgrade;
   const secondaryText = canUpgrade ? t('deviceSettings.firmware.upgradeAvailable') : t('deviceSettings.firmware.upToDate');
-  const extraComponent = canUpgrade ? <RedDot width={20} height={20} /> : <Checked />;
+  const extraComponent = canUpgrade ? <RedDot width={8} height={8}/> : <Checked />;
   const displayedValue = canUpgrade ? versionInfo.newVersion : versionInfo.currentVersion;
 
 
