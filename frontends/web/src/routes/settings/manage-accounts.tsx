@@ -61,7 +61,7 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   private fetchAccounts = () => {
-    accountAPI.getAccounts().then(accounts => this.setState({ accounts }));
+    return accountAPI.getAccounts().then(accounts => this.setState({ accounts }));
   };
 
   public componentDidMount() {
@@ -94,7 +94,11 @@ class ManageAccounts extends Component<Props, State> {
           <Toggle
             checked={active}
             id={account.code}
-            onChange={() => this.toggleAccount(account.code, !active)} />
+            onChange={(event) => {
+              event.target.disabled = true;
+              this.toggleAccount(account.code, !active)
+                .then(() => event.target.disabled = false);
+            }} />
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
               <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
@@ -116,9 +120,9 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   private toggleAccount = (accountCode: string, active: boolean) => {
-    backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
+    return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
       if (success) {
-        this.fetchAccounts();
+        return this.fetchAccounts();
       } else if (errorMessage) {
         alertUser(errorMessage);
       }
