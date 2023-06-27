@@ -44,7 +44,6 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
   const canUpgrade = versionInfo.canUpgrade;
   const secondaryText = canUpgrade ? t('deviceSettings.firmware.upgradeAvailable') : t('deviceSettings.firmware.upToDate');
   const extraComponent = canUpgrade ? <RedDot width={8} height={8}/> : <Checked />;
-  const displayedValue = canUpgrade ? versionInfo.newVersion : versionInfo.currentVersion;
 
 
   const handleUpgradeFirmware = async () => {
@@ -61,7 +60,7 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
         settingName={t('deviceSettings.firmware.title')}
         secondaryText={secondaryText}
         onClick={canUpgrade ? () => setDialogOpen(true) : undefined}
-        displayedValue={displayedValue}
+        displayedValue={versionInfo.currentVersion}
         extraComponent={extraComponent}
       />
       <UpgradeDialog
