@@ -30,7 +30,7 @@ export const AppVersion = () => {
   const update = useLoad(getUpdate);
 
   const secondaryText = !!update ? t('settings.info.out-of-date') : t('settings.info.up-to-date');
-  const icon = !!update ? <RedDot width={18} height={18} /> : <Checked />;
+  const icon = !!update ? <RedDot width={8} height={8} /> : <Checked />;
   const versionNumber = !!version ? version : '-';
 
   if (update === undefined) {
