@@ -57,6 +57,7 @@
       "title": "Selecione a crypto."
     },
     "success": {
+      "addAnotherAccount": "Adicionar outra conta",
       "message": "<strong>{{accountName}}</strong> foi addicionado agora as suas contas.",
       "nextButton": "Pronto",
       "step": "Terminado",
@@ -135,7 +136,7 @@
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
     "showMnemonic": {
-      "description": "Serão mostradas até 24 palavras, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
+      "description": "Serão mostradas suas palavras de recuperação, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
       "title": "Mostrar frase de recuperação"
     },
     "title": "Gerenciar backups"
@@ -164,6 +165,8 @@
     "confirmDate": "Confirme a data de hoje em sua BitBox02",
     "confirmDateText": "Esta data será usada para criar seu backup.",
     "confirmName": "Confirme o nome na BitBox02",
+    "confirmWords": "Escreva as {{amount}} palavras de recuperação da sua BitBox02",
+    "confirmWordsText": "Depois disso a BitBox02 pede para você confirmar cada palavra para verificar se o backup está correto.",
     "followInstructions": "Por favor, siga as instruções na sua BitBox02.",
     "followInstructionsMnemonic": "Siga as instruções em sua BitBox02 para inserir as palavras de recuperação de seu backup e restaurar sua carteira.",
     "followInstructionsMnemonicTitle": "Restaurar a partir da frase de recuperação"
@@ -171,6 +174,8 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Nome atual do dispositivo",
+      "error": "Não foi possível definir o nome do dispositivo",
+      "error_104": "A confirmação do nome do dispositivo foi interrompida no dispositivo.",
       "input": "Nome da BitBox02",
       "placeholder": "Novo nome de dispositivo",
       "title": "Definir nome da BitBox02"
@@ -181,6 +186,16 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Opções avançadas",
+      "outOfDate": "Firmware desatualizado para este recurso",
+      "seed12WordInfo": "Observe que o número de palavras não pode ser alterado após a criação da carteira.",
+      "seed12WordLabel": "Criar uma semente de 12 palavras em vez de 24 palavras",
+      "seed12WordText": "Por padrão, a BitBox02 usa uma semente de 24 palavras. Ambos os tamanhos de sementes são seguros contra força bruta na prática. Alguns usuários podem preferir a conveniência da semente de 12 palavras.",
+      "skipSDCardLabel": "Pule o backup do cartão microSD e anote as palavras de recuperação",
+      "skipSDCardText": "Você sempre tem a opção de criar um backup em um cartão microSD ou escrever suas palavras de recuperação após a configuração. Isso pode ser feito nas configurações.",
+      "title": "Opções avançadas de backup"
+    },
     "attestationFailed": "Falha na verificação do dispositivo, o que pode ter ocorrido ao reniciar o app enquanto o dispositivo estava esperando uma entrada do usuário. Por favor, reconecte e tente novamente. Entre em contato com support@bitbox.swiss se a falha persistir.",
     "backup": {
       "point1": "Selecione um backup no cartão microSD",
@@ -193,7 +208,8 @@
       "userConfirmation2": "Meu backup não é protegido por senha. Qualquer pessoa com acesso a ele pode acessar minha carteira.",
       "userConfirmation3": "Se eu perder ou danificar minha BitBox02, a única maneira de recuperar meus fundos é restaurando do meu backup.",
       "userConfirmation4": "Se eu perder ou danificar meu backup e minha BitBox02, meus fundos serão perdidos.",
-      "userConfirmation5": "Eu não devo colocar meu cartão de backup microSD em um computador, telefone, impressora ou qualquer dispositivo a não ser o BitBox02. "
+      "userConfirmation5": "Eu não devo colocar meu cartão de backup microSD em um computador, telefone, impressora ou qualquer dispositivo a não ser o BitBox02. ",
+      "userConfirmation5mnemonic": "Não devo colocar minhas palavras de recuperação em um computador, telefone, impressora ou qualquer outro dispositivo que não seja uma BitBox02."
     },
     "create": {
       "button": "Nomear dispositivo e continuar",
@@ -204,6 +220,7 @@
       "point3": "Criar um backup",
       "text": "Ok, vamos criar uma nova carteira!"
     },
+    "createBackupAborted": "Criação de backup abortada.",
     "createBackupFailed": "Falha na criação do backup, tente novamente.",
     "initialize": {
       "passwordText": "Agora vamos definir uma senha para o seu dispositivo. Use os controles da sua BitBox para entrar e escolher uma senha.",
@@ -221,11 +238,13 @@
       "unpaired": "Uma BitBox02 não pareada foi detectada. Verifique se o código de pareamento corresponde ao que é mostrado em sua BitBox02."
     },
     "restoreFromMnemonic": {
+      "e104": "A restauração a partir das palavras de recuperação foi cancelada.",
       "failed": "A restauração a partir da frase de recuperação falhou, por favor, tente novamente."
     },
     "stepBackup": {
       "beforeProceed": "Antes de continuar, leia estas importantes considerações de segurança:",
-      "createBackup": "Agora você criará um backup no seu cartão microSD."
+      "createBackup": "Agora você criará um backup no seu cartão microSD.",
+      "createBackupMnemonic": "Agora você anotará as palavras de recuperação."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Para manter seus fundos seguros, lembre-se do seguinte:",
@@ -243,6 +262,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox02 e guarde-o em um local seguro.",
+      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro",
       "success": ""
     },
     "stepInsertSD": {
@@ -250,6 +270,7 @@
       "insertSDcardTitle": "Insira cartão microSD."
     },
     "stepPassword": {
+      "e104": "A definição da senha foi cancelada.",
       "title": "Definir senha da BitBox02",
       "useControls": "Use os controles em sua BitBox02 para definir uma senha."
     },
@@ -464,6 +485,9 @@
     "infoWhenPaired": "Primeiro no celular emparelhado e depois na sua BitBox"
   },
   "confirmOnDevice": "Por favor, confirme no seu dispositivo.",
+  "darkmode": {
+    "toggle": "Modo escuro"
+  },
   "device": {
     "appUpradeRequired": "Sua BitBox não é compatível com este aplicativo. Por favor, baixe e instale a versão mais recente."
   },
@@ -476,6 +500,40 @@
     "title": "Ativar autorização de dois fatores (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Criar ou verificar o backup do cartão microSD."
+      },
+      "showRecoveryWords": {
+        "description": "Mostrar e verificar palavras de recuperação."
+      },
+      "title": "Backups"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "O BitBoxApp verifica se o seu dispositivo é autêntico."
+      },
+      "deviceName": {
+        "description": "Altere o nome do seu dispositivo."
+      },
+      "securechip": {
+        "description": "O modelo do chip seguro."
+      },
+      "title": "Informações do dispositivo"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Redefina seu dispositivo para as configurações de fábrica. Isso exclui a carteira de sua BitBox02!",
+        "title": "Restauração de fábrica"
+      },
+      "goToStartupSettings": {
+        "description": "Acesse o bootloader da BitBox02. Você pode habilitar o hash do firmware aqui."
+      },
+      "passphrase": {
+        "description": "Ative ou desative o recurso de frase secreta.",
+        "title": "Frase secreta"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Versão do firmware",
       "newVersion": {
@@ -636,7 +694,7 @@
       "title": "Como o valor total é calculado?"
     },
     "accountSummaryDescription": {
-      "text": "Aqui você pode visualizar a performance do seu portfólio de tempo em tempo. Um resumo das suas contas de crypto é mostrado individualmente abaixo do gráfico.",
+      "text": "Aqui você pode ver o desempenho do seu portfólio ao longo do tempo. Um resumo de suas contas crypto individuais é exibido abaixo do gráfico.",
       "title": "O que essa página me mostra?"
     },
     "accountTransactionAttributesBTC": {
@@ -661,7 +719,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Cada moeda tem no máximo cinco contas.",
+        "text": "Bitcoin e Litecoin podem ter uma quantidade arbitrária de contas. Após cinco contas, você só pode adicionar outra conta se a conta anterior tiver sido usada. Outras moedas podem ter um máximo de cinco contas.",
         "title": "Quantas contas posso criar?"
       },
       "howtoAddTokens": {
@@ -777,7 +835,7 @@
     },
     "receive": {
       "address": {
-        "text": "Você pode dar o endereço a outras pessoas para enviarem algumas moedas. Apenas certifique-se de enviar para o endereço correto.",
+        "text": "Você pode dar o endereço para que outras pessoas lhe enviem algumas moedas. Apenas certifique-se de que estão enviando para o endereço correto.",
         "title": "O que eu faço com um endereço?"
       },
       "addressChange": {
@@ -983,6 +1041,44 @@
   "mobile": {
     "usingMobileDataWarning": "Uso de dados móveis: esse aplicativo baixa centenas de megabytes de dados de cabeçalho de blockhain depois de desbloquear sua conta. Por favor conecte no Wi-Fi para evitar de usar dados móveis desnecessários. Depois de descartar isso, essa mensagem não aparecerá novamente."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Versão do aplicativo"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Selecione quais UTXOs fazem parte de uma transação para ajudar a melhorar a privacidade."
+      },
+      "customFees": {
+        "description": "Permite inserir sua própria taxa ao enviar."
+      },
+      "torProxy": {
+        "description": "Conecte-se via Tor para melhor privacidade."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Essas moedas adicionais podem ser alternadas na página da sua conta.",
+        "title": "Moedas ativas"
+      },
+      "darkmode": {
+        "description": "Veja o BitBoxApp no modo escuro."
+      },
+      "defaultCurrency": {
+        "description": "Selecione sua moeda padrão",
+        "title": "Moeda padrão"
+      },
+      "language": {
+        "description": "Qual idioma você deseja que o BitBoxApp use.",
+        "title": "Idioma"
+      },
+      "toggleSats": {
+        "description": "Ativar ou desativar Satoshis."
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(opcional)",
@@ -1043,7 +1139,7 @@
   "passphrase": {
     "considerations": {
       "button": "Considerações sobre backup",
-      "message": "A frase secreta adiciona uma camada de proteção ao backup da sua carteira (cartão microSD ou 24 palavras). Se alguém tiver acesso ao seu backup, também precisará da frase secreta para acessar sua carteira.\n\nNo entanto, isso significa que você precisará <strong>tanto da frase secreta + backup da carteira</strong> para restaurar sua carteira habilitada para frase secreta, caso sua BitBox02 seja perdida ou quebrada. Se você esquecer ou perder sua frase secreta, perderá o acesso a todas as moedas dessa carteira.\n\nAo armazenar sua frase secreta, considere colocá-la em um local separado do backup. Dessa forma, se alguém encontrar seu backup, eles também não encontrarão sua frase secreta.",
+      "message": "A frase secreta adiciona uma camada de proteção ao backup da sua carteira (cartão microSD ou palavras de recuperação). Se alguém tiver acesso ao seu backup, também precisará da frase secreta para acessar sua carteira.\n\nNo entanto, isso significa que você precisará <strong>tanto da frase secreta + backup da carteira</strong> para restaurar sua carteira habilitada para frase secreta, caso sua BitBox02 seja perdida ou danificada. Se você esquecer ou perder sua frase secreta, perderá o acesso a todas as moedas dessa carteira.\n\nAo armazenar sua frase secreta, considere colocá-la em um local separado do backup. Dessa forma, se alguém encontrar seu backup, eles também não encontrarão sua frase secreta.",
       "title": "Considerações sobre backup"
     },
     "disable": "Desabilitar frase secreta",
@@ -1100,12 +1196,12 @@
     },
     "what": {
       "button": "Saiba como isso funciona",
-      "message": "Uma carteira é criada (derivada) a partir de um número aleatório muito grande, também conhecido como semente. Essa semente é criada quando você configura sua BitBox02 pela primeira vez e é feito backup com o cartão microSD ou 24 palavras. Qualquer pessoa que tenha acesso à semente tem controle total sobre os fundos dessa carteira.\n\nUma frase secreta é um <strong>segredo opcional</strong>, adicionado à semente. Ao usar uma frase secreta, cada frase secreta cria uma nova carteira com base na semente + frase secreta (segredo opcional). Uma frase secreta pode ser qualquer coisa: letras, palavras, caracteres especiais ou pode até ser vazia. A carteira padrão é de fato derivada da semente + frase secreta vazia.\n\nA frase secreta é parte do padrão BIP39, o que significa que é compatível com todas as carteiras que suportam o mesmo padrão.",
+      "message": "Uma carteira é criada (derivada) a partir de um número aleatório muito grande, também conhecido como semente. Essa semente é criada quando você configura sua BitBox02 pela primeira vez e é feito backup com o cartão microSD ou palavras de recuperação. Qualquer pessoa que tenha acesso à semente tem controle total sobre os fundos dessa carteira.\n\nUma frase secreta é um <strong>segredo opcional</strong>, adicionado à semente. Ao usar uma frase secreta, cada frase secreta cria uma nova carteira com base na semente + frase secreta (segredo opcional). Uma frase secreta pode ser qualquer coisa: letras, palavras, caracteres especiais ou pode até ser vazia. A carteira padrão é de fato derivada da semente + frase secreta vazia.\n\nA frase secreta é parte do padrão BIP39, o que significa que é compatível com todas as carteiras que suportam o mesmo padrão.",
       "title": "O que é uma frase secreta?"
     },
     "why": {
       "button": "Por que usar uma frase secreta",
-      "message": "A BitBox02 protege a semente contra extração do próprio dispositivo, mas o backup (cartão microSD ou 24 palavras) dá acesso total à carteira. É por isso que deve ser armazenado em um local seguro!\n\nComo uma frase secreta cria uma nova carteira usando sua semente existente, a carteira da frase secreta requer tanto seu <strong>backup quanto sua frase secreta para restaurar</strong>. O benefício disso é que, se alguém encontrar seu backup, ainda precisará da frase secreta para acessar a carteira.\n\nAlém disso, o recurso de frase secreta permite que você crie várias carteiras no mesmo dispositivo ou “carteiras ocultas” além da padrão.",
+      "message": "A BitBox02 protege a semente contra extração do próprio dispositivo, mas o backup (cartão microSD ou palavras de recuperação) dá acesso total à carteira. É por isso que deve ser armazenado em um local seguro!\n\nComo uma frase secreta cria uma nova carteira usando sua semente existente, a carteira da frase secreta requer tanto seu <strong>backup quanto sua frase secreta para restaurar</strong>. O benefício disso é que, se alguém encontrar seu backup, ainda precisará da frase secreta para acessar a carteira.\n\nAlém disso, o recurso de frase secreta permite que você crie várias carteiras no mesmo dispositivo ou “carteiras ocultas” além da padrão.",
       "title": "Por que usar uma frase secreta?"
     }
   },
@@ -1145,7 +1241,7 @@
     }
   },
   "reset": {
-    "description": "Todos os dados no dispositivo serão excluídos. Isso inclui sua chave privada!",
+    "description": "Todos os dados serão excluídos deste dispositivo. Isso inclui sua chave privada!",
     "notReset": "Dispositivo NÃO redefinido.",
     "title": "Restaurar configurações de fábrica",
     "understand": "Eu tenho um backup e sei minha senha de recuperação",
@@ -1273,6 +1369,7 @@
     },
     "maximum": "Enviar tudo",
     "maximumSelectedCoins": "Enviar moedas selecionadas",
+    "noFeeTargets": "As estimativas de taxa de transação estão indisponíveis no momento. Por favor, tente novamente mais tarde ou insira uma taxa personalizada.",
     "priority": "Prioridade",
     "scanQR": "Escanear QR code",
     "signprogress": {
@@ -1285,6 +1382,10 @@
     "transactionDetails": "Detalhes da transação"
   },
   "settings": {
+    "about": "Sobre",
+    "accounts": "Contas",
+    "advancedSettings": "Configurações avançadas",
+    "appearance": "Aparência",
     "electrum": {
       "add": "Adicionar um servidor",
       "add-server": "Adicionar",
@@ -1315,6 +1416,7 @@
     "expert": {
       "coinControl": "Ativar controle de moedas",
       "electrum": {
+        "description": "Você pode se conectar ao seu próprio nó completo Electrum.",
         "title": "Conectar seu próprio full node"
       },
       "fee": "Habilitar taxas personalizadas",
@@ -1399,6 +1501,7 @@
     "weight": "Peso"
   },
   "transactions": {
+    "errorLoadTransactions": "Ocorreu um erro ao carregar as transações",
     "placeholder": "Nenhuma transação ainda."
   },
   "unknownError": "Ocorreu um erro desconhecido: {{errorMessage}}",

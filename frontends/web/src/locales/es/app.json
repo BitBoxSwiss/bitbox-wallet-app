@@ -262,6 +262,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Por favor, extrae la tarjeta microSD de tu BitBox02 y guárdala en un lugar seguro. ",
+      "storeMnemonic": "Guarde sus palabras de recuperación en un lugar seguro",
       "success": "Ha creado su copia de seguridad con éxito."
     },
     "stepInsertSD": {

@@ -193,7 +193,7 @@
       "seed12WordLabel": "Crea un seed da 12 parole invece di 24",
       "seed12WordText": "Il BitBox02 di default usa un seed da 24 parole. All'atto pratico, entrambe le lunghezze del seed sono sicure contro attacchi di tipo brute force. Alcuni utenti potrebbero preferire la comodità di un seed da 12 parole.",
       "skipSDCardLabel": "Salta il backup su microSD e sostituiscilo annotando le parole di recupero",
-      "skipSDCardText": "Hai sempre l'opzione di creare un backup su microSD e annotare le parole di recupero dopo il setup. Puoi farlo dalle impostazioni.",
+      "skipSDCardText": "Hai sempre l'opzione di creare un backup su microSD o annotare le parole di recupero dopo il setup. Puoi farlo dalle impostazioni.",
       "title": "Opzioni di backup avanzate"
     },
     "attestationFailed": "L'attestazione del dispositivo non è riuscita. Ciò potrebbe essere dovuto al riavvio dell'app mentre il dispositivo stava aspettando l'input dell'utente. Si prega di ricollegarsi e riprovare. Contattare support@bitbox.swiss se l'errore persiste.",
@@ -262,6 +262,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Rimuovere la scheda microSD dal BitBox02 e conservarla in un luogo sicuro.",
+      "storeMnemonic": "Custodisci le tue parole di recupero in un posto sicuro",
       "success": "Il backup è stato creato con successo."
     },
     "stepInsertSD": {
