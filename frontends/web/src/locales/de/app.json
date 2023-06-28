@@ -262,6 +262,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Bitte entnehme deine microSD Karte und bewahre diese an einem sicheren Ort auf.",
+      "storeMnemonic": "Bitte bewahre deine Wiederherstellungs-Wörter an einem sicheren Ort auf.",
       "success": "Dein Backup wurde erfolgreich erstellt."
     },
     "stepInsertSD": {
@@ -1384,7 +1385,7 @@
     "about": "Über die App",
     "accounts": "Konten",
     "advancedSettings": "Erweiterte Einstellungen",
-    "appearance": "Design",
+    "appearance": "Ansicht",
     "electrum": {
       "add": "Server hinzufügen",
       "add-server": "Hinzufügen",

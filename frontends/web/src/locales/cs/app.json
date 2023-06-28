@@ -137,7 +137,7 @@
     },
     "showMnemonic": {
       "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.\n",
-      "title": "Zobrazit slova pro obnovu"
+      "title": "Zobrazit slova pro obnovení"
     },
     "title": "Spravovat zálohy"
   },
@@ -165,8 +165,8 @@
     "confirmDate": "Potvrďte dnešní datum na svém BitBox02",
     "confirmDateText": "Toto datum se použije pro vytvoření zálohy.",
     "confirmName": "Potvrďte název na BitBox02",
-    "confirmWords": "Zapište si {{amount}} obnovovacích slov z vašeho BitBox02.",
-    "confirmWordsText": "Poté budete v BitBox02 vyzváni k potvrzení každého slova, abyste si ověřili správnost zálohy.",
+    "confirmWords": "Zapište si {{amount}} slov pro obnovení z vašeho BitBox02",
+    "confirmWordsText": "Poté vás BitBox02 požádá o potvrzení každého slova, aby se ověřilo, že záloha je správná.",
     "followInstructions": "Postupujte podle pokynů na vašem BitBox02.",
     "followInstructionsMnemonic": "Postupujte dle pokynů na Vašem BitBox02 – zadejte slova pro obnovení z vaší zálohy a obnovte peněženku.",
     "followInstructionsMnemonicTitle": "Obnovit ze slov pro obnovení"
@@ -189,9 +189,11 @@
     "advanced": {
       "button": "Pokročilé nastavení",
       "outOfDate": "Firmware je pro tuto funkci zastaralý",
+      "seed12WordInfo": "Upozorňujeme, že počet slov nelze po vytvoření peněženky změnit.",
       "seed12WordLabel": "Vytvořit 12slovný namísto 24slovného seed",
+      "seed12WordText": "Ve výchozím nastavení používá BitBox02 seed s 24 slovy. Obě délky seedů jsou v praxi bezpečné proti brute force útoku. Někteří uživatelé mohou místo toho upřednostnit 12slovný seed.",
       "skipSDCardLabel": "Přeskočte zálohování na microSD kartu a místo toho si zapište slova pro obnovení.",
-      "skipSDCardText": "Po nastavení máte vždy možnost vytvořit zálohu na microSD kartu nebo zapsat si slova pro obnovení. To lze provést v nastavení.",
+      "skipSDCardText": "Po nastavení máte vždy možnost vytvořit zálohu karty microSD nebo zapsat slova pro obnovení. To lze provést z nastavení.",
       "title": "Pokročilé možnosti zálohování"
     },
     "attestationFailed": "Kontrola originality selhala, což mohlo být způsobeno restartováním aplikace v době, kdy zařízení čekalo na vstup uživatele. Znovu se připojte a zkuste to znovu. Pokud tento problém přetrvává, obraťte se prosím na support@bitbox.swiss.",
@@ -260,6 +262,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Vyjměte microSD kartu z vašeho BitBox02 a uložte ji na bezpečné místo.",
+      "storeMnemonic": "Uložte svá slova pro obnovení na bezpečném místě",
       "success": "Vaše záloha byla úspěšně vytvořena."
     },
     "stepInsertSD": {
@@ -502,7 +505,7 @@
         "description": "Vytvořte nebo ověřte zálohu na microSD kartě."
       },
       "showRecoveryWords": {
-        "description": "Zobrazit a ověřit 24 slov pro obnovení."
+        "description": "Zobrazit a ověřit slova pro obnovení."
       },
       "title": "Zálohy"
     },
@@ -520,7 +523,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Obnovte tovární nastavení zařízení. Tím se smaže peněženka z vašeho BitBox02!",
+        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBox02!",
         "title": "Obnovit do továrního nastavení"
       },
       "goToStartupSettings": {
@@ -1238,7 +1241,7 @@
     }
   },
   "reset": {
-    "description": "Všechna data v zařízení budou odstraněna. Včetně vašeho soukromého klíče!",
+    "description": "Všechna data v zařízení budou smazána. Včetně vašeho soukromého klíče!",
     "notReset": "Zařízení nebylo resetováno",
     "title": "Resetovat zařízení do továrního nastavení",
     "understand": "Mám zálohu a znám heslo pro obnovení",

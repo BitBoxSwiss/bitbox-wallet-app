@@ -523,7 +523,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Reset your device to factory settings. This deletes the wallet on your BitBox02!",
+        "description": "Reset your device to factory settings. This deletes the wallet from your BitBox02!",
         "title": "Factory reset"
       },
       "goToStartupSettings": {
@@ -1241,7 +1241,7 @@
     }
   },
   "reset": {
-    "description": "All data on the device will be deleted. That includes your Private Key!",
+    "description": "All data will be deleted from this device. That includes your Private Key!",
     "notReset": "Device NOT reset.",
     "title": "Factory reset device",
     "understand": "I have a backup and know my recovery password",

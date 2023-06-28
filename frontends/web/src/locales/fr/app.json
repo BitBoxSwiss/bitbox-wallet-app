@@ -57,6 +57,7 @@
       "title": "Sélectionnez une crypto-monnaie"
     },
     "success": {
+      "addAnotherAccount": "Ajouter un autre compte",
       "message": "<strong>{{accountName}}</strong> a maintenant été ajouté à vos comptes.",
       "nextButton": "Terminé",
       "step": "Fini",
@@ -135,7 +136,7 @@
       "understand": "Je comprends qu'un mot de passe de récupération incorrect créera un portefeuille différent."
     },
     "showMnemonic": {
-      "description": "24 mots de récupération vont vous être présentés; ils constituent une sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par mot de passe.</strong>.\n\nIl vous sera demandé ensuite de confirmer chacun de ces mots.",
+      "description": "24 mots de récupération vont vous être présentés; ils constituent une sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par un mot de passe.</strong>.\n\nIl vous sera demandé ensuite de confirmer chacun de ces mots.",
       "title": "Montrer les mots de récupération"
     },
     "title": "Gérer les sauvegardes"
@@ -156,7 +157,7 @@
     "error": {
       "e10000": "Mot de passe de l'appareil incorrect.",
       "e10001": "La tentative de remplacer le mot de passe de l'appareil a échoué",
-      "e102": "Le mot de passe doit comporter au moins 4 caractères.",
+      "e102": "Le mot de passe doit comporter au minimum 4 caractères.",
       "e112": "Le mot de passe caché ne peut pas être identique au mot de passe principal de l'appareil."
     }
   },
@@ -164,13 +165,17 @@
     "confirmDate": "Confirmez la date du jour sur votre BitBox02",
     "confirmDateText": "Cette date sera utilisée pour créer votre sauvegarde.",
     "confirmName": "Confirmez le nom sur le BitBox02",
+    "confirmWords": "Notez les {{amount}} mots de récupération depuis votre BitBox02",
+    "confirmWordsText": "Ensuite, la BitBox02 vous demandera de confirmer chaque mot afin de s’assurer que la sauvegarde a été correctement effectuée.",
     "followInstructions": "Veuillez suivre les instructions sur votre BitBox02.",
     "followInstructionsMnemonic": "Suivez les instructions sur votre BitBox02 afin de saisir les mots de récupération de votre sauvegarde et restaurer ainsi votre portefeuille.",
-    "followInstructionsMnemonicTitle": "Restaurer à partir de mots de récupération"
+    "followInstructionsMnemonicTitle": "Restaurer à partir des mots de récupération"
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "Nom du périphérique actuel",
+      "error": "Le nom de l'appareil n'a pas pu être configuré",
+      "error_104": "La confirmation du nom de l'appareil a été interrompu sur celui-ci.",
       "input": "Nom du BitBox02",
       "placeholder": "Nouveau nom de périphérique",
       "title": "Définir le nom de votre BitBox02"
@@ -181,10 +186,20 @@
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Options avancées",
+      "outOfDate": "Le micrologiciel n'est pas à jour et ne permet pas cette fonctionnalité",
+      "seed12WordInfo": "Veuillez noter que le nombre de mots ne peut pas être modifié après la création du portefeuille.",
+      "seed12WordLabel": "Créer une seed de 12 mots plutôt que de 24 mots",
+      "seed12WordText": "Par défaut, la BitBox02 utilise une seed de 24 mots. Dans la pratique, les deux longueurs de seed sont fiables contre les attaques par force brute. Toutefois, certains utilisateurs peuvent préférer la commodité inhérente à une seed de 12 mots.",
+      "skipSDCardLabel": "Sauter l’étape de sauvegarde sur la carte microSD et écrire les mots de récupération plutôt.",
+      "skipSDCardText": "Vous avez toujours la possibilité de créer une sauvegarde sur la carte microSD ou d'écrire vos mots de récupération après la configuration. Vous pouvez le faire à partir des paramètres.",
+      "title": "Options de sauvegarde avancées"
+    },
     "attestationFailed": "L'authentification a échoué. Ceci est potentiellement dû au redémarrage de l'application alors que l'appareil attendait une saisie de la part de l'utilisateur. Veuillez vous reconnecter et essayer à nouveau. Si cela persiste, veuillez contacter support@bitbox.swiss",
     "backup": {
       "point1": "Sélectionner une sauvegarde sur la carte micro SD",
-      "point2": "Définir un mot de passe pour votre appareil",
+      "point2": "Définissez un mot de passe pour votre appareil",
       "restoreText": "Ok, restaurons une sauvegarde !",
       "text1": "Parfait, le mot de passe pour votre BitBox02 est défini et votre portefeuille est créé. Il est maintenant temps de procéder à votre première sauvegarde. Assurez-vous que la carte micro SD soit bien insérée dans l'appareil et continuez.",
       "text2": "Veuillez suivre les instructions sur l'écran de votre appareil pour créer une sauvegarde.",
@@ -193,17 +208,19 @@
       "userConfirmation2": "Ma sauvegarde n'est pas protégée par mot de passe. Quiconque y a accès peut accéder à mon portefeuille.",
       "userConfirmation3": "Si je perds ou endommage mon BitBox02, la seule façon de récupérer mes fonds est de restaurer à partir de ma sauvegarde.",
       "userConfirmation4": "Si je perds ou endommage à la fois ma sauvegarde et ma BitBox02, mes fonds seront perdus.",
-      "userConfirmation5": "Je ne dois pas insérer ma carte de sauvegarde microSD dans un ordinateur, un téléphone, une imprimante ou tout appareil autre qu'un BitBox02."
+      "userConfirmation5": "Je ne dois pas insérer ma carte de sauvegarde microSD dans un ordinateur, un téléphone, une imprimante ou tout appareil autre qu'un BitBox02.",
+      "userConfirmation5mnemonic": "Je ne dois pas saisir mes mots de récupération dans un ordinateur, un téléphone, une imprimante ou tout autre appareil autre qu'une BitBox02."
     },
     "create": {
       "button": "Nommer l'appareil et continuer",
       "info": "Voici les étapes de base à suivre pour configurer votre BitBox :",
       "inputTitle": "Nom du portefeuille",
       "point1": "Nommez votre appareil",
-      "point2": "Définissez un mot de passe pour votre appareil",
+      "point2": "Définir un mot de passe pour votre appareil",
       "point3": "Créer une sauvegarde",
       "text": "Ok, créons un nouveau portefeuille !"
     },
+    "createBackupAborted": "Création de la sauvegarde interrompue.",
     "createBackupFailed": "La création de la sauvegarde a échoué, veuillez réessayer.",
     "initialize": {
       "passwordText": "Définissons maintenant un mot de passe pour votre appareil. Utilisez les commandes de votre BitBox pour entrer et choisir un mot de passe.",
@@ -216,16 +233,18 @@
     "noPasswordMatch": "Le mot de ",
     "pairing": {
       "failed": "Appariement non confirmé. Veuillez rebrancher votre BitBox02.",
-      "paired": "Vous avez confirmé sur votre appareil que le code correspond. Si cela est correct, vous pouvez continuer en cliquant sur le bouton ci-dessous.",
+      "paired": "Vous avez confirmé le code suivant sur votre appareil. Veuillez continuer.",
       "title": "Vérifier le code d'appairage",
-      "unpaired": "Un nouveau BitBox02 a été détecté. Veuillez vérifier que le code suivant correspond à celui affiché sur votre appareil. Si le code correspond, touchez le dessous de votre BitBox02 puis cliquez sur le bouton ci-dessous pour continuer."
+      "unpaired": "Une BitBox02 non-associée a été détectée. Veuillez vérifier que le code d’association correspond à celui indiqué sur votre BitBox02."
     },
     "restoreFromMnemonic": {
+      "e104": "La restauration à partir des mots de récupération a été annulée.",
       "failed": "La restauration à partir des mots de récupération a échoué, veuillez réessayer."
     },
     "stepBackup": {
       "beforeProceed": "Avant de continuer, veuillez lire ces importantes mesures de sécurité :",
-      "createBackup": "Vous allez maintenant créer une sauvegarde sur votre carte microSD."
+      "createBackup": "Vous allez maintenant créer une sauvegarde sur votre carte microSD.",
+      "createBackupMnemonic": "Vous allez à présent noter les mots de récupération."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Pour assurer la sécurité de vos fonds, n'oubliez pas ce qui suit :",
@@ -239,10 +258,11 @@
       "nameLabel": "Nom du BitBox02",
       "namePlaceholder": "Mon BitBox02",
       "title": "Choisissez le nom du BitBox02",
-      "toastMicroSD": "Assurez-vous que votre carte microSD est insérée dans votre BitBox02."
+      "toastMicroSD": "Veuillez insérer votre carte microSD dans votre BitBox02, elle sera utilisée pour stocker une sauvegarde du portefeuille."
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Veuillez retirer la carte microSD de votre BitBox02 et la stocker dans un endroit sûr.",
+      "storeMnemonic": "Veuillez conserver vos mots de récupération dans un emplacement sûr",
       "success": "Vous avez créé votre sauvegarde avec succès."
     },
     "stepInsertSD": {
@@ -250,6 +270,7 @@
       "insertSDcardTitle": "Insérer une carte microSD"
     },
     "stepPassword": {
+      "e104": "Le paramétrage du mot de passe a été abandonné.",
       "title": "Définissez le mot de passe du BitBox02",
       "useControls": "Utilisez les touches de votre BitBox02 pour définir un mot de passe."
     },
@@ -328,7 +349,7 @@
               "cards": "Amex, Mastercard, Visa and Maestro"
             },
             "learnMore": "Voir plus de détails sur les méthodes de paiement",
-            "title": "Méthodes de paiement"
+            "title": "Modes de paiement"
           },
           "supportedCurrencies": "Accepte toutes les principales devises fiat : USD, EUR, CHF, et autres."
         },
@@ -362,7 +383,7 @@
       "noExchanges": "Désolé, aucun échange disponible dans cette zone géographique",
       "region": "Zone Géographique",
       "selectRegion": "Non spécifié",
-      "title": "Acheter {{name}}"
+      "title": "Acheter du {{name}}"
     },
     "info": {
       "continue": "Accepter et continuer",
@@ -384,7 +405,7 @@
             "fee": "Frais",
             "method": "Méthode"
           },
-          "title": "Méthodes de paiement et frais"
+          "title": "Modes de paiement et frais"
         },
         "privacyPolicy": "Politique de confidentialité de MoonPay",
         "protection": {
@@ -393,8 +414,8 @@
           "title": "Protection des données"
         },
         "security": {
-          "description": "Lorsque vous achetez des {{name}} via MoonPay, vous utilisez un service externe. Ce service ne relève pas du modèle de menace en matière de sécurité de BitBox02 et repose sur la fiabilité et la sécurité de l'environnement dans lequel le logiciel BitBoxApp est exécuté.",
-          "descriptionGeneric": "Lorsque vous achetez {{nom}} via un exchange partenaire, vous utilisez un service externe. Ce service est hors de portée du modèle de menace de sécurité de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
+          "description": "Lorsque vous achetez du {{name}} via MoonPay, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
+          "descriptionGeneric": "Lorsque vous achetez du {{nom}} via un exchange partenaire, vous utilisez un service externe. Ce service est hors de portée du modèle sécurité contre les menaces de BitBox02 et repose sur la sécurité de l'environnement dans lequel le logiciel BitBoxApp est déployé.",
           "link": "Modèle de menace à la sécurité",
           "title": "Modèle de sécurité"
         },
@@ -404,7 +425,7 @@
       "selectLabel": "Sélectionnez votre compte",
       "selectPlaceholder": "Sélectionnez un coin (monnaie)",
       "skip": "Ne plus montrer",
-      "title": "Acheter des {{name}}"
+      "title": "Acheter du {{name}}"
     },
     "pocket": {
       "data": {
@@ -437,7 +458,7 @@
         "title": "Bienvenue dans votre espace unique et complet dédié à l'achat de bitcoins."
       }
     },
-    "title": "Acheter {{name}}"
+    "title": "Acheter du {{name}}"
   },
   "changePin": {
     "newTitle": "Nouveau mot de passe de l'appareil",
@@ -464,6 +485,9 @@
     "infoWhenPaired": "D'abord sur le mobile appairé, puis sur votre BitBox"
   },
   "confirmOnDevice": "Veuillez confirmer sur l'appareil.",
+  "darkmode": {
+    "toggle": "Dark mode"
+  },
   "device": {
     "appUpradeRequired": "Votre BitBox n'est pas compatible avec cette version de l'application de bureau. Veuillez télécharger et installer la dernière version."
   },
@@ -476,6 +500,40 @@
     "title": "Activer la double authentification (2FA)"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "Créez ou vérifiez la sauvegarde de votre carte microSD."
+      },
+      "showRecoveryWords": {
+        "description": "Afficher et vérifier les mots de récupération."
+      },
+      "title": "Sauvegardes"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "BitBoxApp vérifie l'authenticité de votre appareil."
+      },
+      "deviceName": {
+        "description": "Modifiez le nom de votre appareil."
+      },
+      "securechip": {
+        "description": "Modèle de la puce sécurisée."
+      },
+      "title": "Informations sur l'appareil"
+    },
+    "expert": {
+      "factoryReset": {
+        "description": "Réinitialisez votre appareil aux paramètres d'usine. Cela supprimera le wallet de votre BitBox02 !",
+        "title": "Réinitialisation aux paramètres d'usine"
+      },
+      "goToStartupSettings": {
+        "description": "Entrez le bootloader de la BitBox02. Vous pouvez activer le hachage du micrologiciel à partir de là."
+      },
+      "passphrase": {
+        "description": "Activer ou désactiver la fonction de passphrase (phrase secrète)",
+        "title": "Passphrase (phrase secrète)"
+      }
+    },
     "firmware": {
       "firmwareVersion": "Version du Firmware",
       "newVersion": {
@@ -591,7 +649,7 @@
   "guide": {
     "accountDescription": {
       "text": "La vue d'ensemble de votre compte affiche votre solde disponible ainsi que les transactions entrantes et sortantes. Notre guide dans \"Paramètres\" contient plus d'informations sur chaque type de compte. ",
-      "title": "Qu'est-ce que cette page me montre ?"
+      "title": "Que me montre cette page ?"
     },
     "accountFiat": {
       "text": "Oui. Cliquez sur n'importe quel symbol pour changer la devise. Vous pouvez modifier la liste des devises dans les paramètres.",
@@ -615,7 +673,7 @@
         "title": "Est-ce que je dois vérifier la xpub sur l'appareil ?"
       },
       "xpub": {
-        "text": "Une clé publique étendue (xpub) est une clé racine à partir de laquelle toutes les adresses de réception d'un compte sont dérivées.\n\nElle sont fournies ici à des fins d'utilisation avancée et d'interopérabilité avec les portefeuilles de type \"watch-only\", comme Electrum ou Sentinel. Si vous recevez des fonds sur différents types d'adresses, veuillez importer tous les différents formats xpub dans le portefeuille \"watch-only\" afin de pouvoir visualiser tous vos fonds.\n\nVeuillez noter que beaucoup de portefeuilles tiers ne supportent pas encore les xpubs Taproot.",
+        "text": "Une clé publique étendue (xpub) est une clé racine à partir de laquelle toutes les adresses de réception d'un compte sont dérivées.\n\nElle sont fournies ici à des fins d'utilisation avancée et d'interopérabilité avec les portefeuilles de type \"watch-only\", comme Electrum ou Sentinel. Si vous recevez des fonds sur différents types d'adresses, veuillez importer tous les différents formats xpub dans le portefeuille \"watch-only\" afin de pouvoir visualiser tous vos fonds.\n\nVeuillez noter que certains portefeuilles tiers ne supportent pas encore les xpubs Taproot.",
         "title": "Qu'est-ce qu'une clé publique étendue ?"
       }
     },
@@ -661,7 +719,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Chaque coin (monnaie) peut disposer d'un maximum de cinq comptes.",
+        "text": "Bitcoin et Litecoin ne peuvent avoir qu’un nombre arbitraire de comptes. Au delà de cinq comptes, vous ne pouvez en ajouter un supplémentaire que si le compte précédent a déjà été utilisé. \nUn maximum de cinq comptes est possible pour les autres coins (jetons).",
         "title": "Combien de comptes puis-je créer ?"
       },
       "howtoAddTokens": {
@@ -714,7 +772,7 @@
       },
       "encrypt": {
         "text": "Non. Veillez à conserver la carte microSD en sécurité compte tenu du fait qu'elle contient votre liste de mots permettant la restauration de votre portefeuille. Si vous souhaitez protéger votre graine par mot de passe, vous pouvez activer une phrase secrète dans les paramètres avancés du menu \"Gérer l'appareil\".",
-        "title": "Puis-je crypter la sauvegarde ?"
+        "title": "Puis-je chiffrer la sauvegarde ?"
       },
       "whatIsABackup": {
         "text": "Il s'agit d'une copie de votre liste de mots BIP39 sur une carte microSD.",
@@ -777,7 +835,7 @@
     },
     "receive": {
       "address": {
-        "text": "Vous pouvez donner l'adresse à d'autres personnes pour qu'elles vous envoient des coins. Assurez-vous simplement que vous envoyez à la bonne adresse.",
+        "text": "Vous pouvez donner l'adresse à d'autres personnes pour qu'elles vous envoient des coins. Assurez-vous simplement qu'elles envoient à la bonne adresse.",
         "title": "Que puis-je faire d'une adresse ?"
       },
       "addressChange": {
@@ -983,6 +1041,44 @@
   "mobile": {
     "usingMobileDataWarning": "Utilisation des données mobiles : cette application peut télécharger jusqu'à quelques centaines de mégaoctets de données d'en-tête de blockchain après avoir déverrouillé un compte. Veuillez vous connecter au Wi-Fi afin d'éviter d'utiliser les données mobiles. Après l'avoir quitté, ce message ne s'affichera plus."
   },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Version de l'application"
+      }
+    },
+    "advancedSettings": {
+      "coinControl": {
+        "description": "Sélectionnez quelles UTXO font partie d'une transaction afin d'améliorer la confidentialité"
+      },
+      "customFees": {
+        "description": "Vous permet de saisir vos propres frais lors de l'envoi."
+      },
+      "torProxy": {
+        "description": "Se connecter via Tor pour une meilleure confidentialité."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Ces devises supplémentaires peuvent être sélectionnées sur la page de votre compte.",
+        "title": "Devises activées"
+      },
+      "darkmode": {
+        "description": "Voir la BitBoxApp en dark mode (mode sombre)."
+      },
+      "defaultCurrency": {
+        "description": "Sélectionnez votre devise par défaut",
+        "title": "Devise par défaut"
+      },
+      "language": {
+        "description": "Quelle langue souhaitez vous que BitBoxApp utilise?",
+        "title": "Langue"
+      },
+      "toggleSats": {
+        "description": "Activer ou désactiver l'unité des Satoshis"
+      }
+    }
+  },
   "note": {
     "input": {
       "description": "(facultatif)",
@@ -1043,7 +1139,7 @@
   "passphrase": {
     "considerations": {
       "button": "Considérations relatives à la sauvegarde",
-      "message": "La passphrase ajoute une couche de protection supplémentaire  à la sauvegarde de votre portefeuille (carte microSD ou 24 mots). Si quelqu'un a accès à votre sauvegarde, il aura également besoin de la passphrase pour accéder à votre portefeuille.\n\nCependant, cela signifie que vous aurez besoin <strong>à la fois de la passphrase ET de la sauvegarde du portefeuille</strong>  pour restaurer votre portefeuille pour lequel la passphrase est activée, au cas où votre BitBox02 serait perdu ou cassé. Si vous oubliez ou perdez votre passphrase, vous perdrez l'accès à toutes les fonds se trouvant dans ce portefeuille.\n\nLorsque vous stockez votre passphrase, pensez bien à la cacher dans un endroit différent de celui de votre sauvegarde. De cette façon, si quelqu'un trouvait votre sauvegarde, il ne trouverait pas votre passphrase également.",
+      "message": "La passphrase ajoute une couche de protection supplémentaire  à la sauvegarde de votre portefeuille (carte microSD ou mots de récupération). Si quelqu'un a accès à votre sauvegarde, il aura également besoin de la passphrase pour accéder à votre portefeuille.\n\nCependant, cela signifie que vous aurez besoin <strong>à la fois de la passphrase ET de la sauvegarde du portefeuille</strong>  pour restaurer votre portefeuille pour lequel la passphrase est activée, au cas où votre BitBox02 serait perdu ou cassé. Si vous oubliez ou perdez votre passphrase, vous perdrez l'accès à toutes les fonds se trouvant dans ce portefeuille.\n\nLorsque vous stockez votre passphrase, pensez bien à la conserver dans un endroit différent de celui de votre sauvegarde. De cette façon, si venait à trouver votre sauvegarde, il n'aurait pas accès à votre passphrase également.",
       "title": "Considérations relatives à la sauvegarde"
     },
     "disable": "Désactiver la passphrase",
@@ -1100,12 +1196,12 @@
     },
     "what": {
       "button": "Découvrez comment cela fonctionne",
-      "message": "Un portefeuille est créé (dérivé) à partir d'un  nombre aléatoire très très grand, également appelé \"seed\" (graine). Cette seed est créée lors de la première configuration de votre BitBox02 et est sauvegardée via la carte microSD ou les 24 mots. Toute personne ayant accès à la seed dispose d'un contrôle total sur les fonds de ce portefeuille.\n\nUne passphrase est un <strong>secret optionnel</strong>, ajouté à la seed. Lorsque vous utilisez une passphrase, chaque passphrase crée un nouveau portefeuille basé sur la seed + la passphrase (secret optionnel). Une passphrase peut être n'importe quoi : des lettres, des mots, des caractères spéciaux ou même être vide. Le portefeuille par défaut est en fait dérivé de la seed + passphrase vide.\n\nLa passphrase fait partie de la norme BIP39, ce qui signifie qu'elle est compatible avec tous les portefeuilles qui supportent cette dernière.",
+      "message": "Un portefeuille est créé (dérivé) à partir d'un  nombre aléatoire très grand, également appelé \"seed\" (graine). Cette seed est créée lors de la première configuration de votre BitBox02 et est sauvegardée via la carte microSD ou les mots de récupération. Toute personne ayant accès à la seed dispose d'un contrôle total sur les fonds de ce portefeuille.\n\nUne passphrase est un <strong>secret optionnel</strong>, ajouté à la seed. Lorsque vous utilisez une passphrase, chaque passphrase crée un nouveau portefeuille basé sur la seed + la passphrase (secret optionnel). Une passphrase peut être n'importe quoi : des lettres, des mots, des caractères spéciaux ou même être vide. Le portefeuille par défaut est en fait dérivé de la seed + passphrase vide.\n\nLa passphrase fait partie de la norme BIP39, ce qui signifie qu'elle est compatible avec tous les portefeuilles qui supportent cette dernière.",
       "title": "Qu'est-ce qu'une passphrase?"
     },
     "why": {
       "button": "Pourquoi utiliser une passphrase",
-      "message": "La BitBox02 protège la seed contre l'extraction depuis l'appareil lui-même, mais la sauvegarde (carte microSD ou 24 mots) donne un accès complet au portefeuille. C'est pourquoi elle doit être stockée dans un endroit sûr !\n\nPuisqu'une passphrase crée un nouveau portefeuille en utilisant votre seed existante, le portefeuille avec passphrase nécessite à la fois <strong> votre sauvegarde ET votre passphrase pour être restauré</strong>. L'avantage de ceci est que si quelqu'un trouve votre sauvegarde, il a toujours besoin de la passphrase pour accéder au poretefeuille avec passphrase.\n\nEn outre, la fonction passphrase vous permet de créer plusieurs portefeuilles sur le même appareil, ou \"portefeuilles cachés\", en plus du portefeuille par défaut.",
+      "message": "La BitBox02 protège la seed contre l'extraction depuis l'appareil lui-même, mais la sauvegarde (carte microSD ou mots de récupération) donne un accès complet au portefeuille. C'est pourquoi elle doit être stockée dans un endroit sûr !\n\nPuisqu'une passphrase crée un nouveau portefeuille en utilisant votre seed existante, le portefeuille avec passphrase nécessite à la fois <strong> votre sauvegarde ET votre passphrase pour être restauré</strong>. L'avantage de ceci est que si quelqu'un trouve votre sauvegarde, il a toujours besoin de la passphrase pour accéder au poretefeuille avec passphrase.\n\nEn outre, la fonction passphrase vous permet de créer plusieurs portefeuilles sur le même appareil, ou \"portefeuilles cachés\", en plus du portefeuille par défaut.",
       "title": "Pourquoi utiliser une passphrase"
     }
   },
@@ -1145,7 +1241,7 @@
     }
   },
   "reset": {
-    "description": "Toutes les données de l'appareil seront supprimées. Cela inclut votre clé privée !",
+    "description": "Toutes les données vont être supprimées de l'appareil. Ceci inclut votre Clé Privée !",
     "notReset": "Appareil NON réinitialisé.",
     "title": "Réinitialiser l'appareil aux paramètres usine",
     "understand": "J'ai une sauvegarde et je connais mon mot de passe de récupération",
@@ -1177,11 +1273,11 @@
     "creating": "Créer un portefeuille",
     "description": "Je comprends que :",
     "error": {
-      "e102": "Le mot de passe doit contenir au moins 4 caractères.",
+      "e102": "Le mot de passe doit contenir au minimum 4 caractères.",
       "e200": "Vous devez insérer une carte microSD dans votre BitBox afin de créer un portefeuille, une sauvegarde se créée ainsi automatiquement."
     },
     "info": {
-      "button": "Définir le mot de passe de récupération maintenant",
+      "button": "Définir le mot de passe maintenant",
       "description1": "Insérez la carte microSD dans le BitBox",
       "description2": "Choisissez un mot de passe de récupération pour le portefeuille et sélectionnez \"Définir le mot de passe de récupération maintenant\".",
       "description3": "La sauvegarde sur une carte microSD et votre mot de passe de récupération constituent le seul moyen de récupérer vos fonds en cas de perte ou de vol de votre BitBox.",
@@ -1269,10 +1365,11 @@
         "low": "Faible",
         "normal": "Normal"
       },
-      "placeholder": "Estimation des frais…"
+      "placeholder": "Calcul des frais…"
     },
     "maximum": "Envoyer tout",
     "maximumSelectedCoins": "",
+    "noFeeTargets": "L'estimation des frais n'est pas disponible actuellement. Veuillez réessayer plus tard ou saisir des frais personnalisés.",
     "priority": "Priorité",
     "scanQR": "Scanner un QR Code",
     "signprogress": {
@@ -1285,6 +1382,10 @@
     "transactionDetails": "Détails de la transaction"
   },
   "settings": {
+    "about": "À propos",
+    "accounts": "Comptes",
+    "advancedSettings": "Paramètres avancés",
+    "appearance": "Apparence",
     "electrum": {
       "add": "Ajouter un serveur",
       "add-server": "Ajouter",
@@ -1315,6 +1416,7 @@
     "expert": {
       "coinControl": "Activer le contrôle des monnaies",
       "electrum": {
+        "description": "Vous pouvez vous connecter à votre propre nœud Electrum.",
         "title": "Connectez votre nœud complet"
       },
       "fee": "Activer la personnalisation des frais",
@@ -1399,6 +1501,7 @@
     "weight": "Poids"
   },
   "transactions": {
+    "errorLoadTransactions": "Une erreur s'est produite lors du chargement des transactions",
     "placeholder": "Aucune transaction pour le moment."
   },
   "unknownError": "Une erreur inconnue s'est produite : {{errorMessage}}",
