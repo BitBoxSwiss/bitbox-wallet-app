@@ -16,7 +16,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { route } from '../../../utils/route';
-import { ConversionUnit, FeeTargetCode, IAccount, IAmount, IBalance, getBalance, getReceiveAddressList, sendTx } from '../../../api/account';
+import { ConversionUnit, FeeTargetCode, IAccount, IBalance, getBalance, getReceiveAddressList, sendTx } from '../../../api/account';
 import { findAccount, isBitcoinBased } from '../utils';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '../../../components/alert/Alert';
@@ -27,7 +27,7 @@ import { TSelectedUTXOs, UTXOs } from './utxos';
 import { BrowserQRCodeReader } from '@zxing/library';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
-import { apiWebsocket } from '../../../utils/websocket';
+import { TPayload, apiWebsocket } from '../../../utils/websocket';
 import { syncdone } from '../../../api/accountsync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import A from '../../../components/anchor/anchor';
@@ -36,7 +36,7 @@ import { Status } from '../../../components/status/status';
 import { Balance } from '../../../components/balance/balance';
 import { debug } from '../../../utils/env';
 import { FeeTargets } from './feetargets';
-import { CameraState, CoinControlSettingsState, ErrorHandlingState, TransactionDetailsState, TransactionStatusState } from './types';
+import { CameraState, ErrorHandlingState, TProposalResult, TransactionDetailsState, TransactionStatusState } from './types';
 import DialogScanQR from './components/scan-qr-dialog';
 import { ConfirmingWaitDialog } from './components/confirming-wait-dialog';
 import SendGuide from './send-guide';
@@ -46,8 +46,11 @@ import { ButtonsGroup } from './components/inputs/buttons-group';
 import { FiatInput } from './components/inputs/fiat-input';
 import { View, ViewContent } from '../../../components/view/view';
 import { CoinInput } from './components/inputs/coin-input';
-import style from './send.module.css';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
+import style from './send.module.css';
+import { useLoad } from '../../../hooks/api';
+import { getConfig } from '../../../utils/config';
+import { convertToFiatService } from './services';
 
 interface SendProps {
   accounts: IAccount[];
@@ -58,7 +61,6 @@ interface SendProps {
 
 export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const { t } = useTranslation();
-
   const [balance, setBalance] = useState<IBalance>();
 
   // Transaction Details:
@@ -94,12 +96,8 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     noMobileChannelError: undefined,
   });
 
-  // Bitcoin Settings:
-  const [coinControlState, setCoinControlState] = useState<CoinControlSettingsState>({
-    coinControl: false,
-    btcUnit: 'default',
-    activeCoinControl: false,
-  });
+  // Coin Control Dialog Settings:
+  const [activeCoinControl, setActiveCoinControl] = useState(false);
 
   // Camera and QR Code:
   const [cameraState, setCameraState] = useState<CameraState>({
@@ -116,14 +114,9 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   const qrCodeReader = useRef<BrowserQRCodeReader>();
   const pendingProposals = useRef<any[]>([]);
   const proposeTimeout = useRef<any>(null);
+  const conf = useLoad(getConfig);
 
-  const isBTCBased = () => {
-    const account = getAccount();
-    if (!account) {
-      return false;
-    }
-    return isBitcoinBased(account.coinCode);
-  };
+  const account = findAccount(accounts, code);
 
   const registerEvents = () => {
     document.addEventListener('keydown', handleKeyDown);
@@ -134,10 +127,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   };
 
   const handleKeyDown = useCallback((e) => {
-    if (e.keyCode === 27 && !coinControlState.activeCoinControl && !cameraState.activeScanQR) {
+    if (e.keyCode === 27 && !activeCoinControl && !cameraState.activeScanQR) {
       route(`/account/${code}`);
     }
-  }, [coinControlState.activeCoinControl, cameraState.activeScanQR, code]);
+  }, [activeCoinControl, cameraState.activeScanQR, code]);
 
   const send = () => {
     if (noMobileChannelError) {
@@ -147,7 +140,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
     setTransactionStatus((prevState) => ({ ...prevState, signProgress: undefined, isConfirming: true }));
 
-    sendTx(getAccount()!.code).then(result => {
+    sendTx(account!.code).then(result => {
       if (result.success) {
 
         setTransactionDetails((prevState) => ({
@@ -260,7 +253,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
 
     proposeTimeout.current = setTimeout(() => {
-      const propose = apiPost('account/' + getAccount()!.code + '/tx-proposal', input)
+      const propose = apiPost('account/' + account!.code + '/tx-proposal', input)
         .then(result => {
           const pos = pendingProposals.current.indexOf(propose);
           if (pendingProposals.current.length - 1 === pos) {
@@ -278,17 +271,11 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
   const handleNoteInput = (event: Event) => {
     const target = (event.target as HTMLInputElement);
-    apiPost('account/' + getAccount()!.code + '/propose-tx-note', target.value);
+    apiPost('account/' + account!.code + '/propose-tx-note', target.value);
     setNote(target.value);
   };
 
-  const txProposal = (updateFiat: boolean, result: {
-    errorCode?: string;
-    amount: IAmount;
-    fee: IAmount;
-    success: boolean;
-    total: IAmount;
-  }) => {
+  const txProposal = (updateFiat: boolean, result: TProposalResult) => {
     setTransactionDetails(prevState => ({
       ...prevState,
       valid: result.success
@@ -364,7 +351,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     }
   };
 
-  const handleFormChange = (event: React.SyntheticEvent) => {
+  const handleFormChange = async (event: React.SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
     let value: string | boolean = target.value;
 
@@ -387,7 +374,6 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     }));
   };
 
-
   const handleFiatInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     setTransactionDetails((prevState) => ({
@@ -397,28 +383,17 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     convertFromFiat(value);
   };
 
-  const convertToFiat = (value?: string | boolean) => {
-    if (value) {
-      const coinCode = getAccount()!.coinCode;
-      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${transactionDetails.fiatUnit}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            setTransactionDetails((prevState) => ({
-              ...prevState,
-              fiatAmount: data.fiatAmount,
-            }));
-          } else {
-            setErrorHandling(prevState => ({ ...prevState, amountError: t('send.error.invalidAmount') }));
-          }
-        });
-    } else {
-      setTransactionDetails(prevState => ({ ...prevState, fiatAmount: '' }));
+  const convertToFiat = async (value?: string | boolean) => {
+    if (!account) {
+      return;
     }
+    const result = await convertToFiatService(account.coinCode, transactionDetails.fiatUnit, value);
+    setTransactionDetails(prevState => ({ ...prevState, ...result }));
   };
 
   const convertFromFiat = (value: string) => {
     if (value) {
-      const coinCode = getAccount()!.coinCode;
+      const coinCode = account!.coinCode;
       apiGet(`coins/convert-from-fiat?from=${transactionDetails.fiatUnit}&to=${coinCode}&amount=${value}`)
         .then(data => {
           if (data.success) {
@@ -434,7 +409,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
 
   const sendToSelf = (event: React.SyntheticEvent) => {
-    getReceiveAddressList(getAccount()!.code)()
+    getReceiveAddressList(account!.code)()
       .then(receiveAddresses => {
         if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
           setTransactionDetails(prevState => ({
@@ -467,16 +442,9 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     return Object.keys(selectedUTXOs.current).length !== 0;
   };
 
-  const getAccount = (): IAccount | undefined => {
-    if (!code) {
-      return undefined;
-    }
-    return findAccount(accounts, code);
-  };
-
   const toggleCoinControl = () => {
-    const toggled = !coinControlState.activeCoinControl;
-    setCoinControlState(prevState => ({ ...prevState, activeCoinControl: !prevState.activeCoinControl }));
+    const toggled = !activeCoinControl;
+    setActiveCoinControl(prevState => !prevState);
     if (toggled) {
       selectedUTXOs.current = {};
     }
@@ -486,6 +454,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     let address;
     let amount = '';
 
+    if (!account) {
+      return;
+    }
+
     try {
       const url = new URL(uri);
       if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
@@ -493,7 +465,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         return;
       }
       address = url.pathname;
-      if (isBTCBased()) {
+      if (isBitcoinBased(account.coinCode)) {
         amount = url.searchParams.get('amount') || '';
       }
     } catch {
@@ -506,8 +478,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       fiatAmount: '',
     } as Pick<TransactionDetailsState, keyof TransactionDetailsState>;
 
-    const account = getAccount(); // Replace with the correct method to get account
-    const coinCode = account?.coinCode;
+    const coinCode = account!.coinCode;
     if (amount) {
       if (coinCode === 'btc' || coinCode === 'tbtc') {
         const result = await parseExternalBtcAmount(amount);
@@ -547,14 +518,8 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     }
   };
 
-
   const handleVideoLoad = () => {
     setCameraState(prevState => ({ ...prevState, videoLoading: false }));
-  };
-
-
-  const deactivateCoinControl = () => {
-    setCoinControlState(prevState => ({ ...prevState, activeCoinControl: false }));
   };
 
   useEffect(() => {
@@ -583,11 +548,13 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   }, [cameraState.activeScanQR]); // Effect runs when activeScanQR changes
 
   useEffect(() => {
+    //When custom fee changes
     validateAndDisplayFee();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionDetails.customFee]);
 
   useEffect(() => {
+    //When transaction amount changes
     if (transactionDetails.amount) {
       validateAndDisplayFee(false);
     }
@@ -595,89 +562,81 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   }, [transactionDetails.amount]);
 
   useEffect(() => {
+    //When either sendAll, recipient address, or fiat amount changes
     validateAndDisplayFee(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionDetails.sendAll, transactionDetails.recipientAddress, transactionDetails.fiatAmount]);
 
   useEffect(() => {
-    if (accounts.length > 0) {
-      if (code) {
-        getBalance(code)
-          .then(balance => setBalance(balance))
-          .catch(console.error);
-      }
-      if (deviceIDs.length > 0 && devices[deviceIDs[0]] === 'bitbox') {
-        apiGet('devices/' + deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
-          getDeviceInfo(deviceIDs[0])
-            .then(({ pairing }) => {
-              const account = getAccount();
-              const paired = mobileChannel && pairing;
-              const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-              setPaired(paired);
-              setErrorHandling(prevState => ({ ...prevState, noMobileChannelError }));
-            });
-        });
-      }
-      apiGet('config').then(config => {
-        setCoinControlState(prevState => ({ ...prevState, btcUnit: config.backend.btcUnit }));
-        if (isBTCBased()) {
-          setCoinControlState(prevState => ({ ...prevState, coinControl: !!(config.frontend || {}).coinControl }));
-        }
-      });
-
-      unsubscribeList.current = [
-        apiWebsocket((payload) => {
-          if ('type' in payload) {
-            const { data, meta, type } = payload;
-            switch (type) {
-            case 'device':
-              switch (data) {
-              case 'signProgress':
-                setTransactionStatus(prevState => ({ ...prevState, signProgress: meta, signConfirm: false }));
-                break;
-              case 'signConfirm':
-                setTransactionStatus(prevState => ({ ...prevState, signConfirm: true }));
-                break;
-              }
-              break;
-            }
-          }
-        }),
-        syncdone(code, (code) => {
-          getBalance(code)
-            .then(balance => setBalance(balance))
-            .catch(console.error);
-        }),
-      ];
-
-      import('../../../components/qrcode/qrreader')
-        .then(({ BrowserQRCodeReader }) => {
-          if (!qrCodeReader.current) {
-            qrCodeReader.current = new BrowserQRCodeReader();
-          }
-          qrCodeReader.current
-            //.getVideoInputDevices() -> deprecated
-            .listVideoInputDevices()
-            .then(videoInputDevices => {
-              setCameraState(prevState => ({ ...prevState, hasCamera: videoInputDevices.length > 0 }));
-            });
-        })
-        .catch(console.error);
-
-      registerEvents();
-
-      return () => {
-        // componentWillUnmount
-        unregisterEvents();
-        unsubscribe(unsubscribeList.current);
-        if (qrCodeReader.current) {
-          qrCodeReader.current.reset();
-        }
-      };
+    if (accounts.length === 0 && !account) {
+      return () => {};
     }
 
+    const updateBalance = (code: string) => getBalance(code).then(setBalance).catch(console.error);
+
+    if (code) {
+      updateBalance(code);
+    }
+
+    if (deviceIDs.length > 0 && devices[deviceIDs[0]] === 'bitbox') {
+      apiGet('devices/' + deviceIDs[0] + '/has-mobile-channel').then(updatePairingStatus);
+    }
+    unsubscribeList.current = [
+      apiWebsocket(handleWebsocketPayload),
+      syncdone(code, updateBalance),
+    ];
+
+    import('../../../components/qrcode/qrreader')
+      .then(({ BrowserQRCodeReader }) => {
+        if (!qrCodeReader.current) {
+          qrCodeReader.current = new BrowserQRCodeReader();
+        }
+        qrCodeReader.current
+        //.getVideoInputDevices() -> deprecated
+          .listVideoInputDevices()
+          .then(videoInputDevices => {
+            setCameraState(prevState => ({ ...prevState, hasCamera: videoInputDevices.length > 0 }));
+          });
+      })
+      .catch(console.error);
+
+    registerEvents();
+
+    return () => {
+      // componentWillUnmount
+      unregisterEvents();
+      unsubscribe(unsubscribeList.current);
+      if (qrCodeReader.current) {
+        qrCodeReader.current.reset();
+      }
+    };
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accounts]);
+  }, [accounts, account]);
+
+
+  const handleWebsocketPayload = (payload: TPayload) => {
+    if ('type' in payload) {
+      const { data, meta } = payload;
+      if (payload.type === 'device') {
+        if (data === 'signProgress') {
+          setTransactionStatus(prevState => ({ ...prevState, signProgress: meta, signConfirm: false }));
+        } else if (data === 'signConfirm') {
+          setTransactionStatus(prevState => ({ ...prevState, signConfirm: true }));
+        }
+      }
+    }
+  };
+
+  const updatePairingStatus = (mobileChannel: boolean) => {
+    getDeviceInfo(deviceIDs[0])
+      .then(({ pairing }) => {
+        const paired = mobileChannel && pairing;
+        const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
+        setPaired(paired);
+        setErrorHandling(prevState => ({ ...prevState, noMobileChannelError }));
+      });
+  };
 
   const { addressError, amountError, feeError, noMobileChannelError } = errorHandling;
   const {
@@ -694,7 +653,6 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     customFee,
   } = transactionDetails;
   const { isConfirming, isSent, isAborted, isUpdatingProposal, signProgress, signConfirm } = transactionStatus;
-  const { coinControl, btcUnit, activeCoinControl } = coinControlState;
   const { hasCamera, activeScanQR, videoLoading } = cameraState;
 
   const waitDialogTransactionStatus = {
@@ -713,13 +671,11 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     fiatUnit,
   };
 
-  const account = getAccount();
-
-  if (!account) {
+  if (!account || !conf) {
     return null;
   }
 
-  const baseCurrencyUnit: ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
+  const baseCurrencyUnit: ConversionUnit = fiatUnit === 'BTC' && conf.backend.btcUnit === 'sat' ? 'sat' : fiatUnit;
 
   return (
     <GuideWrapper>
@@ -729,7 +685,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
             {t('warning.sendPairing')}
           </Status>
           <Header
-            title={<h2>{t('sidebar.settings')}</h2>}
+            title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
           />
           <View>
             <ViewContent>
@@ -737,17 +693,17 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
                 <label className="labelXLarge">{t('send.availableBalance')}</label>
               </div>
               <Balance balance={balance} noRotateFiat/>
-              { coinControl && (
+              { conf.frontend?.coinControl && (
                 <UTXOs
                   accountCode={account.code}
                   active={activeCoinControl}
                   explorerURL={account.blockExplorerTxPrefix}
-                  onClose={deactivateCoinControl}
+                  onClose={() => setActiveCoinControl(false)}
                   onChange={onSelectedUTXOsChange} />
               ) }
               <div className={`flex flex-row flex-between ${style.container}`}>
                 <label className="labelXLarge">{t('send.transactionDetails')}</label>
-                { coinControl && (
+                { conf.frontend?.coinControl && (
                   <A href="#" onClick={toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
                 )}
               </div>

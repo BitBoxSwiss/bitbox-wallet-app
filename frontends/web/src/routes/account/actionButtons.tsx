@@ -28,6 +28,9 @@ export const ActionButtons = ({ canSend, code, exchangeBuySupported }: TProps) =
   const { t } = useTranslation();
   return (
     <div className={style.actionsContainer}>
+      <Link key="sendLink" to={`/account/${code}/send2`} className={style.send}>
+        <span>New {t('button.send')}</span>
+      </Link>
       {canSend ? (
         <Link key="sendLink" to={`/account/${code}/send`} className={style.send}>
           <span>{t('button.send')}</span>

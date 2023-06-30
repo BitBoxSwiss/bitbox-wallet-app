@@ -1,5 +1,4 @@
 import { FeeTargetCode, Fiat, IAmount } from '../../../api/account';
-import { BtcUnit } from '../../../api/coins';
 
 
 export type TSignProgress = {
@@ -38,14 +37,16 @@ export type ErrorHandlingState = {
     noMobileChannelError?: boolean;
 }
 
-export type CoinControlSettingsState = {
-    coinControl: boolean;
-    btcUnit: BtcUnit;
-    activeCoinControl: boolean;
-}
-
 export type CameraState = {
     hasCamera: boolean;
     activeScanQR: boolean;
     videoLoading: boolean;
+}
+
+export type TProposalResult = {
+    errorCode?: string;
+    amount: IAmount;
+    fee: IAmount;
+    success: boolean;
+    total: IAmount;
 }
