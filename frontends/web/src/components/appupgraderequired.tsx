@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-import { translate, TranslateProps } from '../decorators/translate';
-import { AppDownloadLink } from './appdownloadlink/appdownloadlink';
+import { useTranslation } from 'react-i18next';
+import { View, ViewButtons, ViewHeader } from './view/view';
+import { AppDownloadButton } from './appdownloadlink/appdownloadlink';
+import { Header, Main } from './layout';
 
-function AppUpgradeRequired({ t }: TranslateProps) {
+export const AppUpgradeRequired = () => {
+  const { t } = useTranslation();
   return (
-    <div className="contentWithGuide">
-      <div className="container">
-        <div className="innerContainer">
-          <div className="content narrow isVerticallyCentered">
-            <div className="box large">
-              <p className="m-top-none">{t('device.appUpradeRequired')}</p>
-              <div className="buttons m-top-half">
-                <AppDownloadLink className="text-medium text-blue" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Main>
+      <Header />
+      <View
+        fullscreen
+        verticallyCentered
+        width="840px"
+        withBottomBar>
+        <ViewHeader title={t('device.appUpradeRequired')} />
+        <ViewButtons>
+          <AppDownloadButton />
+        </ViewButtons>
+      </View>
+    </Main>
   );
-}
-
-const HOC = translate()(AppUpgradeRequired);
-export { HOC as AppUpgradeRequired };
+};
