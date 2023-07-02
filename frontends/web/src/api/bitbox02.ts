@@ -186,3 +186,9 @@ export const setShowFirmwareHash = (
     enabled,
   );
 };
+
+export const getRootFingerprint = (
+  deviceID: string
+): Promise<(SuccessResponse & { rootFingerprint: string }) | FailResponse> => {
+  return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`);
+};

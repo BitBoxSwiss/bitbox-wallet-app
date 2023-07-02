@@ -15,6 +15,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -53,6 +54,7 @@ type BitBox02 interface {
 	RestoreFromMnemonic() error
 	Product() bitbox02common.Product
 	GotoStartupSettings() error
+	RootFingerprint() ([]byte, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -89,6 +91,7 @@ func NewHandlers(
 	handleFunc("/show-mnemonic", handlers.postShowMnemonicHandler).Methods("POST")
 	handleFunc("/restore-from-mnemonic", handlers.postRestoreFromMnemonicHandler).Methods("POST")
 	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
+	handleFunc("/root-fingerprint", handlers.getRootFingerprint).Methods("GET")
 	return handlers
 }
 
@@ -360,4 +363,15 @@ func (handlers *Handlers) postGotoStartupSettings(_ *http.Request) interface{} {
 		return maybeBB02Err(err, handlers.log)
 	}
 	return map[string]interface{}{"success": true}
+}
+
+func (handlers *Handlers) getRootFingerprint(_ *http.Request) interface{} {
+	fingerprint, err := handlers.device.RootFingerprint()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return map[string]interface{}{
+		"success":         true,
+		"rootFingerprint": hex.EncodeToString(fingerprint),
+	}
 }

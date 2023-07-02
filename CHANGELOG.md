@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Display the wallet root fingerprint in the account info and device settings
+
 ## 4.38.0
 - Bundle BitBox02 firmware version v9.14.1
 - Automatically discover used Bitcoin and Litecoin accounts
