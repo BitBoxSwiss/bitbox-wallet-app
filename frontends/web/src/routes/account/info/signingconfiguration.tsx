@@ -47,7 +47,6 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
 
   const config = getSimpleInfo();
   const bitcoinBased = isBitcoinBased(account.coinCode);
-
   return (
     <div className={style.address}>
       <div className={style.qrCode}>
@@ -75,6 +74,10 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
               <span>{getScriptName(config.scriptType)}</span>
             </p>
           ) : null}
+          <p key="rootFingerprint" className={style.entry}>
+            <strong>Root fingerprint:</strong>
+            <code>{config.keyInfo.rootFingerprint}</code>
+          </p>
           <p key="coinName" className={style.entry}>
             <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
             <span>{account.coinName} ({account.coinUnit})</span>
