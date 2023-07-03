@@ -26,7 +26,6 @@ import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
-import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -47,6 +46,7 @@ import { ReceiverAddressInput } from './components/inputs/receiver-address-input
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
+import { ButtonsGroup } from './components/inputs/buttons-group';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -713,17 +713,11 @@ class Send extends Component<Props, State> {
                     <ColumnButtons
                       className="m-top-default m-bottom-xlarge"
                       inline>
-                      <Button
-                        primary
-                        onClick={this.send}
-                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
-                        {t('send.button')}
-                      </Button>
-                      <ButtonLink
-                        transparent
-                        to={`/account/${code}`}>
-                        {t('button.back')}
-                      </ButtonLink>
+                      <ButtonsGroup
+                        onSendButtonClick={this.send}
+                        accountCode={code}
+                        isSendButtonDisabled={this.sendDisabled() || !valid || isUpdatingProposal}
+                      />
                     </ColumnButtons>
                   </Column>
                 </Grid>
