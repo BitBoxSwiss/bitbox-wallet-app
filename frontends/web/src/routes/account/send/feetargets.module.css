@@ -117,5 +117,5 @@ select.priority {
     padding-right: var(--space-half);
     position: absolute;
     right: 0;
-    width: 56px;
+    width: auto;
 }
