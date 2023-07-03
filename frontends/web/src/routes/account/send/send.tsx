@@ -28,11 +28,9 @@ import qrcodeIconLight from '../../../assets/icons/qrcode-light.png';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
-import { Dialog } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
-import { Spinner } from '../../../components/spinner/Spinner';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
@@ -46,6 +44,7 @@ import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import style from './send.module.css';
+import DialogScanQR from './components/dialogs/scan-qr-dialog';
 
 
 interface SendProps {
@@ -773,25 +772,12 @@ class Send extends Component<Props, State> {
               />
               <MessageWaitDialog isShown={isSent} messageType={'sent'} />
               <MessageWaitDialog isShown={isAborted} messageType={'abort'} />
-              <Dialog
-                open={activeScanQR}
-                title={t('send.scanQR')}
-                onClose={this.toggleScanQR}>
-                {videoLoading && <Spinner guideExists />}
-                <video
-                  id="video"
-                  width={400}
-                  height={300 /* fix height to avoid ugly resize effect after open */}
-                  className={style.qrVideo}
-                  onLoadedData={this.handleVideoLoad} />
-                <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-                  <Button
-                    secondary
-                    onClick={this.toggleScanQR}>
-                    {t('button.back')}
-                  </Button>
-                </div>
-              </Dialog>
+              <DialogScanQR
+                activeScanQR={activeScanQR}
+                onLoadedVideo={this.handleVideoLoad}
+                toggleScanQR={this.toggleScanQR}
+                videoLoading={videoLoading}
+              />
             </View>
           </Main>
         </GuidedContent>
