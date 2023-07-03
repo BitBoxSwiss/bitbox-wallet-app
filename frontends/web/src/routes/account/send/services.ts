@@ -1,6 +1,21 @@
 import { i18n } from '../../../i18n/i18n';
 import { alertUser } from '../../../components/alert/Alert';
 import { TPayload } from '../../../utils/websocket';
+import { getDeviceInfo } from '../../../api/bitbox01';
+import { isBitcoinBased } from '../utils';
+import { IAccount } from '../../../api/account';
+
+export const getPairingStatusBB01 = async (deviceID: string, mobileChannel: boolean, account?: IAccount) => {
+  try {
+    const { pairing } = await getDeviceInfo(deviceID);
+    const paired = mobileChannel && pairing;
+    const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
+    return { paired, noMobileChannelError };
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
+};
 
 export const getTransactionStatusUpdate = (payload: TPayload) => {
   let statusUpdate = {};

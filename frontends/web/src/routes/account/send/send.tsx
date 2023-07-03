@@ -47,7 +47,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
-import { getTransactionStatusUpdate, txProposalErrorHandling } from './services';
+import { getPairingStatusBB01, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -150,15 +150,7 @@ class Send extends Component<Props, State> {
       updateBalance(this.props.code);
     }
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
-      apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
-        getDeviceInfo(this.props.deviceIDs[0])
-          .then(({ pairing }) => {
-            const account = this.getAccount();
-            const paired = mobileChannel && pairing;
-            const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-            this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
-          });
-      });
+      apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(this.updatePairingStatus);
     }
     apiGet('config').then(config => {
       this.setState({ btcUnit: config.backend.btcUnit });
@@ -195,6 +187,16 @@ class Send extends Component<Props, State> {
       this.qrCodeReader.reset();
     }
   }
+
+  private updatePairingStatus = async (mobileChannel: boolean) => {
+    try {
+      const account = this.getAccount();
+      const { paired, noMobileChannelError } = await getPairingStatusBB01(this.props.deviceIDs[0], mobileChannel, account);
+      this.setState({ noMobileChannelError, paired });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   private handleWebsocketPayload = (payload: TPayload) => {
     const statusUpdate = getTransactionStatusUpdate(payload);
