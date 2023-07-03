@@ -47,6 +47,7 @@ import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
 import { convertFromFiatService, convertToFiatService, getPairingStatusBB01, getSelfSendAddress, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
+import SendGuide from './send-guide';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -690,6 +691,7 @@ class Send extends Component<Props, State> {
             </View>
           </Main>
         </GuidedContent>
+        <SendGuide coinCode={account.coinCode} />
       </GuideWrapper>
 
     );
