@@ -45,6 +45,7 @@ import style from './send.module.css';
 import DialogScanQR from './components/dialogs/scan-qr-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
+import { FiatInput } from './components/inputs/fiat-input';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -680,17 +681,13 @@ class Send extends Component<Props, State> {
                     />
                   </Column>
                   <Column>
-                    <Input
-                      type="number"
-                      step="any"
-                      min="0"
-                      label={baseCurrencyUnit}
-                      id="fiatAmount"
-                      onInput={this.handleFiatInput}
+                    <FiatInput
+                      onFiatChange={this.handleFiatInput}
                       disabled={sendAll}
                       error={amountError}
-                      value={fiatAmount}
-                      placeholder={t('send.amount.placeholder')} />
+                      fiatAmount={fiatAmount}
+                      label={baseCurrencyUnit}
+                    />
                   </Column>
                 </Grid>
                 <Grid>
