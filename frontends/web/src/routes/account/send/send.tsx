@@ -20,9 +20,9 @@ import { BrowserQRCodeReader } from '@zxing/library';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
+import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
-import { Checked, Cancel } from '../../../components/icon/icon';
 import qrcodeIconDark from '../../../assets/icons/qrcode-dark.png';
 import qrcodeIconLight from '../../../assets/icons/qrcode-light.png';
 import { alertUser } from '../../../components/alert/Alert';
@@ -34,19 +34,19 @@ import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main 
 import { store as fiat } from '../../../components/rates/rates';
 import { Spinner } from '../../../components/spinner/Spinner';
 import { Status } from '../../../components/status/status';
-import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
-import style from './send.module.css';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
-import { View, ViewContent } from '../../../components/view/view';
+import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
+import style from './send.module.css';
+
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -771,24 +771,8 @@ class Send extends Component<Props, State> {
                 transactionDetails={waitDialogTransactionDetails}
                 transactionStatus={waitDialogTransactionStatus}
               />
-              {
-                isSent && (
-                  <WaitDialog>
-                    <div className="flex flex-row flex-center flex-items-center">
-                      <Checked style={{ height: 18, marginRight: '1rem' }} />{t('send.success')}
-                    </div>
-                  </WaitDialog>
-                )
-              }
-              {
-                isAborted && (
-                  <WaitDialog>
-                    <div className="flex flex-row flex-center flex-items-center">
-                      <Cancel alt="Abort" style={{ height: 18, marginRight: '1rem' }} />{t('send.abort')}
-                    </div>
-                  </WaitDialog>
-                )
-              }
+              <MessageWaitDialog isShown={isSent} messageType={'sent'} />
+              <MessageWaitDialog isShown={isAborted} messageType={'abort'} />
               <Dialog
                 open={activeScanQR}
                 title={t('send.scanQR')}
