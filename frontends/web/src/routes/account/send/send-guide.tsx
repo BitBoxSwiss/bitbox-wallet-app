@@ -8,7 +8,7 @@ type TProps = {
     coinCode: CoinCode
 }
 
-export default function SendGuide({ coinCode }: TProps) {
+export const SendGuide = ({ coinCode }: TProps) => {
   const { t } = useTranslation();
   return (
     <Guide>
@@ -26,4 +26,4 @@ export default function SendGuide({ coinCode }: TProps) {
       <Entry key="guide.send.plugout" entry={t('guide.send.plugout')} />
     </Guide>
   );
-}
+};
