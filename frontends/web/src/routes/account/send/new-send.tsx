@@ -107,6 +107,8 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
   const [note, setNote] = useState('');
   const [paired, setPaired] = useState<boolean>();
+  const [lastChanged, setLastChanged] = useState<'amount' | 'customFee' | 'fiatAmount' | 'UTXOs' | 'parseQRResult' | ''>('');
+
 
   const selectedUTXOs = useRef<TSelectedUTXOs>({});
   const unsubscribeList = useRef<UnsubscribeList>([]);
@@ -209,6 +211,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     customFee: transactionDetails.customFee,
     sendAll: transactionDetails.sendAll ? 'yes' : 'no',
     selectedUTXOs: Object.keys(selectedUTXOs.current),
+    lala: transactionDetails.fiatAmount
   });
 
   const sendDisabled = () => {
@@ -219,7 +222,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       (transactionDetails.feeTarget === 'custom' && !transactionDetails.customFee);
   };
 
-  const validateAndDisplayFee = (updateFiat = true) => {
+  const validateAndDisplayFee = (updateFiat = true, txInput: () => any) => {
     setTransactionDetails(prevState => ({
       ...prevState,
       proposedTotal: undefined,
@@ -298,7 +301,6 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         ...prevState,
         ...errorHandling,
       }));
-
       setTransactionDetails((prevState) => ({
         ...prevState,
         ...transactionDetails
@@ -319,8 +321,6 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       value = target.checked;
     }
 
-    console.log('value', value);
-
     if (target.id === 'sendAll') {
       if (!value) {
         convertToFiat(transactionDetails.amount);
@@ -330,10 +330,12 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     }
     // according to the DOM/JSX
     // target.id here could be: recipientAddress || sendAll || amount
+    setLastChanged('amount');
     setTransactionDetails(prevState => ({
       ...prevState,
       [target.id]: value,
     }));
+
   };
 
   const handleFiatInput = (event: Event) => {
@@ -343,6 +345,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       fiatAmount: value,
     }));
     convertFromFiat(value);
+    setLastChanged('fiatAmount');
   };
 
   const convertToFiat = async (value?: string | boolean) => {
@@ -379,14 +382,13 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       feeTarget,
       customFee: ''
     }));
-
-    // After updating state, call `validateAndDisplayFee`
-    validateAndDisplayFee(transactionDetails.sendAll);
+    // validateAndDisplayFee(transactionDetails.sendAll, txInput);
   };
 
   const onSelectedUTXOsChange = (selected: TSelectedUTXOs) => {
     selectedUTXOs.current = selected;
-    validateAndDisplayFee(true);
+    validateAndDisplayFee(true, txInput);
+    // validateAndDisplayFee(true);
   };
 
   const hasSelectedUTXOs = () => Object.keys(selectedUTXOs.current).length !== 0;
@@ -496,23 +498,44 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameraState.activeScanQR]); // Effect runs when activeScanQR changes
 
+
   useEffect(() => {
-    //When custom fee changes
-    validateAndDisplayFee();
+    const txInput = () => ({
+      address: transactionDetails.recipientAddress,
+      amount: transactionDetails.amount,
+      feeTarget: transactionDetails.feeTarget || '',
+      customFee: transactionDetails.customFee,
+      sendAll: transactionDetails.sendAll ? 'yes' : 'no',
+      selectedUTXOs: Object.keys(selectedUTXOs.current),
+    });
+    if (lastChanged === 'fiatAmount') {
+      validateAndDisplayFee(false, txInput);
+      return () => {};
+    }
+
+    if (lastChanged === 'amount') {
+      validateAndDisplayFee(true, txInput);
+      return () => {};
+    }
+
+    if (lastChanged === 'customFee') {
+      validateAndDisplayFee(true, txInput);
+      return () => {};
+    }
+
+    if (lastChanged === 'parseQRResult') {
+      validateAndDisplayFee(true, txInput);
+      return () => {};
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionDetails.customFee]);
-
-  useEffect(() => {
-    //When transaction amount changes
-    validateAndDisplayFee(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionDetails.amount, transactionDetails.sendAll, transactionDetails.recipientAddress]);
-
-  useEffect(() => {
-    //When either sendAll, recipient address, or fiat amount changes
-    validateAndDisplayFee(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionDetails.fiatAmount]);
+  }, [
+    transactionDetails.recipientAddress,
+    transactionDetails.fiatAmount,
+    transactionDetails.amount,
+    transactionDetails.customFee,
+    transactionDetails.sendAll,
+    lastChanged
+  ]);
 
   useEffect(() => {
     const hasAccount = accounts.length > 0 && account;
@@ -691,7 +714,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
                     customFee={customFee}
                     showCalculatingFeeLabel={isUpdatingProposal}
                     onFeeTargetChange={feeTargetChange}
-                    onCustomFee={customFee => setTransactionDetails(prevState => ({ ...prevState, customFee }))}
+                    onCustomFee={customFee => {
+                      setLastChanged('customFee');
+                      setTransactionDetails(prevState => ({ ...prevState, customFee }));
+                    }}
                     error={feeError} />
                 </Column>
                 <Column>
