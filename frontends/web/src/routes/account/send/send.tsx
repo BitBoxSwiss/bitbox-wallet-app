@@ -46,7 +46,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
-import { convertFromFiatService, convertToFiatService, getPairingStatusBB01, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
+import { convertFromFiatService, convertToFiatService, getPairingStatusBB01, getSelfSendAddress, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -384,17 +384,19 @@ class Send extends Component<Props, State> {
     const coinCode = this.getAccount()!.coinCode;
     const { amount, amountError } = await convertFromFiatService(coinCode, this.state.fiatUnit, value);
     this.setState({ amount: amount || '', amountError });
+    this.validateAndDisplayFee(false);
   };
 
-  private sendToSelf = (event: React.SyntheticEvent) => {
-    accountApi.getReceiveAddressList(this.getAccount()!.code)()
-      .then(receiveAddresses => {
-        if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-          this.setState({ recipientAddress: receiveAddresses[0].addresses[0].address });
-          this.handleFormChange(event);
-        }
-      })
-      .catch(console.error);
+  private sendToSelf = async (event: React.SyntheticEvent) => {
+    try {
+      const recipientAddress = await getSelfSendAddress(this.getAccount()!.code);
+      if (recipientAddress) {
+        this.setState({ recipientAddress });
+        this.handleFormChange(event);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {

@@ -3,7 +3,7 @@ import { alertUser } from '../../../components/alert/Alert';
 import { TPayload } from '../../../utils/websocket';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { isBitcoinBased } from '../utils';
-import { Fiat, IAccount } from '../../../api/account';
+import { Fiat, IAccount, getReceiveAddressList } from '../../../api/account';
 import { apiGet } from '../../../utils/request';
 
 export const convertToFiatService = async (coinCode: string, fiatUnit: Fiat, value?: string | boolean) => {
@@ -39,6 +39,19 @@ export const getPairingStatusBB01 = async (deviceID: string, mobileChannel: bool
   } catch (error) {
     console.error(error);
     return {};
+  }
+};
+
+export const getSelfSendAddress = async (accountCode: string): Promise<string | null> => {
+  try {
+    const receiveAddresses = await getReceiveAddressList(accountCode)();
+    if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
+      return receiveAddresses[0].addresses[0].address;
+    }
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 };
 
