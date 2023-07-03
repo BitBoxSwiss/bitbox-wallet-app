@@ -23,8 +23,6 @@ import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
 import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
-import qrcodeIconDark from '../../../assets/icons/qrcode-dark.png';
-import qrcodeIconLight from '../../../assets/icons/qrcode-light.png';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
@@ -45,7 +43,7 @@ import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import style from './send.module.css';
 import DialogScanQR from './components/dialogs/scan-qr-dialog';
-
+import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -657,27 +655,15 @@ class Send extends Component<Props, State> {
                 </div>
                 <Grid col="1">
                   <Column>
-                    <Input
-                      label={t('send.address.label')}
-                      placeholder={t('send.address.placeholder')}
-                      id="recipientAddress"
-                      error={addressError}
-                      onInput={this.handleFormChange}
-                      value={recipientAddress}
-                      className={hasCamera ? style.inputWithIcon : ''}
-                      labelSection={debug ? (
-                        <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
-                        Send to self
-                        </span>
-                      ) : undefined}
-                      autoFocus>
-                      { hasCamera && (
-                        <button onClick={this.toggleScanQR} className={style.qrButton}>
-                          <img className="show-in-lightmode" src={qrcodeIconDark} />
-                          <img className="show-in-darkmode" src={qrcodeIconLight} />
-                        </button>
-                      )}
-                    </Input>
+                    <ReceiverAddressInput
+                      onClickScanQRButton={this.toggleScanQR}
+                      hasCamera={hasCamera}
+                      debug={debug}
+                      onInputChange={this.handleFormChange}
+                      onClickSendToSelfButton={this.sendToSelf}
+                      addressError={addressError}
+                      recipientAddress={recipientAddress}
+                    />
                   </Column>
                 </Grid>
                 <Grid>
