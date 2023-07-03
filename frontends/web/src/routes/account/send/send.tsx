@@ -47,6 +47,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
+import { txProposalErrorHandling } from './services';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -351,33 +352,10 @@ class Send extends Component<Props, State> {
       if (updateFiat) {
         this.convertToFiat(result.amount.amount);
       }
-    } else {
-      const errorCode = result.errorCode;
-      switch (errorCode) {
-      case 'invalidAddress':
-        this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-        break;
-      case 'invalidAmount':
-      case 'insufficientFunds':
-        this.setState({
-          amountError: this.props.t(`send.error.${errorCode}`),
-          proposedFee: undefined,
-        });
-        break;
-      case 'feeTooLow':
-        this.setState({ feeError: this.props.t('send.error.feeTooLow') });
-        break;
-      case 'feesNotAvailable':
-        this.setState({ feeError: this.props.t('send.error.feesNotAvailable') });
-        break;
-      default:
-        this.setState({ proposedFee: undefined });
-        if (errorCode) {
-          this.unregisterEvents();
-          alertUser(errorCode, { callback: this.registerEvents });
-        }
-      }
-      this.setState({ isUpdatingProposal: false });
+    } else if (result.errorCode) {
+      const { errorHandling, transactionDetails } =
+        txProposalErrorHandling(result.errorCode, this.registerEvents, this.unregisterEvents);
+      this.setState({ ...errorHandling, ...transactionDetails, isUpdatingProposal: false });
     }
   };
 
