@@ -26,7 +26,7 @@ import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
-import { Button, ButtonLink, Input } from '../../../components/forms';
+import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -46,6 +46,7 @@ import DialogScanQR from './components/dialogs/scan-qr-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
+import { NoteInput } from './components/inputs/note-input';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -705,17 +706,10 @@ class Send extends Component<Props, State> {
                       error={feeError} />
                   </Column>
                   <Column>
-                    <Input
-                      label={t('note.title')}
-                      labelSection={
-                        <span className={style.labelDescription}>
-                          {t('note.input.description')}
-                        </span>
-                      }
-                      id="note"
-                      onInput={this.handleNoteInput}
-                      value={note}
-                      placeholder={t('note.input.placeholder')} />
+                    <NoteInput
+                      note={note}
+                      onNoteChange={this.handleNoteInput}
+                    />
                     <ColumnButtons
                       className="m-top-default m-bottom-xlarge"
                       inline>
