@@ -22,7 +22,6 @@ import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
 import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
-import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
@@ -47,7 +46,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
-import { getPairingStatusBB01, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
+import { convertToFiatService, getPairingStatusBB01, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -375,20 +374,10 @@ class Send extends Component<Props, State> {
     this.convertFromFiat(value);
   };
 
-  private convertToFiat = (value?: string | boolean) => {
-    if (value) {
-      const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${this.state.fiatUnit}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            this.setState({ fiatAmount: data.fiatAmount });
-          } else {
-            this.setState({ amountError: this.props.t('send.error.invalidAmount') });
-          }
-        });
-    } else {
-      this.setState({ fiatAmount: '' });
-    }
+  private convertToFiat = async (value?: string | boolean) => {
+    const coinCode = this.getAccount()!.coinCode;
+    const { fiatAmount, amountError } = await convertToFiatService(coinCode, this.state.fiatUnit, value);
+    this.setState({ fiatAmount: fiatAmount || '', amountError });
   };
 
   private convertFromFiat = (value: string) => {

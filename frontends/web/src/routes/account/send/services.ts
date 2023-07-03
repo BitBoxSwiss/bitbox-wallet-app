@@ -3,7 +3,20 @@ import { alertUser } from '../../../components/alert/Alert';
 import { TPayload } from '../../../utils/websocket';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { isBitcoinBased } from '../utils';
-import { IAccount } from '../../../api/account';
+import { Fiat, IAccount } from '../../../api/account';
+import { apiGet } from '../../../utils/request';
+
+export const convertToFiatService = async (coinCode: string, fiatUnit: Fiat, value?: string | boolean) => {
+  const { t } = i18n;
+  const data = value ? await apiGet(`coins/convert-to-plain-fiat?from=${coinCode}&to=${fiatUnit}&amount=${value}`) : null;
+  if (!data) {
+    return { fiatAmount: '' };
+  }
+  if (!data.success) {
+    return { amountError: t('send.error.invalidAmount') };
+  }
+  return { fiatAmount: data.fiatAmount as string };
+};
 
 export const getPairingStatusBB01 = async (deviceID: string, mobileChannel: boolean, account?: IAccount) => {
   try {
