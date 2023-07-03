@@ -40,14 +40,14 @@ import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
-import { Amount } from '../../../components/amount/amount';
 import { apiWebsocket } from '../../../utils/websocket';
-import { isBitcoinBased, customFeeUnit, isBitcoinOnly, findAccount } from '../utils';
+import { isBitcoinBased, isBitcoinOnly, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
 import style from './send.module.css';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
+import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -604,21 +604,28 @@ class Send extends Component<Props, State> {
       videoLoading,
       note,
     } = this.state;
+
+    const waitDialogTransactionDetails = {
+      proposedFee,
+      proposedAmount,
+      proposedTotal,
+      customFee,
+      feeTarget,
+      recipientAddress,
+      fiatUnit,
+    };
+
+    const waitDialogTransactionStatus = {
+      isConfirming,
+      signProgress,
+      signConfirm
+    };
+
     const account = this.getAccount();
     if (!account) {
       return null;
     }
-    const confirmPrequel = (signProgress && signProgress.steps > 1) ? (
-      <span>
-        {
-          t('send.signprogress.description', {
-            steps: signProgress.steps.toString(),
-          })
-        }
-        <br />
-        {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
-      </span>
-    ) : undefined;
+
     const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
     return (
       <div className="contentWithGuide">
@@ -753,102 +760,16 @@ class Send extends Component<Props, State> {
               </Grid>
             </div>
           </div>
-          {
-            isConfirming && (
-              <WaitDialog
-                title={t('send.confirm.title')}
-                prequel={confirmPrequel}
-                paired={paired}
-                touchConfirm={signConfirm}
-                includeDefault>
-                <div className={style.confirmItem}>
-                  <label>{t('send.address.label')}</label>
-                  <p>{recipientAddress || 'N/A'}</p>
-                </div>
-                <div className={style.confirmItem}>
-                  <label>{t('send.amount.label')}</label>
-                  <p>
-                    <span key="proposedAmount">
-                      {(proposedAmount &&
-                        <Amount amount={proposedAmount.amount} unit={proposedAmount.unit}/>) || 'N/A'}
-                      {' '}
-                      <small>{(proposedAmount && proposedAmount.unit) || 'N/A'}</small>
-                    </span>
-                    {
-                      proposedAmount && proposedAmount.conversions && (
-                        <span>
-                          <span className="text-gray"> / </span>
-                          <Amount amount={proposedAmount.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
-                          {' '}<small>{baseCurrencyUnit}</small>
-                        </span>)
-                    }
-                  </p>
-                </div>
-                {note ? (
-                  <div className={style.confirmItem}>
-                    <label>{t('note.title')}</label>
-                    <p>{note}</p>
-                  </div>
-                ) : null}
-                <div className={style.confirmItem}>
-                  <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
-                  <p>
-                    <span key="amount">
-                      {(proposedFee &&
-                        <Amount amount={proposedFee.amount} unit={proposedFee.unit}/>) || 'N/A'}
-                      {' '}
-                      <small>{(proposedFee && proposedFee.unit) || 'N/A'}</small>
-                    </span>
-                    {proposedFee && proposedFee.conversions && (
-                      <span key="conversation">
-                        <span className="text-gray"> / </span>
-                        <Amount amount={proposedFee.conversions[fiatUnit]} unit={baseCurrencyUnit}/>
-                        {' '}<small>{baseCurrencyUnit}</small>
-                      </span>
-                    )}
-                    {customFee ? (
-                      <span key="customFee">
-                        <br/>
-                        <small>({customFee} {customFeeUnit(account.coinCode)})</small>
-                      </span>
-                    ) : null}
-                  </p>
-                </div>
-                {
-                  this.hasSelectedUTXOs() && (
-                    <div className={[style.confirmItem].join(' ')}>
-                      <label>{t('send.confirm.selected-coins')}</label>
-                      {
-                        Object.keys(this.selectedUTXOs).map((uxto, i) => (
-                          <p className={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
-                        ))
-                      }
-                    </div>
-                  )
-                }
-                <div className={[style.confirmItem, style.total].join(' ')}>
-                  <label>{t('send.confirm.total')}</label>
-                  <p>
-                    <span>
-                      <strong>
-                        {(proposedTotal &&
-                        <Amount amount={proposedTotal.amount} unit={proposedTotal.unit}/>) || 'N/A'}
-                      </strong>
-                      {' '}
-                      <small>{(proposedTotal && proposedTotal.unit) || 'N/A'}</small>
-                    </span>
-                    {(proposedTotal && proposedTotal.conversions) && (
-                      <span>
-                        <span className="text-gray"> / </span>
-                        <strong><Amount amount={proposedTotal.conversions[fiatUnit]} unit={baseCurrencyUnit}/></strong>
-                        {' '}<small>{baseCurrencyUnit}</small>
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </WaitDialog>
-            )
-          }
+          <ConfirmingWaitDialog
+            paired={paired}
+            baseCurrencyUnit={baseCurrencyUnit}
+            note={note}
+            hasSelectedUTXOs={this.hasSelectedUTXOs()}
+            selectedUTXOs={Object.keys(this.selectedUTXOs)}
+            coinCode={account.coinCode}
+            transactionDetails={waitDialogTransactionDetails}
+            transactionStatus={waitDialogTransactionStatus}
+          />
           {
             isSent && (
               <WaitDialog>
