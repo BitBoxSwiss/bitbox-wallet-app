@@ -26,7 +26,7 @@ import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
-import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
+import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -44,6 +44,7 @@ import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import style from './send.module.css';
 import DialogScanQR from './components/dialogs/scan-qr-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
+import { CoinInput } from './components/inputs/coin-input';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -668,25 +669,15 @@ class Send extends Component<Props, State> {
                 </Grid>
                 <Grid>
                   <Column>
-                    <Input
-                      type="number"
-                      step="any"
-                      min="0"
-                      label={balance ? balance.available.unit : t('send.amount.label')}
-                      id="amount"
-                      onInput={this.handleFormChange}
-                      disabled={sendAll}
-                      error={amountError}
-                      value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
-                      placeholder={t('send.amount.placeholder')}
-                      labelSection={
-                        <Checkbox
-                          label={t(this.hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
-                          id="sendAll"
-                          onChange={this.handleFormChange}
-                          checked={sendAll}
-                          className={style.maxAmount} />
-                      } />
+                    <CoinInput
+                      balance={balance}
+                      onInputChange={this.handleFormChange}
+                      sendAll={sendAll}
+                      amountError={amountError}
+                      proposedAmount={proposedAmount}
+                      amount={amount}
+                      hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                    />
                   </Column>
                   <Column>
                     <Input
