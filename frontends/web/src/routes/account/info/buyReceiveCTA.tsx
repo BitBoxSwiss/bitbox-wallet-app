@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../../utils/route';
-import { CoinUnit, IBalance } from '../../../api/account';
+import { CoinUnit, IAccount, IBalance } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { Balances } from '../summary/accountssummary';
-import styles from './buyReceiveCTA.module.css';
 import { isBitcoinCoin } from '../utils';
+import { getExchangeSupportedAccounts } from '../../buy/utils';
+import styles from './buyReceiveCTA.module.css';
 
 type TBuyReceiveCTAProps = {
   balanceList?: [string, IBalance][];
   code?: string;
   unit?: string;
+  exchangeBuySupported?: boolean;
 };
 
-export const BuyReceiveCTA = ({ code, unit, balanceList }: TBuyReceiveCTAProps) => {
+type TAddBuyReceiveOnEmpyBalancesProps = {
+  balances?: Balances;
+  accounts: IAccount[];
+}
+
+export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = true }: TBuyReceiveCTAProps) => {
   const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
   const { t } = useTranslation();
   const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
@@ -48,14 +55,21 @@ export const BuyReceiveCTA = ({ code, unit, balanceList }: TBuyReceiveCTAProps) 
       <h3 className="subTitle">{t('accountInfo.buyCTA.information.start')}</h3>
       <div className={styles.container}>
         {balanceList && <Button primary onClick={onReceiveCTA}>{formattedUnit ? t('receive.title', { accountName: formattedUnit }) : t('receive.title', { accountName: t('buy.info.crypto') })}</Button>}
-        <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>
+        {exchangeBuySupported && <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>}
       </div>
     </div>);
 };
 
 
-export const AddBuyReceiveOnEmptyBalances = ({ balances }: {balances?: Balances}) => {
-  if (balances === undefined) {
+export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyReceiveOnEmpyBalancesProps) => {
+
+  const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>();
+
+  useEffect(() => {
+    getExchangeSupportedAccounts(accounts).then(setSupportedAccounts);
+  }, [accounts]);
+
+  if (balances === undefined || supportedAccounts === undefined) {
     return null;
   }
   const balanceList = Object.entries(balances);
@@ -65,5 +79,5 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances }: {balances?: Balances}
   if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
     return <BuyReceiveCTA code={balanceList[0][0]} unit={'BTC'} balanceList={balanceList} />;
   }
-  return <BuyReceiveCTA balanceList={balanceList} />;
+  return <BuyReceiveCTA exchangeBuySupported={supportedAccounts.length > 0} balanceList={balanceList} />;
 };

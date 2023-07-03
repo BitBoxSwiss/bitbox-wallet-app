@@ -154,7 +154,7 @@ export function AccountsSummary({
               data={summaryData}
               noDataPlaceholder={
                 (accounts.length === Object.keys(balances || {}).length) ? (
-                  <AddBuyReceiveOnEmptyBalances balances={balances} />
+                  <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
             <SummaryBalance
