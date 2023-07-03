@@ -32,7 +32,7 @@ import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
-import { apiWebsocket } from '../../../utils/websocket';
+import { TPayload, apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
 import { TSelectedUTXOs, UTXOs } from './utxos';
@@ -47,7 +47,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
-import { txProposalErrorHandling } from './services';
+import { getTransactionStatusUpdate, txProposalErrorHandling } from './services';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -141,10 +141,13 @@ class Send extends Component<Props, State> {
   };
 
   public componentDidMount() {
+
+    const updateBalance = (code: string) => accountApi.getBalance(code)
+      .then(balance => this.setState({ balance }))
+      .catch(console.error);
+
     if (this.props.code) {
-      accountApi.getBalance(this.props.code)
-        .then(balance => this.setState({ balance }))
-        .catch(console.error);
+      updateBalance(this.props.code);
     }
     if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
       apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
@@ -163,30 +166,9 @@ class Send extends Component<Props, State> {
         this.setState({ coinControl: !!(config.frontend || {}).coinControl });
       }
     });
-
     this.unsubscribeList = [
-      apiWebsocket((payload) => {
-        if ('type' in payload) {
-          const { data, meta, type } = payload;
-          switch (type) {
-          case 'device':
-            switch (data) {
-            case 'signProgress':
-              this.setState({ signProgress: meta, signConfirm: false });
-              break;
-            case 'signConfirm':
-              this.setState({ signConfirm: true });
-              break;
-            }
-            break;
-          }
-        }
-      }),
-      syncdone(this.props.code, (code) => {
-        accountApi.getBalance(code)
-          .then(balance => this.setState({ balance }))
-          .catch(console.error);
-      }),
+      apiWebsocket(this.handleWebsocketPayload),
+      syncdone(this.props.code, updateBalance),
     ];
   }
 
@@ -213,6 +195,11 @@ class Send extends Component<Props, State> {
       this.qrCodeReader.reset();
     }
   }
+
+  private handleWebsocketPayload = (payload: TPayload) => {
+    const statusUpdate = getTransactionStatusUpdate(payload);
+    this.setState({ ...statusUpdate });
+  };
 
   private registerEvents = () => {
     document.addEventListener('keydown', this.handleKeyDown);

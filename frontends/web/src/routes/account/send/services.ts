@@ -1,5 +1,24 @@
-import { alertUser } from '../../../components/alert/Alert';
 import { i18n } from '../../../i18n/i18n';
+import { alertUser } from '../../../components/alert/Alert';
+import { TPayload } from '../../../utils/websocket';
+
+export const getTransactionStatusUpdate = (payload: TPayload) => {
+  let statusUpdate = {};
+  if ('type' in payload) {
+    const { data, meta, type } = payload;
+    if (type === 'device') {
+      switch (data) {
+      case 'signProgress':
+        statusUpdate = { signProgress: meta, signConfirm: false };
+        break;
+      case 'signConfirm':
+        statusUpdate = { signConfirm: true };
+        break;
+      }
+    }
+  }
+  return statusUpdate;
+};
 
 export const txProposalErrorHandling = (errorCode: string, registerEvents: () => void, unregisterEvents: () => void) => {
   const { t } = i18n;
