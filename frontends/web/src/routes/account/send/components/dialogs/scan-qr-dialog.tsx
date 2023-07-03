@@ -27,7 +27,7 @@ type TProps = {
 
 export const ScanQRDialog = ({ activeScanQR, onToggleScanQR }: TProps) => {
   const { t } = useTranslation();
-  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(true);
   const toggleScanQR = () => {
     setVideoLoading(true);
     onToggleScanQR();
