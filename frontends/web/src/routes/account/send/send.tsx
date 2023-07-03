@@ -41,12 +41,13 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, findAccount } from '../utils';
 import { FeeTargets } from './feetargets';
-import style from './send.module.css';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { route } from '../../../utils/route';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { View, ViewContent } from '../../../components/view/view';
+import SendGuide from './send-guide';
+import style from './send.module.css';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -811,6 +812,7 @@ class Send extends Component<Props, State> {
             </View>
           </Main>
         </GuidedContent>
+        <SendGuide coinCode={account.coinCode} />
       </GuideWrapper>
 
     );
