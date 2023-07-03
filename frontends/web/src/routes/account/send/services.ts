@@ -18,6 +18,18 @@ export const convertToFiatService = async (coinCode: string, fiatUnit: Fiat, val
   return { fiatAmount: data.fiatAmount as string };
 };
 
+export const convertFromFiatService = async (coinCode: string, fiatUnit: Fiat, value?: string | boolean) => {
+  const { t } = i18n;
+  const data = value ? await apiGet(`coins/convert-from-fiat?from=${fiatUnit}&to=${coinCode}&amount=${value}`) : null;
+  if (!data) {
+    return { amount: '' };
+  }
+  if (!data.success) {
+    return { amountError: t('send.error.invalidAmount') };
+  }
+  return { amount: data.amount as string };
+};
+
 export const getPairingStatusBB01 = async (deviceID: string, mobileChannel: boolean, account?: IAccount) => {
   try {
     const { pairing } = await getDeviceInfo(deviceID);

@@ -46,7 +46,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
-import { convertToFiatService, getPairingStatusBB01, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
+import { convertFromFiatService, convertToFiatService, getPairingStatusBB01, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
 
 interface SendProps {
     accounts: accountApi.IAccount[];
@@ -380,21 +380,10 @@ class Send extends Component<Props, State> {
     this.setState({ fiatAmount: fiatAmount || '', amountError });
   };
 
-  private convertFromFiat = (value: string) => {
-    if (value) {
-      const coinCode = this.getAccount()!.coinCode;
-      apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            this.setState({ amount: data.amount });
-            this.validateAndDisplayFee(false);
-          } else {
-            this.setState({ amountError: this.props.t('send.error.invalidAmount') });
-          }
-        });
-    } else {
-      this.setState({ amount: '' });
-    }
+  private convertFromFiat = async (value: string) => {
+    const coinCode = this.getAccount()!.coinCode;
+    const { amount, amountError } = await convertFromFiatService(coinCode, this.state.fiatUnit, value);
+    this.setState({ amount: amount || '', amountError });
   };
 
   private sendToSelf = (event: React.SyntheticEvent) => {
