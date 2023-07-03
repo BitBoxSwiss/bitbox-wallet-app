@@ -15,8 +15,9 @@
  */
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useLoad } from '../../../hooks/api';
 import { route } from '../../../utils/route';
-import { ConversionUnit, FeeTargetCode, IAccount, IBalance, getBalance, getReceiveAddressList, sendTx } from '../../../api/account';
+import { ConversionUnit, FeeTargetCode, IAccount, IBalance, getBalance, sendTx } from '../../../api/account';
 import { findAccount, isBitcoinBased } from '../utils';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '../../../components/alert/Alert';
@@ -26,7 +27,6 @@ import { store } from '../../../components/rates/rates';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { BrowserQRCodeReader } from '@zxing/library';
 import { TDevices } from '../../../api/devices';
-import { getDeviceInfo } from '../../../api/bitbox01';
 import { TPayload, apiWebsocket } from '../../../utils/websocket';
 import { syncdone } from '../../../api/accountsync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
@@ -37,20 +37,19 @@ import { Balance } from '../../../components/balance/balance';
 import { debug } from '../../../utils/env';
 import { FeeTargets } from './feetargets';
 import { CameraState, ErrorHandlingState, TProposalResult, TransactionDetailsState, TransactionStatusState } from './types';
-import DialogScanQR from './components/scan-qr-dialog';
-import { ConfirmingWaitDialog } from './components/confirming-wait-dialog';
+import DialogScanQR from './components/dialogs/scan-qr-dialog';
+import { ConfirmingWaitDialog } from './components/dialogs/confirming-wait-dialog';
 import SendGuide from './send-guide';
-import { MessageWaitDialog } from './components/message-wait-dialog';
+import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { NoteInput } from './components/inputs/note-input';
 import { ButtonsGroup } from './components/inputs/buttons-group';
 import { FiatInput } from './components/inputs/fiat-input';
 import { View, ViewContent } from '../../../components/view/view';
 import { CoinInput } from './components/inputs/coin-input';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
-import style from './send.module.css';
-import { useLoad } from '../../../hooks/api';
 import { getConfig } from '../../../utils/config';
-import { convertToFiatService } from './services';
+import { convertFromFiatService, convertToFiatService, getPairingStatusBB01, getSelfSendAddress, getTransactionStatusUpdate, txProposalErrorHandling } from './services';
+import style from './send.module.css';
 
 interface SendProps {
   accounts: IAccount[];
@@ -142,7 +141,6 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
     sendTx(account!.code).then(result => {
       if (result.success) {
-
         setTransactionDetails((prevState) => ({
           ...prevState,
           sendAll: false,
@@ -170,10 +168,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
           isSent: false,
           isConfirming: false,
         })), 5000);
-
-
       } else if (result.aborted) {
-
         setTransactionStatus(prevState => ({
           ...prevState,
           isAborted: true
@@ -197,14 +192,12 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     })
       .catch((error) => console.error(error))
       .then(() => {
-
         setTransactionStatus(prevState => ({
           ...prevState,
           isConfirming: false,
           signProgress: undefined,
           signConfirm: false
         }));
-
       });
 
   };
@@ -220,7 +213,10 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
   const sendDisabled = () => {
     const input = txInput();
-    return !input.address || transactionDetails.feeTarget === undefined || (input.sendAll === 'no' && !input.amount) || (transactionDetails.feeTarget === 'custom' && !transactionDetails.customFee);
+    return !input.address ||
+      transactionDetails.feeTarget === undefined ||
+      (input.sendAll === 'no' && !input.amount) ||
+      (transactionDetails.feeTarget === 'custom' && !transactionDetails.customFee);
   };
 
   const validateAndDisplayFee = (updateFiat = true) => {
@@ -251,7 +247,6 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       isUpdatingProposal: true
     }));
 
-
     proposeTimeout.current = setTimeout(() => {
       const propose = apiPost('account/' + account!.code + '/tx-proposal', input)
         .then(result => {
@@ -275,7 +270,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     setNote(target.value);
   };
 
-  const txProposal = (updateFiat: boolean, result: TProposalResult) => {
+  const txProposal = async (updateFiat: boolean, result: TProposalResult) => {
     setTransactionDetails(prevState => ({
       ...prevState,
       valid: result.success
@@ -286,69 +281,34 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
         ...prevState,
         proposedFee: result.fee,
         proposedAmount: result.amount,
-        proposedTotal: result.total,
+        proposedTotal: result.total
       }));
-
-      setErrorHandling((prevState) => ({
+      setErrorHandling(prevState => ({
         ...prevState,
         addressError: undefined,
         amountError: undefined,
         feeError: undefined,
       }));
-
-      setTransactionStatus(prevState => ({ ...prevState, isUpdatingProposal: false }));
-
-
       if (updateFiat) {
         convertToFiat(result.amount.amount);
       }
-    } else {
-      const errorCode = result.errorCode;
-      switch (errorCode) {
-      case 'invalidAddress':
-        setErrorHandling(prevState => ({
-          ...prevState,
-          addressError: t('send.error.invalidAddress')
-        }));
-        break;
-      case 'invalidAmount':
-      case 'insufficientFunds':
-        setErrorHandling(prevState => ({
-          ...prevState,
-          amountError: t(`send.error.${errorCode}`),
-        }));
-        setTransactionDetails(prevState => ({
-          ...prevState,
-          proposedFee: undefined,
-        }));
-        break;
-      case 'feeTooLow':
-        setErrorHandling(prevState => ({
-          ...prevState,
-          feeError: t('send.error.feeTooLow')
-        }));
-        break;
-      case 'feesNotAvailable':
-        setErrorHandling(prevState => ({
-          ...prevState,
-          feeError: t('send.error.feesNotAvailable')
-        }));
-        break;
-      default:
-        setTransactionDetails(prevState => ({
-          ...prevState,
-          proposedFee: undefined
-        }));
-        if (errorCode) {
-          unregisterEvents();
-          alertUser(errorCode, { callback: registerEvents });
-        }
-      }
-      setTransactionStatus(prevState => ({
+    } else if (result.errorCode) {
+      const { errorHandling, transactionDetails } = txProposalErrorHandling(result.errorCode, registerEvents, unregisterEvents);
+      setErrorHandling(prevState => ({
         ...prevState,
-        isUpdatingProposal: false
+        ...errorHandling,
+      }));
+
+      setTransactionDetails((prevState) => ({
+        ...prevState,
+        ...transactionDetails
       }));
     }
+
+    setTransactionStatus(prevState => ({
+      ...prevState,
+      isUpdatingProposal: false,
+    }));
   };
 
   const handleFormChange = async (event: React.SyntheticEvent) => {
@@ -358,6 +318,8 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     if (target.type === 'checkbox') {
       value = target.checked;
     }
+
+    console.log('value', value);
 
     if (target.id === 'sendAll') {
       if (!value) {
@@ -391,35 +353,24 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     setTransactionDetails(prevState => ({ ...prevState, ...result }));
   };
 
-  const convertFromFiat = (value: string) => {
-    if (value) {
-      const coinCode = account!.coinCode;
-      apiGet(`coins/convert-from-fiat?from=${transactionDetails.fiatUnit}&to=${coinCode}&amount=${value}`)
-        .then(data => {
-          if (data.success) {
-            setTransactionDetails(prevState => ({ ...prevState, amount: data.amount }));
-          } else {
-            setErrorHandling(prevState => ({ ...prevState, amountError: t('send.error.invalidAmount') }));
-          }
-        });
-    } else {
-      setTransactionDetails(prevState => ({ ...prevState, amount: '' }));
+  const convertFromFiat = async (value?: string) => {
+    if (!account) {
+      return;
     }
+    const result = await convertFromFiatService(account.coinCode, transactionDetails.fiatUnit, value);
+    setTransactionDetails(prevState => ({ ...prevState, ...result }));
   };
 
-
-  const sendToSelf = (event: React.SyntheticEvent) => {
-    getReceiveAddressList(account!.code)()
-      .then(receiveAddresses => {
-        if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-          setTransactionDetails(prevState => ({
-            ...prevState,
-            recipientAddress: receiveAddresses[0].addresses[0].address
-          }));
-          handleFormChange(event);
-        }
-      })
-      .catch(console.error);
+  const sendToSelf = async (event: React.SyntheticEvent) => {
+    try {
+      const recipientAddress = await getSelfSendAddress(account!.code);
+      if (recipientAddress) {
+        setTransactionDetails(prevState => ({ ...prevState, recipientAddress }));
+        handleFormChange(event);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const feeTargetChange = (feeTarget: FeeTargetCode) => {
@@ -438,9 +389,7 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
     validateAndDisplayFee(true);
   };
 
-  const hasSelectedUTXOs = (): boolean => {
-    return Object.keys(selectedUTXOs.current).length !== 0;
-  };
+  const hasSelectedUTXOs = () => Object.keys(selectedUTXOs.current).length !== 0;
 
   const toggleCoinControl = () => {
     const toggled = !activeCoinControl;
@@ -555,25 +504,23 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
 
   useEffect(() => {
     //When transaction amount changes
-    if (transactionDetails.amount) {
-      validateAndDisplayFee(false);
-    }
+    validateAndDisplayFee(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionDetails.amount]);
+  }, [transactionDetails.amount, transactionDetails.sendAll, transactionDetails.recipientAddress]);
 
   useEffect(() => {
     //When either sendAll, recipient address, or fiat amount changes
-    validateAndDisplayFee(true);
+    validateAndDisplayFee(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionDetails.sendAll, transactionDetails.recipientAddress, transactionDetails.fiatAmount]);
+  }, [transactionDetails.fiatAmount]);
 
   useEffect(() => {
-    if (accounts.length === 0 && !account) {
+    const hasAccount = accounts.length > 0 && account;
+    if (!hasAccount) {
       return () => {};
     }
 
     const updateBalance = (code: string) => getBalance(code).then(setBalance).catch(console.error);
-
     if (code) {
       updateBalance(code);
     }
@@ -611,31 +558,22 @@ export const NewSend = ({ accounts, code, deviceIDs, devices }: SendProps) => {
       }
     };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accounts, account]);
 
-
   const handleWebsocketPayload = (payload: TPayload) => {
-    if ('type' in payload) {
-      const { data, meta } = payload;
-      if (payload.type === 'device') {
-        if (data === 'signProgress') {
-          setTransactionStatus(prevState => ({ ...prevState, signProgress: meta, signConfirm: false }));
-        } else if (data === 'signConfirm') {
-          setTransactionStatus(prevState => ({ ...prevState, signConfirm: true }));
-        }
-      }
-    }
+    const statusUpdate = getTransactionStatusUpdate(payload);
+    setTransactionStatus(prev => ({ ...prev, ...statusUpdate }));
   };
 
-  const updatePairingStatus = (mobileChannel: boolean) => {
-    getDeviceInfo(deviceIDs[0])
-      .then(({ pairing }) => {
-        const paired = mobileChannel && pairing;
-        const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-        setPaired(paired);
-        setErrorHandling(prevState => ({ ...prevState, noMobileChannelError }));
-      });
+  const updatePairingStatus = async (mobileChannel: boolean) => {
+    try {
+      const { paired, noMobileChannelError } = await getPairingStatusBB01(deviceIDs[0], mobileChannel, account);
+      setPaired(paired);
+      setErrorHandling(prevState => ({ ...prevState, noMobileChannelError }));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const { addressError, amountError, feeError, noMobileChannelError } = errorHandling;

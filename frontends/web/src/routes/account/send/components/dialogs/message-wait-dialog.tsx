@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Cancel, Checked } from '../../../../components/icon/icon';
-import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
+import { Cancel, Checked } from '../../../../../components/icon/icon';
+import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 
 type TProps = {
     isShown: boolean;

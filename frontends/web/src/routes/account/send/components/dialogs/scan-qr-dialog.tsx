@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Dialog } from '../../../../components/dialog/dialog';
-import { Button } from '../../../../components/forms';
-import { Spinner } from '../../../../components/spinner/Spinner';
-import style from '../send.module.css';
+import { Dialog } from '../../../../../components/dialog/dialog';
+import { Button } from '../../../../../components/forms';
+import { Spinner } from '../../../../../components/spinner/Spinner';
+import style from '../../send.module.css';
 
 type TProps = {
     activeScanQR: boolean;

@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
-import style from '../send.module.css';
-import { TSignProgress } from '../types';
-import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '../../../../api/account';
-import { Amount } from '../../../../components/amount/amount';
-import { customFeeUnit } from '../../utils';
+import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
+import { TSignProgress } from '../../types';
+import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '../../../../../api/account';
+import { Amount } from '../../../../../components/amount/amount';
+import { customFeeUnit } from '../../../utils';
+import style from '../../send.module.css';
 
 type TransactionStatus = {
   isConfirming: boolean;

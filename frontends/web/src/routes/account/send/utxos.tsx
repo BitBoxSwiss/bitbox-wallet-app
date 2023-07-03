@@ -82,12 +82,12 @@ export const UTXOs = ({
   };
 
   const renderUTXOs = (scriptType: ScriptType) => {
+
     const filteredUTXOs = utxos.filter(utxo => utxo.scriptType === scriptType);
     if (filteredUTXOs.length === 0) {
       return null;
     }
 
-    console.log({ filteredUTXOs });
     return (
       <div key={'utxos-' + scriptType}>
         <h2 className="subTitle">{ getScriptName(scriptType) }</h2>

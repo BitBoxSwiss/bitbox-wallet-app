@@ -1,6 +1,5 @@
 import { FeeTargetCode, Fiat, IAmount } from '../../../api/account';
 
-
 export type TSignProgress = {
     steps: number;
     step: number;

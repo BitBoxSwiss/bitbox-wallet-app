@@ -40,7 +40,7 @@ export type TEventLegacy = {
   readonly code?: string;
   readonly data?: TSubject;
   readonly deviceID?: string;
-  readonly meta?: any;
+  meta?: any;
   readonly type: string;
 }
 

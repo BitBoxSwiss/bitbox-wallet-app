@@ -216,7 +216,7 @@ class FeeTargets extends Component<Props, State> {
                   value={customFee}
                 >
                   <span className={style.customFeeUnit}>
-                    { customFeeUnit(this.props.coinCode) }
+                    { customFeeUnit(this.props.coinCode) }asd
                   </span>
                 </Input>
               </div>
@@ -226,8 +226,7 @@ class FeeTargets extends Component<Props, State> {
             <div>
               {(showCalculatingFeeLabel || proposeFeeText ? (
                 <p className={style.feeProposed}>
-                  {t('send.fee.label')}:
-                  {' '}
+                  {t('send.fee.label')}asd:
                   {showCalculatingFeeLabel ? t('send.feeTarget.placeholder') : `${proposeFeeText}`}
                 </p>
               ) : null)}
