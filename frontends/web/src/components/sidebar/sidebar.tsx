@@ -23,7 +23,7 @@ import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-import { SharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
+import { TSharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
