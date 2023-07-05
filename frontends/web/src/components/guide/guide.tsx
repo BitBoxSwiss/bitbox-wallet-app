@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -24,7 +25,7 @@ import A from '../anchor/anchor';
 import { CloseXWhite } from '../icon';
 import style from './guide.module.css';
 
-export interface SharedProps {
+export type TSharedProps = {
     shown: boolean;
     // eslint-disable-next-line react/no-unused-prop-types
     activeSidebar: boolean;
@@ -34,7 +35,11 @@ export interface SharedProps {
     guideExists: boolean;
 }
 
-export const store = new Store<SharedProps>({
+export type TProps = TSharedProps & {
+    children?: ReactNode;
+}
+
+export const store = new Store<TSharedProps>({
   shown: false,
   activeSidebar: false,
   sidebarStatus: '',
@@ -72,45 +77,41 @@ export function hide() {
   setGuideShown(false);
 }
 
-type Props = SharedProps & TranslateProps;
+const Guide = ({ shown, children }: TProps) => {
 
-class Guide extends Component<Props> {
-  public componentDidMount() {
+  useEffect(() => {
     store.setState({ guideExists: true });
-  }
+    return () => {
+      store.setState({ guideExists: false });
+    };
+  }, []);
 
-  public componentWillUnmount() {
-    store.setState({ guideExists: false });
-  }
-
-  public render() {
-    const { shown, t, children } = this.props;
-    return (
-      <div className={style.wrapper}>
-        <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>
-        <div className={[style.guide, shown && style.show].join(' ')}>
-          <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
-            <h2>{t('guide.title')}</h2>
-            <a href="#" className={style.close} onClick={toggle}>
-              {t('guide.toggle.close')}
-              <CloseXWhite />
-            </a>
-          </div>
-          <div className={style.content}>
-            {children}
-            <div className={style.entry}>
-              {t('guide.appendix.text')}
-              {' '}
-              <A href="https://bitbox.swiss/support/">{t('guide.appendix.link')}</A>
-              <br />
-              <br />
-            </div>
+  const { t } = useTranslation();
+  return (
+    <div className={style.wrapper}>
+      <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>
+      <div className={[style.guide, shown && style.show].join(' ')}>
+        <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+          <h2>{t('guide.title')}</h2>
+          <a href="#" className={style.close} onClick={toggle}>
+            {t('guide.toggle.close')}
+            <CloseXWhite />
+          </a>
+        </div>
+        <div className={style.content}>
+          {children}
+          <div className={style.entry}>
+            {t('guide.appendix.text')}
+            {' '}
+            <A href="https://bitbox.swiss/support/">{t('guide.appendix.link')}</A>
+            <br />
+            <br />
           </div>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-const HOC = translate()(share<SharedProps, TranslateProps>(store)(Guide));
+const HOC = translate()(share<TSharedProps, TranslateProps>(store)(Guide));
 export { HOC as Guide };

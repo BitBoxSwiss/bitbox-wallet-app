@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2022 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +15,11 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
+import React, { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { SharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
+import { TSharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
 import { GuideActive, MenuLight, MenuDark } from '../icon';
 import { toggleSidebar } from '../sidebar/sidebar';
 import style from './header.module.css';
@@ -26,46 +28,54 @@ interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;
     hideSidebarToggler?: boolean;
+    children?: ReactNode;
 }
 type Props = HeaderProps & SharedPanelProps & TranslateProps;
 
-class Header extends Component<Props> {
-  private toggle = (e: React.SyntheticEvent) => {
+const Header = ({
+  sidebarStatus,
+  narrow,
+  title,
+  hideSidebarToggler,
+  shown,
+  guideExists,
+  children
+}: Props) => {
+  const { t } = useTranslation();
+
+  const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!this.props.shown) {
+    if (!shown) {
       toggleGuide();
     }
     return false;
   };
 
-  public render() {
-    const { t, title, narrow, children, guideExists, shown, sidebarStatus, hideSidebarToggler } = this.props;
-    return (
-      <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
-        <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
-          <div className={`${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
-            <MenuDark className="show-in-lightmode" />
-            <MenuLight className="show-in-darkmode" />
-          </div>
-          <div className={style.title}>{title}</div>
-          <div className={style.children}>
-            {children}
-            {
-              guideExists && (
-                <span className={style.guideIconContainer}>
-                  <a href="#" onClick={this.toggle} className={[style.guideIcon, shown ? style.disabled : ''].join(' ')}>
-                    <GuideActive />
-                    {t('guide.toggle.open')}
-                  </a>
-                </span>
-              )
-            }
-          </div>
+  return (
+    <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
+      <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
+        <div className={`${style.sidebarToggler} ${hideSidebarToggler ? style.hideSidebarToggler : ''}`} onClick={toggleSidebar}>
+          <MenuDark className="show-in-lightmode" />
+          <MenuLight className="show-in-darkmode" />
+        </div>
+        <div className={style.title}>{title}</div>
+        <div className={style.children}>
+          {children}
+          {
+            guideExists && (
+              <span className={style.guideIconContainer}>
+                <a href="#" onClick={toggle} className={[style.guideIcon, shown ? style.disabled : ''].join(' ')}>
+                  <GuideActive />
+                  {t('guide.toggle.open')}
+                </a>
+              </span>
+            )
+          }
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 const SharedHeader = share<SharedPanelProps, HeaderProps & TranslateProps>(panelStore)(Header);
 const TranslatedHeader = translate()(SharedHeader);
