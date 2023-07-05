@@ -77,7 +77,9 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
     return null;
   }
   if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
-    return <BuyReceiveCTA code={balanceList[0][0]} unit={'BTC'} balanceList={balanceList} />;
+    const onlyHasOneAccount = balanceList.length === 1;
+    return <BuyReceiveCTA code={onlyHasOneAccount ? balanceList[0][0] : undefined} unit={'BTC'} balanceList={balanceList} />;
   }
+
   return <BuyReceiveCTA exchangeBuySupported={supportedAccounts.length > 0} balanceList={balanceList} />;
 };
