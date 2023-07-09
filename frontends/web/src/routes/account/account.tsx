@@ -193,7 +193,6 @@ export function Account({
     && transactions.success
     && transactions.list.length === 0;
 
-  const showBuyButton = exchangeBuySupported && isAccountEmpty;
 
   const actionButtonsProps = {
     code,
@@ -232,9 +231,10 @@ export function Account({
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </div>
-            {showBuyButton && (
+            {isAccountEmpty && (
               <BuyReceiveCTA
                 code={code}
+                exchangeBuySupported={exchangeBuySupported}
                 unit={balance.available.unit}
                 balanceList={[[code, balance]]}
               />
