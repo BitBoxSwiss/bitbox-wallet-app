@@ -15,37 +15,36 @@
  * limitations under the License.
  */
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { share } from '../../decorators/share';
-import { translate, TranslateProps } from '../../decorators/translate';
-import { TSharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
+import { SharedPanelProps, panelStore } from '../sidebar/sidebar';
 import { GuideActive, MenuLight, MenuDark } from '../icon';
 import { toggleSidebar } from '../sidebar/sidebar';
+import AppContext from '../../contexts/AppContext';
 import style from './header.module.css';
-
 interface HeaderProps {
     title?: string | JSX.Element | JSX.Element[];
     narrow?: boolean;
     hideSidebarToggler?: boolean;
     children?: ReactNode;
 }
-type Props = HeaderProps & SharedPanelProps & TranslateProps;
+type Props = HeaderProps & SharedPanelProps;
 
 const Header = ({
   sidebarStatus,
   narrow,
   title,
   hideSidebarToggler,
-  shown,
-  guideExists,
   children
 }: Props) => {
   const { t } = useTranslation();
 
+  const { guideShown, guideExists, toggleGuide } = useContext(AppContext);
+
   const toggle = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!shown) {
+    if (!guideShown) {
       toggleGuide();
     }
     return false;
@@ -64,7 +63,7 @@ const Header = ({
           {
             guideExists && (
               <span className={style.guideIconContainer}>
-                <a href="#" onClick={toggle} className={[style.guideIcon, shown ? style.disabled : ''].join(' ')}>
+                <a href="#" onClick={toggle} className={[style.guideIcon, guideShown ? style.disabled : ''].join(' ')}>
                   <GuideActive />
                   {t('guide.toggle.open')}
                 </a>
@@ -77,6 +76,5 @@ const Header = ({
   );
 };
 
-const SharedHeader = share<SharedPanelProps, HeaderProps & TranslateProps>(panelStore)(Header);
-const TranslatedHeader = translate()(SharedHeader);
-export { TranslatedHeader as Header };
+const SharedHeader = share<SharedPanelProps, HeaderProps>(panelStore)(Header);
+export { SharedHeader as Header };

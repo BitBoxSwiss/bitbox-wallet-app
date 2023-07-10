@@ -41,7 +41,7 @@ export const MobileSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetting
   }, [isMobile]);
   return (
     <Main>
-      <Header guideExists={false} title={<h2>{t('settings.title')}</h2>} />
+      <Header title={<h2>{t('settings.title')}</h2>} />
       <View fullscreen={false}>
         <ViewContent>
           <Tabs deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
