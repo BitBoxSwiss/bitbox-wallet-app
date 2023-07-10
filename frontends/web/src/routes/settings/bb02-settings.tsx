@@ -25,7 +25,7 @@ import { ManageBackupSetting } from './components/device-settings/manage-backup-
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
 import { PassphraseSetting } from './components/device-settings/passphrase-setting';
-import { DeviceInfo, getDeviceInfo, getVersion } from '../../api/bitbox02';
+import { DeviceInfo, getDeviceInfo, getVersion, getRootFingerprint } from '../../api/bitbox02';
 import { alertUser } from '../../components/alert/Alert';
 import { Skeleton } from '../../components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
@@ -33,6 +33,7 @@ import { FirmwareSetting } from './components/device-settings/firmware-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
+import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
 import styles from './bb02-settings.module.css';
 import { ManageDeviceGuide } from '../device/bitbox02/settings-guide';
 import { MobileHeader } from './components/mobile-header';
@@ -89,6 +90,7 @@ const Content = ({ deviceID }: TProps) => {
 
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
   const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
+  const rootFingerprintResult = useLoad(() => getRootFingerprint(deviceID), [deviceID]);
 
   useEffect(() => {
     getDeviceInfo(deviceID)
@@ -133,6 +135,12 @@ const Content = ({ deviceID }: TProps) => {
         {
           deviceInfo && deviceInfo.securechipModel !== '' ?
             <SecureChipSetting secureChipModel={deviceInfo.securechipModel} />
+            :
+            <StyledSkeleton />
+        }
+        {
+          rootFingerprintResult && rootFingerprintResult.success ?
+            <RootFingerprintSetting rootFingerprint={rootFingerprintResult.rootFingerprint} />
             :
             <StyledSkeleton />
         }

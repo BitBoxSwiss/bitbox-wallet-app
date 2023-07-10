@@ -21,7 +21,7 @@
 .primaryText {
     color: var(--color-default);
     font-size: 16px;
-    margin: 0;    
+    margin: 0;
 }
 
 .isButton:hover {
@@ -32,6 +32,7 @@
 .rightContentContainer {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .displayedValue {
@@ -55,7 +56,7 @@
     text-overflow: ellipsis;
 }
 
-@media (max-width: 768px) { 
+@media (max-width: 768px) {
     .container {
          height: auto;
          margin-bottom: 5px;
@@ -68,7 +69,7 @@
 }
 
 @media (max-width: 560px) {
-    
+
     .container.collapse {
         align-items: start;
         flex-direction: column;
@@ -85,5 +86,5 @@
     .hideDisplayedValueOnSmall {
         display: none;
     }
-    
+
 }
