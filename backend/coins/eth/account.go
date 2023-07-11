@@ -17,12 +17,14 @@ package eth
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -42,6 +44,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -811,4 +814,149 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 // CanVerifyAddresses implements accounts.Interface.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	return account.Config().Keystore.CanVerifyAddress(account.Coin())
+}
+
+// SignMsg is used for personal_sign and eth_sign messages in BBApp via WalletConnect.
+func (account *Account) SignMsg(
+	message string,
+) (string, error) {
+	bytesMessage, err := hex.DecodeString(strings.TrimPrefix(message, "0x"))
+	if err != nil {
+		return "", err
+	}
+	signedMessage, err := account.Config().Keystore.SignETHMessage(bytesMessage, account.signingConfiguration.AbsoluteKeypath())
+	if err != nil {
+		return "", err
+	}
+	return "0x" + hex.EncodeToString(signedMessage), nil
+}
+
+// SignTypedMsg signs an Ethereum EIP-712 typed message in BBApp via WalletConnect.
+func (account *Account) SignTypedMsg(
+	chainId uint64,
+	data string,
+) (string, error) {
+	signedMessage, err := account.Config().Keystore.SignETHTypedMessage(chainId, []byte(data), account.signingConfiguration.AbsoluteKeypath())
+	if err != nil {
+		return "", err
+	}
+	return "0x" + hex.EncodeToString(signedMessage), nil
+}
+
+// TX proposal arguments received from Wallet Connect with Gas, GasPrice, Value and Nonce being optional.
+type WalletConnectArgs struct {
+	From     string `json:"from"`
+	To       string `json:"to"`
+	Data     string `json:"data"`
+	Gas      string `json:"gas,omitempty"`
+	GasPrice string `json:"gasPrice,omitempty"`
+	Value    string `json:"value,omitempty"`
+	Nonce    string `json:"nonce,omitempty"`
+}
+
+// EthSignTypedMsg signs an Ethereum Tx received from WalletConnect.
+func (account *Account) EthSignWalletConnectTx(
+	// send: whether transaction should be broadcast after signing
+	send bool,
+	// chainId: allow specifying other IDs than 1 (ETH mainnet) for other EVM networks
+	// TODO L#940 we also need to connect to an appropriate RPC for each L2 network/sidechain
+	chainId uint64,
+	proposedTx WalletConnectArgs,
+) (string, string, error) {
+	var nonce uint64
+	var message ethereum.CallMsg
+	var gasPrice *big.Int
+	var value *big.Int
+
+	// Error if chaindId != account.coin.ChainID() (i.e. 1) until L2 RPCs and proper support are added
+	if chainId != account.coin.ChainID() {
+		return "", "", errp.New("Unsupported EVM Network. BBApp only supports Ethereum Mainnet at the moment.")
+	}
+
+	if !ethcommon.IsHexAddress(proposedTx.To) {
+		return "", "", errp.WithStack(errors.ErrInvalidAddress)
+	}
+	address := ethcommon.HexToAddress(proposedTx.To)
+	if isMixedCase(proposedTx.To) && proposedTx.To != address.Hex() {
+		return "", "", errp.WithStack(errors.ErrInvalidAddress)
+	}
+
+	if proposedTx.Nonce != "" {
+		parsed, err := strconv.ParseUint(strings.TrimPrefix(proposedTx.Nonce, "0x"), 16, 64)
+		if err != nil {
+			return "", "", err
+		}
+		nonce = parsed
+	} else {
+		nonce = account.nextNonce
+	}
+
+	if proposedTx.Value != "" {
+		bigIntValue, ok := new(big.Int).SetString(strings.TrimPrefix(proposedTx.Value, "0x"), 16)
+		if !ok {
+			return "", "", errp.New("error setting transaction value")
+		}
+		value = bigIntValue
+	}
+
+	data, err := hex.DecodeString(strings.TrimPrefix(proposedTx.Data, "0x"))
+	if err != nil {
+		return "", "", err
+	}
+
+	message = ethereum.CallMsg{
+		From:     account.address.Address,
+		To:       &address,
+		Gas:      0,
+		GasPrice: big.NewInt(0),
+		Value:    value,
+		Data:     data,
+	}
+
+	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
+	if err != nil {
+		if strings.Contains(err.Error(), etherscan.ERC20GasErr) {
+			return "", "", errp.WithStack(errors.ErrInsufficientFunds)
+		}
+		account.log.WithError(err).Error("Could not estimate the gas limit.")
+		return "", "", errp.WithStack(errors.TxValidationError(err.Error()))
+	}
+
+	for _, t := range account.feeTargets() {
+		//TODO Let user choose gas price/priority
+		if t.code == accounts.FeeTargetCodeNormal {
+			if t.gasPrice.Cmp(big.NewInt(0)) <= 0 {
+				return "", "", errors.ErrFeeTooLow
+			}
+			gasPrice = t.gasPrice
+		}
+	}
+
+	tx := types.NewTransaction(nonce,
+		*message.To,
+		message.Value, gasLimit, gasPrice, message.Data)
+	signature, err := account.Config().Keystore.SignETHWalletConnectTransaction(chainId, tx, account.signingConfiguration.AbsoluteKeypath())
+	if err != nil {
+		return "", "", err
+	}
+	//TODO edit signer to match chainID proposed by wallet connect
+	// account.coin.Net() will only incude ChainID 1 in its current *params.ChainConfig
+	// Needs to be set to the appropriuate chain id for each supported network
+	//TODO we also need to connect to an appropriate RPC for each L2 network/sidechain
+	signer := types.MakeSigner(account.coin.Net(), account.blockNumber)
+	signedTx, err := tx.WithSignature(signer, signature)
+	if err != nil {
+		return "", "", err
+	}
+	txHash := signedTx.Hash()
+	if send {
+		if err := account.coin.client.SendTransaction(context.TODO(), signedTx); err != nil {
+			return "", "", errp.WithStack(err)
+		}
+	}
+	rawTx, err := rlp.EncodeToBytes(tx)
+	if err != nil {
+		return "", "", err
+	}
+	return "0x" + hex.EncodeToString(txHash[:]), "0x" + hex.EncodeToString(rawTx), nil
 }

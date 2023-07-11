@@ -24,7 +24,9 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
@@ -346,7 +348,7 @@ func (backend *Backend) aoppChooseAccount(code accountsTypes.Code) {
 			addr.AbsoluteKeypath(),
 		)
 		if err != nil {
-			if firmware.IsErrorAbort(err) {
+			if errp.Cause(err) == keystore.ErrSigningAborted {
 				log.WithError(err).Error("user aborted msg signing")
 				backend.aoppSetError(errAOPPSigningAborted)
 				return
