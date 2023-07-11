@@ -39,6 +39,7 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
   const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
   const { t } = useTranslation();
   const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
+  const onWalletConnect = () => route(`/account/${code}/wallet-connect`);
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {
@@ -56,6 +57,8 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
       <div className={styles.container}>
         {balanceList && <Button primary onClick={onReceiveCTA}>{formattedUnit ? t('receive.title', { accountName: formattedUnit }) : t('receive.title', { accountName: t('buy.info.crypto') })}</Button>}
         {exchangeBuySupported && <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>}
+        <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>
+        { code && code.includes('eth') && !code.includes('erc20') && <Button primary onClick={onWalletConnect} className={styles.walletConnect}>Wallet Connect</Button>}
       </div>
     </div>);
 };

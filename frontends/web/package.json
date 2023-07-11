@@ -15,6 +15,9 @@
     "typescript": "^4.4.2"
   },
   "dependencies": {
+    "@walletconnect/jsonrpc-types": "^1.0.3",
+    "@walletconnect/types": "^2.7.7",
+    "@walletconnect/web3wallet": "^1.7.5",
     "@zxing/library": "0.18.3",
     "flag-icons": "^6.6.6",
     "i18next": "21.6.16",

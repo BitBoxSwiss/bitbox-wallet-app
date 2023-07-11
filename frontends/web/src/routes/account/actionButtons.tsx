@@ -45,6 +45,11 @@ export const ActionButtons = ({ canSend, code, exchangeBuySupported }: TProps) =
           <span>{t('button.buy')}</span>
         </Link>
       )}
+      { code.includes('eth') && (
+        <Link key="wallet-connect" to={`/account/${code}/wallet-connect`} className={style.walletConnect}>
+          <span>Wallet Connect</span>
+        </Link>
+      )}
     </div>
   );
 };
