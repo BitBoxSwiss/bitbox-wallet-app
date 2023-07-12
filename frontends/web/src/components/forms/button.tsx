@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,34 @@ import { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { Link, LinkProps } from 'react-router-dom';
 import style from './button.module.css';
 
-type TProps = {
-    danger?: boolean;
-    disabled?: boolean;
-    primary?: boolean;
-    secondary?: boolean;
-    transparent?: boolean;
-    children: ReactNode;
+type TButtonStyleProp =
+  ({ danger: true } & Omit<TButtonStyleBase, 'danger'>)
+  | ({ primary: true } & Omit<TButtonStyleBase, 'primary'>)
+  | ({ secondary: true } & Omit<TButtonStyleBase, 'secondary'>)
+  | ({ transparent: true } & Omit<TButtonStyleBase, 'transparent'>)
+
+type TButtonStyleBase = {
+  danger?: false;
+  primary?: false;
+  secondary?: false;
+  transparent?: false;
+}
+
+type TProps = TButtonStyleProp & {
+  disabled?: boolean;
+  children: ReactNode;
 }
 
 export const ButtonLink = ({
-  primary = false,
-  secondary = false,
-  transparent = false,
-  danger = false,
+  primary,
+  secondary,
+  transparent,
+  danger,
   className = '',
   children,
   disabled,
   ...props
-}: TProps & LinkProps) => {
+}: LinkProps & TProps) => {
   const classNames = [
     style[
       (primary && 'primary')
@@ -68,10 +77,10 @@ export const ButtonLink = ({
 
 export const Button = ({
   type = 'button',
-  primary = false,
-  secondary = false,
-  transparent = false,
-  danger = false,
+  primary,
+  secondary,
+  transparent,
+  danger,
   className = '',
   children,
   ...props
