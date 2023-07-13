@@ -93,6 +93,7 @@ class ManageAccounts extends Component<Props, State> {
           </button>
           <Toggle
             checked={active}
+            className={style.toggle}
             id={account.code}
             onChange={(event) => {
               event.target.disabled = true;
@@ -173,6 +174,7 @@ class ManageAccounts extends Component<Props, State> {
           </div>
           <Toggle
             checked={active}
+            className={style.toggle}
             id={token.code}
             onChange={() => this.toggleToken(ethAccountCode, token.code, !active)} />
         </div>
