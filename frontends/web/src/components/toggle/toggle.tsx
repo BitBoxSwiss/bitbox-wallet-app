@@ -1,19 +1,15 @@
-import { ChangeEvent } from 'react';
 import style from './toggle.module.css';
 
-export type TToggleProps = {
-  checked: boolean;
-  className?: string;
-  disabled?: boolean;
-  id?: string;
-  name?: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  value?: string;
-};
+export type TToggleProps = JSX.IntrinsicElements['input']
 
-export const Toggle = (props: TToggleProps) => {
+export const Toggle = (
+  {
+    className = '',
+    ...props
+  }: TToggleProps
+) => {
   return (
-    <label className={style.container}>
+    <label className={`${style.container} ${className}`}>
       <input
         type="checkbox"
         {...props} />
