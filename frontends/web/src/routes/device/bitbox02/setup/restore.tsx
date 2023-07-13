@@ -50,7 +50,7 @@ export const RestoreFromSDCardBackup = ({
           onSelectBackup={onSelectBackup}
           onRestoreBackup={onRestoreBackup}>
           <Button
-            transparent
+            secondary
             onClick={onBack}>
             {t('button.back')}
           </Button>

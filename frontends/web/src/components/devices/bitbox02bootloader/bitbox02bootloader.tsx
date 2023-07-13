@@ -148,7 +148,7 @@ class BitBox02Bootloader extends Component<Props, State> {
             ) : null }
             { !versionInfo.erased && (
               <Button
-                transparent
+                secondary
                 onClick={this.reboot}>
                 {t('bb02Bootloader.abort', { context: !versionInfo.canUpgrade ? 'noUpgrade' : '' })}
               </Button>

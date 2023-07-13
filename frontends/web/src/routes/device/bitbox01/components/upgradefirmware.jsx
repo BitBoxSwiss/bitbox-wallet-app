@@ -99,7 +99,7 @@ class UpgradeFirmware extends Component {
                 <Button primary onClick={this.upgradeFirmware}>
                   {t('button.upgrade')}
                 </Button>
-                <Button transparent onClick={this.abort}>
+                <Button secondary onClick={this.abort}>
                   {t('button.back')}
                 </Button>
               </DialogButtons>

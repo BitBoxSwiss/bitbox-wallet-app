@@ -127,7 +127,7 @@ class Initialize extends Component<Props, State> {
             {t('button.continue')}
           </Button>
           <Button
-            transparent
+            secondary
             onClick={goBack}>
             {t('button.abort')}
           </Button>
@@ -150,7 +150,7 @@ class Initialize extends Component<Props, State> {
             {t('initialize.create')}
           </Button>
           <Button
-            transparent
+            secondary
             onClick={goBack}>
             {t('button.abort')}
           </Button>
