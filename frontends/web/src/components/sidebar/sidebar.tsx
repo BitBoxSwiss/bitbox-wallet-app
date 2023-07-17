@@ -23,7 +23,6 @@ import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-import { TSharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
 import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -33,6 +32,7 @@ import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
 import { isBitcoinOnly } from '../../routes/account/utils';
+import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
 
 interface SidebarProps {
@@ -44,6 +44,13 @@ interface SubscribedProps {
     keystores?: Array<{ type: 'hardware' | 'software' }>;
 }
 
+export type SharedPanelProps = {
+  // eslint-disable-next-line react/no-unused-prop-types
+  activeSidebar: boolean;
+  // eslint-disable-next-line react/no-unused-prop-types
+  sidebarStatus: string;
+}
+
 type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
 
 type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
@@ -53,6 +60,11 @@ interface SwipeAttributes {
     y: number;
     active?: boolean;
 }
+
+export const panelStore = new Store<SharedPanelProps>({
+  activeSidebar: false,
+  sidebarStatus: '',
+});
 
 export function toggleSidebar() {
   const toggled = !panelStore.state.activeSidebar;
@@ -151,7 +163,6 @@ class Sidebar extends Component<Props> {
       deviceIDs,
       accounts,
       keystores,
-      shown,
       activeSidebar,
       sidebarStatus,
     } = this.props;
@@ -160,7 +171,7 @@ class Sidebar extends Component<Props> {
     return (
       <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
         <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
-        <nav className={[style.sidebar, activeSidebar ? style.forceShow : '', shown ? style.withGuide : ''].join(' ')}>
+        <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
           <div className={style.sidebarLogoContainer}>
             <Link
               to={accounts.length ? '/account-summary' : '/'}

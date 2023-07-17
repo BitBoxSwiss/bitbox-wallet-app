@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { ReactNode, SyntheticEvent } from 'react';
+import { ReactNode, SyntheticEvent, useContext } from 'react';
 import { route } from '../../utils/route';
-import { hide } from '../guide/guide';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
+import AppContext from '../../contexts/AppContext';
 import style from './anchor.module.css';
 
 type TProps = {
@@ -28,12 +28,13 @@ type TProps = {
 }
 
 const A = ({ href, icon, children, ...props }: TProps) => {
+  const { setGuideShown } = useContext(AppContext);
   return (
     <span className={style.link} onClick={(e: SyntheticEvent) => {
       e.preventDefault();
       const { hostname, origin } = new URL(href, window.location.href);
       if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
-        hide();
+        setGuideShown(false);
         route(href);
       } else {
         apiPost('open', href).catch(console.error);

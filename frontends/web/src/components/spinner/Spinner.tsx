@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
 import { MenuDark } from '../icon';
+import AppContext from '../../contexts/AppContext';
 import style from './Spinner.module.css';
 
 type TProps = {
@@ -29,6 +29,8 @@ type TProps = {
 
 const Spinner = ({ text, guideExists }: TProps) => {
   const { t } = useTranslation();
+
+  const { toggleGuide } = useContext(AppContext);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     e.preventDefault();

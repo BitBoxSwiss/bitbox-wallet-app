@@ -14,86 +14,35 @@
  * limitations under the License.
  */
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { share } from '../../decorators/share';
-import { Store } from '../../decorators/store';
-import { translate, TranslateProps } from '../../decorators/translate';
-import { setConfig } from '../../utils/config';
-import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
 import { CloseXWhite } from '../icon';
+import AppContext from '../../contexts/AppContext';
 import style from './guide.module.css';
 
-export type TSharedProps = {
-    shown: boolean;
-    // eslint-disable-next-line react/no-unused-prop-types
-    activeSidebar: boolean;
-    // eslint-disable-next-line react/no-unused-prop-types
-    sidebarStatus: string;
-    // eslint-disable-next-line react/no-unused-prop-types
-    guideExists: boolean;
-}
-
-export type TProps = TSharedProps & {
+export type TProps = {
     children?: ReactNode;
 }
 
-export const store = new Store<TSharedProps>({
-  shown: false,
-  activeSidebar: false,
-  sidebarStatus: '',
-  guideExists: false,
-});
-
-// if apiGet() is invoked immediately this can error due to cyclic dependencies
-// request.js:64 Uncaught TypeError: Cannot read properties of undefined
-// (reading 'runningInQtWebEngine')
-// TODO: this should probably be in a context
-setTimeout(() => {
-  apiGet('config').then(({ frontend }) => {
-    if (frontend && frontend.guideShown !== undefined) {
-      store.setState({ shown: frontend.guideShown });
-    } else {
-      store.setState({ shown: true });
-    }
-  });
-}, 0);
-
-function setGuideShown(shown: boolean) {
-  store.setState({ shown });
-  setConfig({ frontend: { guideShown: shown } });
-}
-
-export function toggle() {
-  setGuideShown(!store.state.shown);
-}
-
-export function show() {
-  setGuideShown(true);
-}
-
-export function hide() {
-  setGuideShown(false);
-}
-
-const Guide = ({ shown, children }: TProps) => {
+const Guide = ({ children }: TProps) => {
+  const { guideShown, toggleGuide, setGuideExists } = useContext(AppContext);
 
   useEffect(() => {
-    store.setState({ guideExists: true });
+    setGuideExists(true);
     return () => {
-      store.setState({ guideExists: false });
+      setGuideExists(false);
     };
-  }, []);
+  }, [setGuideExists]);
 
   const { t } = useTranslation();
   return (
     <div className={style.wrapper}>
-      <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>
-      <div className={[style.guide, shown && style.show].join(' ')}>
+      <div className={[style.overlay, guideShown && style.show].join(' ')} onClick={toggleGuide}></div>
+      <div className={[style.guide, guideShown && style.show].join(' ')}>
         <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
           <h2>{t('guide.title')}</h2>
-          <a href="#" className={style.close} onClick={toggle}>
+          <a href="#" className={style.close} onClick={toggleGuide}>
             {t('guide.toggle.close')}
             <CloseXWhite />
           </a>
@@ -113,5 +62,4 @@ const Guide = ({ shown, children }: TProps) => {
   );
 };
 
-const HOC = translate()(share<TSharedProps, TranslateProps>(store)(Guide));
-export { HOC as Guide };
+export { Guide };
