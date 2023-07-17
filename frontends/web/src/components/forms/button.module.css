@@ -1,27 +1,25 @@
 .button {
     align-items: center;
-    border-width: 1px;
-    border-style: solid;
+    appearance: none;
     border-color: transparent;
     border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
     cursor: default;
     /* Otter doesn't like display: inline-flex; */
     display: inline-flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
     font-family: var(--font-family);
     font-size: var(--size-default);
     font-weight: 400;
     justify-content: center;
     min-width: 100px !important;
     height: 50px;
+    outline: none;
     padding: 0 var(--space-default);
     position: relative;
-    outline: none;
     text-align: center;
     text-decoration: none;
-    -webkit-appearance: none;
     transition: background-color .2s ease-out, color .2s ease-out;
     will-change: background-color, color;
 }
@@ -50,13 +48,13 @@
 
 .secondary:not([disabled]):focus,
 .secondary:not([disabled]):hover {
-    color: var(--color-blue);
     border-color: var(--color-blue);
+    color: var(--color-blue);
 }
 
 .secondary[disabled] {
-    color: var(--color-tertiary);
     border-color: var(--background-quaternary);
+    color: var(--color-tertiary);
 }
 
 .danger {
@@ -79,14 +77,14 @@
 .transparent {
     composes: button;
     background-color: transparent;
-    color: var(--color-blue);
     border-color: var(--color-blue);
+    color: var(--color-blue);
 }
 
 .transparent:not([disabled]):focus,
 .transparent:not([disabled]):hover {
-    color: var(--color-lightblue);
     border-color: var(--color-lightblue);
+    color: var(--color-lightblue);
 }
 
 .primary[disabled],

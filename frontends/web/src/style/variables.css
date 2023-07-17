@@ -144,7 +144,7 @@
         --background-secondary: var(--color-softblack);
         --background-dark: var(--color-softblack);
         --background-focus: var(--color-softblack);
-        --background-tertiary: var(--color-dark);
+        --background-tertiary: var(--color-gray);
         --background-quaternary: var(--color-dark);
         --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
@@ -170,7 +170,7 @@
         --background-secondary: var(--color-softblack);
         --background-dark: var(--color-softblack);
         --background-focus: var(--color-softblack);
-        --background-tertiary: var(--color-dark);
+        --background-tertiary: var(--color-gray);
         --background-quaternary: var(--color-dark);
         --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
