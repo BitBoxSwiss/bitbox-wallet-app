@@ -124,7 +124,7 @@ class HiddenWallet extends Component {
                   <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                     {t('button.hiddenwallet')}
                   </Button>
-                  <Button transparent onClick={this.abort} disabled={isConfirming}>
+                  <Button secondary onClick={this.abort} disabled={isConfirming}>
                     {t('button.abort')}
                   </Button>
                 </DialogButtons>

@@ -161,7 +161,7 @@ class Restore extends Component<Props, State> {
                     {t('button.restore')}
                   </Button>
                   <Button
-                    transparent
+                    secondary
                     onClick={this.abort}
                     disabled={isConfirming}>
                     {t('button.back')}

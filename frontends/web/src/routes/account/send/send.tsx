@@ -754,7 +754,7 @@ class Send extends Component<Props, State> {
                         {t('send.button')}
                       </Button>
                       <ButtonLink
-                        transparent
+                        secondary
                         to={`/account/${code}`}>
                         {t('button.back')}
                       </ButtonLink>

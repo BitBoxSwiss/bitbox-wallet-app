@@ -241,7 +241,7 @@ export const Receive = ({
                       forceVerification={forceVerification}
                       onClick={() => verifyAddress(currentAddressIndex)}/>
                     <ButtonLink
-                      transparent
+                      secondary
                       to={`/account/${code}`}>
                       {t('button.back')}
                     </ButtonLink>

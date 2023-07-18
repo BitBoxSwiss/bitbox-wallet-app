@@ -61,7 +61,7 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
               {t('button.ok')}
             </Button>
             <ButtonLink
-              transparent
+              secondary
               to={`/settings/device-settings/${deviceID}`}>
               {t('button.back')}
             </ButtonLink>

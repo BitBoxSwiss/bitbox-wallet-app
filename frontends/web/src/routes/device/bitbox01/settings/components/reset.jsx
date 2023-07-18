@@ -108,7 +108,7 @@ class Reset extends Component {
                 <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
                   {t('reset.title')}
                 </Button>
-                <Button transparent onClick={this.abort} disabled={isConfirming}>
+                <Button secondary onClick={this.abort} disabled={isConfirming}>
                   {t('button.back')}
                 </Button>
               </DialogButtons>

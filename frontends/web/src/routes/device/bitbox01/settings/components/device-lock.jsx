@@ -81,7 +81,7 @@ class DeviceLock extends Component {
                 <Button danger onClick={this.resetDevice}>
                   {t('deviceLock.confirm')}
                 </Button>
-                <Button transparent onClick={this.abort}>
+                <Button secondary onClick={this.abort}>
                   {t('button.back')}
                 </Button>
               </div>

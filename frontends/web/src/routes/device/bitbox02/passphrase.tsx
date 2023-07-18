@@ -147,7 +147,7 @@ class Passphrase extends Component<Props, State> {
             <Button primary onClick={this.continueInfo}>
               {t('passphrase.what.button')}
             </Button>
-            <Button transparent onClick={this.backInfo}>
+            <Button secondary onClick={this.backInfo}>
               {t('button.back')}
             </Button>
           </ViewButtons>
@@ -169,7 +169,7 @@ class Passphrase extends Component<Props, State> {
             <Button primary onClick={this.continueInfo}>
               {t('passphrase.why.button')}
             </Button>
-            <Button transparent onClick={this.backInfo}>
+            <Button secondary onClick={this.backInfo}>
               {t('button.back')}
             </Button>
           </ViewButtons>
@@ -191,7 +191,7 @@ class Passphrase extends Component<Props, State> {
             <Button primary onClick={this.continueInfo}>
               {t('passphrase.considerations.button')}
             </Button>
-            <Button transparent onClick={this.backInfo}>
+            <Button secondary onClick={this.backInfo}>
               {t('button.back')}
             </Button>
           </ViewButtons>
@@ -213,7 +213,7 @@ class Passphrase extends Component<Props, State> {
             <Button primary onClick={this.continueInfo}>
               {t('passphrase.how.button')}
             </Button>
-            <Button transparent onClick={this.backInfo}>
+            <Button secondary onClick={this.backInfo}>
               {t('button.back')}
             </Button>
           </ViewButtons>
@@ -235,7 +235,7 @@ class Passphrase extends Component<Props, State> {
             <Button primary onClick={this.continueInfo}>
               {t('passphrase.summary.button')}
             </Button>
-            <Button transparent onClick={this.backInfo}>
+            <Button secondary onClick={this.backInfo}>
               {t('button.back')}
             </Button>
           </ViewButtons>
@@ -270,7 +270,7 @@ class Passphrase extends Component<Props, State> {
             <Button primary onClick={this.continueInfo} disabled={!understood}>
               {t('passphrase.enable')}
             </Button>
-            <Button transparent onClick={this.backInfo}>
+            <Button secondary onClick={this.backInfo}>
               {t('button.back')}
             </Button>
           </ViewButtons>
@@ -299,7 +299,7 @@ class Passphrase extends Component<Props, State> {
           <Button primary onClick={this.continueInfo}>
             {t('passphrase.disableInfo.button')}
           </Button>
-          <Button transparent onClick={this.backInfo}>
+          <Button secondary onClick={this.backInfo}>
             {t('button.back')}
           </Button>
         </ViewButtons>

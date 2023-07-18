@@ -97,7 +97,7 @@ const UpgradeDialog = ({
             onClick={onUpgradeFirmware}>
             {t('button.upgrade')}
           </Button>
-          <Button transparent onClick={onClose}>
+          <Button secondary onClick={onClose}>
             {t('button.back')}
           </Button>
         </DialogButtons>
