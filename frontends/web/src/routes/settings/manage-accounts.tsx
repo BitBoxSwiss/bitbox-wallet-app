@@ -228,7 +228,7 @@ class ManageAccounts extends Component<Props, State> {
               title={
                 <>
                   <h2 className="hide-on-small">{t('settings.title')}</h2>
-                  <MobileHeader title={t('manageAccounts.title')} />
+                  <MobileHeader withGuide title={t('manageAccounts.title')} />
                 </>
               } />
             <View fullscreen={false}>
