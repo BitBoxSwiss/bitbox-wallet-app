@@ -315,6 +315,9 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
+	b.tstCheckAccountUsed = func(accounts.Interface) bool {
+		return false
+	}
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 
 	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, log *logrus.Entry) accounts.Interface {

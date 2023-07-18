@@ -188,6 +188,9 @@ type Backend struct {
 	etherScanHTTPClient *http.Client
 	ratesUpdater        *rates.RateUpdater
 	banners             *banners.Banners
+
+	// For unit tests, called when `backend.checkAccountUsed()` is called.
+	tstCheckAccountUsed func(accounts.Interface) bool
 }
 
 // NewBackend creates a new backend with the given arguments.
