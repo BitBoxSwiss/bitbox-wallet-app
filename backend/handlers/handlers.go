@@ -26,8 +26,10 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -102,6 +104,7 @@ type Backend interface {
 	AOPPChooseAccount(code accountsTypes.Code)
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
+	LookupInsuredAccounts(accountCode string) ([]types.Code, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -226,6 +229,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.getBitsuranceLookup).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
@@ -342,6 +347,7 @@ type activeToken struct {
 
 type accountJSON struct {
 	Active                bool               `json:"active"`
+	BitsuranceId          string             `json:"bitsuranceId"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
 	CoinName              string             `json:"coinName"`
@@ -352,11 +358,22 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
+func newAccountJSON(account accounts.Interface, activeTokens []activeToken, log *logrus.Entry) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
+	bitsuranceId := ""
+	if account.Config().Config.Insured {
+		id, err := bitsurance.BitsuranceGetId(account)
+		if err != nil {
+			log.WithError(err)
+		} else {
+			bitsuranceId = id
+		}
+	}
+
 	return &accountJSON{
 		Active:                !account.Config().Config.Inactive,
+		BitsuranceId:          bitsuranceId,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -535,7 +552,7 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 				})
 			}
 		}
-		accounts = append(accounts, newAccountJSON(account, activeTokens))
+		accounts = append(accounts, newAccountJSON(account, activeTokens, handlers.log))
 	}
 	return accounts
 }
@@ -1058,6 +1075,29 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient())
 }
 
+func (handlers *Handlers) getBitsuranceLookup(r *http.Request) interface{} {
+	type errorResult struct {
+		Error string `json:"error"`
+	}
+	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(r.URL.Query().Get("code"))
+	if err != nil {
+		handlers.log.Error(err)
+		return errorResult{Error: err.Error()}
+	}
+
+	return insuredAccounts
+}
+
+func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {
+	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
+	if len(lang) == 0 {
+		// userLanguage config is empty if the set locale matches the system locale, so we have
+		// to retrieve that.
+		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
+	}
+
+	return bitsurance.BitsuranceURL(lang, r.URL.Query().Get("code"))
+}
 func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	type exchangeDealsList struct {
 		Exchanges []exchanges.ExchangeDeals `json:"exchanges"`
@@ -1105,7 +1145,7 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
-		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// userLanguage config is empty if the set locale matches the system locale, so we have
 		// to retrieve that.
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
@@ -1130,7 +1170,7 @@ func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{
 func (handlers *Handlers) getExchangePocketURL(r *http.Request) interface{} {
 	lang := handlers.backend.Config().AppConfig().Backend.UserLanguage
 	if len(lang) == 0 {
-		// userLanguace config is empty if the set locale matches the system locale, so we have
+		// userLanguage config is empty if the set locale matches the system locale, so we have
 		// to retrieve that.
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}

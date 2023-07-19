@@ -29,6 +29,8 @@ type Account struct {
 	// Inactive is true if the account should not be loaded in the sidebar and portfolio. It will
 	// still be shown in 'Manage accounts'.
 	Inactive bool `json:"inactive"`
+	// Insured is true is the account is currently insured through the service offered by Bitsurance.
+	Insured bool `json:"insured"`
 	// HiddenBecauseUnused is true if the account should not loaded in the sidebar and portfolio,
 	// and not be shown in 'Manage accounts', because the account is unused (has no transaction
 	// history). This is used to facilitate automatic discovery of used accounts.
