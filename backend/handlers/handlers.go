@@ -1076,16 +1076,18 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getBitsuranceLookup(r *http.Request) interface{} {
-	type errorResult struct {
-		Error string `json:"error"`
+	type response struct {
+		Success      bool         `json:"success"`
+		ErrorMessage string       `json:"errorMessage"`
+		AccountCodes []types.Code `json:"accountCodes"`
 	}
 	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(r.URL.Query().Get("code"))
 	if err != nil {
 		handlers.log.Error(err)
-		return errorResult{Error: err.Error()}
+		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return insuredAccounts
+	return response{Success: true, AccountCodes: insuredAccounts}
 }
 
 func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {

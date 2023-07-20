@@ -1,0 +1,22 @@
+.insured {
+    padding: var(--space-eight) 10px;
+    border-radius: var(--space-half);
+    border: 1px solid;
+    font-size: var(--size-small);
+    line-height: 14px;
+    background: var(--color-palegreen);
+    border-color: var(--color-lightgreen);
+    color: var(--color-darkgreen);
+    margin: 0px 10px;
+}
+
+.insured img {
+  max-height: 14px;
+  margin-right: 5px;
+}
+
+@media (max-width: 382px) {
+    .insured {
+        font-size: 10px;
+    }
+}

@@ -6,6 +6,8 @@
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
     "initializing": "Getting information from the blockchain…",
+    "insuranceExpired": "<strong>Account no longer insured</strong>\n\nThe insurance plan for this account has been cancelled.\nIf this is not what you expected, please contact support.",
+    "insured": "Insured account",
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
     "syncedAddressesCount": "Scanned {{count}} addresses"
@@ -1450,6 +1452,7 @@
     "addAccount": "Add account",
     "buy": "Buy crypto",
     "device": "Manage device",
+    "insurance": "Insurance",
     "leave": "Leave",
     "settings": "Settings"
   },

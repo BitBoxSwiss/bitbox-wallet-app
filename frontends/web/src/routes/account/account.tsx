@@ -18,27 +18,29 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useLoad } from '../../hooks/api';
 import * as accountApi from '../../api/account';
-import { syncAddressesCount, statusChanged, syncdone } from '../../api/accountsync';
+import { statusChanged, syncAddressesCount, syncdone } from '../../api/accountsync';
+import { bitsuranceLookup } from '../../api/bitsurance';
 import { TDevices } from '../../api/devices';
 import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
-import { useSDCard } from '../../hooks/sdcard';
-import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
 import { alertUser } from '../../components/alert/Alert';
 import { Balance } from '../../components/balance/balance';
-import { AccountGuide } from './guide';
 import { HeadersSync } from '../../components/headerssync/headerssync';
-import { Header } from '../../components/layout';
 import { Info } from '../../components/icon';
+import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { Status } from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
+import { useLoad } from '../../hooks/api';
+import { useSDCard } from '../../hooks/sdcard';
 import { apiGet } from '../../utils/request';
+import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
+import style from './account.module.css';
+import { ActionButtons } from './actionButtons';
+import { Insured } from './components/insuredtag';
+import { AccountGuide } from './guide';
 import { BuyReceiveCTA } from './info/buyReceiveCTA';
 import { isBitcoinBased } from './utils';
-import { ActionButtons } from './actionButtons';
-import style from './account.module.css';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -58,12 +60,34 @@ export function Account({
   const [syncedAddressesCount, setSyncedAddressesCount] = useState<number>();
   const [transactions, setTransactions] = useState<accountApi.TTransactions>();
   const [usesProxy, setUsesProxy] = useState<boolean>();
+  const [insured, setInsured] = useState<boolean>(false);
   const [stateCode, setStateCode] = useState<string>();
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
 
+  const account = accounts && accounts.find(acct => acct.code === code);
+
+  const maybeCheckBitsuranceStatus = useCallback(async () => {
+    if (account?.bitsuranceId) {
+      const insuredAccounts = await bitsuranceLookup(code);
+      if (!insuredAccounts.success) {
+        alertUser(insuredAccounts.errorMessage || t('genericError'));
+        return;
+      }
+      if (!insuredAccounts.accountCodes.includes(code)) {
+        alertUser(t('account.insuranceExpired'));
+        setInsured(false);
+      } else {
+        setInsured(true);
+      }
+    } else {
+      setInsured(false);
+    }
+  }, [t, account, code]);
+
   useEffect(() => {
+    maybeCheckBitsuranceStatus();
     apiGet('config').then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
-  }, []);
+  }, [maybeCheckBitsuranceStatus]);
 
   const hasCard = useSDCard(devices, [code]);
 
@@ -155,7 +179,6 @@ export function Account({
 
   const hasDataLoaded = balance !== undefined && transactions !== undefined;
 
-  const account = accounts && accounts.find(acct => acct.code === code);
   if (stateCode !== code) {
     // Sync code property with stateCode to work around a re-render that
     // happens briefly before `setStatus(undefined)` stops rendering again below.
@@ -207,7 +230,7 @@ export function Account({
           {t('warning.sdcard')}
         </Status>
         <Header
-          title={<h2><span>{account.name}</span></h2>}>
+          title={<h2><span>{account.name}</span>{insured && (<Insured/>)}</h2>}>
           <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
