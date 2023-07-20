@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +15,8 @@
  * limitations under the License.
  */
 
-import { ReactNode, SyntheticEvent, useContext } from 'react';
-import { route } from '../../utils/route';
-import { debug } from '../../utils/env';
+import { ReactNode, SyntheticEvent } from 'react';
 import { apiPost } from '../../utils/request';
-import AppContext from '../../contexts/AppContext';
 import style from './anchor.module.css';
 
 type TProps = {
@@ -27,18 +25,16 @@ type TProps = {
     [property: string]: any;
 }
 
-const A = ({ href, icon, children, ...props }: TProps) => {
-  const { setGuideShown } = useContext(AppContext);
+const A = ({
+  href,
+  icon,
+  children,
+  ...props
+}: TProps) => {
   return (
     <span className={style.link} onClick={(e: SyntheticEvent) => {
       e.preventDefault();
-      const { hostname, origin } = new URL(href, window.location.href);
-      if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
-        setGuideShown(false);
-        route(href);
-      } else {
-        apiPost('open', href).catch(console.error);
-      }
+      apiPost('open', href).catch(console.error);
     }} title={props.title || href} {...props}>
       {icon ? icon : null}
       {children}

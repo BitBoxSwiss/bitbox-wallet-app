@@ -416,9 +416,8 @@ class Transaction extends Component<Props, State> {
             <div className={[style.detail, 'flex-center'].join(' ')}>
               <p>
                 <A
-                  className={style.externalLink}
                   href={explorerURL + transactionInfo.txID}
-                  title={t('transaction.explorerTitle') + '\n' + explorerURL + transactionInfo.txID}>
+                  title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
                   {t('transaction.explorerTitle')}
                 </A>
               </p>
