@@ -23,7 +23,7 @@ import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
-import A from '../../../components/anchor/anchor';
+import { A } from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';

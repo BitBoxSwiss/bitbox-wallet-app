@@ -17,8 +17,8 @@
 import { useTranslation } from 'react-i18next';
 import { i18n } from '../../i18n/i18n';
 import { URL_CONSTANTS } from '../../utils/url_constants';
-import A from '../anchor/anchor';
 import { Button } from '../forms';
+import { A } from '../anchor/anchor';
 
 export const downloadLinkByLanguage = () => {
   const language = i18n.language;

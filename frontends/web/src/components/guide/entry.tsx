@@ -15,7 +15,7 @@
  */
 
 import { FunctionComponent, useState } from 'react';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
 import style from './guide.module.css';
 
 export type TEntryProp = {

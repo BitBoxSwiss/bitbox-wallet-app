@@ -19,7 +19,7 @@ import React, { Component, createRef } from 'react';
 import * as accountApi from '../../api/account';
 import { Input } from '../../components/forms';
 import { translate, TranslateProps } from '../../decorators/translate';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
 import { CopyableInput } from '../copy/Copy';
 import { Edit, EditLight, ExpandIcon, Save, SaveLight } from '../icon/icon';

@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBanner, syncBanner, TBannerInfo } from '../../api/banners';
 import { Status } from '../status/status';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
 
 type TBannerProps = {
   msgKey: 'bitbox01' | 'bitbox02';

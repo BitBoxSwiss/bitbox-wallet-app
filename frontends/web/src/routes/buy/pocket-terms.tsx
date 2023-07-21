@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { ChangeEvent } from 'react';
 import { Button, Checkbox } from '../../components/forms';
 import { setConfig } from '../../utils/config';
-import A from '../../components/anchor/anchor';
+import { A } from '../../components/anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {

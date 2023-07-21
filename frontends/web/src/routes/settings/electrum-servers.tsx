@@ -22,8 +22,8 @@ import { TElectrumServer } from './types';
 import { getDefaultConfig } from '../../api/backend';
 import { getConfig, setConfig } from '../../utils/config';
 import { confirmation } from '../../components/confirm/Confirm';
+import { A } from '../../components/anchor/anchor';
 import style from './electrum.module.css';
-import A from '../../components/anchor/anchor';
 
 type Props = {
   coin: 'btc' | 'tbtc' | 'ltc' | 'tltc';

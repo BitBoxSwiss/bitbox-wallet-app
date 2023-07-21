@@ -25,7 +25,7 @@ type TProps = {
     [property: string]: any;
 }
 
-const A = ({
+export const A = ({
   href,
   icon,
   children,
@@ -41,5 +41,3 @@ const A = ({
     </span>
   );
 };
-
-export default A;

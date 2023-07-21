@@ -17,7 +17,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { TTransactions } from '../../api/account';
-import A from '../../components/anchor/anchor';
+import { A } from '../../components/anchor/anchor';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
 import style from './transactions.module.css';

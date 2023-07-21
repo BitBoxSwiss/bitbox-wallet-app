@@ -16,7 +16,7 @@
 
 import { ReactNode, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
 import { CloseXWhite } from '../icon';
 import AppContext from '../../contexts/AppContext';
 import style from './guide.module.css';
