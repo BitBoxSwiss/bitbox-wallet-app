@@ -20,9 +20,11 @@ import { apiPost } from '../../utils/request';
 import style from './anchor.module.css';
 
 type TProps = {
-    href: string;
-    children: ReactNode;
-    [property: string]: any;
+  children: ReactNode;
+  className?: string;
+  href: string;
+  icon?: ReactNode;
+  title?: string;
 }
 
 export const A = ({

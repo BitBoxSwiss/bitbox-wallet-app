@@ -22,7 +22,7 @@ import { TElectrumServer } from './types';
 import { getDefaultConfig } from '../../api/backend';
 import { getConfig, setConfig } from '../../utils/config';
 import { confirmation } from '../../components/confirm/Confirm';
-import { A } from '../../components/anchor/anchor';
+import { Button } from '../../components/forms';
 import style from './electrum.module.css';
 
 type Props = {
@@ -82,9 +82,14 @@ export const ElectrumServers = ({
   return (
     <div className={style.serversContainer}>
       <div className="row">
-        <div className={['flex flex-row flex-between flex-items-center', style.titleContainer].join(' ')}>
-          <h4 className="subTitle m-none">{t('settings.electrum.servers')}</h4>
-          <A href="#" className={['labelLarge labelLink', style.resetLink].join(' ')} onClick={resetToDefault}>{t('settings.electrum.reset')}</A>
+        <div className="flex flex-row flex-between flex-items-center">
+          <h4 className="subTitle">{t('settings.electrum.servers')}</h4>
+          <Button
+            transparent
+            className={style.resetLink}
+            onClick={resetToDefault}>
+            {t('settings.electrum.reset')}
+          </Button>
         </div>
         <ul className={style.servers}>
           {

@@ -23,7 +23,6 @@ import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
-import { A } from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
@@ -590,7 +589,12 @@ class Send extends Component<Props, State> {
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
                   { coinControl && (
-                    <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
+                    <Button
+                      className="m-bottom-default"
+                      transparent
+                      onClick={this.toggleCoinControl}>
+                      {t('send.toggleCoinControl')}
+                    </Button>
                   )}
                 </div>
                 <Grid col="1">
