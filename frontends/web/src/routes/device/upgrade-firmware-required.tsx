@@ -36,14 +36,17 @@ export const FirmwareUpgradeRequired = ({
       <View
         fullscreen
         verticallyCentered
+        textCenter
         width="840px"
         withBottomBar>
         <ViewHeader title={t('upgradeFirmware.label')} />
         <ViewButtons>
-          <FirmwareSetting
-            asButton
-            deviceID={deviceID}
-            versionInfo={versionInfo} />
+          <div>
+            <FirmwareSetting
+              asButton
+              deviceID={deviceID}
+              versionInfo={versionInfo} />
+          </div>
         </ViewButtons>
       </View>
     </Main>
