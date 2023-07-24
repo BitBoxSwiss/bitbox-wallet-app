@@ -52,6 +52,12 @@ export function AccountsSummary({
 
   const hasCard = useSDCard(devices);
 
+  useEffect(() => {
+    return () => {
+      firstRender.current = false;
+    };
+  }, []);
+
   const getAccountSummary = async () => {
     // replace previous timer if present
     if (summaryReqTimerID.current) {
@@ -114,9 +120,6 @@ export function AccountsSummary({
   useEffect(() => {
     getAccountSummary();
     getAccountsTotalBalance();
-    return () => {
-      firstRender.current = false;
-    };
   }, []);
 
   // update the timer to get a new account summary update when receiving the previous call result.
