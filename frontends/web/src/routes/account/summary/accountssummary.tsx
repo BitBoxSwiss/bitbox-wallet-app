@@ -46,7 +46,6 @@ export function AccountsSummary({
 }: TProps) {
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
-  const firstRender = useRef(true);
   const mounted = useMountedRef();
 
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
@@ -54,12 +53,6 @@ export function AccountsSummary({
   const [balances, setBalances] = useState<Balances>();
 
   const hasCard = useSDCard(devices);
-
-  useEffect(() => {
-    return () => {
-      firstRender.current = false;
-    };
-  }, []);
 
   const getAccountSummary = useCallback(async () => {
     // replace previous timer if present
@@ -91,7 +84,6 @@ export function AccountsSummary({
 
   const onStatusChanged = useCallback(async (
     code: string,
-    initial: boolean = false,
   ) => {
     if (!mounted.current) {
       return;
@@ -111,11 +103,7 @@ export function AccountsSummary({
       ...prevBalances,
       [code]: balance
     }));
-    if (initial || !mounted.current) {
-      return;
-    }
-    getAccountsTotalBalance();
-  }, [mounted, getAccountsTotalBalance]);
+  }, [mounted]);
 
   const update = useCallback((code: string) => {
     if (mounted.current) {
@@ -151,9 +139,10 @@ export function AccountsSummary({
   // update subscriptions on account change.
   useEffect(() => {
     accounts.forEach(account => {
-      onStatusChanged(account.code, firstRender.current); // TODO: check if firstRender is needed
+      onStatusChanged(account.code);
     });
-  }, [onStatusChanged, accounts]);
+    getAccountsTotalBalance();
+  }, [onStatusChanged, getAccountsTotalBalance, accounts]);
 
   return (
     <div className="contentWithGuide">
