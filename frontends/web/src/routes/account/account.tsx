@@ -119,11 +119,7 @@ export function Account({
   useEffect(() => {
     unsubscribe(subscriptions.current);
     subscriptions.current.push(
-      syncAddressesCount(code, (givenCode, addressesSynced) => {
-        if (givenCode === code) {
-          setSyncedAddressesCount(addressesSynced);
-        }
-      }),
+      syncAddressesCount(code)(setSyncedAddressesCount),
       statusChanged((eventCode) => eventCode === code && onStatusChanged()),
       // TODO: check if code is really needed in onAccountChanged or if it could just take code from prop
       syncdone((eventCode) => eventCode === code && onAccountChanged(code, status)),
