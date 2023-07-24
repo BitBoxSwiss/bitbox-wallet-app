@@ -590,7 +590,7 @@ class Send extends Component<Props, State> {
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
                   { coinControl && (
                     <Button
-                      className="m-bottom-default"
+                      className="m-bottom-quarter p-right-none"
                       transparent
                       onClick={this.toggleCoinControl}>
                       {t('send.toggleCoinControl')}

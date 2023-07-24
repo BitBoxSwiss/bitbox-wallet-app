@@ -52,7 +52,9 @@ const Guide = ({ children }: TProps) => {
           <div className={style.entry}>
             {t('guide.appendix.text')}
             {' '}
-            <A href="https://bitbox.swiss/support/">{t('guide.appendix.link')}</A>
+            <A className={style.link} href="https://bitbox.swiss/support/">
+              {t('guide.appendix.link')}
+            </A>
             <br />
             <br />
           </div>

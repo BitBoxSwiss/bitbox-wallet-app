@@ -27,9 +27,9 @@ import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
 import { ArrowIn, ArrowOut, ArrowSelf } from './components/icons';
-import style from './transaction.module.css';
-import parentStyle from './transactions.module.css';
 import { getDarkmode } from '../darkmode/darkmode';
+import parentStyle from './transactions.module.css';
+import style from './transaction.module.css';
 
 interface State {
     transactionDialog: boolean;
@@ -414,13 +414,11 @@ class Transaction extends Component<Props, State> {
               </div>
             </div>
             <div className={[style.detail, 'flex-center'].join(' ')}>
-              <p>
-                <A
-                  href={explorerURL + transactionInfo.txID}
-                  title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
-                  {t('transaction.explorerTitle')}
-                </A>
-              </p>
+              <A
+                href={explorerURL + transactionInfo.txID}
+                title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
+                {t('transaction.explorerTitle')}
+              </A>
             </div>
           </> }
         </Dialog>
