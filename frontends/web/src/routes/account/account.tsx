@@ -119,7 +119,6 @@ export function Account({
     const subscriptions = [
       syncAddressesCount(code)(setSyncedAddressesCount),
       statusChanged((eventCode) => eventCode === code && onStatusChanged()),
-      // TODO: check if code is really needed in onAccountChanged or if it could just take code from prop
       syncdone((eventCode) => eventCode === code && onAccountChanged(code, status)),
     ];
     return () => unsubscribe(subscriptions);

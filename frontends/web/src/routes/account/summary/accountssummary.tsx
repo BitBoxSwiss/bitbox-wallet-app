@@ -136,7 +136,6 @@ export function AccountsSummary({
     };
   }, [summaryData, getAccountSummary]);
 
-  // update subscriptions on account change.
   useEffect(() => {
     accounts.forEach(account => {
       onStatusChanged(account.code);
