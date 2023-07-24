@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import { TDevices } from '../../../api/devices';
+import { useMountedRef } from '../../../hooks/mount';
 import { useSDCard } from '../../../hooks/sdcard';
 import { Status } from '../../../components/status/status';
 import { Header } from '../../../components/layout';
@@ -45,6 +46,7 @@ export function AccountsSummary({
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
   const firstRender = useRef(true);
+  const mounted = useMountedRef();
 
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [totalBalancePerCoin, setTotalBalancePerCoin] = useState<accountApi.ITotalBalance>();
@@ -58,46 +60,61 @@ export function AccountsSummary({
     };
   }, []);
 
-  const getAccountSummary = async () => {
+  const getAccountSummary = useCallback(async () => {
     // replace previous timer if present
     if (summaryReqTimerID.current) {
       window.clearTimeout(summaryReqTimerID.current);
     }
     try {
       const summaryData = await accountApi.getSummary();
+      if (!mounted.current) {
+        return;
+      }
       setSummaryData(summaryData);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [mounted]);
 
-  const getAccountsTotalBalance = async () => {
+  const getAccountsTotalBalance = useCallback(async () => {
     try {
       const totalBalance = await accountApi.getAccountsTotalBalance();
+      if (!mounted.current) {
+        return;
+      }
       setTotalBalancePerCoin(totalBalance);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [mounted]);
 
-  const onStatusChanged = useCallback(async (code: string, initial: boolean = false) => {
+  const onStatusChanged = useCallback(async (
+    code: string,
+    initial: boolean = false,
+  ) => {
+    if (!mounted.current) {
+      return;
+    }
     const status = await accountApi.getStatus(code);
-    if (status.disabled) {
+    if (status.disabled || !mounted.current) {
       return;
     }
     if (!status.synced) {
       return accountApi.init(code);
     }
     const balance = await accountApi.getBalance(code);
+    if (!mounted.current) {
+      return;
+    }
     setBalances((prevBalances) => ({
       ...prevBalances,
       [code]: balance
     }));
-    if (initial) {
+    if (initial || !mounted.current) {
       return;
     }
     getAccountsTotalBalance();
-  }, []);
+  }, [mounted, getAccountsTotalBalance]);
 
   const onEvent = useCallback((payload: TPayload) => {
     if ('type' in payload) {
@@ -114,13 +131,13 @@ export function AccountsSummary({
         }
       }
     }
-  }, [onStatusChanged]);
+  }, [getAccountSummary, onStatusChanged]);
 
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
     getAccountSummary();
     getAccountsTotalBalance();
-  }, []);
+  }, [getAccountSummary, getAccountsTotalBalance]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
@@ -133,7 +150,7 @@ export function AccountsSummary({
         window.clearTimeout(summaryReqTimerID.current);
       }
     };
-  }, [summaryData]);
+  }, [summaryData, getAccountSummary]);
 
   // update subscriptions on account change.
   useEffect(() => {
