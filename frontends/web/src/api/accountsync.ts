@@ -52,12 +52,11 @@ export const syncAddressesCount = (
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  code: string,
   cb: (code: string) => void,
 ): TUnsubscribe => {
   const unsubscribe = subscribeLegacy('statusChanged', event => {
-    if (event.type === 'account' && event.code === code) {
-      cb(code);
+    if (event.type === 'account' && event.code) {
+      cb(event.code);
     }
   });
   return unsubscribe;
@@ -68,12 +67,11 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  code: string,
   cb: (code: string) => void,
 ): TUnsubscribe => {
   return subscribeLegacy('syncdone', event => {
-    if (event.type === 'account' && event.code === code) {
-      cb(code);
+    if (event.type === 'account' && event.code) {
+      cb(event.code);
     }
   });
 };
