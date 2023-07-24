@@ -18,8 +18,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { apiWebsocket, TPayload } from '../../../utils/websocket';
 import { TDevices } from '../../../api/devices';
+import { statusChanged, syncdone } from '../../../api/accountsync';
+import { unsubscribe } from '../../../utils/subscriptions';
 import { useMountedRef } from '../../../hooks/mount';
 import { useSDCard } from '../../../hooks/sdcard';
 import { Status } from '../../../components/status/status';
@@ -116,28 +117,23 @@ export function AccountsSummary({
     getAccountsTotalBalance();
   }, [mounted, getAccountsTotalBalance]);
 
-  const onEvent = useCallback((payload: TPayload) => {
-    if ('type' in payload) {
-      const { code, data, type } = payload;
-      if (type === 'account') {
-        switch (data) {
-        case 'statusChanged':
-        case 'syncdone':
-          if (code) {
-            onStatusChanged(code);
-          }
-          getAccountSummary();
-          break;
-        }
-      }
+  const update = useCallback((code: string) => {
+    if (mounted.current) {
+      onStatusChanged(code);
+      getAccountSummary();
     }
-  }, [getAccountSummary, onStatusChanged]);
+  }, [getAccountSummary, mounted, onStatusChanged]);
 
   // fetch accounts summary and balance on the first render.
   useEffect(() => {
+    const subscriptions = [
+      statusChanged(update),
+      syncdone(update)
+    ];
     getAccountSummary();
     getAccountsTotalBalance();
-  }, [getAccountSummary, getAccountsTotalBalance]);
+    return () => unsubscribe(subscriptions);
+  }, [getAccountSummary, getAccountsTotalBalance, update]);
 
   // update the timer to get a new account summary update when receiving the previous call result.
   useEffect(() => {
@@ -154,12 +150,10 @@ export function AccountsSummary({
 
   // update subscriptions on account change.
   useEffect(() => {
-    const unsubscribe = apiWebsocket(onEvent);
     accounts.forEach(account => {
-      onStatusChanged(account.code, firstRender.current);
+      onStatusChanged(account.code, firstRender.current); // TODO: check if firstRender is needed
     });
-    return () => unsubscribe();
-  }, [onStatusChanged, onEvent, accounts]);
+  }, [onStatusChanged, accounts]);
 
   return (
     <div className="contentWithGuide">
