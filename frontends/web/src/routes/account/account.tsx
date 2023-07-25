@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useLoad } from '../../hooks/api';
@@ -24,7 +24,7 @@ import { syncAddressesCount, statusChanged, syncdone } from '../../api/accountsy
 import { TDevices } from '../../api/devices';
 import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
 import { useSDCard } from '../../hooks/sdcard';
-import { unsubscribe, UnsubscribeList } from '../../utils/subscriptions';
+import { unsubscribe } from '../../utils/subscriptions';
 import { alertUser } from '../../components/alert/Alert';
 import { Balance } from '../../components/balance/balance';
 import { AccountGuide } from './guide';
@@ -115,20 +115,13 @@ export function Account({
       .catch(console.error);
   }, [onAccountChanged, code]);
 
-  const subscriptions = useRef<UnsubscribeList>([]);
   useEffect(() => {
-    unsubscribe(subscriptions.current);
-    subscriptions.current.push(
-      syncAddressesCount(code, (givenCode, addressesSynced) => {
-        if (givenCode === code) {
-          setSyncedAddressesCount(addressesSynced);
-        }
-      }),
-      statusChanged(code, () => onStatusChanged()),
-      syncdone(code, () => onAccountChanged(code, status)),
-    );
-    const unsubscribeList = subscriptions.current;
-    return () => unsubscribe(unsubscribeList);
+    const subscriptions = [
+      syncAddressesCount(code)(setSyncedAddressesCount),
+      statusChanged((eventCode) => eventCode === code && onStatusChanged()),
+      syncdone((eventCode) => eventCode === code && onAccountChanged(code, status)),
+    ];
+    return () => unsubscribe(subscriptions);
   }, [code, onAccountChanged, onStatusChanged, status]);
 
   function exportAccount() {
