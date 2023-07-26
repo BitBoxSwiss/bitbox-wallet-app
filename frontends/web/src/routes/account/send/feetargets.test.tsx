@@ -77,6 +77,7 @@ describe('routes/account/send/feetargets', () => {
             RUB: '0.88',
             SEK: '0.1',
             SGD: '32233',
+            ZAR: '0.06',
             USD: '0.02',
             BTC: '0.02',
           },

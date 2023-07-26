@@ -51,6 +51,7 @@ describe('components/balance/balance', () => {
           RUB: '512',
           SEK: '512',
           SGD: '512',
+          ZAR: '512',
           USD: '512',
         }
       }
