@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Display the wallet root fingerprint in the account info and device settings
+- Add support for Nigerian Naira (NGN)
 
 ## 4.38.0
 - Bundle BitBox02 firmware version v9.14.1

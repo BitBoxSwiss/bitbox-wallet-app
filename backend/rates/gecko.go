@@ -101,6 +101,7 @@ var (
 		"SEK": "sek",
 		"PLN": "pln",
 		"CZK": "czk",
+		"NGN": "ngn",
 	}
 
 	// Copied from https://api.coingecko.com/api/v3/simple/supported_vs_currencies.
@@ -125,5 +126,6 @@ var (
 		"sek": "SEK",
 		"pln": "PLN",
 		"czk": "CZK",
+		"ngn": "NGN",
 	}
 )

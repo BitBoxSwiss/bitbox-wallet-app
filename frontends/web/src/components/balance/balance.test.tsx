@@ -45,6 +45,7 @@ describe('components/balance/balance', () => {
           ILS: '512',
           JPY: '512',
           KRW: '512',
+          NGN: '512',
           NOK: '512',
           PLN: '512',
           RUB: '512',
