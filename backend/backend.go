@@ -610,7 +610,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if _, ok := backend.devices[deviceID]; ok {
+	if device, ok := backend.devices[deviceID]; ok {
 		backend.onDeviceUninit(deviceID)
 		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
@@ -622,6 +622,13 @@ func (backend *Backend) Deregister(deviceID string) {
 			Subject: "devices/registered",
 			Action:  action.Reload,
 		})
+		switch device.ProductName() {
+		case bitbox.ProductName:
+			backend.banners.Deactivate(banners.KeyBitBox01)
+		case bitbox02.ProductName:
+			backend.banners.Deactivate(banners.KeyBitBox02)
+		}
+
 	}
 }
 
