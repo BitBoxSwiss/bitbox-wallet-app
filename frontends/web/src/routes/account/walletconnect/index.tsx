@@ -275,8 +275,9 @@ export const WalletConnect = ({
         supportedNamespaces: {
           eip155: {
             chains: SUPPORTED_CHAINS,
-            methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData'],
+            methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
             // TODO: handle emitting accountsChanged events
+            // TODO: handle emitting chainChanged event, we need to have a chain selector in the app to support other networks in dapps properly
             events: ['accountsChanged', 'chainChanged'],
             accounts: accounts
           },

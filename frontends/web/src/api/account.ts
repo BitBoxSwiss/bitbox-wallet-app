@@ -342,10 +342,10 @@ export const ethSignMessage = (code: AccountCode, message: string): Promise<TSig
   return apiPost(`account/${code}/eth-sign-msg`, message);
 };
 
-export const ethSignTypedMessage = (code: AccountCode, chainId: any, data: any): Promise<TSignMessage> => {
+export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: any): Promise<TSignMessage> => {
   return apiPost(`account/${code}/eth-sign-typed-msg`, { chainId, data });
 };
 
-export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: any, tx: any): Promise<TSignWalletConnectTx> => {
+export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };

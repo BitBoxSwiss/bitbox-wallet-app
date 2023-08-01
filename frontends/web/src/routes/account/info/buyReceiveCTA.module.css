@@ -17,3 +17,7 @@
 .walletConnect {
     margin-left: var(--space-half);
 }
+
+.walletConnect span {
+    margin-left: var(--space-eight);
+}

@@ -97,7 +97,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccWalletConnect = <InjectParams>
     <WalletConnect
       code={'' /* dummy to satisfy TS */}
-      // accounts={activeAccounts}
     />
   </InjectParams>;
 
