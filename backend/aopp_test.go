@@ -298,39 +298,40 @@ func TestAOPPFailures(t *testing.T) {
 	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 	dummySignature := []byte(`signature`)
-	ks := keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return []byte{0x55, 0x055, 0x55, 0x55}, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
+	makeKeystore := func() *keystoremock.KeystoreMock {
+		return &keystoremock.KeystoreMock{
+			RootFingerprintFunc: func() ([]byte, error) {
+				return []byte{0x55, 0x055, 0x55, 0x55}, nil
+			},
+			SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
+				switch coin.(type) {
+				case *btc.Coin:
+					scriptType := meta.(signing.ScriptType)
+					return scriptType != signing.ScriptTypeP2PKH
+				default:
+					return true
+				}
+			},
+			SupportsUnifiedAccountsFunc: func() bool {
 				return true
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		CanSignMessageFunc: func(coinpkg.Code) bool {
-			return true
-		},
-		SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
-			require.Equal(t, dummyMsg, string(message))
-			return dummySignature, nil
-		},
-		SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-			require.Equal(t, dummyMsg, string(message))
-			return dummySignature, nil
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+			},
+			SupportsMultipleAccountsFunc: func() bool {
+				return true
+			},
+			CanSignMessageFunc: func(coinpkg.Code) bool {
+				return true
+			},
+			SignBTCMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath, scriptType signing.ScriptType) ([]byte, error) {
+				require.Equal(t, dummyMsg, string(message))
+				return dummySignature, nil
+			},
+			SignETHMessageFunc: func(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+				require.Equal(t, dummyMsg, string(message))
+				return dummySignature, nil
+			},
+			ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
+		}
 	}
-
 	t.Run("wrong_version", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
@@ -383,11 +384,11 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		b.HandleURI("aopp:?" + params.Encode())
 		b.AOPPApprove()
-		ks2 := ks
-		ks2.CanSignMessageFunc = func(coinpkg.Code) bool {
+		ks := makeKeystore()
+		ks.CanSignMessageFunc = func(coinpkg.Code) bool {
 			return false
 		}
-		b.registerKeystore(&ks2)
+		b.registerKeystore(ks)
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPUnsupportedKeystore, b.AOPP().ErrorCode)
 	})
@@ -395,7 +396,7 @@ func TestAOPPFailures(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 		params := defaultParams()
-		b.registerKeystore(&ks)
+		b.registerKeystore(makeKeystore())
 		require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 		b.HandleURI("aopp:?" + params.Encode())
 		b.AOPPApprove()
@@ -409,7 +410,7 @@ func TestAOPPFailures(t *testing.T) {
 		params.Set("format", "p2pkh")
 		b.HandleURI("aopp:?" + params.Encode())
 		b.AOPPApprove()
-		b.registerKeystore(&ks)
+		b.registerKeystore(makeKeystore())
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPUnsupportedFormat, b.AOPP().ErrorCode)
 	})
@@ -419,11 +420,11 @@ func TestAOPPFailures(t *testing.T) {
 		params := defaultParams()
 		b.HandleURI("aopp:?" + params.Encode())
 		b.AOPPApprove()
-		ks2 := ks
-		ks2.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType) ([]byte, error) {
+		ks := makeKeystore()
+		ks.SignBTCMessageFunc = func([]byte, signing.AbsoluteKeypath, signing.ScriptType) ([]byte, error) {
 			return nil, firmware.NewError(firmware.ErrUserAbort, "")
 		}
-		b.registerKeystore(&ks2)
+		b.registerKeystore(ks)
 		b.AOPPChooseAccount("v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPSigningAborted, b.AOPP().ErrorCode)
@@ -441,7 +442,7 @@ func TestAOPPFailures(t *testing.T) {
 		params.Set("callback", server.URL)
 		b.HandleURI("aopp:?" + params.Encode())
 		b.AOPPApprove()
-		b.registerKeystore(&ks)
+		b.registerKeystore(makeKeystore())
 		b.AOPPChooseAccount("v0-55555555-btc-0")
 		require.Equal(t, aoppStateError, b.AOPP().State)
 		require.Equal(t, errAOPPCallback, b.AOPP().ErrorCode)
