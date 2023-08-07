@@ -196,7 +196,7 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 // In case of updates of the insurance status of any account, the new status is persisted and the
 // accounts are reinitialized.
 // It returns a slice of insured account codes.
-func (backend *Backend) LookupInsuredAccounts(accountCode string) ([]types.Code, error) {
+func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([]types.Code, error) {
 	insuredAccounts := []types.Code{}
 	var accountList []accounts.Interface
 

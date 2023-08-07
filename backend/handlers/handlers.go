@@ -102,9 +102,9 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
-	GetAccountFromCode(code string) (accounts.Interface, error)
+	GetAccountFromCode(code accountsTypes.Code) (accounts.Interface, error)
 	HTTPClient() *http.Client
-	LookupInsuredAccounts(accountCode string) ([]types.Code, error)
+	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]types.Code, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -1060,7 +1060,7 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 		Error string `json:"error"`
 	}
 
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		handlers.log.Error(err)
 		return errorResult{Error: err.Error()}
@@ -1081,7 +1081,7 @@ func (handlers *Handlers) getBitsuranceLookup(r *http.Request) interface{} {
 		ErrorMessage string       `json:"errorMessage"`
 		AccountCodes []types.Code `json:"accountCodes"`
 	}
-	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(r.URL.Query().Get("code"))
+	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(accountsTypes.Code(r.URL.Query().Get("code")))
 	if err != nil {
 		handlers.log.Error(err)
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -1118,7 +1118,7 @@ func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{},
 		Exchanges []string `json:"exchanges"`
 	}
 
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return nil, err
 	}
@@ -1140,7 +1140,7 @@ func (handlers *Handlers) getExchangeBuySupported(r *http.Request) (interface{},
 }
 
 func (handlers *Handlers) getExchangeMoonpayBuyInfo(r *http.Request) (interface{}, error) {
-	acct, err := handlers.backend.GetAccountFromCode(mux.Vars(r)["code"])
+	acct, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return nil, err
 	}
@@ -1189,8 +1189,8 @@ func (handlers *Handlers) postPocketWidgetVerifyAddress(r *http.Request) interfa
 	}
 
 	var request struct {
-		AccountCode string `json:"accountCode"`
-		Address     string `json:"address"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Address     string             `json:"address"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
@@ -1224,9 +1224,9 @@ func (handlers *Handlers) postPocketWidgetSignAddress(r *http.Request) interface
 	}
 
 	var request struct {
-		AccountCode string `json:"accountCode"`
-		Msg         string `json:"msg"`
-		Format      string `json:"format"`
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Msg         string             `json:"msg"`
+		Format      string             `json:"format"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
