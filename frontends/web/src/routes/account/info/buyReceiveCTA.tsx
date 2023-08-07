@@ -44,7 +44,7 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
-  const onWalletConnect = () => route(`/account/${code}/wallet-connect`);
+  const onWalletConnect = () => route(`/account/${code}/wallet-connect/connect`);
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {

@@ -1,0 +1,13 @@
+.formContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.formContainer p.label {
+    margin-bottom: var(--space-half);
+}
+
+.formButtonsContainer {
+    display: flex;
+    justify-content: space-between;
+}
