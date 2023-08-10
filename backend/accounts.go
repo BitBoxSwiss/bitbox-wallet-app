@@ -614,7 +614,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
 ) error {
-	log := backend.log.WithField("code", code).WithField("name", name)
+	log := backend.log.WithField("code", code)
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
 		if keystore.SupportsAccount(coin, cfg.scriptType) {
