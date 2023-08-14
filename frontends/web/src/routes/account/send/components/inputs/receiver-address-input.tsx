@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, SyntheticEvent, useContext, useRef } from 'react';
+import { ChangeEvent, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
@@ -33,7 +33,6 @@ type TToggleScanQRButtonProps = {
 type TReceiverAddressInputProps = {
     accountCode?: string;
     addressError?: string;
-    onClickSendToSelfButton: (e: SyntheticEvent, receiveAddress: string) => void;
     onInputChange: (value: string) => void;
     recipientAddress: string;
     activeScanQR: boolean;
@@ -53,7 +52,6 @@ export const ReceiverAddressInput = ({
   accountCode,
   addressError,
   onInputChange,
-  onClickSendToSelfButton,
   recipientAddress,
   activeScanQR,
   parseQRResult,
@@ -68,14 +66,14 @@ export const ReceiverAddressInput = ({
     parseQRResult
   });
 
-  const handleSendToSelf = async (event: SyntheticEvent) => {
+  const handleSendToSelf = async () => {
     if (!accountCode) {
       return;
     }
     try {
       const receiveAddresses = await getReceiveAddressList(accountCode)();
       if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-        onClickSendToSelfButton(event, receiveAddresses[0].addresses[0].address);
+        onInputChange(receiveAddresses[0].addresses[0].address);
       }
     } catch (e) {
       console.error(e);
