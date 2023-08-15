@@ -39,6 +39,10 @@
         flex-direction: column-reverse;
         gap: var(--space-quarter);
     }
+
+    .buttonsContainer button {
+        height: calc(var(--space-quarter) + var(--space-default))
+    }
     
     .container p.connectionRequest {
         text-align: center;

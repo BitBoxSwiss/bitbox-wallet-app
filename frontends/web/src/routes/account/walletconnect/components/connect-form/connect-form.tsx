@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FormEvent, SetStateAction } from 'react';
+import { SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '../../../../../components/forms';
 import { route } from '../../../../../utils/route';
@@ -25,14 +25,17 @@ type TWCConnectFormProps = {
     code: string;
     uri: string;
     onInputChange: (value: SetStateAction<string>) => void;
-    onSubmit: (event: FormEvent<HTMLFormElement>, uri: string) => void;
+    onSubmit: (uri: string) => void;
 }
 
 export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnectFormProps) => {
   const { t } = useTranslation();
   return (
     <div className={styles.formContainer}>
-      <form onSubmit={(e) => onSubmit(e, uri)}>
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(uri);
+      }}>
         <p className={styles.label}>{t('walletConnect.connect.dappLabel')}</p>
         <Input
           value={uri}
@@ -46,10 +49,10 @@ export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnect
             {t('dialog.cancel')}
           </Button>
           <Button
-            type={'submit'}
+            type="submit"
             primary
           >
-            Connect
+            {t('walletConnect.connect.button')}
           </Button>
         </div>
       </form>

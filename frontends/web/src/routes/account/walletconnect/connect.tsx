@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLoad } from '../../../hooks/api';
 import * as accountApi from '../../../api/account';
 import { Header, Main } from '../../../components/layout';
@@ -25,7 +25,8 @@ import { View, ViewContent } from '../../../components/view/view';
 import { WCHeader } from './components/header/header';
 import { WCConnectForm } from './components/connect-form/connect-form';
 import { TConnectStatus } from './types';
-import { WCIncomingPairing } from './components/incoming-pairing/incomingpairing';
+import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairing';
+import { WCSuccessPairing } from './components/success-pairing/success-pairing';
 import styles from './connect.module.css';
 
 type TProps = {
@@ -51,26 +52,27 @@ export const ConnectScreenWalletConnect = ({
   );
 
   useEffect(() => {
-    web3wallet?.on('session_proposal', onSessionProposal);
-    return () => {
-      web3wallet?.off('session_proposal', onSessionProposal);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onSessionProposal, web3wallet]);
+    if (initialized) {
+      web3wallet?.on('session_proposal', onSessionProposal);
+      return () => {
+        web3wallet?.off('session_proposal', onSessionProposal);
+      };
+    }
+  }, [onSessionProposal, initialized]);
 
   const handleApprovePairingStates = () => {
-    setStatus('connect'); // TODO: Set this to the successful / approved pairing state and show the success / approved pairing UI according to mocukup.
+    setStatus('success');
     setUri('');
     setCurrentProposal(undefined);
   };
 
-  function handleRejectPairingStates() {
+  const handleRejectPairingStates = () => {
     setStatus('connect');
     setUri('');
     setCurrentProposal(undefined);
-  }
+  };
 
-  const onConnect = async (uri: string) => {
+  const handleConnect = async (uri: string) => {
     try {
       await pair({ uri });
     } catch (err: any) {
@@ -78,11 +80,6 @@ export const ConnectScreenWalletConnect = ({
     } finally {
       setUri('');
     }
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>, uri: string) => {
-    event.preventDefault();
-    onConnect(uri);
   };
 
   if (!receiveAddresses || !initialized) {
@@ -107,9 +104,8 @@ export const ConnectScreenWalletConnect = ({
               code={code}
               uri={uri}
               onInputChange={setUri}
-              onSubmit={handleSubmit}
+              onSubmit={handleConnect}
             />}
-
             {(status === 'incoming_pairing' && currentProposal) &&
               <WCIncomingPairing
                 currentProposal={currentProposal}
@@ -119,6 +115,7 @@ export const ConnectScreenWalletConnect = ({
                 onReject={handleRejectPairingStates}
               />
             }
+            {status === 'success' && <WCSuccessPairing accountCode={code} />}
           </div>
         </ViewContent>
       </View>

@@ -18,8 +18,9 @@ import { useTranslation } from 'react-i18next';
 import { CoreTypes, SignClientTypes } from '@walletconnect/types';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import { Button } from '../../../../../components/forms';
+import { alertUser } from '../../../../../components/alert/Alert';
 import { SUPPORTED_CHAINS, web3wallet } from '../../utils';
-import styles from './incomingpairing.module.css';
+import styles from './incoming-pairing.module.css';
 
 type TIncomingPairingProps = {
     currentProposal: SignClientTypes.EventArguments['session_proposal'];
@@ -51,35 +52,38 @@ export const WCIncomingPairing = ({
   onReject,
   onApprove
 }: TIncomingPairingProps) => {
+  const { t } = useTranslation();
   const handleApprovePairing = async () => {
-    const { id, params } = currentProposal;
-    const { requiredNamespaces } = params;
-    const accounts: string[] = [];
-    Object.keys(requiredNamespaces).forEach(key => {
-      requiredNamespaces[key].chains?.map(chain => accounts.push(`${chain}:${receiveAddress}`));
-    });
+    try {
+      const { id, params } = currentProposal;
+      const { requiredNamespaces } = params;
+      const eipList = Object.values(requiredNamespaces);
+      const accounts = eipList.flatMap(eip => eip.chains?.map(chain => `${chain}:${receiveAddress}`) || []);
 
-    // ------- namespaces builder util ------------ //
-    const approvedNamespaces = buildApprovedNamespaces({
-      proposal: params,
-      supportedNamespaces: {
-        eip155: {
-          chains: SUPPORTED_CHAINS,
-          methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
-          // TODO: handle emitting accountsChanged events
-          // TODO: handle emitting chainChanged event, we need to have a chain selector in the app to support other networks in dapps properly
-          events: ['accountsChanged', 'chainChanged'],
-          accounts
+      // buildApprovedNamespaces is a
+      // utility function by @walletconnect
+      const namespaces = buildApprovedNamespaces({
+        proposal: params,
+        supportedNamespaces: {
+          eip155: {
+            chains: SUPPORTED_CHAINS,
+            methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
+            events: ['accountsChanged', 'chainChanged'],
+            accounts
+          },
         },
-      },
-    });
+      });
 
-    await web3wallet?.approveSession({
-      id,
-      namespaces: approvedNamespaces
-    });
+      await web3wallet?.approveSession({
+        id,
+        namespaces
+      });
 
-    onApprove();
+      onApprove();
+    } catch (e) {
+      alertUser(t('walletConnect.invalidPairingChain', { chains: '\n•Ethereum \n•Optimism \n•BSC \n•Polygon \n•Fantom \n•Arbitrum One' }));
+      console.error(e);
+    }
   };
 
   const handleRejectPairing = async () => {
@@ -90,7 +94,6 @@ export const WCIncomingPairing = ({
     onReject();
   };
 
-  const { t } = useTranslation();
   return (
     <div className={styles.container}>
       <p className={styles.connectionRequest}>{t('walletConnect.pairingRequest.title')}:</p>
