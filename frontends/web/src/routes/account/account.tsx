@@ -197,7 +197,8 @@ export function Account({
   const actionButtonsProps = {
     code,
     canSend,
-    exchangeBuySupported
+    exchangeBuySupported,
+    account
   };
 
   return (
@@ -237,6 +238,7 @@ export function Account({
                 exchangeBuySupported={exchangeBuySupported}
                 unit={balance.available.unit}
                 balanceList={[[code, balance]]}
+                account={account}
               />
             )}
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
