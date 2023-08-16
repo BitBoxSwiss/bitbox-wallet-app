@@ -724,8 +724,7 @@ func (backend *Backend) HandleURI(uri string) {
 
 // GetAccountFromCode takes an account code as input and returns the corresponding accounts.Interface object,
 // if found. It also initialize the account before returning it.
-func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, error) {
-	acctCode := accountsTypes.Code(code)
+func (backend *Backend) GetAccountFromCode(acctCode accountsTypes.Code) (accounts.Interface, error) {
 	// TODO: Refactor to make use of a map.
 	var acct accounts.Interface
 	for _, a := range backend.Accounts() {

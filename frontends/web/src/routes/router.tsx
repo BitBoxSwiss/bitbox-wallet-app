@@ -22,6 +22,7 @@ import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { Bitsurance } from './bitsurance/bitsurance';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -177,6 +178,9 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       <Route path="passphrase/:deviceID" element={PassphraseEl} />
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+      <Route path="bitsurance">
+        <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
+      </Route>
       <Route path="settings">
         <Route index element={MobileSettingsEl} />
         <Route path="appearance" element={AppearanceEl} />

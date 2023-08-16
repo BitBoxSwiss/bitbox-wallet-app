@@ -20,6 +20,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
+import shieldIcon from '../../assets/icons/shield_grey.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
@@ -219,6 +220,18 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null }
+          <div key="insurance" className={style.sidebarItem}>
+            <NavLink
+              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              to="/bitsurance/bitsurance"
+            >
+              <div className={style.single}>
+                <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+              </div>
+              <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
+            </NavLink>
+          </div>
+
           <div key="settings-new" className={style.sidebarItem}>
             <NavLink
               className={({ isActive }) => isActive ? style.sidebarActive : ''}
