@@ -166,7 +166,7 @@ class SeedCreateNew extends Component {
             {t('seed.info.button')}
           </Button>
           <Button
-            transparent
+            secondary
             onClick={goBack}>
             {t('button.abort')}
           </Button>
@@ -219,7 +219,7 @@ class SeedCreateNew extends Component {
             {t('seed.create')}
           </Button>
           <Button
-            transparent
+            secondary
             onClick={goBack}>
             {t('button.abort')}
           </Button>

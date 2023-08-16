@@ -128,8 +128,7 @@ class Restore extends Component<Props, State> {
     return (
       <span>
         <Button
-          danger={requireConfirmation}
-          primary={!requireConfirmation}
+          {...(requireConfirmation ? { danger: true } : { primary: true })}
           disabled={!selectedBackup}
           onClick={() => this.setState({ activeDialog: true })}>
           {t('button.restore')}
@@ -157,13 +156,12 @@ class Restore extends Component<Props, State> {
                 <DialogButtons>
                   <Button
                     type="submit"
-                    danger={requireConfirmation}
-                    primary={!requireConfirmation}
+                    {...(requireConfirmation ? { danger: true } : { primary: true })}
                     disabled={!understand || !this.validate() || isConfirming}>
                     {t('button.restore')}
                   </Button>
                   <Button
-                    transparent
+                    secondary
                     onClick={this.abort}
                     disabled={isConfirming}>
                     {t('button.back')}

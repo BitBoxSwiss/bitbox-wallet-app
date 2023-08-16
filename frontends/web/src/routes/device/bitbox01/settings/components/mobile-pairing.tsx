@@ -231,7 +231,7 @@ class MobilePairing extends Component<Props, State> {
                 }
               </div>
               <DialogButtons>
-                <Button transparent onClick={this.abort}>
+                <Button secondary onClick={this.abort}>
                   {t('button.back')}
                 </Button>
               </DialogButtons>

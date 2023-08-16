@@ -233,13 +233,13 @@ export const AddAccount = () => {
                 <Button
                   onClick={back}
                   hidden={step === 'success'}
-                  transparent>
+                  secondary>
                   {t('button.back')}
                 </Button>
                 <Button
                   onClick={handleAddAnotherAccount}
                   hidden={step !== 'success'}
-                  transparent>
+                  secondary>
                   {t('addAccount.success.addAnotherAccount')}
                 </Button>
               </div>

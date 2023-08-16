@@ -122,7 +122,7 @@ class SeedRestore extends Component {
                         {t('button.continue')}
                       </Button>
                       <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.abort')}
                       </Button>
@@ -135,7 +135,7 @@ class SeedRestore extends Component {
                     requireConfirmation={false}
                     onRestore={onSuccess}>
                     <Button
-                      transparent
+                      secondary
                       onClick={goBack}>
                       {t('button.abort')}
                     </Button>

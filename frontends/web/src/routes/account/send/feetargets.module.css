@@ -101,7 +101,7 @@ select.priority {
     margin-top: 0;
 }
 
-.feeDescription {
+.feeProposed {
     margin: 0;
 }
 
@@ -117,5 +117,5 @@ select.priority {
     padding-right: var(--space-half);
     position: absolute;
     right: 0;
-    width: 56px;
+    width: auto;
 }

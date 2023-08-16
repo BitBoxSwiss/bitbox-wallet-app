@@ -151,7 +151,7 @@ export const SetupOptions = ({
                     setWith12Words(false);
                     setAdvanced(false);
                   }}
-                  transparent>
+                  secondary>
                   {t('button.back')}
                 </Button>
               </ColumnButtons>
@@ -213,13 +213,13 @@ export const SetupOptions = ({
             <ColumnButtons>
               <Button
                 onClick={() => onSelectSetup('restore-sdcard')}
-                transparent>
+                secondary>
                 {t('bitbox02Wizard.stepUninitialized.restoreMicroSD')}
               </Button>
               <Button
                 onClick={() => onSelectSetup('restore-mnemonic')}
                 style={{ marginBottom: '40px' }}
-                transparent>
+                secondary>
                 {t('bitbox02Wizard.stepUninitialized.restoreMnemonic')}
               </Button>
             </ColumnButtons>

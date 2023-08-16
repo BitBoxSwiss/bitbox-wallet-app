@@ -5,7 +5,7 @@ import { ButtonLink, Button } from './button';
 describe('components/forms/button', () => {
   describe('ButtonLink', () => {
     it('renders as button when disabled with disabled attribute', () => {
-      render(<ButtonLink to="/settings" disabled>A ButtonLink</ButtonLink>);
+      render(<ButtonLink primary to="/settings" disabled>A ButtonLink</ButtonLink>);
       expect(screen.getByRole('button', { name: /A ButtonLink/i })).toHaveAttribute('disabled');
     });
 

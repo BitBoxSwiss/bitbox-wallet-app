@@ -39,7 +39,7 @@ class ManageBackups extends Component {
   backButton = () => {
     return (
       <ButtonLink
-        transparent
+        secondary
         to={`/settings/device-settings/${this.props.deviceID}`}>
         {this.props.t('button.back')}
       </ButtonLink>

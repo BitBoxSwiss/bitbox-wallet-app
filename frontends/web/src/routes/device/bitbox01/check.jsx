@@ -101,7 +101,7 @@ class Check extends Component {
                 <div>
                   <p style={{ minHeight: '3rem' }}>{message}</p>
                   <div className={style.actions}>
-                    <Button transparent onClick={this.abort}>
+                    <Button secondary onClick={this.abort}>
                       {t('button.back')}
                     </Button>
                   </div>
@@ -117,7 +117,7 @@ class Check extends Component {
                     <Button type="submit" primary disabled={!this.validate()}>
                       {t('button.check')}
                     </Button>
-                    <Button transparent onClick={this.abort}>
+                    <Button secondary onClick={this.abort}>
                       {t('button.back')}
                     </Button>
                   </div>

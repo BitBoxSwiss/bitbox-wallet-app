@@ -110,7 +110,7 @@ class Create extends Component {
                   <Button type="submit" primary disabled={waiting || !this.validate()}>
                     {t('button.create')}
                   </Button>
-                  <Button transparent onClick={this.abort}>
+                  <Button secondary onClick={this.abort}>
                     {t('button.abort')}
                   </Button>
                 </div>

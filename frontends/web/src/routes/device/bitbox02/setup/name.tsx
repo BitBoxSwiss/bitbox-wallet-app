@@ -85,7 +85,7 @@ export const SetDeviceName = ({
           </Button>
           <Button
             onClick={onBack}
-            transparent
+            secondary
             type="button">
             {t('button.back')}
           </Button>

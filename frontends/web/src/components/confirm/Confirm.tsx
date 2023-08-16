@@ -81,7 +81,7 @@ export const Confirm = () => {
     </div>
     <DialogButtons>
       <Button primary onClick={() => respond(true)}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
-      <Button transparent onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
+      <Button secondary onClick={() => respond(false)}>{t('dialog.cancel')}</Button>
     </DialogButtons>
   </DialogLegacy>;
 };

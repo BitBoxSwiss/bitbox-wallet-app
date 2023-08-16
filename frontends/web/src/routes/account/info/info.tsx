@@ -91,7 +91,7 @@ export const Info = ({
                 info={config}
                 signingConfigIndex={viewXPub}>
                 <ButtonLink
-                  transparent
+                  secondary
                   to={`/account/${code}`}>
                   {t('button.back')}
                 </ButtonLink>

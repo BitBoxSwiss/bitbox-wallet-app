@@ -78,7 +78,7 @@ class SecurityInformation extends Component<Props, State> {
                         {t('button.continue')}
                       </Button>
                       <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.abort')}
                       </Button>
@@ -100,7 +100,7 @@ class SecurityInformation extends Component<Props, State> {
                         {t('button.continue')}
                       </Button>
                       <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.abort')}
                       </Button>

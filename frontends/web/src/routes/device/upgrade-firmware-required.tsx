@@ -1,5 +1,4 @@
 /**
- * Copyright 2018 Shift Devices AG
  * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +15,20 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { View, ViewButtons, ViewHeader } from './view/view';
-import { AppDownloadButton } from './appdownloadlink/appdownloadlink';
-import { Header, Main } from './layout';
+import { VersionInfo } from '../../api/bitbox02';
+import { View, ViewButtons, ViewHeader } from '../../components/view/view';
+import { Header, Main } from '../../components/layout';
+import { FirmwareSetting } from '../settings/components/device-settings/firmware-setting';
 
-export const AppUpgradeRequired = () => {
+type TProps = {
+  deviceID: string;
+  versionInfo: VersionInfo;
+}
+
+export const FirmwareUpgradeRequired = ({
+  deviceID,
+  versionInfo,
+}: TProps) => {
   const { t } = useTranslation();
   return (
     <Main>
@@ -28,11 +36,17 @@ export const AppUpgradeRequired = () => {
       <View
         fullscreen
         verticallyCentered
+        textCenter
         width="840px"
         withBottomBar>
-        <ViewHeader title={t('device.appUpradeRequired')} />
+        <ViewHeader title={t('upgradeFirmware.label')} />
         <ViewButtons>
-          <AppDownloadButton />
+          <div>
+            <FirmwareSetting
+              asButton
+              deviceID={deviceID}
+              versionInfo={versionInfo} />
+          </div>
         </ViewButtons>
       </View>
     </Main>

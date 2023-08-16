@@ -48,8 +48,7 @@ export const ToggleShowFirmwareHash = ({ deviceID }: Props) => {
       <Toggle
         checked={enabledState}
         id="togggle-show-firmware-hash"
-        onChange={handleToggle}
-        className="text-medium" />
+        onChange={handleToggle} />
     </div>
   );
 };

@@ -614,7 +614,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
 ) error {
-	log := backend.log.WithField("code", code).WithField("name", name)
+	log := backend.log.WithField("code", code)
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
 		if keystore.SupportsAccount(coin, cfg.scriptType) {
@@ -1061,6 +1061,11 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 }
 
 func (backend *Backend) checkAccountUsed(account accounts.Interface) {
+	if backend.tstCheckAccountUsed != nil {
+		if !backend.tstCheckAccountUsed(account) {
+			return
+		}
+	}
 	log := backend.log.WithField("accountCode", account.Config().Config.Code)
 	if err := account.Initialize(); err != nil {
 		log.WithError(err).Error("error initializing account")
@@ -1071,7 +1076,10 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		log.WithError(err).Error("discoverAccount")
 		return
 	}
+
 	if len(txs) == 0 {
+		// Invoke this here too because even if an account is unused, we scan up to 5 accounts.
+		backend.maybeAddHiddenUnusedAccounts()
 		return
 	}
 	log.Info("marking account as used")

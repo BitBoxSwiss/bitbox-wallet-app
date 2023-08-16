@@ -239,7 +239,7 @@ export const Receive = ({
                       {t('receive.verifyBitBox02')}
                     </Button>
                     <ButtonLink
-                      transparent
+                      secondary
                       to={`/account/${code}`}>
                       {t('button.back')}
                     </ButtonLink>

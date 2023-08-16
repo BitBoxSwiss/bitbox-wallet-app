@@ -110,3 +110,12 @@
     font-weight: 400;
     margin-top: 0;
 }
+
+.spinnerAnimationContainer {
+    align-items: center;
+    display: flex;
+    height: 0;
+    justify-content: center;
+    position: relative;
+    top: calc(300px / 2) /*300px is the height of video element in ScanQRDialog*/
+}

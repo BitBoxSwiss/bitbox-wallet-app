@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+*
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-import style from './toggle.module.css';
+import { Dispatch, SetStateAction, createContext } from 'react';
 
-export type TToggleProps = JSX.IntrinsicElements['input']
+type AppContextProps = {
+    guideShown: boolean;
+    guideExists: boolean;
+    setGuideExists: Dispatch<SetStateAction<boolean>>;
+    setGuideShown: Dispatch<SetStateAction<boolean>>;
+    toggleGuide: () => void;
+}
 
-export const Toggle = (
-  {
-    className = '',
-    ...props
-  }: TToggleProps
-) => {
-  return (
-    <label className={`${style.container} ${className}`}>
-      <input
-        type="checkbox"
-        {...props} />
-      <span className={style.slider}></span>
-    </label>
-  );
-};
+const AppContext = createContext<AppContextProps>({} as AppContextProps);
+
+export default AppContext;

@@ -27,7 +27,7 @@ import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
-import { store as panelStore } from './components/guide/guide';
+import { panelStore } from './components/sidebar/sidebar';
 import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
@@ -37,6 +37,7 @@ import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
+import { AppProvider } from './contexts/AppProvider';
 
  interface State {
      accounts: IAccount[];
@@ -184,31 +185,34 @@ class App extends Component<Props, State> {
     const activeAccounts = this.activeAccounts();
     return (
       <ConnectedApp>
-        <DarkModeProvider>
-          <Darkmode />
-          <div className="app">
-            <Sidebar
-              accounts={activeAccounts}
-              deviceIDs={deviceIDs} />
-            <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
-              <Update />
-              <Banner msgKey="bitbox01" />
-              <Banner msgKey="bitbox02" />
-              <MobileDataWarning />
-              <Aopp />
-              <AppRouter
-                accounts={accounts}
-                activeAccounts={activeAccounts}
+        <AppProvider>
+          <DarkModeProvider>
+            <Darkmode />
+            <div className="app">
+              <Sidebar
+                accounts={activeAccounts}
                 deviceIDs={deviceIDs}
-                devices={devices}
-                devicesKey={this.devicesKey}
               />
-              <RouterWatcher onChange={this.handleRoute} />
+              <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
+                <Update />
+                <Banner msgKey="bitbox01" />
+                <Banner msgKey="bitbox02" />
+                <MobileDataWarning />
+                <Aopp />
+                <AppRouter
+                  accounts={accounts}
+                  activeAccounts={activeAccounts}
+                  deviceIDs={deviceIDs}
+                  devices={devices}
+                  devicesKey={this.devicesKey}
+                />
+                <RouterWatcher onChange={this.handleRoute} />
+              </div>
+              <Alert />
+              <Confirm />
             </div>
-            <Alert />
-            <Confirm />
-          </div>
-        </DarkModeProvider>
+          </DarkModeProvider>
+        </AppProvider>
       </ConnectedApp>
     );
   }

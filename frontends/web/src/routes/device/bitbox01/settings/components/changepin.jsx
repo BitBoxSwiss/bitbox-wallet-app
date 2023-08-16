@@ -117,7 +117,7 @@ class ChangePIN extends Component {
                   <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                     {t('button.changepin')}
                   </Button>
-                  <Button transparent onClick={this.abort} disabled={isConfirming}>
+                  <Button secondary onClick={this.abort} disabled={isConfirming}>
                     {t('button.back')}
                   </Button>
                 </DialogButtons>
