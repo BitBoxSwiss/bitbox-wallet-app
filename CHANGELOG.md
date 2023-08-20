@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Bundle BitBox02 firmware version v9.15.0
 - Display the wallet root fingerprint in the account info and device settings
 
 ## 4.38.0
