@@ -89,6 +89,8 @@ type Account struct {
 	// if not nil, SendTx() will sign and send this transaction. Set by TxProposal().
 	activeTxProposal *TxProposal
 
+	// quitChan is used to send a quit signal to the accounts long running routines that
+	// should listen to it.
 	quitChan chan struct{}
 
 	log *logrus.Entry
