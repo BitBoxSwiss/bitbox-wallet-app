@@ -71,6 +71,8 @@ type Account struct {
 	initialized     bool
 	initializedLock locker.Locker
 
+	closed bool
+
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
 	// interval.
 	enqueueUpdateCh chan struct{}
@@ -137,7 +139,7 @@ func (account *Account) FilesFolder() string {
 
 func (account *Account) isClosed() bool {
 	defer account.initializedLock.RLock()()
-	return account.quitChan == nil
+	return account.closed
 }
 
 func (account *Account) isInitialized() bool {
@@ -156,7 +158,7 @@ func (account *Account) Initialize() error {
 	}
 
 	defer account.initializedLock.Lock()()
-	if account.quitChan == nil {
+	if account.closed {
 		return errp.New("Initialize: account was closed, init only works once.")
 	}
 	if account.initialized {
@@ -447,7 +449,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	close(account.quitChan)
-	account.quitChan = nil
+	account.closed = true
 	account.Config().OnEvent(accountsTypes.EventStatusChanged)
 }
 
