@@ -21,7 +21,7 @@ import { ChangeEvent } from 'react';
 import { Button, Checkbox } from '../../components/forms';
 import { setConfig } from '../../utils/config';
 import { IAccount } from '../../api/account';
-import A from '../../components/anchor/anchor';
+import { A } from '../../components/anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {
@@ -84,7 +84,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         </h2>
         <p>{t('buy.info.disclaimer.security.description', { name })}</p>
         <p>
-          <A className={style.link} href="https://bitbox.swiss/bitbox02/threat-model/">
+          <A href="https://bitbox.swiss/bitbox02/threat-model/">
             {t('buy.info.disclaimer.security.link')}
           </A>
         </p>
@@ -93,7 +93,7 @@ export const MoonpayTerms = ({ account, onAgreedTerms }: TProps) => {
         </h2>
         <p>{t('buy.info.disclaimer.protection.description', { name })}</p>
         <p>
-          <A className={style.link} href="https://www.moonpay.com/privacy_policy">
+          <A href="https://www.moonpay.com/privacy_policy">
             {t('buy.info.disclaimer.privacyPolicy')}
           </A>
         </p>

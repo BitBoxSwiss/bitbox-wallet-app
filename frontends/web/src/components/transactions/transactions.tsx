@@ -17,9 +17,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { TTransactions } from '../../api/account';
-import A from '../../components/anchor/anchor';
 import { runningInAndroid } from '../../utils/env';
 import { Transaction } from './transaction';
+import { Button } from '../forms';
 import style from './transactions.module.css';
 
 type TProps = {
@@ -48,9 +48,12 @@ export const Transactions = ({
           {t('accountSummary.transactionHistory')}
         </label>
         { !csvExportDisabled && (
-          <A key="export" href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>
+          <Button
+            transparent
+            onClick={handleExport}
+            title={t('account.exportTransactions')}>
             {t('account.export')}
-          </A>
+          </Button>
         ) }
       </div>
       <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
