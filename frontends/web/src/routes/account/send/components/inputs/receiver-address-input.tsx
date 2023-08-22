@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, SyntheticEvent, useContext, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, SyntheticEvent, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
@@ -23,7 +23,7 @@ import { Input } from '../../../../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
 import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
 import { BrowserQRCodeReader } from '@zxing/library';
-import { alertUser } from '../../../../../components/alert/Alert';
+import { useQRCodeScanner } from '../../../../../hooks/qrcodescanner';
 import style from '../../send.module.css';
 
 type TToggleScanQRButtonProps = {
@@ -60,51 +60,13 @@ export const ReceiverAddressInput = ({
   onChangeActiveScanQR
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
-  const [hasCamera, setHasCamera] = useState(false);
   const qrCodeReader = useRef<BrowserQRCodeReader>();
-
-  useEffect(() => {
-    import('../../../../../components/qrcode/qrreader')
-      .then(({ BrowserQRCodeReader }) => {
-        if (!qrCodeReader.current) {
-          qrCodeReader.current = new BrowserQRCodeReader();
-        }
-
-        qrCodeReader.current.getVideoInputDevices()
-          .then(videoInputDevices => {
-            setHasCamera(videoInputDevices.length > 0);
-          });
-      })
-      .catch(console.error);
-
-    return () => {
-      if (qrCodeReader.current) {
-        qrCodeReader.current.reset();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (activeScanQR) {
-      if (qrCodeReader.current) {
-        qrCodeReader.current.decodeFromInputVideoDevice(undefined, 'video').then(result => {
-          onChangeActiveScanQR(false);
-
-          parseQRResult(result.getText());
-          if (qrCodeReader.current) {
-            qrCodeReader.current.reset(); // release camera
-          }
-        })
-          .catch((error) => {
-            if (error) {
-              alertUser(error.message || error);
-            }
-            onChangeActiveScanQR(false);
-          });
-      }
-    }
-  }, [activeScanQR, onChangeActiveScanQR, parseQRResult]);
-
+  const hasCamera = useQRCodeScanner({
+    qrCodeReaderRef: qrCodeReader,
+    activeScanQR,
+    onChangeActiveScanQR,
+    parseQRResult
+  });
 
   const handleSendToSelf = async (event: SyntheticEvent) => {
     if (!accountCode) {
