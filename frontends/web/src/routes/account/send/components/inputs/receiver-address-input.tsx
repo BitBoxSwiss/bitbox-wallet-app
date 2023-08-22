@@ -1,15 +1,30 @@
+/**
+ * Copyright 2023 Shift Crypto AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { ChangeEvent, SyntheticEvent, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
 import DarkModeContext from '../../../../../contexts/DarkmodeContext';
 import { Input } from '../../../../../components/forms';
-import qrcodeIconDark from '../../../../../assets/icons/qrcode-dark.png';
-import qrcodeIconLight from '../../../../../assets/icons/qrcode-light.png';
-import style from '../../send.module.css';
+import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
 import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
 import { BrowserQRCodeReader } from '@zxing/library';
 import { alertUser } from '../../../../../components/alert/Alert';
+import style from '../../send.module.css';
 
 type TToggleScanQRButtonProps = {
     onClick: () => void;
@@ -30,7 +45,7 @@ const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
     <button onClick={onClick} className={style.qrButton}>
-      <img src={isDarkMode ? qrcodeIconLight : qrcodeIconDark} />
+      {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
     </button>);
 };
 
