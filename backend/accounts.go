@@ -23,6 +23,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -33,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -1098,4 +1100,27 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	}
 	backend.emitAccountsStatusChanged()
 	backend.maybeAddHiddenUnusedAccounts()
+}
+
+// LookupEthAccountCode takes an Ethereum address and returns the corresponding account code and account name
+// Used for handling Wallet Connect requests from anywhere in the app
+// Implemented only for pure ETH accounts (not ERC20s), as all Wallet Connect interactions are handled through the root ETH accounts.
+func (backend *Backend) LookupEthAccountCode(address string) (accountsTypes.Code, string, error) {
+	if !eth.IsValidEthAddress(address) {
+		return "", "", errp.WithStack(errors.ErrInvalidAddress)
+	}
+	for _, account := range backend.Accounts() {
+		ethAccount, ok := account.(*eth.Account)
+		if !ok {
+			continue
+		}
+		accountAddress, err := ethAccount.Address()
+		if err != nil {
+			return "", "", errp.WithStack(err)
+		}
+		if ethcommon.HexToAddress(address).Hex() == accountAddress.Hex() && !eth.IsERC20(ethAccount) {
+			return ethAccount.Config().Config.Code, ethAccount.Config().Config.Name, nil
+		}
+	}
+	return "", "", errp.Newf("Account with address: %s not found", address)
 }
