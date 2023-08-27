@@ -1532,6 +1532,19 @@
     "unlocked2": "The LED will light up when your BitBox is plugged back in",
     "unlocked3": "Tap the touch button when the LED lights up"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Connect",
+      "dappLabel": "Enter URI address of DApp"
+    },
+    "invalidPairingChain": "Error in approving pairing. Please make sure to use one of the supported chains: {{chains}}",
+    "pairingRequest": {
+      "approve": "Approve Connection",
+      "reject": "Reject",
+      "title": "New connection request from"
+    },
+    "pairingSuccess": "Dapp successfully connected. You can continue on the Dapp website."
+  },
   "warning": {
     "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",
     "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",

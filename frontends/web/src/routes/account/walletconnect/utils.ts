@@ -85,6 +85,37 @@ export async function createWeb3Wallet() {
   });
 }
 
+function getTopicFromURI(wcURI: string) {
+  try {
+    // Split the URI by ':' and then by '@', and take the part before the '@'
+    return wcURI.split(':')[1].split('@')[0];
+  } catch {
+    return '';
+  }
+}
+
+// It is necessary to check the history for previously rejected pairing attempts.
+// Without this check, a pairing URI that was previously rejected (and thus is invalid)
+// might still be paired (for unknown reasons the WC library does this).
+
+// This "invalid pairing" won't request a new session and
+// also won't throw any error (on the first attempt) rendering it
+// non functional and potentially confuses the user.
+function pairingHasEverBeenRejected(topic: string) {
+  return web3wallet.core.history.values.findIndex(history =>
+    history.topic === topic &&
+    history.response &&
+    'error' in history.response)
+    >= 0;
+}
+
 export async function pair(params: { uri: string }) {
-  return await web3wallet?.core.pairing.pair({ uri: params.uri });
+  const { uri } = params;
+
+  const topic = getTopicFromURI(uri);
+  const hasEverBeenRejected = pairingHasEverBeenRejected(topic);
+  if (hasEverBeenRejected) {
+    throw new Error('Please use a new URI!');
+  }
+  await web3wallet?.core.pairing.pair({ uri });
 }
