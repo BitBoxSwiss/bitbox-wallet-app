@@ -158,27 +158,8 @@ func NewHandlers(
 		log: logging.Get().WithGroup("handlers"),
 	}
 
-	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
-		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
-			return subrouter.Handle(path, ensureAPITokenValid(handlers.apiMiddleware(connData.isDev(), f),
-				connData, log))
-		}
-	}
-
-	// Prefer this over `getAPIRouter` and return errors using the `{ success: false, ...}` pattern.
-	getAPIRouterNoError := func(subrouter *mux.Router) func(string, func(*http.Request) interface{}) *mux.Route {
-		return func(path string, f func(*http.Request) interface{}) *mux.Route {
-			return subrouter.Handle(
-				path,
-				ensureAPITokenValid(
-					handlers.apiMiddleware(
-						connData.isDev(),
-						func(r *http.Request) (interface{}, error) {
-							return f(r), nil
-						}),
-					connData, log))
-		}
-	}
+	getAPIRouter := handlers.GetApiRouter
+	getAPIRouterNoError := handlers.GetApiRouterNoError
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
@@ -240,9 +221,10 @@ func NewHandlers(
 	getAccountHandlers := func(accountCode accountsTypes.Code) *accountHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
-			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
+			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(
 				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
-			), log)
+				handlers,
+				log)
 		}
 		accHandlers := accountHandlersMap[accountCode]
 		log.WithField("account-handlers", accHandlers).Debug("Account handlers")
@@ -319,6 +301,30 @@ func NewHandlers(
 	backend.Observe(func(event observable.Event) { handlers.backendEvents <- event })
 
 	return handlers
+}
+
+// Implementation of HandlersMiddleware
+func (handlers *Handlers) GetApiRouter(subrouter *mux.Router) backend.ApiRouterHandler {
+	return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
+		return subrouter.Handle(path, ensureAPITokenValid(handlers.apiMiddleware(handlers.apiData.isDev(), f),
+			handlers.apiData, handlers.log))
+	}
+}
+
+// Implementation of HandlersMiddleware
+// Prefer this over `getAPIRouter` and return errors using the `{ success: false, ...}` pattern.
+func (handlers *Handlers) GetApiRouterNoError(subrouter *mux.Router) backend.ApiRouterNoErrorHandler {
+	return func(path string, f func(*http.Request) interface{}) *mux.Route {
+		return subrouter.Handle(
+			path,
+			ensureAPITokenValid(
+				handlers.apiMiddleware(
+					handlers.apiData.isDev(),
+					func(r *http.Request) (interface{}, error) {
+						return f(r), nil
+					}),
+				handlers.apiData, handlers.log))
+	}
 }
 
 // Events returns the push notifications channel.
