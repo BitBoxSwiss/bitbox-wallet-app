@@ -77,7 +77,7 @@ export function setSidebarStatus(status: string) {
 
 const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active = (pathname === `/account/${code}`) || (pathname.startsWith(`/account/${code}/`));
+  const active = (pathname === `/account/${code}`) || (pathname !== `/account/${code}/lightning` && pathname.startsWith(`/account/${code}/`));
   return (
     <div key={code} className={style.sidebarItem}>
       <Link
@@ -92,6 +92,23 @@ const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAc
   );
 };
 
+const GetLightningLink = ({ code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
+  const { pathname } = useLocation();
+  const active = (pathname === `/account/${code}/lightning`) || (pathname.startsWith(`/account/${code}/lightning/`));
+  const lightningName = `${name} Lightning`;
+  return (
+    <div key={code} className={style.sidebarItem}>
+      <Link
+        className={active ? style.sidebarActive : ''}
+        to={`/account/${code}/lightning`}
+        onClick={handleSidebarItemClick}
+        title={lightningName}>
+        <Logo stacked coinCode="lightning" alt={lightningName} />
+        <span className={style.sidebarLabel}>{lightningName}</span>
+      </Link>
+    </div>
+  );
+};
 
 class Sidebar extends Component<Props> {
   private swipe!: SwipeAttributes;
@@ -157,6 +174,15 @@ class Sidebar extends Component<Props> {
     }
   };
 
+  private renderAccountItem = (acc: IAccount) => {
+    return (
+      <>
+        <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>
+        { !acc.lightningEnabled && isBitcoinOnly(acc.coinCode) && <GetLightningLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/> }
+      </>
+    );
+  };
+
   public render() {
     const {
       t,
@@ -202,7 +228,7 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null }
-          { accounts && accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
+          { accounts && accounts.map(acc => this.renderAccountItem(acc)) }
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           { accounts.length ? (
             <div key="buy" className={style.sidebarItem}>
