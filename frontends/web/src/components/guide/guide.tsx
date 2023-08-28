@@ -16,7 +16,7 @@
 
 import { ReactNode, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
 import { CloseXWhite } from '../icon';
 import AppContext from '../../contexts/AppContext';
 import style from './guide.module.css';
@@ -52,7 +52,9 @@ const Guide = ({ children }: TProps) => {
           <div className={style.entry}>
             {t('guide.appendix.text')}
             {' '}
-            <A href="https://bitbox.swiss/support/">{t('guide.appendix.link')}</A>
+            <A className={style.link} href="https://bitbox.swiss/support/">
+              {t('guide.appendix.link')}
+            </A>
             <br />
             <br />
           </div>

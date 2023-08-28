@@ -122,6 +122,15 @@
     flex-basis: 0;
 }
 
+.link {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.link:focus {
+    outline-color: inherit;
+}
+
 @media (max-width: 1348px) {
     .guideWrapper {
         width: calc( (((100% - var(--sidebar-width-large)) - var(--content-width)) / 2) + 18px + var(--space-default) );

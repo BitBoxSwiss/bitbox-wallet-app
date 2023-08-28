@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
  */
 
 import { FunctionComponent, useState } from 'react';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
 import style from './guide.module.css';
 
 export type TEntryProp = {
@@ -55,7 +56,14 @@ export const Entry: FunctionComponent<TProps> = props => {
           <div className="flex-1">
             {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
             {entry.link && (
-              <p><A data-testid="link" href={entry.link.url}>{entry.link.text}</A></p>
+              <p>
+                <A
+                  className={style.link}
+                  data-testid="link"
+                  href={entry.link.url}>
+                  {entry.link.text}
+                </A>
+              </p>
             )}
             {props.children}
           </div>
