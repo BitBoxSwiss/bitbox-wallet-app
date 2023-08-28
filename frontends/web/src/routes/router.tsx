@@ -17,6 +17,7 @@ import { ManageAccounts } from './settings/manage-accounts';
 import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
+import { Lightning } from './lightning';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
@@ -93,6 +94,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       accounts={activeAccounts} />
   </InjectParams>;
 
+  const AccLightning = <InjectParams>
+    <Lightning
+      code={'' /* dummy to satisfy TS */}
+      devices={devices}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
   const BuyInfoEl = <InjectParams>
     <BuyInfo
       code={''}
@@ -162,6 +170,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="send" element={AccSend} />
         <Route path="receive" element={AccReceive} />
         <Route path="info" element={AccInfo} />
+        <Route path="lightning" element={AccLightning} />
       </Route>
       <Route path="add-account" element={<AddAccount />} />
       <Route path="account-summary" element={AccountsSummaryEl} />
