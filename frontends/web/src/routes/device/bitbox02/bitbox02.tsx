@@ -21,11 +21,9 @@ import { attestationCheckDone, statusChanged } from '../../../api/devicessync';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { route } from '../../../utils/route';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
-import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
+import { FirmwareUpgradeRequired } from '../upgrade-firmware-required';
 import { Main } from '../../../components/layout';
-import { translate, TranslateProps } from '../../../decorators/translate';
 import { BB02Settings } from '../../settings/bb02-settings';
-import { FirmwareSetting } from '../../settings/components/device-settings/firmware-setting';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { Wait } from './setup/wait';
@@ -34,15 +32,13 @@ import { CreateWallet } from './setup/wallet-create';
 import { RestoreFromSDCard, RestoreFromMnemonic } from './setup/wallet-restore';
 import { CreateWalletSuccess, RestoreFromMnemonicSuccess, RestoreFromSDCardSuccess } from './setup/success';
 
-interface BitBox02Props {
+type Props = {
   deviceID: string;
   deviceIDs: string[];
   hasAccounts: boolean;
 }
 
-type Props = BitBox02Props & TranslateProps;
-
-interface State {
+type State = {
     versionInfo?: VersionInfo;
     attestation: boolean | null;
     status: '' | TStatus;
@@ -57,7 +53,7 @@ interface State {
     };
 }
 
-class BitBox02 extends Component<Props, State> {
+export class BitBox02 extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -124,7 +120,7 @@ class BitBox02 extends Component<Props, State> {
   }
 
   public render() {
-    const { t, deviceID, hasAccounts, deviceIDs } = this.props;
+    const { deviceID, hasAccounts, deviceIDs } = this.props;
     const {
       attestation,
       createOptions,
@@ -144,16 +140,9 @@ class BitBox02 extends Component<Props, State> {
     }
     if (status === 'require_firmware_upgrade') {
       return (
-        <CenteredContent>
-          <div className="box large">
-            <p>{t('upgradeFirmware.label')}</p>
-            <FirmwareSetting
-              asButton
-              deviceID={deviceID}
-              versionInfo={versionInfo}
-            />
-          </div>
-        </CenteredContent>
+        <FirmwareUpgradeRequired
+          deviceID={deviceID}
+          versionInfo={versionInfo} />
       );
     }
     if (status === 'require_app_upgrade') {
@@ -237,6 +226,3 @@ class BitBox02 extends Component<Props, State> {
     );
   }
 }
-
-const HOC = translate()(BitBox02);
-export { HOC as BitBox02 };

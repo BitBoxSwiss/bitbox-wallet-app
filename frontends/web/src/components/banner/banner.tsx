@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,57 +15,41 @@
  * limitations under the License.
  */
 
-import { subscribe } from '../../decorators/subscribe';
-import { translate, TranslateProps } from '../../decorators/translate';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getBanner, syncBanner, TBannerInfo } from '../../api/banners';
+import { Status } from '../status/status';
 import A from '../anchor/anchor';
-import { Status, statusType } from '../status/status';
-
-type TBannerInfo = {
-    id: string;
-    message: { [key: string]: string; };
-    link?: {
-        href: string;
-        text?: string;
-    };
-    dismissible?: boolean;
-    type?: statusType;
-}
-
-type TLoadedProps = {
-    banner: TBannerInfo | null;
-}
 
 type TBannerProps = {
-    // eslint-disable-next-line react/no-unused-prop-types
-    msgKey: 'bitbox01' | 'bitbox02';
+  msgKey: 'bitbox01' | 'bitbox02';
 }
 
-type TProps = TLoadedProps & TBannerProps & TranslateProps;
+export const Banner = ({ msgKey }: TBannerProps) => {
+  const { i18n, t } = useTranslation();
+  const [banner, setBanner] = useState<TBannerInfo>();
 
-function Banner({ msgKey, banner, i18n, t }: TProps) {
-  if (!i18n.options.fallbackLng) {
+  useEffect(() => {
+    getBanner(msgKey).then(setBanner);
+    syncBanner(msgKey, setBanner);
+  }, [msgKey]);
+
+  if (!banner || !i18n.options.fallbackLng) {
     return null;
   }
-  return banner && (
+  const { message, link } = banner;
+
+  return (
     <Status
       dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
       type={banner.type ? banner.type : 'warning'}>
-      { banner.message[i18n.language] || banner.message[(i18n.options.fallbackLng as string[])[0]] }&nbsp;
-      { banner.link && (
-        <A href={banner.link.href}>
-          { banner.link.text || t('clickHere') }
+      { message[i18n.language] || message[(i18n.options.fallbackLng as string[])[0]] }
+      &nbsp;
+      { link && (
+        <A href={link.href}>
+          { link.text || t('clickHere') }
         </A>
       )}
     </Status>
   );
-}
-
-const HOC = translate()(
-  subscribe<TLoadedProps, TBannerProps & TranslateProps>(
-    ({ msgKey }) => ({ banner: 'banners/' + msgKey }),
-    true,
-    false,
-  )(Banner),
-);
-
-export { HOC as Banner };
+};

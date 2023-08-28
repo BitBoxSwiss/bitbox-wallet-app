@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +17,16 @@
 
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import AppContext from '../../contexts/AppContext';
 import { toggleSidebar } from '../sidebar/sidebar';
 import { MenuDark } from '../icon';
-import AppContext from '../../contexts/AppContext';
+import { SpinnerAnimation } from './SpinnerAnimation';
 import style from './Spinner.module.css';
 
 type TProps = {
   text?: string;
   guideExists: boolean;
 }
-
 
 const Spinner = ({ text, guideExists }: TProps) => {
   const { t } = useTranslation();
@@ -79,12 +80,7 @@ const Spinner = ({ text, guideExists }: TProps) => {
           <p key={`${line}-${i}`} className={style.spinnerText}>{line}</p>
         ))
       }
-      <div className={style.spinner}>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
+      <SpinnerAnimation />
       <div className={style.overlay}></div>
     </div>
   );
