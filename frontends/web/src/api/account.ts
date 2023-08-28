@@ -50,6 +50,7 @@ export interface IAccount {
     isToken: boolean;
     activeTokens?: IActiveToken[];
     blockExplorerTxPrefix: string;
+    lightningEnabled: boolean;
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {
