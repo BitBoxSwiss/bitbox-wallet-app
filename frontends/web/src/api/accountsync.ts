@@ -15,7 +15,7 @@
  */
 
 import { TUnsubscribe } from '../utils/transport-common';
-import { subscribeEndpoint } from './subscribe';
+import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 import { subscribe as subscribeLegacy } from '../utils/event-legacy';
 import { IAccount } from './account';
 
@@ -31,19 +31,20 @@ export const syncAccountsList = (
 };
 
 /**
- * Subscribes the given function on an "account/<CODE>/synced-addresses-count" event
- * to receive the progress of the address sync.
- * Returns a method to unsubscribe.
+ * Returns a function that subscribes a callback on a "account/<CODE>/synced-addresses-count"
+ * event to receive the progress of the address sync.
+ * Meant to be used with `useSubscribe`.
  */
-export const syncAddressesCount = (
-  code: string,
-  cb: (code: string, syncedAddressesCount: number) => void,
-): TUnsubscribe => {
-  return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
-    data: number,
+export const syncAddressesCount = (code: string) => {
+  return (
+    cb: TSubscriptionCallback<number>
   ) => {
-    cb(code, data);
-  });
+    return subscribeEndpoint(`account/${code}/synced-addresses-count`, (
+      count: number,
+    ) => {
+      cb(count);
+    });
+  };
 };
 
 /**
@@ -52,12 +53,11 @@ export const syncAddressesCount = (
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  code: string,
   cb: (code: string) => void,
 ): TUnsubscribe => {
   const unsubscribe = subscribeLegacy('statusChanged', event => {
-    if (event.type === 'account' && event.code === code) {
-      cb(code);
+    if (event.type === 'account' && event.code) {
+      cb(event.code);
     }
   });
   return unsubscribe;
@@ -68,12 +68,11 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  code: string,
   cb: (code: string) => void,
 ): TUnsubscribe => {
   return subscribeLegacy('syncdone', event => {
-    if (event.type === 'account' && event.code === code) {
-      cb(code);
+    if (event.type === 'account' && event.code) {
+      cb(event.code);
     }
   });
 };

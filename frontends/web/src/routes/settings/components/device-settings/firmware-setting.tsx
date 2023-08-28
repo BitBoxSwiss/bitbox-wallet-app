@@ -21,7 +21,6 @@ import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
 import { Button } from '../../../../components/forms';
 import { Checked, RedDot } from '../../../../components/icon';
 import { SettingsItem } from '../settingsItem/settingsItem';
-import styles from './firmware-setting.module.css';
 
 export type TProps = {
     deviceID: string;
@@ -45,6 +44,7 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
   const secondaryText = canUpgrade ? t('deviceSettings.firmware.upgradeAvailable') : t('deviceSettings.firmware.upToDate');
   const extraComponent = canUpgrade ? <RedDot width={8} height={8}/> : <Checked />;
 
+  const handleOpenDialog = canUpgrade ? () => setDialogOpen(true) : undefined;
 
   const handleUpgradeFirmware = async () => {
     setConfirming(true);
@@ -55,14 +55,21 @@ const FirmwareSetting = ({ deviceID, versionInfo, asButton = false }: TProps) =>
 
   return (
     <>
-      <SettingsItem
-        className={`${asButton ? styles.asButton : ''}`}
-        settingName={t('deviceSettings.firmware.title')}
-        secondaryText={secondaryText}
-        onClick={canUpgrade ? () => setDialogOpen(true) : undefined}
-        displayedValue={versionInfo.currentVersion}
-        extraComponent={extraComponent}
-      />
+      { asButton ? (
+        <Button
+          onClick={handleOpenDialog}
+          primary>
+          {t('button.upgrade')}
+        </Button>
+      ) : (
+        <SettingsItem
+          settingName={t('deviceSettings.firmware.title')}
+          secondaryText={secondaryText}
+          onClick={handleOpenDialog}
+          displayedValue={versionInfo.currentVersion}
+          extraComponent={extraComponent}
+        />
+      )}
       <UpgradeDialog
         open={dialogOpen && canUpgrade}
         versionInfo={versionInfo}

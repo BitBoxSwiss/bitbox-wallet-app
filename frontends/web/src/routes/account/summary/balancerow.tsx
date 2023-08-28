@@ -16,15 +16,14 @@
 
 import { useTranslation } from 'react-i18next';
 import { AccountCode, CoinCode, IBalance } from '../../../api/account';
+import { syncAddressesCount } from '../../../api/accountsync';
+import { useSubscribe } from '../../../hooks/api';
 import { route } from '../../../utils/route';
 import Logo from '../../../components/icon/logo';
 import { Amount } from '../../../components/amount/amount';
 import Spinner from '../../../components/spinner/ascii';
 import { FiatConversion } from '../../../components/rates/rates';
 import style from './accountssummary.module.css';
-import { useEffect, useRef, useState } from 'react';
-import { syncAddressesCount } from '../../../api/accountsync';
-import { TUnsubscribe } from '../../../utils/transport-common';
 
 type TProps = {
   code: AccountCode;
@@ -37,26 +36,7 @@ export function BalanceRow (
   { code, name, coinCode, balance }: TProps
 ) {
   const { t } = useTranslation();
-
-  const [syncStatus, setSyncStatus] = useState<number>();
-
-  const unsubscribe = useRef<TUnsubscribe>();
-
-  const onSyncAddressesCount = (
-    _: string,
-    syncedAddressesCount: number,
-  ) => {
-    setSyncStatus(syncedAddressesCount);
-  };
-
-  useEffect(() => {
-    if (unsubscribe.current) {
-      unsubscribe.current();
-    }
-    unsubscribe.current = syncAddressesCount(code, onSyncAddressesCount);
-    return () => unsubscribe.current && unsubscribe.current();
-  }, [code]);
-
+  const syncStatus = useSubscribe(syncAddressesCount(code));
 
   const nameCol = (
     <td
