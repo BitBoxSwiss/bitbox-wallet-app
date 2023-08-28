@@ -4,6 +4,15 @@ github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
+# github.com/breez/breez-sdk-go v0.1.5-beta.rc2
+## explicit; go 1.19
+github.com/breez/breez-sdk-go/breez_sdk
+github.com/breez/breez-sdk-go/breez_sdk/lib
+github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-aarch64
+github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64
+github.com/breez/breez-sdk-go/breez_sdk/lib/linux-aarch64
+github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64
+github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64
 # github.com/btcsuite/btcd v0.23.4
 ## explicit; go 1.17
 github.com/btcsuite/btcd/blockchain
