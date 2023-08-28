@@ -27,6 +27,7 @@ import (
 // OnEvent receives an event from the sdk and handles it.
 func (handlers *Handlers) OnEvent(breezEvent breez_sdk.BreezEvent) {
 	handlers.log.Infof("BreezSDK: %#v", breezEvent)
+	
 	switch event := breezEvent.(type) {
 	case breez_sdk.BreezEventInvoicePaid:
 		handlers.Notify(observable.Event{

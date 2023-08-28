@@ -303,7 +303,7 @@ func NewHandlers(
 	return handlers
 }
 
-// Implementation of HandlersMiddleware
+// Implementation of HandlersMiddleware.
 func (handlers *Handlers) GetApiRouter(subrouter *mux.Router) backend.ApiRouterHandler {
 	return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
 		return subrouter.Handle(path, ensureAPITokenValid(handlers.apiMiddleware(handlers.apiData.isDev(), f),
@@ -311,7 +311,7 @@ func (handlers *Handlers) GetApiRouter(subrouter *mux.Router) backend.ApiRouterH
 	}
 }
 
-// Implementation of HandlersMiddleware
+// Implementation of HandlersMiddleware.
 // Prefer this over `getAPIRouter` and return errors using the `{ success: false, ...}` pattern.
 func (handlers *Handlers) GetApiRouterNoError(subrouter *mux.Router) backend.ApiRouterNoErrorHandler {
 	return func(path string, f func(*http.Request) interface{}) *mux.Route {

@@ -27,7 +27,7 @@ type BreezLogListener struct {
 }
 
 // Implementation of breez_sdk.EventListener
-// Log receives log entries of different log levels and logs then the the handlers log.
+// Log receives log entries of different log levels and logs then the handlers log.
 func (listener *BreezLogListener) Log(logEntry breez_sdk.LogEntry) {
 	if logEntry.Level != "TRACE" {
 		listener.log.Infof("BreezSDK: [%s] %s", logEntry.Level, logEntry.Line)
@@ -40,6 +40,9 @@ func (listener *BreezLogListener) Log(logEntry breez_sdk.LogEntry) {
 func initializeLogging(log *logrus.Entry) {
 	if logListener == nil {
 		logListener = &BreezLogListener{log}
-		breez_sdk.SetLogStream(logListener)
+
+		if err := breez_sdk.SetLogStream(logListener); err != nil {
+			log.WithError(err).Warn("BreezSDK: SetLogStream failed")
+		}
 	}
 }
