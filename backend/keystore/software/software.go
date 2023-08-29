@@ -266,7 +266,7 @@ func (keystore *Keystore) SignETHMessage(message []byte, keypath signing.Absolut
 	return nil, errp.New("unsupported")
 }
 
-// SignETHMessage implements keystore.Keystore.
+// SignETHTypedMessage implements keystore.Keystore.
 func (keystore *Keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }

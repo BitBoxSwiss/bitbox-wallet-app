@@ -843,7 +843,8 @@ func (account *Account) SignTypedMsg(
 	return "0x" + hex.EncodeToString(signedMessage), nil
 }
 
-// TX proposal arguments received from Wallet Connect with Gas, GasPrice, Value and Nonce being optional.
+// WalletConnectArgs are the tx proposal arguments received from Wallet Connect with Gas, GasPrice,
+// Value and Nonce being optional.
 type WalletConnectArgs struct {
 	From     string `json:"from"`
 	To       string `json:"to"`
@@ -854,7 +855,7 @@ type WalletConnectArgs struct {
 	Nonce    string `json:"nonce,omitempty"`
 }
 
-// EthSignTypedMsg signs an Ethereum Tx received from WalletConnect.
+// EthSignWalletConnectTx signs an Ethereum Tx received from WalletConnect.
 func (account *Account) EthSignWalletConnectTx(
 	// send: whether transaction should be broadcast after signing
 	send bool,
