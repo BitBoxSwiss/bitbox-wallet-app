@@ -31,7 +31,7 @@ export const WCSuccessPairing = ({ accountCode }: TProps) => {
     <div className={styles.container}>
       <AnimatedChecked className={styles.successIcon} />
       <p className={styles.successText}>{t('walletConnect.pairingSuccess')}</p>
-      <Button primary onClick={() => route(`/account/${accountCode}`)}>{t('button.done')}</Button>
+      <Button primary onClick={() => route(`/account/${accountCode}/wallet-connect/dashboard`)}>{t('button.done')}</Button>
     </div>
   );
 };

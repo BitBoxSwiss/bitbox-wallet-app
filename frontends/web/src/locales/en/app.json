@@ -1537,13 +1537,19 @@
       "button": "Connect",
       "dappLabel": "Enter URI address of DApp"
     },
+    "dashboard": {
+      "allSessions": "All sessions",
+      "newConnection": "New connection",
+      "noConnectedSessions": "No accounts are currently connected to any DApps."
+    },
     "invalidPairingChain": "Error in approving pairing. Please make sure to use one of the supported chains: {{chains}}",
     "pairingRequest": {
       "approve": "Approve Connection",
       "reject": "Reject",
       "title": "New connection request from"
     },
-    "pairingSuccess": "Dapp successfully connected. You can continue on the Dapp website."
+    "pairingSuccess": "Dapp successfully connected. You can continue on the Dapp website.",
+    "walletConnect": "WalletConnect"
   },
   "warning": {
     "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",

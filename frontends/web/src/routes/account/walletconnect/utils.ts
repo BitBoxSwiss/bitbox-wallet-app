@@ -119,3 +119,15 @@ export async function pair(params: { uri: string }) {
   }
   await web3wallet?.core.pairing.pair({ uri });
 }
+
+export const getAddressFromEIPString = (address: string) => {
+  const parts = address.split(':');
+  return parts.length > 2 ? parts[2] : '';
+};
+
+export const truncateAddress = (address: string) => {
+  if (!address) {
+    return '';
+  }
+  return `${address.substring(0, 6)}...${address.substring(address.length - 6)}`;
+};

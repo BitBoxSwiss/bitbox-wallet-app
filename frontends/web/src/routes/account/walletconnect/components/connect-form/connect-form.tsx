@@ -45,7 +45,7 @@ export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnect
         <div className={styles.formButtonsContainer}>
           <Button
             secondary
-            onClick={() => route(`/account/${code}`)}>
+            onClick={() => route(`/account/${code}/wallet-connect/dashboard`)}>
             {t('dialog.cancel')}
           </Button>
           <Button

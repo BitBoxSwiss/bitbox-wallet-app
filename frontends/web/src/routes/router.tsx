@@ -24,6 +24,7 @@ import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
 import { WalletConnect } from './account/walletconnect';
 import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
+import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -98,6 +99,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccWalletConnect = <InjectParams>
     <WalletConnect
       code={'' /* dummy to satisfy TS */}
+    />
+  </InjectParams>;
+
+  const AccDashboardWC = <InjectParams>
+    <DashboardWalletConnect
+      accounts={activeAccounts}
+      code={''}
     />
   </InjectParams>;
 
@@ -179,6 +187,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="info" element={AccInfo} />
         <Route path="wallet-connect" element={AccWalletConnect} />
         <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
+        <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
       </Route>
       <Route path="add-account" element={<AddAccount />} />
       <Route path="account-summary" element={AccountsSummaryEl} />

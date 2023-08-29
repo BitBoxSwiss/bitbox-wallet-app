@@ -16,6 +16,7 @@
  */
 
 import { WalletConnectDefaultLogo } from '../../../../../components/icon';
+import { truncateAddress } from '../../utils';
 import styles from './header.module.css';
 
 type TWalletConnectProps = {
@@ -24,7 +25,7 @@ type TWalletConnectProps = {
 }
 
 export const WCHeader = ({ receiveAddress, accountName }: TWalletConnectProps) => {
-  const displayedReceiveAddress = `${receiveAddress.substring(0, 6)}...${receiveAddress.substring(receiveAddress.length - 6)}`;
+  const displayedReceiveAddress = truncateAddress(receiveAddress);
   return (
     <div className={styles.headerContainer}>
       <WalletConnectDefaultLogo />
