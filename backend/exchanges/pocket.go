@@ -22,6 +22,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -101,7 +102,7 @@ func GetPocketSupportedRegions(httpClient *http.Client) (map[string]PocketRegion
 	var regionsList []PocketRegion
 	endpoint := fmt.Sprintf("%s/availabilities", pocketAPILiveURL)
 
-	err := APIGet(httpClient, endpoint, &regionsList)
+	_, err := util.APIGet(httpClient, endpoint, "", 81920, &regionsList)
 	if err != nil {
 		return nil, err
 	}
