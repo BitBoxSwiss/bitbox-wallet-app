@@ -58,6 +58,18 @@ func isMixedCase(s string) bool {
 	return strings.ToLower(s) != s && strings.ToUpper(s) != s
 }
 
+// IsValidEthAddress checks if a string is a valid 20 byte ETH address and validates checksum when present.
+func IsValidEthAddress(addr string) bool {
+	if !ethcommon.IsHexAddress(addr) {
+		return false
+	}
+	// Validate checksum if the address is mixed case, see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
+	if isMixedCase(addr) && addr != ethcommon.HexToAddress(addr).Hex() {
+		return false
+	}
+	return true
+}
+
 // Account is an Ethereum account, with one address.
 type Account struct {
 	*accounts.BaseAccount
@@ -486,14 +498,10 @@ type TxProposal struct {
 }
 
 func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error) {
-	if !ethcommon.IsHexAddress(args.RecipientAddress) {
+	if !IsValidEthAddress(args.RecipientAddress) {
 		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 	address := ethcommon.HexToAddress(args.RecipientAddress)
-	// Validate checksum if the address is mixed case, see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
-	if isMixedCase(args.RecipientAddress) && args.RecipientAddress != address.Hex() {
-		return nil, errp.WithStack(errors.ErrInvalidAddress)
-	}
 
 	suggestedGasPrice, err := account.gasPrice(args)
 	if err != nil {
@@ -874,13 +882,10 @@ func (account *Account) EthSignWalletConnectTx(
 		return "", "", errp.New("Unsupported EVM Network. BBApp only supports Ethereum Mainnet at the moment.")
 	}
 
-	if !ethcommon.IsHexAddress(proposedTx.To) {
+	if !IsValidEthAddress(proposedTx.To) {
 		return "", "", errp.WithStack(errors.ErrInvalidAddress)
 	}
 	address := ethcommon.HexToAddress(proposedTx.To)
-	if isMixedCase(proposedTx.To) && proposedTx.To != address.Hex() {
-		return "", "", errp.WithStack(errors.ErrInvalidAddress)
-	}
 
 	if proposedTx.Nonce != "" {
 		parsed, err := strconv.ParseUint(strings.TrimPrefix(proposedTx.Nonce, "0x"), 16, 64)
@@ -960,4 +965,17 @@ func (account *Account) EthSignWalletConnectTx(
 		return "", "", err
 	}
 	return "0x" + hex.EncodeToString(txHash[:]), "0x" + hex.EncodeToString(rawTx), nil
+}
+
+// Address returns the account's single Ethereum address.
+func (account *Account) Address() (*Address, error) {
+	if !account.isInitialized() {
+		return nil, errp.New("account must be initialized")
+	}
+	return &account.address, nil
+}
+
+// IsERC20 checks whether an account is an ERC20 token account.
+func IsERC20(account *Account) bool {
+	return account.coin.erc20Token != nil
 }
