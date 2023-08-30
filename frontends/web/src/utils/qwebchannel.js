@@ -53,7 +53,7 @@ var QWebChannelMessageTypes = {
     response: 10,
 };
 
-var QWebChannel = function(transport, initCallback)
+export const QWebChannel = function(transport, initCallback)
 {
     if (typeof transport !== "object" || typeof transport.send !== "function") {
         console.error("The QWebChannel expects a transport object with a send function and onmessage callback property." +
@@ -417,11 +417,4 @@ function QObject(name, data, webChannel)
     for (var name in data.enums) {
         object[name] = data.enums[name];
     }
-}
-
-//required for use with nodejs
-if (typeof module === 'object') {
-    module.exports = {
-        QWebChannel: QWebChannel
-    };
 }
