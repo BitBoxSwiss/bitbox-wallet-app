@@ -15,21 +15,36 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
-import { Button } from '../../../../../components/forms';
-import { SpinnerAnimation } from '../../../../../components/spinner/SpinnerAnimation';
-import style from '../../send.module.css';
+import { Dialog, DialogButtons } from '../dialog/dialog';
+import { Button } from '../forms';
+import { SpinnerAnimation } from '../spinner/SpinnerAnimation';
+import style from './scan-qr-dialog.module.css';
 
 type TProps = {
   activeScanQR: boolean;
   onToggleScanQR: () => void;
 }
 
+export const QRVideo = () => {
+  const [videoLoading, setVideoLoading] = useState(true);
+  return (<>
+    {videoLoading &&
+        <div className={style.spinnerAnimationContainer}>
+          <SpinnerAnimation />
+        </div>
+    }
+    <video
+      id="video"
+      height={300 /* fix height to avoid ugly resize effect after open */}
+      className={style.qrVideo}
+      onLoadedData={() => setVideoLoading(false)}
+    />
+  </>);
+};
+
 export const ScanQRDialog = ({ activeScanQR, onToggleScanQR }: TProps) => {
   const { t } = useTranslation();
-  const [videoLoading, setVideoLoading] = useState(true);
   const toggleScanQR = () => {
-    setVideoLoading(true);
     onToggleScanQR();
   };
   return (
@@ -37,19 +52,8 @@ export const ScanQRDialog = ({ activeScanQR, onToggleScanQR }: TProps) => {
       open={activeScanQR}
       title={t('send.scanQR')}
       onClose={toggleScanQR}>
-      {videoLoading &&
-        <div className={style.spinnerAnimationContainer}>
-          <SpinnerAnimation />
-        </div>
-      }
-      <video
-        id="video"
-        width={400}
-        height={300 /* fix height to avoid ugly resize effect after open */}
-        className={style.qrVideo}
-        onLoadedData={() => setVideoLoading(false)}
-      />
 
+      <QRVideo />
       <DialogButtons>
         <Button
           secondary
