@@ -205,24 +205,30 @@ export const Receive = ({
                     <Dialog open={scriptTypeDialogOpened} onClose={() => setAddressDialog(undefined)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
-                          {addressDialog && <>
-                            <Radio
-                              checked={addressDialog.addressType === i}
-                              id={scriptType}
-                              name="scriptType"
-                              onChange={() => setAddressDialog({ addressType: i })}
-                              title={getScriptName(scriptType)}>
-                              {t(`receive.scriptType.${scriptType}`)}
-                            </Radio>
-                            {scriptType === 'p2tr' && addressDialog.addressType === i && (
-                              <Message type="warning">
-                                {t('receive.taprootWarning')}
-                              </Message>
-                            )}
-                          </>
-                          }
+                          {addressDialog && (!account?.bitsuranceId || scriptType === 'p2wpkh') && (
+                            <>
+                              <Radio
+                                checked={addressDialog.addressType === i}
+                                id={scriptType}
+                                name="scriptType"
+                                onChange={() => setAddressDialog({ addressType: i })}
+                                title={getScriptName(scriptType)}>
+                                {t(`receive.scriptType.${scriptType}`)}
+                              </Radio>
+                              {scriptType === 'p2tr' && addressDialog.addressType === i && (
+                                <Message type="warning">
+                                  {t('receive.taprootWarning')}
+                                </Message>
+                              )}
+                            </>
+                          )}
                         </div>
                       ))}
+                      {account?.bitsuranceId && (
+                        <Message type="warning">
+                          {t('receive.bitsuranceWarning')}
+                        </Message>
+                      )}
                       <DialogButtons>
                         <Button primary type="submit">
                           {t('button.done')}

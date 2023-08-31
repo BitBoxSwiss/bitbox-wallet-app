@@ -1222,6 +1222,7 @@
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
+    "bitsuranceWarning": "This is an insured account, meaning it can only receive to Native Segwit. This is so you don't accidently receive to Wrapped Segwit or Taproot, which are not insured.",
     "changeScriptType": "Change address type",
     "label": "Your address",
     "onlyThisCoin": {
