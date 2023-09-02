@@ -24,7 +24,7 @@ windows-cross:
 windows-legacy:
 	CGO_ENABLED=1 go build -mod=vendor -ldflags="-s -w" -buildmode=c-archive \
 		-o libserver.a
-	gcc server.def libserver.a -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
+	gcc server.def libserver.a -shared -lwinmm -lhid -lsetupapi -lWs2_32 -lbreez_sdk_bindings \
 		-o libserver.dll -Wl,--out-implib,libserver.lib
 
 clean:
