@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import Checkbox from './checkbox';
 
 describe('components/forms/checkbox', () => {
   it('renders checkbox with proper attributes', () => {
-    const { container } = render(<Checkbox label="my checkbox label" id="checkbox" />);
-    expect(container.firstChild).toHaveClass('default');
-    expect(screen.getByRole('checkbox', { name: 'my checkbox label' })).toBeInTheDocument();
+    render(<Checkbox checkboxStyle='info' label="my checkbox label" id="checkbox" />);
+    const renderedCheckbox = screen.getByRole('checkbox', { name: 'my checkbox label' });
+    const checkboxWrapper = renderedCheckbox.parentElement;
+    expect(renderedCheckbox).toBeInTheDocument();
+    expect(checkboxWrapper?.getAttribute("class")).toContain('info');
   });
 });

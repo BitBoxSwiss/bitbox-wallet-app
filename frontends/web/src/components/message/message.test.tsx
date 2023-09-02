@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import 'jest';
+import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { Message } from './message';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'; // TODO needed?
 
 describe('components/message/message', () => {
   it('should have child nodes', () => {

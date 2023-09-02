@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-/* global jest */
+import { vi } from 'vitest';
 
 // When a module imports 'react-i18next', it gets replaced with this mock
 // by Jest in tests.
 // It allows for mounting components with stubs covering lifecycle methods.
-const reactI18next = jest.genMockFromModule('react-i18next');
+const reactI18next = vi.genMockFromModule('react-i18next');
 reactI18next.translate = () => (k) => k;
 
 module.exports = reactI18next;

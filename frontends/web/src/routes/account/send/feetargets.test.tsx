@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import 'jest';
+import { describe, expect, it, Mock, vi } from 'vitest';
 
-jest.mock('../../../utils/request');
-import { apiGet } from '../../../utils/request';
-
-jest.mock('../../../i18n/i18n');
-jest.mock('../../../decorators/translate', () => ({
+vi.mock('../../../utils/request', () => ({
+  apiGet: vi.fn().mockResolvedValue(''),
+}));
+vi.mock('../../../i18n/i18n');
+vi.mock('../../../decorators/translate', () => ({
   // this mock makes sure any components using the translate HoC receive the t function as a prop
   translate: () => (Component: any) => {
     Component.defaultProps = { ...Component.defaultProps, t: (k: any) => k };
@@ -28,20 +28,21 @@ jest.mock('../../../decorators/translate', () => ({
   },
 }));
 
-jest.mock('../../../../src/decorators/load', () => ({
+vi.mock('../../../../src/decorators/load', () => ({
   load: () => (Component: any) => {
     Component.defaultProps = { ...Component.defaultProps, config: { frontend: { } } };
     return Component;
   },
 }));
 
-import { FeeTargets } from '../../../routes/account/send/feetargets';
 import { render } from '@testing-library/react';
+import { FeeTargets } from '../../../routes/account/send/feetargets';
+import { apiGet } from '../../../utils/request';
 
 describe('routes/account/send/feetargets', () => {
 
   it('should match the snapshot', () => {
-    (apiGet as jest.Mock).mockResolvedValue({
+    (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'economy',
       feeTargets: [
         { code: 'low' },
@@ -81,14 +82,14 @@ describe('routes/account/send/feetargets', () => {
           },
         }}
         customFee=""
-        onCustomFee={jest.fn()}
-        onFeeTargetChange={jest.fn()} />,
+        onCustomFee={vi.fn()}
+        onFeeTargetChange={vi.fn()} />,
     );
     expect(container).toMatchSnapshot();
   });
 
   it('should match the snapshot with empty feetargets', () => {
-    (apiGet as jest.Mock).mockResolvedValue({
+    (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: '',
       feeTargets: [],
     });
@@ -100,14 +101,14 @@ describe('routes/account/send/feetargets', () => {
         disabled={false}
         fiatUnit="EUR"
         customFee=""
-        onCustomFee={jest.fn()}
-        onFeeTargetChange={jest.fn()} />,
+        onCustomFee={vi.fn()}
+        onFeeTargetChange={vi.fn()} />,
     );
     expect(container).toMatchSnapshot();
   });
 
-  it('should call onFeeTargetChange with default', done => {
-    const apiGetMock = (apiGet as jest.Mock).mockResolvedValue({
+  it('should call onFeeTargetChange with default', () => new Promise<void>(done => {
+    const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [
         { code: 'low' },
@@ -127,9 +128,9 @@ describe('routes/account/send/feetargets', () => {
         disabled={false}
         fiatUnit="USD"
         customFee=""
-        onCustomFee={jest.fn()}
+        onCustomFee={vi.fn()}
         onFeeTargetChange={onFeeTargetChangeCB} />,
     );
     expect(apiGetMock).toHaveBeenCalled();
-  });
+  }));
 });
