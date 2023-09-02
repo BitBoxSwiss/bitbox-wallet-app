@@ -4,10 +4,14 @@ github.com/StackExchange/wmi
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
-# github.com/breez/breez-sdk-go v0.1.5-beta.rc2
+# github.com/breez/breez-sdk-go v0.2.2
 ## explicit; go 1.19
 github.com/breez/breez-sdk-go/breez_sdk
 github.com/breez/breez-sdk-go/breez_sdk/lib
+github.com/breez/breez-sdk-go/breez_sdk/lib/android-386
+github.com/breez/breez-sdk-go/breez_sdk/lib/android-aarch
+github.com/breez/breez-sdk-go/breez_sdk/lib/android-aarch64
+github.com/breez/breez-sdk-go/breez_sdk/lib/android-amd64
 github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-aarch64
 github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64
 github.com/breez/breez-sdk-go/breez_sdk/lib/linux-aarch64
