@@ -16,10 +16,10 @@
 
 import { MutableRefObject, useEffect, useState } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
-import { alertUser } from '../components/alert/Alert';
 import { useMountedRef } from './mount';
 
 type TProps = {
+    onError: (error: any) => void;
     qrCodeReaderRef: MutableRefObject<BrowserQRCodeReader | undefined>
     activeScanQR: boolean;
     onChangeActiveScanQR: (isActive: boolean) => void;
@@ -33,6 +33,7 @@ type TProps = {
  * @function
 **/
 export const useQRCodeScanner = ({
+  onError,
   qrCodeReaderRef,
   activeScanQR,
   onChangeActiveScanQR,
@@ -50,7 +51,6 @@ export const useQRCodeScanner = ({
         if (!qrCodeReaderRef.current) {
           qrCodeReaderRef.current = new BrowserQRCodeReader();
         }
-
         qrCodeReaderRef.current.getVideoInputDevices()
           .then(videoInputDevices => {
             if (mounted.current) {
@@ -69,24 +69,26 @@ export const useQRCodeScanner = ({
   }, [qrCodeReaderRef]); // disable warning about mounted not in the dependency list
 
   useEffect(() => {
+    //if activeScanQR is true and qrCodeReaderRef is available,
+    // hook will try to read the QR code from the camera
+    // while showing the video in the specified video element.
     if (activeScanQR && qrCodeReaderRef.current) {
       qrCodeReaderRef.current.decodeFromInputVideoDevice(undefined, videoSourceId)
         .then(result => {
           onChangeActiveScanQR(false);
           parseQRResult(result.getText());
-
           if (qrCodeReaderRef.current) {
             qrCodeReaderRef.current.reset(); // release camera
           }
         })
         .catch(error => {
           if (error) {
-            alertUser(error.message || error);
+            onError(error);
           }
           onChangeActiveScanQR(false);
         });
     }
-  }, [activeScanQR, onChangeActiveScanQR, parseQRResult, qrCodeReaderRef, videoSourceId]);
+  }, [activeScanQR, onError, onChangeActiveScanQR, parseQRResult, qrCodeReaderRef, videoSourceId]);
 
   return hasCamera;
 };

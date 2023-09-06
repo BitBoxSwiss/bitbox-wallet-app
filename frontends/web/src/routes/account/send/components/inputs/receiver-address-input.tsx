@@ -21,9 +21,10 @@ import { getReceiveAddressList } from '../../../../../api/account';
 import DarkModeContext from '../../../../../contexts/DarkmodeContext';
 import { Input } from '../../../../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
-import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
+import { ScanQRDialog } from '../../../../../components/scanqrdialog/scan-qr-dialog';
 import { BrowserQRCodeReader } from '@zxing/library';
 import { useQRCodeScanner } from '../../../../../hooks/qrcodescanner';
+import { alertUser } from '../../../../../components/alert/Alert';
 import style from '../../send.module.css';
 
 type TToggleScanQRButtonProps = {
@@ -41,10 +42,13 @@ type TReceiverAddressInputProps = {
     onChangeActiveScanQR: (activeScanQR: boolean) => void
 }
 
-const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
+export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
-    <button onClick={onClick} className={style.qrButton}>
+    <button onClick={(e) => {
+      e.preventDefault();
+      onClick();
+    }} className={style.qrButton}>
       {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
     </button>);
 };
@@ -62,6 +66,7 @@ export const ReceiverAddressInput = ({
   const { t } = useTranslation();
   const qrCodeReader = useRef<BrowserQRCodeReader>();
   const hasCamera = useQRCodeScanner({
+    onError: (error) => alertUser(error.message || error),
     qrCodeReaderRef: qrCodeReader,
     activeScanQR,
     onChangeActiveScanQR,
@@ -82,7 +87,6 @@ export const ReceiverAddressInput = ({
     }
   };
 
-
   const toggleScanQR = () => {
     if (activeScanQR) {
       if (qrCodeReader.current) {
@@ -92,9 +96,7 @@ export const ReceiverAddressInput = ({
       onChangeActiveScanQR(false);
       return;
     }
-
     onChangeActiveScanQR(true);
-
   };
 
   return (
