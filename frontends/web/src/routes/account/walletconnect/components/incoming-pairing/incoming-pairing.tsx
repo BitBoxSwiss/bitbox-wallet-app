@@ -21,6 +21,7 @@ import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
 import { SUPPORTED_CHAINS, web3wallet } from '../../utils';
 import styles from './incoming-pairing.module.css';
+import { useState } from 'react';
 
 type TIncomingPairingProps = {
     currentProposal: SignClientTypes.EventArguments['session_proposal'];
@@ -52,8 +53,10 @@ export const WCIncomingPairing = ({
   onReject,
   onApprove
 }: TIncomingPairingProps) => {
+  const [pairingLoading, setPairingLoading] = useState(false);
   const { t } = useTranslation();
   const handleApprovePairing = async () => {
+    setPairingLoading(true);
     try {
       const { id, params } = currentProposal;
       const { requiredNamespaces } = params;
@@ -83,15 +86,19 @@ export const WCIncomingPairing = ({
     } catch (e) {
       alertUser(t('walletConnect.invalidPairingChain', { chains: '\n•Ethereum \n•Optimism \n•BSC \n•Polygon \n•Fantom \n•Arbitrum One' }));
       console.error(e);
+    } finally {
+      setPairingLoading(false);
     }
   };
 
   const handleRejectPairing = async () => {
+    setPairingLoading(true);
     await web3wallet.rejectSession({
       id: currentProposal.id,
       reason: getSdkError('USER_REJECTED_METHODS')
     });
     onReject();
+    setPairingLoading(false);
   };
 
   return (
@@ -100,8 +107,8 @@ export const WCIncomingPairing = ({
       <PairingContainer pairingMetadata={pairingMetadata} />
       <p className={styles.receiveAddress}>{t('accountInfo.address')}: {receiveAddress}</p>
       <div className={styles.buttonsContainer}>
-        <Button secondary onClick={handleRejectPairing}>{t('walletConnect.pairingRequest.reject')}</Button>
-        <Button primary onClick={handleApprovePairing}>{t('walletConnect.pairingRequest.approve')}</Button>
+        <Button disabled={pairingLoading} secondary onClick={handleRejectPairing}>{t('walletConnect.pairingRequest.reject')}</Button>
+        <Button disabled={pairingLoading} primary onClick={handleApprovePairing}>{t('walletConnect.pairingRequest.approve')}</Button>
       </div>
     </div>
   );

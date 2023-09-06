@@ -16,6 +16,7 @@
 
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
+import { SuccessResponse } from './response';
 
 export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth';
 
@@ -63,6 +64,15 @@ export interface ITotalBalance {
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
   return apiGet('accounts/total-balance');
+};
+
+type TETHAddressByAccountCode = SuccessResponse & {
+  code: AccountCode;
+  name: string;
+}
+
+export const getETHAddressByAccountCode = (address: string): Promise<TETHAddressByAccountCode> => {
+  return apiPost('accounts/eth-account-code', { address });
 };
 
 export interface IStatus {
@@ -349,3 +359,4 @@ export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: an
 export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
   return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };
+
