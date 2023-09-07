@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useContext, useRef } from 'react';
+import { ChangeEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
 import DarkModeContext from '../../../../../contexts/DarkmodeContext';
+import { useHasCamera } from '../../../../../hooks/qrcodescanner';
 import { Input } from '../../../../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
 import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
-import { BrowserQRCodeReader } from '@zxing/library';
-import { useQRCodeScanner } from '../../../../../hooks/qrcodescanner';
 import style from '../../send.module.css';
 
 type TToggleScanQRButtonProps = {
@@ -58,13 +57,7 @@ export const ReceiverAddressInput = ({
   onChangeActiveScanQR
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
-  const qrCodeReader = useRef<BrowserQRCodeReader>();
-  const hasCamera = useQRCodeScanner({
-    qrCodeReaderRef: qrCodeReader,
-    activeScanQR,
-    onChangeActiveScanQR,
-    parseQRResult
-  });
+  const hasCamera = useHasCamera();
 
   const handleSendToSelf = async () => {
     if (!accountCode) {
@@ -80,24 +73,22 @@ export const ReceiverAddressInput = ({
     }
   };
 
-
   const toggleScanQR = () => {
     if (activeScanQR) {
-      if (qrCodeReader.current) {
-        // release camera;
-        qrCodeReader.current.reset();
-      }
       onChangeActiveScanQR(false);
       return;
     }
-
     onChangeActiveScanQR(true);
-
   };
 
   return (
     <>
-      <ScanQRDialog activeScanQR={activeScanQR} onToggleScanQR={toggleScanQR} />
+      <ScanQRDialog
+        activeScanQR={activeScanQR}
+        toggleScanQR={toggleScanQR}
+        onChangeActiveScanQR={onChangeActiveScanQR}
+        parseQRResult={parseQRResult}
+      />
       <Input
         label={t('send.address.label')}
         placeholder={t('send.address.placeholder')}
@@ -117,6 +108,5 @@ export const ReceiverAddressInput = ({
         )}
       </Input>
     </>
-
   );
 };

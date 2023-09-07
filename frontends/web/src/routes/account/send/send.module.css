@@ -96,6 +96,10 @@
     width: 100%;
     margin-bottom: var(--spacing-default);
 }
+.qrVideo + :global(.scan-region-highlight) svg {
+    stroke: var(--color-darkyellow) !important;
+    stroke-width: 3 !important;
+}
 
 .confirmItem p {
     margin-top: var(--space-quarter);
