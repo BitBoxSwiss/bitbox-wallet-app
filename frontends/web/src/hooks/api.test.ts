@@ -37,7 +37,7 @@ describe('hooks for api calls', () => {
       await waitFor(() => expect(result.current).toBe(true));
     });
 
-    it('re-calls apiCall when dependencies change', () => {
+    it('re-calls apiCall when dependencies change', async () => {
       // mock apiCall function
       const mockApiCall = vi.fn().mockImplementation(() => Promise.resolve(true));
 
@@ -47,7 +47,7 @@ describe('hooks for api calls', () => {
 
         //apiCall called for the first time during render
         useLoad(() => mockApiCall(), state);
-        return { state, setState };
+        return { setState };
       });
 
       act(() => result.current.setState([4]));
@@ -58,7 +58,7 @@ describe('hooks for api calls', () => {
       // for the 4th
       act(() => result.current.setState([6]));
 
-      waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(4));
+      await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(4));
     });
   });
 
@@ -78,7 +78,7 @@ describe('hooks for api calls', () => {
 
       expect(result.current).toBe(MOCK_RETURN_STATUS);
     });
-  })
+  });
 
 
   describe('useSync', () => {
@@ -107,12 +107,17 @@ describe('hooks for api calls', () => {
       // and updated its internal state to be `apiValue`.
       await waitFor(() => expect(result.current).toBe(apiValue));
 
+      await waitFor(() => expect(mockApiCall).toHaveBeenCalled());
+      await waitFor(() => expect(mockSubscription).toHaveBeenCalled());
+
       // If `subscriptionCallback` is truthy
       // it means, subscription was invoked by the hook.
       if (subscriptionCallback) {
         // We manually simulate receiving new data
         // from the subscription fn.
-        subscriptionCallback(subscriptionValue);
+        act(() => {
+          subscriptionCallback && subscriptionCallback(subscriptionValue);
+        });
       }
 
       // Finally, we wait until the hook updates its internal state
@@ -121,5 +126,3 @@ describe('hooks for api calls', () => {
     });
   });
 });
-
-

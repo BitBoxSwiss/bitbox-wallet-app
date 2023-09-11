@@ -18,7 +18,14 @@
 import { forwardRef } from 'react';
 import styles from './input.module.css';
 
-export interface Props {
+type withValue = {
+  value: string | number;
+  defaultValue?: string | number;
+} | {
+  defaultValue: string | number;
+}
+
+export type Props = withValue & {
     align?: 'left' | 'right';
     autoFocus?: boolean;
     children?: React.ReactNode;
@@ -38,7 +45,6 @@ export interface Props {
     title?: string;
     transparent?: boolean;
     type?: 'text' | 'password' | 'number';
-    value: string | number;
     maxLength?: number;
     labelSection?: JSX.Element | undefined;
 }

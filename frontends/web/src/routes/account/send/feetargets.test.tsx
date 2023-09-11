@@ -35,13 +35,13 @@ vi.mock('../../../../src/decorators/load', () => ({
   },
 }));
 
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { FeeTargets } from '../../../routes/account/send/feetargets';
 import { apiGet } from '../../../utils/request';
 
 describe('routes/account/send/feetargets', () => {
 
-  it('should match the snapshot', () => {
+  it('should match the snapshot', async () => {
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'economy',
       feeTargets: [
@@ -85,10 +85,10 @@ describe('routes/account/send/feetargets', () => {
         onCustomFee={vi.fn()}
         onFeeTargetChange={vi.fn()} />,
     );
-    expect(container).toMatchSnapshot();
+    waitFor(() => expect(container).toMatchSnapshot());
   });
 
-  it('should match the snapshot with empty feetargets', () => {
+  it('should match the snapshot with empty feetargets', async () => {
     (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: '',
       feeTargets: [],
@@ -104,10 +104,10 @@ describe('routes/account/send/feetargets', () => {
         onCustomFee={vi.fn()}
         onFeeTargetChange={vi.fn()} />,
     );
-    expect(container).toMatchSnapshot();
+    await waitFor(() => expect(container).toMatchSnapshot());
   });
 
-  it('should call onFeeTargetChange with default', () => new Promise<void>(done => {
+  it('should call onFeeTargetChange with default', () => new Promise<void>(async done => {
     const apiGetMock = (apiGet as Mock).mockResolvedValue({
       defaultFeeTarget: 'normal',
       feeTargets: [
@@ -131,6 +131,6 @@ describe('routes/account/send/feetargets', () => {
         onCustomFee={vi.fn()}
         onFeeTargetChange={onFeeTargetChangeCB} />,
     );
-    expect(apiGetMock).toHaveBeenCalled();
+    await waitFor(() => expect(apiGetMock).toHaveBeenCalled());
   }));
 });

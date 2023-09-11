@@ -57,7 +57,7 @@ describe('components/language/language', () => {
 
         const { getByTestId } = renderSwitchAndOpenDialog();
         const selectedLang = getByTestId(`language-selection-${lang.code}`);
-        expect(selectedLang.getAttribute("class")).toContain('selected')
+        expect(selectedLang.getAttribute('class')).toContain('selected')
       });
     });
 
@@ -70,7 +70,7 @@ describe('components/language/language', () => {
       });
       const { getByTestId } = renderSwitchAndOpenDialog();
       const selectedLang = getByTestId('language-selection-de');
-      expect(selectedLang.getAttribute("class")).toContain('selected');
+      expect(selectedLang.getAttribute('class')).toContain('selected');
     });
 
     it('returns default if none matched', () => {
@@ -82,7 +82,7 @@ describe('components/language/language', () => {
       });
       const { getByTestId } = renderSwitchAndOpenDialog();
       const defaultLang = getByTestId('language-selection-en-US');
-      expect(defaultLang.getAttribute("class")).toContain('selected');
+      expect(defaultLang.getAttribute('class')).toContain('selected');
     });
   });
 });
