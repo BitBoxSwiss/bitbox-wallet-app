@@ -122,7 +122,7 @@ describe('hooks for api calls', () => {
 
       // Finally, we wait until the hook updates its internal state
       // and returns it. The returned value should be `subscriptionValue`
-      await waitFor(() => expect(result.current).toBe(subscriptionValue)); 
+      await waitFor(() => expect(result.current).toBe(subscriptionValue));
     });
   });
 });

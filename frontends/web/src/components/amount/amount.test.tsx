@@ -31,13 +31,13 @@ const validateSpacing = (values: string[], elements: Element[]) => {
   //So we compare them like this:
   return (
     // makes sure each value corresponds to an element
-    values.length === elements.length  &&
+    values.length === elements.length &&
     // makes sure every element is a span
-    elements.every(element => element.tagName.toLowerCase() === "span") &&
+    elements.every(element => element.tagName.toLowerCase() === 'span') &&
     // and it has the correct value
     elements.every((element, index) => element.innerHTML === values[index])
-  )
-}
+  );
+};
 
 describe('Amount formatting', () => {
 
@@ -49,11 +49,11 @@ describe('Amount formatting', () => {
         const blocks = getByTestId('amountBlocks');
 
         const values = [
-          "12",
-          "345",
-          "678",
-          "901",
-          "234"
+          '12',
+          '345',
+          '678',
+          '901',
+          '234'
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -63,9 +63,9 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="1234567" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "1",
-          "234",
-          "567",
+          '1',
+          '234',
+          '567',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -76,8 +76,8 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="12345" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "12",
-          "345",
+          '12',
+          '345',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -87,7 +87,7 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="21" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "21",
+          '21',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -97,11 +97,11 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="12345678901234" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "12",
-          "345",
-          "678",
-          "901",
-          "234",
+          '12',
+          '345',
+          '678',
+          '901',
+          '234',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -112,9 +112,9 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="1234567" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "1",
-          "234",
-          "567",
+          '1',
+          '234',
+          '567',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -124,8 +124,8 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="12345" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "12",
-          "345",
+          '12',
+          '345',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -135,7 +135,7 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="21" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "21",
+          '21',
         ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
@@ -167,10 +167,10 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="10.00000000" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "10.00",
-          "000",
-          "000"
-        ]
+          '10.00',
+          '000',
+          '000'
+        ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
@@ -178,10 +178,10 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="12345.12300000" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-            "12345.12",
-            "300",
-            "000"
-        ]
+          '12345.12',
+          '300',
+          '000'
+        ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
@@ -193,10 +193,10 @@ describe('Amount formatting', () => {
         const { getByTestId } = render(<Amount amount="0.12345678" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
         const values = [
-          "0.12",
-          "345",
-          "678"
-        ]
+          '0.12',
+          '345',
+          '678'
+        ];
         const allSpacedElements = [...blocks.children];
         expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });

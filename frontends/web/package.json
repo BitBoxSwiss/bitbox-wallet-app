@@ -9,9 +9,12 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.4",
+    "eslint": "^8.49.0",
+    "eslint-config-react-app": "^7.0.1",
     "jsdom": "^22.1.0",
     "typescript": "^4.4.2",
     "vite": "^4.4.9",
+    "vite-plugin-eslint": "^1.8.1",
     "vitest": "^0.34.3"
   },
   "dependencies": {
@@ -45,8 +48,9 @@
   "scripts": {
     "dev": "npm run start",
     "start": "vite --port 8080 --cors",
-    "build": "vite build",
-    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src",
+    "build": "npm run typescript && vite build",
+    "lint": "npm run typescript && eslint --ext .jsx,.js,.ts,.tsx ./src",
+    "typescript": "tsc -p tsconfig.json",
     "test": "vitest"
   }
 }

@@ -6,19 +6,15 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(() => {
   return {
-    // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
-    // define: {
-    //   'process.env': {},
-    // },
     build: {
       outDir: 'build',
     },
     plugins: [react()],
     test: {
-      css: true, // TODO: needed?
+      css: false,
       environment: 'jsdom',
       globals: true,
-      setupFiles: './vite.setup-tests.js',
+      setupFiles: './vite.setup-tests.mjs',
     },
   };
 });
