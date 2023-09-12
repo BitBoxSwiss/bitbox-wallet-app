@@ -27,7 +27,7 @@ golangci-lint run
 
 npm --prefix=frontends/web install # needed to install dev dependencies.
 make weblint
-npm --prefix=frontends/web test -- --ci --no-color --coverage --watchAll=false
+npm --prefix=frontends/web test -- --no-color --no-watch
 # check that the i18n files are formatted correctly (avoids noisy diff when
 # pulling from locize)
 if ! locize format frontends/web/src/locales --format json --dry true ; then

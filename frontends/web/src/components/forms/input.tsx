@@ -73,7 +73,7 @@ export default forwardRef<HTMLInputElement, Props>(function Input({
           <label htmlFor={id} className={error ? styles.errorText : ''}>
             {label}
             { error ? (
-              <span>:<span>{error}</span></span>
+              <span>:<span>{error.toString()}</span></span>
             ) : null }
           </label>
           {labelSection && labelSection}
