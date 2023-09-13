@@ -92,6 +92,7 @@ type GoEnvironmentInterface interface {
 	NativeLocale() string
 	SetDarkTheme(bool)
 	DetectDarkTheme() bool
+	Auth()
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -184,6 +185,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 		goAPI,
 		&bridgecommon.BackendEnvironment{
 			NotifyUserFunc: environment.NotifyUser,
+			AuthFunc:       environment.Auth,
 			DeviceInfosFunc: func() []usb.DeviceInfo {
 				i := environment.DeviceInfo()
 				if i == nil {
@@ -208,4 +210,15 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 // sleep.
 func Shutdown() {
 	bridgecommon.Shutdown()
+}
+
+// TriggerAuth triggers an auth required notification towards the frontend.
+func TriggerAuth() {
+	bridgecommon.TriggerAuth()
+}
+
+// AuthResult triggers an auth feeedback notification (auth-ok/auth-err) towards the frontend,
+// depending on the input value.
+func AuthResult(ok bool) {
+	bridgecommon.AuthResult(ok)
 }

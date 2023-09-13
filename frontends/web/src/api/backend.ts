@@ -108,3 +108,17 @@ export const cancelConnectKeystore = (): Promise<void> => {
 export const setWatchonly = (watchonly: boolean): Promise<ISuccess> => {
   return apiPost('set-watchonly', watchonly);
 };
+export const authenticate = (): Promise<void> => {
+  return apiGet('auth');
+};
+
+
+export type TAuthEventObject = {
+  typ: 'auth-required' | 'auth-ok' | 'auth-err';
+};
+
+export const subscribeAuth = (
+  cb: TSubscriptionCallback<TAuthEventObject>
+) => (
+  subscribeEndpoint('auth', cb)
+);

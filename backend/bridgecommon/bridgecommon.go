@@ -121,6 +121,27 @@ func HandleURI(uri string) {
 	globalBackend.HandleURI(uri)
 }
 
+// TriggerAuth triggers an authentication request notification.
+func TriggerAuth() {
+	mu.Lock()
+	defer mu.Unlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.TriggerAuth()
+}
+
+// AuthResult triggers an authentication result notification
+// on the base of the input value.
+func AuthResult(ok bool) {
+	mu.Lock()
+	defer mu.Unlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.AuthResult(ok)
+}
+
 // UsingMobileDataChanged should be called when the network connnection changed.
 func UsingMobileDataChanged() {
 	mu.RLock()
@@ -147,12 +168,20 @@ type BackendEnvironment struct {
 	GetSaveFilenameFunc func(string) string
 	SetDarkThemeFunc    func(bool)
 	DetectDarkThemeFunc func() bool
+	AuthFunc            func()
 }
 
 // NotifyUser implements backend.Environment.
 func (env *BackendEnvironment) NotifyUser(text string) {
 	if env.NotifyUserFunc != nil {
 		env.NotifyUserFunc(text)
+	}
+}
+
+// Auth implements backend.Environment.
+func (env *BackendEnvironment) Auth() {
+	if env.AuthFunc != nil {
+		env.AuthFunc()
 	}
 }
 

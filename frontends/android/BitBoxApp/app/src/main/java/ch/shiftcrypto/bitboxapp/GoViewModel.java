@@ -121,6 +121,11 @@ public class GoViewModel extends AndroidViewModel {
             Util.systemOpen(getApplication(), url);
         }
 
+        public void auth() {
+            Util.log("Auth requested from backend");
+            requestAuth();
+        }
+
         public boolean usingMobileData() {
             // Adapted from https://stackoverflow.com/a/53243938
 
@@ -187,15 +192,29 @@ public class GoViewModel extends AndroidViewModel {
         }
     }
 
-     private MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isDarkTheme = new MutableLiveData<>();
 
-     public MutableLiveData<Boolean> getIsDarkTheme() {
+    public MutableLiveData<Boolean> getIsDarkTheme() {
          return isDarkTheme;
      }
-
-     public void setIsDarkTheme(Boolean isDark) {
+    public void setIsDarkTheme(Boolean isDark) {
          this.isDarkTheme.postValue(isDark);
     }
+
+    private MutableLiveData<Boolean> authenticator = new MutableLiveData<>(false);
+
+    public MutableLiveData<Boolean> getAuthenticator() {
+        return authenticator;
+    }
+
+    public void requestAuth() {
+        this.authenticator.postValue(true);
+    }
+
+    public void closeAuth() {
+        this.authenticator.postValue(false);
+    }
+
     private GoEnvironment goEnvironment;
     private GoAPI goAPI;
 

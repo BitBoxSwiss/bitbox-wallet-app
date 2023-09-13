@@ -112,6 +112,18 @@ type AccountEvent struct {
 	Data string             `json:"data"`
 }
 
+type authEventType string
+
+const (
+	authRequired authEventType = "auth-required"
+	authOk       authEventType = "auth-ok"
+	authErr      authEventType = "auth-err"
+)
+
+type authEventObject struct {
+	Typ authEventType `json:"typ"`
+}
+
 // Environment represents functionality where the implementation depends on the environment the app
 // runs in, e.g. Qt5/Mobile/webdev.
 type Environment interface {
@@ -143,6 +155,7 @@ type Environment interface {
 	SetDarkTheme(bool)
 	// DetectDarkTheme returns true if the dark theme is enabled at OS level.
 	DetectDarkTheme() bool
+	Auth()
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -294,6 +307,31 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 // Config returns the app config.
 func (backend *Backend) Config() *config.Config {
 	return backend.config
+}
+
+func (backend *Backend) TriggerAuth() {
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authRequired,
+		},
+	})
+}
+
+func (backend *Backend) AuthResult(ok bool) {
+	backend.log.Infof("Auth result: %v", ok)
+	typ := authErr
+	if ok {
+		typ = authOk
+	}
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: typ,
+		},
+	})
 }
 
 // DefaultAppConfig returns the default app config.
