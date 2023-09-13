@@ -6,6 +6,7 @@ import checker from 'vite-plugin-checker';
 export default defineConfig(() => {
   return {
     build: {
+      modulePreload: false,
       outDir: 'build',
     },
     plugins: [
