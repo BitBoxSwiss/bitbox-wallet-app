@@ -16,7 +16,6 @@ set -e
 
 mkdir -p build
 bash ./genassets.sh
-cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/windows-amd64/breez_sdk_bindings.dll server/
 make -C server/ windows-legacy
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
 cp build/assets.rcc build/windows/
