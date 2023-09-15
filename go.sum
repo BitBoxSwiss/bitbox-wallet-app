@@ -10,6 +10,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/breez/breez-sdk-go v0.2.2 h1:Bip2fIpa4SHRVkAOWQHJ0Er5vyePssXo0U6ZZT8Qr8c=
 github.com/breez/breez-sdk-go v0.2.2/go.mod h1:EalYMEeQVwRzr6UXnF4QpLlpuWNwQQN9xwtDKNIutBo=
+github.com/breez/breez-sdk-go v0.2.3 h1:U23iNmLN40ZcMDKl6quHc3o0k63aBXrnHSZe4d2OxSU=
+github.com/breez/breez-sdk-go v0.2.3/go.mod h1:EalYMEeQVwRzr6UXnF4QpLlpuWNwQQN9xwtDKNIutBo=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
 github.com/btcsuite/btcd v0.22.0-beta.0.20220111032746-97732e52810c/go.mod h1:tjmYdS6MLJ5/s0Fj4DbLgSbDHbEqLJrtnHecBFkdz5M=
 github.com/btcsuite/btcd v0.23.0/go.mod h1:0QJIIN1wwIXF/3G/m87gIwGniDMDQqjVn4SZgnFpsYY=
