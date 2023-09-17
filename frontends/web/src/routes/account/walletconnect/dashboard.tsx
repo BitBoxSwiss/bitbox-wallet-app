@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../hooks/api';
 import { SessionTypes } from '@walletconnect/types';
 import { getSdkError } from '@walletconnect/utils';
+import { WCWeb3WalletContext } from '../../../contexts/WCWeb3WalletContext';
 import { route } from '../../../utils/route';
-import useInitialization, { getAddressFromEIPString, truncateAddress, web3wallet, } from './utils';
+import { getAddressFromEIPString, truncateAddress } from '../../../utils/walletconnect';
 import { IAccount, getReceiveAddressList } from '../../../api/account';
 import { Header, Main } from '../../../components/layout';
 import { View, ViewContent } from '../../../components/view/view';
@@ -34,39 +35,40 @@ type TProps = {
 }
 
 export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
-  const isInitialized = useInitialization();
   const { t } = useTranslation();
+  const { web3wallet, isWalletInitialized } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
   const receiveAddresses = useLoad(getReceiveAddressList(code));
 
-  const updateSessions = () => {
-    setSessions(Object.values(web3wallet?.getActiveSessions()));
-  };
+  const updateSessions = useCallback(() => {
+    const activeSessions = Object.values(web3wallet?.getActiveSessions() || []);
+    setSessions(activeSessions);
+  }, [web3wallet]);
 
   useEffect(() => {
-    if (isInitialized) {
+    if (isWalletInitialized) {
       updateSessions();
     }
-  }, [isInitialized]);
+  }, [isWalletInitialized, updateSessions]);
 
   useEffect(() => {
-    if (isInitialized) {
+    if (isWalletInitialized) {
       web3wallet?.on('session_delete', updateSessions);
       return () => {
         web3wallet?.off('session_delete', updateSessions);
       };
     }
-  }, [isInitialized]);
+  }, [isWalletInitialized, updateSessions, web3wallet]);
 
   const handleDisconnectSession = async (topic: string) => {
-    await web3wallet.disconnectSession({
+    await web3wallet?.disconnectSession({
       topic,
       reason: getSdkError('USER_DISCONNECTED'),
     });
     updateSessions();
   };
 
-  if (!receiveAddresses || !isInitialized) {
+  if (!receiveAddresses || !isWalletInitialized) {
     return null;
   }
 

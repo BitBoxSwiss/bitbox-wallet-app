@@ -19,7 +19,7 @@ import { Button } from '../../../../../components/forms';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../../../hooks/api';
 import { getETHAddressByAccountCode } from '../../../../../api/account';
-import { truncateAddress } from '../../utils';
+import { truncateAddress } from '../../../../../utils/walletconnect';
 import styles from './session-card.module.css';
 
 type TTextDataProps = {

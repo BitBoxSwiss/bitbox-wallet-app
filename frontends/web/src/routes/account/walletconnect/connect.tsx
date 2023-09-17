@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useLoad } from '../../../hooks/api';
 import * as accountApi from '../../../api/account';
-import { Header, Main } from '../../../components/layout';
 import { SignClientTypes } from '@walletconnect/types';
-import useInitialization, { pair, web3wallet } from './utils';
+import { WCWeb3WalletContext } from '../../../contexts/WCWeb3WalletContext';
+import { Header, Main } from '../../../components/layout';
 import { alertUser } from '../../../components/alert/Alert';
 import { View, ViewContent } from '../../../components/view/view';
 import { WCHeader } from './components/header/header';
@@ -38,9 +38,9 @@ export const ConnectScreenWalletConnect = ({
   code,
   accounts
 }: TProps) => {
-  const initialized = useInitialization();
   const [uri, setUri] = useState('');
   const [status, setStatus] = useState<TConnectStatus>('connect');
+  const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
   const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const onSessionProposal = useCallback(
@@ -52,13 +52,13 @@ export const ConnectScreenWalletConnect = ({
   );
 
   useEffect(() => {
-    if (initialized) {
+    if (isWalletInitialized) {
       web3wallet?.on('session_proposal', onSessionProposal);
       return () => {
         web3wallet?.off('session_proposal', onSessionProposal);
       };
     }
-  }, [onSessionProposal, initialized]);
+  }, [onSessionProposal, isWalletInitialized, web3wallet]);
 
   const handleApprovePairingStates = () => {
     setStatus('success');
@@ -82,7 +82,7 @@ export const ConnectScreenWalletConnect = ({
     }
   };
 
-  if (!receiveAddresses || !initialized) {
+  if (!receiveAddresses || !isWalletInitialized) {
     return null;
   }
 
