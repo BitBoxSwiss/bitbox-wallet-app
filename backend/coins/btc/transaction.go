@@ -145,14 +145,13 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	if err != nil {
 		return nil, nil, err
 	}
+	utxo, err = account.transactions.SelectedOrSafeToSpendOutputs(args.SelectedUTXOs, utxo)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	wireUTXO := make(map[wire.OutPoint]maketx.UTXO, len(utxo))
 	for outPoint, txOut := range utxo {
-		// Apply coin control.
-		if len(args.SelectedUTXOs) != 0 {
-			if _, ok := args.SelectedUTXOs[outPoint]; !ok {
-				continue
-			}
-		}
 		wireUTXO[outPoint] = maketx.UTXO{
 			TxOut: txOut.TxOut,
 			Configuration: account.getAddress(

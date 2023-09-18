@@ -190,9 +190,7 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 	return true
 }
 
-// SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent. Those
-// include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
-// ourselves.
+// SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent.
 func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*SpendableOutput, error) {
 	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (map[wire.OutPoint]*SpendableOutput, error) {
@@ -204,17 +202,48 @@ func (transactions *Transactions) SpendableOutputs() (map[wire.OutPoint]*Spendab
 		for outPoint, txOut := range outputs {
 			spent := transactions.isInputSpent(dbTx, outPoint)
 			if !spent {
-				txInfo, err := dbTx.TxInfo(outPoint.Hash)
 				if err != nil {
 					return nil, err
 				}
-				confirmed := txInfo.Height > 0
 
-				if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
-					result[outPoint] = &SpendableOutput{
-						TxOut: txOut,
-					}
+				result[outPoint] = &SpendableOutput{
+					TxOut: txOut,
 				}
+			}
+		}
+		return result, nil
+	})
+}
+
+// In case there are selected utxos we return their outputs without considering if they are safe to spend since they were explicityly selected.
+// If there are no selected utxos we filter out unconfirmed ouputs that have inputs that were not created by us.
+// we could actaully avoid hitting the DB here by already putting confrimed bool and allInputsOurs bool into the SpendableCoin struct, like this we
+// don't have to return an error and avoid verbose error checking (see tests for example)
+// in case you re wondering why I did not just change the method signature of SpendableOutputs() to also take the selected map, this is because we need a way to
+// show the user all utxos in the firstplace (see /utxos handler) also SpendableOutputs returning ALL spendable outputs is more expressive and it makes sense to filter
+// somewhere else imo.
+func (transactions *Transactions) SelectedOrSafeToSpendOutputs(selected map[wire.OutPoint]struct{}, sos map[wire.OutPoint]*SpendableOutput) (map[wire.OutPoint]*SpendableOutput, error) {
+	transactions.synchronizer.WaitSynchronized()
+	return DBView(transactions.db, func(dbTx DBTxInterface) (map[wire.OutPoint]*SpendableOutput, error) {
+		result := map[wire.OutPoint]*SpendableOutput{}
+		for outPoint, so := range sos {
+			if len(selected) != 0 {
+				if _, ok := selected[outPoint]; !ok {
+					continue
+				}
+				// we do not check if its confirmed or the inputs are ours because the output was explicitly selected.
+				result[outPoint] = so
+				continue
+			}
+			// if the output was not explicitly selected we check if its safe to spend.
+			txInfo, err := dbTx.TxInfo(outPoint.Hash)
+			if err != nil {
+				return nil, err
+			}
+			confirmed := txInfo.Height > 0
+
+			if confirmed || transactions.allInputsOurs(dbTx, txInfo.Tx) {
+				result[outPoint] = so
 			}
 		}
 		return result, nil

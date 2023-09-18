@@ -178,6 +178,8 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	}
 	spendableOutputs, err := s.transactions.SpendableOutputs()
 	require.NoError(s.T(), err)
+	spendableOutputs, err = s.transactions.SelectedOrSafeToSpendOutputs(make(map[wire.OutPoint]struct{}), spendableOutputs)
+	require.NoError(s.T(), err)
 	require.Equal(s.T(),
 		map[wire.OutPoint]*transactions.SpendableOutput{
 			{Hash: tx1.TxHash(), Index: 0}: utxo,
@@ -195,6 +197,8 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 func (s *transactionsSuite) TestSpendableOutputs() {
 	// Starts out empty.
 	spendableOutputs, err := s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
+	spendableOutputs, err = s.transactions.SelectedOrSafeToSpendOutputs(make(map[wire.OutPoint]struct{}), spendableOutputs)
 	require.NoError(s.T(), err)
 	require.Empty(s.T(), spendableOutputs)
 	addresses, err := s.addressChain.EnsureAddresses()
@@ -222,6 +226,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 
 	spendableOutputs, err = s.transactions.SpendableOutputs()
 	require.NoError(s.T(), err)
+	spendableOutputs, err = s.transactions.SelectedOrSafeToSpendOutputs(make(map[wire.OutPoint]struct{}), spendableOutputs)
+	require.NoError(s.T(), err)
 	// Two confirmed txs.
 	require.Len(s.T(), spendableOutputs, 2)
 	require.Contains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx12.TxHash(), Index: 0})
@@ -237,6 +243,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	})
 	spendableOutputs, err = s.transactions.SpendableOutputs()
 	require.NoError(s.T(), err)
+	spendableOutputs, err = s.transactions.SelectedOrSafeToSpendOutputs(make(map[wire.OutPoint]struct{}), spendableOutputs)
+	require.NoError(s.T(), err)
 	require.Len(s.T(), spendableOutputs, 1)
 	require.NotContains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx12.TxHash(), Index: 0})
 	require.Contains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx22.TxHash(), Index: 0})
@@ -250,6 +258,8 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 		{TXHash: blockchainpkg.TXHash(tx22Spend.TxHash()), Height: 0},
 	})
 	spendableOutputs, err = s.transactions.SpendableOutputs()
+	require.NoError(s.T(), err)
+	spendableOutputs, err = s.transactions.SelectedOrSafeToSpendOutputs(make(map[wire.OutPoint]struct{}), spendableOutputs)
 	require.NoError(s.T(), err)
 	require.Len(s.T(), spendableOutputs, 1)
 	// tx22 spent, not available anymore
