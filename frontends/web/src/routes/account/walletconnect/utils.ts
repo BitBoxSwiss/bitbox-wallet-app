@@ -131,3 +131,31 @@ export const truncateAddress = (address: string) => {
   }
   return `${address.substring(0, 6)}...${address.substring(address.length - 6)}`;
 };
+
+export const decodeEthMessage = (hex: string) => {
+  hex = hex.trim();
+  if (hex.startsWith('0x')) {
+    hex = hex.substring(2);
+  }
+
+  // Validate input.
+  if (hex.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(hex)) {
+    console.error('Invalid hex string');
+    return null;
+  }
+
+  // Create a Uint8Array from the hex string.
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    const byte = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+    if (isNaN(byte)) {
+      console.error('Invalid byte in hex string');
+      return null;
+    }
+    bytes[i] = byte;
+  }
+
+  // Create a TextDecoder and use it to convert the bytes to a string.
+  const decoder = new TextDecoder('utf-8');
+  return decoder.decode(bytes);
+};

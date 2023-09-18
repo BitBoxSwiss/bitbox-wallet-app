@@ -25,9 +25,8 @@ import { Button, Input } from '../../../components/forms';
 import { PairingTypes, SessionTypes, SignClientTypes } from '@walletconnect/types';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
-import useInitialization, { SUPPORTED_CHAINS, pair, web3wallet } from './utils';
+import useInitialization, { SUPPORTED_CHAINS, EIP155_SIGNING_METHODS, decodeEthMessage, pair, web3wallet } from './utils';
 import React from 'react';
-import { EIP155_SIGNING_METHODS } from './utils';
 import { alertUser } from '../../../components/alert/Alert';
 import { ethSignMessage, ethSignTypedMessage, ethSignWalletConnectTx } from '../../../api/account';
 
@@ -151,6 +150,7 @@ export const WalletConnect = ({
       const { topic, params, id } = requestEvent;
       const { request } = params;
       let message: string;
+      let decodedMessage;
       const activeSessions = Object.values(web3wallet?.getActiveSessions());
       const currentSession = activeSessions.find((session) => session.topic === topic);
 
@@ -161,6 +161,7 @@ export const WalletConnect = ({
         * while PERSONAL_SIGN gives them as [message, address]
         */
         message = request.params[1];
+        decodedMessage = decodeEthMessage(message);
         if (currentSession) {
           handleSessionRequest(async () => {
             const result = await ethSignMessage(code, message);
@@ -171,11 +172,12 @@ export const WalletConnect = ({
 
             return { success: false, error: result };
           },
-          currentSession, topic, id, 'Sign Message', message);
+          currentSession, topic, id, 'Sign Message', decodedMessage ? decodedMessage : message);
         }
         return;
       case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
         message = request.params[0];
+        decodedMessage = decodeEthMessage(message);
         if (currentSession) {
           handleSessionRequest(async () => {
             const result = await ethSignMessage(code, message);
@@ -186,7 +188,7 @@ export const WalletConnect = ({
 
             return { success: false, error: result };
           },
-          currentSession, topic, id, 'Sign Message', message);
+          currentSession, topic, id, 'Sign Message', decodedMessage ? decodedMessage : message);
         }
         return;
       case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
