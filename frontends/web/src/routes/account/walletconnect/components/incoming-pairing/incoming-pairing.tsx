@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CoreTypes, SignClientTypes } from '@walletconnect/types';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
+import { WCWeb3WalletContext } from '../../../../../contexts/WCWeb3WalletContext';
 import { Button } from '../../../../../components/forms';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { SUPPORTED_CHAINS, web3wallet } from '../../utils';
+import { SUPPORTED_CHAINS } from '../../../../../utils/walletconnect';
 import styles from './incoming-pairing.module.css';
-import { useState } from 'react';
 
 type TIncomingPairingProps = {
     currentProposal: SignClientTypes.EventArguments['session_proposal'];
@@ -54,6 +55,7 @@ export const WCIncomingPairing = ({
   onApprove
 }: TIncomingPairingProps) => {
   const [pairingLoading, setPairingLoading] = useState(false);
+  const { web3wallet } = useContext(WCWeb3WalletContext);
   const { t } = useTranslation();
   const handleApprovePairing = async () => {
     setPairingLoading(true);
@@ -93,7 +95,7 @@ export const WCIncomingPairing = ({
 
   const handleRejectPairing = async () => {
     setPairingLoading(true);
-    await web3wallet.rejectSession({
+    await web3wallet?.rejectSession({
       id: currentProposal.id,
       reason: getSdkError('USER_REJECTED_METHODS')
     });
