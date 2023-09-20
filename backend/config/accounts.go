@@ -73,6 +73,11 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 	return nil
 }
 
+// IsWatchOnly returns true if the `Watch` setting is set to true.
+func (acct *Account) IsWatch() bool {
+	return acct.Watch != nil && *acct.Watch
+}
+
 // Keystore holds information related to keystores such as the BitBox02.
 type Keystore struct {
 	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.

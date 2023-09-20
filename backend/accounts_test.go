@@ -1050,8 +1050,31 @@ func TestAccountSupported(t *testing.T) {
 	b.registerKeystore(bb02Multi)
 	require.Len(t, b.Accounts(), 3)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	// Mark all as watch-only.
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		for _, acct := range cfg.Accounts {
+			f := true
+			acct.Watch = &f
+		}
+		return nil
+	}))
 
 	b.DeregisterKeystore()
+	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
+	// previously, because they are marked watch-only, so they should be visible.
+	b.registerKeystore(bb02BtcOnly)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	b.DeregisterKeystore()
+	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		for _, acct := range cfg.Accounts {
+			f := false
+			acct.Watch = &f
+		}
+		return nil
+	}))
 	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
 	// were persisted previously.
 	b.registerKeystore(bb02BtcOnly)
