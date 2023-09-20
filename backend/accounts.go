@@ -36,6 +36,15 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
+// Set the `watch` setting on new accounts to this default value.
+// For now we keep it unset, and have users opt-in to watching specific accounts.
+//
+// We set it to `nil` not `false` so that we reserve the possibility to default all accounts to
+// watch-only for accounts where the user hasn't made an active decision (e.g. turn on watch-only
+// for all accounts of a keystore if the user did not activate/deactivate watch-only manually on any
+// of them).
+var defaultWatch *bool = nil
+
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
 const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
@@ -549,9 +558,15 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				tokenName = fmt.Sprintf("%s %d", tokenName, accountNumber+1)
 			}
 
+			var watchToken *bool
+			if persistedConfig.Watch != nil {
+				wCopy := *persistedConfig.Watch
+				watchToken = &wCopy
+			}
 			erc20Config := &config.Account{
 				Inactive:              persistedConfig.Inactive,
 				HiddenBecauseUnused:   persistedConfig.HiddenBecauseUnused,
+				Watch:                 watchToken,
 				CoinCode:              erc20CoinCode,
 				Name:                  tokenName,
 				Code:                  erc20AccountCode,
@@ -655,6 +670,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	if keystore.SupportsUnifiedAccounts() {
 		return backend.persistAccount(config.Account{
 			HiddenBecauseUnused:   hiddenBecauseUnused,
+			Watch:                 defaultWatch,
 			CoinCode:              coin.Code(),
 			Name:                  name,
 			Code:                  code,
@@ -674,6 +690,7 @@ func (backend *Backend) persistBTCAccountConfig(
 
 		err := backend.persistAccount(config.Account{
 			HiddenBecauseUnused:   hiddenBecauseUnused,
+			Watch:                 defaultWatch,
 			CoinCode:              coin.Code(),
 			Name:                  suffixedName,
 			Code:                  splitAccountCode(code, cfg.ScriptType()),
@@ -730,6 +747,7 @@ func (backend *Backend) persistETHAccountConfig(
 
 	return backend.persistAccount(config.Account{
 		HiddenBecauseUnused:   hiddenBecauseUnused,
+		Watch:                 defaultWatch,
 		CoinCode:              coin.Code(),
 		Name:                  name,
 		Code:                  code,

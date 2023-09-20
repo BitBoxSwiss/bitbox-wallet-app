@@ -101,6 +101,11 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
 	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
 	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
+	// All accounts default to not being watch-only.
+	for _, acct := range b.Accounts() {
+		require.Nil(t, acct.Config().Config.Watch)
+	}
+
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 	require.Equal(t, "Mock keystore 1", b.Config().AccountsConfig().Keystores[0].Name)
 	require.Equal(t, rootFingerprint1, []byte(b.Config().AccountsConfig().Keystores[0].RootFingerprint))

@@ -561,6 +561,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
@@ -583,6 +584,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
@@ -604,6 +606,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
@@ -624,6 +627,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 3",
 				Code:     "v0-55555555-btc-2",
@@ -646,6 +650,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-2",
@@ -667,6 +672,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-2",
@@ -682,6 +688,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t,
 			&config.Account{
 				HiddenBecauseUnused: true,
+				Watch:               nil,
 				CoinCode:            "btc",
 				Name:                "Bitcoin 4",
 				Code:                "v0-55555555-btc-3",
@@ -704,6 +711,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-3", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 4 new name",
 				Code:     "v0-55555555-btc-3",
@@ -734,6 +742,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
@@ -745,6 +754,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
@@ -756,6 +766,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
@@ -777,6 +788,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
@@ -788,6 +800,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
