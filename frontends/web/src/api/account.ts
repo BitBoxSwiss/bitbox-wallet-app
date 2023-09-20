@@ -36,20 +36,26 @@ export type Terc20Token = {
 };
 
 export interface IActiveToken {
-    tokenCode: string;
-    accountCode: AccountCode;
+  tokenCode: string;
+  accountCode: AccountCode;
 }
 
+export type TKeystore = {
+  rootFingerprint: string;
+  name: string;
+};
+
 export interface IAccount {
-    active: boolean;
-    coinCode: CoinCode;
-    coinUnit: string;
-    coinName: string;
-    code: AccountCode;
-    name: string;
-    isToken: boolean;
-    activeTokens?: IActiveToken[];
-    blockExplorerTxPrefix: string;
+  keystore: TKeystore;
+  active: boolean;
+  coinCode: CoinCode;
+  coinUnit: string;
+  coinName: string;
+  code: AccountCode;
+  name: string;
+  isToken: boolean;
+  activeTokens?: IActiveToken[];
+  blockExplorerTxPrefix: string;
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {

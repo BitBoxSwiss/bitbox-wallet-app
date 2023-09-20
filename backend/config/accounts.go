@@ -104,16 +104,25 @@ func (cfg AccountsConfig) Lookup(code accountsTypes.Code) *Account {
 	return nil
 }
 
+// LookupKeystore looks up a keystore by fingerprint. Returns error if it could not be found.
+func (cfg AccountsConfig) LookupKeystore(rootFingerprint []byte) (*Keystore, error) {
+	for _, ks := range cfg.Keystores {
+		if bytes.Equal(ks.RootFingerprint, rootFingerprint) {
+			return ks, nil
+		}
+	}
+	return nil, errp.Newf("could not retrieve keystore for fingerprint %x", rootFingerprint)
+}
+
 // GetOrAddKeystore looks up the keystore by root fingerprint. If it does not exist, one is added to
 // the list of keystores and the newly created one is returned.
 func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
-	for _, ks := range cfg.Keystores {
-		if bytes.Equal(ks.RootFingerprint, rootFingerprint) {
-			return ks
-		}
+	ks, err := cfg.LookupKeystore(rootFingerprint)
+	if err == nil {
+		return ks
 	}
 
-	ks := &Keystore{RootFingerprint: rootFingerprint}
+	ks = &Keystore{RootFingerprint: rootFingerprint}
 	cfg.Keystores = append(cfg.Keystores, ks)
 	return ks
 }

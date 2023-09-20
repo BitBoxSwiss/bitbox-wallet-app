@@ -15,6 +15,7 @@
  */
 
 import React, { Component } from 'react';
+import { getAccountsByKeystore } from '../account/utils';
 import { route } from '../../utils/route';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
@@ -68,8 +69,8 @@ class ManageAccounts extends Component<Props, State> {
     this.fetchAccounts();
   }
 
-  private renderAccounts = () => {
-    const { accounts, showTokens } = this.state;
+  private renderAccounts = (accounts: accountAPI.IAccount[]) => {
+    const { showTokens } = this.state;
     const { t } = this.props;
     return accounts.filter(account => !account.isToken).map(account => {
       const active = account.active;
@@ -216,8 +217,8 @@ class ManageAccounts extends Component<Props, State> {
 
   public render() {
     const { t, deviceIDs, hasAccounts } = this.props;
-    const { editAccountCode, editAccountNewName, editErrorMessage } = this.state;
-    const accountList = this.renderAccounts();
+    const { accounts, editAccountCode, editAccountNewName, editErrorMessage } = this.state;
+    const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <GuideWrapper>
         <GuidedContent>
@@ -240,9 +241,17 @@ class ManageAccounts extends Component<Props, State> {
                       onClick={() => route('/add-account', true)}>
                       {t('addAccount.title')}
                     </Button>
-                    <div className="box slim divide m-bottom-large">
-                      { (accountList && accountList.length) ? accountList : t('manageAccounts.noAccounts') }
-                    </div>
+
+                    {
+                      accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
+                        <p>{keystore.keystore.name}</p>
+                        <div className="box slim divide m-bottom-large">
+                          { this.renderAccounts(keystore.accounts) }
+                        </div>
+                      </React.Fragment>))
+                    }
+                    { accounts.length === 0 ? t('manageAccounts.noAccounts') : null }
+
                     <Dialog
                       open={!!(editAccountCode)}
                       onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
