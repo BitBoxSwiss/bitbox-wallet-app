@@ -59,3 +59,35 @@ func TestSetTokenActive(t *testing.T) {
 	require.NoError(t, acct.SetTokenActive("TOKEN-1", false))
 	require.Equal(t, []string{"TOKEN-2"}, acct.ActiveTokens)
 }
+
+func TestMigrateActiveToken(t *testing.T) {
+	config := &Config{
+		appConfigFilename: "appConfigFilename",
+		appConfig:         NewDefaultAppConfig(),
+
+		accountsConfigFilename: "accountsConfigFilename",
+		accountsConfig:         newDefaultAccountsonfig(),
+	}
+
+	accountConf := config.accountsConfig
+
+	acct := &Account{
+		CoinCode: coin.CodeETH,
+	}
+
+	accountConf.Accounts = append(accountConf.Accounts, acct)
+
+	require.Equal(t, []*Account{{
+		CoinCode: coin.CodeETH,
+	}}, accountConf.Accounts)
+
+	require.NoError(t, acct.SetTokenActive("eth-erc20-sai0x89d", true))
+	require.Equal(t, []string{"eth-erc20-sai0x89d"}, acct.ActiveTokens)
+	require.NoError(t, acct.SetTokenActive("TOKEN-2", true))
+	require.Equal(t, []string{"eth-erc20-sai0x89d", "TOKEN-2"}, acct.ActiveTokens)
+
+	require.NoError(t, migrateActiveTokens(&accountConf))
+
+	// eth-erc20-sai0x89d was removed by the migration.
+	require.Equal(t, []string{"TOKEN-2"}, acct.ActiveTokens)
+}
