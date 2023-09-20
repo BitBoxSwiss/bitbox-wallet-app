@@ -16,6 +16,7 @@ package backend
 
 import (
 	"testing"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
@@ -35,11 +36,17 @@ func TestRegisterKeystore(t *testing.T) {
 	rootKey2 := mustXKey("xprv9s21ZrQH143K3cfe2832UrUDA5jmFWvm3acoempvZofxin26VdqjosJfTjHsVgjgszDYHiEgepM7J7U9N7HpayNZDRPUoxGKQbJCuHzgnuy")
 	keystoreHelper2 := software.NewKeystore(rootKey2)
 
+	rootFingerprint1 := []byte{0x55, 0x055, 0x55, 0x55}
+	rootFingerprint2 := []byte{0x66, 0x066, 0x66, 0x66}
+
 	// A keystore with a similar config to a BitBox02 - supporting unified accounts, no legacy
 	// P2PKH.
 	ks1 := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock keystore 1", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
-			return []byte{0x55, 0x055, 0x55, 0x55}, nil
+			return rootFingerprint1, nil
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -56,8 +63,11 @@ func TestRegisterKeystore(t *testing.T) {
 		ExtendedPublicKeyFunc: keystoreHelper1.ExtendedPublicKey,
 	}
 	ks2 := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock keystore 2", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
-			return []byte{0x66, 0x066, 0x66, 0x66}, nil
+			return rootFingerprint2, nil
 		},
 		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
 			switch coin.(type) {
@@ -80,7 +90,7 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Len(t, b.Accounts(), 0)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 0)
 
-	// Registering a new keystore persists a set of initial default accounts.
+	// Registering a new keystore persists a set of initial default accounts and the keystore.
 	b.registerKeystore(ks1)
 	require.Equal(t, ks1, b.Keystore())
 	require.Len(t, b.Accounts(), 3)
@@ -91,11 +101,19 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
 	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
 	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
+	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
+	require.Equal(t, "Mock keystore 1", b.Config().AccountsConfig().Keystores[0].Name)
+	require.Equal(t, rootFingerprint1, []byte(b.Config().AccountsConfig().Keystores[0].RootFingerprint))
+	// LastConnected might not be `time.Now()` anymore as some time may have passed in the unit
+	// tests, but we check that it was set and recent.
+	require.True(t, time.Since(b.Config().AccountsConfig().Keystores[0].LastConnected) < 10*time.Second)
 
-	// Deregistering the keystore removes the loaded accounts, but not the persisted accounts.
+	// Deregistering the keystore removes the loaded accounts, but not the persisted accounts and
+	// keystores.
 	b.DeregisterKeystore()
 	require.Len(t, b.Accounts(), 0)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 
 	// Registering the same keystore again loads the previously persisted accounts and does not
 	// automatically persist more accounts.
@@ -103,6 +121,7 @@ func TestRegisterKeystore(t *testing.T) {
 	b.registerKeystore(ks1)
 	require.Len(t, b.Accounts(), 3)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 
 	// Registering another keystore persists a set of initial default accounts and loads them.
 	b.DeregisterKeystore()
@@ -112,6 +131,9 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
+	require.Len(t, b.Config().AccountsConfig().Keystores, 2)
+	require.Equal(t, "Mock keystore 2", b.Config().AccountsConfig().Keystores[1].Name)
+	require.Equal(t, rootFingerprint2, []byte(b.Config().AccountsConfig().Keystores[1].RootFingerprint))
 }
 
 func lookup(accts []accounts.Interface, code accountsTypes.Code) accounts.Interface {
@@ -137,6 +159,9 @@ func TestAccounts(t *testing.T) {
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	ks := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock keystore", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return []byte{0x55, 0x055, 0x55, 0x55}, nil
 		},

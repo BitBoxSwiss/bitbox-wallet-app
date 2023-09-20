@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -521,7 +522,30 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		}
 		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
+
+	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
+		fingerprint, err := keystore.RootFingerprint()
+		if err != nil {
+			return errp.WithMessage(err, "could not retrieve root fingerprint")
+		}
+		keystoreName, err := keystore.Name()
+		if err != nil {
+			return errp.WithMessage(err, "could not retrieve keystore name")
+		}
+		keystoreCfg := accountsConfig.GetOrAddKeystore(fingerprint)
+		keystoreCfg.Name = keystoreName
+		keystoreCfg.LastConnected = time.Now()
+		return nil
+	}
+
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		// Persist keystore with its name in the config.
+		if err := persistKeystore(accountsConfig); err != nil {
+			log.WithError(err).Error("Could not persist keystore")
+		}
+
+		// Persist default accounts the first time, otherwise perform any migrations that may be
+		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
 			return backend.updatePersistedAccounts(keystore, accounts)
