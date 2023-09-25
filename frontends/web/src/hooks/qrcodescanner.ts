@@ -14,79 +14,63 @@
  * limitations under the License.
  */
 
-import { MutableRefObject, useEffect, useState } from 'react';
-import { BrowserQRCodeReader } from '@zxing/library';
-import { alertUser } from '../components/alert/Alert';
+import { RefObject, useEffect, useState } from 'react';
+import QrScanner from 'qr-scanner';
 import { useMountedRef } from './mount';
 
-type TProps = {
-    qrCodeReaderRef: MutableRefObject<BrowserQRCodeReader | undefined>
-    activeScanQR: boolean;
-    onChangeActiveScanQR: (isActive: boolean) => void;
-    parseQRResult: (result: string) => void;
-    videoSourceId?: string;
-}
-
-/**
- * Hook to facilitate QR code scanning.
- * Lazily loads the QRReader library.
- * @function
-**/
-export const useQRCodeScanner = ({
-  qrCodeReaderRef,
-  activeScanQR,
-  onChangeActiveScanQR,
-  parseQRResult,
-  videoSourceId = 'video'
-}: TProps) => {
-
+export const useHasCamera = () => {
   const [hasCamera, setHasCamera] = useState(false);
-
   const mounted = useMountedRef();
 
   useEffect(() => {
-    import('../components/qrcode/qrreader')
-      .then(({ BrowserQRCodeReader }) => {
-        if (!qrCodeReaderRef.current) {
-          qrCodeReaderRef.current = new BrowserQRCodeReader();
+    QrScanner.hasCamera()
+      .then(result => {
+        if (mounted.current) {
+          setHasCamera(result);
         }
-
-        qrCodeReaderRef.current.getVideoInputDevices()
-          .then(videoInputDevices => {
-            if (mounted.current) {
-              setHasCamera(videoInputDevices.length > 0);
-            }
-          });
       })
+      .catch(console.error);
+  }, [mounted]);
+
+  return hasCamera;
+};
+
+type TUseQRScannerOptions = {
+  onStart?: () => void;
+  onResult: (result: QrScanner.ScanResult) => void;
+  onError: (error: any) => void;
+}
+
+export const useQRScanner = (
+  videoRef: RefObject<HTMLVideoElement>, {
+    onStart,
+    onResult,
+    onError,
+  }: TUseQRScannerOptions
+) => {
+
+  useEffect(() => {
+    const scanner = videoRef.current && (
+      new QrScanner(
+        videoRef.current,
+        result => {
+          scanner?.stop();
+          onResult(result);
+        }, {
+          onDecodeError: onError,
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+        })
+    );
+
+    scanner?.start()
+      .then(() => onStart && onStart())
       .catch(console.error);
 
     return () => {
-      if (qrCodeReaderRef.current) {
-        qrCodeReaderRef.current.reset();
-      }
+      scanner?.stop();
+      scanner?.destroy();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qrCodeReaderRef]); // disable warning about mounted not in the dependency list
+  }, [videoRef, onStart, onResult, onError]);
 
-  useEffect(() => {
-    if (activeScanQR && qrCodeReaderRef.current) {
-      qrCodeReaderRef.current.decodeFromInputVideoDevice(undefined, videoSourceId)
-        .then(result => {
-          onChangeActiveScanQR(false);
-          parseQRResult(result.getText());
-
-          if (qrCodeReaderRef.current) {
-            qrCodeReaderRef.current.reset(); // release camera
-          }
-        })
-        .catch(error => {
-          if (error) {
-            alertUser(error.message || error);
-          }
-          onChangeActiveScanQR(false);
-        });
-    }
-  }, [activeScanQR, onChangeActiveScanQR, parseQRResult, qrCodeReaderRef, videoSourceId]);
-
-  return hasCamera;
 };

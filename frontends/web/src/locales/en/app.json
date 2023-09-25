@@ -1215,6 +1215,9 @@
       "paste": "to paste text, enable \"SHOW {{label}}\""
     }
   },
+  "permission": {
+    "camera": "Please grant camera access so the BitBoxApp can scan."
+  },
   "random": {
     "button": "Generate random number",
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
