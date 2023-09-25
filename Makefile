@@ -52,7 +52,7 @@ servewallet-mainnet-prodservers:
 buildweb:
 	node --version
 	npm --version
-	rm -rf ${WEBROOT}/build
+	cd ${WEBROOT} && ${MAKE} clean
 	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run build
 webdev:
@@ -84,7 +84,7 @@ osx-sec-check:
 ci:
 	./scripts/ci.sh
 clean:
-	rm -rf ${WEBROOT}/build
+	cd ${WEBROOT} && ${MAKE} clean
 	cd frontends/qt && $(MAKE) clean
 	cd frontends/android && $(MAKE) clean
 dockerinit:
