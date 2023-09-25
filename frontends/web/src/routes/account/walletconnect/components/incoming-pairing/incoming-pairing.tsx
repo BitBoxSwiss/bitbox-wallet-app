@@ -71,7 +71,7 @@ export const WCIncomingPairing = ({
         proposal: params,
         supportedNamespaces: {
           eip155: {
-            chains: SUPPORTED_CHAINS,
+            chains: Object.keys(SUPPORTED_CHAINS),
             methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
             events: ['accountsChanged', 'chainChanged'],
             accounts

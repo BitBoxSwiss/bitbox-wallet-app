@@ -66,12 +66,12 @@ export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
   return apiGet('accounts/total-balance');
 };
 
-type TETHAddressByAccountCode = SuccessResponse & {
+type TEthAccountCodeAndNameByAddress = SuccessResponse & {
   code: AccountCode;
   name: string;
 }
 
-export const getETHAddressByAccountCode = (address: string): Promise<TETHAddressByAccountCode> => {
+export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
   return apiPost('accounts/eth-account-code', { address });
 };
 

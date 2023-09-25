@@ -1,0 +1,128 @@
+.accountName {
+    font-size: 16px;
+}
+
+.accountNameAndAddress {
+    display: flex;
+    gap: var(--space-half);
+}
+
+.address {
+    color: var(--color-secondary);
+    font-size: 16px;
+}
+
+.animationAndTextContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+    margin: auto;
+}
+
+.animationAndTextContainer p {
+    font-size: var(--header-default-font-size);
+}
+
+.chainContainer {
+    align-items: center;
+    display: flex;
+    gap: calc(var(--space-quarter) + var(--space-eight));
+}
+
+.chainContainer img {
+    height: 20px;
+    width: 20px;
+}
+
+.dappIcon {
+    height: 96px;
+    width: 96px;
+}
+
+.iconContainer {
+    position: relative;
+}
+
+.iconContainer img {
+    position: absolute;
+    right: 0;
+    top: 24px;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+}
+
+.itemText {
+    font-size: 16px;
+}
+
+.label {
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.listContainer p {
+    margin: 0;
+}
+
+.outerContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 460px;
+    padding: 0 var(--space-half);
+}
+
+.successIcon {
+    height: 240px;
+    width: 240px;
+}
+
+.textarea {
+    border-color: var(--background-quaternary);
+    border-radius: var(--space-eight);
+    font-family: var(--font-family);
+    padding: var(--space-quarter);
+    width: 100%;
+}
+
+.titleContainer {
+    align-items: center;
+    display: flex;
+    gap: var(--space-eight);
+    margin-bottom: var(--space-half);
+}
+
+.titleContainer h3 {
+    font-size: var(--header-default-font-size);
+    font-weight: 400;
+    margin: 0;
+    padding: 0 var(--space-quarter);
+}
+
+@media (max-width: 768px) {
+    .iconContainer {
+        display: flex;
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .iconContainer img {
+        align-self: center;
+        margin: var(--space-half) 0;
+        position: static;
+    }
+}

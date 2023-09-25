@@ -53,7 +53,7 @@ export const ActionButtons = ({ canSend, code, exchangeBuySupported, account }: 
         </Link>
       )}
       {walletConnectEnabled && <Link key="wallet-connect" to={`/account/${code}/wallet-connect/dashboard`} className={style.walletConnect}>
-        <WalletConnectLight width={18} /> {!isLargeTablet && <span>Wallet Connect</span>}
+        <WalletConnectLight width={24}/> {!isLargeTablet && <span>Wallet Connect</span>}
       </Link>}
     </div>
   );
