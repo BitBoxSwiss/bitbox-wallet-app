@@ -21,6 +21,7 @@ import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
+import { notifyUser } from './api/system';
 import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
@@ -32,7 +33,6 @@ import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
-import { apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
@@ -74,12 +74,10 @@ class App extends Component<Props, State> {
         case 'backend':
           switch (data) {
           case 'newTxs':
-            apiPost('notify-user', {
-              text: this.props.t('notification.newTxs', {
-                count: meta.count,
-                accountName: meta.accountName,
-              }),
-            });
+            notifyUser(this.props.t('notification.newTxs', {
+              count: meta.count,
+              accountName: meta.accountName,
+            }));
             break;
           }
           break;

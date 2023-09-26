@@ -1215,6 +1215,9 @@
       "paste": "to paste text, enable \"SHOW {{label}}\""
     }
   },
+  "permission": {
+    "camera": "Please grant camera access so the BitBoxApp can scan."
+  },
   "random": {
     "button": "Generate random number",
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
@@ -1554,8 +1557,8 @@
       "chain": "Chain",
       "dapp": "Dapp",
       "data": "Data",
-      "decodeError": "Failed to decode message",
       "dataParsingError": "Failed to parse data",
+      "decodeError": "Failed to decode message",
       "method": {
         "sendTransaction": "Sign and send transaction",
         "signMessage": "Sign message",

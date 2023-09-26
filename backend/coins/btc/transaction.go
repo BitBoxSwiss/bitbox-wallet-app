@@ -237,11 +237,7 @@ func (account *Account) SendTx() error {
 	}
 
 	account.log.Info("Signing and sending transaction")
-	utxos, err := account.transactions.SpendableOutputs()
-	if err != nil {
-		return err
-	}
-	if err := account.signTransaction(txProposal, utxos, account.coin.Blockchain().TransactionGet); err != nil {
+	if err := account.signTransaction(txProposal, account.coin.Blockchain().TransactionGet); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 

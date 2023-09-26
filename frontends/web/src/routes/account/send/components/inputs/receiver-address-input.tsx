@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, SyntheticEvent, useContext, useRef } from 'react';
+import { ChangeEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
 import DarkModeContext from '../../../../../contexts/DarkmodeContext';
+import { useHasCamera } from '../../../../../hooks/qrcodescanner';
 import { Input } from '../../../../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
-import { ScanQRDialog } from '../../../../../components/scanqrdialog/scan-qr-dialog';
-import { BrowserQRCodeReader } from '@zxing/library';
-import { useQRCodeScanner } from '../../../../../hooks/qrcodescanner';
-import { alertUser } from '../../../../../components/alert/Alert';
+import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
 import style from '../../send.module.css';
 
 type TToggleScanQRButtonProps = {
@@ -34,7 +32,6 @@ type TToggleScanQRButtonProps = {
 type TReceiverAddressInputProps = {
     accountCode?: string;
     addressError?: string;
-    onClickSendToSelfButton: (e: SyntheticEvent, receiveAddress: string) => void;
     onInputChange: (value: string) => void;
     recipientAddress: string;
     activeScanQR: boolean;
@@ -45,10 +42,7 @@ type TReceiverAddressInputProps = {
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
-    <button onClick={(e) => {
-      e.preventDefault();
-      onClick();
-    }} className={style.qrButton}>
+    <button type="button" onClick={onClick} className={style.qrButton}>
       {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
     </button>);
 };
@@ -57,30 +51,22 @@ export const ReceiverAddressInput = ({
   accountCode,
   addressError,
   onInputChange,
-  onClickSendToSelfButton,
   recipientAddress,
   activeScanQR,
   parseQRResult,
   onChangeActiveScanQR
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
-  const qrCodeReader = useRef<BrowserQRCodeReader>();
-  const hasCamera = useQRCodeScanner({
-    onError: (error) => alertUser(error.message || error),
-    qrCodeReaderRef: qrCodeReader,
-    activeScanQR,
-    onChangeActiveScanQR,
-    parseQRResult
-  });
+  const hasCamera = useHasCamera();
 
-  const handleSendToSelf = async (event: SyntheticEvent) => {
+  const handleSendToSelf = async () => {
     if (!accountCode) {
       return;
     }
     try {
       const receiveAddresses = await getReceiveAddressList(accountCode)();
       if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-        onClickSendToSelfButton(event, receiveAddresses[0].addresses[0].address);
+        onInputChange(receiveAddresses[0].addresses[0].address);
       }
     } catch (e) {
       console.error(e);
@@ -89,10 +75,6 @@ export const ReceiverAddressInput = ({
 
   const toggleScanQR = () => {
     if (activeScanQR) {
-      if (qrCodeReader.current) {
-        // release camera;
-        qrCodeReader.current.reset();
-      }
       onChangeActiveScanQR(false);
       return;
     }
@@ -101,7 +83,12 @@ export const ReceiverAddressInput = ({
 
   return (
     <>
-      <ScanQRDialog activeScanQR={activeScanQR} onToggleScanQR={toggleScanQR} />
+      <ScanQRDialog
+        activeScanQR={activeScanQR}
+        toggleScanQR={toggleScanQR}
+        onChangeActiveScanQR={onChangeActiveScanQR}
+        parseQRResult={parseQRResult}
+      />
       <Input
         label={t('send.address.label')}
         placeholder={t('send.address.placeholder')}
@@ -121,6 +108,5 @@ export const ReceiverAddressInput = ({
         )}
       </Input>
     </>
-
   );
 };
