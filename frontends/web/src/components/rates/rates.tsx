@@ -51,15 +51,17 @@ export const currenciesWithDisplayName: FiatWithDisplayName[] = [
   { currency: 'ILS', displayName: 'Israeli New Shekel' },
   { currency: 'JPY', displayName: 'Japanese Yen' },
   { currency: 'KRW', displayName: 'South Korean Won' },
+  { currency: 'NGN', displayName: 'Nigerian Naira' },
   { currency: 'NOK', displayName: 'Norwegian Krone' },
   { currency: 'PLN', displayName: 'Polish Zloty' },
   { currency: 'RUB', displayName: 'Russian ruble' },
   { currency: 'SEK', displayName: 'Swedish Krona' },
   { currency: 'SGD', displayName: 'Singapore Dollar' },
+  { currency: 'ZAR', displayName: 'South African Rand' },
   { currency: 'USD', displayName: 'United States Dollar' },
   { currency: 'BTC', displayName: 'Bitcoin' }
 ];
-export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NOK', 'PLN', 'RUB', 'SEK', 'SGD', 'USD', 'BTC'];
+export const currencies: Fiat[] = ['AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'EUR', 'GBP', 'HKD', 'ILS', 'JPY', 'KRW', 'NGN', 'NOK', 'PLN', 'RUB', 'SEK', 'SGD', 'ZAR', 'USD', 'BTC'];
 
 export const store = new Store<SharedProps>({
   active: 'USD',
