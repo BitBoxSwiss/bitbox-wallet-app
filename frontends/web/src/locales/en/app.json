@@ -1535,12 +1535,12 @@
   "walletConnect": {
     "connect": {
       "button": "Connect",
-      "dappLabel": "Enter URI address of DApp"
+      "dappLabel": "Enter URI address of dapp"
     },
     "dashboard": {
       "allSessions": "All sessions",
       "newConnection": "New connection",
-      "noConnectedSessions": "No accounts are currently connected to any DApps."
+      "noConnectedSessions": "No accounts are currently connected to any dapps."
     },
     "invalidPairingChain": "Error in approving pairing. Please make sure to use one of the supported chains: {{chains}}",
     "pairingRequest": {
@@ -1548,7 +1548,23 @@
       "reject": "Reject",
       "title": "New connection request from"
     },
-    "pairingSuccess": "Dapp successfully connected. You can continue on the Dapp website.",
+    "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
+    "signingRequest": {
+      "account": "Account",
+      "chain": "Chain",
+      "dapp": "Dapp",
+      "data": "Data",
+      "decodeError": "Failed to decode message",
+      "dataParsingError": "Failed to parse data",
+      "method": {
+        "sendTransaction": "Sign and send transaction",
+        "signMessage": "Sign message",
+        "signTransaction": "Sign transaction",
+        "signTypedData": "Sign typed data"
+      },
+      "successfullySigned": "Request succesfully signed",
+      "walletConnectRequest": "WalletConnect request"
+    },
     "walletConnect": "WalletConnect"
   },
   "warning": {

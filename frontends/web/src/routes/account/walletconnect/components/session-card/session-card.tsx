@@ -18,7 +18,7 @@ import { CoreTypes } from '@walletconnect/types';
 import { Button } from '../../../../../components/forms';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../../../../hooks/api';
-import { getETHAddressByAccountCode } from '../../../../../api/account';
+import { getEthAccountCodeAndNameByAddress } from '../../../../../api/account';
 import { truncateAddress } from '../../../../../utils/walletconnect';
 import styles from './session-card.module.css';
 
@@ -61,7 +61,7 @@ const TextData = ({ accountName, receiveAddress, dAppName, dAppUrl, iconUrl }: T
 export const WCSessionCard = ({ metadata, receiveAddress, onDisconnect }: TWCSessionCardProps) => {
   const { t } = useTranslation();
   const { name, url, icons } = metadata;
-  const accountDetail = useLoad(() => getETHAddressByAccountCode(receiveAddress), []);
+  const accountDetail = useLoad(() => getEthAccountCodeAndNameByAddress(receiveAddress), []);
   const truncatedAddress = truncateAddress(receiveAddress);
   const accountName = accountDetail && accountDetail.success ? accountDetail.name : '';
 

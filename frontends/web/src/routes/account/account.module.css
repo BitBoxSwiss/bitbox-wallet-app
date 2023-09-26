@@ -46,6 +46,11 @@
     will-change: background-color;
 }
 
+.withWalletConnect .walletConnect { 
+    display: flex;
+    gap: var(--space-eight);
+}
+
 .buy,
 .receive,
 .send {

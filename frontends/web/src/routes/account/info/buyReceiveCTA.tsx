@@ -62,7 +62,7 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
       <div className={styles.container}>
         {balanceList && <Button primary onClick={onReceiveCTA}>{formattedUnit ? t('receive.title', { accountName: formattedUnit }) : t('receive.title', { accountName: t('buy.info.crypto') })}</Button>}
         {exchangeBuySupported && <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>}
-        {account && isEthereumBased(account.coinCode) && !account.isToken && <Button primary onClick={onWalletConnect} className={styles.walletConnect}>{isMobile ? <WalletConnectLight /> : <><WalletConnectLight /> <span>Wallet Connect</span></>}</Button>}
+        {account && isEthereumBased(account.coinCode) && !account.isToken && <Button primary onClick={onWalletConnect} className={styles.walletConnect}>{isMobile ? <WalletConnectLight width={28} height={28} /> : <><WalletConnectLight width={28} height={28} /> <span>Wallet Connect</span></>}</Button>}
       </div>
     </div>);
 };

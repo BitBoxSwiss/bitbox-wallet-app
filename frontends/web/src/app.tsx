@@ -39,7 +39,7 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
 import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
-import { WCSigningRequest } from './components/wcsigningrequest/wcsigningrequest';
+import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 
  interface State {
      accounts: IAccount[];
