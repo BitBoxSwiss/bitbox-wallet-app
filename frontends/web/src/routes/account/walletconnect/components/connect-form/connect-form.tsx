@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2023 Shift Crypto AG
  *
@@ -15,16 +14,15 @@
  * limitations under the License.
  */
 
-import { SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '../../../../../components/forms';
 import { route } from '../../../../../utils/route';
-import { useQRCodeScanner } from '../../../../../hooks/qrcodescanner';
 import { useMediaQuery } from '../../../../../hooks/mediaquery';
-import { BrowserQRCodeReader } from '@zxing/library';
-import { QRVideo, ScanQRDialog } from '../../../../../components/scanqrdialog/scan-qr-dialog';
 import { ScanQRButton } from '../../../send/components/inputs/receiver-address-input';
-import { alertUser } from '../../../../../components/alert/Alert';
+import { useHasCamera } from '../../../../../hooks/qrcodescanner';
+import { ScanQRDialog } from '../../../send/components/dialogs/scan-qr-dialog';
+import { ScanQRVideo } from '../../../send/components/inputs/scan-qr-video';
 import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {
@@ -34,12 +32,16 @@ type TWCConnectFormProps = {
     onSubmit: (uri: string) => void;
 }
 
-const MobileQRScanner = () => {
+type TMobileQRScannerProps = {
+  onQRScanned: (uri: string) => void;
+}
+
+const MobileQRScanner = ({ onQRScanned }: TMobileQRScannerProps) => {
   const { t } = useTranslation();
   return (
     <div className={styles.mobileQRScanner}>
       <p className={styles.scanQRLabel}>{t('send.scanQR')}</p>
-      <QRVideo />
+      <ScanQRVideo onResult={onQRScanned} />
     </div>
   );
 };
@@ -47,70 +49,25 @@ const MobileQRScanner = () => {
 export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnectFormProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const qrCodeReaderRef = useRef<BrowserQRCodeReader>();
-  const [activeScanQR, setActiveScanQR] = useState(isMobile ? true : false); // default to true on mobile
-  const handleQRScanError = (error: any) => {
-    // Preventing error alerting when user on mobile
-    // navigates from WC connect screen to another page
-    // (this error is 'classified' as NotFoundException).
-    if (error.toString().includes('NotFoundException') && isMobile) {
-      return;
-    }
-    // Otherwise, alert as normal.
-    alertUser(error.message || error);
-  };
-
-  const hasCamera = useQRCodeScanner({
-    onError: handleQRScanError,
-    qrCodeReaderRef,
-    activeScanQR,
-    onChangeActiveScanQR: () => setActiveScanQR(false),
-    parseQRResult: (uri: string) => onSubmit(uri)
-  });
-
+  const hasCamera = useHasCamera();
+  const [activeScanQR, setActiveScanQR] = useState(isMobile); // default to true on mobile
 
   const showMobileQRReader = isMobile && hasCamera;
-  const showQRButton = !isMobile && hasCamera;
+  const showQRButton = !isMobile;
 
-  const deactivateQRScanner = () => {
-    if (qrCodeReaderRef.current) {
-      // release camera;
-      qrCodeReaderRef.current.reset();
-    }
-    setActiveScanQR(false);
-    return;
-  };
 
-  const toggleScanQR = useCallback(() => {
+  const toggleScanQR = () => {
     if (activeScanQR) {
-      deactivateQRScanner();
-    }
-
-    // if, for some reason, mobile has no camera
-    if (isMobile && !hasCamera) {
       setActiveScanQR(false);
       return;
     }
-
     setActiveScanQR(true);
-  }, [activeScanQR, hasCamera, isMobile]);
-
-  useEffect(() => {
-    // tries to automatically activate QR reader functionality
-    // on mobile during page load.
-    if (isMobile) {
-      toggleScanQR();
-      return;
-    }
-
-  }, [activeScanQR, isMobile, toggleScanQR]);
-
+  };
 
   return (
     <div className={styles.formContainer}>
-      {showMobileQRReader && <MobileQRScanner />}
+      {showMobileQRReader && <MobileQRScanner onQRScanned={onSubmit} />}
       <form
-        className={showMobileQRReader ? styles.showMobileQRReader : ''}
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit(uri);
@@ -122,7 +79,12 @@ export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnect
           onInput={(e) => onInputChange(e.target.value)}>
           {showQRButton && <ScanQRButton onClick={toggleScanQR} />}
         </Input>
-        <ScanQRDialog activeScanQR={activeScanQR && !isMobile} onToggleScanQR={toggleScanQR} />
+        <ScanQRDialog
+          activeScanQR={activeScanQR && !isMobile}
+          toggleScanQR={toggleScanQR}
+          onChangeActiveScanQR={setActiveScanQR}
+          parseQRResult={(uri: string) => onSubmit(uri)}
+        />
         <div className={styles.formButtonsContainer}>
           <Button
             secondary

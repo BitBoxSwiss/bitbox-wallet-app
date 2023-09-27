@@ -182,7 +182,7 @@ func (keystore *Keystore) SignTransaction(
 	transaction := btcProposedTx.TXProposal.Transaction
 	signatures := make([]*types.Signature, len(transaction.TxIn))
 	for index, txIn := range transaction.TxIn {
-		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
+		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
@@ -202,7 +202,7 @@ func (keystore *Keystore) SignTransaction(
 			prv = txscript.TweakTaprootPrivKey(*prv, nil)
 			signatureHash, err := txscript.CalcTaprootSignatureHash(
 				btcProposedTx.SigHashes, txscript.SigHashDefault, transaction,
-				index, btcProposedTx.PreviousOutputs)
+				index, btcProposedTx.TXProposal.PreviousOutputs)
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate Taproot signature hash")
 			}

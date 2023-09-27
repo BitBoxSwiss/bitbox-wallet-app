@@ -73,6 +73,9 @@ export const ConnectScreenWalletConnect = ({
   };
 
   const handleConnect = async (uri: string) => {
+    if (!uri) {
+      return;
+    }
     try {
       await pair({ uri });
     } catch (err: any) {

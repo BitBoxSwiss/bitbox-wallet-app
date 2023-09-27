@@ -26,12 +26,13 @@
     .mobileQRScanner {
         display: flex;
         flex-direction: column;
-        margin-bottom: var(--space-half);
+        margin-bottom: calc(var(--space-half) + var(--space-eight));
     }
 
     .mobileQRScanner video {
+        max-width: 320px;
+        height: 320px;
         margin: 0 auto;
-        max-width: 300px;
         object-fit: cover;
     }
 
