@@ -325,3 +325,7 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
 export const testRegister = (pin: string): Promise<null> => {
   return apiPost('test/register', { pin });
 };
+
+export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
+  return apiPost(`account/${code}/connect-keystore`);
+};

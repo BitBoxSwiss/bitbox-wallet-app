@@ -721,6 +721,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, errp.New("account must be initialized")
 	}
 	account.Synchronizer.WaitSynchronized()
+
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return false, err
+	}
+
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
 	var address *addresses.AccountAddress
 	for _, subacc := range account.subaccounts {
@@ -732,19 +738,23 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, _, err := account.Config().Keystore.CanVerifyAddress(account.Coin())
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Config().Keystore.VerifyAddress(address.Configuration, account.Coin())
+		return true, keystore.VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
 
 // CanVerifyAddresses wraps Keystores().CanVerifyAddresses(), see that function for documentation.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
-	return account.Config().Keystore.CanVerifyAddress(account.Coin())
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return false, false, err
+	}
+	return keystore.CanVerifyAddress(account.Coin())
 }
 
 type byValue struct {
@@ -799,7 +809,11 @@ func (account *Account) VerifyExtendedPublicKey(signingConfigIndex int) (bool, e
 		return false, errp.New("account not initialized")
 	}
 
-	keystore := account.Config().Keystore
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return false, err
+	}
+
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(
 			account.Coin(),
