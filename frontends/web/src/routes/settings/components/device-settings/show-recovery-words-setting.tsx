@@ -21,7 +21,7 @@ import { ChevronRightDark } from '../../../../components/icon';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
 import { MultilineMarkup } from '../../../../utils/markup';
 import { showMnemonic } from '../../../../api/bitbox02';
-import { confirmation } from '../../../../components/confirm/Confirm';
+import { confirmation } from '../../../../components/confirm/Confirm-Legacy';
 
 type TProps = {
   deviceID: string;

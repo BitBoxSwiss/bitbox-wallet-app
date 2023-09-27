@@ -18,7 +18,7 @@
 import { useState } from 'react';
 import { checkBackup, createBackup as createBackupAPI } from '../../../api/bitbox02';
 import { alertUser } from '../../../components/alert/Alert';
-import { confirmation } from '../../../components/confirm/Confirm';
+import { confirmation } from '../../../components/confirm/Confirm-Legacy';
 import { Button } from '../../../components/forms';
 import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import { useTranslation } from 'react-i18next';

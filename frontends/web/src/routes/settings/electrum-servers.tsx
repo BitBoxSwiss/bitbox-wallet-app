@@ -21,7 +21,7 @@ import { ElectrumServer } from './electrum-server';
 import { TElectrumServer } from './types';
 import { getDefaultConfig } from '../../api/backend';
 import { getConfig, setConfig } from '../../utils/config';
-import { confirmation } from '../../components/confirm/Confirm';
+import { confirmation } from '../../components/confirm/Confirm-Legacy';
 import { Button } from '../../components/forms';
 import style from './electrum.module.css';
 

@@ -19,7 +19,7 @@ import { apiWebsocket, TPayload } from '../../../../../utils/websocket';
 import appStoreBadge from '../../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../../components/alert/Alert';
-import { confirmation } from '../../../../../components/confirm/Confirm';
+import { confirmation } from '../../../../../components/confirm/Confirm-Legacy';
 import { DialogLegacy, DialogButtons } from '../../../../../components/dialog/dialog-legacy';
 import { Button } from '../../../../../components/forms';
 import { QRCode } from '../../../../../components/qrcode/qrcode';

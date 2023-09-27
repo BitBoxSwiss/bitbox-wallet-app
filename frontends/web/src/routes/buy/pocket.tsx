@@ -20,7 +20,7 @@ import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage
 import { getConfig } from '../../utils/config';
 import { getTransactionList } from '../../api/account';
 import { Dialog } from '../../components/dialog/dialog';
-import { confirmation } from '../../components/confirm/Confirm';
+import { confirmation } from '../../components/confirm/Confirm-Legacy';
 import { verifyAddress, signAddress, getPocketURL } from '../../api/exchanges';
 import { getInfo } from '../../api/account';
 import { Header } from '../../components/layout';
