@@ -502,6 +502,10 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
+	if backend.accounts.lookup(persistedConfig.Code) != nil {
+		// Do not create/load account if it is already loaded.
+		return
+	}
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
 		Config:      persistedConfig,
@@ -933,9 +937,10 @@ func (backend *Backend) updatePersistedAccounts(
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initAccounts() {
+// if force is true, all accounts are uninitialized first, even if they are watch-only.
+func (backend *Backend) initAccounts(force bool) {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitAccounts()
+	backend.uninitAccounts(force)
 
 	backend.initPersistedAccounts()
 
@@ -955,19 +960,26 @@ func (backend *Backend) ReinitializeAccounts() {
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	backend.log.Info("Reinitializing accounts")
-	backend.initAccounts()
+	backend.initAccounts(true)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) uninitAccounts() {
+// if force is true, all accounts are uninitialized, even if they are watch-only.
+func (backend *Backend) uninitAccounts(force bool) {
+	keep := []accounts.Interface{}
 	for _, account := range backend.accounts {
 		account := account
+		if !force && account.Config().Config.IsWatch() {
+			// Do not uninit/remove account that is being watched.
+			keep = append(keep, account)
+			continue
+		}
 		if backend.onAccountUninit != nil {
 			backend.onAccountUninit(account)
 		}
 		account.Close()
 	}
-	backend.accounts = []accounts.Interface{}
+	backend.accounts = keep
 }
 
 // maybeAddHiddenUnusedAccounts adds a hidden account for scanning to facilitate accounts discovery.
