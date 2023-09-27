@@ -35,10 +35,12 @@ interface State {
 }
 
 /**
+ * @deprecated
  * Confirm alert that activates on confirmation module export call,
  * this should be mounted only once in the App
+ *
  */
-export const Confirm = () => {
+export const ConfirmLegacy = () => {
   const [state, setState] = useState<State>({ active: false });
   const { t } = useTranslation();
   const callback = useRef<TCallback>(() => {});

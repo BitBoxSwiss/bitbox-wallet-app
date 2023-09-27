@@ -27,7 +27,7 @@ import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
-import { Confirm } from './components/confirm/Confirm-Legacy';
+import { ConfirmLegacy } from './components/confirm/Confirm-Legacy';
 import { panelStore } from './components/sidebar/sidebar';
 import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
@@ -207,7 +207,7 @@ class App extends Component<Props, State> {
                 <RouterWatcher onChange={this.handleRoute} />
               </div>
               <Alert />
-              <Confirm />
+              <ConfirmLegacy />
             </div>
           </DarkModeProvider>
         </AppProvider>
