@@ -69,6 +69,7 @@ func NewHandlers(
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
+	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	return handlers
 }
 
@@ -583,4 +584,13 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	}
 
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
+}
+
+func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success bool `json:"success"`
+	}
+
+	_, err := handlers.account.Config().ConnectKeystore()
+	return response{Success: err == nil}, nil
 }

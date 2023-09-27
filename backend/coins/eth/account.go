@@ -642,8 +642,13 @@ func (account *Account) SendTx() error {
 		return errp.New("No active tx proposal")
 	}
 
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return err
+	}
+
 	account.log.Info("Signing and sending transaction")
-	if err := account.Config().Keystore.SignTransaction(txProposal); err != nil {
+	if err := keystore.SignTransaction(txProposal); err != nil {
 		return err
 	}
 	// By experience, at least with the Etherscan backend, this can succeed and still the
@@ -802,17 +807,26 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if !account.isInitialized() {
 		return false, errp.New("account must be initialized")
 	}
-	canVerifyAddress, _, err := account.Config().Keystore.CanVerifyAddress(account.Coin())
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return false, err
+	}
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(account.Coin())
 	if err != nil {
 		return false, err
 	}
 	if canVerifyAddress {
-		return true, account.Config().Keystore.VerifyAddress(account.signingConfiguration, account.Coin())
+		return true, keystore.VerifyAddress(account.signingConfiguration, account.Coin())
 	}
 	return false, nil
 }
 
 // CanVerifyAddresses implements accounts.Interface.
 func (account *Account) CanVerifyAddresses() (bool, bool, error) {
-	return account.Config().Keystore.CanVerifyAddress(account.Coin())
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return false, false, err
+	}
+
+	return keystore.CanVerifyAddress(account.Coin())
 }

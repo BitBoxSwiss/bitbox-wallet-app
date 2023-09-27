@@ -20,6 +20,7 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -551,7 +552,13 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		Config:      persistedConfig,
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
-		Keystore:    backend.keystore,
+		ConnectKeystore: func() (keystore.Keystore, error) {
+			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
+			if err != nil {
+				return nil, err
+			}
+			return backend.connectKeystore.connect(backend.Keystore(), accountRootFingerprint, 20*time.Minute)
+		},
 		OnEvent: func(event accountsTypes.Event) {
 			backend.events <- AccountEvent{
 				Type: "account", Code: persistedConfig.Code,

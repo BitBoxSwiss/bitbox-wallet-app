@@ -109,14 +109,20 @@ export const Receive = ({
     }
   };
 
-  const verifyAddress = (addressesIndex: number) => {
+  const verifyAddress = async (addressesIndex: number) => {
     if (receiveAddresses) {
       if (code === undefined) {
         return;
       }
+
+      const connectResult = await accountApi.connectKeystore(code);
+      if (!connectResult.success) {
+        return;
+      }
+
       setVerifying(true);
-      accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID)
-        .then(() => setVerifying(false));
+      await accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID);
+      setVerifying(false);
     }
   };
 
@@ -134,7 +140,8 @@ export const Receive = ({
     }
   };
 
-  const hasDevice = deviceID !== undefined;
+  // TODO change label on verify button, make it work w/ software keystore
+  const hasDevice = true || deviceID !== undefined;
   const enableCopy = hasDevice ? false : true;
 
   let uriPrefix = '';
