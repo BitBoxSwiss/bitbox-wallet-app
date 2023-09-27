@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export type TConnectStatus = 'connect' | 'incoming_pairing' | 'success' | ' failed'
+export type TConnectStatus = 'connect' | 'incoming_pairing' | 'success' | ' failed';
