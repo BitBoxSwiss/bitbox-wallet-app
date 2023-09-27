@@ -21,7 +21,7 @@ import { ChevronRightDark } from '../../../../components/icon';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
 import { MultilineMarkup } from '../../../../utils/markup';
 import { showMnemonic } from '../../../../api/bitbox02';
-import { confirmation } from '../../../../components/confirm/Confirm-Legacy';
+import { Confirm } from '../../../../components/confirm/Confirm';
 
 type TProps = {
   deviceID: string;
@@ -34,15 +34,14 @@ type TDialog = {
 const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const [inProgress, setInProgress] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  const handleShowMnemonic = () => {
-    confirmation(t('backup.showMnemonic.description'), async result => {
-      if (result) {
-        setInProgress(true);
-        await showMnemonic(deviceID);
-        setInProgress(false);
-      }
-    });
+  const dialogCallback = async (confirmed: boolean) => {
+    if (confirmed) {
+      setInProgress(true);
+      await showMnemonic(deviceID);
+      setInProgress(false);
+    }
   };
   return (
     <>
@@ -50,9 +49,15 @@ const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
         settingName={t('backup.showMnemonic.title')}
         secondaryText={t('deviceSettings.backups.showRecoveryWords.description')}
         extraComponent={<ChevronRightDark />}
-        onClick={handleShowMnemonic}
+        onClick={() => {
+          setShowDialog(true);
+        }}
       />
       <ShowMnemonicWaitDialog inProgress={inProgress} />
+      <Confirm message={t('backup.showMnemonic.description')}
+        showDialog={showDialog}
+        callback={dialogCallback}
+        onClose={() => setShowDialog(false)}/>
     </>
   );
 };
