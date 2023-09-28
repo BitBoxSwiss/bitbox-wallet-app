@@ -18,12 +18,20 @@ import { RefObject, useEffect, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { useMountedRef } from './mount';
 
+const hasSomeCamera = async (): Promise<boolean> => {
+  if (!navigator.mediaDevices) {
+    return false;
+  }
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.some((device) => device.kind === 'videoinput');
+};
+
 export const useHasCamera = () => {
   const [hasCamera, setHasCamera] = useState(false);
   const mounted = useMountedRef();
 
   useEffect(() => {
-    QrScanner.hasCamera()
+    hasSomeCamera()
       .then(result => {
         if (mounted.current) {
           setHasCamera(result);
