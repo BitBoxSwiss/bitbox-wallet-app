@@ -54,7 +54,7 @@ export const Entry: FunctionComponent<TProps> = props => {
       <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
         {shown ? (
           <div className="flex-1">
-            {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
+            {entry.text.trim().split('\n').map((p, idx) => <p key={idx}>{p}</p>)}
             {entry.link && (
               <p>
                 <A
