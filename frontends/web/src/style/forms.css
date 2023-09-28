@@ -22,11 +22,6 @@ dt {
     margin-bottom: var(--space-quarter);
 }
 
-.labelLarge {
-    font-size: var(--size-default);
-    margin-bottom: var(--space-half);
-}
-
 .labelXLarge {
     font-size: var(--size-subheader);
     margin-bottom: calc(var(--space-half) * 1.5);
@@ -103,10 +98,6 @@ input[type="checkbox"]:focus + label::before {
 }
 
 @media (max-width: 768px) {
-    .labelLarge {
-        margin-bottom: var(--space-half);
-    }
-
     .labelXLarge {
         margin-bottom: var(--space-half);
     }

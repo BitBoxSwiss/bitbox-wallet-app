@@ -15,6 +15,7 @@
 }
 
 .details {
+    font-size: var(--size-default);
     margin-bottom: var(--space-default);
 }
 
@@ -46,6 +47,7 @@
     align-items: baseline;
     display: flex;
     justify-content: space-between;
+    margin-bottom: var(--space-half);
 }
 
 @media screen and (min-width: 640px) {
