@@ -23,6 +23,7 @@ type Props = {
     pair: (params: {
         uri: string;
     }) => Promise<void>;
+    initializeWeb3Wallet: () => void;
 }
 
 export const WCWeb3WalletContext = createContext<Props>({} as Props);
