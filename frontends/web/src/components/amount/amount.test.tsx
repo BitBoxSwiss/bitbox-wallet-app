@@ -144,7 +144,7 @@ describe('Amount formatting', () => {
   });
 
   describe('non BTC coins amounts', () => {
-    let coins: CoinUnit[] = ['ETH', 'GOETH'];
+    let coins: CoinUnit[] = ['ETH', 'GOETH', 'SEPETH'];
     coins.forEach(coin => {
       it('10.00000000 ' + coin + ' with removeBtcTrailingZeroes enabled stays 10.00000000', () => {
         const { container } = render(<Amount amount="10.00000000" unit={coin} removeBtcTrailingZeroes/>);
