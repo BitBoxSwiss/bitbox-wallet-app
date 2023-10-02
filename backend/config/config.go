@@ -111,7 +111,7 @@ func (backend Backend) DeprecatedCoinActive(code coin.Code) bool {
 		return backend.DeprecatedBitcoinActive
 	case coin.CodeLTC, coin.CodeTLTC:
 		return backend.DeprecatedLitecoinActive
-	case coin.CodeETH, coin.CodeGOETH:
+	case coin.CodeETH, coin.CodeGOETH, coin.CodeSEPETH:
 		return backend.DeprecatedEthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
