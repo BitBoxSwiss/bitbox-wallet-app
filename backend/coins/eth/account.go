@@ -979,3 +979,18 @@ func (account *Account) Address() (*Address, error) {
 func IsERC20(account *Account) bool {
 	return account.coin.erc20Token != nil
 }
+
+// MatchesAddress checks whether the provided address matches the account.
+func (account *Account) MatchesAddress(address string) (bool, error) {
+	if !IsValidEthAddress(address) {
+		return false, errp.WithStack(errors.ErrInvalidAddress)
+	}
+	accountAddress, err := account.Address()
+	if err != nil {
+		return false, errp.WithStack(err)
+	}
+	if ethcommon.HexToAddress(address).Hex() == accountAddress.Hex() {
+		return true, nil
+	}
+	return false, nil
+}
