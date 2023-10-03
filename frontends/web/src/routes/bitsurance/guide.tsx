@@ -19,7 +19,7 @@ import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 
 // TODO
-export default function BitsuranceGuide() {
+export const BitsuranceGuide = () => {
   const { t } = useTranslation();
 
   return (
@@ -34,4 +34,4 @@ export default function BitsuranceGuide() {
       }} shown={true} />
     </Guide>
   );
-}
+};

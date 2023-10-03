@@ -206,31 +206,33 @@ class Sidebar extends Component<Props> {
           { accounts && accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           { accounts.length ? (
-            <div key="buy" className={style.sidebarItem}>
-              <NavLink
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
-                to="/buy/info"
-              >
-                <div className={style.single}>
-                  <img draggable={false} src={coins} alt={t('sidebar.exchanges')} />
-                </div>
-                <span className={style.sidebarLabel}>
-                  {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
-                </span>
-              </NavLink>
-            </div>
-          ) : null }
-          <div key="insurance" className={style.sidebarItem}>
-            <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
-              to="/bitsurance/bitsurance"
-            >
-              <div className={style.single}>
-                <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+            <>
+              <div key="buy" className={style.sidebarItem}>
+                <NavLink
+                  className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                  to="/buy/info"
+                >
+                  <div className={style.single}>
+                    <img draggable={false} src={coins} alt={t('sidebar.exchanges')} />
+                  </div>
+                  <span className={style.sidebarLabel}>
+                    {hasOnlyBTCAccounts ? t('accountInfo.buyCTA.buy', { unit: 'Bitcoin' }) : t('sidebar.buy')}
+                  </span>
+                </NavLink>
               </div>
-              <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
-            </NavLink>
-          </div>
+              <div key="insurance" className={style.sidebarItem}>
+                <NavLink
+                  className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                  to="/bitsurance/bitsurance"
+                >
+                  <div className={style.single}>
+                    <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
+                  </div>
+                  <span className={style.sidebarLabel}>{t('sidebar.insurance')}</span>
+                </NavLink>
+              </div>
+            </>
+          ) : null }
 
           <div key="settings-new" className={style.sidebarItem}>
             <NavLink

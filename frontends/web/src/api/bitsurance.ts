@@ -22,8 +22,8 @@ export type TInsuredAccounts = {
   errorMessage: string;
   accountCodes: AccountCode[];
 };
-export const getBitsuranceURL = (code: AccountCode): Promise<string> => {
-  return apiGet(`bitsurance/url?code=${code || ''}`);
+export const getBitsuranceURL = (): Promise<string> => {
+  return apiGet('bitsurance/url');
 };
 
 export const bitsuranceLookup = (code?: AccountCode): Promise<TInsuredAccounts> => {

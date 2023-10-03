@@ -23,6 +23,8 @@ import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
 import { Bitsurance } from './bitsurance/bitsurance';
+import { BitsuranceAccount } from './bitsurance/account';
+import { BitsuranceWidget } from './bitsurance/widget';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -93,6 +95,18 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       code={''}
       accounts={activeAccounts} />
   </InjectParams>;
+
+  const BitsuranceAccountEl = <InjectParams>
+    <BitsuranceAccount
+      code={''}
+      accounts={activeAccounts} />
+  </InjectParams>;
+
+  const BitsuranceWidgetEl = <InjectParams>
+    <BitsuranceWidget
+      code={''} />
+  </InjectParams>;
+
 
   const BuyInfoEl = <InjectParams>
     <BuyInfo
@@ -180,6 +194,14 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
       <Route path="bitsurance">
         <Route path="bitsurance" element={<Bitsurance accounts={activeAccounts}/>}/>
+        <Route path="account" element={BitsuranceAccountEl} >
+          <Route index element={BitsuranceAccountEl} />
+          <Route path=":code" element={BitsuranceAccountEl} />
+        </Route>
+        <Route path="widget" element={BitsuranceWidgetEl} >
+          <Route index element={BitsuranceWidgetEl} />
+          <Route path=":code" element={BitsuranceWidgetEl} />
+        </Route>
       </Route>
       <Route path="settings">
         <Route index element={MobileSettingsEl} />

@@ -3,3 +3,18 @@
   font-weight: 400;
   text-align: center;
 }
+
+.clean {
+    padding-left: 0px !important;
+    list-style-type: none;
+    margin-top: 0px;
+}
+
+.clean span {
+  margin-left: 10px;
+}
+
+.noVspace {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}

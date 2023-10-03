@@ -55,6 +55,8 @@ import saveSVG from './assets/icons/save.svg';
 import saveLightSVG from './assets/icons/save-light.svg';
 import starSVG from './assets/icons/star.svg';
 import starInactiveSVG from './assets/icons/star-inactive.svg';
+import syncSVG from './assets/icons/sync.svg';
+import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
 import style from './icon.module.css';
 
@@ -163,6 +165,8 @@ export const Save = (props: ImgProps) => (<img src={saveSVG} draggable={false} {
 export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);
 export const StarInactive = (props: ImgProps) => (<img src={starInactiveSVG} draggable={false} {...props} />);
+export const Sync = (props: ImgProps) => (<img src={syncSVG} draggable={false} {...props} />);
+export const SyncLight = (props: ImgProps) => (<img src={syncLightSVG} draggable={false} {...props} />);
 export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckLightSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
