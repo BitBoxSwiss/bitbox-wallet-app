@@ -40,15 +40,6 @@
     width: 96px;
 }
 
-.iconContainer {
-    position: relative;
-}
-
-.iconContainer img {
-    position: absolute;
-    right: 0;
-    top: 24px;
-}
 
 .item {
     display: flex;
@@ -111,18 +102,4 @@
     font-weight: 400;
     margin: 0;
     padding: 0 var(--space-quarter);
-}
-
-@media (max-width: 768px) {
-    .iconContainer {
-        display: flex;
-        flex-direction: column-reverse;
-        width: 100%;
-    }
-
-    .iconContainer img {
-        align-self: center;
-        margin: var(--space-half) 0;
-        position: static;
-    }
 }

@@ -69,7 +69,6 @@ export const WCIncomingSignRequestDialog = ({
   const chainIcon = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain].icon : null;
 
   const metadata = currentSession.peer.metadata;
-  const dappHasIcon = metadata.icons && metadata.icons.length > 0;
 
   // for text area height (rows) calculation
   const maxTextAreaRows = 20;
@@ -88,16 +87,13 @@ export const WCIncomingSignRequestDialog = ({
         {
           stage !== 'accepted' && <>
             <ul className={styles.listContainer}>
-              <div className={styles.iconContainer}>
-                <li className={styles.item}>
-                  <p className={styles.label}>{t('walletConnect.signingRequest.account')}</p>
-                  <span className={styles.accountNameAndAddress}>
-                    <p className={styles.accountName}><b>{accountName}</b></p>
-                    <p className={styles.address}>{truncateAddress(accountAddress)}</p>
-                  </span>
-                </li>
-                {dappHasIcon && <img className={styles.dappIcon} src={metadata.icons[0]} alt="icon" /> }
-              </div>
+              <li className={styles.item}>
+                <p className={styles.label}>{t('walletConnect.signingRequest.account')}</p>
+                <span className={styles.accountNameAndAddress}>
+                  <p className={styles.accountName}><b>{accountName}</b></p>
+                  <p className={styles.address}>{truncateAddress(accountAddress)}</p>
+                </span>
+              </li>
 
               <li className={styles.item}>
                 <p className={styles.label}>{t('walletConnect.signingRequest.chain')}</p>
