@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
 import DarkModeContext from '../../../../../contexts/DarkmodeContext';
-import { useHasCamera } from '../../../../../hooks/qrcodescanner';
 import { Input } from '../../../../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
 import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
@@ -57,7 +56,6 @@ export const ReceiverAddressInput = ({
   onChangeActiveScanQR
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
-  const hasCamera = useHasCamera();
 
   const handleSendToSelf = async () => {
     if (!accountCode) {
@@ -96,16 +94,14 @@ export const ReceiverAddressInput = ({
         error={addressError}
         onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
         value={recipientAddress}
-        className={hasCamera ? style.inputWithIcon : ''}
+        className={style.inputWithIcon}
         labelSection={debug ? (
           <span id="sendToSelf" className={style.action} onClick={handleSendToSelf}>
-        Send to self
+            Send to self
           </span>
         ) : undefined}
         autoFocus>
-        { hasCamera && (
-          <ScanQRButton onClick={toggleScanQR} />
-        )}
+        <ScanQRButton onClick={toggleScanQR} />
       </Input>
     </>
   );
