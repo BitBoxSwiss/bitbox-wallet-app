@@ -36,7 +36,7 @@ type TProps = {
 
 export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   const { t } = useTranslation();
-  const { web3wallet, isWalletInitialized } = useContext(WCWeb3WalletContext);
+  const { web3wallet, isWalletInitialized, initializeWeb3Wallet } = useContext(WCWeb3WalletContext);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>();
   const receiveAddresses = useLoad(getReceiveAddressList(code));
 
@@ -46,10 +46,12 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   }, [web3wallet]);
 
   useEffect(() => {
-    if (isWalletInitialized) {
-      updateSessions();
+    if (!web3wallet) {
+      initializeWeb3Wallet();
+      return;
     }
-  }, [isWalletInitialized, updateSessions]);
+    updateSessions();
+  }, [initializeWeb3Wallet, updateSessions, web3wallet]);
 
   useEffect(() => {
     if (isWalletInitialized) {
