@@ -17,14 +17,12 @@ package bitsurance
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"io"
 	"net/http"
-	"sort"
-	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -35,70 +33,38 @@ const (
 	widgetURL = "https://api.bitsurance.eu/widget/"
 )
 
-// fetchBitsuranceIds fetches the list of insured account hashes from the Bitsurance
-// server. The result is returned as a slice of strings, with each element containing
-// the IDs of the insured accounts, in lexical order. (0-9a-z).
-// For details on the hashing please refer to `BitsuranceGetId`.
-func fetchBitsuranceIds(httpClient *http.Client) ([]string, error) {
-	endpoint := apiURL + "allAccountHashes"
-	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	req.Header.Add("X-API-KEY", apiKey)
+const statusActive = "active"
 
-	res, err := httpClient.Do(req)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	defer res.Body.Close() //nolint:errcheck
-	if res.StatusCode != http.StatusOK {
-		return nil, errp.Newf("%s - bad response code %d", endpoint, res.StatusCode)
-	}
-	const max = 81920
-	responseBody, err := io.ReadAll(io.LimitReader(res.Body, max+1))
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	return strings.Split(string(responseBody), "\n"), nil
+type accountDetails struct {
+	Status string `json:"status"`
 }
 
-// findInsuredAccounts compares `accountIds` and `insuredIds` and returns a slice
-// with the matching elements.
+// bitsuranceCheckId fetches the account details of the passed accountId from the
+// Bitsurance server. It returns true if the account status is "active". Possible
+// status are (from Bitsurance Api docs):
+// - "processing"	when still in creation/checking phase (short time)
+// - "refused" application got refused
+// - "waitpayment" accepted, but waiting on first payment
+// - "active" insurance coverage activated
+// - "inactive" offer support link for more info (maybe missed payment)
+// - "canceled" contract got canceled
 //
-// `accountIds` is an ordered slice of strings, containing the hashes of the
-// requested wallet accounts xpubs
-// `insuredIds` is another ordered slice of strings, containing the hashes of
-// all the insured xpubs retrieved from the Bitsurance server.
-//
-// The complexity of the scanning is linear.
-// For details on the hashing please refer to `BitsuranceGetId`.
-// TODO add tests.
-func findInsuredAccounts(accountIds, insuredIds []string) []string {
-	var matching []string
-
-	// Initialize indices for both lists
-	i, j := 0, 0
-
-	// Traverse both lists while there are elements in both
-	for i < len(accountIds) && j < len(insuredIds) {
-		// Compare the current elements in both lists
-		switch {
-		case accountIds[i] == insuredIds[j]:
-			// If the elements match, add it to the matching slice
-			matching = append(matching, accountIds[i])
-			i++
-			j++
-		case accountIds[i] < insuredIds[j]:
-			// If the element in accountIds is smaller, move to the next element
-			i++
-		default:
-			// If the element in insuredIds is smaller, move to the next element
-			j++
-		}
+// If an accountId is not retrieved at all, the endpoint return a 404 http code.
+func bitsuranceCheckId(httpClient *http.Client, accountId string) (bool, error) {
+	endpoint := apiURL + "accountDetails/" + accountId
+	details := accountDetails{}
+	code, err := util.APIGet(httpClient, endpoint, apiKey, 1024, &details)
+	if err != nil {
+		return false, err
+	}
+	if code == http.StatusNotFound {
+		return false, nil
 	}
 
-	return matching
+	if details.Status == statusActive {
+		return true, nil
+	}
+	return false, nil
 }
 
 // BitsuranceGetId returns the BitsuranceId of a given account.
@@ -126,13 +92,6 @@ func BitsuranceURL(lang, bitsuranceId string) string {
 // the given account is found on the list, `false` otherwise.
 func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Client) (map[types.Code]bool, error) {
 	insuredAccountsMap := make(map[types.Code]bool)
-	idCodeMap := make(map[string]types.Code)
-	var accountIds []string
-
-	bitsuranceIds, err := fetchBitsuranceIds(httpClient)
-	if err != nil {
-		return nil, err
-	}
 
 	for _, account := range accounts {
 		code := account.Config().Config.Code
@@ -141,18 +100,12 @@ func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Cl
 			return nil, err
 		}
 
-		idCodeMap[accountId] = code
-		accountIds = append(accountIds, accountId)
-		insuredAccountsMap[code] = false
-	}
+		accountInsured, err := bitsuranceCheckId(httpClient, accountId)
+		if err != nil {
+			return nil, err
+		}
 
-	sort.Strings(accountIds)
-	// should be already sorted, but better to waste a bit more time and avoid mismatches.
-	sort.Strings(bitsuranceIds)
-
-	insuredAccountsIds := findInsuredAccounts(accountIds, bitsuranceIds)
-	for _, id := range insuredAccountsIds {
-		insuredAccountsMap[idCodeMap[id]] = true
+		insuredAccountsMap[code] = accountInsured
 	}
 
 	return insuredAccountsMap, nil

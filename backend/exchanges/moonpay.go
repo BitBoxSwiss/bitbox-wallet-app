@@ -22,6 +22,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/util"
 )
 
 const (
@@ -110,7 +111,7 @@ func GetMoonpaySupportedRegions(httpClient *http.Client) (map[string]BuyMoonpayR
 	var regionsList []BuyMoonpayRegion
 	endpoint := fmt.Sprintf("%s/countries", moonpayAPILiveURL)
 
-	err := APIGet(httpClient, endpoint, &regionsList)
+	_, err := util.APIGet(httpClient, endpoint, "", 81920, &regionsList)
 	if err != nil {
 		return nil, err
 	}
