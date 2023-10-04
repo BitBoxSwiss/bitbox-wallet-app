@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
--
+- Drop support for SAI token
 
 ## 4.39.0
 - Bundle BitBox02 firmware version v9.15.0

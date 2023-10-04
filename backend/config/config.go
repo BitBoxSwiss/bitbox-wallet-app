@@ -263,6 +263,9 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	if err := config.SetAppConfig(appconf); err != nil {
 		return nil, errp.WithStack(err)
 	}
+	if err := config.ModifyAccountsConfig(migrateActiveTokens); err != nil {
+		return nil, errp.WithStack(err)
+	}
 	return config, nil
 }
 
@@ -437,4 +440,20 @@ func migrateUserLanguage(appconf *AppConfig) {
 		appconf.Backend.UserLanguage = lang
 		delete(frontconf, "userLanguage")
 	}
+}
+
+// migrateActiveTokens removes tokens from AccountsConfig.
+func migrateActiveTokens(accountsConf *AccountsConfig) error {
+	for _, account := range accountsConf.Accounts {
+		if account.CoinCode != coin.CodeETH {
+			continue
+		}
+
+		err := account.SetTokenActive("eth-erc20-sai0x89d", false)
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }

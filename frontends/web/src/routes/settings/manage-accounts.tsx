@@ -148,7 +148,6 @@ class ManageAccounts extends Component<Props, State> {
     { code: 'eth-erc20-zrx', name: '0x', unit: 'ZRX' },
     { code: 'eth-erc20-wbtc', name: 'Wrapped Bitcoin', unit: 'WBTC' },
     { code: 'eth-erc20-paxg', name: 'Pax Gold', unit: 'PAXG' },
-    { code: 'eth-erc20-sai0x89d2', name: 'Sai', unit: 'SAI' },
     { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
   ];
 
