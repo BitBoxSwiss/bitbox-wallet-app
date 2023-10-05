@@ -44,7 +44,7 @@ import { isBitcoinBased } from './utils';
 import { getScriptName } from './utils';
 import { MultilineMarkup } from '../../utils/markup';
 import { Dialog } from '../../components/dialog/dialog';
-import A from '../../components/anchor/anchor';
+import { A } from '../../components/anchor/anchor';
 
 type Props = {
   accounts: accountApi.IAccount[];
