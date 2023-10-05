@@ -18,7 +18,7 @@ import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
 import { SuccessResponse } from './response';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth';
+export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
 export type AccountCode = string;
 
@@ -26,9 +26,9 @@ export type Fiat = 'AUD' | 'BRL' | 'BTC' | 'CAD' | 'CHF' | 'CNY' | 'CZK' | 'EUR'
 
 export type ConversionUnit = Fiat | 'sat'
 
-export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'GOETH';
+export type CoinUnit = 'BTC' | 'sat' | 'LTC' | 'ETH' | 'TBTC' | 'tsat' | 'TLTC' | 'GOETH' | 'SEPETH';
 
-export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'SAI' | 'DAI';
+export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
 export type Terc20Token = {
   code: string;

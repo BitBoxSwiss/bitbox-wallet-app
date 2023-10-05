@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { A } from '../anchor/anchor';
 import style from './guide.module.css';
 
@@ -31,11 +31,12 @@ export type TEntryProp = {
 type TEntryProps = {
     entry: TEntryProp;
     shown?: boolean;
+    children?: ReactNode;
 }
 
 type TProps = TEntryProps;
 
-export const Entry: FunctionComponent<TProps> = props => {
+export const Entry = (props: TProps) => {
   const [shown, setShown] = useState<boolean>(props.shown || false);
 
   const toggle = () => {
@@ -54,7 +55,7 @@ export const Entry: FunctionComponent<TProps> = props => {
       <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
         {shown ? (
           <div className="flex-1">
-            {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
+            {entry.text.trim().split('\n').map((p, idx) => <p key={idx}>{p}</p>)}
             {entry.link && (
               <p>
                 <A

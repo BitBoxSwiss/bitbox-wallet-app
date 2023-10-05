@@ -19,9 +19,11 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
-import { MultilineMarkup } from '../../../../utils/markup';
+import { MultilineMarkup, SimpleMarkup } from '../../../../utils/markup';
 import { showMnemonic } from '../../../../api/bitbox02';
-import { confirmation } from '../../../../components/confirm/Confirm';
+import { Message } from '../../../../components/message/message';
+import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
+import { Button } from '../../../../components/forms';
 
 type TProps = {
   deviceID: string;
@@ -34,15 +36,14 @@ type TDialog = {
 const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
   const { t } = useTranslation();
   const [inProgress, setInProgress] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  const handleShowMnemonic = () => {
-    confirmation(t('backup.showMnemonic.description'), async result => {
-      if (result) {
-        setInProgress(true);
-        await showMnemonic(deviceID);
-        setInProgress(false);
-      }
-    });
+  const confirmShowWords = async () => {
+    setShowDialog(false);
+    setInProgress(true);
+    await showMnemonic(deviceID);
+    setInProgress(false);
+
   };
   return (
     <>
@@ -50,9 +51,25 @@ const ShowRecoveryWordsSetting = ({ deviceID }: TProps) => {
         settingName={t('backup.showMnemonic.title')}
         secondaryText={t('deviceSettings.backups.showRecoveryWords.description')}
         extraComponent={<ChevronRightDark />}
-        onClick={handleShowMnemonic}
+        onClick={() => setShowDialog(true)}
       />
       <ShowMnemonicWaitDialog inProgress={inProgress} />
+
+      <Dialog title={t('backup.showMnemonic.title')} open={showDialog} onClose={() => setShowDialog(false)}>
+        <Message type="warning">
+          <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
+        </Message>
+        <p>
+          <MultilineMarkup
+            markup={t('backup.showMnemonic.description')}
+            tagName="span"
+            withBreaks />
+        </p>
+        <DialogButtons>
+          <Button primary onClick={confirmShowWords}>{t('dialog.confirm')}</Button>
+          <Button secondary onClick={() => setShowDialog(false)}>{t('dialog.cancel')}</Button>
+        </DialogButtons>
+      </Dialog>
     </>
   );
 };
@@ -66,6 +83,9 @@ const ShowMnemonicWaitDialog = ({ inProgress }: TDialog) => {
 
   return (
     <WaitDialog title={t('backup.showMnemonic.title')}>
+      <Message type="warning">
+        <SimpleMarkup tagName="span" markup={t('backup.showMnemonic.warning')}/>
+      </Message>
       <p>
         <MultilineMarkup
           markup={t('backup.showMnemonic.description')}

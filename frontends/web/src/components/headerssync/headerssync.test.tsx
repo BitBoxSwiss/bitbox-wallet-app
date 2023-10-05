@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { HeadersSync } from './headerssync';
 import { TStatus } from '../../api/coins';
@@ -21,9 +22,12 @@ import * as apiHooks from '../../hooks/api';
 import * as mountHooks from '../../hooks/mount';
 import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 
-const useSubscribeSpy = jest.spyOn(apiHooks, 'useSubscribe');
-const useMountedRefSpy = jest.spyOn(mountHooks, 'useMountedRef');
+const useSubscribeSpy = vi.spyOn(apiHooks, 'useSubscribe');
+const useMountedRefSpy = vi.spyOn(mountHooks, 'useMountedRef');
 
+vi.mock('../../utils/request', () => ({
+  apiGet: vi.fn().mockResolvedValue(''),
+}));
 
 describe('components/headerssync/headerssync', () => {
   beforeEach(() => {

@@ -23,8 +23,8 @@ import { getScriptName, isBitcoinBased } from '../utils';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
-import style from './info.module.css';
 import { useLoad } from '../../../hooks/api';
+import style from './info.module.css';
 
 type TProps = {
     account: IAccount;
@@ -56,45 +56,43 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
         ) : null }
       </div>
       <div className={style.details}>
-        <div className="labelLarge">
-          { account.isToken ? null : (
-            <p key="accountname" className={style.entry}>
-              {/* borrowing translation from accountSummary */}
-              <strong>{t('accountSummary.name')}:</strong>
-              <span>{account.name}</span>
-            </p>
-          )}
-          <p key="keypath" className={style.entry}>
-            <strong>Keypath:</strong>
-            <code>{config.keyInfo.keypath}</code>
-          </p>
-          { ('scriptType' in config) ? (
-            <p key="scriptName" className={style.entry}>
-              <strong>{t('accountInfo.scriptType')}:</strong>
-              <span>{getScriptName(config.scriptType)}</span>
-            </p>
-          ) : null}
-          <p key="rootFingerprint" className={style.entry}>
-            <strong>Root fingerprint:</strong>
-            <code>{config.keyInfo.rootFingerprint}</code>
-          </p>
-          <p key="coinName" className={style.entry}>
-            <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
-            <span>{account.coinName} ({account.coinUnit})</span>
-          </p>
-          { bitcoinBased ? (
-            <p key="xpub" className={`${style.entry} ${style.largeEntry}`}>
-              <strong className="m-right-half">
-                {t('accountInfo.extendedPublicKey')}:
-              </strong>
-              <CopyableInput
-                className="flex-grow"
-                alignLeft
-                flexibleHeight
-                value={config.keyInfo.xpub} />
-            </p>
-          ) : null }
+        { account.isToken ? null : (
+          <div key="accountname" className={style.entry}>
+            {/* borrowing translation from accountSummary */}
+            <strong>{t('accountSummary.name')}:</strong>
+            <span>{account.name}</span>
+          </div>
+        )}
+        <div key="keypath" className={style.entry}>
+          <strong>Keypath:</strong>
+          <code>{config.keyInfo.keypath}</code>
         </div>
+        { ('scriptType' in config) ? (
+          <div key="scriptName" className={style.entry}>
+            <strong>{t('accountInfo.scriptType')}:</strong>
+            <span>{getScriptName(config.scriptType)}</span>
+          </div>
+        ) : null}
+        <div key="rootFingerprint" className={style.entry}>
+          <strong>Root fingerprint:</strong>
+          <code>{config.keyInfo.rootFingerprint}</code>
+        </div>
+        <div key="coinName" className={style.entry}>
+          <strong>{account.isToken ? 'Token' : 'Coin'}:</strong>
+          <span>{account.coinName} ({account.coinUnit})</span>
+        </div>
+        { bitcoinBased ? (
+          <div key="xpub" className={`${style.entry} ${style.largeEntry}`}>
+            <strong className="m-right-half">
+              {t('accountInfo.extendedPublicKey')}:
+            </strong>
+            <CopyableInput
+              className="flex-grow"
+              alignLeft
+              flexibleHeight
+              value={config.keyInfo.xpub} />
+          </div>
+        ) : null }
       </div>
       <div className={style.buttons}>
         { canVerifyExtendedPublicKey ? (

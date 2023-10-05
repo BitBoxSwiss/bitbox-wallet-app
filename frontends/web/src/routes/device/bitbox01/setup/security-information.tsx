@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 import { Button } from '../../../../components/forms';
 import { Alert, SwissMadeOpenSource, SwissMadeOpenSourceDark } from '../../../../components/icon';
 import { LanguageSwitch } from '../../../../components/language/language';
@@ -28,6 +28,7 @@ import style from '../bitbox01.module.css';
 interface SecurityInformationProps {
     goBack: () => void;
     goal: string | null;
+    children: ReactNode;
 }
 
 type Props = SecurityInformationProps & TranslateProps;

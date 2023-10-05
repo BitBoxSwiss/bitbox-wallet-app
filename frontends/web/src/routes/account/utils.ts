@@ -53,7 +53,7 @@ export function isBitcoinBased(coinCode: CoinCode): boolean {
 }
 
 export function isEthereumBased(coinCode: CoinCode): boolean {
-  return coinCode === 'eth' || coinCode === 'goeth' || coinCode.startsWith('eth-erc20-');
+  return coinCode === 'eth' || coinCode === 'goeth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 }
 
 export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
@@ -66,6 +66,7 @@ export function getCoinCode(coinCode: CoinCode): CoinCode | undefined {
     return 'ltc';
   case 'eth':
   case 'goeth':
+  case 'sepeth':
     return 'eth';
   }
 }
