@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`components/message/message should have child nodes 1`] = `
+exports[`components/message/message > should have child nodes 1`] = `
 <div
-  class="message "
+  class="_message_88ce03 "
 >
   <span>
     hello

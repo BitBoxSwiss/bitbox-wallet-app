@@ -1,9 +1,9 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`routes/account/send/feetargets should match the snapshot 1`] = `
+exports[`routes/account/send/feetargets > should match the snapshot 1`] = `
 <div>
   <div
-    class="input align-left  isTransparent"
+    class="_input_44a2ea _align-left_44a2ea  _isTransparent_44a2ea"
   >
     <div
       class="flex flex-row flex-between"
@@ -29,10 +29,10 @@ exports[`routes/account/send/feetargets should match the snapshot 1`] = `
 </div>
 `;
 
-exports[`routes/account/send/feetargets should match the snapshot with empty feetargets 1`] = `
+exports[`routes/account/send/feetargets > should match the snapshot with empty feetargets 1`] = `
 <div>
   <div
-    class="input align-left  isTransparent"
+    class="_input_44a2ea _align-left_44a2ea  _isTransparent_44a2ea"
   >
     <div
       class="flex flex-row flex-between"

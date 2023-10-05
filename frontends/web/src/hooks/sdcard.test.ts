@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react-hooks';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useSDCard } from './sdcard';
 import { DeviceInfo } from '../api/bitbox01';
 import * as bitbox01Apis from '../api/bitbox01';
 import * as bitbox02Apis from '../api/bitbox02';
 import * as utils from './mount';
 
-const useMountedRefSpy = jest.spyOn(utils, 'useMountedRef');
-const checkSDCardSpy = jest.spyOn(bitbox02Apis, 'checkSDCard');
-const getDeviceInfoSpy = jest.spyOn(bitbox01Apis, 'getDeviceInfo');
+vi.mock('../utils/request', () => ({
+  apiGet: vi.fn().mockResolvedValue(''),
+}));
+
+const useMountedRefSpy = vi.spyOn(utils, 'useMountedRef');
+const checkSDCardSpy = vi.spyOn(bitbox02Apis, 'checkSDCard');
+const getDeviceInfoSpy = vi.spyOn(bitbox01Apis, 'getDeviceInfo');
 
 const { checkSDCard } = bitbox02Apis;
 const { getDeviceInfo } = bitbox01Apis;
@@ -38,12 +43,10 @@ describe('useSDCard', () => {
     it('should apply for bitbox02', async () => {
       checkSDCardSpy.mockImplementation(() => Promise.resolve(true));
 
-      const { result, waitForNextUpdate } = renderHook(() => useSDCard({ '000': 'bitbox02' }));
+      const { result } = renderHook(() => useSDCard({ '000': 'bitbox02' }));
 
-      await waitForNextUpdate();
-
-      expect(checkSDCard).toHaveBeenCalled();
-      expect(result.current).toBe(true);
+      await waitFor(() => expect(checkSDCard).toHaveBeenCalled());
+      await waitFor(() => expect(result.current).toBe(true));
     });
 
     it('should apply for bitbox01', async () => {
@@ -63,14 +66,13 @@ describe('useSDCard', () => {
         version: '0.1',
       };
 
-      getDeviceInfoSpy.mockResolvedValue(Promise.resolve(MOCKED_DEVICE_INFO));
+      getDeviceInfoSpy.mockResolvedValue(MOCKED_DEVICE_INFO);
 
-      const { result, waitForNextUpdate } = renderHook(() => useSDCard({ '000': 'bitbox' }));
+      const { result } = renderHook(() => useSDCard({ '000': 'bitbox' }));
 
-      await waitForNextUpdate();
+      await waitFor(() => expect(getDeviceInfo).toHaveBeenCalled());
 
-      expect(getDeviceInfo).toHaveBeenCalled();
-      expect(result.current).toBe(true);
+      await waitFor(() => expect(result.current).toBe(true));
     });
 
   });

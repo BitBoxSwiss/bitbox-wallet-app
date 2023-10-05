@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 import { restoreBackup } from '../../../api/bitbox02';
 import Toast from '../../../components/toast/Toast';
 import { subscribe } from '../../../decorators/subscribe';
@@ -39,6 +39,7 @@ interface BackupsProps {
     showRadio: boolean;
     onSelectBackup?: (backup: Backup) => void;
     onRestoreBackup?: (success: boolean) => void;
+    children?: ReactNode;
 }
 
 type Props = SubscribedBackupsProps & BackupsProps & TranslateProps;

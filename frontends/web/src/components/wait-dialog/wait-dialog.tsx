@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, createRef } from 'react';
+import { Component, createRef, ReactNode } from 'react';
 import { translate, TranslateProps } from '../../decorators/translate';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
@@ -28,6 +28,7 @@ interface WaitDialogProps {
     title?: string;
     paired?: boolean;
     touchConfirm?: boolean;
+    children?: ReactNode;
 }
 
 type Props = WaitDialogProps & TranslateProps;
