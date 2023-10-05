@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 import { backendConnected } from './api/subscribe';
 
 interface State {
-    connected: boolean;
+  connected: boolean;
 }
 
-interface Props {}
+interface Props {
+  children: ReactNode;
+}
 
 class ConnectedApp extends Component<Props, State> {
   public readonly state: State = {

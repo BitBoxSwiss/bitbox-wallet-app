@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { A } from '../anchor/anchor';
 import style from './guide.module.css';
 
@@ -31,11 +31,12 @@ export type TEntryProp = {
 type TEntryProps = {
     entry: TEntryProp;
     shown?: boolean;
+    children?: ReactNode;
 }
 
 type TProps = TEntryProps;
 
-export const Entry: FunctionComponent<TProps> = props => {
+export const Entry = (props: TProps) => {
   const [shown, setShown] = useState<boolean>(props.shown || false);
 
   const toggle = () => {

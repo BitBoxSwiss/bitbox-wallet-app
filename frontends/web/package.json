@@ -3,27 +3,32 @@
   "name": "bitboxapp",
   "version": "0.0.0",
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.1.5",
-    "@testing-library/react-hooks": "^8.0.1",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@testing-library/jest-dom": "^6.1.2",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.1.1",
-    "@types/jest": "27.5.0",
-    "@types/node": "17.0.31",
-    "@types/react": "^17.0.19",
-    "@types/react-dom": "^17.0.9",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.4.2"
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.4",
+    "eslint": "^8.49.0",
+    "eslint-config-react-app": "^7.0.1",
+    "jsdom": "^22.1.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.9",
+    "vite-plugin-checker": "^0.6.2",
+    "vite-plugin-eslint": "^1.8.1",
+    "vitest": "^0.34.3"
   },
   "dependencies": {
     "flag-icons": "^6.6.6",
     "i18next": "21.6.16",
     "lightweight-charts": "3.8.0",
     "qr-scanner": "1.4.2",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-i18next": "11.16.8",
-    "react-router-dom": "6.3.0",
-    "react-select": "5.7.0",
+    "react-router-dom": "6.4.3",
+    "react-select": "5.7.4",
     "request-address": "0.0.6"
   },
   "eslintConfig": {
@@ -44,11 +49,10 @@
   },
   "scripts": {
     "dev": "npm run start",
-    "start": "PORT=8080 react-scripts start",
-    "startwindows": "set PORT=8080 && react-scripts start",
-    "build": "react-scripts build",
-    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite --port 8080 --cors",
+    "build": "npm run typescript && vite build",
+    "lint": "npm run typescript && eslint --ext .jsx,.js,.ts,.tsx ./src",
+    "typescript": "tsc -p tsconfig.json",
+    "test": "vitest"
   }
 }
