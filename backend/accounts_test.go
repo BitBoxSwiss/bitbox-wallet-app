@@ -133,6 +133,7 @@ func TestSortAccounts(t *testing.T) {
 		{Code: "acct-btc-3", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/2'")},
 		{Code: "acct-btc-2", CoinCode: coinpkg.CodeBTC, SigningConfigurations: btcConfig("m/84'/0'/1'")},
 		{Code: "acct-goeth", CoinCode: coinpkg.CodeGOETH},
+		{Code: "acct-sepeth", CoinCode: coinpkg.CodeSEPETH},
 		{Code: "acct-ltc", CoinCode: coinpkg.CodeLTC},
 		{Code: "acct-tltc", CoinCode: coinpkg.CodeTLTC},
 		{Code: "acct-tbtc", CoinCode: coinpkg.CodeTBTC},
@@ -156,6 +157,7 @@ func TestSortAccounts(t *testing.T) {
 		"acct-eth-2-eth-erc20-bat",
 		"acct-eth-2-eth-erc20-usdt",
 		"acct-goeth",
+		"acct-sepeth",
 	}
 
 	for i, acct := range backend.Accounts() {
@@ -415,6 +417,7 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	for _, code := range []coinpkg.Code{
 		coinpkg.CodeETH,
 		coinpkg.CodeGOETH,
+		coinpkg.CodeSEPETH,
 	} {
 		c, err := b.Coin(code)
 		require.NoError(t, err)
@@ -456,7 +459,7 @@ func TestSupportedCoins(t *testing.T) {
 		b := newBackend(t, testnetEnabled, regtestDisabled)
 		defer b.Close()
 		require.Equal(t,
-			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH},
+			[]coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH, coinpkg.CodeSEPETH},
 			b.SupportedCoins(&keystoremock.KeystoreMock{
 				SupportsCoinFunc: func(coin coinpkg.Coin) bool {
 					return true

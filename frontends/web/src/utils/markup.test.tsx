@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import 'jest';
+import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { MultilineMarkup, SimpleMarkup } from './markup';
 

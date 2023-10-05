@@ -142,12 +142,16 @@ func NewTxSpendAll(
 ) (*TxProposal, error) {
 	selectedOutPoints := []wire.OutPoint{}
 	inputs := []*wire.TxIn{}
+	previousOutputs := make(PreviousOutputs, len(spendableOutputs))
 	outputsSum := btcutil.Amount(0)
 	for outPoint, output := range spendableOutputs {
 		outPoint := outPoint // avoid reference reuse due to range loop
 		selectedOutPoints = append(selectedOutPoints, outPoint)
 		outputsSum += btcutil.Amount(output.TxOut.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
+		previousOutputs[outPoint] = &transactions.SpendableOutput{
+			TxOut: spendableOutputs[outPoint].TxOut,
+		}
 	}
 	txSize := estimateTxSize(
 		toInputConfigurations(spendableOutputs, selectedOutPoints),
@@ -169,10 +173,11 @@ func NewTxSpendAll(
 
 	setRBF(coin, unsignedTransaction)
 	return &TxProposal{
-		Coin:        coin,
-		Amount:      btcutil.Amount(output.Value),
-		Fee:         maxRequiredFee,
-		Transaction: unsignedTransaction,
+		Coin:            coin,
+		Amount:          btcutil.Amount(output.Value),
+		Fee:             maxRequiredFee,
+		Transaction:     unsignedTransaction,
+		PreviousOutputs: previousOutputs,
 	}, nil
 }
 
