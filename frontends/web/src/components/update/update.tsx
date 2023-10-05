@@ -21,6 +21,7 @@ import { getUpdate } from '../../api/version';
 import { Status } from '../status/status';
 import { AppDownloadLink } from '../appdownloadlink/appdownloadlink';
 import { useLoad } from '../../hooks/api';
+import style from './update.module.css';
 
 export const Update = () => {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ export const Update = () => {
       {file.description}
       {' '}
       {/* Don't show download link on Android because they should update from stores */}
-      {!runningInAndroid() && <AppDownloadLink />}
+      {!runningInAndroid() && <AppDownloadLink className={style.link} />}
     </Status>
   );
 };

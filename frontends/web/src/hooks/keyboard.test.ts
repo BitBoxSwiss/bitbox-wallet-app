@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { fireEvent } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
-import { useEsc } from './keyboard';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, renderHook } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+import { useEsc } from './keyboard';
 
 describe('useEsc', () => {
   it('should fire its callback when escape key gets pressed', () => {
-    const mock = jest.fn();
+    const mock = vi.fn();
     renderHook((() => useEsc(mock)));
     act(() => {
       fireEvent.keyDown(document, { key: 'Escape', code: 27 });
@@ -29,4 +29,3 @@ describe('useEsc', () => {
     expect(mock).toHaveBeenCalled();
   });
 });
-

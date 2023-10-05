@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
@@ -23,9 +23,8 @@ import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
-import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
-import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
+import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -41,6 +40,7 @@ import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
+import { CoinInput } from './components/inputs/coin-input';
 import style from './send.module.css';
 
 interface SendProps {
@@ -358,27 +358,6 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private handleFormChange = (event: React.SyntheticEvent) => {
-    const target = (event.target as HTMLInputElement);
-    let value: string | boolean = target.value;
-    if (target.type === 'checkbox') {
-      value = target.checked;
-    }
-    if (target.id === 'sendAll') {
-      if (!value) {
-        this.convertToFiat(this.state.amount);
-      }
-    } else if (target.id === 'amount') {
-      this.convertToFiat(value);
-    }
-    this.setState(prevState => ({
-      ...prevState,
-      [target.id]: value,
-    }), () => {
-      this.validateAndDisplayFee(true);
-    });
-  };
-
   private handleFiatInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     this.setState({ fiatAmount: value });
@@ -416,11 +395,6 @@ class Send extends Component<Props, State> {
     } else {
       this.setState({ amount: '' });
     }
-  };
-
-  private sendToSelf = (event: React.SyntheticEvent, recipientAddress: string) => {
-    this.setState({ recipientAddress });
-    this.handleFormChange(event);
   };
 
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
@@ -508,6 +482,28 @@ class Send extends Component<Props, State> {
     this.setState({ activeCoinControl: false });
   };
 
+  private onReceiverAddressInputChange = (recipientAddress: string) => {
+    this.setState({ recipientAddress }, () => {
+      this.validateAndDisplayFee(true);
+    });
+  };
+
+  private onCoinAmountChange = (amount: string) => {
+    this.convertToFiat(amount);
+    this.setState({ amount }, () => {
+      this.validateAndDisplayFee(true);
+    });
+  };
+
+  private onSendAllChange = (sendAll: boolean) => {
+    if (!sendAll) {
+      this.convertToFiat(this.state.amount);
+    }
+    this.setState({ sendAll }, () => {
+      this.validateAndDisplayFee(true);
+    });
+  };
+
   public render() {
     const { t, code } = this.props;
     const {
@@ -590,7 +586,12 @@ class Send extends Component<Props, State> {
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
                   { coinControl && (
-                    <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
+                    <Button
+                      className="m-bottom-quarter p-right-none"
+                      transparent
+                      onClick={this.toggleCoinControl}>
+                      {t('send.toggleCoinControl')}
+                    </Button>
                   )}
                 </div>
                 <Grid col="1">
@@ -598,10 +599,7 @@ class Send extends Component<Props, State> {
                     <ReceiverAddressInput
                       accountCode={this.getAccount()?.code}
                       addressError={addressError}
-                      onClickSendToSelfButton={this.sendToSelf}
-                      onInputChange={(recipientAddress: string) => this.setState({ recipientAddress }, () => {
-                        this.validateAndDisplayFee(true);
-                      })}
+                      onInputChange={this.onReceiverAddressInputChange}
                       recipientAddress={recipientAddress}
                       parseQRResult={this.parseQRResult}
                       activeScanQR={activeScanQR}
@@ -611,25 +609,16 @@ class Send extends Component<Props, State> {
                 </Grid>
                 <Grid>
                   <Column>
-                    <Input
-                      type="number"
-                      step="any"
-                      min="0"
-                      label={balance ? balance.available.unit : t('send.amount.label')}
-                      id="amount"
-                      onInput={this.handleFormChange}
-                      disabled={sendAll}
-                      error={amountError}
-                      value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
-                      placeholder={t('send.amount.placeholder')}
-                      labelSection={
-                        <Checkbox
-                          label={t(this.hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
-                          id="sendAll"
-                          onChange={this.handleFormChange}
-                          checked={sendAll}
-                          className={style.maxAmount} />
-                      } />
+                    <CoinInput
+                      balance={balance}
+                      onAmountChange={this.onCoinAmountChange}
+                      onSendAllChange={this.onSendAllChange}
+                      sendAll={sendAll}
+                      amountError={amountError}
+                      proposedAmount={proposedAmount}
+                      amount={amount}
+                      hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                    />
                   </Column>
                   <Column>
                     <Input

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { Component, createRef } from 'react';
+import React, { Component, createRef, ReactNode } from 'react';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
@@ -34,6 +34,7 @@ interface BackupsProps {
     showRestore?: boolean;
     requireConfirmation?: boolean;
     onRestore?: () => void;
+    children: ReactNode;
 }
 
 type Props = BackupsProps & TranslateProps;

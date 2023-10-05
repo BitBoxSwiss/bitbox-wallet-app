@@ -22,60 +22,10 @@ dt {
     margin-bottom: var(--space-quarter);
 }
 
-.labelLarge {
-    font-size: var(--size-default);
-    margin-bottom: var(--space-half);
-}
-
 .labelXLarge {
     font-size: var(--size-subheader);
     margin-bottom: calc(var(--space-half) * 1.5);
     color: var(--color-default);
-}
-
-.labelLink {
-    color: var(--color-blue);
-    cursor: pointer;
-    line-height: 1;
-    font-weight: 400;
-}
-
-.labelLink.larger {
-    font-size: 16px;
-}
-
-.labelXLarge.labelLink {
-    font-size: var(--size-default);
-    margin-bottom: calc(var(--space-half) * 1.5);
-}
-
-.labelButton {
-    padding: var(--space-quarter) var(--space-half);
-    border-radius: 2px;
-    color: var(--color-alt);
-    transition: background-color ease-in-out 0.2s;
-    will-change: background-color;
-}
-
-.labelLink svg,
-.labelButton svg {
-    margin-right: var(--space-quarter);
-}
-
-.labelButton.primary {
-    background-color: var(--color-blue);
-}
-
-.labelButton.primary:hover {
-    background-color: var(--color-lightblue);
-}
-
-.labelButton.secondary {
-    background-color: var(--color-orange);
-}
-
-.labelButton.secondary:hover {
-    background-color: var(--color-lightorange);
 }
 
 input:invalid,
@@ -103,20 +53,7 @@ input[type="checkbox"]:focus + label::before {
 }
 
 @media (max-width: 768px) {
-    .labelLarge {
-        margin-bottom: var(--space-half);
-    }
-
     .labelXLarge {
-        margin-bottom: var(--space-half);
-    }
-
-    .labelLink,
-    .labelLink.larger {
-        font-size: var(--size-small);
-    }
-
-    .labelXLarge.labelLink {
         margin-bottom: var(--space-half);
     }
 }

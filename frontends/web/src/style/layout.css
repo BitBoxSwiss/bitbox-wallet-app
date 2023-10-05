@@ -311,6 +311,7 @@
 .p-top-default { padding-top: var(--space-default) !important; }
 .p-top-default-extra { padding-top: calc(var(--space-default) * 1.5) !important; }
 .p-top-large { padding-top: var(--space-large) !important; }
+.p-right-none { padding-right: 0 !important; }
 .p-right-quarter { padding-right: var(--space-quarter) !important; }
 .p-right-half { padding-right: var(--space-half) !important; }
 .p-right-default { padding-right: var(--space-default) !important; }
@@ -319,6 +320,7 @@
 .p-bottom-half { padding-bottom: var(--space-half) !important; }
 .p-bottom-default { padding-bottom: var(--space-default) !important; }
 .p-bottom-large { padding-bottom: calc(var(--space-half) * 1.5) !important; }
+.p-left-none { padding-left: 0 !important; }
 .p-left-quarter { padding-left: var(--space-quarter) !important; }
 .p-left-half { padding-left: var(--space-half) !important; }
 .p-left-default { padding-left: var(--space-default) !important; }

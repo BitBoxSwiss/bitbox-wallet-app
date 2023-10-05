@@ -80,6 +80,8 @@ func sortAccounts(accounts []accounts.Interface) {
 					return 4, true
 				case params.GoerliChainConfig.ChainID.Uint64():
 					return 5, true
+				case params.SepoliaChainConfig.ChainID.Uint64():
+					return 6, true
 				}
 			}
 			return 0, false
@@ -163,7 +165,7 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	allCoins := []coinpkg.Code{
 		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
 		coinpkg.CodeLTC, coinpkg.CodeTLTC,
-		coinpkg.CodeETH, coinpkg.CodeGOETH,
+		coinpkg.CodeETH, coinpkg.CodeGOETH, coinpkg.CodeSEPETH,
 	}
 	var availableCoins []coinpkg.Code
 	for _, coinCode := range allCoins {
@@ -333,7 +335,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			},
 			accountsConfig,
 		)
-	case coinpkg.CodeETH, coinpkg.CodeGOETH:
+	case coinpkg.CodeETH, coinpkg.CodeGOETH, coinpkg.CodeSEPETH:
 		bip44Coin := "1'"
 		if coinCode == coinpkg.CodeETH {
 			bip44Coin = "60'"
@@ -860,7 +862,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 				}
 			}
 		} else {
-			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH} {
+			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH, coinpkg.CodeSEPETH} {
 				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 					if _, err := backend.createAndPersistAccountConfig(
 						coinCode, 0, false, "", keystore, nil, accountsConfig); err != nil {

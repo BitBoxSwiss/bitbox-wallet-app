@@ -23,11 +23,20 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
+
+// PreviousOutputs represents a UTXO set. It also implements `txscript.PrevOutputFetcher`.
+type PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
+
+// FetchPrevOutput implements `txscript.PrevOutputFetcher`.
+func (p PreviousOutputs) FetchPrevOutput(op wire.OutPoint) *wire.TxOut {
+	return p[op].TxOut
+}
 
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
@@ -39,7 +48,8 @@ type TxProposal struct {
 	Fee         btcutil.Amount
 	Transaction *wire.MsgTx
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
-	ChangeAddress *addresses.AccountAddress
+	ChangeAddress   *addresses.AccountAddress
+	PreviousOutputs PreviousOutputs
 }
 
 // Total is amount+fee.
@@ -132,12 +142,16 @@ func NewTxSpendAll(
 ) (*TxProposal, error) {
 	selectedOutPoints := []wire.OutPoint{}
 	inputs := []*wire.TxIn{}
+	previousOutputs := make(PreviousOutputs, len(spendableOutputs))
 	outputsSum := btcutil.Amount(0)
 	for outPoint, output := range spendableOutputs {
 		outPoint := outPoint // avoid reference reuse due to range loop
 		selectedOutPoints = append(selectedOutPoints, outPoint)
 		outputsSum += btcutil.Amount(output.TxOut.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
+		previousOutputs[outPoint] = &transactions.SpendableOutput{
+			TxOut: spendableOutputs[outPoint].TxOut,
+		}
 	}
 	txSize := estimateTxSize(
 		toInputConfigurations(spendableOutputs, selectedOutPoints),
@@ -159,10 +173,11 @@ func NewTxSpendAll(
 
 	setRBF(coin, unsignedTransaction)
 	return &TxProposal{
-		Coin:        coin,
-		Amount:      btcutil.Amount(output.Value),
-		Fee:         maxRequiredFee,
-		Transaction: unsignedTransaction,
+		Coin:            coin,
+		Amount:          btcutil.Amount(output.Value),
+		Fee:             maxRequiredFee,
+		Transaction:     unsignedTransaction,
+		PreviousOutputs: previousOutputs,
 	}, nil
 }
 
@@ -206,9 +221,13 @@ func NewTx(
 		}
 
 		inputs := make([]*wire.TxIn, len(selectedOutPoints))
+		previousOutputs := make(PreviousOutputs, len(selectedOutPoints))
 		for i, outPoint := range selectedOutPoints {
 			outPoint := outPoint // avoids referencing the same variable across loop iterations
 			inputs[i] = wire.NewTxIn(&outPoint, nil, nil)
+			previousOutputs[outPoint] = &transactions.SpendableOutput{
+				TxOut: spendableOutputs[outPoint].TxOut,
+			}
 		}
 		unsignedTransaction := &wire.MsgTx{
 			Version:  wire.TxVersion,
@@ -235,11 +254,12 @@ func NewTx(
 
 		setRBF(coin, unsignedTransaction)
 		return &TxProposal{
-			Coin:          coin,
-			Amount:        targetAmount,
-			Fee:           finalFee,
-			Transaction:   unsignedTransaction,
-			ChangeAddress: changeAddress,
+			Coin:            coin,
+			Amount:          targetAmount,
+			Fee:             finalFee,
+			Transaction:     unsignedTransaction,
+			ChangeAddress:   changeAddress,
+			PreviousOutputs: previousOutputs,
 		}, nil
 	}
 }

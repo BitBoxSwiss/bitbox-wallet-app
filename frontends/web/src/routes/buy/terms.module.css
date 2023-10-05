@@ -49,12 +49,6 @@
   margin: 2.5rem 0 0 0;
 }
 
-.link {
-  color: var(--color-blue);
-  cursor: pointer;
-  text-decoration: underline;
-}
-
 .table {
   overflow: auto;
 }
