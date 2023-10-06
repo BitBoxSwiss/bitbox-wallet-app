@@ -269,12 +269,6 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	return config, nil
 }
 
-// SetBtcOnly sets non-bitcoin accounts in the config to false.
-func (config *Config) SetBtcOnly() {
-	config.appConfig.Backend.DeprecatedLitecoinActive = false
-	config.appConfig.Backend.DeprecatedEthereumActive = false
-}
-
 // SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert.
 func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string) {
 	config.appConfig.Backend.BTC = btcCoinConfig{
