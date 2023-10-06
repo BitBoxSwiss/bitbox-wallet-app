@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useLoad } from '../../hooks/api';
+import { useLoad, useSync } from '../../hooks/api';
 import * as accountApi from '../../api/account';
-import { ILightningStatus, getStatus, subscribeStatus } from '../../api/lightning';
+import { getStatus, subscribeStatus } from '../../api/lightning';
 import { TDevices } from '../../api/devices';
 import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
-import { unsubscribe } from '../../utils/subscriptions';
 import { alertUser } from '../../components/alert/Alert';
 import { Balance } from '../../components/balance/balance';
 import { Header } from '../../components/layout';
@@ -41,48 +40,38 @@ type Props = {
   devices: TDevices;
 };
 
-export function Lightning({
-  accounts,
-  code,
-}: Props) {
+export function Lightning({ accounts, code }: Props) {
   const { t } = useTranslation();
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [transactions] = useState<accountApi.TTransactions>();
   const [stateCode, setStateCode] = useState<string>();
+  const status = useSync(() => getStatus(code), subscribeStatus(code));
   const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
 
-  const onStatusChanged = useCallback((lightningStatus: ILightningStatus) => {
-    setBalance({
-      hasAvailable: lightningStatus.localBalance > 0,
-      available: {
-        amount: `${lightningStatus.localBalance}`,
-        unit: 'sat'
-      },
-      hasIncoming: false,
-      incoming: {
-        amount: '0',
-        unit: 'sat'
-      }
-    });
-  }, []);
-
   useEffect(() => {
-    getStatus(code).then(onStatusChanged);
-  }, [code, onStatusChanged]);
-
-  useEffect(() => {
-    const subscriptions = [
-      subscribeStatus(code)(onStatusChanged),
-    ];
-
-    return () => unsubscribe(subscriptions);
-  }, [code, onStatusChanged]);
+    if (status) {
+      console.log(status.blockHeight);
+      setBalance({
+        hasAvailable: status.localBalance > 0,
+        available: {
+          amount: `${status.localBalance}`,
+          unit: 'sat'
+        },
+        hasIncoming: false,
+        incoming: {
+          amount: '0',
+          unit: 'sat'
+        }
+      });
+    }
+  }, [status, status?.localBalance]);
 
   function exportAccount() {
-    accountApi.exportAccount(code)
-      .then(result => {
+    accountApi
+      .exportAccount(code)
+      .then((result) => {
         if (result !== null && !result.success) {
           alertUser(result.errorMessage);
         }
@@ -96,8 +85,8 @@ export function Lightning({
 
   const hasDataLoaded = balance !== undefined;
 
-  const account = accounts && accounts.find(acct => acct.code === code);
-  if (!account || stateCode !== code) {
+  const account = accounts && accounts.find((acct) => acct.code === code);
+  if (!account || !status || stateCode !== code) {
     // Sync code property with stateCode to work around a re-render that
     // happens briefly before `setStatus(undefined)` stops rendering again below.
     return null;
@@ -106,23 +95,20 @@ export function Lightning({
   const canSend = balance && balance.hasAvailable;
 
   const initializingSpinnerText =
-    (syncedAddressesCount !== undefined && syncedAddressesCount > 1) ? (
-      '\n' + t('account.syncedAddressesCount', {
-        count: syncedAddressesCount.toString(),
-        defaultValue: 0,
-      } as any)
-    ) : '';
+    syncedAddressesCount !== undefined && syncedAddressesCount > 1
+      ? '\n' +
+        t('account.syncedAddressesCount', {
+          count: syncedAddressesCount.toString(),
+          defaultValue: 0
+        } as any)
+      : '';
 
   const offlineErrorTextLines: string[] = [];
 
   const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
 
-  const isAccountEmpty = balance
-    && !balance.hasAvailable
-    && !balance.hasIncoming
-    && transactions
-    && transactions.success
-    && transactions.list.length === 0;
+  const isAccountEmpty =
+    balance && !balance.hasAvailable && !balance.hasIncoming && transactions && transactions.success && transactions.list.length === 0;
 
   const actionButtonsProps = {
     code,
@@ -134,7 +120,12 @@ export function Lightning({
     <div className="contentWithGuide">
       <div className="container">
         <Header
-          title={<h2><span>{account.name + ' Lightning'}</span></h2>}>
+          title={
+            <h2>
+              <span>{account.name + ' Lightning'}</span>
+            </h2>
+          }
+        >
           <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
@@ -142,16 +133,11 @@ export function Lightning({
         </Header>
         <div className="innerContainer scrollableContainer">
           <div className="content padded">
-
             <div className="flex flex-column flex-reverse-mobile">
-              <label className="labelXLarge flex-self-start-mobile hide-on-small">
-                {t('accountSummary.availableBalance')}
-              </label>
+              <label className="labelXLarge flex-self-start-mobile hide-on-small">{t('accountSummary.availableBalance')}</label>
               <div className="flex flex-row flex-between flex-item-center flex-column-mobile flex-reverse-mobile">
                 <Balance balance={balance} />
-                <label className="labelXLarge flex-self-start-mobile show-on-small">
-                  {t('accountSummary.availableBalance')}
-                </label>
+                <label className="labelXLarge flex-self-start-mobile show-on-small">{t('accountSummary.availableBalance')}</label>
                 {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
               </div>
             </div>
@@ -163,25 +149,28 @@ export function Lightning({
                 balanceList={[[code, balance]]}
               />
             )}
-            { offlineErrorTextLines.length || !hasDataLoaded ? (
+            {offlineErrorTextLines.length || !hasDataLoaded ? (
               <Spinner guideExists text={initializingSpinnerText} />
             ) : (
               <>
-                {!isAccountEmpty && <Transactions
-                  accountCode={code}
-                  handleExport={exportAccount}
-                  explorerURL={account.blockExplorerTxPrefix}
-                  transactions={transactions}
-                /> }
+                {!isAccountEmpty && (
+                  <Transactions
+                    accountCode={code}
+                    handleExport={exportAccount}
+                    explorerURL={account.blockExplorerTxPrefix}
+                    transactions={transactions}
+                  />
+                )}
               </>
-            ) }
+            )}
           </div>
         </div>
       </div>
       <LightningGuide
         unit="sats"
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'} />
+        hasNoBalance={balance && balance.available.amount === '0'}
+      />
     </div>
   );
 }

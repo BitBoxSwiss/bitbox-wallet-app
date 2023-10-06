@@ -95,9 +95,10 @@ const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAc
 const GetLightningLink = ({ code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
   const active = (pathname === `/account/${code}/lightning`) || (pathname.startsWith(`/account/${code}/lightning/`));
+  const key = `${code}-ln`;
   const lightningName = `${name} Lightning`;
   return (
-    <div key={code} className={style.sidebarItem}>
+    <div key={key} className={style.sidebarItem}>
       <Link
         className={active ? style.sidebarActive : ''}
         to={`/account/${code}/lightning`}

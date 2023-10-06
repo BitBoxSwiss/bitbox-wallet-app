@@ -19,17 +19,16 @@ import { AccountCode } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ILightningStatus {
-    pubkey: string;
-    blockHeight: number;
-    synced: boolean;
-    localBalance: number;
-    remoteBalance: number;
+  pubkey: string;
+  blockHeight: number;
+  synced: boolean;
+  localBalance: number;
+  remoteBalance: number;
 }
 
 export const getStatus = (code: AccountCode): Promise<ILightningStatus> => {
   return apiGet(`account/${code}/lightning/status`);
 };
-
 
 /**
  * Subscriptions
@@ -41,13 +40,7 @@ export const getStatus = (code: AccountCode): Promise<ILightningStatus> => {
  * Meant to be used with `useSubscribe`.
  */
 export const subscribeStatus = (code: string) => {
-  return (
-    cb: TSubscriptionCallback<ILightningStatus>
-  ) => {
-    return subscribeEndpoint(`account/${code}/lightning/status`, (
-      nodeState: ILightningStatus,
-    ) => {
-      cb(nodeState);
-    });
+  return (cb: TSubscriptionCallback<ILightningStatus>) => {
+    return subscribeEndpoint(`account/${code}/lightning/status`, cb);
   };
 };
