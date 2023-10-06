@@ -1,7 +1,7 @@
 # See reference docs at
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
 name: ci
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 env:
   # Use alternative image when running on GitHub workflows CI to avoid potential
   # rate limiting when executing jobs in parallel: they can't cache docker images

@@ -73,25 +73,32 @@
 }
 
 .qrButton {
+    align-items: center;
+    display: flex;
     border: none;
     background-color: var(--background-secondary);
-    width: 18px;
-    height: 18px;
+    height: 36px;
+    width: 36px;
+    justify-content: center;
     padding: 0;
     position: absolute;
-    top: 50%;
-    right: var(--spacing-default);
+    top: calc(50% - var(--space-quarter));
+    right: calc(var(--spacing-default) - var(--space-quarter));
     cursor: pointer;
 }
 
 .qrButton img {
-    width: 100%;
-    height: 100%;
+    width: 18px;
+    height: 18px;
 }
 
 .qrVideo {
     width: 100%;
     margin-bottom: var(--spacing-default);
+}
+.qrVideo + :global(.scan-region-highlight) svg {
+    stroke: var(--color-darkyellow) !important;
+    stroke-width: 3 !important;
 }
 
 .confirmItem p {
@@ -114,6 +121,8 @@
 .spinnerAnimationContainer {
     align-items: center;
     display: flex;
+    flex-direction: column;
+    gap: 4rem;
     height: 0;
     justify-content: center;
     position: relative;

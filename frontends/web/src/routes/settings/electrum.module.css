@@ -1,11 +1,3 @@
-.titleContainer {
-    margin-bottom: var(--space-half);
-}
-
-.titleContainer > span {
-    margin-bottom: 0 !important;
-}
-
 .title {
     margin: 0;
     font-size: var(--size-subheader);

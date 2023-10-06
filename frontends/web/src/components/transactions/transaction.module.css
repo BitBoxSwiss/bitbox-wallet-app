@@ -138,11 +138,6 @@
     text-overflow: ellipsis;
 }
 
-.externalLink {
-    color: var(--color-blue);
-    cursor: pointer;
-}
-
 .detail,
 .detailInput {
     display: flex;

@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { IBalance } from '../../api/account';
 import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 import { Balance } from './balance';
+
+vi.mock('../../utils/request', () => ({
+  apiGet: vi.fn().mockResolvedValue({}),
+}));
 
 describe('components/balance/balance', () => {
   it('renders balance properly', () => {
@@ -56,6 +61,6 @@ describe('components/balance/balance', () => {
     };
     const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />, { wrapper: I18NWrapper });
     expect(getByTestId('availableBalance')).toHaveTextContent('0.005BTC');
-    expect(getByTestId('incomingBalance')).toHaveTextContent('+0.003 BTC / 512 USD');
+    expect(getByTestId('incomingBalance').textContent).toContain('+0.003 BTC / 512');
   });
 });

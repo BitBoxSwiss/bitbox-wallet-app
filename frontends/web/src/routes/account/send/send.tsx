@@ -15,25 +15,20 @@
  * limitations under the License.
  */
 
-import React, { Component } from 'react';
-import { BrowserQRCodeReader } from '@zxing/library';
+import { Component } from 'react';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
 import { View, ViewContent } from '../../../components/view/view';
 import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
-import qrcodeIconDark from '../../../assets/icons/qrcode-dark.png';
-import qrcodeIconLight from '../../../assets/icons/qrcode-light.png';
 import { alertUser } from '../../../components/alert/Alert';
-import A from '../../../components/anchor/anchor';
 import { Balance } from '../../../components/balance/balance';
-import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
+import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased, findAccount } from '../utils';
@@ -44,7 +39,8 @@ import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
-import { ScanQRDialog } from './components/dialogs/scan-qr-dialog';
+import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
+import { CoinInput } from './components/inputs/coin-input';
 import style from './send.module.css';
 
 interface SendProps {
@@ -90,7 +86,6 @@ interface State {
     coinControl: boolean;
     btcUnit: BtcUnit;
     activeCoinControl: boolean;
-    hasCamera: boolean;
     activeScanQR: boolean;
     note: string;
 }
@@ -98,7 +93,6 @@ interface State {
 class Send extends Component<Props, State> {
   private selectedUTXOs: TSelectedUTXOs = {};
   private unsubscribeList: UnsubscribeList = [];
-  private qrCodeReader?: BrowserQRCodeReader;
 
   // pendingProposals keeps all requests that have been made
   // to /tx-proposal in case there are multiple parallel requests
@@ -122,7 +116,6 @@ class Send extends Component<Props, State> {
     coinControl: false,
     btcUnit : 'default',
     activeCoinControl: false,
-    hasCamera: false,
     activeScanQR: false,
     note: '',
     customFee: '',
@@ -190,26 +183,11 @@ class Send extends Component<Props, State> {
 
   public UNSAFE_componentWillMount() {
     this.registerEvents();
-    import('../../../components/qrcode/qrreader')
-      .then(({ BrowserQRCodeReader }) => {
-        if (!this.qrCodeReader) {
-          this.qrCodeReader = new BrowserQRCodeReader();
-        }
-        this.qrCodeReader
-          .getVideoInputDevices()
-          .then(videoInputDevices => {
-            this.setState({ hasCamera: videoInputDevices.length > 0 });
-          });
-      })
-      .catch(console.error);
   }
 
   public componentWillUnmount() {
     this.unregisterEvents();
     unsubscribe(this.unsubscribeList);
-    if (this.qrCodeReader) {
-      this.qrCodeReader.reset();
-    }
   }
 
   private registerEvents = () => {
@@ -380,27 +358,6 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private handleFormChange = (event: React.SyntheticEvent) => {
-    const target = (event.target as HTMLInputElement);
-    let value: string | boolean = target.value;
-    if (target.type === 'checkbox') {
-      value = target.checked;
-    }
-    if (target.id === 'sendAll') {
-      if (!value) {
-        this.convertToFiat(this.state.amount);
-      }
-    } else if (target.id === 'amount') {
-      this.convertToFiat(value);
-    }
-    this.setState(prevState => ({
-      ...prevState,
-      [target.id]: value,
-    }), () => {
-      this.validateAndDisplayFee(true);
-    });
-  };
-
   private handleFiatInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     this.setState({ fiatAmount: value });
@@ -440,17 +397,6 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private sendToSelf = (event: React.SyntheticEvent) => {
-    accountApi.getReceiveAddressList(this.getAccount()!.code)()
-      .then(receiveAddresses => {
-        if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-          this.setState({ recipientAddress: receiveAddresses[0].addresses[0].address });
-          this.handleFormChange(event);
-        }
-      })
-      .catch(console.error);
-  };
-
   private feeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
     this.setState(
       { feeTarget, customFee: '' },
@@ -483,7 +429,11 @@ class Send extends Component<Props, State> {
     });
   };
 
-  private async parseQRResult(uri: string) {
+  private setActiveScanQR = (activeScanQR: boolean) => {
+    this.setState({ activeScanQR });
+  };
+
+  private parseQRResult = async (uri: string) => {
     let address;
     let amount = '';
     try {
@@ -525,42 +475,33 @@ class Send extends Component<Props, State> {
       this.convertToFiat(this.state.amount);
       this.validateAndDisplayFee(true);
     });
-  }
-
-  private toggleScanQR = () => {
-    if (this.state.activeScanQR) {
-      if (this.qrCodeReader) {
-        // release camera; invokes the catch function below.
-        this.qrCodeReader.reset();
-      }
-      // should already be false, set by the catch function below. we do it again anyway, in
-      // case it is not called consistently on each platform.
-      this.setState({ activeScanQR: false });
-      return;
-    }
-    this.setState({
-      activeScanQR: true,
-    }, () => {
-      this.qrCodeReader && this.qrCodeReader
-        .decodeFromInputVideoDevice(undefined, 'video')
-        .then(result => {
-          this.setState({ activeScanQR: false });
-          this.parseQRResult(result.getText());
-          if (this.qrCodeReader) {
-            this.qrCodeReader.reset(); // release camera
-          }
-        })
-        .catch((error) => {
-          if (error) {
-            alertUser(error.message || error);
-          }
-          this.setState({ activeScanQR: false });
-        });
-    });
   };
+
 
   private deactivateCoinControl = () => {
     this.setState({ activeCoinControl: false });
+  };
+
+  private onReceiverAddressInputChange = (recipientAddress: string) => {
+    this.setState({ recipientAddress }, () => {
+      this.validateAndDisplayFee(true);
+    });
+  };
+
+  private onCoinAmountChange = (amount: string) => {
+    this.convertToFiat(amount);
+    this.setState({ amount }, () => {
+      this.validateAndDisplayFee(true);
+    });
+  };
+
+  private onSendAllChange = (sendAll: boolean) => {
+    if (!sendAll) {
+      this.convertToFiat(this.state.amount);
+    }
+    this.setState({ sendAll }, () => {
+      this.validateAndDisplayFee(true);
+    });
   };
 
   public render() {
@@ -592,7 +533,6 @@ class Send extends Component<Props, State> {
       coinControl,
       btcUnit,
       activeCoinControl,
-      hasCamera,
       activeScanQR,
       note,
     } = this.state;
@@ -646,55 +586,39 @@ class Send extends Component<Props, State> {
                 <div className={`flex flex-row flex-between ${style.container}`}>
                   <label className="labelXLarge">{t('send.transactionDetails')}</label>
                   { coinControl && (
-                    <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
+                    <Button
+                      className="m-bottom-quarter p-right-none"
+                      transparent
+                      onClick={this.toggleCoinControl}>
+                      {t('send.toggleCoinControl')}
+                    </Button>
                   )}
                 </div>
                 <Grid col="1">
                   <Column>
-                    <Input
-                      label={t('send.address.label')}
-                      placeholder={t('send.address.placeholder')}
-                      id="recipientAddress"
-                      error={addressError}
-                      onInput={this.handleFormChange}
-                      value={recipientAddress}
-                      className={hasCamera ? style.inputWithIcon : ''}
-                      labelSection={debug ? (
-                        <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
-                        Send to self
-                        </span>
-                      ) : undefined}
-                      autoFocus>
-                      { hasCamera && (
-                        <button onClick={this.toggleScanQR} className={style.qrButton}>
-                          <img className="show-in-lightmode" src={qrcodeIconDark} />
-                          <img className="show-in-darkmode" src={qrcodeIconLight} />
-                        </button>
-                      )}
-                    </Input>
+                    <ReceiverAddressInput
+                      accountCode={this.getAccount()?.code}
+                      addressError={addressError}
+                      onInputChange={this.onReceiverAddressInputChange}
+                      recipientAddress={recipientAddress}
+                      parseQRResult={this.parseQRResult}
+                      activeScanQR={activeScanQR}
+                      onChangeActiveScanQR={this.setActiveScanQR}
+                    />
                   </Column>
                 </Grid>
                 <Grid>
                   <Column>
-                    <Input
-                      type="number"
-                      step="any"
-                      min="0"
-                      label={balance ? balance.available.unit : t('send.amount.label')}
-                      id="amount"
-                      onInput={this.handleFormChange}
-                      disabled={sendAll}
-                      error={amountError}
-                      value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
-                      placeholder={t('send.amount.placeholder')}
-                      labelSection={
-                        <Checkbox
-                          label={t(this.hasSelectedUTXOs() ? 'send.maximumSelectedCoins' : 'send.maximum')}
-                          id="sendAll"
-                          onChange={this.handleFormChange}
-                          checked={sendAll}
-                          className={style.maxAmount} />
-                      } />
+                    <CoinInput
+                      balance={balance}
+                      onAmountChange={this.onCoinAmountChange}
+                      onSendAllChange={this.onSendAllChange}
+                      sendAll={sendAll}
+                      amountError={amountError}
+                      proposedAmount={proposedAmount}
+                      amount={amount}
+                      hasSelectedUTXOs={this.hasSelectedUTXOs()}
+                    />
                   </Column>
                   <Column>
                     <Input
@@ -766,10 +690,6 @@ class Send extends Component<Props, State> {
               />
               <MessageWaitDialog isShown={isSent} messageType="sent" />
               <MessageWaitDialog isShown={isAborted} messageType="abort" />
-              <ScanQRDialog
-                activeScanQR={activeScanQR}
-                onToggleScanQR={this.toggleScanQR}
-              />
             </View>
           </Main>
         </GuidedContent>

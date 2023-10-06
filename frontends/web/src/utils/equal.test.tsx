@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, it, expect } from 'vitest';
 import { equal } from '../../src/utils/equal';
 
 describe('equal', () => {

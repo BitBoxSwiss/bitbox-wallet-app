@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react-hooks';
+import { describe, it, expect } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useMountedRef } from './mount';
 
 describe('useMountedRef', () => {
