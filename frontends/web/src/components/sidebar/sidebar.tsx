@@ -32,6 +32,7 @@ import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
 import { isBitcoinOnly } from '../../routes/account/utils';
+import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
 
@@ -232,6 +233,7 @@ class Sidebar extends Component<Props> {
               <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
             </NavLink>
           </div>
+          { !keystores || keystores.length === 0 ? <SkipForTesting /> : null }
           {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
             <div key="eject" className={style.sidebarItem}>
               <a href="#" onClick={eject}>
