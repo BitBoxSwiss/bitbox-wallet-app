@@ -18,4 +18,6 @@ package observable
 type Interface interface {
 	// Observe registers the given callback and returns a function to unobserve again.
 	Observe(func(Event)) func()
+
+	Notify(event Event)
 }

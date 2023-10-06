@@ -39,9 +39,14 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
+
+type Backend interface {
+	observable.Interface
+}
 
 // Handlers provides a web api to the account.
 type Handlers struct {
@@ -51,7 +56,7 @@ type Handlers struct {
 }
 
 // NewHandlers creates a new Handlers instance.
-func NewHandlers(router *mux.Router, middleware backend.HandlersMiddleware, log *logrus.Entry) *Handlers {
+func NewHandlers(backend Backend, router *mux.Router, middleware backend.HandlersMiddleware, log *logrus.Entry) *Handlers {
 	handlers := &Handlers{log: log}
 
 	handleFunc := middleware.GetApiRouter(router)
@@ -75,6 +80,7 @@ func NewHandlers(router *mux.Router, middleware backend.HandlersMiddleware, log 
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 
 	handlers.lightningHandler = lightning.NewHandlers(
+		backend,
 		router.PathPrefix("/lightning").Subrouter(),
 		middleware,
 		log)

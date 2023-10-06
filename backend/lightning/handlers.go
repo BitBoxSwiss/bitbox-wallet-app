@@ -28,6 +28,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type Backend interface {
+	observable.Interface
+}
+
 type Handlers struct {
 	observable.Implementation
 
@@ -38,8 +42,9 @@ type Handlers struct {
 }
 
 // NewHandlers creates a new Handlers instance.
-func NewHandlers(router *mux.Router, middleware backend.HandlersMiddleware, log *logrus.Entry) *Handlers {
+func NewHandlers(backend Backend, router *mux.Router, middleware backend.HandlersMiddleware, log *logrus.Entry) *Handlers {
 	handlers := &Handlers{log: log, synced: false}
+	handlers.Observe(backend.Notify)
 
 	handleFunc := middleware.GetApiRouter(router)
 	handleFunc("/status", handlers.getStatus).Methods("GET")

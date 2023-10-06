@@ -222,6 +222,7 @@ func NewHandlers(
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
 			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(
+				backend,
 				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
 				handlers,
 				log)
