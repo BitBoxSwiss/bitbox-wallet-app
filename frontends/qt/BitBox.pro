@@ -44,7 +44,7 @@ win32 {
     #QMAKE_LFLAGS += -Wl,--dynamicbase
 } else {
     QMAKE_CXXFLAGS += -std=c++11
-    LIBS += -L$$PWD/server -lserver
+    LIBS += -L$$PWD/server -lbreez_sdk_bindings -lserver
     QMAKE_CXXFLAGS += $$CFORTIFY
     QMAKE_CXXFLAGS += $$CSTACK
     QMAKE_CXXFLAGS += $$CMISC
@@ -52,9 +52,6 @@ win32 {
 
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
 unix:!macx {
-    LIBS += -L$$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64/ -lbreez_sdk_bindings
-    INCLUDEPATH += $$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64
-    DEPENDPATH += $$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64
     QMAKE_LFLAGS_RPATH=
     # so libserver.so will be found by linuxdeployqt, once copied into the same folder.
     QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
@@ -71,9 +68,6 @@ unix:macx {
     # Those frameworks are needed for Go's http/net packages.
     # Waiting for https://github.com/golang/go/issues/11258 to be able to automatically capture link flags.
     LIBS += -framework CoreFoundation -framework Security
-    LIBS += -L$$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/ -lbreez_sdk_bindings
-    INCLUDEPATH += $$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64
-    DEPENDPATH += $$PWD/../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64
     # QMAKE_RPATHDIR = @executable_path/../Frameworks
     QMAKE_LFLAGS += "-pie -s -w"
     QMAKE_MACOSX_DEPLOYMENT_TARGET = $$[MACOS_MIN_VERSION]

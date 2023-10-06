@@ -66,7 +66,7 @@ func TestMigrateActiveToken(t *testing.T) {
 		appConfig:         NewDefaultAppConfig(),
 
 		accountsConfigFilename: "accountsConfigFilename",
-		accountsConfig:         newDefaultAccountsonfig(),
+		accountsConfig:         newDefaultAccountsConfig(),
 	}
 
 	accountConf := config.accountsConfig
