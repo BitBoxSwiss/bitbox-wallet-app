@@ -784,3 +784,8 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 
 	return acct, nil
 }
+
+// CancelConnectKeystore cancels a pending keystore connection request if one exists.
+func (backend *Backend) CancelConnectKeystore() {
+	backend.connectKeystore.cancel(errUserAbort)
+}

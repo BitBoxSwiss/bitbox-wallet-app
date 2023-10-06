@@ -553,11 +553,64 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
+			type data struct {
+				Type         string `json:"typ"`
+				KeystoreName string `json:"keystoreName"`
+				ErrorCode    string `json:"errorCode"`
+				ErrorMessage string `json:"errorMessage"`
+			}
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
 			if err != nil {
 				return nil, err
 			}
-			return backend.connectKeystore.connect(backend.Keystore(), accountRootFingerprint, 20*time.Minute)
+			keystoreName := ""
+			persistedKeystore, err := backend.config.AccountsConfig().LookupKeystore(accountRootFingerprint)
+			if err == nil {
+				keystoreName = persistedKeystore.Name
+			}
+			backend.Notify(observable.Event{
+				Subject: "connect-keystore",
+				Action:  action.Replace,
+				Object: data{
+					Type:         "connect",
+					KeystoreName: keystoreName,
+				},
+			})
+			ks, err := backend.connectKeystore.connect(
+				backend.Keystore(),
+				accountRootFingerprint,
+				20*time.Minute,
+			)
+			switch {
+			case errp.Cause(err) == errReplaced:
+				// If a previous connect-keystore request is in progress, the previous request is
+				// failed, but we don't dismiss the prompt, as the new prompt has already been shown
+				// by the above "connect" notification.y
+			case err == nil || errp.Cause(err) == errUserAbort:
+				// Dismiss prompt after success or upon user abort.
+
+				backend.Notify(observable.Event{
+					Subject: "connect-keystore",
+					Action:  action.Replace,
+					Object:  nil,
+				})
+			default:
+				// Display error to user.
+				errorCode := ""
+				if errp.Cause(err) == errWrongKeystore {
+					errorCode = "wrongKeystore"
+				}
+				backend.Notify(observable.Event{
+					Subject: "connect-keystore",
+					Action:  action.Replace,
+					Object: data{
+						Type:         "error",
+						ErrorCode:    errorCode,
+						ErrorMessage: err.Error(),
+					},
+				})
+			}
+			return ks, err
 		},
 		OnEvent: func(event accountsTypes.Event) {
 			backend.events <- AccountEvent{
