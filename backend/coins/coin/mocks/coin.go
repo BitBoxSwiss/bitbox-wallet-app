@@ -96,6 +96,9 @@ type CoinMock struct {
 	// ObserveFunc mocks the Observe method.
 	ObserveFunc func(fn func(observable.Event)) func()
 
+	// NotifyFunc mocks the Notify method.
+	NotifyFunc func(event observable.Event)
+
 	// ParseAmountFunc mocks the ParseAmount method.
 	ParseAmountFunc func(amount string) (coin.Amount, error)
 
@@ -150,6 +153,11 @@ type CoinMock struct {
 			// Fn is the fn argument value.
 			Fn func(observable.Event)
 		}
+		// Notify holds details about calls to the Notify method.
+		Notify []struct {
+			// Fn is the fn argument value.
+			Event observable.Event
+		}
 		// ParseAmount holds details about calls to the ParseAmount method.
 		ParseAmount []struct {
 			// Amount is the amount argument value.
@@ -187,6 +195,7 @@ type CoinMock struct {
 	lockInitialize                        sync.RWMutex
 	lockName                              sync.RWMutex
 	lockObserve                           sync.RWMutex
+	lockNotify                            sync.RWMutex
 	lockParseAmount                       sync.RWMutex
 	lockSetAmount                         sync.RWMutex
 	lockSmallestUnit                      sync.RWMutex
@@ -449,6 +458,37 @@ func (mock *CoinMock) ObserveCalls() []struct {
 	mock.lockObserve.RLock()
 	calls = mock.calls.Observe
 	mock.lockObserve.RUnlock()
+	return calls
+}
+
+// Notify calls NotifyFunc.
+func (mock *CoinMock) Notify(event observable.Event) {
+	if mock.NotifyFunc == nil {
+		panic("CoinMock.NotifyFunc: method is nil but Coin.Notify was just called")
+	}
+	callInfo := struct {
+		Event observable.Event
+	}{
+		Event: event,
+	}
+	mock.lockNotify.Lock()
+	mock.calls.Notify = append(mock.calls.Notify, callInfo)
+	mock.lockNotify.Unlock()
+	mock.NotifyFunc(event)
+}
+
+// NotifyCalls gets all the calls that were made to Notify.
+// Check the length with:
+//     len(mockedCoin.NotifyCalls())
+func (mock *CoinMock) NotifyCalls() []struct {
+	Event observable.Event
+} {
+	var calls []struct {
+		Event observable.Event
+	}
+	mock.lockNotify.RLock()
+	calls = mock.calls.Notify
+	mock.lockNotify.RUnlock()
 	return calls
 }
 
