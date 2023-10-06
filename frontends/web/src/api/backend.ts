@@ -17,6 +17,7 @@
 import { AccountCode, CoinCode } from './account';
 import { apiGet, apiPost } from '../utils/request';
 import { FailResponse, SuccessResponse } from './response';
+import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {
     coinCode: CoinCode;
@@ -73,4 +74,29 @@ export const getDefaultConfig = (): Promise<any> => {
 
 export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
+};
+
+export type TSyncConnectKeystore = null | {
+  typ: 'connect';
+  keystoreName: string;
+};
+
+/**
+ * Returns a function that subscribes a callback on a "connect-keystore".
+ * Meant to be used with `useSubscribe`.
+ */
+export const syncConnectKeystore = () => {
+  return (
+    cb: TSubscriptionCallback<TSyncConnectKeystore>
+  ) => {
+    return subscribeEndpoint('connect-keystore', (
+      obj: TSyncConnectKeystore,
+    ) => {
+      cb(obj);
+    });
+  };
+};
+
+export const cancelConnectKeystore = (): Promise<void> => {
+  return apiPost('cancel-connect-keystore');
 };

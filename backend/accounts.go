@@ -553,11 +553,43 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 		DBFolder:    backend.arguments.CacheDirectoryPath(),
 		NotesFolder: backend.arguments.NotesDirectoryPath(),
 		ConnectKeystore: func() (keystore.Keystore, error) {
+			type data struct {
+				Type         string `json:"typ"`
+				KeystoreName string `json:"keystoreName"`
+			}
 			accountRootFingerprint, err := persistedConfig.SigningConfigurations.RootFingerprint()
 			if err != nil {
 				return nil, err
 			}
-			return backend.connectKeystore.connect(backend.Keystore(), accountRootFingerprint, 20*time.Minute)
+			keystoreName := ""
+			persistedKeystore, err := backend.config.AccountsConfig().LookupKeystore(accountRootFingerprint)
+			if err == nil {
+				keystoreName = persistedKeystore.Name
+			}
+			backend.Notify(observable.Event{
+				Subject: "connect-keystore",
+				Action:  action.Replace,
+				Object: data{
+					Type:         "connect",
+					KeystoreName: keystoreName,
+				},
+			})
+			ks, err := backend.connectKeystore.connect(
+				backend.Keystore(),
+				accountRootFingerprint,
+				20*time.Minute,
+			)
+			// If a previous connect-keystore request is in progress, this one failed, but we don't
+			// dismiss the previous prompt. We dismiss it only if it is canceled, it timed out, or
+			// there is some other problem.
+			if errp.Cause(err) != errInProgress {
+				backend.Notify(observable.Event{
+					Subject: "connect-keystore",
+					Action:  action.Replace,
+					Object:  nil,
+				})
+			}
+			return ks, err
 		},
 		OnEvent: func(event accountsTypes.Event) {
 			backend.events <- AccountEvent{

@@ -103,6 +103,7 @@ type Backend interface {
 	AOPPChooseAccount(code accountsTypes.Code)
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
+	CancelConnectKeystore()
 }
 
 // Handlers provides a web api to the backend.
@@ -232,6 +233,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -1275,4 +1277,9 @@ func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
 func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
 	return nil
+}
+
+func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) (interface{}, error) {
+	handlers.backend.CancelConnectKeystore()
+	return nil, nil
 }

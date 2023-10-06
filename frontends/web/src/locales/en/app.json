@@ -487,6 +487,10 @@
     "infoWhenPaired": "First on the paired mobile and then your BitBox"
   },
   "confirmOnDevice": "Please confirm on your device.",
+  "connectKeystore": {
+    "promptNoName": "Please connect your BitBox02",
+    "promptWithName": "Please connect your BitBox02 named \"{{name}}\""
+  },
   "darkmode": {
     "toggle": "Dark mode"
   },

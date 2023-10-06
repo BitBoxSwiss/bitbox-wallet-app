@@ -30,6 +30,7 @@ import { Alert } from './components/alert/Alert';
 import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
+import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
 import { panelStore } from './components/sidebar/sidebar';
 import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
@@ -193,6 +194,7 @@ class App extends Component<Props, State> {
                 <Banner msgKey="bitbox02" />
                 <MobileDataWarning />
                 <Aopp />
+                <KeystoreConnectPrompt />
                 {
                   Object.entries(devices).map(([deviceID, productName]) => {
                     if (productName === 'bitbox02') {
