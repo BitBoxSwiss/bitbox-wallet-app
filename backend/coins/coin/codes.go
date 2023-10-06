@@ -32,6 +32,8 @@ const (
 	CodeETH Code = "eth"
 	// CodeGOETH is Ethereum Goerli.
 	CodeGOETH Code = "goeth"
+	// CodeSEPETH is Ethereum Sepolia.
+	CodeSEPETH Code = "sepeth"
 	// If you add coins, don't forget to update `testnetCoins` below.
 	// There are some more coin codes for the supported erc20 tokens in erc20.go.
 )
@@ -49,7 +51,8 @@ const (
 
 // TestnetCoins is the subset of all coins which are available in testnet mode.
 var TestnetCoins = map[Code]struct{}{
-	CodeTBTC:  {},
-	CodeTLTC:  {},
-	CodeGOETH: {},
+	CodeTBTC:   {},
+	CodeTLTC:   {},
+	CodeGOETH:  {},
+	CodeSEPETH: {},
 }

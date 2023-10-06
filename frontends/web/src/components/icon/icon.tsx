@@ -49,6 +49,8 @@ import menuDarkSVG from './assets/icons/menu-dark.svg';
 import menuLightSVG from './assets/icons/menu-light.svg';
 import warningPNG from './assets/icons/warning.png';
 import warningOutlinedSVG from './assets/icons/warning-outlined.svg';
+import qrCodeDarkSVG from './assets/icons/qr-dark.svg';
+import qrCodeLightSVG from './assets/icons/qr-light.svg';
 import saveSVG from './assets/icons/save.svg';
 import saveLightSVG from './assets/icons/save-light.svg';
 import starSVG from './assets/icons/star.svg';
@@ -155,6 +157,8 @@ export const MenuDark = (props: ImgProps) => (<img src={menuDarkSVG} draggable={
 export const MenuLight = (props: ImgProps) => (<img src={menuLightSVG} draggable={false} {...props} />);
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 export const WarningOutlined = (props: ImgProps) => (<img src={warningOutlinedSVG} draggable={false} {...props} />);
+export const QRCodeDark = (props: ImgProps) => (<img src={qrCodeDarkSVG} draggable={false} {...props} />);
+export const QRCodeLight = (props: ImgProps) => (<img src={qrCodeLightSVG} draggable={false} {...props} />);
 export const Save = (props: ImgProps) => (<img src={saveSVG} draggable={false} {...props} />);
 export const SaveLight = (props: ImgProps) => (<img src={saveLightSVG} draggable={false} {...props} />);
 export const Star = (props: ImgProps) => (<img src={starSVG} draggable={false} {...props} />);

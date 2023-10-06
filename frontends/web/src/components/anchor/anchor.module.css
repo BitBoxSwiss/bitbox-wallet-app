@@ -1,4 +1,10 @@
 .link {
-    text-decoration: underline;
+    color: var(--color-blue);
     cursor: pointer;
+    text-decoration: underline;
+}
+
+.link:focus {
+    outline: 1px solid var(--color-blue);
+    text-decoration: none;
 }

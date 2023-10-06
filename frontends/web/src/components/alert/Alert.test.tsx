@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { render, fireEvent, act } from '@testing-library/react';
 import I18NWrapper from '../../i18n/forTests/i18nwrapper';
 import { Alert, alertUser } from './Alert';
@@ -26,11 +27,9 @@ describe('Alert', () => {
         matches: false,
         media: query,
         onchange: null,
-        // addListener: jest.fn(), // deprecated
-        // removeListener: jest.fn(), // deprecated
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
       };
     };
   });
@@ -55,7 +54,7 @@ describe('Alert', () => {
 
   it('should call the callback function when OK button is clicked', () => {
     // define a mock callback function
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn();
 
     // render the Alert component
     const { getByRole, container } = renderAlert();

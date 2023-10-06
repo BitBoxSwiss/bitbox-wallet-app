@@ -39,6 +39,7 @@
     color: var(--color-secondary);
     font-size: 14px;
     margin: 0;
+    padding-left: var(--space-half);
     overflow: hidden;
     text-overflow: ellipsis;
 }

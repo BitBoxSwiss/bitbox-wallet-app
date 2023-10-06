@@ -1,0 +1,7 @@
+.link {
+  color: var(--color-alt);
+}
+
+.link:focus {
+  outline-color: inherit;
+}

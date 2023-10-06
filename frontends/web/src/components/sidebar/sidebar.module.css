@@ -172,9 +172,11 @@ a.sidebarActive .single img,
     line-height: 1;
     flex: 1;
     padding-top: 0;
+    padding-right: var(--space-default);
     font-size: var(--size-default);
     font-weight: 400;
     transition: all 0.2s ease;
+    word-break: break-word;
 }
 
 .activeGroup {

@@ -820,6 +820,8 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) interface{}
 		unit = unit[1:]
 	case "GOETH":
 		unit = unit[2:]
+	case "SEPETH":
+		unit = unit[3:]
 	}
 
 	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {
