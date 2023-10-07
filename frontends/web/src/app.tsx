@@ -21,6 +21,7 @@ import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
+import { syncNewTxs } from './api/backend';
 import { notifyUser } from './api/system';
 import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';
@@ -33,7 +34,6 @@ import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
-import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
@@ -52,7 +52,6 @@ class App extends Component<Props, State> {
     devices: {},
   };
 
-  private unsubscribe!: () => void;
   private unsubscribeList: UnsubscribeList = [];
 
   /**
@@ -65,24 +64,6 @@ class App extends Component<Props, State> {
   };
 
   public componentDidMount() {
-    this.unsubscribe = apiWebsocket((payload) => {
-      if ('type' in payload) {
-        const { data, meta, type } = payload;
-        switch (type) {
-        case 'backend':
-          switch (data) {
-          case 'newTxs':
-            notifyUser(this.props.t('notification.newTxs', {
-              count: meta.count,
-              accountName: meta.accountName,
-            }));
-            break;
-          }
-          break;
-        }
-      }
-    });
-
     Promise.all([getDeviceList(), getAccounts()])
       .then(([devices, accounts]) => {
         this.setStateWithDeviceList({ accounts, devices });
@@ -90,13 +71,18 @@ class App extends Component<Props, State> {
       .catch(console.error);
 
     this.unsubscribeList.push(
+      syncNewTxs((meta) => {
+        notifyUser(this.props.t('notification.newTxs', {
+          count: meta.count,
+          accountName: meta.accountName,
+        }));
+      }),
       syncAccountsList(accounts => {
         this.setState({ accounts }, this.maybeRoute);
       }),
       syncDeviceList((devices) => {
         this.setStateWithDeviceList({ devices });
       }),
-      // TODO: add syncBackendNewTX
     );
   }
 
@@ -124,7 +110,6 @@ class App extends Component<Props, State> {
   }
 
   public componentWillUnmount() {
-    this.unsubscribe();
     unsubscribe(this.unsubscribeList);
   }
 
