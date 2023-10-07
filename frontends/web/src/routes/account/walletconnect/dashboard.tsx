@@ -27,6 +27,7 @@ import { Header, Main } from '../../../components/layout';
 import { View, ViewContent } from '../../../components/view/view';
 import { WCSessionCard } from './components/session-card/session-card';
 import { Button } from '../../../components/forms';
+import { Status } from '../../../components/status/status';
 import styles from './dashboard.module.css';
 
 type TProps = {
@@ -80,6 +81,13 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
 
   return (
     <Main>
+      <Status
+        hidden={false}
+        type="info"
+        dismissible="walletConnectDisclaimerDismissed"
+      >
+        {t('walletConnect.dashboard.disclaimer')}
+      </Status>
       <Header
         title={<h2>{t('walletConnect.walletConnect')}</h2>}
       />
