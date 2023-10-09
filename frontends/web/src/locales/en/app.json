@@ -1543,6 +1543,7 @@
     },
     "dashboard": {
       "allSessions": "All sessions",
+      "disclaimer": "Walletconnect is a protocol to connect to Ethereum based Dapps. These dapps are run by third-party services, so only connect to dapps you trust and be sure to always know what you are signing when making a transaction.",
       "newConnection": "New connection",
       "noConnectedSessions": "No accounts are currently connected to any dapps."
     },
