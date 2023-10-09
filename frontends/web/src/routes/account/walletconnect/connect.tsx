@@ -41,11 +41,14 @@ export const ConnectScreenWalletConnect = ({
 }: TProps) => {
   const [uri, setUri] = useState('');
   const [status, setStatus] = useState<TConnectStatus>('connect');
+  const [loading, setLoading] = useState(false);
   const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
   const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
+      setUri('');
+      setLoading(false);
       setStatus('incoming_pairing');
       setCurrentProposal(proposal);
     },
@@ -77,12 +80,13 @@ export const ConnectScreenWalletConnect = ({
     if (!uri) {
       return;
     }
+    setLoading(true);
     try {
       await pair({ uri });
     } catch (err: any) {
       alertUser(err.message);
-    } finally {
       setUri('');
+      setLoading(false);
     }
   };
 
@@ -106,12 +110,15 @@ export const ConnectScreenWalletConnect = ({
               />
               <div className={styles.contentContainer}>
                 {status === 'connect' &&
-            <WCConnectForm
-              code={code}
-              uri={uri}
-              onInputChange={setUri}
-              onSubmit={handleConnect}
-            />}
+              <WCConnectForm
+                connectLoading={loading}
+                code={code}
+                uri={uri}
+                onInputChange={setUri}
+                onSubmit={async (uri) => {
+                  await handleConnect(uri);
+                }}
+              />}
                 {(status === 'incoming_pairing' && currentProposal) &&
               <WCIncomingPairing
                 currentProposal={currentProposal}

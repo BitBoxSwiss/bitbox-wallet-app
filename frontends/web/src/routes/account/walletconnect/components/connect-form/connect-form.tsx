@@ -27,6 +27,7 @@ import styles from './connect-form.module.css';
 
 type TWCConnectFormProps = {
     code: string;
+    connectLoading: boolean;
     uri: string;
     onInputChange: (value: SetStateAction<string>) => void;
     onSubmit: (uri: string) => void;
@@ -46,7 +47,13 @@ const MobileQRScanner = ({ onQRScanned }: TMobileQRScannerProps) => {
   );
 };
 
-export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnectFormProps) => {
+export const WCConnectForm = ({
+  code,
+  uri,
+  onInputChange,
+  onSubmit,
+  connectLoading
+}: TWCConnectFormProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const hasCamera = useHasCamera();
@@ -76,8 +83,9 @@ export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnect
           label={t('walletConnect.connect.dappLabel')}
           className={showQRButton ? styles.inputWithIcon : ''}
           value={uri}
+          readOnly={connectLoading}
           onInput={(e) => onInputChange(e.target.value)}>
-          {showQRButton && <ScanQRButton onClick={toggleScanQR} />}
+          {(showQRButton && !connectLoading) && <ScanQRButton onClick={toggleScanQR} />}
         </Input>
         <ScanQRDialog
           activeScanQR={activeScanQR && !isMobile}
@@ -87,11 +95,13 @@ export const WCConnectForm = ({ code, uri, onInputChange, onSubmit }: TWCConnect
         />
         <div className={styles.formButtonsContainer}>
           <Button
+            disabled={connectLoading}
             secondary
             onClick={() => route(`/account/${code}/wallet-connect/dashboard`)}>
             {t('dialog.cancel')}
           </Button>
           <Button
+            disabled={connectLoading}
             type="submit"
             primary
           >
