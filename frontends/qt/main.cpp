@@ -98,6 +98,13 @@ public:
     QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
         return externalPage;
     }
+
+    virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
+    {
+        // Log frontend console messages to the Go log.txt.
+        QString formattedMsg = QString("msg: %1; line %2; source: %3").arg(message).arg(lineNumber).arg(sourceID);
+        goLog(formattedMsg.toLocal8Bit().constData());
+    }
 };
 
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor {

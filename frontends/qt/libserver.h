@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdint.h>
 
+typedef const char cchar_t;
+
 typedef void (*pushNotificationsCallback) (const char*);
 static void pushNotify(pushNotificationsCallback f, const char* msg) {
     f(msg);
@@ -51,6 +53,8 @@ extern void serve(
 );
 
 extern void systemOpen(char* p0);
+
+extern void goLog(cchar_t* msg);
 
 #ifdef __cplusplus
 }
