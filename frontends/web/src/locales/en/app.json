@@ -1570,6 +1570,7 @@
       "successfullySigned": "Request succesfully signed",
       "walletConnectRequest": "WalletConnect request"
     },
+    "useNewUri": "This URI has already been used to attempt a connection. Please use a new URI.",
     "walletConnect": "WalletConnect"
   },
   "warning": {

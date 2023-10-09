@@ -85,9 +85,20 @@ export const WCIncomingPairing = ({
       });
 
       onApprove();
-    } catch (e) {
-      alertUser(t('walletConnect.invalidPairingChain', { chains: '\n•Ethereum \n•Optimism \n•BSC \n•Polygon \n•Fantom \n•Arbitrum One' }));
+    } catch (e: any) {
+      console.error(`Wallet connect approve pairing error ${e}`);
+
       console.error(e);
+      if (e.message.includes('Non conforming namespaces')) {
+        alertUser(t('walletConnect.invalidPairingChain',
+          {
+            chains: '\n•Ethereum \n•Optimism \n•BSC \n•Polygon \n•Fantom \n•Arbitrum One'
+          }));
+      } else {
+        //unexpected error, display native error message
+        alertUser(e.messsage);
+      }
+      await handleRejectPairing();
     } finally {
       setPairingLoading(false);
     }

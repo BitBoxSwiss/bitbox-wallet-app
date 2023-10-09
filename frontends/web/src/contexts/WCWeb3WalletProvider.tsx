@@ -15,6 +15,7 @@
  */
 
 import { ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { WCWeb3WalletContext } from './WCWeb3WalletContext';
 import { IWeb3Wallet } from '@walletconnect/web3wallet';
 import { getTopicFromURI, pairingHasEverBeenRejected } from '../utils/walletconnect';
@@ -26,6 +27,7 @@ type TProps = {
   }
 
 export const WCWeb3WalletProvider = ({ children }: TProps) => {
+  const { t } = useTranslation();
   const [web3wallet, setWeb3wallet] = useState<IWeb3Wallet>();
   const [isWalletInitialized, setIsWalletInitialized] = useState(false);
   const config = useLoad(getConfig);
@@ -77,12 +79,17 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
       const topic = getTopicFromURI(uri);
       const hasEverBeenRejected = pairingHasEverBeenRejected(topic, web3wallet);
       if (hasEverBeenRejected) {
-        throw new Error('Please use a new URI!');
+        throw new Error(t('walletConnect.useNewUri'));
       }
       await web3wallet?.core.pairing.pair({ uri });
       setConfig({ frontend: { hasUsedWalletConnect: true } });
     } catch (e: any) {
-      console.error(`Wallet connect pairing error ${e}`);
+      console.error(`Wallet connect attempt to pair error ${e}`);
+      if (e.message.includes('Pairing already exists')) {
+        throw new Error(t('walletConnect.useNewUri'));
+      }
+      //unexpected error, display native error message
+      throw new Error(e.message);
     }
   };
 
