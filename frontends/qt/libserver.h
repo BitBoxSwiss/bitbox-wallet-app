@@ -39,9 +39,9 @@ extern "C" {
 #endif
 
 
-extern void backendCall(int p0, char* p1);
+extern void backendCall(int queryID, cchar_t* s);
 
-extern void handleURI(char* p0);
+extern void handleURI(cchar_t* uri);
 
 extern void serve(
     cppHeapFree cppHeapFreeFn,
@@ -52,7 +52,7 @@ extern void serve(
     getSaveFilenameCallback getSaveFilenameFn
 );
 
-extern void systemOpen(char* p0);
+extern void systemOpen(cchar_t* url);
 
 extern void goLog(cchar_t* msg);
 

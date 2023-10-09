@@ -90,7 +90,7 @@ func backendCall(queryID C.int, s *C.char) {
 }
 
 //export handleURI
-func handleURI(uri *C.char) {
+func handleURI(uri *C.cchar_t) {
 	bridgecommon.HandleURI(C.GoString(uri))
 }
 
@@ -182,7 +182,7 @@ func serve(
 }
 
 //export systemOpen
-func systemOpen(url *C.char) {
+func systemOpen(url *C.cchar_t) {
 	goURL := C.GoString(url)
 	if err := system.Open(goURL); err != nil {
 		logging.Get().WithGroup("server").WithError(err).Errorf("systemOpen: error opening %v", goURL)
