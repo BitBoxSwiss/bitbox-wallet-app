@@ -39,12 +39,12 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
 
- interface State {
-     accounts: IAccount[];
-     devices: TDevices;
- }
+type State = {
+  accounts: IAccount[];
+  devices: TDevices;
+}
 
- type Props = TranslateProps;
+type Props = TranslateProps;
 
 class App extends Component<Props, State> {
   public readonly state: State = {
@@ -55,8 +55,8 @@ class App extends Component<Props, State> {
   private unsubscribeList: UnsubscribeList = [];
 
   /**
-      * Gets fired when the route changes.
-      */
+   * Gets fired when the route changes.
+   */
   private handleRoute = () => {
     if (panelStore.state.activeSidebar) {
       toggleSidebar();
@@ -93,7 +93,7 @@ class App extends Component<Props, State> {
       // if the first device is new
       if (
         newDeviceIDList.length > 0
-                && newDeviceIDList[0] !== oldDeviceIDList[0]
+        && newDeviceIDList[0] !== oldDeviceIDList[0]
       ) {
         // route new unlocked device with accounts
         if (this.state.accounts.length) {
@@ -128,9 +128,9 @@ class App extends Component<Props, State> {
     // if no accounts are registered on specified views route to /
     if (accounts.length === 0 && (
       currentURL.startsWith('/account-summary')
-             || currentURL.startsWith('/add-account')
-             || currentURL.startsWith('/settings/manage-accounts')
-             || currentURL.startsWith('/passphrase')
+      || currentURL.startsWith('/add-account')
+      || currentURL.startsWith('/settings/manage-accounts')
+      || currentURL.startsWith('/passphrase')
     )) {
       route('/', true);
       return;
