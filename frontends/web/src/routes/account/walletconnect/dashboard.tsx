@@ -85,7 +85,6 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
       <GuidedContent>
         <Main>
           <Status
-            hidden={false}
             type="info"
             dismissible="walletConnectDisclaimerDismissed"
           >
