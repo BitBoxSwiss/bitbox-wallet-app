@@ -35,7 +35,8 @@ export const useDevicePermission = (deviceName: TExperimentalDeviceName) => {
       // TypeScript broke this somehow in 4.4.2
       // https://github.com/microsoft/TypeScript/issues/33923
       // Type '"camera"' is not assignable to type 'PermissionName'.ts(2322)
-      .query({ name: deviceName } as unknown as PermissionDescriptor)
+      // `navigator.permissions` can be undefined on Android
+      ?.query({ name: deviceName } as unknown as PermissionDescriptor)
       .then((permissionStatus) => {
         permissionObject.current = permissionStatus;
         handlePermissionChange();
