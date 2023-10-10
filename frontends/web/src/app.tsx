@@ -21,7 +21,7 @@ import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
-import { syncNewTxs } from './api/backend';
+import { syncNewTxs } from './api/transactions';
 import { notifyUser } from './api/system';
 import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';

@@ -17,7 +17,6 @@
 import { AccountCode, CoinCode } from './account';
 import { apiGet, apiPost } from '../utils/request';
 import { FailResponse, SuccessResponse } from './response';
-import { subscribe as subscribeLegacy } from '../utils/event-legacy';
 
 export interface ICoin {
     coinCode: CoinCode;
@@ -70,19 +69,4 @@ export const getDefaultConfig = (): Promise<any> => {
 
 export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
-};
-
-export const syncNewTxs = (
-  cb: (
-    meta: {
-      count: number,
-      accountName: string,
-    }
-  ) => void,
-) => {
-  return subscribeLegacy('newTxs', event => {
-    if (event.type === 'backend') {
-      cb(event.meta);
-    }
-  });
 };
