@@ -23,11 +23,12 @@ import { WCWeb3WalletContext } from '../../../contexts/WCWeb3WalletContext';
 import { route } from '../../../utils/route';
 import { getAddressFromEIPString, truncateAddress } from '../../../utils/walletconnect';
 import { IAccount, getReceiveAddressList } from '../../../api/account';
-import { Header, Main } from '../../../components/layout';
+import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { View, ViewContent } from '../../../components/view/view';
 import { WCSessionCard } from './components/session-card/session-card';
 import { Button } from '../../../components/forms';
 import { Status } from '../../../components/status/status';
+import { WCGuide } from './guide';
 import styles from './dashboard.module.css';
 
 type TProps = {
@@ -80,28 +81,30 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
   const hasSession = sessions && sessions.length > 0;
 
   return (
-    <Main>
-      <Status
-        hidden={false}
-        type="info"
-        dismissible="walletConnectDisclaimerDismissed"
-      >
-        {t('walletConnect.dashboard.disclaimer')}
-      </Status>
-      <Header
-        title={<h2>{t('walletConnect.walletConnect')}</h2>}
-      />
-      <View>
-        <ViewContent>
-          <div className={styles.headerContainer}>
-            <div>
-              <p>{accountName}</p>
-              <p className={styles.receiveAddress}>{receiveAddress}</p>
-            </div>
-            <Button className={styles.buttonNewConnection} onClick={() => route(`/account/${code}/wallet-connect/connect`)} primary>{t('walletConnect.dashboard.newConnection')}</Button>
-          </div>
-          <hr className={styles.separator} />
-          {hasSession &&
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Status
+            hidden={false}
+            type="info"
+            dismissible="walletConnectDisclaimerDismissed"
+          >
+            {t('walletConnect.dashboard.disclaimer')}
+          </Status>
+          <Header
+            title={<h2>{t('walletConnect.walletConnect')}</h2>}
+          />
+          <View>
+            <ViewContent>
+              <div className={styles.headerContainer}>
+                <div>
+                  <p>{accountName}</p>
+                  <p className={styles.receiveAddress}>{receiveAddress}</p>
+                </div>
+                <Button className={styles.buttonNewConnection} onClick={() => route(`/account/${code}/wallet-connect/connect`)} primary>{t('walletConnect.dashboard.newConnection')}</Button>
+              </div>
+              <hr className={styles.separator} />
+              {hasSession &&
             <div className={styles.sessionCardsContainer}>
               <p className={styles.allSessionsHeading}>{t('walletConnect.dashboard.allSessions')}</p>
               {sessions.map(session =>
@@ -113,13 +116,15 @@ export const DashboardWalletConnect = ({ code, accounts }: TProps) => {
                 />
               )}
             </div>
-          }
-          {!hasSession &&
+              }
+              {!hasSession &&
             <p className={styles.noConnectedSessions}>{t('walletConnect.dashboard.noConnectedSessions')}</p>
-          }
-        </ViewContent>
-      </View>
-    </Main>
+              }
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
+      <WCGuide />
+    </GuideWrapper>
   );
 };
-

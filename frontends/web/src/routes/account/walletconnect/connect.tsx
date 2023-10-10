@@ -15,16 +15,17 @@
  */
 
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { SignClientTypes } from '@walletconnect/types';
 import { useLoad } from '../../../hooks/api';
 import * as accountApi from '../../../api/account';
-import { SignClientTypes } from '@walletconnect/types';
 import { WCWeb3WalletContext } from '../../../contexts/WCWeb3WalletContext';
-import { Header, Main } from '../../../components/layout';
+import { WCGuide } from './guide';
+import { TConnectStatus } from './types';
+import { GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { alertUser } from '../../../components/alert/Alert';
 import { View, ViewContent } from '../../../components/view/view';
 import { WCHeader } from './components/header/header';
 import { WCConnectForm } from './components/connect-form/connect-form';
-import { TConnectStatus } from './types';
 import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairing';
 import { WCSuccessPairing } from './components/success-pairing/success-pairing';
 import styles from './connect.module.css';
@@ -93,23 +94,25 @@ export const ConnectScreenWalletConnect = ({
   const receiveAddress = receiveAddresses[0].addresses[0].address;
 
   return (
-    <Main>
-      <Header />
-      <View verticallyCentered fullscreen={false}>
-        <ViewContent>
-          <WCHeader
-            accountName={accountName}
-            receiveAddress={receiveAddress}
-          />
-          <div className={styles.contentContainer}>
-            {status === 'connect' &&
+    <GuideWrapper>
+      <GuidedContent>
+        <Main>
+          <Header />
+          <View verticallyCentered fullscreen={false}>
+            <ViewContent>
+              <WCHeader
+                accountName={accountName}
+                receiveAddress={receiveAddress}
+              />
+              <div className={styles.contentContainer}>
+                {status === 'connect' &&
             <WCConnectForm
               code={code}
               uri={uri}
               onInputChange={setUri}
               onSubmit={handleConnect}
             />}
-            {(status === 'incoming_pairing' && currentProposal) &&
+                {(status === 'incoming_pairing' && currentProposal) &&
               <WCIncomingPairing
                 currentProposal={currentProposal}
                 pairingMetadata={currentProposal.params.proposer.metadata}
@@ -117,11 +120,14 @@ export const ConnectScreenWalletConnect = ({
                 onApprove={handleApprovePairingStates}
                 onReject={handleRejectPairingStates}
               />
-            }
-            {status === 'success' && <WCSuccessPairing accountCode={code} />}
-          </div>
-        </ViewContent>
-      </View>
-    </Main>
+                }
+                {status === 'success' && <WCSuccessPairing accountCode={code} />}
+              </div>
+            </ViewContent>
+          </View>
+        </Main>
+      </GuidedContent>
+      <WCGuide />
+    </GuideWrapper>
   );
 };
