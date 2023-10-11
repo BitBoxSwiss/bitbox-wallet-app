@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import { useTranslation } from 'react-i18next';
+import { useDevicePermission } from '../../../../../hooks/permissions';
 import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
 import { ScanQRVideo } from '../inputs/scan-qr-video';
-import { useTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 
 type TProps = {
@@ -25,6 +26,19 @@ type TProps = {
     onChangeActiveScanQR: (active: boolean) => void;
     parseQRResult: (result: string) => void;
 }
+
+const PermissionWarning = () => {
+  const { t } = useTranslation();
+  const permission = useDevicePermission('camera');
+
+  const permissionWarning = permission !== 'granted'
+    ? t('permission.camera')
+    : null;
+
+  return (
+    <div>{permissionWarning}</div>
+  );
+};
 
 export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
   const { t } = useTranslation();
@@ -36,6 +50,7 @@ export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChan
       open={activeScanQR}
       title={t('send.scanQR')}>
       <div style={{ minHeight: '300px' }}>
+        <PermissionWarning />
         <ScanQRVideo
           onResult={result => {
             parseQRResult(result);

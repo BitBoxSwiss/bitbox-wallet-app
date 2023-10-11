@@ -41,7 +41,7 @@ export const useDevicePermission = (deviceName: TExperimentalDeviceName) => {
         permissionObject.current = permissionStatus;
         handlePermissionChange();
       });
-  });
+  }, [handlePermissionChange, deviceName]);
 
   useEffect(() => {
     if (permissionObject.current) {
