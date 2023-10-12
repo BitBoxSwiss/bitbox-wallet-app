@@ -14,26 +14,8 @@
  * limitations under the License.
  */
 
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useEffect } from 'react';
 import QrScanner from 'qr-scanner';
-import { useMountedRef } from './mount';
-
-export const useHasCamera = () => {
-  const [hasCamera, setHasCamera] = useState(false);
-  const mounted = useMountedRef();
-
-  useEffect(() => {
-    QrScanner.hasCamera()
-      .then(result => {
-        if (mounted.current) {
-          setHasCamera(result);
-        }
-      })
-      .catch(console.error);
-  }, [mounted]);
-
-  return hasCamera;
-};
 
 type TUseQRScannerOptions = {
   onStart?: () => void;
