@@ -65,7 +65,7 @@ func (handlers *Handlers) OnEvent(breezEvent breez_sdk.BreezEvent) {
 		})
 	case breez_sdk.BreezEventSynced:
 		handlers.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/lightning/status", handlers.account.Config().Config.Code),
+			Subject: fmt.Sprintf("account/%s/lightning/node-info", handlers.account.Config().Config.Code),
 			Action:  action.Reload,
 		})
 	}

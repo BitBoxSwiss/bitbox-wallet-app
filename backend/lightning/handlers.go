@@ -16,13 +16,13 @@
 package lightning
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -46,8 +46,10 @@ func NewHandlers(backend Backend, router *mux.Router, middleware backend.Handler
 	handlers := &Handlers{log: log, synced: false}
 	handlers.Observe(backend.Notify)
 
-	handleFunc := middleware.GetApiRouter(router)
-	handleFunc("/status", handlers.getStatus).Methods("GET")
+	apiRouter := middleware.GetApiRouterNoError(router)
+	apiRouter("/node-info", handlers.getNodeInfo).Methods("GET")
+	apiRouter("/parse-input", handlers.postParseInput).Methods("POST")
+	apiRouter("/send-payment", handlers.postSendPayment).Methods("POST")
 
 	return handlers
 }
@@ -58,7 +60,6 @@ func (handlers *Handlers) Init(account accounts.Interface) {
 
 	//if account.Config().Config.LightningEnabled {
 	// Connect the SDK
-
 	switch account.Coin().Code() {
 	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
 		config := account.Config().Config
@@ -68,7 +69,6 @@ func (handlers *Handlers) Init(account accounts.Interface) {
 			handlers.connect()
 		}
 	}
-
 	//}
 }
 
@@ -79,30 +79,64 @@ func (handlers *Handlers) Uninit() {
 	handlers.disconnect()
 }
 
-type statusResponse struct {
-	Pubkey        string `json:"pubkey"`
-	BlockHeight   uint32 `json:"blockHeight"`
-	Synced        bool   `json:"synced"`
-	LocalBalance  uint64 `json:"localBalance"`
-	RemoteBalance uint64 `json:"remoteBalance"`
-}
-
-func (handlers *Handlers) getStatus(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getNodeInfo(_ *http.Request) interface{} {
 	if handlers.account == nil || handlers.sdkService == nil {
-		return statusResponse{Synced: false}, nil
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
 	nodeState, err := handlers.sdkService.NodeInfo()
-
 	if err != nil {
-		return statusResponse{Synced: false}, errp.New("Error requesting node status.")
+		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return statusResponse{
-		Pubkey:        nodeState.Id,
-		BlockHeight:   nodeState.BlockHeight,
-		Synced:        handlers.synced,
-		LocalBalance:  ToSats(nodeState.MaxPayableMsat),
-		RemoteBalance: ToSats(nodeState.InboundLiquidityMsats),
-	}, nil
+	return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
+}
+
+func (handlers *Handlers) postParseInput(r *http.Request) interface{} {
+	var jsonBody struct {
+		S string `json:"s"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	input, err := breez_sdk.ParseInput(jsonBody.S)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	paymentDto, err := toInputTypeDto(input)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true, Data: paymentDto}
+}
+
+func (handlers *Handlers) postSendPayment(r *http.Request) interface{} {
+	if handlers.account == nil || handlers.sdkService == nil {
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+	}
+
+	var jsonBody struct {
+		Bolt11     string  `json:"bolt11"`
+		AmountSats *uint64 `json:"amountSats"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	payment, err := handlers.sdkService.SendPayment(jsonBody.Bolt11, jsonBody.AmountSats)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	paymentDto, err := toPaymentDto(payment)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true, Data: paymentDto}
 }
