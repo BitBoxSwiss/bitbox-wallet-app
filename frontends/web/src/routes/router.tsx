@@ -18,6 +18,8 @@ import { ElectrumSettings } from './settings/electrum';
 import { Passphrase } from './device/bitbox02/passphrase';
 import { Account } from './account/account';
 import { Lightning } from './lightning';
+import { Receive as ReceiveLightning } from './lightning/receive';
+import { Send as SendLightning } from './lightning/send';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
@@ -25,16 +27,16 @@ import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    deviceIDs: string[];
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
-    devicesKey: ((input: string) => string)
-}
+  devices: TDevices;
+  deviceIDs: string[];
+  accounts: IAccount[];
+  activeAccounts: IAccount[];
+  devicesKey: (input: string) => string;
+};
 
 type TInjectParamsProps = {
   children: ReactChild;
-}
+};
 
 const InjectParams = ({ children }: TInjectParamsProps) => {
   const params = useParams();
@@ -43,158 +45,170 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
 
 export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
-  const Homepage = <DeviceSwitch
-    key={devicesKey('device-switch-default')}
-    deviceID={null}
-    devices={devices}
-    hasAccounts={hasAccounts}
-  />;
+  const Homepage = <DeviceSwitch key={devicesKey('device-switch-default')} deviceID={null} devices={devices} hasAccounts={hasAccounts} />;
 
-  const Device = <InjectParams>
-    <DeviceSwitch
-      key={devicesKey('device-switch')}
-      deviceID={null}
-      devices={devices}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>;
+  const Device = (
+    <InjectParams>
+      <DeviceSwitch key={devicesKey('device-switch')} deviceID={null} devices={devices} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const Acc = <InjectParams>
-    <Account
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const Acc = (
+    <InjectParams>
+      <Account code={'' /* dummy to satisfy TS */} devices={devices} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const AccountsSummaryEl = <InjectParams>
-    <AccountsSummary
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccountsSummaryEl = (
+    <InjectParams>
+      <AccountsSummary devices={devices} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const AccSend = <InjectParams>
-    <Send
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccSend = (
+    <InjectParams>
+      <Send code={'' /* dummy to satisfy TS */} devices={devices} deviceIDs={deviceIDs} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const AccReceive = <InjectParams>
-    <Receive
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      deviceIDs={deviceIDs}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccReceive = (
+    <InjectParams>
+      <Receive code={'' /* dummy to satisfy TS */} devices={devices} deviceIDs={deviceIDs} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const AccInfo = <InjectParams>
-    <Info
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccInfo = (
+    <InjectParams>
+      <Info code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const AccLightning = <InjectParams>
-    <Lightning
-      code={'' /* dummy to satisfy TS */}
-      devices={devices}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccLightning = (
+    <InjectParams>
+      <Lightning code={'' /* dummy to satisfy TS */} devices={devices} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const BuyInfoEl = <InjectParams>
-    <BuyInfo
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccLightningReceive = (
+    <InjectParams>
+      <ReceiveLightning code={'' /* dummy to satisfy TS */} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const MoonpayEl = <InjectParams>
-    <Moonpay
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const AccLightningSend = (
+    <InjectParams>
+      <SendLightning code={'' /* dummy to satisfy TS */} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const ExchangeEl = <InjectParams>
-    <Exchange
-      code={''}
-      accounts={activeAccounts} />
-  </InjectParams>;
+  const BuyInfoEl = (
+    <InjectParams>
+      <BuyInfo code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const PocketEl = <InjectParams>
-    <Pocket
-      code={''} />
-  </InjectParams>;
+  const MoonpayEl = (
+    <InjectParams>
+      <Moonpay code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const PassphraseEl = <InjectParams><Passphrase deviceID={''} /></InjectParams>;
+  const ExchangeEl = (
+    <InjectParams>
+      <Exchange code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
 
-  const ManageBackupsEl = <InjectParams><ManageBackups
-    key={devicesKey('manage-backups')}
-    devices={devices}
-  /></InjectParams>;
+  const PocketEl = (
+    <InjectParams>
+      <Pocket code={''} />
+    </InjectParams>
+  );
 
-  const MobileSettingsEl = <InjectParams>
-    <MobileSettings
-      deviceIDs={deviceIDs}
-      hasAccounts={hasAccounts}
+  const PassphraseEl = (
+    <InjectParams>
+      <Passphrase deviceID={''} />
+    </InjectParams>
+  );
 
-    />
-  </InjectParams>;
+  const ManageBackupsEl = (
+    <InjectParams>
+      <ManageBackups key={devicesKey('manage-backups')} devices={devices} />
+    </InjectParams>
+  );
 
-  const AppearanceEl = <InjectParams>
-    <Appearance
-      deviceIDs={deviceIDs}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>;
+  const MobileSettingsEl = (
+    <InjectParams>
+      <MobileSettings deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const AboutEl = <InjectParams>
-    <About
-      deviceIDs={deviceIDs}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>;
+  const AppearanceEl = (
+    <InjectParams>
+      <Appearance deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const AdvancedSettingsEl = <InjectParams>
-    <AdvancedSettings
-      deviceIDs={deviceIDs}
-      hasAccounts={hasAccounts}
-    />
-  </InjectParams>;
+  const AboutEl = (
+    <InjectParams>
+      <About deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  const ReceiveAccountsSelectorEl = <InjectParams><ReceiveAccountsSelector activeAccounts={activeAccounts}/></InjectParams>;
+  const AdvancedSettingsEl = (
+    <InjectParams>
+      <AdvancedSettings deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
+    </InjectParams>
+  );
 
-  return <Routes>
-    <Route path="/">
-      <Route index element={Homepage} />
-      <Route path="account/:code">
-        <Route index element={Acc} />
-        <Route path="send" element={AccSend} />
-        <Route path="receive" element={AccReceive} />
-        <Route path="info" element={AccInfo} />
-        <Route path="lightning" element={AccLightning} />
-      </Route>
-      <Route path="add-account" element={<AddAccount />} />
-      <Route path="account-summary" element={AccountsSummaryEl} />
-      <Route path="buy">
-        <Route path="info" element={BuyInfoEl} >
-          <Route index element={BuyInfoEl} />
-          <Route path=":code" element={BuyInfoEl} />
+  const ReceiveAccountsSelectorEl = (
+    <InjectParams>
+      <ReceiveAccountsSelector activeAccounts={activeAccounts} />
+    </InjectParams>
+  );
+
+  return (
+    <Routes>
+      <Route path="/">
+        <Route index element={Homepage} />
+        <Route path="account/:code">
+          <Route index element={Acc} />
+          <Route path="send" element={AccSend} />
+          <Route path="receive" element={AccReceive} />
+          <Route path="info" element={AccInfo} />
+          <Route path="lightning">
+            <Route index element={AccLightning} />
+            <Route path="receive" element={AccLightningReceive} />
+            <Route path="send" element={AccLightningSend} />
+          </Route>
         </Route>
-        <Route path="moonpay/:code" element={MoonpayEl} />
-        <Route path="pocket/:code" element={PocketEl} />
-        <Route path="exchange/:code" element={ExchangeEl} />
+        <Route path="add-account" element={<AddAccount />} />
+        <Route path="account-summary" element={AccountsSummaryEl} />
+        <Route path="buy">
+          <Route path="info" element={BuyInfoEl}>
+            <Route index element={BuyInfoEl} />
+            <Route path=":code" element={BuyInfoEl} />
+          </Route>
+          <Route path="moonpay/:code" element={MoonpayEl} />
+          <Route path="pocket/:code" element={PocketEl} />
+          <Route path="exchange/:code" element={ExchangeEl} />
+        </Route>
+        <Route path="passphrase/:deviceID" element={PassphraseEl} />
+        <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
+        <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
+        <Route path="settings">
+          <Route index element={MobileSettingsEl} />
+          <Route path="appearance" element={AppearanceEl} />
+          <Route path="about" element={AboutEl} />
+          <Route path="device-settings/:deviceID" element={Device} />
+          <Route path="advanced-settings" element={AdvancedSettingsEl} />
+          <Route path="electrum" element={<ElectrumSettings />} />
+          <Route
+            path="manage-accounts"
+            element={<ManageAccounts key={'manage-accounts'} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />}
+          />
+        </Route>
       </Route>
-      <Route path="passphrase/:deviceID" element={PassphraseEl} />
-      <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
-      <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
-      <Route path="settings">
-        <Route index element={MobileSettingsEl} />
-        <Route path="appearance" element={AppearanceEl} />
-        <Route path="about" element={AboutEl} />
-        <Route path="device-settings/:deviceID" element={Device} />
-        <Route path="advanced-settings" element={AdvancedSettingsEl} />
-        <Route path="electrum" element={<ElectrumSettings />} />
-        <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} deviceIDs={deviceIDs} hasAccounts={hasAccounts}/>} />
-      </Route>
-    </Route>
-  </Routes>;
+    </Routes>
+  );
 };
