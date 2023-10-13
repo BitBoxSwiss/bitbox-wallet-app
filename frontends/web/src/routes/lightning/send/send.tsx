@@ -19,8 +19,8 @@ import * as accountApi from '../../../api/account';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { useTranslation } from 'react-i18next';
 import { View, ViewContent } from '../../../components/view/view';
-import { Button, Input } from '../../../components/forms';
-import { useState } from 'react';
+import { Button } from '../../../components/forms';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { InputType, InputTypeVariant, SdkError, postParseInput, postSendPayment } from '../../../api/lightning';
 import styles from './send.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -30,6 +30,7 @@ import { toSat } from '../../../utils/conversion';
 import { InlineBalance } from '../../../components/balance/balance';
 import { IBalance } from '../../../api/account';
 import { Status } from '../../../components/status/status';
+import { QrCodeInput } from '../../../components/qrcode/qrcode-input';
 
 type TStep = 'select-invoice' | 'confirm' | 'success';
 
@@ -40,6 +41,7 @@ type Props = {
 
 export function Send({ accounts, code }: Props) {
   const { t } = useTranslation();
+  const [activeScanQr, setActiveScanQr] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
   const [parsedInput, setParsedInput] = useState<InputType>();
   const [rawInput, setRawInput] = useState<string>('');
@@ -62,12 +64,16 @@ export function Send({ accounts, code }: Props) {
     }
   };
 
-  const onRawInputChange = (event: Event) => {
+  const onRawInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
     setRawInput(target.value);
   };
 
-  const parseInput = async () => {
+  const onChangeActiveScanQr = (active: boolean) => {
+    setActiveScanQr(active);
+  };
+
+  const parseInput = useCallback(async () => {
     setBusy(true);
     try {
       const result = await postParseInput(code, { s: rawInput });
@@ -75,6 +81,7 @@ export function Send({ accounts, code }: Props) {
       case InputTypeVariant.BOLT11:
         console.log(`bolt11: ${JSON.stringify(result.invoice)}`);
         setParsedInput(result);
+        setActiveScanQr(false);
         setStep('confirm');
         break;
       default:
@@ -89,7 +96,7 @@ export function Send({ accounts, code }: Props) {
     } finally {
       setBusy(false);
     }
-  };
+  }, [code, rawInput]);
 
   const sendPayment = async () => {
     setSendError(undefined);
@@ -152,14 +159,16 @@ export function Send({ accounts, code }: Props) {
       return (
         <Grid col="1">
           <Column>
-            <Input
+            <QrCodeInput
+              title={t('send.scanQR')}
               label={t('lightning.send.rawInput.label')}
-              id="input"
-              onInput={onRawInputChange}
-              disabled={busy}
-              error={rawInputError}
-              value={rawInput}
               placeholder={t('lightning.send.rawInput.placeholder')}
+              inputError={rawInputError}
+              onInputChange={onRawInputChange}
+              value={rawInput}
+              activeScanQR={activeScanQr}
+              parseQRResult={setRawInput}
+              onChangeActiveScanQR={onChangeActiveScanQr}
             />
             <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
               <Button primary onClick={parseInput} disabled={busy}>
@@ -198,6 +207,12 @@ export function Send({ accounts, code }: Props) {
       );
     }
   };
+
+  useEffect(() => {
+    if (activeScanQr && rawInput) {
+      parseInput();
+    }
+  }, [activeScanQr, parseInput, rawInput]);
 
   const account = accounts && accounts.find((acct) => acct.code === code);
   if (!account) {

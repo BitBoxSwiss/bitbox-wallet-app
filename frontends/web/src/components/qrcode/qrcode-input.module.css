@@ -1,0 +1,27 @@
+.inputWithIcon {
+  position: relative;
+}
+
+.inputWithIcon input {
+  padding-right: calc(var(--spacing-default) * 2 + 18px);
+}
+
+.qrButton {
+  align-items: center;
+  display: flex;
+  border: none;
+  background-color: var(--background-secondary);
+  height: 36px;
+  width: 36px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  top: calc(50% - var(--space-quarter));
+  right: calc(var(--spacing-default) - var(--space-quarter));
+  cursor: pointer;
+}
+
+.qrButton img {
+  width: 18px;
+  height: 18px;
+}

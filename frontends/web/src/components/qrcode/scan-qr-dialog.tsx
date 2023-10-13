@@ -14,38 +14,34 @@
  * limitations under the License.
  */
 
-import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
-import { ScanQRVideo } from '../inputs/scan-qr-video';
+import { Dialog, DialogButtons } from '../dialog/dialog';
+import { ScanQRVideo } from '../../routes/account/send/components/inputs/scan-qr-video';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../../../../components/forms';
+import { Button } from '../forms';
 
 type TProps = {
-    activeScanQR: boolean;
-    toggleScanQR: () => void;
-    onChangeActiveScanQR: (active: boolean) => void;
-    parseQRResult: (result: string) => void;
-}
+  title: string;
+  activeScanQR: boolean;
+  toggleScanQR: () => void;
+  onChangeActiveScanQR: (active: boolean) => void;
+  parseQRResult: (result: string) => void;
+};
 
-export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
+export const ScanQRDialog = ({ title, parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
   const { t } = useTranslation();
 
   return (
-    <Dialog
-      large
-      onClose={toggleScanQR}
-      open={activeScanQR}
-      title={t('send.scanQR')}>
+    <Dialog large onClose={toggleScanQR} open={activeScanQR} title={title}>
       <div style={{ minHeight: '300px' }}>
         <ScanQRVideo
-          onResult={result => {
+          onResult={(result) => {
             parseQRResult(result);
             onChangeActiveScanQR(false);
-          }} />
+          }}
+        />
       </div>
       <DialogButtons>
-        <Button
-          secondary
-          onClick={toggleScanQR}>
+        <Button secondary onClick={toggleScanQR}>
           {t('button.back')}
         </Button>
       </DialogButtons>

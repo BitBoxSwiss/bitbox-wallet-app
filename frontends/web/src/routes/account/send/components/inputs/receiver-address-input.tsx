@@ -14,37 +14,21 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
-import DarkModeContext from '../../../../../contexts/DarkmodeContext';
-import { useHasCamera } from '../../../../../hooks/qrcodescanner';
-import { Input } from '../../../../../components/forms';
-import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
-import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
 import style from '../../send.module.css';
-
-type TToggleScanQRButtonProps = {
-    onClick: () => void;
-}
+import { QrCodeInput } from '../../../../../components/qrcode/qrcode-input';
+import { ChangeEvent } from 'react';
 
 type TReceiverAddressInputProps = {
-    accountCode?: string;
-    addressError?: string;
-    onInputChange: (value: string) => void;
-    recipientAddress: string;
-    activeScanQR: boolean;
-    parseQRResult: (uri: string) => void;
-    onChangeActiveScanQR: (activeScanQR: boolean) => void
-}
-
-const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
-  const { isDarkMode } = useContext(DarkModeContext);
-  return (
-    <button onClick={onClick} className={style.qrButton}>
-      {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
-    </button>);
+  accountCode?: string;
+  addressError?: string;
+  onInputChange: (value: string) => void;
+  recipientAddress: string;
+  activeScanQR: boolean;
+  parseQRResult: (uri: string) => void;
+  onChangeActiveScanQR: (activeScanQR: boolean) => void;
 };
 
 export const ReceiverAddressInput = ({
@@ -57,7 +41,6 @@ export const ReceiverAddressInput = ({
   onChangeActiveScanQR
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
-  const hasCamera = useHasCamera();
 
   const handleSendToSelf = async () => {
     if (!accountCode) {
@@ -73,40 +56,24 @@ export const ReceiverAddressInput = ({
     }
   };
 
-  const toggleScanQR = () => {
-    if (activeScanQR) {
-      onChangeActiveScanQR(false);
-      return;
-    }
-    onChangeActiveScanQR(true);
-  };
-
   return (
-    <>
-      <ScanQRDialog
-        activeScanQR={activeScanQR}
-        toggleScanQR={toggleScanQR}
-        onChangeActiveScanQR={onChangeActiveScanQR}
-        parseQRResult={parseQRResult}
-      />
-      <Input
-        label={t('send.address.label')}
-        placeholder={t('send.address.placeholder')}
-        id="recipientAddress"
-        error={addressError}
-        onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
-        value={recipientAddress}
-        className={hasCamera ? style.inputWithIcon : ''}
-        labelSection={debug ? (
+    <QrCodeInput
+      title={t('send.scanQR')}
+      label={t('send.address.label')}
+      placeholder={t('send.address.placeholder')}
+      inputError={addressError}
+      labelSection={
+        debug ? (
           <span id="sendToSelf" className={style.action} onClick={handleSendToSelf}>
-        Send to self
+            Send to self
           </span>
-        ) : undefined}
-        autoFocus>
-        { hasCamera && (
-          <ScanQRButton onClick={toggleScanQR} />
-        )}
-      </Input>
-    </>
+        ) : undefined
+      }
+      onInputChange={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
+      value={recipientAddress}
+      activeScanQR={activeScanQR}
+      parseQRResult={parseQRResult}
+      onChangeActiveScanQR={onChangeActiveScanQR}
+    />
   );
 };
