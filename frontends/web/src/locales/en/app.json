@@ -1030,6 +1030,26 @@
     "successDisable": "Successfully disabled the legacy hidden wallet.",
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
+  "lightning": {
+    "send": {
+      "title": "Send Lightning",
+      "qrCode": {
+        "label": "Scan lightning invoice"
+      },
+      "rawInput": {
+        "label": "Paste invoice",
+        "placeholder": "Invoice"
+      },
+      "confirm": {
+        "title": "Confirm transaction details",
+        "amount": "Amount",
+        "memo": "Memo"
+      },
+      "success": {
+        "message": "Transaction confirmed and sent!"
+      }
+    }
+  },
   "loading": "loading…",
   "manageAccounts": {
     "editAccount": "Edit",
