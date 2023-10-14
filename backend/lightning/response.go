@@ -211,6 +211,28 @@ func toNodeStateDto(nodeState breez_sdk.NodeState) nodeStateDto {
 	}
 }
 
+func toOpenChannelFeeResponseDto(openChannelFeeResponse breez_sdk.OpenChannelFeeResponse) openChannelFeeResponseDto {
+	return openChannelFeeResponseDto{
+		FeeMsat:       openChannelFeeResponse.FeeMsat,
+		UsedFeeParams: toOpeningFeeParamsDto(openChannelFeeResponse.UsedFeeParams),
+	}
+}
+
+func toOpeningFeeParamsDto(openingFeeParams *breez_sdk.OpeningFeeParams) *openingFeeParamsDto {
+	if openingFeeParams != nil {
+		return &openingFeeParamsDto{
+			MinMsat:              openingFeeParams.MinMsat,
+			Proportional:         openingFeeParams.Proportional,
+			ValidUntil:           openingFeeParams.ValidUntil,
+			MaxIdleTime:          openingFeeParams.MaxIdleTime,
+			MaxClientToSelfDelay: openingFeeParams.MaxClientToSelfDelay,
+			Promise:              openingFeeParams.Promise,
+		}
+	}
+
+	return nil
+}
+
 func toPaymentType(paymentType breez_sdk.PaymentType) (string, error) {
 	switch paymentType {
 	case breez_sdk.PaymentTypeSent:
@@ -276,6 +298,14 @@ func toPaymentDetailsDto(paymentDetails breez_sdk.PaymentDetails) (typeDataDto, 
 		return typeDataDto{Type: "cloedChannel", Data: closedChannelPaymentDetails}, nil
 	}
 	return typeDataDto{}, errp.New("Invalid PaymentStatus")
+}
+
+func toReceivePaymentResponseDto(receivePaymentResponse breez_sdk.ReceivePaymentResponse) receivePaymentResponseDto {
+	return receivePaymentResponseDto{
+		LnInvoice:        toLnInvoiceDto(receivePaymentResponse.LnInvoice),
+		OpeningFeeParams: toOpeningFeeParamsDto(receivePaymentResponse.OpeningFeeParams),
+		OpeningFeeMsat:   receivePaymentResponse.OpeningFeeMsat,
+	}
 }
 
 func toRouteHintsDto(routeHints []breez_sdk.RouteHint) []routeHintDto {

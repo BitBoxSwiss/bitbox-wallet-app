@@ -92,6 +92,25 @@ type lnUrlWithdrawRequestDataDto struct {
 	MaxWithdrawable    uint64 `json:"maxWithdrawable"`
 }
 
+type openChannelFeeRequestDto struct {
+	AmountMsat uint64  `json:"amountMsat"`
+	Expiry     *uint32 `json:"expiry"`
+}
+
+type openChannelFeeResponseDto struct {
+	FeeMsat       uint64               `json:"feeMsat"`
+	UsedFeeParams *openingFeeParamsDto `json:"usedFeeParams"`
+}
+
+type openingFeeParamsDto struct {
+	MinMsat              uint64 `json:"minMsat"`
+	Proportional         uint32 `json:"proportional"`
+	ValidUntil           string `json:"validUntil"`
+	MaxIdleTime          uint32 `json:"maxIdleTime"`
+	MaxClientToSelfDelay uint32 `json:"maxClientToSelfDelay"`
+	Promise              string `json:"promise"`
+}
+
 type paymentDto struct {
 	Id          string      `json:"id"`
 	PaymentType string      `json:"paymentType"`
@@ -101,6 +120,22 @@ type paymentDto struct {
 	Status      string      `json:"status"`
 	Description *string     `json:"description"`
 	Details     typeDataDto `json:"details"`
+}
+
+type receivePaymentRequestDto struct {
+	AmountSats         uint64               `json:"amountSats"`
+	Description        string               `json:"description"`
+	Preimage           *[]uint8             `json:"preimage"`
+	OpeningFeeParams   *openingFeeParamsDto `json:"openingFeeParams"`
+	UseDescriptionHash *bool                `json:"useDescriptionHash"`
+	Expiry             *uint32              `json:"expiry"`
+	Cltv               *uint32              `json:"cltv"`
+}
+
+type receivePaymentResponseDto struct {
+	LnInvoice        lnInvoiceDto         `json:"lnInvoice"`
+	OpeningFeeParams *openingFeeParamsDto `json:"openingFeeParams"`
+	OpeningFeeMsat   *uint64              `json:"openingFeeMsat"`
 }
 
 type routeHintDto struct {

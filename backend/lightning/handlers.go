@@ -48,7 +48,9 @@ func NewHandlers(backend Backend, router *mux.Router, middleware backend.Handler
 
 	apiRouter := middleware.GetApiRouterNoError(router)
 	apiRouter("/node-info", handlers.getNodeInfo).Methods("GET")
+	apiRouter("/open-channel-fee", handlers.postOpenChannelFee).Methods("POST")
 	apiRouter("/parse-input", handlers.postParseInput).Methods("POST")
+	apiRouter("/receive-payment", handlers.postReceivePayment).Methods("POST")
 	apiRouter("/send-payment", handlers.postSendPayment).Methods("POST")
 
 	return handlers
@@ -92,6 +94,25 @@ func (handlers *Handlers) getNodeInfo(_ *http.Request) interface{} {
 	return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
 }
 
+func (handlers *Handlers) postOpenChannelFee(r *http.Request) interface{} {
+	if handlers.account == nil || handlers.sdkService == nil {
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+	}
+
+	var jsonBody openChannelFeeRequestDto
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	openChannelFeeResponse, err := handlers.sdkService.OpenChannelFee(toOpenChannelFeeRequest(jsonBody))
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true, Data: toOpenChannelFeeResponseDto(openChannelFeeResponse)}
+}
+
 func (handlers *Handlers) postParseInput(r *http.Request) interface{} {
 	var jsonBody struct {
 		S string `json:"s"`
@@ -112,6 +133,25 @@ func (handlers *Handlers) postParseInput(r *http.Request) interface{} {
 	}
 
 	return responseDto{Success: true, Data: paymentDto}
+}
+
+func (handlers *Handlers) postReceivePayment(r *http.Request) interface{} {
+	if handlers.account == nil || handlers.sdkService == nil {
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+	}
+
+	var jsonBody receivePaymentRequestDto
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	receivePaymentResponse, err := handlers.sdkService.ReceivePayment(toReceivePaymentRequest(jsonBody))
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	return responseDto{Success: true, Data: toReceivePaymentResponseDto(receivePaymentResponse)}
 }
 
 func (handlers *Handlers) postSendPayment(r *http.Request) interface{} {
