@@ -19,6 +19,11 @@ type closedChannelPaymentDetailsDto struct {
 	FundingTxid    string `json:"fundingTxid"`
 }
 
+type invoicePaidDetailsDto struct {
+	PaymentHash string `json:"paymentHash"`
+	Bolt11      string `json:"bolt11"`
+}
+
 type messageSuccessActionDataDto struct {
 	Message string `json:"message"`
 }
@@ -122,6 +127,12 @@ type paymentDto struct {
 	Details     typeDataDto `json:"details"`
 }
 
+type paymentFailedDataDto struct {
+	Error   string        `json:"error"`
+	NodeId  string        `json:"nodeId"`
+	Invoice *lnInvoiceDto `json:"invoice"`
+}
+
 type receivePaymentRequestDto struct {
 	AmountSats         uint64               `json:"amountSats"`
 	Description        string               `json:"description"`
@@ -150,14 +161,6 @@ type routeHintHopDto struct {
 	CltvExpiryDelta            uint64  `json:"cltvExpiryDelta"`
 	HtlcMinimumMsat            *uint64 `json:"htlcMinimumMsat"`
 	HtlcMaximumMsat            *uint64 `json:"htlcMaximumMsat"`
-}
-
-type statusDto struct {
-	Pubkey        string `json:"pubkey"`
-	BlockHeight   uint32 `json:"blockHeight"`
-	Synced        bool   `json:"synced"`
-	LocalBalance  uint64 `json:"localBalance"`
-	RemoteBalance uint64 `json:"remoteBalance"`
 }
 
 type typeDataDto struct {

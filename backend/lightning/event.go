@@ -31,38 +31,25 @@ func (handlers *Handlers) OnEvent(breezEvent breez_sdk.BreezEvent) {
 	switch event := breezEvent.(type) {
 	case breez_sdk.BreezEventInvoicePaid:
 		handlers.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/lightning/payments", handlers.account.Config().Config.Code),
+			Subject: fmt.Sprintf("account/%s/lightning/event/invoice-paid", handlers.account.Config().Config.Code),
 			Action:  action.Replace,
-			Object: map[string]interface{}{
-				"type":   "invoice",
-				"paid":   true,
-				"bolt11": event.Details.Bolt11,
-			},
+			Object:  toInvoicePaidDetailsDto(event.Details),
 		})
 
 	case breez_sdk.BreezEventPaymentFailed:
 		handlers.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/lightning/payments", handlers.account.Config().Config.Code),
+			Subject: fmt.Sprintf("account/%s/lightning/event/payment-failed", handlers.account.Config().Config.Code),
 			Action:  action.Replace,
-			Object: map[string]interface{}{
-				"type":   "payment",
-				"paid":   false,
-				"bolt11": event.Details.Invoice.Bolt11,
-				"error":  event.Details.Error,
-			},
+			Object: toPaymentFailedDataDto(event.Details),
 		})
 	case breez_sdk.BreezEventPaymentSucceed:
-		handlers.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/lightning/payments", handlers.account.Config().Config.Code),
-			Action:  action.Replace,
-			Object: map[string]interface{}{
-				"type":   "payment",
-				"paid":   true,
-				"id":     event.Details.Id,
-				"amount": ToSats(event.Details.AmountMsat),
-				"fee":    ToSats(event.Details.FeeMsat),
-			},
-		})
+		if payment, err := toPaymentDto(event.Details); err != nil {
+			handlers.Notify(observable.Event{
+				Subject: fmt.Sprintf("account/%s/lightnings/event/payment-succeed", handlers.account.Config().Config.Code),
+				Action:  action.Replace,
+				Object:  payment,
+			})
+		}
 	case breez_sdk.BreezEventSynced:
 		handlers.Notify(observable.Event{
 			Subject: fmt.Sprintf("account/%s/lightning/node-info", handlers.account.Config().Config.Code),
