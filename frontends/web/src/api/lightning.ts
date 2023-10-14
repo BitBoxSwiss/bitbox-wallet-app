@@ -718,6 +718,10 @@ export const getNodeInfo = async (code: AccountCode): Promise<NodeState> => {
   return getApiResponse<NodeState>(`account/${code}/lightning/node-info`, 'Error calling getNodeInfo');
 };
 
+export const postOpenChannelFee = async (code: AccountCode, data: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
+  return postApiResponse<OpenChannelFeeResponse, OpenChannelFeeRequest>(`account/${code}/lightning/open-channel-fee`, data, 'Error calling postOpenChannelFee');
+};
+
 export const postParseInput = async (code: AccountCode, data: ParseInputRequest): Promise<InputType> => {
   return postApiResponse<InputType, ParseInputRequest>(`account/${code}/lightning/parse-input`, data, 'Error calling postParseInput');
 };
@@ -726,9 +730,46 @@ export const postSendPayment = async (code: AccountCode, data: SendPaymentReques
   return postApiResponse<Payment, SendPaymentRequest>(`account/${code}/lightning/send-payment`, data, 'Error calling postSendPayment');
 };
 
+export const postReceivePayment = async (code: AccountCode, data: ReceivePaymentRequest): Promise<ReceivePaymentResponse> => {
+  return postApiResponse<ReceivePaymentResponse, ReceivePaymentRequest>(`account/${code}/lightning/receive-payment`, data, 'Error calling postReceivePayment');
+};
+
 /**
  * Subscriptions
  */
+
+/**
+ * Returns a function that subscribes a callback on a "account/<CODE>/lightning/event/invoice-paid"
+ * event to notify when an invoice has been paid.
+ * Meant to be used with `useSubscribe`.
+ */
+export const subscribeInvoicePaid = (code: string) => {
+  return (cb: TSubscriptionCallback<InvoicePaidDetails>) => {
+    return subscribeEndpoint(`account/${code}/lightning/event/invoice-paid`, cb);
+  };
+};
+
+/**
+ * Returns a function that subscribes a callback on a "account/<CODE>/lightning/event/payment-failed"
+ * event to notify when a payment has failed.
+ * Meant to be used with `useSubscribe`.
+ */
+export const subscribePaymentFailed = (code: string) => {
+  return (cb: TSubscriptionCallback<PaymentFailedData>) => {
+    return subscribeEndpoint(`account/${code}/lightning/event/payment-failed`, cb);
+  };
+};
+
+/**
+ * Returns a function that subscribes a callback on a "account/<CODE>/lightning/event/payment-succeed"
+ * event to notify when a payment has succeeded.
+ * Meant to be used with `useSubscribe`.
+ */
+export const subscribePaymentSucceed = (code: string) => {
+  return (cb: TSubscriptionCallback<Payment>) => {
+    return subscribeEndpoint(`account/${code}/lightning/event/payment-succeed`, cb);
+  };
+};
 
 /**
  * Returns a function that subscribes a callback on a "account/<CODE>/lightning/node-state"
