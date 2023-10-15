@@ -31,15 +31,16 @@ export const ScanQRDialog = ({ title, parseQRResult, activeScanQR, toggleScanQR,
   const { t } = useTranslation();
 
   return (
-    <Dialog large onClose={toggleScanQR} open={activeScanQR} title={title}>
-      <div style={{ minHeight: '300px' }}>
-        <ScanQRVideo
-          onResult={(result) => {
-            parseQRResult(result);
-            onChangeActiveScanQR(false);
-          }}
-        />
-      </div>
+    <Dialog
+      large
+      open={activeScanQR}
+      title={title}
+      onClose={toggleScanQR}>
+      <ScanQRVideo
+        onResult={result => {
+          parseQRResult(result);
+          onChangeActiveScanQR(false);
+        }} />
       <DialogButtons>
         <Button secondary onClick={toggleScanQR}>
           {t('button.back')}

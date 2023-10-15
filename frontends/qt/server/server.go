@@ -21,6 +21,9 @@ package main
 #include <stdint.h>
 #include <stdlib.h>
 
+// Workaround to be able to use `const char*` as a param type in the exported Go functions.
+typedef const char cchar_t;
+
 typedef void (*pushNotificationsCallback) (const char*);
 static void pushNotify(pushNotificationsCallback f, const char* msg) {
     f(msg);
@@ -87,7 +90,7 @@ func backendCall(queryID C.int, s *C.char) {
 }
 
 //export handleURI
-func handleURI(uri *C.char) {
+func handleURI(uri *C.cchar_t) {
 	bridgecommon.HandleURI(C.GoString(uri))
 }
 
@@ -179,11 +182,17 @@ func serve(
 }
 
 //export systemOpen
-func systemOpen(url *C.char) {
+func systemOpen(url *C.cchar_t) {
 	goURL := C.GoString(url)
 	if err := system.Open(goURL); err != nil {
 		logging.Get().WithGroup("server").WithError(err).Errorf("systemOpen: error opening %v", goURL)
 	}
+}
+
+//export goLog
+func goLog(msg *C.cchar_t) {
+	goMsg := C.GoString(msg)
+	logging.Get().WithGroup("qt-frontend").Info(goMsg)
 }
 
 // Don't remove - needed for the C compilation.

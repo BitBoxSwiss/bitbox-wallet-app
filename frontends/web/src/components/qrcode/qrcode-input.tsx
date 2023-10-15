@@ -16,7 +16,6 @@
 
 import { ChangeEvent, useContext } from 'react';
 import DarkModeContext from '../../contexts/DarkmodeContext';
-import { useHasCamera } from '../../hooks/qrcodescanner';
 import { Input } from '../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../components/icon';
 import { ScanQRDialog } from './scan-qr-dialog';
@@ -60,8 +59,6 @@ export const QrCodeInput = ({
   parseQRResult,
   onChangeActiveScanQR
 }: TQrCodeInputProps) => {
-  const hasCamera = useHasCamera();
-
   const toggleScanQR = () => {
     if (activeScanQR) {
       onChangeActiveScanQR(false);
@@ -86,11 +83,11 @@ export const QrCodeInput = ({
         error={inputError}
         onInput={onInputChange}
         value={value}
-        className={hasCamera ? style.inputWithIcon : ''}
+        className={style.inputWithIcon}
         labelSection={labelSection}
         autoFocus
       >
-        {hasCamera && <ScanQRButton onClick={toggleScanQR} />}
+        <ScanQRButton onClick={toggleScanQR} />
       </Input>
     </>
   );

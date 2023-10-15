@@ -93,8 +93,6 @@
 .spinnerAnimationContainer {
     align-items: center;
     display: flex;
-    flex-direction: column;
-    gap: 4rem;
     height: 0;
     justify-content: center;
     position: relative;
