@@ -42,6 +42,13 @@ type nodeStateDto struct {
 	InboundLiquidityMsats      uint64                        `json:"inboundLiquidityMsats"`
 }
 
+type listPaymentsRequestDto struct {
+	Filter          string `json:"filter"`
+	FromTimestamp   *int64 `json:"fromTimestamp"`
+	ToTimestamp     *int64 `json:"toTimestamp"`
+	IncludeFailures *bool  `json:"includeFailures"`
+}
+
 type lnInvoiceDto struct {
 	Bolt11          string         `json:"bolt11"`
 	PayeePubkey     string         `json:"payeePubkey"`
@@ -116,6 +123,10 @@ type openingFeeParamsDto struct {
 	Promise              string `json:"promise"`
 }
 
+type parseInputRequestDto struct {
+	S string `json:"s"`
+}
+
 type paymentDto struct {
 	Id          string      `json:"id"`
 	PaymentType string      `json:"paymentType"`
@@ -161,6 +172,11 @@ type routeHintHopDto struct {
 	CltvExpiryDelta            uint64  `json:"cltvExpiryDelta"`
 	HtlcMinimumMsat            *uint64 `json:"htlcMinimumMsat"`
 	HtlcMaximumMsat            *uint64 `json:"htlcMaximumMsat"`
+}
+
+type sendPaymentRequestDto struct {
+	Bolt11     string  `json:"bolt11"`
+	AmountSats *uint64 `json:"amountSats"`
 }
 
 type typeDataDto struct {

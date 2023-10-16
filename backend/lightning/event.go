@@ -28,28 +28,14 @@ import (
 func (handlers *Handlers) OnEvent(breezEvent breez_sdk.BreezEvent) {
 	handlers.log.Infof("BreezSDK: %#v", breezEvent)
 
-	switch event := breezEvent.(type) {
+	switch breezEvent.(type) {
 	case breez_sdk.BreezEventInvoicePaid:
-		handlers.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/lightning/event/invoice-paid", handlers.account.Config().Config.Code),
-			Action:  action.Replace,
-			Object:  toInvoicePaidDetailsDto(event.Details),
-		})
-
 	case breez_sdk.BreezEventPaymentFailed:
-		handlers.Notify(observable.Event{
-			Subject: fmt.Sprintf("account/%s/lightning/event/payment-failed", handlers.account.Config().Config.Code),
-			Action:  action.Replace,
-			Object: toPaymentFailedDataDto(event.Details),
-		})
 	case breez_sdk.BreezEventPaymentSucceed:
-		if payment, err := toPaymentDto(event.Details); err != nil {
-			handlers.Notify(observable.Event{
-				Subject: fmt.Sprintf("account/%s/lightnings/event/payment-succeed", handlers.account.Config().Config.Code),
-				Action:  action.Replace,
-				Object:  payment,
-			})
-		}
+		handlers.Notify(observable.Event{
+			Subject: fmt.Sprintf("account/%s/lightning/list-payments", handlers.account.Config().Config.Code),
+			Action:  action.Reload,
+		})
 	case breez_sdk.BreezEventSynced:
 		handlers.Notify(observable.Event{
 			Subject: fmt.Sprintf("account/%s/lightning/node-info", handlers.account.Config().Config.Code),

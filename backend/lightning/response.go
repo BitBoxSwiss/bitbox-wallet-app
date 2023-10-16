@@ -13,7 +13,7 @@ type responseDto struct {
 }
 
 func toBitcoinAddressDataDto(bitcoinAddressData breez_sdk.BitcoinAddressData) (bitcoinAddressDataDto, error) {
-	network, err := toNetwork(bitcoinAddressData.Network)
+	network, err := toNetworkDto(bitcoinAddressData.Network)
 	if err != nil {
 		return bitcoinAddressDataDto{}, err
 	}
@@ -26,7 +26,7 @@ func toBitcoinAddressDataDto(bitcoinAddressData breez_sdk.BitcoinAddressData) (b
 	}, nil
 }
 
-func toChannelState(state breez_sdk.ChannelState) (string, error) {
+func toChannelStateDto(state breez_sdk.ChannelState) (string, error) {
 	switch state {
 	case breez_sdk.ChannelStatePendingOpen:
 		return "pendingOpen", nil
@@ -41,7 +41,7 @@ func toChannelState(state breez_sdk.ChannelState) (string, error) {
 }
 
 func toClosedChannelPaymentDetailsDto(closedChannelPaymentDetails breez_sdk.ClosedChannelPaymentDetails) (closedChannelPaymentDetailsDto, error) {
-	state, err := toChannelState(closedChannelPaymentDetails.State)
+	state, err := toChannelStateDto(closedChannelPaymentDetails.State)
 	if err != nil {
 		return closedChannelPaymentDetailsDto{}, err
 	}
@@ -188,7 +188,7 @@ func toLnUrlWithdrawRequestDataDto(lnUrlWithdrawRequestData breez_sdk.LnUrlWithd
 	}
 }
 
-func toNetwork(network breez_sdk.Network) (string, error) {
+func toNetworkDto(network breez_sdk.Network) (string, error) {
 	switch network {
 	case breez_sdk.NetworkBitcoin:
 		return "bitcoin", nil
@@ -254,19 +254,7 @@ func toPaymentFailedDataDto(paymentFailedData breez_sdk.PaymentFailedData) payme
 	return dto
 }
 
-func toPaymentType(paymentType breez_sdk.PaymentType) (string, error) {
-	switch paymentType {
-	case breez_sdk.PaymentTypeSent:
-		return "sent", nil
-	case breez_sdk.PaymentTypeReceived:
-		return "received", nil
-	case breez_sdk.PaymentTypeClosedChannel:
-		return "closedChannel", nil
-	}
-	return "", errp.New("Invalid PaymentType")
-}
-
-func toPaymentStatus(status breez_sdk.PaymentStatus) (string, error) {
+func toPaymentStatusDto(status breez_sdk.PaymentStatus) (string, error) {
 	switch status {
 	case breez_sdk.PaymentStatusPending:
 		return "pending", nil
@@ -278,12 +266,36 @@ func toPaymentStatus(status breez_sdk.PaymentStatus) (string, error) {
 	return "", errp.New("Invalid PaymentStatus")
 }
 
+func toPaymentTypeDto(paymentType breez_sdk.PaymentType) (string, error) {
+	switch paymentType {
+	case breez_sdk.PaymentTypeSent:
+		return "sent", nil
+	case breez_sdk.PaymentTypeReceived:
+		return "received", nil
+	case breez_sdk.PaymentTypeClosedChannel:
+		return "closedChannel", nil
+	}
+	return "", errp.New("Invalid PaymentType")
+}
+
+func toPaymentTypeFilter(filter string) (breez_sdk.PaymentTypeFilter, error) {
+	switch filter {
+	case "sent":
+		return breez_sdk.PaymentTypeFilterSent, nil
+	case "received":
+		return breez_sdk.PaymentTypeFilterReceived, nil
+	case "all":
+		return breez_sdk.PaymentTypeFilterAll, nil
+	}
+	return breez_sdk.PaymentTypeFilterAll, errp.New("Invalid PaymentTypeFilter")
+}
+
 func toPaymentDto(payment breez_sdk.Payment) (paymentDto, error) {
-	paymentType, err := toPaymentType(payment.PaymentType)
+	paymentType, err := toPaymentTypeDto(payment.PaymentType)
 	if err != nil {
 		return paymentDto{}, err
 	}
-	status, err := toPaymentStatus(payment.Status)
+	status, err := toPaymentStatusDto(payment.Status)
 	if err != nil {
 		return paymentDto{}, err
 	}
@@ -301,6 +313,20 @@ func toPaymentDto(payment breez_sdk.Payment) (paymentDto, error) {
 		Description: payment.Description,
 		Details:     details,
 	}, nil
+}
+
+func toPaymentsDto(payments []breez_sdk.Payment) ([]paymentDto, error) {
+	list := []paymentDto{}
+
+	for _, p := range payments {
+		payment, err := toPaymentDto(p)
+		if err != nil {
+			return []paymentDto{}, err
+		}
+		list = append(list, payment)
+	}
+
+	return list, nil
 }
 
 func toPaymentDetailsDto(paymentDetails breez_sdk.PaymentDetails) (typeDataDto, error) {

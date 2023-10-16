@@ -2,6 +2,19 @@ package lightning
 
 import "github.com/breez/breez-sdk-go/breez_sdk"
 
+func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sdk.ListPaymentsRequest, error) {
+	paymentFilter, err := toPaymentTypeFilter(listPaymentsRequest.Filter)
+	if err != nil {
+		return breez_sdk.ListPaymentsRequest{}, err
+	}
+	return breez_sdk.ListPaymentsRequest{
+		Filter: paymentFilter,
+		FromTimestamp: listPaymentsRequest.FromTimestamp,
+		ToTimestamp: listPaymentsRequest.ToTimestamp,
+		IncludeFailures: listPaymentsRequest.IncludeFailures,
+	}, nil
+}
+
 func toOpenChannelFeeRequest(openChannelFeeRequest openChannelFeeRequestDto) breez_sdk.OpenChannelFeeRequest {
 	return breez_sdk.OpenChannelFeeRequest{
 		AmountMsat: openChannelFeeRequest.AmountMsat,

@@ -48,6 +48,7 @@ func NewHandlers(backend Backend, router *mux.Router, middleware backend.Handler
 
 	apiRouter := middleware.GetApiRouterNoError(router)
 	apiRouter("/node-info", handlers.getNodeInfo).Methods("GET")
+	apiRouter("/list-payments", handlers.postListPayments).Methods("POST")
 	apiRouter("/open-channel-fee", handlers.postOpenChannelFee).Methods("POST")
 	apiRouter("/parse-input", handlers.postParseInput).Methods("POST")
 	apiRouter("/receive-payment", handlers.postReceivePayment).Methods("POST")
@@ -94,13 +95,39 @@ func (handlers *Handlers) getNodeInfo(_ *http.Request) interface{} {
 	return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
 }
 
+func (handlers *Handlers) postListPayments(r *http.Request) interface{} {
+	if handlers.account == nil || handlers.sdkService == nil {
+		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
+	}
+
+	var jsonBody listPaymentsRequestDto
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	listPaymentsRequest, err := toListPaymentsRequest(jsonBody)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	paymentsResponse, err := handlers.sdkService.ListPayments(listPaymentsRequest)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	payments, err := toPaymentsDto(paymentsResponse)
+	if err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+	return responseDto{Success: true, Data: payments}
+}
+
 func (handlers *Handlers) postOpenChannelFee(r *http.Request) interface{} {
 	if handlers.account == nil || handlers.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
 	var jsonBody openChannelFeeRequestDto
-
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -114,10 +141,7 @@ func (handlers *Handlers) postOpenChannelFee(r *http.Request) interface{} {
 }
 
 func (handlers *Handlers) postParseInput(r *http.Request) interface{} {
-	var jsonBody struct {
-		S string `json:"s"`
-	}
-
+	var jsonBody parseInputRequestDto
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -141,7 +165,6 @@ func (handlers *Handlers) postReceivePayment(r *http.Request) interface{} {
 	}
 
 	var jsonBody receivePaymentRequestDto
-
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -159,11 +182,7 @@ func (handlers *Handlers) postSendPayment(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
-	var jsonBody struct {
-		Bolt11     string  `json:"bolt11"`
-		AmountSats *uint64 `json:"amountSats"`
-	}
-
+	var jsonBody sendPaymentRequestDto
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
