@@ -17,6 +17,7 @@
 import { apiGet, apiPost } from '../utils/request';
 import { AccountCode } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
+import qs from 'query-string';
 
 export interface ILightningResponse<T> {
   success: boolean;
@@ -718,16 +719,16 @@ export const getNodeInfo = async (code: AccountCode): Promise<NodeState> => {
   return getApiResponse<NodeState>(`account/${code}/lightning/node-info`, 'Error calling getNodeInfo');
 };
 
-export const postListPayments = async (code: AccountCode, data: ListPaymentsRequest): Promise<Payment[]> => {
-  return postApiResponse<Payment[], ListPaymentsRequest>(`account/${code}/lightning/list-payments`, data, 'Error calling postListPayments');
+export const getListPayments = async (code: AccountCode, params: ListPaymentsRequest): Promise<Payment[]> => {
+  return getApiResponse<Payment[]>(`account/${code}/lightning/list-payments?${qs.stringify(params, { skipNull: true })}`, 'Error calling getListPayments');
 };
 
-export const postOpenChannelFee = async (code: AccountCode, data: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
-  return postApiResponse<OpenChannelFeeResponse, OpenChannelFeeRequest>(`account/${code}/lightning/open-channel-fee`, data, 'Error calling postOpenChannelFee');
+export const getOpenChannelFee = async (code: AccountCode, params: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
+  return getApiResponse<OpenChannelFeeResponse>(`account/${code}/lightning/open-channel-fee?${qs.stringify(params, { skipNull: true })}`, 'Error calling getOpenChannelFee');
 };
 
-export const postParseInput = async (code: AccountCode, data: ParseInputRequest): Promise<InputType> => {
-  return postApiResponse<InputType, ParseInputRequest>(`account/${code}/lightning/parse-input`, data, 'Error calling postParseInput');
+export const getParseInput = async (code: AccountCode, params: ParseInputRequest): Promise<InputType> => {
+  return getApiResponse<InputType>(`account/${code}/lightning/parse-input?${qs.stringify(params, { skipNull: true })}`, 'Error calling getParseInput');
 };
 
 export const postSendPayment = async (code: AccountCode, data: SendPaymentRequest): Promise<Payment> => {

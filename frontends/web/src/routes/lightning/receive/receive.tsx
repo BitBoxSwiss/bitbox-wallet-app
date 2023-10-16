@@ -20,8 +20,19 @@ import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main 
 import { useTranslation } from 'react-i18next';
 import { View, ViewContent } from '../../../components/view/view';
 import { Button, Input } from '../../../components/forms';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { OpenChannelFeeResponse, PaymentStatus, PaymentTypeFilter, ReceivePaymentResponse, SdkError, postListPayments, postOpenChannelFee, postReceivePayment, subscribeListPayments } from '../../../api/lightning';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import {
+  OpenChannelFeeResponse,
+  Payment,
+  PaymentStatus,
+  PaymentTypeFilter,
+  ReceivePaymentResponse,
+  SdkError,
+  getListPayments,
+  getOpenChannelFee,
+  postReceivePayment,
+  subscribeListPayments
+} from '../../../api/lightning';
 import styles from './receive.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
 import { Check } from '../../../components/icon';
@@ -29,7 +40,7 @@ import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
-import { useSync } from '../../../hooks/api';
+import { unsubscribe } from '../../../utils/subscriptions';
 
 type TStep = 'select-amount' | 'wait' | 'success';
 
@@ -49,7 +60,7 @@ export function Receive({ accounts, code }: Props) {
   const [receiveError, setReceiveError] = useState<string>();
   const [showOpenChannelWarning, setShowOpenChannelWarning] = useState<boolean>(false);
   const [step, setStep] = useState<TStep>('select-amount');
-  const payments = useSync(() => postListPayments(code, { filter: PaymentTypeFilter.RECEIVED }), subscribeListPayments(code));
+  const [payments, setPayments] = useState<Payment[]>();
 
   const back = () => {
     switch (step) {
@@ -75,6 +86,15 @@ export function Receive({ accounts, code }: Props) {
     setDescription(target.value);
   };
 
+  const onPaymentsChange = useCallback(() => {
+    getListPayments(code, { filter: PaymentTypeFilter.RECEIVED }).then((payments) => setPayments(payments));
+  }, [code]);
+
+  useEffect(() => {
+    const subscriptions = [subscribeListPayments(code)(onPaymentsChange)];
+    return () => unsubscribe(subscriptions);
+  }, [code, onPaymentsChange]);
+
   useEffect(() => {
     setAmountSats(+amountSatsText);
   }, [amountSatsText]);
@@ -82,7 +102,7 @@ export function Receive({ accounts, code }: Props) {
   useEffect(() => {
     (async () => {
       if (amountSats > 0) {
-        const openChannelFeeResponse = await postOpenChannelFee(code, { amountMsat: toMsat(amountSats) });
+        const openChannelFeeResponse = await getOpenChannelFee(code, { amountMsat: toMsat(amountSats) });
         setOpenChannelFeeResponse(openChannelFeeResponse);
         setShowOpenChannelWarning(openChannelFeeResponse.feeMsat > 0);
       }
@@ -112,7 +132,6 @@ export function Receive({ accounts, code }: Props) {
       setStep('wait');
     } catch (e) {
       if (e instanceof SdkError) {
-        console.log(e);
         setReceiveError(e.message);
       } else {
         setReceiveError(String(e));
@@ -145,7 +164,7 @@ export function Receive({ accounts, code }: Props) {
               id="descriptionInput"
               onInput={onDescriptionChange}
               value={description}
-              labelSection={(<span>{t('note.input.description')}</span>)}
+              labelSection={<span>{t('note.input.description')}</span>}
             />
             <Status hidden={!showOpenChannelWarning} type="info">
               {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
@@ -201,9 +220,7 @@ export function Receive({ accounts, code }: Props) {
           </Status>
           <Header title={<h2>{t('lightning.receive.title')}</h2>} />
           <View>
-            <ViewContent>
-              {renderSteps()}
-            </ViewContent>
+            <ViewContent>{renderSteps()}</ViewContent>
           </View>
         </Main>
       </GuidedContent>

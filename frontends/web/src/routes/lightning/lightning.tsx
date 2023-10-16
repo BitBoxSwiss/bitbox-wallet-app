@@ -15,12 +15,19 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useSync } from '../../hooks/api';
 import * as accountApi from '../../api/account';
-import { PaymentTypeFilter, getNodeInfo, postListPayments, subscribeListPayments, subscribeNodeState } from '../../api/lightning';
+import {
+  PaymentTypeFilter,
+  getNodeInfo,
+  getListPayments,
+  subscribeListPayments,
+  subscribeNodeState,
+  NodeState,
+  Payment
+} from '../../api/lightning';
 import { TDevices } from '../../api/devices';
 import { Balance } from '../../components/balance/balance';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
@@ -31,6 +38,7 @@ import style from './lightning.module.css';
 import { LightningGuide } from './guide';
 import { toSat } from '../../utils/conversion';
 import { Payments } from './components/payments';
+import { unsubscribe } from '../../utils/subscriptions';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -40,16 +48,26 @@ type Props = {
 
 export function Lightning({ accounts, code }: Props) {
   const { t } = useTranslation();
-
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
   const [stateCode, setStateCode] = useState<string>();
-  const nodeState = useSync(() => getNodeInfo(code), subscribeNodeState(code));
-  const payments = useSync(() => postListPayments(code, { filter: PaymentTypeFilter.ALL }), subscribeListPayments(code));
+  const [nodeState, setNodeState] = useState<NodeState>();
+  const [payments, setPayments] = useState<Payment[]>();
+
+  const onStateChange = useCallback(() => {
+    getNodeInfo(code).then((nodeState) => setNodeState(nodeState));
+    getListPayments(code, { filter: PaymentTypeFilter.ALL }).then((payments) => setPayments(payments));
+  }, []);
+
+  useEffect(onStateChange, [code, onStateChange]);
+
+  useEffect(() => {
+    const subscriptions = [subscribeNodeState(code)(onStateChange), subscribeListPayments(code)(onStateChange)];
+    return () => unsubscribe(subscriptions);
+  }, [code]);
 
   useEffect(() => {
     if (nodeState) {
-      console.log(nodeState.blockHeight);
       setBalance({
         hasAvailable: nodeState.channelsBalanceMsat > 0,
         available: {

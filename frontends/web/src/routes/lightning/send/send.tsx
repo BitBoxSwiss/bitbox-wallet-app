@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { View, ViewContent } from '../../../components/view/view';
 import { Button } from '../../../components/forms';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { InputType, InputTypeVariant, SdkError, postParseInput, postSendPayment } from '../../../api/lightning';
+import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import styles from './send.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
 import { Check } from '../../../components/icon';
@@ -76,10 +76,9 @@ export function Send({ accounts, code }: Props) {
   const parseInput = useCallback(async () => {
     setBusy(true);
     try {
-      const result = await postParseInput(code, { s: rawInput });
+      const result = await getParseInput(code, { s: rawInput });
       switch (result.type) {
       case InputTypeVariant.BOLT11:
-        console.log(`bolt11: ${JSON.stringify(result.invoice)}`);
         setParsedInput(result);
         setActiveScanQr(false);
         setStep('confirm');
@@ -111,7 +110,6 @@ export function Send({ accounts, code }: Props) {
       }
     } catch (e) {
       if (e instanceof SdkError) {
-        console.log(e);
         setSendError(e.message);
       } else {
         setSendError(String(e));
