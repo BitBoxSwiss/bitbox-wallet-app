@@ -1031,6 +1031,32 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "lightning": {
+    "payments": {
+      "title": "Payment history",
+      "header": {
+        "type": "Type",
+        "date": "Date",
+        "description": "Description",
+        "amount": "Amount"
+      },
+      "placeholder": "No payments yet."
+    },
+    "receive": {
+      "title": "Receive Lightning",
+      "subtitle": "Create lightning invoice",
+      "openChannelWarning": "A fee of {{feeSat}} sats will be deducted to open a new channel.",
+      "amountSats": {
+        "label": "Amount",
+        "placeholder": "Enter amount"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter amount"
+      },
+      "success": {
+        "message": "Lightning payment received!"
+      }
+    },
     "send": {
       "title": "Send Lightning",
       "qrCode": {

@@ -18,22 +18,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useLoad, useSync } from '../../hooks/api';
+import { useSync } from '../../hooks/api';
 import * as accountApi from '../../api/account';
-import { getNodeInfo, subscribeNodeState } from '../../api/lightning';
+import { PaymentTypeFilter, getNodeInfo, postListPayments, subscribeListPayments, subscribeNodeState } from '../../api/lightning';
 import { TDevices } from '../../api/devices';
-import { getExchangeBuySupported, SupportedExchanges } from '../../api/exchanges';
-import { alertUser } from '../../components/alert/Alert';
 import { Balance } from '../../components/balance/balance';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
-import { Transactions } from '../../components/transactions/transactions';
-import { BuyReceiveCTA } from '../account/info/buyReceiveCTA';
 import { ActionButtons } from './actionButtons';
 import style from './lightning.module.css';
 import { LightningGuide } from './guide';
 import { toSat } from '../../utils/conversion';
+import { Payments } from './components/payments';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -46,10 +43,9 @@ export function Lightning({ accounts, code }: Props) {
 
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
-  const [transactions] = useState<accountApi.TTransactions>();
   const [stateCode, setStateCode] = useState<string>();
   const nodeState = useSync(() => getNodeInfo(code), subscribeNodeState(code));
-  const supportedExchanges = useLoad<SupportedExchanges>(getExchangeBuySupported(code), [code]);
+  const payments = useSync(() => postListPayments(code, { filter: PaymentTypeFilter.RECEIVED }), subscribeListPayments(code));
 
   useEffect(() => {
     if (nodeState) {
@@ -68,17 +64,6 @@ export function Lightning({ accounts, code }: Props) {
       });
     }
   }, [nodeState, nodeState?.channelsBalanceMsat]);
-
-  function exportAccount() {
-    accountApi
-      .exportAccount(code)
-      .then((result) => {
-        if (result !== null && !result.success) {
-          alertUser(result.errorMessage);
-        }
-      })
-      .catch(console.error);
-  }
 
   useEffect(() => {
     setStateCode(code);
@@ -106,10 +91,7 @@ export function Lightning({ accounts, code }: Props) {
 
   const offlineErrorTextLines: string[] = [];
 
-  const exchangeBuySupported = supportedExchanges && supportedExchanges.exchanges.length > 0;
-
-  const isAccountEmpty =
-    balance && !balance.hasAvailable && !balance.hasIncoming && transactions && transactions.success && transactions.list.length === 0;
+  const isAccountEmpty = balance && !balance.hasAvailable && !balance.hasIncoming && payments && payments.length === 0;
 
   const actionButtonsProps = {
     code,
@@ -142,27 +124,10 @@ export function Lightning({ accounts, code }: Props) {
                   {!isAccountEmpty && <ActionButtons {...actionButtonsProps} />}
                 </div>
               </div>
-              {isAccountEmpty && (
-                <BuyReceiveCTA
-                  code={code}
-                  exchangeBuySupported={exchangeBuySupported}
-                  unit={balance.available.unit}
-                  balanceList={[[code, balance]]}
-                />
-              )}
               {offlineErrorTextLines.length || !hasDataLoaded ? (
                 <Spinner guideExists text={initializingSpinnerText} />
               ) : (
-                <>
-                  {!isAccountEmpty && (
-                    <Transactions
-                      accountCode={code}
-                      handleExport={exportAccount}
-                      explorerURL={account.blockExplorerTxPrefix}
-                      transactions={transactions}
-                    />
-                  )}
-                </>
+                <Payments payments={payments} />
               )}
             </div>
           </div>
@@ -170,7 +135,7 @@ export function Lightning({ accounts, code }: Props) {
       </GuidedContent>
       <LightningGuide
         unit="sats"
-        hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
+        hasPayments={payments && payments.length > 0}
         hasNoBalance={balance && balance.available.amount === '0'}
       />
     </GuideWrapper>

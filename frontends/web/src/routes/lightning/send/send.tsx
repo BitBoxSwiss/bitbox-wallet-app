@@ -106,6 +106,7 @@ export function Send({ accounts, code }: Props) {
       case InputTypeVariant.BOLT11:
         await postSendPayment(code, { bolt11: parsedInput.invoice.bolt11 });
         setStep('success');
+        setTimeout(() => route(`/account/${code}/lightning`), 5000);
         break;
       }
     } catch (e) {
@@ -141,13 +142,15 @@ export function Send({ accounts, code }: Props) {
           <div className="info">
             <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
             <p>
-              <InlineBalance balance={balance}/>
+              <InlineBalance balance={balance} />
             </p>
           </div>
-          {parsedInput?.invoice.description && (<div className="info">
-            <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-            <p>{ parsedInput?.invoice.description}</p>
-          </div>)}
+          {parsedInput?.invoice.description && (
+            <div className="info">
+              <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
+              <p>{parsedInput?.invoice.description}</p>
+            </div>
+          )}
         </Column>
       );
     }
@@ -228,9 +231,7 @@ export function Send({ accounts, code }: Props) {
           </Status>
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
           <View>
-            <ViewContent>
-              {renderSteps()}
-            </ViewContent>
+            <ViewContent>{renderSteps()}</ViewContent>
           </View>
         </Main>
       </GuidedContent>

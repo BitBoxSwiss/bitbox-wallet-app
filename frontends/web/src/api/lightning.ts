@@ -718,6 +718,10 @@ export const getNodeInfo = async (code: AccountCode): Promise<NodeState> => {
   return getApiResponse<NodeState>(`account/${code}/lightning/node-info`, 'Error calling getNodeInfo');
 };
 
+export const postListPayments = async (code: AccountCode, data: ListPaymentsRequest): Promise<Payment[]> => {
+  return postApiResponse<Payment[], ListPaymentsRequest>(`account/${code}/lightning/list-payments`, data, 'Error calling postListPayments');
+};
+
 export const postOpenChannelFee = async (code: AccountCode, data: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
   return postApiResponse<OpenChannelFeeResponse, OpenChannelFeeRequest>(`account/${code}/lightning/open-channel-fee`, data, 'Error calling postOpenChannelFee');
 };
@@ -739,35 +743,13 @@ export const postReceivePayment = async (code: AccountCode, data: ReceivePayment
  */
 
 /**
- * Returns a function that subscribes a callback on a "account/<CODE>/lightning/event/invoice-paid"
- * event to notify when an invoice has been paid.
+ * Returns a function that subscribes a callback on a "account/<CODE>/lightning/list-payments"
+ * event to notify when a change to the payments list has occurred.
  * Meant to be used with `useSubscribe`.
  */
-export const subscribeInvoicePaid = (code: string) => {
-  return (cb: TSubscriptionCallback<InvoicePaidDetails>) => {
-    return subscribeEndpoint(`account/${code}/lightning/event/invoice-paid`, cb);
-  };
-};
-
-/**
- * Returns a function that subscribes a callback on a "account/<CODE>/lightning/event/payment-failed"
- * event to notify when a payment has failed.
- * Meant to be used with `useSubscribe`.
- */
-export const subscribePaymentFailed = (code: string) => {
-  return (cb: TSubscriptionCallback<PaymentFailedData>) => {
-    return subscribeEndpoint(`account/${code}/lightning/event/payment-failed`, cb);
-  };
-};
-
-/**
- * Returns a function that subscribes a callback on a "account/<CODE>/lightning/event/payment-succeed"
- * event to notify when a payment has succeeded.
- * Meant to be used with `useSubscribe`.
- */
-export const subscribePaymentSucceed = (code: string) => {
-  return (cb: TSubscriptionCallback<Payment>) => {
-    return subscribeEndpoint(`account/${code}/lightning/event/payment-succeed`, cb);
+export const subscribeListPayments = (code: string) => {
+  return (cb: TSubscriptionCallback<Payment[]>) => {
+    return subscribeEndpoint(`account/${code}/lightning/list-payments`, cb);
   };
 };
 

@@ -22,13 +22,13 @@ import { Guide } from '../../components/guide/guide';
 type Props = {
   unit?: string;
   hasNoBalance?: boolean;
-  hasTransactions?: boolean;
+  hasPayments?: boolean;
 };
 
 export function LightningGuide({
   unit,
   hasNoBalance,
-  hasTransactions,
+  hasPayments,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -40,13 +40,13 @@ export function LightningGuide({
         })} />
       )}
       <Entry key="accountReload" entry={t('guide.accountReload')} />
-      {hasTransactions && (
+      {hasPayments && (
         <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel')} />
       )}
-      {hasTransactions && (
+      {hasPayments && (
         <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
       )}
-      {hasTransactions && (
+      {hasPayments && (
         <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric')} />
       )}
       <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation')} />
