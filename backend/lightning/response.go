@@ -110,13 +110,6 @@ func toInputTypeDto(inputType breez_sdk.InputType) (interface{}, error) {
 	return nil, errp.New("Invalid InputType")
 }
 
-func toInvoicePaidDetailsDto(invoicePaidDetails breez_sdk.InvoicePaidDetails) invoicePaidDetailsDto {
-	return invoicePaidDetailsDto{
-		PaymentHash: invoicePaidDetails.PaymentHash,
-		Bolt11:      invoicePaidDetails.Bolt11,
-	}
-}
-
 func toLnInvoiceDto(lnInvoice breez_sdk.LnInvoice) lnInvoiceDto {
 	return lnInvoiceDto{
 		Bolt11:          lnInvoice.Bolt11,
@@ -238,20 +231,6 @@ func toOpeningFeeParamsDto(openingFeeParams *breez_sdk.OpeningFeeParams) *openin
 	}
 
 	return nil
-}
-
-func toPaymentFailedDataDto(paymentFailedData breez_sdk.PaymentFailedData) paymentFailedDataDto {
-	dto := paymentFailedDataDto{
-		Error:  paymentFailedData.Error,
-		NodeId: paymentFailedData.NodeId,
-	}
-
-	if paymentFailedData.Invoice != nil {
-		lnInvoice := toLnInvoiceDto(*paymentFailedData.Invoice)
-		dto.Invoice = &lnInvoice
-	}
-
-	return dto
 }
 
 func toPaymentStatusDto(status breez_sdk.PaymentStatus) (string, error) {

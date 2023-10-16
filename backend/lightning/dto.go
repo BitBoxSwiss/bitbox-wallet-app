@@ -19,11 +19,6 @@ type closedChannelPaymentDetailsDto struct {
 	FundingTxid    string `json:"fundingTxid"`
 }
 
-type invoicePaidDetailsDto struct {
-	PaymentHash string `json:"paymentHash"`
-	Bolt11      string `json:"bolt11"`
-}
-
 type messageSuccessActionDataDto struct {
 	Message string `json:"message"`
 }
@@ -136,12 +131,6 @@ type paymentDto struct {
 	Status      string      `json:"status"`
 	Description *string     `json:"description"`
 	Details     typeDataDto `json:"details"`
-}
-
-type paymentFailedDataDto struct {
-	Error   string        `json:"error"`
-	NodeId  string        `json:"nodeId"`
-	Invoice *lnInvoiceDto `json:"invoice"`
 }
 
 type receivePaymentRequestDto struct {

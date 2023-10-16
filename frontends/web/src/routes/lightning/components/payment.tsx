@@ -34,7 +34,7 @@ export const Payment = ({ index, payment }: TProps) => {
   const { t } = useTranslation();
   const [sign] = useState<string>(payment.paymentType === PaymentType.RECEIVED ? '+' : '-');
   const [paymentDate] = useState<string>(
-    new Date(payment.paymentTime).toLocaleString(i18n.language, {
+    new Date(payment.paymentTime * 1000).toLocaleString(i18n.language, {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric'

@@ -1051,7 +1051,7 @@
       },
       "description": {
         "label": "Description",
-        "placeholder": "Enter amount"
+        "placeholder": "Enter description"
       },
       "success": {
         "message": "Lightning payment received!"

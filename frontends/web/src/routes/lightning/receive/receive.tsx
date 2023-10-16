@@ -136,7 +136,7 @@ export function Receive({ accounts, code }: Props) {
               placeholder={t('lightning.receive.amountSats.placeholder')}
               id="amountSatsInput"
               onInput={onAmountSatsChange}
-              value={amountSats}
+              value={amountSatsText}
               autoFocus
             />
             <Input

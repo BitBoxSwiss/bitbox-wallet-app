@@ -45,7 +45,7 @@ export function Lightning({ accounts, code }: Props) {
   const [syncedAddressesCount] = useState<number>();
   const [stateCode, setStateCode] = useState<string>();
   const nodeState = useSync(() => getNodeInfo(code), subscribeNodeState(code));
-  const payments = useSync(() => postListPayments(code, { filter: PaymentTypeFilter.RECEIVED }), subscribeListPayments(code));
+  const payments = useSync(() => postListPayments(code, { filter: PaymentTypeFilter.ALL }), subscribeListPayments(code));
 
   useEffect(() => {
     if (nodeState) {
@@ -53,7 +53,7 @@ export function Lightning({ accounts, code }: Props) {
       setBalance({
         hasAvailable: nodeState.channelsBalanceMsat > 0,
         available: {
-          amount: `${toSat(nodeState.channelsBalanceMsat || 0)}`,
+          amount: `${toSat(nodeState.channelsBalanceMsat)}`,
           unit: 'sat'
         },
         hasIncoming: false,
