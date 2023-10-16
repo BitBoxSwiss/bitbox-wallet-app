@@ -54,7 +54,7 @@ func bitsuranceCheckId(httpClient *http.Client, accountId string) (bool, error) 
 	endpoint := apiURL + "accountDetails/" + accountId
 	details := accountDetails{}
 	code, err := util.APIGet(httpClient, endpoint, apiKey, 1024, &details)
-	if err != nil {
+	if err != nil && code != http.StatusNotFound {
 		return false, err
 	}
 	if code == http.StatusNotFound {
