@@ -29,9 +29,7 @@ func (handlers *Handlers) OnEvent(breezEvent breez_sdk.BreezEvent) {
 	handlers.log.Infof("BreezSDK: %#v", breezEvent)
 
 	switch breezEvent.(type) {
-	case breez_sdk.BreezEventInvoicePaid:
-	case breez_sdk.BreezEventPaymentFailed:
-	case breez_sdk.BreezEventPaymentSucceed:
+	case breez_sdk.BreezEventInvoicePaid, breez_sdk.BreezEventPaymentFailed, breez_sdk.BreezEventPaymentSucceed:
 		handlers.Notify(observable.Event{
 			Subject: fmt.Sprintf("account/%s/lightning/list-payments", handlers.account.Config().Config.Code),
 			Action:  action.Reload,

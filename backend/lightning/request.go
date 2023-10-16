@@ -1,6 +1,31 @@
 package lightning
 
-import "github.com/breez/breez-sdk-go/breez_sdk"
+import (
+	"net/url"
+
+	"github.com/breez/breez-sdk-go/breez_sdk"
+)
+
+func toListPaymentsRequestDto(params url.Values) (listPaymentsRequestDto, error) {
+	fromTimestamp, err := getOptionalInt64(params, "fromTimestamp")
+	if err != nil {
+		return listPaymentsRequestDto{}, err
+	}
+	toTimestamp, err := getOptionalInt64(params, "toTimestamp")
+	if err != nil {
+		return listPaymentsRequestDto{}, err
+	}
+	includeFailures, err := getOptionalBool(params, "toTincludeFailuresimestamp")
+	if err != nil {
+		return listPaymentsRequestDto{}, err
+	}
+	return listPaymentsRequestDto{
+		Filter: params.Get("filter"),
+		FromTimestamp: fromTimestamp,
+		ToTimestamp: toTimestamp,
+		IncludeFailures: includeFailures,
+	}, nil
+}
 
 func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sdk.ListPaymentsRequest, error) {
 	paymentFilter, err := toPaymentTypeFilter(listPaymentsRequest.Filter)
@@ -12,6 +37,21 @@ func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sd
 		FromTimestamp: listPaymentsRequest.FromTimestamp,
 		ToTimestamp: listPaymentsRequest.ToTimestamp,
 		IncludeFailures: listPaymentsRequest.IncludeFailures,
+	}, nil
+}
+
+func toOpenChannelFeeRequestDto(params url.Values) (openChannelFeeRequestDto, error) {
+	amountMsat, err := getInt64(params, "amountMsat")
+	if err != nil {
+		return openChannelFeeRequestDto{}, err
+	}
+	expiry, err := getOptionalUint32(params, "expiry")
+	if err != nil {
+		return openChannelFeeRequestDto{}, err
+	}
+	return openChannelFeeRequestDto{
+		AmountMsat: uint64(amountMsat),
+		Expiry: expiry,
 	}, nil
 }
 
