@@ -24,7 +24,6 @@ import { Button } from '../../../components/forms';
 import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import styles from './send.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
-import { Check } from '../../../components/icon';
 import { route } from '../../../utils/route';
 import { toSat } from '../../../utils/conversion';
 import { InlineBalance } from '../../../components/balance/balance';
@@ -203,13 +202,9 @@ export function Send({ accounts, code }: Props) {
       );
     case 'success':
       return (
-        <View>
-          <ViewContent>
-            <div className="text-center">
-              <Check className={styles.successCheck} />
-              <br />
-              <SimpleMarkup className={styles.successMessage} markup={t('lightning.send.success.message')} tagName="p" />
-            </div>
+        <View fitContent textCenter verticallyCentered>
+          <ViewContent withIcon="success">
+            <SimpleMarkup className={styles.successMessage} markup={t('lightning.send.success.message')} tagName="p" />
           </ViewContent>
         </View>
       );
