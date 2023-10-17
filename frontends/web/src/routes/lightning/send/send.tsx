@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { useTranslation } from 'react-i18next';
 import { View, ViewContent } from '../../../components/view/view';
 import { Button } from '../../../components/forms';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import styles from './send.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
@@ -30,7 +30,7 @@ import { toSat } from '../../../utils/conversion';
 import { InlineBalance } from '../../../components/balance/balance';
 import { IBalance } from '../../../api/account';
 import { Status } from '../../../components/status/status';
-import { QrCodeInput } from '../../../components/qrcode/qrcode-input';
+import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
 
 type TStep = 'select-invoice' | 'confirm' | 'success';
 
@@ -64,16 +64,13 @@ export function Send({ accounts, code }: Props) {
     }
   };
 
-  const onRawInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-    setRawInput(target.value);
-  };
-
-  const onChangeActiveScanQr = (active: boolean) => {
-    setActiveScanQr(active);
+  const onInvoice = (invoice: string) => {
+    setRawInput(invoice);
+    parseInput();
   };
 
   const parseInput = useCallback(async () => {
+    setRawInputError(undefined);
     setBusy(true);
     try {
       const result = await getParseInput(code, { s: rawInput });
@@ -160,21 +157,19 @@ export function Send({ accounts, code }: Props) {
       return (
         <Grid col="1">
           <Column>
-            <QrCodeInput
-              title={t('send.scanQR')}
-              label={t('lightning.send.rawInput.label')}
-              placeholder={t('lightning.send.rawInput.placeholder')}
-              inputError={rawInputError}
-              onInputChange={onRawInputChange}
-              value={rawInput}
-              activeScanQR={activeScanQr}
-              parseQRResult={setRawInput}
-              onChangeActiveScanQR={onChangeActiveScanQr}
-            />
+            {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
+            { rawInputError && (
+              <Status type="warning">{rawInputError}</Status>
+            )}
+            <ScanQRVideo onResult={onInvoice} />
+            {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
+            {/* <Button transparent onClick={() => console.log('TODO: paste')}>
+              {t('lightning.send.rawInput.label')}
+            </Button> */}
             <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button primary onClick={parseInput} disabled={busy}>
+              {/* <Button primary onClick={parseInput} disabled={busy}>
                 {t('button.send')}
-              </Button>
+              </Button> */}
               <Button secondary onClick={back}>
                 {t('button.back')}
               </Button>
