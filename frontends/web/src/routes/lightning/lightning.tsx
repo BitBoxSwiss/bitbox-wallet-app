@@ -128,7 +128,7 @@ export function Lightning({ accounts, code }: Props) {
           <Header
             title={
               <h2>
-                <span>{account.name + ' Lightning'}</span>
+                <span>{t('lightning.accountLabel', { accountName: account.name })}</span>
               </h2>
             }
           >

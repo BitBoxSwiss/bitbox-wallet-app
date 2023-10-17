@@ -1031,6 +1031,7 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "lightning": {
+    "accountLabel": "Lightning",
     "payments": {
       "title": "Payment history",
       "header": {

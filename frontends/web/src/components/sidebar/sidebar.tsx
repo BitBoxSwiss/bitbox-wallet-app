@@ -34,14 +34,15 @@ import { CloseXWhite } from '../icon';
 import { isBitcoinOnly } from '../../routes/account/utils';
 import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
-    deviceIDs: string[];
-    accounts: IAccount[];
+  deviceIDs: string[];
+  accounts: IAccount[];
 }
 
 interface SubscribedProps {
-    keystores?: Array<{ type: 'hardware' | 'software' }>;
+  keystores?: Array<{ type: 'hardware' | 'software' }>;
 }
 
 export type SharedPanelProps = {
@@ -49,21 +50,21 @@ export type SharedPanelProps = {
   activeSidebar: boolean;
   // eslint-disable-next-line react/no-unused-prop-types
   sidebarStatus: string;
-}
+};
 
 type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
+type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
 
 interface SwipeAttributes {
-    x: number;
-    y: number;
-    active?: boolean;
+  x: number;
+  y: number;
+  active?: boolean;
 }
 
 export const panelStore = new Store<SharedPanelProps>({
   activeSidebar: false,
-  sidebarStatus: '',
+  sidebarStatus: ''
 });
 
 export function toggleSidebar() {
@@ -77,14 +78,11 @@ export function setSidebarStatus(status: string) {
 
 const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active = (pathname === `/account/${code}`) || (!pathname.startsWith(`/account/${code}/lightning`) && pathname.startsWith(`/account/${code}/`));
+  const active =
+    pathname === `/account/${code}` || (!pathname.startsWith(`/account/${code}/lightning`) && pathname.startsWith(`/account/${code}/`));
   return (
     <div key={code} className={style.sidebarItem}>
-      <Link
-        className={active ? style.sidebarActive : ''}
-        to={`/account/${code}`}
-        onClick={handleSidebarItemClick}
-        title={name}>
+      <Link className={active ? style.sidebarActive : ''} to={`/account/${code}`} onClick={handleSidebarItemClick} title={name}>
         <Logo stacked coinCode={coinCode} alt={name} />
         <span className={style.sidebarLabel}>{name}</span>
       </Link>
@@ -93,17 +91,19 @@ const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAc
 };
 
 const GetLightningLink = ({ code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
-  const active = (pathname === `/account/${code}/lightning`) || (pathname.startsWith(`/account/${code}/lightning/`));
+  const active = pathname === `/account/${code}/lightning` || pathname.startsWith(`/account/${code}/lightning/`);
   const key = `${code}-ln`;
-  const lightningName = `${name} Lightning`;
+  const lightningName = t('lightning.accountLabel', { accountName: name });
   return (
     <div key={key} className={style.sidebarItem}>
       <Link
         className={active ? style.sidebarActive : ''}
         to={`/account/${code}/lightning`}
         onClick={handleSidebarItemClick}
-        title={lightningName}>
+        title={lightningName}
+      >
         <Logo stacked coinCode="lightning" alt={lightningName} />
         <span className={style.sidebarLabel}>{lightningName}</span>
       </Link>
@@ -138,7 +138,7 @@ class Sidebar extends Component<Props> {
     const touch = e.touches[0];
     this.swipe = {
       x: touch.clientX,
-      y: touch.clientY,
+      y: touch.clientY
     };
   };
 
@@ -156,14 +156,16 @@ class Sidebar extends Component<Props> {
       const travelX = Math.abs(touch.clientX - this.swipe.x);
       const travelY = Math.abs(touch.clientY - this.swipe.y);
       const validSwipe = window.innerWidth <= 901 && this.swipe.active && travelY < 100 && travelX > 70;
-      if ((!panelStore.state.activeSidebar && validSwipe && this.swipe.x < 60) ||
-                (panelStore.state.activeSidebar && validSwipe && this.swipe.x > 230)) {
+      if (
+        (!panelStore.state.activeSidebar && validSwipe && this.swipe.x < 60) ||
+        (panelStore.state.activeSidebar && validSwipe && this.swipe.x > 230)
+      ) {
         toggleSidebar();
       }
       this.swipe = {
         x: 0,
         y: 0,
-        active: false,
+        active: false
       };
     }
   };
@@ -178,21 +180,16 @@ class Sidebar extends Component<Props> {
   private renderAccountItem = (acc: IAccount) => {
     return (
       <>
-        <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>
-        { !acc.lightningEnabled && isBitcoinOnly(acc.coinCode) && <GetLightningLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/> }
+        <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />
+        {!acc.lightningEnabled && isBitcoinOnly(acc.coinCode) && (
+          <GetLightningLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />
+        )}
       </>
     );
   };
 
   public render() {
-    const {
-      t,
-      deviceIDs,
-      accounts,
-      keystores,
-      activeSidebar,
-      sidebarStatus,
-    } = this.props;
+    const { t, deviceIDs, accounts, keystores, activeSidebar, sidebarStatus } = this.props;
     const hidden = sidebarStatus === 'forceHidden';
     const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
     return (
@@ -200,9 +197,7 @@ class Sidebar extends Component<Props> {
         <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
         <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')}>
           <div className={style.sidebarLogoContainer}>
-            <Link
-              to={accounts.length ? '/account-summary' : '/'}
-              onClick={this.handleSidebarItemClick}>
+            <Link to={accounts.length ? '/account-summary' : '/'} onClick={this.handleSidebarItemClick}>
               <AppLogoInverted className={style.sidebarLogo} />
             </Link>
             <button className={style.closeButton} onClick={toggleSidebar}>
@@ -215,28 +210,26 @@ class Sidebar extends Component<Props> {
               {t('sidebar.accounts')}
             </span>
           </div>
-          { accounts.length ? (
+          {accounts.length ? (
             <div className={style.sidebarItem}>
               <NavLink
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
+                className={({ isActive }) => (isActive ? style.sidebarActive : '')}
                 to={'/account-summary'}
                 title={t('accountSummary.title')}
-                onClick={this.handleSidebarItemClick}>
+                onClick={this.handleSidebarItemClick}
+              >
                 <div className={style.single}>
                   <img draggable={false} src={info} alt={t('sidebar.addAccount')} />
                 </div>
                 <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
               </NavLink>
             </div>
-          ) : null }
-          { accounts && accounts.map(acc => this.renderAccountItem(acc)) }
+          ) : null}
+          {accounts && accounts.map((acc) => this.renderAccountItem(acc))}
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
-          { accounts.length ? (
+          {accounts.length ? (
             <div key="buy" className={style.sidebarItem}>
-              <NavLink
-                className={({ isActive }) => isActive ? style.sidebarActive : ''}
-                to="/buy/info"
-              >
+              <NavLink className={({ isActive }) => (isActive ? style.sidebarActive : '')} to="/buy/info">
                 <div className={style.single}>
                   <img draggable={false} src={coins} alt={t('sidebar.exchanges')} />
                 </div>
@@ -245,13 +238,14 @@ class Sidebar extends Component<Props> {
                 </span>
               </NavLink>
             </div>
-          ) : null }
+          ) : null}
           <div key="settings-new" className={style.sidebarItem}>
             <NavLink
-              className={({ isActive }) => isActive ? style.sidebarActive : ''}
+              className={({ isActive }) => (isActive ? style.sidebarActive : '')}
               to={'/settings'}
               title={t('sidebar.settings')}
-              onClick={this.handleSidebarItemClick}>
+              onClick={this.handleSidebarItemClick}
+            >
               <div className="stacked">
                 <img draggable={false} src={settingsGrey} alt={t('sidebar.settings')} />
                 <img draggable={false} src={settings} alt={t('sidebar.settings')} />
@@ -259,14 +253,11 @@ class Sidebar extends Component<Props> {
               <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
             </NavLink>
           </div>
-          {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
+          {debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0 && (
             <div key="eject" className={style.sidebarItem}>
               <a href="#" onClick={eject}>
                 <div className={style.single}>
-                  <img
-                    draggable={false}
-                    src={ejectIcon}
-                    alt={t('sidebar.leave')} />
+                  <img draggable={false} src={ejectIcon} alt={t('sidebar.leave')} />
                 </div>
               </a>
             </div>
@@ -285,7 +276,7 @@ function eject(e: React.SyntheticEvent): void {
 const subscribeHOC = subscribe<SubscribedProps, SharedPanelProps & SidebarProps & TranslateProps>(
   { keystores: 'keystores' },
   false,
-  false,
+  false
 )(Sidebar);
 
 const guideShareHOC = share<SharedPanelProps, SidebarProps & TranslateProps>(panelStore)(subscribeHOC);
