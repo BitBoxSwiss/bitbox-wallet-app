@@ -54,17 +54,22 @@ export function Lightning({ accounts, code }: Props) {
   const [nodeState, setNodeState] = useState<NodeState>();
   const [payments, setPayments] = useState<Payment[]>();
 
-  const onStateChange = useCallback(() => {
-    getNodeInfo(code).then((nodeState) => setNodeState(nodeState));
-    getListPayments(code, { filter: PaymentTypeFilter.ALL }).then((payments) => setPayments(payments));
-  }, []);
+  const onStateChange = useCallback(async () => {
+    try {
+      const nodeState = await getNodeInfo(code);
+      const payments = await getListPayments(code, { filter: PaymentTypeFilter.ALL });
 
-  useEffect(onStateChange, [code, onStateChange]);
+      setNodeState(nodeState);
+      setPayments(payments);
+    } catch (e) {}
+  }, [code]);
 
   useEffect(() => {
+    onStateChange();
+
     const subscriptions = [subscribeNodeState(code)(onStateChange), subscribeListPayments(code)(onStateChange)];
     return () => unsubscribe(subscriptions);
-  }, [code]);
+  }, [code, onStateChange]);
 
   useEffect(() => {
     if (nodeState) {

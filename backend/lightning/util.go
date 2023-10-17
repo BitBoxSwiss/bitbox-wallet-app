@@ -42,16 +42,6 @@ func ensurePath(account accounts.Interface) (*string, error) {
 	return &workingDir, nil
 }
 
-// ToMsats converts a satoshi amount to millisatoshi.
-func ToMsats(sats uint64) uint64 {
-	return sats * 1_000
-}
-
-// ToSats converts a millisatoshi amount to satoshi.
-func ToSats(msats uint64) uint64 {
-	return msats / 1_000
-}
-
 // Get an int64 value from http request url params
 func getInt64(params url.Values, key string) (int64, error) {
 	parsed, err := strconv.ParseInt(params.Get(key), 10, 64)

@@ -118,10 +118,6 @@ type openingFeeParamsDto struct {
 	Promise              string `json:"promise"`
 }
 
-type parseInputRequestDto struct {
-	S string `json:"s"`
-}
-
 type paymentDto struct {
 	Id          string      `json:"id"`
 	PaymentType string      `json:"paymentType"`
