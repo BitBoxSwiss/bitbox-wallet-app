@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef } from 'react';
+import { subscribe as subscribeLegacy } from '../utils/event-legacy';
 
-/**
- * useMounted returns a boolean which is true if the component is actually mounted.
- */
-export const useMountedRef = () => {
-  const isMountedRef = useRef(false);
-
-  useEffect(() => {
-    isMountedRef.current = true;
-
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  return isMountedRef;
+export const syncNewTxs = (
+  cb: (
+    meta: {
+      count: number,
+      accountName: string,
+    }
+  ) => void,
+) => {
+  return subscribeLegacy('newTxs', event => {
+    if (event.type === 'backend') {
+      cb(event.meta);
+    }
+  });
 };

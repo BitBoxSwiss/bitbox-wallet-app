@@ -32,16 +32,14 @@ export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChan
   return (
     <Dialog
       large
-      onClose={toggleScanQR}
       open={activeScanQR}
-      title={t('send.scanQR')}>
-      <div style={{ minHeight: '300px' }}>
-        <ScanQRVideo
-          onResult={result => {
-            parseQRResult(result);
-            onChangeActiveScanQR(false);
-          }} />
-      </div>
+      title={t('send.scanQR')}
+      onClose={toggleScanQR}>
+      <ScanQRVideo
+        onResult={result => {
+          parseQRResult(result);
+          onChangeActiveScanQR(false);
+        }} />
       <DialogButtons>
         <Button
           secondary
