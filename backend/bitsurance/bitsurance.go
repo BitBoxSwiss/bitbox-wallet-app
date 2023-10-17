@@ -27,10 +27,12 @@ import (
 )
 
 const (
-	apiKey    = "265bfd773038c9ad9da7047e107babba0269bc3d31952172d9b10335e8a9d8e9"
-	xpubSalt  = "bitsurance"
-	apiURL    = "https://api.bitsurance.eu/api/"
-	widgetURL = "https://get.bitsurance.eu/?wallet=bitbox&version=1&lang="
+	apiKey        = "265bfd773038c9ad9da7047e107babba0269bc3d31952172d9b10335e8a9d8e9"
+	xpubSalt      = "bitsurance"
+	apiURL        = "https://api.bitsurance.eu/api/"
+	widgetVersion = "1"
+	widgetURL     = "https://get.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
+	widgetTestURL = "https://test.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
 )
 
 const statusActive = "active"
@@ -83,7 +85,10 @@ func BitsuranceGetId(account accounts.Interface) (string, error) {
 }
 
 // BitsuranceURL returns the url for the Bitsurance widget for a given locale.
-func BitsuranceURL(lang string) string {
+func BitsuranceURL(devServer bool, lang string) string {
+	if devServer {
+		return widgetTestURL + lang
+	}
 	return widgetURL + lang
 }
 

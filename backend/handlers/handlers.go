@@ -1100,7 +1100,7 @@ func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {
 		lang = utilConfig.MainLocaleFromNative(handlers.backend.Environment().NativeLocale())
 	}
 
-	return bitsurance.BitsuranceURL(lang)
+	return bitsurance.BitsuranceURL(handlers.backend.DevServers(), lang)
 }
 func (handlers *Handlers) getExchangeDeals(r *http.Request) interface{} {
 	type exchangeDealsList struct {
