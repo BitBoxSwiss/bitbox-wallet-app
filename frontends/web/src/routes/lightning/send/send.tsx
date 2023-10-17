@@ -18,8 +18,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { View, ViewContent } from '../../../components/view/view';
+import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button } from '../../../components/forms';
 import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
 import styles from './send.module.css';
@@ -155,51 +155,63 @@ export function Send({ accounts, code }: Props) {
     switch (step) {
     case 'select-invoice':
       return (
-        <Grid col="1">
-          <Column>
-            {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
-            { rawInputError && (
-              <Status type="warning">{rawInputError}</Status>
-            )}
-            <ScanQRVideo onResult={onInvoice} />
-            {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
-            {/* <Button transparent onClick={() => console.log('TODO: paste')}>
-              {t('lightning.send.rawInput.label')}
+        <View fitContent>
+          <ViewContent>
+            <Grid col="1">
+              <Column>
+                {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
+                { rawInputError && (
+                  <Status type="warning">{rawInputError}</Status>
+                )}
+                <ScanQRVideo onResult={onInvoice} />
+                {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
+                {/* <Button transparent onClick={() => console.log('TODO: paste')}>
+                  {t('lightning.send.rawInput.label')}
+                </Button> */}
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons>
+            {/* <Button primary onClick={parseInput} disabled={busy}>
+              {t('button.send')}
             </Button> */}
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              {/* <Button primary onClick={parseInput} disabled={busy}>
-                {t('button.send')}
-              </Button> */}
-              <Button secondary onClick={back}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'confirm':
       return (
-        <Grid col="1">
-          {renderInputTypes()}
-          <Column>
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button primary onClick={sendPayment} disabled={busy}>
-                {t('button.send')}
-              </Button>
-              <Button secondary onClick={back} disabled={busy}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <View
+          fitContent
+          minHeight="100%">
+          <ViewContent>
+            <Grid col="1">
+              {renderInputTypes()}
+            </Grid>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={sendPayment} disabled={busy}>
+              {t('button.send')}
+            </Button>
+            <Button secondary onClick={back} disabled={busy}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'success':
       return (
-        <div className="text-center">
-          <Check className={styles.successCheck} />
-          <br />
-          <SimpleMarkup className={styles.successMessage} markup={t('lightning.send.success.message')} tagName="p" />
-        </div>
+        <View>
+          <ViewContent>
+            <div className="text-center">
+              <Check className={styles.successCheck} />
+              <br />
+              <SimpleMarkup className={styles.successMessage} markup={t('lightning.send.success.message')} tagName="p" />
+            </div>
+          </ViewContent>
+        </View>
       );
     }
   };
@@ -223,9 +235,7 @@ export function Send({ accounts, code }: Props) {
             {sendError}
           </Status>
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
-          <View>
-            <ViewContent>{renderSteps()}</ViewContent>
-          </View>
+          {renderSteps()}
         </Main>
       </GuidedContent>
     </GuideWrapper>
