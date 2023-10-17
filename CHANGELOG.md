@@ -3,6 +3,7 @@
 ## Unreleased
 - Drop support for SAI token
 - Ability to connect Ethereum (mainnet) wallets to dapps using WalletConnect
+- Log Javascript console messages in the app log.txt
 
 ## 4.39.0
 - Bundle BitBox02 firmware version v9.15.0

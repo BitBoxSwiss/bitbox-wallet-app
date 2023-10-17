@@ -20,7 +20,6 @@ import { Button, Input } from '../../../../../components/forms';
 import { route } from '../../../../../utils/route';
 import { useMediaQuery } from '../../../../../hooks/mediaquery';
 import { ScanQRButton } from '../../../send/components/inputs/receiver-address-input';
-import { useHasCamera } from '../../../../../hooks/qrcodescanner';
 import { ScanQRDialog } from '../../../send/components/dialogs/scan-qr-dialog';
 import { ScanQRVideo } from '../../../send/components/inputs/scan-qr-video';
 import styles from './connect-form.module.css';
@@ -56,10 +55,9 @@ export const WCConnectForm = ({
 }: TWCConnectFormProps) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const hasCamera = useHasCamera();
   const [activeScanQR, setActiveScanQR] = useState(isMobile); // default to true on mobile
 
-  const showMobileQRReader = isMobile && hasCamera;
+  const showMobileQRReader = isMobile;
   const showQRButton = !isMobile;
 
 

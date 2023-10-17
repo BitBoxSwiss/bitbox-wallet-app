@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import { useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useRef } from 'react';
 import { useQRScanner } from '../../../../../hooks/qrcodescanner';
-import { useDevicePermission } from '../../../../../hooks/permissions';
 import { SpinnerAnimation } from '../../../../../components/spinner/SpinnerAnimation';
 import style from '../../send.module.css';
 
@@ -28,33 +26,25 @@ type TProps = {
 export const ScanQRVideo = ({
   onResult,
 }: TProps) => {
-  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const permission = useDevicePermission('camera');
-  const [loading, setLoading] = useState(true);
 
   useQRScanner(videoRef, {
     onResult: result => onResult(result.data),
-    onError: console.error,
-    onStart: () => setLoading(false)
+    onError: console.error
   });
-
-  const permissionWarning = permission !== 'granted'
-    ? <div>{t('permission.camera')}</div>
-    : null;
 
   return (
     <>
-      {/*As a "side effect", this div will always
+      {/*As a "side effect", the spinner will always
       be hidden once the camera / video component
        gets loaded.*/}
       <div className={style.spinnerAnimationContainer}>
-        {loading && <SpinnerAnimation />}
-        {permissionWarning}
+        <SpinnerAnimation />
       </div>
       <video
         className={style.qrVideo}
         ref={videoRef}
+        poster="%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2264%22%20height=%2248%22%3E%3C/svg%3E"
       />
     </>
   );
