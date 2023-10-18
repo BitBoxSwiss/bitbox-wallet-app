@@ -177,15 +177,17 @@ export const ViewHeader = ({
 };
 
 type TViewButtonsProps = {
+  reverseRow?: boolean;
   children: ReactNode;
 }
 
 /**
  * ViewButtons component use as container for buttons
  */
-export const ViewButtons = ({ children }: TViewButtonsProps) => {
+export const ViewButtons = ({ reverseRow, children }: TViewButtonsProps) => {
+  const classNames = `${style.buttons} ${reverseRow ? style.reverseRow : ''}`;
   return (
-    <div className={style.buttons}>
+    <div className={classNames}>
       {children}
     </div>
   );

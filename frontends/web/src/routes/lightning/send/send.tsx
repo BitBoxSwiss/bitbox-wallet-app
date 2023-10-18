@@ -170,7 +170,7 @@ export function Send({ accounts, code }: Props) {
               </Column>
             </Grid>
           </ViewContent>
-          <ViewButtons>
+          <ViewButtons reverseRow>
             {/* <Button primary onClick={parseInput} disabled={busy}>
               {t('button.send')}
             </Button> */}
