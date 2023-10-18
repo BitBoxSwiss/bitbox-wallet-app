@@ -1064,13 +1064,15 @@
         "label": "Scan lightning invoice"
       },
       "rawInput": {
-        "label": "Paste invoice",
-        "placeholder": "Invoice"
+        "label": "Paste invoice from clipboard"
       },
       "confirm": {
         "title": "Confirm transaction details",
         "amount": "Amount",
         "memo": "Memo"
+      },
+      "sending": {
+        "message": "Sending payment"
       },
       "success": {
         "message": "Transaction confirmed and sent!"

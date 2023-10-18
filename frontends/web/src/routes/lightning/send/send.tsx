@@ -15,24 +15,24 @@
  * limitations under the License.
  */
 
-import * as accountApi from '../../../api/account';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, ViewContent } from '../../../components/view/view';
+import * as accountApi from '../../../api/account';
+import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button } from '../../../components/forms';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
-import styles from './send.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
-import { Check } from '../../../components/icon';
 import { route } from '../../../utils/route';
 import { toSat } from '../../../utils/conversion';
 import { InlineBalance } from '../../../components/balance/balance';
 import { IBalance } from '../../../api/account';
 import { Status } from '../../../components/status/status';
-import { QrCodeInput } from '../../../components/qrcode/qrcode-input';
+import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
+import { Spinner } from '../../../components/spinner/Spinner';
+import styles from './send.module.css';
 
-type TStep = 'select-invoice' | 'confirm' | 'success';
+type TStep = 'select-invoice' | 'confirm' | 'sending' | 'success';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -41,10 +41,7 @@ type Props = {
 
 export function Send({ accounts, code }: Props) {
   const { t } = useTranslation();
-  const [activeScanQr, setActiveScanQr] = useState<boolean>(false);
-  const [busy, setBusy] = useState<boolean>(false);
   const [parsedInput, setParsedInput] = useState<InputType>();
-  const [rawInput, setRawInput] = useState<string>('');
   const [rawInputError, setRawInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
   const [step, setStep] = useState<TStep>('select-invoice');
@@ -59,28 +56,17 @@ export function Send({ accounts, code }: Props) {
       setStep('select-invoice');
       setSendError(undefined);
       setParsedInput(undefined);
-      setRawInput('');
       break;
     }
   };
 
-  const onRawInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-    setRawInput(target.value);
-  };
-
-  const onChangeActiveScanQr = (active: boolean) => {
-    setActiveScanQr(active);
-  };
-
-  const parseInput = useCallback(async () => {
-    setBusy(true);
+  const parseInput = useCallback(async (rawInput: string) => {
+    setRawInputError(undefined);
     try {
       const result = await getParseInput(code, { s: rawInput });
       switch (result.type) {
       case InputTypeVariant.BOLT11:
         setParsedInput(result);
-        setActiveScanQr(false);
         setStep('confirm');
         break;
       default:
@@ -92,14 +78,12 @@ export function Send({ accounts, code }: Props) {
       } else {
         setRawInputError(String(e));
       }
-    } finally {
-      setBusy(false);
     }
-  }, [code, rawInput]);
+  }, [code]);
 
   const sendPayment = async () => {
+    setStep('sending');
     setSendError(undefined);
-    setBusy(true);
     try {
       switch (parsedInput?.type) {
       case InputTypeVariant.BOLT11:
@@ -109,13 +93,12 @@ export function Send({ accounts, code }: Props) {
         break;
       }
     } catch (e) {
+      setStep('select-invoice');
       if (e instanceof SdkError) {
         setSendError(e.message);
       } else {
         setSendError(String(e));
       }
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -137,16 +120,14 @@ export function Send({ accounts, code }: Props) {
       return (
         <Column>
           <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
-          <div className="info">
+          <div className={styles.info}>
             <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
-            <p>
-              <InlineBalance balance={balance} />
-            </p>
+            <InlineBalance balance={balance} />
           </div>
           {parsedInput?.invoice.description && (
-            <div className="info">
+            <div className={styles.info}>
               <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-              <p>{parsedInput?.invoice.description}</p>
+              {parsedInput?.invoice.description}
             </div>
           )}
         </Column>
@@ -158,62 +139,66 @@ export function Send({ accounts, code }: Props) {
     switch (step) {
     case 'select-invoice':
       return (
-        <Grid col="1">
-          <Column>
-            <QrCodeInput
-              title={t('send.scanQR')}
-              label={t('lightning.send.rawInput.label')}
-              placeholder={t('lightning.send.rawInput.placeholder')}
-              inputError={rawInputError}
-              onInputChange={onRawInputChange}
-              value={rawInput}
-              activeScanQR={activeScanQr}
-              parseQRResult={setRawInput}
-              onChangeActiveScanQR={onChangeActiveScanQr}
-            />
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button primary onClick={parseInput} disabled={busy}>
-                {t('button.send')}
-              </Button>
-              <Button secondary onClick={back}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <View fitContent>
+          <ViewContent textAlign="center">
+            <Grid col="1">
+              <Column>
+                {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
+                { rawInputError && (
+                  <Status type="warning">{rawInputError}</Status>
+                )}
+                <ScanQRVideo onResult={parseInput} />
+                {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
+                <Button transparent onClick={() => console.log('TODO: implement paste')}>
+                  {t('lightning.send.rawInput.label')}
+                </Button>
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons reverseRow>
+            {/* <Button primary onClick={parseInput} disabled={busy}>
+              {t('button.send')}
+            </Button> */}
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'confirm':
       return (
-        <Grid col="1">
-          {renderInputTypes()}
-          <Column>
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button primary onClick={sendPayment} disabled={busy}>
-                {t('button.send')}
-              </Button>
-              <Button secondary onClick={back} disabled={busy}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <View
+          fitContent
+          minHeight="100%">
+          <ViewContent>
+            <Grid col="1">
+              {renderInputTypes()}
+            </Grid>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={sendPayment}>
+              {t('button.send')}
+            </Button>
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'sending':
+      return (
+        <Spinner text={t('lightning.send.sending.message')} guideExists={false} />
       );
     case 'success':
       return (
-        <div className="text-center">
-          <Check className={styles.successCheck} />
-          <br />
-          <SimpleMarkup className={styles.successMessage} markup={t('lightning.send.success.message')} tagName="p" />
-        </div>
+        <View fitContent textCenter verticallyCentered>
+          <ViewContent withIcon="success">
+            <SimpleMarkup className={styles.successMessage} markup={t('lightning.send.success.message')} tagName="p" />
+          </ViewContent>
+        </View>
       );
     }
   };
-
-  useEffect(() => {
-    if (activeScanQr && rawInput) {
-      parseInput();
-    }
-  }, [activeScanQr, parseInput, rawInput]);
 
   const account = accounts && accounts.find((acct) => acct.code === code);
   if (!account) {
@@ -228,9 +213,7 @@ export function Send({ accounts, code }: Props) {
             {sendError}
           </Status>
           <Header title={<h2>{t('lightning.send.title')}</h2>} />
-          <View>
-            <ViewContent>{renderSteps()}</ViewContent>
-          </View>
+          {renderSteps()}
         </Main>
       </GuidedContent>
     </GuideWrapper>
