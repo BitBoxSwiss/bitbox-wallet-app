@@ -30,6 +30,7 @@ import {
 } from '../../api/lightning';
 import { TDevices } from '../../api/devices';
 import { Balance } from '../../components/balance/balance';
+import { View, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -53,15 +54,20 @@ export function Lightning({ accounts, code }: Props) {
   const [stateCode, setStateCode] = useState<string>();
   const [nodeState, setNodeState] = useState<NodeState>();
   const [payments, setPayments] = useState<Payment[]>();
+  const [error, setError] = useState<string>();
 
   const onStateChange = useCallback(async () => {
     try {
+      setError(undefined);
       const nodeState = await getNodeInfo(code);
       const payments = await getListPayments(code, { filter: PaymentTypeFilter.ALL });
 
       setNodeState(nodeState);
       setPayments(payments);
-    } catch (e) {}
+    } catch (err: any) {
+      const errorMessage = err?.errorMessage || err;
+      setError(errorMessage);
+    }
   }, [code]);
 
   useEffect(() => {
@@ -94,11 +100,21 @@ export function Lightning({ accounts, code }: Props) {
 
   const hasDataLoaded = balance !== undefined;
 
+  if (error) {
+    return (
+      <View textCenter verticallyCentered>
+        <ViewHeader title={t('unknownError', { errorMessage: error })} />
+      </View>
+    );
+  }
+
   const account = accounts && accounts.find((acct) => acct.code === code);
   if (!account || !nodeState || stateCode !== code) {
     // Sync code property with stateCode to work around a re-render that
     // happens briefly before `setStatus(undefined)` stops rendering again below.
-    return null;
+    return (
+      <Spinner guideExists={false} />
+    );
   }
 
   const canSend = balance && balance.hasAvailable;
