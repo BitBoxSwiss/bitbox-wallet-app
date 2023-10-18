@@ -29,9 +29,10 @@ import { InlineBalance } from '../../../components/balance/balance';
 import { IBalance } from '../../../api/account';
 import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
+import { Spinner } from '../../../components/spinner/Spinner';
 import styles from './send.module.css';
 
-type TStep = 'select-invoice' | 'confirm' | 'success';
+type TStep = 'select-invoice' | 'confirm' | 'sending' | 'success';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -40,7 +41,6 @@ type Props = {
 
 export function Send({ accounts, code }: Props) {
   const { t } = useTranslation();
-  const [busy, setBusy] = useState<boolean>(false);
   const [parsedInput, setParsedInput] = useState<InputType>();
   const [rawInputError, setRawInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
@@ -62,7 +62,6 @@ export function Send({ accounts, code }: Props) {
 
   const parseInput = useCallback(async (rawInput: string) => {
     setRawInputError(undefined);
-    setBusy(true);
     try {
       const result = await getParseInput(code, { s: rawInput });
       switch (result.type) {
@@ -79,14 +78,12 @@ export function Send({ accounts, code }: Props) {
       } else {
         setRawInputError(String(e));
       }
-    } finally {
-      setBusy(false);
     }
   }, [code]);
 
   const sendPayment = async () => {
+    setStep('sending');
     setSendError(undefined);
-    setBusy(true);
     try {
       switch (parsedInput?.type) {
       case InputTypeVariant.BOLT11:
@@ -96,13 +93,12 @@ export function Send({ accounts, code }: Props) {
         break;
       }
     } catch (e) {
+      setStep('select-invoice');
       if (e instanceof SdkError) {
         setSendError(e.message);
       } else {
         setSendError(String(e));
       }
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -180,14 +176,18 @@ export function Send({ accounts, code }: Props) {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={sendPayment} disabled={busy}>
+            <Button primary onClick={sendPayment}>
               {t('button.send')}
             </Button>
-            <Button secondary onClick={back} disabled={busy}>
+            <Button secondary onClick={back}>
               {t('button.back')}
             </Button>
           </ViewButtons>
         </View>
+      );
+    case 'sending':
+      return (
+        <Spinner text={t('lightning.send.sending.message')} guideExists={false} />
       );
     case 'success':
       return (

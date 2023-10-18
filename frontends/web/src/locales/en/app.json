@@ -1071,6 +1071,9 @@
         "amount": "Amount",
         "memo": "Memo"
       },
+      "sending": {
+        "message": "Sending payment"
+      },
       "success": {
         "message": "Transaction confirmed and sent!"
       }
