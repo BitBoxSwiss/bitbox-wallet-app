@@ -39,6 +39,22 @@ type Props = {
   code: string;
 };
 
+const SendingSpinner = () => {
+  const { t } = useTranslation();
+  // Show dummy connecting-to-server message first
+  const [message, setStep] = useState<string>(t('lightning.send.sending.connecting'));
+
+  setTimeout(() => {
+    setStep(t('lightning.send.sending.message'));
+  }, 4000);
+
+  return (
+    <Spinner
+      text={message}
+      guideExists={false} />
+  );
+};
+
 export function Send({ accounts, code }: Props) {
   const { t } = useTranslation();
   const [parsedInput, setParsedInput] = useState<InputType>();
@@ -187,7 +203,7 @@ export function Send({ accounts, code }: Props) {
       );
     case 'sending':
       return (
-        <Spinner text={t('lightning.send.sending.message')} guideExists={false} />
+        <SendingSpinner />
       );
     case 'success':
       return (
