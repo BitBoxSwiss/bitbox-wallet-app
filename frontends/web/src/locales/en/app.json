@@ -1072,6 +1072,7 @@
         "memo": "Memo"
       },
       "sending": {
+        "connecting": "Connecting to node",
         "message": "Sending payment"
       },
       "success": {
