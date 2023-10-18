@@ -6,8 +6,12 @@
     text-align: center;
 }
 
+.info {
+    margin-bottom: var(--space-default);
+}
+
 .label {
-    font-size: 1.2rem;
+    font-size: var(--size-subheader);
     font-weight: 400;
     color: var(--color-gray-alt);
     line-height: 18px;

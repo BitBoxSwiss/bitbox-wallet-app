@@ -22,7 +22,6 @@ import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../.
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button } from '../../../components/forms';
 import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment } from '../../../api/lightning';
-import styles from './send.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
 import { route } from '../../../utils/route';
 import { toSat } from '../../../utils/conversion';
@@ -30,6 +29,7 @@ import { InlineBalance } from '../../../components/balance/balance';
 import { IBalance } from '../../../api/account';
 import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
+import styles from './send.module.css';
 
 type TStep = 'select-invoice' | 'confirm' | 'success';
 
@@ -133,16 +133,14 @@ export function Send({ accounts, code }: Props) {
       return (
         <Column>
           <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
-          <div className="info">
+          <div className={styles.info}>
             <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
-            <p>
-              <InlineBalance balance={balance} />
-            </p>
+            <InlineBalance balance={balance} />
           </div>
           {parsedInput?.invoice.description && (
-            <div className="info">
+            <div className={styles.info}>
               <h2 className={styles.label}>{t('lightning.send.confirm.memo')}</h2>
-              <p>{parsedInput?.invoice.description}</p>
+              {parsedInput?.invoice.description}
             </div>
           )}
         </Column>
