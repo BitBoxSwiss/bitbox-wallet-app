@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
@@ -40,10 +40,8 @@ type Props = {
 
 export function Send({ accounts, code }: Props) {
   const { t } = useTranslation();
-  const [activeScanQr, setActiveScanQr] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
   const [parsedInput, setParsedInput] = useState<InputType>();
-  const [rawInput, setRawInput] = useState<string>('');
   const [rawInputError, setRawInputError] = useState<string>();
   const [sendError, setSendError] = useState<string>();
   const [step, setStep] = useState<TStep>('select-invoice');
@@ -58,17 +56,11 @@ export function Send({ accounts, code }: Props) {
       setStep('select-invoice');
       setSendError(undefined);
       setParsedInput(undefined);
-      setRawInput('');
       break;
     }
   };
 
-  const onInvoice = (invoice: string) => {
-    setRawInput(invoice);
-    parseInput();
-  };
-
-  const parseInput = useCallback(async () => {
+  const parseInput = useCallback(async (rawInput: string) => {
     setRawInputError(undefined);
     setBusy(true);
     try {
@@ -76,7 +68,6 @@ export function Send({ accounts, code }: Props) {
       switch (result.type) {
       case InputTypeVariant.BOLT11:
         setParsedInput(result);
-        setActiveScanQr(false);
         setStep('confirm');
         break;
       default:
@@ -91,7 +82,7 @@ export function Send({ accounts, code }: Props) {
     } finally {
       setBusy(false);
     }
-  }, [code, rawInput]);
+  }, [code]);
 
   const sendPayment = async () => {
     setSendError(undefined);
@@ -160,7 +151,7 @@ export function Send({ accounts, code }: Props) {
                 { rawInputError && (
                   <Status type="warning">{rawInputError}</Status>
                 )}
-                <ScanQRVideo onResult={onInvoice} />
+                <ScanQRVideo onResult={parseInput} />
                 {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
                 {/* <Button transparent onClick={() => console.log('TODO: paste')}>
                   {t('lightning.send.rawInput.label')}
@@ -208,12 +199,6 @@ export function Send({ accounts, code }: Props) {
       );
     }
   };
-
-  useEffect(() => {
-    if (activeScanQr && rawInput) {
-      parseInput();
-    }
-  }, [activeScanQr, parseInput, rawInput]);
 
   const account = accounts && accounts.find((acct) => acct.code === code);
   if (!account) {
