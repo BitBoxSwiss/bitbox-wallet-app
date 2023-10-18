@@ -144,7 +144,7 @@ export function Send({ accounts, code }: Props) {
     case 'select-invoice':
       return (
         <View fitContent>
-          <ViewContent>
+          <ViewContent textAlign="center">
             <Grid col="1">
               <Column>
                 {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
@@ -153,9 +153,9 @@ export function Send({ accounts, code }: Props) {
                 )}
                 <ScanQRVideo onResult={parseInput} />
                 {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
-                {/* <Button transparent onClick={() => console.log('TODO: paste')}>
+                <Button transparent onClick={() => console.log('TODO: implement paste')}>
                   {t('lightning.send.rawInput.label')}
-                </Button> */}
+                </Button>
               </Column>
             </Grid>
           </ViewContent>
