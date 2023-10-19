@@ -191,7 +191,9 @@ export function Receive({ accounts, code }: Props) {
           <ViewContent textAlign="center">
             <Grid col="1">
               <Column>
-                <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
+                <div>
+                  <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
+                </div>
                 <div className={styles.invoiceSummary}>
                   {amountSatsText} sats
                   (--- EUR)
