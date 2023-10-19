@@ -16,7 +16,7 @@
  */
 
 import * as accountApi from '../../../api/account';
-import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button, Input } from '../../../components/forms';
@@ -34,7 +34,6 @@ import {
   subscribeListPayments
 } from '../../../api/lightning';
 import styles from './receive.module.css';
-import { SimpleMarkup } from '../../../utils/markup';
 import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
@@ -175,7 +174,7 @@ export function Receive({ accounts, code }: Props) {
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={receivePayment} disabled={busy || amountSats === 0}>
-              {t('button.receive')}
+              {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>
               {t('button.back')}
@@ -192,6 +191,16 @@ export function Receive({ accounts, code }: Props) {
             <Grid col="1">
               <Column>
                 <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
+                <p>
+                  {amountSatsText} sats
+                  (--- EUR)
+                  {description && ` / ${description}`}
+                </p>
+                <ColumnButtons>
+                  <Button transparent onClick={back}>
+                    {t('lightning.receive.invoice.edit')}
+                  </Button>
+                </ColumnButtons>
               </Column>
             </Grid>
           </ViewContent>
@@ -206,7 +215,10 @@ export function Receive({ accounts, code }: Props) {
       return (
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
-            <SimpleMarkup className={styles.successMessage} markup={t('lightning.receive.success.message')} tagName="p" />
+            <p>{t('lightning.receive.success.message')}</p>
+            {amountSatsText} sats
+            (--- EUR)<br />
+            {description && ` / ${description}`}
           </ViewContent>
         </View>
       );
