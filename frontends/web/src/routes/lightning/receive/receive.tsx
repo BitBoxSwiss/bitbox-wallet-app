@@ -19,7 +19,7 @@ import * as accountApi from '../../../api/account';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
-import { Button, Input } from '../../../components/forms';
+import { Button, Input, OptionalLabel } from '../../../components/forms';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import {
   OpenChannelFeeResponse,
@@ -167,7 +167,9 @@ export function Receive({ accounts, code }: Props) {
                   id="descriptionInput"
                   onInput={onDescriptionChange}
                   value={description}
-                  labelSection={<span>{t('note.input.description')}</span>}
+                  labelSection={
+                    <OptionalLabel>{t('lightning.receive.description.optional')}</OptionalLabel>
+                  }
                 />
                 <Status hidden={!showOpenChannelWarning} type="info">
                   {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}

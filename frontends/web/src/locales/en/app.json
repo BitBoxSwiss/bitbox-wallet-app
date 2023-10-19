@@ -1052,6 +1052,7 @@
       },
       "description": {
         "label": "Description",
+        "optional": "(optional)",
         "placeholder": "Enter description"
       },
       "invoice": {
