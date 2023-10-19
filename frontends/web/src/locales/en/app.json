@@ -1055,6 +1055,7 @@
         "placeholder": "Enter description"
       },
       "invoice": {
+        "title": "Scan QR code to receive",
         "create": "Create invoice",
         "edit": "Edit invoice"
       },

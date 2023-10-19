@@ -193,6 +193,7 @@ export function Receive({ accounts, code }: Props) {
           <ViewContent textAlign="center">
             <Grid col="1">
               <Column>
+                <h1 className={styles.title}>{t('lightning.receive.invoice.title')}</h1>
                 <div>
                   <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
                 </div>
