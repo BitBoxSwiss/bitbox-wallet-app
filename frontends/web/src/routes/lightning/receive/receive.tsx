@@ -16,9 +16,9 @@
  */
 
 import * as accountApi from '../../../api/account';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { useTranslation } from 'react-i18next';
-import { View, ViewContent } from '../../../components/view/view';
+import { View, ViewButtons, ViewContent } from '../../../components/view/view';
 import { Button, Input } from '../../../components/forms';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import {
@@ -35,7 +35,6 @@ import {
 } from '../../../api/lightning';
 import styles from './receive.module.css';
 import { SimpleMarkup } from '../../../utils/markup';
-import { Check } from '../../../components/icon';
 import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
@@ -145,63 +144,71 @@ export function Receive({ accounts, code }: Props) {
     switch (step) {
     case 'select-amount':
       return (
-        <Grid col="1">
-          <Column>
-            <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
-            <Input
-              type="number"
-              min="0"
-              label={t('lightning.receive.amountSats.label')}
-              placeholder={t('lightning.receive.amountSats.placeholder')}
-              id="amountSatsInput"
-              onInput={onAmountSatsChange}
-              value={amountSatsText}
-              autoFocus
-            />
-            <Input
-              label={t('lightning.receive.description.label')}
-              placeholder={t('lightning.receive.description.placeholder')}
-              id="descriptionInput"
-              onInput={onDescriptionChange}
-              value={description}
-              labelSection={<span>{t('note.input.description')}</span>}
-            />
-            <Status hidden={!showOpenChannelWarning} type="info">
-              {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
-            </Status>
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button primary onClick={receivePayment} disabled={busy || amountSats === 0}>
-                {t('button.receive')}
-              </Button>
-              <Button secondary onClick={back}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <View>
+          <ViewContent>
+            <Grid col="1">
+              <Column>
+                <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
+                <Input
+                  type="number"
+                  min="0"
+                  label={t('lightning.receive.amountSats.label')}
+                  placeholder={t('lightning.receive.amountSats.placeholder')}
+                  id="amountSatsInput"
+                  onInput={onAmountSatsChange}
+                  value={amountSatsText}
+                  autoFocus
+                />
+                <Input
+                  label={t('lightning.receive.description.label')}
+                  placeholder={t('lightning.receive.description.placeholder')}
+                  id="descriptionInput"
+                  onInput={onDescriptionChange}
+                  value={description}
+                  labelSection={<span>{t('note.input.description')}</span>}
+                />
+                <Status hidden={!showOpenChannelWarning} type="info">
+                  {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
+                </Status>
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={receivePayment} disabled={busy || amountSats === 0}>
+              {t('button.receive')}
+            </Button>
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'wait':
       return (
-        <Grid col="1">
-          <Column>
-            <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
-          </Column>
-          <Column>
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button secondary onClick={back} disabled={busy}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <View
+          fitContent
+          minHeight="100%">
+          <ViewContent textAlign="center">
+            <Grid col="1">
+              <Column>
+                <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons reverseRow>
+            <Button secondary onClick={back} disabled={busy}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'success':
       return (
-        <div className="text-center">
-          <Check className={styles.successCheck} />
-          <br />
-          <SimpleMarkup className={styles.successMessage} markup={t('lightning.receive.success.message')} tagName="p" />
-        </div>
+        <View fitContent textCenter verticallyCentered>
+          <ViewContent withIcon="success">
+            <SimpleMarkup className={styles.successMessage} markup={t('lightning.receive.success.message')} tagName="p" />
+          </ViewContent>
+        </View>
       );
     }
   };
@@ -219,9 +226,7 @@ export function Receive({ accounts, code }: Props) {
             {receiveError}
           </Status>
           <Header title={<h2>{t('lightning.receive.title')}</h2>} />
-          <View>
-            <ViewContent>{renderSteps()}</ViewContent>
-          </View>
+          {renderSteps()}
         </Main>
       </GuidedContent>
     </GuideWrapper>
