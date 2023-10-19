@@ -36,6 +36,7 @@ import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import editSVG from './assets/icons/edit.svg';
 import editLightSVG from './assets/icons/edit-light.svg';
+import editActiveSVG from './assets/icons/edit-active.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import copySVG from './assets/icons/copy.svg';
 import closeSVG from './assets/icons/close.svg';
@@ -148,6 +149,7 @@ export const Close = (props: ImgProps) => (<img src={closeSVG} draggable={false}
 export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} draggable={false} {...props} />);
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
 export const Edit = (props: ImgProps) => (<img src={editSVG} draggable={false} {...props} />);
+export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const EditLight = (props: ImgProps) => (<img src={editLightSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
 export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable={false} {...props} />);

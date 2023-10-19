@@ -33,12 +33,13 @@ import {
   postReceivePayment,
   subscribeListPayments
 } from '../../../api/lightning';
-import styles from './receive.module.css';
 import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
+import { EditActive } from '../../../components/icon';
+import styles from './receive.module.css';
 
 type TStep = 'select-amount' | 'wait' | 'success';
 
@@ -191,13 +192,14 @@ export function Receive({ accounts, code }: Props) {
             <Grid col="1">
               <Column>
                 <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
-                <p>
+                <div className={styles.invoiceSummary}>
                   {amountSatsText} sats
                   (--- EUR)
                   {description && ` / ${description}`}
-                </p>
+                </div>
                 <ColumnButtons>
                   <Button transparent onClick={back}>
+                    <EditActive className={styles.btnIcon} />
                     {t('lightning.receive.invoice.edit')}
                   </Button>
                 </ColumnButtons>
