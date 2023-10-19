@@ -1047,7 +1047,7 @@
       "subtitle": "Create lightning invoice",
       "openChannelWarning": "A fee of {{feeSat}} sats will be deducted to open a new channel.",
       "amountSats": {
-        "label": "Amount",
+        "label": "Sats",
         "placeholder": "Enter amount"
       },
       "description": {
