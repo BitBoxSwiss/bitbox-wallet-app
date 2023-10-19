@@ -38,10 +38,11 @@ import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
+import { Spinner } from '../../../components/spinner/Spinner';
 import { EditActive } from '../../../components/icon';
 import styles from './receive.module.css';
 
-type TStep = 'select-amount' | 'wait' | 'success';
+type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -50,7 +51,6 @@ type Props = {
 
 export function Receive({ accounts, code }: Props) {
   const { t } = useTranslation();
-  const [busy, setBusy] = useState<boolean>(false);
   const [amountSats, setAmountSats] = useState<number>(0);
   const [amountSatsText, setAmountSatsText] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -66,7 +66,7 @@ export function Receive({ accounts, code }: Props) {
     case 'select-amount':
       route(`/account/${code}/lightning`);
       break;
-    case 'wait':
+    case 'invoice':
     case 'success':
       setStep('select-amount');
       setReceiveError(undefined);
@@ -111,7 +111,7 @@ export function Receive({ accounts, code }: Props) {
   }, [amountSats, code]);
 
   useEffect(() => {
-    if (payments && receivePaymentResponse && step === 'wait') {
+    if (payments && receivePaymentResponse && step === 'invoice') {
       const payment = payments.find((payment) => payment.id === receivePaymentResponse.lnInvoice.paymentHash);
       if (payment?.status === PaymentStatus.COMPLETE) {
         setStep('success');
@@ -122,7 +122,7 @@ export function Receive({ accounts, code }: Props) {
 
   const receivePayment = async () => {
     setReceiveError(undefined);
-    setBusy(true);
+    setStep('wait');
     try {
       const receivePaymentResponse = await postReceivePayment(code, {
         amountSats,
@@ -130,15 +130,13 @@ export function Receive({ accounts, code }: Props) {
         openingFeeParams: openChannelFeeResponse?.usedFeeParams
       });
       setReceivePaymentResponse(receivePaymentResponse);
-      setStep('wait');
+      setStep('invoice');
     } catch (e) {
       if (e instanceof SdkError) {
         setReceiveError(e.message);
       } else {
         setReceiveError(String(e));
       }
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -178,7 +176,7 @@ export function Receive({ accounts, code }: Props) {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={receivePayment} disabled={busy || amountSats === 0}>
+            <Button primary onClick={receivePayment} disabled={amountSats === 0}>
               {t('lightning.receive.invoice.create')}
             </Button>
             <Button secondary onClick={back}>
@@ -188,6 +186,10 @@ export function Receive({ accounts, code }: Props) {
         </View>
       );
     case 'wait':
+      return (
+        <Spinner text={t('lightning.receive.invoice.creating')} guideExists={false} />
+      );
+    case 'invoice':
       return (
         <View
           fitContent
@@ -214,7 +216,7 @@ export function Receive({ accounts, code }: Props) {
             </Grid>
           </ViewContent>
           <ViewButtons reverseRow>
-            <Button secondary onClick={back} disabled={busy}>
+            <Button secondary onClick={back}>
               {t('button.back')}
             </Button>
           </ViewButtons>
