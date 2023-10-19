@@ -70,7 +70,9 @@ export function Receive({ accounts, code }: Props) {
     case 'success':
       setStep('select-amount');
       setReceiveError(undefined);
-      setAmountSatsText('');
+      if (step === 'success') {
+        setAmountSatsText('');
+      }
       break;
     }
   };
