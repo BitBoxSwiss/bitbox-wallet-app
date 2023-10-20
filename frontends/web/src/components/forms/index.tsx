@@ -20,5 +20,5 @@ export { default as Checkbox } from './checkbox';
 export { Radio } from './radio';
 export { Field } from './field';
 export { default as Input } from './input';
-export { Label } from './label';
+export { Label, OptionalLabel } from './label';
 export { Select } from './select';

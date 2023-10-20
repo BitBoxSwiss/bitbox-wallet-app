@@ -18,8 +18,8 @@
 import * as accountApi from '../../../api/account';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { useTranslation } from 'react-i18next';
-import { View, ViewContent } from '../../../components/view/view';
-import { Button, Input } from '../../../components/forms';
+import { View, ViewButtons, ViewContent } from '../../../components/view/view';
+import { Button, Input, OptionalLabel } from '../../../components/forms';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import {
   OpenChannelFeeResponse,
@@ -33,16 +33,16 @@ import {
   postReceivePayment,
   subscribeListPayments
 } from '../../../api/lightning';
-import styles from './receive.module.css';
-import { SimpleMarkup } from '../../../utils/markup';
-import { Check } from '../../../components/icon';
 import { route } from '../../../utils/route';
 import { toMsat, toSat } from '../../../utils/conversion';
 import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
+import { Spinner } from '../../../components/spinner/Spinner';
+import { EditActive } from '../../../components/icon';
+import styles from './receive.module.css';
 
-type TStep = 'select-amount' | 'wait' | 'success';
+type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -51,7 +51,6 @@ type Props = {
 
 export function Receive({ accounts, code }: Props) {
   const { t } = useTranslation();
-  const [busy, setBusy] = useState<boolean>(false);
   const [amountSats, setAmountSats] = useState<number>(0);
   const [amountSatsText, setAmountSatsText] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -67,11 +66,13 @@ export function Receive({ accounts, code }: Props) {
     case 'select-amount':
       route(`/account/${code}/lightning`);
       break;
-    case 'wait':
+    case 'invoice':
     case 'success':
       setStep('select-amount');
       setReceiveError(undefined);
-      setAmountSatsText('');
+      if (step === 'success') {
+        setAmountSatsText('');
+      }
       break;
     }
   };
@@ -110,7 +111,7 @@ export function Receive({ accounts, code }: Props) {
   }, [amountSats, code]);
 
   useEffect(() => {
-    if (payments && receivePaymentResponse && step === 'wait') {
+    if (payments && receivePaymentResponse && step === 'invoice') {
       const payment = payments.find((payment) => payment.id === receivePaymentResponse.lnInvoice.paymentHash);
       if (payment?.status === PaymentStatus.COMPLETE) {
         setStep('success');
@@ -121,7 +122,7 @@ export function Receive({ accounts, code }: Props) {
 
   const receivePayment = async () => {
     setReceiveError(undefined);
-    setBusy(true);
+    setStep('wait');
     try {
       const receivePaymentResponse = await postReceivePayment(code, {
         amountSats,
@@ -129,15 +130,13 @@ export function Receive({ accounts, code }: Props) {
         openingFeeParams: openChannelFeeResponse?.usedFeeParams
       });
       setReceivePaymentResponse(receivePaymentResponse);
-      setStep('wait');
+      setStep('invoice');
     } catch (e) {
       if (e instanceof SdkError) {
         setReceiveError(e.message);
       } else {
         setReceiveError(String(e));
       }
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -145,63 +144,94 @@ export function Receive({ accounts, code }: Props) {
     switch (step) {
     case 'select-amount':
       return (
-        <Grid col="1">
-          <Column>
-            <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
-            <Input
-              type="number"
-              min="0"
-              label={t('lightning.receive.amountSats.label')}
-              placeholder={t('lightning.receive.amountSats.placeholder')}
-              id="amountSatsInput"
-              onInput={onAmountSatsChange}
-              value={amountSatsText}
-              autoFocus
-            />
-            <Input
-              label={t('lightning.receive.description.label')}
-              placeholder={t('lightning.receive.description.placeholder')}
-              id="descriptionInput"
-              onInput={onDescriptionChange}
-              value={description}
-              labelSection={<span>{t('note.input.description')}</span>}
-            />
-            <Status hidden={!showOpenChannelWarning} type="info">
-              {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
-            </Status>
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button primary onClick={receivePayment} disabled={busy || amountSats === 0}>
-                {t('button.receive')}
-              </Button>
-              <Button secondary onClick={back}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <View>
+          <ViewContent>
+            <Grid col="1">
+              <Column>
+                <h1 className={styles.title}>{t('lightning.receive.subtitle')}</h1>
+                <Input
+                  type="number"
+                  min="0"
+                  label={t('lightning.receive.amountSats.label')}
+                  placeholder={t('lightning.receive.amountSats.placeholder')}
+                  id="amountSatsInput"
+                  onInput={onAmountSatsChange}
+                  value={amountSatsText}
+                  autoFocus
+                />
+                <Input
+                  label={t('lightning.receive.description.label')}
+                  placeholder={t('lightning.receive.description.placeholder')}
+                  id="descriptionInput"
+                  onInput={onDescriptionChange}
+                  value={description}
+                  labelSection={
+                    <OptionalLabel>{t('lightning.receive.description.optional')}</OptionalLabel>
+                  }
+                />
+                <Status hidden={!showOpenChannelWarning} type="info">
+                  {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
+                </Status>
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={receivePayment} disabled={amountSats === 0}>
+              {t('lightning.receive.invoice.create')}
+            </Button>
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'wait':
       return (
-        <Grid col="1">
-          <Column>
-            <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
-          </Column>
-          <Column>
-            <ColumnButtons className="m-top-default m-bottom-xlarge" inline>
-              <Button secondary onClick={back} disabled={busy}>
-                {t('button.back')}
-              </Button>
-            </ColumnButtons>
-          </Column>
-        </Grid>
+        <Spinner text={t('lightning.receive.invoice.creating')} guideExists={false} />
+      );
+    case 'invoice':
+      return (
+        <View
+          fitContent
+          minHeight="100%">
+          <ViewContent textAlign="center">
+            <Grid col="1">
+              <Column>
+                <h1 className={styles.title}>{t('lightning.receive.invoice.title')}</h1>
+                <div>
+                  <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
+                </div>
+                <div className={styles.invoiceSummary}>
+                  {amountSatsText} sats
+                  (--- EUR)
+                  {description && ` / ${description}`}
+                </div>
+                <ColumnButtons>
+                  <Button transparent onClick={back}>
+                    <EditActive className={styles.btnIcon} />
+                    {t('lightning.receive.invoice.edit')}
+                  </Button>
+                </ColumnButtons>
+              </Column>
+            </Grid>
+          </ViewContent>
+          <ViewButtons reverseRow>
+            <Button secondary onClick={back}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
       );
     case 'success':
       return (
-        <div className="text-center">
-          <Check className={styles.successCheck} />
-          <br />
-          <SimpleMarkup className={styles.successMessage} markup={t('lightning.receive.success.message')} tagName="p" />
-        </div>
+        <View fitContent textCenter verticallyCentered>
+          <ViewContent withIcon="success">
+            <p>{t('lightning.receive.success.message')}</p>
+            {amountSatsText} sats
+            (--- EUR)<br />
+            {description && ` / ${description}`}
+          </ViewContent>
+        </View>
       );
     }
   };
@@ -219,9 +249,7 @@ export function Receive({ accounts, code }: Props) {
             {receiveError}
           </Status>
           <Header title={<h2>{t('lightning.receive.title')}</h2>} />
-          <View>
-            <ViewContent>{renderSteps()}</ViewContent>
-          </View>
+          {renderSteps()}
         </Main>
       </GuidedContent>
     </GuideWrapper>

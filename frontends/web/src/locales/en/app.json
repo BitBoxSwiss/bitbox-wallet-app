@@ -1047,12 +1047,19 @@
       "subtitle": "Create lightning invoice",
       "openChannelWarning": "A fee of {{feeSat}} sats will be deducted to open a new channel.",
       "amountSats": {
-        "label": "Amount",
+        "label": "Sats",
         "placeholder": "Enter amount"
       },
       "description": {
         "label": "Description",
+        "optional": "(optional)",
         "placeholder": "Enter description"
+      },
+      "invoice": {
+        "title": "Scan QR code to receive",
+        "create": "Create invoice",
+        "creating": "Creating invoice",
+        "edit": "Edit invoice"
       },
       "success": {
         "message": "Lightning payment received!"

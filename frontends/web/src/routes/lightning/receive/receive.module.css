@@ -15,16 +15,12 @@
     margin-bottom: var(--space-eight);
 }
 
-.successCheck {
-    background-color: var(--color-success);
-    border: .5rem solid var(--color-success);
-    border-radius: 100px;
+.invoiceSummary {
+    margin: var(--space-half) 0;
 }
 
-.successMessage {
-    color: var(--color-secondary);
-}
-
-.successMessage strong {
-    color: var(--color-default);
+.btnIcon {
+    margin-right: var(--space-quarter);
+    max-width: 1rem;
+    vertical-align: top;
 }

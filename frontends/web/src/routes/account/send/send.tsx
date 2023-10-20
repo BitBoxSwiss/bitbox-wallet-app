@@ -24,7 +24,7 @@ import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
-import { Button, ButtonLink, Input } from '../../../components/forms';
+import { Button, ButtonLink, Input, OptionalLabel } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -652,9 +652,7 @@ class Send extends Component<Props, State> {
                     <Input
                       label={t('note.title')}
                       labelSection={
-                        <span className={style.labelDescription}>
-                          {t('note.input.description')}
-                        </span>
+                        <OptionalLabel>{t('note.input.description')}</OptionalLabel>
                       }
                       id="note"
                       onInput={this.handleNoteInput}
