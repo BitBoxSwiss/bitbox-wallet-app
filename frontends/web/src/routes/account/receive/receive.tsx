@@ -1,6 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ export const Receive = ({
                     <Dialog open={scriptTypeDialogOpened} onClose={() => setAddressDialog(undefined)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
-                          {addressDialog && (!account?.bitsuranceId || scriptType === 'p2wpkh') && (
+                          {addressDialog && (account?.bitsuranceStatus !== 'active' || scriptType === 'p2wpkh') && (
                             <>
                               <Radio
                                 checked={addressDialog.addressType === i}
@@ -224,7 +224,7 @@ export const Receive = ({
                           )}
                         </div>
                       ))}
-                      {account?.bitsuranceId && (
+                      {account?.bitsuranceStatus === 'active' && (
                         <Message type="warning">
                           {t('receive.bitsuranceWarning')}
                         </Message>

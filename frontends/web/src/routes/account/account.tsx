@@ -35,7 +35,6 @@ import { Status } from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { useLoad } from '../../hooks/api';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
-import { apiGet } from '../../utils/request';
 import style from './account.module.css';
 import { ActionButtons } from './actionButtons';
 import { Insured } from './components/insuredtag';
@@ -46,6 +45,7 @@ import { getScriptName } from './utils';
 import { MultilineMarkup } from '../../utils/markup';
 import { Dialog } from '../../components/dialog/dialog';
 import { A } from '../../components/anchor/anchor';
+import { getConfig, setConfig } from '../../utils/config';
 
 type Props = {
   accounts: accountApi.IAccount[];
@@ -84,27 +84,36 @@ export function Account({
   }, [code]);
 
   const maybeCheckBitsuranceStatus = useCallback(async () => {
-    if (account?.bitsuranceId) {
+    if (account?.bitsuranceStatus) {
       const insuredAccounts = await bitsuranceLookup(code);
       if (!insuredAccounts.success) {
         alertUser(insuredAccounts.errorMessage || t('genericError'));
         return;
       }
-      if (!insuredAccounts.accountCodes.includes(code)) {
+
+      // we fetch the config after the lookup as it could have changed.
+      const config = await getConfig();
+      let cancelledAccounts: string[] = config.frontend.bitsuranceNotifyCancellation;
+      if (cancelledAccounts?.some(accountCode => accountCode === code)) {
         alertUser(t('account.insuranceExpired'));
-        setInsured(false);
-      } else {
+        // remove the pending notification from the frontend settings.
+        config.frontend.bitsuranceNotifyCancellation = cancelledAccounts.filter(accountCode => accountCode !== code);
+        setConfig(config);
+      }
+
+      let bitsuranceAccount = insuredAccounts.bitsuranceAccounts[0];
+      if (bitsuranceAccount.status === 'active') {
         setInsured(true);
         checkUncoveredUTXOs();
+        return;
       }
-    } else {
       setInsured(false);
     }
   }, [t, account, code, checkUncoveredUTXOs]);
 
   useEffect(() => {
     maybeCheckBitsuranceStatus();
-    apiGet('config').then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
+    getConfig().then(({ backend }) => setUsesProxy(backend.proxy.useProxy));
   }, [maybeCheckBitsuranceStatus]);
 
   const hasCard = useSDCard(devices, [code]);

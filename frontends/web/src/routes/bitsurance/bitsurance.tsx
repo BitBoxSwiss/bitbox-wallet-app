@@ -44,7 +44,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const amount = '100.000€';
 
   useEffect(() => {
-    setInsuredAccounts(accounts.filter(({ bitsuranceId }) => bitsuranceId));
+    setInsuredAccounts(accounts.filter(({ bitsuranceStatus }) => bitsuranceStatus));
     return () => setInsuredAccounts([]);
   }, [accounts]);
 
@@ -57,7 +57,8 @@ export const Bitsurance = ({ accounts }: TProps) => {
       alertUser(response.errorMessage);
       return;
     }
-    setInsuredAccounts(accounts.filter(({ code }) => response.accountCodes.includes(code)));
+    let insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
+    setInsuredAccounts(accounts.filter(({ code }) => insuredAccountsCodes.includes(code)));
     setScanDone(true);
     setScanLoading(false);
   };

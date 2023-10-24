@@ -26,7 +26,6 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
@@ -104,7 +103,7 @@ type Backend interface {
 	AOPPChooseAccount(code accountsTypes.Code)
 	GetAccountFromCode(code accountsTypes.Code) (accounts.Interface, error)
 	HTTPClient() *http.Client
-	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]types.Code, error)
+	LookupInsuredAccounts(accountCode accountsTypes.Code) ([]bitsurance.AccountDetails, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -229,7 +228,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/api-url", handlers.getExchangePocketURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/sign-address", handlers.postPocketWidgetSignAddress).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/exchange/pocket/verify-address", handlers.postPocketWidgetVerifyAddress).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.getBitsuranceLookup).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/bitsurance/lookup", handlers.postBitsuranceLookup).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/bitsurance/url", handlers.getBitsuranceURL).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp", handlers.getAOPPHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
@@ -347,7 +346,7 @@ type activeToken struct {
 
 type accountJSON struct {
 	Active                bool               `json:"active"`
-	BitsuranceId          string             `json:"bitsuranceId"`
+	BitsuranceStatus      string             `json:"bitsuranceStatus"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
 	CoinName              string             `json:"coinName"`
@@ -358,22 +357,13 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(account accounts.Interface, activeTokens []activeToken, log *logrus.Entry) *accountJSON {
+func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
-	bitsuranceId := ""
-	if account.Config().Config.Insured {
-		id, err := bitsurance.BitsuranceGetId(account)
-		if err != nil {
-			log.WithError(err)
-		} else {
-			bitsuranceId = id
-		}
-	}
 
 	return &accountJSON{
 		Active:                !account.Config().Config.Inactive,
-		BitsuranceId:          bitsuranceId,
+		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -552,7 +542,7 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 				})
 			}
 		}
-		accounts = append(accounts, newAccountJSON(account, activeTokens, handlers.log))
+		accounts = append(accounts, newAccountJSON(account, activeTokens))
 	}
 	return accounts
 }
@@ -1077,19 +1067,28 @@ func (handlers *Handlers) getExchangesByRegion(r *http.Request) interface{} {
 	return exchanges.ListExchangesByRegion(acct, handlers.backend.HTTPClient())
 }
 
-func (handlers *Handlers) getBitsuranceLookup(r *http.Request) interface{} {
+func (handlers *Handlers) postBitsuranceLookup(r *http.Request) interface{} {
 	type response struct {
-		Success      bool         `json:"success"`
-		ErrorMessage string       `json:"errorMessage"`
-		AccountCodes []types.Code `json:"accountCodes"`
+		Success            bool                        `json:"success"`
+		ErrorMessage       string                      `json:"errorMessage"`
+		BitsuranceAccounts []bitsurance.AccountDetails `json:"bitsuranceAccounts"`
 	}
-	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(accountsTypes.Code(r.URL.Query().Get("code")))
+
+	var request struct {
+		AccountCode accountsTypes.Code `json:"code"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		handlers.log.Error(err)
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	insuredAccounts, err := handlers.backend.LookupInsuredAccounts(request.AccountCode)
 	if err != nil {
 		handlers.log.Error(err)
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return response{Success: true, AccountCodes: insuredAccounts}
+	return response{Success: true, BitsuranceAccounts: insuredAccounts}
 }
 
 func (handlers *Handlers) getBitsuranceURL(r *http.Request) interface{} {

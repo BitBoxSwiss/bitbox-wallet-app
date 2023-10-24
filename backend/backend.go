@@ -87,6 +87,9 @@ var fixedURLWhitelist = []string{
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
 	"https://www.bitsurance.eu/faq/",
+	"https://bitsurance.ihr-versicherungsschutz.de/",
+	"https://bitsurance.eu/support",
+	"https://support.bitsurance.eu",
 	// Documentation and other articles.
 	"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 	"https://en.bitcoin.it/wiki/Bech32_adoption",
