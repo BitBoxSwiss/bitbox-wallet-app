@@ -22,6 +22,7 @@ import { Balances } from '../summary/accountssummary';
 import { isBitcoinCoin } from '../utils';
 import { getExchangeSupportedAccounts } from '../../buy/utils';
 import styles from './buyReceiveCTA.module.css';
+import { useMountedRef } from '../../../hooks/mount';
 
 type TBuyReceiveCTAProps = {
   balanceList?: [string, IBalance][];
@@ -62,12 +63,20 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
 
 
 export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyReceiveOnEmpyBalancesProps) => {
-
+  const mounted = useMountedRef();
   const [supportedAccounts, setSupportedAccounts] = useState<IAccount[]>();
 
   useEffect(() => {
-    getExchangeSupportedAccounts(accounts).then(setSupportedAccounts);
-  }, [accounts]);
+    if (mounted.current) {
+      getExchangeSupportedAccounts(accounts)
+        .then(supportedAccounts => {
+          if (mounted.current) {
+            setSupportedAccounts(supportedAccounts);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [accounts, mounted]);
 
   if (balances === undefined || supportedAccounts === undefined) {
     return null;
