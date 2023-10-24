@@ -78,6 +78,9 @@ func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	return &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock name", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -979,6 +982,9 @@ func TestAccountSupported(t *testing.T) {
 
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	bb02Multi := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock multi", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1000,6 +1006,9 @@ func TestAccountSupported(t *testing.T) {
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
 	bb02BtcOnly := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock btconly", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1113,6 +1122,9 @@ func TestTaprootUpgrade(t *testing.T) {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 
 	bitbox02NoTaproot := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock no taproot", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1135,6 +1147,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
 	bitbox02Taproot := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock taproot", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},

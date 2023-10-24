@@ -16,10 +16,14 @@
 package config
 
 import (
+	"bytes"
+	"time"
+
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
 // Account holds information related to an account.
@@ -62,9 +66,24 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 	return nil
 }
 
+// Keystore holds information related to keystores such as the BitBox02.
+type Keystore struct {
+	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.
+	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers It serves as
+	// an identifier for the keystore. Collisions are possible but the chance is very small.
+	RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+	// Name is the name of the keystore, e.g. the BitBox02 device name.
+	Name string `json:"name"`
+	// LastConnected is the date/time when the keystore was last connected/registered. We don't use
+	// this field yet but it may be helpful in the future if we want to remind users to connect
+	// their device, e.g. to check that they still know their device password.
+	LastConnected time.Time `json:"lastConnected"`
+}
+
 // AccountsConfig persists the list of accounts added to the app.
 type AccountsConfig struct {
-	Accounts []*Account `json:"accounts"`
+	Accounts  []*Account  `json:"accounts"`
+	Keystores []*Keystore `json:"keystores"`
 }
 
 // newDefaultAccountsonfig returns the default accounts config.
@@ -83,4 +102,18 @@ func (cfg AccountsConfig) Lookup(code accountsTypes.Code) *Account {
 		}
 	}
 	return nil
+}
+
+// GetOrAddKeystore looks up the keystore by root fingerprint. If it does not exist, one is added to
+// the list of keystores and the newly created one is returned.
+func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
+	for _, ks := range cfg.Keystores {
+		if bytes.Equal(ks.RootFingerprint, rootFingerprint) {
+			return ks
+		}
+	}
+
+	ks := &Keystore{RootFingerprint: rootFingerprint}
+	cfg.Keystores = append(cfg.Keystores, ks)
+	return ks
 }

@@ -19,6 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"math/big"
 
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
@@ -71,6 +72,15 @@ func NewKeystoreFromPIN(pin string) *Keystore {
 // Type implements keystore.Keystore.
 func (keystore *Keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeSoftware
+}
+
+// Name implements keystore.Keystore.
+func (keystore *Keystore) Name() (string, error) {
+	fingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("Software keystore %x", fingerprint), nil
 }
 
 // RootFingerprint implements keystore.Keystore.
