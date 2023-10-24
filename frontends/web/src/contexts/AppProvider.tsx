@@ -25,16 +25,28 @@ type TProps = {
 export const AppProvider = ({ children }: TProps) => {
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
+  const [hideAmounts, setHideAmounts] = useState(false);
+
 
   const toggleGuide = () => {
     setConfig({ frontend: { guideShown: !guideShown } });
     setGuideShown(prev => !prev);
   };
 
+  const toggleHideAmounts = () => {
+    setConfig({ frontend: { hideAmounts: !hideAmounts } });
+    setHideAmounts(prev => !prev);
+  };
+
   useEffect(() => {
     getConfig().then(({ frontend }) => {
-      if (frontend && frontend.guideShown !== undefined) {
-        setGuideShown(frontend.guideShown);
+      if (frontend) {
+        if (frontend.guideShown !== undefined) {
+          setGuideShown(frontend.guideShown);
+        }
+        if (frontend.hideAmounts !== undefined) {
+          setHideAmounts(frontend.hideAmounts);
+        }
       } else {
         setGuideShown(true);
       }
@@ -47,8 +59,10 @@ export const AppProvider = ({ children }: TProps) => {
         toggleGuide,
         guideShown,
         guideExists,
+        hideAmounts,
         setGuideShown,
         setGuideExists,
+        toggleHideAmounts,
       }}>
       {children}
     </AppContext.Provider>
