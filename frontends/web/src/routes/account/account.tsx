@@ -34,6 +34,7 @@ import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
 import { Status } from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
+import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { apiGet } from '../../utils/request';
 import { BuyReceiveCTA } from './info/buyReceiveCTA';
 import { isBitcoinBased } from './utils';
@@ -202,6 +203,7 @@ export function Account({
         </Status>
         <Header
           title={<h2><span>{account.name}</span></h2>}>
+          <HideAmountsButton />
           <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
@@ -262,7 +264,8 @@ export function Account({
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'} />
+        hasNoBalance={balance && balance.available.amount === '0'}
+      />
     </div>
   );
 }

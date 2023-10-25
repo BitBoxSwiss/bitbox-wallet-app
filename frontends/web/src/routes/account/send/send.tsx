@@ -24,6 +24,7 @@ import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
+import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
@@ -568,7 +569,9 @@ class Send extends Component<Props, State> {
             </Status>
             <Header
               title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
-            />
+            >
+              <HideAmountsButton />
+            </Header>
             <View>
               <ViewContent>
                 <div>
