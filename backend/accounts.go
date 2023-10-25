@@ -931,6 +931,7 @@ func (backend *Backend) uninitAccounts() {
 			backend.onAccountUninit(account)
 		}
 		account.Close()
+		backend.emitAccountsStatusChanged()
 	}
 	backend.accounts = []accounts.Interface{}
 }
