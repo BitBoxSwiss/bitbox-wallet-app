@@ -108,13 +108,13 @@ export const UTXOs = ({
                   <div className={style.utxoData}>
                     <div className={style.amounts}>
                       <span className={style.amount}>
-                        <Amount amount={utxo.amount.amount} unit={utxo.amount.unit}/>
+                        <Amount alwaysShowAmounts amount={utxo.amount.amount} unit={utxo.amount.unit}/>
                         {' '}
                         <span className={style.unit}>
                           {utxo.amount.unit}
                         </span>
                       </span>
-                      <FiatConversion amount={utxo.amount} unstyled noAction/>
+                      <FiatConversion alwaysShowAmounts amount={utxo.amount} unstyled noAction/>
                     </div>
                     <div className={style.address}>
                       <span className={style.label}>

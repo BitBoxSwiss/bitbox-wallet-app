@@ -33,8 +33,9 @@ export interface FormattedLineData extends LineData {
 export type ChartData = FormattedLineData[];
 
 type ChartProps = {
-    data: ISummary;
-    noDataPlaceholder?: ReactChild;
+  data: ISummary;
+  noDataPlaceholder?: ReactChild;
+  hideAmounts: boolean;
 };
 
 type State = {
@@ -76,7 +77,8 @@ class Chart extends Component<Props, State> {
       formattedChartTotal: null,
       chartIsUpToDate: false,
       lastTimestamp: 0,
-    }
+    },
+    hideAmounts: false,
   };
 
   public readonly state: State = {
@@ -118,6 +120,14 @@ class Chart extends Component<Props, State> {
       const data = this.state.source === 'hourly' ? chartDataHourly : chartDataDaily;
       this.lineSeries.setData(data);
       this.setFormattedData(data);
+    }
+
+    if (prev.hideAmounts !== this.props.hideAmounts) {
+      this.chart?.applyOptions({
+        leftPriceScale: {
+          visible: this.props.hideAmounts ? false : !this.state.isMobile,
+        }
+      });
     }
   }
 
@@ -181,7 +191,7 @@ class Chart extends Component<Props, State> {
           leftPriceScale: {
             borderVisible: false,
             drawTicks: false,
-            visible: !this.state.isMobile,
+            visible: this.props.hideAmounts ? false : !this.state.isMobile,
             entireTextOnly: true,
           },
           localization: {
@@ -245,7 +255,7 @@ class Chart extends Component<Props, State> {
           visible: !this.state.isMobile
         },
         leftPriceScale: {
-          visible: !this.state.isMobile,
+          visible: this.props.hideAmounts ? false : !this.state.isMobile,
         },
       });
     }, 200);
@@ -439,6 +449,7 @@ class Chart extends Component<Props, State> {
         formattedChartTotal,
       },
       noDataPlaceholder,
+      hideAmounts
     } = this.props;
     const {
       difference,
@@ -489,7 +500,7 @@ class Chart extends Component<Props, State> {
                       {(difference < 0) ? (<ArrowUp />) : (<ArrowDown />)}
                     </span>
                     <span className={styles.diffValue}>
-                      {formatNumber(difference, 2)}
+                      {hideAmounts ? '***' : formatNumber(difference, 2)}
                       <span className={styles.diffUnit}>%</span>
                     </span>
                   </>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../../api/account';
 import { TDevices } from '../../../api/devices';
@@ -30,6 +30,8 @@ import { SummaryBalance } from './summarybalance';
 import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
+import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
+import AppContext from '../../../contexts/AppContext';
 
 type TProps = {
     accounts: accountApi.IAccount[];
@@ -47,6 +49,7 @@ export function AccountsSummary({
   const { t } = useTranslation();
   const summaryReqTimerID = useRef<number>();
   const mounted = useMountedRef();
+  const { hideAmounts } = useContext(AppContext);
 
   const [summaryData, setSummaryData] = useState<accountApi.ISummary>();
   const [totalBalancePerCoin, setTotalBalancePerCoin] = useState<accountApi.ITotalBalance>();
@@ -150,9 +153,12 @@ export function AccountsSummary({
           <Status hidden={!hasCard} type="warning">
             {t('warning.sdcard')}
           </Status>
-          <Header title={<h2>{t('accountSummary.title')}</h2>}/>
+          <Header title={<h2>{t('accountSummary.title')}</h2>}>
+            <HideAmountsButton />
+          </Header>
           <div className="content padded">
             <Chart
+              hideAmounts={hideAmounts}
               data={summaryData}
               noDataPlaceholder={
                 (accounts.length === Object.keys(balances || {}).length) ? (

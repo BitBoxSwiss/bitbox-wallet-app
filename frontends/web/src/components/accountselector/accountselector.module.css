@@ -1,6 +1,7 @@
-.balance, .balanceSingleValue{
-    margin-left: auto;
+.balance, .balanceSingleValue {
     color: var(--color-secondary);
+    margin-left: auto;
+    text-transform: uppercase;
 }
 
 .balanceSingleValue {
