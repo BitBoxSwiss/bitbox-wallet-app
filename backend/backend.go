@@ -476,7 +476,7 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	defer backend.accountsAndKeystoreLock.Lock()()
 	backend.initPersistedAccounts()
-	backend.emitAccountsStatusChanged()
+	backend.emitAccountsListChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()

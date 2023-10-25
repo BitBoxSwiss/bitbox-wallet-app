@@ -474,7 +474,7 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	if err != nil {
 		return err
 	}
-	backend.emitAccountsStatusChanged()
+	backend.emitAccountsListChanged()
 	return nil
 }
 
@@ -566,7 +566,7 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 	}
 }
 
-func (backend *Backend) emitAccountsStatusChanged() {
+func (backend *Backend) emitAccountsListChanged() {
 	backend.Notify(observable.Event{
 		Subject: "accounts",
 		Action:  action.Reload,
@@ -904,7 +904,7 @@ func (backend *Backend) initAccounts() {
 
 	backend.initPersistedAccounts()
 
-	backend.emitAccountsStatusChanged()
+	backend.emitAccountsListChanged()
 
 	// The updater fetches rates only for active accounts, so this seems the most
 	// appropriate place to update exchange rate configuration.
@@ -931,7 +931,7 @@ func (backend *Backend) uninitAccounts() {
 			backend.onAccountUninit(account)
 		}
 		account.Close()
-		backend.emitAccountsStatusChanged()
+		backend.emitAccountsListChanged()
 	}
 	backend.accounts = []accounts.Interface{}
 }
@@ -1058,7 +1058,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 				continue
 			}
 			backend.createAndAddAccount(coin, accountConfig)
-			backend.emitAccountsStatusChanged()
+			backend.emitAccountsListChanged()
 		}
 	}
 }
@@ -1099,6 +1099,6 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		log.WithError(err).Error("checkAccountUsed")
 		return
 	}
-	backend.emitAccountsStatusChanged()
+	backend.emitAccountsListChanged()
 	backend.maybeAddHiddenUnusedAccounts()
 }
