@@ -64,6 +64,10 @@ export const WCIncomingPairing = ({
       const { requiredNamespaces } = params;
       const eipList = Object.values(requiredNamespaces);
       const accounts = eipList.flatMap(eip => eip.chains?.map(chain => `${chain}:${receiveAddress}`) || []);
+      // For supported chains, use an intersection of supported chains and required chains
+      const chains: string[] = eipList.flatMap(proposal =>
+        proposal.chains ? proposal.chains.filter(chain => Object.keys(SUPPORTED_CHAINS).includes(chain)) : []
+      );
 
       // buildApprovedNamespaces is a
       // utility function by @walletconnect
@@ -71,7 +75,7 @@ export const WCIncomingPairing = ({
         proposal: params,
         supportedNamespaces: {
           eip155: {
-            chains: Object.keys(SUPPORTED_CHAINS),
+            chains,
             methods: ['eth_sendTransaction', 'eth_signTransaction', 'eth_sign', 'personal_sign', 'eth_signTypedData', 'eth_signTypedData_v4'],
             events: ['accountsChanged', 'chainChanged'],
             accounts
