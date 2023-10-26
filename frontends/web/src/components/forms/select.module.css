@@ -40,5 +40,5 @@
 }
 
 .select option[disabled] {
-    color: var(--color-light);
+    color: var(--color-disabled);
 }
