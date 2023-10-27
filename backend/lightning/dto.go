@@ -130,7 +130,7 @@ type paymentDto struct {
 }
 
 type receivePaymentRequestDto struct {
-	AmountSats         uint64               `json:"amountSats"`
+	AmountMsat         uint64               `json:"amountMsat"`
 	Description        string               `json:"description"`
 	Preimage           *[]uint8             `json:"preimage"`
 	OpeningFeeParams   *openingFeeParamsDto `json:"openingFeeParams"`
@@ -161,7 +161,11 @@ type routeHintHopDto struct {
 
 type sendPaymentRequestDto struct {
 	Bolt11     string  `json:"bolt11"`
-	AmountSats *uint64 `json:"amountSats"`
+	AmountMsat *uint64 `json:"amountMsat"`
+}
+
+type sendPaymentResponseDto struct {
+	Payment paymentDto `json:"payment"`
 }
 
 type typeDataDto struct {

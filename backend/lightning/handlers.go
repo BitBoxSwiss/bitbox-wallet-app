@@ -182,15 +182,15 @@ func (handlers *Handlers) postSendPayment(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	payment, err := handlers.sdkService.SendPayment(jsonBody.Bolt11, jsonBody.AmountSats)
+	sendPaymentResponse, err := handlers.sdkService.SendPayment(toSendPaymentRequest(jsonBody))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	paymentDto, err := toPaymentDto(payment)
+	dto, err := toSendPaymentResponseDto(sendPaymentResponse)
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	return responseDto{Success: true, Data: paymentDto}
+	return responseDto{Success: true, Data: dto}
 }

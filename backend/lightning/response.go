@@ -364,6 +364,17 @@ func toRouteHintHopsDto(routeHintHops []breez_sdk.RouteHintHop) []routeHintHopDt
 	return list
 }
 
+func toSendPaymentResponseDto(sendPaymentResponse breez_sdk.SendPaymentResponse) (sendPaymentResponseDto, error) {
+	payment, err := toPaymentDto(sendPaymentResponse.Payment)
+	if err != nil {
+		return sendPaymentResponseDto{}, err
+	}
+
+	return sendPaymentResponseDto{
+		Payment: payment,
+	}, nil
+}
+
 func toSuccessActionProcessedDto(successActionProcessed *breez_sdk.SuccessActionProcessed) (*typeDataDto, error) {
 	if successActionProcessed != nil {
 		switch typed := (*successActionProcessed).(type) {

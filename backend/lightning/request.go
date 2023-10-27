@@ -15,14 +15,14 @@ func toListPaymentsRequestDto(params url.Values) (listPaymentsRequestDto, error)
 	if err != nil {
 		return listPaymentsRequestDto{}, err
 	}
-	includeFailures, err := getOptionalBool(params, "toTincludeFailuresimestamp")
+	includeFailures, err := getOptionalBool(params, "includeFailures")
 	if err != nil {
 		return listPaymentsRequestDto{}, err
 	}
 	return listPaymentsRequestDto{
-		Filter: params.Get("filter"),
-		FromTimestamp: fromTimestamp,
-		ToTimestamp: toTimestamp,
+		Filter:          params.Get("filter"),
+		FromTimestamp:   fromTimestamp,
+		ToTimestamp:     toTimestamp,
 		IncludeFailures: includeFailures,
 	}, nil
 }
@@ -33,9 +33,9 @@ func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sd
 		return breez_sdk.ListPaymentsRequest{}, err
 	}
 	return breez_sdk.ListPaymentsRequest{
-		Filter: paymentFilter,
-		FromTimestamp: listPaymentsRequest.FromTimestamp,
-		ToTimestamp: listPaymentsRequest.ToTimestamp,
+		Filter:          paymentFilter,
+		FromTimestamp:   listPaymentsRequest.FromTimestamp,
+		ToTimestamp:     listPaymentsRequest.ToTimestamp,
 		IncludeFailures: listPaymentsRequest.IncludeFailures,
 	}, nil
 }
@@ -51,7 +51,7 @@ func toOpenChannelFeeRequestDto(params url.Values) (openChannelFeeRequestDto, er
 	}
 	return openChannelFeeRequestDto{
 		AmountMsat: uint64(amountMsat),
-		Expiry: expiry,
+		Expiry:     expiry,
 	}, nil
 }
 
@@ -79,12 +79,19 @@ func toOpeningFeeParams(openingFeeParams *openingFeeParamsDto) *breez_sdk.Openin
 
 func toReceivePaymentRequest(receivePaymentRequest receivePaymentRequestDto) breez_sdk.ReceivePaymentRequest {
 	return breez_sdk.ReceivePaymentRequest{
-		AmountSats:         receivePaymentRequest.AmountSats,
+		AmountMsat:         receivePaymentRequest.AmountMsat,
 		Description:        receivePaymentRequest.Description,
 		Preimage:           receivePaymentRequest.Preimage,
 		OpeningFeeParams:   toOpeningFeeParams(receivePaymentRequest.OpeningFeeParams),
 		UseDescriptionHash: receivePaymentRequest.UseDescriptionHash,
 		Expiry:             receivePaymentRequest.Expiry,
 		Cltv:               receivePaymentRequest.Cltv,
+	}
+}
+
+func toSendPaymentRequest(sendPaymentRequest sendPaymentRequestDto) breez_sdk.SendPaymentRequest {
+	return breez_sdk.SendPaymentRequest{
+		AmountMsat: sendPaymentRequest.AmountMsat,
+		Bolt11:     sendPaymentRequest.Bolt11,
 	}
 }

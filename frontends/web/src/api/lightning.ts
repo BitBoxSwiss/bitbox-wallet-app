@@ -27,6 +27,7 @@ export interface ILightningResponse<T> {
 }
 
 // Breez SDK types
+
 export type AesSuccessActionDataDecrypted = {
   description: string;
   plaintext: string;
@@ -73,6 +74,7 @@ export type ClosedChannelPaymentDetails = {
   shortChannelId: string;
   state: ChannelState;
   fundingTxid: string;
+  closingTxid?: string;
 };
 
 export type Config = {
@@ -136,6 +138,8 @@ export type ListPaymentsRequest = {
   fromTimestamp?: number;
   toTimestamp?: number;
   includeFailures?: boolean;
+  offset?: number;
+  limit?: number;
 };
 
 export type LnPaymentDetails = {
@@ -162,6 +166,12 @@ export type LnUrlErrorData = {
   reason: string;
 };
 
+export type LnUrlPayRequest = {
+  data: LnUrlPayRequestData;
+  amountMsat: number;
+  comment?: string;
+};
+
 export type LnUrlPayRequestData = {
   callback: string;
   minSendable: number;
@@ -170,6 +180,12 @@ export type LnUrlPayRequestData = {
   commentAllowed: number;
   domain: string;
   lnAddress?: string;
+};
+
+export type LnUrlWithdrawRequest = {
+  data: LnUrlWithdrawRequestData;
+  amountMsat: number;
+  description?: string;
 };
 
 export type LnUrlWithdrawRequestData = {
@@ -289,7 +305,7 @@ export type ReceiveOnchainRequest = {
 };
 
 export type ReceivePaymentRequest = {
-  amountSats: number;
+  amountMsat: number;
   description: string;
   preimage?: number[];
   openingFeeParams?: OpeningFeeParams;
@@ -312,6 +328,16 @@ export type RecommendedFees = {
   minimumFee: number;
 };
 
+export type RefundRequest = {
+  swapAddress: string;
+  toAddress: string;
+  satPerVbyte: number;
+};
+
+export type RefundResponse = {
+  refundTxId: string;
+};
+
 export type ReverseSwapFeesRequest = {
   sendAmountSat?: number;
 };
@@ -319,6 +345,8 @@ export type ReverseSwapFeesRequest = {
 export type ReverseSwapInfo = {
   id: string;
   claimPubkey: string;
+  lockupTxid?: string;
+  claimTxid?: string;
   onchainAmountSat: number;
   status: ReverseSwapStatus;
 };
@@ -345,6 +373,31 @@ export type RouteHintHop = {
   cltvExpiryDelta: number;
   htlcMinimumMsat?: number;
   htlcMaximumMsat?: number;
+};
+
+export type SendOnchainRequest = {
+  amountSat: number;
+  onchainRecipientAddress: string;
+  pairHash: string;
+  satPerVbyte: number;
+};
+
+export type SendOnchainResponse = {
+  reverseSwapInfo: ReverseSwapInfo;
+};
+
+export type SendPaymentRequest = {
+  bolt11: string;
+  amountMsat?: number;
+};
+
+export type SendPaymentResponse = {
+  payment: Payment;
+};
+
+export type SendSpontaneousPaymentRequest = {
+  nodeId: string;
+  amountMsat: number;
 };
 
 export type SignMessageRequest = {
@@ -664,11 +717,6 @@ export interface ParseInputRequest {
   s: string;
 }
 
-export interface SendPaymentRequest {
-  bolt11: string;
-  amountSats?: number;
-}
-
 /**
  *
  */
@@ -720,23 +768,40 @@ export const getNodeInfo = async (code: AccountCode): Promise<NodeState> => {
 };
 
 export const getListPayments = async (code: AccountCode, params: ListPaymentsRequest): Promise<Payment[]> => {
-  return getApiResponse<Payment[]>(`account/${code}/lightning/list-payments?${qs.stringify(params, { skipNull: true })}`, 'Error calling getListPayments');
+  return getApiResponse<Payment[]>(
+    `account/${code}/lightning/list-payments?${qs.stringify(params, { skipNull: true })}`,
+    'Error calling getListPayments'
+  );
 };
 
 export const getOpenChannelFee = async (code: AccountCode, params: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
-  return getApiResponse<OpenChannelFeeResponse>(`account/${code}/lightning/open-channel-fee?${qs.stringify(params, { skipNull: true })}`, 'Error calling getOpenChannelFee');
+  return getApiResponse<OpenChannelFeeResponse>(
+    `account/${code}/lightning/open-channel-fee?${qs.stringify(params, { skipNull: true })}`,
+    'Error calling getOpenChannelFee'
+  );
 };
 
 export const getParseInput = async (code: AccountCode, params: ParseInputRequest): Promise<InputType> => {
-  return getApiResponse<InputType>(`account/${code}/lightning/parse-input?${qs.stringify(params, { skipNull: true })}`, 'Error calling getParseInput');
+  return getApiResponse<InputType>(
+    `account/${code}/lightning/parse-input?${qs.stringify(params, { skipNull: true })}`,
+    'Error calling getParseInput'
+  );
 };
 
-export const postSendPayment = async (code: AccountCode, data: SendPaymentRequest): Promise<Payment> => {
-  return postApiResponse<Payment, SendPaymentRequest>(`account/${code}/lightning/send-payment`, data, 'Error calling postSendPayment');
+export const postSendPayment = async (code: AccountCode, data: SendPaymentRequest): Promise<SendPaymentResponse> => {
+  return postApiResponse<SendPaymentResponse, SendPaymentRequest>(
+    `account/${code}/lightning/send-payment`,
+    data,
+    'Error calling postSendPayment'
+  );
 };
 
 export const postReceivePayment = async (code: AccountCode, data: ReceivePaymentRequest): Promise<ReceivePaymentResponse> => {
-  return postApiResponse<ReceivePaymentResponse, ReceivePaymentRequest>(`account/${code}/lightning/receive-payment`, data, 'Error calling postReceivePayment');
+  return postApiResponse<ReceivePaymentResponse, ReceivePaymentRequest>(
+    `account/${code}/lightning/receive-payment`,
+    data,
+    'Error calling postReceivePayment'
+  );
 };
 
 /**

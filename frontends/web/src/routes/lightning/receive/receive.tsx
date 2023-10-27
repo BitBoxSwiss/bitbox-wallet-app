@@ -125,7 +125,7 @@ export function Receive({ accounts, code }: Props) {
     setStep('wait');
     try {
       const receivePaymentResponse = await postReceivePayment(code, {
-        amountSats,
+        amountMsat: toMsat(amountSats),
         description,
         openingFeeParams: openChannelFeeResponse?.usedFeeParams
       });
@@ -165,9 +165,7 @@ export function Receive({ accounts, code }: Props) {
                   id="descriptionInput"
                   onInput={onDescriptionChange}
                   value={description}
-                  labelSection={
-                    <OptionalLabel>{t('lightning.receive.description.optional')}</OptionalLabel>
-                  }
+                  labelSection={<OptionalLabel>{t('lightning.receive.description.optional')}</OptionalLabel>}
                 />
                 <Status hidden={!showOpenChannelWarning} type="info">
                   {t('lightning.receive.openChannelWarning', { feeSat: toSat(openChannelFeeResponse?.feeMsat!) })}
@@ -186,14 +184,10 @@ export function Receive({ accounts, code }: Props) {
         </View>
       );
     case 'wait':
-      return (
-        <Spinner text={t('lightning.receive.invoice.creating')} guideExists={false} />
-      );
+      return <Spinner text={t('lightning.receive.invoice.creating')} guideExists={false} />;
     case 'invoice':
       return (
-        <View
-          fitContent
-          minHeight="100%">
+        <View fitContent minHeight="100%">
           <ViewContent textAlign="center">
             <Grid col="1">
               <Column>
@@ -202,8 +196,7 @@ export function Receive({ accounts, code }: Props) {
                   <QRCode data={receivePaymentResponse?.lnInvoice.bolt11} />
                 </div>
                 <div className={styles.invoiceSummary}>
-                  {amountSatsText} sats
-                  (--- EUR)
+                  {amountSatsText} sats (--- EUR)
                   {description && ` / ${description}`}
                 </div>
                 <ColumnButtons>
@@ -227,8 +220,8 @@ export function Receive({ accounts, code }: Props) {
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.receive.success.message')}</p>
-            {amountSatsText} sats
-            (--- EUR)<br />
+            {amountSatsText} sats (--- EUR)
+            <br />
             {description && ` / ${description}`}
           </ViewContent>
         </View>

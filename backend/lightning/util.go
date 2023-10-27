@@ -42,7 +42,7 @@ func ensurePath(account accounts.Interface) (*string, error) {
 	return &workingDir, nil
 }
 
-// Get an int64 value from http request url params
+// Get an int64 value from http request url params.
 func getInt64(params url.Values, key string) (int64, error) {
 	parsed, err := strconv.ParseInt(params.Get(key), 10, 64)
 	if err != nil {
@@ -51,7 +51,7 @@ func getInt64(params url.Values, key string) (int64, error) {
 	return parsed, nil
 }
 
-// Get an optional bool value from http request url params
+// Get an optional bool value from http request url params.
 func getOptionalBool(params url.Values, key string) (*bool, error) {
 	if params.Has(key) {
 		parsed, err := strconv.ParseBool(params.Get(key))
@@ -63,7 +63,7 @@ func getOptionalBool(params url.Values, key string) (*bool, error) {
 	return nil, nil
 }
 
-// Get an optional int64 value from http request url params
+// Get an optional int64 value from http request url params.
 func getOptionalInt64(params url.Values, key string) (*int64, error) {
 	if params.Has(key) {
 		parsed, err := strconv.ParseInt(params.Get(key), 10, 64)
@@ -75,7 +75,7 @@ func getOptionalInt64(params url.Values, key string) (*int64, error) {
 	return nil, nil
 }
 
-// Get an optional uint32 value from http request url params
+// Get an optional uint32 value from http request url params.
 func getOptionalUint32(params url.Values, key string) (*uint32, error) {
 	if params.Has(key) {
 		parsed, err := strconv.ParseInt(params.Get(key), 10, 32)

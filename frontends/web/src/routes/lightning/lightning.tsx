@@ -20,13 +20,13 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import * as accountApi from '../../api/account';
 import {
-  PaymentTypeFilter,
   getNodeInfo,
   getListPayments,
   subscribeListPayments,
   subscribeNodeState,
   NodeState,
-  Payment
+  Payment,
+  PaymentTypeFilter
 } from '../../api/lightning';
 import { TDevices } from '../../api/devices';
 import { Balance } from '../../components/balance/balance';
@@ -112,9 +112,7 @@ export function Lightning({ accounts, code }: Props) {
   if (!account || !nodeState || stateCode !== code) {
     // Sync code property with stateCode to work around a re-render that
     // happens briefly before `setStatus(undefined)` stops rendering again below.
-    return (
-      <Spinner guideExists={false} />
-    );
+    return <Spinner guideExists={false} />;
   }
 
   const canSend = balance && balance.hasAvailable;
