@@ -25,6 +25,7 @@ import { AdvancedSettings } from './settings/advanced-settings';
 import { Bitsurance } from './bitsurance/bitsurance';
 import { BitsuranceAccount } from './bitsurance/account';
 import { BitsuranceWidget } from './bitsurance/widget';
+import { BitsuranceDashboard } from './bitsurance/dashboard';
 
 type TAppRouterProps = {
     devices: TDevices;
@@ -202,6 +203,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route index element={BitsuranceWidgetEl} />
           <Route path=":code" element={BitsuranceWidgetEl} />
         </Route>
+        <Route path="dashboard" element={<BitsuranceDashboard accounts={activeAccounts}/>}/>
       </Route>
       <Route path="settings">
         <Route index element={MobileSettingsEl} />

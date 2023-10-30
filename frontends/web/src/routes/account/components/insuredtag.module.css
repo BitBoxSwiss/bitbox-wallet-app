@@ -8,6 +8,7 @@
     border-color: var(--color-lightgreen);
     color: var(--color-darkgreen);
     margin: 0px 10px;
+    text-decoration: none;
 }
 
 .insured img {

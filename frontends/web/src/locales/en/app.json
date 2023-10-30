@@ -293,6 +293,18 @@
     }
   },
   "bitsurance": {
+    "dashboard": {
+      "active": "Insurance policy active",
+      "button": "Insure a new account",
+      "canceled": "Canceled",
+      "coverage": "Maximum coverage",
+      "inactive": "Inactive",
+      "processing": "Processing",
+      "refused": "Refused",
+      "supportLink": "Manage contract",
+      "title": "Insured accounts",
+      "waitpayment": "Waiting for payment"
+    },
     "detect": {
       "button": "Detect insured account",
       "insured": "Insured account detected:",

@@ -24,6 +24,7 @@ export type TAccountDetails = {
   status: TDetailStatus;
   details: {
     maxCoverage: number;
+    maxCoverageFormatted: string;
     currency: string;
     support: string;
   };
