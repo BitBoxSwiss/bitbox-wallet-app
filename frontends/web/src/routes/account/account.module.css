@@ -22,6 +22,7 @@
 
 .actionsContainer {
     display: flex;
+    gap: var(--space-quarter);
     transform: translateY(-36%);
     margin-top: var(--space-quarter);
 }
@@ -46,15 +47,14 @@
     will-change: background-color;
 }
 
-.withWalletConnect .walletConnect { 
-    display: flex;
-    gap: var(--space-eight);
+.withWalletConnect.actionsContainer {
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
-.buy,
-.receive,
-.send {
-    margin-right: var(--space-quarter);
+
+.withWalletConnect .walletConnect { 
+    display: flex;
 }
 
 .buy:hover,
