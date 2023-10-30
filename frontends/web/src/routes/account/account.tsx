@@ -231,7 +231,7 @@ export function Account({
                 code={code}
                 exchangeBuySupported={exchangeBuySupported}
                 unit={balance.available.unit}
-                balanceList={[[code, balance]]}
+                balanceList={[balance]}
               />
             )}
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
