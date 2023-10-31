@@ -529,12 +529,7 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 		}
 		var activeTokens []activeToken
 
-		persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
-		if persistedAccount == nil {
-			handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
-			continue
-		}
-
+		persistedAccount := account.Config().Config
 		if account.Coin().Code() == coinpkg.CodeETH {
 			for _, tokenCode := range persistedAccount.ActiveTokens {
 				activeTokens = append(activeTokens, activeToken{
