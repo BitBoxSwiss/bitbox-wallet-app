@@ -213,7 +213,7 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 		// otherwise we'll check the status for all the active BTC accounts.
 		for _, account := range backend.accounts {
 			config := account.Config().Config
-			if !config.Inactive && !config.HiddenBecauseUnused && (config.CoinCode == coinpkg.CodeTBTC || config.CoinCode == coinpkg.CodeBTC) {
+			if !config.HiddenBecauseUnused && config.CoinCode == coinpkg.CodeBTC {
 				accountList = append(accountList, account)
 			}
 		}

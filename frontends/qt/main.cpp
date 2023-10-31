@@ -109,12 +109,13 @@ public:
             return;
         }
 
-        // We treat the onramp page specially because we need to allow onramp
+        // We treat the onramp pages specially because we need to allow onramp
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
         auto currentUrl = mainPage->requestedUrl().toString();
         bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/.*$"));
-        if (onBuyPage) {
+        bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/bitsurance/.*$"));
+        if (onBuyPage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
                 systemOpen(const_cast<char*>(info.requestUrl().toString().toStdString().c_str()));

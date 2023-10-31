@@ -292,6 +292,35 @@
       "title": "You're ready to go!"
     }
   },
+  "bitsurance": {
+    "detect": {
+      "button": "Detect insured account",
+      "insured": "Insured account detected:",
+      "notInsured": "No insured accounts detected. If you are sure you have an insured account, please make sure you have the correct wallet connected.",
+      "text": "If you already have an insured account, please click the button below so the BitBoxApp can detect your insured accounts.",
+      "title": "Already have an insured account?"
+    },
+    "insure": {
+      "button": "Check availability and pricing",
+      "faq": "Read more on Bitsurance FAQs",
+      "listItem1": "Loss through Fire/Water/Storm",
+      "listItem2": "Extortion ($5 wrench attack)",
+      "month": "month",
+      "text": "Insure Bitcoin on this hardware wallet against:",
+      "title": "Get started"
+    },
+    "intro": {
+      "link": "Bitsurance website",
+      "text1": "BitBox has partened with Bitsurance to offer {{- amount}} worth of Bitcoin insurance.",
+      "text2": "Read more about the insurance offering on the"
+    },
+    "title": "Insurance"
+  },
+  "bitsuranceAccount": {
+    "noAccount": "There are no accounts that can be insured.",
+    "select": "Select account",
+    "title": "Insurance"
+  },
   "blink": {
     "button": "Blink"
   },

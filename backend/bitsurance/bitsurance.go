@@ -27,10 +27,12 @@ import (
 )
 
 const (
-	apiKey    = "265bfd773038c9ad9da7047e107babba0269bc3d31952172d9b10335e8a9d8e9"
-	xpubSalt  = "bitsurance"
-	apiURL    = "https://api.bitsurance.eu/api/"
-	widgetURL = "https://api.bitsurance.eu/widget/"
+	apiKey        = "265bfd773038c9ad9da7047e107babba0269bc3d31952172d9b10335e8a9d8e9"
+	xpubSalt      = "bitsurance"
+	apiURL        = "https://api.bitsurance.eu/api/"
+	widgetVersion = "1"
+	widgetURL     = "https://get.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
+	widgetTestURL = "https://test.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
 )
 
 const statusActive = "active"
@@ -54,7 +56,7 @@ func bitsuranceCheckId(httpClient *http.Client, accountId string) (bool, error) 
 	endpoint := apiURL + "accountDetails/" + accountId
 	details := accountDetails{}
 	code, err := util.APIGet(httpClient, endpoint, apiKey, 1024, &details)
-	if err != nil {
+	if err != nil && code != http.StatusNotFound {
 		return false, err
 	}
 	if code == http.StatusNotFound {
@@ -83,11 +85,14 @@ func BitsuranceGetId(account accounts.Interface) (string, error) {
 }
 
 // BitsuranceURL returns the url for the Bitsurance widget for a given locale.
-func BitsuranceURL(lang, bitsuranceId string) string {
-	return widgetURL + lang + "/?id=" + bitsuranceId
+func BitsuranceURL(devServer bool, lang string) string {
+	if devServer {
+		return widgetTestURL + lang
+	}
+	return widgetURL + lang
 }
 
-// BitsuranceAccountsLookup takes in input a slice of accounts. It fetches the list of insured accounts from the
+// BitsuranceAccountsLookup takes in input a slice of accounts. For each account, it interrogates the
 // Bitsurance server and returns a map with the given accounts' codes as keys and bool values which are `true` if
 // the given account is found on the list, `false` otherwise.
 func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Client) (map[types.Code]bool, error) {
