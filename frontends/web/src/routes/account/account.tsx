@@ -34,6 +34,7 @@ import { Spinner } from '../../components/spinner/Spinner';
 import { Status } from '../../components/status/status';
 import { Transactions } from '../../components/transactions/transactions';
 import { useLoad } from '../../hooks/api';
+import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { apiGet } from '../../utils/request';
 import style from './account.module.css';
 import { ActionButtons } from './actionButtons';
@@ -249,6 +250,7 @@ export function Account({
         </Dialog>
         <Header
           title={<h2><span>{account.name}</span>{insured && (<Insured/>)}</h2>}>
+          <HideAmountsButton />
           <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
@@ -277,7 +279,7 @@ export function Account({
                 code={code}
                 exchangeBuySupported={exchangeBuySupported}
                 unit={balance.available.unit}
-                balanceList={[[code, balance]]}
+                balanceList={[balance]}
               />
             )}
             { !status.synced || offlineErrorTextLines.length || !hasDataLoaded || status.fatalError ? (
@@ -308,7 +310,8 @@ export function Account({
         unit={balance?.available.unit}
         hasIncomingBalance={balance && balance.hasIncoming}
         hasTransactions={transactions !== undefined && transactions.success && transactions.list.length > 0}
-        hasNoBalance={balance && balance.available.amount === '0'} />
+        hasNoBalance={balance && balance.available.amount === '0'}
+      />
     </div>
   );
 }

@@ -1,0 +1,13 @@
+.button {
+    display: flex;
+}
+
+.button img {
+    width: 18px;
+    height: 18px;
+}
+
+.button span {
+    width: 96px;
+    margin-left: var(--space-eight);
+}

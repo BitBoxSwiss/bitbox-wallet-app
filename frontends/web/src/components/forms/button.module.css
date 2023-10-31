@@ -23,6 +23,10 @@
     will-change: background-color, color;
 }
 
+.button:hover {
+    cursor: pointer;
+}
+
 .button:focus {
     outline: none;
 }

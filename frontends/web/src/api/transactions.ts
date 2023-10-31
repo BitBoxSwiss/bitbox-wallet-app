@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
-*
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-import { Dispatch, SetStateAction, createContext } from 'react';
+import { subscribe as subscribeLegacy } from '../utils/event-legacy';
 
-type AppContextProps = {
-    guideShown: boolean;
-    guideExists: boolean;
-    hideAmounts: boolean;
-    setGuideExists: Dispatch<SetStateAction<boolean>>;
-    setGuideShown: Dispatch<SetStateAction<boolean>>;
-    toggleGuide: () => void;
-    toggleHideAmounts: () => void;
-}
-
-const AppContext = createContext<AppContextProps>({} as AppContextProps);
-
-export default AppContext;
+export const syncNewTxs = (
+  cb: (
+    meta: {
+      count: number,
+      accountName: string,
+    }
+  ) => void,
+) => {
+  return subscribeLegacy('newTxs', event => {
+    if (event.type === 'backend') {
+      cb(event.meta);
+    }
+  });
+};

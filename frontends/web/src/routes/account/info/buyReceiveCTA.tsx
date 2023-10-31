@@ -24,7 +24,7 @@ import { getExchangeSupportedAccounts } from '../../buy/utils';
 import styles from './buyReceiveCTA.module.css';
 
 type TBuyReceiveCTAProps = {
-  balanceList?: [string, IBalance][];
+  balanceList?: IBalance[];
   code?: string;
   unit?: string;
   exchangeBuySupported?: boolean;
@@ -45,7 +45,7 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
         route('accounts/select-receive');
         return;
       }
-      route(`/account/${balanceList[0][0]}/receive`);
+      route(`/account/${balanceList[0]}/receive`);
     }
   };
 
@@ -72,13 +72,15 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
   if (balances === undefined || supportedAccounts === undefined) {
     return null;
   }
-  const balanceList = Object.entries(balances);
-  if (balanceList.some(entry => entry[1].hasAvailable)) {
+  const balanceList = accounts
+    .map(account => balances[account.code])
+    .filter(balance => !!balance);
+
+  if (balanceList.some(entry => entry.hasAvailable)) {
     return null;
   }
-  if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
-    const onlyHasOneAccount = balanceList.length === 1;
-    return <BuyReceiveCTA code={onlyHasOneAccount ? balanceList[0][0] : undefined} unit={'BTC'} balanceList={balanceList} />;
+  if (balanceList.map(entry => entry.available.unit).every(isBitcoinCoin)) {
+    return <BuyReceiveCTA code={accounts.length === 1 ? accounts[0].code : undefined} unit={'BTC'} balanceList={balanceList} />;
   }
 
   return <BuyReceiveCTA exchangeBuySupported={supportedAccounts.length > 0} balanceList={balanceList} />;

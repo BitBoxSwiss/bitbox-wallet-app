@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
- * useMountedRef returns a `react.Ref` with `ref.current` boolean defining if
- * the component is actually mounted.
+ * useMounted returns a boolean which is true if the component is actually mounted.
  */
-
 export const useMountedRef = () => {
-  const mounted = useRef(true);
-  useEffect(() => (
-    () => {
-      mounted.current = false;
-    }
-  ), []);
-  return mounted;
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  return isMountedRef;
 };

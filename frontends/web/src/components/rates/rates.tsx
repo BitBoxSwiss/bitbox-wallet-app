@@ -31,6 +31,7 @@ export interface SharedProps {
     // eslint-disable-next-line react/no-unused-prop-types
     selected: Fiat[];
     btcUnit?: BtcUnit;
+    alwaysShowAmounts?: boolean;
 }
 
 export type FiatWithDisplayName = {
@@ -84,6 +85,7 @@ export function updateRatesConfig(): void {
   });
 }
 
+//this is setting default currency
 export function setActiveFiat(fiat: Fiat): void {
   if (!store.state.selected.includes(fiat)) {
     selectFiat(fiat);
@@ -92,12 +94,13 @@ export function setActiveFiat(fiat: Fiat): void {
   setConfig({ backend: { mainFiat: fiat } });
 }
 
-export function rotateFiat(): void {
+function rotateFiat(): void {
   const index = store.state.selected.indexOf(store.state.active);
   const fiat = store.state.selected[(index + 1) % store.state.selected.length];
   setActiveFiat(fiat);
 }
 
+//this is selecting active currency
 export function selectFiat(fiat: Fiat): void {
   const selected = [...store.state.selected, fiat];
   setConfig({ backend: { fiatList: selected } })
@@ -152,6 +155,7 @@ function Conversion({
   sign,
   noBtcZeroes,
   btcUnit,
+  alwaysShowAmounts = false
 }: TProps) {
 
   let formattedAmount = <>{'---'}</>;
@@ -165,7 +169,7 @@ function Conversion({
   // amount.conversions[active] can be empty in recent transactions.
   if (amount && amount.conversions && amount.conversions[active] && amount.conversions[active] !== '') {
     isAvailable = true;
-    formattedAmount = <Amount amount={amount.conversions[active]} unit={activeUnit} removeBtcTrailingZeroes={!!noBtcZeroes}/>;
+    formattedAmount = <Amount alwaysShowAmounts={alwaysShowAmounts} amount={amount.conversions[active]} unit={activeUnit} removeBtcTrailingZeroes={!!noBtcZeroes}/>;
   }
 
 

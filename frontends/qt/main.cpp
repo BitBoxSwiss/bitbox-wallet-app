@@ -82,7 +82,7 @@ public:
                 // if the BitBoxApp is launched and also when it is already running, in which case
                 // it is brought to the foreground automatically.
 
-                handleURI(const_cast<char*>(openEvent->url().toString().toStdString().c_str()));
+                handleURI(openEvent->url().toString().toLocal8Bit().constData());
             }
         }
 
@@ -97,6 +97,13 @@ public:
 
     QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
         return externalPage;
+    }
+
+    virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
+    {
+        // Log frontend console messages to the Go log.txt.
+        QString formattedMsg = QString("msg: %1; line %2; source: %3").arg(message).arg(lineNumber).arg(sourceID);
+        goLog(formattedMsg.toLocal8Bit().constData());
     }
 };
 
@@ -118,7 +125,7 @@ public:
         if (onBuyPage || onBitsurancePage) {
             if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
                 // A link with target=_blank was clicked.
-                systemOpen(const_cast<char*>(info.requestUrl().toString().toStdString().c_str()));
+                systemOpen(info.requestUrl().toString().toLocal8Bit().constData());
                 // No need to also load it in our page.
                 info.block(true);
             }
@@ -381,11 +388,11 @@ int main(int argc, char *argv[])
         [&](int instanceId, QByteArray message) {
             QString arg = QString::fromUtf8(message);
             qDebug() << "Received arg from secondary instance:" << arg;
-            handleURI(const_cast<char*>(arg.toStdString().c_str()));
+            handleURI(arg.toLocal8Bit().constData());
         });
     // Handle URI which the app was launched with in the primary instance.
     if (a.arguments().size() == 2) {
-        handleURI(const_cast<char*>(a.arguments()[1].toStdString().c_str()));
+        handleURI(a.arguments()[1].toLocal8Bit().constData());
     }
 
     return a.exec();
