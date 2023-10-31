@@ -48,6 +48,7 @@ export type TKeystore = {
 export interface IAccount {
   keystore: TKeystore;
   active: boolean;
+  watch: boolean;
   coinCode: CoinCode;
   coinUnit: string;
   coinName: string;

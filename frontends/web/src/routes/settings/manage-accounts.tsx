@@ -101,6 +101,16 @@ class ManageAccounts extends Component<Props, State> {
               this.toggleAccount(account.code, !active)
                 .then(() => event.target.disabled = false);
             }} />
+          Watchonly:
+          <Toggle
+            checked={account.watch}
+            className={style.toggle}
+            id={account.code}
+            onChange={async (event) => {
+              event.target.disabled = true;
+              await this.setWatch(account.code, !account.watch);
+              event.target.disabled = false;
+            }} />
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
               <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
@@ -129,6 +139,19 @@ class ManageAccounts extends Component<Props, State> {
         alertUser(errorMessage);
       }
     });
+  };
+
+  private setWatch = async (accountCode: string, watch: boolean) => {
+    // TODO: ask user if they really want to proceed if they disable watch-only, if its keystore is
+    // not currently loaded. Disabling watch-only in this case immediately removes the account from
+    // the sidebar and manage accounts and cannot be brought back without connecting the keystore.
+
+    const result = await backendAPI.accountSetWatch(accountCode, watch);
+    if (result.success) {
+      await this.fetchAccounts();
+    } else if (result.errorMessage) {
+      alertUser(result.errorMessage);
+    }
   };
 
   private toggleShowTokens = (accountCode: string) => {

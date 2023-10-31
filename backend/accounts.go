@@ -487,6 +487,46 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
+// AccountSetWatch sets the account's persisted watch flag to `watch`. Set to `true` if the account
+// should be loaded even if its keystore is not connected.
+// If `watch` is set to `false`, the account is unloaded and the frontend notified.
+func (backend *Backend) AccountSetWatch(accountCode accountsTypes.Code, watch bool) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(accountCode)
+		if acct == nil {
+			return errp.Newf("Could not find account %s", accountCode)
+		}
+		acct.Watch = &watch
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	defer backend.accountsAndKeystoreLock.Lock()()
+
+	// ETH tokens inherit the Watch-flag from the parent ETH account.
+	// If the watch status of an ETH account was changed, we update it for its tokens as well.
+	//
+	// This ensures that removing a keystore after setting an ETH account including tokens to
+	// watchonly results in the account *and* the tokens remaining loaded.
+	if acct := backend.accounts.lookup(accountCode); acct != nil {
+		if acct.Config().Config.CoinCode == coinpkg.CodeETH {
+			for _, erc20TokenCode := range acct.Config().Config.ActiveTokens {
+				erc20AccountCode := Erc20AccountCode(accountCode, erc20TokenCode)
+				if tokenAcct := backend.accounts.lookup(erc20AccountCode); tokenAcct != nil {
+					tokenAcct.Config().Config.Watch = &watch
+				}
+			}
+		}
+	}
+
+	if !watch {
+		backend.initAccounts(false)
+		backend.emitAccountsStatusChanged()
+	}
+	return nil
+}
+
 // addAccount adds the given account to the backend.
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {

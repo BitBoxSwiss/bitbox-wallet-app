@@ -96,6 +96,7 @@ type Backend interface {
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
+	AccountSetWatch(accountCode accountsTypes.Code, watch bool) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
@@ -202,6 +203,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
@@ -346,6 +348,7 @@ type accountJSON struct {
 	// keystore.
 	Keystore              config.Keystore    `json:"keystore"`
 	Active                bool               `json:"active"`
+	Watch                 bool               `json:"watch"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
 	CoinName              string             `json:"coinName"`
@@ -362,6 +365,7 @@ func newAccountJSON(keystore config.Keystore, account accounts.Interface, active
 	return &accountJSON{
 		Keystore:              keystore,
 		Active:                !account.Config().Config.Inactive,
+		Watch:                 account.Config().Config.IsWatch(),
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -704,6 +708,26 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{} {
+	var jsonBody struct {
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Watch       bool               `json:"watch"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	if err := handlers.backend.AccountSetWatch(jsonBody.AccountCode, jsonBody.Watch); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
