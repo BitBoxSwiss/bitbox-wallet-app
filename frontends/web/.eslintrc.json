@@ -57,7 +57,16 @@
   "overrides": [
     {
       "files": ["**/*.ts?(x)"],
-      "rules": { }
+      "rules": {
+        "@typescript-eslint/restrict-template-expressions": ["error", {
+          "allowAny": false,
+          "allowBoolean": false,
+          "allowNullish": false
+        }]
+      },
+      "parserOptions": {
+        "project": ["./tsconfig.json"]
+      }
     },
     {
       "files": ["**/*.test.ts?(x)"],
