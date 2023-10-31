@@ -23,7 +23,7 @@ import { A } from '../../components/anchor/anchor';
 import { Button } from '../../components/forms';
 import { Checked, Sync, SyncLight } from '../../components/icon';
 import Logo from '../../components/icon/logo';
-import { Column, Grid, GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
+import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
 import { useDarkmode } from '../../hooks/darkmode';
 import { route } from '../../utils/route';
@@ -39,6 +39,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const { isDarkMode } = useDarkmode();
   const [insuredAccounts, setInsuredAccounts] = useState<IAccount[]>([]);
   const [scanDone, setScanDone] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
 
   const amount = '100.000€';
 
@@ -48,6 +49,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
   }, [accounts]);
 
   const detect = async () => {
+    setScanLoading(true);
     setScanDone(false);
     setInsuredAccounts([]);
     const response = await bitsuranceLookup();
@@ -57,6 +59,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
     }
     setInsuredAccounts(accounts.filter(({ code }) => response.accountCodes.includes(code)));
     setScanDone(true);
+    setScanLoading(false);
   };
 
   const maybeProceed = async () => {
@@ -71,51 +74,63 @@ export const Bitsurance = ({ accounts }: TProps) => {
         <GuidedContent>
           <Header title={<h2>{t('sidebar.insurance')}</h2>} />
           <View fullscreen={false}>
-            <ViewContent fullWidth>
+            <ViewContent>
               <p className={style.noVspace}>{t('bitsurance.intro.text1', { amount })}</p>
-              <p className={style.noVspace}>{t('bitsurance.intro.text2')} <A href="https://www.bitsurance.eu/">{t('bitsurance.intro.link')}</A>.</p>
-              <Grid col="2" textAlign="left">
-                <Column asCard>
-                  <h3 className="title">
-                    {t('bitsurance.insure.title')}
-                  </h3>
-                  <p>{t('bitsurance.insure.text')}</p>
-                  <ul className={style.clean}>
-                    <li><Checked/><span>{t('bitsurance.insure.listItem1')}</span></li>
-                    <li><Checked/><span>{t('bitsurance.insure.listItem2')}</span></li>
-                  </ul>
-                  <Button onClick={ maybeProceed } primary>
-                    {t('bitsurance.insure.button')}
-                  </Button>
-                  <A href="https://www.bitsurance.eu/faq/">{t('bitsurance.insure.faq')}</A>
-                </Column>
-                <Column asCard>
-                  <h3 className="title">
-                    {t('bitsurance.detect.title')}
-                  </h3>
-                  <p>{t('bitsurance.detect.text')}</p>
-                  {insuredAccounts.length > 0 ? (
+              <div className={style.gridContainer}>
+                <Grid col="2" textAlign="left">
+                  <Column asCard>
+                    <h3 className={style.title}>
+                      {t('bitsurance.insure.title')}
+                    </h3>
+                    <p className={style.cardBody}>{t('bitsurance.insure.text')}</p>
+                    <ul className={style.clean}>
+                      <li><Checked/><span>{t('bitsurance.insure.listItem1')}</span></li>
+                      <li><Checked/><span>{t('bitsurance.insure.listItem2')}</span></li>
+                      <li><Checked/><span>{t('bitsurance.insure.listItem3')}</span></li>
+                    </ul>
+                    <p className={style.cardBody2}>
+                      {t('bitsurance.insure.text2')} {' '}
+                      <A href="https://www.bitsurance.eu/">{t('bitsurance.intro.link')}</A>.
+                    </p>
+                    <ColumnButtons className={style.ctaButton}>
+                      <Button onClick={maybeProceed} primary>
+                        {t('bitsurance.insure.button')}
+                      </Button>
+                    </ColumnButtons>
+                  </Column>
+                  <Column asCard>
+                    <h3 className={style.title}>
+                      {t('bitsurance.detect.title')}
+                    </h3>
+                    <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
+                    {insuredAccounts.length > 0 ? (
                     //FIXME this will be removed and a new page listing the dashboard of the
                     // insured accounts will be introduced in a next commit.
-                    <div>
-                      <p>{t('bitsurance.detect.insured')}</p>
-                      <ul className={style.clean}>
-                        {insuredAccounts.map(account => <li key={account.code}>
-                          <Logo coinCode="btc" active={true} alt="btc" />
-                          {account.name}</li>)}
-                      </ul>
-                    </div>
-                  ) : scanDone && (
-                    <p>{t('bitsurance.detect.notInsured')}</p>
-                  )}
-                  <Button
-                    onClick={detect }
-                    primary>
-                    {isDarkMode ? <SyncLight/> : <Sync/>}
-                    {t('bitsurance.detect.button')}
-                  </Button>
-                </Column>
-              </Grid>
+                      <div>
+                        <p>{t('bitsurance.detect.insured')}</p>
+                        <ul className={style.clean}>
+                          {insuredAccounts.map(account => <li key={account.code}>
+                            <Logo coinCode="btc" active={true} alt="btc" />
+                            {account.name}</li>)}
+                        </ul>
+                      </div>
+                    ) : scanDone && (
+                      <p className={`${style.cardBody2} ${style.errorMessage}`}>{t('bitsurance.detect.notInsured')}</p>
+                    )}
+                    <ColumnButtons className={style.ctaButton}>
+                      <Button
+                        onClick={detect}
+                        disabled={scanLoading}
+                        secondary
+                      >
+                        {isDarkMode ? <SyncLight/> : <Sync/>}
+                        {t('bitsurance.detect.button')}
+                      </Button>
+                    </ColumnButtons>
+
+                  </Column>
+                </Grid>
+              </div>
             </ViewContent>
           </View>
         </GuidedContent>

@@ -297,22 +297,23 @@
       "button": "Detect insured account",
       "insured": "Insured account detected:",
       "notInsured": "No insured accounts detected. If you are sure you have an insured account, please make sure you have the correct wallet connected.",
-      "text": "If you already have an insured account, please click the button below so the BitBoxApp can detect your insured accounts.",
+      "text": "If you already signed up with Bitsurance, the BitBoxApp can automatically synchronize your existing insurance coverage.",
       "title": "Already have an insured account?"
     },
     "insure": {
       "button": "Check availability and pricing",
       "faq": "Read more on Bitsurance FAQs",
-      "listItem1": "Loss through Fire/Water/Storm",
-      "listItem2": "Extortion ($5 wrench attack)",
+      "listItem1": "Robbery, burglary or vandalism",
+      "listItem2": "Extortion (e.g., $5 wrench attack)",
+      "listItem3": "Destruction due to fire, water or natural disasters",
       "month": "month",
-      "text": "Insure Bitcoin on this hardware wallet against:",
+      "text": "Insure your BitBox02 and up to €100,000 worth of bitcoin against",
+      "text2": "Insurance plans start at €2.50/month (€30/year). You can learn more about Bitsurance and their exact insurance offerings on the",
       "title": "Get started"
     },
     "intro": {
       "link": "Bitsurance website",
-      "text1": "BitBox has partened with Bitsurance to offer {{- amount}} worth of Bitcoin insurance.",
-      "text2": "Read more about the insurance offering on the"
+      "text1": "BitBox partners with Bitsurance to add an additional layer of protection for your bitcoin. While the BitBox02 keeps your funds secure, Bitsurance covers threats that can’t be mitigated with technology alone, like physical theft, extortion, or destruction of the wallet itself."
     },
     "title": "Insurance"
   },
