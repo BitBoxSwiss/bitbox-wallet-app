@@ -31,7 +31,7 @@ import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
-import { isBitcoinOnly } from '../../routes/account/utils';
+import { getAccountsByKeystore, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
@@ -169,6 +169,7 @@ class Sidebar extends Component<Props> {
     } = this.props;
     const hidden = sidebarStatus === 'forceHidden';
     const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+    const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
         <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
@@ -184,11 +185,6 @@ class Sidebar extends Component<Props> {
             </button>
           </div>
 
-          <div className={style.sidebarHeaderContainer}>
-            <span className={style.sidebarHeader} hidden={!keystores?.length}>
-              {t('sidebar.accounts')}
-            </span>
-          </div>
           { accounts.length ? (
             <div className={style.sidebarItem}>
               <NavLink
@@ -203,7 +199,19 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null }
-          { accounts && accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
+
+          {
+            accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
+              <div className={style.sidebarHeaderContainer}>
+                <span className={style.sidebarHeader} hidden={!keystores?.length}>
+                  {t('sidebar.accounts')} - {keystore.keystore.name}
+                </span>
+              </div>
+
+              { keystore.accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
+            </React.Fragment>))
+          }
+
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           { accounts.length ? (
             <div key="buy" className={style.sidebarItem}>

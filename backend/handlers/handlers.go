@@ -341,6 +341,10 @@ type activeToken struct {
 }
 
 type accountJSON struct {
+	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
+	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
+	// keystore.
+	Keystore              config.Keystore    `json:"keystore"`
 	Active                bool               `json:"active"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
@@ -352,10 +356,11 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
+func newAccountJSON(keystore config.Keystore, account accounts.Interface, activeTokens []activeToken) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	return &accountJSON{
+		Keystore:              keystore,
 		Active:                !account.Config().Config.Inactive,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
@@ -515,19 +520,22 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
-	accounts := []*accountJSON{}
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
+
+	accounts := []*accountJSON{}
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.HiddenBecauseUnused {
 			continue
 		}
 		var activeTokens []activeToken
+
+		persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
+		if persistedAccount == nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
+			continue
+		}
+
 		if account.Coin().Code() == coinpkg.CodeETH {
-			persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
-			if persistedAccount == nil {
-				handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
-				continue
-			}
 			for _, tokenCode := range persistedAccount.ActiveTokens {
 				activeTokens = append(activeTokens, activeToken{
 					TokenCode:   tokenCode,
@@ -535,7 +543,19 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 				})
 			}
 		}
-		accounts = append(accounts, newAccountJSON(account, activeTokens))
+
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("could not identify root fingerprint")
+			continue
+		}
+		keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
+		if err != nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("could not find keystore of account")
+			continue
+		}
+
+		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens))
 	}
 	return accounts
 }
