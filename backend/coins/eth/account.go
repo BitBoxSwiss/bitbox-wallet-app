@@ -964,7 +964,7 @@ func (account *Account) EthSignWalletConnectTx(
 			return "", "", errp.WithStack(err)
 		}
 	}
-	rawTx, err := rlp.EncodeToBytes(tx)
+	rawTx, err := rlp.EncodeToBytes(signedTx)
 	if err != nil {
 		return "", "", err
 	}
