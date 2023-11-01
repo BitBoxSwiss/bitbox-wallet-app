@@ -213,9 +213,9 @@ export function Receive({ accounts, code }: Props) {
               </Column>
             </Grid>
           </ViewContent>
-          <ViewButtons reverseRow>
-            <Button secondary onClick={back}>
-              {t('button.back')}
+          <ViewButtons>
+            <Button secondary onClick={() => route(`/account/${code}/lightning`)}>
+              {t('button.done')}
             </Button>
           </ViewButtons>
         </View>
