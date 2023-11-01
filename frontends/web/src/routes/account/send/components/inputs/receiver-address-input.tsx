@@ -22,7 +22,7 @@ import DarkModeContext from '../../../../../contexts/DarkmodeContext';
 import { Input } from '../../../../../components/forms';
 import { QRCodeLight, QRCodeDark } from '../../../../../components/icon';
 import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
-import style from '../../send.module.css';
+import style from './receiver-address-input.module.css';
 
 type TToggleScanQRButtonProps = {
     onClick: () => void;
