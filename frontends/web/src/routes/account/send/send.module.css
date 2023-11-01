@@ -33,15 +33,6 @@
     cursor: not-allowed;
 }
 
-.confirmationValue {
-    font-size: var(--size-default);
-    font-weight: 400;
-    line-height: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    direction: rtl;
-}
-
 .maxAmount label {
     display: block !important;
     margin-right: 0 !important;
@@ -90,16 +81,6 @@
 .qrButton img {
     width: 18px;
     height: 18px;
-}
-
-.confirmItem p {
-    margin-top: var(--space-quarter);
-    word-break: break-all;
-}
-
-.total p {
-    font-size: var(--size-subheader) !important;
-    margin-bottom: var(--space-quarter);
 }
 
 .labelDescription {
