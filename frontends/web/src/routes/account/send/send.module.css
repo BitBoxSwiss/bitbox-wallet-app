@@ -2,37 +2,6 @@
     margin-top: calc(var(--space-default) * 1.5);
 }
 
-.input {
-    padding: var(--spacing-default);
-    border-radius: 2px;
-    border: solid 1px var(--background-quaternary);
-    font-size: var(--size-medium);
-}
-
-.input:focus {
-    outline: none;
-}
-
-.labelHalf {
-    width: 49%;
-}
-
-.labelHalf:first-child {
-    margin-right: 2%;
-}
-
-.inputHalf {
-    width: 49%;
-}
-
-.inputFull {
-    width: 100%;
-}
-
-.notAllowed {
-    cursor: not-allowed;
-}
-
 .labelDescription {
     color: var(--color-secondary);
     font-size: var(--size-small);
