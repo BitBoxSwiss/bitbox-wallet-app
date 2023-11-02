@@ -32,3 +32,11 @@
 .successMessage strong {
     color: var(--color-default);
 }
+
+@media (max-width: 768px) {
+    .camera,
+    .camera video {
+        max-height: 330px;
+        position: relative;
+    }
+}
