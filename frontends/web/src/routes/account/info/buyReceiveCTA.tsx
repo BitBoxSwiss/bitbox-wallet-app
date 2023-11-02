@@ -45,7 +45,7 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
         route('accounts/select-receive');
         return;
       }
-      route(`/account/${balanceList[0]}/receive`);
+      route(`/account/${code}/receive`);
     }
   };
 
