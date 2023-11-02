@@ -35,7 +35,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // CallInterval is the duration between etherscan requests.
@@ -537,7 +536,7 @@ func (etherScan *EtherScan) PendingNonceAt(ctx context.Context, account common.A
 
 // SendTransaction implements rpc.Interface.
 func (etherScan *EtherScan) SendTransaction(ctx context.Context, tx *types.Transaction) error {
-	encodedTx, err := rlp.EncodeToBytes(tx)
+	encodedTx, err := tx.MarshalBinary() // canonical RLP encoding, works for legacy and EIP-1559 txs
 	if err != nil {
 		return errp.WithStack(err)
 	}

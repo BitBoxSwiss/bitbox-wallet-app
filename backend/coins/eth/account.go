@@ -610,15 +610,23 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*TxProposal, error
 			}
 		}
 	}
-	tx := types.NewTransaction(account.nextNonce,
-		*message.To,
-		message.Value, gasLimit, suggestedGasPrice, message.Data)
+	txData := &types.DynamicFeeTx{
+		Nonce:     account.nextNonce,
+		GasTipCap: suggestedGasPrice, //TODO: update with etherscan values once implemented
+		GasFeeCap: suggestedGasPrice,
+		Gas:       gasLimit,
+		To:        message.To,
+		Value:     message.Value,
+		Data:      message.Data,
+	}
+	tx := types.NewTx(txData)
+
 	return &TxProposal{
 		Coin:    account.coin,
 		Tx:      tx,
 		Fee:     fee,
 		Value:   value,
-		Signer:  types.MakeSigner(account.coin.Net(), account.blockNumber),
+		Signer:  types.NewLondonSigner(account.coin.net.ChainID),
 		Keypath: account.signingConfiguration.AbsoluteKeypath(),
 	}, nil
 }
