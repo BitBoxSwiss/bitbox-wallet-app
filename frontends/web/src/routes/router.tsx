@@ -20,6 +20,7 @@ import { Account } from './account/account';
 import { Lightning } from './lightning';
 import { Receive as ReceiveLightning } from './lightning/receive';
 import { Send as SendLightning } from './lightning/send';
+import { LightningSetup } from './lightning/setup';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
@@ -98,6 +99,12 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccLightningSend = (
     <InjectParams>
       <SendLightning code={'' /* dummy to satisfy TS */} accounts={activeAccounts} />
+    </InjectParams>
+  );
+
+  const AccLightningSetup = (
+    <InjectParams>
+      <LightningSetup />
     </InjectParams>
   );
 
@@ -182,6 +189,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
             <Route path="send" element={AccLightningSend} />
           </Route>
         </Route>
+        <Route path="lightning/setup" element={AccLightningSetup} />
         <Route path="add-account" element={<AddAccount />} />
         <Route path="account-summary" element={AccountsSummaryEl} />
         <Route path="buy">
