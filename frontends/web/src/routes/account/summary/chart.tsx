@@ -413,12 +413,8 @@ class Chart extends Component<Props, State> {
     if (!price) {
       return;
     }
-    const coordinate = this.lineSeries.priceToCoordinate(Number(price.time));
-    if (!coordinate) {
-      return;
-    }
-    const toolTipTop = Math.max(coordinate - 70, 0);
-    const toolTipLeft = Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70));
+    const toolTipTop = Math.floor(Math.max(point.y - 70, 0));
+    const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
     this.setState({
       toolTipVisible: true,
       toolTipValue: this.formattedData ? this.formattedData[time as number] : '',
@@ -534,7 +530,7 @@ class Chart extends Component<Props, State> {
           <span
             ref={this.refToolTip}
             className={styles.tooltip}
-            style={{ 'left': toolTipLeft, top: toolTipTop }}
+            style={{ left: toolTipLeft, top: toolTipTop }}
             hidden={!toolTipVisible || isMobile}>
             {toolTipValue !== undefined ? (
               <span>
