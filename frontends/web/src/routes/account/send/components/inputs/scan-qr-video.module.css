@@ -9,9 +9,18 @@
 
 .qrVideo {
   width: 100%;
+  object-fit: cover;
   margin-bottom: var(--spacing-default);
 }
 .qrVideo + :global(.scan-region-highlight) svg {
   stroke: var(--color-darkyellow) !important;
   stroke-width: 3 !important;
+}
+
+@media (max-width: 768px) {
+  .qrVideo {
+    height: 100vh;
+    object-fit: cover;
+    margin-bottom: 0;
+  }
 }

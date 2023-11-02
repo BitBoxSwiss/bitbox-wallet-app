@@ -32,6 +32,7 @@ export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChan
   return (
     <Dialog
       large
+      fullscreenOnMobile
       open={activeScanQR}
       title={t('send.scanQR')}
       onClose={toggleScanQR}>

@@ -30,6 +30,7 @@ interface Props {
     disabledClose?: boolean;
     children: React.ReactNode;
     open: boolean;
+    fullscreenOnMobile?: boolean;
 }
 
 interface State {
@@ -198,6 +199,7 @@ class Dialog extends Component<Props, State> {
       onClose,
       disabledClose,
       children,
+      fullscreenOnMobile,
     } = this.props;
     const { renderDialog } = this.state;
     const isSmall = small ? style.small : '';
@@ -205,6 +207,7 @@ class Dialog extends Component<Props, State> {
     const isLarge = large ? style.large : '';
     const isSlim = slim ? style.slim : '';
     const isCentered = centered && !onClose ? style.centered : '';
+    const isFullscreen = fullscreenOnMobile ? style.fullscreenOnMobile : '';
 
     if (!renderDialog) {
       return null;
@@ -213,11 +216,11 @@ class Dialog extends Component<Props, State> {
     return (
       <div className={style.overlay} ref={this.overlay}>
         <div
-          className={[style.modal, isSmall, isMedium, isLarge].join(' ')}
+          className={[style.modal, isSmall, isMedium, isLarge, isFullscreen].join(' ')}
           ref={this.modal}>
           {
             title && (
-              <div className={[style.header, isCentered].join(' ')}>
+              <div className={[style.header, isCentered, isFullscreen].join(' ')}>
                 <h3 className={style.title}>{title}</h3>
                 { onClose ? (
                   <button className={style.closeButton} onClick={() => {
@@ -231,7 +234,7 @@ class Dialog extends Component<Props, State> {
             )
           }
           <div
-            className={[style.contentContainer, isSlim].join(' ')}
+            className={[style.contentContainer, isSlim, isFullscreen].join(' ')}
             ref={this.modalContent}>
             <div className={style.content}>
               {children}
