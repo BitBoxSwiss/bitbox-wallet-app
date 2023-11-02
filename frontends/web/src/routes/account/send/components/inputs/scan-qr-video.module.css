@@ -4,14 +4,32 @@
   height: 0;
   justify-content: center;
   position: relative;
-  top: calc(300px / 2) /*300px is the height of video element in ScanQRDialog*/
+  transform: translateY(150px); /* half of 300px is the height of video element in ScanQRDialog */
+}
+.spinnerAnimationContainer p {
+  padding: 0 var(--space-default);
 }
 
 .qrVideo {
+  display: block;
+  height: auto;
+  margin-bottom: 0;
+  min-height: 420px;
+  object-fit: cover;
+  position: relative;
   width: 100%;
-  margin-bottom: var(--spacing-default);
 }
 .qrVideo + :global(.scan-region-highlight) svg {
   stroke: var(--color-darkyellow) !important;
   stroke-width: 3 !important;
+}
+
+@media (max-width: 768px) {
+  .spinnerAnimationContainer p {
+    padding: 0;
+  }
+  .qrVideo {
+    height: 100vh;
+    max-height: 100%;
+  }
 }

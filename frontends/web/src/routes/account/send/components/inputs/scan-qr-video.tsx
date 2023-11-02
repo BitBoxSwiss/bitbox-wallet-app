@@ -30,7 +30,7 @@ export const ScanQRVideo = ({
 
   useQRScanner(videoRef, {
     onResult: result => onResult(result.data),
-    onError: console.error
+    onError: err => console.error(err),
   });
 
   return (

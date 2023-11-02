@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useContext } from 'react';
+import { ChangeEvent, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
@@ -57,7 +57,7 @@ export const ReceiverAddressInput = ({
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
 
-  const handleSendToSelf = async () => {
+  const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
       return;
     }
@@ -69,24 +69,25 @@ export const ReceiverAddressInput = ({
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [accountCode, onInputChange]);
 
-  const toggleScanQR = () => {
+  const toggleScanQR = useCallback(() => {
     if (activeScanQR) {
       onChangeActiveScanQR(false);
       return;
     }
     onChangeActiveScanQR(true);
-  };
+  }, [activeScanQR, onChangeActiveScanQR]);
 
   return (
     <>
-      <ScanQRDialog
-        activeScanQR={activeScanQR}
-        toggleScanQR={toggleScanQR}
-        onChangeActiveScanQR={onChangeActiveScanQR}
-        parseQRResult={parseQRResult}
-      />
+      {activeScanQR && (
+        <ScanQRDialog
+          toggleScanQR={toggleScanQR}
+          onChangeActiveScanQR={onChangeActiveScanQR}
+          parseQRResult={parseQRResult}
+        />
+      )}
       <Input
         label={t('send.address.label')}
         placeholder={t('send.address.placeholder')}
