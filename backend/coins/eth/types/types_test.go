@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/ethereum/go-ethereum/common"
@@ -34,4 +35,27 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 	require.Equal(t, tx.Success, tx2.Success)
 	require.Equal(t, tx.Transaction.Hash(), tx2.Transaction.Hash())
 	require.Equal(t, tx.BroadcastAttempts, tx2.BroadcastAttempts)
+}
+
+func TestFeeTarget(t *testing.T) {
+	require.Equal(t,
+		accounts.FeeTargetCodeLow,
+		(&ethtypes.FeeTarget{TargetCode: accounts.FeeTargetCodeLow, GasFeeCap: big.NewInt(21.9e9)}).Code(),
+	)
+	require.Equal(t,
+		"21.9 Gwei",
+		(&ethtypes.FeeTarget{TargetCode: accounts.FeeTargetCodeLow, GasFeeCap: big.NewInt(21.9e9)}).FormattedFeeRate(),
+	)
+	require.Equal(t,
+		"21 Gwei",
+		(&ethtypes.FeeTarget{TargetCode: accounts.FeeTargetCodeLow, GasFeeCap: big.NewInt(21e9)}).FormattedFeeRate(),
+	)
+	require.Equal(t,
+		"210 Gwei",
+		(&ethtypes.FeeTarget{TargetCode: accounts.FeeTargetCodeLow, GasFeeCap: big.NewInt(21e10)}).FormattedFeeRate(),
+	)
+	require.Equal(t,
+		"0.123 Gwei",
+		(&ethtypes.FeeTarget{TargetCode: accounts.FeeTargetCodeLow, GasFeeCap: big.NewInt(0.123e9)}).FormattedFeeRate(),
+	)
 }

@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"math/big"
+	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -43,6 +44,31 @@ type TransactionWithMetadata struct {
 	Success bool
 	// Number of broadcast attempts.
 	BroadcastAttempts uint16
+}
+
+// FeeTarget contains the gas price for a specific fee target.
+type FeeTarget struct {
+	// Code is the identifier for the UI.
+	TargetCode accounts.FeeTargetCode
+	// GasTipCap is the maxPriorityFeePerGas as specified by EIP-1559, in Wei.
+	GasTipCap *big.Int
+	// GasFeeCap is the maxFeePerGas (base fee + priority fee) as specified by EIP-1559, in Wei.
+	GasFeeCap *big.Int
+}
+
+// Code returns the btc fee target.
+func (f *FeeTarget) Code() accounts.FeeTargetCode {
+	return f.TargetCode
+}
+
+// FormattedFeeRate returns a string showing the fee rate.
+func (f *FeeTarget) FormattedFeeRate() string {
+	if f.GasFeeCap == nil {
+		return ""
+	}
+	factor := big.NewInt(1e9)
+	s := new(big.Rat).SetFrac(f.GasFeeCap, factor).FloatString(9)
+	return strings.TrimRight(strings.TrimRight(s, "0"), ".") + " Gwei"
 }
 
 // MarshalJSON implements json.Marshaler. Used for DB serialization.

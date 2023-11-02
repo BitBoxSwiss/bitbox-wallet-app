@@ -29,6 +29,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	keystoremock "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -93,6 +95,14 @@ func newAccount(t *testing.T) *Account {
 			RateUpdater:     nil,
 			GetNotifier:     func(signing.Configurations) accounts.Notifier { return nil },
 			GetSaveFilename: func(suggestedFilename string) string { return suggestedFilename },
+			ConnectKeystore: func() (keystore.Keystore, error) {
+				ks := &keystoremock.KeystoreMock{
+					SupportsEIP1559Func: func() bool {
+						return true
+					},
+				}
+				return ks, nil
+			},
 		},
 		coin,
 		&http.Client{},

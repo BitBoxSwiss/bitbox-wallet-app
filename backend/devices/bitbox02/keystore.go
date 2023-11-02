@@ -606,3 +606,8 @@ func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *et
 	}
 	return signature, nil
 }
+
+// SupportsEIP1559 implements keystore.Keystore.
+func (keystore *keystore) SupportsEIP1559() bool {
+	return keystore.device.Version().AtLeast(semver.NewSemVer(9, 16, 0))
+}
