@@ -41,7 +41,9 @@ func (s *ServerInfo) String() string {
 
 // btcCoinConfig holds configurations specific to a btc-based coin.
 type btcCoinConfig struct {
-	ElectrumServers []*ServerInfo `json:"electrumServers"`
+	Code            coin.Code
+	ElectrumServers []*ServerInfo       `json:"electrumServers"`
+	BlockExplorer   BlockExplorerConfig `json:"explorer"`
 }
 
 // ETHTransactionsSource  where to get Ethereum transactions from. See the list of consts
@@ -153,6 +155,7 @@ func NewDefaultAppConfig() AppConfig {
 			DeprecatedEthereumActive: true,
 
 			BTC: btcCoinConfig{
+				Code: coin.CodeBTC,
 				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "btc1.shiftcrypto.io:443",
@@ -165,8 +168,13 @@ func NewDefaultAppConfig() AppConfig {
 						PEMCert: shiftRootCA,
 					},
 				},
+				BlockExplorer: BlockExplorerConfig{
+					UseExplorer: false,
+					ExplorerURL: "https://blockstream.info/tx/",
+				},
 			},
 			TBTC: btcCoinConfig{
+				Code: coin.CodeTBTC,
 				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "tbtc1.shiftcrypto.io:443",
@@ -179,8 +187,13 @@ func NewDefaultAppConfig() AppConfig {
 						PEMCert: shiftRootCA,
 					},
 				},
+				BlockExplorer: BlockExplorerConfig{
+					UseExplorer: false,
+					ExplorerURL: "https://blockstream.info/testnet/tx/",
+				},
 			},
 			RBTC: btcCoinConfig{
+				Code: coin.CodeRBTC,
 				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "127.0.0.1:52001",

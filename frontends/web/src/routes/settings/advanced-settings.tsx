@@ -29,10 +29,22 @@ import { getConfig } from '../../utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
+import { EnableExplorerSetting } from './components/advanced-settings/enable-explorer-setting';
+import { debug } from '../../utils/env';
+import { getTesting } from '../../api/backend';
 
 export type TProxyConfig = {
   proxyAddress: string;
   useProxy: boolean;
+}
+
+export type TBitcoinExplorerConfig = {
+  explorerURL: string;
+  useCustomBlockExplorer: boolean;
+}
+
+export type TBitcoinConfig = {
+  explorer: TBitcoinExplorerConfig;
 }
 
 export type TFrontendConfig = {
@@ -42,6 +54,8 @@ export type TFrontendConfig = {
 
 type TBackendConfig = {
   proxy?: TProxyConfig
+  btc?: TBitcoinConfig
+  tbtc?: TBitcoinConfig
 }
 
 export type TConfig = {
@@ -50,12 +64,14 @@ export type TConfig = {
 }
 
 export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTabs) => {
+  const testing = useLoad(debug ? getTesting : () => Promise.resolve(false));
   const { t } = useTranslation();
   const fetchedConfig = useLoad(getConfig) as TConfig;
   const [config, setConfig] = useState<TConfig>();
 
   const frontendConfig = config?.frontend;
   const proxyConfig = config?.backend?.proxy;
+  const bitcoinConfig = testing ? config?.backend?.tbtc : config?.backend?.btc;
 
   useEffect(() => {
     setConfig(fetchedConfig);
@@ -83,6 +99,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
+                <EnableExplorerSetting bitcoinConfig={bitcoinConfig} onChangeConfig={setConfig} />
                 <ConnectFullNodeSetting />
               </WithSettingsTabs>
             </ViewContent>

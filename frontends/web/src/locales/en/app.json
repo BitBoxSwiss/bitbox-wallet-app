@@ -1075,6 +1075,9 @@
       },
       "torProxy": {
         "description": "Connect over Tor for better privacy."
+      },
+      "explorer": {
+        "description": "Use your preferred blockexplorer"
       }
     },
     "appearance": {
@@ -1448,7 +1451,9 @@
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
       "useProxy": "Enable tor proxy",
-      "useSats": "Display BTC values in Satoshis"
+      "useSats": "Display BTC values in Satoshis",
+      "useCustomBlockExplorer": "Custom Bitcoin block explorer",
+      "setBlockExplorerURL": "Set Bitcoin block explorer URL"
     },
     "header": {
       "home": "Home"
