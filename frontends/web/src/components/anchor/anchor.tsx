@@ -18,6 +18,8 @@
 import { ReactNode, SyntheticEvent } from 'react';
 import { open } from '../../api/system';
 import style from './anchor.module.css';
+import useConfirm from '../../hooks/confirm';
+import { useTranslation } from 'react-i18next';
 
 type TProps = {
   children: ReactNode;
@@ -39,6 +41,12 @@ type TProps = {
  *
  * @param {LinkProps} props - The props object containing properties for the Link component.
  */
+
+type TUseConfirm = [
+    (title: string, message: string) => Promise<boolean>,
+    React.FunctionComponent
+];
+
 export const A = ({
   href,
   icon,
@@ -46,18 +54,35 @@ export const A = ({
   children,
   ...props
 }: TProps) => {
+  const { t } = useTranslation();
+  const [ getConfirmation, Confirmation ]: TUseConfirm = useConfirm();
+
+  const onReject = async (reason: string) => {
+    if (reason.indexOf('Blocked') === -1) {
+      return;
+    }
+
+    const status = await getConfirmation(t('blockedOpen.title'), t('blockedOpen.message'));
+    if (status) {
+      window.open(href, '_blank');
+    }
+  };
+
   return (
-    <span
-      className={`${style.link} ${className || ''}`}
-      title={props.title || href}
-      onClick={(e: SyntheticEvent) => {
-        e.preventDefault();
-        open(href).catch(console.error);
-      }}
-      tabIndex={0}
-      {...props}>
-      {icon ? icon : null}
-      {children}
-    </span>
+    <>
+      <span
+        className={`${style.link} ${className || ''}`}
+        title={props.title || href}
+        onClick={(e: SyntheticEvent) => {
+          e.preventDefault();
+          open(href).catch(onReject);
+        }}
+        tabIndex={0}
+        {...props}>
+        {icon ? icon : null}
+        {children}
+      </span>
+      <Confirmation/>
+    </>
   );
 };

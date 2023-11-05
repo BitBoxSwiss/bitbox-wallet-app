@@ -290,6 +290,10 @@
   "blink": {
     "button": "Blink"
   },
+  "blockedOpen": {
+    "message": "Are you sure you want to open this link ?",
+    "title": "This link is not on our whitelist"
+  },
   "bootloader": {
     "button": "Upgrade firmware now",
     "button_install": "Install firmware now",
@@ -1073,11 +1077,11 @@
       "customFees": {
         "description": "Lets you enter your own fee when sending."
       },
-      "torProxy": {
-        "description": "Connect over Tor for better privacy."
-      },
       "explorer": {
         "description": "Use your preferred blockexplorer"
+      },
+      "torProxy": {
+        "description": "Connect over Tor for better privacy."
       }
     },
     "appearance": {
@@ -1448,12 +1452,12 @@
         "title": "Connect your own full node"
       },
       "fee": "Enable custom fees",
+      "setBlockExplorerURL": "Set Bitcoin block explorer URL",
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
-      "useProxy": "Enable tor proxy",
-      "useSats": "Display BTC values in Satoshis",
       "useCustomBlockExplorer": "Custom Bitcoin block explorer",
-      "setBlockExplorerURL": "Set Bitcoin block explorer URL"
+      "useProxy": "Enable tor proxy",
+      "useSats": "Display BTC values in Satoshis"
     },
     "header": {
       "home": "Home"

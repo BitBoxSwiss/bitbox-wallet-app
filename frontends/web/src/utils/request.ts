@@ -54,6 +54,12 @@ function handleError(endpoint: string) {
           // which case the result does not matter.
           return;
         }
+        if (json.error.indexOf('Blocked') !== -1) {
+          // Skip alertUser() because we ask for confirmation
+          // to open links that are blocked.
+          reject(json.error);
+          return;
+        }
         console.error('error from endpoint', endpoint, json);
         // TODO: remove i18n.t dependency because if cyclic i18n<->request dependency
         // TODO: deprecate alertUser
