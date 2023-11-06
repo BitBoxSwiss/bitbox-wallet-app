@@ -30,7 +30,7 @@ linux:
 	chrpath -r $$ORIGIN/lib server/libbreez_sdk_bindings.so
 	cd server && $(MAKE) linux
 	$(MAKE) base
-    mkdir -p build/linux-tmp/lib build/linux
+	mkdir -p build/linux-tmp/lib build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
 	cp server/libserver.so build/linux-tmp
