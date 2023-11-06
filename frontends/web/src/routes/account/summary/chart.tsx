@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType } from 'lightweight-charts';
+import { createChart, IChartApi, LineData, LineStyle, LogicalRange, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType, Time } from 'lightweight-charts';
 import { Component, createRef, ReactChild } from 'react';
 import { ISummary } from '../../../api/account';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -409,12 +409,28 @@ class Chart extends Component<Props, State> {
       });
       return;
     }
-    const price = seriesData.get(this.lineSeries);
+    const price = seriesData.get(this.lineSeries) as LineData<Time>;
     if (!price) {
       return;
     }
-    const toolTipTop = Math.floor(Math.max(point.y - 70, 0));
+    const coordinate = this.lineSeries.priceToCoordinate(price.value);
+    if (!coordinate) {
+      return;
+    }
+    const coordinateY =
+      (coordinate - tooltip.clientHeight > 0)
+        ? coordinate - tooltip.clientHeight
+        : Math.max(
+          0,
+          Math.min(
+            parent.clientHeight - tooltip.clientHeight,
+            coordinate + 70
+          )
+        );
+
+    const toolTipTop = Math.floor(Math.max(coordinateY, 0));
     const toolTipLeft = Math.floor(Math.max(40, Math.min(parent.clientWidth - 140, point.x + 40 - 70)));
+
     this.setState({
       toolTipVisible: true,
       toolTipValue: this.formattedData ? this.formattedData[time as number] : '',
