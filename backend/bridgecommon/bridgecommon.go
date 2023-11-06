@@ -196,12 +196,14 @@ func (env *BackendEnvironment) GetSaveFilename(suggestedFilename string) string 
 	return ""
 }
 
+// SetDarkTheme implements backend.Environment.
 func (env *BackendEnvironment) SetDarkTheme(isDark bool) {
 	if env.SetDarkThemeFunc != nil {
 		env.SetDarkThemeFunc(isDark)
 	}
 }
 
+// DetectDarkTheme implements backend.Environment.
 func (env *BackendEnvironment) DetectDarkTheme() bool {
 	if env.DetectDarkThemeFunc != nil {
 		return env.DetectDarkThemeFunc()

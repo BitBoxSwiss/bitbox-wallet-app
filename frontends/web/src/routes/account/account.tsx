@@ -191,7 +191,8 @@ export function Account({
   const actionButtonsProps = {
     code,
     canSend,
-    exchangeBuySupported
+    exchangeBuySupported,
+    account
   };
 
   return (

@@ -987,6 +987,20 @@
         "text": "Thanks for using this app built by Shift Crypto in Switzerland. We appreciate any input you have to share. Please give feedback using the link at the bottom.",
         "title": "Welcome to the BitBoxApp!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "If you are using a new phone/computer with the BitBoxApp, then you will need to connect to the dapps again. You will then see your coins on the dapp again like usual.",
+        "title": "I don't see my previous connections."
+      },
+      "supportedNetworks": {
+        "text": "Currently, only Ethereum mainnet is supported using WalletConnect in the BitBoxApp. To use other EVM compatible chains please use the Rabby browser extension wallet.",
+        "title": "What networks are supported?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect is a communication protocol for web3 applications. It allows you to conveniently connect to Ethereum based DApps and web wallets without using a third party app, which is particularly useful for Android users of the BitBoxApp.",
+        "title": "What is WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1539,6 +1553,43 @@
     "unlocked1": "Unplug and replug your Bitbox",
     "unlocked2": "The LED will light up when your BitBox is plugged back in",
     "unlocked3": "Tap the touch button when the LED lights up"
+  },
+  "walletConnect": {
+    "connect": {
+      "button": "Connect",
+      "dappLabel": "Enter URI address of dapp"
+    },
+    "dashboard": {
+      "allSessions": "All sessions",
+      "disclaimer": "Walletconnect is a protocol to connect to Ethereum based Dapps. These dapps are run by third-party services, so only connect to dapps you trust and be sure to always know what you are signing when making a transaction.",
+      "newConnection": "New connection",
+      "noConnectedSessions": "No accounts are currently connected to any dapps."
+    },
+    "invalidPairingChain": "Error in approving pairing. Please make sure to use one of the supported chains: {{chains}}",
+    "pairingRequest": {
+      "approve": "Approve Connection",
+      "reject": "Reject",
+      "title": "New connection request from"
+    },
+    "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
+    "signingRequest": {
+      "account": "Account",
+      "chain": "Chain",
+      "dapp": "Dapp",
+      "data": "Data",
+      "dataParsingError": "Failed to parse data",
+      "decodeError": "Failed to decode message",
+      "method": {
+        "sendTransaction": "Sign and send transaction",
+        "signMessage": "Sign message",
+        "signTransaction": "Sign transaction",
+        "signTypedData": "Sign typed data"
+      },
+      "successfullySigned": "Request succesfully signed",
+      "walletConnectRequest": "WalletConnect request"
+    },
+    "useNewUri": "This URI has already been used to attempt a connection. Please use a new URI.",
+    "walletConnect": "WalletConnect"
   },
   "warning": {
     "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",

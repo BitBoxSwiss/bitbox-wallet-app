@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Drop support for SAI token
+- Ability to connect Ethereum (mainnet) wallets to dapps using WalletConnect
 - Log Javascript console messages in the app log.txt
 - Add amounts hiding feature to enhance privacy when using the app in public
 

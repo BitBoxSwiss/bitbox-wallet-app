@@ -20,6 +20,10 @@
     "vitest": "^0.34.3"
   },
   "dependencies": {
+    "@walletconnect/jsonrpc-types": "^1.0.3",
+    "@walletconnect/types": "^2.10.4",
+    "@walletconnect/web3wallet": "^1.9.3",
+    "@zxing/library": "0.18.3",
     "flag-icons": "^6.6.6",
     "i18next": "21.6.16",
     "lightweight-charts": "3.8.0",

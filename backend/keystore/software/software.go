@@ -33,6 +33,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -262,5 +263,15 @@ func (keystore *Keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 
 // SignETHMessage implements keystore.Keystore.
 func (keystore *Keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHTypedMessage implements keystore.Keystore.
+func (keystore *Keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHWalletConnectTransaction implements keystore.Keystore.
+func (keystore *Keystore) SignETHWalletConnectTransaction(chainID uint64, tx *ethTypes.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }

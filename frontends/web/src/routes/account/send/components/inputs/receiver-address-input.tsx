@@ -38,10 +38,10 @@ type TReceiverAddressInputProps = {
     onChangeActiveScanQR: (activeScanQR: boolean) => void
 }
 
-const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
+export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
   const { isDarkMode } = useContext(DarkModeContext);
   return (
-    <button onClick={onClick} className={style.qrButton}>
+    <button type="button" onClick={onClick} className={style.qrButton}>
       {isDarkMode ? <QRCodeLight /> : <QRCodeDark />}
     </button>);
 };
