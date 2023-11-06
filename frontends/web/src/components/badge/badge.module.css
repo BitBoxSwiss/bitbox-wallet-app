@@ -1,0 +1,25 @@
+.badge {
+  padding: var(--space-eight) 10px;
+  border-radius: var(--space-half);
+  border: 1px solid;
+  font-size: var(--size-small);
+  line-height: 14px;
+}
+
+@media (max-width: 382px) {
+  .badge {
+      font-size: 10px;
+  }
+}
+
+.success {
+  background: var(--color-palegreen);
+  border-color: var(--color-lightgreen);
+  color: var(--color-darkgreen);
+}
+
+.warning {
+  background: var(--color-lightyellow);
+  border-color: var(--color-darkyellow);
+  color: var(--color-olive);
+}

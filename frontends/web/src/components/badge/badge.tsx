@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-import { useTranslation } from 'react-i18next';
-import style from './buytags.module.css';
+import { ReactNode } from 'react';
+import style from './badge.module.css';
 
-export const BestDeal = () => {
-  const { t } = useTranslation();
-  return (
-    <div className={`${style.tag} ${style.bestDeal}`}>{t('buy.exchange.bestDeal')}</div>
-  );
-};
+type TBadgeStyles = 'success' | 'warning'; // TODO: not yet implemented 'info' | 'danger'
 
-export const Fast = () => {
-  const { t } = useTranslation();
+type TProps = {
+  children: ReactNode;
+  type?: TBadgeStyles;
+}
+
+export const Badge = ({
+  children,
+  type = 'success',
+}: TProps) => {
   return (
-    <div className={`${style.tag} ${style.fast}`}>{t('buy.exchange.fast')}</div>
+    <span className={`${style.badge} ${style[type]}`}>
+      {children}
+    </span>
   );
 };
