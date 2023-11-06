@@ -81,7 +81,7 @@ const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAc
   const active =
     pathname === `/account/${code}` || (!pathname.startsWith(`/account/${code}/lightning`) && pathname.startsWith(`/account/${code}/`));
   return (
-    <div key={code} className={style.sidebarItem}>
+    <div className={style.sidebarItem}>
       <Link className={active ? style.sidebarActive : ''} to={`/account/${code}`} onClick={handleSidebarItemClick} title={name}>
         <Logo stacked coinCode={coinCode} alt={name} />
         <span className={style.sidebarLabel}>{name}</span>
@@ -94,10 +94,9 @@ const GetLightningLink = ({ code, name, handleSidebarItemClick }: TGetAccountLin
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const active = pathname === `/account/${code}/lightning` || pathname.startsWith(`/account/${code}/lightning/`);
-  const key = `${code}-ln`;
   const lightningName = t('lightning.accountLabel', { accountName: name });
   return (
-    <div key={key} className={style.sidebarItem}>
+    <div className={style.sidebarItem}>
       <Link
         className={active ? style.sidebarActive : ''}
         to={`/account/${code}/lightning`}
@@ -108,6 +107,17 @@ const GetLightningLink = ({ code, name, handleSidebarItemClick }: TGetAccountLin
         <span className={style.sidebarLabel}>{lightningName}</span>
       </Link>
     </div>
+  );
+};
+
+const AccountItem = (props: TGetAccountLinkProps) => {
+  return (
+    <>
+      <GetAccountLink {...props} key={props.code} />
+      {!props.lightningEnabled && isBitcoinOnly(props.coinCode) && (
+        <GetLightningLink {...props} key={`ln-${props.code}`} />
+      )}
+    </>
   );
 };
 
@@ -177,17 +187,6 @@ class Sidebar extends Component<Props> {
     }
   };
 
-  private renderAccountItem = (acc: IAccount) => {
-    return (
-      <>
-        <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />
-        {!acc.lightningEnabled && isBitcoinOnly(acc.coinCode) && (
-          <GetLightningLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />
-        )}
-      </>
-    );
-  };
-
   public render() {
     const { t, deviceIDs, accounts, keystores, activeSidebar, sidebarStatus } = this.props;
     const hidden = sidebarStatus === 'forceHidden';
@@ -225,7 +224,9 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null}
-          {accounts && accounts.map((acc) => this.renderAccountItem(acc))}
+          {accounts && accounts.map((acc) => (
+            <AccountItem key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />
+          ))}
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           {accounts.length ? (
             <div key="buy" className={style.sidebarItem}>

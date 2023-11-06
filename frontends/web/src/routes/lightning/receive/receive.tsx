@@ -39,7 +39,7 @@ import { Status } from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { unsubscribe } from '../../../utils/subscriptions';
 import { Spinner } from '../../../components/spinner/Spinner';
-import { EditActive } from '../../../components/icon';
+import { Checked, Copy, EditActive } from '../../../components/icon';
 import styles from './receive.module.css';
 
 type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
@@ -200,6 +200,11 @@ export function Receive({ accounts, code }: Props) {
                   {description && ` / ${description}`}
                 </div>
                 <ColumnButtons>
+                  <CopyButton
+                    data={receivePaymentResponse?.lnInvoice.bolt11}
+                    successText={t('lightning.receive.invoice.copied')}>
+                    {t('button.copy')}
+                  </CopyButton>
                   <Button transparent onClick={back}>
                     <EditActive className={styles.btnIcon} />
                     {t('lightning.receive.invoice.edit')}
@@ -208,9 +213,9 @@ export function Receive({ accounts, code }: Props) {
               </Column>
             </Grid>
           </ViewContent>
-          <ViewButtons reverseRow>
-            <Button secondary onClick={back}>
-              {t('button.back')}
+          <ViewButtons>
+            <Button secondary onClick={() => route(`/account/${code}/lightning`)}>
+              {t('button.done')}
             </Button>
           </ViewButtons>
         </View>
@@ -248,3 +253,46 @@ export function Receive({ accounts, code }: Props) {
     </GuideWrapper>
   );
 }
+
+type TCopyButtonProps = {
+  data?: string;
+  successText?: string;
+  children: string;
+};
+
+const CopyButton = ({
+  data,
+  successText,
+  children,
+}: TCopyButtonProps) => {
+  const [state, setState] = useState('ready');
+  const [buttonText, setButtonText] = useState(children);
+
+  const copy = () => {
+    try {
+      if (data) {
+        navigator.clipboard
+          .writeText(data)
+          .then(() => {
+            setState('success');
+            successText && setButtonText(successText);
+          });
+      }
+    } catch (error) {
+      setState('ready');
+      if (error instanceof Error) {
+        setButtonText(error.message);
+      }
+      setButtonText(`${error}`);
+    }
+  };
+
+  return (
+    <Button transparent onClick={copy} disabled={!data}>
+      {state === 'success'
+        ? <Checked className={styles.btnIcon} />
+        : <Copy className={styles.btnIcon} />}
+      {buttonText}
+    </Button>
+  );
+};

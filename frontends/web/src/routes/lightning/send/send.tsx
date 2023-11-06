@@ -25,8 +25,8 @@ import { InputType, InputTypeVariant, SdkError, getParseInput, postSendPayment }
 import { SimpleMarkup } from '../../../utils/markup';
 import { route } from '../../../utils/route';
 import { toSat } from '../../../utils/conversion';
-import { InlineBalance } from '../../../components/balance/balance';
-import { IBalance } from '../../../api/account';
+import { Amount } from '../../../components/amount/amount';
+import { FiatConversion } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { ScanQRVideo } from '../../account/send/components/inputs/scan-qr-video';
 import { Spinner } from '../../../components/spinner/Spinner';
@@ -121,7 +121,7 @@ export function Send({ accounts, code }: Props) {
   const renderInputTypes = () => {
     switch (parsedInput!.type) {
     case InputTypeVariant.BOLT11:
-      const balance: IBalance = {
+      const balance: accountApi.IBalance = {
         hasAvailable: true,
         available: {
           amount: `${toSat(parsedInput?.invoice.amountMsat || 0)}`,
@@ -138,7 +138,9 @@ export function Send({ accounts, code }: Props) {
           <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
           <div className={styles.info}>
             <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
-            <InlineBalance balance={balance} />
+            <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes />
+            /{' '}
+            <FiatConversion amount={balance.available} noBtcZeroes />
           </div>
           {parsedInput?.invoice.description && (
             <div className={styles.info}>

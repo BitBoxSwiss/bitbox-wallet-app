@@ -25,6 +25,7 @@ import { EnableCustomFeesToggleSetting } from './components/advanced-settings/en
 import { EnableCoinControlSetting } from './components/advanced-settings/enable-coin-control-setting';
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
+import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
 import { getConfig } from '../../utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
@@ -80,6 +81,7 @@ export const AdvancedSettings = ({ deviceIDs, hasAccounts }: TPagePropsWithSetti
                 hideMobileMenu
                 hasAccounts={hasAccounts}
               >
+                <EnableLightning />
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
