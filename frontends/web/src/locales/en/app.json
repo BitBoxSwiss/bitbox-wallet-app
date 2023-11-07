@@ -319,7 +319,8 @@
   "bitsuranceAccount": {
     "noAccount": "There are no accounts that can be insured.",
     "select": "Select account",
-    "title": "Insurance"
+    "title": "Insurance",
+    "errorNoXpub": "Error: Was not able to get xpub from account."
   },
   "blink": {
     "button": "Blink"

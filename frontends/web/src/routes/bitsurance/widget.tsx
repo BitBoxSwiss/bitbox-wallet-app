@@ -99,10 +99,29 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     current.contentWindow?.postMessage(message, '*');
   };
 
+  const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
+    const { current } = iframeRef;
+
+    if (!current) {
+      return;
+    }
+
+    const message = serializeMessage({
+      version: MessageVersion.V0,
+      type: V0MessageType.Address,
+      bitcoinAddress: address,
+      extendedPublicKey: xpub,
+      signature: sig,
+    });
+
+    current.contentWindow?.postMessage(message, '*');
+  };
+
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
     const addressType = message.withScriptType ? String(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
+    const withExtendedPublicKey: boolean = message.withExtendedPublicKey ? message.withExtendedPublicKey : false;
     signAddress(
       addressType,
       withMessageSignature,
@@ -110,7 +129,20 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       .then(response => {
         signing = false;
         if (response.success) {
-          sendAddress(response.address, response.signature);
+          if (withExtendedPublicKey) {
+            const bitcoinSimple = accountInfo?.signingConfigurations[0].bitcoinSimple;
+            if (bitcoinSimple) {
+              // sending with xpub
+              const xpub = bitcoinSimple.keyInfo.xpub;
+              sendAddressWithXPub(response.address, response.signature, xpub);
+            } else {
+              alertUser(t('bitsuranceAccount.errorNoXpub'));
+            }
+
+          } else {
+            // sending without xpub
+            sendAddress(response.address, response.signature);
+          }
         } else {
           if (response.errorCode !== 'userAbort') {
             alertUser(t('unknownError', { errorMessage: response.errorMessage }));
