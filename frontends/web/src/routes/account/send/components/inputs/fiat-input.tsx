@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,31 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import style from './buytags.module.css';
+import { ConversionUnit } from '../../../../../api/account';
+import { Input } from '../../../../../components/forms';
 
-export const BestDeal = () => {
+type TProps = {
+    label: ConversionUnit;
+    onFiatChange: (event: Event) => void;
+    disabled: boolean;
+    error?: string;
+    fiatAmount: string;
+}
+
+export const FiatInput = ({ label, onFiatChange, disabled, error, fiatAmount }: TProps) => {
   const { t } = useTranslation();
   return (
-    <div className={`${style.tag} ${style.bestDeal}`}>{t('buy.exchange.bestDeal')}</div>
-  );
-};
-
-export const Fast = () => {
-  const { t } = useTranslation();
-  return (
-    <div className={`${style.tag} ${style.fast}`}>{t('buy.exchange.fast')}</div>
+    <Input
+      type="number"
+      step="any"
+      min="0"
+      label={label}
+      id="fiatAmount"
+      onInput={onFiatChange}
+      disabled={disabled}
+      error={error}
+      value={fiatAmount}
+      placeholder={t('send.amount.placeholder')}
+    />
   );
 };

@@ -38,11 +38,20 @@ export const Balance = ({ balance, noRotateFiat }: TProps) => {
         <tbody>
           <tr data-testid="availableBalance">
             <td className={style.availableAmount}>
-              <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes />
+              <Amount
+                amount={balance.available.amount}
+                unit={balance.available.unit}
+                removeBtcTrailingZeroes
+              />
             </td>
             <td className={style.availableUnit}>{balance.available.unit}</td>
           </tr>
-          <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat} noBtcZeroes />
+          <FiatConversion
+            amount={balance.available}
+            tableRow
+            noAction={noRotateFiat}
+            noBtcZeroes
+          />
         </tbody>
       </table>
       {balance.hasIncoming && (

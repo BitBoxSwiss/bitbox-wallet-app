@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import style from './amount.module.css';
+import { useContext } from 'react';
+import AppContext from '../../contexts/AppContext';
+
 import { CoinUnit, ConversionUnit } from './../../api/account';
+import style from './amount.module.css';
 
 type TProps = {
   amount: string;
   unit: CoinUnit | ConversionUnit;
   removeBtcTrailingZeroes?: boolean;
+  alwaysShowAmounts?: boolean
 };
 
-export const Amount = ({ amount, unit, removeBtcTrailingZeroes }: TProps) => {
+export const Amount = ({ amount, unit, removeBtcTrailingZeroes, alwaysShowAmounts = false }: TProps) => {
+  const { hideAmounts } = useContext(AppContext);
   const formatSats = (amount: string): JSX.Element => {
     const blocks: JSX.Element[] = [];
     const blockSize = 3;
@@ -51,6 +56,10 @@ export const Amount = ({ amount, unit, removeBtcTrailingZeroes }: TProps) => {
       <span className={style.space}>{amount.slice(dot + 6, dot + 9)}</span>
     </span>;
   };
+
+  if (hideAmounts && !alwaysShowAmounts) {
+    return '***';
+  }
 
   switch (unit) {
   case 'BTC':

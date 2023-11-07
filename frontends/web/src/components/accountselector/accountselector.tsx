@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
 import { AccountCode, IAccount } from '../../api/account';
 import { Button } from '../forms';
-import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
 import Logo from '../icon/logo';
+import AppContext from '../../contexts/AppContext';
 import styles from './accountselector.module.css';
 
 export type TOption = {
@@ -39,6 +40,7 @@ type TAccountSelector = {
 }
 
 const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
+  const { hideAmounts } = useContext(AppContext);
   const { label, coinCode, balance } = props.data;
   return (
     <div className={styles.singleValueContainer}>
@@ -46,7 +48,7 @@ const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) 
         <div className={styles.valueContainer}>
           {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
           <span className={styles.selectLabelText}>{label}</span>
-          {coinCode && balance && <span className={styles.balanceSingleValue}>{balance}</span>}
+          {coinCode && balance && <span className={styles.balanceSingleValue}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
         </div>
       </components.SingleValue>
     </div>
@@ -54,6 +56,7 @@ const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) 
 };
 
 const SelectOption: FunctionComponent<OptionProps<TOption>> = (props) => {
+  const { hideAmounts } = useContext(AppContext);
   const { label, coinCode, balance } = props.data;
 
   return (
@@ -61,7 +64,7 @@ const SelectOption: FunctionComponent<OptionProps<TOption>> = (props) => {
       <div className={styles.valueContainer}>
         {coinCode ? <Logo coinCode={coinCode} alt={coinCode} /> : null}
         <span className={styles.selectLabelText}>{label}</span>
-        {coinCode && balance && <span className={styles.balance}>{balance}</span>}
+        {coinCode && balance && <span className={styles.balance}>{hideAmounts ? `*** ${coinCode}` : balance}</span>}
       </div>
     </components.Option>
   );
