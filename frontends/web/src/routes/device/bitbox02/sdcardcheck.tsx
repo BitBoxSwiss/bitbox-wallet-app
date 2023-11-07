@@ -37,7 +37,6 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
     check();
   }, [check]);
 
-
   // pending check-sdcard request
   if (sdCardInserted === undefined) {
     return null;

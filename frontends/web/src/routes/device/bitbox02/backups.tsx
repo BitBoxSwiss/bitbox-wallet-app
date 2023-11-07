@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2018 Shift Devices AG
  *
@@ -14,25 +15,20 @@
  * limitations under the License.
  */
 
-import { Component, ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSync } from '../../../hooks/api';
 import { restoreBackup } from '../../../api/bitbox02';
+import { getBackupList, subscribeBackupList } from '../../../api/backup';
 import Toast from '../../../components/toast/Toast';
-import { subscribe } from '../../../decorators/subscribe';
-import { translate, TranslateProps } from '../../../decorators/translate';
-import { Backup, BackupsListItem } from '../components/backup';
-import backupStyle from '../components/backups.module.css';
+import { BackupsListItem } from '../components/backup';
+import { Backup } from '../../../api/backup';
 import { Button } from '../../../components/forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';
+import backupStyle from '../components/backups.module.css';
 
-interface SubscribedBackupsProps {
-    backups: {
-        success: boolean;
-        backups?: Backup[];
-    };
-}
-
-interface BackupsProps {
+type TProps = {
     deviceID: string;
     showRestore?: boolean;
     showCreate?: boolean;
@@ -42,132 +38,111 @@ interface BackupsProps {
     children?: ReactNode;
 }
 
-type Props = SubscribedBackupsProps & BackupsProps & TranslateProps;
+export const BackupsV2 = ({
+  deviceID,
+  showRestore,
+  showCreate,
+  showRadio,
+  onSelectBackup,
+  onRestoreBackup,
+  children
+}: TProps) => {
+  const { t } = useTranslation();
+  const [selectedBackup, setSelectedBackup] = useState<string>();
+  const [restoring, setRestoring] = useState(false);
+  const [errorText, setErrorText] = useState('');
 
-interface State {
-    selectedBackup?: string;
-    restoring: boolean;
-    errorText: string;
-    creatingBackup: boolean;
-}
+  const backups = useSync(() => getBackupList(deviceID), subscribeBackupList(deviceID));
+  const hasBackups = backups && backups.success;
 
-class Backups extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      restoring: false,
-      errorText: '',
-      creatingBackup: false,
-    };
-  }
-
-  private restore = () => {
-    if (!this.state.selectedBackup || !this.props.backups.backups) {
+  const restore = () => {
+    if (!hasBackups) {
       return;
     }
-    const backup = this.props.backups.backups.find(b => b.id === this.state.selectedBackup);
+    if (!selectedBackup) {
+      return;
+    }
+    const backup = backups.backups.find(b => b.id === selectedBackup);
     if (!backup) {
       return;
     }
-    this.setState({ restoring: true });
-    if (this.props.onSelectBackup) {
-      this.props.onSelectBackup(backup);
-    }
-    restoreBackup(this.props.deviceID, this.state.selectedBackup)
+    setRestoring(true);
+    onSelectBackup && onSelectBackup(backup);
+    restoreBackup(deviceID, selectedBackup)
       .then(({ success }) => {
-        this.setState({
-          restoring: false,
-          errorText: success ? '' : this.props.t('backup.restore.error.general'),
-        });
-        if (this.props.onRestoreBackup) {
-          this.props.onRestoreBackup(success);
+        setRestoring(false);
+        setErrorText(success ? '' : t('backup.restore.error.general'));
+        if (onRestoreBackup) {
+          onRestoreBackup(success);
         }
       });
   };
 
-  public render() {
-    const {
-      t,
-      children,
-      backups,
-      showRestore,
-      showCreate,
-      showRadio,
-      deviceID,
-    } = this.props;
-    const { selectedBackup,
-      restoring,
-      errorText,
-    } = this.state;
-    if (!backups.success) {
-      return <div>Error fetching backups</div>;
-    }
-    return (
-      <div>
-        <div className={backupStyle.stepContext}>
+  if (!hasBackups) {
+    return <div>Error fetching backups</div>;
+  }
+
+  return (
+    <div>
+      <div className={backupStyle.stepContext}>
+        {
+          errorText && (
+            <Toast theme="warning">
+              {errorText}
+            </Toast>
+          )
+        }
+        <div className={backupStyle.backupsList}>
           {
-            errorText && (
-              <Toast theme="warning">
-                {errorText}
-              </Toast>
+            backups.backups.length ? (
+              <div className={backupStyle.listContainer}>
+                {
+                  backups.backups.map(backup => (
+                    <div key={backup.id} className={backupStyle.item}>
+                      <BackupsListItem
+                        disabled={restoring}
+                        backup={backup}
+                        selectedBackup={selectedBackup}
+                        handleChange={(b => setSelectedBackup(b))}
+                        onFocus={() => undefined}
+                        radio={showRadio} />
+                    </div>
+                  ))
+                }
+              </div>
+            ) : (
+              <p>{t('backup.noBackups')}</p>
             )
           }
-          <div className={backupStyle.backupsList}>
-            {
-                            backups.backups!.length ? (
-                              <div className={backupStyle.listContainer}>
-                                {
-                                        backups.backups!.map(backup => (
-                                          <div key={backup.id} className={backupStyle.item}>
-                                            <BackupsListItem
-                                              disabled={restoring}
-                                              backup={backup}
-                                              selectedBackup={selectedBackup}
-                                              handleChange={(b => this.setState({ selectedBackup: b }))}
-                                              onFocus={() => undefined}
-                                              radio={showRadio} />
-                                          </div>
-                                        ))
-                                }
-                              </div>
-                            ) : (
-                              <p>{t('backup.noBackups')}</p>
-                            )
-            }
-          </div>
-          <div className={backupStyle.backupButtons}>
-            {
-              showRestore && (
-                <Button
-                  primary={true}
-                  disabled={!selectedBackup || restoring}
-                  onClick={this.restore}>
-                  {t('button.restore')}
-                </Button>
-              )
-            }
-            {
-              showCreate && (
-                <Create deviceID={deviceID} />
-              )
-            }
-            {
-              showCreate && (
-                <Check
-                  deviceID={deviceID}
-                  backups={backups.backups ? backups.backups : []}
-                  disabled={backups.backups!.length === 0}
-                />
-              )
-            }
-            {children}
-          </div>
+        </div>
+        <div className={backupStyle.backupButtons}>
+          {
+            showRestore && (
+              <Button
+                primary={true}
+                disabled={!selectedBackup || restoring}
+                onClick={restore}>
+                {t('button.restore')}
+              </Button>
+            )
+          }
+          {
+            showCreate && (
+              <Create deviceID={deviceID} />
+            )
+          }
+          {
+            showCreate && (
+              <Check
+                deviceID={deviceID}
+                backups={backups.backups ? backups.backups : []}
+                disabled={backups.backups.length === 0}
+              />
+            )
+          }
+          {children}
         </div>
       </div>
-    );
-  }
-}
-
-const subscribeHOC = subscribe<SubscribedBackupsProps, BackupsProps & TranslateProps>(({ deviceID }) => ({ backups: 'devices/bitbox02/' + deviceID + '/backups/list' }))(Backups);
-const HOC = translate()(subscribeHOC);
-export { HOC as BackupsV2 };
+    </div>
+  );
+};
