@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debug } from '../../../../../utils/env';
 import { getReceiveAddressList } from '../../../../../api/account';
-import style from '../../send.module.css';
 import { QrCodeInput } from '../../../../../components/qrcode/qrcode-input';
-import { ChangeEvent } from 'react';
+import style from './receiver-address-input.module.css';
 
 type TReceiverAddressInputProps = {
   accountCode?: string;

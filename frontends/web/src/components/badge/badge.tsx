@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
-*
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-import { Dispatch, SetStateAction, createContext } from 'react';
+import { ReactNode } from 'react';
+import style from './badge.module.css';
 
-type AppContextProps = {
-    guideShown: boolean;
-    guideExists: boolean;
-    hideAmounts: boolean;
-    setGuideExists: Dispatch<SetStateAction<boolean>>;
-    setGuideShown: Dispatch<SetStateAction<boolean>>;
-    toggleGuide: () => void;
-    toggleHideAmounts: () => void;
+type TBadgeStyles = 'success' | 'warning'; // TODO: not yet implemented 'info' | 'danger'
+
+type TProps = {
+  children: ReactNode;
+  type?: TBadgeStyles;
 }
 
-const AppContext = createContext<AppContextProps>({} as AppContextProps);
-
-export default AppContext;
+export const Badge = ({
+  children,
+  type = 'success',
+}: TProps) => {
+  return (
+    <span className={`${style.badge} ${style[type]}`}>
+      {children}
+    </span>
+  );
+};

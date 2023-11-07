@@ -50,6 +50,7 @@ dockerdev () {
     local repo_path="$DIR/.."
     $RUNTIME run \
            --detach \
+           --platform "linux/amd64" \
            --privileged -v /dev/bus/usb:/dev/bus/usb \
            --interactive --tty \
            --name=$container_name -p 8080:8080 -p 8082:8082 \

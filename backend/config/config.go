@@ -269,12 +269,6 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	return config, nil
 }
 
-// SetBtcOnly sets non-bitcoin accounts in the config to false.
-func (config *Config) SetBtcOnly() {
-	config.appConfig.Backend.DeprecatedLitecoinActive = false
-	config.appConfig.Backend.DeprecatedEthereumActive = false
-}
-
 // SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert.
 func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string) {
 	config.appConfig.Backend.BTC = btcCoinConfig{
@@ -440,20 +434,4 @@ func migrateUserLanguage(appconf *AppConfig) {
 		appconf.Backend.UserLanguage = lang
 		delete(frontconf, "userLanguage")
 	}
-}
-
-// migrateActiveTokens removes tokens from AccountsConfig.
-func migrateActiveTokens(accountsConf *AccountsConfig) error {
-	for _, account := range accountsConf.Accounts {
-		if account.CoinCode != coin.CodeETH {
-			continue
-		}
-
-		err := account.SetTokenActive("eth-erc20-sai0x89d", false)
-		if err != nil {
-			return err
-		}
-
-	}
-	return nil
 }

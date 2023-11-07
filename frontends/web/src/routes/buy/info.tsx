@@ -26,6 +26,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layo
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
+import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 
 type TProps = {
     accounts: IAccount[];
@@ -94,7 +95,9 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     <Main>
       <GuideWrapper>
         <GuidedContent>
-          <Header title={<h2>{t('buy.info.title', { name })}</h2>} />
+          <Header title={<h2>{t('buy.info.title', { name })}</h2>}>
+            <HideAmountsButton />
+          </Header>
           <View width="550px" verticallyCentered fullscreen={false}>
             <ViewContent>
               { options.length === 0 ? (
@@ -105,7 +108,8 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
                   options={options}
                   selected={selected}
                   onChange={handleChangeAccount}
-                  onProceed={handleProceed} />
+                  onProceed={handleProceed}
+                />
               )}
             </ViewContent>
           </View>

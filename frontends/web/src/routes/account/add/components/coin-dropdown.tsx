@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
+import { useTranslation } from 'react-i18next';
 import * as backendAPI from '../../../../api/backend';
 import { Select } from '../../../../components/forms';
-import { translate, TranslateProps } from '../../../../decorators/translate';
 
 type TCoinDropDownProps = {
-    onChange: (coin: backendAPI.ICoin) => void;
-    supportedCoins: backendAPI.ICoin[];
-    value: string;
-}
+  onChange: (coin: backendAPI.ICoin) => void;
+  supportedCoins: backendAPI.ICoin[];
+  value: string;
+};
 
-type TProps = TCoinDropDownProps & TranslateProps;
-
-function CoinDropDown({
+export const CoinDropDown = ({
   onChange,
   supportedCoins,
-  t,
   value,
-}: TProps) {
+}: TCoinDropDownProps) => {
+  const { t } = useTranslation();
   return (
     <Select
       autoFocus
@@ -53,8 +51,4 @@ function CoinDropDown({
       value={value}
       id="coinCodeDropDown" />
   );
-}
-
-const HOC = translate()(CoinDropDown);
-
-export { HOC as CoinDropDown };
+};

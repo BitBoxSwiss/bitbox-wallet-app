@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { describe, expect, it } from 'vitest';
+import { useContext } from 'react';
+import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
 import { CoinUnit, ConversionUnit } from './../../api/account';
+
+vi.mock('react', () => ({
+  ...vi.importActual('react'),
+  useContext: vi.fn(),
+  createContext: vi.fn()
+}));
+
 
 const validateSpacing = (values: string[], elements: Element[]) => {
   // each element in `values` is an expected
@@ -40,6 +47,22 @@ const validateSpacing = (values: string[], elements: Element[]) => {
 };
 
 describe('Amount formatting', () => {
+
+  beforeEach(() => {
+    (useContext as Mock).mockReturnValue({ hideAmounts: false });
+  });
+
+  describe('hide amounts', () => {
+
+    it('should render triple-asterisks (***) when amount is set to be hidden', () => {
+      (useContext as Mock).mockReturnValue({ hideAmounts: true });
+      const { container } = render(
+        <Amount amount="1'340.25" unit={'EUR'} />
+      );
+      expect(container).toHaveTextContent('***');
+    });
+
+  });
 
   describe('sat amounts', () => {
     let coins: CoinUnit[] = ['sat', 'tsat'];
@@ -255,4 +278,9 @@ describe('Amount formatting', () => {
 
     });
   });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
 });

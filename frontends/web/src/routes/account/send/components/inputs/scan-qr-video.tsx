@@ -17,7 +17,7 @@
 import { useRef } from 'react';
 import { useQRScanner } from '../../../../../hooks/qrcodescanner';
 import { SpinnerAnimation } from '../../../../../components/spinner/SpinnerAnimation';
-import style from '../../send.module.css';
+import style from './scan-qr-video.module.css';
 
 type TProps = {
   onResult: (result: string) => void;
