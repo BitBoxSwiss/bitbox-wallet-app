@@ -98,6 +98,49 @@ func (device *Device) ETHPub(
 	return pubResponse.Pub.Pub, nil
 }
 
+func handleHostNonceCommitment() (*messages.AntiKleptoHostNonceCommitment, []byte, error) {
+	hostNonce, err := generateHostNonce()
+	if err != nil {
+		return nil, nil, err
+	}
+	hostNonceCommitment := &messages.AntiKleptoHostNonceCommitment{
+		Commitment: antikleptoHostCommit(hostNonce),
+	}
+
+	return hostNonceCommitment, hostNonce, nil
+}
+
+func (device *Device) handleSignerNonceCommitment(response *messages.ETHResponse, hostNonce []byte) ([]byte, error) {
+	signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	response, err := device.queryETH(&messages.ETHRequest{
+		Request: &messages.ETHRequest_AntikleptoSignature{
+			AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
+				HostNonce: hostNonce,
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	signature := signResponse.Sign.Signature
+	err = antikleptoVerify(
+		hostNonce,
+		signerCommitment.AntikleptoSignerCommitment.Commitment,
+		signature[:64],
+	)
+	if err != nil {
+		return nil, err
+	}
+	return signature, nil
+}
+
 // ETHSign signs an ethereum transaction. It returns a 65 byte signature (R, S, and 1 byte recID).
 func (device *Device) ETHSign(
 	chainID uint64,
@@ -111,18 +154,16 @@ func (device *Device) ETHSign(
 	supportsAntiklepto := device.version.AtLeast(semver.NewSemVer(9, 5, 0))
 
 	var hostNonceCommitment *messages.AntiKleptoHostNonceCommitment
+	var err error
 	var hostNonce []byte
 
 	if supportsAntiklepto {
-		var err error
-		hostNonce, err = generateHostNonce()
+		hostNonceCommitment, hostNonce, err = handleHostNonceCommitment()
 		if err != nil {
 			return nil, err
 		}
-		hostNonceCommitment = &messages.AntiKleptoHostNonceCommitment{
-			Commitment: antikleptoHostCommit(hostNonce),
-		}
 	}
+
 	coin, err := device.ethCoin(chainID)
 	if err != nil {
 		return nil, err
@@ -149,30 +190,7 @@ func (device *Device) ETHSign(
 	}
 
 	if supportsAntiklepto {
-		signerCommitment, ok := response.Response.(*messages.ETHResponse_AntikleptoSignerCommitment)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		response, err := device.queryETH(&messages.ETHRequest{
-			Request: &messages.ETHRequest_AntikleptoSignature{
-				AntikleptoSignature: &messages.AntiKleptoSignatureRequest{
-					HostNonce: hostNonce,
-				},
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-		signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		signature := signResponse.Sign.Signature
-		err = antikleptoVerify(
-			hostNonce,
-			signerCommitment.AntikleptoSignerCommitment.Commitment,
-			signature[:64],
-		)
+		signature, err := device.handleSignerNonceCommitment(response, hostNonce)
 		if err != nil {
 			return nil, err
 		}
@@ -183,6 +201,55 @@ func (device *Device) ETHSign(
 		return nil, errp.New("unexpected response")
 	}
 	return signResponse.Sign.Signature, nil
+}
+
+// ETHSignEIP1559 signs an ethereum EIP1559 transaction. It returns a 65 byte signature (R, S, and 1 byte recID).
+func (device *Device) ETHSignEIP1559(
+	chainID uint64,
+	keypath []uint32,
+	nonce uint64,
+	maxPriorityFeePerGas *big.Int,
+	maxFeePerGas *big.Int,
+	gasLimit uint64,
+	recipient [20]byte,
+	value *big.Int,
+	data []byte) ([]byte, error) {
+
+	if !device.version.AtLeast(semver.NewSemVer(9, 16, 0)) {
+		return nil, UnsupportedError("9.16.0")
+	}
+
+	hostNonceCommitment, hostNonce, err := handleHostNonceCommitment()
+	if err != nil {
+		return nil, err
+	}
+
+	request := &messages.ETHRequest{
+		Request: &messages.ETHRequest_SignEip1559{
+			SignEip1559: &messages.ETHSignEIP1559Request{
+				ChainId:              chainID,
+				Keypath:              keypath,
+				Nonce:                new(big.Int).SetUint64(nonce).Bytes(),
+				MaxPriorityFeePerGas: maxPriorityFeePerGas.Bytes(),
+				MaxFeePerGas:         maxFeePerGas.Bytes(),
+				GasLimit:             new(big.Int).SetUint64(gasLimit).Bytes(),
+				Recipient:            recipient[:],
+				Value:                value.Bytes(),
+				Data:                 data,
+				HostNonceCommitment:  hostNonceCommitment,
+			},
+		},
+	}
+	response, err := device.queryETH(request)
+	if err != nil {
+		return nil, err
+	}
+
+	signature, err := device.handleSignerNonceCommitment(response, hostNonce)
+	if err != nil {
+		return nil, err
+	}
+	return signature, nil
 }
 
 // ETHSignMessage signs an Ethereum message. The provided msg will be prefixed with "\x19Ethereum
@@ -389,7 +456,7 @@ func encodeValue(typ *messages.ETHSignTypedMessageRequest_MemberType, value inte
 	switch typ.Type {
 	case messages.ETHSignTypedMessageRequest_BYTES:
 		v := value.(string)
-		if len(v) >= 2 && v[:2] == "0x" {
+		if strings.HasPrefix(v, "0x") || strings.HasPrefix(v, "0X") {
 			return hex.DecodeString(v[2:])
 		}
 		return []byte(v), nil
@@ -397,9 +464,16 @@ func encodeValue(typ *messages.ETHSignTypedMessageRequest_MemberType, value inte
 		bigint := new(big.Int)
 		switch v := value.(type) {
 		case string:
-			_, ok := bigint.SetString(v, 10)
-			if !ok {
-				return nil, errp.Newf("couldn't parse uint: %s", v)
+			if strings.HasPrefix(v, "0x") || strings.HasPrefix(v, "0X") {
+				_, ok := bigint.SetString(v[2:], 16)
+				if !ok {
+					return nil, errp.Newf("couldn't parse uint: %s", v)
+				}
+			} else {
+				_, ok := bigint.SetString(v, 10)
+				if !ok {
+					return nil, errp.Newf("couldn't parse uint: %s", v)
+				}
 			}
 		case float64:
 			v64 := uint64(v)
@@ -417,16 +491,16 @@ func encodeValue(typ *messages.ETHSignTypedMessageRequest_MemberType, value inte
 		case string:
 			_, ok := bigint.SetString(v, 10)
 			if !ok {
-				return nil, errp.Newf("couldn't parse uint: %s", v)
+				return nil, errp.Newf("couldn't parse int: %s", v)
 			}
 		case float64:
 			v64 := int64(v)
 			if float64(v64) != v {
-				return nil, errp.Newf("float64 is not an uint: %v", v)
+				return nil, errp.Newf("float64 is not an int: %v", v)
 			}
 			bigint.SetInt64(v64)
 		default:
-			return nil, errp.New("wrong type for uint")
+			return nil, errp.New("wrong type for int")
 		}
 		return bigendianInt(bigint), nil
 	case messages.ETHSignTypedMessageRequest_BOOL:
@@ -490,7 +564,7 @@ func getValue(what *messages.ETHTypedMessageValueResponse, msg map[string]interf
 	return encodeValue(typ, value)
 }
 
-// ETHSignTypedMessage signs an Ethereum EIP-612 typed message. 27 is added to the recID to denote
+// ETHSignTypedMessage signs an Ethereum EIP-712 typed message. 27 is added to the recID to denote
 // an uncompressed pubkey.
 func (device *Device) ETHSignTypedMessage(
 	chainID uint64,
