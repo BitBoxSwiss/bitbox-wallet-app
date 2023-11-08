@@ -101,7 +101,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   const getWPKHxPub = () => {
-    let wpkhConfig = accountInfo?.signingConfigurations.find(config => 
+    let wpkhConfig = accountInfo?.signingConfigurations.find(config =>
       config.bitcoinSimple?.scriptType === 'p2wpkh'
     );
     return wpkhConfig?.bitcoinSimple?.keyInfo.xpub;
@@ -127,7 +127,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
               alertUser(t('bitsuranceAccount.errorNoXpub'));
             }
           } else {
-            sendAddressWithXPub(response.address, response.signature, "");
+            sendAddressWithXPub(response.address, response.signature, '');
           }
         } else {
           if (response.errorCode !== 'userAbort') {
