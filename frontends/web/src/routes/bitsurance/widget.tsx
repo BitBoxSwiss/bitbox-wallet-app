@@ -100,6 +100,13 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     current.contentWindow?.postMessage(message, '*');
   };
 
+  const getWPKHxPub = () => {
+    let wpkhConfig = accountInfo?.signingConfigurations.find(config => 
+      config.bitcoinSimple?.scriptType === 'p2wpkh'
+    );
+    return wpkhConfig?.bitcoinSimple?.keyInfo.xpub;
+  };
+
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
     const addressType = message.withScriptType ? String(message.withScriptType) : '';
@@ -113,17 +120,13 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         signing = false;
         if (response.success) {
           if (withExtendedPublicKey) {
-            const bitcoinSimple = accountInfo?.signingConfigurations[0].bitcoinSimple;
-            if (bitcoinSimple) {
-              // sending with xpub
-              const xpub = bitcoinSimple.keyInfo.xpub;
+            const xpub = getWPKHxPub();
+            if (xpub) {
               sendAddressWithXPub(response.address, response.signature, xpub);
             } else {
               alertUser(t('bitsuranceAccount.errorNoXpub'));
             }
-
           } else {
-            // sending without xpub
             sendAddressWithXPub(response.address, response.signature, "");
           }
         } else {
