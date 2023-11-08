@@ -82,23 +82,6 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     }, 200);
   };
 
-  const sendAddress = (address: string, sig: string) => {
-    const { current } = iframeRef;
-
-    if (!current) {
-      return;
-    }
-
-    const message = serializeMessage({
-      version: MessageVersion.V0,
-      type: V0MessageType.Address,
-      bitcoinAddress: address,
-      signature: sig,
-    });
-
-    current.contentWindow?.postMessage(message, '*');
-  };
-
   const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
     const { current } = iframeRef;
 
@@ -121,7 +104,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     signing = true;
     const addressType = message.withScriptType ? String(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
-    const withExtendedPublicKey: boolean = message.withExtendedPublicKey ? message.withExtendedPublicKey : false;
+    const withExtendedPublicKey = !!message.withExtendedPublicKey;
     signAddress(
       addressType,
       withMessageSignature,
@@ -141,7 +124,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
           } else {
             // sending without xpub
-            sendAddress(response.address, response.signature);
+            sendAddressWithXPub(response.address, response.signature, "");
           }
         } else {
           if (response.errorCode !== 'userAbort') {
