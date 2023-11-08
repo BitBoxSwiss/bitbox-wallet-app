@@ -1,0 +1,17 @@
+.spinnerAnimationContainer {
+  align-items: center;
+  display: flex;
+  height: 0;
+  justify-content: center;
+  position: relative;
+  top: calc(300px / 2) /*300px is the height of video element in ScanQRDialog*/
+}
+
+.qrVideo {
+  width: 100%;
+  margin-bottom: var(--spacing-default);
+}
+.qrVideo + :global(.scan-region-highlight) svg {
+  stroke: var(--color-darkyellow) !important;
+  stroke-width: 3 !important;
+}

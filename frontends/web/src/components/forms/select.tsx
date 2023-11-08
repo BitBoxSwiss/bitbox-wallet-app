@@ -18,23 +18,23 @@
 import styles from './select.module.css';
 
 type TOptionTextContent = {
-    text: string;
-}
+  text: string;
+};
 
-export type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent
+export type TOption = JSX.IntrinsicElements['option'] & TOptionTextContent;
 
 type TSelectProps = {
-    id: string;
-    label?: string;
-    options: TOption[];
-} & JSX.IntrinsicElements['select']
+  id: string;
+  label?: string;
+  options: TOption[];
+} & JSX.IntrinsicElements['select'];
 
-export function Select({
+export const Select = ({
   id,
   label,
   options = [],
   ...props
-}: TSelectProps) {
+}: TSelectProps) => {
   return (
     <div className={styles.select}>
       {label && <label htmlFor={id}>{label}</label>}
@@ -51,4 +51,4 @@ export function Select({
       </select>
     </div>
   );
-}
+};

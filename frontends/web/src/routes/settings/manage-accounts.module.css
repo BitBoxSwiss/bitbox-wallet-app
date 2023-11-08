@@ -126,6 +126,7 @@
     background-position: 100% center;
     background-repeat: no-repeat;
     height: 40px;
+    padding: 0 var(--space-default);
 }
 
 .expandBtnOpen {

@@ -22,8 +22,8 @@ import { Amount } from '../../components/amount/amount';
 import style from './balance.module.css';
 
 type TProps = {
-    balance?: IBalance;
-    noRotateFiat?: boolean;
+  balance?: IBalance;
+  noRotateFiat?: boolean;
 }
 
 export const Balance = ({
@@ -46,11 +46,17 @@ export const Balance = ({
               <Amount
                 amount={balance.available.amount}
                 unit={balance.available.unit}
-                removeBtcTrailingZeroes/>
+                removeBtcTrailingZeroes
+              />
             </td>
             <td className={style.availableUnit}>{balance.available.unit}</td>
           </tr>
-          <FiatConversion amount={balance.available} tableRow noAction={noRotateFiat} noBtcZeroes/>
+          <FiatConversion
+            amount={balance.available}
+            tableRow
+            noAction={noRotateFiat}
+            noBtcZeroes
+          />
         </tbody>
       </table>
       {

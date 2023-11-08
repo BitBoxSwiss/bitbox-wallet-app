@@ -126,3 +126,19 @@ func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
 	cfg.Keystores = append(cfg.Keystores, ks)
 	return ks
 }
+
+// migrateActiveTokens removes tokens from AccountsConfig.
+func migrateActiveTokens(accountsConf *AccountsConfig) error {
+	for _, account := range accountsConf.Accounts {
+		if account.CoinCode != coin.CodeETH {
+			continue
+		}
+
+		err := account.SetTokenActive("eth-erc20-sai0x89d", false)
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
+}

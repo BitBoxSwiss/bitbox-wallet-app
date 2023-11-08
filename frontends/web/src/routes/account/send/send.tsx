@@ -24,6 +24,7 @@ import { TDevices } from '../../../api/devices';
 import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
+import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
@@ -41,6 +42,7 @@ import { SendGuide } from './send-guide';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
+import { FiatInput } from './components/inputs/fiat-input';
 import style from './send.module.css';
 
 interface SendProps {
@@ -568,7 +570,9 @@ class Send extends Component<Props, State> {
             </Status>
             <Header
               title={<h2>{t('send.title', { accountName: account.coinName })}</h2>}
-            />
+            >
+              <HideAmountsButton />
+            </Header>
             <View>
               <ViewContent>
                 <div>
@@ -621,17 +625,13 @@ class Send extends Component<Props, State> {
                     />
                   </Column>
                   <Column>
-                    <Input
-                      type="number"
-                      step="any"
-                      min="0"
-                      label={baseCurrencyUnit}
-                      id="fiatAmount"
-                      onInput={this.handleFiatInput}
+                    <FiatInput
+                      onFiatChange={this.handleFiatInput}
                       disabled={sendAll}
                       error={amountError}
-                      value={fiatAmount}
-                      placeholder={t('send.amount.placeholder')} />
+                      fiatAmount={fiatAmount}
+                      label={baseCurrencyUnit}
+                    />
                   </Column>
                 </Grid>
                 <Grid>
