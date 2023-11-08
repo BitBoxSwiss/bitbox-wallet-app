@@ -79,7 +79,7 @@ func bitsuranceCheckId(httpClient *http.Client, accountId string) (AccountDetail
 		return account, err
 	}
 	ratAmount := new(big.Rat).SetInt64(int64(account.Details.MaxCoverage))
-	account.Details.MaxCoverageFormatted = coin.FormatAsCurrency(ratAmount, account.Details.Currency, false)
+	account.Details.MaxCoverageFormatted = coin.FormatAsCurrency(ratAmount, false, false)
 	return account, nil
 }
 

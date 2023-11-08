@@ -766,13 +766,13 @@ func (handlers *Handlers) getBTCParseExternalAmount(r *http.Request) interface{}
 }
 
 func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interface{} {
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
+	coinCode := r.URL.Query().Get("from")
+	currency := r.URL.Query().Get("to")
 	amount := r.URL.Query().Get("amount")
 
-	currentCoin, err := handlers.backend.Coin(coinpkg.Code(from))
+	currentCoin, err := handlers.backend.Coin(coinpkg.Code(coinCode))
 	if err != nil {
-		handlers.log.WithError(err).Error("Could not get coin " + from)
+		handlers.log.WithError(err).Error("Could not get coin " + coinCode)
 		return map[string]interface{}{
 			"success": false,
 		}
@@ -788,15 +788,15 @@ func (handlers *Handlers) getConvertToPlainFiatHandler(r *http.Request) interfac
 
 	coinUnitAmount := new(big.Rat).SetFloat64(currentCoin.ToUnit(coinAmount, false))
 
-	unit := currentCoin.Unit(false)
-	rate := handlers.backend.RatesUpdater().LatestPrice()[unit][to]
+	coinUnit := currentCoin.Unit(false)
+	rate := handlers.backend.RatesUpdater().LatestPrice()[coinUnit][currency]
 
 	convertedAmount := new(big.Rat).Mul(coinUnitAmount, new(big.Rat).SetFloat64(rate))
 
 	btcUnit := handlers.backend.Config().AppConfig().Backend.BtcUnit
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, to, util.FormatBtcAsSat(btcUnit)),
+		"fiatAmount": coinpkg.FormatAsPlainCurrency(convertedAmount, currency == rates.BTC.String(), util.FormatBtcAsSat(btcUnit)),
 	}
 }
 
