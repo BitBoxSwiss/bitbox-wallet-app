@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import { IAccount } from '../../api/account';
 import { BitsuranceGuide } from './guide';
-import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
+import { AccountSelector, TOption, setOptionBalances } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { View, ViewContent } from '../../components/view/view';
@@ -55,8 +55,7 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       .map(({ name, code, coinCode }) => (
         { label: name, value: code, coinCode, disabled: false }
       ));
-    setBtcAccounts(options);
-
+    setBtcAccounts(await setOptionBalances(options));
   }, [accounts]);
 
   // check supported accounts
