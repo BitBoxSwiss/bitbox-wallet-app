@@ -36,6 +36,7 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -156,5 +157,42 @@ func TestTxProposal(t *testing.T) {
 			CustomFee:        "20",
 		})
 		require.Equal(t, errors.ErrInvalidAddress, errp.Cause(err))
+	})
+}
+
+func TestMatchesAddress(t *testing.T) {
+	acct := newAccount(t)
+	defer acct.Close()
+	acct.Synchronizer.WaitSynchronized()
+
+	// Test invalid Ethereum address
+	t.Run("Invalid Ethereum address", func(t *testing.T) {
+		matches, err := acct.MatchesAddress("invalid_address")
+		require.Error(t, err)
+		require.Equal(t, matches, false)
+		require.Equal(t, errp.Cause(err), errors.ErrInvalidAddress)
+	})
+
+	// Test invalid Ethereum address checksum
+	t.Run("Invalid Ethereum address", func(t *testing.T) {
+		matches, err := acct.MatchesAddress("0xA29163852021BF4C139D03Dff59ae763AC73e84E")
+		require.Error(t, err)
+		require.Equal(t, matches, false)
+		assert.Contains(t, err.Error(), "invalidAddress")
+	})
+
+	// Test valid but not found
+	t.Run("Valid but not found", func(t *testing.T) {
+		matches, err := acct.MatchesAddress("0x0000000000000000000000000000000000000000")
+		require.Equal(t, matches, false)
+		require.Equal(t, err, nil)
+	})
+
+	// Test existing address
+	t.Run("Address found", func(t *testing.T) {
+		addr, _ := acct.Address()
+		matches, err := acct.MatchesAddress(addr.Hex())
+		require.Equal(t, matches, true)
+		require.Equal(t, err, nil)
 	})
 }

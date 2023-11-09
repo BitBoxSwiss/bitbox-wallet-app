@@ -16,6 +16,7 @@
 
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
+import { SuccessResponse } from './response';
 
 export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
@@ -63,6 +64,15 @@ export interface ITotalBalance {
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
   return apiGet('accounts/total-balance');
+};
+
+type TEthAccountCodeAndNameByAddress = SuccessResponse & {
+  code: AccountCode;
+  name: string;
+}
+
+export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
+  return apiPost('accounts/eth-account-code', { address });
 };
 
 export interface IStatus {
@@ -328,3 +338,29 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
 export const testRegister = (pin: string): Promise<null> => {
   return apiPost('test/register', { pin });
 };
+
+export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
+
+export type TSignWalletConnectTx = {
+  success: false,
+  aborted?: boolean;
+  errorMessage?: string;
+} | {
+  success: true;
+  txHash: string;
+  rawTx: string;
+}
+
+
+export const ethSignMessage = (code: AccountCode, message: string): Promise<TSignMessage> => {
+  return apiPost(`account/${code}/eth-sign-msg`, message);
+};
+
+export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: any): Promise<TSignMessage> => {
+  return apiPost(`account/${code}/eth-sign-typed-msg`, { chainId, data });
+};
+
+export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
+  return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
+};
+

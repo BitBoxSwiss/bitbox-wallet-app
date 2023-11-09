@@ -1,0 +1,26 @@
+.container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.successIcon {
+    width: 180px;
+    height: 180px;
+}
+
+.container p.successText {
+    margin: calc(var(--space-quarter) + var(--space-half)) 0;
+    text-align: center;
+}
+
+@media (max-width: 768px) { 
+    .container p.successText {
+        margin-bottom: var(--space-large);
+        margin-top: calc(var(--space-quarter) + var(--space-default));
+    }
+    .container button {
+        height: calc(var(--space-quarter) + var(--space-default));
+        width: 100%;
+    }
+}
