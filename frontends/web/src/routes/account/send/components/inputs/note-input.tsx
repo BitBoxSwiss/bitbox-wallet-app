@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,28 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import style from './buytags.module.css';
+import { Input } from '../../../../../components/forms';
+import style from './note-input.module.css';
 
-export const BestDeal = () => {
+type TProps = {
+    onNoteChange: (event: Event) => void;
+    note: string;
+}
+
+export const NoteInput = ({ onNoteChange, note }: TProps) => {
   const { t } = useTranslation();
   return (
-    <div className={`${style.tag} ${style.bestDeal}`}>{t('buy.exchange.bestDeal')}</div>
-  );
-};
-
-export const Fast = () => {
-  const { t } = useTranslation();
-  return (
-    <div className={`${style.tag} ${style.fast}`}>{t('buy.exchange.fast')}</div>
+    <Input
+      label={t('note.title')}
+      labelSection={
+        <span className={style.labelDescription}>
+          {t('note.input.description')}
+        </span>
+      }
+      id="note"
+      onInput={onNoteChange}
+      value={note}
+      placeholder={t('note.input.placeholder')}
+    />
   );
 };

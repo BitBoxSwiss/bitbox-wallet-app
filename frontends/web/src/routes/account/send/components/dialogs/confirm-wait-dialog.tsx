@@ -4,7 +4,7 @@ import { TSignProgress } from '../../types';
 import { CoinCode, ConversionUnit, FeeTargetCode, Fiat, IAmount } from '../../../../../api/account';
 import { Amount } from '../../../../../components/amount/amount';
 import { customFeeUnit } from '../../../utils';
-import style from '../../send.module.css';
+import style from './confirm-wait-dialog.module.css';
 
 type TransactionStatus = {
   isConfirming: boolean;

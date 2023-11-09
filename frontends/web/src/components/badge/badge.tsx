@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-import { apiPost } from '../utils/request';
+import { ReactNode } from 'react';
+import style from './badge.module.css';
 
-export const notifyUser = (text: string) => {
-  return apiPost('notify-user', { text });
-};
+type TBadgeStyles = 'success' | 'warning'; // TODO: not yet implemented 'info' | 'danger'
 
-export const open = (href: string) => {
-  return apiPost('open', href);
+type TProps = {
+  children: ReactNode;
+  type?: TBadgeStyles;
+}
+
+export const Badge = ({
+  children,
+  type = 'success',
+}: TProps) => {
+  return (
+    <span className={`${style.badge} ${style[type]}`}>
+      {children}
+    </span>
+  );
 };

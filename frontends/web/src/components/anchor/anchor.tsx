@@ -16,7 +16,7 @@
  */
 
 import { ReactNode, SyntheticEvent } from 'react';
-import { apiPost } from '../../utils/request';
+import { open } from '../../api/system';
 import style from './anchor.module.css';
 
 type TProps = {
@@ -52,7 +52,7 @@ export const A = ({
       title={props.title || href}
       onClick={(e: SyntheticEvent) => {
         e.preventDefault();
-        apiPost('open', href).catch(console.error);
+        open(href).catch(console.error);
       }}
       tabIndex={0}
       {...props}>
