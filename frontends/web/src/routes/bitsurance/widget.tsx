@@ -101,10 +101,10 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   };
 
   const getXPub = (wantedScriptType: ScriptType) => {
-    let wpkhConfig = accountInfo?.signingConfigurations.find(config =>
+    let xpubConfig = accountInfo?.signingConfigurations.find(config =>
       config.bitcoinSimple?.scriptType === wantedScriptType
     );
-    return wpkhConfig?.bitcoinSimple?.keyInfo.xpub;
+    return xpubConfig?.bitcoinSimple?.keyInfo.xpub;
   };
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
