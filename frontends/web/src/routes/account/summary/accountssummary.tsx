@@ -161,7 +161,7 @@ export function AccountsSummary({
               hideAmounts={hideAmounts}
               data={summaryData}
               noDataPlaceholder={
-                (accounts.length === Object.keys(balances || {}).length) ? (
+                (accounts.length && accounts.length <= Object.keys(balances || {}).length) ? (
                   <AddBuyReceiveOnEmptyBalances accounts={accounts} balances={balances} />
                 ) : undefined
               } />
