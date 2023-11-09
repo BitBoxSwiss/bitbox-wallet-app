@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../utils/config';
-import { getTransactionList } from '../../api/account';
+import { getTransactionList, ScriptType } from '../../api/account';
 import { Dialog } from '../../components/dialog/dialog';
 import { confirmation } from '../../components/confirm/Confirm';
 import { verifyAddress, signAddress } from '../../api/exchanges';
@@ -100,9 +100,9 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     current.contentWindow?.postMessage(message, '*');
   };
 
-  const getWPKHxPub = () => {
+  const getXPub = (wantedScriptType: ScriptType) => {
     let wpkhConfig = accountInfo?.signingConfigurations.find(config =>
-      config.bitcoinSimple?.scriptType === 'p2wpkh'
+      config.bitcoinSimple?.scriptType === wantedScriptType
     );
     return wpkhConfig?.bitcoinSimple?.keyInfo.xpub;
   };
@@ -120,7 +120,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         signing = false;
         if (response.success) {
           if (withExtendedPublicKey) {
-            const xpub = getWPKHxPub();
+            const xpub = getXPub('p2wpkh');
             if (xpub) {
               sendAddressWithXPub(response.address, response.signature, xpub);
             } else {
