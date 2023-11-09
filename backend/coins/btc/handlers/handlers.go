@@ -27,6 +27,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -593,9 +594,13 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 
 func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
 	type response struct {
-		Success bool `json:"success"`
+		Success       bool `json:"success"`
+		WrongKeystore bool `json:"wrongKeystore"`
 	}
 
 	_, err := handlers.account.Config().ConnectKeystore()
-	return response{Success: err == nil}, nil
+	return response{
+		Success:       err == nil,
+		WrongKeystore: err != nil && errp.Cause(err) == backend.ErrWrongKeystore,
+	}, nil
 }

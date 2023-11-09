@@ -326,6 +326,6 @@ export const testRegister = (pin: string): Promise<null> => {
   return apiPost('test/register', { pin });
 };
 
-export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
+export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; wrongKeystore: boolean }> => {
   return apiPost(`account/${code}/connect-keystore`);
 };

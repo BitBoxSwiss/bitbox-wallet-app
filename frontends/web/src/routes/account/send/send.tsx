@@ -16,6 +16,7 @@
  */
 
 import { Component } from 'react';
+import { connectKeystore } from '../../account/utils';
 import * as accountApi from '../../../api/account';
 import { syncdone } from '../../../api/accountsync';
 import { BtcUnit, parseExternalBtcAmount } from '../../../api/coins';
@@ -212,8 +213,8 @@ class Send extends Component<Props, State> {
       return;
     }
     const code = this.getAccount()!.code;
-    const connectResult = await accountApi.connectKeystore(code);
-    if (!connectResult.success) {
+    const connectResult = await connectKeystore(code);
+    if (!connectResult) {
       return;
     }
 

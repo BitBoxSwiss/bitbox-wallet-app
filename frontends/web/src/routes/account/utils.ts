@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-import { CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import { connectKeystore as apiConnectKeystore, AccountCode, CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
+import { alertUser } from '../../components/alert/Alert';
+import { i18n } from '../../i18n/i18n';
 
 export function findAccount(accounts: IAccount[], accountCode: string): IAccount | undefined {
   return accounts.find(({ code }) => accountCode === code);
@@ -113,4 +115,12 @@ export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore
     acc[key].accounts.push(account);
     return acc;
   }, {} as Record<string, TAccountsByKeystore>));
+}
+
+export async function connectKeystore(code: AccountCode): Promise<boolean> {
+  const result = await apiConnectKeystore(code);
+  if (result.wrongKeystore) {
+    alertUser(i18n.t('error.wrongKeystore'));
+  }
+  return result.success;
 }

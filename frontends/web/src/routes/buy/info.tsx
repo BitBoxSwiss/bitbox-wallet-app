@@ -24,7 +24,7 @@ import Guide from './guide';
 import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { findAccount, getCryptoName } from '../account/utils';
+import { connectKeystore, findAccount, getCryptoName } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 
@@ -85,8 +85,8 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   const handleProceed = async () => {
     setDisabled(true);
     try {
-      const connectResult = await accountApi.connectKeystore(selected);
-      if (!connectResult.success) {
+      const connectResult = await connectKeystore(selected);
+      if (!connectResult) {
         return;
       }
     } finally {

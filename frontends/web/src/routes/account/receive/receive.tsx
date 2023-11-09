@@ -17,6 +17,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { connectKeystore } from '../../account/utils';
 import { useLoad } from '../../../hooks/api';
 import { useEsc } from '../../../hooks/keyboard';
 import * as accountApi from '../../../api/account';
@@ -111,8 +112,8 @@ export const Receive = ({
     if (!receiveAddresses || code === undefined) {
       return;
     }
-    const connectResult = await accountApi.connectKeystore(code);
-    if (!connectResult.success) {
+    const connectResult = await connectKeystore(code);
+    if (!connectResult) {
       return;
     }
 

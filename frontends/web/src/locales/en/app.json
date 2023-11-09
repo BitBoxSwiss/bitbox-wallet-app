@@ -610,7 +610,8 @@
     "aoppUnsupportedAsset": "The asset is not supported.",
     "aoppUnsupportedFormat": "There are no available accounts that support the requested address format.",
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
-    "aoppVersion": "Unknown version."
+    "aoppVersion": "Unknown version.",
+    "wrongKeystore": "Wrong wallet connected - please make sure to insert the correct device matching this account. If you use the optional passphrase, make sure to use the passphrase matching this account."
   },
   "fiat": {
     "default": "default",
