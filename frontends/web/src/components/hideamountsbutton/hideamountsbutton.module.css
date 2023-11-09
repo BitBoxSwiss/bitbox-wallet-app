@@ -1,5 +1,7 @@
 .button {
+    border-width: 0;
     display: flex;
+    padding: 0;
 }
 
 .button img {

@@ -198,6 +198,10 @@ export const postNotesTx = (code: AccountCode, {
   return apiPost(`account/${code}/notes/tx`, { internalTxID, note });
 };
 
+export const proposeTxNote = (code: AccountCode, note: string): Promise<null> => {
+  return apiPost(`account/${code}/propose-tx-note`, note);
+};
+
 export const getTransactionList = (code: AccountCode): Promise<TTransactions> => {
   return apiGet(`account/${code}/transactions`);
 };

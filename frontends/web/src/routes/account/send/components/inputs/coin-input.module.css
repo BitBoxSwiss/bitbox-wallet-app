@@ -1,0 +1,12 @@
+.maxAmount label {
+  display: block !important;
+  margin-right: 0 !important;
+}
+
+.maxAmount label::before {
+  top: -2px !important;
+}
+
+.maxAmount label::after {
+  margin-top: -3px !important;
+}
