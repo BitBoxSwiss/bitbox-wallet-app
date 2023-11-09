@@ -17,7 +17,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
-import { IAccount } from '../../api/account';
+import * as accountApi from '../../api/account';
 import { getExchangeSupportedAccounts } from './utils';
 import { getBalance } from '../../api/account';
 import Guide from './guide';
@@ -29,13 +29,14 @@ import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 
 type TProps = {
-    accounts: IAccount[];
+    accounts: accountApi.IAccount[];
     code: string;
 }
 
 export const BuyInfo = ({ code, accounts }: TProps) => {
   const [selected, setSelected] = useState<string>(code);
   const [options, setOptions] = useState<TOption[]>();
+  const [disabled, setDisabled] = useState<boolean>(false);
 
   const { t } = useTranslation();
 
@@ -81,7 +82,17 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     });
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
+    setDisabled(true);
+    try {
+      const connectResult = await accountApi.connectKeystore(selected);
+      if (!connectResult.success) {
+        return;
+      }
+    } finally {
+      setDisabled(false);
+    }
+
     route(`/buy/exchange/${selected}`);
   };
   if (options === undefined) {
@@ -105,6 +116,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
               ) : (
                 <AccountSelector
                   title={t('buy.title', { name })}
+                  disabled={disabled}
                   options={options}
                   selected={selected}
                   onChange={handleChangeAccount}
