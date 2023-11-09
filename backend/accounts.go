@@ -36,6 +36,15 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
+// Set the `watch` setting on new accounts to this default value.
+// For now we keep it unset, and have users opt-in to watching specific accounts.
+//
+// We set it to `nil` not `false` so that we reserve the possibility to default all accounts to
+// watch-only for accounts where the user hasn't made an active decision (e.g. turn on watch-only
+// for all accounts of a keystore if the user did not activate/deactivate watch-only manually on any
+// of them).
+var defaultWatch *bool = nil
+
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
 const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
@@ -478,6 +487,46 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
+// AccountSetWatch sets the account's persisted watch flag to `watch`. Set to `true` if the account
+// should be loaded even if its keystore is not connected.
+// If `watch` is set to `false`, the account is unloaded and the frontend notified.
+func (backend *Backend) AccountSetWatch(accountCode accountsTypes.Code, watch bool) error {
+	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+		acct := accountsConfig.Lookup(accountCode)
+		if acct == nil {
+			return errp.Newf("Could not find account %s", accountCode)
+		}
+		acct.Watch = &watch
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	defer backend.accountsAndKeystoreLock.Lock()()
+
+	// ETH tokens inherit the Watch-flag from the parent ETH account.
+	// If the watch status of an ETH account was changed, we update it for its tokens as well.
+	//
+	// This ensures that removing a keystore after setting an ETH account including tokens to
+	// watchonly results in the account *and* the tokens remaining loaded.
+	if acct := backend.accounts.lookup(accountCode); acct != nil {
+		if acct.Config().Config.CoinCode == coinpkg.CodeETH {
+			for _, erc20TokenCode := range acct.Config().Config.ActiveTokens {
+				erc20AccountCode := Erc20AccountCode(accountCode, erc20TokenCode)
+				if tokenAcct := backend.accounts.lookup(erc20AccountCode); tokenAcct != nil {
+					tokenAcct.Config().Config.Watch = &watch
+				}
+			}
+		}
+	}
+
+	if !watch {
+		backend.initAccounts(false)
+		backend.emitAccountsStatusChanged()
+	}
+	return nil
+}
+
 // addAccount adds the given account to the backend.
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) addAccount(account accounts.Interface) {
@@ -493,6 +542,10 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *config.Account) {
+	if backend.accounts.lookup(persistedConfig.Code) != nil {
+		// Do not create/load account if it is already loaded.
+		return
+	}
 	var account accounts.Interface
 	accountConfig := &accounts.AccountConfig{
 		Config:      persistedConfig,
@@ -549,9 +602,15 @@ func (backend *Backend) createAndAddAccount(coin coinpkg.Coin, persistedConfig *
 				tokenName = fmt.Sprintf("%s %d", tokenName, accountNumber+1)
 			}
 
+			var watchToken *bool
+			if persistedConfig.Watch != nil {
+				wCopy := *persistedConfig.Watch
+				watchToken = &wCopy
+			}
 			erc20Config := &config.Account{
 				Inactive:              persistedConfig.Inactive,
 				HiddenBecauseUnused:   persistedConfig.HiddenBecauseUnused,
+				Watch:                 watchToken,
 				CoinCode:              erc20CoinCode,
 				Name:                  tokenName,
 				Code:                  erc20AccountCode,
@@ -655,6 +714,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	if keystore.SupportsUnifiedAccounts() {
 		return backend.persistAccount(config.Account{
 			HiddenBecauseUnused:   hiddenBecauseUnused,
+			Watch:                 defaultWatch,
 			CoinCode:              coin.Code(),
 			Name:                  name,
 			Code:                  code,
@@ -674,6 +734,7 @@ func (backend *Backend) persistBTCAccountConfig(
 
 		err := backend.persistAccount(config.Account{
 			HiddenBecauseUnused:   hiddenBecauseUnused,
+			Watch:                 defaultWatch,
 			CoinCode:              coin.Code(),
 			Name:                  suffixedName,
 			Code:                  splitAccountCode(code, cfg.ScriptType()),
@@ -730,6 +791,7 @@ func (backend *Backend) persistETHAccountConfig(
 
 	return backend.persistAccount(config.Account{
 		HiddenBecauseUnused:   hiddenBecauseUnused,
+		Watch:                 defaultWatch,
 		CoinCode:              coin.Code(),
 		Name:                  name,
 		Code:                  code,
@@ -740,22 +802,33 @@ func (backend *Backend) persistETHAccountConfig(
 
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts() {
-	if backend.keystore == nil {
-		return
-	}
-	// Only load accounts which belong to connected keystores.
-	rootFingerprint, err := backend.keystore.RootFingerprint()
-	if err != nil {
-		backend.log.WithError(err).Error("Could not retrieve root fingerprint")
-		return
-	}
-	keystoreConnected := func(account *config.Account) bool {
+	// Only load accounts which belong to connected keystores or for which watchonly is enabled.
+	keystoreConnectedOrWatch := func(account *config.Account) bool {
+		if account.IsWatch() {
+			return true
+		}
+
+		if backend.keystore == nil {
+			return false
+		}
+		rootFingerprint, err := backend.keystore.RootFingerprint()
+		if err != nil {
+			backend.log.WithError(err).Error("Could not retrieve root fingerprint")
+			return false
+		}
+
 		return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
 	}
 
 	persistedAccounts := backend.config.AccountsConfig()
+
+	// In this loop, we add all accounts that match the filter, except for the ones whose signing
+	// configuration is not supported by the connected keystore. The latter can happen for example
+	// if a user connects a BitBox02 Multi edition first, which persists some altcoin accounts, and
+	// then connects a BitBox02 BTC-only with the same seed. In that case, the unsupported accounts
+	// will not be loaded, unless they have been marked as watch-only.
 outer:
-	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnected) {
+	for _, account := range backend.filterAccounts(&persistedAccounts, keystoreConnectedOrWatch) {
 		account := account
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
@@ -763,16 +836,22 @@ outer:
 				account.CoinCode, account.Code)
 			continue
 		}
-		switch coin.(type) {
-		case *btc.Coin:
-			for _, cfg := range account.SigningConfigurations {
-				if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
-					continue outer
+
+		// Watch-only accounts are loaded regardless, and if later e.g. a BitBox02 BTC-only is
+		// inserted with the same seed as a Multi, we will need to catch that mismatch when the
+		// keystore will be used to e.g. display an Ethereum address etc.
+		if backend.keystore != nil && !account.IsWatch() {
+			switch coin.(type) {
+			case *btc.Coin:
+				for _, cfg := range account.SigningConfigurations {
+					if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
+						continue outer
+					}
 				}
-			}
-		default:
-			if !backend.keystore.SupportsAccount(coin, nil) {
-				continue
+			default:
+				if !backend.keystore.SupportsAccount(coin, nil) {
+					continue
+				}
 			}
 		}
 
@@ -898,9 +977,10 @@ func (backend *Backend) updatePersistedAccounts(
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initAccounts() {
+// if force is true, all accounts are uninitialized first, even if they are watch-only.
+func (backend *Backend) initAccounts(force bool) {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitAccounts()
+	backend.uninitAccounts(force)
 
 	backend.initPersistedAccounts()
 
@@ -920,19 +1000,26 @@ func (backend *Backend) ReinitializeAccounts() {
 	defer backend.accountsAndKeystoreLock.Lock()()
 
 	backend.log.Info("Reinitializing accounts")
-	backend.initAccounts()
+	backend.initAccounts(true)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) uninitAccounts() {
+// if force is true, all accounts are uninitialized, even if they are watch-only.
+func (backend *Backend) uninitAccounts(force bool) {
+	keep := []accounts.Interface{}
 	for _, account := range backend.accounts {
 		account := account
+		if !force && account.Config().Config.IsWatch() {
+			// Do not uninit/remove account that is being watched.
+			keep = append(keep, account)
+			continue
+		}
 		if backend.onAccountUninit != nil {
 			backend.onAccountUninit(account)
 		}
 		account.Close()
 	}
-	backend.accounts = []accounts.Interface{}
+	backend.accounts = keep
 }
 
 // maybeAddHiddenUnusedAccounts adds a hidden account for scanning to facilitate accounts discovery.

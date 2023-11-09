@@ -203,7 +203,7 @@ class Sidebar extends Component<Props> {
           {
             accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
               <div className={style.sidebarHeaderContainer}>
-                <span className={style.sidebarHeader} hidden={!keystores?.length}>
+                <span className={style.sidebarHeader} hidden={!keystore.accounts.length}>
                   {t('sidebar.accounts')} - {keystore.keystore.name}
                 </span>
               </div>

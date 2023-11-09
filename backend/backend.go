@@ -556,7 +556,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		log.WithError(err).Error("Could not persist default accounts")
 	}
 
-	backend.initAccounts()
+	backend.initAccounts(false)
 
 	backend.aoppKeystoreRegistered()
 }
@@ -578,7 +578,7 @@ func (backend *Backend) DeregisterKeystore() {
 		Action:  action.Reload,
 	})
 
-	backend.uninitAccounts()
+	backend.uninitAccounts(false)
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
 	backend.initPersistedAccounts()
@@ -721,7 +721,7 @@ func (backend *Backend) Close() error {
 
 	backend.ratesUpdater.Stop()
 
-	backend.uninitAccounts()
+	backend.uninitAccounts(true)
 
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {

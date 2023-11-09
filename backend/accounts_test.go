@@ -561,6 +561,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
@@ -583,6 +584,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
@@ -604,6 +606,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
@@ -624,6 +627,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 3",
 				Code:     "v0-55555555-btc-2",
@@ -646,6 +650,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-2",
@@ -667,6 +672,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-2",
@@ -682,6 +688,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t,
 			&config.Account{
 				HiddenBecauseUnused: true,
+				Watch:               nil,
 				CoinCode:            "btc",
 				Name:                "Bitcoin 4",
 				Code:                "v0-55555555-btc-3",
@@ -704,6 +711,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-3", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 4 new name",
 				Code:     "v0-55555555-btc-3",
@@ -734,6 +742,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
@@ -745,6 +754,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
@@ -756,6 +766,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
@@ -777,6 +788,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
@@ -788,6 +800,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
@@ -1037,8 +1050,31 @@ func TestAccountSupported(t *testing.T) {
 	b.registerKeystore(bb02Multi)
 	require.Len(t, b.Accounts(), 3)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	// Mark all as watch-only.
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		for _, acct := range cfg.Accounts {
+			f := true
+			acct.Watch = &f
+		}
+		return nil
+	}))
 
 	b.DeregisterKeystore()
+	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
+	// previously, because they are marked watch-only, so they should be visible.
+	b.registerKeystore(bb02BtcOnly)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	b.DeregisterKeystore()
+	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
+		for _, acct := range cfg.Accounts {
+			f := false
+			acct.Watch = &f
+		}
+		return nil
+	}))
 	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
 	// were persisted previously.
 	b.registerKeystore(bb02BtcOnly)

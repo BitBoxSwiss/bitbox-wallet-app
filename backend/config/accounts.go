@@ -36,7 +36,14 @@ type Account struct {
 	// HiddenBecauseUnused is true if the account should not loaded in the sidebar and portfolio,
 	// and not be shown in 'Manage accounts', because the account is unused (has no transaction
 	// history). This is used to facilitate automatic discovery of used accounts.
-	HiddenBecauseUnused   bool                   `json:"hiddenBecauseUnused"`
+	HiddenBecauseUnused bool `json:"hiddenBecauseUnused"`
+	// Watch indicates if the account should be loaded even if its keystore is not connected.
+	//
+	// If false, the account is only displayed if the keystore is connected. If true, it is loaded
+	// and displayed when the app launches.
+	//
+	// If nil, it is considered false.
+	Watch                 *bool                  `json:"watch"`
 	CoinCode              coin.Code              `json:"coinCode"`
 	Name                  string                 `json:"name"`
 	Code                  accountsTypes.Code     `json:"code"`
@@ -64,6 +71,11 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 	}
 	acct.ActiveTokens = activeTokens
 	return nil
+}
+
+// IsWatchOnly returns true if the `Watch` setting is set to true.
+func (acct *Account) IsWatch() bool {
+	return acct.Watch != nil && *acct.Watch
 }
 
 // Keystore holds information related to keystores such as the BitBox02.
