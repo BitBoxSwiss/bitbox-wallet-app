@@ -55,8 +55,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 h1:HbphB4TFFXpv7MNrT52FGrrgVXF1
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2UO1+lbSKsdiOoYi9Zzey7Fc=
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230821093735-f9cc98584994 h1:f8+AR8MhDXNRU+KfsAO7JEDAcMHF0jEUGiD8eZWkdFE=
-github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230821093735-f9cc98584994/go.mod h1:Zc5qP/2oT8Jkv3ltWl7OVNQV8dGV/mUZ2KHs9nzYbfU=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231108065112-29421cdcb314 h1:QXZ2MZ1CSgXfU+PnyEHNXE/Smxo9lzJ+TEKGzr7tdps=
+github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231108065112-29421cdcb314/go.mod h1:JrokkR9J1STvq40gDemLfpUHdmRYSOnKqBIGXPxLFXY=
 github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d h1:hRjtOvL6k8Ie08XVUwzDNCSlP4wbwboVh1lkEtv0R40=
 github.com/digitalbitbox/block-client-go v0.0.0-20230103135723-d8eaf468753d/go.mod h1:GvmItOHUQJD0Dx0o2ZPgKpwI9XP9JGAo5bTV0B2kbN8=
 github.com/digitalbitbox/usb v0.0.0-20230208083750-001c519abaff h1:2SjR45Wi7pjTnfEE1HEqVN0o+nxeyf9hvMLbI7aEEuM=

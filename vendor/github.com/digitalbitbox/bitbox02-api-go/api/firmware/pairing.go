@@ -161,8 +161,6 @@ func (device *Device) ChannelHashVerify(ok bool) {
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersion)
 		case common.ProductBitBox02BTCOnly:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBTCOnly)
-		case common.ProductBitBoxBaseStandard:
-			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBitBoxBaseStandard)
 		default:
 			device.log.Error(fmt.Sprintf("unrecognized product: %s", *device.product), nil)
 		}
@@ -170,20 +168,16 @@ func (device *Device) ChannelHashVerify(ok bool) {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
 			return
 		}
-		if *device.product == common.ProductBitBoxBaseStandard {
-			// For now, the base has no keystore or password.
-			device.changeStatus(StatusUninitialized)
+
+		info, err := device.DeviceInfo()
+		if err != nil {
+			device.log.Error("could not get device info", err)
+			return
+		}
+		if info.Initialized {
+			device.changeStatus(StatusInitialized)
 		} else {
-			info, err := device.DeviceInfo()
-			if err != nil {
-				device.log.Error("could not get device info", err)
-				return
-			}
-			if info.Initialized {
-				device.changeStatus(StatusInitialized)
-			} else {
-				device.changeStatus(StatusUninitialized)
-			}
+			device.changeStatus(StatusUninitialized)
 		}
 	} else {
 		device.changeStatus(StatusPairingFailed)
