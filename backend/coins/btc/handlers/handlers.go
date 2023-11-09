@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -542,6 +543,10 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 		}, nil
 	}
 	canVerify, err := btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
+	// User canceled keystore connect prompt - no special action or message needed in the frontend.
+	if errp.Cause(err) == context.Canceled {
+		return result{Success: true}, nil
+	}
 	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
