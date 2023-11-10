@@ -327,7 +327,6 @@ func newBackend(t *testing.T, testing, regtest bool) *Backend {
 			ObserveFunc: func(func(observable.Event)) func() {
 				return nil
 			},
-			NotifyFunc: func(event observable.Event) {},
 			CoinFunc: func() coinpkg.Coin {
 				return coin
 			},

@@ -17,7 +17,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import * as accountApi from '../../api/account';
 import {
   getNodeInfo,
@@ -28,30 +27,20 @@ import {
   Payment,
   PaymentTypeFilter
 } from '../../api/lightning';
-import { TDevices } from '../../api/devices';
 import { Balance } from '../../components/balance/balance';
 import { View, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
-import { Info } from '../../components/icon';
 import { Spinner } from '../../components/spinner/Spinner';
 import { ActionButtons } from './actionButtons';
-import style from './lightning.module.css';
 import { LightningGuide } from './guide';
 import { toSat } from '../../utils/conversion';
 import { Payments } from './components/payments';
 import { unsubscribe } from '../../utils/subscriptions';
 
-type Props = {
-  accounts: accountApi.IAccount[];
-  code: string;
-  devices: TDevices;
-};
-
-export function Lightning({ accounts, code }: Props) {
+export function Lightning() {
   const { t } = useTranslation();
   const [balance, setBalance] = useState<accountApi.IBalance>();
   const [syncedAddressesCount] = useState<number>();
-  const [stateCode, setStateCode] = useState<string>();
   const [nodeState, setNodeState] = useState<NodeState>();
   const [payments, setPayments] = useState<Payment[]>();
   const [error, setError] = useState<string>();
@@ -59,8 +48,8 @@ export function Lightning({ accounts, code }: Props) {
   const onStateChange = useCallback(async () => {
     try {
       setError(undefined);
-      const nodeState = await getNodeInfo(code);
-      const payments = await getListPayments(code, { filter: PaymentTypeFilter.ALL });
+      const nodeState = await getNodeInfo();
+      const payments = await getListPayments({ filter: PaymentTypeFilter.ALL });
 
       setNodeState(nodeState);
       setPayments(payments);
@@ -68,14 +57,14 @@ export function Lightning({ accounts, code }: Props) {
       const errorMessage = err?.errorMessage || err;
       setError(errorMessage);
     }
-  }, [code]);
+  }, []);
 
   useEffect(() => {
     onStateChange();
 
-    const subscriptions = [subscribeNodeState(code)(onStateChange), subscribeListPayments(code)(onStateChange)];
+    const subscriptions = [subscribeNodeState(onStateChange), subscribeListPayments(onStateChange)];
     return () => unsubscribe(subscriptions);
-  }, [code, onStateChange]);
+  }, [onStateChange]);
 
   useEffect(() => {
     if (nodeState) {
@@ -94,10 +83,6 @@ export function Lightning({ accounts, code }: Props) {
     }
   }, [nodeState, nodeState?.channelsBalanceMsat]);
 
-  useEffect(() => {
-    setStateCode(code);
-  }, [code]);
-
   const hasDataLoaded = balance !== undefined;
 
   if (error) {
@@ -108,10 +93,8 @@ export function Lightning({ accounts, code }: Props) {
     );
   }
 
-  const account = accounts && accounts.find((acct) => acct.code === code);
-  if (!account || !nodeState || stateCode !== code) {
-    // Sync code property with stateCode to work around a re-render that
-    // happens briefly before `setStatus(undefined)` stops rendering again below.
+  if (!nodeState) {
+    // Wait for the nodeState to become available
     return <Spinner guideExists={false} />;
   }
 
@@ -131,7 +114,6 @@ export function Lightning({ accounts, code }: Props) {
   const isAccountEmpty = balance && !balance.hasAvailable && !balance.hasIncoming && payments && payments.length === 0;
 
   const actionButtonsProps = {
-    code,
     canSend
   };
 
@@ -142,15 +124,10 @@ export function Lightning({ accounts, code }: Props) {
           <Header
             title={
               <h2>
-                <span>{t('lightning.accountLabel', { accountName: account.name })}</span>
+                <span>{t('lightning.accountLabel')}</span>
               </h2>
             }
-          >
-            <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
-              <Info className={style.accountIcon} />
-              <span>{t('accountInfo.label')}</span>
-            </Link>
-          </Header>
+          ></Header>
           <div className="innerContainer scrollableContainer">
             <div className="content padded">
               <div className="flex flex-column flex-reverse-mobile">

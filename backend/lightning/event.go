@@ -16,8 +16,6 @@
 package lightning
 
 import (
-	"fmt"
-
 	"github.com/breez/breez-sdk-go/breez_sdk"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -25,21 +23,19 @@ import (
 
 // Implementation of breez_sdk.EventListener
 // OnEvent receives an event from the sdk and handles it.
-func (handlers *Handlers) OnEvent(breezEvent breez_sdk.BreezEvent) {
-	handlers.log.Infof("BreezSDK: %#v", breezEvent)
+func (lightning *Lightning) OnEvent(breezEvent breez_sdk.BreezEvent) {
+	lightning.log.Infof("BreezSDK: %#v", breezEvent)
 
-	if handlers.account != nil {
-		switch breezEvent.(type) {
-		case breez_sdk.BreezEventInvoicePaid, breez_sdk.BreezEventPaymentFailed, breez_sdk.BreezEventPaymentSucceed:
-			handlers.Notify(observable.Event{
-				Subject: fmt.Sprintf("account/%s/lightning/list-payments", handlers.account.Config().Config.Code),
-				Action:  action.Reload,
-			})
-		case breez_sdk.BreezEventSynced:
-			handlers.Notify(observable.Event{
-				Subject: fmt.Sprintf("account/%s/lightning/node-info", handlers.account.Config().Config.Code),
-				Action:  action.Reload,
-			})
-		}
+	switch breezEvent.(type) {
+	case breez_sdk.BreezEventInvoicePaid, breez_sdk.BreezEventPaymentFailed, breez_sdk.BreezEventPaymentSucceed:
+		lightning.Notify(observable.Event{
+			Subject: "lightning/list-payments",
+			Action:  action.Reload,
+		})
+	case breez_sdk.BreezEventSynced:
+		lightning.Notify(observable.Event{
+			Subject: "lightning/node-info",
+			Action:  action.Reload,
+		})
 	}
 }

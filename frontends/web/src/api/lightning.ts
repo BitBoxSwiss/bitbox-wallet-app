@@ -15,7 +15,6 @@
  */
 
 import { apiGet, apiPost } from '../utils/request';
-import { AccountCode } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 import qs from 'query-string';
 
@@ -763,42 +762,32 @@ const postApiResponse = async <T, C extends object>(url: string, data: C, defaul
 /**
  * Breez SDK API interface
  */
-export const getNodeInfo = async (code: AccountCode): Promise<NodeState> => {
-  return getApiResponse<NodeState>(`account/${code}/lightning/node-info`, 'Error calling getNodeInfo');
+export const getNodeInfo = async (): Promise<NodeState> => {
+  return getApiResponse<NodeState>('lightning/node-info', 'Error calling getNodeInfo');
 };
 
-export const getListPayments = async (code: AccountCode, params: ListPaymentsRequest): Promise<Payment[]> => {
-  return getApiResponse<Payment[]>(
-    `account/${code}/lightning/list-payments?${qs.stringify(params, { skipNull: true })}`,
-    'Error calling getListPayments'
-  );
+export const getListPayments = async (params: ListPaymentsRequest): Promise<Payment[]> => {
+  return getApiResponse<Payment[]>(`lightning/list-payments?${qs.stringify(params, { skipNull: true })}`, 'Error calling getListPayments');
 };
 
-export const getOpenChannelFee = async (code: AccountCode, params: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
+export const getOpenChannelFee = async (params: OpenChannelFeeRequest): Promise<OpenChannelFeeResponse> => {
   return getApiResponse<OpenChannelFeeResponse>(
-    `account/${code}/lightning/open-channel-fee?${qs.stringify(params, { skipNull: true })}`,
+    `lightning/open-channel-fee?${qs.stringify(params, { skipNull: true })}`,
     'Error calling getOpenChannelFee'
   );
 };
 
-export const getParseInput = async (code: AccountCode, params: ParseInputRequest): Promise<InputType> => {
-  return getApiResponse<InputType>(
-    `account/${code}/lightning/parse-input?${qs.stringify(params, { skipNull: true })}`,
-    'Error calling getParseInput'
-  );
+export const getParseInput = async (params: ParseInputRequest): Promise<InputType> => {
+  return getApiResponse<InputType>(`lightning/parse-input?${qs.stringify(params, { skipNull: true })}`, 'Error calling getParseInput');
 };
 
-export const postSendPayment = async (code: AccountCode, data: SendPaymentRequest): Promise<SendPaymentResponse> => {
-  return postApiResponse<SendPaymentResponse, SendPaymentRequest>(
-    `account/${code}/lightning/send-payment`,
-    data,
-    'Error calling postSendPayment'
-  );
+export const postSendPayment = async (data: SendPaymentRequest): Promise<SendPaymentResponse> => {
+  return postApiResponse<SendPaymentResponse, SendPaymentRequest>('lightning/send-payment', data, 'Error calling postSendPayment');
 };
 
-export const postReceivePayment = async (code: AccountCode, data: ReceivePaymentRequest): Promise<ReceivePaymentResponse> => {
+export const postReceivePayment = async (data: ReceivePaymentRequest): Promise<ReceivePaymentResponse> => {
   return postApiResponse<ReceivePaymentResponse, ReceivePaymentRequest>(
-    `account/${code}/lightning/receive-payment`,
+    'lightning/receive-payment',
     data,
     'Error calling postReceivePayment'
   );
@@ -809,23 +798,19 @@ export const postReceivePayment = async (code: AccountCode, data: ReceivePayment
  */
 
 /**
- * Returns a function that subscribes a callback on a "account/<CODE>/lightning/list-payments"
+ * Returns a function that subscribes a callback on a "lightning/list-payments"
  * event to notify when a change to the payments list has occurred.
  * Meant to be used with `useSubscribe`.
  */
-export const subscribeListPayments = (code: string) => {
-  return (cb: TSubscriptionCallback<Payment[]>) => {
-    return subscribeEndpoint(`account/${code}/lightning/list-payments`, cb);
-  };
+export const subscribeListPayments = (cb: TSubscriptionCallback<Payment[]>) => {
+  return subscribeEndpoint('lightning/list-payments', cb);
 };
 
 /**
- * Returns a function that subscribes a callback on a "account/<CODE>/lightning/node-state"
+ * Returns a function that subscribes a callback on a "lightning/node-state"
  * event to receive the latest state of the lightning node.
  * Meant to be used with `useSubscribe`.
  */
-export const subscribeNodeState = (code: string) => {
-  return (cb: TSubscriptionCallback<NodeState>) => {
-    return subscribeEndpoint(`account/${code}/lightning/node-info`, cb);
-  };
+export const subscribeNodeState = (cb: TSubscriptionCallback<NodeState>) => {
+  return subscribeEndpoint('lightning/node-info', cb);
 };

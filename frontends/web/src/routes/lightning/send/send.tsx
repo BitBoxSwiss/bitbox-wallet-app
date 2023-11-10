@@ -34,11 +34,6 @@ import styles from './send.module.css';
 
 type TStep = 'select-invoice' | 'confirm' | 'sending' | 'success';
 
-type Props = {
-  accounts: accountApi.IAccount[];
-  code: string;
-};
-
 const SendingSpinner = () => {
   const { t } = useTranslation();
   // Show dummy connecting-to-server message first
@@ -48,14 +43,10 @@ const SendingSpinner = () => {
     setStep(t('lightning.send.sending.message'));
   }, 4000);
 
-  return (
-    <Spinner
-      text={message}
-      guideExists={false} />
-  );
+  return <Spinner text={message} guideExists={false} />;
 };
 
-export function Send({ accounts, code }: Props) {
+export function Send() {
   const { t } = useTranslation();
   const [parsedInput, setParsedInput] = useState<InputType>();
   const [rawInputError, setRawInputError] = useState<string>();
@@ -65,7 +56,7 @@ export function Send({ accounts, code }: Props) {
   const back = () => {
     switch (step) {
     case 'select-invoice':
-      route(`/account/${code}/lightning`);
+      route('/lightning');
       break;
     case 'confirm':
     case 'success':
@@ -79,7 +70,7 @@ export function Send({ accounts, code }: Props) {
   const parseInput = useCallback(async (rawInput: string) => {
     setRawInputError(undefined);
     try {
-      const result = await getParseInput(code, { s: rawInput });
+      const result = await getParseInput({ s: rawInput });
       switch (result.type) {
       case InputTypeVariant.BOLT11:
         setParsedInput(result);
@@ -95,7 +86,7 @@ export function Send({ accounts, code }: Props) {
         setRawInputError(String(e));
       }
     }
-  }, [code]);
+  }, []);
 
   const sendPayment = async () => {
     setStep('sending');
@@ -103,9 +94,9 @@ export function Send({ accounts, code }: Props) {
     try {
       switch (parsedInput?.type) {
       case InputTypeVariant.BOLT11:
-        await postSendPayment(code, { bolt11: parsedInput.invoice.bolt11 });
+        await postSendPayment({ bolt11: parsedInput.invoice.bolt11 });
         setStep('success');
-        setTimeout(() => route(`/account/${code}/lightning`), 5000);
+        setTimeout(() => route('/lightning'), 5000);
         break;
       }
     } catch (e) {
@@ -138,8 +129,7 @@ export function Send({ accounts, code }: Props) {
           <h1 className={styles.title}>{t('lightning.send.confirm.title')}</h1>
           <div className={styles.info}>
             <h2 className={styles.label}>{t('lightning.send.confirm.amount')}</h2>
-            <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes />
-            /{' '}
+            <Amount amount={balance.available.amount} unit={balance.available.unit} removeBtcTrailingZeroes />/{' '}
             <FiatConversion amount={balance.available} noBtcZeroes />
           </div>
           {parsedInput?.invoice.description && (
@@ -162,9 +152,7 @@ export function Send({ accounts, code }: Props) {
             <Grid col="1">
               <Column>
                 {/* this flickers quickly, as there is 'SdkError: Generic: Breez SDK error: Unrecognized input type' when logging rawInputError */}
-                { rawInputError && (
-                  <Status type="warning">{rawInputError}</Status>
-                )}
+                {rawInputError && <Status type="warning">{rawInputError}</Status>}
                 <ScanQRVideo onResult={parseInput} />
                 {/* Note: unfortunatelly we probably can't read from HTML5 clipboard api directly in Qt/Andoird WebView */}
                 <Button transparent onClick={() => console.log('TODO: implement paste')}>
@@ -175,8 +163,8 @@ export function Send({ accounts, code }: Props) {
           </ViewContent>
           <ViewButtons reverseRow>
             {/* <Button primary onClick={parseInput} disabled={busy}>
-              {t('button.send')}
-            </Button> */}
+            {t('button.send')}
+          </Button> */}
             <Button secondary onClick={back}>
               {t('button.back')}
             </Button>
@@ -185,13 +173,9 @@ export function Send({ accounts, code }: Props) {
       );
     case 'confirm':
       return (
-        <View
-          fitContent
-          minHeight="100%">
+        <View fitContent minHeight="100%">
           <ViewContent>
-            <Grid col="1">
-              {renderInputTypes()}
-            </Grid>
+            <Grid col="1">{renderInputTypes()}</Grid>
           </ViewContent>
           <ViewButtons>
             <Button primary onClick={sendPayment}>
@@ -204,9 +188,7 @@ export function Send({ accounts, code }: Props) {
         </View>
       );
     case 'sending':
-      return (
-        <SendingSpinner />
-      );
+      return <SendingSpinner />;
     case 'success':
       return (
         <View fitContent textCenter verticallyCentered>
@@ -217,11 +199,6 @@ export function Send({ accounts, code }: Props) {
       );
     }
   };
-
-  const account = accounts && accounts.find((acct) => acct.code === code);
-  if (!account) {
-    return null;
-  }
 
   return (
     <GuideWrapper>

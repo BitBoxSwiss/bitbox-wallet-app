@@ -44,6 +44,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/exchanges"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/lightning"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -88,6 +89,7 @@ type Backend interface {
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
+	Lightning() *lightning.Lightning
 	Environment() backend.Environment
 	ChartData() (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
@@ -158,8 +160,27 @@ func NewHandlers(
 		log: logging.Get().WithGroup("handlers"),
 	}
 
-	getAPIRouter := handlers.GetApiRouter
-	getAPIRouterNoError := handlers.GetApiRouterNoError
+	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
+		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
+			return subrouter.Handle(path, ensureAPITokenValid(handlers.apiMiddleware(connData.isDev(), f),
+				connData, log))
+		}
+	}
+
+	// Prefer this over `getAPIRouter` and return errors using the `{ success: false, ...}` pattern.
+	getAPIRouterNoError := func(subrouter *mux.Router) func(string, func(*http.Request) interface{}) *mux.Route {
+		return func(path string, f func(*http.Request) interface{}) *mux.Route {
+			return subrouter.Handle(
+				path,
+				ensureAPITokenValid(
+					handlers.apiMiddleware(
+						connData.isDev(),
+						func(r *http.Request) (interface{}, error) {
+							return f(r), nil
+						}),
+					connData, log))
+		}
+	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	getAPIRouterNoError(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
@@ -211,6 +232,12 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/parse-input", handlers.getLightningParseInput).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/lightning/receive-payment", handlers.postLightningReceivePayment).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/send-payment", handlers.postLightningSendPayment).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -221,11 +248,9 @@ func NewHandlers(
 	getAccountHandlers := func(accountCode accountsTypes.Code) *accountHandlers.Handlers {
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
-			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(
-				backend,
+			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
 				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
-				handlers,
-				log)
+			), log)
 		}
 		accHandlers := accountHandlersMap[accountCode]
 		log.WithField("account-handlers", accHandlers).Debug("Account handlers")
@@ -302,30 +327,6 @@ func NewHandlers(
 	backend.Observe(func(event observable.Event) { handlers.backendEvents <- event })
 
 	return handlers
-}
-
-// Implementation of HandlersMiddleware.
-func (handlers *Handlers) GetApiRouter(subrouter *mux.Router) backend.ApiRouterHandler {
-	return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
-		return subrouter.Handle(path, ensureAPITokenValid(handlers.apiMiddleware(handlers.apiData.isDev(), f),
-			handlers.apiData, handlers.log))
-	}
-}
-
-// Implementation of HandlersMiddleware.
-// Prefer this over `getAPIRouter` and return errors using the `{ success: false, ...}` pattern.
-func (handlers *Handlers) GetApiRouterNoError(subrouter *mux.Router) backend.ApiRouterNoErrorHandler {
-	return func(path string, f func(*http.Request) interface{}) *mux.Route {
-		return subrouter.Handle(
-			path,
-			ensureAPITokenValid(
-				handlers.apiMiddleware(
-					handlers.apiData.isDev(),
-					func(r *http.Request) (interface{}, error) {
-						return f(r), nil
-					}),
-				handlers.apiData, handlers.log))
-	}
 }
 
 // Events returns the push notifications channel.
@@ -1243,4 +1244,28 @@ func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
 func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
 	return nil
+}
+
+func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetNodeInfo(r)
+}
+
+func (handlers *Handlers) getLightningListPayments(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetListPayments(r)
+}
+
+func (handlers *Handlers) getLightningOpenChannelFee(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetOpenChannelFee(r)
+}
+
+func (handlers *Handlers) getLightningParseInput(r *http.Request) interface{} {
+	return handlers.backend.Lightning().GetParseInput(r)
+}
+
+func (handlers *Handlers) postLightningReceivePayment(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostReceivePayment(r)
+}
+
+func (handlers *Handlers) postLightningSendPayment(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostSendPayment(r)
 }

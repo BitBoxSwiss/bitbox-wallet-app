@@ -139,9 +139,6 @@ type InterfaceMock struct {
 	// ObserveFunc mocks the Observe method.
 	ObserveFunc func(fn func(observable.Event)) func()
 
-	// NotifyFunc mocks the Notify method.
-	NotifyFunc func(event observable.Event)
-
 	// OfflineFunc mocks the Offline method.
 	OfflineFunc func() error
 
@@ -219,11 +216,6 @@ type InterfaceMock struct {
 			// Fn is the fn argument value.
 			Fn func(observable.Event)
 		}
-		// Notify holds details about calls to the Notify method.
-		Notify []struct {
-			// Event is the event argument value.
-			Event observable.Event
-		}
 		// Offline holds details about calls to the Offline method.
 		Offline []struct {
 		}
@@ -278,7 +270,6 @@ type InterfaceMock struct {
 	lockInitialize                sync.RWMutex
 	lockNotifier                  sync.RWMutex
 	lockObserve                   sync.RWMutex
-	lockNotify                   sync.RWMutex
 	lockOffline                   sync.RWMutex
 	lockProposeTxNote             sync.RWMutex
 	lockSendTx                    sync.RWMutex
@@ -679,37 +670,6 @@ func (mock *InterfaceMock) ObserveCalls() []struct {
 	mock.lockObserve.RLock()
 	calls = mock.calls.Observe
 	mock.lockObserve.RUnlock()
-	return calls
-}
-
-// Notify calls NotifyFunc.
-func (mock *InterfaceMock) Notify(event observable.Event) {
-	if mock.NotifyFunc == nil {
-		panic("InterfaceMock.NotifyFunc: method is nil but Interface.Notify was just called")
-	}
-	callInfo := struct {
-		Event observable.Event
-	}{
-		Event: event,
-	}
-	mock.lockNotify.Lock()
-	mock.calls.Notify = append(mock.calls.Notify, callInfo)
-	mock.lockNotify.Unlock()
-	mock.NotifyFunc(event)
-}
-
-// NotifyCalls gets all the calls that were made to Notify.
-// Check the length with:
-//     len(mockedCoin.NotifyCalls())
-func (mock *InterfaceMock) NotifyCalls() []struct {
-	Event observable.Event
-} {
-	var calls []struct {
-		Event observable.Event
-	}
-	mock.lockNotify.RLock()
-	calls = mock.calls.Notify
-	mock.lockNotify.RUnlock()
 	return calls
 }
 

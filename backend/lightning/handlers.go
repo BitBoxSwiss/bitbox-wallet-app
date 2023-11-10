@@ -20,74 +20,14 @@ import (
 	"net/http"
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
-type Backend interface {
-	observable.Interface
-}
-
-type Handlers struct {
-	observable.Implementation
-
-	account    accounts.Interface
-	log        *logrus.Entry
-	sdkService *breez_sdk.BlockingBreezServices
-	synced     bool
-}
-
-// NewHandlers creates a new Handlers instance.
-func NewHandlers(backend Backend, router *mux.Router, middleware backend.HandlersMiddleware, log *logrus.Entry) *Handlers {
-	handlers := &Handlers{log: log, synced: false}
-	handlers.Observe(backend.Notify)
-
-	apiRouter := middleware.GetApiRouterNoError(router)
-	apiRouter("/node-info", handlers.getNodeInfo).Methods("GET")
-	apiRouter("/list-payments", handlers.getListPayments).Methods("GET")
-	apiRouter("/open-channel-fee", handlers.getOpenChannelFee).Methods("GET")
-	apiRouter("/parse-input", handlers.getParseInput).Methods("GET")
-	apiRouter("/receive-payment", handlers.postReceivePayment).Methods("POST")
-	apiRouter("/send-payment", handlers.postSendPayment).Methods("POST")
-
-	return handlers
-}
-
-// This needs to be called before any requests are made.
-func (handlers *Handlers) Init(account accounts.Interface) {
-	handlers.account = account
-
-	//if account.Config().Config.LightningEnabled {
-	// Connect the SDK
-	switch account.Coin().Code() {
-	case coin.CodeBTC, coin.CodeTBTC, coin.CodeRBTC:
-		config := account.Config().Config
-		handlers.log.Printf("Init using account %s", config.Code)
-
-		if !config.Inactive && !config.HiddenBecauseUnused {
-			go handlers.connect()
-		}
-	}
-	//}
-}
-
-// Uninit removes the account. After this, no requests should be made.
-func (handlers *Handlers) Uninit() {
-	handlers.account = nil
-	// Disconnect the SDK.
-	handlers.disconnect()
-}
-
-func (handlers *Handlers) getNodeInfo(_ *http.Request) interface{} {
-	if handlers.account == nil || handlers.sdkService == nil {
+func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
+	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
-	nodeState, err := handlers.sdkService.NodeInfo()
+	nodeState, err := lightning.sdkService.NodeInfo()
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -95,8 +35,8 @@ func (handlers *Handlers) getNodeInfo(_ *http.Request) interface{} {
 	return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
 }
 
-func (handlers *Handlers) getListPayments(r *http.Request) interface{} {
-	if handlers.account == nil || handlers.sdkService == nil {
+func (lightning *Lightning) GetListPayments(r *http.Request) interface{} {
+	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
@@ -110,7 +50,7 @@ func (handlers *Handlers) getListPayments(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	paymentsResponse, err := handlers.sdkService.ListPayments(listPaymentsRequest)
+	paymentsResponse, err := lightning.sdkService.ListPayments(listPaymentsRequest)
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -122,8 +62,8 @@ func (handlers *Handlers) getListPayments(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: payments}
 }
 
-func (handlers *Handlers) getOpenChannelFee(r *http.Request) interface{} {
-	if handlers.account == nil || handlers.sdkService == nil {
+func (lightning *Lightning) GetOpenChannelFee(r *http.Request) interface{} {
+	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
@@ -132,7 +72,7 @@ func (handlers *Handlers) getOpenChannelFee(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	openChannelFeeResponse, err := handlers.sdkService.OpenChannelFee(toOpenChannelFeeRequest(getParams))
+	openChannelFeeResponse, err := lightning.sdkService.OpenChannelFee(toOpenChannelFeeRequest(getParams))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -140,7 +80,7 @@ func (handlers *Handlers) getOpenChannelFee(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: toOpenChannelFeeResponseDto(openChannelFeeResponse)}
 }
 
-func (handlers *Handlers) getParseInput(r *http.Request) interface{} {
+func (lightning *Lightning) GetParseInput(r *http.Request) interface{} {
 	input, err := breez_sdk.ParseInput(r.URL.Query().Get("s"))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
@@ -154,8 +94,8 @@ func (handlers *Handlers) getParseInput(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: paymentDto}
 }
 
-func (handlers *Handlers) postReceivePayment(r *http.Request) interface{} {
-	if handlers.account == nil || handlers.sdkService == nil {
+func (lightning *Lightning) PostReceivePayment(r *http.Request) interface{} {
+	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
@@ -164,7 +104,7 @@ func (handlers *Handlers) postReceivePayment(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	receivePaymentResponse, err := handlers.sdkService.ReceivePayment(toReceivePaymentRequest(jsonBody))
+	receivePaymentResponse, err := lightning.sdkService.ReceivePayment(toReceivePaymentRequest(jsonBody))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
@@ -172,8 +112,8 @@ func (handlers *Handlers) postReceivePayment(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: toReceivePaymentResponseDto(receivePaymentResponse)}
 }
 
-func (handlers *Handlers) postSendPayment(r *http.Request) interface{} {
-	if handlers.account == nil || handlers.sdkService == nil {
+func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
+	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
 	}
 
@@ -182,7 +122,7 @@ func (handlers *Handlers) postSendPayment(r *http.Request) interface{} {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
 
-	sendPaymentResponse, err := handlers.sdkService.SendPayment(toSendPaymentRequest(jsonBody))
+	sendPaymentResponse, err := lightning.sdkService.SendPayment(toSendPaymentRequest(jsonBody))
 	if err != nil {
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}

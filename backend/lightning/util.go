@@ -16,31 +16,9 @@
 package lightning
 
 import (
-	"fmt"
 	"net/url"
-	"os"
-	"path"
 	"strconv"
-
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
-
-// ensurePath creates a working directory for the Breez SDK service based on the account identifier.
-func ensurePath(account accounts.Interface) (*string, error) {
-	if account == nil {
-		return nil, errp.New("Account not set")
-	}
-
-	accountIdentifier := fmt.Sprintf("account-%s", account.Config().Config.Code)
-	workingDir := path.Join(account.Config().DBFolder, accountIdentifier, "lightning")
-
-	if err := os.MkdirAll(workingDir, 0700); err != nil {
-		return nil, errp.WithStack(err)
-	}
-
-	return &workingDir, nil
-}
 
 // Get an int64 value from http request url params.
 func getInt64(params url.Values, key string) (int64, error) {

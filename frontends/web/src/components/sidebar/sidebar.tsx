@@ -54,7 +54,8 @@ export type SharedPanelProps = {
 
 type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
 
-type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
+type ItemClickProps = { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
+type TGetAccountLinkProps = IAccount & ItemClickProps;
 
 interface SwipeAttributes {
   x: number;
@@ -78,10 +79,9 @@ export function setSidebarStatus(status: string) {
 
 const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
   const { pathname } = useLocation();
-  const active =
-    pathname === `/account/${code}` || (!pathname.startsWith(`/account/${code}/lightning`) && pathname.startsWith(`/account/${code}/`));
+  const active = pathname === `/account/${code}` || pathname.startsWith(`/account/${code}/`);
   return (
-    <div className={style.sidebarItem}>
+    <div key={code} className={style.sidebarItem}>
       <Link className={active ? style.sidebarActive : ''} to={`/account/${code}`} onClick={handleSidebarItemClick} title={name}>
         <Logo stacked coinCode={coinCode} alt={name} />
         <span className={style.sidebarLabel}>{name}</span>
@@ -90,34 +90,18 @@ const GetAccountLink = ({ coinCode, code, name, handleSidebarItemClick }: TGetAc
   );
 };
 
-const GetLightningLink = ({ code, name, handleSidebarItemClick }: TGetAccountLinkProps) => {
+const GetLightningLink = ({ handleSidebarItemClick }: ItemClickProps) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const active = pathname === `/account/${code}/lightning` || pathname.startsWith(`/account/${code}/lightning/`);
-  const lightningName = t('lightning.accountLabel', { accountName: name });
+  const active = pathname === '/lightning' || pathname.startsWith('/lightning/');
+  const lightningName = t('lightning.accountLabel');
   return (
     <div className={style.sidebarItem}>
-      <Link
-        className={active ? style.sidebarActive : ''}
-        to={`/account/${code}/lightning`}
-        onClick={handleSidebarItemClick}
-        title={lightningName}
-      >
+      <Link className={active ? style.sidebarActive : ''} to={'/lightning'} onClick={handleSidebarItemClick} title={lightningName}>
         <Logo stacked coinCode="lightning" alt={lightningName} />
         <span className={style.sidebarLabel}>{lightningName}</span>
       </Link>
     </div>
-  );
-};
-
-const AccountItem = (props: TGetAccountLinkProps) => {
-  return (
-    <>
-      <GetAccountLink {...props} key={props.code} />
-      {!props.lightningEnabled && isBitcoinOnly(props.coinCode) && (
-        <GetLightningLink {...props} key={`ln-${props.code}`} />
-      )}
-    </>
   );
 };
 
@@ -224,9 +208,9 @@ class Sidebar extends Component<Props> {
               </NavLink>
             </div>
           ) : null}
-          {accounts && accounts.map((acc) => (
-            <AccountItem key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />
-          ))}
+          {accounts &&
+            accounts.map((acc) => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />)}
+          <GetLightningLink handleSidebarItemClick={this.handleSidebarItemClick} />
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           {accounts.length ? (
             <div key="buy" className={style.sidebarItem}>

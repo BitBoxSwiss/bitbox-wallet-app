@@ -86,19 +86,19 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const AccLightning = (
     <InjectParams>
-      <Lightning code={'' /* dummy to satisfy TS */} devices={devices} accounts={activeAccounts} />
+      <Lightning />
     </InjectParams>
   );
 
   const AccLightningReceive = (
     <InjectParams>
-      <ReceiveLightning code={'' /* dummy to satisfy TS */} accounts={activeAccounts} />
+      <ReceiveLightning />
     </InjectParams>
   );
 
   const AccLightningSend = (
     <InjectParams>
-      <SendLightning code={'' /* dummy to satisfy TS */} accounts={activeAccounts} />
+      <SendLightning />
     </InjectParams>
   );
 
@@ -183,13 +183,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="send" element={AccSend} />
           <Route path="receive" element={AccReceive} />
           <Route path="info" element={AccInfo} />
-          <Route path="lightning">
-            <Route index element={AccLightning} />
-            <Route path="receive" element={AccLightningReceive} />
-            <Route path="send" element={AccLightningSend} />
-          </Route>
         </Route>
-        <Route path="lightning/setup" element={AccLightningSetup} />
+        <Route path="lightning">
+          <Route index element={AccLightning} />
+          <Route path="receive" element={AccLightningReceive} />
+          <Route path="send" element={AccLightningSend} />
+          <Route path="setup" element={AccLightningSetup} />
+        </Route>
         <Route path="add-account" element={<AddAccount />} />
         <Route path="account-summary" element={AccountsSummaryEl} />
         <Route path="buy">

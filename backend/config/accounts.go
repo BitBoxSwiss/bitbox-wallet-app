@@ -41,8 +41,6 @@ type Account struct {
 	// only applies to ETH, and the elements are ERC20 token codes (e.g. "eth-erc20-usdt",
 	// "eth-erc20-bat", etc).
 	ActiveTokens []string `json:"activeTokens,omitempty"`
-	// LightningEnabled is true if lightning has been activated for this account
-	LightningEnabled bool `json:"lightningEnabled"`
 }
 
 // SetTokenActive activates/deactivates an token on an account. `tokenCode` must be an ERC20 token

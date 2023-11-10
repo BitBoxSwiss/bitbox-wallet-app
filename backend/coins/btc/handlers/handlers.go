@@ -26,7 +26,6 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -35,31 +34,24 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/lightning"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
-type Backend interface {
-	observable.Interface
-}
-
 // Handlers provides a web api to the account.
 type Handlers struct {
-	account          accounts.Interface
-	lightningHandler *lightning.Handlers
-	log              *logrus.Entry
+	account accounts.Interface
+	log     *logrus.Entry
 }
 
 // NewHandlers creates a new Handlers instance.
-func NewHandlers(backend Backend, router *mux.Router, middleware backend.HandlersMiddleware, log *logrus.Entry) *Handlers {
+func NewHandlers(
+	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
 	handlers := &Handlers{log: log}
 
-	handleFunc := middleware.GetApiRouter(router)
 	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
@@ -79,12 +71,6 @@ func NewHandlers(backend Backend, router *mux.Router, middleware backend.Handler
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 
-	handlers.lightningHandler = lightning.NewHandlers(
-		backend,
-		router.PathPrefix("/lightning").Subrouter(),
-		middleware,
-		log)
-
 	return handlers
 }
 
@@ -92,12 +78,10 @@ func NewHandlers(backend Backend, router *mux.Router, middleware backend.Handler
 // made.
 func (handlers *Handlers) Init(account accounts.Interface) {
 	handlers.account = account
-	handlers.lightningHandler.Init(account)
 }
 
 // Uninit removes the account. After this, no requests should be made.
 func (handlers *Handlers) Uninit() {
-	handlers.lightningHandler.Uninit()
 	handlers.account = nil
 }
 

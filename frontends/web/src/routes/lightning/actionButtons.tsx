@@ -20,16 +20,15 @@ import { Link } from 'react-router-dom';
 import style from './lightning.module.css';
 
 type TProps = {
-    canSend?: boolean;
-    code: string;
-}
+  canSend?: boolean;
+};
 
-export const ActionButtons = ({ canSend, code }: TProps) => {
+export const ActionButtons = ({ canSend }: TProps) => {
   const { t } = useTranslation();
   return (
     <div className={style.actionsContainer}>
       {canSend ? (
-        <Link key="sendLink" to={`/account/${code}/lightning/send`} className={style.send}>
+        <Link key="sendLink" to={'/lightning/send'} className={style.send}>
           <span>{t('button.send')}</span>
         </Link>
       ) : (
@@ -37,7 +36,7 @@ export const ActionButtons = ({ canSend, code }: TProps) => {
           {t('button.send')}
         </span>
       )}
-      <Link key="receive" to={`/account/${code}/lightning/receive`} className={`${style.receive} ${style.disabled}`}>
+      <Link key="receive" to={'/lightning/receive'} className={`${style.receive} ${style.disabled}`}>
         <span>{t('button.receive')}</span>
       </Link>
     </div>

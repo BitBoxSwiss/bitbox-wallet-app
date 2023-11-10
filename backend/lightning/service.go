@@ -16,19 +16,22 @@
 package lightning
 
 import (
+	"os"
+	"path"
+
 	"github.com/breez/breez-sdk-go/breez_sdk"
 )
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.
-func (handlers *Handlers) connect() {
-	if handlers.sdkService == nil {
-		initializeLogging(handlers.log)
+func (lightning *Lightning) connect() {
+	if lightning.sdkService == nil {
+		initializeLogging(lightning.log)
 
 		// TODO: this seed should be determined from the account/device.
 		seed, err := breez_sdk.MnemonicToSeed("cruise clever syrup coil cute execute laundry general cover prevent law sheriff")
 
 		if err != nil {
-			handlers.log.WithError(err).Warn("BreezSDK: MnemonicToSeed failed")
+			lightning.log.WithError(err).Warn("BreezSDK: MnemonicToSeed failed")
 			return
 		}
 
@@ -39,35 +42,35 @@ func (handlers *Handlers) connect() {
 			},
 		}
 
-		workingDir, err := ensurePath(handlers.account)
+		workingDir := path.Join(lightning.cacheDirectoryPath, "breez-sdk")
 
-		if err != nil {
-			handlers.log.WithError(err).Warn("BreezSDK: Error ensuring working directory")
+		if err := os.MkdirAll(workingDir, 0700); err != nil {
+			lightning.log.WithError(err).Warn("BreezSDK: Error creating working directory")
 			return
 		}
 
 		config := breez_sdk.DefaultConfig(breez_sdk.EnvironmentTypeStaging, "", nodeConfig)
-		config.WorkingDir = *workingDir
-		sdkService, err := breez_sdk.Connect(config, seed, handlers)
+		config.WorkingDir = workingDir
+		sdkService, err := breez_sdk.Connect(config, seed, lightning)
 
 		if err != nil {
-			handlers.log.WithError(err).Warn("BreezSDK: Error connecting SDK")
+			lightning.log.WithError(err).Warn("BreezSDK: Error connecting SDK")
 			return
 		}
 
-		handlers.sdkService = sdkService
+		lightning.sdkService = sdkService
 	}
 }
 
 // disconnect closes an active Breez SDK instance.
-func (handlers *Handlers) disconnect() {
-	if handlers.sdkService != nil {
-		if err := handlers.sdkService.Disconnect(); err != nil {
-			handlers.log.WithError(err).Warn("BreezSDK: Error disconnecting SDK")
+func (lightning *Lightning) disconnect() {
+	if lightning.sdkService != nil {
+		if err := lightning.sdkService.Disconnect(); err != nil {
+			lightning.log.WithError(err).Warn("BreezSDK: Error disconnecting SDK")
 		}
 
-		handlers.sdkService.Destroy()
-		handlers.sdkService = nil
-		handlers.synced = false
+		lightning.sdkService.Destroy()
+		lightning.sdkService = nil
+		lightning.synced = false
 	}
 }

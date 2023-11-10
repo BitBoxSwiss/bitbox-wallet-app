@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import * as accountApi from '../../../api/account';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { useTranslation } from 'react-i18next';
 import { View, ViewButtons, ViewContent } from '../../../components/view/view';
@@ -44,12 +43,7 @@ import styles from './receive.module.css';
 
 type TStep = 'select-amount' | 'wait' | 'invoice' | 'success';
 
-type Props = {
-  accounts: accountApi.IAccount[];
-  code: string;
-};
-
-export function Receive({ accounts, code }: Props) {
+export function Receive() {
   const { t } = useTranslation();
   const [amountSats, setAmountSats] = useState<number>(0);
   const [amountSatsText, setAmountSatsText] = useState<string>('');
@@ -64,7 +58,7 @@ export function Receive({ accounts, code }: Props) {
   const back = () => {
     switch (step) {
     case 'select-amount':
-      route(`/account/${code}/lightning`);
+      route('/lightning');
       break;
     case 'invoice':
     case 'success':
@@ -88,13 +82,13 @@ export function Receive({ accounts, code }: Props) {
   };
 
   const onPaymentsChange = useCallback(() => {
-    getListPayments(code, { filter: PaymentTypeFilter.RECEIVED }).then((payments) => setPayments(payments));
-  }, [code]);
+    getListPayments({ filter: PaymentTypeFilter.RECEIVED }).then((payments) => setPayments(payments));
+  }, []);
 
   useEffect(() => {
-    const subscriptions = [subscribeListPayments(code)(onPaymentsChange)];
+    const subscriptions = [subscribeListPayments(onPaymentsChange)];
     return () => unsubscribe(subscriptions);
-  }, [code, onPaymentsChange]);
+  }, [onPaymentsChange]);
 
   useEffect(() => {
     setAmountSats(+amountSatsText);
@@ -103,28 +97,28 @@ export function Receive({ accounts, code }: Props) {
   useEffect(() => {
     (async () => {
       if (amountSats > 0) {
-        const openChannelFeeResponse = await getOpenChannelFee(code, { amountMsat: toMsat(amountSats) });
+        const openChannelFeeResponse = await getOpenChannelFee({ amountMsat: toMsat(amountSats) });
         setOpenChannelFeeResponse(openChannelFeeResponse);
         setShowOpenChannelWarning(openChannelFeeResponse.feeMsat > 0);
       }
     })();
-  }, [amountSats, code]);
+  }, [amountSats]);
 
   useEffect(() => {
     if (payments && receivePaymentResponse && step === 'invoice') {
       const payment = payments.find((payment) => payment.id === receivePaymentResponse.lnInvoice.paymentHash);
       if (payment?.status === PaymentStatus.COMPLETE) {
         setStep('success');
-        setTimeout(() => route(`/account/${code}/lightning`), 5000);
+        setTimeout(() => route('/lightning'), 5000);
       }
     }
-  }, [code, payments, receivePaymentResponse, step]);
+  }, [payments, receivePaymentResponse, step]);
 
   const receivePayment = async () => {
     setReceiveError(undefined);
     setStep('wait');
     try {
-      const receivePaymentResponse = await postReceivePayment(code, {
+      const receivePaymentResponse = await postReceivePayment({
         amountMsat: toMsat(amountSats),
         description,
         openingFeeParams: openChannelFeeResponse?.usedFeeParams
@@ -200,9 +194,7 @@ export function Receive({ accounts, code }: Props) {
                   {description && ` / ${description}`}
                 </div>
                 <ColumnButtons>
-                  <CopyButton
-                    data={receivePaymentResponse?.lnInvoice.bolt11}
-                    successText={t('lightning.receive.invoice.copied')}>
+                  <CopyButton data={receivePaymentResponse?.lnInvoice.bolt11} successText={t('lightning.receive.invoice.copied')}>
                     {t('button.copy')}
                   </CopyButton>
                   <Button transparent onClick={back}>
@@ -214,7 +206,7 @@ export function Receive({ accounts, code }: Props) {
             </Grid>
           </ViewContent>
           <ViewButtons>
-            <Button secondary onClick={() => route(`/account/${code}/lightning`)}>
+            <Button secondary onClick={() => route('/lightning')}>
               {t('button.done')}
             </Button>
           </ViewButtons>
@@ -233,11 +225,6 @@ export function Receive({ accounts, code }: Props) {
       );
     }
   };
-
-  const account = accounts && accounts.find((acct) => acct.code === code);
-  if (!account) {
-    return null;
-  }
 
   return (
     <GuideWrapper>
@@ -260,23 +247,17 @@ type TCopyButtonProps = {
   children: string;
 };
 
-const CopyButton = ({
-  data,
-  successText,
-  children,
-}: TCopyButtonProps) => {
+const CopyButton = ({ data, successText, children }: TCopyButtonProps) => {
   const [state, setState] = useState('ready');
   const [buttonText, setButtonText] = useState(children);
 
   const copy = () => {
     try {
       if (data) {
-        navigator.clipboard
-          .writeText(data)
-          .then(() => {
-            setState('success');
-            successText && setButtonText(successText);
-          });
+        navigator.clipboard.writeText(data).then(() => {
+          setState('success');
+          successText && setButtonText(successText);
+        });
       }
     } catch (error) {
       setState('ready');
@@ -289,9 +270,7 @@ const CopyButton = ({
 
   return (
     <Button transparent onClick={copy} disabled={!data}>
-      {state === 'success'
-        ? <Checked className={styles.btnIcon} />
-        : <Copy className={styles.btnIcon} />}
+      {state === 'success' ? <Checked className={styles.btnIcon} /> : <Copy className={styles.btnIcon} />}
       {buttonText}
     </Button>
   );
