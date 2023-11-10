@@ -25,6 +25,10 @@ export interface ILightningResponse<T> {
   errorCode?: string;
 }
 
+export type LightningConfig = {
+  inactive: boolean;
+};
+
 // Breez SDK types
 
 export type AesSuccessActionDataDecrypted = {
@@ -762,6 +766,14 @@ const postApiResponse = async <T, C extends object>(url: string, data: C, defaul
 /**
  * Breez SDK API interface
  */
+export const getLightningConfig = async (): Promise<LightningConfig> => {
+  return getApiResponse<LightningConfig>('lightning/config', 'Error calling getLightningConfig');
+};
+
+export const postLightningConfig = async (data: LightningConfig): Promise<void> => {
+  return postApiResponse<void, LightningConfig>('lightning/config', data, 'Error calling postLightningConfig');
+};
+
 export const getNodeInfo = async (): Promise<NodeState> => {
   return getApiResponse<NodeState>('lightning/node-info', 'Error calling getNodeInfo');
 };

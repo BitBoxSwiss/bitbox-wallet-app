@@ -232,6 +232,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
@@ -1244,6 +1246,18 @@ func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
 func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
 	return nil
+}
+
+func (handlers *Handlers) getLightningConfigHandler(_ *http.Request) interface{} {
+	return handlers.backend.Config().LightningConfig()
+}
+
+func (handlers *Handlers) postLightningConfigHandler(r *http.Request) (interface{}, error) {
+	lightningConfig := config.LightningConfig{}
+	if err := json.NewDecoder(r.Body).Decode(&lightningConfig); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.backend.Config().SetLightningConfig(lightningConfig)
 }
 
 func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {
