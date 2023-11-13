@@ -19,6 +19,8 @@ package config
 type LightningConfig struct {
 	// Inactive is true if lightning has not yet been setup.
 	Inactive bool `json:"inactive"`
+	// Mnemonic is the wallet node generated from the device entropy.
+	Mnemonic string `json:"mnemonic"`
 }
 
 // newDefaultAccountsConfig returns the default accounts config.

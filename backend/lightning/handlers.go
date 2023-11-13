@@ -16,11 +16,36 @@
 package lightning
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
 )
+
+
+func (lightning *Lightning) PostLightningSetupNode(r *http.Request) interface{} {
+	var request struct {
+		Entropy string `json:"entropy"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	entropy, err := hex.DecodeString(request.Entropy)
+	if err != nil {
+		lightning.log.Error(err)
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
+	err = lightning.GenerateAndConnect(entropy)
+	if err != nil {
+		lightning.log.Error(err)
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+	
+	return responseDto{Success: true}
+}
 
 func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
 	if lightning.sdkService == nil {

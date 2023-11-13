@@ -250,7 +250,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.banners = banners.NewBanners()
 	backend.banners.Observe(backend.Notify)
 
-	backend.lightning = lightning.NewLightning(backend.arguments.CacheDirectoryPath())
+	backend.lightning = lightning.NewLightning(backend.config, backend.arguments.CacheDirectoryPath())
 	backend.lightning.Observe(backend.Notify)
 
 	return backend, nil
@@ -486,7 +486,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
 
-	backend.lightning.Init()
+	backend.lightning.Connect()
 	return backend.events
 }
 
@@ -706,7 +706,7 @@ func (backend *Backend) Close() error {
 
 	backend.uninitAccounts()
 
-	backend.lightning.Uninit()
+	backend.lightning.Disconnect()
 
 	for _, coin := range backend.coins {
 		if err := coin.Close(); err != nil {
