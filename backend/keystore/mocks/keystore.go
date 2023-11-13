@@ -82,6 +82,9 @@ type KeystoreMock struct {
 	// CanVerifyExtendedPublicKeyFunc mocks the CanVerifyExtendedPublicKey method.
 	CanVerifyExtendedPublicKeyFunc func() bool
 
+	// DeterministicEntropyFunc mocks the DeterministicEntropy method.
+	DeterministicEntropyFunc func() ([]byte, error)
+
 	// ExtendedPublicKeyFunc mocks the ExtendedPublicKey method.
 	ExtendedPublicKeyFunc func(coinMoqParam coin.Coin, absoluteKeypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
@@ -102,6 +105,9 @@ type KeystoreMock struct {
 
 	// SupportsCoinFunc mocks the SupportsCoin method.
 	SupportsCoinFunc func(coinInstance coin.Coin) bool
+
+	// SupportsDeterministicEntropyFunc mocks the SupportsDeterministicEntropy method.
+	SupportsDeterministicEntropyFunc func() bool
 
 	// SupportsMultipleAccountsFunc mocks the SupportsMultipleAccounts method.
 	SupportsMultipleAccountsFunc func() bool
@@ -132,6 +138,9 @@ type KeystoreMock struct {
 		}
 		// CanVerifyExtendedPublicKey holds details about calls to the CanVerifyExtendedPublicKey method.
 		CanVerifyExtendedPublicKey []struct {
+		}
+		// DeterministicEntropy holds details about calls to the DeterministicEntropy method.
+		DeterministicEntropy []struct {
 		}
 		// ExtendedPublicKey holds details about calls to the ExtendedPublicKey method.
 		ExtendedPublicKey []struct {
@@ -176,6 +185,9 @@ type KeystoreMock struct {
 			// CoinInstance is the coinInstance argument value.
 			CoinInstance coin.Coin
 		}
+		// SupportsDeterministicEntropy holds details about calls to the SupportsDeterministicEntropy method.
+		SupportsDeterministicEntropy []struct {
+		}
 		// SupportsMultipleAccounts holds details about calls to the SupportsMultipleAccounts method.
 		SupportsMultipleAccounts []struct {
 		}
@@ -200,21 +212,23 @@ type KeystoreMock struct {
 			Configuration *signing.Configuration
 		}
 	}
-	lockCanSignMessage             sync.RWMutex
-	lockCanVerifyAddress           sync.RWMutex
-	lockCanVerifyExtendedPublicKey sync.RWMutex
-	lockExtendedPublicKey          sync.RWMutex
-	lockRootFingerprint            sync.RWMutex
-	lockSignBTCMessage             sync.RWMutex
-	lockSignETHMessage             sync.RWMutex
-	lockSignTransaction            sync.RWMutex
-	lockSupportsAccount            sync.RWMutex
-	lockSupportsCoin               sync.RWMutex
-	lockSupportsMultipleAccounts   sync.RWMutex
-	lockSupportsUnifiedAccounts    sync.RWMutex
-	lockType                       sync.RWMutex
-	lockVerifyAddress              sync.RWMutex
-	lockVerifyExtendedPublicKey    sync.RWMutex
+	lockCanSignMessage               sync.RWMutex
+	lockCanVerifyAddress             sync.RWMutex
+	lockCanVerifyExtendedPublicKey   sync.RWMutex
+	lockDeterministicEntropy         sync.RWMutex
+	lockExtendedPublicKey            sync.RWMutex
+	lockRootFingerprint              sync.RWMutex
+	lockSignBTCMessage               sync.RWMutex
+	lockSignETHMessage               sync.RWMutex
+	lockSignTransaction              sync.RWMutex
+	lockSupportsAccount              sync.RWMutex
+	lockSupportsCoin                 sync.RWMutex
+	lockSupportsDeterministicEntropy sync.RWMutex
+	lockSupportsMultipleAccounts     sync.RWMutex
+	lockSupportsUnifiedAccounts      sync.RWMutex
+	lockType                         sync.RWMutex
+	lockVerifyAddress                sync.RWMutex
+	lockVerifyExtendedPublicKey      sync.RWMutex
 }
 
 // CanSignMessage calls CanSignMessageFunc.
@@ -308,6 +322,33 @@ func (mock *KeystoreMock) CanVerifyExtendedPublicKeyCalls() []struct {
 	return calls
 }
 
+// DeterministicEntropy calls DeterministicEntropyFunc.
+func (mock *KeystoreMock) DeterministicEntropy() ([]byte, error) {
+	if mock.DeterministicEntropyFunc == nil {
+		panic("KeystoreMock.DeterministicEntropyFunc: method is nil but Keystore.DeterministicEntropy was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockDeterministicEntropy.Lock()
+	mock.calls.RootFingerprint = append(mock.calls.DeterministicEntropy, callInfo)
+	mock.lockDeterministicEntropy.Unlock()
+	return mock.DeterministicEntropyFunc()
+}
+
+// DeterministicEntropyCalls gets all the calls that were made to DeterministicEntropy.
+// Check the length with:
+//
+//	len(mockedKeystore.RootDeterministicEntropy())
+func (mock *KeystoreMock) DeterministicEntropyCalls() []struct {
+	} {
+		var calls []struct {
+		}
+		mock.lockDeterministicEntropy.RLock()
+		calls = mock.calls.DeterministicEntropy
+		mock.lockDeterministicEntropy.RUnlock()
+		return calls
+	}
+	
 // ExtendedPublicKey calls ExtendedPublicKeyFunc.
 func (mock *KeystoreMock) ExtendedPublicKey(coinMoqParam coin.Coin, absoluteKeypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 	if mock.ExtendedPublicKeyFunc == nil {
@@ -544,6 +585,33 @@ func (mock *KeystoreMock) SupportsCoinCalls() []struct {
 	mock.lockSupportsCoin.RLock()
 	calls = mock.calls.SupportsCoin
 	mock.lockSupportsCoin.RUnlock()
+	return calls
+}
+
+// SupportsDeterministicEntropy calls SupportsDeterministicEntropyFunc.
+func (mock *KeystoreMock) SupportsDeterministicEntropy() bool {
+	if mock.SupportsDeterministicEntropyFunc == nil {
+		panic("KeystoreMock.SupportsDeterministicEntropyFunc: method is nil but Keystore.SupportsDeterministicEntropy was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSupportsDeterministicEntropy.Lock()
+	mock.calls.SupportsDeterministicEntropy = append(mock.calls.SupportsDeterministicEntropy, callInfo)
+	mock.lockSupportsDeterministicEntropy.Unlock()
+	return mock.SupportsDeterministicEntropyFunc()
+}
+
+// SupportsDeterministicEntropyCalls gets all the calls that were made to SupportsDeterministicEntropy.
+// Check the length with:
+//
+//	len(mockedKeystore.SupportsDeterministicEntropyCalls())
+func (mock *KeystoreMock) SupportsDeterministicEntropyCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSupportsDeterministicEntropy.RLock()
+	calls = mock.calls.SupportsDeterministicEntropy
+	mock.lockSupportsDeterministicEntropy.RUnlock()
 	return calls
 }
 
