@@ -132,7 +132,12 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 		return "", "", errp.Newf("Coin not supported %s", account.Coin().Code())
 	}
 
-	canSign := account.Config().Keystore.CanSignMessage(account.Coin().Code())
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return "", "", err
+	}
+
+	canSign := keystore.CanSignMessage(account.Coin().Code())
 	if !canSign {
 		return "", "", errp.Newf("The connected device or keystore cannot sign messages for %s",
 			account.Coin().Code())
@@ -155,7 +160,7 @@ func PocketWidgetSignAddress(account accounts.Interface, message string, format 
 	}
 	addr := unused[signingConfigIdx].Addresses[0]
 
-	sig, err := account.Config().Keystore.SignBTCMessage(
+	sig, err := keystore.SignBTCMessage(
 		[]byte(message),
 		addr.AbsoluteKeypath(),
 		account.Config().Config.SigningConfigurations[signingConfigIdx].ScriptType(),

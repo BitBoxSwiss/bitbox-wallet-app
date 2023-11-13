@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -69,6 +70,7 @@ func NewHandlers(
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
+	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
 	return handlers
 }
 
@@ -541,6 +543,10 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 		}, nil
 	}
 	canVerify, err := btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
+	// User canceled keystore connect prompt - no special action or message needed in the frontend.
+	if errp.Cause(err) == context.Canceled {
+		return result{Success: true}, nil
+	}
 	if err != nil {
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
@@ -583,4 +589,13 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	}
 
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
+}
+
+func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success bool `json:"success"`
+	}
+
+	_, err := handlers.account.Config().ConnectKeystore()
+	return response{Success: err == nil}, nil
 }

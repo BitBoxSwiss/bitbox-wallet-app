@@ -164,7 +164,10 @@ type Backend struct {
 	accounts                accountsList
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
-	aopp     AOPP
+
+	connectKeystore connectKeystore
+
+	aopp AOPP
 
 	// makeBtcAccount creates a BTC account. In production this is `btc.NewAccount`, but can be
 	// overridden in unit tests for mocking.
@@ -505,7 +508,11 @@ func (backend *Backend) Keystore() keystore.Keystore {
 func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	defer backend.accountsAndKeystoreLock.Lock()()
 	// Only for logging, if there is an error we continue anyway.
-	fingerprint, _ := keystore.RootFingerprint()
+	fingerprint, err := keystore.RootFingerprint()
+	if err != nil {
+		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
+		return
+	}
 	log := backend.log.WithField("rootFingerprint", fingerprint)
 	log.Info("registering keystore")
 	backend.keystore = keystore
@@ -515,19 +522,10 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	})
 
 	belongsToKeystore := func(account *config.Account) bool {
-		fingerprint, err := keystore.RootFingerprint()
-		if err != nil {
-			log.WithError(err).Error("Could not retrieve root fingerprint")
-			return false
-		}
 		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
 
 	persistKeystore := func(accountsConfig *config.AccountsConfig) error {
-		fingerprint, err := keystore.RootFingerprint()
-		if err != nil {
-			return errp.WithMessage(err, "could not retrieve root fingerprint")
-		}
 		keystoreName, err := keystore.Name()
 		if err != nil {
 			return errp.WithMessage(err, "could not retrieve keystore name")
@@ -538,7 +536,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		return nil
 	}
 
-	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
+	err = backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		// Persist keystore with its name in the config.
 		if err := persistKeystore(accountsConfig); err != nil {
 			log.WithError(err).Error("Could not persist keystore")
@@ -559,6 +557,8 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	backend.initAccounts(false)
 
 	backend.aoppKeystoreRegistered()
+
+	backend.connectKeystore.onConnect(backend.keystore)
 }
 
 // DeregisterKeystore removes the registered keystore.
@@ -783,4 +783,9 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 	}
 
 	return acct, nil
+}
+
+// CancelConnectKeystore cancels a pending keystore connection request if one exists.
+func (backend *Backend) CancelConnectKeystore() {
+	backend.connectKeystore.cancel(errUserAbort)
 }
