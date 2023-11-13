@@ -192,3 +192,9 @@ export const getRootFingerprint = (
 ): Promise<(SuccessResponse & { rootFingerprint: string }) | FailResponse> => {
   return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`);
 };
+
+export const getDeterministicEntropy = (
+  deviceID: string
+): Promise<(SuccessResponse & { entropy: string }) | FailResponse> => {
+  return apiGet(`devices/bitbox02/${deviceID}/deterministic-entropy`);
+};
