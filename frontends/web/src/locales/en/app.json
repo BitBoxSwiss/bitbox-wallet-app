@@ -1557,7 +1557,8 @@
   "walletConnect": {
     "connect": {
       "button": "Connect",
-      "dappLabel": "Enter URI address of dapp"
+      "dappLabel": "Enter URI address of dapp",
+      "invalidPairingUri": "Invalid pairing uri"
     },
     "dashboard": {
       "allSessions": "All sessions",

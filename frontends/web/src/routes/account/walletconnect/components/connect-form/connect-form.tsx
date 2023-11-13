@@ -82,7 +82,7 @@ export const WCConnectForm = ({
           className={showQRButton ? styles.inputWithIcon : ''}
           value={uri}
           readOnly={connectLoading}
-          onInput={(e) => onInputChange(e.target.value)}>
+          onInput={(e) => onInputChange(e.target.value.replaceAll(' ', ''))}>
           {(showQRButton && !connectLoading) && <ScanQRButton onClick={toggleScanQR} />}
         </Input>
         <ScanQRDialog
@@ -99,7 +99,7 @@ export const WCConnectForm = ({
             {t('dialog.cancel')}
           </Button>
           <Button
-            disabled={connectLoading}
+            disabled={connectLoading || !uri}
             type="submit"
             primary
           >
