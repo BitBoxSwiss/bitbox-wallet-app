@@ -772,11 +772,11 @@ const postApiResponse = async <T, C extends object>(url: string, data: C, defaul
  */
 
 export const getLightningConfig = async (): Promise<LightningConfig> => {
-  return getApiResponse<LightningConfig>('lightning/config', 'Error calling getLightningConfig');
+  return await apiGet('lightning/config');
 };
 
 export const postLightningConfig = async (data: LightningConfig): Promise<void> => {
-  return postApiResponse<void, LightningConfig>('lightning/config', data, 'Error calling postLightningConfig');
+  return await apiPost('lightning/config', data);
 };
 
 export const postSetupNode = async (data: NodeSetup): Promise<void> => {
@@ -821,6 +821,15 @@ export const postReceivePayment = async (data: ReceivePaymentRequest): Promise<R
 /**
  * Subscriptions
  */
+
+/**
+ * Returns a function that subscribes a callback on a "lightning/config"
+ * event to notify when a change to the lightning config has occurred.
+ * Meant to be used with `useSubscribe`.
+ */
+export const subscribeLightningConfig = (cb: TSubscriptionCallback<LightningConfig>) => {
+  return subscribeEndpoint('lightning/config', cb);
+};
 
 /**
  * Returns a function that subscribes a callback on a "lightning/list-payments"

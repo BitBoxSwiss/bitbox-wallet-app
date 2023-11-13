@@ -38,10 +38,12 @@ import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
+import { getLightningConfig, LightningConfig, subscribeLightningConfig } from './api/lightning';
 
 type State = {
   accounts: IAccount[];
   devices: TDevices;
+  lightningConfig?: LightningConfig;
 }
 
 type Props = TranslateProps;
@@ -49,7 +51,7 @@ type Props = TranslateProps;
 class App extends Component<Props, State> {
   public readonly state: State = {
     accounts: [],
-    devices: {},
+    devices: {}
   };
 
   private unsubscribeList: UnsubscribeList = [];
@@ -64,9 +66,9 @@ class App extends Component<Props, State> {
   };
 
   public componentDidMount() {
-    Promise.all([getDeviceList(), getAccounts()])
-      .then(([devices, accounts]) => {
-        this.setStateWithDeviceList({ accounts, devices });
+    Promise.all([getDeviceList(), getAccounts(), getLightningConfig()])
+      .then(([devices, accounts, lightningConfig]) => {
+        this.setStateWithDeviceList({ accounts, devices, lightningConfig });
       })
       .catch(console.error);
 
@@ -83,6 +85,9 @@ class App extends Component<Props, State> {
       syncDeviceList((devices) => {
         this.setStateWithDeviceList({ devices });
       }),
+      subscribeLightningConfig((lightningConfig) => {
+        this.setStateWithDeviceList({ lightningConfig });
+      })
     );
   }
 
@@ -163,7 +168,7 @@ class App extends Component<Props, State> {
   };
 
   public render() {
-    const { accounts, devices } = this.state;
+    const { accounts, devices, lightningConfig } = this.state;
     const deviceIDs: string[] = Object.keys(devices);
     const activeAccounts = this.activeAccounts();
     return (
@@ -175,6 +180,7 @@ class App extends Component<Props, State> {
               <Sidebar
                 accounts={activeAccounts}
                 deviceIDs={deviceIDs}
+                lightningConfig={lightningConfig}
               />
               <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
                 <Update />

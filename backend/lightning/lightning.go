@@ -24,6 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/sirupsen/logrus"
 	"github.com/tyler-smith/go-bip39"
 )
@@ -71,9 +72,8 @@ func (lightning *Lightning) GenerateAndConnect(entropy []byte) error {
 	lightningConfig.Inactive = false
 	lightningConfig.Mnemonic = entropyMnemonic
 
-	if err = lightning.config.SetLightningConfig(lightningConfig); err != nil {
-		lightning.log.WithError(err).Warn("Error updating lightning config")
-		return errp.New("Error updating lightning config")
+	if err = lightning.setLightningConfig(lightningConfig); err != nil {
+		return err
 	}
 
 	go lightning.connect()
@@ -134,4 +134,18 @@ func (lightning *Lightning) connect() {
 
 		lightning.sdkService = sdkService
 	}
+}
+
+func (lightning *Lightning) setLightningConfig(config config.LightningConfig) error {
+	if err := lightning.config.SetLightningConfig(config); err != nil {
+		lightning.log.WithError(err).Warn("Error updating lightning config")
+		return errp.New("Error updating lightning config")
+	}
+
+	lightning.Notify(observable.Event{
+		Subject: "lightning/config",
+		Action:  action.Reload,
+	})
+
+	return nil
 }
