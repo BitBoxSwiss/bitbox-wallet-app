@@ -229,6 +229,7 @@ export function Account({
             </div>
             {isAccountEmpty && (
               <BuyReceiveCTA
+                account={account}
                 code={code}
                 exchangeBuySupported={exchangeBuySupported}
                 unit={balance.available.unit}
