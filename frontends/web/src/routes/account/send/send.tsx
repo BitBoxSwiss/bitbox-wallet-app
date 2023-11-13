@@ -25,8 +25,8 @@ import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import { Button, ButtonLink } from '../../../components/forms';
-import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
+import { Button } from '../../../components/forms';
+import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -44,6 +44,7 @@ import { ReceiverAddressInput } from './components/inputs/receiver-address-input
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
+import { ButtonsGroup } from './components/buttons/buttons-group';
 import style from './send.module.css';
 
 interface SendProps {
@@ -561,6 +562,8 @@ class Send extends Component<Props, State> {
       return null;
     }
 
+    const sendButtonDisabled = this.sendDisabled() || !valid || isUpdatingProposal;
+
     const baseCurrencyUnit: accountApi.ConversionUnit = fiatUnit === 'BTC' && btcUnit === 'sat' ? 'sat' : fiatUnit;
     return (
       <GuideWrapper>
@@ -654,21 +657,11 @@ class Send extends Component<Props, State> {
                       note={note}
                       onNoteChange={this.handleNoteInput}
                     />
-                    <ColumnButtons
-                      className="m-top-default m-bottom-xlarge"
-                      inline>
-                      <Button
-                        primary
-                        onClick={this.send}
-                        disabled={this.sendDisabled() || !valid || isUpdatingProposal}>
-                        {t('send.button')}
-                      </Button>
-                      <ButtonLink
-                        secondary
-                        to={`/account/${code}`}>
-                        {t('button.back')}
-                      </ButtonLink>
-                    </ColumnButtons>
+                    <ButtonsGroup
+                      onSendButtonClick={this.send}
+                      accountCode={code}
+                      isSendButtonDisabled={sendButtonDisabled}
+                    />
                   </Column>
                 </Grid>
               </ViewContent>
