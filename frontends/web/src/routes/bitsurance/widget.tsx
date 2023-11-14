@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../utils/config';
-import { getTransactionList } from '../../api/account';
+import { getTransactionList, ScriptType } from '../../api/account';
 import { Dialog } from '../../components/dialog/dialog';
 import { confirmation } from '../../components/confirm/Confirm';
 import { verifyAddress, signAddress } from '../../api/exchanges';
@@ -82,7 +82,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
     }, 200);
   };
 
-  const sendAddress = (address: string, sig: string) => {
+  const sendAddressWithXPub = (address: string, sig: string, xpub: string) => {
     const { current } = iframeRef;
 
     if (!current) {
@@ -93,16 +93,25 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       version: MessageVersion.V0,
       type: V0MessageType.Address,
       bitcoinAddress: address,
+      extendedPublicKey: xpub,
       signature: sig,
     });
 
     current.contentWindow?.postMessage(message, '*');
   };
 
+  const getXPub = (wantedScriptType: ScriptType) => {
+    let xpubConfig = accountInfo?.signingConfigurations.find(config =>
+      config.bitcoinSimple?.scriptType === wantedScriptType
+    );
+    return xpubConfig?.bitcoinSimple?.keyInfo.xpub;
+  };
+
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
     const addressType = message.withScriptType ? String(message.withScriptType) : '';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
+    const withExtendedPublicKey = !!message.withExtendedPublicKey;
     signAddress(
       addressType,
       withMessageSignature,
@@ -110,7 +119,16 @@ export const BitsuranceWidget = ({ code }: TProps) => {
       .then(response => {
         signing = false;
         if (response.success) {
-          sendAddress(response.address, response.signature);
+          if (withExtendedPublicKey) {
+            const xpub = getXPub('p2wpkh');
+            if (xpub) {
+              sendAddressWithXPub(response.address, response.signature, xpub);
+            } else {
+              alertUser(t('bitsuranceAccount.errorNoXpub'));
+            }
+          } else {
+            sendAddressWithXPub(response.address, response.signature, '');
+          }
         } else {
           if (response.errorCode !== 'userAbort') {
             alertUser(t('unknownError', { errorMessage: response.errorMessage }));
