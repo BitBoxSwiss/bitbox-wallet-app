@@ -29,6 +29,9 @@ import { useDarkmode } from '../../hooks/darkmode';
 import { route } from '../../utils/route';
 import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
+import { defaultLanguages } from '../../components/language/types';
+import { getSelectedIndex } from '../../utils/language';
+import { i18n } from '../../i18n/i18n';
 
 type TProps = {
     accounts: IAccount[];
@@ -69,6 +72,14 @@ export const Bitsurance = ({ accounts }: TProps) => {
     }
   };
 
+  const getBitsurancePageLink = (): string => {
+    const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
+    if (selectedLanguage.code === 'de') {
+      return 'https://www.bitsurance.eu/de/bitbox/';
+    }
+    return 'https://www.bitsurance.eu/en/bitbox/';
+  };
+
   const maybeProceed = async () => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
@@ -97,7 +108,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     </ul>
                     <p className={style.cardBody2}>
                       {t('bitsurance.insure.text2')} {' '}
-                      <A href="https://www.bitsurance.eu/">{t('bitsurance.intro.link')}</A>.
+                      <A href={getBitsurancePageLink()}>{t('bitsurance.intro.link')}</A>.
                     </p>
                     <ColumnButtons className={style.ctaButton}>
                       <Button onClick={maybeProceed} primary>

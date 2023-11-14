@@ -86,7 +86,6 @@ var fixedURLWhitelist = []string{
 	// Bitsurance
 	"https://www.bitsurance.eu/",
 	"https://get.bitsurance.eu/",
-	"https://www.bitsurance.eu/faq/",
 	"https://bitsurance.ihr-versicherungsschutz.de/",
 	"https://bitsurance.eu/support",
 	"https://support.bitsurance.eu",
