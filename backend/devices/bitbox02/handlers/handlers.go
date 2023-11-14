@@ -93,7 +93,6 @@ func NewHandlers(
 	handleFunc("/restore-from-mnemonic", handlers.postRestoreFromMnemonicHandler).Methods("POST")
 	handleFunc("/goto-startup-settings", handlers.postGotoStartupSettings).Methods("POST")
 	handleFunc("/root-fingerprint", handlers.getRootFingerprint).Methods("GET")
-	handleFunc("/deterministic-entropy", handlers.getDeterministicEntropy).Methods("GET")
 	return handlers
 }
 
@@ -375,16 +374,5 @@ func (handlers *Handlers) getRootFingerprint(_ *http.Request) interface{} {
 	return map[string]interface{}{
 		"success":         true,
 		"rootFingerprint": hex.EncodeToString(fingerprint),
-	}
-}
-
-func (handlers *Handlers) getDeterministicEntropy(_ *http.Request) interface{} {
-	entropy, err := handlers.device.DeterministicEntropy()
-	if err != nil {
-		return maybeBB02Err(err, handlers.log)
-	}
-	return map[string]interface{}{
-		"success": true,
-		"entropy": hex.EncodeToString(entropy),
 	}
 }

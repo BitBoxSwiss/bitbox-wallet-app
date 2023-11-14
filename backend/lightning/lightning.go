@@ -21,6 +21,7 @@ import (
 
 	"github.com/breez/breez-sdk-go/breez_sdk"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -35,16 +36,18 @@ type Lightning struct {
 
 	config             *config.Config
 	cacheDirectoryPath string
+	getKeystore        func() keystore.Keystore
 	synced             bool
 
 	log        *logrus.Entry
 	sdkService *breez_sdk.BlockingBreezServices
 }
 
-func NewLightning(config *config.Config, cacheDirectoryPath string) *Lightning {
+func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore func() keystore.Keystore) *Lightning {
 	return &Lightning{
 		config:             config,
 		cacheDirectoryPath: cacheDirectoryPath,
+		getKeystore:        getKeystore,
 		log:                logging.Get().WithGroup("lightning"),
 		synced:             false,
 	}
@@ -55,17 +58,27 @@ func (lightning *Lightning) Connect() {
 	go lightning.connect()
 }
 
-// GenerateAndConnect first generates a mnemonic from the entropy then connects to instance.
-func (lightning *Lightning) GenerateAndConnect(entropy []byte) error {
+// SetupAndConnect first creates a mnemonic from the keystore entropy then connects to instance.
+func (lightning *Lightning) SetupAndConnect() error {
 	lightningConfig := lightning.config.LightningConfig()
 
 	if !lightningConfig.Inactive {
 		return errp.New("Lightning node already active")
 	}
 
+	keystore := lightning.getKeystore()
+	if keystore == nil || !keystore.SupportsDeterministicEntropy() {
+		return errp.New("No keystore available")
+	}
+
+	entropy, err := keystore.DeterministicEntropy()
+	if err != nil {
+		return err
+	}
+
 	entropyMnemonic, err := bip39.NewMnemonic(entropy)
 	if err != nil {
-		lightning.log.WithError(err).Warn("rror generating mnemonic")
+		lightning.log.WithError(err).Warn("Error generating mnemonic")
 		return errp.New("Error generating mnemonic")
 	}
 
