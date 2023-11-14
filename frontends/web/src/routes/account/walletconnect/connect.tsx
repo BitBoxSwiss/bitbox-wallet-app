@@ -15,6 +15,7 @@
  */
 
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SignClientTypes } from '@walletconnect/types';
 import { useLoad } from '../../../hooks/api';
 import * as accountApi from '../../../api/account';
@@ -44,6 +45,7 @@ export const ConnectScreenWalletConnect = ({
   const [loading, setLoading] = useState(false);
   const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
   const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
+  const { t } = useTranslation();
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
@@ -84,7 +86,11 @@ export const ConnectScreenWalletConnect = ({
     try {
       await pair({ uri });
     } catch (err: any) {
-      alertUser(err.message);
+      if (err.message.includes('Missing or invalid. pair()')) {
+        alertUser(`${t('walletConnect.connect.invalidPairingUri')}: ${uri}`);
+      } else {
+        alertUser(err.message);
+      }
       setUri('');
       setLoading(false);
     }
