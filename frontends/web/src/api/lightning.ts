@@ -759,7 +759,7 @@ const getApiResponse = async <T>(url: string, defaultError: string = 'Error'): P
  * @param defaultError
  * @returns T
  */
-const postApiResponse = async <T, C extends object>(url: string, data: C, defaultError: string = 'Error'): Promise<T> => {
+const postApiResponse = async <T, C extends object | undefined>(url: string, data: C, defaultError: string = 'Error'): Promise<T> => {
   const response: ILightningResponse<T> = await apiPost(url, data);
   if (!response.success) {
     throw new SdkError(response.errorMessage || defaultError, response.errorCode);
@@ -779,8 +779,8 @@ export const postLightningConfig = async (data: LightningConfig): Promise<void> 
   return await apiPost('lightning/config', data);
 };
 
-export const postSetupNode = async (data: NodeSetup): Promise<void> => {
-  return postApiResponse<void, NodeSetup>('lightning/setup-node', data, 'Error calling postSetupNode');
+export const postSetupNode = async (): Promise<void> => {
+  return postApiResponse<void, undefined>('lightning/setup-node', undefined, 'Error calling postSetupNode');
 };
 
 /**

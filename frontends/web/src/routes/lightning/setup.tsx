@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Header, Main } from '../../components/layout';
@@ -22,101 +22,151 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/vie
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
 import { Button, Checkbox, Label } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
+import { Keystore, getKeystores, subscribeKeystores } from '../../api/keystores';
+import { unsubscribe } from '../../utils/subscriptions';
+import { postSetupNode } from '../../api/lightning';
+import { Status } from '../../components/status/status';
+import { Spinner } from '../../components/spinner/Spinner';
+import { route } from '../../utils/route';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
-type TSteps = 'intro' | 'disclaimer' | 'confirm';
-
-const LightningSetupSteps = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [step, setStep] = useState<TSteps>('intro');
-  const [agree, setAgree] = useState(false);
-
-  switch (step) {
-  case 'intro':
-    return (
-      <View
-        key="step-intro"
-        minHeight={CONTENT_MIN_HEIGHT}
-        verticallyCentered>
-        <ViewHeader title="What is lightning?" />
-        <ViewContent>
-          <MultilineMarkup tagName="p" markup="Lightning is a channel based second layer to Bitcoin. It enables you to spend and receive coins instantly and for a very low fee." />
-        </ViewContent>
-        <ViewButtons>
-          <Button primary onClick={() => setStep('disclaimer')}>
-            {t('button.next')}
-          </Button>
-          <Button secondary onClick={() => navigate(-1)}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 'disclaimer':
-    return (
-      <View
-        key="step-disclaimer"
-        minHeight={CONTENT_MIN_HEIGHT}
-        verticallyCentered>
-        <ViewHeader title="How does it work with the BitBoxApp?" />
-        <ViewContent>
-          <MultilineMarkup tagName="p" markup={`Your lightning wallet will be made using a kye derived from your BitBox02 wallet. That way you can always restore your lightning wallet using your BitBox02 or backup.
-          However, unlike the BitBox02, the lightning wallet is a <strong>hot wallet</strong>. This means the keys for your lightning wallet is stored on the BitBoxApp, not on the BitBox02. You should not use the lightning wallet for a large amount of fundsd or long term storage.
-          In addition, the lightning feature is currently in beta, meaning you may encounter bugs, reliability issues or may stop fwoking entirely.`} />
-          <Label htmlFor="confirm">
-            <Checkbox
-              id="confirm"
-              onChange={() => setAgree(!agree)}
-              checked={agree} />
-            I have read the information above
-          </Label>
-        </ViewContent>
-        <ViewButtons>
-          <Button
-            primary
-            disabled={!agree}
-            onClick={() => setStep('confirm')}>
-            Create lightning wallet
-          </Button>
-          <Button secondary onClick={() => navigate(-1)}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  case 'confirm':
-    return (
-      <View
-        key="step-confirm"
-        minHeight={CONTENT_MIN_HEIGHT}
-        textCenter
-        verticallyCentered>
-        <ViewHeader
-          title="Confirm on device">
-          <SimpleMarkup
-            tagName="p"
-            markup="Confirm on the BitBox02 to create your lightning wallet" />
-        </ViewHeader>
-        <ViewContent>
-          <PointToBitBox02 />
-        </ViewContent>
-        <ViewButtons>
-          <Button secondary onClick={() => navigate(-1)}>
-            {t('button.back')}
-          </Button>
-        </ViewButtons>
-      </View>
-    );
-  }
-};
+type TSteps = 'intro' | 'disclaimer' | 'connect' | 'wait' | 'success';
 
 export const LightningSetup = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [agree, setAgree] = useState(false);
+  const [keystores, setKeystores] = useState<Keystore[]>();
+  const [step, setStep] = useState<TSteps>('intro');
+  const [setupError, setSetupError] = useState<string>();
+
+  const onStateChange = useCallback(async () => {
+    try {
+      const keystores = await getKeystores();
+      setKeystores(keystores);
+    } catch (err: any) {}
+  }, []);
+
+  useEffect(() => {
+    onStateChange();
+
+    const subscriptions = [subscribeKeystores(onStateChange)];
+    return () => unsubscribe(subscriptions);
+  }, [onStateChange]);
+
+  const setupNode = useCallback(async () => {
+    setStep('wait');
+
+    try {
+      await postSetupNode();
+      setStep('success');
+    } catch (err) {
+      setSetupError(String(err));
+      setStep('disclaimer');
+    }
+  }, []);
+
+  const waitForConnect = useCallback(() => {
+    if (keystores && keystores.length > 0) {
+      setupNode();
+    } else {
+      setStep('connect');
+    }
+  }, [keystores, setupNode]);
+
+  useEffect(() => {
+    if (step === 'connect' && keystores && keystores.length > 0) {
+      setupNode();
+    }
+  }, [keystores, step, setupNode]);
+
+  const renderSteps = () => {
+    switch (step) {
+    case 'intro':
+      return (
+        <View key="step-intro" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+          <ViewHeader title="What is lightning?" />
+          <ViewContent>
+            <MultilineMarkup
+              tagName="p"
+              markup="Lightning is a channel based second layer to Bitcoin. It enables you to spend and receive coins instantly and for a very low fee."
+            />
+          </ViewContent>
+          <ViewButtons>
+            <Button primary onClick={() => setStep('disclaimer')}>
+              {t('button.next')}
+            </Button>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'disclaimer':
+      return (
+        <View key="step-disclaimer" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+          <ViewHeader title="How does it work with the BitBoxApp?" />
+          <ViewContent>
+            <MultilineMarkup
+              tagName="p"
+              markup={`Your lightning wallet will be made using a kye derived from your BitBox02 wallet. That way you can always restore your lightning wallet using your BitBox02 or backup.
+          However, unlike the BitBox02, the lightning wallet is a <strong>hot wallet</strong>. This means the keys for your lightning wallet is stored on the BitBoxApp, not on the BitBox02. You should not use the lightning wallet for a large amount of fundsd or long term storage.
+          In addition, the lightning feature is currently in beta, meaning you may encounter bugs, reliability issues or may stop fwoking entirely.`}
+            />
+            <Label htmlFor="confirm">
+              <Checkbox id="confirm" onChange={() => setAgree(!agree)} checked={agree} />I have read the information above
+            </Label>
+          </ViewContent>
+          <ViewButtons>
+            <Button primary disabled={!agree} onClick={() => waitForConnect()}>
+              Create lightning wallet
+            </Button>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'connect':
+      return (
+        <View key="step-confirm" minHeight={CONTENT_MIN_HEIGHT} textCenter verticallyCentered>
+          <ViewHeader title="Connect your device">
+            <SimpleMarkup tagName="p" markup="Connect your BitBox02 to create your lightning wallet" />
+          </ViewHeader>
+          <ViewContent>
+            <PointToBitBox02 />
+          </ViewContent>
+          <ViewButtons>
+            <Button secondary onClick={() => navigate(-1)}>
+              {t('button.back')}
+            </Button>
+          </ViewButtons>
+        </View>
+      );
+    case 'wait':
+      return <Spinner text={t('lightning.setup.wait.title')} guideExists={false} />;
+    case 'success':
+      return (
+        <View fitContent textCenter verticallyCentered>
+          <ViewContent withIcon="success">
+            <p>{t('lightning.setup.success.message')}</p>
+            <Button primary onClick={() => route('/lightning')}>
+              {t('button.done')}
+            </Button>
+          </ViewContent>
+        </View>
+      );
+    }
+  };
+
   return (
     <Main>
+      <Status type="warning" hidden={!setupError}>
+        {setupError}
+      </Status>
       <Header title="Create lightning wallet" />
-      <LightningSetupSteps />
+      {renderSteps()}
     </Main>
   );
 };

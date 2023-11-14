@@ -1087,6 +1087,14 @@
         "message": "Transaction confirmed and sent!"
       },
       "title": "Send Lightning"
+    },
+    "setup": {
+      "wait": {
+        "title": "Creating lightning wallet..."
+      },
+      "success": {
+        "message": "Success, your lightning wallet is ready!"
+      }      
     }
   },
   "loading": "loading…",
