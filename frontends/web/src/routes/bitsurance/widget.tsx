@@ -29,6 +29,7 @@ import { alertUser } from '../../components/alert/Alert';
 import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 import { getBitsuranceURL } from '../../api/bitsurance';
+import { route } from '../../utils/route';
 
 type TProps = {
     code: string;
@@ -148,7 +149,13 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
     // handle requests from Bitsurance iframe
     try {
-      const message = parseMessage(m.data);
+      let message = JSON.parse(m.data);
+      if (message?.type === 'showInsuranceDashboard') {
+        route('bitsurance/dashboard');
+        return;
+      }
+
+      message = parseMessage(m.data);
       switch (message.type) {
       case V0MessageType.RequestAddress:
         // we ignore further signing requests
