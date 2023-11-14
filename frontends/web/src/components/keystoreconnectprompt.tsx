@@ -18,10 +18,15 @@ import { useTranslation } from 'react-i18next';
 import { Button } from './forms';
 import { cancelConnectKeystore, syncConnectKeystore } from '../api/backend';
 import { useSubscribeReset } from '../hooks/api';
+import { Dialog, DialogButtons } from './dialog/dialog';
+import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';
+import { useDarkmode } from '../hooks/darkmode';
 import { SkipForTesting } from '../routes/device/components/skipfortesting';
+import styles from './keystoreconnectprompt.module.css';
 
 export function KeystoreConnectPrompt() {
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
 
   const [data, reset] = useSubscribeReset(syncConnectKeystore());
   if (!data) {
@@ -29,27 +34,50 @@ export function KeystoreConnectPrompt() {
   }
   switch (data.typ) {
   case 'connect':
-    // TODO: make this look nice.
     return (
-      <>
-        { data.keystoreName === '' ?
+      <Dialog title={t('welcome.connect')} medium open>
+        <p className={styles.text}>{ data.keystoreName === '' ?
           t('connectKeystore.promptNoName') :
           t('connectKeystore.promptWithName', { name: data.keystoreName })
-        }
-        {/* Software keystore is unlocked from the app, so we add the button here.
-            The BitBox02 unlock is triggered by inserting it using the globally mounted BitBox02Wizard.
-            Te BitBox01 is ignored - BitBox01 users will simply need to unlock before being prompted.
+        }.
+        </p>
+        <div className={styles.bitboxContainer}>
+          {/*
+          Software keystore is unlocked from the app, so we add the SkipForTesting button here (only for development).
+          The BitBox02 unlock is triggered by inserting it using the globally mounted BitBox02Wizard.
+          The BitBox01 is ignored - BitBox01 users will simply need to unlock before being prompted.
           */}
-        <SkipForTesting />
-        <Button primary onClick={() => cancelConnectKeystore()}>{t('dialog.cancel')}</Button>
-      </>
+          <PointToBitBox02 />
+          <SkipForTesting />
+        </div>
+        <DialogButtons>
+          <Button secondary onClick={() => cancelConnectKeystore()}>{t('dialog.cancel')}</Button>
+        </DialogButtons>
+      </Dialog>
     );
   case 'error':
     return (
-      <>
-        { data.errorCode === 'wrongKeystore' ? t('error.wrongKeystore') : data.errorMessage }
-        <Button primary onClick={() => reset()}>{t('button.dismiss')}</Button>
-      </>
+      <Dialog title={t('welcome.connect')} medium open>
+        <p className={styles.text}>
+          {data.errorCode === 'wrongKeystore' ?
+            <>
+              {t('error.wrongKeystore')}
+              <br />
+              <br />
+              {t('error.wrongKeystore2')}
+            </> : data.errorMessage}
+        </p>
+        <div className={`${styles.bitboxContainer} ${styles.failed}`}>
+          <Cancel className={styles.cancelIcon} />
+          {isDarkMode ?
+            <BitBox02StylizedLight className={styles.bitboxImage} /> :
+            <BitBox02StylizedDark className={styles.bitboxImage} />
+          }
+        </div>
+        <DialogButtons>
+          <Button secondary onClick={() => reset()}>{t('dialog.cancel')}</Button>
+        </DialogButtons>
+      </Dialog>
     );
   default:
     return null;
