@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2022 Shift Crypto AG
  *
@@ -31,6 +32,7 @@ import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
 import { MobileHeader } from '../settings/components/mobile-header';
 import Guide from './manage-account-guide';
+import { ConfirmDialogDisableWatchonly } from './components/confirm-dialog-disable-watchonly';
 import style from './manage-accounts.module.css';
 
 
@@ -51,6 +53,7 @@ interface State {
     editErrorMessage?: string;
     accounts: accountAPI.IAccount[];
     showTokens: TShowTokens;
+    storedAccountCode: string; // in-case to be used in ConfirmDialogDisableWatchOnly. Please see `setWatch`
 }
 
 class ManageAccounts extends Component<Props, State> {
@@ -58,7 +61,8 @@ class ManageAccounts extends Component<Props, State> {
     editAccountNewName: '',
     editErrorMessage: undefined,
     accounts: [],
-    showTokens: {}
+    showTokens: {},
+    storedAccountCode: ''
   };
 
   private fetchAccounts = () => {
@@ -108,7 +112,7 @@ class ManageAccounts extends Component<Props, State> {
             id={account.code}
             onChange={async (event) => {
               event.target.disabled = true;
-              await this.setWatch(account.code, !account.watch);
+              await this.handleSetWatch(account.code, !account.watch);
               event.target.disabled = false;
             }} />
           {active && account.coinCode === 'eth' ? (
@@ -142,16 +146,29 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   private setWatch = async (accountCode: string, watch: boolean) => {
-    // TODO: ask user if they really want to proceed if they disable watch-only, if its keystore is
-    // not currently loaded. Disabling watch-only in this case immediately removes the account from
-    // the sidebar and manage accounts and cannot be brought back without connecting the keystore.
-
     const result = await backendAPI.accountSetWatch(accountCode, watch);
     if (result.success) {
       await this.fetchAccounts();
     } else if (result.errorMessage) {
       alertUser(result.errorMessage);
     }
+  };
+
+  private handleSetWatch = async (accountCode: string, watch: boolean) => {
+    if (watch === false) {
+      this.setState({ storedAccountCode: accountCode });
+      // attempting to connect to its keystore
+      // should open ConfirmDialogDisableWatchonly if keystore isn't loaded
+      const hasConnectedKeystore = await accountAPI.connectKeystore(accountCode);
+
+      // `success` means the keystore is loaded, thus disable watch here.
+      // Otherwise, see ConfirmDialogDisableWatchonly
+      if (hasConnectedKeystore.success) {
+        await this.setWatch(accountCode, watch);
+      }
+      return;
+    }
+    await this.setWatch(accountCode, watch);
   };
 
   private toggleShowTokens = (accountCode: string) => {
@@ -238,14 +255,20 @@ class ManageAccounts extends Component<Props, State> {
       });
   };
 
+
+
   public render() {
     const { t, deviceIDs, hasAccounts } = this.props;
-    const { accounts, editAccountCode, editAccountNewName, editErrorMessage } = this.state;
+    const { accounts, editAccountCode, editAccountNewName, editErrorMessage, storedAccountCode } = this.state;
     const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <GuideWrapper>
         <GuidedContent>
           <Main>
+            <ConfirmDialogDisableWatchonly
+              onConfirm={this.setWatch}
+              storedAccountCode={storedAccountCode}
+            />
             <Header
               hideSidebarToggler
               title={

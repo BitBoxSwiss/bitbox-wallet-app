@@ -178,6 +178,8 @@ class App extends Component<Props, State> {
     const { accounts, devices } = this.state;
     const deviceIDs: string[] = Object.keys(devices);
     const activeAccounts = this.activeAccounts();
+    const isManageAccountRoute = window.location.pathname === '/settings/manage-accounts';
+
     return (
       <ConnectedApp>
         <AppProvider>
@@ -194,7 +196,7 @@ class App extends Component<Props, State> {
                 <Banner msgKey="bitbox02" />
                 <MobileDataWarning />
                 <Aopp />
-                <KeystoreConnectPrompt />
+                {!isManageAccountRoute ? <KeystoreConnectPrompt /> : null}
                 {
                   Object.entries(devices).map(([deviceID, productName]) => {
                     if (productName === 'bitbox02') {

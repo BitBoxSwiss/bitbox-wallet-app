@@ -1038,6 +1038,7 @@
   },
   "loading": "loading…",
   "manageAccounts": {
+    "disableWatchOnlyWarning": "It seems like your device isn't connected. Disabling watch-only mode will remove the account. To re-add this account later, you'll need to reconnect your device.",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
     "noAccounts": "no accounts found",
