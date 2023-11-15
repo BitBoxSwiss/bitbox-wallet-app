@@ -35,12 +35,11 @@ import { isBitcoinOnly } from '../../routes/account/utils';
 import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
 import { useTranslation } from 'react-i18next';
-import { LightningConfig } from '../../api/lightning';
 
 interface SidebarProps {
   deviceIDs: string[];
   accounts: IAccount[];
-  lightningConfig?: LightningConfig;
+  lightningInactive: boolean;
 }
 
 interface SubscribedProps {
@@ -174,7 +173,7 @@ class Sidebar extends Component<Props> {
   };
 
   public render() {
-    const { t, deviceIDs, accounts, keystores, activeSidebar, lightningConfig, sidebarStatus } = this.props;
+    const { t, deviceIDs, accounts, keystores, activeSidebar, lightningInactive, sidebarStatus } = this.props;
     const hidden = sidebarStatus === 'forceHidden';
     const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
     return (
@@ -212,7 +211,7 @@ class Sidebar extends Component<Props> {
           ) : null}
           {accounts &&
             accounts.map((acc) => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />)}
-          {lightningConfig && !lightningConfig.inactive && <GetLightningLink handleSidebarItemClick={this.handleSidebarItemClick} />}
+          {!lightningInactive && <GetLightningLink handleSidebarItemClick={this.handleSidebarItemClick} />}
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           {accounts.length ? (
             <div key="buy" className={style.sidebarItem}>

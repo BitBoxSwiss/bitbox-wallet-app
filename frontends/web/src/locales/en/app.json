@@ -1033,6 +1033,14 @@
   },
   "lightning": {
     "accountLabel": "Lightning",
+    "activate": {
+      "wait": {
+        "title": "Creating lightning wallet..."
+      },
+      "success": {
+        "message": "Success, your lightning wallet is ready!"
+      }      
+    },
     "payments": {
       "header": {
         "amount": "Amount",
@@ -1088,12 +1096,12 @@
       },
       "title": "Send Lightning"
     },
-    "setup": {
+    "deactivate": {
       "wait": {
-        "title": "Creating lightning wallet..."
+        "title": "Disabling lightning wallet..."
       },
       "success": {
-        "message": "Success, your lightning wallet is ready!"
+        "message": "Success, your lightning wallet is now disabled"
       }      
     }
   },

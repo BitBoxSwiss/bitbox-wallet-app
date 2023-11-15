@@ -779,8 +779,12 @@ export const postLightningConfig = async (data: LightningConfig): Promise<void> 
   return await apiPost('lightning/config', data);
 };
 
-export const postSetupNode = async (): Promise<void> => {
-  return postApiResponse<void, undefined>('lightning/setup-node', undefined, 'Error calling postSetupNode');
+export const postActivateNode = async (): Promise<void> => {
+  return postApiResponse<void, undefined>('lightning/activate-node', undefined, 'Error calling postActivateNode');
+};
+
+export const postDeactivateNode = async (): Promise<void> => {
+  return postApiResponse<void, undefined>('lightning/deactivate-node', undefined, 'Error calling postDeactivateNode');
 };
 
 /**

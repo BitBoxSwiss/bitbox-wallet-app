@@ -38,20 +38,21 @@ import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
-import { getLightningConfig, LightningConfig, subscribeLightningConfig } from './api/lightning';
+import { getLightningConfig, subscribeLightningConfig } from './api/lightning';
 
 type State = {
   accounts: IAccount[];
   devices: TDevices;
-  lightningConfig?: LightningConfig;
-}
+  lightningInactive: boolean;
+};
 
 type Props = TranslateProps;
 
 class App extends Component<Props, State> {
   public readonly state: State = {
     accounts: [],
-    devices: {}
+    devices: {},
+    lightningInactive: true
   };
 
   private unsubscribeList: UnsubscribeList = [];
@@ -68,50 +69,52 @@ class App extends Component<Props, State> {
   public componentDidMount() {
     Promise.all([getDeviceList(), getAccounts(), getLightningConfig()])
       .then(([devices, accounts, lightningConfig]) => {
-        this.setStateWithDeviceList({ accounts, devices, lightningConfig });
+        this.setStateWithDeviceList({ accounts, devices, lightningInactive: lightningConfig.inactive });
       })
       .catch(console.error);
 
     this.unsubscribeList.push(
       syncNewTxs((meta) => {
-        notifyUser(this.props.t('notification.newTxs', {
-          count: meta.count,
-          accountName: meta.accountName,
-        }));
+        notifyUser(
+          this.props.t('notification.newTxs', {
+            count: meta.count,
+            accountName: meta.accountName
+          })
+        );
       }),
-      syncAccountsList(accounts => {
+      syncAccountsList((accounts) => {
         this.setState({ accounts }, this.maybeRoute);
       }),
       syncDeviceList((devices) => {
         this.setStateWithDeviceList({ devices });
       }),
       subscribeLightningConfig((lightningConfig) => {
-        this.setStateWithDeviceList({ lightningConfig });
+        this.setStateWithDeviceList({ lightningInactive: lightningConfig.inactive });
       })
     );
   }
 
   private setStateWithDeviceList(newState: Partial<State>) {
     const oldDeviceIDList = Object.keys(this.state.devices);
-    this.setState(currentState => ({ ...currentState, ...newState }), () => {
-      const newDeviceIDList: string[] = Object.keys(this.state.devices);
-      // if the first device is new
-      if (
-        newDeviceIDList.length > 0
-        && newDeviceIDList[0] !== oldDeviceIDList[0]
-      ) {
-        // route new unlocked device with accounts
-        if (this.state.accounts.length) {
-          this.maybeRoute();
+    this.setState(
+      (currentState) => ({ ...currentState, ...newState }),
+      () => {
+        const newDeviceIDList: string[] = Object.keys(this.state.devices);
+        // if the first device is new
+        if (newDeviceIDList.length > 0 && newDeviceIDList[0] !== oldDeviceIDList[0]) {
+          // route new unlocked device with accounts
+          if (this.state.accounts.length) {
+            this.maybeRoute();
+            return;
+          }
+          // without accounts route to device settings for unlock, pair, create, restore etc.
+          route(`settings/device-settings/${newDeviceIDList[0]}`, true);
           return;
         }
-        // without accounts route to device settings for unlock, pair, create, restore etc.
-        route(`settings/device-settings/${newDeviceIDList[0]}`, true);
-        return;
+        // unplugged
+        this.maybeRoute();
       }
-      // unplugged
-      this.maybeRoute();
-    });
+    );
   }
 
   public componentWillUnmount() {
@@ -131,17 +134,18 @@ class App extends Component<Props, State> {
       return;
     }
     // if no accounts are registered on specified views route to /
-    if (accounts.length === 0 && (
-      currentURL.startsWith('/account-summary')
-      || currentURL.startsWith('/add-account')
-      || currentURL.startsWith('/settings/manage-accounts')
-      || currentURL.startsWith('/passphrase')
-    )) {
+    if (
+      accounts.length === 0 &&
+      (currentURL.startsWith('/account-summary') ||
+        currentURL.startsWith('/add-account') ||
+        currentURL.startsWith('/settings/manage-accounts') ||
+        currentURL.startsWith('/passphrase'))
+    ) {
       route('/', true);
       return;
     }
     // if on an account that isnt registered route to /
-    if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
+    if (inAccounts && !accounts.some((account) => currentURL.startsWith('/account/' + account.code))) {
       route('/', true);
       return;
     }
@@ -164,11 +168,11 @@ class App extends Component<Props, State> {
   };
 
   private activeAccounts = (): IAccount[] => {
-    return this.state.accounts.filter(acct => acct.active);
+    return this.state.accounts.filter((acct) => acct.active);
   };
 
   public render() {
-    const { accounts, devices, lightningConfig } = this.state;
+    const { accounts, devices, lightningInactive } = this.state;
     const deviceIDs: string[] = Object.keys(devices);
     const activeAccounts = this.activeAccounts();
     return (
@@ -177,11 +181,7 @@ class App extends Component<Props, State> {
           <DarkModeProvider>
             <Darkmode />
             <div className="app">
-              <Sidebar
-                accounts={activeAccounts}
-                deviceIDs={deviceIDs}
-                lightningConfig={lightningConfig}
-              />
+              <Sidebar accounts={activeAccounts} deviceIDs={deviceIDs} lightningInactive={lightningInactive} />
               <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
                 <Update />
                 <Banner msgKey="bitbox01" />
@@ -194,6 +194,7 @@ class App extends Component<Props, State> {
                   deviceIDs={deviceIDs}
                   devices={devices}
                   devicesKey={this.devicesKey}
+                  lightningInactive={lightningInactive}
                 />
                 <RouterWatcher onChange={this.handleRoute} />
               </div>
@@ -209,4 +210,3 @@ class App extends Component<Props, State> {
 
 const HOC = translate()(App);
 export { HOC as App };
-

@@ -24,7 +24,7 @@ import { Button, Checkbox, Label } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
 import { Keystore, getKeystores, subscribeKeystores } from '../../api/keystores';
 import { unsubscribe } from '../../utils/subscriptions';
-import { postSetupNode } from '../../api/lightning';
+import { postActivateNode } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
 import { route } from '../../utils/route';
@@ -33,7 +33,7 @@ const CONTENT_MIN_HEIGHT = '38em';
 
 type TSteps = 'intro' | 'disclaimer' | 'connect' | 'wait' | 'success';
 
-export const LightningSetup = () => {
+export const LightningActivate = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
@@ -55,11 +55,11 @@ export const LightningSetup = () => {
     return () => unsubscribe(subscriptions);
   }, [onStateChange]);
 
-  const setupNode = useCallback(async () => {
+  const activateNode = useCallback(async () => {
     setStep('wait');
 
     try {
-      await postSetupNode();
+      await postActivateNode();
       setStep('success');
     } catch (err) {
       setSetupError(String(err));
@@ -69,17 +69,17 @@ export const LightningSetup = () => {
 
   const waitForConnect = useCallback(() => {
     if (keystores && keystores.length > 0) {
-      setupNode();
+      activateNode();
     } else {
       setStep('connect');
     }
-  }, [keystores, setupNode]);
+  }, [keystores, activateNode]);
 
   useEffect(() => {
     if (step === 'connect' && keystores && keystores.length > 0) {
-      setupNode();
+      activateNode();
     }
-  }, [keystores, step, setupNode]);
+  }, [keystores, step, activateNode]);
 
   const renderSteps = () => {
     switch (step) {
@@ -145,12 +145,12 @@ export const LightningSetup = () => {
         </View>
       );
     case 'wait':
-      return <Spinner text={t('lightning.setup.wait.title')} guideExists={false} />;
+      return <Spinner text={t('lightning.activate.wait.title')} guideExists={false} />;
     case 'success':
       return (
         <View fitContent textCenter verticallyCentered>
           <ViewContent withIcon="success">
-            <p>{t('lightning.setup.success.message')}</p>
+            <p>{t('lightning.activate.success.message')}</p>
             <Button primary onClick={() => route('/lightning')}>
               {t('button.done')}
             </Button>

@@ -20,7 +20,8 @@ import { Account } from './account/account';
 import { Lightning } from './lightning';
 import { Receive as ReceiveLightning } from './lightning/receive';
 import { Send as SendLightning } from './lightning/send';
-import { LightningSetup } from './lightning/setup';
+import { LightningActivate } from './lightning/activate';
+import { LightningDeactivate } from './lightning/deactivate';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
@@ -32,6 +33,7 @@ type TAppRouterProps = {
   deviceIDs: string[];
   accounts: IAccount[];
   activeAccounts: IAccount[];
+  lightningInactive: boolean;
   devicesKey: (input: string) => string;
 };
 
@@ -44,7 +46,7 @@ const InjectParams = ({ children }: TInjectParamsProps) => {
   return React.cloneElement(children as React.ReactElement, params);
 };
 
-export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts }: TAppRouterProps) => {
+export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAccounts, lightningInactive }: TAppRouterProps) => {
   const hasAccounts = accounts.length > 0;
   const Homepage = <DeviceSwitch key={devicesKey('device-switch-default')} deviceID={null} devices={devices} hasAccounts={hasAccounts} />;
 
@@ -102,9 +104,15 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
     </InjectParams>
   );
 
-  const AccLightningSetup = (
+  const AccLightningActivate = (
     <InjectParams>
-      <LightningSetup />
+      <LightningActivate />
+    </InjectParams>
+  );
+
+  const AccLightningDeactivate = (
+    <InjectParams>
+      <LightningDeactivate />
     </InjectParams>
   );
 
@@ -164,7 +172,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
 
   const AdvancedSettingsEl = (
     <InjectParams>
-      <AdvancedSettings deviceIDs={deviceIDs} hasAccounts={hasAccounts} />
+      <AdvancedSettings deviceIDs={deviceIDs} hasAccounts={hasAccounts} lightningInactive={lightningInactive} />
     </InjectParams>
   );
 
@@ -186,9 +194,10 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         </Route>
         <Route path="lightning">
           <Route index element={AccLightning} />
+          <Route path="activate" element={AccLightningActivate} />
           <Route path="receive" element={AccLightningReceive} />
           <Route path="send" element={AccLightningSend} />
-          <Route path="setup" element={AccLightningSetup} />
+          <Route path="deactivate" element={AccLightningDeactivate} />
         </Route>
         <Route path="add-account" element={<AddAccount />} />
         <Route path="account-summary" element={AccountsSummaryEl} />

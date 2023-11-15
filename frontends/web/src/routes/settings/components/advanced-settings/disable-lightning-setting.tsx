@@ -18,15 +18,15 @@ import { useNavigate } from 'react-router-dom';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { ChevronRightDark } from '../../../../components/icon';
 
-export const EnableLightning = () => {
+export const DisableLightning = () => {
   // const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <SettingsItem
-      settingName="Enable lightning wallet"
+      settingName="Disable lightning wallet"
       secondaryText="Lightning enables instant and low fee payments."
-      onClick={() => navigate('/lightning/activate/')}
+      onClick={() => navigate('/lightning/deactivate/')}
       extraComponent={
         <ChevronRightDark
           width={24}
