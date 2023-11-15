@@ -18,10 +18,8 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, createRef } from 'react';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { getConfig } from '../../utils/config';
-import { getTransactionList, ScriptType } from '../../api/account';
-import { Dialog } from '../../components/dialog/dialog';
-import { confirmation } from '../../components/confirm/Confirm';
-import { verifyAddress, signAddress } from '../../api/exchanges';
+import { ScriptType } from '../../api/account';
+import { signAddress } from '../../api/exchanges';
 import { getInfo } from '../../api/account';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
@@ -31,6 +29,7 @@ import { alertUser } from '../../components/alert/Alert';
 import { BitsuranceGuide } from './guide';
 import style from './widget.module.css';
 import { getBitsuranceURL } from '../../api/bitsurance';
+import { route } from '../../utils/route';
 
 type TProps = {
     code: string;
@@ -42,7 +41,6 @@ export const BitsuranceWidget = ({ code }: TProps) => {
   const [height, setHeight] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
-  const [verifying, setVerifying] = useState(false);
 
   const iframeURL = useLoad(getBitsuranceURL);
   const config = useLoad(getConfig);
@@ -109,7 +107,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
   const handleRequestAddress = (message: RequestAddressV0Message) => {
     signing = true;
-    const addressType = message.withScriptType ? String(message.withScriptType) : '';
+    const addressType = message.withScriptType ? String(message.withScriptType) : 'p2wpkh';
     const withMessageSignature = message.withMessageSignature ? message.withMessageSignature : '';
     const withExtendedPublicKey = !!message.withExtendedPublicKey;
     signAddress(
@@ -120,7 +118,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         signing = false;
         if (response.success) {
           if (withExtendedPublicKey) {
-            const xpub = getXPub('p2wpkh');
+            const xpub = getXPub(addressType as ScriptType);
             if (xpub) {
               sendAddressWithXPub(response.address, response.signature, xpub);
             } else {
@@ -139,61 +137,6 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
   };
 
-  const handleVerifyAddress = (address: string) => {
-    setVerifying(true);
-    verifyAddress(address, code)
-      .then(response => {
-        setVerifying(false);
-        if (!response.success) {
-          if (response.errorCode === 'addressNotFound') {
-            // This should not happen, unless the user receives a tx on the same address between the message signing
-            // and the address verification.
-            alertUser(t('buy.pocket.usedAddress', { address:  address })); //FIXME label
-          } else {
-            alertUser(t('unknownError', { errorMessage: response.errorMessage }));
-            console.log('error: ' + response.errorMessage);
-          }
-        }
-      });
-  };
-
-  const sendXpub = () => {
-    if (accountInfo) {
-      const bitcoinSimple = accountInfo.signingConfigurations[0].bitcoinSimple;
-      if (bitcoinSimple) {
-        const xpub = bitcoinSimple.keyInfo.xpub;
-        const { current } = iframeRef;
-        if (!current) {
-          return;
-        }
-        const message = serializeMessage({
-          version: MessageVersion.V0,
-          type: V0MessageType.ExtendedPublicKey,
-          extendedPublicKey: xpub,
-        });
-        current.contentWindow?.postMessage(message, '*');
-      }
-    }
-  };
-
-  const handleRequestXpub = () => {
-    getTransactionList(code).then(txs => {
-      if (!txs.success) {
-        alertUser(t('transactions.errorLoadTransactions'));
-        return;
-      }
-      if (txs.list.length > 0) {
-        confirmation(t('buy.pocket.previousTransactions'), result => { //FIXME label
-          if (result) {
-            sendXpub();
-          }
-        });
-      } else {
-        sendXpub();
-      }
-    });
-  };
-
   const onMessage = (m: MessageEvent) => {
     if (!iframeURL || !code) {
       return;
@@ -206,7 +149,13 @@ export const BitsuranceWidget = ({ code }: TProps) => {
 
     // handle requests from Bitsurance iframe
     try {
-      const message = parseMessage(m.data);
+      let message = JSON.parse(m.data);
+      if (message?.type === 'showInsuranceDashboard') {
+        route('bitsurance/dashboard');
+        return;
+      }
+
+      message = parseMessage(m.data);
       switch (message.type) {
       case V0MessageType.RequestAddress:
         // we ignore further signing requests
@@ -215,13 +164,6 @@ export const BitsuranceWidget = ({ code }: TProps) => {
           handleRequestAddress(message);
         }
         break;
-      case V0MessageType.VerifyAddress:
-        if (!verifying) {
-          handleVerifyAddress(message.bitcoinAddress);
-        }
-        break;
-      case V0MessageType.RequestExtendedPublicKey:
-        handleRequestXpub();
       }
     } catch (e) {
       console.log(e);
@@ -259,13 +201,6 @@ export const BitsuranceWidget = ({ code }: TProps) => {
               </iframe>
             </div>
           )}
-          <Dialog
-            open={verifying}
-            title={t('receive.verifyBitBox02')} //FIXME label
-            disableEscape={true}
-            medium centered>
-            <div className="text-center">{t('buy.pocket.verifyBitBox02')}</div> //FIXME label
-          </Dialog>
         </div>
       </div>
       <BitsuranceGuide/>
