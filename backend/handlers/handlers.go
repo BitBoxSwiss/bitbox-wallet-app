@@ -234,7 +234,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/config", handlers.getLightningConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/lightning/config", handlers.postLightningConfigHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/lightning/setup-node", handlers.postLightningSetupNode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/activate-node", handlers.postLightningActivateNode).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/lightning/deactivate-node", handlers.postLightningDeactivateNode).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/lightning/node-info", handlers.getLightningNodeInfo).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/list-payments", handlers.getLightningListPayments).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/lightning/open-channel-fee", handlers.getLightningOpenChannelFee).Methods("GET")
@@ -1261,8 +1262,12 @@ func (handlers *Handlers) postLightningConfigHandler(r *http.Request) (interface
 	return nil, handlers.backend.Config().SetLightningConfig(lightningConfig)
 }
 
-func (handlers *Handlers) postLightningSetupNode(r *http.Request) interface{} {
-	return handlers.backend.Lightning().PostLightningSetupNode(r)
+func (handlers *Handlers) postLightningActivateNode(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostLightningActivateNode(r)
+}
+
+func (handlers *Handlers) postLightningDeactivateNode(r *http.Request) interface{} {
+	return handlers.backend.Lightning().PostLightningDeactivateNode(r)
 }
 
 func (handlers *Handlers) getLightningNodeInfo(r *http.Request) interface{} {

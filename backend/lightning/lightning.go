@@ -53,13 +53,8 @@ func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore 
 	}
 }
 
-// Connect needs to be called before any requests are made.
-func (lightning *Lightning) Connect() {
-	go lightning.connect()
-}
-
-// SetupAndConnect first creates a mnemonic from the keystore entropy then connects to instance.
-func (lightning *Lightning) SetupAndConnect() error {
+// Activate first creates a mnemonic from the keystore entropy then connects to instance.
+func (lightning *Lightning) Activate() error {
 	lightningConfig := lightning.config.LightningConfig()
 
 	if !lightningConfig.Inactive {
@@ -94,6 +89,11 @@ func (lightning *Lightning) SetupAndConnect() error {
 	return nil
 }
 
+// Connect needs to be called before any requests are made.
+func (lightning *Lightning) Connect() {
+	go lightning.connect()
+}
+
 // Disconnect closes an active Breez SDK instance. After this, no requests should be made.
 func (lightning *Lightning) Disconnect() {
 	if lightning.sdkService != nil {
@@ -105,6 +105,26 @@ func (lightning *Lightning) Disconnect() {
 		lightning.sdkService = nil
 		lightning.synced = false
 	}
+}
+
+// Deactivate disconnects the instance and changes the config to inactive.
+func (lightning *Lightning) Deactivate() error {
+	lightningConfig := lightning.config.LightningConfig()
+
+	if lightningConfig.Inactive {
+		return nil
+	}
+
+	lightning.Disconnect()
+
+	lightningConfig.Inactive = true
+	lightningConfig.Mnemonic = ""
+
+	if err := lightning.setLightningConfig(lightningConfig); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // connect initializes the connection configuration and calls connect to create a Breez SDK instance.

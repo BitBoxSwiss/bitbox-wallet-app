@@ -22,12 +22,21 @@ import (
 	"github.com/breez/breez-sdk-go/breez_sdk"
 )
 
-func (lightning *Lightning) PostLightningSetupNode(r *http.Request) interface{} {
-	if err := lightning.SetupAndConnect(); err != nil {
+func (lightning *Lightning) PostLightningActivateNode(r *http.Request) interface{} {
+	if err := lightning.Activate(); err != nil {
 		lightning.log.Error(err)
 		return responseDto{Success: false, ErrorMessage: err.Error()}
 	}
-	
+
+	return responseDto{Success: true}
+}
+
+func (lightning *Lightning) PostLightningDeactivateNode(r *http.Request) interface{} {
+	if err := lightning.Deactivate(); err != nil {
+		lightning.log.Error(err)
+		return responseDto{Success: false, ErrorMessage: err.Error()}
+	}
+
 	return responseDto{Success: true}
 }
 
