@@ -17,7 +17,7 @@
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
 
-export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
+export type CoinCode = 'btc' | 'lightning' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
 export type AccountCode = string;
 
