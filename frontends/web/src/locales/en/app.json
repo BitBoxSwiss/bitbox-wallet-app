@@ -1216,7 +1216,7 @@
         "The passphrase is an additional layer of security on top of your backup.",
         "Entering a different passphrase will always generate a different wallet.",
         "To restore your wallet you need <strong>both the passphrase and backup</strong>.",
-        "If you forget your passphrase, you can no longer access your coins."
+        "If you forget your passphrase, you can <strong>no longer access your coins</strong>."
       ]
     },
     "what": {
