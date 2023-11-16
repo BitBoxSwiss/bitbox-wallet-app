@@ -259,14 +259,14 @@ func toPaymentTypeDto(paymentType breez_sdk.PaymentType) (string, error) {
 
 func toPaymentTypeFilter(filter string) (breez_sdk.PaymentTypeFilter, error) {
 	switch filter {
+	case "closedChannel":
+		return breez_sdk.PaymentTypeFilterClosedChannel, nil
 	case "sent":
 		return breez_sdk.PaymentTypeFilterSent, nil
 	case "received":
 		return breez_sdk.PaymentTypeFilterReceived, nil
-	case "all":
-		return breez_sdk.PaymentTypeFilterAll, nil
 	}
-	return breez_sdk.PaymentTypeFilterAll, errp.New("Invalid PaymentTypeFilter")
+	return breez_sdk.PaymentTypeFilterSent, errp.New("Invalid PaymentTypeFilter")
 }
 
 func toPaymentDto(payment breez_sdk.Payment) (paymentDto, error) {

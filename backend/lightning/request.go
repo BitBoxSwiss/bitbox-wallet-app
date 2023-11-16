@@ -6,6 +6,24 @@ import (
 	"github.com/breez/breez-sdk-go/breez_sdk"
 )
 
+func toPaymentTypeFilterList(filters *[]string) (*[]breez_sdk.PaymentTypeFilter, error) {
+	if filters != nil {
+		list := []breez_sdk.PaymentTypeFilter{}
+
+		for _, f := range *filters {
+			filter, err := toPaymentTypeFilter(f)
+			if err != nil {
+				return nil, err
+			}
+			list = append(list, filter)
+		}
+
+		return &list, nil
+	}
+
+	return nil, nil
+}
+
 func toListPaymentsRequestDto(params url.Values) (listPaymentsRequestDto, error) {
 	fromTimestamp, err := getOptionalInt64(params, "fromTimestamp")
 	if err != nil {
@@ -19,21 +37,31 @@ func toListPaymentsRequestDto(params url.Values) (listPaymentsRequestDto, error)
 	if err != nil {
 		return listPaymentsRequestDto{}, err
 	}
+	offset, err := getOptionalUint32(params, "offset")
+	if err != nil {
+		return listPaymentsRequestDto{}, err
+	}
+	limit, err := getOptionalUint32(params, "limit")
+	if err != nil {
+		return listPaymentsRequestDto{}, err
+	}
 	return listPaymentsRequestDto{
-		Filter:          params.Get("filter"),
+		Filters:         getOptionalList(params, "filters"),
 		FromTimestamp:   fromTimestamp,
 		ToTimestamp:     toTimestamp,
 		IncludeFailures: includeFailures,
+		Offset:          offset,
+		Limit:           limit,
 	}, nil
 }
 
 func toListPaymentsRequest(listPaymentsRequest listPaymentsRequestDto) (breez_sdk.ListPaymentsRequest, error) {
-	paymentFilter, err := toPaymentTypeFilter(listPaymentsRequest.Filter)
+	paymentFilters, err := toPaymentTypeFilterList(listPaymentsRequest.Filters)
 	if err != nil {
 		return breez_sdk.ListPaymentsRequest{}, err
 	}
 	return breez_sdk.ListPaymentsRequest{
-		Filter:          paymentFilter,
+		Filters:         paymentFilters,
 		FromTimestamp:   listPaymentsRequest.FromTimestamp,
 		ToTimestamp:     listPaymentsRequest.ToTimestamp,
 		IncludeFailures: listPaymentsRequest.IncludeFailures,

@@ -53,6 +53,15 @@ func getOptionalInt64(params url.Values, key string) (*int64, error) {
 	return nil, nil
 }
 
+// Get an optional list from http request url params.
+func getOptionalList(params url.Values, key string) *[]string {
+	if params.Has(key) {
+		parsed := params[key]
+		return &parsed
+	}
+	return nil
+}
+
 // Get an optional uint32 value from http request url params.
 func getOptionalUint32(params url.Values, key string) (*uint32, error) {
 	if params.Has(key) {

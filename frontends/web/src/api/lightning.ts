@@ -138,10 +138,11 @@ export type LnInvoice = {
   expiry: number;
   routingHints: RouteHint[];
   paymentSecret: number[];
+  minFinalCltvExpiryDelta: number;
 };
 
 export type ListPaymentsRequest = {
-  filter: PaymentTypeFilter;
+  filters?: PaymentTypeFilter[];
   fromTimestamp?: number;
   toTimestamp?: number;
   includeFailures?: boolean;
@@ -160,6 +161,7 @@ export type LnPaymentDetails = {
   lnurlMetadata?: string;
   lnAddress?: string;
   lnurlWithdrawEndpoint?: string;
+  swapInfo?: SwapInfo;
 };
 
 export type LnUrlAuthRequestData = {
@@ -170,6 +172,11 @@ export type LnUrlAuthRequestData = {
 };
 
 export type LnUrlErrorData = {
+  reason: string;
+};
+
+export type LnUrlPayErrorData = {
+  paymentHash: string;
   reason: string;
 };
 
@@ -187,6 +194,11 @@ export type LnUrlPayRequestData = {
   commentAllowed: number;
   domain: string;
   lnAddress?: string;
+};
+
+export type LnUrlPaySuccessData = {
+  successAction?: SuccessActionProcessed;
+  paymentHash: string;
 };
 
 export type LnUrlWithdrawRequest = {
@@ -237,6 +249,10 @@ export type LspInformation = {
   minHtlcMsat: number;
   lspPubkey: number[];
   openingFeeParamsList: OpeningFeeParamsMenu;
+};
+
+export type MaxReverseSwapAmountResponse = {
+  totalSat: number;
 };
 
 export type MessageSuccessActionData = {
@@ -300,6 +316,27 @@ export type PaymentFailedData = {
   error: string;
   nodeId: string;
   invoice?: LnInvoice;
+};
+
+export type PrepareRefundRequest = {
+  swapAddress: string;
+  toAddress: string;
+  satPerVbyte: number;
+};
+
+export type PrepareRefundResponse = {
+  refundTxWeight: number;
+  refundTxFeeSat: number;
+};
+
+export type PrepareSweepRequest = {
+  toAddress: string;
+  satsPerVbyte: number;
+};
+
+export type PrepareSweepResponse = {
+  sweepTxWeight: number;
+  sweepTxFeeSat: number;
 };
 
 export type Rate = {
@@ -601,17 +638,22 @@ export type LnUrlCallbackStatus =
 
 export enum LnUrlPayResultVariant {
   ENDPOINT_SUCCESS = 'endpointSuccess',
-  ENDPOINT_ERROR = 'endpointError'
+  ENDPOINT_ERROR = 'endpointError',
+  PAY_ERROR = 'payError'
 }
 
 export type LnUrlPayResult =
   | {
       type: LnUrlPayResultVariant.ENDPOINT_SUCCESS;
-      data?: SuccessActionProcessed;
+      data: LnUrlPaySuccessData;
     }
   | {
       type: LnUrlPayResultVariant.ENDPOINT_ERROR;
       data: LnUrlErrorData;
+    }
+  | {
+      type: LnUrlPayResultVariant.PAY_ERROR;
+      data: LnUrlPayErrorData;
     };
 
 export enum LnUrlWithdrawResultVariant {
@@ -675,7 +717,7 @@ export enum PaymentType {
 export enum PaymentTypeFilter {
   SENT = 'sent',
   RECEIVED = 'received',
-  ALL = 'all'
+  CLOSED_CHANNEL = 'closedChannel'
 }
 
 export enum ReverseSwapStatus {

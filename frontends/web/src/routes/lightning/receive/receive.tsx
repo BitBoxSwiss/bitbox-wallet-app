@@ -82,7 +82,7 @@ export function Receive() {
   };
 
   const onPaymentsChange = useCallback(() => {
-    getListPayments({ filter: PaymentTypeFilter.RECEIVED }).then((payments) => setPayments(payments));
+    getListPayments({ filters: [PaymentTypeFilter.RECEIVED], limit: 5 }).then((payments) => setPayments(payments));
   }, []);
 
   useEffect(() => {

@@ -18,15 +18,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import {
-  getNodeInfo,
-  getListPayments,
-  subscribeListPayments,
-  subscribeNodeState,
-  NodeState,
-  Payment,
-  PaymentTypeFilter
-} from '../../api/lightning';
+import { getNodeInfo, getListPayments, subscribeListPayments, subscribeNodeState, NodeState, Payment } from '../../api/lightning';
 import { Balance } from '../../components/balance/balance';
 import { View, ViewHeader } from '../../components/view/view';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
@@ -49,7 +41,7 @@ export function Lightning() {
     try {
       setError(undefined);
       const nodeState = await getNodeInfo();
-      const payments = await getListPayments({ filter: PaymentTypeFilter.ALL });
+      const payments = await getListPayments({});
 
       setNodeState(nodeState);
       setPayments(payments);

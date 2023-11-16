@@ -38,10 +38,12 @@ type nodeStateDto struct {
 }
 
 type listPaymentsRequestDto struct {
-	Filter          string `json:"filter"`
-	FromTimestamp   *int64 `json:"fromTimestamp"`
-	ToTimestamp     *int64 `json:"toTimestamp"`
-	IncludeFailures *bool  `json:"includeFailures"`
+	Filters         *[]string `json:"filters"`
+	FromTimestamp   *int64    `json:"fromTimestamp"`
+	ToTimestamp     *int64    `json:"toTimestamp"`
+	IncludeFailures *bool     `json:"includeFailures"`
+	Offset          *uint32   `json:"offset"`
+	Limit           *uint32   `json:"limit"`
 }
 
 type lnInvoiceDto struct {
