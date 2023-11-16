@@ -1,0 +1,10 @@
+.container {
+  margin: calc(var(--space-default) * 1.5) 0;
+  font-size: var(--size-default) !important;
+}
+
+.row {
+  background-color: var(--background-secondary);
+  padding: var(--space-half);
+  margin-bottom: calc(var(--space-half) * 1);
+}

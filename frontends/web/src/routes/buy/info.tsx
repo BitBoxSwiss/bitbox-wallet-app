@@ -19,9 +19,8 @@ import { useTranslation } from 'react-i18next';
 import { route } from '../../utils/route';
 import { IAccount } from '../../api/account';
 import { getExchangeSupportedAccounts } from './utils';
-import { getBalance } from '../../api/account';
 import Guide from './guide';
-import { AccountSelector, TOption } from '../../components/accountselector/accountselector';
+import { AccountSelector, TOption, setOptionBalances } from '../../components/accountselector/accountselector';
 import { GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import { findAccount, getCryptoName } from '../account/utils';
@@ -44,8 +43,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
       const supportedAccounts = await getExchangeSupportedAccounts(accounts);
       const options =
         supportedAccounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false }));
-      setOptions(options);
-      getBalances(options);
+      setOptions(await setOptionBalances(options));
     } catch (e) {
       console.error(e);
     }
@@ -69,17 +67,6 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
   useEffect(() => {
     maybeProceed();
   }, [maybeProceed, options]);
-
-
-  const getBalances = (options: TOption[]) => {
-    Promise.all(options.map((option) => (
-      getBalance(option.value).then(balance => {
-        return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
-      })
-    ))).then(options => {
-      setOptions(options);
-    });
-  };
 
   const handleProceed = () => {
     route(`/buy/exchange/${selected}`);

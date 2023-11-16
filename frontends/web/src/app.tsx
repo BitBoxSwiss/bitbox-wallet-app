@@ -150,6 +150,12 @@ class App extends Component<Props, State> {
       route('/', true);
       return;
     }
+    // if on the /bitsurance/ view and there are no accounts view route to /
+    if (accounts.length === 0 && currentURL.startsWith('/bitsurance/')) {
+      route('/', true);
+      return;
+    }
+
   };
 
   // Returns a string representation of the current devices, so it can be used in the `key` property of subcomponents.

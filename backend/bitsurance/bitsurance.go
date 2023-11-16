@@ -17,10 +17,12 @@ package bitsurance
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"math/big"
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -35,38 +37,50 @@ const (
 	widgetTestURL = "https://test.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
 )
 
-const statusActive = "active"
+// DetailStatus is the status of the insurance contract.
+// Possible values (from Bitsurance Api docs) are listed below.
+type DetailStatus string
 
-type accountDetails struct {
-	Status string `json:"status"`
+const (
+	//- "active" insurance coverage activated.
+	ActiveStatus DetailStatus = "active"
+	// - "processing"	when still in creation/checking phase (short time).
+	ProcessingStatus DetailStatus = "processing"
+	// - "refused" application got refused.
+	RefusedStatus DetailStatus = "refused"
+	// - "waitpayment" accepted, but waiting on first payment.
+	WaitPaymentStatus DetailStatus = "waitpayment"
+	// - "inactive" offer support link for more info (maybe missed payment).
+	InactiveStatus DetailStatus = "inactive"
+	// - "canceled" contract got canceled.
+	CanceledStatus DetailStatus = "canceled"
+)
+
+type AccountDetails struct {
+	AccountCode types.Code   `json:"code"`
+	Status      DetailStatus `json:"status"`
+	Details     struct {
+		MaxCoverage          int    `json:"maxCoverage"`
+		MaxCoverageFormatted string `json:"maxCoverageFormatted"`
+		Currency             string `json:"currency"`
+		// Support contains a link to the bitsurance support page relevant for the account
+		Support string `json:"support"`
+	} `json:"details"`
 }
 
-// bitsuranceCheckId fetches the account details of the passed accountId from the
-// Bitsurance server. It returns true if the account status is "active". Possible
-// status are (from Bitsurance Api docs):
-// - "processing"	when still in creation/checking phase (short time)
-// - "refused" application got refused
-// - "waitpayment" accepted, but waiting on first payment
-// - "active" insurance coverage activated
-// - "inactive" offer support link for more info (maybe missed payment)
-// - "canceled" contract got canceled
-//
+// bitsuranceCheckId fetches and returns the account details of the passed accountId from the
+// Bitsurance server.
 // If an accountId is not retrieved at all, the endpoint return a 404 http code.
-func bitsuranceCheckId(httpClient *http.Client, accountId string) (bool, error) {
+func bitsuranceCheckId(httpClient *http.Client, accountId string) (AccountDetails, error) {
 	endpoint := apiURL + "accountDetails/" + accountId
-	details := accountDetails{}
-	code, err := util.APIGet(httpClient, endpoint, apiKey, 1024, &details)
+	account := AccountDetails{}
+	code, err := util.APIGet(httpClient, endpoint, apiKey, 1024, &account)
 	if err != nil && code != http.StatusNotFound {
-		return false, err
+		return account, err
 	}
-	if code == http.StatusNotFound {
-		return false, nil
-	}
-
-	if details.Status == statusActive {
-		return true, nil
-	}
-	return false, nil
+	ratAmount := new(big.Rat).SetInt64(int64(account.Details.MaxCoverage))
+	account.Details.MaxCoverageFormatted = coin.FormatAsCurrency(ratAmount, false, false)
+	return account, nil
 }
 
 // BitsuranceGetId returns the BitsuranceId of a given account.
@@ -93,25 +107,26 @@ func BitsuranceURL(devServer bool, lang string) string {
 }
 
 // BitsuranceAccountsLookup takes in input a slice of accounts. For each account, it interrogates the
-// Bitsurance server and returns a map with the given accounts' codes as keys and bool values which are `true` if
-// the given account is found on the list, `false` otherwise.
-func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Client) (map[types.Code]bool, error) {
-	insuredAccountsMap := make(map[types.Code]bool)
+// Bitsurance server and returns a map with the given accounts' codes as keys and the insurance details as value.
+func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Client) ([]AccountDetails, error) {
+	insuredAccounts := []AccountDetails{}
 
 	for _, account := range accounts {
-		code := account.Config().Config.Code
-		accountId, err := BitsuranceGetId(account)
+		bitsuranceId, err := BitsuranceGetId(account)
 		if err != nil {
 			return nil, err
 		}
 
-		accountInsured, err := bitsuranceCheckId(httpClient, accountId)
+		bitsuranceAccount, err := bitsuranceCheckId(httpClient, bitsuranceId)
 		if err != nil {
 			return nil, err
 		}
 
-		insuredAccountsMap[code] = accountInsured
+		if len(bitsuranceAccount.Status) > 0 {
+			bitsuranceAccount.AccountCode = account.Config().Config.Code
+			insuredAccounts = append(insuredAccounts, bitsuranceAccount)
+		}
 	}
 
-	return insuredAccountsMap, nil
+	return insuredAccounts, nil
 }

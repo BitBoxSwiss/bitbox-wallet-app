@@ -6,7 +6,7 @@
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
     "initializing": "Getting information from the blockchain…",
-    "insuranceExpired": "<strong>Account no longer insured</strong>\n\nThe insurance plan for this account has been cancelled.\nIf this is not what you expected, please contact support.",
+    "insuranceExpired": "<strong>Account no longer insured</strong>\n\nThe insurance plan for this account has been modified.\nPlease check the insurance page for details.",
     "insured": "Insured account",
     "maybeProxyError": "Tor proxy enabled. Ensure that your Tor proxy is running properly, or disable the proxy setting.",
     "reconnecting": "Lost connection, trying to reconnect…",
@@ -293,6 +293,18 @@
     }
   },
   "bitsurance": {
+    "dashboard": {
+      "active": "Insurance policy active",
+      "button": "Insure a new account",
+      "canceled": "Canceled",
+      "coverage": "Maximum coverage",
+      "inactive": "Inactive",
+      "processing": "Processing",
+      "refused": "Refused",
+      "supportLink": "Manage contract",
+      "title": "Insured accounts",
+      "waitpayment": "Waiting for payment"
+    },
     "detect": {
       "button": "Detect insured account",
       "insured": "Insured account detected:",

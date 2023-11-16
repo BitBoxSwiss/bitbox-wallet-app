@@ -44,11 +44,13 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const amount = '100.000€';
 
   useEffect(() => {
-    setInsuredAccounts(accounts.filter(({ bitsuranceId }) => bitsuranceId));
+    if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
+      route('bitsurance/dashboard');
+    }
     return () => setInsuredAccounts([]);
   }, [accounts]);
 
-  const detect = async () => {
+  const detect = async (redirectToDashboard: boolean) => {
     setScanLoading(true);
     setScanDone(false);
     setInsuredAccounts([]);
@@ -57,15 +59,20 @@ export const Bitsurance = ({ accounts }: TProps) => {
       alertUser(response.errorMessage);
       return;
     }
-    setInsuredAccounts(accounts.filter(({ code }) => response.accountCodes.includes(code)));
+    const insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
+    const insured = accounts.filter(({ code }) => insuredAccountsCodes.includes(code));
+    setInsuredAccounts(insured);
     setScanDone(true);
     setScanLoading(false);
+    if (insured.length && redirectToDashboard) {
+      route('bitsurance/dashboard');
+    }
   };
 
   const maybeProceed = async () => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
-    await detect();
+    await detect(false);
     route('bitsurance/account');
   };
   return (
@@ -119,7 +126,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
                     )}
                     <ColumnButtons className={style.ctaButton}>
                       <Button
-                        onClick={detect}
+                        onClick={() => detect(true)}
                         disabled={scanLoading}
                         secondary
                       >

@@ -120,6 +120,8 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	chartEntriesHourly := map[int64]RatChartEntry{}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
+	isFiatBtc := fiat == rates.BTC.String()
+
 	// Chart data until this point in time.
 	until := backend.RatesUpdater().HistoryLatestTimestampAll(backend.allCoinCodes(), fiat)
 	if until.IsZero() {
@@ -261,7 +263,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			result[i] = ChartEntry{
 				Time:           entry.Time,
 				Value:          floatValue,
-				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat, formatBtcAsSat),
+				FormattedValue: coin.FormatAsCurrency(entry.RatValue, fiat == rates.BTC.String(), formatBtcAsSat),
 			}
 			i++
 		}
@@ -277,7 +279,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 			result = append(result, ChartEntry{
 				Time:           time.Now().Unix(),
 				Value:          total,
-				FormattedValue: coin.FormatAsCurrency(currentTotal, fiat, formatBtcAsSat),
+				FormattedValue: coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat),
 			})
 		}
 
@@ -300,7 +302,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	}
 
 	chartFiat := fiat
-	if fiat == rates.BTC.String() && backend.Config().AppConfig().Backend.BtcUnit == coin.BtcUnitSats {
+	if isFiatBtc && backend.Config().AppConfig().Backend.BtcUnit == coin.BtcUnitSats {
 		chartFiat = "sat"
 	}
 
@@ -309,7 +311,7 @@ func (backend *Backend) ChartData() (*Chart, error) {
 	if !currentTotalMissing {
 		tot, _ := currentTotal.Float64()
 		chartTotal = &tot
-		formattedChartTotal = coin.FormatAsCurrency(currentTotal, fiat, formatBtcAsSat)
+		formattedChartTotal = coin.FormatAsCurrency(currentTotal, isFiatBtc, formatBtcAsSat)
 	}
 	return &Chart{
 		DataMissing:    chartDataMissing,

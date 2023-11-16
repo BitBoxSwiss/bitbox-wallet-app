@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2023 Shift Crypto AG
  *
@@ -17,7 +16,7 @@
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select, { components, SingleValueProps, OptionProps, SingleValue, DropdownIndicatorProps } from 'react-select';
-import { AccountCode, IAccount } from '../../api/account';
+import { AccountCode, IAccount, getBalance } from '../../api/account';
 import { Button } from '../forms';
 import Logo from '../icon/logo';
 import AppContext from '../../contexts/AppContext';
@@ -38,6 +37,13 @@ type TAccountSelector = {
     onChange: (value: string) => void;
     onProceed: () => void;
 }
+
+export const setOptionBalances = async (options: TOption[]): Promise<TOption[]> => {
+  return await Promise.all(options.map(async (option) => {
+    const balance = await getBalance(option.value);
+    return { ...option, balance: `${balance.available.amount} ${balance.available.unit}` };
+  }));
+};
 
 const SelectSingleValue: FunctionComponent<SingleValueProps<TOption>> = (props) => {
   const { hideAmounts } = useContext(AppContext);

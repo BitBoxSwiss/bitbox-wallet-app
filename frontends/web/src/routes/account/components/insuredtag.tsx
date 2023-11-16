@@ -15,8 +15,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import shieldIcon from '../../../assets/icons/shield.svg';
 import style from './insuredtag.module.css';
+import { Link } from 'react-router-dom';
+import { Shield } from '../../../components/icon';
 
 /* TODO:
    - go to new line on small screen size
@@ -24,10 +25,12 @@ import style from './insuredtag.module.css';
 export const Insured = () => {
   const { t } = useTranslation();
   return (
-    <div className={`${style.insured}`}>
-      <img draggable={false} src={shieldIcon} alt={t('sidebar.insurance')} />
-      {t('account.insured')}
-    </div>
+    <Link className={`${style.insured}`} to="/bitsurance/dashboard">
+      <div >
+        <Shield/>
+        {t('account.insured')}
+      </div>
+    </Link>
 
   );
 };
