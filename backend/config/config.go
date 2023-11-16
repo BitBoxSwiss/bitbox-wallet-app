@@ -230,6 +230,7 @@ func NewDefaultAppConfig() AppConfig {
 			MainFiat: rates.USD.String(),
 			BtcUnit:  coin.BtcUnitDefault,
 		},
+		Frontend: make(map[string]interface{}),
 	}
 }
 
