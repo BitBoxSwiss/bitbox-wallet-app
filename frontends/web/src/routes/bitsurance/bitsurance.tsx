@@ -99,6 +99,9 @@ export const Bitsurance = ({ accounts }: TProps) => {
                       {t('bitsurance.insure.text2')} {' '}
                       <A href="https://www.bitsurance.eu/">{t('bitsurance.intro.link')}</A>.
                     </p>
+                    <p className={style.cardBody2}>
+                      {t('bitsurance.insure.text3')}
+                    </p>
                     <ColumnButtons className={style.ctaButton}>
                       <Button onClick={maybeProceed} primary>
                         {t('bitsurance.insure.button')}

@@ -306,26 +306,27 @@
       "waitpayment": "Waiting for payment"
     },
     "detect": {
-      "button": "Detect insured account",
+      "button": "Check for existing insurance",
       "insured": "Insured account detected:",
       "notInsured": "No insured accounts detected. If you are sure you have an insured account, please make sure you have the correct wallet connected.",
       "text": "If you already signed up with Bitsurance, the BitBoxApp can automatically synchronize your existing insurance coverage.",
-      "title": "Already have an insured account?"
+      "title": "Already insured?"
     },
     "insure": {
       "button": "Check availability and pricing",
       "faq": "Read more on Bitsurance FAQs",
-      "listItem1": "Robbery, burglary or vandalism",
+      "listItem1": "Burglary",
       "listItem2": "Extortion (e.g., $5 wrench attack)",
       "listItem3": "Destruction due to fire, water or natural disasters",
       "month": "month",
       "text": "Insure your BitBox02 and up to €100,000 worth of bitcoin against",
-      "text2": "Insurance plans start at €2.50/month (€30/year). You can learn more about Bitsurance and their exact insurance offerings on the",
+      "text2": "Insurance plans start at €30/year (€2.50/month). You can learn more about Bitsurance and their exact insurance offerings on the",
+      "text3": "Currently available in Germany, with more regions to follow.",
       "title": "Get started"
     },
     "intro": {
       "link": "Bitsurance website",
-      "text1": "BitBox partners with Bitsurance to add an additional layer of protection for your bitcoin. While the BitBox02 keeps your funds secure, Bitsurance covers threats that can’t be mitigated with technology alone, like physical theft, extortion, or destruction of the wallet itself."
+      "text1": "BitBox works with Bitsurance to add an additional layer of protection for your bitcoin. While the BitBox02 keeps your funds secure, Bitsurance covers threats at home that can’t be mitigated with technology alone, like burglary, extortion, or destruction of the hardware wallet itself."
     },
     "title": "Insurance"
   },
