@@ -488,8 +488,8 @@
   },
   "confirmOnDevice": "Please confirm on your device.",
   "connectKeystore": {
-    "promptNoName": "Please connect your BitBox02",
-    "promptWithName": "Please connect your BitBox02 named \"{{name}}\""
+    "promptNoName": "Please connect your BitBox02 to continue",
+    "promptWithName": "Please connect your BitBox02 named \"{{name}}\" to continue"
   },
   "darkmode": {
     "toggle": "Dark mode"
@@ -611,7 +611,8 @@
     "aoppUnsupportedFormat": "There are no available accounts that support the requested address format.",
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
     "aoppVersion": "Unknown version.",
-    "wrongKeystore": "Wrong wallet connected - please make sure to insert the correct device matching this account. If you use the optional passphrase, make sure to use the passphrase matching this account."
+    "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
+    "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
   "fiat": {
     "default": "default",
@@ -1551,6 +1552,7 @@
     "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar."
   },
   "welcome": {
+    "connect": "Connect BitBox02",
     "getStarted": "Let's get started by installing firmware on your BitBox02.",
     "insertBitBox02": "For the BitBox02, please tap the device to continue.",
     "insertDevice": "Please connect your device to get started",
