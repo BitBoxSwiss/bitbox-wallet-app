@@ -16,53 +16,33 @@
 
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent } from 'react';
-import { Button, Checkbox } from '../../components/forms';
+import { Button, Checkbox } from '../forms';
 import { setConfig } from '../../utils/config';
-import { A } from '../../components/anchor/anchor';
+import { A } from '../anchor/anchor';
 import style from './terms.module.css';
 
 type TProps = {
   onAgreedTerms: () => void;
 }
 
-export const PocketTerms = ({ onAgreedTerms }: TProps) => {
+export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
   const { t } = useTranslation();
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfig({ frontend: { skipPocketDisclaimer: e.target.checked } });
+    setConfig({ frontend: { skipBitsuranceDisclaimer: e.target.checked } });
   };
 
   return (
     <div className={style.disclaimerContainer}>
       <div className={style.disclaimer}>
-        <h2 className={style.title}>{t('buy.pocket.welcome.title')}</h2>
-        <p>{t('buy.pocket.welcome.p1')}</p>
-        <p>{t('buy.pocket.welcome.p2')}</p>
-        <p>{t('buy.pocket.welcome.p3')}</p>
-
-        <h2 className={style.title}>{t('buy.pocket.payment.title')}</h2>
-        <p>{t('buy.pocket.payment.p1')}</p>
-        <p>{t('buy.pocket.payment.p2')}</p>
-
-        <h2 className={style.title}>{t('buy.pocket.security.title')}</h2>
-        <p>{t('buy.pocket.security.p1')}</p>
+        <p>{t('bitsurance.terms.text1')}</p>
+        <p>{t('bitsurance.terms.text2')}</p>
+        <p>{t('bitsurance.terms.text3')}</p>
+        <p>{t('bitsurance.terms.text4')}</p>
         <p>
-          <A href="https://bitbox.swiss/bitbox02/threat-model/">
-            {t('buy.pocket.security.link')}
-          </A>
-        </p>
-        <h2 className={style.title}>{t('buy.pocket.kyc.title')}</h2>
-        <p>{t('buy.pocket.kyc.p1')}</p>
-        <p>
-          <A href="https://pocketbitcoin.com/faq">
-            {t('buy.pocket.kyc.link')}
-          </A>
-        </p>
-
-        <h2 className={style.title}>{t('buy.pocket.data.title')}</h2>
-        <p>{t('buy.pocket.data.p1')}</p>
-        <p>
-          <A href="https://pocketbitcoin.com/policy/privacy">
-            {t('buy.pocket.data.link')}
+          {t('bitsurance.terms.text5')}
+          {' '}
+          <A href="https://www.bitsurance.eu/datenschutz">
+            {t('bitsurance.terms.link')}.
           </A>
         </p>
       </div>

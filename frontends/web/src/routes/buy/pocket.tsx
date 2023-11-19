@@ -25,7 +25,7 @@ import { verifyAddress, signAddress, getPocketURL } from '../../api/exchanges';
 import { getInfo } from '../../api/account';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { PocketTerms } from './pocket-terms';
+import { PocketTerms } from '../../components/terms/pocket-terms';
 import { useLoad } from '../../hooks/api';
 import { alertUser } from '../../components/alert/Alert';
 import Guide from './guide';
