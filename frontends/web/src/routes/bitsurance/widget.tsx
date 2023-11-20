@@ -23,13 +23,13 @@ import { signAddress } from '../../api/exchanges';
 import { getInfo } from '../../api/account';
 import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
-import { PocketTerms } from '../buy/pocket-terms';
+import { BitsuranceTerms } from '../../components/terms/bitsurance-terms';
 import { useLoad } from '../../hooks/api';
 import { alertUser } from '../../components/alert/Alert';
 import { BitsuranceGuide } from './guide';
-import style from './widget.module.css';
 import { getBitsuranceURL } from '../../api/bitsurance';
 import { route } from '../../utils/route';
+import style from './widget.module.css';
 
 type TProps = {
     code: string;
@@ -180,7 +180,7 @@ export const BitsuranceWidget = ({ code }: TProps) => {
         </div>
         <div ref={ref} className={style.container}>
           { !agreedTerms ? (
-            <PocketTerms //FIXME create bitsurance Terms
+            <BitsuranceTerms
               onAgreedTerms={() => setAgreedTerms(true)}
             />
           ) : (

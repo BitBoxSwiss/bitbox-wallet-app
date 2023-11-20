@@ -328,6 +328,14 @@
       "link": "Bitsurance website",
       "text1": "BitBox works with Bitsurance to add an additional layer of protection for your bitcoin. While the BitBox02 keeps your funds secure, Bitsurance covers threats at home that can’t be mitigated with technology alone, like burglary, extortion, or destruction of the hardware wallet itself."
     },
+    "terms": {
+      "link": "Bitsurance Privacy Policy",
+      "text1": "Bitsurance is an independent third-party service. For questions regarding their offerings and insurance claims, please contact Bitsurance directly.",
+      "text2": "Insurance is currently available in Germany, with more regions to follow.",
+      "text3": "The maximum Bitcoin coverage currently available is €100,000 per person. Higher amounts are planned for the future.",
+      "text4": "Personal information and the extended public key of your insured account is part of the insurance policy and will be shared with Bitsurance and the insurance provider.",
+      "text5": "For more on privacy, please consult the"
+    },
     "title": "Insurance"
   },
   "bitsuranceAccount": {
