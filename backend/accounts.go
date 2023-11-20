@@ -78,6 +78,8 @@ func sortAccounts(accounts []accounts.Interface) {
 					return 4, true
 				case params.GoerliChainConfig.ChainID.Uint64():
 					return 5, true
+				case params.SepoliaChainConfig.ChainID.Uint64():
+					return 6, true
 				}
 			}
 			return 0, false
@@ -161,7 +163,7 @@ func (backend *Backend) SupportedCoins(keystore keystore.Keystore) []coinpkg.Cod
 	allCoins := []coinpkg.Code{
 		coinpkg.CodeBTC, coinpkg.CodeTBTC, coinpkg.CodeRBTC,
 		coinpkg.CodeLTC, coinpkg.CodeTLTC,
-		coinpkg.CodeETH, coinpkg.CodeGOETH,
+		coinpkg.CodeETH, coinpkg.CodeGOETH, coinpkg.CodeSEPETH,
 	}
 	var availableCoins []coinpkg.Code
 	for _, coinCode := range allCoins {
@@ -269,7 +271,7 @@ func (backend *Backend) createAndPersistAccountConfig(
 			},
 			accountsConfig,
 		)
-	case coinpkg.CodeETH, coinpkg.CodeGOETH:
+	case coinpkg.CodeETH, coinpkg.CodeGOETH, coinpkg.CodeSEPETH:
 		bip44Coin := "1'"
 		if coinCode == coinpkg.CodeETH {
 			bip44Coin = "60'"
@@ -614,7 +616,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	configs []scriptTypeWithKeypath,
 	accountsConfig *config.AccountsConfig,
 ) error {
-	log := backend.log.WithField("code", code).WithField("name", name)
+	log := backend.log.WithField("code", code)
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
 		if keystore.SupportsAccount(coin, cfg.scriptType) {
@@ -796,7 +798,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 				}
 			}
 		} else {
-			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH} {
+			for _, coinCode := range []coinpkg.Code{coinpkg.CodeTBTC, coinpkg.CodeTLTC, coinpkg.CodeGOETH, coinpkg.CodeSEPETH} {
 				if backend.config.AppConfig().Backend.DeprecatedCoinActive(coinCode) {
 					if _, err := backend.createAndPersistAccountConfig(
 						coinCode, 0, false, "", keystore, nil, accountsConfig); err != nil {
@@ -1098,4 +1100,24 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	}
 	backend.emitAccountsStatusChanged()
 	backend.maybeAddHiddenUnusedAccounts()
+}
+
+// LookupEthAccountCode takes an Ethereum address and returns the corresponding account code and account name
+// Used for handling Wallet Connect requests from anywhere in the app
+// Implemented only for pure ETH accounts (not ERC20s), as all Wallet Connect interactions are handled through the root ETH accounts.
+func (backend *Backend) LookupEthAccountCode(address string) (accountsTypes.Code, string, error) {
+	for _, account := range backend.Accounts() {
+		ethAccount, ok := account.(*eth.Account)
+		if !ok {
+			continue
+		}
+		matches, err := ethAccount.MatchesAddress(address)
+		if err != nil {
+			return "", "", err
+		}
+		if matches && !eth.IsERC20(ethAccount) {
+			return ethAccount.Config().Config.Code, ethAccount.Config().Config.Name, nil
+		}
+	}
+	return "", "", errp.Newf("Account with address: %s not found", address)
 }

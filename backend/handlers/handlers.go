@@ -102,6 +102,7 @@ type Backend interface {
 	AOPPChooseAccount(code accountsTypes.Code)
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
+	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -230,6 +231,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -540,6 +542,33 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 	return accounts
 }
 
+func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
+	var args struct {
+		Address string `json:"address"`
+	}
+	type response struct {
+		Success      bool               `json:"success"`
+		Code         accountsTypes.Code `json:"code"`
+		Name         string             `json:"name"`
+		ErrorMessage string             `json:"errorMessage"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	code, name, err := handlers.backend.LookupEthAccountCode(args.Address)
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+	return response{
+		Success: true,
+		Code:    code,
+		Name:    name,
+	}
+}
+
 func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
 	type response struct {
 		Success      bool   `json:"success"`
@@ -820,6 +849,8 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) interface{}
 		unit = unit[1:]
 	case "GOETH":
 		unit = unit[2:]
+	case "SEPETH":
+		unit = unit[3:]
 	}
 
 	if from == rates.BTC.String() && handlers.backend.Config().AppConfig().Backend.BtcUnit == coinpkg.BtcUnitSats {

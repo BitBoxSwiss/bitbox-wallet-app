@@ -15,19 +15,22 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '../../../hooks/mediaquery';
 import { route } from '../../../utils/route';
 import { CoinUnit, IAccount, IBalance } from '../../../api/account';
 import { Button } from '../../../components/forms';
 import { Balances } from '../summary/accountssummary';
-import { isBitcoinCoin } from '../utils';
+import { isBitcoinCoin, isEthereumBased } from '../utils';
 import { getExchangeSupportedAccounts } from '../../buy/utils';
+import { WalletConnectLight } from '../../../components/icon';
 import styles from './buyReceiveCTA.module.css';
 
 type TBuyReceiveCTAProps = {
-  balanceList?: [string, IBalance][];
+  balanceList?: IBalance[];
   code?: string;
   unit?: string;
   exchangeBuySupported?: boolean;
+  account?: IAccount
 };
 
 type TAddBuyReceiveOnEmpyBalancesProps = {
@@ -35,17 +38,20 @@ type TAddBuyReceiveOnEmpyBalancesProps = {
   accounts: IAccount[];
 }
 
-export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = true }: TBuyReceiveCTAProps) => {
+export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = true, account }: TBuyReceiveCTAProps) => {
   const formattedUnit = isBitcoinCoin(unit as CoinUnit) ? 'BTC' : unit;
   const { t } = useTranslation();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const onBuyCTA = () => route(code ? `/buy/info/${code}` : '/buy/info');
+  const onWalletConnect = () => route(`/account/${code}/wallet-connect/dashboard`);
   const onReceiveCTA = () => {
     if (balanceList) {
       if (balanceList.length > 1) {
         route('accounts/select-receive');
         return;
       }
-      route(`/account/${balanceList[0][0]}/receive`);
+      route(`/account/${code}/receive`);
     }
   };
 
@@ -56,6 +62,7 @@ export const BuyReceiveCTA = ({ code, unit, balanceList, exchangeBuySupported = 
       <div className={styles.container}>
         {balanceList && <Button primary onClick={onReceiveCTA}>{formattedUnit ? t('receive.title', { accountName: formattedUnit }) : t('receive.title', { accountName: t('buy.info.crypto') })}</Button>}
         {exchangeBuySupported && <Button primary onClick={onBuyCTA}>{formattedUnit ? t('accountInfo.buyCTA.buy', { unit: formattedUnit }) : t('accountInfo.buyCTA.buyCrypto')}</Button>}
+        {account && isEthereumBased(account.coinCode) && !account.isToken && <Button primary onClick={onWalletConnect} className={styles.walletConnect}>{isMobile ? <WalletConnectLight width={28} height={28} /> : <><WalletConnectLight width={28} height={28} /> <span>Wallet Connect</span></>}</Button>}
       </div>
     </div>);
 };
@@ -72,13 +79,15 @@ export const AddBuyReceiveOnEmptyBalances = ({ balances, accounts }: TAddBuyRece
   if (balances === undefined || supportedAccounts === undefined) {
     return null;
   }
-  const balanceList = Object.entries(balances);
-  if (balanceList.some(entry => entry[1].hasAvailable)) {
+  const balanceList = accounts
+    .map(account => balances[account.code])
+    .filter(balance => !!balance);
+
+  if (balanceList.some(entry => entry.hasAvailable)) {
     return null;
   }
-  if (balanceList.map(entry => entry[1].available.unit).every(isBitcoinCoin)) {
-    const onlyHasOneAccount = balanceList.length === 1;
-    return <BuyReceiveCTA code={onlyHasOneAccount ? balanceList[0][0] : undefined} unit={'BTC'} balanceList={balanceList} />;
+  if (balanceList.map(entry => entry.available.unit).every(isBitcoinCoin)) {
+    return <BuyReceiveCTA code={accounts.length === 1 ? accounts[0].code : undefined} unit={'BTC'} balanceList={balanceList} />;
   }
 
   return <BuyReceiveCTA exchangeBuySupported={supportedAccounts.length > 0} balanceList={balanceList} />;

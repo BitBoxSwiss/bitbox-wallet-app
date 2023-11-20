@@ -29,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -148,7 +149,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	keyPaths := []string{}
 	transaction := btcProposedTx.TXProposal.Transaction
 	for index, txIn := range transaction.TxIn {
-		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
+		spentOutput, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
 			keystore.log.Error("There needs to be exactly one output being spent per input.")
 			return errp.New("There needs to be exactly one output being spent per input.")
@@ -252,5 +253,15 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 
 // SignETHMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHMessage implements keystore.Keystore.
+func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHWalletConnectTransaction implements keystore.Keystore.
+func (keystore *keystore) SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }

@@ -13,83 +13,157 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { useContext } from 'react';
+import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { Amount } from './amount';
 import { CoinUnit, ConversionUnit } from './../../api/account';
 
+vi.mock('react', () => ({
+  ...vi.importActual('react'),
+  useContext: vi.fn(),
+  createContext: vi.fn()
+}));
+
+
+const validateSpacing = (values: string[], elements: Element[]) => {
+  // each element in `values` is an expected
+  // "spaced" element. E.g:
+  // ["12"] means <span class="__space__random">12</span>.
+
+  // We can't merely compare like so:
+  // expect(elements.innerHTML)toBe(<span class="space">12</span>, etc..)
+  // because the className gets "transformed".
+
+  //So we compare them like this:
+  return (
+    // makes sure each value corresponds to an element
+    values.length === elements.length &&
+    // makes sure every element is a span
+    elements.every(element => element.tagName.toLowerCase() === 'span') &&
+    // and it has the correct value
+    elements.every((element, index) => element.innerHTML === values[index])
+  );
+};
+
 describe('Amount formatting', () => {
+
+  beforeEach(() => {
+    (useContext as Mock).mockReturnValue({ hideAmounts: false });
+  });
+
+  describe('hide amounts', () => {
+
+    it('should render triple-asterisks (***) when amount is set to be hidden', () => {
+      (useContext as Mock).mockReturnValue({ hideAmounts: true });
+      const { container } = render(
+        <Amount amount="1'340.25" unit={'EUR'} />
+      );
+      expect(container).toHaveTextContent('***');
+    });
+
+  });
 
   describe('sat amounts', () => {
     let coins: CoinUnit[] = ['sat', 'tsat'];
-    coins.forEach(coin => {
+    coins.forEach((coin) => {
       it('12345678901234 ' + coin + ' with removeBtcTrailingZeroes enabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="12345678901234" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span class="">12</span>' +
-          '<span class="space">345</span>' +
-          '<span class="space">678</span>' +
-          '<span class="space">901</span>' +
-          '<span class="space">234</span>');
+
+        const values = [
+          '12',
+          '345',
+          '678',
+          '901',
+          '234'
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
 
       it('1234567 ' + coin + ' with removeBtcTrailingZeroes enabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="1234567" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span class="">1</span>' +
-          '<span class="space">234</span>' +
-          '<span class="space">567</span>');
+        const values = [
+          '1',
+          '234',
+          '567',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
+
 
       it('12345 ' + coin + ' with removeBtcTrailingZeroes enabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="12345" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span class="">12</span>' +
-          '<span class="space">345</span>');
+        const values = [
+          '12',
+          '345',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
 
       it('21 ' + coin + ' with removeBtcTrailingZeroes enabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="21" unit={coin} removeBtcTrailingZeroes/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe('<span class="">21</span>');
+        const values = [
+          '21',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
 
       it('12345678901234 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="12345678901234" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span class="">12</span>' +
-          '<span class="space">345</span>' +
-          '<span class="space">678</span>' +
-          '<span class="space">901</span>' +
-          '<span class="space">234</span>');
+        const values = [
+          '12',
+          '345',
+          '678',
+          '901',
+          '234',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
+
 
       it('1234567 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="1234567" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span class="">1</span>' +
-          '<span class="space">234</span>' +
-          '<span class="space">567</span>');
+        const values = [
+          '1',
+          '234',
+          '567',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
 
       it('12345 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="12345" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span class="">12</span>' +
-          '<span class="space">345</span>');
+        const values = [
+          '12',
+          '345',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
 
       it('21 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="21" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe('<span class="">21</span>');
+        const values = [
+          '21',
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
+
     });
   });
 
@@ -115,18 +189,24 @@ describe('Amount formatting', () => {
       it('10.00000000 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="10.00000000" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span>10.00</span>' +
-          '<span class="space">000</span>' +
-          '<span class="space">000</span>');
+        const values = [
+          '10.00',
+          '000',
+          '000'
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
       it('12345.12300000 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="12345.12300000" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span>12345.12</span>' +
-          '<span class="space">300</span>' +
-          '<span class="space">000</span>');
+        const values = [
+          '12345.12',
+          '300',
+          '000'
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
       it('42 ' + coin + ' with removeBtcTrailingZeroes disabled stays 42', () => {
         const { container } = render(<Amount amount="42" unit={coin}/>);
@@ -135,16 +215,19 @@ describe('Amount formatting', () => {
       it('0.12345678 ' + coin + ' with removeBtcTrailingZeroes disabled gets spaced', () => {
         const { getByTestId } = render(<Amount amount="0.12345678" unit={coin}/>);
         const blocks = getByTestId('amountBlocks');
-        expect(blocks.innerHTML).toBe(
-          '<span>0.12</span>' +
-          '<span class="space">345</span>' +
-          '<span class="space">678</span>');
+        const values = [
+          '0.12',
+          '345',
+          '678'
+        ];
+        const allSpacedElements = [...blocks.children];
+        expect(validateSpacing(values, allSpacedElements)).toBeTruthy();
       });
     });
   });
 
   describe('non BTC coins amounts', () => {
-    let coins: CoinUnit[] = ['ETH', 'GOETH'];
+    let coins: CoinUnit[] = ['ETH', 'GOETH', 'SEPETH'];
     coins.forEach(coin => {
       it('10.00000000 ' + coin + ' with removeBtcTrailingZeroes enabled stays 10.00000000', () => {
         const { container } = render(<Amount amount="10.00000000" unit={coin} removeBtcTrailingZeroes/>);
@@ -195,4 +278,9 @@ describe('Amount formatting', () => {
 
     });
   });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
 });

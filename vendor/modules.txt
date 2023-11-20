@@ -15,12 +15,12 @@ github.com/btcsuite/btcd/mempool
 github.com/btcsuite/btcd/mining
 github.com/btcsuite/btcd/txscript
 github.com/btcsuite/btcd/wire
-# github.com/btcsuite/btcd/btcec/v2 v2.2.1
+# github.com/btcsuite/btcd/btcec/v2 v2.3.2
 ## explicit; go 1.17
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
 github.com/btcsuite/btcd/btcec/v2/schnorr
-# github.com/btcsuite/btcd/btcutil v1.1.2
+# github.com/btcsuite/btcd/btcutil v1.1.3
 ## explicit; go 1.16
 github.com/btcsuite/btcd/btcutil
 github.com/btcsuite/btcd/btcutil/base58
@@ -29,7 +29,7 @@ github.com/btcsuite/btcd/btcutil/gcs
 github.com/btcsuite/btcd/btcutil/gcs/builder
 github.com/btcsuite/btcd/btcutil/hdkeychain
 github.com/btcsuite/btcd/btcutil/txsort
-# github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1
+# github.com/btcsuite/btcd/chaincfg/chainhash v1.0.3-0.20230901205239-f12a0b3b56c3
 ## explicit; go 1.17
 github.com/btcsuite/btcd/chaincfg/chainhash
 # github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
@@ -46,12 +46,12 @@ github.com/deckarep/golang-set
 # github.com/decred/dcrd/crypto/blake256 v1.0.0
 ## explicit; go 1.11
 github.com/decred/dcrd/crypto/blake256
-# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1
-## explicit; go 1.16
+# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
+## explicit; go 1.17
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 github.com/decred/dcrd/dcrec/secp256k1/v4/schnorr
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20230603085322-9cc89fdf484b
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20231108065112-29421cdcb314
 ## explicit; go 1.13
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
@@ -171,7 +171,7 @@ github.com/tklauser/numcpus
 # go.etcd.io/bbolt v1.3.6
 ## explicit; go 1.12
 go.etcd.io/bbolt
-# golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+# golang.org/x/crypto v0.5.0
 ## explicit; go 1.17
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
@@ -179,25 +179,25 @@ golang.org/x/crypto/chacha20
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/curve25519/internal/field
+golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305
-golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/ripemd160
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/sha3
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20220607020251-c690dde0001d
+# golang.org/x/net v0.5.0
 ## explicit; go 1.17
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-# golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+# golang.org/x/sys v0.4.0
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+# golang.org/x/term v0.4.0
 ## explicit; go 1.17
 golang.org/x/term
 # google.golang.org/protobuf v1.28.1

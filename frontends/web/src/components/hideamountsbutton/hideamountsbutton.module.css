@@ -1,0 +1,15 @@
+.button {
+    border-width: 0;
+    display: flex;
+    padding: 0;
+}
+
+.button img {
+    width: 18px;
+    height: 18px;
+}
+
+.button span {
+    width: 96px;
+    margin-left: var(--space-eight);
+}

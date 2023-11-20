@@ -22,6 +22,7 @@ import { DefaultCurrencyDropdownSetting } from './components/appearance/defaultC
 import { DisplaySatsToggleSetting } from './components/appearance/displaySatsToggleSetting';
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSettingWithStore } from './components/appearance/activeCurrenciesDropdownSetting';
+import { HideAmountsSetting } from './components/appearance/hideAmountsSetting';
 import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
@@ -50,6 +51,7 @@ export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTab
                 <LanguageDropdownSetting />
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
+                <HideAmountsSetting />
               </WithSettingsTabs>
             </ViewContent>
           </View>

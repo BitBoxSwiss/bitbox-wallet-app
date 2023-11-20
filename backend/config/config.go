@@ -111,7 +111,7 @@ func (backend Backend) DeprecatedCoinActive(code coin.Code) bool {
 		return backend.DeprecatedBitcoinActive
 	case coin.CodeLTC, coin.CodeTLTC:
 		return backend.DeprecatedLitecoinActive
-	case coin.CodeETH, coin.CodeGOETH:
+	case coin.CodeETH, coin.CodeGOETH, coin.CodeSEPETH:
 		return backend.DeprecatedEthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
@@ -263,13 +263,10 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	if err := config.SetAppConfig(appconf); err != nil {
 		return nil, errp.WithStack(err)
 	}
+	if err := config.ModifyAccountsConfig(migrateActiveTokens); err != nil {
+		return nil, errp.WithStack(err)
+	}
 	return config, nil
-}
-
-// SetBtcOnly sets non-bitcoin accounts in the config to false.
-func (config *Config) SetBtcOnly() {
-	config.appConfig.Backend.DeprecatedLitecoinActive = false
-	config.appConfig.Backend.DeprecatedEthereumActive = false
 }
 
 // SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert.

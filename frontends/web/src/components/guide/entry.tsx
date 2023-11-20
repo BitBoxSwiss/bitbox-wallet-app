@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +15,8 @@
  * limitations under the License.
  */
 
-import { FunctionComponent, useState } from 'react';
-import A from '../anchor/anchor';
+import { useState, ReactNode } from 'react';
+import { A } from '../anchor/anchor';
 import style from './guide.module.css';
 
 export type TEntryProp = {
@@ -30,11 +31,12 @@ export type TEntryProp = {
 type TEntryProps = {
     entry: TEntryProp;
     shown?: boolean;
+    children?: ReactNode;
 }
 
 type TProps = TEntryProps;
 
-export const Entry: FunctionComponent<TProps> = props => {
+export const Entry = (props: TProps) => {
   const [shown, setShown] = useState<boolean>(props.shown || false);
 
   const toggle = () => {
@@ -53,9 +55,16 @@ export const Entry: FunctionComponent<TProps> = props => {
       <div className={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
         {shown ? (
           <div className="flex-1">
-            {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
+            {entry.text.trim().split('\n').map((p, idx) => <p key={idx}>{p}</p>)}
             {entry.link && (
-              <p><A data-testid="link" href={entry.link.url}>{entry.link.text}</A></p>
+              <p>
+                <A
+                  className={style.link}
+                  data-testid="link"
+                  href={entry.link.url}>
+                  {entry.link.text}
+                </A>
+              </p>
             )}
             {props.children}
           </div>

@@ -19,6 +19,7 @@ import (
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -30,17 +31,22 @@ const bannersURL = "https://bitbox.swiss/updates/banners.json"
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
 
+// TypeCode determines the type of banner.
 type TypeCode string
 
 const (
+	// TypeWarning means the banner will be shown and styled as a warning.
 	TypeWarning TypeCode = "warning"
+	// TypeSuccess means the banner will be shown and styled as a success message.
 	TypeSuccess TypeCode = "success"
-	TypeInfo    TypeCode = "info"
+	// TypeInfo means the banner will be shown and styled as an info.
+	TypeInfo TypeCode = "info"
 )
 
 const (
 	// KeyBitBox01 is the message key for the event when a BitBox01 gets connected.
 	KeyBitBox01 MessageKey = "bitbox01"
+	// KeyBitBox02 is the message key for the event when a BitBox02 gets connected.
 	KeyBitBox02 MessageKey = "bitbox02"
 )
 
@@ -71,7 +77,8 @@ type Banners struct {
 		BitBox02 *Message `json:"bitbox02"`
 	}
 
-	active map[MessageKey]struct{}
+	active     map[MessageKey]struct{}
+	activeLock locker.Locker
 
 	log *logrus.Entry
 }
@@ -111,7 +118,23 @@ func (banners *Banners) Init(httpClient *http.Client) {
 
 // Activate invokes showing the message for the given key.
 func (banners *Banners) Activate(key MessageKey) {
+	defer banners.activeLock.Lock()()
 	banners.active[key] = struct{}{}
+	banners.Notify(observable.Event{
+		Subject: "banners/" + string(key),
+		Action:  action.Reload,
+	})
+}
+
+// Deactivate removes the message key from the active map and makes the frontend reload the banner.
+func (banners *Banners) Deactivate(key MessageKey) {
+	defer banners.activeLock.Lock()()
+	_, keyExists := banners.active[key]
+	if !keyExists {
+		banners.log.Errorf("Trying to deactivate unactivated key: %s", key)
+		return
+	}
+	delete(banners.active, key)
 	banners.Notify(observable.Event{
 		Subject: "banners/" + string(key),
 		Action:  action.Reload,
@@ -120,6 +143,7 @@ func (banners *Banners) Activate(key MessageKey) {
 
 // GetMessage gets a message for a key if it was activated. nil otherwise, or if no msg exists.
 func (banners *Banners) GetMessage(key MessageKey) *Message {
+	defer banners.activeLock.RLock()()
 	_, active := banners.active[key]
 	if !active {
 		return nil

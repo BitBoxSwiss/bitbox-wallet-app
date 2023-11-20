@@ -22,27 +22,17 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
-// PreviousOutputs represents a UTXO set. It also implements `txscript.PrevOutputFetcher`.
-type PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
-
-// FetchPrevOutput implements `txscript.PrevOutputFetcher`.
-func (p PreviousOutputs) FetchPrevOutput(op wire.OutPoint) *wire.TxOut {
-	return p[op].TxOut
-}
-
 // ProposedTransaction contains all the info needed to sign a btc transaction.
 type ProposedTransaction struct {
 	TXProposal *maketx.TxProposal
 	// List of signing configurations that might be used in the tx inputs.
 	AccountSigningConfigurations []*signing.Configuration
-	PreviousOutputs              PreviousOutputs
 	GetAddress                   func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	GetPrevTx                    func(chainhash.Hash) (*wire.MsgTx, error)
 	// Signatures collects the signatures, one per transaction input.
@@ -55,17 +45,17 @@ type ProposedTransaction struct {
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func (account *Account) signTransaction(
 	txProposal *maketx.TxProposal,
-	previousOutputs PreviousOutputs,
 	getPrevTx func(chainhash.Hash) (*wire.MsgTx, error),
 ) error {
 	signingConfigs := make([]*signing.Configuration, len(account.subaccounts))
 	for i, subacc := range account.subaccounts {
 		signingConfigs[i] = subacc.signingConfiguration
 	}
+	previousOutputs := txProposal.PreviousOutputs
+
 	proposedTransaction := &ProposedTransaction{
 		TXProposal:                   txProposal,
 		AccountSigningConfigurations: signingConfigs,
-		PreviousOutputs:              previousOutputs,
 		GetAddress:                   account.getAddress,
 		GetPrevTx:                    getPrevTx,
 		Signatures:                   make([]*types.Signature, len(txProposal.Transaction.TxIn)),
@@ -96,7 +86,7 @@ func (account *Account) signTransaction(
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs PreviousOutputs,
+func txValidityCheck(transaction *wire.MsgTx, previousOutputs maketx.PreviousOutputs,
 	sigHashes *txscript.TxSigHashes) error {
 	if !txsort.IsSorted(transaction) {
 		return errp.New("tx not bip69 conformant")

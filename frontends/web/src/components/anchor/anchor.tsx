@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +15,49 @@
  * limitations under the License.
  */
 
-import { ReactNode, SyntheticEvent, useContext } from 'react';
-import { route } from '../../utils/route';
-import { debug } from '../../utils/env';
-import { apiPost } from '../../utils/request';
-import AppContext from '../../contexts/AppContext';
+import { ReactNode, SyntheticEvent } from 'react';
+import { open } from '../../api/system';
 import style from './anchor.module.css';
 
 type TProps = {
-    href: string;
-    children: ReactNode;
-    [property: string]: any;
+  children: ReactNode;
+  className?: string;
+  href: string;
+  icon?: ReactNode;
+  title?: string;
 }
 
-const A = ({ href, icon, children, ...props }: TProps) => {
-  const { setGuideShown } = useContext(AppContext);
+/**
+ * Renders a link to an external URL or file, which will open in the native browser or application.
+ * Use Link or ButtonLink component for internal links.
+ *
+ * @typedef {Object} LinkProps
+ * @property {string} href - The link to the external URL or file path on the local file system.
+ * @property {string} [icon] - (Optional) An icon associated with the link.
+ * @property {string} [className] - (Optional) Additional CSS class names for styling the link.
+ * @property {string} [title] - (Optional) A title used as tooltip for the link.
+ *
+ * @param {LinkProps} props - The props object containing properties for the Link component.
+ */
+export const A = ({
+  href,
+  icon,
+  className,
+  children,
+  ...props
+}: TProps) => {
   return (
-    <span className={style.link} onClick={(e: SyntheticEvent) => {
-      e.preventDefault();
-      const { hostname, origin } = new URL(href, window.location.href);
-      if (origin === 'qrc:' || (debug && hostname === window.location.hostname)) {
-        setGuideShown(false);
-        route(href);
-      } else {
-        apiPost('open', href).catch(console.error);
-      }
-    }} title={props.title || href} {...props}>
+    <span
+      className={`${style.link} ${className || ''}`}
+      title={props.title || href}
+      onClick={(e: SyntheticEvent) => {
+        e.preventDefault();
+        open(href).catch(console.error);
+      }}
+      tabIndex={0}
+      {...props}>
       {icon ? icon : null}
       {children}
     </span>
   );
 };
-
-export default A;

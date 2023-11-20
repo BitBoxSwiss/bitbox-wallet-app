@@ -193,7 +193,7 @@
       "seed12WordLabel": "Erstelle einen Seed mit 12 Wörtern statt mit 24 Wörtern",
       "seed12WordText": "Standardmäßig verwendet die BitBox02 einen 24-Wörter-Seed. Beide Seed-Längen sind in der Praxis sicher gegen Brute-Forcing. Einige Benutzer bevorzugen möglicherweise die Bequemlichkeit eines 12-Wörter-Seeds.",
       "skipSDCardLabel": "Überspringe die Sicherung auf der MicroSD-Karte und notiere stattdessen die Wiederherstellungswörter",
-      "skipSDCardText": "Du hast jederzeit die Möglichkeit, nach der Einrichtung ein Backup auf der MicroSD-Karte zu erstellen und deine Wiederherstellungswörter aufzuschreiben. Dies kannst über die Geräte-Einstellungen tun.",
+      "skipSDCardText": "Du hast jederzeit die Möglichkeit, nach der Einrichtung ein Backup auf der MicroSD-Karte zu erstellen und deine Wiederherstellungswörter aufzuschreiben. Dies kannst über die Einstellungen tun.",
       "title": "Erweiterte Backup-Optionen"
     },
     "attestationFailed": "Echtheitsprüfung fehlgeschlagen. Bitte stecke die BitBox aus und wieder ein.  Bitte kontaktiere support@bitbox.swiss, falls dieses Problem weiterhin besteht.",
@@ -505,7 +505,7 @@
         "description": "Erstelle oder überprüfe das MicroSD-Karten-Backup."
       },
       "showRecoveryWords": {
-        "description": "Zeige und überprüfe die 24 Wiederherstellungswörter."
+        "description": "Zeige und überprüfe die Wiederherstellungswörter."
       },
       "title": "Backups"
     },
@@ -516,10 +516,13 @@
       "deviceName": {
         "description": "Ändere den Namen deines Geräts."
       },
+      "rootFingerprint": {
+        "description": "Der Root-Fingerabdruck ist eine eindeutige Kennung für das aktuell verwendete Wallet. Es kann dir helfen, zwischen verschiedenen Wallets zu unterscheiden, falls du Passphrasen verwendest."
+      },
       "securechip": {
         "description": "Das Modell des Secure-Chips."
       },
-      "title": "Geräteinformation"
+      "title": "Geräteinformationen"
     },
     "expert": {
       "factoryReset": {
@@ -719,7 +722,7 @@
     },
     "accounts": {
       "howManyAccounts": {
-        "text": "Jede Währung kann maximal fünf Konten haben.",
+        "text": "Bitcoin und Litecoin können eine beliebige Anzahl an Konten haben. Nach fünf Konten kannst du nur dann ein weiteres Konto hinzufügen, wenn das vorherige Konto verwendet wurde.\nAndere Coins können maximal fünf Konten haben.",
         "title": "Wie viele Konten kann ich erstellen?"
       },
       "howtoAddTokens": {
@@ -1191,7 +1194,7 @@
         "Die Passphrase ist eine zusätzliche Sicherheitsmaßnahme für mein Backup.",
         "Wenn ich eine andere Passphrase eingebe, wird immer ein anderes Wallet erstellt.",
         "Um mein Wallet wiederherzustellen benötige ich <strong>sowohl die Passphrase als auch das Backup</strong>.",
-        "Wenn ich meine Passphrase vergesse, habe ich keinen Zugriff mehr auf meine Coins."
+        "Wenn ich meine Passphrase vergesse, habe ich <strong>keinen Zugriff mehr auf meine Coins</strong>."
       ]
     },
     "what": {

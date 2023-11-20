@@ -21,6 +21,8 @@ import { getAccounts, IAccount } from './api/account';
 import { syncAccountsList } from './api/accountsync';
 import { getDeviceList, TDevices } from './api/devices';
 import { syncDeviceList } from './api/devicessync';
+import { syncNewTxs } from './api/transactions';
+import { notifyUser } from './api/system';
 import { unsubscribe, UnsubscribeList } from './utils/subscriptions';
 import { ConnectedApp } from './connected';
 import { Alert } from './components/alert/Alert';
@@ -32,19 +34,19 @@ import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
-import { apiPost } from './utils/request';
-import { apiWebsocket } from './utils/websocket';
 import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
+import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
+import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 
- interface State {
-     accounts: IAccount[];
-     devices: TDevices;
- }
+type State = {
+  accounts: IAccount[];
+  devices: TDevices;
+}
 
- type Props = TranslateProps;
+type Props = TranslateProps;
 
 class App extends Component<Props, State> {
   public readonly state: State = {
@@ -52,12 +54,11 @@ class App extends Component<Props, State> {
     devices: {},
   };
 
-  private unsubscribe!: () => void;
   private unsubscribeList: UnsubscribeList = [];
 
   /**
-      * Gets fired when the route changes.
-      */
+   * Gets fired when the route changes.
+   */
   private handleRoute = () => {
     if (panelStore.state.activeSidebar) {
       toggleSidebar();
@@ -65,26 +66,6 @@ class App extends Component<Props, State> {
   };
 
   public componentDidMount() {
-    this.unsubscribe = apiWebsocket((payload) => {
-      if ('type' in payload) {
-        const { data, meta, type } = payload;
-        switch (type) {
-        case 'backend':
-          switch (data) {
-          case 'newTxs':
-            apiPost('notify-user', {
-              text: this.props.t('notification.newTxs', {
-                count: meta.count,
-                accountName: meta.accountName,
-              }),
-            });
-            break;
-          }
-          break;
-        }
-      }
-    });
-
     Promise.all([getDeviceList(), getAccounts()])
       .then(([devices, accounts]) => {
         this.setStateWithDeviceList({ accounts, devices });
@@ -92,13 +73,18 @@ class App extends Component<Props, State> {
       .catch(console.error);
 
     this.unsubscribeList.push(
+      syncNewTxs((meta) => {
+        notifyUser(this.props.t('notification.newTxs', {
+          count: meta.count,
+          accountName: meta.accountName,
+        }));
+      }),
       syncAccountsList(accounts => {
         this.setState({ accounts }, this.maybeRoute);
       }),
       syncDeviceList((devices) => {
         this.setStateWithDeviceList({ devices });
       }),
-      // TODO: add syncBackendNewTX
     );
   }
 
@@ -109,7 +95,7 @@ class App extends Component<Props, State> {
       // if the first device is new
       if (
         newDeviceIDList.length > 0
-                && newDeviceIDList[0] !== oldDeviceIDList[0]
+        && newDeviceIDList[0] !== oldDeviceIDList[0]
       ) {
         // route new unlocked device with accounts
         if (this.state.accounts.length) {
@@ -126,7 +112,6 @@ class App extends Component<Props, State> {
   }
 
   public componentWillUnmount() {
-    this.unsubscribe();
     unsubscribe(this.unsubscribeList);
   }
 
@@ -145,9 +130,9 @@ class App extends Component<Props, State> {
     // if no accounts are registered on specified views route to /
     if (accounts.length === 0 && (
       currentURL.startsWith('/account-summary')
-             || currentURL.startsWith('/add-account')
-             || currentURL.startsWith('/settings/manage-accounts')
-             || currentURL.startsWith('/passphrase')
+      || currentURL.startsWith('/add-account')
+      || currentURL.startsWith('/settings/manage-accounts')
+      || currentURL.startsWith('/passphrase')
     )) {
       route('/', true);
       return;
@@ -187,30 +172,33 @@ class App extends Component<Props, State> {
       <ConnectedApp>
         <AppProvider>
           <DarkModeProvider>
-            <Darkmode />
-            <div className="app">
-              <Sidebar
-                accounts={activeAccounts}
-                deviceIDs={deviceIDs}
-              />
-              <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
-                <Update />
-                <Banner msgKey="bitbox01" />
-                <Banner msgKey="bitbox02" />
-                <MobileDataWarning />
-                <Aopp />
-                <AppRouter
-                  accounts={accounts}
-                  activeAccounts={activeAccounts}
+            <WCWeb3WalletProvider>
+              <Darkmode />
+              <div className="app">
+                <Sidebar
+                  accounts={activeAccounts}
                   deviceIDs={deviceIDs}
-                  devices={devices}
-                  devicesKey={this.devicesKey}
                 />
-                <RouterWatcher onChange={this.handleRoute} />
+                <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
+                  <Update />
+                  <Banner msgKey="bitbox01" />
+                  <Banner msgKey="bitbox02" />
+                  <MobileDataWarning />
+                  <WCSigningRequest />
+                  <Aopp />
+                  <AppRouter
+                    accounts={accounts}
+                    activeAccounts={activeAccounts}
+                    deviceIDs={deviceIDs}
+                    devices={devices}
+                    devicesKey={this.devicesKey}
+                  />
+                  <RouterWatcher onChange={this.handleRoute} />
+                </div>
+                <Alert />
+                <Confirm />
               </div>
-              <Alert />
-              <Confirm />
-            </div>
+            </WCWeb3WalletProvider>
           </DarkModeProvider>
         </AppProvider>
       </ConnectedApp>

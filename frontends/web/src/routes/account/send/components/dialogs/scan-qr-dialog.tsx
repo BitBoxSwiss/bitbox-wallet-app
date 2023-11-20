@@ -13,43 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
+import { ScanQRVideo } from '../inputs/scan-qr-video';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
-import { SpinnerAnimation } from '../../../../../components/spinner/SpinnerAnimation';
-import style from '../../send.module.css';
 
 type TProps = {
-  activeScanQR: boolean;
-  onToggleScanQR: () => void;
+    activeScanQR: boolean;
+    toggleScanQR: () => void;
+    onChangeActiveScanQR: (active: boolean) => void;
+    parseQRResult: (result: string) => void;
 }
 
-export const ScanQRDialog = ({ activeScanQR, onToggleScanQR }: TProps) => {
+export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
   const { t } = useTranslation();
-  const [videoLoading, setVideoLoading] = useState(false);
-  const toggleScanQR = () => {
-    setVideoLoading(true);
-    onToggleScanQR();
-  };
+
   return (
     <Dialog
+      large
       open={activeScanQR}
       title={t('send.scanQR')}
       onClose={toggleScanQR}>
-      {videoLoading &&
-        <div className={style.spinnerAnimationContainer}>
-          <SpinnerAnimation />
-        </div>
-      }
-      <video
-        id="video"
-        width={400}
-        height={300 /* fix height to avoid ugly resize effect after open */}
-        className={style.qrVideo}
-        onLoadedData={() => setVideoLoading(false)}
-      />
-
+      <ScanQRVideo
+        onResult={result => {
+          parseQRResult(result);
+          onChangeActiveScanQR(false);
+        }} />
       <DialogButtons>
         <Button
           secondary
@@ -60,4 +50,3 @@ export const ScanQRDialog = ({ activeScanQR, onToggleScanQR }: TProps) => {
     </Dialog>
   );
 };
-

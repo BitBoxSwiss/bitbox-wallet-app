@@ -15,6 +15,7 @@
 }
 
 .utxoContent {
+    align-items: flex-start;
     color: var(--color-default);
     display: flex;
     flex-wrap: nowrap;
@@ -38,9 +39,6 @@
 }
 
 .utxoExplorer {
-    background: none;
-    border: none;
-    cursor: pointer;
     margin-top: calc(var(--space-quarter) * -1);
     padding: var(--space-quarter);
 }

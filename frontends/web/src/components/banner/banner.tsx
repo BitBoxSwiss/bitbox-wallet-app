@@ -19,7 +19,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBanner, syncBanner, TBannerInfo } from '../../api/banners';
 import { Status } from '../status/status';
-import A from '../anchor/anchor';
+import { A } from '../anchor/anchor';
+import style from './banner.module.css';
 
 type TBannerProps = {
   msgKey: 'bitbox01' | 'bitbox02';
@@ -46,7 +47,7 @@ export const Banner = ({ msgKey }: TBannerProps) => {
       { message[i18n.language] || message[(i18n.options.fallbackLng as string[])[0]] }
       &nbsp;
       { link && (
-        <A href={link.href}>
+        <A href={link.href} className={style.link}>
           { link.text || t('clickHere') }
         </A>
       )}

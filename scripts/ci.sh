@@ -17,14 +17,17 @@
 set -e
 set -x
 
+# Set go-langs data race detector options
+export GORACE="halt_on_error=1"
+
 # This script has to be called from the project root directory.
 go build -mod=vendor ./...
-go test -mod=vendor ./... -count=1 -v
+go test -race -mod=vendor ./... -count=1 -v
 golangci-lint run
 
 npm --prefix=frontends/web install # needed to install dev dependencies.
 make weblint
-npm --prefix=frontends/web test -- --ci --no-color --coverage --watchAll=false
+npm --prefix=frontends/web test -- --no-color --no-watch
 # check that the i18n files are formatted correctly (avoids noisy diff when
 # pulling from locize)
 if ! locize format frontends/web/src/locales --format json --dry true ; then

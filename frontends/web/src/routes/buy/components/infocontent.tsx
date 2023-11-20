@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import A from '../../../components/anchor/anchor';
+import { A } from '../../../components/anchor/anchor';
 import { Info } from '../types';
 import style from './infocontent.module.css';
 
