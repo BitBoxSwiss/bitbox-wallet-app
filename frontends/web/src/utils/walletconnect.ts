@@ -15,7 +15,7 @@
  */
 import { ReactNode, createElement } from 'react';
 import { IWeb3Wallet } from '@walletconnect/web3wallet';
-import { ArbitrumLogo, BSCLogo, ETHLogo, FantomLogo, OptimismLogo, PolygonLogo } from '../components/icon';
+import { ETHLogo } from '../components/icon';
 
 type TSupportedChainDetail = {
   [key: string]: { name: string; icon: ReactNode; }
@@ -30,26 +30,6 @@ export const SUPPORTED_CHAINS: TSupportedChainDetail = {
     name: 'Ethereum goerli',
     icon: createElement(ETHLogo)
   },
-  'eip155:10': {
-    name: 'Optimism',
-    icon: createElement(OptimismLogo)
-  },
-  'eip155:56': {
-    name: 'Binance smart chain',
-    icon: createElement(BSCLogo)
-  },
-  'eip155:137': {
-    name: 'Polygon',
-    icon: createElement(PolygonLogo)
-  },
-  'eip155:250': {
-    name: 'Fantom',
-    icon: createElement(FantomLogo)
-  },
-  'eip155:42161': {
-    name: 'Arbitrum One',
-    icon: createElement(ArbitrumLogo)
-  }
 };
 
 export const EIP155_SIGNING_METHODS = {
