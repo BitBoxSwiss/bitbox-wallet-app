@@ -35,6 +35,7 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
+	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
@@ -525,5 +526,45 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 
 // SignETHMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
-	return keystore.device.ETHSignMessage(params.MainnetChainConfig.ChainID.Uint64(), keypath.ToUInt32(), message)
+	signature, err := keystore.device.ETHSignMessage(params.MainnetChainConfig.ChainID.Uint64(), keypath.ToUInt32(), message)
+	if firmware.IsErrorAbort(err) {
+		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return signature, nil
+}
+
+// SignETHTypedData implements keystore.Keystore.
+func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	signature, err := keystore.device.ETHSignTypedMessage(chainId, keypath.ToUInt32(), data)
+	if firmware.IsErrorAbort(err) {
+		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return signature, nil
+}
+
+// SignETHWalletConnectTransaction implements keystore.Keystore.
+func (keystore *keystore) SignETHWalletConnectTransaction(chainId uint64, tx *ethTypes.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	signature, err := keystore.device.ETHSign(
+		chainId,
+		keypath.ToUInt32(),
+		tx.Nonce(),
+		tx.GasPrice(),
+		tx.Gas(),
+		*tx.To(),
+		tx.Value(),
+		tx.Data(),
+	)
+	if firmware.IsErrorAbort(err) {
+		return nil, errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return signature, nil
 }

@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-import { Dialog, DialogButtons } from '../dialog/dialog';
-import { ScanQRVideo } from '../../routes/account/send/components/inputs/scan-qr-video';
+import { Dialog, DialogButtons } from '../../../../../components/dialog/dialog';
+import { ScanQRVideo } from '../inputs/scan-qr-video';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../forms';
+import { Button } from '../../../../../components/forms';
 
 type TProps = {
-  title: string;
-  activeScanQR: boolean;
-  toggleScanQR: () => void;
-  onChangeActiveScanQR: (active: boolean) => void;
-  parseQRResult: (result: string) => void;
-};
+    activeScanQR: boolean;
+    toggleScanQR: () => void;
+    onChangeActiveScanQR: (active: boolean) => void;
+    parseQRResult: (result: string) => void;
+}
 
-export const ScanQRDialog = ({ title, parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
+export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {
   const { t } = useTranslation();
 
   return (
     <Dialog
       large
       open={activeScanQR}
-      title={title}
+      title={t('send.scanQR')}
       onClose={toggleScanQR}>
       <ScanQRVideo
         onResult={result => {
@@ -42,7 +41,9 @@ export const ScanQRDialog = ({ title, parseQRResult, activeScanQR, toggleScanQR,
           onChangeActiveScanQR(false);
         }} />
       <DialogButtons>
-        <Button secondary onClick={toggleScanQR}>
+        <Button
+          secondary
+          onClick={toggleScanQR}>
           {t('button.back')}
         </Button>
       </DialogButtons>

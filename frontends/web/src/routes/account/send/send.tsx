@@ -25,7 +25,7 @@ import { getDeviceInfo } from '../../../api/bitbox01';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance } from '../../../components/balance/balance';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import { Button, ButtonLink, Input, OptionalLabel } from '../../../components/forms';
+import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
 import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
@@ -43,6 +43,7 @@ import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
+import { NoteInput } from './components/inputs/note-input';
 import style from './send.module.css';
 
 interface SendProps {
@@ -305,7 +306,7 @@ class Send extends Component<Props, State> {
     this.setState({
       'note': target.value,
     }, () => {
-      apiPost('account/' + this.getAccount()!.code + '/propose-tx-note', this.state.note);
+      accountApi.proposeTxNote(this.getAccount()!.code, this.state.note);
     });
   };
 
@@ -649,15 +650,10 @@ class Send extends Component<Props, State> {
                       error={feeError} />
                   </Column>
                   <Column>
-                    <Input
-                      label={t('note.title')}
-                      labelSection={
-                        <OptionalLabel>{t('note.input.description')}</OptionalLabel>
-                      }
-                      id="note"
-                      onInput={this.handleNoteInput}
-                      value={note}
-                      placeholder={t('note.input.placeholder')} />
+                    <NoteInput
+                      note={note}
+                      onNoteChange={this.handleNoteInput}
+                    />
                     <ColumnButtons
                       className="m-top-default m-bottom-xlarge"
                       inline>

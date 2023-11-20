@@ -27,6 +27,8 @@ import { Appearance } from './settings/appearance';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
+import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
+import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 
 type TAppRouterProps = {
   devices: TDevices;
@@ -83,6 +85,18 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
   const AccInfo = (
     <InjectParams>
       <Info code={''} accounts={activeAccounts} />
+    </InjectParams>
+  );
+
+  const AccDashboardWC = (
+    <InjectParams>
+      <DashboardWalletConnect accounts={activeAccounts} code={''} />
+    </InjectParams>
+  );
+
+  const AccConnectScreenWC = (
+    <InjectParams>
+      <ConnectScreenWalletConnect code={'' /* dummy to satisfy TS */} accounts={activeAccounts} />
     </InjectParams>
   );
 
@@ -191,6 +205,8 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
           <Route path="send" element={AccSend} />
           <Route path="receive" element={AccReceive} />
           <Route path="info" element={AccInfo} />
+          <Route path="wallet-connect/connect" element={AccConnectScreenWC} />
+          <Route path="wallet-connect/dashboard" element={AccDashboardWC} />
         </Route>
         <Route path="lightning">
           <Route index element={AccLightning} />
