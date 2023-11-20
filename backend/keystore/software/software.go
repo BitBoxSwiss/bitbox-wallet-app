@@ -93,7 +93,7 @@ func (keystore *Keystore) RootFingerprint() ([]byte, error) {
 
 // DeterministicEntropy implements keystore.Keystore.
 func (keystore *Keystore) DeterministicEntropy() ([]byte, error) {
-	// TODO: Generate the deterministic entropy for a child seed of a given derivation path. 
+	// TODO: Generate the deterministic entropy for a child seed of a given derivation path.
 	// The entropy is generated using bip85 to create a child seed on the hardware wallet.
 	entropy := []byte{}
 	return entropy, nil

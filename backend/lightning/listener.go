@@ -22,12 +22,13 @@ import (
 
 var logListener *BreezLogListener
 
+// BreezLogListener stores the log handler for listening to log events from the Breez SDK.
 type BreezLogListener struct {
 	log *logrus.Entry
 }
 
-// Implementation of breez_sdk.EventListener
 // Log receives log entries of different log levels and logs then the handlers log.
+// Implementation of breez_sdk.EventListener.
 func (listener *BreezLogListener) Log(logEntry breez_sdk.LogEntry) {
 	if logEntry.Level != "TRACE" {
 		listener.log.Infof("BreezSDK: [%s] %s", logEntry.Level, logEntry.Line)

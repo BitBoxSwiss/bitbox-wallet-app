@@ -15,7 +15,7 @@
 
 package config
 
-// Lightning holds information related to the lightning config.
+// LightningConfig holds information related to the lightning config.
 type LightningConfig struct {
 	// Inactive is true if lightning has not yet been setup.
 	Inactive bool `json:"inactive"`

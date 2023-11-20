@@ -22,6 +22,7 @@ import (
 	"github.com/breez/breez-sdk-go/breez_sdk"
 )
 
+// PostLightningActivateNode handles the POST request to activate the lightning node.
 func (lightning *Lightning) PostLightningActivateNode(r *http.Request) interface{} {
 	if err := lightning.Activate(); err != nil {
 		lightning.log.Error(err)
@@ -31,6 +32,7 @@ func (lightning *Lightning) PostLightningActivateNode(r *http.Request) interface
 	return responseDto{Success: true}
 }
 
+// PostLightningDeactivateNode handles the POST request to deactivate the lightning node.
 func (lightning *Lightning) PostLightningDeactivateNode(r *http.Request) interface{} {
 	if err := lightning.Deactivate(); err != nil {
 		lightning.log.Error(err)
@@ -40,6 +42,7 @@ func (lightning *Lightning) PostLightningDeactivateNode(r *http.Request) interfa
 	return responseDto{Success: true}
 }
 
+// GetNodeInfo handles the GET request retrieve the node info.
 func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
 	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
@@ -53,6 +56,7 @@ func (lightning *Lightning) GetNodeInfo(_ *http.Request) interface{} {
 	return responseDto{Success: true, Data: toNodeStateDto(nodeState)}
 }
 
+// GetListPayments handles the GET request to list payments.
 func (lightning *Lightning) GetListPayments(r *http.Request) interface{} {
 	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
@@ -80,6 +84,7 @@ func (lightning *Lightning) GetListPayments(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: payments}
 }
 
+// GetOpenChannelFee handles the GET request fetch the open channel fees.
 func (lightning *Lightning) GetOpenChannelFee(r *http.Request) interface{} {
 	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
@@ -98,6 +103,7 @@ func (lightning *Lightning) GetOpenChannelFee(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: toOpenChannelFeeResponseDto(openChannelFeeResponse)}
 }
 
+// GetParseInput handles the GET request to parse a text input.
 func (lightning *Lightning) GetParseInput(r *http.Request) interface{} {
 	input, err := breez_sdk.ParseInput(r.URL.Query().Get("s"))
 	if err != nil {
@@ -112,6 +118,7 @@ func (lightning *Lightning) GetParseInput(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: paymentDto}
 }
 
+// PostReceivePayment handles the POST request to receive a payment.
 func (lightning *Lightning) PostReceivePayment(r *http.Request) interface{} {
 	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}
@@ -130,6 +137,7 @@ func (lightning *Lightning) PostReceivePayment(r *http.Request) interface{} {
 	return responseDto{Success: true, Data: toReceivePaymentResponseDto(receivePaymentResponse)}
 }
 
+// PostSendPayment handles the POST request to send a payment.
 func (lightning *Lightning) PostSendPayment(r *http.Request) interface{} {
 	if lightning.sdkService == nil {
 		return responseDto{Success: false, ErrorMessage: "BreezServices not initialized"}

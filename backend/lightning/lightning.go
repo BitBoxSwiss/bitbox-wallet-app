@@ -43,6 +43,7 @@ type Lightning struct {
 	sdkService *breez_sdk.BlockingBreezServices
 }
 
+// NewLightning creates a new instance of the Lightning struct.
 func NewLightning(config *config.Config, cacheDirectoryPath string, getKeystore func() keystore.Keystore) *Lightning {
 	return &Lightning{
 		config:             config,

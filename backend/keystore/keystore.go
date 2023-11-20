@@ -52,7 +52,7 @@ type Keystore interface {
 	RootFingerprint() ([]byte, error)
 
 	// DeterministicEntropy returns the keystore's deterministic entropy for a child seed of a
-	// given derivation path. The entropy is generated using bip85 to create a child seed on the 
+	// given derivation path. The entropy is generated using bip85 to create a child seed on the
 	// hardware wallet.
 	//
 	// https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki

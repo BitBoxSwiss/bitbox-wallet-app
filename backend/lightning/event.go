@@ -21,8 +21,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 )
 
-// Implementation of breez_sdk.EventListener
 // OnEvent receives an event from the sdk and handles it.
+// Implementation of breez_sdk.EventListener.
 func (lightning *Lightning) OnEvent(breezEvent breez_sdk.BreezEvent) {
 	lightning.log.Infof("BreezSDK: %#v", breezEvent)
 
