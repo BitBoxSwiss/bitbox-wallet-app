@@ -1,10 +1,76 @@
-.container {
-  margin: calc(var(--space-default) * 1.5) 0;
-  font-size: var(--size-default) !important;
+.text {
+  font-size: 16px;
+  margin: 0;
+}
+
+.accountName {
+  font-weight: 600;
+  margin-right: calc(var(--space-default) + var(--space-quarter));
+}
+
+.accountsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-half);
+  margin-top: var(--space-default);
+}
+
+.button {
+  font-size: var(--size-default);
+  height: calc(var(--space-default) + var(--space-quarter));
+  padding: 0 24px;
+}
+
+.button span {
+  font-size: 20px;
+  margin-right: var(--space-quarter);
+}
+
+.coverageContainer {
+  margin: var(--space-half) 0;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.link {
+  text-decoration: none;
 }
 
 .row {
   background-color: var(--background-secondary);
-  padding: var(--space-half);
-  margin-bottom: calc(var(--space-half) * 1);
+  padding: calc(var(--space-half) + var(--space-eight));
+}
+
+.statusContainer {
+  display: flex;
+}
+
+.subtle {
+  color: var(--color-tertiary);
+}
+
+.title {
+  font-size: var(--size-subheader);
+  font-weight: 400;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .headerContainer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-half);
+  }
+
+  .text {
+    font-size: var(--size-default);
+  }
+
+  .row {
+    padding: var(--space-half);
+  }
 }
