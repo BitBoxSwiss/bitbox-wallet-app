@@ -234,7 +234,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
@@ -1286,9 +1286,9 @@ func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	return nil
 }
 
-func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) interface{} {
 	handlers.backend.CancelConnectKeystore()
-	return nil, nil
+	return nil
 }
 
 func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
