@@ -26,6 +26,7 @@ import { Backup } from '../../../api/backup';
 import { Button } from '../../../components/forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';
+import { HorizontallyCenteredSpinner } from '../../../components/spinner/SpinnerAnimation';
 import backupStyle from '../components/backups.module.css';
 
 type TProps = {
@@ -53,7 +54,7 @@ export const BackupsV2 = ({
   const [errorText, setErrorText] = useState('');
 
   const backups = useSync(() => getBackupList(deviceID), subscribeBackupList(deviceID));
-  const hasBackups = backups && backups.success;
+  const hasBackups = backups && backups.success && backups !== undefined;
 
   const restore = () => {
     if (!hasBackups) {
@@ -79,6 +80,9 @@ export const BackupsV2 = ({
   };
 
   if (!hasBackups) {
+    if (hasBackups === undefined) {
+      return <HorizontallyCenteredSpinner />;
+    }
     return <div>Error fetching backups</div>;
   }
 

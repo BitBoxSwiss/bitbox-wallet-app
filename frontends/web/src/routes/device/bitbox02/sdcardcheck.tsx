@@ -20,6 +20,7 @@ import { Dialog, DialogButtons } from '../../../components/dialog/dialog';
 import { Button, ButtonLink } from '../../../components/forms';
 import { checkSDCard } from '../../../api/bitbox02';
 import { useTranslation } from 'react-i18next';
+import { HorizontallyCenteredSpinner } from '../../../components/spinner/SpinnerAnimation';
 
 type SDCardCheckProps = {
   deviceID: string;
@@ -39,7 +40,7 @@ const SDCardCheck = ({ deviceID, children }: TProps) => {
 
   // pending check-sdcard request
   if (sdCardInserted === undefined) {
-    return null;
+    return <HorizontallyCenteredSpinner />;
   }
 
   return (
