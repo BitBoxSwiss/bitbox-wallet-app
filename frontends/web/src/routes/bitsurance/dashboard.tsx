@@ -22,7 +22,6 @@ import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
-import style from './dashboard.module.css';
 import { useCallback, useEffect, useState } from 'react';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '../../api/bitsurance';
 import { A } from '../../components/anchor/anchor';
@@ -32,8 +31,8 @@ import { useMountedRef } from '../../hooks/mount';
 import { Balances } from '../account/summary/accountssummary';
 import { Skeleton } from '../../components/skeleton/skeleton';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
-import { GreenDot, OrangeDot, RedDot, YellowDot } from '../../components/icon';
-
+import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '../../components/icon';
+import style from './dashboard.module.css';
 
 type TProps = {
     accounts: IAccount[];
@@ -46,16 +45,16 @@ type TAccountStatusIconProps = {
 const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
   switch (status) {
   case 'active':
-    return <GreenDot/>;
+    return <GreenDot width={14} height={20} />;
   case 'processing':
   case 'waitpayment':
-    return <YellowDot/>;
+    return <YellowDot width={14} height={20} />;
   case 'refused':
-    return <RedDot/>;
+    return <RedDot width={14} height={20} />;
   case 'inactive':
-    return <OrangeDot/>;
+    return <OrangeDot width={14} height={20} />;
   case 'canceled':
-    return <RedDot/>;
+    return <RedDot width={14} height={20} />;
   }
 };
 
@@ -101,42 +100,67 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
       <GuidedContent>
         <Main>
           <Header title={<h2>{t('sidebar.insurance')}</h2>} >
-            <HideAmountsButton/>
+            <HideAmountsButton />
           </Header>
           <View>
             <ViewContent>
-              <div className={style.container}>
-                <div className="flex flex-between">
-                  <label className="labelXLarge">
-                    {t('bitsurance.dashboard.title')}
-                  </label>
-                  <Button
-                    primary
-                    onClick={() => route('bitsurance/account')}
-                    title={t('account.exportTransactions')}>
-                    {'+ ' + t('bitsurance.dashboard.button')}
-                  </Button>
-                </div>
-                <div>
-                  {insuredAccounts.map(account => activeAccountCodes.includes(account.code) ? (
-                    <div key={account.code} className={style.row}>
-                      <p><strong>{accounts.filter(ac => ac.code === account.code && ac.active).map(ac => ac.name)}</strong></p>
+
+              <div className={style.headerContainer}>
+                <p className={style.title}>
+                  {t('bitsurance.dashboard.title')}
+                </p>
+                <Button
+                  className={style.button}
+                  primary
+                  onClick={() => route('bitsurance/account')}
+                  title={t('account.exportTransactions')}>
+                  <span>+</span>
+                  {t('bitsurance.dashboard.button')}
+                </Button>
+              </div>
+
+              <div className={style.accountsContainer}>
+                {insuredAccounts.map(account => activeAccountCodes.includes(account.code) ? (
+                  <div key={account.code} className={style.row}>
+                    <div className="flex flex-items-center">
+                      <p className={`${style.text} ${style.accountName}`}>
+                        {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
+                      </p>
                       { balances ? (
-                        <>
+                        <span className={`${style.text} ${style.subtle}`}>
                           <Amount
                             amount={balances[account.code]?.available.amount}
                             unit={balances[account.code]?.available.unit}
-                            removeBtcTrailingZeroes/>
-                          {' ' + balances[account.code]?.available.unit}
-                        </>
+                            removeBtcTrailingZeroes
+                          />
+                          {` ${balances[account.code]?.available.unit}`}
+                        </span>
                       ) : <Skeleton/>}
-                      <p>{t('bitsurance.dashboard.coverage')}</p>
-                      <p>{account.details.maxCoverageFormatted} {account.details.currency}</p>
-                      <p><span><AccountStatusIcon status={account.status}/>{t('bitsurance.dashboard.' + account.status)}</span> <A href={account.details.support}>{t('bitsurance.dashboard.supportLink')}</A></p>
                     </div>
-                  ) : null)}
-                </div>
 
+                    <div className={'m-top-half m-bottom-half'}>
+                      <p className={`${style.text} ${style.subtle} m-bottom-quarter`}>{t('bitsurance.dashboard.coverage')}</p>
+                      <p className={style.text}>{account.details.maxCoverageFormatted} {account.details.currency}</p>
+                    </div>
+
+                    <div className="flex flex-column-mobile">
+                      <div className="flex">
+                        <AccountStatusIcon status={account.status} />
+                        <p className={`${style.text} m-left-quarter m-right-half`}>{t('bitsurance.dashboard.' + account.status)}</p>
+                      </div>
+                      <A
+                        className={`${style.text} ${style.link} m-top-quarter-on-small`}
+                        href={account.details.support}
+                      >
+                        <div className="flex">
+                          <ExternalLink width={16} />
+                          <span className="m-left-quarter">{t('bitsurance.dashboard.supportLink')}</span>
+                        </div>
+                      </A>
+                    </div>
+
+                  </div>
+                ) : null)}
               </div>
 
             </ViewContent>
