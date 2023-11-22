@@ -52,7 +52,7 @@ osx:
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
-	macdeployqt build/osx/BitBox.app -executable=build/osx/BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
+	cd build/osx/ && macdeployqt BitBox.app -executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
