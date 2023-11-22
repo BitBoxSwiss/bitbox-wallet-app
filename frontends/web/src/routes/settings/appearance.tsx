@@ -23,6 +23,7 @@ import { DisplaySatsToggleSetting } from './components/appearance/displaySatsTog
 import { LanguageDropdownSetting } from './components/appearance/languageDropdownSetting';
 import { ActiveCurrenciesDropdownSettingWithStore } from './components/appearance/activeCurrenciesDropdownSetting';
 import { HideAmountsSetting } from './components/appearance/hideAmountsSetting';
+import { WatchonlySetting } from './components/appearance/watchonlySetting';
 import { WithSettingsTabs } from './components/tabs';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
@@ -52,6 +53,7 @@ export const Appearance = ({ deviceIDs, hasAccounts }: TPagePropsWithSettingsTab
                 <DarkmodeToggleSetting />
                 <DisplaySatsToggleSetting />
                 <HideAmountsSetting />
+                <WatchonlySetting />
               </WithSettingsTabs>
             </ViewContent>
           </View>

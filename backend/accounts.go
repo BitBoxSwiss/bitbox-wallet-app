@@ -37,15 +37,6 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-// Set the `watch` setting on new accounts to this default value.
-// For now we keep it unset, and have users opt-in to watching specific accounts.
-//
-// We set it to `nil` not `false` so that we reserve the possibility to default all accounts to
-// watch-only for accounts where the user hasn't made an active decision (e.g. turn on watch-only
-// for all accounts of a keystore if the user did not activate/deactivate watch-only manually on any
-// of them).
-var defaultWatch *bool = nil
-
 // hardenedKeystart is the BIP44 offset to make a keypath element hardened.
 const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 
@@ -488,16 +479,28 @@ func (backend *Backend) RenameAccount(accountCode accountsTypes.Code, name strin
 	return nil
 }
 
+// copyBool makes a copy, so that multiple values do not share the same reference. This avoids
+// potential future bugs if someone modified a flag like `*account.Watch = X`,
+// accidentally changing the value for many accounts that share the same reference.
+func copyBool(b *bool) *bool {
+	if b == nil {
+		return nil
+	}
+	cpy := *b
+	return &cpy
+}
+
 // AccountSetWatch sets the account's persisted watch flag to `watch`. Set to `true` if the account
 // should be loaded even if its keystore is not connected.
 // If `watch` is set to `false`, the account is unloaded and the frontend notified.
-func (backend *Backend) AccountSetWatch(accountCode accountsTypes.Code, watch bool) error {
+func (backend *Backend) AccountSetWatch(filter func(*config.Account) bool, watch *bool) error {
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
-		acct := accountsConfig.Lookup(accountCode)
-		if acct == nil {
-			return errp.Newf("Could not find account %s", accountCode)
+		for _, acct := range accountsConfig.Accounts {
+			if !filter(acct) {
+				continue
+			}
+			acct.Watch = copyBool(watch)
 		}
-		acct.Watch = &watch
 		return nil
 	})
 	if err != nil {
@@ -510,18 +513,18 @@ func (backend *Backend) AccountSetWatch(accountCode accountsTypes.Code, watch bo
 	//
 	// This ensures that removing a keystore after setting an ETH account including tokens to
 	// watchonly results in the account *and* the tokens remaining loaded.
-	if acct := backend.accounts.lookup(accountCode); acct != nil {
+	for _, acct := range backend.accounts {
 		if acct.Config().Config.CoinCode == coinpkg.CodeETH {
 			for _, erc20TokenCode := range acct.Config().Config.ActiveTokens {
-				erc20AccountCode := Erc20AccountCode(accountCode, erc20TokenCode)
+				erc20AccountCode := Erc20AccountCode(acct.Config().Config.Code, erc20TokenCode)
 				if tokenAcct := backend.accounts.lookup(erc20AccountCode); tokenAcct != nil {
-					tokenAcct.Config().Config.Watch = &watch
+					tokenAcct.Config().Config.Watch = copyBool(watch)
 				}
 			}
 		}
 	}
 
-	if !watch {
+	if watch == nil || !*watch {
 		backend.initAccounts(false)
 		backend.emitAccountsStatusChanged()
 	}
@@ -753,6 +756,12 @@ func (backend *Backend) persistBTCAccountConfig(
 		return err
 	}
 
+	var accountWatch *bool
+	if backend.config.AppConfig().Backend.Watchonly {
+		t := true
+		accountWatch = &t
+	}
+
 	var signingConfigurations signing.Configurations
 	for _, cfg := range supportedConfigs {
 		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
@@ -774,7 +783,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	if keystore.SupportsUnifiedAccounts() {
 		return backend.persistAccount(config.Account{
 			HiddenBecauseUnused:   hiddenBecauseUnused,
-			Watch:                 defaultWatch,
+			Watch:                 accountWatch,
 			CoinCode:              coin.Code(),
 			Name:                  name,
 			Code:                  code,
@@ -794,7 +803,7 @@ func (backend *Backend) persistBTCAccountConfig(
 
 		err := backend.persistAccount(config.Account{
 			HiddenBecauseUnused:   hiddenBecauseUnused,
-			Watch:                 defaultWatch,
+			Watch:                 copyBool(accountWatch),
 			CoinCode:              coin.Code(),
 			Name:                  suffixedName,
 			Code:                  splitAccountCode(code, cfg.ScriptType()),
@@ -849,9 +858,15 @@ func (backend *Backend) persistETHAccountConfig(
 		),
 	}
 
+	var accountWatch *bool
+	if backend.config.AppConfig().Backend.Watchonly {
+		t := true
+		accountWatch = &t
+	}
+
 	return backend.persistAccount(config.Account{
 		HiddenBecauseUnused:   hiddenBecauseUnused,
-		Watch:                 defaultWatch,
+		Watch:                 accountWatch,
 		CoinCode:              coin.Code(),
 		Name:                  name,
 		Code:                  code,
@@ -864,7 +879,7 @@ func (backend *Backend) persistETHAccountConfig(
 func (backend *Backend) initPersistedAccounts() {
 	// Only load accounts which belong to connected keystores or for which watchonly is enabled.
 	keystoreConnectedOrWatch := func(account *config.Account) bool {
-		if account.IsWatch() {
+		if account.IsWatch(backend.config.AppConfig().Backend.Watchonly) {
 			return true
 		}
 
@@ -900,7 +915,7 @@ outer:
 		// Watch-only accounts are loaded regardless, and if later e.g. a BitBox02 BTC-only is
 		// inserted with the same seed as a Multi, we will need to catch that mismatch when the
 		// keystore will be used to e.g. display an Ethereum address etc.
-		if backend.keystore != nil && !account.IsWatch() {
+		if backend.keystore != nil && !account.IsWatch(backend.config.AppConfig().Backend.Watchonly) {
 			switch coin.(type) {
 			case *btc.Coin:
 				for _, cfg := range account.SigningConfigurations {
@@ -1033,6 +1048,26 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 // were created (persisted) before the introduction of taproot support.
 func (backend *Backend) updatePersistedAccounts(
 	keystore keystore.Keystore, accounts []*config.Account) error {
+
+	// setWatch, if the global Watchonly flag is enabled, sets the `Watch`
+	// flag to `true`, turning this account into a watch-only account.
+	setWatch := func() error {
+		if !backend.config.AppConfig().Backend.Watchonly {
+			return nil
+		}
+		for _, account := range accounts {
+			if account.Watch == nil {
+				t := true
+				account.Watch = &t
+			}
+		}
+		return nil
+	}
+
+	if err := setWatch(); err != nil {
+		return err
+	}
+
 	return backend.maybeAddP2TR(keystore, accounts)
 }
 
