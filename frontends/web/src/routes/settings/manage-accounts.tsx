@@ -106,7 +106,7 @@ class ManageAccounts extends Component<Props, State> {
                 .then(() => event.target.disabled = false);
             }} />
           { watchonly ? (<>
-            Hide account:
+            Hide account (TODO: move this to the edit dialog):
             <Toggle
               checked={!account.watch}
               className={style.toggle}

@@ -1104,7 +1104,18 @@ func (backend *Backend) uninitAccounts(force bool) {
 	keep := []accounts.Interface{}
 	for _, account := range backend.accounts {
 		account := account
-		if !force && account.Config().Config.IsWatch() {
+
+		belongsToKeystore := false
+		if backend.keystore != nil {
+			fingerprint, err := backend.keystore.RootFingerprint()
+			if err != nil {
+				backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
+			} else {
+				belongsToKeystore = account.Config().Config.SigningConfigurations.ContainsRootFingerprint(fingerprint)
+			}
+		}
+
+		if !force && (belongsToKeystore || account.Config().Config.IsWatch(backend.config.AppConfig().Backend.Watchonly)) {
 			// Do not uninit/remove account that is being watched.
 			keep = append(keep, account)
 			continue
