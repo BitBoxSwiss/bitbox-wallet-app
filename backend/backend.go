@@ -116,6 +116,7 @@ type authEventType string
 
 const (
 	authRequired authEventType = "auth-required"
+	authForced   authEventType = "auth-forced"
 	authOk       authEventType = "auth-ok"
 	authErr      authEventType = "auth-err"
 )
@@ -309,6 +310,22 @@ func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
+// Authenticate executes a system authentication if
+// the authentication config flag is enabled or if the
+// `force` input flag is enabled (as a consequence of an
+// 'auth/auth-forced' notification).
+// Otherwise, the authentication is automatically assumed as
+// successful.
+func (backend *Backend) Authenticate(force bool) {
+	backend.log.Info("Auth requested")
+	if backend.config.AppConfig().Backend.Authentication || force {
+		backend.environment.Auth()
+	} else {
+		backend.AuthResult(true)
+	}
+}
+
+// TriggerAuth triggers an auth-required notification.
 func (backend *Backend) TriggerAuth() {
 	backend.Notify(observable.Event{
 		Subject: "auth",
@@ -319,6 +336,27 @@ func (backend *Backend) TriggerAuth() {
 	})
 }
 
+// ForceAuth triggers an auth-forced notification
+// followed by an auth-required notification.
+func (backend *Backend) ForceAuth() {
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authForced,
+		},
+	})
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authRequired,
+		},
+	})
+}
+
+// AuthResult triggers an auth-ok or auth-err notification
+// depending on the input value.
 func (backend *Backend) AuthResult(ok bool) {
 	backend.log.Infof("Auth result: %v", ok)
 	typ := authErr

@@ -1059,6 +1059,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Lock access to the app with screen lock/fingerprint.",
+        "title": "Screen lock"
+      },
       "coinControl": {
         "description": "Select which UTXOs are part of a transaction to help improve privacy."
       },

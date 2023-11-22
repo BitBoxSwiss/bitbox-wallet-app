@@ -16,15 +16,19 @@
 
 import { View } from '../view/view';
 import style from './authrequired.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TAuthEventObject, authenticate, subscribeAuth } from '../../api/backend';
 
 export const AuthRequired = () => {
   const [authRequired, setAuthRequired] = useState(false);
+  const authForced = useRef(false);
 
   useEffect(() => {
     const unsubscribe = subscribeAuth((data: TAuthEventObject) => {
       switch (data.typ) {
+      case 'auth-forced':
+        authForced.current = true;
+        break;
       case 'auth-required':
         // It is a bit strange to call authenticate inside `setAuthRequired`,
         // but doing so we avoid declaring `authRequired` as a useEffect's
@@ -32,21 +36,22 @@ export const AuthRequired = () => {
         // time the state changes.
         setAuthRequired((prevAuthRequired) => {
           if (!prevAuthRequired) {
-            authenticate();
+            authenticate(authForced.current);
           }
           return true;
         });
         break;
       case 'auth-err':
-        authenticate();
+        authenticate(authForced.current);
         break;
       case 'auth-ok':
         setAuthRequired(false);
+        authForced.current = false;
       }
     });
 
     // Perform initial authentication. If the auth config is disabled,
-    // the backend will immediately sent an auth-ok back.
+    // the backend will immediately send an auth-ok back.
     setAuthRequired(true);
     authenticate();
 
