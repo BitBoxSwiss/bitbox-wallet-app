@@ -42,7 +42,9 @@ type Account struct {
 	// If false, the account is only displayed if the keystore is connected. If true, it is loaded
 	// and displayed when the app launches.
 	//
-	// If nil, it is considered false.
+	// If nil, it is considered false.  The reason for this is that we don't want to suddenly show
+	// all persisted accounts when the Watchonly setting is enabled - only accounts that are loaded
+	// when Watchonly is enabled should do this.
 	Watch                 *bool                  `json:"watch"`
 	CoinCode              coin.Code              `json:"coinCode"`
 	Name                  string                 `json:"name"`
@@ -73,9 +75,10 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 	return nil
 }
 
-// IsWatchOnly returns true if the `Watch` setting is set to true.
-func (acct *Account) IsWatch() bool {
-	return acct.Watch != nil && *acct.Watch
+// IsWatch returns true if the `Watch` setting is set to true and `defaultWatchonly` is true. For
+// `defaultWatchonly`, you should provide the global watchonly setting from the backend config.
+func (acct *Account) IsWatch(defaultWatchonly bool) bool {
+	return defaultWatchonly && acct.Watch != nil && *acct.Watch
 }
 
 // Keystore holds information related to keystores such as the BitBox02.

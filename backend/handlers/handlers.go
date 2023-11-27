@@ -96,7 +96,7 @@ type Backend interface {
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
-	AccountSetWatch(accountCode accountsTypes.Code, watch bool) error
+	AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
@@ -104,6 +104,7 @@ type Backend interface {
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
 	CancelConnectKeystore()
+	SetWatchonly(watchonly bool) error
 }
 
 // Handlers provides a web api to the backend.
@@ -233,7 +234,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -364,10 +366,11 @@ type accountJSON struct {
 func newAccountJSON(keystore config.Keystore, account accounts.Interface, activeTokens []activeToken) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
+	watch := account.Config().Config.Watch
 	return &accountJSON{
 		Keystore:              keystore,
 		Active:                !account.Config().Config.Inactive,
-		Watch:                 account.Config().Config.IsWatch(),
+		Watch:                 watch != nil && *watch,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -729,7 +732,11 @@ func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
-	if err := handlers.backend.AccountSetWatch(jsonBody.AccountCode, jsonBody.Watch); err != nil {
+
+	filter := func(account *config.Account) bool {
+		return account.Code == jsonBody.AccountCode
+	}
+	if err := handlers.backend.AccountSetWatch(filter, &jsonBody.Watch); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -1279,7 +1286,21 @@ func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	return nil
 }
 
-func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) interface{} {
 	handlers.backend.CancelConnectKeystore()
-	return nil, nil
+	return nil
+}
+
+func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+	}
+	var watchonly bool
+	if err := json.NewDecoder(r.Body).Decode(&watchonly); err != nil {
+		return response{Success: false}
+	}
+	if err := handlers.backend.SetWatchonly(watchonly); err != nil {
+		return response{Success: false}
+	}
+	return response{Success: true}
 }

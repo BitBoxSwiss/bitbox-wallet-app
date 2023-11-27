@@ -29,6 +29,7 @@ import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
+import { getConfig } from '../../utils/config';
 import { MobileHeader } from '../settings/components/mobile-header';
 import Guide from './manage-account-guide';
 import style from './manage-accounts.module.css';
@@ -42,15 +43,16 @@ interface ManageAccountsProps {
 type Props = ManageAccountsProps & TranslateProps;
 
 type TShowTokens = {
-    readonly [key in string]: boolean;
+  readonly [key in string]: boolean;
 }
 
 interface State {
-    editAccountCode?: string;
-    editAccountNewName: string;
-    editErrorMessage?: string;
-    accounts: accountAPI.IAccount[];
-    showTokens: TShowTokens;
+  editAccountCode?: string;
+  editAccountNewName: string;
+  editErrorMessage?: string;
+  accounts: accountAPI.IAccount[];
+  showTokens: TShowTokens;
+  watchonly?: boolean;
 }
 
 class ManageAccounts extends Component<Props, State> {
@@ -58,7 +60,8 @@ class ManageAccounts extends Component<Props, State> {
     editAccountNewName: '',
     editErrorMessage: undefined,
     accounts: [],
-    showTokens: {}
+    showTokens: {},
+    watchonly: undefined,
   };
 
   private fetchAccounts = () => {
@@ -67,10 +70,11 @@ class ManageAccounts extends Component<Props, State> {
 
   public componentDidMount() {
     this.fetchAccounts();
+    getConfig().then(config => this.setState({ watchonly: config!.backend!.watchonly }));
   }
 
   private renderAccounts = (accounts: accountAPI.IAccount[]) => {
-    const { showTokens } = this.state;
+    const { watchonly, showTokens } = this.state;
     const { t } = this.props;
     return accounts.filter(account => !account.isToken).map(account => {
       const active = account.active;
@@ -101,16 +105,19 @@ class ManageAccounts extends Component<Props, State> {
               this.toggleAccount(account.code, !active)
                 .then(() => event.target.disabled = false);
             }} />
-          Watchonly:
-          <Toggle
-            checked={account.watch}
-            className={style.toggle}
-            id={account.code}
-            onChange={async (event) => {
-              event.target.disabled = true;
-              await this.setWatch(account.code, !account.watch);
-              event.target.disabled = false;
-            }} />
+          { watchonly ? (<>
+            Hide account (TODO: move this to the edit dialog):
+            <Toggle
+              checked={!account.watch}
+              className={style.toggle}
+              id={account.code}
+              onChange={async (event) => {
+                event.target.disabled = true;
+                await this.setWatch(account.code, !account.watch);
+                event.target.disabled = false;
+              }} />
+          </>
+          ) : null }
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
               <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>

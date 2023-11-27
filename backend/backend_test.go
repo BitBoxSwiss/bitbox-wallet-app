@@ -120,13 +120,8 @@ func TestRegisterKeystore(t *testing.T) {
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
 	// Mark accounts as watch-only.
-	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
-		for _, acct := range cfg.Accounts {
-			f := true
-			acct.Watch = &f
-		}
-		return nil
-	}))
+	require.NoError(t, b.SetWatchonly(true))
+
 	b.DeregisterKeystore()
 	require.Len(t, b.Accounts(), 3)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
@@ -156,14 +151,10 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Equal(t, rootFingerprint2, []byte(b.Config().AccountsConfig().Keystores[1].RootFingerprint))
 
 	b.DeregisterKeystore()
-	// Enable watch-only for all but two accounts, one of each keystore. Now, all watch-only
-	// accounts plus the non-watch only accounts of the connected keystore will be loaded.
-	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
-		for _, acct := range cfg.Accounts {
-			t := true
-			acct.Watch = &t
-		}
 
+	// Disable watch-only for two accounts, one of each keystore. Now, all accounts plus the
+	// non-watch only accounts of the connected keystore will be loaded.
+	require.NoError(t, b.config.ModifyAccountsConfig(func(cfg *config.AccountsConfig) error {
 		f := false
 		cfg.Lookup("v0-55555555-btc-0").Watch = &f
 		cfg.Lookup("v0-66666666-ltc-0").Watch = &f

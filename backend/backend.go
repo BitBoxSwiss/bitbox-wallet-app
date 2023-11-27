@@ -789,3 +789,39 @@ func (backend *Backend) GetAccountFromCode(code string) (accounts.Interface, err
 func (backend *Backend) CancelConnectKeystore() {
 	backend.connectKeystore.cancel(errUserAbort)
 }
+
+// SetWatchonly sets the app config's watchonly flag to `watchonly`.
+// When enabling watchonly, all currently loaded accounts are turned into watchonly accounts.
+// When disabling watchonly, all persisted accounts's watchonly status is reset.
+func (backend *Backend) SetWatchonly(watchonly bool) error {
+	err := backend.config.ModifyAppConfig(func(config *config.AppConfig) error {
+		config.Backend.Watchonly = watchonly
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	if !watchonly {
+		// When disabling watchonly, we reset the Watch flag for each account, so that when the user
+		// enables watchonly again, it does not show all accounts again - they first need to be
+		// loaded via their keystore.
+		return backend.AccountSetWatch(
+			func(*config.Account) bool {
+				// Apply to each account.
+				return true
+			},
+			nil,
+		)
+	}
+	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
+	t := true
+	return backend.AccountSetWatch(
+		func(account *config.Account) bool {
+			// Apply to each currently loaded account.
+			defer backend.accountsAndKeystoreLock.RLock()()
+			return backend.accounts.lookup(account.Code) != nil
+		},
+		&t,
+	)
+}

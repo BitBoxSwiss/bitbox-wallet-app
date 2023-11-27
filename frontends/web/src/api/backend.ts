@@ -104,3 +104,7 @@ export const syncConnectKeystore = () => {
 export const cancelConnectKeystore = (): Promise<void> => {
   return apiPost('cancel-connect-keystore');
 };
+
+export const setWatchonly = (watchonly: boolean): Promise<ISuccess> => {
+  return apiPost('set-watchonly', watchonly);
+};
