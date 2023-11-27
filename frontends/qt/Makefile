@@ -52,7 +52,9 @@ osx:
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
-	macdeployqt build/osx/BitBox.app
+	# The `-executable` flag is needed to make the macOS build work when Qt is installed from homebrew.
+	# It works without it when Qt is installed using the official installer.
+	cd build/osx/ && macdeployqt BitBox.app -executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
