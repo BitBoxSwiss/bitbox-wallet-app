@@ -96,7 +96,7 @@ export const WCIncomingPairing = ({
       if (e.message.includes('Non conforming namespaces')) {
         alertUser(t('walletConnect.invalidPairingChain',
           {
-            chains: '\n•Ethereum \n•Optimism \n•BSC \n•Polygon \n•Fantom \n•Arbitrum One'
+            chains: '\n•Ethereum \n•Ethereum (Goerli)'
           }));
       } else {
         //unexpected error, display native error message

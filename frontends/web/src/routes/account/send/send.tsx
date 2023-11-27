@@ -389,8 +389,7 @@ class Send extends Component<Props, State> {
       apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
         .then(data => {
           if (data.success) {
-            this.setState({ amount: data.amount });
-            this.validateAndDisplayFee(false);
+            this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
           } else {
             this.setState({ amountError: this.props.t('send.error.invalidAmount') });
           }

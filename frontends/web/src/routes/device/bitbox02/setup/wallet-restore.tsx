@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { restoreFromMnemonic, errUserAbort } from '../../../../api/bitbox02';
 import { alertUser } from '../../../../components/alert/Alert';
-import { Backup } from '../../components/backup';
+import { Backup } from '../../../../api/backup';
 import { SetPasswordWithBackup } from './password';
 import { RestoreFromSDCardBackup } from './restore';
 import { WithSDCard } from './sdcard';
