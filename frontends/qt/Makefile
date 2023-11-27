@@ -27,10 +27,11 @@ linux:
 	$(MAKE) clean
 	cd server && $(MAKE) linux
 	$(MAKE) base
-	mkdir build/linux-tmp build/linux
+	mkdir -p build/linux-tmp/lib build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
-	cp server/libserver.so build/linux-tmp
+	cp server/libserver.so build/linux-tmp/lib
+	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/linux-amd64/libbreez_sdk_bindings.so build/linux-tmp/lib
 	cd build/linux-tmp && /opt/linuxdeployqt-7-x86_64.AppImage BitBox -bundle-non-qt-libs -unsupported-allow-new-glibc
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
 	cp -aR resources/linux build/tmp-deb
@@ -43,7 +44,6 @@ linux:
 	# create AppImage
 	cd build/linux-tmp && /opt/linuxdeployqt-7-x86_64.AppImage BitBox -appimage -unsupported-allow-new-glibc
 	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/
-	rm build/linux-tmp/libserver.so
 osx:
 	$(MAKE) clean
 	cd server && $(MAKE) macosx

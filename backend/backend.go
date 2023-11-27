@@ -44,6 +44,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
+	_ "github.com/digitalbitbox/bitbox-wallet-app/breeztest"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
