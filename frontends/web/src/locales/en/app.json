@@ -1039,8 +1039,11 @@
   },
   "loading": "loading…",
   "manageAccounts": {
+    "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
+    "hideAccount": "Hide account",
+    "hideAccountDescription": "Hide your account so next time you open the BitBoxApp, it won't show up in your list of accounts. You can always add it again later.",
     "noAccounts": "no accounts found",
     "settings": {
       "hideTokens": "Hide tokens",
