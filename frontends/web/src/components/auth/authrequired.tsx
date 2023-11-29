@@ -18,10 +18,19 @@ import { View } from '../view/view';
 import style from './authrequired.module.css';
 import { useEffect, useRef, useState } from 'react';
 import { TAuthEventObject, authenticate, subscribeAuth } from '../../api/backend';
+import { Button } from '../forms';
+import { useTranslation } from 'react-i18next';
 
 export const AuthRequired = () => {
+  const { t } = useTranslation();
   const [authRequired, setAuthRequired] = useState(false);
+  const [authenticating, setAuthenticating] = useState(false);
   const authForced = useRef(false);
+
+  const newAuthentication = () => {
+    setAuthenticating(true);
+    authenticate(authForced.current);
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeAuth((data: TAuthEventObject) => {
@@ -36,13 +45,13 @@ export const AuthRequired = () => {
         // time the state changes.
         setAuthRequired((prevAuthRequired) => {
           if (!prevAuthRequired) {
-            authenticate(authForced.current);
+            newAuthentication();
           }
           return true;
         });
         break;
       case 'auth-err':
-        authenticate(authForced.current);
+        setAuthenticating(false);
         break;
       case 'auth-canceled':
         if (authForced.current) {
@@ -52,7 +61,7 @@ export const AuthRequired = () => {
           setAuthRequired(false);
           authForced.current = false;
         } else {
-          authenticate(authForced.current);
+          setAuthenticating(false);
         }
         break;
       case 'auth-ok':
@@ -64,7 +73,7 @@ export const AuthRequired = () => {
     // Perform initial authentication. If the auth config is disabled,
     // the backend will immediately send an auth-ok back.
     setAuthRequired(true);
-    authenticate();
+    newAuthentication();
 
     return unsubscribe;
   }, []);
@@ -80,6 +89,15 @@ export const AuthRequired = () => {
         verticallyCentered
         width="100%"
         withBottomBar>
+        <h2><span>{t('auth.title')}</span></h2>
+        <Button
+          autoFocus
+          primary
+          hidden={authForced.current}
+          disabled={authenticating}
+          onClick={newAuthentication}>
+          {t('auth.authButton')}
+        </Button>
       </View>
     </div>
   );
