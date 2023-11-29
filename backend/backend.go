@@ -117,6 +117,7 @@ type authEventType string
 const (
 	authRequired authEventType = "auth-required"
 	authForced   authEventType = "auth-forced"
+	authCanceled authEventType = "auth-canceled"
 	authOk       authEventType = "auth-ok"
 	authErr      authEventType = "auth-err"
 )
@@ -332,6 +333,17 @@ func (backend *Backend) TriggerAuth() {
 		Action:  action.Replace,
 		Object: authEventObject{
 			Typ: authRequired,
+		},
+	})
+}
+
+// CancelAuth triggers an auth-canceled notification.
+func (backend *Backend) CancelAuth() {
+	backend.Notify(observable.Event{
+		Subject: "auth",
+		Action:  action.Replace,
+		Object: authEventObject{
+			Typ: authCanceled,
 		},
 	})
 }

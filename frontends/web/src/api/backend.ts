@@ -117,7 +117,7 @@ export const forceAuth = (): Promise<void> => {
 };
 
 export type TAuthEventObject = {
-  typ: 'auth-required' | 'auth-forced' | 'auth-ok' | 'auth-err' ;
+  typ: 'auth-required' | 'auth-forced' | 'auth-canceled' | 'auth-ok' | 'auth-err' ;
 };
 
 export const subscribeAuth = (

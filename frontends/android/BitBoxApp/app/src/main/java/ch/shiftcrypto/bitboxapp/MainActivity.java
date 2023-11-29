@@ -375,10 +375,19 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure() {
-                        // Failed or cancelled
+                        // Failed
                         Util.log("Auth failed");
                         goViewModel.closeAuth();;
                         Goserver.authResult(false);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        // Canceled
+                        Util.log("Auth canceled");
+                        goViewModel.closeAuth();;
+                        Goserver.cancelAuth();
+
                     }
                 });
             }

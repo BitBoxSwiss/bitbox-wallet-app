@@ -16,6 +16,7 @@ public class BiometricAuthHelper {
     public interface AuthCallback {
         void onSuccess();
         void onFailure();
+        void onCancel();
     }
 
     public static void showAuthenticationPrompt(FragmentActivity activity, AuthCallback callback) {
@@ -35,9 +36,14 @@ public class BiometricAuthHelper {
 
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                Util.log("Authentication error: " + errorCode + " - " + errString);
+                if (errorCode == BiometricPrompt.ERROR_USER_CANCELED) {
+                    Util.log("Authentication error: user canceled");
+                    new Handler(Looper.getMainLooper()).post(callback::onCancel);
+                } else {
+                    Util.log("Authentication error: " + errorCode + " - " + errString);
+                    new Handler(Looper.getMainLooper()).post(callback::onFailure);
+                }
                 super.onAuthenticationError(errorCode, errString);
-                new Handler(Looper.getMainLooper()).post(callback::onFailure);
             }
         });
 
@@ -47,7 +53,6 @@ public class BiometricAuthHelper {
                                 BiometricManager.Authenticators.BIOMETRIC_WEAK)
                 .setConfirmationRequired(false)
                 .build();
-
         biometricPrompt.authenticate(promptInfo);
     }
 }

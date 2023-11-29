@@ -217,6 +217,11 @@ func TriggerAuth() {
 	bridgecommon.TriggerAuth()
 }
 
+// CancelAuth triggers an auth canceled notification towards the frontend.
+func CancelAuth() {
+	bridgecommon.CancelAuth()
+}
+
 // AuthResult triggers an auth feeedback notification (auth-ok/auth-err) towards the frontend,
 // depending on the input value.
 func AuthResult(ok bool) {

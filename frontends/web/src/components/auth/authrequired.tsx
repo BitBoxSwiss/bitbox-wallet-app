@@ -44,6 +44,17 @@ export const AuthRequired = () => {
       case 'auth-err':
         authenticate(authForced.current);
         break;
+      case 'auth-canceled':
+        if (authForced.current) {
+          // forced auth can be dismissed and won't be repeated, as it is
+          // tied to a specific UI event (e.g. enabling the auth toggle in
+          // the advanced settings.
+          setAuthRequired(false);
+          authForced.current = false;
+        } else {
+          authenticate(authForced.current);
+        }
+        break;
       case 'auth-ok':
         setAuthRequired(false);
         authForced.current = false;

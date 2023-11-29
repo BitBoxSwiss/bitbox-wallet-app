@@ -131,6 +131,16 @@ func TriggerAuth() {
 	globalBackend.TriggerAuth()
 }
 
+// CancelAuth triggers an authentication canceled notification.
+func CancelAuth() {
+	mu.Lock()
+	defer mu.Unlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.CancelAuth()
+}
+
 // AuthResult triggers an authentication result notification
 // on the base of the input value.
 func AuthResult(ok bool) {

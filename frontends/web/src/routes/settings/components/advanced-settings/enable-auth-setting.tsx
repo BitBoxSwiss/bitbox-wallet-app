@@ -40,6 +40,10 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
         updateConfig(!e.target.checked);
         unsubscribe();
       }
+      if (data.typ === 'auth-canceled') {
+        // if the user canceled the auth, we leave everything as is.
+        unsubscribe();
+      }
     });
     forceAuth();
   };
