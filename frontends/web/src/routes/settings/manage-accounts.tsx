@@ -22,6 +22,7 @@ import * as backendAPI from '../../api/backend';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input } from '../../components/forms';
 import Logo from '../../components/icon/logo';
+import { EyeOpenedDark } from '../../components/icon';
 import { GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
@@ -33,7 +34,6 @@ import { getConfig } from '../../utils/config';
 import { MobileHeader } from '../settings/components/mobile-header';
 import Guide from './manage-account-guide';
 import style from './manage-accounts.module.css';
-
 
 interface ManageAccountsProps {
   deviceIDs: string[];
@@ -47,21 +47,20 @@ type TShowTokens = {
 }
 
 interface State {
-  editAccountCode?: string;
-  editAccountNewName: string;
   editErrorMessage?: string;
   accounts: accountAPI.IAccount[];
   showTokens: TShowTokens;
   watchonly?: boolean;
+  currentlyEditedAccount?: accountAPI.IAccount
 }
 
 class ManageAccounts extends Component<Props, State> {
   public readonly state: State = {
-    editAccountNewName: '',
     editErrorMessage: undefined,
     accounts: [],
     showTokens: {},
     watchonly: undefined,
+    currentlyEditedAccount: undefined
   };
 
   private fetchAccounts = () => {
@@ -74,7 +73,7 @@ class ManageAccounts extends Component<Props, State> {
   }
 
   private renderAccounts = (accounts: accountAPI.IAccount[]) => {
-    const { watchonly, showTokens } = this.state;
+    const { showTokens } = this.state;
     const { t } = this.props;
     return accounts.filter(account => !account.isToken).map(account => {
       const active = account.active;
@@ -93,7 +92,8 @@ class ManageAccounts extends Component<Props, State> {
           </div>
           <button
             className={style.editBtn}
-            onClick={() => this.setState({ editAccountCode: account.code, editAccountNewName: account.name })}>
+            onClick={() => this.setState({ currentlyEditedAccount: account })}
+          >
             {t('manageAccounts.editAccount')}
           </button>
           <Toggle
@@ -105,19 +105,6 @@ class ManageAccounts extends Component<Props, State> {
               this.toggleAccount(account.code, !active)
                 .then(() => event.target.disabled = false);
             }} />
-          { watchonly ? (<>
-            Hide account (TODO: move this to the edit dialog):
-            <Toggle
-              checked={!account.watch}
-              className={style.toggle}
-              id={account.code}
-              onChange={async (event) => {
-                event.target.disabled = true;
-                await this.setWatch(account.code, !account.watch);
-                event.target.disabled = false;
-              }} />
-          </>
-          ) : null }
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
               <div className={`${style.tokenContainer} ${tokensVisible ? style.tokenContainerOpen : ''}`}>
@@ -136,6 +123,41 @@ class ManageAccounts extends Component<Props, State> {
         </div>
       );
     });
+  };
+
+  private renderWatchOnlyToggle = () => {
+    const { t } = this.props;
+    const { currentlyEditedAccount } = this.state;
+    if (!currentlyEditedAccount) {
+      return;
+    }
+
+    return (
+      <div className="flex flex-column">
+        <div className={style.watchOnlyContainer}>
+          <div className="flex">
+            <EyeOpenedDark width={18} height={18} />
+            <p className={style.watchOnlyTitle}>{t('manageAccounts.hideAccount')}</p>
+          </div>
+          <Toggle
+            checked={!currentlyEditedAccount.watch}
+            className={style.toggle}
+            id={currentlyEditedAccount.code}
+            onChange={async (event) => {
+              event.target.disabled = true;
+              await this.setWatch(currentlyEditedAccount.code, !currentlyEditedAccount.watch);
+              this.setState({ currentlyEditedAccount: { ...currentlyEditedAccount, watch: !currentlyEditedAccount.watch } });
+              event.target.disabled = false;
+            }}
+          />
+        </div>
+        <p className={style.watchOnlyNote}>{t('manageAccounts.hideAccountDescription')}</p>
+        {
+          !currentlyEditedAccount.watch && <div className={style.watchOnlyAccountHidden}>
+            <p>{t('manageAccounts.accountHidden')}</p>
+          </div>
+        }
+      </div>);
   };
 
   private toggleAccount = (accountCode: string, active: boolean) => {
@@ -224,9 +246,13 @@ class ManageAccounts extends Component<Props, State> {
 
   private updateAccountName = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    const { editAccountCode, editAccountNewName } = this.state;
+    const { currentlyEditedAccount } = this.state;
 
-    backendAPI.renameAccount(editAccountCode!, editAccountNewName!)
+    if (!currentlyEditedAccount) {
+      return;
+    }
+
+    backendAPI.renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
       .then(result => {
         if (!result.success) {
           if (result.errorCode) {
@@ -238,16 +264,15 @@ class ManageAccounts extends Component<Props, State> {
         }
         this.fetchAccounts();
         this.setState({
-          editAccountCode: undefined,
-          editAccountNewName: '',
           editErrorMessage: undefined,
+          currentlyEditedAccount: undefined,
         });
       });
   };
 
   public render() {
     const { t, deviceIDs, hasAccounts } = this.props;
-    const { accounts, editAccountCode, editAccountNewName, editErrorMessage } = this.state;
+    const { accounts, editErrorMessage, currentlyEditedAccount, watchonly } = this.state;
     const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <GuideWrapper>
@@ -264,38 +289,39 @@ class ManageAccounts extends Component<Props, State> {
             <View fullscreen={false}>
               <ViewContent>
                 <WithSettingsTabs deviceIDs={deviceIDs} hideMobileMenu hasAccounts={hasAccounts}>
-                  <>
-                    <Button
-                      className={style.addAccountBtn}
-                      primary
-                      onClick={() => route('/add-account', true)}>
-                      {t('addAccount.title')}
-                    </Button>
-
-                    {
-                      accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
+                  <Button
+                    className={style.addAccountBtn}
+                    primary
+                    onClick={() => route('/add-account', true)}>
+                    {t('addAccount.title')}
+                  </Button>
+                  {
+                    accountsByKeystore.map(keystore => (
+                      <React.Fragment key={keystore.keystore.rootFingerprint}>
                         <p>{keystore.keystore.name}</p>
                         <div className="box slim divide m-bottom-large">
-                          { this.renderAccounts(keystore.accounts) }
+                          {this.renderAccounts(keystore.accounts)}
                         </div>
-                      </React.Fragment>))
-                    }
-                    { accounts.length === 0 ? t('manageAccounts.noAccounts') : null }
-
+                      </React.Fragment>
+                    ))
+                  }
+                  {currentlyEditedAccount && (
                     <Dialog
-                      open={!!(editAccountCode)}
-                      onClose={() => this.setState({ editAccountCode: undefined, editAccountNewName: '', editErrorMessage: undefined })}
+                      open={!!(currentlyEditedAccount)}
+                      onClose={() => this.setState({ currentlyEditedAccount: undefined })}
                       title={t('manageAccounts.editAccountNameTitle')}>
                       <form onSubmit={this.updateAccountName}>
                         <Message type="error" hidden={!editErrorMessage}>
                           {editErrorMessage}
                         </Message>
                         <Input
-                          onInput={e => this.setState({ editAccountNewName: e.target.value })}
-                          value={editAccountNewName} />
+                          onInput={e => this.setState({ currentlyEditedAccount: { ...currentlyEditedAccount, name: e.target.value } })}
+                          value={currentlyEditedAccount.name}
+                        />
+                        {watchonly && this.renderWatchOnlyToggle()}
                         <DialogButtons>
                           <Button
-                            disabled={!editAccountNewName}
+                            disabled={!currentlyEditedAccount.name}
                             primary
                             type="submit">
                             {t('button.update')}
@@ -303,7 +329,7 @@ class ManageAccounts extends Component<Props, State> {
                         </DialogButtons>
                       </form>
                     </Dialog>
-                  </>
+                  )}
                 </WithSettingsTabs>
               </ViewContent>
             </View>

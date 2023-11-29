@@ -493,6 +493,7 @@ func copyBool(b *bool) *bool {
 // AccountSetWatch sets the account's persisted watch flag to `watch`. Set to `true` if the account
 // should be loaded even if its keystore is not connected.
 // If `watch` is set to `false`, the account is unloaded and the frontend notified.
+// If `watch` is set to `true`, the account is loaded (if the global watchonly flag is enabled) and the frontend notified.
 func (backend *Backend) AccountSetWatch(filter func(*config.Account) bool, watch *bool) error {
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		for _, acct := range accountsConfig.Accounts {
@@ -524,10 +525,8 @@ func (backend *Backend) AccountSetWatch(filter func(*config.Account) bool, watch
 		}
 	}
 
-	if watch == nil || !*watch {
-		backend.initAccounts(false)
-		backend.emitAccountsStatusChanged()
-	}
+	backend.initAccounts(false)
+	backend.emitAccountsStatusChanged()
 	return nil
 }
 
