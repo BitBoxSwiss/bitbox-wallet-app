@@ -156,12 +156,25 @@ class Dialog extends Component<Props, State> {
       clearTimeout(this.timerId);
     }
 
-    this.modal.current?.classList.remove(style.open);
     this.overlay.current.classList.remove(style.activeOverlay);
     this.overlay.current.classList.add(style.closingOverlay);
-    this.timerId = setTimeout(() => {
+    this.modal.current?.classList.remove(style.open);
+
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === this.modal.current) {
+        this.deactivateModal(fireOnCloseProp);
+        this.modal.current?.removeEventListener('transitionend', onTransitionEnd);
+      }
+    };
+
+    const hasTransition = parseFloat(window.getComputedStyle(this.modal.current).transitionDuration) > 0;
+    if (hasTransition) {
+      this.modal.current.addEventListener('transitionend', onTransitionEnd);
+      // fallback in-case the 'transitionend' event didn't fire
+      this.timerId = setTimeout(() => this.deactivateModal(fireOnCloseProp), 400);
+    } else {
       this.deactivateModal(fireOnCloseProp);
-    }, 300);
+    }
   };
 
   private activate = () => {
@@ -180,7 +193,6 @@ class Dialog extends Component<Props, State> {
       this.timerId = setTimeout(() => {
         this.modal.current?.classList.add(style.open);
       }, 10);
-
 
       this.focusWithin();
       this.focusFirst();
