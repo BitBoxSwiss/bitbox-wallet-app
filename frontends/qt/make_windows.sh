@@ -16,7 +16,7 @@ set -e
 
 mkdir -p build
 bash ./genassets.sh
-make -C server/ windows-legacy
+make -C server/ windows
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
 cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/

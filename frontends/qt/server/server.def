@@ -1,2 +1,0 @@
-LIBRARY LIBSERVER
-EXPORTS serve backendCall handleURI systemOpen goLog
