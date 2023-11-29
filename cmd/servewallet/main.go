@@ -23,7 +23,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	backendPkg "github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
@@ -38,6 +38,8 @@ const (
 	port    = 8082
 	address = "0.0.0.0"
 )
+
+var backend *backendPkg.Backend
 
 // webdevEnvironment implements backend.Environment.
 type webdevEnvironment struct {
@@ -78,6 +80,16 @@ func (webdevEnvironment) SystemOpen(url string) error {
 // UsingMobileData implements backend.Environment.
 func (webdevEnvironment) UsingMobileData() bool {
 	return false
+}
+
+// Auth implements backend.Environment.
+func (webdevEnvironment) Auth() {
+	log := logging.Get().WithGroup("servewallet")
+	log.Info("Webdev Auth")
+	if backend != nil {
+		backend.AuthResult(true)
+		log.Info("Webdev Auth OK")
+	}
 }
 
 // NativeLocale naively implements backend.Environment.
@@ -141,7 +153,7 @@ func main() {
 	log.Info("--------------- Started application --------------")
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
-	backend, err := backend.NewBackend(
+	newBackend, err := backendPkg.NewBackend(
 		arguments.NewArguments(
 			config.AppDir(),
 			!*mainnet,
@@ -153,6 +165,7 @@ func main() {
 	if err != nil {
 		log.WithField("error", err).Panic(err)
 	}
+	backend = newBackend
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)

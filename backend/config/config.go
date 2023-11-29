@@ -74,6 +74,8 @@ type Backend struct {
 	DeprecatedLitecoinActive bool `json:"litecoinActive"`
 	DeprecatedEthereumActive bool `json:"ethereumActive"`
 
+	Authentication bool `json:"authentication"`
+
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
 	RBTC btcCoinConfig `json:"rbtc"`
@@ -155,6 +157,7 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
+			Authentication:           false,
 			DeprecatedBitcoinActive:  true,
 			DeprecatedLitecoinActive: true,
 			DeprecatedEthereumActive: true,

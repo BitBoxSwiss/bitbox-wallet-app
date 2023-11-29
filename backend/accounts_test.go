@@ -310,6 +310,8 @@ func (e environment) DetectDarkTheme() bool {
 	return false
 }
 
+func (e environment) Auth() {}
+
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
 	b, err := NewBackend(

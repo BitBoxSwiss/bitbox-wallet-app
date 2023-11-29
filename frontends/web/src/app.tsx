@@ -40,6 +40,7 @@ import { route, RouterWatcher } from './utils/route';
 import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
+import { AuthRequired } from './components/auth/authrequired';
 
 type State = {
   accounts: IAccount[];
@@ -184,6 +185,7 @@ class App extends Component<Props, State> {
           <DarkModeProvider>
             <Darkmode />
             <div className="app">
+              <AuthRequired/>
               <Sidebar
                 accounts={activeAccounts}
                 deviceIDs={deviceIDs}

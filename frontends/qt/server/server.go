@@ -177,6 +177,10 @@ func serve(
 			},
 			SetDarkThemeFunc:    func(bool) {},
 			DetectDarkThemeFunc: detectDarkTheme,
+			AuthFunc: func() {
+				log.Info("Qt auth")
+				authResult(true)
+			},
 		},
 	)
 }
@@ -193,6 +197,10 @@ func systemOpen(url *C.cchar_t) {
 func goLog(msg *C.cchar_t) {
 	goMsg := C.GoString(msg)
 	logging.Get().WithGroup("qt-frontend").Info(goMsg)
+}
+
+func authResult(ok bool) {
+	bridgecommon.AuthResult(ok)
 }
 
 // Don't remove - needed for the C compilation.

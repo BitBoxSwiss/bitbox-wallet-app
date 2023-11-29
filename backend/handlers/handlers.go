@@ -101,6 +101,9 @@ type Backend interface {
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
+	Authenticate(force bool)
+	TriggerAuth()
+	ForceAuth()
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
 	CancelConnectKeystore()
@@ -194,6 +197,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticateHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuthHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuthHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkThemeHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkThemeHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -457,6 +463,29 @@ func (handlers *Handlers) getBannersHandler(r *http.Request) interface{} {
 
 func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) interface{} {
 	return handlers.backend.Environment().UsingMobileData()
+}
+
+func (handlers *Handlers) postAuthenticateHandler(r *http.Request) interface{} {
+	var force bool
+	if err := json.NewDecoder(r.Body).Decode(&force); err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}
+	}
+
+	handlers.backend.Authenticate(force)
+	return nil
+}
+
+func (handlers *Handlers) postTriggerAuthHandler(r *http.Request) interface{} {
+	handlers.backend.TriggerAuth()
+	return nil
+}
+
+func (handlers *Handlers) postForceAuthHandler(r *http.Request) interface{} {
+	handlers.backend.ForceAuth()
+	return nil
 }
 
 func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, error) {
