@@ -171,10 +171,6 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   private setWatch = async (accountCode: string, watch: boolean) => {
-    // TODO: ask user if they really want to proceed if they disable watch-only, if its keystore is
-    // not currently loaded. Disabling watch-only in this case immediately removes the account from
-    // the sidebar and manage accounts and cannot be brought back without connecting the keystore.
-
     const result = await backendAPI.accountSetWatch(accountCode, watch);
     if (result.success) {
       await this.fetchAccounts();
