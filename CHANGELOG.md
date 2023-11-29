@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 4.40.0
 - Drop support for SAI token
 - Ability to connect Ethereum (mainnet) wallets to dapps using WalletConnect
 - Log Javascript console messages in the app log.txt
