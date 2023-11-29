@@ -19,6 +19,17 @@ import { i18n } from '../../../i18n/i18n';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 
+const getLink = () => {
+  switch (i18n.resolvedLanguage) {
+  case 'de':
+    return 'https://bitbox.swiss/de/bitbox02/sicherheit/#device-authenticity-check';
+  case 'es':
+    return 'https://bitbox.swiss/es/bitbox02/seguridad/#device-authenticity-check';
+  default:
+    return 'https://bitbox.swiss/bitbox02/security-features/#device-authenticity-check';
+  }
+};
+
 export const ManageDeviceGuide = () => {
   const { t } = useTranslation();
   return (
@@ -35,9 +46,7 @@ export const ManageDeviceGuide = () => {
       <Entry key="guide.device.attestation" entry={{
         link: {
           text: t('guide.device.attestation.link.text'),
-          url: (i18n.resolvedLanguage === 'de')
-            ? 'https://bitbox.swiss/de/bitbox02/sicherheit/#device-authenticity-check'
-            : 'https://bitbox.swiss/bitbox02/security-features/#device-authenticity-check'
+          url: getLink(),
         },
         text: t('guide.device.attestation.text'),
         title: t('guide.device.attestation.title')

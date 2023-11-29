@@ -24,6 +24,8 @@ export const downloadLinkByLanguage = () => {
   switch (i18n.resolvedLanguage) {
   case 'de':
     return URL_CONSTANTS.DOWNLOAD_LINK_DE;
+  case 'es':
+    return URL_CONSTANTS.DOWNLOAD_LINK_ES;
   default:
     return URL_CONSTANTS.DOWNLOAD_LINK_GLOBAL;
   }
