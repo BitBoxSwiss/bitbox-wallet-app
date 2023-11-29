@@ -52,10 +52,15 @@ osx:
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
-	# The `-executable` flag is needed to make the macOS build work when Qt is installed from homebrew.
-	# It works without it when Qt is installed using the official installer.
-	cd build/osx/ && macdeployqt BitBox.app -executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
+	mkdir -p build/osx/BitBox.app/Contents/Frameworks
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
+	cp ../../vendor/github.com/breez/breez-sdk-go/breez_sdk/lib/darwin-amd64/libbreez_sdk_bindings.dylib build/osx/BitBox.app/Contents/Frameworks
+	# The first `-executable` flag is needed to make the macOS build work when Qt is installed from homebrew.
+	# It works without it when Qt is installed using the official installer.
+	# The second one is needed to have libserver.so resolve libbreez_sdk_bindings by rewiring the LC_RPATH and path to libbreez.
+	cd build/osx/ && macdeployqt BitBox.app \
+		-executable=BitBox.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess \
+		-executable=BitBox.app/Contents/Frameworks/libserver.so
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
