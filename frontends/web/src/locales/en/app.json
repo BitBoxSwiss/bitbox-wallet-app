@@ -1103,7 +1103,9 @@
       },
       "watchonly": {
         "description": "Let's you see your accounts and portfolio without the BitBox02. The BitBox02 is still needed for signing.",
-        "title": "Watch-only"
+        "title": "Watch-only",
+        "warning": "This will remove all your watch-only accounts. To see them again, you will need to plug in your BitBox02. Do you want to continue?",
+        "warningTitle": "Disable watch-only"
       }
     }
   },

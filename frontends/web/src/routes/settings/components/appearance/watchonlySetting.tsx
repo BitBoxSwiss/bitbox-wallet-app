@@ -21,11 +21,14 @@ import { SettingsItem } from '../settingsItem/settingsItem';
 import * as backendAPI from '../../../../api/backend';
 import { useLoad } from '../../../../hooks/api';
 import { getConfig } from '../../../../utils/config';
+import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
+import { Button } from '../../../../components/forms';
 
 export const WatchonlySetting = () => {
   const { t } = useTranslation();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
+  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
   const config = useLoad(getConfig);
 
   useEffect(() => {
@@ -35,37 +38,63 @@ export const WatchonlySetting = () => {
   }, [config]);
 
   const toggleWatchonly = async () => {
-    // TODO: ask user if they really want to proceed if they disable watch-only.
-    // Disabling watch-only immediately removes all accounts from
-    // the sidebar and manage accounts and cannot be brought back without connecting the keystore.
+    if (!watchonly) {
+      setDisabled(true);
+      const { success } = await backendAPI.setWatchonly(!watchonly);
 
-    setDisabled(true);
-    const { success } = await backendAPI.setWatchonly(!watchonly);
-    if (success) {
-      setWatchonly(!watchonly);
+      if (success) {
+        setWatchonly(!watchonly);
+      }
+      setDisabled(false);
+      return;
     }
+
+    setWarningDialogOpen(true);
     setDisabled(false);
   };
 
+
+  const handleCloseDialog = () => {
+    setWarningDialogOpen(false);
+    setDisabled(false);
+  };
+
+  const handleConfirmDisableWatchonly = async () => {
+    setDisabled(true);
+    await backendAPI.setWatchonly(false);
+    setWatchonly(false);
+    setDisabled(false);
+    setWarningDialogOpen(false);
+  };
+
   return (
-    <SettingsItem
-      settingName={t('newSettings.appearance.watchonly.title')}
-      secondaryText={t('newSettings.appearance.watchonly.description')}
-      extraComponent={
-        <>
-          {
-            watchonly !== undefined ?
-              (
-                <Toggle
-                  checked={watchonly}
-                  disabled={disabled}
-                  onChange={toggleWatchonly}
-                />
-              ) :
-              null
-          }
-        </>
-      }
-    />
+    <>
+      <Dialog title={t('newSettings.appearance.watchonly.warningTitle')} medium onClose={handleCloseDialog} open={warningDialogOpen}>
+        <p>{t('newSettings.appearance.watchonly.warning')}</p>
+        <DialogButtons>
+          <Button primary onClick={handleConfirmDisableWatchonly}>{t('dialog.confirm')}</Button>
+          <Button secondary onClick={handleCloseDialog}>{t('dialog.cancel')}</Button>
+        </DialogButtons>
+      </Dialog>
+      <SettingsItem
+        settingName={t('newSettings.appearance.watchonly.title')}
+        secondaryText={t('newSettings.appearance.watchonly.description')}
+        extraComponent={
+          <>
+            {
+              watchonly !== undefined ?
+                (
+                  <Toggle
+                    checked={watchonly}
+                    disabled={disabled}
+                    onChange={toggleWatchonly}
+                  />
+                ) :
+                null
+            }
+          </>
+        }
+      />
+    </>
   );
 };
