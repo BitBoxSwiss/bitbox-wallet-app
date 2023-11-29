@@ -1,8 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Add support for watch-only - see your accounts and portfolio without connecting your BitBox02
 - Drop support for SAI token
-- Log Javascript console messages in the app log.txt
+- Log JavaScript console messages in the app log.txt
 - Add amounts hiding feature to enhance privacy when using the app in public
 
 ## 4.39.0
