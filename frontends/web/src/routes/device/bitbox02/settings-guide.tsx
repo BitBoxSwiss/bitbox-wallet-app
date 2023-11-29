@@ -35,7 +35,7 @@ export const ManageDeviceGuide = () => {
       <Entry key="guide.device.attestation" entry={{
         link: {
           text: t('guide.device.attestation.link.text'),
-          url: (i18n.language === 'de')
+          url: (i18n.resolvedLanguage === 'de')
             ? 'https://bitbox.swiss/de/bitbox02/sicherheit/#device-authenticity-check'
             : 'https://bitbox.swiss/bitbox02/security-features/#device-authenticity-check'
         },

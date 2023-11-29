@@ -44,7 +44,7 @@ export const Banner = ({ msgKey }: TBannerProps) => {
     <Status
       dismissible={banner.dismissible ? `banner-${msgKey}-${banner.id}` : ''}
       type={banner.type ? banner.type : 'warning'}>
-      { message[i18n.language] || message[(i18n.options.fallbackLng as string[])[0]] }
+      { message[i18n.resolvedLanguage] || message[(i18n.options.fallbackLng as string[])[0]] }
       &nbsp;
       { link && (
         <A href={link.href} className={style.link}>

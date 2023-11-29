@@ -89,7 +89,7 @@ export const ElectrumSettings = () => {
         <Entry key="guide.settings-electrum.instructions" entry={{
           link: {
             text: t('guide.settings-electrum.instructions.link.text'),
-            url: (i18n.language === 'de')
+            url: (i18n.resolvedLanguage === 'de')
               ? 'https://shiftcrypto.support/help/de-de/14-privatsphare/29-verbindung-der-bitboxapp-zu-meinem-bitcoin-full-node'
               : 'https://shiftcrypto.support/help/en-us/14-privacy/29-how-to-connect-the-bitboxapp-to-my-own-full-node'
           },

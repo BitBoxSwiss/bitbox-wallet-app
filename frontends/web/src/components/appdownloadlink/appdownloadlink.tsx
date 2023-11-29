@@ -21,8 +21,7 @@ import { Button } from '../forms';
 import { A } from '../anchor/anchor';
 
 export const downloadLinkByLanguage = () => {
-  const language = i18n.language;
-  switch (language) {
+  switch (i18n.resolvedLanguage) {
   case 'de':
     return URL_CONSTANTS.DOWNLOAD_LINK_DE;
   default:
