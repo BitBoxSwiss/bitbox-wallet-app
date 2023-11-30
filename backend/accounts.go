@@ -1166,7 +1166,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
 			WithField("coinCode", coinCode)
 
-		maxAccountNumber := uint16(0)
+		maxAccountNumber := -1
 		var maxAccount *config.Account
 		for _, accountConfig := range cfg.Accounts {
 			if coinCode != accountConfig.CoinCode {
@@ -1179,22 +1179,19 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			if err != nil {
 				continue
 			}
-			if maxAccount == nil || accountNumber > maxAccountNumber {
-				maxAccountNumber = accountNumber
+			if maxAccount == nil || int(accountNumber) > maxAccountNumber {
+				maxAccountNumber = int(accountNumber)
 				maxAccount = accountConfig
 			}
-		}
-		if maxAccount == nil {
-			return nil
 		}
 		// Account scan gap limit:
 		// - Previous account must be used for the next one to be scanned, but:
 		// - The first 5 accounts are always scanned as before we had accounts discovery, the
 		//   BitBoxApp allowed manual creation of 5 accounts, so we need to always scan these.
-		if maxAccount.Used || maxAccountNumber < accountsHardLimit {
+		if maxAccount == nil || maxAccount.Used || maxAccountNumber < accountsHardLimit {
 			accountCode, err := backend.createAndPersistAccountConfig(
 				coinCode,
-				maxAccountNumber+1,
+				uint16(maxAccountNumber+1),
 				true,
 				"",
 				backend.keystore,
