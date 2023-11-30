@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { View } from '../view/view';
-import style from './authrequired.module.css';
 import { useEffect, useRef, useState } from 'react';
-import { TAuthEventObject, authenticate, subscribeAuth } from '../../api/backend';
-import { Button } from '../forms';
 import { useTranslation } from 'react-i18next';
+import { TAuthEventObject, authenticate, subscribeAuth } from '../../api/backend';
+import { View, ViewButtons, ViewContent, ViewHeader } from '../view/view';
+import { Button } from '../forms';
+import style from './authrequired.module.css';
 
 export const AuthRequired = () => {
   const { t } = useTranslation();
@@ -86,18 +86,21 @@ export const AuthRequired = () => {
     <div className={style.auth}>
       <View
         fullscreen
+        textCenter
         verticallyCentered
-        width="100%"
         withBottomBar>
-        <h2><span>{t('auth.title')}</span></h2>
-        <Button
-          autoFocus
-          primary
-          hidden={authForced.current}
-          disabled={authenticating}
-          onClick={newAuthentication}>
-          {t('auth.authButton')}
-        </Button>
+        <ViewHeader small title={t('auth.title')} />
+        <ViewContent children={undefined} minHeight="0" />
+        <ViewButtons>
+          <Button
+            autoFocus
+            primary
+            hidden={authForced.current}
+            disabled={authenticating}
+            onClick={newAuthentication}>
+            {t('auth.authButton')}
+          </Button>
+        </ViewButtons>
       </View>
     </div>
   );
