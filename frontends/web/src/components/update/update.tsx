@@ -16,7 +16,6 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { runningInAndroid } from '../../utils/env';
 import { getUpdate } from '../../api/version';
 import { Status } from '../status/status';
 import { AppDownloadLink } from '../appdownloadlink/appdownloadlink';
@@ -37,8 +36,7 @@ export const Update = () => {
       })}
       {file.description}
       {' '}
-      {/* Don't show download link on Android because they should update from stores */}
-      {!runningInAndroid() && <AppDownloadLink className={style.link} />}
+      <AppDownloadLink className={style.link} />
     </Status>
   );
 };
