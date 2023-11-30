@@ -16,5 +16,6 @@
 
 export const URL_CONSTANTS = {
   DOWNLOAD_LINK_GLOBAL: 'https://bitbox.swiss/download/?source=bitboxapp',
-  DOWNLOAD_LINK_DE: 'https://bitbox.swiss/de/download/?source=bitboxapp'
+  DOWNLOAD_LINK_DE: 'https://bitbox.swiss/de/download/?source=bitboxapp',
+  DOWNLOAD_LINK_ES: 'https://bitbox.swiss/es/descargar/?source=bitboxapp'
 };
