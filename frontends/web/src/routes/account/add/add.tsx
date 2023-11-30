@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as backendAPI from '../../../api/backend';
+import * as keystoresAPI from '../../../api/keystores';
 import { SimpleMarkup } from '../../../utils/markup';
 import { Message } from '../../../components/message/message';
 import { Button, Input } from '../../../components/forms';
@@ -46,10 +47,6 @@ export const AddAccount = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    startProcess();
-  }, []);
-
-  useEffect(() => {
     if (step === 'choose-name') {
       inputRef.current?.focus();
     }
@@ -59,7 +56,7 @@ export const AddAccount = () => {
     return supportedCoins.length === 1;
   };
 
-  const startProcess = async () => {
+  const startProcess = useCallback(async () => {
     try {
       const coins = await backendAPI.getSupportedCoins();
       const onlyOneCoinIsSupported = (coins.length === 1);
@@ -73,7 +70,16 @@ export const AddAccount = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    startProcess();
+
+    const unsubscribe = keystoresAPI.subscribeKeystores(() => {
+      startProcess();
+    });
+    return unsubscribe;
+  }, [startProcess]);
 
   const back = () => {
     switch (step) {
@@ -122,6 +128,13 @@ export const AddAccount = () => {
   const renderContent = () => {
     switch (step) {
     case 'select-coin':
+      if (supportedCoins.length === 0) {
+        return (
+          <Message type="info">
+            {t('connectKeystore.promptNoName')}
+          </Message>
+        );
+      }
       return (
         <CoinDropDown
           onChange={coin => {
