@@ -153,7 +153,7 @@ func (backend *Backend) aoppKeystoreRegistered() {
 	var accounts []account
 	var filteredDueToScriptType bool
 	for _, acct := range backend.accounts {
-		if acct.Config().Config.Inactive {
+		if acct.Config().Config.Inactive || acct.Config().Config.HiddenBecauseUnused {
 			continue
 		}
 		if acct.Coin().Code() != backend.aopp.coinCode {
