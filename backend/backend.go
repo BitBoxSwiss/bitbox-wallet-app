@@ -647,6 +647,8 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 	backend.aoppKeystoreRegistered()
 
 	backend.connectKeystore.onConnect(backend.keystore)
+
+	go backend.maybeAddHiddenUnusedAccounts()
 }
 
 // DeregisterKeystore removes the registered keystore.

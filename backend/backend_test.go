@@ -123,23 +123,20 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NoError(t, b.SetWatchonly(true))
 
 	b.DeregisterKeystore()
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 
 	// Registering the same keystore again loads the previously persisted accounts and does not
 	// automatically persist more accounts.
 	b.registerKeystore(ks1)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 
 	// Registering another keystore persists a set of initial default accounts and loads them.
 	// They are added to the previous set of watchonly accounts
 	b.DeregisterKeystore()
 	b.registerKeystore(ks2)
-	require.Len(t, b.Accounts(), 6)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 6)
+	checkShownAccountsLen(t, b, 6, 6)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
@@ -161,7 +158,7 @@ func TestRegisterKeystore(t *testing.T) {
 		return nil
 	}))
 	b.registerKeystore(ks1)
-	require.Len(t, b.Accounts(), 5)
+	checkShownAccountsLen(t, b, 5, 6)
 	// v0-55555555-btc-0 loaded even though watch=false, as the keystore is connected.
 	require.NotNil(t, b.accounts.lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.accounts.lookup("v0-55555555-ltc-0"))
@@ -172,7 +169,7 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.accounts.lookup("v0-66666666-eth-0"))
 
 	b.DeregisterKeystore()
-	require.Len(t, b.Accounts(), 4)
+	checkShownAccountsLen(t, b, 4, 6)
 	// v0-55555555-btc-0 not loaded (watch = false)
 	require.Nil(t, b.accounts.lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.accounts.lookup("v0-55555555-ltc-0"))
@@ -248,8 +245,7 @@ func TestAccounts(t *testing.T) {
 	acctCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeBTC, "A second Bitcoin account", ks)
 	require.NoError(t, err)
 	require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), acctCode)
-	require.Len(t, b.Accounts(), 4)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 4)
+	checkShownAccountsLen(t, b, 4, 4)
 
 	// 3) Activate some ETH tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
@@ -258,9 +254,9 @@ func TestAccounts(t *testing.T) {
 		[]string{"eth-erc20-usdt", "eth-erc20-bat"},
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
-	require.Len(t, b.Accounts(), 6)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Config.Code)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-usdt"), b.Accounts()[5].Config().Config.Code)
+	checkShownAccountsLen(t, b, 6, 4)
+	require.NotNil(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat"))
+	require.NotNil(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt"))
 
 	// 4) Deactivate an ETH token
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", false))
@@ -268,8 +264,8 @@ func TestAccounts(t *testing.T) {
 		[]string{"eth-erc20-bat"},
 		b.Config().AccountsConfig().Lookup("v0-55555555-eth-0").ActiveTokens,
 	)
-	require.Len(t, b.Accounts(), 5)
-	require.Equal(t, accountsTypes.Code("v0-55555555-eth-0-eth-erc20-bat"), b.Accounts()[4].Config().Config.Code)
+	checkShownAccountsLen(t, b, 5, 4)
+	require.NotNil(t, lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat"))
 
 	// 5) Rename an account
 	require.NoError(t, b.RenameAccount("v0-55555555-eth-0", "My ETH"))
