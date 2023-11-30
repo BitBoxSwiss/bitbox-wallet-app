@@ -108,6 +108,7 @@ export const cancelConnectKeystore = (): Promise<void> => {
 export const setWatchonly = (watchonly: boolean): Promise<ISuccess> => {
   return apiPost('set-watchonly', watchonly);
 };
+
 export const authenticate = (force: boolean = false): Promise<void> => {
   return apiPost('authenticate', force);
 };
@@ -125,3 +126,7 @@ export const subscribeAuth = (
 ) => (
   subscribeEndpoint('auth', cb)
 );
+
+export const onAuthSettingChanged = (): Promise<void> => {
+  return apiPost('on-auth-setting-changed');
+};

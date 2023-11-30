@@ -181,6 +181,7 @@ func serve(
 				log.Info("Qt auth")
 				authResult(true)
 			},
+			OnAuthSettingChangedFunc: func(bool) {},
 		},
 	)
 }

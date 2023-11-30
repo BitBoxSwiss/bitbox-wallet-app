@@ -242,6 +242,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChangedHandler).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -1332,4 +1333,10 @@ func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
 		return response{Success: false}
 	}
 	return response{Success: true}
+}
+
+func (handlers *Handlers) postOnAuthSettingChangedHandler(r *http.Request) interface{} {
+	handlers.backend.Environment().OnAuthSettingChanged(
+		handlers.backend.Config().AppConfig().Backend.Authentication)
+	return nil
 }

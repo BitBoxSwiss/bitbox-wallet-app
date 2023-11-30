@@ -157,7 +157,11 @@ type Environment interface {
 	SetDarkTheme(bool)
 	// DetectDarkTheme returns true if the dark theme is enabled at OS level.
 	DetectDarkTheme() bool
+	// Auth requests the native environment to trigger authentication.
 	Auth()
+	// OnAuthSettingChanged is called when the authentication (screen lock) setting is changed.
+	// This is also called when the app launches with the current setting.
+	OnAuthSettingChanged(enabled bool)
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -572,6 +576,8 @@ func (backend *Backend) Start() <-chan interface{} {
 
 	backend.ratesUpdater.StartCurrentRates()
 	backend.configureHistoryExchangeRates()
+
+	backend.environment.OnAuthSettingChanged(backend.config.AppConfig().Backend.Authentication)
 	return backend.events
 }
 

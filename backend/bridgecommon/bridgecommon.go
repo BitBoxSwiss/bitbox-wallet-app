@@ -174,24 +174,18 @@ type BackendEnvironment struct {
 	UsingMobileDataFunc func() bool
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
-	NativeLocaleFunc    func() string
-	GetSaveFilenameFunc func(string) string
-	SetDarkThemeFunc    func(bool)
-	DetectDarkThemeFunc func() bool
-	AuthFunc            func()
+	NativeLocaleFunc         func() string
+	GetSaveFilenameFunc      func(string) string
+	SetDarkThemeFunc         func(bool)
+	DetectDarkThemeFunc      func() bool
+	AuthFunc                 func()
+	OnAuthSettingChangedFunc func(bool)
 }
 
 // NotifyUser implements backend.Environment.
 func (env *BackendEnvironment) NotifyUser(text string) {
 	if env.NotifyUserFunc != nil {
 		env.NotifyUserFunc(text)
-	}
-}
-
-// Auth implements backend.Environment.
-func (env *BackendEnvironment) Auth() {
-	if env.AuthFunc != nil {
-		env.AuthFunc()
 	}
 }
 
@@ -235,17 +229,33 @@ func (env *BackendEnvironment) GetSaveFilename(suggestedFilename string) string 
 	return ""
 }
 
+// SetDarkTheme implements backend.Environment.
 func (env *BackendEnvironment) SetDarkTheme(isDark bool) {
 	if env.SetDarkThemeFunc != nil {
 		env.SetDarkThemeFunc(isDark)
 	}
 }
 
+// DetectDarkTheme implements backend.Environment.
 func (env *BackendEnvironment) DetectDarkTheme() bool {
 	if env.DetectDarkThemeFunc != nil {
 		return env.DetectDarkThemeFunc()
 	}
 	return false
+}
+
+// Auth implements backend.Environment.
+func (env *BackendEnvironment) Auth() {
+	if env.AuthFunc != nil {
+		env.AuthFunc()
+	}
+}
+
+// OnAuthSettingChanged implements backend.Environment.
+func (env *BackendEnvironment) OnAuthSettingChanged(enabled bool) {
+	if env.OnAuthSettingChangedFunc != nil {
+		env.OnAuthSettingChangedFunc(enabled)
+	}
 }
 
 // Serve serves the BitBox API for use in a native client.

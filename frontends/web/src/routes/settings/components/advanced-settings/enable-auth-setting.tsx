@@ -20,7 +20,7 @@ import { Toggle } from '../../../../components/toggle/toggle';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { TBackendConfig, TConfig } from '../../advanced-settings';
 import { setConfig } from '../../../../utils/config';
-import { TAuthEventObject, subscribeAuth, forceAuth } from '../../../../api/backend';
+import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '../../../../api/backend';
 import { runningInAndroid } from '../../../../utils/env';
 
 type TProps = {
@@ -52,6 +52,7 @@ export const EnableAuthSetting = ({ backendConfig, onChangeConfig }: TProps) => 
     const config = await setConfig({
       backend: { authentication: auth },
     }) as TConfig;
+    onAuthSettingChanged();
     onChangeConfig(config);
   };
 
