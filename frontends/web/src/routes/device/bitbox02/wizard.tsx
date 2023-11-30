@@ -152,7 +152,10 @@ export class Wizard extends Component<Props, State> {
           text={waitDialog.text} />
       );
     }
-
+    // fixes empty main element, happens when after unlocking the device, reason wizard is now always mounted in app.tsx
+    if (appStatus === '' && status === 'initialized') {
+      return null;
+    }
     return (
       <Main>
         { (status === 'connected') ? (
