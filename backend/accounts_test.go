@@ -312,6 +312,8 @@ func (e environment) DetectDarkTheme() bool {
 
 func (e environment) Auth() {}
 
+func (e environment) OnAuthSettingChanged(bool) {}
+
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
 	b, err := NewBackend(

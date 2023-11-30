@@ -104,7 +104,6 @@ public class GoViewModel extends AndroidViewModel {
         }
 
         public void notifyUser(String message) {
-
         }
 
         private GoDeviceInfoInterface device;
@@ -124,6 +123,10 @@ public class GoViewModel extends AndroidViewModel {
         public void auth() {
             Util.log("Auth requested from backend");
             requestAuth();
+        }
+
+        public void onAuthSettingChanged(boolean enabled) {
+            authSetting.postValue(enabled);
         }
 
         public boolean usingMobileData() {
@@ -205,6 +208,13 @@ public class GoViewModel extends AndroidViewModel {
 
     public MutableLiveData<Boolean> getAuthenticator() {
         return authenticator;
+    }
+
+    // The value of the backend config's Authentication setting.
+    private MutableLiveData<Boolean> authSetting = new MutableLiveData<>(false);
+
+    public MutableLiveData<Boolean> getAuthSetting() {
+        return authSetting;
     }
 
     public void requestAuth() {

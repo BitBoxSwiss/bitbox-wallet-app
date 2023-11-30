@@ -364,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!requestAuth) {
                     return;
                 }
+
                 BiometricAuthHelper.showAuthenticationPrompt(MainActivity.this, new BiometricAuthHelper.AuthCallback() {
                     @Override
                     public void onSuccess() {
@@ -377,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure() {
                         // Failed
                         Util.log("Auth failed");
-                        goViewModel.closeAuth();;
+                        goViewModel.closeAuth();
                         Goserver.authResult(false);
                     }
 
@@ -385,14 +386,32 @@ public class MainActivity extends AppCompatActivity {
                     public void onCancel() {
                         // Canceled
                         Util.log("Auth canceled");
-                        goViewModel.closeAuth();;
+                        goViewModel.closeAuth();
                         Goserver.cancelAuth();
-
                     }
                 });
             }
         });
 
+        goViewModel.getAuthSetting().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean enabled) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (enabled) {
+                            // Treat the content of the window as secure, preventing it from appearing in
+                            // screenshots, the app switcher, or from being viewed on non-secure displays. We
+                            // are really only interested in hiding the app contents from the app switcher -
+                            // screenshots unfortunately also get disabled.
+                            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                        } else {
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override

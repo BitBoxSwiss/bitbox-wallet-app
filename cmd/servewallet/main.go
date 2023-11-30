@@ -92,6 +92,10 @@ func (webdevEnvironment) Auth() {
 	}
 }
 
+// OnAuthSettingChanged implements backend.Environment.
+func (webdevEnvironment) OnAuthSettingChanged(enabled bool) {
+}
+
 // NativeLocale naively implements backend.Environment.
 // This version is unlikely to work on Windows.
 func (webdevEnvironment) NativeLocale() string {

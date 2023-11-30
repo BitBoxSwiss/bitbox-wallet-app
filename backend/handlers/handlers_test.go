@@ -59,6 +59,7 @@ func (e *backendEnv) GetSaveFilename(string) string { return "" }
 func (e *backendEnv) SetDarkTheme(bool)             {}
 func (e *backendEnv) DetectDarkTheme() bool         { return false }
 func (e *backendEnv) Auth()                         {}
+func (e *backendEnv) OnAuthSettingChanged(bool)     {}
 
 func TestGetNativeLocale(t *testing.T) {
 	const ptLocale = "pt"

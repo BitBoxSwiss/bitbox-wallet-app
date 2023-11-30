@@ -93,6 +93,7 @@ type GoEnvironmentInterface interface {
 	SetDarkTheme(bool)
 	DetectDarkTheme() bool
 	Auth()
+	OnAuthSettingChanged(bool)
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -185,7 +186,6 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 		goAPI,
 		&bridgecommon.BackendEnvironment{
 			NotifyUserFunc: environment.NotifyUser,
-			AuthFunc:       environment.Auth,
 			DeviceInfosFunc: func() []usb.DeviceInfo {
 				i := environment.DeviceInfo()
 				if i == nil {
@@ -200,8 +200,10 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 				// On Android, we don't yet support exporting files. Implement this once needed.
 				return ""
 			},
-			SetDarkThemeFunc:    environment.SetDarkTheme,
-			DetectDarkThemeFunc: environment.DetectDarkTheme,
+			SetDarkThemeFunc:         environment.SetDarkTheme,
+			DetectDarkThemeFunc:      environment.DetectDarkTheme,
+			AuthFunc:                 environment.Auth,
+			OnAuthSettingChangedFunc: environment.OnAuthSettingChanged,
 		},
 	)
 }
