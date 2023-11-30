@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
   },
+  "auth": {
+    "authButton": "Authenticate",
+    "title": "Please authenticate to continue"
+  },
   "backup": {
     "check": {
       "checking": "Checking backup…",
