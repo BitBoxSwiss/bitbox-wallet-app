@@ -406,6 +406,13 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 		if hiddenAccount != nil {
 			hiddenAccount.HiddenBecauseUnused = false
 			hiddenAccount.Name = name
+			// We only really show the account to the user now, so this is the moment to set the
+			// watchonly flag on it if the user has the global watchonly setting enabled.
+			if backend.config.AppConfig().Backend.Watchonly {
+				t := true
+				hiddenAccount.Watch = &t
+			}
+
 			accountCode = hiddenAccount.Code
 			return nil
 		}
@@ -756,7 +763,10 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 
 	var accountWatch *bool
-	if backend.config.AppConfig().Backend.Watchonly {
+	// If the account was added in the background as part of scanning, we don't mark it watchonly.
+	// Otherwise the account would appear automatically once it received funds, even if it was not
+	// visible before and the keystore is never connected again.
+	if !hiddenBecauseUnused && backend.config.AppConfig().Backend.Watchonly {
 		t := true
 		accountWatch = &t
 	}
@@ -858,7 +868,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	var accountWatch *bool
-	if backend.config.AppConfig().Backend.Watchonly {
+	if !hiddenBecauseUnused && backend.config.AppConfig().Backend.Watchonly {
 		t := true
 		accountWatch = &t
 	}
@@ -1055,7 +1065,10 @@ func (backend *Backend) updatePersistedAccounts(
 			return nil
 		}
 		for _, account := range accounts {
-			if account.Watch == nil {
+			// If the account was added in the background as part of scanning, we don't mark it
+			// watchonly. Otherwise the account would appear automatically once it received funds,
+			// even if it was not visible before and the keystore is never connected again.
+			if !account.HiddenBecauseUnused && account.Watch == nil {
 				t := true
 				account.Watch = &t
 			}
@@ -1281,6 +1294,14 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 		acct.Used = true
 		acct.HiddenBecauseUnused = false
+
+		// We only really show the account to the user now, so this is the moment to set the
+		// watchonly flag on it if the user has the global watchonly setting enabled.
+		if backend.config.AppConfig().Backend.Watchonly {
+			t := true
+			acct.Watch = &t
+		}
+
 		return nil
 	})
 	if err != nil {
