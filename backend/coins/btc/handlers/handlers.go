@@ -71,6 +71,9 @@ func NewHandlers(
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
 	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
+	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
+	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
+	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
 	return handlers
 }
 
@@ -598,4 +601,99 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, err
 
 	_, err := handlers.account.Config().ConnectKeystore()
 	return response{Success: err == nil}, nil
+}
+
+type signingResponse struct {
+	Success      bool   `json:"success"`
+	Signature    string `json:"signature"`
+	Aborted      bool   `json:"aborted"`
+	ErrorMessage string `json:"errorMessage"`
+}
+
+func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
+	var signInput string
+	if err := json.NewDecoder(r.Body).Decode(&signInput); err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	}
+	signature, err := ethAccount.SignMsg(signInput)
+	if errp.Cause(err) == keystore.ErrSigningAborted {
+		return signingResponse{Success: false, Aborted: true}, nil
+	}
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to sign message")
+		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		return result, nil
+	}
+	return signingResponse{
+		Success:   true,
+		Signature: signature,
+	}, nil
+}
+
+func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, error) {
+	var args struct {
+		ChainId uint64 `json:"chainId"`
+		Data    string `json:"data"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	}
+	signature, err := ethAccount.SignTypedMsg(args.ChainId, args.Data)
+	if errp.Cause(err) == keystore.ErrSigningAborted {
+		return signingResponse{Success: false, Aborted: true}, nil
+	}
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to sign typed data")
+		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		return result, nil
+	}
+	return signingResponse{
+		Success:   true,
+		Signature: signature,
+	}, nil
+}
+
+// For handling dapp transaction requests through Wallet Connect which can either request tx sign or tx send
+// The `json:"send"` bool specifies whether a tx should be only signed (return signature) or signed and broadcast (return tx hash)
+// ChainId is needed to allow signing all supported EVM networks via the BBApp.
+func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface{}, error) {
+	var args struct {
+		Send    bool                  `json:"send"`
+		ChainId uint64                `json:"chainId"`
+		Tx      eth.WalletConnectArgs `json:"tx"`
+	}
+	type response struct {
+		Success bool   `json:"success"`
+		RawTx   string `json:"rawTx"`
+		TxHash  string `json:"txHash"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	}
+	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, args.ChainId, args.Tx)
+	if errp.Cause(err) == keystore.ErrSigningAborted {
+		return signingResponse{Success: false, Aborted: true}, nil
+	}
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to send transaction")
+		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		return result, nil
+	}
+	return response{
+		Success: true,
+		RawTx:   rawTx,
+		TxHash:  txHash,
+	}, nil
 }

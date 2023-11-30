@@ -1293,3 +1293,23 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 	backend.emitAccountsStatusChanged()
 	backend.maybeAddHiddenUnusedAccounts()
 }
+
+// LookupEthAccountCode takes an Ethereum address and returns the corresponding account code and account name
+// Used for handling Wallet Connect requests from anywhere in the app
+// Implemented only for pure ETH accounts (not ERC20s), as all Wallet Connect interactions are handled through the root ETH accounts.
+func (backend *Backend) LookupEthAccountCode(address string) (accountsTypes.Code, string, error) {
+	for _, account := range backend.Accounts() {
+		ethAccount, ok := account.(*eth.Account)
+		if !ok {
+			continue
+		}
+		matches, err := ethAccount.MatchesAddress(address)
+		if err != nil {
+			return "", "", err
+		}
+		if matches && !eth.IsERC20(ethAccount) {
+			return ethAccount.Config().Config.Code, ethAccount.Config().Config.Name, nil
+		}
+	}
+	return "", "", errp.Newf("Account with address: %s not found", address)
+}

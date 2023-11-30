@@ -28,10 +28,9 @@ import (
 )
 
 var (
-	lowestSupportedFirmwareVersion                   = semver.NewSemVer(9, 0, 0)
-	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(9, 0, 0)
-	lowestSupportedFirmwareVersionBitBoxBaseStandard = semver.NewSemVer(4, 3, 0)
-	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(10, 0, 0)
+	lowestSupportedFirmwareVersion        = semver.NewSemVer(9, 0, 0)
+	lowestSupportedFirmwareVersionBTCOnly = semver.NewSemVer(9, 0, 0)
+	lowestNonSupportedFirmwareVersion     = semver.NewSemVer(10, 0, 0)
 )
 
 // Communication contains functions needed to communicate with the device.
@@ -167,17 +166,11 @@ func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
 	}
 	platformByte, response := response[0], response[1:]
 	editionByte, response := response[0], response[1:]
-	const (
-		platformBitBox02   = 0x00
-		platformBitBoxBase = 0x01
-	)
+	const platformBitBox02 = 0x00
 	products := map[byte]map[byte]common.Product{
 		platformBitBox02: {
 			0x00: common.ProductBitBox02Multi,
 			0x01: common.ProductBitBox02BTCOnly,
-		},
-		platformBitBoxBase: {
-			0x00: common.ProductBitBoxBaseStandard,
 		},
 	}
 	editions, ok := products[platformByte]

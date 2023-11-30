@@ -1,0 +1,45 @@
+.formContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.formButtonsContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.inputWithIcon {
+    position: relative;
+}
+
+.inputWithIcon input {
+    padding-right: calc(var(--spacing-default) * 2 + 18px);
+}
+
+@media (max-width: 768px) {
+    .formButtonsContainer {
+        flex-direction: column-reverse;
+        gap: var(--space-half);
+        margin-top: calc(var(--space-half) + var(--space-quarter));
+    }
+
+    .mobileQRScanner {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: calc(var(--space-half) + var(--space-eight));
+    }
+
+    .mobileQRScanner video {
+        max-width: 320px;
+        height: 320px;
+        margin: 0 auto;
+        object-fit: cover;
+    }
+
+    .mobileQRScanner .scanQRLabel {
+        margin-bottom: var(--space-quarter);
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+}

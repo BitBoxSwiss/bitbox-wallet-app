@@ -1,0 +1,100 @@
+.container {
+    background-color: var(--background-session-card);
+    display: flex;
+    width: 100%;
+    padding: calc(var(--space-half) + var(--space-quarter));
+}
+
+.container p {
+    color: var(--color-default);
+    font-size: 16px;
+    line-height: 1.9;
+    margin: 0;
+}
+
+.textDataContainer {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-quarter) + var(--space-half));
+}
+
+.receiveAddress {
+    color: var(--color-secondary);
+}
+
+.accountName {
+    font-weight: bold;
+    width: 240px;
+    padding-right: 16px;
+}
+
+.dAppMetadataAndIconContainer {
+    align-items: center;
+    display: flex;
+}
+
+.dAppMetadataAndIconContainer img {
+    width: var(--item-height);
+    height: var(--item-height);
+    margin-left: calc(var(--space-quarter) + var(--space-half));
+}
+
+.dAppNameAndUrlContainer {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-eight) * 2);
+    width: 240px;
+}
+
+.accountNameAndWalletContainer {
+    display: flex;
+}
+
+.buttonAndIconContainer {
+    align-items: flex-end;
+    display: flex;
+    margin-left: auto;
+}
+
+.buttonDisconnect {
+    height: unset;
+    padding: calc(var(--space-eight) + var(--space-quarter)) calc(var(--space-default) + var(--space-default));
+}
+
+@media (max-width: 768px) { 
+    .container {
+        padding: calc(var(--space-quarter) * 2);
+    }
+
+    .container p { 
+        font-size: var(--size-default);
+    }
+
+    .textDataContainer {
+        gap: var(--space-quarter);
+        width: 50%;
+    }
+
+    .dAppNameAndUrlContainer,
+    .accountName {
+        width: 100%;
+    }
+
+    .buttonAndIconContainer {
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .buttonDisconnect {
+        font-size: var(--size-default);
+        height: var(--item-height-small);
+        padding: var(--space-eight) calc(var(--space-quarter) + var(--space-half));
+    }
+
+    .buttonAndIconContainer img {
+        height: var(--item-height-small);
+        width: var(--item-height-small);
+        margin-top: var(--space-default);
+        margin-bottom: var(--space-default);
+    }
+}

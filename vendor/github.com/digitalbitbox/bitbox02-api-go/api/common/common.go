@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package common contains common functionality to firmware and bitbox02 of the bitbox02/bitboxbase.
+// Package common contains common functionality to firmware and bootloader of the bitbox02.
 package common
 
 import "github.com/digitalbitbox/bitbox02-api-go/util/errp"
@@ -27,8 +27,6 @@ const (
 	// ProductBitBox02BTCOnly is the btc-only edition of the BitBox02, restricting functionality to
 	// Bitcoin.
 	ProductBitBox02BTCOnly Product = "bitbox02-btconly"
-	// ProductBitBoxBaseStandard is the standard edition of the BitBoxBase HSM.
-	ProductBitBoxBaseStandard Product = "bitboxbase-standard"
 )
 
 const (
