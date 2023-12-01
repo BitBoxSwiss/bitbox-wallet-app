@@ -108,6 +108,7 @@ type Backend interface {
 	HTTPClient() *http.Client
 	CancelConnectKeystore()
 	SetWatchonly(watchonly bool) error
+	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -243,6 +244,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChangedHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -592,6 +594,33 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens))
 	}
 	return accounts
+}
+
+func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
+	var args struct {
+		Address string `json:"address"`
+	}
+	type response struct {
+		Success      bool               `json:"success"`
+		Code         accountsTypes.Code `json:"code"`
+		Name         string             `json:"name"`
+		ErrorMessage string             `json:"errorMessage"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	code, name, err := handlers.backend.LookupEthAccountCode(args.Address)
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+	return response{
+		Success: true,
+		Code:    code,
+		Name:    name,
+	}
 }
 
 func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {

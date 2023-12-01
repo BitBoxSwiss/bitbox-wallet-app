@@ -17,10 +17,10 @@
 import { useLoad } from '../../../../hooks/api';
 import { useTranslation } from 'react-i18next';
 import { getUpdate, getVersion } from '../../../../api/version';
+import { open } from '../../../../api/system';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { StyledSkeleton } from '../../bb02-settings';
 import { Checked, RedDot } from '../../../../components/icon';
-import { apiPost } from '../../../../utils/request';
 import { downloadLinkByLanguage } from '../../../../components/appdownloadlink/appdownloadlink';
 
 export const AppVersion = () => {
@@ -43,7 +43,7 @@ export const AppVersion = () => {
       secondaryText={secondaryText}
       displayedValue={versionNumber}
       extraComponent={icon}
-      onClick={update ? () => apiPost('open', downloadLinkByLanguage()) : undefined}
+      onClick={update ? () => open(downloadLinkByLanguage()) : undefined}
     />
   );
 };

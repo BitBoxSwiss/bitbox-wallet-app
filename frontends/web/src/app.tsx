@@ -41,6 +41,8 @@ import { Darkmode } from './components/darkmode/darkmode';
 import { DarkModeProvider } from './contexts/DarkmodeProvider';
 import { AppProvider } from './contexts/AppProvider';
 import { AuthRequired } from './components/auth/authrequired';
+import { WCWeb3WalletProvider } from './contexts/WCWeb3WalletProvider';
+import { WCSigningRequest } from './components/wallet-connect/incoming-signing-request';
 
 type State = {
   accounts: IAccount[];
@@ -183,46 +185,49 @@ class App extends Component<Props, State> {
       <ConnectedApp>
         <AppProvider>
           <DarkModeProvider>
-            <Darkmode />
-            <div className="app">
-              <AuthRequired/>
-              <Sidebar
-                accounts={activeAccounts}
-                deviceIDs={deviceIDs}
-              />
-              <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
-                <Update />
-                <Banner msgKey="bitbox01" />
-                <Banner msgKey="bitbox02" />
-                <MobileDataWarning />
-                <Aopp />
-                <KeystoreConnectPrompt />
-                {
-                  Object.entries(devices).map(([deviceID, productName]) => {
-                    if (productName === 'bitbox02') {
-                      return (
-                        <Fragment key={deviceID}>
-                          <BitBox02Wizard
-                            deviceID={deviceID}
-                          />
-                        </Fragment>
-                      );
-                    }
-                    return null;
-                  })
-                }
-                <AppRouter
-                  accounts={accounts}
-                  activeAccounts={activeAccounts}
+            <WCWeb3WalletProvider>
+              <Darkmode />
+              <div className="app">
+                <AuthRequired/>
+                <Sidebar
+                  accounts={activeAccounts}
                   deviceIDs={deviceIDs}
-                  devices={devices}
-                  devicesKey={this.devicesKey}
                 />
-                <RouterWatcher onChange={this.handleRoute} />
+                <div className="appContent flex flex-column flex-1" style={{ minWidth: 0 }}>
+                  <Update />
+                  <Banner msgKey="bitbox01" />
+                  <Banner msgKey="bitbox02" />
+                  <MobileDataWarning />
+                  <WCSigningRequest />
+                  <Aopp />
+                  <KeystoreConnectPrompt />
+                  {
+                    Object.entries(devices).map(([deviceID, productName]) => {
+                      if (productName === 'bitbox02') {
+                        return (
+                          <Fragment key={deviceID}>
+                            <BitBox02Wizard
+                              deviceID={deviceID}
+                            />
+                          </Fragment>
+                        );
+                      }
+                      return null;
+                    })
+                  }
+                  <AppRouter
+                    accounts={accounts}
+                    activeAccounts={activeAccounts}
+                    deviceIDs={deviceIDs}
+                    devices={devices}
+                    devicesKey={this.devicesKey}
+                  />
+                  <RouterWatcher onChange={this.handleRoute} />
+                </div>
+                <Alert />
+                <Confirm />
               </div>
-              <Alert />
-              <Confirm />
-            </div>
+            </WCWeb3WalletProvider>
           </DarkModeProvider>
         </AppProvider>
       </ConnectedApp>

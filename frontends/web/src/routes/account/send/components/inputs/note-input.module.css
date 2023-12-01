@@ -1,0 +1,6 @@
+.labelDescription {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: 400;
+    margin-top: 0;
+}

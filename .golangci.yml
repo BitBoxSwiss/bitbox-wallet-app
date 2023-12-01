@@ -80,6 +80,10 @@ linters-settings:
     line-length: 120
     # allow long comments.
     exclude: '//'
+  revive:
+    rules:
+      - name: exported
+        disabled: false
 
 linters:
   enable-all: true
@@ -133,7 +137,6 @@ linters:
     - gocyclo
     - nosnakecase
     - interfacebloat
-    - revive
     - musttag
     - structcheck
     - deadcode

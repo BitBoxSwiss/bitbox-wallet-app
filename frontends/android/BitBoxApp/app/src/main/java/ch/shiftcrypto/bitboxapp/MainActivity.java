@@ -42,6 +42,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     private PermissionRequest webViewpermissionRequest;
 
     GoService goService;
+
+    private String location = "";
 
     // Connection to bind with GoService
     private ServiceConnection connection = new ServiceConnection() {
@@ -227,19 +230,57 @@ public class MainActivity extends AppCompatActivity {
 
         vw.setWebViewClient(new WebViewClient() {
             @Override
+            public void onPageFinished(WebView view, String url) {
+                // The url is not correctly updated when navigating to a new page. This allows to
+                // know the current location and to block external requests on that base.
+                view.evaluateJavascript("window.location.pathname", path -> location = path);
+            }
+            @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
-                // Intercept local requests and serve the response from the Android assets folder.
-                try {
+                if (request != null && request.getUrl() != null) {
                     String url = request.getUrl().toString();
-                    InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
-                    String mimeType = getMimeType(url);
-                    if (mimeType != null) {
-                        return new WebResourceResponse(mimeType, "UTF-8", inputStream);
+                    if (url != null && url.startsWith(BASE_URL)) {
+                        // Intercept local requests and serve the response from the Android assets folder.
+                        try {
+                            InputStream inputStream = getAssets().open(url.replace(BASE_URL, "web/"));
+                            String mimeType = getMimeType(url);
+                            if (mimeType != null) {
+                                return new WebResourceResponse(mimeType, "UTF-8", inputStream);
+                            }
+                            Util.log("Unknown MimeType: " + url);
+                        } catch (IOException e) {
+                            Util.log("Internal resource not found: " + url);
+                        }
+                    } else {
+                        // external request
+                        // allow if location is listed
+                        List<Pattern> patterns = new ArrayList<>();
+                        patterns.add(Pattern.compile("^\"/buy/pocket/.*\"$"));
+                        patterns.add(Pattern.compile("^\"/buy/moonpay/.*\"$"));
+                        patterns.add(Pattern.compile("^\"/account/[^\\/]+/wallet-connect/.*\"$"));
+                        for (Pattern pattern : patterns) {
+                            if (pattern.matcher(location).matches()) {
+                                return super.shouldInterceptRequest(view, request);
+                            }
+                        }
+
+                        String domain = request.getUrl().getHost();
+                        if (domain != null) {
+                            // allow if domain is listed
+                            patterns = new ArrayList<>();
+                            patterns.add(Pattern.compile("^verify\\.walletconnect\\.com$"));
+                            for (Pattern pattern : patterns) {
+                                if (pattern.matcher(domain).matches()) {
+                                    return super.shouldInterceptRequest(view, request);
+                                }
+                            }
+                        }
+                        Util.log("Blocked: " + url);
                     }
-                    Util.log("Unknown MimeType: " + url);
-                } catch(Exception e) {
+                } else {
+                    Util.log("Null request!");
                 }
-                return super.shouldInterceptRequest(view, request);
+                return new WebResourceResponse("text/plain", "UTF-8", new ByteArrayInputStream("".getBytes()));
             }
 
             @Override
@@ -261,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 } catch(Exception e) {
+                    Util.log(e.getMessage());
                 }
                 Util.log("Blocked: " + url);
                 return true;
