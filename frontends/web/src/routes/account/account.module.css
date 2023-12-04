@@ -22,7 +22,6 @@
 
 .actionsContainer {
     display: flex;
-    gap: var(--space-quarter);
     transform: translateY(-36%);
     margin-top: var(--space-quarter);
 }
@@ -38,12 +37,13 @@
     font-size: var(--size-default);
     height: calc(var(--item-height) / 1.5);
     line-height: calc(var(--item-height) / 1.5);
+    margin-left: var(--space-quarter);
+    min-width: calc(var(--item-height) * 2);
     padding: 0 var(--space-half);
     text-align: center;
     text-decoration: none;
     transition: background-color ease-out 0.2s;
     width: auto;
-    min-width: calc(var(--item-height) * 2);
     will-change: background-color;
 }
 
