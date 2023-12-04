@@ -1,33 +1,37 @@
 .accountName {
     font-size: 16px;
+    margin: 0 var(--space-half) 0 0;
 }
 
 .accountNameAndAddress {
     display: flex;
-    gap: var(--space-half);
 }
 
 .address {
     color: var(--color-secondary);
     font-size: 16px;
+    margin: 0;
 }
 
 .animationAndTextContainer {
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: var(--space-quarter);
     margin: auto;
 }
 
 .animationAndTextContainer p {
     font-size: var(--header-default-font-size);
+    margin-top: var(--space-quarter);
 }
 
 .chainContainer {
     align-items: center;
     display: flex;
-    gap: calc(var(--space-quarter) + var(--space-eight));
+}
+
+.chainContainer .itemText {
+    margin-right: calc(var(--space-quarter) + var(--space-eight));
 }
 
 .chainContainer img {
@@ -44,30 +48,30 @@
 .item {
     display: flex;
     flex-direction: column;
-    gap: var(--space-quarter);
+}
+
+.item + .item {
+    margin-top: var(--space-half);
 }
 
 .itemText {
     font-size: 16px;
+    margin: 0;
 }
 
 .label {
     color: var(--color-secondary);
     font-size: var(--size-default);
+    margin: 0 0 var(--space-quarter) 0;
 }
 
 .listContainer {
     display: flex;
     flex-direction: column;
-    gap: var(--space-half);
     list-style: none;
     margin: 0;
     padding: 0;
     width: 100%;
-}
-
-.listContainer p {
-    margin: 0;
 }
 
 .outerContainer {
@@ -93,13 +97,12 @@
 .titleContainer {
     align-items: center;
     display: flex;
-    gap: var(--space-eight);
     margin-bottom: var(--space-half);
 }
 
 .titleContainer h3 {
     font-size: var(--header-default-font-size);
     font-weight: 400;
-    margin: 0;
+    margin: 0 0 0 var(--space-eight);
     padding: 0 var(--space-quarter);
 }

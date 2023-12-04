@@ -85,7 +85,6 @@
         margin-left: auto;
         margin-right: auto;
         flex-wrap: wrap;
-        gap: var(--space-quarter);
     }
 
 

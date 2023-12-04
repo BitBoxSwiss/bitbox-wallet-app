@@ -1,36 +1,42 @@
 .container {
     background-color: var(--background-session-card);
     display: flex;
-    width: 100%;
+    margin-top: calc(var(--space-quarter) + var(--space-half));
     padding: calc(var(--space-half) + var(--space-quarter));
+    width: 100%;
 }
 
 .container p {
     color: var(--color-default);
     font-size: 16px;
     line-height: 1.9;
-    margin: 0;
+    margin-bottom: 0;
 }
 
 .textDataContainer {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--space-quarter) + var(--space-half));
 }
 
 .receiveAddress {
     color: var(--color-secondary);
+    margin: 0;
 }
 
 .accountName {
     font-weight: bold;
-    width: 240px;
+    margin: 0;
     padding-right: 16px;
+    width: 240px;
 }
 
 .dAppMetadataAndIconContainer {
     align-items: center;
     display: flex;
+}
+
+.dAppMetadataAndIconContainer p {
+    margin-top: 0;
 }
 
 .dAppMetadataAndIconContainer img {
@@ -42,12 +48,16 @@
 .dAppNameAndUrlContainer {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--space-eight) * 2);
     width: 240px;
+}
+
+.dAppMetadataAndIconContainer p.dappUrl {
+    margin-top: var(--space-quarter);
 }
 
 .accountNameAndWalletContainer {
     display: flex;
+    margin-bottom: calc(var(--space-quarter) + var(--space-half));
 }
 
 .buttonAndIconContainer {
@@ -63,6 +73,7 @@
 
 @media (max-width: 768px) { 
     .container {
+        margin-top: var(--space-half);
         padding: calc(var(--space-quarter) * 2);
     }
 
@@ -71,13 +82,16 @@
     }
 
     .textDataContainer {
-        gap: var(--space-quarter);
         width: 50%;
     }
 
     .dAppNameAndUrlContainer,
     .accountName {
         width: 100%;
+    }
+
+    .accountNameAndWalletContainer {
+        margin-bottom: var(--space-quarter);
     }
 
     .buttonAndIconContainer {
