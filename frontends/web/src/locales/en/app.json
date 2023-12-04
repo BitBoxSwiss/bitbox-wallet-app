@@ -1057,18 +1057,18 @@
   },
   "loading": "loading…",
   "manageAccounts": {
-    "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
+    "accountHidden": "This account will now be hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
-    "hideAccount": "Hide account",
-    "hideAccountDescription": "Hide your account so next time you open the BitBoxApp, it won't show up in your list of accounts. You can always add it again later.",
     "noAccounts": "no accounts found",
     "settings": {
       "hideTokens": "Hide tokens",
       "showTokens": "Show tokens ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Add and show/hide accounts",
-    "title": "Manage accounts"
+    "title": "Manage accounts",
+    "watchAccount": "Watch account",
+    "watchAccountDescription": "This account is part of your watch-only accounts. You can hide it from your watch-only accounts using the toggle."
   },
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."

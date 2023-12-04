@@ -137,10 +137,10 @@ class ManageAccounts extends Component<Props, State> {
         <div className={style.watchOnlyContainer}>
           <div className="flex">
             <EyeOpenedDark width={18} height={18} />
-            <p className={style.watchOnlyTitle}>{t('manageAccounts.hideAccount')}</p>
+            <p className={style.watchOnlyTitle}>{t('manageAccounts.watchAccount')}</p>
           </div>
           <Toggle
-            checked={!currentlyEditedAccount.watch}
+            checked={currentlyEditedAccount.watch}
             className={style.toggle}
             id={currentlyEditedAccount.code}
             onChange={async (event) => {
@@ -151,7 +151,7 @@ class ManageAccounts extends Component<Props, State> {
             }}
           />
         </div>
-        <p className={style.watchOnlyNote}>{t('manageAccounts.hideAccountDescription')}</p>
+        <p className={style.watchOnlyNote}>{t('manageAccounts.watchAccountDescription')}</p>
         {
           !currentlyEditedAccount.watch && <div className={style.watchOnlyAccountHidden}>
             <p>{t('manageAccounts.accountHidden')}</p>
