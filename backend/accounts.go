@@ -220,7 +220,7 @@ func (backend *Backend) LookupInsuredAccounts(accountCode accountsTypes.Code) ([
 	}
 
 	// check the insurance status of the selected accounts.
-	bitsuranceAccounts, err := bitsurance.BitsuranceAccountsLookup(accountList, backend.httpClient)
+	bitsuranceAccounts, err := bitsurance.BitsuranceAccountsLookup(backend.DevServers(), accountList, backend.httpClient)
 	if err != nil {
 		return nil, err
 	}

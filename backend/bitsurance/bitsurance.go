@@ -30,11 +30,12 @@ import (
 
 const (
 	apiKey        = "265bfd773038c9ad9da7047e107babba0269bc3d31952172d9b10335e8a9d8e9"
-	xpubSalt      = "bitsurance"
 	apiURL        = "https://api.bitsurance.eu/api/"
+	testApiURL    = "https://testapi.bitsurance.eu/api/"
 	widgetVersion = "1"
 	widgetURL     = "https://get.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
 	widgetTestURL = "https://test.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
+	xpubSalt      = "bitsurance"
 )
 
 // DetailStatus is the status of the insurance contract.
@@ -71,8 +72,12 @@ type AccountDetails struct {
 // bitsuranceCheckId fetches and returns the account details of the passed accountId from the
 // Bitsurance server.
 // If an accountId is not retrieved at all, the endpoint return a 404 http code.
-func bitsuranceCheckId(httpClient *http.Client, accountId string) (AccountDetails, error) {
-	endpoint := apiURL + "accountDetails/" + accountId
+func bitsuranceCheckId(devServer bool, httpClient *http.Client, accountId string) (AccountDetails, error) {
+	url := apiURL
+	if devServer {
+		url = testApiURL
+	}
+	endpoint := url + "accountDetails/" + accountId
 	account := AccountDetails{}
 	code, err := util.APIGet(httpClient, endpoint, apiKey, 1024, &account)
 	if err != nil && code != http.StatusNotFound {
@@ -108,7 +113,7 @@ func BitsuranceURL(devServer bool, lang string) string {
 
 // BitsuranceAccountsLookup takes in input a slice of accounts. For each account, it interrogates the
 // Bitsurance server and returns a map with the given accounts' codes as keys and the insurance details as value.
-func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Client) ([]AccountDetails, error) {
+func BitsuranceAccountsLookup(devServer bool, accounts []accounts.Interface, httpClient *http.Client) ([]AccountDetails, error) {
 	insuredAccounts := []AccountDetails{}
 
 	for _, account := range accounts {
@@ -117,7 +122,7 @@ func BitsuranceAccountsLookup(accounts []accounts.Interface, httpClient *http.Cl
 			return nil, err
 		}
 
-		bitsuranceAccount, err := bitsuranceCheckId(httpClient, bitsuranceId)
+		bitsuranceAccount, err := bitsuranceCheckId(devServer, httpClient, bitsuranceId)
 		if err != nil {
 			return nil, err
 		}
