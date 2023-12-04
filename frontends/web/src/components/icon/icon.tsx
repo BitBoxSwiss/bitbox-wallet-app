@@ -45,6 +45,7 @@ import closeXDarkSVG from './assets/icons/close-x-dark.svg';
 import externalLink from './assets/icons/external-link.svg';
 import eyeClosedSVG from './assets/icons/eye-closed.svg';
 import eyeOpenedSVG from './assets/icons/eye-opened.svg';
+import eyeOpenedDarkSVG from './assets/icons/eye-opened-dark.svg';
 import globeDarkSVG from './assets/icons/globe-dark.svg';
 import globeLightSVG from './assets/icons/globe-light.svg';
 import guideSVG from './assets/icons/guide.svg';
@@ -159,6 +160,7 @@ export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={f
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
 export const EyeOpened = (props: ImgProps) => (<img src={eyeOpenedSVG} draggable={false} {...props} />);
+export const EyeOpenedDark = (props: ImgProps) => (<img src={eyeOpenedDarkSVG} draggable={false} {...props} />);
 export const GlobeDark = (props: ImgProps) => (<img src={globeDarkSVG} draggable={false} {...props} />);
 export const GlobeLight = (props: ImgProps) => (<img src={globeLightSVG} draggable={false} {...props} />);
 export const GuideActive = (props: ImgProps) => (<img src={guideSVG} draggable={false} {...props} />);
