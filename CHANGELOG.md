@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 4.40.0
+- Add support for watch-only - see your accounts and portfolio without connecting your BitBox02
 - Drop support for SAI token
 - Ability to connect Ethereum (mainnet) wallets to dapps using WalletConnect
 - Log Javascript console messages in the app log.txt

@@ -16,10 +16,14 @@
 package config
 
 import (
+	"bytes"
+	"time"
+
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
 // Account holds information related to an account.
@@ -32,7 +36,16 @@ type Account struct {
 	// HiddenBecauseUnused is true if the account should not loaded in the sidebar and portfolio,
 	// and not be shown in 'Manage accounts', because the account is unused (has no transaction
 	// history). This is used to facilitate automatic discovery of used accounts.
-	HiddenBecauseUnused   bool                   `json:"hiddenBecauseUnused"`
+	HiddenBecauseUnused bool `json:"hiddenBecauseUnused"`
+	// Watch indicates if the account should be loaded even if its keystore is not connected.
+	//
+	// If false, the account is only displayed if the keystore is connected. If true, it is loaded
+	// and displayed when the app launches.
+	//
+	// If nil, it is considered false.  The reason for this is that we don't want to suddenly show
+	// all persisted accounts when the Watchonly setting is enabled - only accounts that are loaded
+	// when Watchonly is enabled should do this.
+	Watch                 *bool                  `json:"watch"`
 	CoinCode              coin.Code              `json:"coinCode"`
 	Name                  string                 `json:"name"`
 	Code                  accountsTypes.Code     `json:"code"`
@@ -62,9 +75,30 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 	return nil
 }
 
+// IsWatch returns true if the `Watch` setting is set to true and `defaultWatchonly` is true. For
+// `defaultWatchonly`, you should provide the global watchonly setting from the backend config.
+func (acct *Account) IsWatch(defaultWatchonly bool) bool {
+	return defaultWatchonly && acct.Watch != nil && *acct.Watch
+}
+
+// Keystore holds information related to keystores such as the BitBox02.
+type Keystore struct {
+	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.
+	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers It serves as
+	// an identifier for the keystore. Collisions are possible but the chance is very small.
+	RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+	// Name is the name of the keystore, e.g. the BitBox02 device name.
+	Name string `json:"name"`
+	// LastConnected is the date/time when the keystore was last connected/registered. We don't use
+	// this field yet but it may be helpful in the future if we want to remind users to connect
+	// their device, e.g. to check that they still know their device password.
+	LastConnected time.Time `json:"lastConnected"`
+}
+
 // AccountsConfig persists the list of accounts added to the app.
 type AccountsConfig struct {
-	Accounts []*Account `json:"accounts"`
+	Accounts  []*Account  `json:"accounts"`
+	Keystores []*Keystore `json:"keystores"`
 }
 
 // newDefaultAccountsonfig returns the default accounts config.
@@ -83,6 +117,29 @@ func (cfg AccountsConfig) Lookup(code accountsTypes.Code) *Account {
 		}
 	}
 	return nil
+}
+
+// LookupKeystore looks up a keystore by fingerprint. Returns error if it could not be found.
+func (cfg AccountsConfig) LookupKeystore(rootFingerprint []byte) (*Keystore, error) {
+	for _, ks := range cfg.Keystores {
+		if bytes.Equal(ks.RootFingerprint, rootFingerprint) {
+			return ks, nil
+		}
+	}
+	return nil, errp.Newf("could not retrieve keystore for fingerprint %x", rootFingerprint)
+}
+
+// GetOrAddKeystore looks up the keystore by root fingerprint. If it does not exist, one is added to
+// the list of keystores and the newly created one is returned.
+func (cfg *AccountsConfig) GetOrAddKeystore(rootFingerprint []byte) *Keystore {
+	ks, err := cfg.LookupKeystore(rootFingerprint)
+	if err == nil {
+		return ks
+	}
+
+	ks = &Keystore{RootFingerprint: rootFingerprint}
+	cfg.Keystores = append(cfg.Keystores, ks)
+	return ks
 }
 
 // migrateActiveTokens removes tokens from AccountsConfig.

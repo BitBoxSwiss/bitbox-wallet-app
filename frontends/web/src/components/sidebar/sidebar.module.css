@@ -86,7 +86,6 @@
     font-size: var(--sidebar-header-size);
     line-height: var(--sidebar-header-line-height);
     color: var(--color-secondary);
-    text-transform: uppercase;
 }
 
 .sidebarItem {

@@ -121,6 +121,37 @@ func HandleURI(uri string) {
 	globalBackend.HandleURI(uri)
 }
 
+// TriggerAuth triggers an authentication request notification.
+func TriggerAuth() {
+	mu.Lock()
+	defer mu.Unlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.TriggerAuth()
+}
+
+// CancelAuth triggers an authentication canceled notification.
+func CancelAuth() {
+	mu.Lock()
+	defer mu.Unlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.CancelAuth()
+}
+
+// AuthResult triggers an authentication result notification
+// on the base of the input value.
+func AuthResult(ok bool) {
+	mu.Lock()
+	defer mu.Unlock()
+	if globalBackend == nil {
+		return
+	}
+	globalBackend.AuthResult(ok)
+}
+
 // UsingMobileDataChanged should be called when the network connnection changed.
 func UsingMobileDataChanged() {
 	mu.RLock()
@@ -143,10 +174,12 @@ type BackendEnvironment struct {
 	UsingMobileDataFunc func() bool
 	// NativeLocaleFunc is used by the backend to query native app layer for user
 	// preferred UI language.
-	NativeLocaleFunc    func() string
-	GetSaveFilenameFunc func(string) string
-	SetDarkThemeFunc    func(bool)
-	DetectDarkThemeFunc func() bool
+	NativeLocaleFunc         func() string
+	GetSaveFilenameFunc      func(string) string
+	SetDarkThemeFunc         func(bool)
+	DetectDarkThemeFunc      func() bool
+	AuthFunc                 func()
+	OnAuthSettingChangedFunc func(bool)
 }
 
 // NotifyUser implements backend.Environment.
@@ -209,6 +242,20 @@ func (env *BackendEnvironment) DetectDarkTheme() bool {
 		return env.DetectDarkThemeFunc()
 	}
 	return false
+}
+
+// Auth implements backend.Environment.
+func (env *BackendEnvironment) Auth() {
+	if env.AuthFunc != nil {
+		env.AuthFunc()
+	}
+}
+
+// OnAuthSettingChanged implements backend.Environment.
+func (env *BackendEnvironment) OnAuthSettingChanged(enabled bool) {
+	if env.OnAuthSettingChangedFunc != nil {
+		env.OnAuthSettingChangedFunc(enabled)
+	}
 }
 
 // Serve serves the BitBox API for use in a native client.

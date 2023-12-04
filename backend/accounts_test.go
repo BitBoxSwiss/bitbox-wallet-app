@@ -78,6 +78,9 @@ func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	return &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock name", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -306,6 +309,10 @@ func (e environment) SetDarkTheme(bool) {
 func (e environment) DetectDarkTheme() bool {
 	return false
 }
+
+func (e environment) Auth() {}
+
+func (e environment) OnAuthSettingChanged(bool) {}
 
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
@@ -558,6 +565,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
@@ -580,6 +588,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
@@ -601,6 +610,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
@@ -621,6 +631,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 3",
 				Code:     "v0-55555555-btc-2",
@@ -643,6 +654,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-2",
@@ -664,6 +676,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-2",
@@ -679,6 +692,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t,
 			&config.Account{
 				HiddenBecauseUnused: true,
+				Watch:               nil,
 				CoinCode:            "btc",
 				Name:                "Bitcoin 4",
 				Code:                "v0-55555555-btc-3",
@@ -701,6 +715,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-3", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 4 new name",
 				Code:     "v0-55555555-btc-3",
@@ -731,6 +746,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
@@ -742,6 +758,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
@@ -753,6 +770,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
@@ -774,6 +792,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
@@ -785,6 +804,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
@@ -979,6 +999,9 @@ func TestAccountSupported(t *testing.T) {
 
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	bb02Multi := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock multi", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1000,6 +1023,9 @@ func TestAccountSupported(t *testing.T) {
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
 	bb02BtcOnly := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock btconly", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1024,12 +1050,24 @@ func TestAccountSupported(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
+	require.NoError(t, b.SetWatchonly(true))
+
 	// Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bb02Multi)
 	require.Len(t, b.Accounts(), 3)
 	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
 
 	b.DeregisterKeystore()
+	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
+	// previously, because they are marked watch-only, so they should be visible.
+	b.registerKeystore(bb02BtcOnly)
+	require.Len(t, b.Accounts(), 3)
+	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
+	require.NoError(t, b.SetWatchonly(false))
+	b.DeregisterKeystore()
+
 	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
 	// were persisted previously.
 	b.registerKeystore(bb02BtcOnly)
@@ -1113,6 +1151,9 @@ func TestTaprootUpgrade(t *testing.T) {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 
 	bitbox02NoTaproot := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock no taproot", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1135,6 +1176,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
 	bitbox02Taproot := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock taproot", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},

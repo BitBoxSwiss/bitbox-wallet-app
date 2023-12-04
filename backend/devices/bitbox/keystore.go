@@ -46,6 +46,12 @@ func (keystore *keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeHardware
 }
 
+// Name implements keystore.Keystore.
+func (keystore *keystore) Name() (string, error) {
+	// Won't bother getting the actual name here.
+	return "BitBox01", nil
+}
+
 // RootFingerprint implements keystore.Keystore.
 func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	keystore.rootFingerMu.Lock()

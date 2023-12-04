@@ -74,6 +74,8 @@ type Backend struct {
 	DeprecatedLitecoinActive bool `json:"litecoinActive"`
 	DeprecatedEthereumActive bool `json:"ethereumActive"`
 
+	Authentication bool `json:"authentication"`
+
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
 	RBTC btcCoinConfig `json:"rbtc"`
@@ -100,6 +102,13 @@ type Backend struct {
 
 	// BtcUnit is the unit used to represent Bitcoin amounts. See `coin.BtcUnit` for details.
 	BtcUnit coin.BtcUnit `json:"btcUnit"`
+
+	// Watchonly determines if accounts should be loaded even if their keystore is not conneced.
+	// If false, accounts are only loaded if their keystore is connected.
+	// If true, they are loaded and displayed when the app launches.
+	// Individual accounts can be exempt from being loaded even if this flag is true by setting the account's
+	// `Watch` flag to false.
+	Watchonly bool `json:"watchonly"`
 }
 
 // DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be
@@ -148,6 +157,7 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: "",
 			},
+			Authentication:           false,
 			DeprecatedBitcoinActive:  true,
 			DeprecatedLitecoinActive: true,
 			DeprecatedEthereumActive: true,
@@ -323,6 +333,16 @@ func (config *Config) AppConfig() AppConfig {
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.appConfigLock.Lock()()
 	config.appConfig = appConfig
+	return config.save(config.appConfigFilename, config.appConfig)
+}
+
+// ModifyAppConfig calls f with the current config, allowing f to make any changes, and
+// persists the result if f returns nil error.  It propagates the f's error as is.
+func (config *Config) ModifyAppConfig(f func(*AppConfig) error) error {
+	defer config.appConfigLock.Lock()()
+	if err := f(&config.appConfig); err != nil {
+		return err
+	}
 	return config.save(config.appConfigFilename, config.appConfig)
 }
 
