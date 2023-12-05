@@ -4,9 +4,10 @@
 
 ## 4.40.0
 - Add support for watch-only - see your accounts and portfolio without connecting your BitBox02
+- Android: new setting to enable screen lock authentication when accessing the app
 - Drop support for SAI token
 - Ability to connect Ethereum (mainnet) wallets to dapps using WalletConnect
-- Log Javascript console messages in the app log.txt
+- Log JavaScript console messages in the app log.txt
 - Add amounts hiding feature to enhance privacy when using the app in public
 
 ## 4.39.0
