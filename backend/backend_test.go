@@ -198,34 +198,7 @@ func lookup(accts []accounts.Interface, code accountsTypes.Code) accounts.Interf
 // 6) Deactivate an account.
 // 7) Rename an inactive account.
 func TestAccounts(t *testing.T) {
-	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
-	keystoreHelper := software.NewKeystore(rootKey)
-
-	ks := &keystoremock.KeystoreMock{
-		NameFunc: func() (string, error) {
-			return "Mock keystore", nil
-		},
-		RootFingerprintFunc: func() ([]byte, error) {
-			return []byte{0x55, 0x055, 0x55, 0x55}, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
-				return true
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
+	ks := makeBitBox02Multi()
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()

@@ -88,9 +88,9 @@ func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expecte
 	require.Equal(t, expectedPersisted, cntPersisted)
 }
 
-// A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
-// legacy P2PKH.
-func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
+// A keystore with a similar config to a BitBox02 Multi - supporting unified and multiple accounts,
+// no legacy P2PKH.
+func makeBitBox02Multi() *keystoremock.KeystoreMock {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
@@ -120,6 +120,22 @@ func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
+}
+
+// A keystore with a similar config to a BitBox02 Bitcon-only - supporting unified and multiple
+// accounts, no legacy P2PKH.
+func makeBitBox02BTCOnly() *keystoremock.KeystoreMock {
+	ks := makeBitBox02Multi()
+	ks.SupportsAccountFunc = func(coin coinpkg.Coin, meta interface{}) bool {
+		switch coin.(type) {
+		case *btc.Coin:
+			scriptType := meta.(signing.ScriptType)
+			return coin.Code() == coinpkg.CodeBTC && scriptType != signing.ScriptTypeP2PKH
+		default:
+			return false
+		}
+	}
+	return ks
 }
 
 func TestSortAccounts(t *testing.T) {
@@ -535,7 +551,7 @@ func TestSupportedCoins(t *testing.T) {
 }
 
 func TestCreateAndPersistAccountConfig(t *testing.T) {
-	bitbox02LikeKeystore := makeBitbox02LikeKeystore()
+	bitbox02LikeKeystore := makeBitBox02Multi()
 
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -1012,59 +1028,8 @@ func TestCreateAndAddAccount(t *testing.T) {
 // The second point is important because it's possible to use e.g. a BitBox02-Multi and a
 // Bitbox02-btconly with the same seed, so we shouldn't load all persisted accounts without checking.
 func TestAccountSupported(t *testing.T) {
-	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
-	keystoreHelper := software.NewKeystore(rootKey)
-
-	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
-	bb02Multi := &keystoremock.KeystoreMock{
-		NameFunc: func() (string, error) {
-			return "Mock multi", nil
-		},
-		RootFingerprintFunc: func() ([]byte, error) {
-			return fingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
-				return true
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
-	bb02BtcOnly := &keystoremock.KeystoreMock{
-		NameFunc: func() (string, error) {
-			return "Mock btconly", nil
-		},
-		RootFingerprintFunc: func() ([]byte, error) {
-			return fingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return coin.Code() == coinpkg.CodeBTC && scriptType != signing.ScriptTypeP2PKH
-			default:
-				return false
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
+	bb02Multi := makeBitBox02Multi()
+	bb02BtcOnly := makeBitBox02BTCOnly()
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
@@ -1093,7 +1058,7 @@ func TestAccountSupported(t *testing.T) {
 }
 
 func TestInactiveAccount(t *testing.T) {
-	bitbox02LikeKeystore := makeBitbox02LikeKeystore()
+	bitbox02LikeKeystore := makeBitBox02Multi()
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
@@ -1264,7 +1229,7 @@ func TestRenameAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.registerKeystore(makeBitbox02LikeKeystore())
+	b.registerKeystore(makeBitBox02Multi())
 
 	require.NoError(t, b.RenameAccount("v0-55555555-btc-0", "renamed"))
 	require.Equal(t, "renamed", b.accounts.lookup("v0-55555555-btc-0").Config().Config.Name)
@@ -1275,7 +1240,7 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.registerKeystore(makeBitbox02LikeKeystore())
+	b.registerKeystore(makeBitBox02Multi())
 
 	// Initial accounts added: Bitcoin, Litecoin, Ethereum.
 	checkShownAccountsLen(t, b, 3, 3)
