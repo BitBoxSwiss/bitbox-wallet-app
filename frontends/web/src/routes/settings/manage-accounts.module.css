@@ -156,7 +156,6 @@
 }
 
 .watchOnlyNote {
-    font-size: var(--size-small);
     margin: 0;
     margin-top: var(--space-half);
 }
