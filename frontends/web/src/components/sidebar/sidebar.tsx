@@ -31,7 +31,7 @@ import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
-import { getAccountsByKeystore, isBitcoinOnly } from '../../routes/account/utils';
+import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
@@ -215,6 +215,12 @@ class Sidebar extends Component<Props> {
               <div className={style.sidebarHeaderContainer}>
                 <span className={style.sidebarHeader} hidden={!keystore.accounts.length}>
                   {t('sidebar.accounts')} - {keystore.keystore.name}
+                  { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                    // Disambiguate accounts group by adding the fingerprint.
+                    // The most common case where this would happen is when adding accounts from the
+                    // same seed using different passphrases.
+                    <> ({keystore.keystore.rootFingerprint})</>
+                  ) : null }
                 </span>
               </div>
 
