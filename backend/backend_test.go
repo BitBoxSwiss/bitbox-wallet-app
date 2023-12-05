@@ -88,14 +88,12 @@ func TestRegisterKeystore(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	require.Len(t, b.Accounts(), 0)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 0)
+	checkShownAccountsLen(t, b, 0, 0)
 
 	// Registering a new keystore persists a set of initial default accounts and the keystore.
 	b.registerKeystore(ks1)
 	require.Equal(t, ks1, b.Keystore())
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
@@ -208,8 +206,7 @@ func TestAccounts(t *testing.T) {
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(ks)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))

@@ -1038,8 +1038,7 @@ func TestAccountSupported(t *testing.T) {
 
 	// Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bb02Multi)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 
 	b.DeregisterKeystore()
 	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
@@ -1064,8 +1063,8 @@ func TestInactiveAccount(t *testing.T) {
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bitbox02LikeKeystore)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	checkShownAccountsLen(t, b, 3, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-btc-0").Config().Config.Inactive)
