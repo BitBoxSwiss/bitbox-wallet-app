@@ -1283,3 +1283,139 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	require.Len(t, b.config.AccountsConfig().Accounts, 14)
 	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-6"))
 }
+
+func TestWatchonly(t *testing.T) {
+	filterAcct := func(code accountsTypes.Code) func(acct *config.Account) bool {
+		return func(acct *config.Account) bool {
+			return acct.Code == code
+		}
+	}
+
+	// No watchonly - accounts are loaded when registering keystore and unloaded when deregistering
+	// keystore.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 0, 3)
+	})
+
+	// Watchonly enabled before keystore is registered - all loaded accounts thereafter become
+	// watched.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+	})
+
+	// Watchonly enabled while keystore is registered - all already loaded accounts become watched.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		require.NoError(t, b.SetWatchonly(true))
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+	})
+
+	// A specific account is excluded from watchonly, then re-included.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		exclude := accountsTypes.Code("v0-55555555-btc-0")
+		require.NotNil(t, lookup(b.Accounts(), exclude))
+		_false := false
+		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_false))
+		b.DeregisterKeystore()
+		// Accounts remain loaded except one.
+		checkShownAccountsLen(t, b, 2, 3)
+		require.Nil(t, lookup(b.Accounts(), exclude))
+
+		// Re-watch that account. In the UI this is possible as the edit dialog remains open after
+		// disabling watchonly.
+		_true := true
+		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_true))
+		checkShownAccountsLen(t, b, 3, 3)
+		require.NotNil(t, lookup(b.Accounts(), exclude))
+	})
+
+	// Watchonly is disabled while some watched accounts are shown with no keystore connected.  All
+	// accounts should disappear. When re-enabling watchonly, they do not reappear - connecting the
+	// keystore again is necessary.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Disable watchonly, all accounts disappear.
+		require.NoError(t, b.SetWatchonly(false))
+		checkShownAccountsLen(t, b, 0, 3)
+
+		// Re-enable watchonly - accounts do not show up yet.
+		require.NoError(t, b.SetWatchonly(true))
+		checkShownAccountsLen(t, b, 0, 3)
+
+		// Reconnecting the keystore brings back the watched accounts.
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 3, 3)
+	})
+
+	// Disable global watchonly while keystore is connected does not make the accounts disappear
+	// yet. They only disappear once the keytore is disconnected.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Disable watchonly, all accounts remain as the keystore is still connected.
+		require.NoError(t, b.SetWatchonly(false))
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Accounts disappear when the keystore is disconnected.
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 0, 3)
+	})
+
+	// Disable watchonly for a specific account while keystore is connected does not make the
+	// account disappear yet. It only disappears once the keytore is disconnected.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+
+		exclude := accountsTypes.Code("v0-55555555-btc-0")
+		require.NotNil(t, lookup(b.Accounts(), exclude))
+		_false := false
+		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_false))
+
+		// Account remains loaded as the keystore is still connected.
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Disconnecting the keystore makes the one account disappear that is not being watched.
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 2, 3)
+		require.Nil(t, lookup(b.Accounts(), exclude))
+	})
+}
