@@ -63,7 +63,11 @@ func (account *Account) signTransaction(
 		FormatUnit:                   account.coin.formatUnit,
 	}
 
-	if err := account.Config().Keystore.SignTransaction(proposedTransaction); err != nil {
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return err
+	}
+	if err := keystore.SignTransaction(proposedTransaction); err != nil {
 		return err
 	}
 

@@ -140,3 +140,34 @@
     margin-left: 10px;
     outline: none;
 }
+
+
+.watchOnlyContainer {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-half);
+}
+
+.watchOnlyTitle {
+    color: var(--color-secondary);   
+    margin: 0;
+    margin-left: var(--space-quarter);
+}
+
+.watchOnlyNote {
+    font-size: var(--size-small);
+    margin: 0;
+    margin-top: var(--space-half);
+}
+
+.watchOnlyAccountHidden {
+    background-color: var(--color-success);
+    margin-top: var(--space-half);
+    padding: var(--space-half);
+}
+
+.watchOnlyAccountHidden p {
+    color: var(--color-alt);
+    margin: 0;
+}

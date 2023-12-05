@@ -4,6 +4,9 @@
     padding: calc(var(--space-default) * 1.5);
     width: 100%;
 }
+.container.withCloseBtn {
+    padding-right: 60px;
+}
 
 :global(.padded) .container {
     max-width: var(--content-width);

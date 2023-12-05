@@ -17,6 +17,7 @@
 import { apiGet, apiPost } from '../utils/request';
 import { ChartData } from '../routes/account/summary/chart';
 import type { TDetailStatus } from './bitsurance';
+import { SuccessResponse } from './response';
 
 export type CoinCode = 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'goeth' | 'sepeth';
 
@@ -37,21 +38,28 @@ export type Terc20Token = {
 };
 
 export interface IActiveToken {
-    tokenCode: string;
-    accountCode: AccountCode;
+  tokenCode: string;
+  accountCode: AccountCode;
 }
 
+export type TKeystore = {
+  rootFingerprint: string;
+  name: string;
+};
+
 export interface IAccount {
-    active: boolean;
-    coinCode: CoinCode;
-    coinUnit: string;
-    coinName: string;
-    code: AccountCode;
-    name: string;
-    isToken: boolean;
-    activeTokens?: IActiveToken[];
-    blockExplorerTxPrefix: string;
-    bitsuranceStatus?: TDetailStatus;
+  keystore: TKeystore;
+  active: boolean;
+  watch: boolean;
+  coinCode: CoinCode;
+  coinUnit: string;
+  coinName: string;
+  code: AccountCode;
+  name: string;
+  isToken: boolean;
+  activeTokens?: IActiveToken[];
+  blockExplorerTxPrefix: string;
+  bitsuranceStatus?: TDetailStatus;
 }
 
 export const getAccounts = (): Promise<IAccount[]> => {
@@ -65,6 +73,15 @@ export interface ITotalBalance {
 
 export const getAccountsTotalBalance = (): Promise<ITotalBalance> => {
   return apiGet('accounts/total-balance');
+};
+
+type TEthAccountCodeAndNameByAddress = SuccessResponse & {
+  code: AccountCode;
+  name: string;
+}
+
+export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEthAccountCodeAndNameByAddress> => {
+  return apiPost('accounts/eth-account-code', { address });
 };
 
 export interface IStatus {
@@ -212,16 +229,10 @@ export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
   return apiPost(`account/${code}/export`);
 };
 
-export const getCanVerifyXPub = (code: AccountCode) => {
-  return (): Promise<boolean> => {
-    return apiGet(`account/${code}/can-verify-extended-public-key`);
-  };
-};
-
 export const verifyXPub = (
   code: AccountCode,
   signingConfigIndex: number,
-): Promise<void> => {
+): Promise<{ success: true; } | { success: false; errorMessage: string; }> => {
   return apiPost(`account/${code}/verify-extended-public-key`, { signingConfigIndex });
 };
 
@@ -329,4 +340,33 @@ export const addAccount = (coinCode: string, name: string): Promise<TAddAccount>
 
 export const testRegister = (pin: string): Promise<null> => {
   return apiPost('test/register', { pin });
+};
+
+export const connectKeystore = (code: AccountCode): Promise<{ success: boolean; }> => {
+  return apiPost(`account/${code}/connect-keystore`);
+};
+
+export type TSignMessage = { success: false, aborted?: boolean; errorMessage?: string; } | { success: true; signature: string; }
+
+export type TSignWalletConnectTx = {
+  success: false,
+  aborted?: boolean;
+  errorMessage?: string;
+} | {
+  success: true;
+  txHash: string;
+  rawTx: string;
+}
+
+
+export const ethSignMessage = (code: AccountCode, message: string): Promise<TSignMessage> => {
+  return apiPost(`account/${code}/eth-sign-msg`, message);
+};
+
+export const ethSignTypedMessage = (code: AccountCode, chainId: number, data: any): Promise<TSignMessage> => {
+  return apiPost(`account/${code}/eth-sign-typed-msg`, { chainId, data });
+};
+
+export const ethSignWalletConnectTx = (code: AccountCode, send: boolean, chainId: number, tx: any): Promise<TSignWalletConnectTx> => {
+  return apiPost(`account/${code}/eth-sign-wallet-connect-tx`, { send, chainId, tx });
 };

@@ -44,7 +44,6 @@ export const Receive = (props: TProps) => {
   default: // software keystore
     return (
       <ReceiveBB02
-        deviceID={deviceID}
         {...props} />
     );
   }

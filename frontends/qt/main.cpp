@@ -116,10 +116,12 @@ public:
             return;
         }
 
-        // We treat the onramp pages specially because we need to allow onramp
+        auto currentUrl = mainPage->requestedUrl().toString();
+        auto requestedUrl = info.requestUrl().toString();
+
+        // We treat the onramp page specially because we need to allow onramp
         // widgets to load in an iframe as well as let them open external links
         // in a browser.
-        auto currentUrl = mainPage->requestedUrl().toString();
         bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/buy/.*$"));
         bool onBitsurancePage = currentUrl.contains(QRegularExpression("^qrc:/bitsurance/.*$"));
         if (onBuyPage || onBitsurancePage) {
@@ -130,6 +132,19 @@ public:
                 info.block(true);
             }
             return;
+        }
+
+        // All the requests originated in the wallet-connect section are allowed, as they are needed to
+        // load the Dapp logos and it is not easy to filter out non-images requests.
+        bool onWCPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^\/]+/wallet-connect/.*$"));
+        if (onWCPage) {
+          return;
+        }
+
+        // Needed for the wallet connect workflow.
+        bool VerifyWCRequest = requestedUrl.contains(QRegularExpression("^https://verify\.walletconnect\.com/.*$"));
+        if (VerifyWCRequest) {
+          return;
         }
 
         std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;

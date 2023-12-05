@@ -69,15 +69,37 @@ func mustXKey(key string) *hdkeychain.ExtendedKey {
 	return xkey
 }
 
-// A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
-// legacy P2PKH.
-func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
+func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expectedPersisted int) {
+	t.Helper()
+	cntLoaded := 0
+	for _, acct := range b.Accounts() {
+		if !acct.Config().Config.HiddenBecauseUnused {
+			cntLoaded++
+		}
+	}
+	require.Equal(t, expectedLoaded, cntLoaded)
+
+	cntPersisted := 0
+	for _, acct := range b.Config().AccountsConfig().Accounts {
+		if !acct.HiddenBecauseUnused {
+			cntPersisted++
+		}
+	}
+	require.Equal(t, expectedPersisted, cntPersisted)
+}
+
+// A keystore with a similar config to a BitBox02 Multi - supporting unified and multiple accounts,
+// no legacy P2PKH.
+func makeBitBox02Multi() *keystoremock.KeystoreMock {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
 	keystoreHelper := software.NewKeystore(rootKey)
 
 	return &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock name", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -98,6 +120,22 @@ func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
 		},
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
+}
+
+// A keystore with a similar config to a BitBox02 Bitcon-only - supporting unified and multiple
+// accounts, no legacy P2PKH.
+func makeBitBox02BTCOnly() *keystoremock.KeystoreMock {
+	ks := makeBitBox02Multi()
+	ks.SupportsAccountFunc = func(coin coinpkg.Coin, meta interface{}) bool {
+		switch coin.(type) {
+		case *btc.Coin:
+			scriptType := meta.(signing.ScriptType)
+			return coin.Code() == coinpkg.CodeBTC && scriptType != signing.ScriptTypeP2PKH
+		default:
+			return false
+		}
+	}
+	return ks
 }
 
 func TestSortAccounts(t *testing.T) {
@@ -307,6 +345,10 @@ func (e environment) DetectDarkTheme() bool {
 	return false
 }
 
+func (e environment) Auth() {}
+
+func (e environment) OnAuthSettingChanged(bool) {}
+
 func newBackend(t *testing.T, testing, regtest bool) *Backend {
 	t.Helper()
 	b, err := NewBackend(
@@ -509,7 +551,7 @@ func TestSupportedCoins(t *testing.T) {
 }
 
 func TestCreateAndPersistAccountConfig(t *testing.T) {
-	bitbox02LikeKeystore := makeBitbox02LikeKeystore()
+	bitbox02LikeKeystore := makeBitBox02Multi()
 
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
@@ -558,6 +600,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 2",
 				Code:     "v0-55555555-btc-1",
@@ -580,6 +623,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-1",
@@ -601,6 +645,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-1", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-1",
@@ -621,6 +666,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 3",
 				Code:     "v0-55555555-btc-2",
@@ -643,6 +689,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 2",
 				Code:     "v0-55555555-ltc-2",
@@ -664,6 +711,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-eth-2", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "eth",
 				Name:     "ethereum 2",
 				Code:     "v0-55555555-eth-2",
@@ -679,6 +727,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t,
 			&config.Account{
 				HiddenBecauseUnused: true,
+				Watch:               nil,
 				CoinCode:            "btc",
 				Name:                "Bitcoin 4",
 				Code:                "v0-55555555-btc-3",
@@ -701,6 +750,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-3", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 4 new name",
 				Code:     "v0-55555555-btc-3",
@@ -731,6 +781,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-btc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: bech32",
 				Code:     "v0-55555555-btc-0-p2wpkh",
@@ -742,6 +793,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1",
 				Code:     "v0-55555555-btc-0-p2wpkh-p2sh",
@@ -753,6 +805,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "btc",
 				Name:     "bitcoin 1: legacy",
 				Code:     "v0-55555555-btc-0-p2pkh",
@@ -774,6 +827,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		require.Equal(t, "v0-55555555-ltc-0", string(acctCode))
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1: bech32",
 				Code:     "v0-55555555-ltc-0-p2wpkh",
@@ -785,6 +839,7 @@ func TestCreateAndPersistAccountConfig(t *testing.T) {
 		)
 		require.Equal(t,
 			&config.Account{
+				Watch:    nil,
 				CoinCode: "ltc",
 				Name:     "litecoin 1",
 				Code:     "v0-55555555-ltc-0-p2wpkh-p2sh",
@@ -973,79 +1028,43 @@ func TestCreateAndAddAccount(t *testing.T) {
 // The second point is important because it's possible to use e.g. a BitBox02-Multi and a
 // Bitbox02-btconly with the same seed, so we shouldn't load all persisted accounts without checking.
 func TestAccountSupported(t *testing.T) {
-	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
-	rootKey := mustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
-	keystoreHelper := software.NewKeystore(rootKey)
-
-	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
-	bb02Multi := &keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return fingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return scriptType != signing.ScriptTypeP2PKH
-			default:
-				return true
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
-	bb02BtcOnly := &keystoremock.KeystoreMock{
-		RootFingerprintFunc: func() ([]byte, error) {
-			return fingerprint, nil
-		},
-		SupportsAccountFunc: func(coin coinpkg.Coin, meta interface{}) bool {
-			switch coin.(type) {
-			case *btc.Coin:
-				scriptType := meta.(signing.ScriptType)
-				return coin.Code() == coinpkg.CodeBTC && scriptType != signing.ScriptTypeP2PKH
-			default:
-				return false
-			}
-		},
-		SupportsUnifiedAccountsFunc: func() bool {
-			return true
-		},
-		SupportsMultipleAccountsFunc: func() bool {
-			return true
-		},
-		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
-	}
+	bb02Multi := makeBitBox02Multi()
+	bb02BtcOnly := makeBitBox02BTCOnly()
 
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
+	require.NoError(t, b.SetWatchonly(true))
+
 	// Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bb02Multi)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 
 	b.DeregisterKeystore()
+	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
+	// previously, because they are marked watch-only, so they should be visible.
+	b.registerKeystore(bb02BtcOnly)
+	checkShownAccountsLen(t, b, 3, 3)
+
+	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
+	require.NoError(t, b.SetWatchonly(false))
+	b.DeregisterKeystore()
+
 	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
 	// were persisted previously.
 	b.registerKeystore(bb02BtcOnly)
-	require.Len(t, b.Accounts(), 1)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 1, 3)
 }
 
 func TestInactiveAccount(t *testing.T) {
-	bitbox02LikeKeystore := makeBitbox02LikeKeystore()
+	bitbox02LikeKeystore := makeBitBox02Multi()
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bitbox02LikeKeystore)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+
+	checkShownAccountsLen(t, b, 3, 3)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-btc-0").Config().Config.Inactive)
@@ -1058,33 +1077,28 @@ func TestInactiveAccount(t *testing.T) {
 
 	// Deactive an account.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.True(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Reactivate.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", true))
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Deactivating an ETH account with tokens also removes the tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
 	// Reactivating restores them again.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", true))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
@@ -1093,15 +1107,13 @@ func TestInactiveAccount(t *testing.T) {
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 	require.NoError(t, b.SetAccountActive("v0-55555555-ltc-0", false))
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 
 	// Re-registering the keystore (i.e. replugging the device) ends in the same state: no
 	// additional accounts created.
 	b.DeregisterKeystore()
 	b.registerKeystore(bitbox02LikeKeystore)
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 }
 
 // Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
@@ -1113,6 +1125,9 @@ func TestTaprootUpgrade(t *testing.T) {
 	fingerprint := []byte{0x55, 0x055, 0x55, 0x55}
 
 	bitbox02NoTaproot := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock no taproot", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1135,6 +1150,9 @@ func TestTaprootUpgrade(t *testing.T) {
 		ExtendedPublicKeyFunc: keystoreHelper.ExtendedPublicKey,
 	}
 	bitbox02Taproot := &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock taproot", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return fingerprint, nil
 		},
@@ -1165,8 +1183,7 @@ func TestTaprootUpgrade(t *testing.T) {
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bitbox02NoTaproot)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount := lookup(b.Accounts(), "v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
 	ltcAccount := lookup(b.Accounts(), "v0-55555555-ltc-0")
@@ -1186,8 +1203,7 @@ func TestTaprootUpgrade(t *testing.T) {
 	// "Unplug", then insert an updated keystore with taproot support.
 	b.DeregisterKeystore()
 	b.registerKeystore(bitbox02Taproot)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = lookup(b.Accounts(), "v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
 	ltcAccount = lookup(b.Accounts(), "v0-55555555-ltc-0")
@@ -1212,7 +1228,7 @@ func TestRenameAccount(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.registerKeystore(makeBitbox02LikeKeystore())
+	b.registerKeystore(makeBitBox02Multi())
 
 	require.NoError(t, b.RenameAccount("v0-55555555-btc-0", "renamed"))
 	require.Equal(t, "renamed", b.accounts.lookup("v0-55555555-btc-0").Config().Config.Name)
@@ -1223,18 +1239,21 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	b.registerKeystore(makeBitbox02LikeKeystore())
+	b.registerKeystore(makeBitBox02Multi())
 
 	// Initial accounts added: Bitcoin, Litecoin, Ethereum.
-	require.Len(t, b.accounts, 3)
-	require.Len(t, b.config.AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 
 	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
-	// empty.
-	for i := 1; i <= 5; i++ {
+	// empty. Calling this function too many times does not add more than that.
+	for i := 1; i <= 10; i++ {
 		b.maybeAddHiddenUnusedAccounts()
-		require.Len(t, b.accounts, 3+2*i)
-		require.Len(t, b.config.AccountsConfig().Accounts, 3+2*i)
+	}
+
+	require.Len(t, b.accounts, 3+2*5)
+	require.Len(t, b.config.AccountsConfig().Accounts, 3+2*5)
+
+	for i := 1; i <= 5; i++ {
 		for _, addedAccountCode := range []string{
 			fmt.Sprintf("v0-55555555-btc-%d", i),
 			fmt.Sprintf("v0-55555555-ltc-%d", i),
@@ -1263,4 +1282,140 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	b.maybeAddHiddenUnusedAccounts()
 	require.Len(t, b.config.AccountsConfig().Accounts, 14)
 	require.NotNil(t, b.config.AccountsConfig().Lookup("v0-55555555-btc-6"))
+}
+
+func TestWatchonly(t *testing.T) {
+	filterAcct := func(code accountsTypes.Code) func(acct *config.Account) bool {
+		return func(acct *config.Account) bool {
+			return acct.Code == code
+		}
+	}
+
+	// No watchonly - accounts are loaded when registering keystore and unloaded when deregistering
+	// keystore.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 0, 3)
+	})
+
+	// Watchonly enabled before keystore is registered - all loaded accounts thereafter become
+	// watched.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+	})
+
+	// Watchonly enabled while keystore is registered - all already loaded accounts become watched.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		require.NoError(t, b.SetWatchonly(true))
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+	})
+
+	// A specific account is excluded from watchonly, then re-included.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		exclude := accountsTypes.Code("v0-55555555-btc-0")
+		require.NotNil(t, lookup(b.Accounts(), exclude))
+		_false := false
+		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_false))
+		b.DeregisterKeystore()
+		// Accounts remain loaded except one.
+		checkShownAccountsLen(t, b, 2, 3)
+		require.Nil(t, lookup(b.Accounts(), exclude))
+
+		// Re-watch that account. In the UI this is possible as the edit dialog remains open after
+		// disabling watchonly.
+		_true := true
+		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_true))
+		checkShownAccountsLen(t, b, 3, 3)
+		require.NotNil(t, lookup(b.Accounts(), exclude))
+	})
+
+	// Watchonly is disabled while some watched accounts are shown with no keystore connected.  All
+	// accounts should disappear. When re-enabling watchonly, they do not reappear - connecting the
+	// keystore again is necessary.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		b.DeregisterKeystore()
+		// Accounts remain loaded.
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Disable watchonly, all accounts disappear.
+		require.NoError(t, b.SetWatchonly(false))
+		checkShownAccountsLen(t, b, 0, 3)
+
+		// Re-enable watchonly - accounts do not show up yet.
+		require.NoError(t, b.SetWatchonly(true))
+		checkShownAccountsLen(t, b, 0, 3)
+
+		// Reconnecting the keystore brings back the watched accounts.
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 3, 3)
+	})
+
+	// Disable global watchonly while keystore is connected does not make the accounts disappear
+	// yet. They only disappear once the keytore is disconnected.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Disable watchonly, all accounts remain as the keystore is still connected.
+		require.NoError(t, b.SetWatchonly(false))
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Accounts disappear when the keystore is disconnected.
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 0, 3)
+	})
+
+	// Disable watchonly for a specific account while keystore is connected does not make the
+	// account disappear yet. It only disappears once the keytore is disconnected.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+		require.NoError(t, b.SetWatchonly(true))
+		b.registerKeystore(makeBitBox02Multi())
+		checkShownAccountsLen(t, b, 3, 3)
+
+		exclude := accountsTypes.Code("v0-55555555-btc-0")
+		require.NotNil(t, lookup(b.Accounts(), exclude))
+		_false := false
+		require.NoError(t, b.AccountSetWatch(filterAcct(exclude), &_false))
+
+		// Account remains loaded as the keystore is still connected.
+		checkShownAccountsLen(t, b, 3, 3)
+
+		// Disconnecting the keystore makes the one account disappear that is not being watched.
+		b.DeregisterKeystore()
+		checkShownAccountsLen(t, b, 2, 3)
+		require.Nil(t, lookup(b.Accounts(), exclude))
+	})
 }

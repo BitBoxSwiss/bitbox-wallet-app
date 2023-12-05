@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { CoinCode, ScriptType, IAccount, CoinUnit } from '../../api/account';
+import { CoinCode, ScriptType, IAccount, CoinUnit, TKeystore } from '../../api/account';
 
 export function findAccount(accounts: IAccount[], accountCode: string): IAccount | undefined {
   return accounts.find(({ code }) => accountCode === code);
@@ -93,4 +93,29 @@ export function customFeeUnit(coinCode: CoinCode): string {
     return 'Gwei';
   }
   return '';
+}
+
+export type TAccountsByKeystore = {
+  keystore: TKeystore;
+  accounts: IAccount[];
+};
+
+// Returns the accounts grouped by the keystore fingerprint.
+export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore[] {
+  return Object.values(accounts.reduce((acc, account) => {
+    const key = account.keystore.rootFingerprint;
+    if (!acc[key]) {
+      acc[key] = {
+        keystore: account.keystore,
+        accounts: []
+      };
+    }
+    acc[key].accounts.push(account);
+    return acc;
+  }, {} as Record<string, TAccountsByKeystore>));
+}
+
+// Returns true if more than one keystore has the given name.
+export function isAmbiguiousName(name: string, accounts: TAccountsByKeystore[]): boolean {
+  return accounts.filter(keystore => keystore.keystore.name === name).length > 1;
 }
