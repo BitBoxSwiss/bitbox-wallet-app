@@ -910,13 +910,14 @@ func (backend *Backend) SetWatchonly(watchonly bool) error {
 			nil,
 		)
 	}
+
+	accounts := accountsList(backend.Accounts())
 	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
 	t := true
 	return backend.AccountSetWatch(
 		func(account *config.Account) bool {
 			// Apply to each currently loaded account.
-			defer backend.accountsAndKeystoreLock.RLock()()
-			return backend.accounts.lookup(account.Code) != nil
+			return accounts.lookup(account.Code) != nil
 		},
 		&t,
 	)
