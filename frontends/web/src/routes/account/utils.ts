@@ -114,3 +114,8 @@ export function getAccountsByKeystore(accounts: IAccount[]): TAccountsByKeystore
     return acc;
   }, {} as Record<string, TAccountsByKeystore>));
 }
+
+// Returns true if more than one keystore has the given name.
+export function isAmbiguiousName(name: string, accounts: TAccountsByKeystore[]): boolean {
+  return accounts.filter(keystore => keystore.keystore.name === name).length > 1;
+}
