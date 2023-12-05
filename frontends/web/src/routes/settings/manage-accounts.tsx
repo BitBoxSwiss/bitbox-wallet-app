@@ -30,10 +30,10 @@ import { Message } from '../../components/message/message';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
-import { getConfig } from '../../utils/config';
 import { MobileHeader } from '../settings/components/mobile-header';
 import Guide from './manage-account-guide';
 import style from './manage-accounts.module.css';
+import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
 
 interface ManageAccountsProps {
   deviceIDs: string[];
@@ -50,7 +50,6 @@ interface State {
   editErrorMessage?: string;
   accounts: accountAPI.IAccount[];
   showTokens: TShowTokens;
-  watchonly?: boolean;
   currentlyEditedAccount?: accountAPI.IAccount
 }
 
@@ -59,7 +58,6 @@ class ManageAccounts extends Component<Props, State> {
     editErrorMessage: undefined,
     accounts: [],
     showTokens: {},
-    watchonly: undefined,
     currentlyEditedAccount: undefined
   };
 
@@ -69,7 +67,6 @@ class ManageAccounts extends Component<Props, State> {
 
   public componentDidMount() {
     this.fetchAccounts();
-    getConfig().then(config => this.setState({ watchonly: config!.backend!.watchonly }));
   }
 
   private renderAccounts = (accounts: accountAPI.IAccount[]) => {
@@ -129,6 +126,9 @@ class ManageAccounts extends Component<Props, State> {
     const { t } = this.props;
     const { currentlyEditedAccount } = this.state;
     if (!currentlyEditedAccount) {
+      return;
+    }
+    if (!currentlyEditedAccount.keystore.watchonly) {
       return;
     }
 
@@ -268,7 +268,7 @@ class ManageAccounts extends Component<Props, State> {
 
   public render() {
     const { t, deviceIDs, hasAccounts } = this.props;
-    const { accounts, editErrorMessage, currentlyEditedAccount, watchonly } = this.state;
+    const { accounts, editErrorMessage, currentlyEditedAccount } = this.state;
     const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <GuideWrapper>
@@ -295,6 +295,7 @@ class ManageAccounts extends Component<Props, State> {
                     accountsByKeystore.map(keystore => (
                       <React.Fragment key={keystore.keystore.rootFingerprint}>
                         <p>{keystore.keystore.name}</p>
+                        <WatchonlySetting keystore={keystore.keystore} />
                         <div className="box slim divide m-bottom-large">
                           {this.renderAccounts(keystore.accounts)}
                         </div>
@@ -314,7 +315,7 @@ class ManageAccounts extends Component<Props, State> {
                           onInput={e => this.setState({ currentlyEditedAccount: { ...currentlyEditedAccount, name: e.target.value } })}
                           value={currentlyEditedAccount.name}
                         />
-                        {watchonly && this.renderWatchOnlyToggle()}
+                        {this.renderWatchOnlyToggle()}
                         <DialogButtons>
                           <Button
                             disabled={!currentlyEditedAccount.name}

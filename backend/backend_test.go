@@ -118,7 +118,7 @@ func TestRegisterKeystore(t *testing.T) {
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
 	// Mark accounts as watch-only.
-	require.NoError(t, b.SetWatchonly(true))
+	require.NoError(t, b.SetWatchonly(rootFingerprint1, true))
 
 	b.DeregisterKeystore()
 	checkShownAccountsLen(t, b, 3, 3)
@@ -131,9 +131,10 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 
 	// Registering another keystore persists a set of initial default accounts and loads them.
-	// They are added to the previous set of watchonly accounts
 	b.DeregisterKeystore()
 	b.registerKeystore(ks2)
+	require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
+
 	checkShownAccountsLen(t, b, 6, 6)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-ltc-0"))

@@ -615,7 +615,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		Action:  action.Reload,
 	})
 
-	belongsToKeystore := func(account *config.Account) bool {
+	belongsToKeystore := func(_ *config.AccountsConfig, account *config.Account) bool {
 		return account.SigningConfigurations.ContainsRootFingerprint(fingerprint)
 	}
 
@@ -640,7 +640,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(keystore, accounts)
+			return backend.updatePersistedAccounts(keystore, accountsConfig)
 		}
 		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
 	})
@@ -886,12 +886,16 @@ func (backend *Backend) CancelConnectKeystore() {
 	backend.connectKeystore.cancel(errUserAbort)
 }
 
-// SetWatchonly sets the app config's watchonly flag to `watchonly`.
-// When enabling watchonly, all currently loaded accounts are turned into watchonly accounts.
-// When disabling watchonly, all persisted accounts's watchonly status is reset.
-func (backend *Backend) SetWatchonly(watchonly bool) error {
-	err := backend.config.ModifyAppConfig(func(config *config.AppConfig) error {
-		config.Backend.Watchonly = watchonly
+// SetWatchonly sets the keystore's watchonly flag to `watchonly`.
+// When enabling watchonly, all currently loaded accounts of that keystore are turned into watchonly accounts.
+// When disabling watchonly, all the watchonly status of all of the keystore's persisted accounts is reset.
+func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
+	err := backend.config.ModifyAccountsConfig(func(config *config.AccountsConfig) error {
+		ks, err := config.LookupKeystore(rootFingerprint)
+		if err != nil {
+			return err
+		}
+		ks.Watchonly = watchonly
 		return nil
 	})
 	if err != nil {
@@ -899,13 +903,12 @@ func (backend *Backend) SetWatchonly(watchonly bool) error {
 	}
 
 	if !watchonly {
-		// When disabling watchonly, we reset the Watch flag for each account, so that when the user
-		// enables watchonly again, it does not show all accounts again - they first need to be
-		// loaded via their keystore.
+		// When disabling watchonly of the keystore, we reset the Watch flag for each of its
+		// accounts, so that when the user enables watchonly for this keystore again, it does not
+		// show all accounts again - they first need to be loaded via their keystore.
 		return backend.AccountSetWatch(
-			func(*config.Account) bool {
-				// Apply to each account.
-				return true
+			func(account *config.Account) bool {
+				return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
 			},
 			nil,
 		)

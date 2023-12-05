@@ -107,7 +107,7 @@ type Backend interface {
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
 	CancelConnectKeystore()
-	SetWatchonly(watchonly bool) error
+	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 }
 
@@ -1354,11 +1354,14 @@ func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
 	type response struct {
 		Success bool `json:"success"`
 	}
-	var watchonly bool
-	if err := json.NewDecoder(r.Body).Decode(&watchonly); err != nil {
+	var request struct {
+		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+		Watchonly       bool           `json:"watchonly"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false}
 	}
-	if err := handlers.backend.SetWatchonly(watchonly); err != nil {
+	if err := handlers.backend.SetWatchonly([]byte(request.RootFingerprint), request.Watchonly); err != nil {
 		return response{Success: false}
 	}
 	return response{Success: true}

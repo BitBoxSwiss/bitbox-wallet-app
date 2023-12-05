@@ -130,7 +130,7 @@ func sortAccounts(accounts []accounts.Interface) {
 
 // filterAccounts fetches all persisted accounts that pass the provided filter. Testnet/regtest
 // accounts are not loaded in mainnet and vice versa.
-func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.Account) bool) []*config.Account {
+func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, filter func(*config.AccountsConfig, *config.Account) bool) []*config.Account {
 	var accounts []*config.Account
 	for _, account := range accountsConfig.Accounts {
 		if !backend.arguments.Regtest() {
@@ -152,7 +152,7 @@ func (backend *Backend) filterAccounts(accountsConfig *config.AccountsConfig, fi
 			continue
 		}
 
-		if !filter(account) {
+		if !filter(accountsConfig, account) {
 			continue
 		}
 		accounts = append(accounts, account)
@@ -407,9 +407,15 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 		if hiddenAccount != nil {
 			hiddenAccount.HiddenBecauseUnused = false
 			hiddenAccount.Name = name
+
+			rootFingerprint, err := keystore.RootFingerprint()
+			if err != nil {
+				return err
+			}
+
 			// We only really show the account to the user now, so this is the moment to set the
-			// watchonly flag on it if the user has the global watchonly setting enabled.
-			if backend.config.AppConfig().Backend.Watchonly {
+			// watchonly flag on it if the user has the keystore's watchonly setting enabled.
+			if accountsConfig.IsKeystoreWatchonly(rootFingerprint) {
 				t := true
 				hiddenAccount.Watch = &t
 			}
@@ -501,7 +507,7 @@ func copyBool(b *bool) *bool {
 // AccountSetWatch sets the account's persisted watch flag to `watch`. Set to `true` if the account
 // should be loaded even if its keystore is not connected.
 // If `watch` is set to `false`, the account is unloaded and the frontend notified.
-// If `watch` is set to `true`, the account is loaded (if the global watchonly flag is enabled) and the frontend notified.
+// If `watch` is set to `true`, the account is loaded (if its keystore's watchonly flag is enabled) and the frontend notified.
 func (backend *Backend) AccountSetWatch(filter func(*config.Account) bool, watch *bool) error {
 	err := backend.config.ModifyAccountsConfig(func(accountsConfig *config.AccountsConfig) error {
 		for _, acct := range accountsConfig.Accounts {
@@ -767,7 +773,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	// If the account was added in the background as part of scanning, we don't mark it watchonly.
 	// Otherwise the account would appear automatically once it received funds, even if it was not
 	// visible before and the keystore is never connected again.
-	if !hiddenBecauseUnused && backend.config.AppConfig().Backend.Watchonly {
+	if !hiddenBecauseUnused && accountsConfig.IsKeystoreWatchonly(rootFingerprint) {
 		t := true
 		accountWatch = &t
 	}
@@ -869,7 +875,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	var accountWatch *bool
-	if !hiddenBecauseUnused && backend.config.AppConfig().Backend.Watchonly {
+	if !hiddenBecauseUnused && accountsConfig.IsKeystoreWatchonly(rootFingerprint) {
 		t := true
 		accountWatch = &t
 	}
@@ -888,8 +894,11 @@ func (backend *Backend) persistETHAccountConfig(
 // The accountsAndKeystoreLock must be held when calling this function.
 func (backend *Backend) initPersistedAccounts() {
 	// Only load accounts which belong to connected keystores or for which watchonly is enabled.
-	keystoreConnectedOrWatch := func(account *config.Account) bool {
-		if account.IsWatch(backend.config.AppConfig().Backend.Watchonly) {
+	keystoreConnectedOrWatch := func(accountsConfig *config.AccountsConfig, account *config.Account) bool {
+		isWatch, err := accountsConfig.IsAccountWatchonly(account)
+		if err != nil {
+			backend.log.WithError(err).Error("Can't determine watch status of account")
+		} else if isWatch {
 			return true
 		}
 
@@ -925,17 +934,24 @@ outer:
 		// Watch-only accounts are loaded regardless, and if later e.g. a BitBox02 BTC-only is
 		// inserted with the same seed as a Multi, we will need to catch that mismatch when the
 		// keystore will be used to e.g. display an Ethereum address etc.
-		if backend.keystore != nil && !account.IsWatch(backend.config.AppConfig().Backend.Watchonly) {
-			switch coin.(type) {
-			case *btc.Coin:
-				for _, cfg := range account.SigningConfigurations {
-					if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
-						continue outer
+		if backend.keystore != nil {
+			isWatch, err := persistedAccounts.IsAccountWatchonly(account)
+			if err != nil {
+				backend.log.WithError(err).Error("Could not retrieve root fingerprint")
+				continue
+			}
+			if !isWatch {
+				switch coin.(type) {
+				case *btc.Coin:
+					for _, cfg := range account.SigningConfigurations {
+						if !backend.keystore.SupportsAccount(coin, cfg.ScriptType()) {
+							continue outer
+						}
 					}
-				}
-			default:
-				if !backend.keystore.SupportsAccount(coin, nil) {
-					continue
+				default:
+					if !backend.keystore.SupportsAccount(coin, nil) {
+						continue
+					}
 				}
 			}
 		}
@@ -1057,15 +1073,19 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 // perform migrations, updates etc. We use it to add taproot subaccounts to Bitcoin accounts that
 // were created (persisted) before the introduction of taproot support.
 func (backend *Backend) updatePersistedAccounts(
-	keystore keystore.Keystore, accounts []*config.Account) error {
+	keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
 
-	// setWatch, if the global Watchonly flag is enabled, sets the `Watch`
+	// setWatch, if the keystore Watchonly flag is enabled, sets the `Watch`
 	// flag to `true`, turning this account into a watch-only account.
 	setWatch := func() error {
-		if !backend.config.AppConfig().Backend.Watchonly {
+		rootFingerprint, err := keystore.RootFingerprint()
+		if err != nil {
+			return err
+		}
+		if !accountsConfig.IsKeystoreWatchonly(rootFingerprint) {
 			return nil
 		}
-		for _, account := range accounts {
+		for _, account := range accountsConfig.Accounts {
 			// If the account was added in the background as part of scanning, we don't mark it
 			// watchonly. Otherwise the account would appear automatically once it received funds,
 			// even if it was not visible before and the keystore is never connected again.
@@ -1081,7 +1101,7 @@ func (backend *Backend) updatePersistedAccounts(
 		return err
 	}
 
-	return backend.maybeAddP2TR(keystore, accounts)
+	return backend.maybeAddP2TR(keystore, accountsConfig.Accounts)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -1128,7 +1148,12 @@ func (backend *Backend) uninitAccounts(force bool) {
 			}
 		}
 
-		if !force && (belongsToKeystore || account.Config().Config.IsWatch(backend.config.AppConfig().Backend.Watchonly)) {
+		isWatchonly, err := backend.config.AccountsConfig().IsAccountWatchonly(account.Config().Config)
+		if err != nil {
+			backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
+			isWatchonly = false
+		}
+		if !force && (belongsToKeystore || isWatchonly) {
 			// Do not uninit/remove account that is being watched.
 			keep = append(keep, account)
 			continue
@@ -1297,8 +1322,12 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		acct.HiddenBecauseUnused = false
 
 		// We only really show the account to the user now, so this is the moment to set the
-		// watchonly flag on it if the user has the global watchonly setting enabled.
-		if backend.config.AppConfig().Backend.Watchonly {
+		// watchonly flag on it if the user has the accont's keystore's watchonly setting enabled.
+		rootFingerprint, err := acct.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			return err
+		}
+		if accountsConfig.IsKeystoreWatchonly(rootFingerprint) {
 			t := true
 			acct.Watch = &t
 		}
