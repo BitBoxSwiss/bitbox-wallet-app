@@ -406,6 +406,13 @@ func (backend *Backend) CreateAndPersistAccountConfig(
 		if hiddenAccount != nil {
 			hiddenAccount.HiddenBecauseUnused = false
 			hiddenAccount.Name = name
+			// We only really show the account to the user now, so this is the moment to set the
+			// watchonly flag on it if the user has the global watchonly setting enabled.
+			if backend.config.AppConfig().Backend.Watchonly {
+				t := true
+				hiddenAccount.Watch = &t
+			}
+
 			accountCode = hiddenAccount.Code
 			return nil
 		}
@@ -756,7 +763,10 @@ func (backend *Backend) persistBTCAccountConfig(
 	}
 
 	var accountWatch *bool
-	if backend.config.AppConfig().Backend.Watchonly {
+	// If the account was added in the background as part of scanning, we don't mark it watchonly.
+	// Otherwise the account would appear automatically once it received funds, even if it was not
+	// visible before and the keystore is never connected again.
+	if !hiddenBecauseUnused && backend.config.AppConfig().Backend.Watchonly {
 		t := true
 		accountWatch = &t
 	}
@@ -858,7 +868,7 @@ func (backend *Backend) persistETHAccountConfig(
 	}
 
 	var accountWatch *bool
-	if backend.config.AppConfig().Backend.Watchonly {
+	if !hiddenBecauseUnused && backend.config.AppConfig().Backend.Watchonly {
 		t := true
 		accountWatch = &t
 	}
@@ -1055,7 +1065,10 @@ func (backend *Backend) updatePersistedAccounts(
 			return nil
 		}
 		for _, account := range accounts {
-			if account.Watch == nil {
+			// If the account was added in the background as part of scanning, we don't mark it
+			// watchonly. Otherwise the account would appear automatically once it received funds,
+			// even if it was not visible before and the keystore is never connected again.
+			if !account.HiddenBecauseUnused && account.Watch == nil {
 				t := true
 				account.Watch = &t
 			}
@@ -1166,7 +1179,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
 			WithField("coinCode", coinCode)
 
-		maxAccountNumber := uint16(0)
+		maxAccountNumber := -1
 		var maxAccount *config.Account
 		for _, accountConfig := range cfg.Accounts {
 			if coinCode != accountConfig.CoinCode {
@@ -1179,22 +1192,19 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			if err != nil {
 				continue
 			}
-			if maxAccount == nil || accountNumber > maxAccountNumber {
-				maxAccountNumber = accountNumber
+			if maxAccount == nil || int(accountNumber) > maxAccountNumber {
+				maxAccountNumber = int(accountNumber)
 				maxAccount = accountConfig
 			}
-		}
-		if maxAccount == nil {
-			return nil
 		}
 		// Account scan gap limit:
 		// - Previous account must be used for the next one to be scanned, but:
 		// - The first 5 accounts are always scanned as before we had accounts discovery, the
 		//   BitBoxApp allowed manual creation of 5 accounts, so we need to always scan these.
-		if maxAccount.Used || maxAccountNumber < accountsHardLimit {
+		if maxAccount == nil || maxAccount.Used || maxAccountNumber < accountsHardLimit {
 			accountCode, err := backend.createAndPersistAccountConfig(
 				coinCode,
-				maxAccountNumber+1,
+				uint16(maxAccountNumber+1),
 				true,
 				"",
 				backend.keystore,
@@ -1284,6 +1294,14 @@ func (backend *Backend) checkAccountUsed(account accounts.Interface) {
 		}
 		acct.Used = true
 		acct.HiddenBecauseUnused = false
+
+		// We only really show the account to the user now, so this is the moment to set the
+		// watchonly flag on it if the user has the global watchonly setting enabled.
+		if backend.config.AppConfig().Backend.Watchonly {
+			t := true
+			acct.Watch = &t
+		}
+
 		return nil
 	})
 	if err != nil {

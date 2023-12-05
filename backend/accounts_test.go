@@ -69,6 +69,25 @@ func mustXKey(key string) *hdkeychain.ExtendedKey {
 	return xkey
 }
 
+func checkShownAccountsLen(t *testing.T, b *Backend, expectedLoaded int, expectedPersisted int) {
+	t.Helper()
+	cntLoaded := 0
+	for _, acct := range b.Accounts() {
+		if !acct.Config().Config.HiddenBecauseUnused {
+			cntLoaded++
+		}
+	}
+	require.Equal(t, expectedLoaded, cntLoaded)
+
+	cntPersisted := 0
+	for _, acct := range b.Config().AccountsConfig().Accounts {
+		if !acct.HiddenBecauseUnused {
+			cntPersisted++
+		}
+	}
+	require.Equal(t, expectedPersisted, cntPersisted)
+}
+
 // A keystore with a similar config to a BitBox02 - supporting unified and multiple accounts, no
 // legacy P2PKH.
 func makeBitbox02LikeKeystore() *keystoremock.KeystoreMock {
@@ -1061,8 +1080,7 @@ func TestAccountSupported(t *testing.T) {
 	// Registering a Bitcoin-only like keystore loads also the altcoins that were persisted
 	// previously, because they are marked watch-only, so they should be visible.
 	b.registerKeystore(bb02BtcOnly)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 
 	// If watch-only is disabled, then these will not be loaded if not supported by the keystore.
 	require.NoError(t, b.SetWatchonly(false))
@@ -1071,8 +1089,7 @@ func TestAccountSupported(t *testing.T) {
 	// Registering a Bitcoin-only like keystore loads only the Bitcoin account, even though altcoins
 	// were persisted previously.
 	b.registerKeystore(bb02BtcOnly)
-	require.Len(t, b.Accounts(), 1)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 1, 3)
 }
 
 func TestInactiveAccount(t *testing.T) {
@@ -1096,33 +1113,28 @@ func TestInactiveAccount(t *testing.T) {
 
 	// Deactive an account.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.True(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Reactivate.
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", true))
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	require.False(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0").Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-btc-0").Config().Config.Inactive)
 
 	// Deactivating an ETH account with tokens also removes the tokens
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-usdt", true))
 	require.NoError(t, b.SetTokenActive("v0-55555555-eth-0", "eth-erc20-bat", true))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
 	require.False(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
 	// Reactivating restores them again.
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", true))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-eth-0").Config().Config.Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-usdt").Config().Config.Inactive)
 	require.True(t, !lookup(b.Accounts(), "v0-55555555-eth-0-eth-erc20-bat").Config().Config.Inactive)
@@ -1131,15 +1143,13 @@ func TestInactiveAccount(t *testing.T) {
 	require.NoError(t, b.SetAccountActive("v0-55555555-btc-0", false))
 	require.NoError(t, b.SetAccountActive("v0-55555555-ltc-0", false))
 	require.NoError(t, b.SetAccountActive("v0-55555555-eth-0", false))
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 
 	// Re-registering the keystore (i.e. replugging the device) ends in the same state: no
 	// additional accounts created.
 	b.DeregisterKeystore()
 	b.registerKeystore(bitbox02LikeKeystore)
-	require.Len(t, b.Accounts(), 5)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 5, 3)
 }
 
 // Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
@@ -1209,8 +1219,7 @@ func TestTaprootUpgrade(t *testing.T) {
 
 	// 1) Registering a new keystore persists a set of initial default accounts.
 	b.registerKeystore(bitbox02NoTaproot)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount := lookup(b.Accounts(), "v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
 	ltcAccount := lookup(b.Accounts(), "v0-55555555-ltc-0")
@@ -1230,8 +1239,7 @@ func TestTaprootUpgrade(t *testing.T) {
 	// "Unplug", then insert an updated keystore with taproot support.
 	b.DeregisterKeystore()
 	b.registerKeystore(bitbox02Taproot)
-	require.Len(t, b.Accounts(), 3)
-	require.Len(t, b.Config().AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = lookup(b.Accounts(), "v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
 	ltcAccount = lookup(b.Accounts(), "v0-55555555-ltc-0")
@@ -1270,15 +1278,18 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 	b.registerKeystore(makeBitbox02LikeKeystore())
 
 	// Initial accounts added: Bitcoin, Litecoin, Ethereum.
-	require.Len(t, b.accounts, 3)
-	require.Len(t, b.config.AccountsConfig().Accounts, 3)
+	checkShownAccountsLen(t, b, 3, 3)
 
 	// Up to 6 hidden accounts for BTC/LTC are added to be scanned even if the accounts are all
-	// empty.
-	for i := 1; i <= 5; i++ {
+	// empty. Calling this function too many times does not add more than that.
+	for i := 1; i <= 10; i++ {
 		b.maybeAddHiddenUnusedAccounts()
-		require.Len(t, b.accounts, 3+2*i)
-		require.Len(t, b.config.AccountsConfig().Accounts, 3+2*i)
+	}
+
+	require.Len(t, b.accounts, 3+2*5)
+	require.Len(t, b.config.AccountsConfig().Accounts, 3+2*5)
+
+	for i := 1; i <= 5; i++ {
 		for _, addedAccountCode := range []string{
 			fmt.Sprintf("v0-55555555-btc-%d", i),
 			fmt.Sprintf("v0-55555555-ltc-%d", i),
