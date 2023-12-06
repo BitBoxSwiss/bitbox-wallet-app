@@ -24,6 +24,7 @@ export const AccountGuide = () => {
     <Guide>
       <Entry key="whatAreAccounts" entry={t('guide.accounts.whatAreAccounts')} />
       <Entry key="whyIsThisUseful" entry={t('guide.accounts.whyIsThisUseful')} />
+      <Entry key="whatIsRememberWallet" entry={t('guide.accounts.whatIsRememberWallet')} />
       <Entry key="recoverAccounts" entry={t('guide.accounts.recoverAccounts')} />
       <Entry key="moveFunds" entry={t('guide.accounts.moveFunds')} />
       <Entry key="howtoAddTokens" entry={t('guide.accounts.howtoAddTokens')} />
