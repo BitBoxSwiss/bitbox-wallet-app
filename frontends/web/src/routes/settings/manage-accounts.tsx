@@ -32,7 +32,7 @@ import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
 import { getConfig } from '../../utils/config';
 import { MobileHeader } from '../settings/components/mobile-header';
-import Guide from './manage-account-guide';
+import { AccountGuide } from './manage-account-guide';
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
@@ -331,7 +331,7 @@ class ManageAccounts extends Component<Props, State> {
             </View>
           </Main>
         </GuidedContent>
-        <Guide />
+        <AccountGuide />
       </GuideWrapper>
 
     );

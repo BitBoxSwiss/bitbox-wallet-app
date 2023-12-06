@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 
-export default function BuyGuide() {
+export const AccountGuide = () => {
   const { t } = useTranslation();
   return (
     <Guide>
@@ -30,4 +30,4 @@ export default function BuyGuide() {
       <Entry key="howManyAccounts" entry={t('guide.accounts.howManyAccounts')} />
     </Guide>
   );
-}
+};
