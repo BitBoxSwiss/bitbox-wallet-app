@@ -19,8 +19,10 @@
 @media (max-width: 768px) {
     .formButtonsContainer {
         flex-direction: column-reverse;
-        gap: var(--space-half);
         margin-top: calc(var(--space-half) + var(--space-quarter));
+    }
+    .formButtonsContainer button + button {
+        margin-bottom: var(--space-half); /* elements are reversed due to flex-direction: column-reverse; so we have to use margin-bottom instead of top */
     }
 
     .mobileQRScanner {
