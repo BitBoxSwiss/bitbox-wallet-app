@@ -25,7 +25,7 @@ import { Header } from '../../../components/layout';
 import { Step, Steps } from './components/steps';
 import { CoinDropDown } from './components/coin-dropdown';
 import { Check } from '../../../components/icon/icon';
-import { AccountGuide } from '../../settings/manage-account-guide';
+import { AddAccountGuide } from './add-account-guide';
 import { route } from '../../../utils/route';
 import { addAccount, CoinCode, TAddAccount } from '../../../api/account';
 import styles from './add.module.css';
@@ -260,7 +260,7 @@ export const AddAccount = () => {
           </div>
         </div>
       </div>
-      <AccountGuide />
+      <AddAccountGuide />
     </div>
   );
 };
