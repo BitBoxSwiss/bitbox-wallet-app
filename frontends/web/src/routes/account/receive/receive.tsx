@@ -261,11 +261,9 @@ export const Receive = ({
                     // disable escape for secure outputs like the BitBox02, where the dialog is
                     // dimissed by tapping the device
                     disableEscape={verifying === 'secure'}
-                    onClose={() => {
-                      if (verifying === 'insecure') {
-                        setVerifying(false);
-                      }
-                    }}
+                    onClose={verifying === 'insecure' ? () => {
+                      setVerifying(false);
+                    } : undefined}
                     medium centered>
                     {account && <>
                       <div className="text-center">
