@@ -51,7 +51,9 @@ export const BitsuranceAccount = ({ code, accounts }: TProps) => {
       // btc accounts that have never been insured, or with a canceled
       // insurance contract, can be used to make a new contract.
       .filter(account => account.coinCode === 'btc' &&
-          (!account.bitsuranceStatus || account.bitsuranceStatus === 'canceled'))
+          (!account.bitsuranceStatus
+           || account.bitsuranceStatus === 'canceled'
+           || account.bitsuranceStatus === 'refused'))
       .map(({ name, code, coinCode }) => (
         { label: name, value: code, coinCode, disabled: false }
       ));
