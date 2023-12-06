@@ -43,20 +43,22 @@ const (
 type DetailStatus string
 
 const (
-	//- "active" insurance coverage activated.
+	// ActiveStatus - insurance coverage activated.
 	ActiveStatus DetailStatus = "active"
-	// - "processing"	when still in creation/checking phase (short time).
+	// ProcessingStatus -	when still in creation/checking phase (short time).
 	ProcessingStatus DetailStatus = "processing"
-	// - "refused" application got refused.
+	// RefusedStatus - application got refused.
 	RefusedStatus DetailStatus = "refused"
-	// - "waitpayment" accepted, but waiting on first payment.
+	// WaitPaymentStatus - accepted, but waiting on first payment.
 	WaitPaymentStatus DetailStatus = "waitpayment"
-	// - "inactive" offer support link for more info (maybe missed payment).
+	// InactiveStatus - offer support link for more info (maybe missed payment).
 	InactiveStatus DetailStatus = "inactive"
-	// - "canceled" contract got canceled.
+	// CanceledStatus - contract got canceled.
 	CanceledStatus DetailStatus = "canceled"
 )
 
+// AccountDetails represents the response of the bitsurance server
+// for a single account.
 type AccountDetails struct {
 	AccountCode types.Code   `json:"code"`
 	Status      DetailStatus `json:"status"`
@@ -88,10 +90,10 @@ func bitsuranceCheckId(devServer bool, httpClient *http.Client, accountId string
 	return account, nil
 }
 
-// BitsuranceGetId returns the BitsuranceId of a given account.
+// GetBitsuranceId returns the BitsuranceId of a given account.
 // The id is computed hashing with sha256 the P2WPKH xpub of the account, concatenated with a fixed salt.
 // If a P2WPKH xpub can't be found in the account, empty string is returned.
-func BitsuranceGetId(account accounts.Interface) (string, error) {
+func GetBitsuranceId(account accounts.Interface) (string, error) {
 	for _, signingConf := range account.Info().SigningConfigurations {
 		bitcoinScriptType := signingConf.BitcoinSimple
 		if bitcoinScriptType != nil && bitcoinScriptType.ScriptType == signing.ScriptTypeP2WPKH {
@@ -103,21 +105,21 @@ func BitsuranceGetId(account accounts.Interface) (string, error) {
 
 }
 
-// BitsuranceURL returns the url for the Bitsurance widget for a given locale.
-func BitsuranceURL(devServer bool, lang string) string {
+// WidgetURL returns the url for the Bitsurance widget for a given locale.
+func WidgetURL(devServer bool, lang string) string {
 	if devServer {
 		return widgetTestURL + lang
 	}
 	return widgetURL + lang
 }
 
-// BitsuranceAccountsLookup takes in input a slice of accounts. For each account, it interrogates the
+// LookupBitsuranceAccounts takes in input a slice of accounts. For each account, it interrogates the
 // Bitsurance server and returns a map with the given accounts' codes as keys and the insurance details as value.
-func BitsuranceAccountsLookup(devServer bool, accounts []accounts.Interface, httpClient *http.Client) ([]AccountDetails, error) {
+func LookupBitsuranceAccounts(devServer bool, accounts []accounts.Interface, httpClient *http.Client) ([]AccountDetails, error) {
 	insuredAccounts := []AccountDetails{}
 
 	for _, account := range accounts {
-		bitsuranceId, err := BitsuranceGetId(account)
+		bitsuranceId, err := GetBitsuranceId(account)
 		if err != nil {
 			return nil, err
 		}

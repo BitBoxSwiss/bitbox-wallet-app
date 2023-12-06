@@ -1194,7 +1194,7 @@
         "Die Passphrase ist eine zusätzliche Sicherheitsmaßnahme für mein Backup.",
         "Wenn ich eine andere Passphrase eingebe, wird immer ein anderes Wallet erstellt.",
         "Um mein Wallet wiederherzustellen benötige ich <strong>sowohl die Passphrase als auch das Backup</strong>.",
-        "Wenn ich meine Passphrase vergesse, habe ich keinen Zugriff mehr auf meine Coins."
+        "Wenn ich meine Passphrase vergesse, habe ich <strong>keinen Zugriff mehr auf meine Coins</strong>."
       ]
     },
     "what": {

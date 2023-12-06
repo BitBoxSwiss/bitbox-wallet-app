@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -65,11 +66,14 @@ func NewHandlers(
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.postAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
-	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/propose-tx-note", handlers.ensureAccountInitialized(handlers.postProposeTxNote)).Methods("POST")
 	handleFunc("/notes/tx", handlers.ensureAccountInitialized(handlers.postSetTxNote)).Methods("POST")
+	handleFunc("/connect-keystore", handlers.ensureAccountInitialized(handlers.postConnectKeystore)).Methods("POST")
+	handleFunc("/eth-sign-msg", handlers.ensureAccountInitialized(handlers.postEthSignMsg)).Methods("POST")
+	handleFunc("/eth-sign-typed-msg", handlers.ensureAccountInitialized(handlers.postEthSignTypedMsg)).Methods("POST")
+	handleFunc("/eth-sign-wallet-connect-tx", handlers.ensureAccountInitialized(handlers.postEthSignWalletConnectTx)).Methods("POST")
 	return handlers
 }
 
@@ -523,30 +527,39 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 	return handlers.account.VerifyAddress(addressID)
 }
 
-func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interface{}, error) {
-	switch specificAccount := handlers.account.(type) {
-	case *btc.Account:
-		return specificAccount.Config().Keystore.CanVerifyExtendedPublicKey(), nil
-	case *eth.Account:
-		// No xpub verification for ethereum accounts
-		return false, nil
-	default:
-		return nil, nil
-	}
-}
-
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
+	type result struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage"`
+	}
 	var input struct {
 		SigningConfigIndex int `json:"signingConfigIndex"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return nil, errp.WithStack(err)
+		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	btcAccount, ok := handlers.account.(*btc.Account)
 	if !ok {
-		return nil, errp.New("An account must be BTC based to support xpub verification")
+		return result{
+			Success:      false,
+			ErrorMessage: "An account must be BTC based to support xpub verification.",
+		}, nil
 	}
-	return btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
+	canVerify, err := btcAccount.VerifyExtendedPublicKey(input.SigningConfigIndex)
+	// User canceled keystore connect prompt - no special action or message needed in the frontend.
+	if errp.Cause(err) == context.Canceled {
+		return result{Success: true}, nil
+	}
+	if err != nil {
+		return result{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	if !canVerify {
+		return result{
+			Success:      false,
+			ErrorMessage: "This device/keystore does not support verifying xpubs.",
+		}, nil
+	}
+	return result{Success: true}, nil
 }
 
 func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
@@ -579,4 +592,108 @@ func (handlers *Handlers) postSetTxNote(r *http.Request) (interface{}, error) {
 	}
 
 	return nil, handlers.account.SetTxNote(args.InternalTxID, args.Note)
+}
+
+func (handlers *Handlers) postConnectKeystore(r *http.Request) (interface{}, error) {
+	type response struct {
+		Success bool `json:"success"`
+	}
+
+	_, err := handlers.account.Config().ConnectKeystore()
+	return response{Success: err == nil}, nil
+}
+
+type signingResponse struct {
+	Success      bool   `json:"success"`
+	Signature    string `json:"signature"`
+	Aborted      bool   `json:"aborted"`
+	ErrorMessage string `json:"errorMessage"`
+}
+
+func (handlers *Handlers) postEthSignMsg(r *http.Request) (interface{}, error) {
+	var signInput string
+	if err := json.NewDecoder(r.Body).Decode(&signInput); err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	}
+	signature, err := ethAccount.SignMsg(signInput)
+	if errp.Cause(err) == keystore.ErrSigningAborted {
+		return signingResponse{Success: false, Aborted: true}, nil
+	}
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to sign message")
+		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		return result, nil
+	}
+	return signingResponse{
+		Success:   true,
+		Signature: signature,
+	}, nil
+}
+
+func (handlers *Handlers) postEthSignTypedMsg(r *http.Request) (interface{}, error) {
+	var args struct {
+		ChainId uint64 `json:"chainId"`
+		Data    string `json:"data"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	}
+	signature, err := ethAccount.SignTypedMsg(args.ChainId, args.Data)
+	if errp.Cause(err) == keystore.ErrSigningAborted {
+		return signingResponse{Success: false, Aborted: true}, nil
+	}
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to sign typed data")
+		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		return result, nil
+	}
+	return signingResponse{
+		Success:   true,
+		Signature: signature,
+	}, nil
+}
+
+// For handling dapp transaction requests through Wallet Connect which can either request tx sign or tx send
+// The `json:"send"` bool specifies whether a tx should be only signed (return signature) or signed and broadcast (return tx hash)
+// ChainId is needed to allow signing all supported EVM networks via the BBApp.
+func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface{}, error) {
+	var args struct {
+		Send    bool                  `json:"send"`
+		ChainId uint64                `json:"chainId"`
+		Tx      eth.WalletConnectArgs `json:"tx"`
+	}
+	type response struct {
+		Success bool   `json:"success"`
+		RawTx   string `json:"rawTx"`
+		TxHash  string `json:"txHash"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return signingResponse{Success: false, ErrorMessage: err.Error()}, nil
+	}
+	ethAccount, ok := handlers.account.(*eth.Account)
+	if !ok {
+		return signingResponse{Success: false, ErrorMessage: "Must be an ETH based account"}, nil
+	}
+	txHash, rawTx, err := ethAccount.EthSignWalletConnectTx(args.Send, args.ChainId, args.Tx)
+	if errp.Cause(err) == keystore.ErrSigningAborted {
+		return signingResponse{Success: false, Aborted: true}, nil
+	}
+	if err != nil {
+		handlers.log.WithError(err).Error("Failed to send transaction")
+		result := signingResponse{Success: false, ErrorMessage: err.Error()}
+		return result, nil
+	}
+	return response{
+		Success: true,
+		RawTx:   rawTx,
+		TxHash:  txHash,
+	}, nil
 }

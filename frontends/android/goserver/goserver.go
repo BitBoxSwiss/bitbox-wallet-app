@@ -92,6 +92,8 @@ type GoEnvironmentInterface interface {
 	NativeLocale() string
 	SetDarkTheme(bool)
 	DetectDarkTheme() bool
+	Auth()
+	OnAuthSettingChanged(bool)
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -198,8 +200,10 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 				// On Android, we don't yet support exporting files. Implement this once needed.
 				return ""
 			},
-			SetDarkThemeFunc:    environment.SetDarkTheme,
-			DetectDarkThemeFunc: environment.DetectDarkTheme,
+			SetDarkThemeFunc:         environment.SetDarkTheme,
+			DetectDarkThemeFunc:      environment.DetectDarkTheme,
+			AuthFunc:                 environment.Auth,
+			OnAuthSettingChangedFunc: environment.OnAuthSettingChanged,
 		},
 	)
 }
@@ -208,4 +212,20 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 // sleep.
 func Shutdown() {
 	bridgecommon.Shutdown()
+}
+
+// TriggerAuth triggers an auth required notification towards the frontend.
+func TriggerAuth() {
+	bridgecommon.TriggerAuth()
+}
+
+// CancelAuth triggers an auth canceled notification towards the frontend.
+func CancelAuth() {
+	bridgecommon.CancelAuth()
+}
+
+// AuthResult triggers an auth feeedback notification (auth-ok/auth-err) towards the frontend,
+// depending on the input value.
+func AuthResult(ok bool) {
+	bridgecommon.AuthResult(ok)
 }

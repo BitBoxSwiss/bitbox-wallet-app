@@ -56,7 +56,7 @@ func TestBitsuranceGetId(t *testing.T) {
 			}
 		},
 	}
-	id, err := BitsuranceGetId(mockedInterface)
+	id, err := GetBitsuranceId(mockedInterface)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedId, id)
 }

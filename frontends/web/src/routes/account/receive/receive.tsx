@@ -35,7 +35,6 @@ import style from './receive.module.css';
 type TProps = {
   accounts: accountApi.IAccount[];
   code: string;
-  deviceID?: string;
 };
 
 type AddressDialog = { addressType: number } | undefined;
@@ -58,10 +57,9 @@ const getIndexOfMatchingScriptType = (
 export const Receive = ({
   accounts,
   code,
-  deviceID,
 }: TProps) => {
   const { t } = useTranslation();
-  const [verifying, setVerifying] = useState<boolean>(false);
+  const [verifying, setVerifying] = useState<false | 'secure' | 'insecure'>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   // index into `availableScriptTypes`, or 0 if none are available.
   const [addressType, setAddressType] = useState<number>(0);
@@ -109,14 +107,28 @@ export const Receive = ({
     }
   };
 
-  const verifyAddress = (addressesIndex: number) => {
-    if (receiveAddresses) {
-      if (code === undefined) {
-        return;
-      }
-      setVerifying(true);
-      accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID)
-        .then(() => setVerifying(false));
+  const verifyAddress = async (addressesIndex: number) => {
+    if (!receiveAddresses || code === undefined) {
+      return;
+    }
+    const connectResult = await accountApi.connectKeystore(code);
+    if (!connectResult.success) {
+      return;
+    }
+
+    const hasSecureOutput = await accountApi.hasSecureOutput(code)();
+    if (!hasSecureOutput.hasSecureOutput) {
+      setVerifying('insecure');
+      // For the software keystore, the dialog is dismissed manually.
+      return;
+    }
+
+    // For devices with a display, the dialog is dismissed by tapping the device.
+    setVerifying('secure');
+    try {
+      await accountApi.verifyAddress(code, receiveAddresses[addressesIndex].addresses[activeIndex].addressID);
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -134,9 +146,6 @@ export const Receive = ({
     }
   };
 
-  const hasDevice = deviceID !== undefined;
-  const enableCopy = hasDevice ? false : true;
-
   let uriPrefix = '';
   if (account) {
     if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
@@ -149,7 +158,7 @@ export const Receive = ({
   let address = '';
   if (currentAddresses) {
     address = currentAddresses[activeIndex].address;
-    if (hasDevice && !verifying) {
+    if (!verifying) {
       address = address.substring(0, 8) + '...';
     }
   }
@@ -164,7 +173,7 @@ export const Receive = ({
               { currentAddresses && (
                 <div style={{ position: 'relative' }}>
                   <div className={style.qrCodeContainer}>
-                    <QRCode data={enableCopy ? uriPrefix + address : undefined} />
+                    <QRCode data={undefined} />
                   </div>
                   <div className={style.labels}>
                     { currentAddresses.length > 1 && (
@@ -193,7 +202,7 @@ export const Receive = ({
                       </button>
                     )}
                   </div>
-                  <CopyableInput disabled={!enableCopy} value={address} flexibleHeight />
+                  <CopyableInput disabled={true} value={address} flexibleHeight />
                   { hasManyScriptTypes && (
                     <button
                       className={style.changeType}
@@ -238,8 +247,7 @@ export const Receive = ({
                   </form>
                   <div className="buttons">
                     <Button
-                      disabled={verifying}
-                      hidden={!hasDevice}
+                      disabled={verifying !== false}
                       onClick={() => verifyAddress(currentAddressIndex)}
                       primary>
                       {t('receive.verifyBitBox02')}
@@ -256,7 +264,14 @@ export const Receive = ({
                   <Dialog
                     open={!!(account && verifying)}
                     title={t('receive.verifyBitBox02')}
-                    disableEscape={true}
+                    // disable escape for secure outputs like the BitBox02, where the dialog is
+                    // dimissed by tapping the device
+                    disableEscape={verifying === 'secure'}
+                    onClose={() => {
+                      if (verifying === 'insecure') {
+                        setVerifying(false);
+                      }
+                    }}
                     medium centered>
                     {account && <>
                       <div className="text-center">

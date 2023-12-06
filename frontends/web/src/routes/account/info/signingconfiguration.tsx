@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from '../../../utils/route';
-import { getCanVerifyXPub, IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
+import { IAccount, TBitcoinSimple, TEthereumSimple, TSigningConfiguration, verifyXPub } from '../../../api/account';
 import { getScriptName, isBitcoinBased } from '../utils';
+import { alertUser } from '../../../components/alert/Alert';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
-import { useLoad } from '../../../hooks/api';
 import style from './info.module.css';
 
 type TProps = {
@@ -35,8 +35,8 @@ type TProps = {
 }
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {
-  const canVerifyExtendedPublicKey = useLoad(getCanVerifyXPub(code));
   const { t } = useTranslation();
+  const [verifying, setVerifying] = useState(false);
 
   const getSimpleInfo = (): TBitcoinSimple | TEthereumSimple => {
     if (info.bitcoinSimple !== undefined) {
@@ -95,11 +95,22 @@ export const SigningConfiguration = ({ account, info, code, signingConfigIndex, 
         ) : null }
       </div>
       <div className={style.buttons}>
-        { canVerifyExtendedPublicKey ? (
-          <Button className={style.verifyButton} primary onClick={() => verifyXPub(code, signingConfigIndex)}>
+        { bitcoinBased ? (
+          <Button className={style.verifyButton} primary disabled={verifying} onClick={async () => {
+            setVerifying(true);
+            try {
+              const result = await verifyXPub(code, signingConfigIndex);
+              if (!result.success) {
+                alertUser(result.errorMessage);
+              }
+            } finally {
+              setVerifying(false);
+            }
+          }
+          }>
             {t('accountInfo.verify')}
           </Button>
-        ) : bitcoinBased ? null : (
+        ) : (
           <Button className={style.verifyButton} primary onClick={() => route(`/account/${code}/receive`)}>
             {t('receive.verify')}
           </Button>

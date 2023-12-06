@@ -31,11 +31,12 @@ export type TOption = {
 }
 
 type TAccountSelector = {
-    title: string;
-    options: TOption[];
-    selected?: string;
-    onChange: (value: string) => void;
-    onProceed: () => void;
+  title: string;
+  disabled?: boolean;
+  options: TOption[];
+  selected?: string;
+  onChange: (value: string) => void;
+  onProceed: () => void;
 }
 
 export const setOptionBalances = async (options: TOption[]): Promise<TOption[]> => {
@@ -86,7 +87,7 @@ const DropdownIndicator: FunctionComponent<DropdownIndicatorProps<TOption>> = (p
 
 
 
-export const AccountSelector = ({ title, options, selected, onChange, onProceed }: TAccountSelector) => {
+export const AccountSelector = ({ title, disabled, options, selected, onChange, onProceed }: TAccountSelector) => {
   const { t } = useTranslation();
   const [selectedAccount, setSelectedAccount] = useState<TOption>();
 
@@ -124,7 +125,7 @@ export const AccountSelector = ({ title, options, selected, onChange, onProceed 
         <Button
           primary
           onClick={onProceed}
-          disabled={!selected}>
+          disabled={!selected || disabled}>
           {t('buy.info.next')}
         </Button>
       </div>

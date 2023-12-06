@@ -1,0 +1,75 @@
+.buttonNewConnection {
+    height: calc(var(--space-default) + var(--space-quarter));
+}
+
+.headerContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: calc(var(--space-half) + var(--space-quarter));
+}
+
+.headerContainer p {
+    margin: 0;
+}
+
+.headerContainer p.receiveAddress { 
+    color: var(--color-secondary);
+    margin-top: var(--space-quarter);
+    font-size: 16px;
+}
+
+.noConnectedSessions {
+    color: var(--color-secondary);
+    font-size: 16px;
+    margin: 0;
+    margin-top: var(--space-large);
+    text-align: center;
+}
+
+.separator {
+    background: var(--color-disabled);
+    border: none;
+    height: 2px;
+    margin: 0;
+}
+
+.sessionCardsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-quarter) + var(--space-half));
+}
+
+.allSessionsHeading {
+    color: var(--color-secondary);
+    font-size: 16px;
+    margin: 0;
+    margin-top: var(--space-half);
+}
+
+
+@media (max-width: 768px) {
+    .buttonNewConnection {
+        height: var(--space-default);
+        padding: 0 16px;
+    }
+
+    .headerContainer p {
+        font-size: 16px;
+    }
+    
+    .headerContainer p.receiveAddress,
+    .noConnectedSessions,
+    .allSessionsHeading
+    { 
+        font-size: var(--size-default);
+    }
+
+    .sessionCardsContainer {
+        gap: var(--space-half);
+    }
+
+    .allSessionsHeading {
+        margin-top: var(--space-quarter);
+    }
+}

@@ -122,6 +122,7 @@
     --background-quaternary: var(--color-mediumgray);
     --background-custom-select-hover: var(--color-powder-blue);
     --background-custom-select-selected: var(--color-pale-ice-blue);
+    --background-session-card: var(--color-white);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -148,6 +149,7 @@
         --background-quaternary: var(--color-dark);
         --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
+        --background-session-card: var(--color-softblack);
     }
 }
 @media (prefers-color-scheme: light) {
@@ -174,6 +176,7 @@
         --background-quaternary: var(--color-dark);
         --background-custom-select-hover: var(--color-dark);
         --background-custom-select-selected: var(--color-dark);
+        --background-session-card: var(--color-softblack);
     }
 }
 

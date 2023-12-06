@@ -29,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,6 +44,12 @@ type keystore struct {
 // Type implements keystore.Keystore.
 func (keystore *keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeHardware
+}
+
+// Name implements keystore.Keystore.
+func (keystore *keystore) Name() (string, error) {
+	// Won't bother getting the actual name here.
+	return "BitBox01", nil
 }
 
 // RootFingerprint implements keystore.Keystore.
@@ -252,5 +259,15 @@ func (keystore *keystore) SignBTCMessage(message []byte, keypath signing.Absolut
 
 // SignETHMessage implements keystore.Keystore.
 func (keystore *keystore) SignETHMessage(message []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHMessage implements keystore.Keystore.
+func (keystore *keystore) SignETHTypedMessage(chainId uint64, data []byte, keypath signing.AbsoluteKeypath) ([]byte, error) {
+	return nil, errp.New("unsupported")
+}
+
+// SignETHWalletConnectTransaction implements keystore.Keystore.
+func (keystore *keystore) SignETHWalletConnectTransaction(chainID uint64, tx *types.Transaction, keypath signing.AbsoluteKeypath) ([]byte, error) {
 	return nil, errp.New("unsupported")
 }

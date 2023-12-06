@@ -56,6 +56,9 @@ func makeKeystore(
 	t.Helper()
 
 	return &keystoremock.KeystoreMock{
+		NameFunc: func() (string, error) {
+			return "Mock keystore", nil
+		},
 		RootFingerprintFunc: func() ([]byte, error) {
 			return rootFingerprint, nil
 		},
