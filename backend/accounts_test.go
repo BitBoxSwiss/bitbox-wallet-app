@@ -924,7 +924,7 @@ func TestCreateAndAddAccount(t *testing.T) {
 	defer b.Close()
 	fingerprint := []byte{0x55, 0x55, 0x55, 0x55}
 
-	require.Equal(t, accountsList{}, b.accounts)
+	require.Equal(t, AccountsList{}, b.Accounts())
 
 	// Add a Bitcoin account.
 	coin, err := b.Coin(coinpkg.CodeBTC)
@@ -939,9 +939,9 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 		},
 	)
-	require.Len(t, b.accounts, 1)
+	require.Len(t, b.Accounts(), 1)
 	// Check some properties of the newly added account.
-	acct := b.accounts[0]
+	acct := b.Accounts()[0]
 	require.Equal(t, accountsTypes.Code("test-btc-account-code"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Bitcoin account name", acct.Config().Config.Name)
@@ -958,9 +958,9 @@ func TestCreateAndAddAccount(t *testing.T) {
 			},
 		},
 	)
-	require.Len(t, b.accounts, 2)
+	require.Len(t, b.Accounts(), 2)
 	// Check some properties of the newly added account.
-	acct = b.accounts[1]
+	acct = b.Accounts()[1]
 	require.Equal(t, accountsTypes.Code("test-ltc-account-code"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Litecoin account name", acct.Config().Config.Name)
@@ -979,14 +979,14 @@ func TestCreateAndAddAccount(t *testing.T) {
 		},
 	)
 	// 2 more accounts: the added ETH account plus the active token for the ETH account.
-	require.Len(t, b.accounts, 4)
+	require.Len(t, b.Accounts(), 4)
 	// Check some properties of the newly added account.
-	acct = b.accounts[2]
+	acct = b.Accounts()[2]
 	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Ethereum account name", acct.Config().Config.Name)
-	acct = b.accounts[3]
+	acct = b.Accounts()[3]
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-eth-erc20-mkr"), acct.Config().Config.Code)
 	require.Equal(t, "Maker", acct.Config().Config.Name)
@@ -1006,18 +1006,18 @@ func TestCreateAndAddAccount(t *testing.T) {
 		},
 	)
 	// 3 more accounts: the added ETH account plus the two active tokens for the ETH account.
-	require.Len(t, b.accounts, 7)
+	require.Len(t, b.Accounts(), 7)
 	// Check some properties of the newly added accounts.
-	acct = b.accounts[4]
+	acct = b.Accounts()[4]
 	require.Nil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2"), acct.Config().Config.Code)
 	require.Equal(t, coin, acct.Coin())
 	require.Equal(t, "Ethereum account name 2", acct.Config().Config.Name)
-	acct = b.accounts[5]
+	acct = b.Accounts()[5]
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-bat"), acct.Config().Config.Code)
 	require.Equal(t, "Basic Attention Token 2", acct.Config().Config.Name)
-	acct = b.accounts[6]
+	acct = b.Accounts()[6]
 	require.NotNil(t, acct.Coin().(*eth.Coin).ERC20Token())
 	require.Equal(t, accountsTypes.Code("test-eth-account-code-2-eth-erc20-usdt"), acct.Config().Config.Code)
 	require.Equal(t, "Tether USD 2", acct.Config().Config.Name)
@@ -1231,7 +1231,7 @@ func TestRenameAccount(t *testing.T) {
 	b.registerKeystore(makeBitBox02Multi())
 
 	require.NoError(t, b.RenameAccount("v0-55555555-btc-0", "renamed"))
-	require.Equal(t, "renamed", b.accounts.lookup("v0-55555555-btc-0").Config().Config.Name)
+	require.Equal(t, "renamed", b.Accounts().lookup("v0-55555555-btc-0").Config().Config.Name)
 	require.Equal(t, "renamed", b.config.AccountsConfig().Lookup("v0-55555555-btc-0").Name)
 }
 
@@ -1250,7 +1250,7 @@ func TestMaybeAddHiddenUnusedAccounts(t *testing.T) {
 		b.maybeAddHiddenUnusedAccounts()
 	}
 
-	require.Len(t, b.accounts, 3+2*5)
+	require.Len(t, b.Accounts(), 3+2*5)
 	require.Len(t, b.config.AccountsConfig().Accounts, 3+2*5)
 
 	for i := 1; i <= 5; i++ {

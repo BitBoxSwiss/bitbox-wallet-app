@@ -46,9 +46,10 @@ const hardenedKeystart uint32 = hdkeychain.HardenedKeyStart
 // limit, but simply use a hard limit for simplicity.
 const accountsHardLimit = 5
 
-type accountsList []accounts.Interface
+// AccountsList is an accounts.Interface slice which implements a lookup method.
+type AccountsList []accounts.Interface
 
-func (a accountsList) lookup(code accountsTypes.Code) accounts.Interface {
+func (a AccountsList) lookup(code accountsTypes.Code) accounts.Interface {
 	for _, acct := range a {
 		if acct.Config().Config.Code == code {
 			return acct
