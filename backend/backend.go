@@ -180,7 +180,7 @@ type Backend struct {
 	devices map[string]device.Interface
 
 	accountsAndKeystoreLock locker.Locker
-	accounts                accountsList
+	accounts                AccountsList
 	// keystore is nil if no keystore is connected.
 	keystore keystore.Keystore
 
@@ -527,7 +527,7 @@ func (backend *Backend) Testing() bool {
 }
 
 // Accounts returns the current accounts of the backend.
-func (backend *Backend) Accounts() []accounts.Interface {
+func (backend *Backend) Accounts() AccountsList {
 	defer backend.accountsAndKeystoreLock.RLock()()
 	return backend.accounts
 }
@@ -911,7 +911,7 @@ func (backend *Backend) SetWatchonly(watchonly bool) error {
 		)
 	}
 
-	accounts := accountsList(backend.Accounts())
+	accounts := backend.Accounts()
 	// When enabling watchonly, we turn the currently loaded accounts into watch-only accounts.
 	t := true
 	return backend.AccountSetWatch(
