@@ -45,6 +45,9 @@ type Keystore interface {
 	// Type denotes the type of the keystore.
 	Type() Type
 
+	// Returns the name of the keystore, e.g. the BitBox02 device name.
+	Name() (string, error)
+
 	// RootFingerprint returns the keystore's root fingerprint, which is the first 32 bits of the
 	// hash160 of the pubkey at the keypath m/.
 	//

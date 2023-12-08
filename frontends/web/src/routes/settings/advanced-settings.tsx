@@ -26,11 +26,12 @@ import { EnableCoinControlSetting } from './components/advanced-settings/enable-
 import { ConnectFullNodeSetting } from './components/advanced-settings/connect-full-node-setting';
 import { EnableTorProxySetting } from './components/advanced-settings/enable-tor-proxy-setting';
 import { EnableLightning } from './components/advanced-settings/enable-lightning-setting';
+import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
 import { getConfig } from '../../utils/config';
 import { MobileHeader } from './components/mobile-header';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import { DisableLightning } from './components/advanced-settings/disable-lightning-setting';
+import { EnableAuthSetting } from './components/advanced-settings/enable-auth-setting';
 
 export type TProxyConfig = {
   proxyAddress: string;
@@ -42,9 +43,11 @@ export type TFrontendConfig = {
   coinControl?: boolean;
 };
 
-type TBackendConfig = {
-  proxy?: TProxyConfig;
-};
+export type TBackendConfig = {
+  proxy?: TProxyConfig
+  authentication?: boolean;
+
+}
 
 export type TConfig = {
   backend?: TBackendConfig;
@@ -61,6 +64,7 @@ export const AdvancedSettings = ({
   const [config, setConfig] = useState<TConfig>();
 
   const frontendConfig = config?.frontend;
+  const backendConfig = config?.backend;
   const proxyConfig = config?.backend?.proxy;
 
   useEffect(() => {
@@ -86,6 +90,7 @@ export const AdvancedSettings = ({
                 {lightningInactive ? <EnableLightning /> : <DisableLightning />}
                 <EnableCustomFeesToggleSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
                 <EnableCoinControlSetting frontendConfig={frontendConfig} onChangeConfig={setConfig} />
+                <EnableAuthSetting backendConfig={backendConfig} onChangeConfig={setConfig} />
                 <EnableTorProxySetting proxyConfig={proxyConfig} onChangeConfig={setConfig} />
                 <ConnectFullNodeSetting />
               </WithSettingsTabs>

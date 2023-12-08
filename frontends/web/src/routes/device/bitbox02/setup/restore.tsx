@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { BackupsV2 } from '../backups';
-import { Backup } from '../../components/backup';
+import { Backup } from '../../../../api/backup';
 import { View, ViewContent, ViewHeader } from '../../../../components/view/view';
 import { Button } from '../../../../components/forms';
 

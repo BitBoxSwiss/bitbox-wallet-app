@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
   },
+  "auth": {
+    "authButton": "Authenticate",
+    "title": "Please authenticate to continue"
+  },
   "backup": {
     "check": {
       "checking": "Checking backup…",
@@ -487,6 +491,10 @@
     "infoWhenPaired": "First on the paired mobile and then your BitBox"
   },
   "confirmOnDevice": "Please confirm on your device.",
+  "connectKeystore": {
+    "promptNoName": "Please connect your BitBox02 to continue",
+    "promptWithName": "Please connect your BitBox02 named \"{{name}}\" to continue"
+  },
   "darkmode": {
     "toggle": "Dark mode"
   },
@@ -606,7 +614,9 @@
     "aoppUnsupportedAsset": "The asset is not supported.",
     "aoppUnsupportedFormat": "There are no available accounts that support the requested address format.",
     "aoppUnsupportedKeystore": "The connected device cannot sign messages for this asset.",
-    "aoppVersion": "Unknown version."
+    "aoppVersion": "Unknown version.",
+    "wrongKeystore": "Wrong wallet connected. Please make sure to insert the correct device matching this account.",
+    "wrongKeystore2": " If you are using the optional passphrase, make sure you have entered the correct passphrase for the account."
   },
   "fiat": {
     "default": "default",
@@ -1121,6 +1131,7 @@
   },
   "loading": "loading…",
   "manageAccounts": {
+    "accountHidden": "This account will now be hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
     "noAccounts": "no accounts found",
@@ -1129,7 +1140,9 @@
       "showTokens": "Show tokens ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Add and show/hide accounts",
-    "title": "Manage accounts"
+    "title": "Manage accounts",
+    "watchAccount": "Watch account",
+    "watchAccountDescription": "This account is part of your watch-only accounts. You can hide it from your watch-only accounts using the toggle."
   },
   "mobile": {
     "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
@@ -1141,6 +1154,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Lock access to the app with screen lock/fingerprint.",
+        "title": "Screen lock"
+      },
       "coinControl": {
         "description": "Select which UTXOs are part of a transaction to help improve privacy."
       },
@@ -1175,6 +1192,12 @@
       },
       "toggleSats": {
         "description": "Enable or disable Satoshis."
+      },
+      "watchonly": {
+        "description": "Let's you see your accounts and portfolio without the BitBox02. The BitBox02 is still needed for signing.",
+        "title": "Watch-only",
+        "warning": "This will remove all your watch-only accounts. To see them again, you will need to plug in your BitBox02. Do you want to continue?",
+        "warningTitle": "Disable watch-only"
       }
     }
   },
@@ -1672,6 +1695,7 @@
     "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar."
   },
   "welcome": {
+    "connect": "Connect BitBox02",
     "getStarted": "Let's get started by installing firmware on your BitBox02.",
     "insertBitBox02": "For the BitBox02, please tap the device to continue.",
     "insertDevice": "Please connect your device to get started",

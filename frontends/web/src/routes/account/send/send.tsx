@@ -207,13 +207,20 @@ class Send extends Component<Props, State> {
     }
   };
 
-  private send = () => {
+  private send = async () => {
     if (this.state.noMobileChannelError) {
       alertUser(this.props.t('warning.sendPairing'));
       return;
     }
+    const code = this.getAccount()!.code;
+    const connectResult = await accountApi.connectKeystore(code);
+    if (!connectResult.success) {
+      return;
+    }
+
     this.setState({ signProgress: undefined, isConfirming: true });
-    accountApi.sendTx(this.getAccount()!.code).then(result => {
+    try {
+      const result = await accountApi.sendTx(code);
       if (result.success) {
         this.setState({
           sendAll: false,
@@ -246,12 +253,12 @@ class Send extends Component<Props, State> {
           alertUser(this.props.t('unknownError', errorMessage && { errorMessage }));
         }
       }
-    })
-      .catch((error) => console.error(error))
-      .then(() => {
-        // The following method allows pressing escape again.
-        this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
-      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      // The following method allows pressing escape again.
+      this.setState({ isConfirming: false, signProgress: undefined, signConfirm: false });
+    }
   };
 
   private txInput = () => ({
@@ -389,8 +396,7 @@ class Send extends Component<Props, State> {
       apiGet(`coins/convert-from-fiat?from=${this.state.fiatUnit}&to=${coinCode}&amount=${value}`)
         .then(data => {
           if (data.success) {
-            this.setState({ amount: data.amount });
-            this.validateAndDisplayFee(false);
+            this.setState({ amount: data.amount }, () => this.validateAndDisplayFee(false));
           } else {
             this.setState({ amountError: this.props.t('send.error.invalidAmount') });
           }

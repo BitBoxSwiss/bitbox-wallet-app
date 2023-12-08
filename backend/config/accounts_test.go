@@ -60,6 +60,32 @@ func TestSetTokenActive(t *testing.T) {
 	require.Equal(t, []string{"TOKEN-2"}, acct.ActiveTokens)
 }
 
+func TestGetOrAddKeystore(t *testing.T) {
+	cfg := &AccountsConfig{}
+	fp1 := []byte("aaaa")
+	fp2 := []byte("bbbb")
+
+	ks := cfg.GetOrAddKeystore(fp1)
+	ks.Name = "ks1"
+
+	require.Len(t, cfg.Keystores, 1)
+	require.Equal(t, ks, cfg.Keystores[0])
+	require.Equal(t, fp1, []byte(cfg.Keystores[0].RootFingerprint))
+	require.Equal(t, "ks1", cfg.Keystores[0].Name)
+
+	ks = cfg.GetOrAddKeystore(fp1)
+	require.Len(t, cfg.Keystores, 1)
+	require.Equal(t, "ks1", ks.Name)
+
+	ks = cfg.GetOrAddKeystore(fp2)
+	ks.Name = "ks2"
+
+	require.Len(t, cfg.Keystores, 2)
+	require.Equal(t, ks, cfg.Keystores[1])
+	require.Equal(t, fp2, []byte(cfg.Keystores[1].RootFingerprint))
+	require.Equal(t, "ks2", cfg.Keystores[1].Name)
+}
+
 func TestMigrateActiveToken(t *testing.T) {
 	config := &Config{
 		appConfigFilename: "appConfigFilename",

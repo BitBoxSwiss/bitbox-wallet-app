@@ -27,4 +27,12 @@ const SpinnerAnimation = () => {
   );
 };
 
-export { SpinnerAnimation };
+const HorizontallyCenteredSpinner = () => {
+  return (
+    <div className={style.horizontallyCentered}>
+      <SpinnerAnimation />
+    </div>
+  );
+};
+
+export { SpinnerAnimation, HorizontallyCenteredSpinner };

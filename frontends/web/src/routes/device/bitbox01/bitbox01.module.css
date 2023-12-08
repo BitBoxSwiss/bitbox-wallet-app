@@ -136,14 +136,6 @@
     margin-bottom: 0;
 }
 
-.testingContainer {
-    margin-top: var(--space-default);
-}
-
-.testingContainer > * {
-    margin: 0 auto;
-}
-
 @media screen and (max-width: 640px) {
     .qrcodeContainer {
         width: 50%;

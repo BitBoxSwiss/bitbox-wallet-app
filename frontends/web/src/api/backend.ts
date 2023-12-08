@@ -17,6 +17,7 @@
 import { AccountCode, CoinCode } from './account';
 import { apiGet, apiPost } from '../utils/request';
 import { FailResponse, SuccessResponse } from './response';
+import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {
     coinCode: CoinCode;
@@ -47,6 +48,10 @@ export const renameAccount = (accountCode: AccountCode, name: string): Promise<I
   return apiPost('rename-account', { accountCode, name });
 };
 
+export const accountSetWatch = (accountCode: AccountCode, watch: boolean): Promise<ISuccess> => {
+  return apiPost('account-set-watch', { accountCode, watch });
+};
+
 export const reinitializeAccounts = (): Promise<null> => {
   return apiPost('accounts/reinitialize');
 };
@@ -69,4 +74,59 @@ export const getDefaultConfig = (): Promise<any> => {
 
 export const socksProxyCheck = (proxyAddress: string): Promise<ISuccess> => {
   return apiPost('socksproxy/check', proxyAddress);
+};
+
+export type TSyncConnectKeystore = null | {
+  typ: 'connect';
+  keystoreName: string;
+} | {
+  typ: 'error';
+  errorCode: 'wrongKeystore';
+  errorMessage: '';
+};
+
+/**
+ * Returns a function that subscribes a callback on a "connect-keystore".
+ * Meant to be used with `useSubscribe`.
+ */
+export const syncConnectKeystore = () => {
+  return (
+    cb: TSubscriptionCallback<TSyncConnectKeystore>
+  ) => {
+    return subscribeEndpoint('connect-keystore', (
+      obj: TSyncConnectKeystore,
+    ) => {
+      cb(obj);
+    });
+  };
+};
+
+export const cancelConnectKeystore = (): Promise<void> => {
+  return apiPost('cancel-connect-keystore');
+};
+
+export const setWatchonly = (watchonly: boolean): Promise<ISuccess> => {
+  return apiPost('set-watchonly', watchonly);
+};
+
+export const authenticate = (force: boolean = false): Promise<void> => {
+  return apiPost('authenticate', force);
+};
+
+export const forceAuth = (): Promise<void> => {
+  return apiPost('force-auth');
+};
+
+export type TAuthEventObject = {
+  typ: 'auth-required' | 'auth-forced' | 'auth-canceled' | 'auth-ok' | 'auth-err' ;
+};
+
+export const subscribeAuth = (
+  cb: TSubscriptionCallback<TAuthEventObject>
+) => (
+  subscribeEndpoint('auth', cb)
+);
+
+export const onAuthSettingChanged = (): Promise<void> => {
+  return apiPost('on-auth-setting-changed');
 };

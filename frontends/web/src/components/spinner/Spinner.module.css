@@ -56,6 +56,12 @@
     animation: spinner3 0.6s infinite;
 }
 
+.horizontallyCentered {
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+}
+
 @keyframes spinner1 {
     0% { transform: scale(0); }
     100% { transform: scale(1); }

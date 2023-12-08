@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Shift Crypto AG
+ * Copyright 2023 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
+import { subscribeEndpoint, TUnsubscribe } from './subscribe';
 import { apiGet } from '../utils/request';
-import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
-export type Keystore = {
-  type: string;
-};
+export type { TUnsubscribe };
 
-export const getKeystores = async (): Promise<Keystore[]> => {
-  return await apiGet('keystores');
-};
+type TKeystore = { type: 'hardware' | 'software' };
+export type TKeystores = TKeystore[];
 
-/**
- * Subscriptions
- */
-
-/**
- * Returns a function that subscribes a callback on a "keystores"
- * event to notify when a change to the keystores list has occurred.
- * Meant to be used with `useSubscribe`.
- */
-export const subscribeKeystores = (cb: TSubscriptionCallback<Keystore[]>) => {
+export const subscribeKeystores = (
+  cb: (keystores: TKeystores) => void
+) => {
   return subscribeEndpoint('keystores', cb);
+};
+
+export const getKeystores = (): Promise<TKeystores> => {
+  return apiGet('keystores');
 };

@@ -22,7 +22,7 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/vie
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
 import { Button, Checkbox, Label } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
-import { Keystore, getKeystores, subscribeKeystores } from '../../api/keystores';
+import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystores';
 import { unsubscribe } from '../../utils/subscriptions';
 import { postActivateNode } from '../../api/lightning';
 import { Status } from '../../components/status/status';
@@ -37,7 +37,7 @@ export const LightningActivate = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [agree, setAgree] = useState(false);
-  const [keystores, setKeystores] = useState<Keystore[]>();
+  const [keystores, setKeystores] = useState<TKeystores>();
   const [step, setStep] = useState<TSteps>('intro');
   const [setupError, setSetupError] = useState<string>();
 

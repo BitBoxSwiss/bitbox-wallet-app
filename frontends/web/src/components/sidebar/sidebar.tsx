@@ -17,6 +17,7 @@
 
 import React, { Component } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { TKeystores, subscribeKeystores, TUnsubscribe, getKeystores } from '../../api/keystores';
 import { IAccount } from '../../api/account';
 import coins from '../../assets/icons/coins.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
@@ -24,14 +25,14 @@ import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import { share } from '../../decorators/share';
-import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
 import { CloseXWhite } from '../icon';
-import { isBitcoinOnly } from '../../routes/account/utils';
+import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
+import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Store } from '../../decorators/store';
 import style from './sidebar.module.css';
 import { useTranslation } from 'react-i18next';
@@ -42,10 +43,6 @@ interface SidebarProps {
   lightningInactive: boolean;
 }
 
-interface SubscribedProps {
-  keystores?: Array<{ type: 'hardware' | 'software' }>;
-}
-
 export type SharedPanelProps = {
   // eslint-disable-next-line react/no-unused-prop-types
   activeSidebar: boolean;
@@ -53,7 +50,7 @@ export type SharedPanelProps = {
   sidebarStatus: string;
 };
 
-type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
+type Props = SharedPanelProps & SidebarProps & TranslateProps;
 
 type ItemClickProps = { handleSidebarItemClick: (e: React.SyntheticEvent) => void };
 type TGetAccountLinkProps = IAccount & ItemClickProps;
@@ -106,15 +103,30 @@ const GetLightningLink = ({ handleSidebarItemClick }: ItemClickProps) => {
   );
 };
 
+type State = {
+  keystores: TKeystores;
+}
+
 class Sidebar extends Component<Props> {
   private swipe!: SwipeAttributes;
+  private unsubscribeFn?: TUnsubscribe;
+
+  public readonly state: State = {
+    keystores: [],
+  };
 
   public componentDidMount() {
     this.registerTouchEvents();
+    getKeystores().then(keystores => this.setState({ keystores }, () => {
+      this.unsubscribeFn = subscribeKeystores(keystores => this.setState({ keystores }));
+    }));
   }
 
   public componentWillUnmount() {
     this.removeTouchEvents();
+    if (this.unsubscribeFn) {
+      this.unsubscribeFn();
+    }
   }
 
   private registerTouchEvents = () => {
@@ -173,9 +185,18 @@ class Sidebar extends Component<Props> {
   };
 
   public render() {
-    const { t, deviceIDs, accounts, keystores, activeSidebar, lightningInactive, sidebarStatus } = this.props;
+    const { keystores } = this.state;
+    const {
+      t,
+      deviceIDs,
+      accounts,
+      activeSidebar,
+      lightningInactive,
+      sidebarStatus,
+    } = this.props;
     const hidden = sidebarStatus === 'forceHidden';
     const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+    const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <div className={[style.sidebarContainer, hidden ? style.forceHide : ''].join(' ')}>
         <div className={[style.sidebarOverlay, activeSidebar ? style.active : ''].join(' ')} onClick={toggleSidebar}></div>
@@ -189,12 +210,7 @@ class Sidebar extends Component<Props> {
             </button>
           </div>
 
-          <div className={style.sidebarHeaderContainer}>
-            <span className={style.sidebarHeader} hidden={!keystores?.length}>
-              {t('sidebar.accounts')}
-            </span>
-          </div>
-          {accounts.length ? (
+          { accounts.length ? (
             <div className={style.sidebarItem}>
               <NavLink
                 className={({ isActive }) => (isActive ? style.sidebarActive : '')}
@@ -208,10 +224,27 @@ class Sidebar extends Component<Props> {
                 <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
               </NavLink>
             </div>
-          ) : null}
-          {accounts &&
-            accounts.map((acc) => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick} />)}
+          ) : null }
+
+          {
+            accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
+              <div className={style.sidebarHeaderContainer}>
+                <span className={style.sidebarHeader} hidden={!keystore.accounts.length}>
+                  {t('sidebar.accounts')} - {keystore.keystore.name}
+                  { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                    // Disambiguate accounts group by adding the fingerprint.
+                    // The most common case where this would happen is when adding accounts from the
+                    // same seed using different passphrases.
+                    <> ({keystore.keystore.rootFingerprint})</>
+                  ) : null }
+                </span>
+              </div>
+
+              { keystore.accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
+            </React.Fragment>))
+          }
           {!lightningInactive && <GetLightningLink handleSidebarItemClick={this.handleSidebarItemClick} />}
+
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           {accounts.length ? (
             <div key="buy" className={style.sidebarItem}>
@@ -239,7 +272,8 @@ class Sidebar extends Component<Props> {
               <span className={style.sidebarLabel}>{t('sidebar.settings')}</span>
             </NavLink>
           </div>
-          {debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0 && (
+          { !keystores || keystores.length === 0 ? <SkipForTesting /> : null }
+          {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
             <div key="eject" className={style.sidebarItem}>
               <a href="#" onClick={eject}>
                 <div className={style.single}>
@@ -259,12 +293,6 @@ function eject(e: React.SyntheticEvent): void {
   e.preventDefault();
 }
 
-const subscribeHOC = subscribe<SubscribedProps, SharedPanelProps & SidebarProps & TranslateProps>(
-  { keystores: 'keystores' },
-  false,
-  false
-)(Sidebar);
-
-const guideShareHOC = share<SharedPanelProps, SidebarProps & TranslateProps>(panelStore)(subscribeHOC);
+const guideShareHOC = share<SharedPanelProps, SidebarProps & TranslateProps>(panelStore)(Sidebar);
 const translateHOC = translate()(guideShareHOC);
 export { translateHOC as Sidebar };

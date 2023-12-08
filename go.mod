@@ -1,6 +1,6 @@
 module github.com/digitalbitbox/bitbox-wallet-app
 
-go 1.19
+go 1.20
 
 require (
 	github.com/breez/breez-sdk-go v0.2.9

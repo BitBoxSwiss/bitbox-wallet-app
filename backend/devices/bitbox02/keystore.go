@@ -53,6 +53,15 @@ func (keystore *keystore) Type() keystorePkg.Type {
 	return keystorePkg.TypeHardware
 }
 
+// Name implements keystore.Keystore.
+func (keystore *keystore) Name() (string, error) {
+	info, err := keystore.device.DeviceInfo()
+	if err != nil {
+		return "", errp.WithStack(err)
+	}
+	return info.Name, nil
+}
+
 // RootFingerprint implements keystore.Keystore.
 func (keystore *keystore) RootFingerprint() ([]byte, error) {
 	keystore.rootFingerMu.Lock()
