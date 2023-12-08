@@ -1,0 +1,108 @@
+.accountName {
+    font-size: 16px;
+    margin: 0 var(--space-half) 0 0;
+}
+
+.accountNameAndAddress {
+    display: flex;
+}
+
+.address {
+    color: var(--color-secondary);
+    font-size: 16px;
+    margin: 0;
+}
+
+.animationAndTextContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+}
+
+.animationAndTextContainer p {
+    font-size: var(--header-default-font-size);
+    margin-top: var(--space-quarter);
+}
+
+.chainContainer {
+    align-items: center;
+    display: flex;
+}
+
+.chainContainer .itemText {
+    margin-right: calc(var(--space-quarter) + var(--space-eight));
+}
+
+.chainContainer img {
+    height: 20px;
+    width: 20px;
+}
+
+.dappIcon {
+    height: 96px;
+    width: 96px;
+}
+
+
+.item {
+    display: flex;
+    flex-direction: column;
+}
+
+.item + .item {
+    margin-top: var(--space-half);
+}
+
+.itemText {
+    font-size: 16px;
+    margin: 0;
+}
+
+.label {
+    color: var(--color-secondary);
+    font-size: var(--size-default);
+    margin: 0 0 var(--space-quarter) 0;
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.outerContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 460px;
+    padding: 0 var(--space-half);
+}
+
+.successIcon {
+    height: 240px;
+    width: 240px;
+}
+
+.textarea {
+    border-color: var(--background-quaternary);
+    border-radius: var(--space-eight);
+    font-family: var(--font-family);
+    padding: var(--space-quarter);
+    width: 100%;
+}
+
+.titleContainer {
+    align-items: center;
+    display: flex;
+    margin-bottom: var(--space-half);
+}
+
+.titleContainer h3 {
+    font-size: var(--header-default-font-size);
+    font-weight: 400;
+    margin: 0 0 0 var(--space-eight);
+    padding: 0 var(--space-quarter);
+}

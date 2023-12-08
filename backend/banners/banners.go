@@ -31,17 +31,22 @@ const bannersURL = "https://bitbox.swiss/updates/banners.json"
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
 
+// TypeCode determines the type of banner.
 type TypeCode string
 
 const (
+	// TypeWarning means the banner will be shown and styled as a warning.
 	TypeWarning TypeCode = "warning"
+	// TypeSuccess means the banner will be shown and styled as a success message.
 	TypeSuccess TypeCode = "success"
-	TypeInfo    TypeCode = "info"
+	// TypeInfo means the banner will be shown and styled as an info.
+	TypeInfo TypeCode = "info"
 )
 
 const (
 	// KeyBitBox01 is the message key for the event when a BitBox01 gets connected.
 	KeyBitBox01 MessageKey = "bitbox01"
+	// KeyBitBox02 is the message key for the event when a BitBox02 gets connected.
 	KeyBitBox02 MessageKey = "bitbox02"
 )
 

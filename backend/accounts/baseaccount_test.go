@@ -65,7 +65,6 @@ func TestBaseAccount(t *testing.T) {
 		},
 		DBFolder:        test.TstTempDir("baseaccount_test_dbfolder"),
 		NotesFolder:     test.TstTempDir("baseaccount_test_notesfolder"),
-		Keystore:        nil,
 		OnEvent:         func(event types.Event) { events <- event },
 		RateUpdater:     nil,
 		GetNotifier:     nil,

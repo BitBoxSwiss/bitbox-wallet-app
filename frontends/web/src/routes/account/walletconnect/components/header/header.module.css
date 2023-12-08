@@ -1,0 +1,52 @@
+.headerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.headerContainer p,
+.headerContainer h1 {
+    margin: 0;
+}
+
+.headerContainer h1 {
+    margin-top: var(--space-half);
+    font-size: var(--size-large);
+    font-weight: 400;
+}
+
+.headerContainer img {
+    width: 64px;
+    height: 64px;
+}
+
+.headerContainer p {
+    color: var(--color-secondary);
+    margin-top: var(--space-quarter);
+}
+
+.accountName {
+    font-size: 20px;
+}
+
+.receiveAddress {
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .headerContainer h1 {
+        margin-top: var(--space-eight);
+        font-size: var(--size-subheader);
+    }
+    .headerContainer p
+    {
+        font-size: var(--size-small);
+    }
+    .headerContainer img {
+        width: 36px;
+        height: 36px;
+    }
+    .headerContainer p.receiveAddress {
+        margin-top: var(--space-eight);
+    }
+}

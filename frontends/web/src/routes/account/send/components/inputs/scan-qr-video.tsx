@@ -17,7 +17,7 @@
 import { useRef } from 'react';
 import { useQRScanner } from '../../../../../hooks/qrcodescanner';
 import { SpinnerAnimation } from '../../../../../components/spinner/SpinnerAnimation';
-import style from '../../send.module.css';
+import style from './scan-qr-video.module.css';
 
 type TProps = {
   onResult: (result: string) => void;
@@ -44,6 +44,7 @@ export const ScanQRVideo = ({
       <video
         className={style.qrVideo}
         ref={videoRef}
+        poster="%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2264%22%20height=%2248%22%3E%3C/svg%3E"
       />
     </>
   );

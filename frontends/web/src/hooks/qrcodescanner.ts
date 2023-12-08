@@ -32,26 +32,41 @@ export const useQRScanner = (
 ) => {
 
   useEffect(() => {
-    const scanner = videoRef.current && (
-      new QrScanner(
-        videoRef.current,
-        result => {
-          scanner?.stop();
-          onResult(result);
-        }, {
-          onDecodeError: onError,
-          highlightScanRegion: true,
-          highlightCodeOutline: true,
-        })
-    );
+    const startScanner = async () => {
+      const scanner = videoRef.current && (
+        new QrScanner(
+          videoRef.current,
+          result => {
+            scanner?.stop();
+            onResult(result);
+          }, {
+            onDecodeError: onError,
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+          })
+      );
 
-    scanner?.start()
-      .then(() => onStart && onStart())
-      .catch(console.error);
+      try {
+        await scanner?.start();
+        if (onStart) {
+          onStart();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+
+      return () => {
+        scanner?.stop();
+        scanner?.destroy();
+      };
+    };
+
+    // Proxy function to get a handle on scanner.start() and ensure it is cleaned up properly
+    const scannerPromise = startScanner();
 
     return () => {
-      scanner?.stop();
-      scanner?.destroy();
+      // Clean up scanner
+      scannerPromise.then(cleanupFunc => cleanupFunc());
     };
   }, [videoRef, onStart, onResult, onError]);
 

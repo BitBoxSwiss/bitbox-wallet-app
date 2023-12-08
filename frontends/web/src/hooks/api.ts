@@ -19,13 +19,15 @@ import { TSubscriptionCallback, TUnsubscribe } from '../api/subscribe';
 import { useMountedRef } from './mount';
 
 /**
- * useSubscribe is a hook to subscribe to a subscription function.
+ * useSubscribeReset is a hook to subscribe to a subscription function.
  * starts on first render, and returns undefined while there is no first response.
  * re-renders on every update.
+ * An array is returned: `[value, reset]`, where value is the subscribed value and `reset()` resets
+ * the value to `undefined`.
  */
-export const useSubscribe = <T>(
+export const useSubscribeReset = <T>(
   subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
-): (T | undefined) => {
+): [T | undefined, () => void] => {
   const [response, setResponse] = useState<T>();
   const mounted = useMountedRef();
   const subscribe = () => {
@@ -40,6 +42,18 @@ export const useSubscribe = <T>(
     // empty dependencies because it's only subscribed once
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
+  return [response, () => setResponse(undefined)];
+};
+
+/**
+ * useSubscribe is a hook to subscribe to a subscription function.
+ * starts on first render, and returns undefined while there is no first response.
+ * re-renders on every update.
+ */
+export const useSubscribe = <T>(
+  subscription: ((callback: TSubscriptionCallback<T>) => TUnsubscribe),
+): (T | undefined) => {
+  const [response] = useSubscribeReset(subscription);
   return response;
 };
 

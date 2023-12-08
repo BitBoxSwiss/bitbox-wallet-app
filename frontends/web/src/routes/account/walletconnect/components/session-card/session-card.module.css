@@ -1,0 +1,114 @@
+.container {
+    background-color: var(--background-session-card);
+    display: flex;
+    margin-top: calc(var(--space-quarter) + var(--space-half));
+    padding: calc(var(--space-half) + var(--space-quarter));
+    width: 100%;
+}
+
+.container p {
+    color: var(--color-default);
+    font-size: 16px;
+    line-height: 1.9;
+    margin-bottom: 0;
+}
+
+.textDataContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.receiveAddress {
+    color: var(--color-secondary);
+    margin: 0;
+}
+
+.accountName {
+    font-weight: bold;
+    margin: 0;
+    padding-right: 16px;
+    width: 240px;
+}
+
+.dAppMetadataAndIconContainer {
+    align-items: center;
+    display: flex;
+}
+
+.dAppMetadataAndIconContainer p {
+    margin-top: 0;
+}
+
+.dAppMetadataAndIconContainer img {
+    width: var(--item-height);
+    height: var(--item-height);
+    margin-left: calc(var(--space-quarter) + var(--space-half));
+}
+
+.dAppNameAndUrlContainer {
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+}
+
+.dAppMetadataAndIconContainer p.dappUrl {
+    margin-top: var(--space-quarter);
+}
+
+.accountNameAndWalletContainer {
+    display: flex;
+    margin-bottom: calc(var(--space-quarter) + var(--space-half));
+}
+
+.buttonAndIconContainer {
+    align-items: flex-end;
+    display: flex;
+    margin-left: auto;
+}
+
+.buttonDisconnect {
+    height: unset;
+    padding: calc(var(--space-eight) + var(--space-quarter)) calc(var(--space-default) + var(--space-default));
+}
+
+@media (max-width: 768px) { 
+    .container {
+        margin-top: var(--space-half);
+        padding: calc(var(--space-quarter) * 2);
+    }
+
+    .container p { 
+        font-size: var(--size-default);
+    }
+
+    .textDataContainer {
+        width: 50%;
+    }
+
+    .dAppNameAndUrlContainer,
+    .accountName {
+        width: 100%;
+    }
+
+    .accountNameAndWalletContainer {
+        margin-bottom: var(--space-quarter);
+    }
+
+    .buttonAndIconContainer {
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .buttonDisconnect {
+        font-size: var(--size-default);
+        height: var(--item-height-small);
+        padding: var(--space-eight) calc(var(--space-quarter) + var(--space-half));
+    }
+
+    .buttonAndIconContainer img {
+        height: var(--item-height-small);
+        width: var(--item-height-small);
+        margin-top: var(--space-default);
+        margin-bottom: var(--space-default);
+    }
+}

@@ -1,0 +1,64 @@
+.buttonsContainer {
+    margin-top: var(--space-default);
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.container p.connectionRequest {
+    margin-bottom: 24px;
+}
+
+.container p.receiveAddress {
+    color: var(--color-secondary);
+    margin-top: 24px;
+}
+
+.pairingDetailContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pairingDetailContainer img {
+    width: 64px;
+    height: 64px;
+}
+
+.pairingDetailContainer p.metadata {
+    color: var(--color-default);
+    margin-bottom: var(--space-eight);
+}
+
+@media (max-width: 768px) {
+    .buttonsContainer {
+        flex-direction: column-reverse;
+    }
+
+    .buttonsContainer > *:not(:last-child) {
+        margin-top: var(--space-quarter); /* would be margin-bottom but the container has reversed flex order */
+    }
+
+    .buttonsContainer button {
+        height: calc(var(--space-quarter) + var(--space-default))
+    }
+    
+    .container p.connectionRequest {
+        text-align: center;
+     }
+
+    .pairingDetailContainer {
+        align-items: flex-start;
+        flex-direction: column-reverse;
+    }
+
+    .pairingDetailContainer img {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: var(--space-default);
+    }
+}

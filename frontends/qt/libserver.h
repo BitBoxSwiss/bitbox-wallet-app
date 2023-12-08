@@ -54,6 +54,8 @@ extern void serve(
 
 extern void systemOpen(cchar_t* url);
 
+extern void authResult(bool ok);
+
 extern void goLog(cchar_t* msg);
 
 #ifdef __cplusplus

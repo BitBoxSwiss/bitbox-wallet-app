@@ -16,13 +16,13 @@
 
 import { Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bank, BankDark, CreditCard, CreditCardDark } from '../../../components/icon';
-import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
-import { getFormattedName } from '../utils';
-import { BestDeal, Fast } from './buytags';
-import { InfoButton } from '../../../components/infobutton/infobutton';
-import style from './exchangeselectionradio.module.css';
 import { useDarkmode } from '../../../hooks/darkmode';
+import { Info, ExchangeDealsWithSupported, ExchangeDealWithBestDeal } from '../types';
+import { Bank, BankDark, CreditCard, CreditCardDark } from '../../../components/icon';
+import { InfoButton } from '../../../components/infobutton/infobutton';
+import { Badge } from '../../../components/badge/badge';
+import { getFormattedName } from '../utils';
+import style from './exchangeselectionradio.module.css';
 
 type RadioProps = {
   deals: ExchangeDealsWithSupported['deals'];
@@ -58,12 +58,17 @@ const PaymentMethod = ({ methodName }: TPaymentMethodProps) => {
 };
 
 const Deal = ({ deal }: { deal: ExchangeDealWithBestDeal }) => {
+  const { t } = useTranslation();
   return (
     <div className={style.paymentMethodContainer}>
       <PaymentMethod methodName={deal.payment} />
       <div>
-        {deal.isBestDeal && <BestDeal />}
-        {deal.isFast && <Fast />}
+        {deal.isBestDeal && (
+          <Badge type="success">{t('buy.exchange.bestDeal')}</Badge>
+        )}
+        {deal.isFast && (
+          <Badge type="warning">{t('buy.exchange.fast')}</Badge>
+        )}
       </div>
     </div>
   );

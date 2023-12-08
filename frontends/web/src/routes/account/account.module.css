@@ -28,6 +28,7 @@
 
 .buy,
 .receive,
+.walletConnect,
 .send {
     background-color: var(--color-blue);
     border-radius: 2px;
@@ -36,17 +37,24 @@
     font-size: var(--size-default);
     height: calc(var(--item-height) / 1.5);
     line-height: calc(var(--item-height) / 1.5);
+    margin-left: var(--space-quarter);
+    min-width: calc(var(--item-height) * 2);
     padding: 0 var(--space-half);
     text-align: center;
     text-decoration: none;
     transition: background-color ease-out 0.2s;
-    width: calc(var(--item-height) * 2);
+    width: auto;
     will-change: background-color;
 }
 
-.receive,
-.send {
-    margin-right: var(--space-quarter);
+.withWalletConnect.actionsContainer {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+
+.withWalletConnect .walletConnect { 
+    display: flex;
 }
 
 .buy:hover,
@@ -76,11 +84,33 @@
         width: 91%;
         margin-left: auto;
         margin-right: auto;
+        flex-wrap: wrap;
     }
+
+
+    .withWalletConnect.actionsContainer {
+        justify-content: center;
+    }
+
+    .withWalletConnect .buy,
+    .withWalletConnect .receive,
+    .withWalletConnect .send {
+        max-width: 25%;
+    }
+
+    .withWalletConnect .walletConnect {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        max-width: 15%;
+    }
+
     .actionsContainer a {
         flex: 1 0 30%;
         margin-right: 0;
         max-width: 30%;
+        min-width: unset;
+
     }
 
     .send,

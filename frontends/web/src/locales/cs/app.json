@@ -516,6 +516,9 @@
       "deviceName": {
         "description": "Změňte název zařízení."
       },
+      "rootFingerprint": {
+        "description": "Otisk je jedinečný identifikátor právě používané peněženky. Může vám pomoci rozlišit různé peněženky, pokud používáte přístupové fráze."
+      },
       "securechip": {
         "description": "Model bezpečného čipu."
       },

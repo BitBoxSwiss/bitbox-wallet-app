@@ -23,6 +23,14 @@
     will-change: background-color, color;
 }
 
+.button:hover {
+    cursor: pointer;
+}
+
+.button:disabled {
+    cursor: not-allowed;
+}
+
 .button:focus {
     outline: none;
 }

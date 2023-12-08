@@ -68,7 +68,7 @@ type Backend interface {
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
-	Accounts() []accounts.Interface
+	Accounts() backend.AccountsList
 	Keystore() keystore.Keystore
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
@@ -96,12 +96,19 @@ type Backend interface {
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
+	AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
 	AOPPChooseAccount(code accountsTypes.Code)
+	Authenticate(force bool)
+	TriggerAuth()
+	ForceAuth()
 	GetAccountFromCode(code string) (accounts.Interface, error)
 	HTTPClient() *http.Client
+	CancelConnectKeystore()
+	SetWatchonly(watchonly bool) error
+	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 }
 
 // Handlers provides a web api to the backend.
@@ -191,6 +198,9 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
+	getAPIRouterNoError(apiRouter)("/authenticate", handlers.postAuthenticateHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/trigger-auth", handlers.postTriggerAuthHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/force-auth", handlers.postForceAuthHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/set-dark-theme", handlers.postDarkThemeHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/detect-dark-theme", handlers.getDetectDarkThemeHandler).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -202,6 +212,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
@@ -230,6 +241,10 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/aopp/cancel", handlers.postAOPPCancelHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/aopp/approve", handlers.postAOPPApproveHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/aopp/choose-account", handlers.postAOPPChooseAccountHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/cancel-connect-keystore", handlers.postCancelConnectKeystoreHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/set-watchonly", handlers.postSetWatchonlyHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/on-auth-setting-changed", handlers.postOnAuthSettingChangedHandler).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/accounts/eth-account-code", handlers.lookupEthAccountCode).Methods("POST")
 
 	devicesRouter := getAPIRouterNoError(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -341,7 +356,12 @@ type activeToken struct {
 }
 
 type accountJSON struct {
+	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
+	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
+	// keystore.
+	Keystore              config.Keystore    `json:"keystore"`
 	Active                bool               `json:"active"`
+	Watch                 bool               `json:"watch"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
 	CoinUnit              string             `json:"coinUnit"`
 	CoinName              string             `json:"coinName"`
@@ -352,11 +372,14 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(account accounts.Interface, activeTokens []activeToken) *accountJSON {
+func newAccountJSON(keystore config.Keystore, account accounts.Interface, activeTokens []activeToken) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
+	watch := account.Config().Config.Watch
 	return &accountJSON{
+		Keystore:              keystore,
 		Active:                !account.Config().Config.Inactive,
+		Watch:                 watch != nil && *watch,
 		CoinCode:              account.Coin().Code(),
 		CoinUnit:              account.Coin().Unit(false),
 		CoinName:              account.Coin().Name(),
@@ -445,6 +468,29 @@ func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) interface{}
 	return handlers.backend.Environment().UsingMobileData()
 }
 
+func (handlers *Handlers) postAuthenticateHandler(r *http.Request) interface{} {
+	var force bool
+	if err := json.NewDecoder(r.Body).Decode(&force); err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}
+	}
+
+	handlers.backend.Authenticate(force)
+	return nil
+}
+
+func (handlers *Handlers) postTriggerAuthHandler(r *http.Request) interface{} {
+	handlers.backend.TriggerAuth()
+	return nil
+}
+
+func (handlers *Handlers) postForceAuthHandler(r *http.Request) interface{} {
+	handlers.backend.ForceAuth()
+	return nil
+}
+
 func (handlers *Handlers) postDarkThemeHandler(r *http.Request) (interface{}, error) {
 	var isDark bool
 	if err := json.NewDecoder(r.Body).Decode(&isDark); err != nil {
@@ -515,19 +561,17 @@ func (handlers *Handlers) getKeystoresHandler(_ *http.Request) interface{} {
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
-	accounts := []*accountJSON{}
 	persistedAccounts := handlers.backend.Config().AccountsConfig()
+
+	accounts := []*accountJSON{}
 	for _, account := range handlers.backend.Accounts() {
 		if account.Config().Config.HiddenBecauseUnused {
 			continue
 		}
 		var activeTokens []activeToken
+
+		persistedAccount := account.Config().Config
 		if account.Coin().Code() == coinpkg.CodeETH {
-			persistedAccount := persistedAccounts.Lookup(account.Config().Config.Code)
-			if persistedAccount == nil {
-				handlers.log.WithField("code", account.Config().Config.Code).Error("account not found in accounts database")
-				continue
-			}
 			for _, tokenCode := range persistedAccount.ActiveTokens {
 				activeTokens = append(activeTokens, activeToken{
 					TokenCode:   tokenCode,
@@ -535,9 +579,48 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 				})
 			}
 		}
-		accounts = append(accounts, newAccountJSON(account, activeTokens))
+
+		rootFingerprint, err := persistedAccount.SigningConfigurations.RootFingerprint()
+		if err != nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("could not identify root fingerprint")
+			continue
+		}
+		keystore, err := persistedAccounts.LookupKeystore(rootFingerprint)
+		if err != nil {
+			handlers.log.WithField("code", account.Config().Config.Code).Error("could not find keystore of account")
+			continue
+		}
+
+		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens))
 	}
 	return accounts
+}
+
+func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
+	var args struct {
+		Address string `json:"address"`
+	}
+	type response struct {
+		Success      bool               `json:"success"`
+		Code         accountsTypes.Code `json:"code"`
+		Name         string             `json:"name"`
+		ErrorMessage string             `json:"errorMessage"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	code, name, err := handlers.backend.LookupEthAccountCode(args.Address)
+	if err != nil {
+		return response{
+			Success:      false,
+			ErrorMessage: err.Error(),
+		}
+	}
+	return response{
+		Success: true,
+		Code:    code,
+		Name:    name,
+	}
 }
 
 func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {
@@ -689,6 +772,30 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 		if errCode, ok := errp.Cause(err).(backend.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{} {
+	var jsonBody struct {
+		AccountCode accountsTypes.Code `json:"accountCode"`
+		Watch       bool               `json:"watch"`
+	}
+
+	type response struct {
+		Success      bool   `json:"success"`
+		ErrorMessage string `json:"errorMessage,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return response{Success: false, ErrorMessage: err.Error()}
+	}
+
+	filter := func(account *config.Account) bool {
+		return account.Code == jsonBody.AccountCode
+	}
+	if err := handlers.backend.AccountSetWatch(filter, &jsonBody.Watch); err != nil {
 		return response{Success: false, ErrorMessage: err.Error()}
 	}
 	return response{Success: true}
@@ -1235,5 +1342,30 @@ func (handlers *Handlers) postAOPPCancelHandler(r *http.Request) interface{} {
 
 func (handlers *Handlers) postAOPPApproveHandler(r *http.Request) interface{} {
 	handlers.backend.AOPPApprove()
+	return nil
+}
+
+func (handlers *Handlers) postCancelConnectKeystoreHandler(r *http.Request) interface{} {
+	handlers.backend.CancelConnectKeystore()
+	return nil
+}
+
+func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
+	type response struct {
+		Success bool `json:"success"`
+	}
+	var watchonly bool
+	if err := json.NewDecoder(r.Body).Decode(&watchonly); err != nil {
+		return response{Success: false}
+	}
+	if err := handlers.backend.SetWatchonly(watchonly); err != nil {
+		return response{Success: false}
+	}
+	return response{Success: true}
+}
+
+func (handlers *Handlers) postOnAuthSettingChangedHandler(r *http.Request) interface{} {
+	handlers.backend.Environment().OnAuthSettingChanged(
+		handlers.backend.Config().AppConfig().Backend.Authentication)
 	return nil
 }
