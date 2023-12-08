@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import style from './badge.module.css';
 
 type TBadgeStyles = 'success' | 'warning'; // TODO: not yet implemented 'info' | 'danger'
 
 type TProps = {
-  children: ReactNode;
+  children?: ReactNode;
   type?: TBadgeStyles;
-}
+  icon?: (props: { className: string }) => ReactElement;
+} & JSX.IntrinsicElements['span'];
 
 export const Badge = ({
   children,
+  className,
+  icon,
   type = 'success',
+  ...props
 }: TProps) => {
+  const withChildrenStyle = children !== undefined ? style.withChildren : '';
+  const iconOnlyStyle = (children === undefined && icon) ? style.iconOnly : '';
   return (
-    <span className={`${style.badge} ${style[type]}`}>
+    <span
+      className={`${style.badge} ${style[type]} ${withChildrenStyle} ${iconOnlyStyle} ${className || ''}`}
+      {...props}>
+      {icon && icon({ className: style.badgeIcon })}
       {children}
     </span>
   );

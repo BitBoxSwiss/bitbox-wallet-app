@@ -499,7 +499,8 @@
     "toggle": "Dark mode"
   },
   "device": {
-    "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version."
+    "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version.",
+    "keystoreConnected": "Connected wallet"
   },
   "deviceLock": {
     "button": "Enable two factor authorization (2FA)",
@@ -1495,8 +1496,6 @@
   },
   "setup": "Setup device",
   "sidebar": {
-    "accounts": "Accounts",
-    "addAccount": "Add account",
     "buy": "Buy crypto",
     "device": "Manage device",
     "leave": "Leave",

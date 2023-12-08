@@ -30,10 +30,11 @@ import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
 import { useLocation } from 'react-router';
-import { CloseXWhite } from '../icon';
+import { CloseXWhite, USBSuccess } from '../icon';
 import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
 import { Store } from '../../decorators/store';
+import { Badge } from '../badge/badge';
 import style from './sidebar.module.css';
 
 interface SidebarProps {
@@ -196,37 +197,47 @@ class Sidebar extends Component<Props> {
           </div>
 
           { accounts.length ? (
-            <div className={style.sidebarItem}>
+            <div className={`${style.sidebarItem} ${style.sidebarPortfolio}`}>
               <NavLink
                 className={({ isActive }) => isActive ? style.sidebarActive : ''}
                 to={'/account-summary'}
                 title={t('accountSummary.title')}
                 onClick={this.handleSidebarItemClick}>
                 <div className={style.single}>
-                  <img draggable={false} src={info} alt={t('sidebar.addAccount')} />
+                  <img draggable={false} src={info} />
                 </div>
                 <span className={style.sidebarLabel}>{t('accountSummary.title')}</span>
               </NavLink>
             </div>
           ) : null }
 
-          {
-            accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
+          { accountsByKeystore.map(keystore => (
+            <React.Fragment key={keystore.keystore.rootFingerprint}>
               <div className={style.sidebarHeaderContainer}>
-                <span className={style.sidebarHeader} hidden={!keystore.accounts.length}>
-                  {t('sidebar.accounts')} - {keystore.keystore.name} {keystore.keystore.connected ? '- CONNECTED' : null}
-                  { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
-                    // Disambiguate accounts group by adding the fingerprint.
-                    // The most common case where this would happen is when adding accounts from the
-                    // same seed using different passphrases.
-                    <> ({keystore.keystore.rootFingerprint})</>
-                  ) : null }
+                <span
+                  className={style.sidebarHeader}
+                  hidden={!keystore.accounts.length}>
+                  <span className="p-right-quarter">
+                    {`${keystore.keystore.name} `}
+                    { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                      // Disambiguate accounts group by adding the fingerprint.
+                      // The most common case where this would happen is when adding accounts from the
+                      // same seed using different passphrases.
+                      <> ({keystore.keystore.rootFingerprint})</>
+                    ) : null }
+                  </span>
+                  {keystore.keystore.connected ? (
+                    <Badge
+                      icon={props => <USBSuccess {...props} />}
+                      type="success"
+                      title={t('device.keystoreConnected')} />
+                  ) : null}
                 </span>
               </div>
 
               { keystore.accounts.map(acc => <GetAccountLink key={acc.code} {...acc} handleSidebarItemClick={this.handleSidebarItemClick }/>) }
-            </React.Fragment>))
-          }
+            </React.Fragment>
+          )) }
 
           <div className={[style.sidebarHeaderContainer, style.end].join(' ')}></div>
           { accounts.length ? (
