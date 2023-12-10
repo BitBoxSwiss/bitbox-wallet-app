@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { TPayload } from './utils/transport-common';
+
 export declare global {
     interface Window {
         qt?: { webChannelTransport: unknown; };
@@ -21,6 +23,6 @@ export declare global {
             call: (queryID: number, query: string) => void;
         }
         onAndroidCallResponse?: (queryID: number, response: string) => void;
-        onAndroidPushNotification?: (msg: string) => void;
+        onAndroidPushNotification?: (msg: TPayload) => void;
     }
 }
