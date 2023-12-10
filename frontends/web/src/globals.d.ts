@@ -22,7 +22,7 @@ export declare global {
         android?: {
             call: (queryID: number, query: string) => void;
         }
-        onAndroidCallResponse?: (queryID: number, response: string) => void;
+        onAndroidCallResponse?: (queryID: number, response: unknown) => void;
         onAndroidPushNotification?: (msg: TPayload) => void;
     }
 }

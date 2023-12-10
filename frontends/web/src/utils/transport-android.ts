@@ -22,13 +22,13 @@ let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
 const currentListeners: TMsgCallback[] = [];
 
-export function androidCall(query: string) {
+export function androidCall(query: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     if (runningInAndroid()) {
       if (typeof window.onAndroidCallResponse === 'undefined') {
         window.onAndroidCallResponse = (
           queryID: number,
-          response: string,
+          response: unknown,
         ) => {
           queryPromises[queryID].resolve(response);
           delete queryPromises[queryID];
