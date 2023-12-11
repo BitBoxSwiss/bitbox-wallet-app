@@ -39,6 +39,7 @@ import { route } from '../../../utils/route';
 import { UnsubscribeList, unsubscribe } from '../../../utils/subscriptions';
 import { ConfirmingWaitDialog } from './components/dialogs/confirm-wait-dialog';
 import { SendGuide } from './send-guide';
+import { TProposalError, txProposalErrorHandling } from './services';
 import { MessageWaitDialog } from './components/dialogs/message-wait-dialog';
 import { ReceiverAddressInput } from './components/inputs/receiver-address-input';
 import { CoinInput } from './components/inputs/coin-input';
@@ -60,7 +61,7 @@ interface SignProgress {
 
 type Props = SendProps & TranslateProps;
 
-interface State {
+export interface State {
     account?: accountApi.IAccount;
     balance?: accountApi.IBalance;
     proposedFee?: accountApi.IAmount;
@@ -78,9 +79,9 @@ interface State {
     isSent: boolean;
     isAborted: boolean;
     isUpdatingProposal: boolean;
-    addressError?: string;
-    amountError?: string;
-    feeError?: string;
+    addressError?: TProposalError['addressError'];
+    amountError?: TProposalError['amountError'];
+    feeError?: TProposalError['feeError'];
     paired?: boolean;
     noMobileChannelError?: boolean;
     signProgress?: SignProgress;
@@ -338,33 +339,9 @@ class Send extends Component<Props, State> {
       if (updateFiat) {
         this.convertToFiat(result.amount.amount);
       }
-    } else {
-      const errorCode = result.errorCode;
-      switch (errorCode) {
-      case 'invalidAddress':
-        this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-        break;
-      case 'invalidAmount':
-      case 'insufficientFunds':
-        this.setState({
-          amountError: this.props.t(`send.error.${errorCode}`),
-          proposedFee: undefined,
-        });
-        break;
-      case 'feeTooLow':
-        this.setState({ feeError: this.props.t('send.error.feeTooLow') });
-        break;
-      case 'feesNotAvailable':
-        this.setState({ feeError: this.props.t('send.error.feesNotAvailable') });
-        break;
-      default:
-        this.setState({ proposedFee: undefined });
-        if (errorCode) {
-          this.unregisterEvents();
-          alertUser(errorCode, { callback: this.registerEvents });
-        }
-      }
-      this.setState({ isUpdatingProposal: false });
+    } else if (result.errorCode) {
+      const errorHandling = txProposalErrorHandling(this.registerEvents, this.unregisterEvents, result.errorCode);
+      this.setState({ ...errorHandling, isUpdatingProposal: false });
     }
   };
 
