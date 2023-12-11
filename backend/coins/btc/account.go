@@ -29,6 +29,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/types"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitsurance"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
@@ -692,10 +693,16 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 	}
 	account.Synchronizer.WaitSynchronized()
 	account.log.Debug("Get unused receive address")
-	addresses := make([]accounts.AddressList, len(account.subaccounts))
-	for subaccIdx, subacc := range account.subaccounts {
+	var addresses []accounts.AddressList
+	for _, subacc := range account.subaccounts {
 		scriptType := subacc.signingConfiguration.ScriptType()
-		addresses[subaccIdx].ScriptType = &scriptType
+		if account.Config().Config.InsuranceStatus == string(bitsurance.ActiveStatus) && scriptType != signing.ScriptTypeP2WPKH {
+			// Insured accounts can only receive on native segwit
+			continue
+		}
+
+		var addressList accounts.AddressList
+		addressList.ScriptType = &scriptType
 		unusedAddresses, err := subacc.receiveAddresses.GetUnused()
 		if err != nil {
 			// TODO
@@ -707,9 +714,9 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.AddressList {
 				// scanning.
 				break
 			}
-
-			addresses[subaccIdx].Addresses = append(addresses[subaccIdx].Addresses, address)
+			addressList.Addresses = append(addressList.Addresses, address)
 		}
+		addresses = append(addresses, addressList)
 	}
 	return addresses
 }
