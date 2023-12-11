@@ -214,7 +214,7 @@ class Sidebar extends Component<Props> {
             accountsByKeystore.map(keystore => (<React.Fragment key={keystore.keystore.rootFingerprint}>
               <div className={style.sidebarHeaderContainer}>
                 <span className={style.sidebarHeader} hidden={!keystore.accounts.length}>
-                  {t('sidebar.accounts')} - {keystore.keystore.name}
+                  {t('sidebar.accounts')} - {keystore.keystore.name} {keystore.keystore.connected ? '- CONNECTED' : null}
                   { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
                     // Disambiguate accounts group by adding the fingerprint.
                     // The most common case where this would happen is when adding accounts from the

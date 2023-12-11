@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -355,11 +356,16 @@ type activeToken struct {
 	AccountCode accountsTypes.Code `json:"accountCode"`
 }
 
+type keystoreJSON struct {
+	config.Keystore
+	Connected bool `json:"connected"`
+}
+
 type accountJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
 	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
 	// keystore.
-	Keystore              config.Keystore    `json:"keystore"`
+	Keystore              keystoreJSON       `json:"keystore"`
 	Active                bool               `json:"active"`
 	Watch                 bool               `json:"watch"`
 	CoinCode              coinpkg.Code       `json:"coinCode"`
@@ -372,12 +378,19 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(keystore config.Keystore, account accounts.Interface, activeTokens []activeToken) *accountJSON {
+func newAccountJSON(
+	keystore config.Keystore,
+	account accounts.Interface,
+	activeTokens []activeToken,
+	keystoreConnected bool) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	watch := account.Config().Config.Watch
 	return &accountJSON{
-		Keystore:              keystore,
+		Keystore: keystoreJSON{
+			Keystore:  keystore,
+			Connected: keystoreConnected,
+		},
 		Active:                !account.Config().Config.Inactive,
 		Watch:                 watch != nil && *watch,
 		CoinCode:              account.Coin().Code(),
@@ -591,7 +604,17 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 			continue
 		}
 
-		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens))
+		keystoreConnected := false
+		if connectedKeystore := handlers.backend.Keystore(); connectedKeystore != nil {
+			connectedKeystoreRootFingerprint, err := connectedKeystore.RootFingerprint()
+			if err != nil {
+				handlers.log.WithError(err).Error("Could not retrieve rootFingerprint")
+			} else {
+				keystoreConnected = bytes.Equal(rootFingerprint, connectedKeystoreRootFingerprint)
+			}
+		}
+
+		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens, keystoreConnected))
 	}
 	return accounts
 }
