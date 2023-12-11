@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { describe, expect, it, vi } from 'vitest';
+import { useContext } from 'react';
+import { Mock, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { IBalance } from '../../api/account';
 import I18NWrapper from '../../i18n/forTests/i18nwrapper';
@@ -24,8 +24,15 @@ vi.mock('../../utils/request', () => ({
   apiGet: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock('react', () => ({
+  ...vi.importActual('react'),
+  useContext: vi.fn(),
+  createContext: vi.fn()
+}));
+
 describe('components/balance/balance', () => {
   it('renders balance properly', () => {
+    (useContext as Mock).mockReturnValue({ btcUnit: 'default', defaultCurrency: 'USD' });
     const MOCK_BALANCE: IBalance = {
       hasAvailable: true,
       hasIncoming: true,
@@ -60,7 +67,7 @@ describe('components/balance/balance', () => {
       }
     };
     const { getByTestId } = render(<Balance balance={MOCK_BALANCE} />, { wrapper: I18NWrapper });
-    expect(getByTestId('availableBalance')).toHaveTextContent('0.005BTC');
-    expect(getByTestId('incomingBalance').textContent).toContain('+0.003 BTC / 512');
+    expect(getByTestId('availableBalance').textContent).toBe('0.005BTC');
+    expect(getByTestId('incomingBalance').textContent).toBe('+0.003 BTC / 512 USD');
   });
 });

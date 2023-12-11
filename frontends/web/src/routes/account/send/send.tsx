@@ -27,7 +27,6 @@ import { Balance } from '../../../components/balance/balance';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
 import { Button, ButtonLink } from '../../../components/forms';
 import { Column, ColumnButtons, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../../components/layout';
-import { store as fiat } from '../../../components/rates/rates';
 import { Status } from '../../../components/status/status';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -51,6 +50,7 @@ interface SendProps {
     code: string;
     devices: TDevices;
     deviceIDs: string[];
+    activeCurrency: accountApi.Fiat;
 }
 
 interface SignProgress {
@@ -115,7 +115,7 @@ class Send extends Component<Props, State> {
     isAborted: false,
     isUpdatingProposal: false,
     noMobileChannelError: false,
-    fiatUnit: fiat.state.active,
+    fiatUnit: this.props.activeCurrency,
     coinControl: false,
     btcUnit : 'default',
     activeCoinControl: false,
