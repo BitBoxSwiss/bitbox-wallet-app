@@ -19,12 +19,17 @@ import { useTranslation } from 'react-i18next';
 import { Toggle } from '../../../../components/toggle/toggle';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import * as backendAPI from '../../../../api/backend';
+import * as accountAPI from '../../../../api/account';
 import { useLoad } from '../../../../hooks/api';
 import { getConfig } from '../../../../utils/config';
 import { Dialog, DialogButtons } from '../../../../components/dialog/dialog';
 import { Button } from '../../../../components/forms';
 
-export const WatchonlySetting = () => {
+type Props = {
+  keystore: accountAPI.TKeystore;
+}
+
+export const WatchonlySetting = ({ keystore }: Props) => {
   const { t } = useTranslation();
   const [disabled, setDisabled] = useState<boolean>(false);
   const [watchonly, setWatchonly] = useState<boolean>();
@@ -33,14 +38,14 @@ export const WatchonlySetting = () => {
 
   useEffect(() => {
     if (config) {
-      setWatchonly(config.backend.watchonly);
+      setWatchonly(keystore.watchonly);
     }
-  }, [config]);
+  }, [config, keystore]);
 
   const toggleWatchonly = async () => {
     if (!watchonly) {
       setDisabled(true);
-      const { success } = await backendAPI.setWatchonly(!watchonly);
+      const { success } = await backendAPI.setWatchonly(keystore.rootFingerprint, !watchonly);
 
       if (success) {
         setWatchonly(!watchonly);
@@ -61,7 +66,7 @@ export const WatchonlySetting = () => {
 
   const handleConfirmDisableWatchonly = async () => {
     setDisabled(true);
-    await backendAPI.setWatchonly(false);
+    await backendAPI.setWatchonly(keystore.rootFingerprint, false);
     setWatchonly(false);
     setDisabled(false);
     setWarningDialogOpen(false);

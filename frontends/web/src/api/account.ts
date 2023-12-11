@@ -42,6 +42,7 @@ export interface IActiveToken {
 }
 
 export type TKeystore = {
+  watchonly: boolean;
   rootFingerprint: string;
   name: string;
 };
