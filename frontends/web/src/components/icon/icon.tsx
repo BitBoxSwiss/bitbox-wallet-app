@@ -36,6 +36,7 @@ import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import editSVG from './assets/icons/edit.svg';
 import editLightSVG from './assets/icons/edit-light.svg';
+import editActiveSVG from './assets/icons/edit-active.svg';
 import ethColorSVG from './assets//eth-color.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import copySVG from './assets/icons/copy.svg';
@@ -157,6 +158,7 @@ export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} dragg
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
 export const Edit = (props: ImgProps) => (<img src={editSVG} draggable={false} {...props} />);
 export const EditLight = (props: ImgProps) => (<img src={editLightSVG} draggable={false} {...props} />);
+export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);

@@ -1111,6 +1111,10 @@
         "description": "Select your default currency",
         "title": "Default currency"
       },
+      "enableWallet": {
+        "description": "Disabling your account means it will not appear in the sidebar or the portfolio. You can always enable it again from here. Coins on this account will not be affected and will remain safe.",
+        "title": "Enable/disable wallet"
+      },
       "hideAmounts": {
         "description": "Displays a toggle to hide your balance and amounts to improve your privacy when using the app in public.",
         "hideAmounts": "Hide amounts",
@@ -1121,14 +1125,13 @@
         "description": "Which language you want the BitBoxApp to use.",
         "title": "Language"
       },
+      "remebmerWallet": {
+        "name": "Remember wallet",
+        "warning": "This will remove your remembered wallet. To see it again, you will need to plug in the BitBox02 for this wallet. Any coins on this wallet are not affected. Do you want to continue?",
+        "warningTitle": "Disable remember wallet"
+      },
       "toggleSats": {
         "description": "Enable or disable Satoshis."
-      },
-      "watchonly": {
-        "description": "Let's you see your accounts and portfolio without the BitBox02. The BitBox02 is still needed for signing.",
-        "title": "Watch-only",
-        "warning": "This will remove all your watch-only accounts. To see them again, you will need to plug in your BitBox02. Do you want to continue?",
-        "warningTitle": "Disable watch-only"
       }
     }
   },

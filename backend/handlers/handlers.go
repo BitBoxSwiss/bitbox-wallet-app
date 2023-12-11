@@ -97,7 +97,8 @@ type Backend interface {
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
-	AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
+	// disabling for now, we'll either bring this back (if user request it) or remove for good
+	// AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
@@ -213,7 +214,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
+	// disabling for now, we'll either bring this back (if user request it) or remove for good
+	// getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
@@ -800,6 +802,8 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 	return response{Success: true}
 }
 
+// disabling for now, we'll either bring this back (if user request it) or remove for good
+/*
 func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
@@ -823,6 +827,7 @@ func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{
 	}
 	return response{Success: true}
 }
+*/
 
 func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) interface{} {
 	handlers.backend.ReinitializeAccounts()
