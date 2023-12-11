@@ -753,6 +753,10 @@
         "text": "Your wallet can manage multiple accounts of the same coin. Accounts are helpful when you want to keep funds separate.",
         "title": "What are accounts?"
       },
+      "whatIsRememberWallet": {
+        "text": "Enabling “Remember wallet” lets you see the accounts for this wallet in the BitBoxApp even when the BitBox02 is not plugged in. This allows you to check your balance and portfolio whenever you want. The BitBox02 still needs to be plugged in and unlocked to send or receive coins.\n\nDisabling “Remember wallet” requires you to plug in the respective BitBox02 (or passphrase wallet) to see those accounts in the BitBoxApp.",
+        "title": "What happens when I enable/disable “Remember wallet”?"
+      },
       "whyIsThisUseful": {
         "text": "Accounts are great for managing funds for different people or purposes because they are separated. You can also share the \"extended public key\" of an account without revealing anything about your other accounts. This allows you to repeatedly receive funds without reusing addresses, such as receiving your wage or regularly buying crypto.",
         "title": "Why is this useful?"
