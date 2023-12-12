@@ -139,7 +139,6 @@ class App extends Component<Props, State> {
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
-      || currentURL.startsWith('/passphrase')
     )) {
       route('/', true);
       return;

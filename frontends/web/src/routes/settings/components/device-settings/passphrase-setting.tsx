@@ -28,7 +28,7 @@ const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {
   const { t } = useTranslation();
   return (
     <SettingsItem
-      onClick={() => route(`/passphrase/${deviceID}`)}
+      onClick={() => route(`/settings/device-settings/passphrase/${deviceID}`)}
       settingName={t('deviceSettings.expert.passphrase.title')}
       secondaryText={t('deviceSettings.expert.passphrase.description')}
       displayedValue={ passphraseEnabled

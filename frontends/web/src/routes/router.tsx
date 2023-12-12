@@ -192,7 +192,6 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="pocket/:code" element={PocketEl} />
         <Route path="exchange/:code" element={ExchangeEl} />
       </Route>
-      <Route path="passphrase/:deviceID" element={PassphraseEl} />
       <Route path="manage-backups/:deviceID" element={ManageBackupsEl} />
       <Route path="accounts/select-receive" element={ReceiveAccountsSelectorEl} />
       <Route path="settings">
@@ -200,6 +199,7 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="appearance" element={AppearanceEl} />
         <Route path="about" element={AboutEl} />
         <Route path="device-settings/:deviceID" element={Device} />
+        <Route path="device-settings/passphrase/:deviceID" element={PassphraseEl} />
         <Route path="advanced-settings" element={AdvancedSettingsEl} />
         <Route path="electrum" element={<ElectrumSettings />} />
         <Route path="manage-accounts" element={
