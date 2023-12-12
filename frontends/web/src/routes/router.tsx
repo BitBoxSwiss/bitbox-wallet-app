@@ -202,7 +202,13 @@ export const AppRouter = ({ devices, deviceIDs, devicesKey, accounts, activeAcco
         <Route path="device-settings/:deviceID" element={Device} />
         <Route path="advanced-settings" element={AdvancedSettingsEl} />
         <Route path="electrum" element={<ElectrumSettings />} />
-        <Route path="manage-accounts" element={<ManageAccounts key={'manage-accounts'} deviceIDs={deviceIDs} hasAccounts={hasAccounts}/>} />
+        <Route path="manage-accounts" element={
+          <ManageAccounts
+            accounts={accounts}
+            key="manage-accounts"
+            deviceIDs={deviceIDs}
+            hasAccounts={hasAccounts} />
+        } />
       </Route>
     </Route>
   </Routes>;
