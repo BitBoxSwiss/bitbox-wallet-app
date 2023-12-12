@@ -269,6 +269,18 @@ func (account *Account) TxProposal(
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
+	for _, addresses := range account.GetUnusedReceiveAddresses() {
+		for _, address := range addresses.Addresses {
+			if address.EncodeForHumans() == args.RecipientAddress {
+				ownAddress := maketx.OwnedAddress{
+					Address:    address,
+					ScriptType: *addresses.ScriptType,
+				}
+				txProposal.OurOutAddresses = append(txProposal.OurOutAddresses, ownAddress)
+			}
+		}
+	}
+
 	account.activeTxProposal = txProposal
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")

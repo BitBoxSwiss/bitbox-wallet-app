@@ -403,21 +403,45 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		)
 		var keypath []uint32
 		var scriptConfigIndex int
+
+		getScriptConfigIndex := func(scriptType signing.ScriptType, keypath []uint32) (int, error) {
+			msgScriptType, ok := btcMsgScriptTypeMap[scriptType]
+			if !ok {
+				return 0, errp.Newf("Unsupported script type %s", scriptType)
+			}
+			return addScriptConfig(&messages.BTCScriptConfigWithKeypath{
+				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
+				Keypath:      keypath,
+			}), nil
+		}
+
 		if isChange {
 			keypath = changeAddress.Configuration.AbsoluteKeypath().ToUInt32()
 			accountConfiguration := changeAddress.AccountConfiguration
-			msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
-			if !ok {
-				return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
+			scriptConfigIndex, err = getScriptConfigIndex(accountConfiguration.ScriptType(), keypath)
+			if err != nil {
+				return err
 			}
-			scriptConfigIndex = addScriptConfig(&messages.BTCScriptConfigWithKeypath{
-				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
-				Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
-			})
-
 		}
+
+		ours := false
+		if keystore.device.Version().AtLeast(semver.NewSemVer(9, 15, 0)) {
+			// owned address handling during signing is only available from v9.15.0
+			for _, ownAddress := range btcProposedTx.TXProposal.OurOutAddresses {
+				if ownAddress.Address.EncodeForHumans() == address.EncodeAddress() {
+					ours = true
+					keypath = ownAddress.Address.AbsoluteKeypath().ToUInt32()
+					scriptConfigIndex, err = getScriptConfigIndex(ownAddress.ScriptType, keypath)
+					if err != nil {
+						return err
+					}
+					break
+				}
+			}
+		}
+
 		outputs[index] = &messages.BTCSignOutputRequest{
-			Ours:              isChange,
+			Ours:              ours || isChange,
 			Type:              msgOutputType,
 			Value:             uint64(txOut.Value),
 			Payload:           address.ScriptAddress(),

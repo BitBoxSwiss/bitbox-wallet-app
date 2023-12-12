@@ -21,6 +21,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil/txsort"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
@@ -38,6 +39,14 @@ func (p PreviousOutputs) FetchPrevOutput(op wire.OutPoint) *wire.TxOut {
 	return p[op].TxOut
 }
 
+// OwnedAddress represents an address owned by one of the keystore's accounts.
+type OwnedAddress struct {
+	// Address is the owned address.
+	Address accounts.Address
+	// ScriptType is the script type of the address.
+	ScriptType signing.ScriptType
+}
+
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
 	// Coin is the coin this tx was made for.
@@ -50,6 +59,9 @@ type TxProposal struct {
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
 	ChangeAddress   *addresses.AccountAddress
 	PreviousOutputs PreviousOutputs
+	// OurOutAddresses is the list of recipient addresses which are owned by the sender account,
+	// i.e. related to send-to-self transactions.
+	OurOutAddresses []OwnedAddress
 }
 
 // Total is amount+fee.
