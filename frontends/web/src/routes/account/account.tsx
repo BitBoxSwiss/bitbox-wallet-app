@@ -107,8 +107,8 @@ export function Account({
         checkUncoveredUTXOs();
         return;
       }
-      setInsured(false);
     }
+    setInsured(false);
   }, [t, account, code, checkUncoveredUTXOs]);
 
   useEffect(() => {
