@@ -36,6 +36,7 @@ import { WatchonlySetting } from './components/manage-accounts/watchonlySetting'
 import style from './manage-accounts.module.css';
 
 interface ManageAccountsProps {
+  accounts: accountAPI.IAccount[];
   deviceIDs: string[];
   hasAccounts: boolean;
 }
@@ -48,7 +49,6 @@ type TShowTokens = {
 
 interface State {
   editErrorMessage?: string;
-  accounts: accountAPI.IAccount[];
   showTokens: TShowTokens;
   currentlyEditedAccount?: accountAPI.IAccount;
 }
@@ -56,18 +56,9 @@ interface State {
 class ManageAccounts extends Component<Props, State> {
   public readonly state: State = {
     editErrorMessage: undefined,
-    accounts: [],
     showTokens: {},
     currentlyEditedAccount: undefined,
   };
-
-  private fetchAccounts = () => {
-    return accountAPI.getAccounts().then(accounts => this.setState({ accounts }));
-  };
-
-  public componentDidMount() {
-    this.fetchAccounts();
-  }
 
   private renderAccounts = (accounts: accountAPI.IAccount[]) => {
     const { showTokens } = this.state;
@@ -155,9 +146,7 @@ class ManageAccounts extends Component<Props, State> {
 
   private toggleAccount = (accountCode: string, active: boolean) => {
     return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
-      if (success) {
-        return this.fetchAccounts();
-      } else if (errorMessage) {
+      if (!success && errorMessage) {
         alertUser(errorMessage);
       }
     });
@@ -166,9 +155,7 @@ class ManageAccounts extends Component<Props, State> {
   // disabling for now, we'll either bring this back (if user request it) or remove for good
   // private setWatch = async (accountCode: string, watch: boolean) => {
   //   const result = await backendAPI.accountSetWatch(accountCode, watch);
-  //   if (result.success) {
-  //     await this.fetchAccounts();
-  //   } else if (result.errorMessage) {
+  //   if (!result.success && result.errorMessage) {
   //     alertUser(result.errorMessage);
   //   }
   // };
@@ -226,9 +213,7 @@ class ManageAccounts extends Component<Props, State> {
 
   private toggleToken = (ethAccountCode: string, tokenCode: string, active: boolean) => {
     backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
-      if (success) {
-        this.fetchAccounts();
-      } else if (errorMessage) {
+      if (!success && errorMessage) {
         alertUser(errorMessage);
       }
     });
@@ -236,7 +221,8 @@ class ManageAccounts extends Component<Props, State> {
 
   private updateAccount = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    const { accounts, currentlyEditedAccount } = this.state;
+    const { accounts } = this.props;
+    const { currentlyEditedAccount } = this.state;
 
     if (!currentlyEditedAccount) {
       return;
@@ -256,7 +242,6 @@ class ManageAccounts extends Component<Props, State> {
         if (currentlyEditedAccount.active !== account?.active) {
           this.toggleAccount(currentlyEditedAccount.code, currentlyEditedAccount.active);
         }
-        this.fetchAccounts();
         this.setState({
           editErrorMessage: undefined,
           currentlyEditedAccount: undefined,
@@ -265,8 +250,8 @@ class ManageAccounts extends Component<Props, State> {
   };
 
   public render() {
-    const { t, deviceIDs, hasAccounts } = this.props;
-    const { accounts, editErrorMessage, currentlyEditedAccount } = this.state;
+    const { t, accounts, deviceIDs, hasAccounts } = this.props;
+    const { editErrorMessage, currentlyEditedAccount } = this.state;
     const accountsByKeystore = getAccountsByKeystore(accounts);
     return (
       <GuideWrapper>
@@ -358,7 +343,6 @@ class ManageAccounts extends Component<Props, State> {
         </GuidedContent>
         <AccountGuide />
       </GuideWrapper>
-
     );
   }
 }
