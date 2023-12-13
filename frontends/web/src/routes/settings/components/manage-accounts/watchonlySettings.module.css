@@ -1,6 +1,12 @@
+.label {
+  white-space: nowrap;
+}
+
 .labelText {
+  display: inline-block;
   font-size: 14px;
   line-height: 1;
   margin-right: 8px;
+  padding-left: var(--space-quarter);
   vertical-align: sub;
 }
