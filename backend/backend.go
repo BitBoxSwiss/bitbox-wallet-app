@@ -920,7 +920,7 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 	return backend.AccountSetWatch(
 		func(account *config.Account) bool {
 			// Apply to each currently loaded account.
-			return accounts.lookup(account.Code) != nil
+			return !account.HiddenBecauseUnused && accounts.lookup(account.Code) != nil
 		},
 		&t,
 	)
