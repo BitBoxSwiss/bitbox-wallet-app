@@ -1523,4 +1523,48 @@ func TestWatchonly(t *testing.T) {
 		checkShownAccountsLen(t, b, 3, 6)
 	})
 
+	// Adding new accounts after the keytore has been connected: new account is watched if the
+	// keystore is already watched.
+	t.Run("", func(t *testing.T) {
+		b := newBackend(t, testnetDisabled, regtestDisabled)
+		defer b.Close()
+
+		ks := makeBitBox02Multi()
+
+		rootFingerprint, err := ks.RootFingerprint()
+		require.NoError(t, err)
+
+		b.registerKeystore(ks)
+		checkShownAccountsLen(t, b, 3, 3)
+		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
+
+		// An account may already have been added as part of autodiscover, so we add two.
+		newAccountCode1, err := b.CreateAndPersistAccountConfig(
+			coinpkg.CodeBTC,
+			"Bitcoin account name",
+			ks,
+		)
+		require.NoError(t, err)
+		require.Equal(t, accountsTypes.Code("v0-55555555-btc-1"), newAccountCode1)
+
+		expectedNewAccountCode2 := accountsTypes.Code("v0-55555555-btc-2")
+		// Make sure the account to be added has not been added yet (autodiscover), so we know we
+		// are testing the correct setting of the Watch flag when a new account is persisted.
+		require.Nil(t, b.Config().AccountsConfig().Lookup(expectedNewAccountCode2))
+
+		newAccountCode2, err := b.CreateAndPersistAccountConfig(
+			coinpkg.CodeBTC,
+			"Bitcoin account name 2",
+			ks,
+		)
+		require.NoError(t, err)
+		require.Equal(t, expectedNewAccountCode2, newAccountCode2)
+
+		require.NoError(t, err)
+
+		b.DeregisterKeystore()
+
+		// Accounts, including the newly added ones, remain loaded.
+		checkShownAccountsLen(t, b, 5, 5)
+	})
 }
