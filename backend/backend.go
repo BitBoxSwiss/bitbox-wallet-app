@@ -640,7 +640,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(keystore, accountsConfig)
+			return backend.updatePersistedAccounts(keystore, accounts)
 		}
 		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
 	})

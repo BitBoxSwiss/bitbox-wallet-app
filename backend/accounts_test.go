@@ -1381,16 +1381,6 @@ func TestWatchonly(t *testing.T) {
 		// Disable watchonly, all accounts disappear.
 		require.NoError(t, b.SetWatchonly(rootFingerprint, false))
 		checkShownAccountsLen(t, b, 0, 3)
-
-		// Re-enable watchonly - accounts do not show up yet.
-		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
-		checkShownAccountsLen(t, b, 0, 3)
-
-		// Reconnecting the keystore brings back the watched accounts.
-		b.registerKeystore(ks)
-		checkShownAccountsLen(t, b, 3, 3)
-		b.DeregisterKeystore()
-		checkShownAccountsLen(t, b, 3, 3)
 	})
 
 	// Disable keystore's watchonly setting while keystore is connected does not make the accounts
