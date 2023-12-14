@@ -82,7 +82,7 @@ export const WatchonlySetting = ({ keystore }: Props) => {
         </DialogButtons>
       </Dialog>
       { watchonly !== undefined ? (
-        <Label>
+        <Label className={style.label}>
           <span className={style.labelText}>
             {t('newSettings.appearance.remebmerWallet.name')}
           </span>
