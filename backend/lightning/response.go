@@ -375,25 +375,42 @@ func toSendPaymentResponseDto(sendPaymentResponse breez_sdk.SendPaymentResponse)
 	}, nil
 }
 
-func toSuccessActionProcessedDto(successActionProcessed *breez_sdk.SuccessActionProcessed) (*typeDataDto, error) {
+func toSuccessActionProcessedDto(successActionProcessed *breez_sdk.SuccessActionProcessed) (interface{}, error) {
 	if successActionProcessed != nil {
-		switch typed := (*successActionProcessed).(type) {
+		switch successActionType := (*successActionProcessed).(type) {
 		case breez_sdk.SuccessActionProcessedAes:
-			return &typeDataDto{Type: "aes", Data: aesSuccessActionDataDecryptedDto{
-				Description: typed.Data.Description,
-				Plaintext:   typed.Data.Plaintext,
-			}}, nil
+			switch resultType := successActionType.Result.(type) {
+			case breez_sdk.AesSuccessActionDataResultDecrypted:
+				return &aesSuccessActionResultDto{
+					Type: "aes", 
+					Result: typeDataDto{
+						Type: "decrypted", 
+						Data: aesSuccessActionDataDecryptedDto{
+							Description: resultType.Data.Description,
+							Plaintext:   resultType.Data.Plaintext,
+						},
+					},
+				}, nil
+			case breez_sdk.AesSuccessActionDataResultErrorStatus:
+				return &aesSuccessActionResultDto{
+					Type: "aes", 
+					Result: aesSuccessActionResultErrorDto{
+						Type: "errorStatus", 
+						Reason: resultType.Reason,
+					},
+				}, nil
+			}
 		case breez_sdk.SuccessActionProcessedMessage:
 			return &typeDataDto{Type: "message", Data: messageSuccessActionDataDto{
-				Message: typed.Data.Message,
+				Message: successActionType.Data.Message,
 			}}, nil
 		case breez_sdk.SuccessActionProcessedUrl:
 			return &typeDataDto{Type: "url", Data: urlSuccessActionDataDecryptedDto{
-				Description: typed.Data.Description,
-				Url:         typed.Data.Url,
+				Description: successActionType.Data.Description,
+				Url:         successActionType.Data.Url,
 			}}, nil
 		}
-		return &typeDataDto{}, errp.New("Invalid SuccessActionProcessed")
+		return nil, errp.New("Invalid SuccessActionProcessed")
 	}
 	return nil, nil
 }

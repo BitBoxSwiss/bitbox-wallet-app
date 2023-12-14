@@ -1,5 +1,15 @@
 package lightning
 
+type aesSuccessActionResultDto struct {
+	Type   string      `json:"type"`
+	Result interface{} `json:"result"`
+}
+
+type aesSuccessActionResultErrorDto struct {
+	Type   string `json:"type"`
+	Reason string `json:"reason"`
+}
+
 type aesSuccessActionDataDecryptedDto struct {
 	Description string `json:"description"`
 	Plaintext   string `json:"plaintext"`
@@ -60,16 +70,16 @@ type lnInvoiceDto struct {
 }
 
 type lnPaymentDetailsDto struct {
-	PaymentHash           string       `json:"paymentHash"`
-	Label                 string       `json:"label"`
-	DestinationPubkey     string       `json:"destinationPubkey"`
-	PaymentPreimage       string       `json:"paymentPreimage"`
-	Keysend               bool         `json:"keysend"`
-	Bolt11                string       `json:"bolt11"`
-	LnurlSuccessAction    *typeDataDto `json:"lnurlSuccessAction"`
-	LnurlMetadata         *string      `json:"lnurlMetadata"`
-	LnAddress             *string      `json:"lnAddress"`
-	LnurlWithdrawEndpoint *string      `json:"lnurlWithdrawEndpoint"`
+	PaymentHash           string      `json:"paymentHash"`
+	Label                 string      `json:"label"`
+	DestinationPubkey     string      `json:"destinationPubkey"`
+	PaymentPreimage       string      `json:"paymentPreimage"`
+	Keysend               bool        `json:"keysend"`
+	Bolt11                string      `json:"bolt11"`
+	LnurlSuccessAction    interface{} `json:"lnurlSuccessAction"`
+	LnurlMetadata         *string     `json:"lnurlMetadata"`
+	LnAddress             *string     `json:"lnAddress"`
+	LnurlWithdrawEndpoint *string     `json:"lnurlWithdrawEndpoint"`
 }
 
 type lnUrlAuthRequestDataDto struct {

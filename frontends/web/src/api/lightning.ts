@@ -125,10 +125,12 @@ export type GreenlightNodeConfig = {
 export type InvoicePaidDetails = {
   paymentHash: string;
   bolt11: string;
+  payment?: Payment;
 };
 
 export type LnInvoice = {
   bolt11: string;
+  network: Network;
   payeePubkey: string;
   paymentHash: string;
   description?: string;
@@ -166,9 +168,9 @@ export type LnPaymentDetails = {
 
 export type LnUrlAuthRequestData = {
   k1: string;
-  action?: string;
   domain: string;
   url: string;
+  action?: string;
 };
 
 export type LnUrlErrorData = {
@@ -331,7 +333,7 @@ export type PrepareRefundResponse = {
 
 export type PrepareSweepRequest = {
   toAddress: string;
-  satsPerVbyte: number;
+  satPerVbyte: number;
 };
 
 export type PrepareSweepResponse = {
@@ -380,6 +382,11 @@ export type RefundRequest = {
 
 export type RefundResponse = {
   refundTxId: string;
+};
+
+export type ReportPaymentFailureDetails = {
+  paymentHash: string;
+  comment?: string;
 };
 
 export type ReverseSwapFeesRequest = {
@@ -444,6 +451,10 @@ export type SendSpontaneousPaymentRequest = {
   amountMsat: number;
 };
 
+export type ServiceHealthCheckResponse = {
+  status: HealthCheckStatus;
+};
+
 export type SignMessageRequest = {
   message: string;
 };
@@ -486,7 +497,7 @@ export type SwapInfo = {
 
 export type SweepRequest = {
   toAddress: string;
-  feeRateSatsPerVbyte: number;
+  satPerVbyte: number;
 };
 
 export type SweepResponse = {
@@ -512,6 +523,21 @@ export type UrlSuccessActionData = {
   description: string;
   url: string;
 };
+
+export enum AesSuccessActionDataResultVariant {
+  DECRYPTED = 'decrypted',
+  ERROR_STATUS = 'errorStatus'
+}
+
+export type AesSuccessActionDataResult =
+  | {
+      type: AesSuccessActionDataResultVariant.DECRYPTED;
+      data: AesSuccessActionDataDecrypted;
+    }
+  | {
+      type: AesSuccessActionDataResultVariant.ERROR_STATUS;
+      reason: string;
+    };
 
 export enum BreezEventVariant {
   NEW_BLOCK = 'newBlock',
@@ -575,6 +601,12 @@ export enum FeeratePreset {
   REGULAR = 'regular',
   ECONOMY = 'economy',
   PRIORITY = 'priority'
+}
+
+export enum HealthCheckStatus {
+  OPERATIONAL = 'operational',
+  MAINTENANCE = 'maintenance',
+  SERVICE_DISRUPTION = 'serviceDisruption'
 }
 
 export enum InputTypeVariant {
@@ -687,6 +719,15 @@ export type NodeConfig = {
   config: GreenlightNodeConfig;
 };
 
+export enum NodeCredentialsVariant {
+  GREENLIGHT = 'greenlight'
+}
+
+export type NodeCredentials = {
+  type: NodeCredentialsVariant.GREENLIGHT;
+  credentials: GreenlightCredentials;
+};
+
 export enum PaymentDetailsVariant {
   LN = 'ln',
   CLOSED_CHANNEL = 'closedChannel'
@@ -720,6 +761,15 @@ export enum PaymentTypeFilter {
   CLOSED_CHANNEL = 'closedChannel'
 }
 
+export enum ReportIssueRequestVariant {
+  PAYMENT_FAILURE = 'paymentFailure'
+}
+
+export type ReportIssueRequest = {
+  type: ReportIssueRequestVariant.PAYMENT_FAILURE;
+  data: ReportPaymentFailureDetails;
+};
+
 export enum ReverseSwapStatus {
   INITIAL = 'initial',
   IN_PROGRESS = 'inProgress',
@@ -737,7 +787,7 @@ export enum SuccessActionProcessedVariant {
 export type SuccessActionProcessed =
   | {
       type: SuccessActionProcessedVariant.AES;
-      data: AesSuccessActionDataDecrypted;
+      result: AesSuccessActionDataResult;
     }
   | {
       type: SuccessActionProcessedVariant.MESSAGE;
