@@ -1443,8 +1443,6 @@
   },
   "setup": "Apparaat instellen",
   "sidebar": {
-    "accounts": "",
-    "addAccount": "Account toevoegen",
     "buy": "Crypto kopen",
     "device": "Apparaat beheren",
     "leave": "Verlaten",

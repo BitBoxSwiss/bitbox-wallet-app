@@ -68,7 +68,7 @@
   "aopp": {
     "addressRequest": "{{host}} is requesting a receiving address.",
     "addressRequestWithLogo": "is requesting a receiving address",
-    "banner": "Address request in progress.",
+    "banner": "Address request in progress. Please connect your device to continue.",
     "errorTitle": "Error during address request ",
     "labelAddress": "Address",
     "labelMessage": "Message",
@@ -1005,7 +1005,7 @@
     },
     "walletConnect": {
       "noPreviousConnections": {
-        "text": "If you are using a new phone/computer with the BitBoxApp, then you will need to connect to the dapps again. You will then see your coins on the dapp again like usual.",
+        "text": "If you are using a new phone/computer with the BitBoxApp, then you will need to connect to the DApps again. You will then see your coins on the dapp again like usual.",
         "title": "I don't see my previous connections."
       },
       "supportedNetworks": {
@@ -1062,7 +1062,7 @@
   },
   "loading": "loading…",
   "manageAccounts": {
-    "accountHidden": "This account will now be hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
+    "accountHidden": "This account has been hidden from your watch-only accounts. To see it again, please plug in your BitBox02.",
     "editAccount": "Edit",
     "editAccountNameTitle": "Edit account name",
     "noAccounts": "no accounts found",

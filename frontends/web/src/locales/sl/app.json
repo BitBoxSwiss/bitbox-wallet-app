@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "Na voljo je nova verzija te aplikacije! Prosimo vas, da jo nadgradite iz verzije  {{current}} na {{version}}."
   },
+  "auth": {
+    "authButton": "Potrdi",
+    "title": "Za nadaljevanje potrdite"
+  },
   "backup": {
     "check": {
       "checking": "Preverjam varnostno kopijo...",
@@ -137,7 +141,8 @@
     },
     "showMnemonic": {
       "description": "Prikazano vam bo do 24 besed, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in jih ne fotografirajte.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
-      "title": "Prikaži seznam besed"
+      "title": "Prikaži seznam besed",
+      "warning": "<strong>Nikoli ne delite obnovitvenih besed z nikomer.</strong> Te besede omogočajo popoln dostop do vaše denarnice. Če vas kdo sprašuje po teh besedah, gre zelo verjetno za prevaro. Ne delite jih z neznanci!"
     },
     "title": "Upravljanje varnostnih kopij"
   },
@@ -262,6 +267,7 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Odstranite microSD kartico z naprave in jo shranite na varno mesto.",
+      "storeMnemonic": "Predlagamo, da shranite te obnovitvene besede na varno lokacijo",
       "success": "Uspešno ste ustvarili varnostno kopijo."
     },
     "stepInsertSD": {
@@ -465,6 +471,7 @@
   },
   "chart": {
     "dataMissing": "Še vedno pridobivamo informacije. Poskusite znova čez nekaj minut. Čiči pa čaki™",
+    "dataOldTimestamp": "Nalagamo tečaje. Graf ne prikazuje vrednosti po {{time}}.",
     "dataUpdating": "posodabljam...",
     "filter": {
       "all": "Vse",
@@ -484,6 +491,10 @@
     "infoWhenPaired": "Najprej na seznanjeni mobilni napravi in ​​nato na BitBoxu"
   },
   "confirmOnDevice": "Nadgradnjo potrdite na BitBox-u",
+  "connectKeystore": {
+    "promptNoName": "Za nadaljevanje priklopite BitBox02",
+    "promptWithName": "Za nadaljevanje priklopite vaš BitBox02 z imenom \"{{name}}\""
+  },
   "darkmode": {
     "toggle": "Temen način"
   },
@@ -504,7 +515,7 @@
         "description": "Prikaži in preveri varnostno kopijo na Micro SD kartici."
       },
       "showRecoveryWords": {
-        "description": "Prikaži in potrdi semenske besede"
+        "description": "Prikaži in potrdi semenske besede."
       },
       "title": "Varnostne kopije"
     },
@@ -515,6 +526,9 @@
       "deviceName": {
         "description": "Spremenite ime naprave"
       },
+      "rootFingerprint": {
+        "description": "Korenski prstni odtis je unikaten identifikator denarnice, ki je trenutno v uporabi. Če uporabljate frazemska gesla (passphrases), vam lahko pomaga pri razlikovanju med različnimi denarnicami."
+      },
       "securechip": {
         "description": "Model varnega čipa"
       },
@@ -522,7 +536,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Ponastavite napravo na tovarniške nastavitve. Ta postopek izbriše denarnico na BitBoxu!",
+        "description": "Ponastavite napravo na tovarniške nastavitve. Ta postopek izbriše denarnico na BitBoxu.",
         "title": "Tovarniška nastavitev"
       },
       "goToStartupSettings": {
@@ -600,7 +614,9 @@
     "aoppUnsupportedAsset": "Izbrano sredstvo ni podprto.",
     "aoppUnsupportedFormat": "Na voljo ni računov, ki podpirajo zahtevano obliko naslova.",
     "aoppUnsupportedKeystore": "Povezana naprava ne more podpisati sporočil za to sredstvo",
-    "aoppVersion": "Neznana različica"
+    "aoppVersion": "Neznana različica",
+    "wrongKeystore": "Priključena je napačna denarnica. Vstavite pravo napravo BitBox02, ki ustreza temu računu.",
+    "wrongKeystore2": "Če uporabljate frazemsko geslo (passphrase), se prepričajte, da ste ga pravilno vnesli za ta račun."
   },
   "fiat": {
     "default": "Privzeto",
@@ -981,6 +997,20 @@
         "text": "Podjetje Shift Crypto iz Švice se vam zahvaljuje, ker uporabljate BitBoxApp. \nVaše predloge za izboljšavo zelo cenimo in si jih želimo. Vaš odziv pričakujemo na povezavi na dnu.",
         "title": "Pozdravljeni v aplikaciji BitBox!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "Če uporabljate nov telefon ali računalnik z aplikacijo BitBoxApp, se boste morali ponovno povezati z DApps. Svoje kovance boste nato ponovno videli v izbranih DApp kot običajno.",
+        "title": "Mojih prejšnjih povezav ne vidim."
+      },
+      "supportedNetworks": {
+        "text": "V BitBoxApp je trenutno z WalletConnect podprto le Ethereum omrežje. Za uporabo drugih verig, združljivih z EVM, uporabite storitev Rabby v brskalniku (browser extension wallet).",
+        "title": "Katera omrežja so podprta?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect je komunikacijski protokol za web3 aplikacije. Omogoča vam priročno povezavo z decentraliziranimi avtonomnimi aplikacijami (DApps) in spletnimi denarnicami, ki temeljijo na Ethereumu, brez uporabe aplikacije tretje osebe. To je še posebej uporabno za uporabnike aplikacije BitBoxApp na Androidu.",
+        "title": "Kaj je WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1027,6 +1057,7 @@
   },
   "loading": "nalaganje…",
   "manageAccounts": {
+    "accountHidden": "Ta račun je bil skrit in ga ni več na seznamu opazovalnih računov. Če ga želite videti ponovno, priklopite vaš Bitbox02.",
     "editAccount": "Uredi",
     "editAccountNameTitle": "Uredi ime računa",
     "noAccounts": "ni računov",
@@ -1035,7 +1066,9 @@
       "showTokens": "Prikaži žetone ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Dodajaj in aktiviraj/deaktiviraj račune",
-    "title": "Upravljanje računov"
+    "title": "Upravljanje računov",
+    "watchAccount": "Opazovalni račun",
+    "watchAccountDescription": "Ta račun je del vaših opazovalnih računov. Z drsnikom ga lahko skrijete."
   },
   "mobile": {
     "usingMobileDataWarning": "Uporaba podatkov na mobilni napravi: ta aplikacija lahko po odklepanju računa naloži do nekaj sto megabajtov podatkov. Če želite preprečiti uporabo mobilnih podatkov, se povežite z Wi-Fi omrežjem. \nTo sporočilo ne bo več prikazano, če ga ugasnete."
@@ -1047,6 +1080,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Prepreči dostop do aplikacije z zaklepom zaslona.",
+        "title": "Zaklep zaslona"
+      },
       "coinControl": {
         "description": "Za večjo stopnnjo zasebnosti izberite kateri UTXO naj bo del transakcije."
       },
@@ -1068,6 +1105,12 @@
       "defaultCurrency": {
         "description": "Izberite privzeto valuto",
         "title": "Privzeta valuta"
+      },
+      "hideAmounts": {
+        "description": "Prikaže preklopnik za skrivanje stanja in zneskov, za vašo večjo zasebnost, ko aplikacijo uporabljate na javnem mestu.",
+        "hideAmounts": "Skrij zneske",
+        "showAmounts": "Prikaži zneske",
+        "title": "Dovoli skrivanje zneskov"
       },
       "language": {
         "description": "Izberite jezik, ki ga želite uporabiti v BitBoxApp-u.",
@@ -1190,7 +1233,7 @@
         "Geselska fraza je dodaten nivo zaščite za varnostno kopijo.",
         "Če vnesete različno geselsko frazo, boste vedno ustvarili različno denarnico.",
         "Za obnovitev denarnice potrebujete <strong>oboje, geselsko frazo in varnostno kopijo</strong>.",
-        "Če pozabite ali izgubite svojo geselsko frazo, izgubite dostop do svojih kovancev."
+        "Če pozabite ali izgubite svojo geselsko frazo, <strong>izgubite dostop do svojih kovancev.</strong>"
       ]
     },
     "what": {
@@ -1442,8 +1485,6 @@
   },
   "setup": "Nastavitev naprave",
   "sidebar": {
-    "accounts": "Vaši računi",
-    "addAccount": "Dodajte račun",
     "buy": "Kupite kripto",
     "device": "Upravljanje naprave",
     "leave": "Zapusti",
@@ -1528,12 +1569,51 @@
     "unlocked2": "Ko bo BitBox01 ponovno priključen bo zasvetila LED lučka",
     "unlocked3": "Ko zasveti LED lučka, se jo dotaknite"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Poveži",
+      "dappLabel": "Vnesi URI naslov za DApp",
+      "invalidPairingUri": "Napačen povezovalni URI"
+    },
+    "dashboard": {
+      "allSessions": "Vse seje",
+      "disclaimer": "WalletConnect je protokol za povezavo z decentraliziranimi avtonomnimi aplikacijami (Dapps), ki temeljijo na Ethereumu. Te Dapps-e upravljajo tretje oseb (in ne Shift Crypto ali WalletConnect), zato se povežite le s tistimi, ki jim zaupate, in se prepričajte, da vedno veste, kaj podpisujete, ko opravljate transakcijo.",
+      "newConnection": "Nova povezava",
+      "noConnectedSessions": "Noben račun ni povezan s katero od DApp-ov"
+    },
+    "invalidPairingChain": "Napaka pri potrditvi povezave. Prepričajte se, da uporabljate eno od podprtih verig: {{chains}}",
+    "pairingRequest": {
+      "approve": "Potrdi povezavo",
+      "reject": "Zavrni",
+      "title": "Zahteva za novo povezavo od"
+    },
+    "pairingSuccess": "DApp je uspešno povezana. Nadaljujete lahko na spletni strani te DApp.",
+    "signingRequest": {
+      "account": "Račun",
+      "chain": "Omrežje",
+      "dapp": "Dapp",
+      "data": "Podatki",
+      "dataParsingError": "Podatkov nismo uspeli razčleniti",
+      "decodeError": "Sporočila nismo uspeli dekodirati",
+      "method": {
+        "sendTransaction": "Podpiši in pošlji transakcijo",
+        "signMessage": "Podpiši sporočilo",
+        "signTransaction": "Podpiši transakcijo",
+        "signTypedData": "Podpiši vnesene podatke"
+      },
+      "successfullySigned": "Zahteva je uspešno podpisana",
+      "walletConnectRequest": "WalletConnect zahteva "
+    },
+    "useNewUri": "Ta URI je bil že uporabljen za poskus vzpostavitve povezave. Uporabite nov URI.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "Prosimo, da seznanite BitBox01 s pametnim telefonom, da si omogočite varno preverjanje naslovov. Pojdite na »Upravljanje naprave« v stranski vrstici.",
     "sdcard": "MicroSD kartico hranite ločeno od BitBoxa, razen ko upravljate z varnostnimi kopijami.",
     "sendPairing": "Za varno preverjanje podrobnosti o transakcijah seznanite BitBox\nz mobilno napravo. Pojdite na »Upravljanje naprave« v stranski vrstici."
   },
   "welcome": {
+    "connect": "Vklopi BitBox02",
     "getStarted": "Začnimo z namestitvijo strojne programske opreme (firmware)",
     "insertBitBox02": "Na BitBox02 se dotaknite željene strani zaslona. ",
     "insertDevice": "Za začetek, priključite denarnico",
