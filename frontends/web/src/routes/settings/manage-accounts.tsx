@@ -15,14 +15,14 @@
  */
 
 import React, { Component } from 'react';
-import { getAccountsByKeystore } from '../account/utils';
+import { getAccountsByKeystore, isAmbiguiousName } from '../account/utils';
 import { route } from '../../utils/route';
 import * as accountAPI from '../../api/account';
 import * as backendAPI from '../../api/backend';
 import { alertUser } from '../../components/alert/Alert';
 import { Button, Input, Label } from '../../components/forms';
 import Logo from '../../components/icon/logo';
-import { EditActive, EyeOpenedDark } from '../../components/icon';
+import { EditActive, EyeOpenedDark, USBSuccess } from '../../components/icon';
 import { Column, Grid, GuideWrapper, GuidedContent, Header, Main } from '../../components/layout';
 import { Toggle } from '../../components/toggle/toggle';
 import { Dialog, DialogButtons } from '../../components/dialog/dialog';
@@ -31,6 +31,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { WithSettingsTabs } from './components/tabs';
 import { View, ViewContent } from '../../components/view/view';
 import { MobileHeader } from '../settings/components/mobile-header';
+import { Badge } from '../../components/badge/badge';
 import { AccountGuide } from './manage-account-guide';
 import { WatchonlySetting } from './components/manage-accounts/watchonlySetting';
 import style from './manage-accounts.module.css';
@@ -281,7 +282,22 @@ class ManageAccounts extends Component<Props, State> {
                         asCard>
                         <div className={style.walletHeader}>
                           <h2 className={style.walletTitle}>
-                            {keystore.keystore.name}
+                            <span className="p-right-quarter">
+                              {keystore.keystore.name}
+                              { isAmbiguiousName(keystore.keystore.name, accountsByKeystore) ? (
+                                // Disambiguate accounts group by adding the fingerprint.
+                                // The most common case where this would happen is when adding accounts from the
+                                // same seed using different passphrases.
+                                <small> {keystore.keystore.rootFingerprint}</small>
+                              ) : null }
+                            </span>
+                            {keystore.keystore.connected ? (
+                              <Badge
+                                icon={props => <USBSuccess {...props} />}
+                                type="success">
+                                {t('device.keystoreConnected')}
+                              </Badge>
+                            ) : null}
                           </h2>
                           <WatchonlySetting keystore={keystore.keystore} />
                         </div>
