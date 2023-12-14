@@ -640,7 +640,7 @@ func (backend *Backend) registerKeystore(keystore keystore.Keystore) {
 		// needed on the persisted accounts.
 		accounts := backend.filterAccounts(accountsConfig, belongsToKeystore)
 		if len(accounts) != 0 {
-			return backend.updatePersistedAccounts(keystore, accountsConfig)
+			return backend.updatePersistedAccounts(keystore, accounts)
 		}
 		return backend.persistDefaultAccountConfigs(keystore, accountsConfig)
 	})
@@ -920,7 +920,7 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 	return backend.AccountSetWatch(
 		func(account *config.Account) bool {
 			// Apply to each currently loaded account.
-			return accounts.lookup(account.Code) != nil
+			return !account.HiddenBecauseUnused && accounts.lookup(account.Code) != nil
 		},
 		&t,
 	)

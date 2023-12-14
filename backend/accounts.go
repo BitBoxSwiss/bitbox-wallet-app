@@ -1073,35 +1073,9 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 // perform migrations, updates etc. We use it to add taproot subaccounts to Bitcoin accounts that
 // were created (persisted) before the introduction of taproot support.
 func (backend *Backend) updatePersistedAccounts(
-	keystore keystore.Keystore, accountsConfig *config.AccountsConfig) error {
+	keystore keystore.Keystore, accounts []*config.Account) error {
 
-	// setWatch, if the keystore Watchonly flag is enabled, sets the `Watch`
-	// flag to `true`, turning this account into a watch-only account.
-	setWatch := func() error {
-		rootFingerprint, err := keystore.RootFingerprint()
-		if err != nil {
-			return err
-		}
-		if !accountsConfig.IsKeystoreWatchonly(rootFingerprint) {
-			return nil
-		}
-		for _, account := range accountsConfig.Accounts {
-			// If the account was added in the background as part of scanning, we don't mark it
-			// watchonly. Otherwise the account would appear automatically once it received funds,
-			// even if it was not visible before and the keystore is never connected again.
-			if !account.HiddenBecauseUnused && account.Watch == nil {
-				t := true
-				account.Watch = &t
-			}
-		}
-		return nil
-	}
-
-	if err := setWatch(); err != nil {
-		return err
-	}
-
-	return backend.maybeAddP2TR(keystore, accountsConfig.Accounts)
+	return backend.maybeAddP2TR(keystore, accounts)
 }
 
 // The accountsAndKeystoreLock must be held when calling this function.
