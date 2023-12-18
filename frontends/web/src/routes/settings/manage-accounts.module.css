@@ -26,7 +26,6 @@
     align-items: center;
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     justify-content: space-between;
     min-height: var(--item-height);
     padding: var(--space-quarter) 0;
@@ -44,7 +43,7 @@
 .acccountLink {
     align-items: center;
     display: flex;
-    flex-basis: calc(100% - 100px);
+    flex-basis: 0;
     flex-grow: 1;
     flex-shrink: 1;
 }
