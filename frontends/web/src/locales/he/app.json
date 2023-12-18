@@ -934,8 +934,6 @@
   },
   "setup": "הגדר התקן",
   "sidebar": {
-    "accounts": "חשבונות",
-    "addAccount": "הוסף חשבון",
     "device": "נהל התקן",
     "leave": "עזוב",
     "settings": "הגדרות"
