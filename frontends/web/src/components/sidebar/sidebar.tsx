@@ -226,12 +226,11 @@ class Sidebar extends Component<Props> {
                       <> ({keystore.keystore.rootFingerprint})</>
                     ) : null }
                   </span>
-                  {keystore.keystore.connected ? (
-                    <Badge
-                      icon={props => <USBSuccess {...props} />}
-                      type="success"
-                      title={t('device.keystoreConnected')} />
-                  ) : null}
+                  <Badge
+                    className={keystore.keystore.connected ? style.sidebarIconVisible : style.sidebarIconHidden}
+                    icon={props => <USBSuccess {...props} />}
+                    type="success"
+                    title={t('device.keystoreConnected')} />
                 </span>
               </div>
 
