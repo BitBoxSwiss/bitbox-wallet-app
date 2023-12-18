@@ -84,7 +84,9 @@ class ManageAccounts extends Component<Props, State> {
             onClick={() => this.setState({ currentlyEditedAccount: account })}
             transparent>
             <EditActive />
-            {t('manageAccounts.editAccount')}
+            <span className="hide-on-small">
+              {t('manageAccounts.editAccount')}
+            </span>
           </Button>
           {active && account.coinCode === 'eth' ? (
             <div className={style.tokenSection}>
@@ -293,6 +295,7 @@ class ManageAccounts extends Component<Props, State> {
                             </span>
                             {keystore.keystore.connected ? (
                               <Badge
+                                className="m-right-quarter"
                                 icon={props => <USBSuccess {...props} />}
                                 type="success">
                                 {t('device.keystoreConnected')}
