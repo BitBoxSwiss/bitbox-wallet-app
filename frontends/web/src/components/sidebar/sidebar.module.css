@@ -92,6 +92,14 @@
     color: var(--color-secondary);
 }
 
+.sidebarIconVisible {
+    visibility: visible;
+}
+
+.sidebarIconHidden {
+    visibility: hidden;
+}
+
 .sidebarItem {
     display: block;
 }
