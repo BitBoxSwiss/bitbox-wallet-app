@@ -68,7 +68,7 @@
   "aopp": {
     "addressRequest": "{{host}} fordert eine Empfangsadresse an.",
     "addressRequestWithLogo": "fordert eine Empfangsadresse an",
-    "banner": "Adressanfrage in Bearbeitung.",
+    "banner": "Adressanfrage in Bearbeitung. Bitte verbinde dein Gerät um fortzufahren.",
     "errorTitle": "Fehler während Adressanfrage",
     "labelAddress": "Adresse",
     "labelMessage": "Nachricht",
@@ -83,6 +83,10 @@
   },
   "app": {
     "upgrade": "Eine neue Version der App ist verfügbar! Bitte aktualisiere von {{current}} auf {{version}}."
+  },
+  "auth": {
+    "authButton": "Authentifizieren",
+    "title": "Bitte authentifiziere dich, um fortzufahren"
   },
   "backup": {
     "check": {
@@ -136,8 +140,9 @@
       "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort eine neue/andere Wallet erstellt."
     },
     "showMnemonic": {
-      "description": "Dir werden 24 Recovery-Wörter angezeigt, die ein Backup deiner Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt. Wenn jemand das Papier mit den 24 Recovery-Wörtern findet hat er Zugang zu deiner Wallet.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du sie nochmals bestätigen. \n",
-      "title": "Recovery-Wörter anzeigen"
+      "description": "Dir werden Wiederherstellungswörter angezeigt, die ein Backup deiner Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du gefragt werden sie nochmals zu bestätigen.\n",
+      "title": "Recovery-Wörter anzeigen",
+      "warning": "<strong>Teile deine Wiederherstellungswörter niemals mit irgendjemandem.</strong> Deine Wiederherstellungswörter ermöglichen vollen Zugriff zu deinem Wallet . Wenn dich jemand nach deinen Wiederherstellungswörtern fragt, handelt es sich um einen Betrüger. Gebe diese nicht weiter!"
     },
     "title": "Backups verwalten"
   },
@@ -168,7 +173,7 @@
     "confirmWords": "Notiere die {{amount}} Wiederherstellungswörter von deiner BitBox02",
     "confirmWordsText": "Danach fordert dich die BitBox02 auf, jedes Wort zu bestätigen, um zu überprüfen, ob dein Backup korrekt ist.",
     "followInstructions": "Bitte folge den Anweisungen auf deiner BitBox02.",
-    "followInstructionsMnemonic": "Bitte folge den Anweisungen auf deiner BitBox02 um deine Wallet mit deinen Recovery-Wörtern wieder herzustellen.",
+    "followInstructionsMnemonic": "Bitte folge den Anweisungen auf deiner BitBox02 um deine Wallet mit deinen Wiederherstellungswörtern wieder herzustellen.",
     "followInstructionsMnemonicTitle": "Mit Wiederherstellungs-Wörtern wiederherstellen"
   },
   "bitbox02Settings": {
@@ -239,7 +244,7 @@
     },
     "restoreFromMnemonic": {
       "e104": "Die Wiederherstellung durch Wiederherstellungswörter wurde abgebrochen.",
-      "failed": "Wiederherstellung von Recovery-Wörtern fehlgeschlagen. Bitte versuche es erneut."
+      "failed": "Wiederherstellung von Wiederherstellungswörtern fehlgeschlagen. Bitte versuche es erneut."
     },
     "stepBackup": {
       "beforeProceed": "Bevor du fortfährst, lies bitte die folgenden wichtigen Sicherheitsaspekte:",
@@ -278,7 +283,7 @@
       "create": "Ich möchte eine neue BitBox02 einrichten.",
       "restore": "Ich möchte meine Wallet von einem Backup wiederherstellen.",
       "restoreMicroSD": "Von microSD Karte wiederherstellen",
-      "restoreMnemonic": "Von Recovery-Wörtern wiederherstellen",
+      "restoreMnemonic": "Von Wiederherstellungswörtern wiederherstellen",
       "title": "BitBox02 einrichten"
     },
     "success": {
@@ -466,6 +471,7 @@
   },
   "chart": {
     "dataMissing": "Historische Daten werden gesammelt... gleich fertig.",
+    "dataOldTimestamp": "Historische Wechselkurse werden aktualisiert. Das Diagramm zeigt nach {{time}} keine Daten mehr an.",
     "dataUpdating": "Daten aktualisieren…",
     "filter": {
       "all": "Alles",
@@ -485,11 +491,16 @@
     "infoWhenPaired": "Zuerst auf deinem gepaarten Mobiltelefon und dann auf deiner BitBox"
   },
   "confirmOnDevice": "Bitte bestätige auf deinem Gerät.",
+  "connectKeystore": {
+    "promptNoName": "Bitte verbinde deine BitBox02 um fortzufahren",
+    "promptWithName": "Bitte verbinde deine BitBox02 mit dem Namen „{{name}}\" um fortzufahren"
+  },
   "darkmode": {
     "toggle": "Dark mode"
   },
   "device": {
-    "appUpradeRequired": "Deine BitBox ist mit dieser Desktopanwendung nicht kompatibel. Bitte lade die neueste Version herunter und installiere diese.."
+    "appUpradeRequired": "Deine BitBox ist mit dieser Desktopanwendung nicht kompatibel. Bitte lade die neueste Version herunter und installiere diese..",
+    "keystoreConnected": "Verbundenes Wallet"
   },
   "deviceLock": {
     "button": "Zwei-Faktor-Autorisierung (2FA) aktivieren",
@@ -604,7 +615,9 @@
     "aoppUnsupportedAsset": "Diese Kryptowährung wird nicht unterstützt.",
     "aoppUnsupportedFormat": "Es sind keine Konten verfügbar, die das angeforderte Adressformat unterstützen.",
     "aoppUnsupportedKeystore": "Das verbundene Gerät kann keine Nachrichten für diese Kryptowährung signieren.",
-    "aoppVersion": "Unbekannte Version."
+    "aoppVersion": "Unbekannte Version.",
+    "wrongKeystore": "Falsches Wallet verbunden. Bitte verbinde das richtige Gerät, zu dem diese Konto gehört.",
+    "wrongKeystore2": "Falls du ein optionale Passphrase nutzt, stelle sicher, dass du die richtige Passphrase für dieses Konto eingegeben hast."
   },
   "fiat": {
     "default": "Standard",
@@ -740,6 +753,10 @@
       "whatAreAccounts": {
         "text": "Deine Wallet kann mehrere Konten derselben Währung verwalten. Konten machen es einfach, Coins separiert zu halten.",
         "title": "Was sind Konten?"
+      },
+      "whatIsRememberWallet": {
+        "text": "Durch die Aktivierung von „Wallet merken“ kannst du die Konten von diesem Wallet in der BitBoxApp sehen, auch wenn die BitBox02 nicht verbunden ist. So kannst du deinen Kontostand und dein Portfolio jederzeit überprüfen. Zum Senden oder Empfangen von Coins muss die BitBox02 jedoch eingesteckt und entsperrt werden.\n\nWenn du „Wallet merken“ deaktivierst, musst du die BitBox02 (oder Passphrase-Wallet) verbinden, um diese Konten in der BitBoxApp zu sehen.",
+        "title": "Was passiert, wenn ich „Wallet merken“ aktiviere/deaktiviere?"
       },
       "whyIsThisUseful": {
         "text": "Separate Konten eignen sich hervorragend für die Verwaltung von Coins für verschiedene Personen oder Zwecke. Du kannst auch den \"erweiterten öffentlichen Schlüssel\" (extended public key) eines Kontos freigeben, ohne etwas über deine anderen Konten preiszugeben. Auf diese Weise kannst du wiederholt Geld erhalten, ohne Adressen wiederzuverwenden, z. B. um deinen Lohn zu erhalten oder um regelmäßig Krypto zu kaufen.",
@@ -985,6 +1002,20 @@
         "text": "Vielen Dank, dass du diese App benutzt. Sie wird von Shift Crypto in der Schweiz entwickelt. Wir freuen uns über Anregungen und Fragen. Zögere nicht, uns zu kontaktieren.",
         "title": "Willkommen in der BitBoxApp!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "Wenn du ein neues Telefon/Computer mit der BitBoxApp verwendest, musst du dich erneut mit den DApps verbinden. Anschließend siehst du deine Coins wieder wie gewohnt auf der DApp.",
+        "title": "Ich sehe meine vorherigen Verbindungen nicht."
+      },
+      "supportedNetworks": {
+        "text": "Derzeit wird nur das Ethereum-Mainnet mit WalletConnect in der BitBoxApp unterstützt. Um andere EVM-kompatible Netzwerke zu verwenden, verwende bitte das Rabby Browser-Extension Wallet.",
+        "title": "Welche Netzwerke werden unterstützt?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect ist ein Kommunikationsprotokoll für Web3-Anwendungen. Damit kannst du bequem eine Verbindung zu Ethereum basierten DApps und Web-Wallets herstellen, ohne eine Drittanbieter-App zu verwenden. Dies ist besonders nützlich für Android Nutzer der BitBoxApp.",
+        "title": "Was ist WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1031,6 +1062,7 @@
   },
   "loading": "laden...",
   "manageAccounts": {
+    "accountHidden": "Dieses Konto wurde aus deinen watch-only Konten ausgeblendet. Verbinde deine BitBox02 um es wieder anzuzeigen.",
     "editAccount": "Bearbeiten",
     "editAccountNameTitle": "Kontonamen bearbeiten",
     "noAccounts": "Keine Konten gefunden",
@@ -1039,7 +1071,9 @@
       "showTokens": "Token anzeigen ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Konten hinzufügen und aktivieren / deaktivieren",
-    "title": "Konten verwalten"
+    "title": "Konten verwalten",
+    "watchAccount": "Konto merken",
+    "watchAccountDescription": "Dieses Konto ist Teil deines watch-only Kontos. Du kannst es mit diesem Schalter vor den watch-only Konten verstecken."
   },
   "mobile": {
     "usingMobileDataWarning": "Mobile Datennutzung: Diese App downloaded ein paar hundert Megabytes an Blockchain Daten nachdem ein Konto geöffnet wurde. Bitte verbinde dein Handy für diesen einmaligen Download mit deinem Wifi. "
@@ -1051,6 +1085,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Sperre den Zugriff zur App mit Displaysperre/Fingerabdruck.",
+        "title": "Displaysperre"
+      },
       "coinControl": {
         "description": "Wähle aus, welche UTXOs Teil einer Transaktion sind, um die Privatsphäre zu verbessern."
       },
@@ -1073,9 +1111,24 @@
         "description": "Wähle deine Standardwährung aus",
         "title": "Standardwährung"
       },
+      "enableWallet": {
+        "description": "Wenn du dein Konto deaktivierst, wird es weder in der Seitenleiste noch im Portfolio angezeigt. Du kannst es hier jederzeit wieder aktivieren. Coins auf diesem Konto werden nicht beeinflusst und bleiben sicher.",
+        "title": "Wallet aktivieren/deaktivieren"
+      },
+      "hideAmounts": {
+        "description": "Zeigt einen Schalter zum Ausblenden deines Guthabens und Beträgen an, um deine Privatsphäre zu verbessern, wenn du die App in der Öffentlichkeit nutzt.",
+        "hideAmounts": "Beträge ausblenden",
+        "showAmounts": "Beträge anzeigen",
+        "title": "Ausblenden von Beträgen zulassen"
+      },
       "language": {
         "description": "Welche Sprache die BitBoxApp verwenden soll.",
         "title": "Sprache"
+      },
+      "remebmerWallet": {
+        "name": "Wallet merken",
+        "warning": "Dies wird dein gemerktes Wallet entfernen. Um es wieder zu sehen musst du die BitBox02 für dieses Wallet verbinden. Alle Coins auf diesem Wallet werden nicht beeinflusst. Möchtest du fortfahren?",
+        "warningTitle": "Deaktiviere \"Wallet merken\""
       },
       "toggleSats": {
         "description": "Aktiviere oder deaktiviere Satoshis."
@@ -1142,7 +1195,7 @@
   "passphrase": {
     "considerations": {
       "button": "Backup-Hinweise",
-      "message": "Die Passphrase bietet zusätlichen Schutz für dein Wallet-Backup (MicroSD oder 24 Wörter). Falls jemand Zugriff auf dein Backup hat, benötigt er zusätzlich die Passphrase, um auf dein Wallet zuzugreifen. \n\nDies bedeutet jedoch, dass du <strong>sowohl die Passphrase als auch das Wallet Backup</strong> benötigst, um dein Passphrase-Wallet wiederherzustellen, falls deine BitBox02 verloren oder kaputt geht. Falls du die Passphrase verlierst, verlierst du auch Zugriff auf alle Coins in diesem Wallet.\n\nErwäge, deine Passphrase an einem anderen Ort als dein Backup zu sichern. Falls jemand dein Backup findet, fehlt ihm immer noch die Passphrase. ",
+      "message": "Die Passphrase bietet zusätzlichen Schutz für dein Wallet-Backup (MicroSD oder 24 Wörter). Falls jemand Zugriff auf dein Backup hat, benötigt er zusätzlich die Passphrase, um auf dein Wallet zuzugreifen. \n\nDies bedeutet jedoch, dass du <strong>sowohl die Passphrase als auch das Wallet Backup</strong> benötigst, um dein Passphrase-Wallet wiederherzustellen, falls deine BitBox02 verloren oder kaputt geht. Falls du die Passphrase verlierst, verlierst du auch Zugriff auf alle Coins in diesem Wallet.\n\nErwäge, deine Passphrase an einem anderen Ort als dein Backup zu sichern. Falls jemand dein Backup findet, fehlt ihm immer noch die Passphrase. ",
       "title": "Backup-Hinweise"
     },
     "disable": "Passphrase deaktivieren",
@@ -1233,7 +1286,7 @@
     },
     "selectAccount": "Konto auswählen",
     "showFull": "Adresse auf BitBox bestätigen",
-    "taprootWarning": "Hinweis: Taproot ist eine neues Adressformat und noch nicht weit verbreitet. Gelder, die über Taproot-Adressen eingehen, sind möglicherweise nicht in Watch-Only-Wallets von Drittanbietern sichtbar. Viele Wallets und Börsen sind noch nicht in der Lage, an Taproot-Adressen zu senden.",
+    "taprootWarning": "Hinweis: Taproot ist ein neues Adressformat und noch nicht weit verbreitet. Gelder, die über Taproot-Adressen eingehen, sind möglicherweise nicht in Watch-Only-Wallets von Drittanbietern sichtbar. Viele Wallets und Börsen sind noch nicht in der Lage, an Taproot-Adressen zu senden.",
     "title": "{{accountName}} empfangen",
     "verify": "Adresse sicher verifizieren",
     "verifyBitBox01": "Adresse auf Smartphone überprüfen",
@@ -1446,8 +1499,6 @@
   },
   "setup": "Gerätepasswort festlegen",
   "sidebar": {
-    "accounts": "Konten",
-    "addAccount": "Konto hinzufügen",
     "buy": "Krypto kaufen",
     "device": "Gerät verwalten",
     "leave": "Verlassen",
@@ -1532,12 +1583,51 @@
     "unlocked2": "Die LED wird aufleuchten, wenn deine BitBox wieder eingesteckt ist.",
     "unlocked3": "Tippe auf die LED, wenn diese aufleuchtet."
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Verbinden",
+      "dappLabel": "Gebe die URI-Adresse der Dapp ein",
+      "invalidPairingUri": "Ungültige Pairing-URI"
+    },
+    "dashboard": {
+      "allSessions": "Alle Sitzungen",
+      "disclaimer": "Walletconnect ist ein Protokoll zur Verbindung mit Ethereum basierten Dapps. Diese Dapps werden von Drittanbieterdiensten betrieben. Stelle daher nur eine Verbindung zu Dapps her, denen du vertraust, und stelle sicher, dass du bei einer Transaktion immer weißt, was du signierst.",
+      "newConnection": "Neue Verbindung",
+      "noConnectedSessions": "Derzeit sind keine Konten mit Dapps verbunden."
+    },
+    "invalidPairingChain": "Fehler beim Genehmigen des Pairing. Bitte stelle sicher, dass du eines der unterstützten Netzwerke verwendest: {{chains}}",
+    "pairingRequest": {
+      "approve": "Verbindung erlauben",
+      "reject": "Ablehnen",
+      "title": "Neue Verbindungsanfrage von"
+    },
+    "pairingSuccess": "Dapp erfolgreich verbunden. Du kannst auf der Dapp-Website fortfahren.",
+    "signingRequest": {
+      "account": "Konto",
+      "chain": "Netzwerk",
+      "dapp": "Dapp",
+      "data": "Daten",
+      "dataParsingError": "Parsen der Daten fehlgeschlagen",
+      "decodeError": "Nachricht konnte nicht dekodiert werden",
+      "method": {
+        "sendTransaction": "Transaktion signieren und senden",
+        "signMessage": "Nachricht signieren",
+        "signTransaction": "Transaktion signieren",
+        "signTypedData": "Signiere eingegebene Daten"
+      },
+      "successfullySigned": "Anfrage erfolgreich signiert",
+      "walletConnectRequest": "WalletConnect Anfrage"
+    },
+    "useNewUri": "Dieser URI wurde bereits für den Verbindungsversuch verwendet. Bitte verwende eine neue URI.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "Bitte aktiviere 2FA, um Adressen sicher zu verifizieren. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
     "sdcard": "Bewahre deine microSD Karte separat von deiner BitBox auf. Die microSD Karte wird nur benötigt, wenn du deine Backups verwalten willst. Für den normalen Betrieb ist sie nicht erforderlich.",
     "sendPairing": "Bitte koppele deine BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicke dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
   },
   "welcome": {
+    "connect": "Verbinde eine BitBox02",
     "getStarted": "Beginnen wir mit der Installation der Firmware auf deiner BitBox02.",
     "insertBitBox02": "Tippe dann auf die BitBox02 zum weiter machen. ",
     "insertDevice": "Bitte verbinde dein Gerät, um loszulegen",

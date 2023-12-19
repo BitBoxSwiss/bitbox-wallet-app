@@ -78,14 +78,14 @@ func (acct *Account) SetTokenActive(tokenCode string, active bool) error {
 	return nil
 }
 
-// IsWatch returns true if the `Watch` setting is set to true and `defaultWatchonly` is true. For
-// `defaultWatchonly`, you should provide the global watchonly setting from the backend config.
-func (acct *Account) IsWatch(defaultWatchonly bool) bool {
-	return defaultWatchonly && acct.Watch != nil && *acct.Watch
-}
-
 // Keystore holds information related to keystores such as the BitBox02.
 type Keystore struct {
+	// Watchonly determines if accounts of this keystore should be loaded even if the keystore is not connected.
+	// If false, accounts are only loaded if this keystore is connected.
+	// If true, they are loaded and displayed when the app launches.
+	// Individual accounts can be exempt from being loaded even if this flag is true by setting the account's
+	// `Watch` flag to false.
+	Watchonly bool `json:"watchonly"`
 	// The root fingerprint is the first 32 bits of the hash160 of the pubkey at the keypath m/.
 	// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#key-identifiers It serves as
 	// an identifier for the keystore. Collisions are possible but the chance is very small.
@@ -130,6 +130,26 @@ func (cfg AccountsConfig) LookupKeystore(rootFingerprint []byte) (*Keystore, err
 		}
 	}
 	return nil, errp.Newf("could not retrieve keystore for fingerprint %x", rootFingerprint)
+}
+
+// IsKeystoreWatchonly returns true if the keystore's watchonly setting is true.
+// If no such keystore exists, false is returned.
+func (cfg AccountsConfig) IsKeystoreWatchonly(rootFingerprint []byte) bool {
+	ks, err := cfg.LookupKeystore(rootFingerprint)
+	if err != nil {
+		return false
+	}
+	return ks.Watchonly
+}
+
+// IsAccountWatchonly returns true if the `Watch` setting of the account is set to true and its
+// keystores watchonly setting is true.
+func (cfg AccountsConfig) IsAccountWatchonly(account *Account) (bool, error) {
+	rootFingerprint, err := account.SigningConfigurations.RootFingerprint()
+	if err != nil {
+		return false, err
+	}
+	return cfg.IsKeystoreWatchonly(rootFingerprint) && account.Watch != nil && *account.Watch, nil
 }
 
 // GetOrAddKeystore looks up the keystore by root fingerprint. If it does not exist, one is added to

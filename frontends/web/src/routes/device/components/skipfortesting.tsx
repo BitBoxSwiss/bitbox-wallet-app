@@ -36,7 +36,7 @@ export const SkipForTesting = () => {
   if (!show) {
     return null;
   }
-  const title = 'Unlock software kestore';
+  const title = 'Unlock software keystore';
   return (
     <>
       <button onClick={() => setDialog(true)}>{title}</button>

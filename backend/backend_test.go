@@ -97,9 +97,9 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-55555555-eth-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-eth-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
 	require.Equal(t, "Bitcoin", b.Config().AccountsConfig().Accounts[0].Name)
 	require.Equal(t, "Litecoin", b.Config().AccountsConfig().Accounts[1].Name)
 	require.Equal(t, "Ethereum", b.Config().AccountsConfig().Accounts[2].Name)
@@ -118,7 +118,7 @@ func TestRegisterKeystore(t *testing.T) {
 	// Deregistering the keystore leaves the loaded accounts (watchonly), and leaves the persisted
 	// accounts and keystores.
 	// Mark accounts as watch-only.
-	require.NoError(t, b.SetWatchonly(true))
+	require.NoError(t, b.SetWatchonly(rootFingerprint1, true))
 
 	b.DeregisterKeystore()
 	checkShownAccountsLen(t, b, 3, 3)
@@ -131,16 +131,17 @@ func TestRegisterKeystore(t *testing.T) {
 	require.Len(t, b.Config().AccountsConfig().Keystores, 1)
 
 	// Registering another keystore persists a set of initial default accounts and loads them.
-	// They are added to the previous set of watchonly accounts
 	b.DeregisterKeystore()
 	b.registerKeystore(ks2)
+	require.NoError(t, b.SetWatchonly(rootFingerprint2, true))
+
 	checkShownAccountsLen(t, b, 6, 6)
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Config().AccountsConfig().Lookup("v0-66666666-eth-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-btc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-eth-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
 	require.Len(t, b.Config().AccountsConfig().Keystores, 2)
 	require.Equal(t, "Mock keystore 2", b.Config().AccountsConfig().Keystores[1].Name)
 	require.Equal(t, rootFingerprint2, []byte(b.Config().AccountsConfig().Keystores[1].RootFingerprint))
@@ -158,24 +159,24 @@ func TestRegisterKeystore(t *testing.T) {
 	b.registerKeystore(ks1)
 	checkShownAccountsLen(t, b, 5, 6)
 	// v0-55555555-btc-0 loaded even though watch=false, as the keystore is connected.
-	require.NotNil(t, b.accounts.lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-eth-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-btc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-btc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
 	// v0-66666666-ltc-0 not loaded (watch=false).
-	require.Nil(t, b.accounts.lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-eth-0"))
+	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
 
 	b.DeregisterKeystore()
 	checkShownAccountsLen(t, b, 4, 6)
 	// v0-55555555-btc-0 not loaded (watch = false)
-	require.Nil(t, b.accounts.lookup("v0-55555555-btc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-ltc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-55555555-eth-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-btc-0"))
+	require.Nil(t, b.Accounts().lookup("v0-55555555-btc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-55555555-eth-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
 	// v0-66666666-ltc-0 not loaded (watch=false).
-	require.Nil(t, b.accounts.lookup("v0-66666666-ltc-0"))
-	require.NotNil(t, b.accounts.lookup("v0-66666666-eth-0"))
+	require.Nil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
+	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
 }
 
 func lookup(accts []accounts.Interface, code accountsTypes.Code) accounts.Interface {

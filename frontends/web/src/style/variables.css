@@ -2,8 +2,8 @@
     /* colors */
     --color-darkgreen: #4f9879;
     --color-green: #7aba7a;
-    --color-lightgreen: #aecfc1;
-    --color-palegreen: #dceae4;
+    --color-lightgreen: rgba(79, 152, 121, .33); /* #aecfc1; */
+    --color-palegreen: rgba(79, 152, 121, .2); /* #dceae4; */
     --color-softred: #EC644B;
     --color-lightred: #F28E72;
     --color-swissred: #E30613;
@@ -15,8 +15,8 @@
     --color-softblack: #333333;
     --color-dark: #1D1D1B;
     --color-yellow: #fef160;
-    --color-darkyellow: #F3EA00;
-    --color-lightyellow: #FFFCB1;
+    --color-darkyellow: rgb(243, 234, 0, .66); /* #F3EA00 */
+    --color-lightyellow: rgba(255, 252, 177, .15); /* #FFFCB1 */
     --color-darkblue: #4f7998;
     --color-blue: #5E94BF;
     --color-lightblue: #73A5CD;

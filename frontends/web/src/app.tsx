@@ -83,8 +83,7 @@ class App extends Component<Props, State> {
         }));
       }),
       syncAccountsList(accounts => {
-        const oldAccountsLen = this.state.accounts.length;
-        this.setState({ accounts }, () => this.maybeRoute(oldAccountsLen));
+        this.setState({ accounts }, () => this.maybeRoute());
       }),
       syncDeviceList((devices) => {
         this.setStateWithDeviceList({ devices });
@@ -94,7 +93,6 @@ class App extends Component<Props, State> {
 
   private setStateWithDeviceList(newState: Partial<State>) {
     const oldDeviceIDList = Object.keys(this.state.devices);
-    const oldAccountsLen = this.state.accounts.length;
     this.setState(currentState => ({ ...currentState, ...newState }), () => {
       const newDeviceIDList: string[] = Object.keys(this.state.devices);
       // If a device is newly connected, we route to the settings.
@@ -114,7 +112,7 @@ class App extends Component<Props, State> {
           return;
         }
       }
-      this.maybeRoute(oldAccountsLen);
+      this.maybeRoute();
     });
   }
 
@@ -122,7 +120,7 @@ class App extends Component<Props, State> {
     unsubscribe(this.unsubscribeList);
   }
 
-  private maybeRoute = (oldAccountsLen: number) => {
+  private maybeRoute = () => {
     const currentURL = window.location.pathname;
     const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
     const inAccounts = currentURL.startsWith('/account/');
@@ -139,7 +137,6 @@ class App extends Component<Props, State> {
       currentURL.startsWith('/account-summary')
       || currentURL.startsWith('/add-account')
       || currentURL.startsWith('/settings/manage-accounts')
-      || currentURL.startsWith('/passphrase')
     )) {
       route('/', true);
       return;
@@ -150,13 +147,13 @@ class App extends Component<Props, State> {
       route('/', true);
       return;
     }
-    // if on an account that isnt registered route to /
+    // if on an account that isn't registered route to /
     if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
       route('/', true);
       return;
     }
-    // if on index page and we go from zero accounts to at least 1 account, route to /account-summary
-    if (isIndex && oldAccountsLen === 0 && accounts.length) {
+    // if on index page and have at least 1 account, route to /account-summary
+    if (isIndex && accounts.length) {
       route('/account-summary', true);
       return;
     }

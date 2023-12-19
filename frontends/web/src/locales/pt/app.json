@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "Uma nova versão desse app está disponível! Por favor, atualize de {{current}} para {{version}}."
   },
+  "auth": {
+    "authButton": "Autenticar",
+    "title": "Autentique-se para continuar"
+  },
   "backup": {
     "check": {
       "checking": "Checando backup...",
@@ -137,7 +141,8 @@
     },
     "showMnemonic": {
       "description": "Serão mostradas suas palavras de recuperação, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
-      "title": "Mostrar frase de recuperação"
+      "title": "Mostrar frase de recuperação",
+      "warning": "<strong>Nunca compartilhe suas palavras de recuperação com ninguém.</strong> Suas palavras de recuperação dão acesso total à sua carteira. Se alguém está pedindo suas palavras de recuperação, é um golpista, não as compartilhe!"
     },
     "title": "Gerenciar backups"
   },
@@ -466,6 +471,7 @@
   },
   "chart": {
     "dataMissing": "Buscando dados históricos... fique ligado.",
+    "dataOldTimestamp": "Atualização das taxas de câmbio históricas. O gráfico não está exibindo dados após {{time}}.",
     "dataUpdating": "atualizando dados...",
     "filter": {
       "all": "Todos",
@@ -485,6 +491,10 @@
     "infoWhenPaired": "Primeiro no celular emparelhado e depois na sua BitBox"
   },
   "confirmOnDevice": "Por favor, confirme no seu dispositivo.",
+  "connectKeystore": {
+    "promptNoName": "Por favor conecte sua BitBox02 para continuar",
+    "promptWithName": "Por favor conecte sua BitBox02 chamada \"{{name}}\" para continuar"
+  },
   "darkmode": {
     "toggle": "Modo escuro"
   },
@@ -516,6 +526,9 @@
       "deviceName": {
         "description": "Altere o nome do seu dispositivo."
       },
+      "rootFingerprint": {
+        "description": "A impressão digital raiz é um identificador exclusivo da carteira atualmente em uso. Pode ajudá-lo a distinguir entre diferentes carteiras se você usar frases secretas."
+      },
       "securechip": {
         "description": "O modelo do chip seguro."
       },
@@ -523,7 +536,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Redefina seu dispositivo para as configurações de fábrica. Isso exclui a carteira de sua BitBox02!",
+        "description": "Redefina seu dispositivo para as configurações de fábrica - isso apagará a sua carteira BitBox02!",
         "title": "Restauração de fábrica"
       },
       "goToStartupSettings": {
@@ -601,7 +614,9 @@
     "aoppUnsupportedAsset": "O ativo não é compatível.",
     "aoppUnsupportedFormat": "Não há contas disponíveis que suportem o formato de endereço solicitado.",
     "aoppUnsupportedKeystore": "O dispositivo conectado não pode assinar mensagens para este ativo.",
-    "aoppVersion": "Versão desconhecida."
+    "aoppVersion": "Versão desconhecida.",
+    "wrongKeystore": "Carteira errada conectada. Certifique-se de inserir o dispositivo correto que corresponde a esta conta.",
+    "wrongKeystore2": " Se você estiver usando a frase secreta opcional, certifique-se de ter digitado a frase secreta correta para a conta."
   },
   "fiat": {
     "default": "padrão",
@@ -982,6 +997,20 @@
         "text": "Obrigado por usar este aplicativo criado pela Shift Crypto na Suíça. Agradecemos qualquer contribuição que você tenha para compartilhar. Por favor, dê feedback usando o link na parte inferior.",
         "title": "Bem-vindo ao BitBoxApp!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "Se você estiver usando um novo telefone/computador com o BitBoxApp, precisará se conectar aos DApps novamente. Você verá suas moedas no dapp novamente, como de costume.",
+        "title": "Não vejo minhas conexões anteriores."
+      },
+      "supportedNetworks": {
+        "text": "Atualmente, apenas a rede principal Ethereum é suportada usando WalletConnect no BitBoxApp. Para usar outras cadeias compatíveis com a EVM, use a carteira de extensão do navegador Rabby.",
+        "title": "Quais redes são suportadas?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect é um protocolo de comunicação para aplicativos web3. Ele permite que você se conecte convenientemente a DApps baseados em Ethereum e carteiras web sem usar um aplicativo de terceiros, o que é particularmente útil para usuários Android do BitBoxApp.",
+        "title": "O que é WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1028,6 +1057,7 @@
   },
   "loading": "carregando…",
   "manageAccounts": {
+    "accountHidden": "Esta conta foi ocultada das suas contas watch-only. Para vê-la novamente, conecte sua BitBox02.",
     "editAccount": "Editar",
     "editAccountNameTitle": "Editar nome da conta",
     "noAccounts": "nenhuma conta encontrada",
@@ -1036,7 +1066,9 @@
       "showTokens": "Exibir tokens ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Adicionar e exibir/mostrar contas",
-    "title": "Gerenciar contas"
+    "title": "Gerenciar contas",
+    "watchAccount": "Observar conta",
+    "watchAccountDescription": "Esta conta faz parte das suas contas watch-only. Você pode ocultá-la de suas contas watch-only usando o botão de alternância."
   },
   "mobile": {
     "usingMobileDataWarning": "Uso de dados móveis: esse aplicativo baixa centenas de megabytes de dados de cabeçalho de blockhain depois de desbloquear sua conta. Por favor conecte no Wi-Fi para evitar de usar dados móveis desnecessários. Depois de descartar isso, essa mensagem não aparecerá novamente."
@@ -1048,6 +1080,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Bloqueie o acesso ao aplicativo com bloqueio de tela/impressão digital.",
+        "title": "Bloqueio de tela"
+      },
       "coinControl": {
         "description": "Selecione quais UTXOs fazem parte de uma transação para ajudar a melhorar a privacidade."
       },
@@ -1069,6 +1105,12 @@
       "defaultCurrency": {
         "description": "Selecione sua moeda padrão",
         "title": "Moeda padrão"
+      },
+      "hideAmounts": {
+        "description": "Exibe um botão para ocultar seu saldo e valores para melhorar sua privacidade ao usar o aplicativo em público.",
+        "hideAmounts": "Ocultar valores",
+        "showAmounts": "Mostrar valores",
+        "title": "Permitir ocultar valores"
       },
       "language": {
         "description": "Qual idioma você deseja que o BitBoxApp use.",
@@ -1191,7 +1233,7 @@
         "A frase secreta é uma camada adicional de segurança em seu backup.",
         "A inserção de uma frase secreta diferente sempre gerará uma carteira diferente.",
         "Para restaurar sua carteira, você precisa <strong>da frase secreta e do backup</strong>.",
-        "Se você esquecer sua frase secreta, não poderá mais acessar suas moedas."
+        "Se você esquecer sua frase secreta, você <strong>não poderá mais acessar suas moedas</strong>."
       ]
     },
     "what": {
@@ -1443,8 +1485,6 @@
   },
   "setup": "Configurar dispositivo",
   "sidebar": {
-    "accounts": "Contas",
-    "addAccount": "Adicionar conta",
     "buy": "Comprar crypto",
     "device": "Gerenciar dispositivo",
     "leave": "Sair",
@@ -1529,12 +1569,51 @@
     "unlocked2": "O LED acenderá quando a sua BitBox for conectada novamente",
     "unlocked3": "Toque no botão touch quando o LED acender"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Conectar",
+      "dappLabel": "Insira o endereço URI do dapp",
+      "invalidPairingUri": "Uri de emparelhamento inválido"
+    },
+    "dashboard": {
+      "allSessions": "Todas as sessões",
+      "disclaimer": "Walletconnect é um protocolo para conectar-se a Dapps baseados em Ethereum. Esses dapps são executados por serviços de terceiros, portanto, conecte-se apenas a dapps em que você confia e sempre saiba o que está assinando ao fazer uma transação.",
+      "newConnection": "Nova conexão",
+      "noConnectedSessions": "Nenhuma conta está atualmente conectada a nenhum dapps."
+    },
+    "invalidPairingChain": "Erro ao aprovar o emparelhamento. Certifique-se de usar uma das cadeias suportadas: {{chains}}",
+    "pairingRequest": {
+      "approve": "Aprovar conexão",
+      "reject": "Rejeitar",
+      "title": "Nova solicitação de conexão de"
+    },
+    "pairingSuccess": "Dapp conectado com sucesso. Você pode continuar no site dapp.",
+    "signingRequest": {
+      "account": "Conta",
+      "chain": "Cadeia",
+      "dapp": "Dapp",
+      "data": "Dados",
+      "dataParsingError": "Falha ao analisar os dados",
+      "decodeError": "Falha ao decodificar a mensagem",
+      "method": {
+        "sendTransaction": "Assinar e enviar transação",
+        "signMessage": "Assinar mensagem",
+        "signTransaction": "Assinar transação",
+        "signTypedData": "Assinar dados digitados"
+      },
+      "successfullySigned": "Solicitação assinada com sucesso",
+      "walletConnectRequest": "Solicitação WalletConnect"
+    },
+    "useNewUri": "Este URI já foi usado para tentar uma conexão. Use um novo URI.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "Por favor, emparelhe a BitBox para ativar a verificação segura de endereço. Vá para 'Gerenciar dispositivo' na barra lateral.",
     "sdcard": "Mantenha o cartão microSD guardado separado da BitBox, a menos que você queira gerenciar os backups.",
     "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
   },
   "welcome": {
+    "connect": "Conecte a BitBox02",
     "getStarted": "Vamos começar instalando o firmware na sua BitBox02.",
     "insertBitBox02": "Para a BitBox02, por favor, toque no dispositivo para continuar.",
     "insertDevice": "Por favor, conecte seu dispositivo para iniciar",

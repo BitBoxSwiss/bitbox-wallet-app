@@ -261,7 +261,7 @@ export function Account({
         <Header
           title={<h2><span>{account.name}</span>{insured && (<Insured/>)}</h2>}>
           <HideAmountsButton />
-          <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+          <Link to={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center m-left-half">
             <Info className={style.accountIcon} />
             <span>{t('accountInfo.label')}</span>
           </Link>
