@@ -29,8 +29,6 @@ import { useDarkmode } from '../../hooks/darkmode';
 import { route } from '../../utils/route';
 import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
-import { defaultLanguages } from '../../components/language/types';
-import { getSelectedIndex } from '../../utils/language';
 import { i18n } from '../../i18n/i18n';
 
 type TProps = {
@@ -73,11 +71,12 @@ export const Bitsurance = ({ accounts }: TProps) => {
   };
 
   const getBitsurancePageLink = (): string => {
-    const selectedLanguage = defaultLanguages[getSelectedIndex(defaultLanguages, i18n)];
-    if (selectedLanguage.code === 'de') {
+    switch (i18n.resolvedLanguage) {
+    case 'de':
       return 'https://www.bitsurance.eu/de/bitbox/';
+    default:
+      return 'https://www.bitsurance.eu/en/bitbox/';
     }
-    return 'https://www.bitsurance.eu/en/bitbox/';
   };
 
   const maybeProceed = async () => {
