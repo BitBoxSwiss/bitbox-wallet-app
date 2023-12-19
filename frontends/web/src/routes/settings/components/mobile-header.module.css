@@ -38,7 +38,7 @@
 }
 
 .withGuide .headerText {
-    left: calc(50% + 37px);
+    left: calc(50% + 22px);
 }
 
 @media (max-width: 768px) {
