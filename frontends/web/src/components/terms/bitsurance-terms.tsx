@@ -20,6 +20,7 @@ import { Button, Checkbox } from '../forms';
 import { setConfig } from '../../utils/config';
 import { A } from '../anchor/anchor';
 import style from './terms.module.css';
+import { i18n } from '../../i18n/i18n';
 
 type TProps = {
   onAgreedTerms: () => void;
@@ -30,6 +31,15 @@ export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
   const handleSkipDisclaimer = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig({ frontend: { skipBitsuranceDisclaimer: e.target.checked } });
   };
+  const getPrivacyLink = (): string => {
+    switch (i18n.resolvedLanguage) {
+    case 'de':
+      return 'https://www.bitsurance.eu/datenschutz';
+    default:
+      return 'https://www.bitsurance.eu/en/dataprotection/';
+    }
+  };
+
 
   return (
     <div className={style.disclaimerContainer}>
@@ -41,7 +51,7 @@ export const BitsuranceTerms = ({ onAgreedTerms }: TProps) => {
         <p>
           {t('bitsurance.terms.text5')}
           {' '}
-          <A href="https://www.bitsurance.eu/datenschutz">
+          <A href={getPrivacyLink()}>
             {t('bitsurance.terms.link')}.
           </A>
         </p>
