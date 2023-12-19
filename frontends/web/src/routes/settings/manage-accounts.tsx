@@ -326,7 +326,7 @@ class ManageAccounts extends Component<Props, State> {
                           htmlFor={currentlyEditedAccount.code}>
                           <span className={style.toggleLabelText}>
                             <EyeOpenedDark />
-                            {t('newSettings.appearance.enableWallet.title')}
+                            {t('newSettings.appearance.enableAccount.title')}
                           </span>
                           <Toggle
                             checked={currentlyEditedAccount.active}
@@ -342,7 +342,7 @@ class ManageAccounts extends Component<Props, State> {
                               }, () => event.target.disabled = false);
                             }} />
                         </Label>
-                        <p>{t('newSettings.appearance.enableWallet.description')}</p>
+                        <p>{t('newSettings.appearance.enableAccount.description')}</p>
                         {this.renderWatchOnlyToggle()}
                         <DialogButtons>
                           <Button
