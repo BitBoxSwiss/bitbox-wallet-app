@@ -37,7 +37,10 @@
 @media (max-width: 768px) {
     .buttonsContainer {
         flex-direction: column-reverse;
-        gap: var(--space-quarter);
+    }
+
+    .buttonsContainer > *:not(:last-child) {
+        margin-top: var(--space-quarter); /* would be margin-bottom but the container has reversed flex order */
     }
 
     .buttonsContainer button {

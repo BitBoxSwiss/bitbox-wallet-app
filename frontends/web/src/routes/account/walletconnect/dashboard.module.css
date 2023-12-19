@@ -37,7 +37,6 @@
 .sessionCardsContainer {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--space-quarter) + var(--space-half));
 }
 
 .allSessionsHeading {
@@ -63,10 +62,6 @@
     .allSessionsHeading
     { 
         font-size: var(--size-default);
-    }
-
-    .sessionCardsContainer {
-        gap: var(--space-half);
     }
 
     .allSessionsHeading {

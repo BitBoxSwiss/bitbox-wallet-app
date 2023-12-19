@@ -36,6 +36,7 @@ import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import editSVG from './assets/icons/edit.svg';
 import editLightSVG from './assets/icons/edit-light.svg';
+import editActiveSVG from './assets/icons/edit-active.svg';
 import ethColorSVG from './assets//eth-color.svg';
 import redDotSVG from './assets/icons/red-dot.svg';
 import greenDotSVG from './assets/icons/green-dot.svg';
@@ -69,6 +70,7 @@ import starInactiveSVG from './assets/icons/star-inactive.svg';
 import syncSVG from './assets/icons/sync.svg';
 import syncLightSVG from './assets/icons/sync-light.svg';
 import selectedCheckLightSVG from './assets/icons/selected-check-light.svg';
+import usbSuccessSVG from './assets/icons/usb-success.svg';
 import style from './icon.module.css';
 
 export const ExpandOpen = () => (
@@ -160,6 +162,7 @@ export const CloseXWhite = (props: ImgProps) => (<img src={closeXWhiteSVG} dragg
 export const CloseXDark = (props: ImgProps) => (<img src={closeXDarkSVG} draggable={false} {...props} />);
 export const Edit = (props: ImgProps) => (<img src={editSVG} draggable={false} {...props} />);
 export const EditLight = (props: ImgProps) => (<img src={editLightSVG} draggable={false} {...props} />);
+export const EditActive = (props: ImgProps) => (<img src={editActiveSVG} draggable={false} {...props} />);
 export const ETHLogo = (props: ImgProps) => (<img src={ethColorSVG} draggable={false} {...props} />);
 export const ExternalLink = (props: ImgProps) => (<img src={externalLink} draggable={false} {...props} />);
 export const EyeClosed = (props: ImgProps) => (<img src={eyeClosedSVG} draggable={false} {...props} />);
@@ -190,6 +193,7 @@ export const SelectedCheckLight = (props: ImgProps) => (<img src={selectedCheckL
 export const Warning = (props: ImgProps) => (<img src={warningPNG} draggable={false} {...props} />);
 export const WarningOutlined = (props: ImgProps) => (<img src={warningOutlinedSVG} draggable={false} {...props} />);
 export const YellowDot = (props: ImgProps) => (<img src={yellowDotSVG} draggable={false} {...props} />);
+export const USBSuccess = (props: ImgProps) => (<img src={usbSuccessSVG} draggable={false} {...props} />);
 /**
  * @deprecated Alert is only used for BitBox01 use `Warning` icon instead
  */

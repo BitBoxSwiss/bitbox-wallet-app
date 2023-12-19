@@ -105,8 +105,8 @@ export const cancelConnectKeystore = (): Promise<void> => {
   return apiPost('cancel-connect-keystore');
 };
 
-export const setWatchonly = (watchonly: boolean): Promise<ISuccess> => {
-  return apiPost('set-watchonly', watchonly);
+export const setWatchonly = (rootFingerprint: string, watchonly: boolean): Promise<ISuccess> => {
+  return apiPost('set-watchonly', { rootFingerprint, watchonly });
 };
 
 export const authenticate = (force: boolean = false): Promise<void> => {

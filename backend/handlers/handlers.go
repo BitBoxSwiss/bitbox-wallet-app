@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -69,7 +70,7 @@ type Backend interface {
 	DefaultAppConfig() config.AppConfig
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
-	Accounts() []accounts.Interface
+	Accounts() backend.AccountsList
 	Keystore() keystore.Keystore
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
@@ -97,7 +98,8 @@ type Backend interface {
 	SetAccountActive(accountCode accountsTypes.Code, active bool) error
 	SetTokenActive(accountCode accountsTypes.Code, tokenCode string, active bool) error
 	RenameAccount(accountCode accountsTypes.Code, name string) error
-	AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
+	// disabling for now, we'll either bring this back (if user request it) or remove for good
+	// AccountSetWatch(filter func(*config.Account) bool, watch *bool) error
 	AOPP() backend.AOPP
 	AOPPCancel()
 	AOPPApprove()
@@ -109,7 +111,7 @@ type Backend interface {
 	TriggerAuth()
 	ForceAuth()
 	CancelConnectKeystore()
-	SetWatchonly(watchonly bool) error
+	SetWatchonly(rootFingerprint []byte, watchonly bool) error
 	LookupEthAccountCode(address string) (accountsTypes.Code, string, error)
 }
 
@@ -214,7 +216,8 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/set-account-active", handlers.postSetAccountActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/set-token-active", handlers.postSetTokenActiveHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/rename-account", handlers.postRenameAccountHandler).Methods("POST")
-	getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
+	// disabling for now, we'll either bring this back (if user request it) or remove for good
+	// getAPIRouterNoError(apiRouter)("/account-set-watch", handlers.postAccountSetWatchHandler).Methods("POST")
 	getAPIRouterNoError(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/supported-coins", handlers.getSupportedCoinsHandler).Methods("GET")
@@ -359,11 +362,16 @@ type activeToken struct {
 	AccountCode accountsTypes.Code `json:"accountCode"`
 }
 
+type keystoreJSON struct {
+	config.Keystore
+	Connected bool `json:"connected"`
+}
+
 type accountJSON struct {
 	// Multiple accounts can belong to the same keystore. For now we replicate the keystore info in
 	// the accounts. In the future the getAccountsHandler() could return the accounts grouped
 	// keystore.
-	Keystore              config.Keystore    `json:"keystore"`
+	Keystore              keystoreJSON       `json:"keystore"`
 	Active                bool               `json:"active"`
 	BitsuranceStatus      string             `json:"bitsuranceStatus"`
 	Watch                 bool               `json:"watch"`
@@ -377,12 +385,19 @@ type accountJSON struct {
 	BlockExplorerTxPrefix string             `json:"blockExplorerTxPrefix"`
 }
 
-func newAccountJSON(keystore config.Keystore, account accounts.Interface, activeTokens []activeToken) *accountJSON {
+func newAccountJSON(
+	keystore config.Keystore,
+	account accounts.Interface,
+	activeTokens []activeToken,
+	keystoreConnected bool) *accountJSON {
 	eth, ok := account.Coin().(*eth.Coin)
 	isToken := ok && eth.ERC20Token() != nil
 	watch := account.Config().Config.Watch
 	return &accountJSON{
-		Keystore:              keystore,
+		Keystore: keystoreJSON{
+			Keystore:  keystore,
+			Connected: keystoreConnected,
+		},
 		Active:                !account.Config().Config.Inactive,
 		BitsuranceStatus:      account.Config().Config.InsuranceStatus,
 		Watch:                 watch != nil && *watch,
@@ -597,7 +612,17 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) interface{} {
 			continue
 		}
 
-		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens))
+		keystoreConnected := false
+		if connectedKeystore := handlers.backend.Keystore(); connectedKeystore != nil {
+			connectedKeystoreRootFingerprint, err := connectedKeystore.RootFingerprint()
+			if err != nil {
+				handlers.log.WithError(err).Error("Could not retrieve rootFingerprint")
+			} else {
+				keystoreConnected = bytes.Equal(rootFingerprint, connectedKeystoreRootFingerprint)
+			}
+		}
+
+		accounts = append(accounts, newAccountJSON(*keystore, account, activeTokens, keystoreConnected))
 	}
 	return accounts
 }
@@ -783,6 +808,8 @@ func (handlers *Handlers) postRenameAccountHandler(r *http.Request) interface{} 
 	return response{Success: true}
 }
 
+// disabling for now, we'll either bring this back (if user request it) or remove for good
+/*
 func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{} {
 	var jsonBody struct {
 		AccountCode accountsTypes.Code `json:"accountCode"`
@@ -806,6 +833,7 @@ func (handlers *Handlers) postAccountSetWatchHandler(r *http.Request) interface{
 	}
 	return response{Success: true}
 }
+*/
 
 func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) interface{} {
 	handlers.backend.ReinitializeAccounts()
@@ -1394,11 +1422,14 @@ func (handlers *Handlers) postSetWatchonlyHandler(r *http.Request) interface{} {
 	type response struct {
 		Success bool `json:"success"`
 	}
-	var watchonly bool
-	if err := json.NewDecoder(r.Body).Decode(&watchonly); err != nil {
+	var request struct {
+		RootFingerprint jsonp.HexBytes `json:"rootFingerprint"`
+		Watchonly       bool           `json:"watchonly"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return response{Success: false}
 	}
-	if err := handlers.backend.SetWatchonly(watchonly); err != nil {
+	if err := handlers.backend.SetWatchonly([]byte(request.RootFingerprint), request.Watchonly); err != nil {
 		return response{Success: false}
 	}
 	return response{Success: true}

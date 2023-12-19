@@ -830,7 +830,6 @@
   },
   "setup": "Cihaza Kurulum Yap",
   "sidebar": {
-    "addAccount": "Hesap Ekle",
     "device": "Cihazı Yönet",
     "leave": "Ayrıl",
     "settings": "Ayarlar"

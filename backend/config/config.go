@@ -102,13 +102,6 @@ type Backend struct {
 
 	// BtcUnit is the unit used to represent Bitcoin amounts. See `coin.BtcUnit` for details.
 	BtcUnit coin.BtcUnit `json:"btcUnit"`
-
-	// Watchonly determines if accounts should be loaded even if their keystore is not conneced.
-	// If false, accounts are only loaded if their keystore is connected.
-	// If true, they are loaded and displayed when the app launches.
-	// Individual accounts can be exempt from being loaded even if this flag is true by setting the account's
-	// `Watch` flag to false.
-	Watchonly bool `json:"watchonly"`
 }
 
 // DeprecatedCoinActive returns the Active setting for a coin by code.  This call is should not be

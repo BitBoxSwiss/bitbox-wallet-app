@@ -84,6 +84,10 @@
   "app": {
     "upgrade": "E' disponibile una nuova versione di questa app! Aggiorna dalla {{current}} alla {{version}}."
   },
+  "auth": {
+    "authButton": "Autenticati",
+    "title": "Autenticati per continuare"
+  },
   "backup": {
     "check": {
       "checking": "Sto verificando backup...",
@@ -137,7 +141,8 @@
     },
     "showMnemonic": {
       "description": "Ti verranno mostrate le parole di recupero, che formano un backup del tuo portafoglio. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
-      "title": "Mostra le parole di recupero"
+      "title": "Mostra le parole di recupero",
+      "warning": "<strong>Non condividere le tue parole di recupero con nessuno.</strong> Le parole di recupero danno pieno accesso al tuo portafogli. Se qualcuno ti chiede le tue parole di recupero, vuole truffarti. Non condividerle!"
     },
     "title": "Gestisci i backup"
   },
@@ -466,6 +471,7 @@
   },
   "chart": {
     "dataMissing": "Raccolta di dati ... rimanete collegati.",
+    "dataOldTimestamp": "Aggiornamento dei tassi di cambio storici. Il grafico non visualizza dati posteriori al {{time}}",
     "dataUpdating": "aggiornamento dei dati ...",
     "filter": {
       "all": "Tutto",
@@ -485,6 +491,10 @@
     "infoWhenPaired": "Prima sul cellulare accoppiato e poi sul tuo BitBox"
   },
   "confirmOnDevice": "Conferma sul tuo dispositivo.",
+  "connectKeystore": {
+    "promptNoName": "Connetti il tuo BitBox02 per continuare",
+    "promptWithName": "Connetti il tuo BitBox02 con nome \"{{name}}\" per continuare"
+  },
   "darkmode": {
     "toggle": "Modalità scura"
   },
@@ -516,6 +526,9 @@
       "deviceName": {
         "description": "Modifica il nome del tuo dispositivo."
       },
+      "rootFingerprint": {
+        "description": "La root fingerprint è un identificatore univoco del portafogli attualmente in uso. Ti può aiutare a distinguere portafogli diversi se usi la passphrase."
+      },
       "securechip": {
         "description": "Modello del secur chip."
       },
@@ -523,7 +536,7 @@
     },
     "expert": {
       "factoryReset": {
-        "description": "Ripristina il tuo dispositivo alle impostazioni di fabbrica. Questo cancella il portafogli sul tuo BitBox02!",
+        "description": "Ripristina il dispositivo alle impostazioni di fabbrica. Questo cancella il portafogli sul tuo BitBox02!",
         "title": "Ripristino alle impostazioni di fabbrica"
       },
       "goToStartupSettings": {
@@ -601,7 +614,9 @@
     "aoppUnsupportedAsset": "The asset is not supported.",
     "aoppUnsupportedFormat": "Non ci sono account disponibili che supportino il formato di indirizzo richiesto.",
     "aoppUnsupportedKeystore": "Il dispositivo collegato non può firmare i messaggi per questo asset.\n",
-    "aoppVersion": "Versione sconosciuta."
+    "aoppVersion": "Versione sconosciuta.",
+    "wrongKeystore": "Portafogli connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
+    "wrongKeystore2": "Se stai utilizzando la passphrase opzionale, assicurati di avere inserito quella corretta per questo account."
   },
   "fiat": {
     "default": "predefinito",
@@ -982,6 +997,20 @@
         "text": "Grazie per aver usato questa app costruita da Shift Crypto in Svizzera. Apprezziamo qualsiasi input che hai da condividere. Inviaci il tuo feedback utilizzando il link in basso.",
         "title": "Benvenuti nella BitBoxApp!"
       }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "Se utilizzi la BitBoxApp su un nuovo telefono/computer, dovrai riconnetterti alle DApp per vedere le valute collegate come al solito.",
+        "title": "Non vedo le mie connessioni precedenti."
+      },
+      "supportedNetworks": {
+        "text": "Al momento, solo la mainnet Ethereum è supportata da WalletConnect nella BiBoxApp. Se hai bisogno di un portafogli per altre chain EVM puoi utilizzare l'estensione per il browser Rabby.",
+        "title": "Quali reti sono supportate?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect è un protocollo di comunicazione per applicazioni web3. Ti permette di connetterti comodamente a DApp e portafogli web senza dover usare un'altra app. Particolarmente utile per gli utenti Android della BitBoxApp.",
+        "title": "Cos'è WalletConnect?"
+      }
     }
   },
   "headerssync": {
@@ -1028,6 +1057,7 @@
   },
   "loading": "caricamento...",
   "manageAccounts": {
+    "accountHidden": "Questo account è stato nascosto dalla lista degli account watch-only. Per vederlo di nuovo, connetti il tuo BitBox02",
     "editAccount": "Modifica",
     "editAccountNameTitle": "Modifica il nome dell'account",
     "noAccounts": "Nessun account trovato",
@@ -1036,7 +1066,9 @@
       "showTokens": "Mostra token ({{activeTokenCount}})"
     },
     "settingsButtonDescription": "Aggiungi e mostra/nascondi gli account",
-    "title": "Gestisci gli account"
+    "title": "Gestisci gli account",
+    "watchAccount": "Watch-only account",
+    "watchAccountDescription": "Questo account è stato aggiunto alla lista degli account watch-only. Disattiva per nasconderlo."
   },
   "mobile": {
     "usingMobileDataWarning": "Utilizzo di dati mobili: dopo aver sbloccato un account questa app può scaricare fino a qualche centinaio di megabyte di dati dell'intestazione della blockchain. Si prega di connettersi al Wi-Fi per evitare di utilizzare i dati mobili. Dopo averlo chiuso, questo messaggio non verrà più visualizzato."
@@ -1048,6 +1080,10 @@
       }
     },
     "advancedSettings": {
+      "authentication": {
+        "description": "Blocca l'accesso all'app con blocco schermo/impronta digitale.",
+        "title": "Blocco schermo"
+      },
       "coinControl": {
         "description": "Seleziona quali UTXOs fanno parte di una transazione per aiutarti ad aumentare la tua privacy."
       },
@@ -1069,6 +1105,12 @@
       "defaultCurrency": {
         "description": "Selezione la valuta di default",
         "title": "Valuta di default"
+      },
+      "hideAmounts": {
+        "description": "Visualizza un'opzione per nascondere il tuo bilancio e gli importi per aumentare la tua privacy quando usi l'app in pubblico.",
+        "hideAmounts": "Nascondi importi",
+        "showAmounts": "Mostra importi",
+        "title": "Abilita importi nascosti"
       },
       "language": {
         "description": "In che lingua preferisci visualizzare la BitBoxApp.",
@@ -1191,7 +1233,7 @@
         "La passphrase è un ulteriore livello di sicurezza oltre al backup.\n",
         "L'inserimento di una passphrase diversa genererà sempre un portafoglio diverso.\n",
         "Per ripristinare il portafoglio sono necessari <strong>sia la passphrase che il backup</strong>.",
-        "Se si dimentica la passphrase, non è più possibile accedere alle proprie valute.\n"
+        "Se si dimentica la passphrase, <strong>non è più possibile accedere ai propri fondi</strong>.\n"
       ]
     },
     "what": {
@@ -1241,7 +1283,7 @@
     }
   },
   "reset": {
-    "description": "Tutti i dati sul dispositivo saranno cancellati. Questo include la tua chiave privata!",
+    "description": "Tutti i dati saranno cancellati dal dispositivo. Inclusa la tua chiave privata!",
     "notReset": "Dispositivo NON resettato.",
     "title": "Ripristino di fabbrica del dispositivo",
     "understand": "Ho un backup e conosco la mia password di recupero",
@@ -1443,8 +1485,6 @@
   },
   "setup": "Imposta il dispositivo",
   "sidebar": {
-    "accounts": "Account",
-    "addAccount": "Aggiungi account",
     "buy": "Acquista criptovalute",
     "device": "Gestisci il dispositivo",
     "leave": "Esci",
@@ -1529,12 +1569,51 @@
     "unlocked2": "Il LED si accende quando il tuo BitBox è ricollegato",
     "unlocked3": "Tocca il pulsante a sfioramento quando il LED si accende"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Conneti",
+      "dappLabel": "Inserire indirizzo URI della DApp",
+      "invalidPairingUri": "URI di connessione non valido"
+    },
+    "dashboard": {
+      "allSessions": "Tutte le sessioni",
+      "disclaimer": "WalletConnect è un protocollo per connettersi a Dapp basate su Ethereum. Queste DApp sono gestite da servizi di terze parti, per cui connettiti solo a DApp di cui ti fidi e accertati di sapere sempre cosa stai firmando quando crei una transazione.",
+      "newConnection": "Nuova Connessione",
+      "noConnectedSessions": "Nessun account è connesso a DApp al momento."
+    },
+    "invalidPairingChain": "Errore nell'approvazione della connessione. Assicurati di utilizare una delle chain supportate: {{chains}}",
+    "pairingRequest": {
+      "approve": "Approva Connessione",
+      "reject": "Rifiuta",
+      "title": "Nuova richista di connessione da"
+    },
+    "pairingSuccess": "DApp connessa. Puoi continuare sul sito della DApp.",
+    "signingRequest": {
+      "account": "Account",
+      "chain": "Chain",
+      "dapp": "DApp",
+      "data": "Dati",
+      "dataParsingError": "Parse dei dati fallto.",
+      "decodeError": "Decodifica del messaggio fallita",
+      "method": {
+        "sendTransaction": "Firma ed invia transazione",
+        "signMessage": "Firma messaggio",
+        "signTransaction": "Firma transazione",
+        "signTypedData": "Firma typed data"
+      },
+      "successfullySigned": "Richiesta firmata con successo",
+      "walletConnectRequest": "Richiesta WalletConnect"
+    },
+    "useNewUri": "Questo URI è già stato utilizzato per provare a connettersi. Per favore, utilizzare un nuovo URI.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
     "receivePairing": "Si prega di associare il BitBox per abilitare la verifica sicura dell'indirizzo. Vai su \"Gestisci dispositivo\" nella barra laterale.",
     "sdcard": "Tenere la scheda microSD separata dal BitBox, a meno che non si vogliano gestire i backup.",
     "sendPairing": "Si prega di abbinare il BitBox per verificare in modo sicuro i dettagli della transazione. Vai su 'Gestisci dispositivo' nella barra laterale."
   },
   "welcome": {
+    "connect": "Connetti BitBox02",
     "getStarted": "Iniziamo con l'installazione del firmware sul BitBox02.",
     "insertBitBox02": "Se hai collegato un BitBox02, tocca il dispositivo per continuare.",
     "insertDevice": "Collega il tuo dispositivo per cominciare",
