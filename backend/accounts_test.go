@@ -21,6 +21,7 @@ import (
 	"math/big"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -1529,6 +1530,13 @@ func TestWatchonly(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
 		defer b.Close()
 
+		// registering a keystore calls `go maybeAddHiddenunusedAccounts()` - we need wait for it to
+		// complete to avoid race conditions in this test about which account is added at what time.
+		hiddenAccountsAdded := make(chan struct{})
+		b.tstMaybeAddHiddenUnusedAccounts = func() {
+			close(hiddenAccountsAdded)
+		}
+
 		ks := makeBitBox02Multi()
 
 		rootFingerprint, err := ks.RootFingerprint()
@@ -1536,9 +1544,16 @@ func TestWatchonly(t *testing.T) {
 
 		b.registerKeystore(ks)
 		checkShownAccountsLen(t, b, 3, 3)
+
+		select {
+		case <-hiddenAccountsAdded:
+		case <-time.After(5 * time.Second):
+			require.Fail(t, "expected hidden accounts to be added")
+		}
+
 		require.NoError(t, b.SetWatchonly(rootFingerprint, true))
 
-		// An account may already have been added as part of autodiscover, so we add two.
+		// An account has already been added as part of autodiscover, so we add two.
 		newAccountCode1, err := b.CreateAndPersistAccountConfig(
 			coinpkg.CodeBTC,
 			"Bitcoin account name",
