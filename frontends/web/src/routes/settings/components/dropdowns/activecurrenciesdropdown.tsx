@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Select, { ActionMeta, DropdownIndicatorProps, OptionProps, components } from 'react-select';
-import { selectFiat, unselectFiat, SharedProps } from '../../../../components/rates/rates';
 import { Fiat } from '../../../../api/account';
+import { RatesContext } from '../../../../contexts/RatesContext';
 import { SelectedCheckLight } from '../../../../components/icon';
 import dropdownStyles from './dropdowns.module.css';
 import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css';
@@ -13,25 +13,29 @@ type SelectOption = {
   }
 
 type TSelectProps = {
-    options: SelectOption[];
-  } & SharedProps;
+  options: SelectOption[];
+  defaultCurrency: Fiat;
+  activeCurrencies: Fiat[];
+};
 
 // a multi-select dropdown
 export const ActiveCurrenciesDropdown = ({
   options,
-  active: defaultCurrency, // active here actually means default, thus aliasing it
-  selected
+  defaultCurrency,
+  activeCurrencies
 }: TSelectProps) => {
-  const [selectedCurrencies, setSelectedCurrencies] = useState<SelectOption[]>([]);
+  const [formattedActiveCurrencies, setFormattedActiveCurrencies] = useState<SelectOption[]>([]);
   const [search, setSearch] = useState('');
   const { t } = useTranslation();
 
+  const { unselectFiat, selectFiat } = useContext(RatesContext);
+
   useEffect(() => {
-    if (selected.length > 0) {
-      const formattedSelectedCurrencies = selected.map(currency => ({ label: currency, value: currency }));
-      setSelectedCurrencies(formattedSelectedCurrencies);
+    if (activeCurrencies.length > 0) {
+      const formattedSelectedCurrencies = activeCurrencies.map(currency => ({ label: currency, value: currency }));
+      setFormattedActiveCurrencies(formattedSelectedCurrencies);
     }
-  }, [selected]);
+  }, [activeCurrencies]);
 
   const DropdownIndicator = (props: DropdownIndicatorProps<SelectOption, true>) => {
     return (
@@ -43,7 +47,7 @@ export const ActiveCurrenciesDropdown = ({
 
   const Option = (props: OptionProps<SelectOption, true>) => {
     const { label, value } = props.data;
-    const selected = selectedCurrencies.findIndex(currency => currency.value === value) >= 0;
+    const selected = formattedActiveCurrencies.findIndex(currency => currency.value === value) >= 0;
     const isDefaultCurrency = defaultCurrency === value;
     return (
       <components.Option {...props} className={`${isDefaultCurrency ? activeCurrenciesDropdownStyle.defaultCurrency : ''}`}>
@@ -67,21 +71,20 @@ export const ActiveCurrenciesDropdown = ({
       isMulti
       closeMenuOnSelect={false}
       hideSelectedOptions={false}
-      value={[...selectedCurrencies].reverse()}
+      value={[...formattedActiveCurrencies].reverse()}
       onInputChange={(newValue) => setSearch(newValue)}
-      onChange={(_, meta: ActionMeta<SelectOption>) => {
+      onChange={async (_, meta: ActionMeta<SelectOption>) => {
         switch (meta.action) {
         case 'select-option':
           if (meta.option) {
-            selectFiat(meta.option.value);
+            await selectFiat(meta.option.value);
           }
           break;
         case 'deselect-option':
           if (meta.option && meta.option.value !== defaultCurrency) {
-            unselectFiat(meta.option.value);
+            await unselectFiat(meta.option.value);
           }
         }
-
       }}
       options={options}
     />);
