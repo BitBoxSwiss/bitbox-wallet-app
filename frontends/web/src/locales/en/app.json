@@ -1111,9 +1111,9 @@
         "description": "Select your default currency",
         "title": "Default currency"
       },
-      "enableWallet": {
+      "enableAccount": {
         "description": "Disabling your account means it will not appear in the sidebar or the portfolio. You can always enable it again from here. Coins on this account will not be affected and will remain safe.",
-        "title": "Enable/disable wallet"
+        "title": "Enable/disable account"
       },
       "hideAmounts": {
         "description": "Displays a toggle to hide your balance and amounts to improve your privacy when using the app in public.",
