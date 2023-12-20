@@ -22,7 +22,6 @@ import { alertUser } from '../../components/alert/Alert';
 import { A } from '../../components/anchor/anchor';
 import { Button } from '../../components/forms';
 import { Checked, Sync, SyncLight } from '../../components/icon';
-import Logo from '../../components/icon/logo';
 import { Column, ColumnButtons, Grid, GuidedContent, GuideWrapper, Header, Main } from '../../components/layout';
 import { View, ViewContent } from '../../components/view/view';
 import { useDarkmode } from '../../hooks/darkmode';
@@ -39,6 +38,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const [insuredAccounts, setInsuredAccounts] = useState<IAccount[]>([]);
+  const [redirecting, setRedirecting] = useState(true);
   const [scanDone, setScanDone] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
 
@@ -47,7 +47,10 @@ export const Bitsurance = ({ accounts }: TProps) => {
   useEffect(() => {
     if (accounts.some(({ bitsuranceStatus }) => bitsuranceStatus)) {
       route('bitsurance/dashboard');
+    } else {
+      setRedirecting(false);
     }
+
     return () => setInsuredAccounts([]);
   }, [accounts]);
 
@@ -85,6 +88,11 @@ export const Bitsurance = ({ accounts }: TProps) => {
     await detect(false);
     route('bitsurance/account');
   };
+
+  if (redirecting) {
+    return null;
+  }
+
   return (
     <Main>
       <GuideWrapper>
@@ -123,18 +131,7 @@ export const Bitsurance = ({ accounts }: TProps) => {
                       {t('bitsurance.detect.title')}
                     </h3>
                     <p className={style.cardBody}>{t('bitsurance.detect.text')}</p>
-                    {insuredAccounts.length > 0 ? (
-                    //FIXME this will be removed and a new page listing the dashboard of the
-                    // insured accounts will be introduced in a next commit.
-                      <div>
-                        <p>{t('bitsurance.detect.insured')}</p>
-                        <ul className={style.clean}>
-                          {insuredAccounts.map(account => <li key={account.code}>
-                            <Logo coinCode="btc" active={true} alt="btc" />
-                            {account.name}</li>)}
-                        </ul>
-                      </div>
-                    ) : scanDone && (
+                    {!insuredAccounts.length && scanDone && (
                       <p className={`${style.cardBody2} ${style.errorMessage}`}>{t('bitsurance.detect.notInsured')}</p>
                     )}
                     <ColumnButtons className={style.ctaButton}>

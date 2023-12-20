@@ -33,6 +33,7 @@ import { Skeleton } from '../../components/skeleton/skeleton';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { ExternalLink, GreenDot, OrangeDot, RedDot, YellowDot } from '../../components/icon';
 import style from './dashboard.module.css';
+import { HorizontallyCenteredSpinner } from '../../components/spinner/SpinnerAnimation';
 
 type TProps = {
     accounts: IAccount[];
@@ -95,6 +96,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
       });
     });
   }, [insuredAccounts, mounted]);
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -120,22 +122,24 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
               </div>
 
               <div className={style.accountsContainer}>
-                {insuredAccounts.map(account => activeAccountCodes.includes(account.code) ? (
+                {insuredAccounts.length ? insuredAccounts.map(account => activeAccountCodes.includes(account.code) ? (
                   <div key={account.code} className={style.row}>
                     <div className="flex flex-items-center">
                       <p className={`${style.text} ${style.accountName}`}>
                         {accounts.filter(ac => ac.code === account.code).map(ac => ac.name)}
                       </p>
-                      { balances ? (
-                        <span className={`${style.text} ${style.subtle}`}>
-                          <Amount
-                            amount={balances[account.code]?.available.amount}
-                            unit={balances[account.code]?.available.unit}
-                            removeBtcTrailingZeroes
-                          />
-                          {` ${balances[account.code]?.available.unit}`}
-                        </span>
-                      ) : <Skeleton/>}
+                      <span className={`${style.text} ${style.subtle}`}>
+                        { balances && balances[account.code] ? (
+                          <>
+                            <Amount
+                              amount={balances[account.code].available.amount}
+                              unit={balances[account.code].available.unit}
+                              removeBtcTrailingZeroes
+                            />
+                            {` ${balances[account.code].available.unit}`}
+                          </>
+                        ) : <Skeleton/>}
+                      </span>
                     </div>
 
                     <div className={'m-top-half m-bottom-half'}>
@@ -160,7 +164,7 @@ export const BitsuranceDashboard = ({ accounts }: TProps) => {
                     </div>
 
                   </div>
-                ) : null)}
+                ) : null) : <HorizontallyCenteredSpinner />}
               </div>
 
             </ViewContent>
