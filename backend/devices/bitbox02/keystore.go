@@ -302,6 +302,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			}
 		}
 		scriptConfigs = append(scriptConfigs, scriptConfig)
+		logrus.Infof("new script config [%v]: %s", len(scriptConfigs)-1, scriptConfig.String())
 		return len(scriptConfigs) - 1
 	}
 
@@ -330,6 +331,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
 			Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
 		})
+		logrus.Infof("utxo: index %v", scriptConfigIndex)
 
 		inputs[inputIndex] = &firmware.BTCTxInput{
 			Input: &messages.BTCSignInputRequest{
@@ -381,21 +383,6 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		if err != nil {
 			return err
 		}
-		var msgOutputType messages.BTCOutputType
-		switch address.(type) {
-		case *btcutil.AddressPubKeyHash:
-			msgOutputType = messages.BTCOutputType_P2PKH
-		case *btcutil.AddressScriptHash:
-			msgOutputType = messages.BTCOutputType_P2SH
-		case *btcutil.AddressWitnessPubKeyHash:
-			msgOutputType = messages.BTCOutputType_P2WPKH
-		case *btcutil.AddressWitnessScriptHash:
-			msgOutputType = messages.BTCOutputType_P2WSH
-		case *btcutil.AddressTaproot:
-			msgOutputType = messages.BTCOutputType_P2TR
-		default:
-			return errp.Newf("unsupported output type: %v", address)
-		}
 		changeAddress := btcProposedTx.TXProposal.ChangeAddress
 		isChange := changeAddress != nil && bytes.Equal(
 			changeAddress.PubkeyScript(),
@@ -422,6 +409,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			if err != nil {
 				return err
 			}
+			logrus.Infof("change address: index %v, script  %v - %s ", scriptConfigIndex, accountConfiguration.BitcoinSimple.ScriptType, changeAddress.EncodeForHumans())
 		}
 
 		ours := false
@@ -435,16 +423,40 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 					if err != nil {
 						return err
 					}
+					logrus.Infof("own address: index %v, script %v - %s ", scriptConfigIndex, ownAddress.ScriptType, ownAddress.Address.EncodeForHumans())
 					break
 				}
 			}
+		}
+
+		var payload []byte
+		var msgOutputType messages.BTCOutputType
+
+		if !ours && !isChange {
+			payload = address.ScriptAddress()
+
+			switch address.(type) {
+			case *btcutil.AddressPubKeyHash:
+				msgOutputType = messages.BTCOutputType_P2PKH
+			case *btcutil.AddressScriptHash:
+				msgOutputType = messages.BTCOutputType_P2SH
+			case *btcutil.AddressWitnessPubKeyHash:
+				msgOutputType = messages.BTCOutputType_P2WPKH
+			case *btcutil.AddressWitnessScriptHash:
+				msgOutputType = messages.BTCOutputType_P2WSH
+			case *btcutil.AddressTaproot:
+				msgOutputType = messages.BTCOutputType_P2TR
+			default:
+				return errp.Newf("unsupported output type: %v", address)
+			}
+
 		}
 
 		outputs[index] = &messages.BTCSignOutputRequest{
 			Ours:              ours || isChange,
 			Type:              msgOutputType,
 			Value:             uint64(txOut.Value),
-			Payload:           address.ScriptAddress(),
+			Payload:           payload,
 			Keypath:           keypath,
 			ScriptConfigIndex: uint32(scriptConfigIndex),
 		}
