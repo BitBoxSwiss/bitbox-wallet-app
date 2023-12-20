@@ -213,7 +213,7 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (
 	return utxo, txProposal, nil
 }
 
-// getAddress returns the address in the account with the given `scriptHashHex`. Panics if the
+// getAddress returns the address in the account with the given `scriptHashHex`. Returns nil if the
 // address does not exist in the account.
 func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
 	for _, subacc := range account.subaccounts {
@@ -224,7 +224,7 @@ func (account *Account) getAddress(scriptHashHex blockchain.ScriptHashHex) *addr
 			return address
 		}
 	}
-	panic("address must be present")
+	return nil
 }
 
 // SendTx implements accounts.Interface.
