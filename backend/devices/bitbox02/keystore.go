@@ -293,6 +293,8 @@ func (keystore *keystore) ExtendedPublicKey(
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	tx := btcProposedTx.TXProposal.Transaction
 
+	// scriptConfigs represent the script configurations of a specific account and include the
+	// script type (e.g. p2wpkh, p2tr..) and the account keypath
 	scriptConfigs := []*messages.BTCScriptConfigWithKeypath{}
 	// addScriptConfig returns the index of the scriptConfig in scriptConfigs, adding it if it isn't
 	// present. Must be a Simple configuration.
@@ -312,6 +314,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return errp.Newf("coin not supported: %s", coin.Code())
 	}
 
+	// iterate over the tx inputs to add the related scriptconfigs and translate into `firmware.BTCTxInput` format.
 	inputs := make([]*firmware.BTCTxInput, len(tx.TxIn))
 	for inputIndex, txIn := range tx.TxIn {
 		prevOut, ok := btcProposedTx.TXProposal.PreviousOutputs[txIn.PreviousOutPoint]
@@ -320,7 +323,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			return errp.New("There needs to be exactly one output being spent per input.")
 		}
 
-		inputAddress := btcProposedTx.GetAddress(prevOut.ScriptHashHex())
+		inputAddress := btcProposedTx.GetAccountAddress(prevOut.ScriptHashHex())
 
 		accountConfiguration := inputAddress.AccountConfiguration
 		msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
@@ -344,14 +347,18 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		}
 	}
 
+	txChangeAddress := btcProposedTx.TXProposal.ChangeAddress
+
+	// iterate over tx outputs to add the related scriptconfigs, flag internal addresses and build
+	// the output signing requests.
 	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
 	for index, txOut := range tx.TxOut {
-		address, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
+		outputAddress, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
 		if err != nil {
 			return err
 		}
 		var msgOutputType messages.BTCOutputType
-		switch address.(type) {
+		switch outputAddress.(type) {
 		case *btcutil.AddressPubKeyHash:
 			msgOutputType = messages.BTCOutputType_P2PKH
 		case *btcutil.AddressScriptHash:
@@ -363,18 +370,20 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		case *btcutil.AddressTaproot:
 			msgOutputType = messages.BTCOutputType_P2TR
 		default:
-			return errp.Newf("unsupported output type: %v", address)
+			return errp.Newf("unsupported output type: %v", outputAddress)
 		}
-		outputAddress := btcProposedTx.GetAddress(blockchain.NewScriptHashHex(txOut.PkScript))
 
-		changeAddress := btcProposedTx.TXProposal.ChangeAddress
 		// Could also determine change using `outputAddress != nil AND second-to-last keypath element of outputAddress is 1`.
-		isChange := changeAddress != nil && bytes.Equal(
-			changeAddress.PubkeyScript(),
+		isChange := txChangeAddress != nil && bytes.Equal(
+			txChangeAddress.PubkeyScript(),
 			txOut.PkScript,
 		)
 
-		isOurs := outputAddress != nil
+		// outputAccountAddress represents the same address as outputAddress, but embeds the account configuration.
+		// It is nil if the address is external.
+		outputAccountAddress := btcProposedTx.GetAccountAddress(blockchain.NewScriptHashHex(txOut.PkScript))
+
+		isOurs := outputAccountAddress != nil
 		if !isChange && !keystore.device.Version().AtLeast(semver.NewSemVer(9, 15, 0)) {
 			// For firmware older than 9.15.0, non-change outputs cannot be marked internal.
 			isOurs = false
@@ -383,8 +392,8 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		var keypath []uint32
 		var scriptConfigIndex int
 		if isOurs {
-			keypath = outputAddress.Configuration.AbsoluteKeypath().ToUInt32()
-			accountConfiguration := outputAddress.AccountConfiguration
+			keypath = outputAccountAddress.Configuration.AbsoluteKeypath().ToUInt32()
+			accountConfiguration := outputAccountAddress.AccountConfiguration
 			msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
 			if !ok {
 				return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
@@ -399,7 +408,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 			Ours:              isOurs,
 			Type:              msgOutputType,
 			Value:             uint64(txOut.Value),
-			Payload:           address.ScriptAddress(),
+			Payload:           outputAddress.ScriptAddress(),
 			Keypath:           keypath,
 			ScriptConfigIndex: uint32(scriptConfigIndex),
 		}
@@ -438,6 +447,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		}
 	}
 
+	// Handle displaying formatting in btc or sats.
 	formatUnit := messages.BTCSignInitRequest_DEFAULT
 	if btcProposedTx.FormatUnit == coinpkg.BtcUnitSats {
 		formatUnit = messages.BTCSignInitRequest_SAT
