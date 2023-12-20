@@ -24,6 +24,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -343,6 +344,67 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		}
 	}
 
+	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
+	for index, txOut := range tx.TxOut {
+		address, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
+		if err != nil {
+			return err
+		}
+		var msgOutputType messages.BTCOutputType
+		switch address.(type) {
+		case *btcutil.AddressPubKeyHash:
+			msgOutputType = messages.BTCOutputType_P2PKH
+		case *btcutil.AddressScriptHash:
+			msgOutputType = messages.BTCOutputType_P2SH
+		case *btcutil.AddressWitnessPubKeyHash:
+			msgOutputType = messages.BTCOutputType_P2WPKH
+		case *btcutil.AddressWitnessScriptHash:
+			msgOutputType = messages.BTCOutputType_P2WSH
+		case *btcutil.AddressTaproot:
+			msgOutputType = messages.BTCOutputType_P2TR
+		default:
+			return errp.Newf("unsupported output type: %v", address)
+		}
+		outputAddress := btcProposedTx.GetAddress(blockchain.NewScriptHashHex(txOut.PkScript))
+
+		changeAddress := btcProposedTx.TXProposal.ChangeAddress
+		// Could also determine change using `outputAddress != nil AND second-to-last keypath element of outputAddress is 1`.
+		isChange := changeAddress != nil && bytes.Equal(
+			changeAddress.PubkeyScript(),
+			txOut.PkScript,
+		)
+
+		isOurs := outputAddress != nil
+		if !isChange && !keystore.device.Version().AtLeast(semver.NewSemVer(9, 15, 0)) {
+			// For firmware older than 9.15.0, non-change outputs cannot be marked internal.
+			isOurs = false
+		}
+
+		var keypath []uint32
+		var scriptConfigIndex int
+		if isOurs {
+			keypath = outputAddress.Configuration.AbsoluteKeypath().ToUInt32()
+			accountConfiguration := outputAddress.AccountConfiguration
+			msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
+			if !ok {
+				return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
+			}
+			scriptConfigIndex = addScriptConfig(&messages.BTCScriptConfigWithKeypath{
+				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
+				Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
+			})
+
+		}
+		outputs[index] = &messages.BTCSignOutputRequest{
+			Ours:              isOurs,
+			Type:              msgOutputType,
+			Value:             uint64(txOut.Value),
+			Payload:           address.ScriptAddress(),
+			Keypath:           keypath,
+			ScriptConfigIndex: uint32(scriptConfigIndex),
+		}
+	}
+
 	// Provide the previous transaction for each input if needed.
 	if firmware.BTCSignNeedsPrevTxs(scriptConfigs) {
 		for inputIndex, txIn := range tx.TxIn {
@@ -373,56 +435,6 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 				Outputs:  prevTxOuputs,
 				Locktime: prevTx.LockTime,
 			}
-		}
-	}
-	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
-	for index, txOut := range tx.TxOut {
-		address, err := util.AddressFromPkScript(txOut.PkScript, coin.Net())
-		if err != nil {
-			return err
-		}
-		var msgOutputType messages.BTCOutputType
-		switch address.(type) {
-		case *btcutil.AddressPubKeyHash:
-			msgOutputType = messages.BTCOutputType_P2PKH
-		case *btcutil.AddressScriptHash:
-			msgOutputType = messages.BTCOutputType_P2SH
-		case *btcutil.AddressWitnessPubKeyHash:
-			msgOutputType = messages.BTCOutputType_P2WPKH
-		case *btcutil.AddressWitnessScriptHash:
-			msgOutputType = messages.BTCOutputType_P2WSH
-		case *btcutil.AddressTaproot:
-			msgOutputType = messages.BTCOutputType_P2TR
-		default:
-			return errp.Newf("unsupported output type: %v", address)
-		}
-		changeAddress := btcProposedTx.TXProposal.ChangeAddress
-		isChange := changeAddress != nil && bytes.Equal(
-			changeAddress.PubkeyScript(),
-			txOut.PkScript,
-		)
-		var keypath []uint32
-		var scriptConfigIndex int
-		if isChange {
-			keypath = changeAddress.Configuration.AbsoluteKeypath().ToUInt32()
-			accountConfiguration := changeAddress.AccountConfiguration
-			msgScriptType, ok := btcMsgScriptTypeMap[accountConfiguration.ScriptType()]
-			if !ok {
-				return errp.Newf("Unsupported script type %s", accountConfiguration.ScriptType())
-			}
-			scriptConfigIndex = addScriptConfig(&messages.BTCScriptConfigWithKeypath{
-				ScriptConfig: firmware.NewBTCScriptConfigSimple(msgScriptType),
-				Keypath:      accountConfiguration.AbsoluteKeypath().ToUInt32(),
-			})
-
-		}
-		outputs[index] = &messages.BTCSignOutputRequest{
-			Ours:              isChange,
-			Type:              msgOutputType,
-			Value:             uint64(txOut.Value),
-			Payload:           address.ScriptAddress(),
-			Keypath:           keypath,
-			ScriptConfigIndex: uint32(scriptConfigIndex),
 		}
 	}
 
