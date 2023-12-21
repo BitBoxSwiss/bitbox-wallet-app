@@ -1163,6 +1163,9 @@ func (backend *Backend) uninitAccounts(force bool) {
 //     and still be able to receive to P2TR in the highest account. Such a P2TR
 //     account would not be discovered by other BIP44-compatible software.
 func (backend *Backend) maybeAddHiddenUnusedAccounts() {
+	if backend.tstMaybeAddHiddenUnusedAccounts != nil {
+		defer backend.tstMaybeAddHiddenUnusedAccounts()
+	}
 	defer backend.accountsAndKeystoreLock.Lock()()
 	if backend.keystore == nil {
 		return
