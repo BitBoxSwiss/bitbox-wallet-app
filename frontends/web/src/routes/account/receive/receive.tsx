@@ -67,8 +67,8 @@ export const Receive = ({
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.IReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-
   const account = accounts.find(({ code: accountCode }) => accountCode === code);
+  const insured = account?.bitsuranceStatus === 'active';
 
   // first array index: address types. second array index: unused addresses of that address type.
   const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
@@ -76,7 +76,7 @@ export const Receive = ({
   const availableScriptTypes = useRef<accountApi.ScriptType[]>();
 
   const hasManyScriptTypes = availableScriptTypes.current && availableScriptTypes.current.length > 1;
-  const scriptTypeDialogOpened = !!(addressDialog && hasManyScriptTypes);
+  const scriptTypeDialogOpened = !!(addressDialog && (hasManyScriptTypes || insured));
 
   useEsc(() => !scriptTypeDialogOpened && !verifying && route(`/account/${code}`));
 
@@ -203,7 +203,7 @@ export const Receive = ({
                     )}
                   </div>
                   <CopyableInput disabled={true} value={address} flexibleHeight />
-                  { hasManyScriptTypes && (
+                  { (hasManyScriptTypes || insured) && (
                     <button
                       className={style.changeType}
                       onClick={() => setAddressDialog(!addressDialog ? { addressType } : undefined)}>
@@ -214,7 +214,7 @@ export const Receive = ({
                     <Dialog open={scriptTypeDialogOpened} onClose={() => setAddressDialog(undefined)} medium title={t('receive.changeScriptType')} >
                       {availableScriptTypes.current && availableScriptTypes.current.map((scriptType, i) => (
                         <div key={scriptType}>
-                          {addressDialog && (account?.bitsuranceStatus !== 'active' || scriptType === 'p2wpkh') && (
+                          {addressDialog && (
                             <>
                               <Radio
                                 checked={addressDialog.addressType === i}
@@ -233,7 +233,7 @@ export const Receive = ({
                           )}
                         </div>
                       ))}
-                      {account?.bitsuranceStatus === 'active' && (
+                      {insured && (
                         <Message type="warning">
                           {t('receive.bitsuranceWarning')}
                         </Message>
