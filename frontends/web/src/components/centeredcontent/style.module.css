@@ -10,6 +10,8 @@
     justify-content: center;
     margin: 0 auto;
     max-height: 100vh;
+    /* mobile viewport bug fix */
+    min-height: -webkit-fill-available;
     overflow: auto;
     max-width: var(--content-width-small);
     width: 100%;

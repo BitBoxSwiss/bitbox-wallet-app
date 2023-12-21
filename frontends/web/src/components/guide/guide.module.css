@@ -33,6 +33,8 @@
 .guide {
     margin-right: calc(var(--guide-width) * -1);
     height: 100vh;
+    /* mobile viewport bug fix */
+    height: -webkit-fill-available;
     width: var(--guide-width);
     color: white;
     background-color: var(--color-lightblue);
