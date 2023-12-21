@@ -15,22 +15,26 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import style from './insuredtag.module.css';
 import { Link } from 'react-router-dom';
 import { Shield } from '../../../components/icon';
+import style from './insuredtag.module.css';
 
-/* TODO:
-   - go to new line on small screen size
-*/
 export const Insured = () => {
   const { t } = useTranslation();
   return (
-    <Link className={`${style.insured}`} to="/bitsurance/dashboard">
-      <div >
+    <Link className={style.insured} to="/bitsurance/dashboard">
+      <div>
         <Shield/>
-        {t('account.insured')}
+        <span>{t('account.insured')}</span>
       </div>
     </Link>
+  );
+};
 
+export const InsuredShield = () => {
+  return (
+    <div className={`${style.insured} ${style.insuredShield}`}>
+      <Shield/>
+    </div>
   );
 };

@@ -43,7 +43,7 @@ export const BuyInfo = ({ code, accounts }: TProps) => {
     try {
       const supportedAccounts = await getExchangeSupportedAccounts(accounts);
       const options =
-        supportedAccounts.map(({ name, code, coinCode }) => ({ label: `${name}`, value: code, coinCode, disabled: false }));
+        supportedAccounts.map(({ name, code, coinCode, bitsuranceStatus }) => ({ label: `${name}`, value: code, coinCode, disabled: false, insured: bitsuranceStatus === 'active' }));
       setOptions(await setOptionBalances(options));
     } catch (e) {
       console.error(e);

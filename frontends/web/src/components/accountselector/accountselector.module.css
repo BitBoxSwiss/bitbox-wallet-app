@@ -2,6 +2,7 @@
     color: var(--color-secondary);
     margin-left: auto;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .balanceSingleValue {
