@@ -1,1 +1,1 @@
-include ':app', ':goserver'
+include ':app', ':mobileserver'

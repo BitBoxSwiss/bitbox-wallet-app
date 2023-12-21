@@ -85,6 +85,7 @@ clean:
 	rm -rf ${WEBROOT}/build
 	cd frontends/qt && $(MAKE) clean
 	cd frontends/android && $(MAKE) clean
+	cd backend/mobileserver && $(MAKE) clean
 dockerinit:
 	./scripts/container.sh build --pull --force-rm -t shiftcrypto/bitbox-wallet-app .
 dockerdev:
