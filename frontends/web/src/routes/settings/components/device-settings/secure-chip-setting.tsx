@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 
 type TProps = {
-    secureChipModel: string;
+  secureChipModel: string;
 }
 
 const SecureChipSetting = ({ secureChipModel }: TProps) => {

@@ -19,14 +19,14 @@ import { Fiat } from '../api/account';
 import { BtcUnit } from '../api/coins';
 
 type RatesContextProps = {
-    defaultCurrency: Fiat;
-    activeCurrencies: Fiat[];
-    btcUnit?: BtcUnit;
-    rotateFiat: () => void;
-    selectFiat: (fiat: Fiat) => Promise<void>;
-    updateDefaultFiat: (fiat: Fiat) => void;
-    updateRatesConfig: () => Promise<void>;
-    unselectFiat: (fiat: Fiat) => Promise<void>;
+  defaultCurrency: Fiat;
+  activeCurrencies: Fiat[];
+  btcUnit?: BtcUnit;
+  rotateFiat: () => void;
+  selectFiat: (fiat: Fiat) => Promise<void>;
+  updateDefaultFiat: (fiat: Fiat) => void;
+  updateRatesConfig: () => Promise<void>;
+  unselectFiat: (fiat: Fiat) => Promise<void>;
 }
 
 const RatesContext = createContext<RatesContextProps>({} as RatesContextProps);

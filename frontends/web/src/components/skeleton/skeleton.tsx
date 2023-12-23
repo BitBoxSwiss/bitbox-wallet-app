@@ -17,8 +17,8 @@
 import style from './skeleton.module.css';
 
 type TProps = {
-    fontSize?: string;
-    minWidth?: string;
+  fontSize?: string;
+  minWidth?: string;
 };
 
 export const Skeleton = ({

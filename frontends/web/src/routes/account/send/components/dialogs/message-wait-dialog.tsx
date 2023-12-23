@@ -3,12 +3,12 @@ import { Cancel, Checked } from '../../../../../components/icon/icon';
 import { WaitDialog } from '../../../../../components/wait-dialog/wait-dialog';
 
 type TProps = {
-    isShown: boolean;
-    messageType: 'sent' | 'abort';
+  isShown: boolean;
+  messageType: 'sent' | 'abort';
 }
 
 type TIconProps = {
-    messageType: TProps['messageType']
+  messageType: TProps['messageType']
 }
 
 export const MessageWaitDialog = ({ isShown, messageType }: TProps) => {

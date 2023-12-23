@@ -28,7 +28,7 @@ type Observer = (event: TEventLegacy) => void;
  * This interface describes how the subscriptions are stored.
  */
 interface ISubscriptions {
-    [subject: string]: Observer[];
+  [subject: string]: Observer[];
 }
 
 /**

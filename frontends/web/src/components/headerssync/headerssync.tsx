@@ -25,7 +25,7 @@ import Spinner from '../spinner/ascii';
 import style from './headerssync.module.css';
 
 export type TProps = {
-    coinCode: CoinCode;
+  coinCode: CoinCode;
 }
 
 export const HeadersSync = ({ coinCode }: TProps) => {

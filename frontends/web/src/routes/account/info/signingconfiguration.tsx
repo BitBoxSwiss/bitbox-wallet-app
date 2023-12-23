@@ -27,11 +27,11 @@ import { QRCode } from '../../../components/qrcode/qrcode';
 import style from './info.module.css';
 
 type TProps = {
-    account: IAccount;
-    info: TSigningConfiguration;
-    code: string;
-    signingConfigIndex: number;
-    children: ReactNode;
+  account: IAccount;
+  info: TSigningConfiguration;
+  code: string;
+  signingConfigIndex: number;
+  children: ReactNode;
 }
 
 export const SigningConfiguration = ({ account, info, code, signingConfigIndex, children }: TProps) => {

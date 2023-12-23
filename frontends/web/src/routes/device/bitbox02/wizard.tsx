@@ -35,18 +35,18 @@ type Props = {
 }
 
 type State = {
-    versionInfo?: VersionInfo;
-    attestation: boolean | null;
-    status: '' | TStatus;
-    appStatus: '' | TWalletSetupChoices;
-    createOptions?: TWalletCreateOptions;
-    // if true, we just pair and unlock, so we can hide some steps.
-    unlockOnly: boolean;
-    showWizard: boolean;
-    waitDialog?: {
-        title: string;
-        text?: string;
-    };
+  versionInfo?: VersionInfo;
+  attestation: boolean | null;
+  status: '' | TStatus;
+  appStatus: '' | TWalletSetupChoices;
+  createOptions?: TWalletCreateOptions;
+  // if true, we just pair and unlock, so we can hide some steps.
+  unlockOnly: boolean;
+  showWizard: boolean;
+  waitDialog?: {
+    title: string;
+    text?: string;
+  };
 }
 
 export class Wizard extends Component<Props, State> {

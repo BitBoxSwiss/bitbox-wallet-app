@@ -24,7 +24,7 @@ import { isBitcoinOnly } from '../account/utils';
 import { View, ViewContent } from '../../components/view/view';
 
 type TReceiveAccountsSelector = {
-    activeAccounts: IAccount[]
+  activeAccounts: IAccount[]
 }
 export const ReceiveAccountsSelector = ({ activeAccounts }: TReceiveAccountsSelector) => {
   const [options, setOptions] = useState<TOption[]>([]);

@@ -67,7 +67,7 @@ export const getAccounts = (): Promise<IAccount[]> => {
 };
 
 export interface ITotalBalance {
-    [key: string]: IAmount;
+  [key: string]: IAmount;
 
 }
 
@@ -85,10 +85,10 @@ export const getEthAccountCodeAndNameByAddress = (address: string): Promise<TEth
 };
 
 export interface IStatus {
-    disabled: boolean;
-    synced: boolean;
-    fatalError: boolean;
-    offlineError: string | null;
+  disabled: boolean;
+  synced: boolean;
+  fatalError: boolean;
+  offlineError: string | null;
 }
 
 export const getStatus = (code: AccountCode): Promise<IStatus> => {
@@ -100,30 +100,30 @@ export type ScriptType = 'p2pkh' | 'p2wpkh-p2sh' | 'p2wpkh' | 'p2tr';
 export const allScriptTypes: ScriptType[] = ['p2pkh', 'p2wpkh-p2sh', 'p2wpkh', 'p2tr'];
 
 export interface IKeyInfo {
-    keypath: string;
-    rootFingerprint: string;
-    xpub: string;
+  keypath: string;
+  rootFingerprint: string;
+  xpub: string;
 }
 
 export type TBitcoinSimple = {
-    keyInfo: IKeyInfo;
-    scriptType: ScriptType;
+  keyInfo: IKeyInfo;
+  scriptType: ScriptType;
 }
 
 export type TEthereumSimple = {
-    keyInfo: IKeyInfo;
+  keyInfo: IKeyInfo;
 }
 
 export type TSigningConfiguration = {
-    bitcoinSimple: TBitcoinSimple;
-    ethereumSimple?: never;
+  bitcoinSimple: TBitcoinSimple;
+  ethereumSimple?: never;
 } | {
-    bitcoinSimple?: never;
-    ethereumSimple: TEthereumSimple;
+  bitcoinSimple?: never;
+  ethereumSimple: TEthereumSimple;
 }
 
 export type TSigningConfigurationList = null | {
-    signingConfigurations: TSigningConfiguration[];
+  signingConfigurations: TSigningConfiguration[];
 }
 
 export const getInfo = (code: AccountCode) => {
@@ -137,14 +137,14 @@ export const init = (code: AccountCode): Promise<null> => {
 };
 
 export interface ISummary {
-    chartDataMissing: boolean;
-    chartDataDaily: ChartData;
-    chartDataHourly: ChartData;
-    chartFiat: ConversionUnit;
-    chartTotal: number | null;
-    formattedChartTotal: string | null;
-    chartIsUpToDate: boolean; // only valid if chartDataMissing is false
-    lastTimestamp: number;
+  chartDataMissing: boolean;
+  chartDataDaily: ChartData;
+  chartDataHourly: ChartData;
+  chartFiat: ConversionUnit;
+  chartTotal: number | null;
+  formattedChartTotal: string | null;
+  chartIsUpToDate: boolean; // only valid if chartDataMissing is false
+  lastTimestamp: number;
 }
 
 export const getSummary = (): Promise<ISummary> => {
@@ -152,20 +152,20 @@ export const getSummary = (): Promise<ISummary> => {
 };
 
 export type Conversions = {
-    [key in Fiat]: string;
+  [key in Fiat]: string;
 }
 
 export interface IAmount {
-    amount: string;
-    conversions?: Conversions;
-    unit: CoinUnit;
+  amount: string;
+  conversions?: Conversions;
+  unit: CoinUnit;
 }
 
 export interface IBalance {
-    hasAvailable: boolean;
-    available: IAmount;
-    hasIncoming: boolean;
-    incoming: IAmount;
+  hasAvailable: boolean;
+  available: IAmount;
+  hasIncoming: boolean;
+  incoming: IAmount;
 }
 
 export const getBalance = (code: AccountCode): Promise<IBalance> => {
@@ -173,31 +173,31 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
 };
 
 export interface ITransaction {
-    addresses: string[];
-    amount: IAmount;
-    amountAtTime: IAmount | null;
-    fee: IAmount;
-    feeRatePerKb: IAmount;
-    gas: number;
-    nonce: number | null;
-    internalID: string;
-    note: string;
-    numConfirmations: number;
-    numConfirmationsComplete: number;
-    size: number;
-    status: 'complete' | 'pending' | 'failed';
-    time: string | null;
-    type: 'send' | 'receive' | 'self';
-    txID: string;
-    vsize: number;
-    weight: number;
+  addresses: string[];
+  amount: IAmount;
+  amountAtTime: IAmount | null;
+  fee: IAmount;
+  feeRatePerKb: IAmount;
+  gas: number;
+  nonce: number | null;
+  internalID: string;
+  note: string;
+  numConfirmations: number;
+  numConfirmationsComplete: number;
+  size: number;
+  status: 'complete' | 'pending' | 'failed';
+  time: string | null;
+  type: 'send' | 'receive' | 'self';
+  txID: string;
+  vsize: number;
+  weight: number;
 }
 
 export type TTransactions = { success: false } | { success: true; list: ITransaction[]; };
 
 export interface INoteTx {
-    internalTxID: string;
-    note: string;
+  internalTxID: string;
+  note: string;
 }
 
 export const postNotesTx = (code: AccountCode, {
@@ -220,9 +220,9 @@ export const getTransaction = (code: AccountCode, id: ITransaction['internalID']
 };
 
 export interface IExport {
-    success: boolean;
-    path: string;
-    errorMessage: string;
+  success: boolean;
+  path: string;
+  errorMessage: string;
 }
 
 export const exportAccount = (code: AccountCode): Promise<IExport | null> => {
@@ -237,13 +237,13 @@ export const verifyXPub = (
 };
 
 export interface IReceiveAddress {
-    addressID: string;
-    address: string;
+  addressID: string;
+  address: string;
 }
 
 export interface ReceiveAddressList {
-    scriptType: ScriptType | null;
-    addresses: IReceiveAddress[];
+  scriptType: ScriptType | null;
+  addresses: IReceiveAddress[];
 }
 
 export const getReceiveAddressList = (code: AccountCode) => {
@@ -253,10 +253,10 @@ export const getReceiveAddressList = (code: AccountCode) => {
 };
 
 export interface ISendTx {
-    aborted?: boolean;
-    success?: boolean;
-    errorMessage?: string;
-    errorCode?: string;
+  aborted?: boolean;
+  success?: boolean;
+  errorMessage?: string;
+  errorCode?: string;
 }
 
 export const sendTx = (code: AccountCode): Promise<ISendTx> => {
@@ -266,29 +266,29 @@ export const sendTx = (code: AccountCode): Promise<ISendTx> => {
 export type FeeTargetCode = 'custom' | 'low' | 'economy' | 'normal' | 'high';
 
 export interface IProposeTxData {
-    address?: string;
-    amount?: number;
-    // data?: string;
-    feePerByte: string;
-    feeTarget: FeeTargetCode;
-    selectedUTXOs: string[];
-    sendAll: 'yes' | 'no';
+  address?: string;
+  amount?: number;
+  // data?: string;
+  feePerByte: string;
+  feeTarget: FeeTargetCode;
+  selectedUTXOs: string[];
+  sendAll: 'yes' | 'no';
 }
 
 export interface IProposeTx {
-    aborted?: boolean;
-    success?: boolean;
-    errorMessage?: string;
+  aborted?: boolean;
+  success?: boolean;
+  errorMessage?: string;
 }
 
 export interface IFeeTarget {
-    code: FeeTargetCode;
-    feeRateInfo: string;
+  code: FeeTargetCode;
+  feeRateInfo: string;
 }
 
 export interface IFeeTargetList {
-    feeTargets: IFeeTarget[],
-    defaultFeeTarget: FeeTargetCode
+  feeTargets: IFeeTarget[],
+  defaultFeeTarget: FeeTargetCode
 }
 
 export const getFeeTargetList = (code: AccountCode): Promise<IFeeTargetList> => {
@@ -314,8 +314,8 @@ export const getUTXOs = (code: AccountCode): Promise<TUTXO[]> => {
 };
 
 type TSecureOutput = {
-    hasSecureOutput: boolean;
-    optional: boolean;
+  hasSecureOutput: boolean;
+  optional: boolean;
 };
 
 export const hasSecureOutput = (code: AccountCode) => {

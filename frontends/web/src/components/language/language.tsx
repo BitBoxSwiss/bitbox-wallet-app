@@ -23,7 +23,7 @@ import style from './language.module.css';
 import { getSelectedIndex } from '../../utils/language';
 
 type TLanguageSwitchProps = {
-    languages?: TLanguagesList;
+  languages?: TLanguagesList;
 }
 
 const LanguageSwitch = ({ languages }: TLanguageSwitchProps) => {

@@ -23,7 +23,7 @@ import { reinitializeAccounts } from '../api/backend';
 import { equal } from '../utils/equal';
 
 type TProps = {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const RatesProvider = ({ children }: TProps) => {

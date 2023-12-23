@@ -23,16 +23,16 @@ import { AnimatedChecked, Close } from '../icon/icon';
 import style from './view.module.css';
 
 type TViewProps = {
-    dialog?: boolean;
-    fitContent?: boolean;
-    fullscreen?: boolean;
-    children: ReactNode;
-    minHeight?: string;
-    onClose?: () => void;
-    textCenter?: boolean;
-    verticallyCentered?: boolean;
-    width?: string;
-    withBottomBar?: boolean;
+  dialog?: boolean;
+  fitContent?: boolean;
+  fullscreen?: boolean;
+  children: ReactNode;
+  minHeight?: string;
+  onClose?: () => void;
+  textCenter?: boolean;
+  verticallyCentered?: boolean;
+  width?: string;
+  withBottomBar?: boolean;
 };
 
 /**
@@ -106,11 +106,11 @@ export const View = ({
 };
 
 type TViewContentProps = {
-    children: ReactNode;
-    fullWidth?: boolean;
-    minHeight?: string;
-    textAlign?: 'center' | 'left';
-    withIcon?: 'success';
+  children: ReactNode;
+  fullWidth?: boolean;
+  minHeight?: string;
+  textAlign?: 'center' | 'left';
+  withIcon?: 'success';
 }
 
 /**
@@ -145,10 +145,10 @@ export const ViewContent = ({
 };
 
 type THeaderProps = {
-    small?: boolean;
-    title: ReactNode;
-    withAppLogo?: boolean;
-    children?: ReactNode;
+  small?: boolean;
+  title: ReactNode;
+  withAppLogo?: boolean;
+  children?: ReactNode;
 }
 
 /**

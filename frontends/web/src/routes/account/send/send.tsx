@@ -46,51 +46,51 @@ import { NoteInput } from './components/inputs/note-input';
 import style from './send.module.css';
 
 interface SendProps {
-    accounts: accountApi.IAccount[];
-    code: string;
-    devices: TDevices;
-    deviceIDs: string[];
-    activeCurrency: accountApi.Fiat;
+  accounts: accountApi.IAccount[];
+  code: string;
+  devices: TDevices;
+  deviceIDs: string[];
+  activeCurrency: accountApi.Fiat;
 }
 
 interface SignProgress {
-    steps: number;
-    step: number;
+  steps: number;
+  step: number;
 }
 
 type Props = SendProps & TranslateProps;
 
 interface State {
-    account?: accountApi.IAccount;
-    balance?: accountApi.IBalance;
-    proposedFee?: accountApi.IAmount;
-    proposedTotal?: accountApi.IAmount;
-    recipientAddress: string;
-    proposedAmount?: accountApi.IAmount;
-    valid: boolean;
-    amount: string;
-    fiatAmount: string;
-    fiatUnit: accountApi.Fiat;
-    sendAll: boolean;
-    feeTarget?: accountApi.FeeTargetCode;
-    customFee: string;
-    isConfirming: boolean;
-    isSent: boolean;
-    isAborted: boolean;
-    isUpdatingProposal: boolean;
-    addressError?: string;
-    amountError?: string;
-    feeError?: string;
-    paired?: boolean;
-    noMobileChannelError?: boolean;
-    signProgress?: SignProgress;
-    // show visual BitBox in dialog when instructed to sign.
-    signConfirm: boolean;
-    coinControl: boolean;
-    btcUnit: BtcUnit;
-    activeCoinControl: boolean;
-    activeScanQR: boolean;
-    note: string;
+  account?: accountApi.IAccount;
+  balance?: accountApi.IBalance;
+  proposedFee?: accountApi.IAmount;
+  proposedTotal?: accountApi.IAmount;
+  recipientAddress: string;
+  proposedAmount?: accountApi.IAmount;
+  valid: boolean;
+  amount: string;
+  fiatAmount: string;
+  fiatUnit: accountApi.Fiat;
+  sendAll: boolean;
+  feeTarget?: accountApi.FeeTargetCode;
+  customFee: string;
+  isConfirming: boolean;
+  isSent: boolean;
+  isAborted: boolean;
+  isUpdatingProposal: boolean;
+  addressError?: string;
+  amountError?: string;
+  feeError?: string;
+  paired?: boolean;
+  noMobileChannelError?: boolean;
+  signProgress?: SignProgress;
+  // show visual BitBox in dialog when instructed to sign.
+  signConfirm: boolean;
+  coinControl: boolean;
+  btcUnit: BtcUnit;
+  activeCoinControl: boolean;
+  activeScanQR: boolean;
+  note: string;
 }
 
 class Send extends Component<Props, State> {
@@ -318,12 +318,12 @@ class Send extends Component<Props, State> {
   };
 
   private txProposal = (updateFiat: boolean, result: {
-        errorCode?: string;
-        amount: accountApi.IAmount;
-        fee: accountApi.IAmount;
-        success: boolean;
-        total: accountApi.IAmount;
-    }) => {
+    errorCode?: string;
+    amount: accountApi.IAmount;
+    fee: accountApi.IAmount;
+    success: boolean;
+    total: accountApi.IAmount;
+  }) => {
     this.setState({ valid: result.success });
     if (result.success) {
       this.setState({

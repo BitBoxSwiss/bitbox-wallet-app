@@ -32,16 +32,16 @@ import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
 interface State {
-    transactionDialog: boolean;
-    newNote: string;
-    editMode: boolean;
-    transactionInfo?: accountApi.ITransaction;
+  transactionDialog: boolean;
+  newNote: string;
+  editMode: boolean;
+  transactionInfo?: accountApi.ITransaction;
 }
 
 interface TransactionProps extends accountApi.ITransaction {
-    accountCode: string;
-    index: number;
-    explorerURL: string;
+  accountCode: string;
+  index: number;
+  explorerURL: string;
 }
 
 type Props = TransactionProps & TranslateProps;

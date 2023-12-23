@@ -40,8 +40,8 @@ import style from './exchange.module.css';
 import { CountrySelect, TOption } from './components/countryselect';
 
 type TProps = {
-    code: string;
-    accounts: IAccount[];
+  code: string;
+  accounts: IAccount[];
 }
 
 export const Exchange = ({ code, accounts }: TProps) => {

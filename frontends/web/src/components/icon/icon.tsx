@@ -120,7 +120,7 @@ export const CaretDown = ({ className, ...props }: SVGProps) => (
 );
 
 interface ExpandIconProps {
-    expand: boolean;
+  expand: boolean;
 }
 
 export const ExpandIcon = ({

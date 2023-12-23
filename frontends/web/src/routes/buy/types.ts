@@ -17,14 +17,14 @@
 import { ExchangeDeal, ExchangeDeals } from '../../api/exchanges';
 
 export type ExchangeDealWithBestDeal = ExchangeDeal & {
-    isBestDeal?: boolean;
+  isBestDeal?: boolean;
 }
 
 export type ExchangeDealsWithSupported = ExchangeDeals & {
-    supported?: boolean;
+  supported?: boolean;
 }
 export type FrontendExchangeDealsList = {
-    exchanges: ExchangeDealsWithSupported[];
+  exchanges: ExchangeDealsWithSupported[];
 }
 
 export type Info = ExchangeDealsWithSupported['exchangeName'] | 'region';

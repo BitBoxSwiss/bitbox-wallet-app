@@ -15,12 +15,12 @@
  */
 
 export declare global {
-    interface Window {
-        qt?: { webChannelTransport: unknown; };
-        android?: {
-            call: (queryID: number, query: string) => void;
-        }
-        onAndroidCallResponse?: (queryID: number, response: string) => void;
-        onAndroidPushNotification?: (msg: string) => void;
+  interface Window {
+    qt?: { webChannelTransport: unknown; };
+    android?: {
+      call: (queryID: number, query: string) => void;
     }
+    onAndroidCallResponse?: (queryID: number, response: string) => void;
+    onAndroidPushNotification?: (msg: string) => void;
+  }
 }

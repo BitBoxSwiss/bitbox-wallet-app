@@ -18,12 +18,12 @@ import { IWeb3Wallet } from '@walletconnect/web3wallet';
 import { createContext } from 'react';
 
 type Props = {
-    isWalletInitialized: boolean;
-    web3wallet?: IWeb3Wallet;
-    pair: (params: {
-        uri: string;
-    }) => Promise<void>;
-    initializeWeb3Wallet: () => void;
+  isWalletInitialized: boolean;
+  web3wallet?: IWeb3Wallet;
+  pair: (params: {
+    uri: string;
+  }) => Promise<void>;
+  initializeWeb3Wallet: () => void;
 }
 
 export const WCWeb3WalletContext = createContext<Props>({} as Props);

@@ -29,8 +29,8 @@ import { View, ViewContent } from '../../components/view/view';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 
 type TProps = {
-    accounts: accountApi.IAccount[];
-    code: string;
+  accounts: accountApi.IAccount[];
+  code: string;
 }
 
 export const BuyInfo = ({ code, accounts }: TProps) => {

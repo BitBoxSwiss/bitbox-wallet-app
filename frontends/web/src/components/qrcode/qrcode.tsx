@@ -20,8 +20,8 @@ import { getQRCode } from '../../api/backend';
 import style from './qrcode.module.css';
 
 type TProps = {
-    data?: string;
-    size?: number;
+  data?: string;
+  size?: number;
 };
 
 export const QRCode = ({

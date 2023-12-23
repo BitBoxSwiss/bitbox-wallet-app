@@ -19,17 +19,17 @@ import React, { Component, createRef } from 'react';
 import { CloseXDark, CloseXWhite } from '../icon';
 import style from './dialog.module.css';
 interface Props {
-    title?: string;
-    small?: boolean;
-    medium?: boolean;
-    large?: boolean;
-    slim?: boolean;
-    centered?: boolean;
-    disableEscape?: boolean;
-    onClose?: (e?: Event) => void;
-    disabledClose?: boolean;
-    children: React.ReactNode;
-    open: boolean;
+  title?: string;
+  small?: boolean;
+  medium?: boolean;
+  large?: boolean;
+  slim?: boolean;
+  centered?: boolean;
+  disableEscape?: boolean;
+  onClose?: (e?: Event) => void;
+  disabledClose?: boolean;
+  children: React.ReactNode;
+  open: boolean;
 }
 
 interface State {
@@ -275,7 +275,7 @@ class Dialog extends Component<Props, State> {
  */
 
 interface DialogButtonsProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 function DialogButtons({ children }: DialogButtonsProps) {

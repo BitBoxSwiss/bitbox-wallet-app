@@ -28,7 +28,7 @@ export type Endpoint = string;
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
 export type EndpointsObject<LoadedProps extends ObjectButNotFunction> = {
-    readonly [Key in keyof LoadedProps]: Endpoint;
+  readonly [Key in keyof LoadedProps]: Endpoint;
 };
 
 /**

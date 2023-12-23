@@ -8,9 +8,9 @@ import activeCurrenciesDropdownStyle from './activecurrenciesdropdown.module.css
 import { useTranslation } from 'react-i18next';
 
 type SelectOption = {
-    label: String;
-    value: Fiat;
-  }
+  label: String;
+  value: Fiat;
+}
 
 type TSelectProps = {
   options: SelectOption[];

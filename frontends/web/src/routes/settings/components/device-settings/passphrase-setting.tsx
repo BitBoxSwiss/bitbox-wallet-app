@@ -20,8 +20,8 @@ import { ChevronRightDark } from '../../../../components/icon';
 import { route } from '../../../../utils/route';
 
 type TProps = {
-    deviceID: string;
-    passphraseEnabled: boolean;
+  deviceID: string;
+  passphraseEnabled: boolean;
 }
 
 const PassphraseSetting = ({ deviceID, passphraseEnabled }: TProps) => {

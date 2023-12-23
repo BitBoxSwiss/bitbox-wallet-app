@@ -21,15 +21,15 @@ import { SuccessResponse, FailResponse } from './response';
 export const errUserAbort = 104;
 
 export type DeviceInfo = {
-    initialized: boolean;
-    mnemonicPassphraseEnabled: boolean;
-    name: string;
-    securechipModel: string;
-    version: string;
+  initialized: boolean;
+  mnemonicPassphraseEnabled: boolean;
+  name: string;
+  securechipModel: string;
+  version: string;
 }
 
 type DeviceInfoResponse = SuccessResponse & {
-    deviceInfo: DeviceInfo;
+  deviceInfo: DeviceInfo;
 };
 
 export const resetDevice = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
@@ -64,19 +64,19 @@ export const setDeviceName = (
 };
 
 export type VersionInfo = {
-    newVersion: string;
-    currentVersion: string;
-    canUpgrade: boolean;
-    canGotoStartupSettings: boolean;
-    // If true, creating a backup using the mnemonic recovery words instead of the microSD card
-    // is supported in the initial setup.
-    //
-    // If false, the backup must be performed using the microSD card in the initial setup.
-    //
-    // This has no influence over whether one can display the recovery words after the initial
-    // setup - that is always possible regardless of this value.
-    canBackupWithRecoveryWords: boolean;
-    canCreate12Words: boolean;
+  newVersion: string;
+  currentVersion: string;
+  canUpgrade: boolean;
+  canGotoStartupSettings: boolean;
+  // If true, creating a backup using the mnemonic recovery words instead of the microSD card
+  // is supported in the initial setup.
+  //
+  // If false, the backup must be performed using the microSD card in the initial setup.
+  //
+  // This has no influence over whether one can display the recovery words after the initial
+  // setup - that is always possible regardless of this value.
+  canBackupWithRecoveryWords: boolean;
+  canCreate12Words: boolean;
 }
 
 export const getVersion = (
@@ -136,13 +136,13 @@ export const restoreFromMnemonic = (
 };
 
 export type TStatus = 'connected'
-  | 'initialized'
-  | 'pairingFailed'
-  | 'require_firmware_upgrade'
-  | 'require_app_upgrade'
-  | 'seeded'
-  | 'unpaired'
-  | 'uninitialized';
+| 'initialized'
+| 'pairingFailed'
+| 'require_firmware_upgrade'
+| 'require_app_upgrade'
+| 'seeded'
+| 'unpaired'
+| 'uninitialized';
 
 export const getStatus = (deviceID: string): Promise<TStatus> => {
   return apiGet(`devices/bitbox02/${deviceID}/status`);

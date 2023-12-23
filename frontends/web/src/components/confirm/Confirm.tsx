@@ -29,9 +29,9 @@ type TCallback = (response: boolean) => void;
 export let confirmation: (message: string, callback: TCallback, customButtonText?: string) => void;
 
 interface State {
-    active: boolean;
-    message?: string;
-    customButtonText?: string;
+  active: boolean;
+  message?: string;
+  customButtonText?: string;
 }
 
 /**

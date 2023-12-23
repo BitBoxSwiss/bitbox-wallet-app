@@ -20,7 +20,7 @@ import { hasMobileChannel } from '../../../../api/devices';
 import { Status } from '../../../../components/status/status';
 
 type TProps = {
-    deviceID: string;
+  deviceID: string;
 }
 
 export const PairedWarning = ({

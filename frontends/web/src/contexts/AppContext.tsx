@@ -17,13 +17,13 @@
 import { Dispatch, SetStateAction, createContext } from 'react';
 
 type AppContextProps = {
-    guideShown: boolean;
-    guideExists: boolean;
-    hideAmounts: boolean;
-    setGuideExists: Dispatch<SetStateAction<boolean>>;
-    setGuideShown: Dispatch<SetStateAction<boolean>>;
-    toggleGuide: () => void;
-    toggleHideAmounts: () => void;
+  guideShown: boolean;
+  guideExists: boolean;
+  hideAmounts: boolean;
+  setGuideExists: Dispatch<SetStateAction<boolean>>;
+  setGuideShown: Dispatch<SetStateAction<boolean>>;
+  toggleGuide: () => void;
+  toggleHideAmounts: () => void;
 }
 
 const AppContext = createContext<AppContextProps>({} as AppContextProps);

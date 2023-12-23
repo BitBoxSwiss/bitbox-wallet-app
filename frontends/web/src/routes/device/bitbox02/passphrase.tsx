@@ -36,14 +36,14 @@ const INFO_STEPS_DISABLE = 0;
 const CONTENT_MIN_HEIGHT = '38em';
 
 interface MnemonicPassphraseButtonProps {
-    deviceID: string;
+  deviceID: string;
 }
 
 interface State {
-    infoStep: number;
-    passphraseEnabled?: boolean;
-    status: 'info' | 'progress' | 'success';
-    understood: boolean;
+  infoStep: number;
+  passphraseEnabled?: boolean;
+  status: 'info' | 'progress' | 'success';
+  understood: boolean;
 }
 
 type Props = MnemonicPassphraseButtonProps & TranslateProps;

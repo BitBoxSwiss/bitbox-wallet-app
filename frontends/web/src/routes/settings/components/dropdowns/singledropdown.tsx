@@ -18,14 +18,14 @@ import Select, { components, DropdownIndicatorProps, SingleValueProps, OptionPro
 import dropdownStyles from './dropdowns.module.css';
 
 type TOption = {
-    label: string;
-    value: string;
+  label: string;
+  value: string;
 }
 
 type TSelectProps = {
-    options: TOption[];
-    handleChange: (param?: any) => void;
-    defaultValue: TOption;
+  options: TOption[];
+  handleChange: (param?: any) => void;
+  defaultValue: TOption;
 }
 
 const DropdownIndicator = (props: DropdownIndicatorProps<TOption, false>) => {

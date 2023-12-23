@@ -22,7 +22,7 @@ import AppContext from '../../contexts/AppContext';
 import style from './guide.module.css';
 
 export type TProps = {
-    children?: ReactNode;
+  children?: ReactNode;
 }
 
 const Guide = ({ children }: TProps) => {

@@ -19,7 +19,7 @@ import { apiGet } from '../utils/request';
 export type TProductName = 'bitbox' | 'bitbox02' | 'bitbox02-bootloader';
 
 export type TDevices = {
-    readonly [key in string]: TProductName;
+  readonly [key in string]: TProductName;
 };
 
 export const getDeviceList = (): Promise<TDevices> => {

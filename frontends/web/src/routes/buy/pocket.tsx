@@ -32,7 +32,7 @@ import Guide from './guide';
 import style from './iframe.module.css';
 
 interface TProps {
-    code: string;
+  code: string;
 }
 
 export const Pocket = ({ code }: TProps) => {

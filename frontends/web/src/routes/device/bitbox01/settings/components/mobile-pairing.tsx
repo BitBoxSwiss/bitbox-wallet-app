@@ -29,19 +29,19 @@ import { apiPost } from '../../../../../utils/request';
 import style from '../../bitbox01.module.css';
 
 interface PairingProps {
-    deviceID: string;
-    deviceLocked: boolean;
-    paired: boolean;
-    hasMobileChannel: boolean;
-    onPairingEnabled: () => void;
+  deviceID: string;
+  deviceLocked: boolean;
+  paired: boolean;
+  hasMobileChannel: boolean;
+  onPairingEnabled: () => void;
 }
 
 type Props = PairingProps & TranslateProps;
 
 interface State {
-    channel: string | null;
-    status: string | boolean;
-    showQRCode: boolean;
+  channel: string | null;
+  status: string | boolean;
+  showQRCode: boolean;
 }
 
 class MobilePairing extends Component<Props, State> {

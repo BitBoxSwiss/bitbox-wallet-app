@@ -19,7 +19,7 @@ import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 
 interface BitcoinBasedAccountInfoGuideProps {
-    coinName: string;
+  coinName: string;
 }
 
 export function BitcoinBasedAccountInfoGuide({

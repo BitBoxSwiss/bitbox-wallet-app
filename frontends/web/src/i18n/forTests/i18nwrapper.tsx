@@ -18,7 +18,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18nfortests';
 
 type TProps = {
-    children: React.ReactNode
+  children: React.ReactNode
 }
 
 const I18NWrapper = ({ children }: TProps) => {

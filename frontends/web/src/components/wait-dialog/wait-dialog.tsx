@@ -23,18 +23,18 @@ import style from '../dialog/dialog.module.css';
 import React from 'react';
 
 interface WaitDialogProps {
-    includeDefault?: boolean;
-    prequel?: JSX.Element;
-    title?: string;
-    paired?: boolean;
-    touchConfirm?: boolean;
-    children?: ReactNode;
+  includeDefault?: boolean;
+  prequel?: JSX.Element;
+  title?: string;
+  paired?: boolean;
+  touchConfirm?: boolean;
+  children?: ReactNode;
 }
 
 type Props = WaitDialogProps & TranslateProps;
 
 interface State {
-    active: boolean;
+  active: boolean;
 }
 
 class WaitDialog extends Component<Props, State> {

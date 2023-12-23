@@ -56,7 +56,7 @@ import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
 import style from './logo.module.css';
 
 interface GenericProps {
-    [property: string]: any;
+  [property: string]: any;
 }
 
 export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
@@ -71,7 +71,7 @@ export const SwissMadeOpenSource = ({ large: boolean, className, ...props }: Gen
 export const SwissMadeOpenSourceDark = ({ large: boolean, className, ...props }: GenericProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource} ${props.large ? style.large : ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
-    [property: string]: string[];
+  [property: string]: string[];
 }
 
 const logoMap: LogoMap = {
@@ -97,11 +97,11 @@ const logoMap: LogoMap = {
 };
 
 interface Props {
-    active?: boolean;
-    alt?: string;
-    className?: string;
-    coinCode: string;
-    stacked?: boolean;
+  active?: boolean;
+  alt?: string;
+  className?: string;
+  coinCode: string;
+  stacked?: boolean;
 }
 
 function Logo({ coinCode, active, stacked, ...rest }: Props) {

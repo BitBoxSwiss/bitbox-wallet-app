@@ -20,16 +20,16 @@ import { FailResponse, SuccessResponse } from './response';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 export interface ICoin {
-    coinCode: CoinCode;
-    name: string;
-    canAddAccount: boolean;
-    suggestedAccountName: string;
+  coinCode: CoinCode;
+  name: string;
+  canAddAccount: boolean;
+  suggestedAccountName: string;
 }
 
 export interface ISuccess {
-    success: boolean;
-    errorMessage?: string;
-    errorCode?: string;
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: string;
 }
 
 export const getSupportedCoins = (): Promise<ICoin[]> => {

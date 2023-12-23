@@ -39,14 +39,14 @@ const Banner = ({ children }: TProps) => (
 );
 
 interface State {
-    accountCode: accountAPI.AccountCode;
+  accountCode: accountAPI.AccountCode;
 }
 
 interface AoppProps {
 }
 
 interface SubscribedProps {
-    aopp?: aoppAPI.Aopp;
+  aopp?: aoppAPI.Aopp;
 }
 
 type Props = SubscribedProps & AoppProps & TranslateProps;

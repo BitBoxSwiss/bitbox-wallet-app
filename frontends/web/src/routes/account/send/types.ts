@@ -1,5 +1,5 @@
 export type TSignProgress = {
-    steps: number;
-    step: number;
-  }
+  steps: number;
+  step: number;
+}
 

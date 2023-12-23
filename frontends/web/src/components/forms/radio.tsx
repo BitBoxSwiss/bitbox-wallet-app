@@ -18,7 +18,7 @@
 import style from './radio.module.css';
 
 interface IRadioProps {
-    label?: string;
+  label?: string;
 }
 
 type TRadioProps = IRadioProps & JSX.IntrinsicElements['input']

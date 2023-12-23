@@ -22,7 +22,7 @@ import { route } from '../../../../../utils/route';
 import styles from './success-pairing.module.css';
 
 type TProps = {
-    accountCode: string;
+  accountCode: string;
 }
 
 export const WCSuccessPairing = ({ accountCode }: TProps) => {

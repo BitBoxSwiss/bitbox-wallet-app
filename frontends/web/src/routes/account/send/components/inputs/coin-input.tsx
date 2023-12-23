@@ -5,14 +5,14 @@ import { IAmount, IBalance } from '../../../../../api/account';
 import style from './coin-input.module.css';
 
 type TProps = {
-    balance?: IBalance
-    onAmountChange: (amount: string) => void;
-    onSendAllChange: (sendAll: boolean) => void;
-    sendAll: boolean;
-    amountError?: string;
-    proposedAmount?: IAmount;
-    amount: string;
-    hasSelectedUTXOs: boolean;
+  balance?: IBalance
+  onAmountChange: (amount: string) => void;
+  onSendAllChange: (sendAll: boolean) => void;
+  sendAll: boolean;
+  amountError?: string;
+  proposedAmount?: IAmount;
+  amount: string;
+  hasSelectedUTXOs: boolean;
 }
 
 export const CoinInput = ({

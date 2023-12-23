@@ -23,14 +23,14 @@ import { i18n } from '../../../i18n/i18n';
 import styles from './countryselect.module.css';
 
 export type TOption = {
-    label: string;
-    value: string;
+  label: string;
+  value: string;
 }
 
 type TProps = {
-    onChangeRegion: (newValue: SingleValue<TOption>) => void,
-    regions: TOption[]
-    selectedRegion: string;
+  onChangeRegion: (newValue: SingleValue<TOption>) => void,
+  regions: TOption[]
+  selectedRegion: string;
 }
 
 const SelectedRegionIcon = ({ regionCode }: { regionCode: string }) => {

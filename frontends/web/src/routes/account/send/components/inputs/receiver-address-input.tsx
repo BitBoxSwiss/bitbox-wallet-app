@@ -25,17 +25,17 @@ import { ScanQRDialog } from '../dialogs/scan-qr-dialog';
 import style from './receiver-address-input.module.css';
 
 type TToggleScanQRButtonProps = {
-    onClick: () => void;
+  onClick: () => void;
 }
 
 type TReceiverAddressInputProps = {
-    accountCode?: string;
-    addressError?: string;
-    onInputChange: (value: string) => void;
-    recipientAddress: string;
-    activeScanQR: boolean;
-    parseQRResult: (uri: string) => void;
-    onChangeActiveScanQR: (activeScanQR: boolean) => void
+  accountCode?: string;
+  addressError?: string;
+  onInputChange: (value: string) => void;
+  recipientAddress: string;
+  activeScanQR: boolean;
+  parseQRResult: (uri: string) => void;
+  onChangeActiveScanQR: (activeScanQR: boolean) => void
 }
 
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {

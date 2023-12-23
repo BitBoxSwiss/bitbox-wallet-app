@@ -25,33 +25,33 @@ import { customFeeUnit, getCoinCode, isEthereumBased } from '../utils';
 import style from './feetargets.module.css';
 
 interface LoadedProps {
-    config: any;
+  config: any;
 }
 
 interface FeeTargetsProps {
-    accountCode: accountApi.AccountCode;
-    coinCode: accountApi.CoinCode;
-    disabled: boolean;
-    fiatUnit: accountApi.ConversionUnit;
-    proposedFee?: accountApi.IAmount;
-    customFee: string;
-    showCalculatingFeeLabel?: boolean;
-    onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
-    onCustomFee: (customFee: string) => void;
-    error?: string;
+  accountCode: accountApi.AccountCode;
+  coinCode: accountApi.CoinCode;
+  disabled: boolean;
+  fiatUnit: accountApi.ConversionUnit;
+  proposedFee?: accountApi.IAmount;
+  customFee: string;
+  showCalculatingFeeLabel?: boolean;
+  onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
+  onCustomFee: (customFee: string) => void;
+  error?: string;
 }
 
 export type Props = LoadedProps & FeeTargetsProps & TranslateProps;
 
 interface Options {
-    value: accountApi.FeeTargetCode;
-    text: string;
+  value: accountApi.FeeTargetCode;
+  text: string;
 }
 
 interface State {
-    feeTarget: string;
-    options: Options[] | null;
-    noFeeTargets: boolean;
+  feeTarget: string;
+  options: Options[] | null;
+  noFeeTargets: boolean;
 }
 
 class FeeTargets extends Component<Props, State> {

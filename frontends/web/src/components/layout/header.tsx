@@ -24,10 +24,10 @@ import { toggleSidebar } from '../sidebar/sidebar';
 import AppContext from '../../contexts/AppContext';
 import style from './header.module.css';
 interface HeaderProps {
-    title?: string | JSX.Element | JSX.Element[];
-    narrow?: boolean;
-    hideSidebarToggler?: boolean;
-    children?: ReactNode;
+  title?: string | JSX.Element | JSX.Element[];
+  narrow?: boolean;
+  hideSidebarToggler?: boolean;
+  children?: ReactNode;
 }
 type Props = HeaderProps & SharedPanelProps;
 

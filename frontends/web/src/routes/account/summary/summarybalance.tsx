@@ -31,7 +31,7 @@ type TProps = {
 }
 
 type TAccountCoinMap = {
-    [code in accountApi.CoinCode]: accountApi.IAccount[];
+  [code in accountApi.CoinCode]: accountApi.IAccount[];
 };
 
 export function SummaryBalance ({

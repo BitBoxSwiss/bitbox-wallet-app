@@ -26,15 +26,15 @@ import { getDarkmode } from '../../../../components/darkmode/darkmode';
 import style from '../bitbox01.module.css';
 
 interface SecurityInformationProps {
-    goBack: () => void;
-    goal: string | null;
-    children: ReactNode;
+  goBack: () => void;
+  goal: string | null;
+  children: ReactNode;
 }
 
 type Props = SecurityInformationProps & TranslateProps;
 
 interface State {
-    showInfo: boolean;
+  showInfo: boolean;
 }
 
 class SecurityInformation extends Component<Props, State> {

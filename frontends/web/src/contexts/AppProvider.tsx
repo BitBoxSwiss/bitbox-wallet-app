@@ -19,8 +19,8 @@ import { getConfig, setConfig } from '../utils/config';
 import AppContext from './AppContext';
 
 type TProps = {
-    children: ReactNode;
-  }
+  children: ReactNode;
+}
 
 export const AppProvider = ({ children }: TProps) => {
   const [guideShown, setGuideShown] = useState(false);

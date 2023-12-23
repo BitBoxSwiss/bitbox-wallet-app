@@ -58,14 +58,14 @@ export function formatNumber(amount: number, maxDigits: number): string {
 }
 
 type TProvidedProps = {
-    amount?: IAmount;
-    tableRow?: boolean;
-    unstyled?: boolean;
-    skipUnit?: boolean;
-    noAction?: boolean;
-    sign?: string;
-    noBtcZeroes?: boolean;
-    alwaysShowAmounts?: boolean;
+  amount?: IAmount;
+  tableRow?: boolean;
+  unstyled?: boolean;
+  skipUnit?: boolean;
+  noAction?: boolean;
+  sign?: string;
+  noBtcZeroes?: boolean;
+  alwaysShowAmounts?: boolean;
 }
 
 

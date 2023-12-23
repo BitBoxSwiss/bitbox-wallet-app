@@ -26,27 +26,27 @@ type withValue = {
 }
 
 export type Props = withValue & {
-    align?: 'left' | 'right';
-    autoFocus?: boolean;
-    children?: React.ReactNode;
-    className?: string;
-    disabled?: boolean;
-    error?: string | object;
-    id?: string;
-    label?: string;
-    min?: string;
-    name?: string;
-    onInput?: (e: any) => void;
-    onPaste?: (e: any) => void;
-    pattern?: string;
-    placeholder?: string;
-    readOnly?: boolean;
-    step?: string;
-    title?: string;
-    transparent?: boolean;
-    type?: 'text' | 'password' | 'number';
-    maxLength?: number;
-    labelSection?: JSX.Element | undefined;
+  align?: 'left' | 'right';
+  autoFocus?: boolean;
+  children?: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  error?: string | object;
+  id?: string;
+  label?: string;
+  min?: string;
+  name?: string;
+  onInput?: (e: any) => void;
+  onPaste?: (e: any) => void;
+  pattern?: string;
+  placeholder?: string;
+  readOnly?: boolean;
+  step?: string;
+  title?: string;
+  transparent?: boolean;
+  type?: 'text' | 'password' | 'number';
+  maxLength?: number;
+  labelSection?: JSX.Element | undefined;
 }
 
 export default forwardRef<HTMLInputElement, Props>(function Input({

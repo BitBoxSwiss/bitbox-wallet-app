@@ -22,14 +22,14 @@ import BityLogo from '../../assets/exchanges/logos/bity.png';
 import PocketBitcoinLogo from '../../assets/exchanges/logos/pocketbitcoin.svg';
 
 type TVASPProps = {
-    fallback?: JSX.Element;
-    hostname: string;
-    prominent?: boolean;
-    withLogoText?: string;
+  fallback?: JSX.Element;
+  hostname: string;
+  prominent?: boolean;
+  withLogoText?: string;
 }
 
 type TVASPMap = {
-    [hostname: string]: string
+  [hostname: string]: string
 }
 
 const VASPLogoMap: TVASPMap = {

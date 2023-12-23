@@ -35,12 +35,12 @@ import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamo
 import AppContext from '../../../contexts/AppContext';
 
 type TProps = {
-    accounts: accountApi.IAccount[];
-    devices: TDevices;
+  accounts: accountApi.IAccount[];
+  devices: TDevices;
 };
 
 export type Balances = {
-    [code: string]: accountApi.IBalance;
+  [code: string]: accountApi.IBalance;
 };
 
 export function AccountsSummary({

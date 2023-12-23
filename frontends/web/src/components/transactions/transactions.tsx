@@ -23,10 +23,10 @@ import { Button } from '../forms';
 import style from './transactions.module.css';
 
 type TProps = {
-    accountCode: string;
-    explorerURL: string;
-    transactions?: TTransactions;
-    handleExport: () => void;
+  accountCode: string;
+  explorerURL: string;
+  transactions?: TTransactions;
+  handleExport: () => void;
 };
 
 export const Transactions = ({

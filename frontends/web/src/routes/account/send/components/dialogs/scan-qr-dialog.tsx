@@ -20,10 +20,10 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../../../../components/forms';
 
 type TProps = {
-    activeScanQR: boolean;
-    toggleScanQR: () => void;
-    onChangeActiveScanQR: (active: boolean) => void;
-    parseQRResult: (result: string) => void;
+  activeScanQR: boolean;
+  toggleScanQR: () => void;
+  onChangeActiveScanQR: (active: boolean) => void;
+  parseQRResult: (result: string) => void;
 }
 
 export const ScanQRDialog = ({ parseQRResult, activeScanQR, toggleScanQR, onChangeActiveScanQR }: TProps) => {

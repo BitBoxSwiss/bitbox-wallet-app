@@ -19,8 +19,8 @@ import { Input } from '../../../../../components/forms';
 import style from './note-input.module.css';
 
 type TProps = {
-    onNoteChange: (event: Event) => void;
-    note: string;
+  onNoteChange: (event: Event) => void;
+  note: string;
 }
 
 export const NoteInput = ({ onNoteChange, note }: TProps) => {

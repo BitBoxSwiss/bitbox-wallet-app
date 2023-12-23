@@ -17,6 +17,7 @@
     "space-before-blocks": ["error", "always"],
     "space-in-parens": ["error", "never"],
     "no-extra-semi": "error",
+    "@typescript-eslint/indent": ["error", 2, { "SwitchCase": 0 }],
     "@typescript-eslint/type-annotation-spacing": "error",
     "arrow-spacing": "error",
     "space-infix-ops": "error",

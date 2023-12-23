@@ -27,30 +27,30 @@ import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 import { getDarkmode } from '../../darkmode/darkmode';
 
 interface BitBox02BootloaderProps {
-    deviceID: string;
+  deviceID: string;
 }
 
 interface LoadedProps {
-    versionInfo: {
-        // Indicates whether the device has any firmware already installed on it.
-        // It is considered "erased" if there's no firmware, and it also happens
-        // to be the state in which BitBox02 is shipped to customers.
-        erased: boolean;
-        // Indicates whether the user can install/upgrade firmware.
-        canUpgrade: boolean;
-    };
+  versionInfo: {
+    // Indicates whether the device has any firmware already installed on it.
+    // It is considered "erased" if there's no firmware, and it also happens
+    // to be the state in which BitBox02 is shipped to customers.
+    erased: boolean;
+    // Indicates whether the user can install/upgrade firmware.
+    canUpgrade: boolean;
+  };
 }
 
 type Props = BitBox02BootloaderProps & LoadedProps & TranslateProps;
 
 interface State {
-    status: {
-        upgrading: boolean;
-        errMsg?: string;
-        progress: number;
-        upgradeSuccessful: boolean;
-        rebootSeconds: number;
-    };
+  status: {
+    upgrading: boolean;
+    errMsg?: string;
+    progress: number;
+    upgradeSuccessful: boolean;
+    rebootSeconds: number;
+  };
 }
 
 class BitBox02Bootloader extends Component<Props, State> {

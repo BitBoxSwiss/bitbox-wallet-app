@@ -18,10 +18,10 @@ import { ReactNode } from 'react';
 import styles from './message.module.css';
 
 export interface Props {
-    hidden?: boolean;
-    small?: boolean;
-    type?: 'message' | 'success' | 'info' | 'warning' | 'error';
-    children: ReactNode;
+  hidden?: boolean;
+  small?: boolean;
+  type?: 'message' | 'success' | 'info' | 'warning' | 'error';
+  children: ReactNode;
 }
 
 export function Message({

@@ -21,10 +21,10 @@ import { RatesContext } from '../../../contexts/RatesContext';
 import { Send } from './send';
 
 type TSendProps = {
-    accounts: IAccount[];
-    code: string;
-    devices: TDevices;
-    deviceIDs: string[];
+  accounts: IAccount[];
+  code: string;
+  devices: TDevices;
+  deviceIDs: string[];
 }
 
 export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) => {

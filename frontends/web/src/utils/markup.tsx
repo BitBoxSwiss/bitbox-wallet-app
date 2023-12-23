@@ -18,9 +18,9 @@
 import React, { Fragment, createElement } from 'react';
 
 type TMarkupProps = {
-    tagName: keyof JSX.IntrinsicElements;
-    markup: string;
-    key?: string;
+  tagName: keyof JSX.IntrinsicElements;
+  markup: string;
+  key?: string;
 } & React.HTMLAttributes<HTMLElement>;
 
 const captureStrongElement = /^(.*)<strong>(.*)<\/strong>(.*)$/;

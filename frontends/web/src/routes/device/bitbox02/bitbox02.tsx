@@ -28,7 +28,7 @@ type Props = {
 }
 
 type State = {
-    status: '' | TStatus;
+  status: '' | TStatus;
 }
 
 export class BitBox02 extends Component<Props, State> {

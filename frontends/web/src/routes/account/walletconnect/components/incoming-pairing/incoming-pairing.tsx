@@ -25,11 +25,11 @@ import { SUPPORTED_CHAINS } from '../../../../../utils/walletconnect';
 import styles from './incoming-pairing.module.css';
 
 type TIncomingPairingProps = {
-    currentProposal: SignClientTypes.EventArguments['session_proposal'];
-    pairingMetadata: CoreTypes.Metadata;
-    receiveAddress: string;
-    onReject: () => void;
-    onApprove: () => void;
+  currentProposal: SignClientTypes.EventArguments['session_proposal'];
+  pairingMetadata: CoreTypes.Metadata;
+  receiveAddress: string;
+  onReject: () => void;
+  onApprove: () => void;
 }
 
 const PairingContainer = ({ pairingMetadata }: {pairingMetadata: TIncomingPairingProps['pairingMetadata']}) => {

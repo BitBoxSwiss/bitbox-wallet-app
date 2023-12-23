@@ -26,20 +26,20 @@ import styles from './factory-reset-setting.module.css';
 import { WaitDialog } from '../../../../components/wait-dialog/wait-dialog';
 
 type TProps = {
-    deviceID: string;
+  deviceID: string;
 }
 
 type TDialog = {
-    open: boolean;
-    handleCloseDialog: () => void;
-    isConfirming: boolean;
-    understand: boolean;
-    handleUnderstandChange: (e: ChangeEvent<HTMLInputElement>) => void;
-    handleReset: () => void;
+  open: boolean;
+  handleCloseDialog: () => void;
+  isConfirming: boolean;
+  understand: boolean;
+  handleUnderstandChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleReset: () => void;
 }
 
 type TWaitDialog = {
-    isConfirming: boolean;
+  isConfirming: boolean;
 }
 
 const FactoryResetSetting = ({ deviceID }: TProps) => {

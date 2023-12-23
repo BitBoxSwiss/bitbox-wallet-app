@@ -29,8 +29,8 @@ import { BitcoinBasedAccountInfoGuide } from './guide';
 import style from './info.module.css';
 
 type TProps = {
-    accounts: IAccount[];
-    code: string;
+  accounts: IAccount[];
+  code: string;
 };
 
 export const Info = ({

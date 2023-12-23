@@ -26,11 +26,11 @@ import { ConnectScreenWalletConnect } from './account/walletconnect/connect';
 import { DashboardWalletConnect } from './account/walletconnect/dashboard';
 
 type TAppRouterProps = {
-    devices: TDevices;
-    deviceIDs: string[];
-    accounts: IAccount[];
-    activeAccounts: IAccount[];
-    devicesKey: ((input: string) => string)
+  devices: TDevices;
+  deviceIDs: string[];
+  accounts: IAccount[];
+  activeAccounts: IAccount[];
+  devicesKey: ((input: string) => string)
 }
 
 type TInjectParamsProps = {

@@ -28,20 +28,20 @@ import { WaitDialog } from '../../../components/wait-dialog/wait-dialog';
 import style from '../components/backups.module.css';
 
 interface RestoreProps {
-    selectedBackup?: string;
-    requireConfirmation: boolean;
-    deviceID: string;
-    onRestore: () => void;
+  selectedBackup?: string;
+  requireConfirmation: boolean;
+  deviceID: string;
+  onRestore: () => void;
 }
 
 type Props = RestoreProps & TranslateProps;
 
 interface State {
-    isConfirming: boolean;
-    activeDialog: boolean;
-    isLoading: boolean;
-    understand: boolean;
-    password?: string;
+  isConfirming: boolean;
+  activeDialog: boolean;
+  isLoading: boolean;
+  understand: boolean;
+  password?: string;
 }
 
 class Restore extends Component<Props, State> {

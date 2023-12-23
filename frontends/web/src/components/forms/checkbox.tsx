@@ -19,9 +19,9 @@ import { FunctionComponent } from 'react';
 import styles from './checkbox.module.css';
 
 type CheckboxProps = JSX.IntrinsicElements['input'] & {
-    label?: string;
-    id: string;
-    checkboxStyle?: 'default' | 'info' | 'warning' | 'success';
+  label?: string;
+  id: string;
+  checkboxStyle?: 'default' | 'info' | 'warning' | 'success';
 }
 
 const Checkbox: FunctionComponent<CheckboxProps> = ({

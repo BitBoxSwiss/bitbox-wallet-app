@@ -23,10 +23,10 @@ import { isEthereumBased } from './utils';
 import style from './account.module.css';
 
 type TProps = {
-    canSend?: boolean;
-    code: string;
-    exchangeBuySupported?: boolean;
-    account: IAccount;
+  canSend?: boolean;
+  code: string;
+  exchangeBuySupported?: boolean;
+  account: IAccount;
 }
 
 export const ActionButtons = ({ canSend, code, exchangeBuySupported, account }: TProps) => {
