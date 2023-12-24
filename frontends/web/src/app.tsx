@@ -31,9 +31,8 @@ import { Aopp } from './components/aopp/aopp';
 import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { KeystoreConnectPrompt } from './components/keystoreconnectprompt';
-import { panelStore } from './components/sidebar/sidebar';
 import { MobileDataWarning } from './components/mobiledatawarning';
-import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
+import { Sidebar } from './components/sidebar/sidebar';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
 import { route, RouterWatcher } from './utils/route';
@@ -53,21 +52,13 @@ type State = {
 type Props = TranslateProps;
 
 class App extends Component<Props, State> {
+
   public readonly state: State = {
     accounts: [],
     devices: {},
   };
 
   private unsubscribeList: UnsubscribeList = [];
-
-  /**
-   * Gets fired when the route changes.
-   */
-  private handleRoute = () => {
-    if (panelStore.state.activeSidebar) {
-      toggleSidebar();
-    }
-  };
 
   public componentDidMount() {
     Promise.all([getDeviceList(), getAccounts()])
@@ -221,7 +212,7 @@ class App extends Component<Props, State> {
                       devices={devices}
                       devicesKey={this.devicesKey}
                     />
-                    <RouterWatcher onChange={this.handleRoute} />
+                    <RouterWatcher />
                   </div>
                   <Alert />
                   <Confirm />

@@ -17,8 +17,7 @@
 
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import AppContext from '../../contexts/AppContext';
-import { toggleSidebar } from '../sidebar/sidebar';
+import { AppContext } from '../../contexts/AppContext';
 import { MenuDark } from '../icon';
 import { SpinnerAnimation } from './SpinnerAnimation';
 import style from './Spinner.module.css';
@@ -31,7 +30,7 @@ type TProps = {
 const Spinner = ({ text, guideExists }: TProps) => {
   const { t } = useTranslation();
 
-  const { toggleGuide } = useContext(AppContext);
+  const { toggleGuide, toggleSidebar } = useContext(AppContext);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     e.preventDefault();

@@ -17,7 +17,7 @@
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '../../hooks/api';
-import AppContext from '../../contexts/AppContext';
+import { AppContext } from '../../contexts/AppContext';
 import { Button } from '../forms/button';
 import { EyeClosed, EyeOpened } from '../icon';
 import { getConfig } from '../../utils/config';

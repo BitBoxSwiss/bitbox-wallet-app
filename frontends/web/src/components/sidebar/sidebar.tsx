@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TKeystores, subscribeKeystores, getKeystores } from '../../api/keystores';
@@ -25,7 +25,6 @@ import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-import { share } from '../../decorators/share';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { AppLogoInverted } from '../icon/logo';
@@ -33,36 +32,13 @@ import { useLocation } from 'react-router';
 import { CloseXWhite, USBSuccess } from '../icon';
 import { getAccountsByKeystore, isAmbiguiousName, isBitcoinOnly } from '../../routes/account/utils';
 import { SkipForTesting } from '../../routes/device/components/skipfortesting';
-import { Store } from '../../decorators/store';
 import { Badge } from '../badge/badge';
+import { AppContext } from '../../contexts/AppContext';
 import style from './sidebar.module.css';
 
 type SidebarProps = {
   deviceIDs: string[];
   accounts: IAccount[];
-};
-
-export type SharedPanelProps = {
-  // eslint-disable-next-line react/no-unused-prop-types
-  activeSidebar: boolean;
-  // eslint-disable-next-line react/no-unused-prop-types
-  sidebarStatus: string;
-}
-
-type Props = SharedPanelProps & SidebarProps;
-
-export const panelStore = new Store<SharedPanelProps>({
-  activeSidebar: false,
-  sidebarStatus: '',
-});
-
-export const toggleSidebar = () => {
-  const toggled = !panelStore.state.activeSidebar;
-  panelStore.setState({ activeSidebar: toggled });
-};
-
-export const setSidebarStatus = (status: string) => {
-  panelStore.setState({ sidebarStatus: status });
 };
 
 type TGetAccountLinkProps = IAccount & { handleSidebarItemClick: ((e: React.SyntheticEvent) => void) };
@@ -97,10 +73,9 @@ const eject = (e: React.SyntheticEvent): void => {
 const Sidebar = ({
   deviceIDs,
   accounts,
-  activeSidebar,
-  sidebarStatus, // from share HOC
-}: Props) => {
+}: SidebarProps) => {
   const { t } = useTranslation();
+  const { activeSidebar, sidebarStatus, toggleSidebar } = useContext(AppContext);
 
   useEffect(() => {
     const swipe = {
@@ -132,8 +107,8 @@ const Sidebar = ({
         const travelY = Math.abs(touch.clientY - swipe.y);
         const validSwipe = window.innerWidth <= 901 && swipe.active && travelY < 100 && travelX > 70;
         if (
-          (!panelStore.state.activeSidebar && validSwipe && swipe.x < 60)
-          || (panelStore.state.activeSidebar && validSwipe && swipe.x > 230)
+          (!activeSidebar && validSwipe && swipe.x < 60)
+          || (activeSidebar && validSwipe && swipe.x > 230)
         ) {
           toggleSidebar();
         }
@@ -151,7 +126,7 @@ const Sidebar = ({
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [sidebarStatus]);
+  }, [activeSidebar, sidebarStatus, toggleSidebar]);
 
   const [keystores, setKeystores] = useState<TKeystores>();
 
@@ -278,5 +253,4 @@ const Sidebar = ({
   );
 };
 
-const guideShareHOC = share<SharedPanelProps, SidebarProps>(panelStore)(Sidebar);
-export { guideShareHOC as Sidebar };
+export { Sidebar };

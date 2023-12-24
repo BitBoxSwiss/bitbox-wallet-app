@@ -32,7 +32,7 @@ import { AddBuyReceiveOnEmptyBalances } from '../info/buyReceiveCTA';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { HideAmountsButton } from '../../../components/hideamountsbutton/hideamountsbutton';
-import AppContext from '../../../contexts/AppContext';
+import { AppContext } from '../../../contexts/AppContext';
 
 type TProps = {
     accounts: accountApi.IAccount[];
