@@ -15,7 +15,9 @@
  */
 
 import { AccountCode } from './account';
-import { apiPost } from '../utils/request';
+import { apiGet, apiPost } from '../utils/request';
+import type { TUnsubscribe } from '../utils/transport-common';
+import { subscribeEndpoint } from './subscribe';
 
 export interface Account {
     name: string;
@@ -60,4 +62,14 @@ export const approve = (): Promise<null> => {
 
 export const chooseAccount = (accountCode: AccountCode): Promise<null> => {
   return apiPost('aopp/choose-account', { accountCode });
+};
+
+export const getAOPP = (): Promise<Aopp> => {
+  return apiGet('aopp');
+};
+
+export const subscribeAOPP = (
+  cb: (aopp: Aopp) => void
+): TUnsubscribe => {
+  return subscribeEndpoint('aopp', cb);
 };
