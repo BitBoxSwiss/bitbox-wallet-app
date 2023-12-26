@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-import { TMsgCallback, TQueryPromiseMap } from './transport-common';
+import { TMsgCallback, TPayload, TQueryPromiseMap } from './transport-common';
 import { runningInAndroid } from './env';
 
 let queryID: number = 0;
 const queryPromises: TQueryPromiseMap = {};
-const currentListeners: Function[] = [];
+const currentListeners: TMsgCallback[] = [];
 
-export function androidCall(query: string) {
+export function androidCall(query: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     if (runningInAndroid()) {
       if (typeof window.onAndroidCallResponse === 'undefined') {
         window.onAndroidCallResponse = (
           queryID: number,
-          response: string,
+          response: unknown,
         ) => {
           queryPromises[queryID].resolve(response);
           delete queryPromises[queryID];
@@ -45,7 +45,7 @@ export function androidCall(query: string) {
 
 export function androidSubscribePushNotifications(msgCallback: TMsgCallback) {
   if (typeof window.onAndroidPushNotification === 'undefined') {
-    window.onAndroidPushNotification = (msg: string) => {
+    window.onAndroidPushNotification = (msg: TPayload) => {
       currentListeners.forEach(listener => listener(msg));
     };
   }
