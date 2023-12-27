@@ -147,7 +147,7 @@ class ManageAccounts extends Component<Props, State> {
     //   </div>);
   };
 
-  private toggleAccount = (accountCode: string, active: boolean) => {
+  private toggleAccount = (accountCode: accountAPI.AccountCode, active: boolean) => {
     return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);
@@ -163,7 +163,7 @@ class ManageAccounts extends Component<Props, State> {
   //   }
   // };
 
-  private toggleShowTokens = (accountCode: string) => {
+  private toggleShowTokens = (accountCode: accountAPI.AccountCode) => {
     this.setState(({ showTokens }) => ({
       showTokens: {
         ...showTokens,
@@ -184,7 +184,7 @@ class ManageAccounts extends Component<Props, State> {
     { code: 'eth-erc20-dai0x6b17', name: 'Dai', unit: 'DAI' },
   ];
 
-  private renderTokens = (ethAccountCode: string, activeTokens?: accountAPI.IActiveToken[]) => {
+  private renderTokens = (ethAccountCode: accountAPI.AccountCode, activeTokens?: accountAPI.IActiveToken[]) => {
     return this.erc20Tokens.map(token => {
       const activeToken = (activeTokens || []).find(t => t.tokenCode === token.code);
       const active = activeToken !== undefined;
@@ -214,7 +214,7 @@ class ManageAccounts extends Component<Props, State> {
     });
   };
 
-  private toggleToken = (ethAccountCode: string, tokenCode: string, active: boolean) => {
+  private toggleToken = (ethAccountCode: accountAPI.AccountCode, tokenCode: string, active: boolean) => {
     backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);
