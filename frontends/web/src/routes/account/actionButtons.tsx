@@ -14,29 +14,47 @@
  * limitations under the License.
  */
 
+import { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { WalletConnectLight } from '../../components/icon';
 import { useMediaQuery } from '../../hooks/mediaquery';
-import { IAccount } from '../../api/account';
+import { connectKeystore, AccountCode, CoinCode, IAccount } from '../../api/account';
 import { isEthereumBased } from './utils';
 import style from './account.module.css';
 
 type TProps = {
-    canSend?: boolean;
-    code: string;
-    exchangeBuySupported?: boolean;
-    account: IAccount;
+  canSend?: boolean;
+  code: AccountCode;
+  coinCode: CoinCode;
+  exchangeBuySupported?: boolean;
+  account: IAccount;
 }
 
-export const ActionButtons = ({ canSend, code, exchangeBuySupported, account }: TProps) => {
+export const ActionButtons = ({ canSend, code, coinCode, exchangeBuySupported, account }: TProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const walletConnectEnabled = isEthereumBased(account.coinCode) && !account.isToken;
   const isLargeTablet = useMediaQuery('(max-width: 830px)');
+
+  // When clicking 'Send', for Ethereum based accounts we first prompt to connect the keystore
+  // before proceeding. The reason is that in ETH, we need to know what keystore (which BitBox02
+  // version) is connected to decide which ETH transaction proposals to construct (legacy vs EIP1559).
+  const sendLink = `/account/${code}/send`;
+  const maybeRouteSend = async (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const connectResult = await connectKeystore(code);
+    if (connectResult.success) {
+      // Proceed to the send screen if the keystore was connected.
+      navigate(sendLink);
+    }
+  };
+
   return (
     <div className={`${style.actionsContainer} ${walletConnectEnabled ? style.withWalletConnect : ''}`}>
       {canSend ? (
-        <Link key="sendLink" to={`/account/${code}/send`} className={style.send}>
+        <Link key="sendLink" to={sendLink} className={style.send} onClick={isEthereumBased(coinCode) ? maybeRouteSend : undefined}>
           <span>{t('button.send')}</span>
         </Link>
       ) : (

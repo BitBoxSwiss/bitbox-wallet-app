@@ -190,6 +190,7 @@ export function Account({
 
   const actionButtonsProps = {
     code,
+    coinCode: account.coinCode,
     canSend,
     exchangeBuySupported,
     account
