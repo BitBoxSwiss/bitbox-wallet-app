@@ -1,4 +1,5 @@
 // Copyright 2018 Shift Devices AG
+// Copyright 2024 Shift Crypto AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +22,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -86,6 +88,30 @@ func NewDevice(
 
 // Init implements device.Device.
 func (device *Device) Init(testing bool) error {
+	// Automatically continue upgrading if the previous upgrade was an intermediate upgrade.
+
+	currentFirmwareVersion, _, err := device.Device.Versions()
+	if err != nil {
+		return err
+	}
+
+	firmwares, ok := bundledFirmwares[device.Device.Product()]
+	if !ok {
+		return errp.New("unrecognized product")
+	}
+
+	// Loop all but the last firmware.
+	for i := 0; i < len(firmwares)-1; i++ {
+		fwInfo := firmwares[i]
+		if fwInfo.monotonicVersion+1 == currentFirmwareVersion {
+			device.log.Infof("continuing upgrade on %d", currentFirmwareVersion)
+			go func() {
+				if err := device.UpgradeFirmware(); err != nil {
+					device.log.WithError(err).Error("upgrade continuation failed")
+				}
+			}()
+		}
+	}
 	return nil
 }
 
@@ -128,11 +154,67 @@ func (device *Device) fireEvent() {
 	}
 }
 
-// UpgradeFirmware uploads a signed bitbox02 firmware release to the device.
+// firmwareBootRequired returns true if the currently flashed firmware has to be booted/run before
+// being able to upgrade. This is currently the case for intermediate firmware upgrades, which means
+// all bundled firmwares except the latest.
+func (device *Device) firmwareBootRequired() (bool, error) {
+	currentFirmwareVersion, _, err := device.Device.Versions()
+	if err != nil {
+		return false, err
+	}
+	firmwares, ok := bundledFirmwares[device.Device.Product()]
+	if !ok {
+		return false, errp.New("unrecognized product")
+	}
+
+	// Loop all but the last firmware.
+	for i := 0; i < len(firmwares)-1; i++ {
+		fwInfo := firmwares[i]
+		if fwInfo.monotonicVersion == currentFirmwareVersion {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// nextFirmware returns the info of the next available firmware uprade, e.g. the next intermediate
+// upgrade if there is one, or the latest bundled firmware.
+func (device *Device) nextFirmware() (*firmwareInfo, error) {
+	currentFirmwareVersion, _, err := device.Device.Versions()
+	if err != nil {
+		return nil, err
+	}
+	return nextFirmware(device.Device.Product(), currentFirmwareVersion)
+}
+
+// UpgradeFirmware uploads the next available firmware release to the device. If the previous
+// upgrade was an intermdiate upgrade, booting/running it once is required beforehand, so the device
+// is booted in that case.
 func (device *Device) UpgradeFirmware() error {
 	product := device.Device.Product()
-	device.log.Infof("upgrading firmware: %s, %s", product, BundledFirmwareVersion(product))
-	binary, err := bundledFirmware(product)
+
+	firmwareBootRequired, err := device.firmwareBootRequired()
+	if err != nil {
+		return err
+	}
+
+	if firmwareBootRequired {
+		currentFirmwareVersion, _, err := device.Device.Versions()
+		if err != nil {
+			device.log.WithError(err).Errorf("firmware boot required before upgrade. product: %s. Could not determine current version", product)
+		} else {
+			device.log.Infof("firmware boot required before upgrade. product: %s, currentVersion: %d", product, currentFirmwareVersion)
+		}
+		return device.Reboot()
+	}
+
+	nextFirmware, err := device.nextFirmware()
+	if err != nil {
+		return err
+	}
+	device.log.Infof("upgrading firmware: %s, %s", product, nextFirmware.version)
+
+	binary, err := nextFirmware.binary()
 	if err != nil {
 		return err
 	}

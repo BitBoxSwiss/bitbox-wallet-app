@@ -25,17 +25,24 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
-//go:embed assets/firmware-btc.v9.16.0.signed.bin.gz
-var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 16, 0)
+//go:embed assets/firmware-btc.v9.17.1.signed.bin.gz
+var intermediateFirmwareBinaryBTCOnly_9_17_1 []byte
 
-//go:embed assets/firmware.v9.16.0.signed.bin.gz
+//go:embed assets/firmware.v9.17.1.signed.bin.gz
+var intermediateFirmwareBinaryMulti_9_17_1 []byte
+
+//go:embed assets/firmware-btc.v9.18.0.signed.bin.gz
+var firmwareBinaryBTCOnly []byte
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 18, 0)
+
+//go:embed assets/firmware.v9.18.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 16, 0)
+var firmwareVersionMulti = semver.NewSemVer(9, 18, 0)
 
 type firmwareInfo struct {
-	version    *semver.SemVer
-	binaryGzip []byte
+	version          *semver.SemVer
+	monotonicVersion uint32
+	binaryGzip       []byte
 }
 
 func (fi firmwareInfo) binary() ([]byte, error) {
@@ -46,31 +53,69 @@ func (fi firmwareInfo) binary() ([]byte, error) {
 	return io.ReadAll(gz)
 }
 
-var bundledFirmwares = map[bitbox02common.Product]firmwareInfo{
+// The last entry in the slice is the latest firmware update to which one can upgrade.
+// The other entries are intermediate upgrades that are required before upgrading to the latest one.
+// Each one has to be flashed and booted before being able to continue upgrading.
+// The intermediate upgrades, when run, bump the monotonic version by one so we know whether it has
+// booted/run at least once.
+var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 	bitbox02common.ProductBitBox02Multi: {
-		version:    firmwareVersionMulti,
-		binaryGzip: firmwareBinaryMulti,
+		{
+			version:          semver.NewSemVer(9, 17, 1),
+			monotonicVersion: 36,
+			binaryGzip:       intermediateFirmwareBinaryMulti_9_17_1,
+		},
+		{
+			version:          firmwareVersionMulti,
+			monotonicVersion: 38,
+			binaryGzip:       firmwareBinaryMulti,
+		},
 	},
 	bitbox02common.ProductBitBox02BTCOnly: {
-		version:    firmwareVersionBTCOnly,
-		binaryGzip: firmwareBinaryBTCOnly,
+		{
+			version:          semver.NewSemVer(9, 17, 1),
+			monotonicVersion: 36,
+			binaryGzip:       intermediateFirmwareBinaryBTCOnly_9_17_1,
+		},
+		{
+			version:          firmwareVersionBTCOnly,
+			monotonicVersion: 38,
+			binaryGzip:       firmwareBinaryBTCOnly,
+		},
 	},
 }
 
-// BundledFirmwareVersion returns the version of the bundled firmware.
+// BundledFirmwareVersion returns the version of newest bundled firmware.
 func BundledFirmwareVersion(product bitbox02common.Product) *semver.SemVer {
-	info, ok := bundledFirmwares[product]
+	firmwares, ok := bundledFirmwares[product]
 	if !ok {
 		panic("unrecognized product")
 	}
-	return info.version
+
+	return firmwares[len(firmwares)-1].version
 }
 
-// bundledFirmware returns the binary of the bundled firmware.
+// bundledFirmware returns the binary of the newest bundled firmware.
 func bundledFirmware(product bitbox02common.Product) ([]byte, error) {
-	info, ok := bundledFirmwares[product]
+	firmwares, ok := bundledFirmwares[product]
 	if !ok {
 		return nil, errp.New("unrecognized product")
 	}
-	return info.binary()
+	return firmwares[len(firmwares)-1].binary()
+}
+
+// nextFirmware returns the info of the next available firmware uprade, e.g. the next intermediate
+// upgrade if there is one, or the latest bundled firmware.
+func nextFirmware(product bitbox02common.Product, currentFirmwareVersion uint32) (*firmwareInfo, error) {
+	firmwares, ok := bundledFirmwares[product]
+	if !ok {
+		return nil, errp.New("unrecognized product")
+	}
+
+	for _, fwInfo := range firmwares {
+		if fwInfo.monotonicVersion > currentFirmwareVersion {
+			return &fwInfo, nil
+		}
+	}
+	return &firmwares[len(firmwares)-1], nil
 }
