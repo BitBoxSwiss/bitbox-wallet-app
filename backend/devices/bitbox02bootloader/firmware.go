@@ -34,18 +34,26 @@ var firmwareBinaryMulti []byte
 var firmwareVersionMulti = semver.NewSemVer(9, 16, 0)
 
 type firmwareInfo struct {
-	version *semver.SemVer
-	binary  []byte
+	version    *semver.SemVer
+	binaryGzip []byte
+}
+
+func (fi firmwareInfo) binary() ([]byte, error) {
+	gz, err := gzip.NewReader(bytes.NewBuffer(fi.binaryGzip))
+	if err != nil {
+		return nil, err
+	}
+	return io.ReadAll(gz)
 }
 
 var bundledFirmwares = map[bitbox02common.Product]firmwareInfo{
 	bitbox02common.ProductBitBox02Multi: {
-		version: firmwareVersionMulti,
-		binary:  firmwareBinaryMulti,
+		version:    firmwareVersionMulti,
+		binaryGzip: firmwareBinaryMulti,
 	},
 	bitbox02common.ProductBitBox02BTCOnly: {
-		version: firmwareVersionBTCOnly,
-		binary:  firmwareBinaryBTCOnly,
+		version:    firmwareVersionBTCOnly,
+		binaryGzip: firmwareBinaryBTCOnly,
 	},
 }
 
@@ -64,9 +72,5 @@ func bundledFirmware(product bitbox02common.Product) ([]byte, error) {
 	if !ok {
 		return nil, errp.New("unrecognized product")
 	}
-	gz, err := gzip.NewReader(bytes.NewBuffer(info.binary))
-	if err != nil {
-		return nil, err
-	}
-	return io.ReadAll(gz)
+	return info.binary()
 }
