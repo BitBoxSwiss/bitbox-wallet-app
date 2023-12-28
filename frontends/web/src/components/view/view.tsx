@@ -180,7 +180,7 @@ export const ViewHeader = ({
 
 type TViewButtonsProps = {
   reverseRow?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 /**

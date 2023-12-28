@@ -380,6 +380,7 @@
     "next": "Next",
     "ok": "OK",
     "previous": "Previous",
+    "proceedOnBitBox": "Proceed on your BitBox",
     "receive": "Receive",
     "restore": "Restore",
     "select": "Select",
@@ -599,6 +600,28 @@
       "title": "Device information"
     },
     "expert": {
+      "bip85": {
+        "description": "Generate child keys from your BitBox wallet.",
+        "disclaimer": "I understand how child keys work and the security considerations",
+        "how": {
+          "description": "The child keys are displayed as a mnemonic on your BitBox. You can create as many child keys as you want. To show a child key, you will be asked for the child number (i.e 1st, 2nd, 3rd etc) and the desired length of the mnemonic (12, 18 or 24 recovery words). Remember, you must keep track of the <strong>child number and number of words</strong> to display the same mnemonic later.",
+          "title": "How does it work?"
+        },
+        "recover": {
+          "description": "You can always display the mnemonic for the child keys again. As mentioned, you must remember the <strong>child number and number of words</strong> to display the same mnemonic. Never import your main BitBox recovery words into another wallet, only use child keys when importing into another wallet.",
+          "title": "How to recover wallets using a BitBox child key?"
+        },
+        "security": {
+          "description": "Never reuse a child key. For example, do not use a child key for a hot wallet and then use the same one for a hardware wallet. The key is not considered safe since it was used for a hot wallet.",
+          "title": "Security considerations"
+        },
+        "title": "Show BIP-85 child key",
+        "what": {
+          "description": "Child keys are derived from your main seed and can be used to create new wallets without needing to backup more seeds. For example, you can create a child key and import it into a hot wallet instead of having the hot wallet create an entirely new seed.",
+          "link": "Read more about BIP-85",
+          "title": "What are child keys?"
+        }
+      },
       "factoryReset": {
         "description": "Reset your device to factory settings. This deletes the wallet from your BitBox02!",
         "title": "Factory reset"
